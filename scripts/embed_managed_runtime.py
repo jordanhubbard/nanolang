@@ -28,7 +28,7 @@ def invoke(args, **kwargs):
 def generate(clang, opt):
     version = invoke(clang + ['--version']).splitlines()[0]
     hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
-              for name in (SOURCE, CORE, HEADER, 'scripts/embed_managed_runtime.py')}
+              for name in (SOURCE, CORE, HEADER, 'src/nanoisa/binary64_parse.h', 'scripts/embed_managed_runtime.py')}
     variants = {}
     with tempfile.TemporaryDirectory(prefix='nano-runtime-ir-') as directory:
         for target in ('native', 'wasm32'):

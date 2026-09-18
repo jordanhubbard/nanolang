@@ -409,7 +409,9 @@ NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
 
-$(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/nvm2c_owned.h
+$(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
+$(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
+$(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h
 
 $(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
 		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
@@ -510,7 +512,11 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
 .PHONY: nvm2c
-nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) | $(BIN_DIR)
+.PHONY: check-binary64-parser
+check-binary64-parser:
+	python3 scripts/embed_binary64_parser.py --check
+
+nvm2c: check-binary64-parser $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 
 .PHONY: nvm2hl test-scalar-reconstruction
@@ -520,7 +526,7 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	chmod +x $(BIN_DIR)/nvm2hl
 
 test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm bootstrap
-	python3 -m unittest -v tests.test_scalar_reconstruction
+	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts
 test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit
@@ -976,7 +982,7 @@ test-coroutine-scheduler: stage1
 $(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/support/file_write_faults.h Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -include tests/support/file_write_faults.h -c $< -o $@
 
-$(OBJ_DIR)/eval_clock_test.o: src/eval.c $(HEADERS) Makefile.gnu | $(OBJ_DIR)
+$(OBJ_DIR)/eval_clock_test.o: src/eval.c src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -c $< -o $@
 
 test-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
@@ -4583,15 +4589,28 @@ test-llvm-literal-strings: test-llvm-scalar-globals
 NMS_RUNTIME_CLANG ?= clang
 NMS_RUNTIME_OPT ?= opt
 .PHONY: managed-runtime-package test-managed-runtime-package
-managed-runtime-package: scripts/embed_managed_runtime.py $(NANOISA_DIR)/managed_module.c $(NANOISA_DIR)/managed_strings.c $(NANOISA_DIR)/managed_strings.h
+managed-runtime-package: $(NANOISA_DIR)/binary64_parse.h scripts/embed_managed_runtime.py $(NANOISA_DIR)/managed_module.c $(NANOISA_DIR)/managed_strings.c $(NANOISA_DIR)/managed_strings.h
 	python3 scripts/embed_managed_runtime.py --clang "$(NMS_RUNTIME_CLANG)" --opt "$(NMS_RUNTIME_OPT)" --header $(OBJ_DIR)/nanoisa/managed_runtime_ir.h --manifest $(OBJ_DIR)/nanoisa/managed_runtime_ir.json
 
-test-managed-runtime-package: managed-runtime-package
+test-managed-runtime-package: check-binary64-parser managed-runtime-package
 	python3 -m unittest -v tests.test_managed_runtime_package
 
+$(OBJ_DIR)/binary64_parser_vm: tests/nanoisa/binary64_parser_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $< $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+.PHONY: test-legacy-binary64-eval
+test-legacy-binary64-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_legacy_binary64_eval tests/test_legacy_binary64_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./$(OBJ_DIR)/test_legacy_binary64_eval
+
+.PHONY: test-legacy-binary64-parse
+test-units: test-legacy-binary64-parse
+test-legacy-binary64-parse: bootstrap check-binary64-parser test-legacy-binary64-eval
+	python3 -m unittest -v tests.test_legacy_binary64_parse
+
 .PHONY: test-llvm-managed-strings
-test-llvm-managed-strings: test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format
+test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse
 
 .PHONY: test-managed-string-core
 test-managed-string-core:
@@ -4888,3 +4907,10 @@ test-scalar-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoi
 .PHONY: test-match-expression-scope
 test-match-expression-scope: bootstrap nano_virt nano_vm
 	python3 -m unittest -v tests.test_match_expression_scope
+
+.PHONY: test-native-false-assert
+test-native-false-assert: nvm2c nano_vm nanoisa_dump
+	python3 -m unittest -v tests.test_native_false_assert
+.PHONY: test-scalar-match-values
+test-scalar-match-values: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_scalar_match_values

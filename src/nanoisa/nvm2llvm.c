@@ -487,7 +487,7 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         case OP_CAST_INT: case OP_CAST_FLOAT:
             pop(&frame, pc, "a");
             if (ins.opcode == OP_CAST_FLOAT) {
-                fprintf(out, " %%p%u_fp = call double @cast_floating(%%V %%p%u_a)\n %%p%u_result = bitcast double %%p%u_fp to i64\n", pc, pc, pc, pc);
+                fprintf(out, " %%p%u_fp = call double @%scast_floating(%%V %%p%u_a)\n %%p%u_result = bitcast double %%p%u_fp to i64\n", pc, managed ? "managed_" : "", pc, pc, pc);
             } else {
                 fprintf(out, " %%p%u_result = call i64 @%scast_integer(%%V %%p%u_a)\n", pc, managed ? "managed_" : "", pc);
             }

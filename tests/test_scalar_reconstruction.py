@@ -210,7 +210,7 @@ shadow nlr_f1_smaller { assert (nlr_f1_smaller -2 3) assert (not (nlr_f1_smaller
     def test_refusal_preserves_prior_outputs(self):
         cases={
             'no_entry':'.function helper 0 0 0 int 1\nPUSH_I64 42\nRET\n.end\n',
-            'arithmetic':'.function main 0 0 0 int 1\nPUSH_I64 1\nPUSH_I64 2\nI64_ADD\nRET\n.end\n.entry main\n',
+            'arithmetic':'.function main 0 0 0 int 1\nPUSH_I64 1\nPUSH_I64 2\nI64_DIV_U\nRET\n.end\n.entry main\n',
             'unknown_parameter':DIAMOND.format(flag=0).replace('.parameters choose bool int int\n',''),
             'uninitialized':DIAMOND.format(flag=0).replace('LOAD_LOCAL 2\nSTORE_LOCAL 3\n',''),
             'mixed_local':DIAMOND.format(flag=0).replace('LOAD_LOCAL 2\nSTORE_LOCAL 3','PUSH_BOOL 1\nSTORE_LOCAL 3'),

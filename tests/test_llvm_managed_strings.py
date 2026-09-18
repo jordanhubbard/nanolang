@@ -203,7 +203,7 @@ class ManagedStrings(unittest.TestCase):
 
     def test_unsupported_string_cast_and_reserved_entry_refusals_preserve_output(self):
         for body in ('PUSH_STR a\nPUSH_STR a\nSTR_CONTAINS\nPOP\n',
-                     'PUSH_STR a\nCAST_FLOAT\nPOP\n',
+                     'PUSH_STR a\nSTR_TO_UPPER\nPOP\n',
                      'PUSH_STR a\nSTR_TO_LOWER\nPOP\n'):
             asm,mod=self.work/'refuse.nasm',self.work/'refuse.nvm'
             asm.write_text(self.program(body))

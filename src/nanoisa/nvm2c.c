@@ -7,6 +7,7 @@
  */
 
 #include "nvm2c.h"
+#include "binary64_parse_source.h"
 #include "isa.h"
 #include "utf8.h"
 #include "nvm2c_shape.h"
@@ -1051,6 +1052,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
     int sp = 0;
     size_t pc = 0;
     int terminated = 0;
+    int previous_false_push = 0;
 
     while (pc < remaining) {
         size_t start = pc;
@@ -1061,8 +1063,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             return 0;
         }
         pc += n;
-        if (terminated && !joins[start].set) continue;
+        if (terminated && !joins[start].set) {
+            previous_false_push = 0;
+            continue;
+        }
         if (targets[start]) {
+            previous_false_push = 0;
             if (!terminated && !sim_join(b, idx, start, &joins[start], stk, sp, facts)) return 0;
             sp = joins[start].sp;
             if (sp) memcpy(stk, joins[start].slots, (size_t)sp * sizeof *stk);
@@ -1117,6 +1123,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot dumped;
             if (!sim_pop(b, idx, stk, &sp, &dumped)) return 0;
             (void)dumped;
+            if (previous_false_push) terminated = 1;
             break;
         }
         case OP_SWAP: {
@@ -2110,6 +2117,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         }
         if (ins.opcode == OP_JMP || ins.opcode == OP_RET ||
             ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) terminated = 1;
+        previous_false_push = ins.opcode == OP_PUSH_BOOL && ins.operands[0].u8 == 0;
         if (b->failed) return 0;
     }
 
@@ -3083,6 +3091,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
 
     size_t pc = 0;
     int terminated = 0;
+    int previous_false_push = 0;
     /* A decoded self-tail instruction may be unreachable. Keep its label
      * syntactically referenced without executing an extra jump. */
     nvm2c_puts(b, "    if (0) goto L_return;\n");
@@ -3101,10 +3110,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             goto done;
         }
         if (terminated && !join_set[start]) {
+            previous_false_push = 0;
             pc += n;
             continue;
         }
         if (is_target[start]) {
+            previous_false_push = 0;
             if (terminated) {
                 if (!join_set[start]) {
                     nvm2c_fail(b, "function %u: label at %zu has no incoming stack",
@@ -3285,6 +3296,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int cond = stack_pop_condition(b, &st, "ASSERT");
             if (b->failed) goto done;
             nvm2c_printf(b, "    if (!t[%d]) NVM2C_ABORT();\n", cond);
+            if (previous_false_push) terminated = 1;
             break;
         }
         case OP_SWAP: {
@@ -3810,7 +3822,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             else if (kind == NVM2C_VK_BOOL)
                 snprintf(expression, sizeof expression, "(t[%d] ? 1.0 : 0.0)", value);
             else if (kind == NVM2C_VK_STR)
-                snprintf(expression, sizeof expression, "(s[%d] ? strtod(s[%d], NULL) : 0.0)", value, value);
+                snprintf(expression, sizeof expression, "nparse_binary64(s[%d])", value);
             else if (kind == NVM2C_VK_REC || kind == NVM2C_VK_MAP ||
                      word_array_storage(kind) || kind == NVM2C_VK_SARR || kind == NVM2C_VK_RARR)
                 snprintf(expression, sizeof expression, "0.0");
@@ -4575,6 +4587,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         if (b->failed) goto done;
         if (boolean_result(ins.opcode) && st.sp > 0) st.kinds[st.sp - 1] = NVM2C_VK_BOOL;
+        previous_false_push = ins.opcode == OP_PUSH_BOOL && ins.operands[0].u8 == 0;
     }
 
     if (is_target[remaining] && join_set[remaining]) {
@@ -6204,6 +6217,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             b.has_maps = 1;
             emit_nagg_accounting(&b);
         }
+        if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT)) {
+            nvm2c_puts(&b, nbp_parser_source);
+            nvm2c_puts(&b,
+                "static inline double nparse_binary64(const char *text) {\n"
+                "    size_t length = text ? strlen(text) : 0; uint64_t bits = 0;\n"
+                "    if (length > UINT32_MAX || !nbp_parse((const unsigned char *)text, (uint32_t)length, &bits)) NVM2C_ABORT();\n"
+                "    double result; memcpy(&result, &bits, sizeof result); return result;\n}\n");
+        }
         if (need_sarr) { b.has_string_arrays = 1; emit_nsarr_storage(&b); }
         if (need_iarr) { b.has_integer_arrays = 1; emit_narr_storage(&b); }
         if (b.has_maps) {
@@ -6264,7 +6285,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (value.kind == 3) return nvalue_require_float(value);\n"
                 "    if (value.kind == 1 || value.kind == 2) return (double)value.integer;\n"
                 "    if (value.kind == 4) return value.integer ? 1.0 : 0.0;\n"
-                "    if (value.kind == 5) return value.text ? strtod(value.text, NULL) : 0.0;\n"
+                "    if (value.kind == 5) return nparse_binary64(value.text);\n"
                 "    return 0.0;\n}\n"
                 "static inline int64_t nvalue_cast_int(nmap_value value) {\n"
                 "    if (value.kind == 3) return nf64_to_i64(nvalue_require_float(value));\n"

@@ -3744,8 +3744,9 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    return strtoll(s, NULL, 10);\n")
     set sb (cg_append sb "}\n\n")
     
+    set sb (cg_append sb "#include \"runtime/binary64_parse.h\"\n")
     set sb (cg_append sb "double nl_string_to_float(const char* s) {\n")
-    set sb (cg_append sb "    return strtod(s, NULL);\n")
+    set sb (cg_append sb "    return nl_binary64_prefix(s);\n")
     set sb (cg_append sb "}\n\n")
 
     set sb (cg_append sb "double nl_cast_float(int64_t x) { return (double)x; }\n")
@@ -4130,6 +4131,8 @@ fn gen_c_runtime() -> string {
 
 shadow gen_c_runtime {
     let runtime: string = (gen_c_runtime)
+    assert (str_contains runtime "#include \"runtime/binary64_parse.h\"")
+    assert (str_contains runtime "return nl_binary64_prefix(s);")
     assert (str_contains runtime "#include \"runtime/string_search.h\"")
     assert (str_contains runtime "nl_filter_bool(DynArray* arr, bool (*fn)(bool))")
     assert (str_contains runtime "bool val = dyn_array_get_bool(arr, i)")

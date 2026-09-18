@@ -72,7 +72,7 @@ class ManagedRuntimePackage(unittest.TestCase):
                     script = "const fs=require('fs');const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));if(WebAssembly.Module.imports(m).length)throw Error('imports');const e=new WebAssembly.Instance(m).exports;if(e.nano_package())throw Error('runtime ABI');"
                     self.run_cmd(['node','-e',script,wasm])
             self.assertEqual(set(manifest['sources']), {'src/nanoisa/managed_module.c', 'src/nanoisa/managed_strings.c',
-                'src/nanoisa/managed_strings.h', 'scripts/embed_managed_runtime.py'})
+                'src/nanoisa/managed_strings.h', 'src/nanoisa/binary64_parse.h', 'scripts/embed_managed_runtime.py'})
             self.assertEqual(json.loads(json.dumps(manifest)),manifest)
 
 

@@ -10,8 +10,7 @@ My caller-selected `NVM_PROFILE_CLOSED_MANAGED_STRINGS` applies ordinary
 verification and the existing closed module/signature rules before admitting
 these operations. The translator first tries its literal profile, then the
 managed profile. The original CLOSED_SCALAR and CLOSED_LITERAL_STRINGS API
-selectors retain their previous decisions. I still refuse string-bearing
-modules containing CAST_FLOAT; tail calls,
+selectors retain their previous decisions. Tail calls,
 other heap values, imports, nominal layouts, ownership/reference and passive
 contracts remain outside this subset. My checked substring prerequisite is merged;
 my [substring contract](NANOISA_MANAGED_SUBSTRING.md) defines the matched extension.
@@ -20,8 +19,11 @@ string CAST_INT with C-locale decimal prefix parsing and signed saturation.
 My [scalar formatting contract](NANOISA_MANAGED_SCALAR_FORMAT.md) admits exact
 non-floating CAST_STRING. My [binary64 formatter](NANOISA_MANAGED_BINARY64_FORMAT.md)
 now adds exact closed C-locale/default-rounding `%g` output for floating operands;
-the temporary floating-module formatting exclusion is removed. String-bearing
-modules with CAST_FLOAT remain refused pending portable parsing.
+the temporary floating-module formatting exclusion is removed. My
+[binary64 parser](NANOISA_MANAGED_BINARY64_PARSE.md) admits string CAST_FLOAT
+with exact decimal/hexadecimal rounding and an explicit cross-host NaN payload
+policy. My [legacy companion](NANOISA_LEGACY_BINARY64_PARSE.md) shares that
+parser while preserving the evaluator strict-cast/prefix-helper distinction.
 
 ## My ownership and errors
 
