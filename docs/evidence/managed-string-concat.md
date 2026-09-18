@@ -114,3 +114,12 @@ of an enum count; its legitimate profile refusal was a fixture error. The
 corrected fixture passes numeric/enum VM/native/Wasm checks. No eligibility
 rule was relaxed to accommodate that error. This is Linux ARM64 and Wasm
 execution evidence; I do not claim Darwin execution or full release acceptance.
+
+After rebasing onto main through PR634 (`38f29203`), my production files are
+unchanged from `cc1f2ec9` (rebased source commit `efbc9201`). The integrated
+package/core/profile/verifier and seven emitted methods pass again; emitted
+methods take 4.974 seconds in `/tmp/nanolang-managed-integrated-main634.log`.
+I then add explicit and implicit dynamic return-tag cleanup controls plus
+allocation failure inside a callee with a retained global owner. All nine
+emitted methods pass in 6.321 seconds, including ASan-instrumented generated
+functions, in `/tmp/nanolang-managed-complete-ownership.log`.

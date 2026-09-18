@@ -134,11 +134,28 @@ class ManagedStrings(unittest.TestCase):
                 self.native_harness(ir,f'for(int i=0;i<20;i++){{if(nano_try_entry()!=((uint64_t){status}<<32)||nms_module_live_objects()!=1||nms_module_live_bytes()!=6)return 1;}}if(nano_dispose()||nms_module_live_objects())return 2;return 0;')
                 self.node(wasm,f"for(let i=0;i<20;i++){{check(e.nano_try_entry()===({status}n<<32n));check(e.nms_module_live_objects()===1n);check(e.nms_module_live_bytes()===6n);}}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);")
 
+    def test_dynamic_return_tag_errors_clean_explicit_and_implicit_frames(self):
+        for ending in ('RET\n',''):
+            body='PUSH_STR a\nPUSH_STR a\nSTR_CONCAT\nSTORE_GLOBAL 0\nCALL bad\nPOP\n'
+            suffix='.function bad 0 0 0 int 1\nLOAD_GLOBAL 0\n'+ending+'.end\n'
+            _,ir,wasm=self.compile(self.program(body,suffix),vm_ok=False)
+            self.native_harness(ir,'if(nano_try_entry()!=((uint64_t)1<<32)||nms_module_live_objects()!=1)return 1;if(nano_dispose()||nms_module_live_objects())return 2;return 0;')
+            self.node(wasm,"check(e.nano_try_entry()===(1n<<32n));check(e.nms_module_live_objects()===1n);check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);")
+
     def test_native_byte_and_descriptor_allocation_failure_are_recoverable(self):
         _,ir,_=self.compile(self.program('PUSH_STR a\nPUSH_STR a\nSTR_CONCAT\nPOP\n'))
         for fail in (0,1):
             extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
             self.native_harness(ir,f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects())return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+
+    def test_allocation_failure_unwinds_callee_and_preserves_global_owner(self):
+        body=('PUSH_STR a\nPUSH_STR a\nSTR_CONCAT\nDUP\nSTORE_GLOBAL 0\nSTORE_LOCAL 0\n'
+              'LOAD_LOCAL 0\nCALL append\nPOP\n')
+        suffix=('.function append 1 1 0 string 1\n.parameters append string\n'
+                'LOAD_LOCAL 0\nPUSH_STR a\nSTR_CONCAT\nRET\n.end\n')
+        _,ir,_=self.compile(self.program(body,suffix))
+        extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
+        self.native_harness(ir,'budget=2;if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1||nms_module_live_bytes()!=6)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=1)return 2;if(nano_dispose()||nms_module_live_objects())return 3;return 0;',extra,['-Wl,--wrap=malloc'])
 
     def test_wasm_memory_cap_failure_cleans_frames_and_reuses_storage(self):
         body=('PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_LOCAL 0\n'
