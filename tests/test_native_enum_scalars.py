@@ -92,3 +92,15 @@ class EnumScalars(unittest.TestCase):
             result=self.run_command([ROOT/'bin/nanoisa','asm',source,'-o',output])
             self.assertNotEqual(result.returncode,0)
             self.assertEqual(output.read_bytes(),b'previous')
+
+    def test_enum_coercion_zero_and_wrapped_boundaries(self):
+        body=('PUSH_I64 9223372036854775807\nENUM_VAL 0 1\nADD\n'
+              'PUSH_I64 -9223372036854775808\nEQ\nASSERT\n'
+              'PUSH_I64 -9223372036854775808\nENUM_VAL 0 1\nSUB\n'
+              'PUSH_I64 9223372036854775807\nEQ\nASSERT\n'
+              'PUSH_I64 -7\nENUM_VAL 0 2\nDIV\nPUSH_I64 -3\nEQ\nASSERT\n')
+        for numerator in ('ENUM_VAL 0 65535','PUSH_I64 -7','PUSH_F64 nan','PUSH_F64 inf'):
+            tag=3 if 'F64' in numerator else 1
+            body+=numerator+f'\nENUM_VAL 0 0\nDIV\nDUP\nTYPE_CHECK {tag}\nASSERT\n'
+            body+='CAST_STRING\nPUSH_STR zero\nEQ\nASSERT\n'
+        self.paired(body)
