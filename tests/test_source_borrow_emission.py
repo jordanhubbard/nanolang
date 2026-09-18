@@ -280,6 +280,14 @@ shadow main { assert true }
             self.assertLess(int(outer[2]), int(first[2]))
             self.assertLessEqual(int(first[3]), int(second[2]))
             self.assertLess(int(second[3]), int(outer[3]))
+            unused = [row for row in records if row[0] == 'main' and row[4] == 'unused']
+            self.assertEqual(len(unused), 1)
+            self.assertLess(int(unused[0][2]), int(unused[0][3]))
+            indexes = [row for row in records if row[0] == 'main' and row[4] == 'index']
+            self.assertEqual(len(indexes), 2)
+            self.assertNotEqual(indexes[0][1], indexes[1][1])
+            self.assertLess(int(indexes[0][2]), int(indexes[1][2]))
+            self.assertLess(int(indexes[1][3]), int(indexes[0][3]))
             self.assertFalse(any('__' in row[4] for row in records))
             for emitter in self.emitters:
                 assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
