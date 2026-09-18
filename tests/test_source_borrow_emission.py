@@ -1295,6 +1295,8 @@ shadow main { assert true }
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
                     self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
                     self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|scalar|exact|call|type|borrow|live|field')
+                    if compiler in self.emitters:
+                        self.assertIn('source borrow profile', result.stdout + result.stderr)
 
 
 if __name__ == '__main__':
