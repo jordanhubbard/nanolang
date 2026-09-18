@@ -71,7 +71,7 @@ RET
                     native = self.command(binary)
                     self.assertEqual(vm.stdout, native.stdout)
 
-    def test_conflicting_present_fields_still_refuse(self):
+    def test_conflicting_heap_and_scalar_fields_still_refuse(self):
         text = '''.string 0 "kept"
 .types 0 0 1
 .entry main
@@ -80,7 +80,7 @@ PUSH_I64 7
 AGG_PACK 1 0 0 1
 CALL 1
 POP
-PUSH_STR 0
+ARR_NEW 1
 AGG_PACK 1 0 1 1
 CALL 1
 RET

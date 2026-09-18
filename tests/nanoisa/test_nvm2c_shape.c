@@ -271,7 +271,39 @@ static void test_numeric_union_payload(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_explicit_variant_scalar_storage(void) {
+    const NvmShapeKind members[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_STRING};
+    for (size_t i = 0; i < sizeof members / sizeof members[0]; ++i) {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, members[i]);
+        NvmShapeId storage = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        NvmShapeId payload = nvm_shape_child(&g, storage, 0);
+        CHECK(nvm_shape_unify(&g, payload, nvm_shape_new(&g, NVM_SHAPE_VARIANT_SCALAR)));
+        CHECK(nvm_shape_convert(&g, source, storage));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, source) == members[i]);
+        CHECK(nvm_shape_kind(&g, payload) == NVM_SHAPE_VARIANT_SCALAR);
+        CHECK(nvm_shape_root(&g, source) != nvm_shape_root(&g, payload));
+        nvm_shape_destroy(&g);
+        source = nvm_shape_new(&g, members[i]);
+        payload = nvm_shape_new(&g, NVM_SHAPE_VARIANT_SCALAR);
+        CHECK(!nvm_shape_unify(&g, source, payload));
+        nvm_shape_destroy(&g);
+    }
+    const NvmShapeKind excluded[] = {NVM_SHAPE_ARRAY, NVM_SHAPE_MAP, NVM_SHAPE_RECORD, NVM_SHAPE_NUMERIC};
+    for (size_t i = 0; i < sizeof excluded / sizeof excluded[0]; ++i) {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, excluded[i]);
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_VARIANT_SCALAR);
+        CHECK(nvm_shape_convert(&g, source, target));
+        CHECK(!nvm_shape_solve_conversions(&g));
+        CHECK(g.error != NULL);
+        nvm_shape_destroy(&g);
+    }
+}
+
 int main(void) {
+    test_explicit_variant_scalar_storage();
     test_numeric_union_payload();
     {
         NvmShapeGraph g = {0};

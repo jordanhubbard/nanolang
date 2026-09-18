@@ -68,6 +68,11 @@ static bool contains_vm_wrapper_code(const char *source) {
 
 /* I share physical 64-bit slots, not element type identity. Float slots
  * contain memcpy-preserved double bits and never undergo integer arithmetic. */
+static int variant_scalar_kind(uint8_t kind) {
+    return kind == NVM2C_VK_INT || kind == NVM2C_VK_BOOL ||
+           kind == NVM2C_VK_FLOAT || kind == NVM2C_VK_STR;
+}
+
 static int word_array_storage(uint8_t kind) {
     return kind == NVM2C_VK_ARR || kind == NVM2C_VK_BARR || kind == NVM2C_VK_FARR;
 }
@@ -1825,8 +1830,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                                idx, start, (unsigned)(count - 1 - ai), v.kind, facts->final);
                     return 0;
                 }
-                packed.rec_k[count - 1 - ai] = v.kind;
-                if (!shape_equal(b, shape_child(b, packed.shape, count - 1 - ai), v.shape)) return 0;
+                NvmShapeId field = shape_child(b, packed.shape, count - 1 - ai);
+                if (aggregate_kind == AGG_VARIANT && variant_scalar_kind(v.kind)) {
+                    packed.rec_k[count - 1 - ai] = NVM2C_VK_VALUE;
+                    if (!shape_type(b, field, NVM_SHAPE_OPTIONAL) ||
+                        !shape_type(b, shape_child(b, field, 0), NVM_SHAPE_VARIANT_SCALAR)) return 0;
+                    if (b->track_shapes && !nvm_shape_convert(&b->shapes, v.shape, field)) return 0;
+                } else {
+                    packed.rec_k[count - 1 - ai] = v.kind;
+                    if (!shape_equal(b, field, v.shape)) return 0;
+                }
             }
             if (!sim_push_slot(b, idx, stk, &sp, packed)) return 0;
             break;
@@ -3763,6 +3776,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_CAST_STRING: {
+            if (st.sp && st.kinds[st.sp - 1] == NVM2C_VK_STR) {
+                int value = stack_pop(b, &st);
+                char expression[48];
+                snprintf(expression, sizeof expression, "s[%d]", value);
+                stack_push_str(b, &st, expression);
+                break;
+            }
             if (st.sp && st.kinds[st.sp - 1] == NVM2C_VK_FLOAT) {
                 int value = stack_pop(b, &st);
                 char expression[64];
@@ -4207,8 +4227,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_printf(b, "    r[%d].kind = %u; r[%d].tag = %u;\n",
                              r, (unsigned)kind, r, (unsigned)ins.operands[2].u16);
                 for (ei = 0; ei < (int)count; ei++) {
-                    st.rec_k[r][ei] = fkind[ei];
-                    nvm2c_printf(b, "    r[%d].k[%d] = %u;\n", r, ei, (unsigned)fkind[ei]);
+                    int boxed_scalar = kind == AGG_VARIANT && variant_scalar_kind(fkind[ei]);
+                    st.rec_k[r][ei] = boxed_scalar ? NVM2C_VK_VALUE : fkind[ei];
+                    nvm2c_printf(b, "    r[%d].k[%d] = %u;\n", r, ei, (unsigned)st.rec_k[r][ei]);
+                    if (boxed_scalar) {
+                        unsigned tag = fkind[ei] == NVM2C_VK_STR ? TAG_STRING :
+                                       fkind[ei] == NVM2C_VK_BOOL ? TAG_BOOL :
+                                       fkind[ei] == NVM2C_VK_FLOAT ? TAG_FLOAT : TAG_INT;
+                        nvm2c_printf(b, "    r[%d].vk[%d] = %u;\n", r, ei, tag);
+                    }
                     if (fkind[ei] == NVM2C_VK_STR) {
                         nvm2c_printf(b, "    r[%d].s[%d] = s[%d];\n", r, ei, elems[ei]);
                     } else if (fkind[ei] == NVM2C_VK_FLOAT) {
