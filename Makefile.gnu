@@ -3337,7 +3337,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	touch $(SENTINEL_STAGE2)
 
 # =====================================================================
-# Stage 3: Bootstrap Validation (re-compile with stage2, verify working)
+# Stage 3: Execute bounded component entry assertions
 # =====================================================================
 
 .PHONY: stage3

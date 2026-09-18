@@ -1,3 +1,4 @@
+from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/typecheck.nano"
 
 fn main() -> int {
