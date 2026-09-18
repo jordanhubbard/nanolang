@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I finish the current defensive metadata-lowering boundary (`task_a600db3ae64f4f63b8b85d77856c593a`, historical draft PR584). Static review confirms that my current product still allocates name-selection state after an index emission failure, and public shadow emission lacks the unused introspection declaration check used by program emission. I add those guards, qualify current-source state/declaration controls and existing accepted module-facts tests, and retain historical incident artifacts without replay or causal attribution.
+
 - [ ] I retain declared `string_to_float` behavior through canonical compilation (`task_1c2a4d2d7b5a4b6caca5d186d3c7c181`). My integrated production `e46c425b` passes fresh bootstrap and the preceding 39 product methods, then the retained prefix-conversion fixture is checked-refused by Stage1/Stage2 because float result metadata is missing. I require exact string arguments, portable prefix values, unchanged-output negatives and explicit legacy plus canonical acceptance. I preserve `/tmp/nanolang-product-e46c425b-focused.log`.
 
 - [ ] I qualify source-emitter setup under my canonical product route (`task_3d46381f10bd4dfcb313c2697024191f`). At `e46c425b`, the scalar-match setup reaches its 180-second deadline compiling `src_nano/nanoisa_emit.nano`. I retain the failure, measure stage timing and owned process lifecycle with a bounded budget, and preserve real producer/shadow checks before changing setup policy. This observation alone does not establish infrastructure failure or a compiler defect.
