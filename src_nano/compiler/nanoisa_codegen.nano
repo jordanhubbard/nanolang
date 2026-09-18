@@ -130,7 +130,7 @@ fn nisa_ordinary_publication(parser: Parser) -> string {
     let mut i: int = 0
     while (< i count) {
         let record: ASTStruct = (parser_get_struct_def parser i)
-        if (or record.is_resource (or (str_contains record.name "<") (> record.field_count 65535))) { return "" }
+        if (or record.is_extern (or record.is_resource (or (str_contains record.name "<") (> record.field_count 65535)))) { return "" }
         set layouts (+ layouts (+ "0000" (+ (nisa_ordinary_hex record.field_count 2) "ffffffff")))
         let mut field: int = 0
         while (< field record.field_count) {

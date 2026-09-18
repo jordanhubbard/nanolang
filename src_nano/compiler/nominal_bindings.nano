@@ -7,21 +7,15 @@ fn nb_key(name: string) -> string { return (+ "#type:" name) }
 shadow nb_key { assert (== (nb_key "Handle") "#type:Handle") }
 
 fn nb_external(parser: Parser, record: ASTStruct) -> bool {
-    let mut i: int = 1
-    while (< i parser.token_count) {
-        let token: LexerToken = (list_LexerToken_get parser.tokens i)
-        if (and (== token.line record.line) (== token.column record.column)) {
-            return (== (list_LexerToken_get parser.tokens (- i 1)).token_type LexerTokenType.TOKEN_EXTERN)
-        }
-        set i (+ i 1)
-    }
-    return false
+    return record.is_extern
 }
 shadow nb_external {
     let tokens: List<LexerToken> = (tokenize_string "extern struct Foreign { fd: int }\nstruct Local { fd: int }" "nominal.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "nominal.nano")
     assert (nb_external parser (parser_get_struct_def parser 0))
     assert (not (nb_external parser (parser_get_struct_def parser 1)))
+    let empty: Parser = (parse_program (list_LexerToken_new) 0 "other.nano")
+    assert (nb_external empty (parser_get_struct_def parser 0))
 }
 
 pub fn nb_register(parser: Parser, prefix: string) -> bool {
@@ -193,7 +187,7 @@ pub fn nb_rewrite(parser: Parser) -> void {
     let mut structs_index: int = 0
     while (< structs_index parser.structs_count) {
         let item: ASTStruct = (list_ASTStruct_get parser.structs structs_index)
-        (list_ASTStruct_set parser.structs structs_index (ASTStruct { node_type: item.node_type, line: item.line, column: item.column, name: (nb_type item.name item.line), field_start: item.field_start, field_count: item.field_count, field_names: item.field_names, field_types: (nb_types item.field_types item.line), is_resource: item.is_resource }))
+        (list_ASTStruct_set parser.structs structs_index (ASTStruct { node_type: item.node_type, line: item.line, column: item.column, name: (nb_type item.name item.line), field_start: item.field_start, field_count: item.field_count, field_names: item.field_names, field_types: (nb_types item.field_types item.line), is_resource: item.is_resource, is_extern: item.is_extern }))
         set structs_index (+ structs_index 1)
     }
     let mut struct_literals_index: int = 0
@@ -238,5 +232,12 @@ shadow nb_rewrite {
     let result_type: string = (parser_get_function parser 0).return_type
     assert (!= plain_name owned_name)
     assert (== result_type owned_name)
+    (mb_reset [])
+    let foreign_tokens: List<LexerToken> = (tokenize_string "extern struct Foreign { fd: int }" "foreign.nano" (list_CompilerDiagnostic_new))
+    let foreign: Parser = (parse_program foreign_tokens (list_LexerToken_length foreign_tokens) "foreign.nano")
+    (mb_add 0 (nb_key "Foreign") "retained_Foreign")
+    (nb_rewrite foreign)
+    assert (parser_get_struct_def foreign 0).is_extern
+    assert (== (parser_get_struct_def foreign 0).name "retained_Foreign")
     (mb_reset [])
 }

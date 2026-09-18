@@ -625,6 +625,7 @@ typedef struct nl_ASTStruct {
     DynArray * field_names;
     DynArray * field_types;
     bool is_resource;
+    bool is_extern;
 } nl_ASTStruct;
 typedef nl_ASTStruct ASTStruct;
 #endif
