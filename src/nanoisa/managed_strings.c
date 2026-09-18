@@ -1,6 +1,7 @@
-/* I retain byte strings with context-local handles. No opcode/profile calls
- * this core yet; my later lowering must supply frame/global cleanup. */
+/* I retain byte strings with context-local handles. My managed lowering
+ * supplies frame/global ownership and cleanup around this allocator core. */
 #include "managed_strings.h"
+#include "binary64_parse.h"
 #include <limits.h>
 #ifndef __wasm32__
 #include <stdlib.h>
@@ -313,6 +314,12 @@ NmsStatus nms_format_scalar(NmsRuntime *runtime, uint64_t bits, uint32_t tag, Nm
     while (magnitude);
     if (negative) digits[--position] = '-';
     return nms_create(runtime, digits + position, sizeof digits - position, out);
+}
+NmsStatus nms_parse_f64(const NmsRuntime *runtime, NmsHandle source, uint64_t *out) {
+    NmsView view;
+    NmsStatus status = nms_view(runtime, source, &view);
+    if (status != NMS_OK) return status;
+    return nbp_parse(view.data, view.length, out) ? NMS_OK : NMS_STATE;
 }
 NmsStatus nms_parse_i64(const NmsRuntime *runtime, NmsHandle source, int64_t *out) {
     NmsView view;
