@@ -158,3 +158,13 @@ My full c435 example, string/PRINT requirements, mixed borrowed/value graphs,
 owned returns from the public entry, recursive graphs, source admission and
 full normative ownership acceptance remain open. I do not modify or rerun any
 preserved failing product artifact to qualify this prerequisite.
+
+My initial common-path result query adds allocations to unchanged scalar/CALL_REF
+returns. Existing caller allocation controls detect this at their fixed ceiling;
+I record task_af6dac9228e54700b98a72d852db8969 and preserve
+/tmp/nanolang-owned-value-results-full.log. My correction queries layout facts
+only for STRUCT results: scalar/VOID count/tag checks already run before detach,
+and admitted immutable descriptors retain their agreement. Every owned return
+still performs capacity preflight and context cleanup. I keep old test ceilings.
+My initial frozen result corpus separately passes47.044 seconds atfc379453; it
+is not evidence for the corrected source or a substitute for borrowed gates.

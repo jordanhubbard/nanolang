@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I preserve existing scalar/CALL_REF return allocation behavior (`task_af6dac9228e54700b98a72d852db8969`) while adding owned helper results. The initial extension allocates return facts on unchanged scalar paths and reaches two existing allocation-test ceilings. I retain the failure log, restrict the new exact-layout query to STRUCT returns, and preserve scalar/VOID count/tag checks, capacity preflight and reference cleanup without raising ceilings.
+
 - [ ] I verify and execute exact owned/void helper results (`task_a2797653878d4acba42423a689909ebf`) after bounded call graphs qualify. My [contract](NANOISA_OWNED_VALUE_RESULTS.md) preserves entry scalar results, exact existing result descriptors and wire versions, complete ownership transfer/consumption, per-frame generations and failure cleanup before caller publication. I require binary/text roundtrips and paired VM/native lifecycle/allocation/authority gates; returned nested fields, source admission, strings/PRINT, mixed reference calls and full c435 example acceptance stay separate.
 - [x] I correct the admission-counter refusal expectation (`task_6b0e7040a5534b1cb14da14f8291623b`): declaration validation may refuse before full owned admission. I preserve the first harness log and require exact refusal with no activation, zero-or-one full admission on that refusal, and exactly one admission on accepted/runtime-assertion paths across all four APIs. My corrected529 admission-boundary checks pass; canonical ledger reconciliation follows merge.
 
