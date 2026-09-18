@@ -96,3 +96,10 @@ Linux source evidence does not substitute for the peer's required Darwin runtime
 qualification. The full product gate and full ownership parents remain separate.
 Only measured unchanged-example acceptance can advance c435; this proposal
 alone closes nothing.
+
+I integrate runtime PR750 at8b0fa1fd before production. My specialized literal
+normalizer preserves the existing source escape rules while rejecting an
+unescaped source `\0` before the general C-string decoder could truncate it.
+The selfhost path quotes normalized bytes with the existing assembler escape
+rules; this is local transport support, not a change to general string syntax.
+The literal backslash followed by zero remains distinct from decoded NUL.
