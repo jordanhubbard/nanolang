@@ -246,6 +246,9 @@ static Type infer_expr_type(CBCtx *c, ASTNode *node) {
             if (strcmp(name, "float_to_string") == 0)
                 return node->as.call.arg_count == 1 &&
                     infer_expr_type(c, node->as.call.args[0]) == TYPE_FLOAT ? TYPE_STRING : TYPE_UNKNOWN;
+            if (strcmp(name, "str_length") == 0)
+                return node->as.call.arg_count == 1 &&
+                    infer_expr_type(c, node->as.call.args[0]) == TYPE_STRING ? TYPE_INT : TYPE_UNKNOWN;
             if (strcmp(name, "int_to_string") == 0)
                 return node->as.call.arg_count == 1 &&
                     infer_expr_type(c, node->as.call.args[0]) == TYPE_INT ? TYPE_STRING : TYPE_UNKNOWN;
@@ -660,8 +663,12 @@ static int emit_expr(CBCtx *c, ASTNode *node) {
             fputc(')', c->out);
             return 0;
         }
-        if (name && strcmp(name, "str_length") == 0 &&
-            node->as.call.arg_count == 1) {
+        if (builtin && strcmp(name, "str_length") == 0) {
+            if (node->as.call.arg_count != 1 ||
+                infer_expr_type(c, node->as.call.args[0]) != TYPE_STRING) {
+                ctx_error(c, "I require one exact STRING operand for C str_length.");
+                return -1;
+            }
             fputs("(int64_t)strlen(", c->out);
             if (emit_expr(c, node->as.call.args[0])) return -1;
             fputc(')', c->out);
