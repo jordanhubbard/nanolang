@@ -38,7 +38,7 @@ static NvmModule *fixture(unsigned index) {
     else {
         const char *op[]={"F64_ADD","F64_SUB","F64_MUL","F64_DIV"};
         for(unsigned i=0;i<4;i++) {
-            double expected=i==0?nano_rt_f64_add(1.5,2.5):i==1?nano_rt_f64_sub(1.5,2.5):i==3?nano_rt_f64_mul(1.5,2.5):nano_rt_f64_div(1.5,2.5);
+            double expected=i==0?nano_rt_f64_add(1.5,2.5):i==1?nano_rt_f64_sub(1.5,2.5):i==2?nano_rt_f64_mul(1.5,2.5):nano_rt_f64_div(1.5,2.5);
             append(source,sizeof(source),"PUSH_F64 1.5\nPUSH_F64 2.5\n%s\nPUSH_F64 %.17g\nF64_EQ\nASSERT\n",op[i],expected);
         }
         append(source,sizeof(source),"PUSH_F64 -2.5\nF64_NEG\nDUP\nPUSH_F64 2.5\nSWAP\nF64_EQ\nASSERT\nPUSH_I64 0\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 2\nPUSH_I64 3\nLT\nJMP_FALSE done\nPUSH_F64 1.0\nF64_ADD\nLOAD_LOCAL 2\nPUSH_I64 1\nADD\nSTORE_LOCAL 2\nJMP loop\ndone:\nPUSH_F64 5.5\nEQ\nASSERT\n");
@@ -83,7 +83,7 @@ int main(int argc,char **argv) {
         NvmModule *m=fixture(i);artifacts(m,argv[1],i);VmState vm;vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
         for(unsigned api=0;api<4;api++)for(unsigned repeat=0;repeat<2;repeat++) {
             NanoValue result=val_int(-91);
-            VmResult status=api==0?vm_invoke(&vm,0,NULL,0,&result):api==1?vm_execute(&vm):api==3?vm_call_function(&vm,0,NULL,0):vm_invoke_callable(&vm,val_function(0),NULL,0,&result);
+            VmResult status=api==0?vm_invoke(&vm,0,NULL,0,&result):api==1?vm_execute(&vm):api==2?vm_call_function(&vm,0,NULL,0):vm_invoke_callable(&vm,val_function(0),NULL,0,&result);
             CHECK(status==(i==3?VM_ERR_ASSERT_FAILED:VM_OK));
             if(i!=3){if(api==1||api==2){CHECK(vm.stack_size==1);result=vm.stack[--vm.stack_size];}CHECK(result.tag==TAG_INT&&result.as.i64==0);vm_release(&vm.heap,result);}
             CHECK(!vm.stack_size&&!vm.frame_count);CHECK(vm.heap.stats.num_objects==baseline);
