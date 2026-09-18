@@ -1,0 +1,6 @@
+test_owned_local_routing_and_shadow_only_admission (tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_local_routing_and_shadow_only_admission) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 166.995s
+
+OK

@@ -1,0 +1,22 @@
+{
+  "source": "29133945d9fedc02943746b30b05296fcb612dd8",
+  "runner_sha256": "7982deb5a74ba6d05e134f67a097b30b0cabc3017f766a821afe248bbcaec808",
+  "steps": [
+    {
+      "name": "tools",
+      "command": [
+        "make",
+        "-j2",
+        "nano_asm",
+        "nano_vm",
+        "nvm2c"
+      ],
+      "status": 2,
+      "seconds": 0.063,
+      "sha256": "fa943061cd034fda7391df3f0ceed90275d64ecc036ee05c5a767009b49643a3"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

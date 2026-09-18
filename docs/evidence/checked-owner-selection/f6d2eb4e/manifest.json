@@ -1,0 +1,21 @@
+{
+  "source": "f6d2eb4e0ea9631903f9f75fa0dc7cabdf963e6e",
+  "runner_sha256": "6b730f3142c6b816917116baab5c3b702825ae6e68d4ade8fec6dbb8f6a0b3fa",
+  "steps": [
+    {
+      "name": "source-borrows",
+      "command": [
+        "make",
+        "-o",
+        "bootstrap",
+        "test-source-borrow-emission"
+      ],
+      "status": 2,
+      "seconds": 405.034,
+      "sha256": "613260f45d37d5d28da19dbdb9bdd12cfa622e8ce5a56eba3f39879221a98ac3"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}
