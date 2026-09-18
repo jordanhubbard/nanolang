@@ -23,3 +23,20 @@ I retain the logs as `/tmp/nanolang-managed-concat-gcc-final.log` and
 `/tmp/nanolang-managed-concat-clang-final.log`. Existing allocator pressure,
 coalescing and lifecycle checks remain in the same gate. These runtime tests
 do not establish emitted-program ownership until the next integration stage.
+
+My non-admitting IR packaging prototype passes
+`NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 make test-managed-runtime-package`.
+I compile native and wasm32 variants separately, verify both with `opt`, retain
+source hashes, compiler version, flags, target triple/layout and IR hashes in
+the generated manifest, and compare two complete generations for exact bytes.
+I compile a C consumer of the generated header and compare its dumped bytes
+with both original IR modules. Each dumped module accepts an appended scalar
+application calling the reserved-name helper: native execution and import-free
+Node/Wasmtime execution pass. This establishes a packaging mechanism, not
+application frame cleanup or allocation through emitted bytecode.
+
+The target is deliberately standalone and rebuilt on every request; compiler
+or flag changes cannot silently reuse its output. I have not added a runtime
+package dependency or profile change to the public translator yet. My first
+Wasm packaging fixture used `main`, which Clang treats as an ABI-special entry;
+I changed the fixture to the intended freestanding `nano_package` export.

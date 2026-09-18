@@ -4522,6 +4522,17 @@ test-llvm-literal-strings: test-llvm-scalar-globals
 	$(CC) $(CFLAGS) -o obj/literal_string_aliases tests/nanoisa/literal_string_aliases.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_llvm_literal_strings
 
+# I rebuild this non-admitting prototype package on each request, so changed
+# compiler selections/flags cannot silently reuse a prior target's IR.
+NMS_RUNTIME_CLANG ?= clang
+NMS_RUNTIME_OPT ?= opt
+.PHONY: managed-runtime-package test-managed-runtime-package
+managed-runtime-package: scripts/embed_managed_runtime.py $(NANOISA_DIR)/managed_strings.c $(NANOISA_DIR)/managed_strings.h
+	python3 scripts/embed_managed_runtime.py --clang "$(NMS_RUNTIME_CLANG)" --opt "$(NMS_RUNTIME_OPT)" --header $(OBJ_DIR)/nanoisa/managed_runtime_ir.h --manifest $(OBJ_DIR)/nanoisa/managed_runtime_ir.json
+
+test-managed-runtime-package: managed-runtime-package
+	python3 -m unittest -v tests.test_managed_runtime_package
+
 .PHONY: test-managed-string-core
 test-managed-string-core:
 	python3 -m unittest -v tests.test_managed_string_core
