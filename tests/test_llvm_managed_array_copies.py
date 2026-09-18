@@ -59,8 +59,8 @@ class ArrayCopies(unittest.TestCase):
     def test_counted_owner_allocation_failure_and_recovery(self):
         body='PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_LOCAL 0\n'+'LOAD_LOCAL 0\n'*17+'ARR_LITERAL 5 17\nPUSH_VOID\nSTORE_LOCAL 0\nPUSH_I64 0\nPUSH_I64 17\nARR_SLICE\nPOP\n'
         _,ir,wasm=self.compile(self.program(body))
-        extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
-        self.native_harness(ir,'int failures=0,successes=0;for(int b=0;b<12;b++){budget=b;uint64_t s=nano_try_entry();if(s==((uint64_t)3<<32))failures++;else if(!s)successes++;else return 1;if(nms_module_live_objects())return 2;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 3;}if(!failures||!successes)return 4;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+        extra='static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
+        self.native_harness(ir,'int failures=0,successes=0;for(int b=0;b<12;b++){budget=b;uint64_t s=nano_try_entry();if(s==((uint64_t)3<<32))failures++;else if(!s)successes++;else return 1;if(nms_module_live_objects())return 2;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 3;}if(!failures||!successes)return 4;return nano_dispose();',extra,allocation_control=True)
         self.node(wasm,'for(let i=0;i<50;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===0n);}check(e.nano_dispose()===0);')
 
     def test_slice_type_failure_cleans_heap_bounds_and_keeps_global(self):
