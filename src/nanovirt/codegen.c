@@ -1244,19 +1244,14 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
-    /* range(n) or range(start, end) - create array of integers */
-    if (strcmp(name, "range") == 0 && (argc == 1 || argc == 2)) {
-        /*
-         * range(n):       [0, 1, ..., n-1]
-         * range(start,n): [start, start+1, ..., n-1]
-         */
-        if (argc == 2) {
-            compile_expr(cg, args[0]);  /* start */
-            compile_expr(cg, args[1]);  /* end */
-        } else {
-            emit_op(cg, OP_PUSH_I64, (int64_t)0);  /* start = 0 */
-            compile_expr(cg, args[0]);               /* end */
+    /* I preserve my checked source's explicit start/end range contract. */
+    if (strcmp(name, "range") == 0) {
+        if (argc != 2) {
+            cg_error(cg, node->line, "I require two range bounds");
+            return true;
         }
+        compile_expr(cg, args[0]);  /* start */
+        compile_expr(cg, args[1]);  /* end */
         uint16_t end_slot = local_add(cg, "__range_end__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)end_slot);
         uint16_t i_slot = local_add(cg, "__range_i__", 0);
