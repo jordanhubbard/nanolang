@@ -1,0 +1,181 @@
+test_exact_arithmetic_canonical_vm_routes (__main__.AggregateBinary64.test_exact_arithmetic_canonical_vm_routes) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-1rap7ys1
+
+  test_exact_arithmetic_canonical_vm_routes (__main__.AggregateBinary64.test_exact_arithmetic_canonical_vm_routes) (compiler='nanoc_stage1') ... FAIL
+  test_exact_arithmetic_canonical_vm_routes (__main__.AggregateBinary64.test_exact_arithmetic_canonical_vm_routes) (compiler='nanoc_stage2') ... FAIL
+test_exact_arithmetic_existing_legacy_routes (__main__.AggregateBinary64.test_exact_arithmetic_existing_legacy_routes) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-d5miu65g
+
+  test_exact_arithmetic_existing_legacy_routes (__main__.AggregateBinary64.test_exact_arithmetic_existing_legacy_routes) (compiler='nanoc_stage1') ... FAIL
+  test_exact_arithmetic_existing_legacy_routes (__main__.AggregateBinary64.test_exact_arithmetic_existing_legacy_routes) (compiler='nanoc_stage2') ... FAIL
+test_order_alias_empty_and_neighbors_canonical_vm (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_canonical_vm) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-8t5wdbab
+
+  test_order_alias_empty_and_neighbors_canonical_vm (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_canonical_vm) (compiler='nanoc_stage1') ... FAIL
+  test_order_alias_empty_and_neighbors_canonical_vm (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_canonical_vm) (compiler='nanoc_stage2') ... FAIL
+test_order_alias_empty_and_neighbors_legacy (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-inqkae22
+
+  test_order_alias_empty_and_neighbors_legacy (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) (compiler='nanoc_stage1') ... FAIL
+  test_order_alias_empty_and_neighbors_legacy (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) (compiler='nanoc_stage2') ... FAIL
+
+======================================================================
+FAIL: test_exact_arithmetic_canonical_vm_routes (__main__.AggregateBinary64.test_exact_arithmetic_canonical_vm_routes) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 108, in canonical
+    self.command(ROOT/'bin'/compiler,source,'--emit-nvm','-o',module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-qualified/bin/nanoc_stage1', '/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano', '--emit-nvm', '-o', '/tmp/nano-aggregate-policy-1rap7ys1/nanoc_stage1.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:7:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:8:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:22:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:23:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:37:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:38:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:52:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:53:2)
+
+
+======================================================================
+FAIL: test_exact_arithmetic_canonical_vm_routes (__main__.AggregateBinary64.test_exact_arithmetic_canonical_vm_routes) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 108, in canonical
+    self.command(ROOT/'bin'/compiler,source,'--emit-nvm','-o',module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-qualified/bin/nanoc_stage2', '/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano', '--emit-nvm', '-o', '/tmp/nano-aggregate-policy-1rap7ys1/nanoc_stage2.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:7:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:8:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:22:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:23:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:37:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:38:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:52:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-1rap7ys1/canonical-bits.nano:53:2)
+
+
+======================================================================
+FAIL: test_exact_arithmetic_existing_legacy_routes (__main__.AggregateBinary64.test_exact_arithmetic_existing_legacy_routes) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 102, in legacy
+    self.command(ROOT/'bin'/compiler,source,'-o',exe)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-qualified/bin/nanoc_stage1', '/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano', '-o', '/tmp/nano-aggregate-policy-d5miu65g/nanoc_stage1']
+NSType checking failed
+Diagnostics:
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:7:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:8:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:22:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:23:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:37:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:38:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:52:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:53:2)
+
+
+======================================================================
+FAIL: test_exact_arithmetic_existing_legacy_routes (__main__.AggregateBinary64.test_exact_arithmetic_existing_legacy_routes) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 102, in legacy
+    self.command(ROOT/'bin'/compiler,source,'-o',exe)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-qualified/bin/nanoc_stage2', '/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano', '-o', '/tmp/nano-aggregate-policy-d5miu65g/nanoc_stage2']
+NSType checking failed
+Diagnostics:
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:7:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:8:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:22:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:23:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:37:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:38:2)
+  [E0001] Variable left: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:52:2)
+  [E0001] Variable right: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-d5miu65g/exact-bits.nano:53:2)
+
+
+======================================================================
+FAIL: test_order_alias_empty_and_neighbors_canonical_vm (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_canonical_vm) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 108, in canonical
+    self.command(ROOT/'bin'/compiler,source,'--emit-nvm','-o',module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-qualified/bin/nanoc_stage1', '/tmp/nano-aggregate-policy-8t5wdbab/canonical-order.nano', '--emit-nvm', '-o', '/tmp/nano-aggregate-policy-8t5wdbab/nanoc_stage1.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Variable result: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-8t5wdbab/canonical-order.nano:19:2)
+  [E0001] Variable empty_result: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-8t5wdbab/canonical-order.nano:24:2)
+
+
+======================================================================
+FAIL: test_order_alias_empty_and_neighbors_canonical_vm (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_canonical_vm) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 108, in canonical
+    self.command(ROOT/'bin'/compiler,source,'--emit-nvm','-o',module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-qualified/bin/nanoc_stage2', '/tmp/nano-aggregate-policy-8t5wdbab/canonical-order.nano', '--emit-nvm', '-o', '/tmp/nano-aggregate-policy-8t5wdbab/nanoc_stage2.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Variable result: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-8t5wdbab/canonical-order.nano:19:2)
+  [E0001] Variable empty_result: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-8t5wdbab/canonical-order.nano:24:2)
+
+
+======================================================================
+FAIL: test_order_alias_empty_and_neighbors_legacy (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 102, in legacy
+    self.command(ROOT/'bin'/compiler,source,'-o',exe)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-qualified/bin/nanoc_stage1', '/tmp/nano-aggregate-policy-inqkae22/ordered-broadcast.nano', '-o', '/tmp/nano-aggregate-policy-inqkae22/nanoc_stage1']
+NSType checking failed
+Diagnostics:
+  [E0001] Variable result: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-inqkae22/ordered-broadcast.nano:19:2)
+  [E0001] Variable empty_result: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-inqkae22/ordered-broadcast.nano:24:2)
+
+
+======================================================================
+FAIL: test_order_alias_empty_and_neighbors_legacy (__main__.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 102, in legacy
+    self.command(ROOT/'bin'/compiler,source,'-o',exe)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-qualified/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-qualified/bin/nanoc_stage2', '/tmp/nano-aggregate-policy-inqkae22/ordered-broadcast.nano', '-o', '/tmp/nano-aggregate-policy-inqkae22/nanoc_stage2']
+NSType checking failed
+Diagnostics:
+  [E0001] Variable result: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-inqkae22/ordered-broadcast.nano:19:2)
+  [E0001] Variable empty_result: I expected a value of type `array<float>`, but found `float`. (/tmp/nano-aggregate-policy-inqkae22/ordered-broadcast.nano:24:2)
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.086s
+
+FAILED (failures=8)

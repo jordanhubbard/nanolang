@@ -1,0 +1,11 @@
+{
+  "command": [
+    "make",
+    "-j8",
+    "test-aggregate-binary64-eval",
+    "test-nanovm",
+    "test-binary64-arithmetic-eval"
+  ],
+  "exit": 0,
+  "seconds": 10.575378166045994
+}
