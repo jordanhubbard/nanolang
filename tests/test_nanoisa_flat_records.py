@@ -614,7 +614,7 @@ class FlatRecordEmitter(unittest.TestCase):
             'fn main() -> int { (array_new 2 1 3) return 0 }',
             'fn main() -> int { (array_new "two" 1) return 0 }',
             'fn main() -> int { (array_new true 1) return 0 }',
-            'fn main() -> int { (array_new 2 1.5) return 0 }',
+            'fn main() -> int { (array_new 2 [1.5]) return 0 }',
             'fn main() -> int { (array_new 2 [1]) return 0 }',
         ]
         with tempfile.TemporaryDirectory(prefix="nano-filled-refusal-") as tmp:

@@ -1590,6 +1590,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             if (!= actual element) { return "" }
             set i (+ i 1)
         }
+        if (== element "float") { return "array<float>" }
         if (or (== element "bool") (or (== element "int") (or (== element "string") (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element))))) { return (+ "array<" (+ element ">")) }
         return ""
     }
@@ -1765,6 +1766,12 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         let actual: string = (nisa_expr_type parser node_id node_type)
         if (and (or (== expected "float") (== actual "float")) (!= actual expected)) {
             return (nisa_fail "I require the declared float value type")
+        }
+    }
+    if (and (!= expected "") (!= node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
+        let actual: string = (nisa_expr_type parser node_id node_type)
+        if (and (or (== expected "array<float>") (== actual "array<float>")) (!= actual expected)) {
+            return (nisa_fail "I require the declared float array element type")
         }
     }
     if (and (!= (nisa_map_value_type expected) "") (nisa_is_map_constructor parser node_id node_type)) {

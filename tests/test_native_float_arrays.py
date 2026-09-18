@@ -101,6 +101,9 @@ shadow first { assert (== (first [1.5]) 1.5) }
 fn filled() -> array<float> { return (array_new 3 2.5) }
 shadow filled { assert (== (array_length (filled)) 3) }
 fn main() -> int {
+ let inferred = [1.25, 2.75]
+ assert (== (first inferred) 1.25)
+ assert (== (first [3.75]) 3.75)
  let values: array<float> = (filled)
  let alias: array<float> = values
  (array_set values 0 4.5)
@@ -126,7 +129,9 @@ shadow main { assert (== (main) 0) }
                               '-fsanitize=address,undefined','-fno-sanitize-recover=all',generated,'-lm','-o',binary])
                 self.checked([binary])
             for declaration in ('let xs: array<float> = [1]', 'let xs: array<int> = [1.5]',
-                                'let xs: array<float> = [true]'):
+                                'let xs: array<float> = [true]',
+                                'let ints: array<int> = [1] let xs: array<float> = ints',
+                                'let floats: array<float> = [1.5] let xs: array<int> = floats'):
                 source.write_text('fn main() -> int { '+declaration+' return 0 }\nshadow main { assert true }\n')
                 module.write_bytes(b'previous')
                 result=subprocess.run([ROOT/'bin/nanoisa_emit',source,'--emit-nvm','-o',module],
