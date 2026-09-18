@@ -9065,6 +9065,7 @@ Ownership and proposal closure:
       performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
+- [ ] I retain the exact common type of conditional expression arms and their single-expression blocks during self-hosted NanoISA lowering (`task_e0a68123b4aa467fa8ed6b24161ced69`). My full product gate at e563d0e3 stops on record field `underscore_name` in retained transpiler shadows. I require equal known arm types and keep mismatched/unknown branches refused; I test both arms, nesting, records and declared-field rejection before resuming the full gate.
 - [x] I restore trial-deleted child counts for newly deferred VM cycle roots
       (`task_72433f501ddd4736a45e6244c44ae4fa`). Roots queued during collection
       can be reached by the old candidate graph while remaining buffered for
