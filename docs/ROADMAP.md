@@ -10104,10 +10104,10 @@ Other translators:
 - [x] I normalize cross-host NaN numeric payloads to unsigned64 saturation
       before portable parser admission, retaining the original Linux/Darwin logs.
       MAC `task_89fd02e9aa4d4a4faca33ba5fbc2b703`; explicit Darwin behavior change.
-- [ ] I complete Darwin managed parser core sanitizer acceptance after the
+- [x] I complete Darwin managed parser core sanitizer acceptance after the
       bounded fresh run remained incomplete; I preserve its original evidence
       and make no cause claim from the separate passing parser-only harness.
-      MAC `task_7ba59bf363f7454ba50bf3bbd965db8e`; managed parent51da stays open.
+      MAC `task_7ba59bf363f7454ba50bf3bbd965db8e`; managed parent51da stays open. My [fresh5702 Darwin qualification](evidence/darwin-managed-parser-core.md) passes the exact1131-case native/Wasm lifetime method with unchanged sanitizers and timeout; the earlier puck interruption remains unexplained.
 - [ ] I resolve the retained evaluator shadow gate failure observed during
       legacy parser integration, without attributing the unexplained SIGSEGV
       to that conversion change. I preserve the original binary in

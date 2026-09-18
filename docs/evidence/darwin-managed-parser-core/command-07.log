@@ -1,0 +1,4 @@
+['wasmtime', 'run', '--invoke', 'run', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-managed-emitted-pgu31l2g/core.wasm']
+0
+
+warning: using `--invoke` with a function that returns values is experimental and may break in the future

@@ -1,0 +1,9 @@
+# My fresh Darwin managed parser sanitizer acceptance
+
+I complete the exact gate retained by task_7ba59bf363f7454ba50bf3bbd965db8e on fresh canonical5702f39d. On CXWWHGGJX0, Darwin arm64/macOS26.6.2, I run the unchanged `Binary64Parse.test_core_bits_and_ownership_match_reference_on_native_and_wasm` method from a new detached checkout. I do not reuse the earlier failed artifacts on puck.
+
+The method passes in4.291s (outer phase4.503s). It checks1131 exact binary64 cases against the platform reference with the already documented overflowing decimal NaN normalization. The managed core creates and retains each string, parses while test allocation is disabled, verifies two live references, releases both and checks zero live objects before disposal. Native execution retains ASan/UBSan and LeakSanitizer; Node executes the import-free Wasm core twice and Wasmtime once. The existing45-second per-command timeout is unchanged.
+
+I use Homebrew Clang23.1.1, Node26.8.2, Wasmtime48.0.2 and Python3.14.7. Before/after compiler and runtime tool hashes match. All1703 tracked source/test/script inputs match before/after and the Linux copy of the same source pin. My wrapper changes only artifact/log retention around the exact original method; its source is sealed with the reports. The [19-report manifest](darwin-managed-parser-core/reports.sha256.json) includes raw commands, generated native sources, exact input/expected-bit tables, source/tool hashes and terminal results.
+
+The earlier puck run was stopped after about110 CPU seconds without an established cause. Its original log and artifacts remain preserved at their recorded paths. This fresh result supplies the missing Darwin managed-lifetime sanitizer acceptance. It does not explain that historical interruption, establish a repair on puck, or claim complete generated-runtime/product/fixed-point/release acceptance. Managed parent51da and publication remain open.
