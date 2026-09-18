@@ -1,6 +1,7 @@
 """I retain the VM's bounded generic numeric contract in native C."""
 from pathlib import Path
 import tempfile
+import signal
 import unittest
 from tests import test_native_floats as floats
 ROOT = floats.ROOT
@@ -36,7 +37,7 @@ class NativeGenericArithmetic(unittest.TestCase):
         body = ('PUSH_I64 9007199254740993\nPUSH_F64 0\nADD\n'
                 'PUSH_F64 9007199254740992\nF64_EQ\nASSERT\n'
                 'PUSH_F64 0\nNEG\nCAST_STRING\nPUSH_STR negative\nEQ\nASSERT\n')
-        for lhs in ('PUSH_I64 -7', 'PUSH_F64 -7'):
+        for lhs in ('PUSH_I64 -7', 'PUSH_F64 -7', 'PUSH_F64 nan', 'PUSH_F64 inf'):
             for rhs in ('PUSH_I64 0', 'PUSH_F64 0', 'PUSH_F64 -0'):
                 body += lhs+'\n'+rhs+'\nDIV\nCAST_STRING\nPUSH_STR zero\nEQ\nASSERT\n'
         for op in ('ADD', 'SUB', 'MUL', 'DIV'):
@@ -82,13 +83,29 @@ class NativeGenericArithmetic(unittest.TestCase):
                     if result.returncode:
                         self.assertEqual(output.read_text(),'previous')
                     else:
-                        self.assertNotEqual(self.run_command([self.native(work,module,sanitize=True)]).returncode,0)
+                        refused = self.run_command([self.native(work,module,sanitize=True)])
+                        self.assertEqual(refused.returncode, -signal.SIGABRT, refused.stdout+refused.stderr)
+                        for diagnostic in ('AddressSanitizer', 'LeakSanitizer', 'UndefinedBehaviorSanitizer', 'runtime error:'):
+                            self.assertNotIn(diagnostic, refused.stderr)
         with tempfile.TemporaryDirectory(prefix='nano-float-mod-') as tmp:
             work=Path(tmp);module=self.assemble(work,'PUSH_F64 7\nPUSH_I64 2\nMOD\nPOP\n')
             self.assertNotEqual(self.run_command([ROOT/'bin/nano_vm',module]).returncode,0)
             output=work/'previous.c'; output.write_text('previous')
             self.assertNotEqual(self.run_command([ROOT/'bin/nvm2c',module,'-o',output]).returncode,0)
             self.assertEqual(output.read_text(),'previous')
+
+    def test_float_promotion_does_not_admit_non_numeric_tags(self):
+        for wrong in ('PUSH_BOOL 1', 'PUSH_U8 1', 'PUSH_VOID'):
+            for op in ('ADD', 'SUB', 'MUL', 'DIV'):
+                with self.subTest(wrong=wrong,op=op), tempfile.TemporaryDirectory(prefix='nano-generic-float-tag-') as tmp:
+                    work=Path(tmp)
+                    module=self.assemble(work,wrong+'\nPUSH_F64 2\n'+op+'\nPOP\n')
+                    self.assertNotEqual(self.run_command([ROOT/'bin/nano_vm',module]).returncode,0)
+                    output=work/'previous.c'; output.write_text('previous')
+                    result=self.run_command([ROOT/'bin/nvm2c',module,'-o',output])
+                    self.assertNotEqual(result.returncode,0)
+                    self.assertIn('known int or float',result.stderr)
+                    self.assertEqual(output.read_text(),'previous')
 
     def test_unproved_mixed_promotion_preserves_previous_output(self):
         with tempfile.TemporaryDirectory(prefix='nano-generic-unproved-') as tmp:
