@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I diagnose and correct the Darwin NanoCore reference-transport missing-program failure (`task_c564d9e9089845ab9566b004a7828643`). I preserve the original status 17 and secondary input-buffer leak, distinguish transport-owned children from sanitizer/runtime children using fresh diagnostic builds, and retain direct argv/pipe transport, descriptor checks, exact child reaping and LeakSanitizer. I require the unchanged transport suite on Linux and Darwin before completion.
+- [ ] I diagnose and correct the Darwin NanoCore reference-transport missing-program failure (`task_c564d9e9089845ab9566b004a7828643`). I preserve the original status 17 and secondary input-buffer leak, distinguish transport-owned children from sanitizer/runtime children using fresh diagnostic builds, and retain direct argv/pipe transport, descriptor checks, exact child reaping and LeakSanitizer. I require all existing transport controls plus an unrelated-child isolation control on Linux and Darwin before completion; my [fixture ownership contract](REFERENCE_TRANSPORT_CHILD_OWNERSHIP.md) retains immediate exact-PID reaping checks without waits or retries.
 
 - [x] I preserve canonical literal-before-advisory constant order in my owned source producer (`task_c396592893874b81924dea82a9f5c769`), retaining the first 40/42 equality gate and exact name intervals under my [source string contract](NANOISA_SOURCE_OWNED_STRING_PRINT.md). My unchanged42-method integrated gate passes; I retain [both outcomes](evidence/source-owned-string-print.md).
 
