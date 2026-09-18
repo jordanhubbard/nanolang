@@ -6,6 +6,7 @@
 
 #include "value.h"
 #include "heap.h"
+#include "../binary64_format.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +29,10 @@ void val_print(NanoValue v, FILE *out) {
         case TAG_FLOAT: {
             /* Print without trailing zeros, but always with at least one decimal */
             double d = v.as.f64;
-            if (d == (long long)d && d >= -1e15 && d <= 1e15) {
+            const char *special = nano_rt_f64_nonfinite(d);
+            if (special) {
+                fputs(special, out);
+            } else if (d >= -1e15 && d <= 1e15 && d == (long long)d) {
                 fprintf(out, "%.1f", d);
             } else {
                 fprintf(out, "%g", d);
@@ -231,7 +235,7 @@ char *val_to_cstring(NanoValue v) {
             snprintf(buf, sizeof(buf), "%lld", (long long)v.as.i64);
             return strdup(buf);
         case TAG_FLOAT:
-            snprintf(buf, sizeof(buf), "%g", v.as.f64);
+            nano_rt_f64_format(buf, sizeof(buf), v.as.f64);
             return strdup(buf);
         case TAG_BOOL:
             return strdup(v.as.boolean ? "true" : "false");

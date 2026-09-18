@@ -94,3 +94,32 @@ After the checked transport and paired producer boundary is qualified, I design
 field-origin/effect analysis across aliases, calls/globals and joins. Neither
 these declaration flags nor private737 storage substitutes for that analysis or
 its generated ownership/safe-point acceptance.
+
+## My checked descriptor adapter checkpoint
+
+After741 I connect descriptions to validated declarations without enabling an
+executable consumer. I first preserve the existing nonallocating retained-layout
+preflight and finite bounds. I query the entire ownership declaration table once,
+using a failure-atomic batch query; an absent payload yields UNKNOWN. I compare
+all record entries with ORDINARY and retain exact global/per-kind mapping. Any
+UNKNOWN or RESOURCE record leaves the plan unresolved. Other retained layout
+kinds do not acquire record authority. An absent ownership payload continues to
+publish the existing descriptive plan with UNKNOWN authority.
+
+A present valid payload with every record explicitly ordinary may publish a
+DESCRIBED plan marked ORDINARY. That flag records declaration authority only:
+field-flow, source type preservation and nominal lowering remain unproved.
+Existing precise layout preflight and plan/field allocation statuses remain.
+The legacy shared ownership validator cannot distinguish every allocation
+failure from invalid input: its retained-layout boolean loses error provenance,
+and TRUNCATED is shared by decode/allocation paths. I map any authority-query
+failure to UNRESOLVED with output untouched, rather than falsely claim INVALID
+or MEMORY. I record this diagnostic limitation as task_31682d93fc3d4647bb1c1523c9c68eab.
+
+The batch query validates the complete existing payload before writing any
+caller entries and checks the requested table count. It avoids per-record
+repeated decoding. I preserve the single-record query's behavior and its
+absent-metadata rule. Normal ordinary/resource/unknown controls, exact canonical
+transport, query/plan output preservation, bounded existing allocator controls,
+and unchanged executable profile refusals qualify this adapter. Paired source
+producers remain the next separate production checkpoint.
