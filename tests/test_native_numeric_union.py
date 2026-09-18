@@ -43,13 +43,19 @@ class NumericUnion(unittest.TestCase):
         self.paired(body)
 
     def test_shared_calls_preserve_actual_parameter_tags(self):
-        helper=('.function integer_tag 1 1 0 bool 1\n.parameters integer_tag int\n'
-                'LOAD_LOCAL 0\nTYPE_CHECK 1\nRET\n.end\n')
-        body=('PUSH_I64 4\nCALL integer_tag\nASSERT\n'
-              'PUSH_F64 4\nCALL integer_tag\nBOOL_NOT\nASSERT\n')
-        body+=self.boxed('PUSH_I64 3')+'PUSH_I64 1\nADD\nCALL integer_tag\nASSERT\n'
-        body+=self.boxed('PUSH_F64 3')+'PUSH_I64 1\nADD\nCALL integer_tag\nBOOL_NOT\nASSERT\n'
-        self.paired(body,helper)
+        helpers=''; body=''
+        for reverse in (0,1):
+            name=f'integer_tag{reverse}'
+            helpers+=(f'.function {name} 1 1 0 bool 1\n.parameters {name} int\n'
+                      'LOAD_LOCAL 0\nTYPE_CHECK 1\nRET\n.end\n')
+            calls=[('PUSH_I64 4','ASSERT\n'),('PUSH_F64 4','BOOL_NOT\nASSERT\n')]
+            if reverse:
+                calls.reverse()
+            for operand,check in calls:
+                body+=operand+f'\nCALL {name}\n'+check
+            body+=self.boxed('PUSH_I64 3')+f'PUSH_I64 1\nADD\nCALL {name}\nASSERT\n'
+            body+=self.boxed('PUSH_F64 3')+f'PUSH_I64 1\nADD\nCALL {name}\nBOOL_NOT\nASSERT\n'
+        self.paired(body,helpers)
 
     def test_optional_numeric_absence_keeps_void_tag(self):
         body=''
