@@ -199,7 +199,8 @@ static Type declared_field_type(CBCtx *c, ASTNode *node, const char **nominal,
                     if (strcmp(item->as.union_def.variant_names[v], selected) == 0) {
                         for (int j = 0; j < item->as.union_def.variant_field_counts[v]; ++j)
                             if (strcmp(item->as.union_def.variant_field_names[v][j], node->as.field_access.field_name) == 0) {
-                                if (item->as.union_def.variant_field_type_names)
+                                if (item->as.union_def.variant_field_type_names &&
+                                    item->as.union_def.variant_field_type_names[v])
                                     *nominal = item->as.union_def.variant_field_type_names[v][j];
                                 return item->as.union_def.variant_field_types[v][j];
                             }

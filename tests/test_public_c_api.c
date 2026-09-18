@@ -96,6 +96,23 @@ int main(int argc, char **argv) {
     field.as.field_access.field_name = "value";
     field.as.field_access.resolved_type_info = &field_type;
     assert(infer_expr_type(&fields, &field) == TYPE_UNKNOWN);
+    ASTNode union_declaration = {.type = AST_UNION_DEF};
+    char *variant_names[] = {"Reading"}; int counts[] = {1};
+    char **variant_fields[] = {field_names}; Type *variant_types[] = {field_types};
+    char **absent_name_rows[] = {NULL};
+    union_declaration.as.union_def.name = "Sample";
+    union_declaration.as.union_def.variant_count = 1;
+    union_declaration.as.union_def.variant_names = variant_names;
+    union_declaration.as.union_def.variant_field_counts = counts;
+    union_declaration.as.union_def.variant_field_names = variant_fields;
+    union_declaration.as.union_def.variant_field_types = variant_types;
+    union_declaration.as.union_def.variant_field_type_names = absent_name_rows;
+    declarations[0] = &union_declaration;
+    ctx_add_nominal(&fields, "m", TYPE_STRUCT, "Sample", "Reading");
+    field.as.field_access.resolved_type_info = NULL;
+    assert(infer_expr_type(&fields, &field) == TYPE_FLOAT);
+    union_declaration.as.union_def.generic_param_count = 1;
+    assert(infer_expr_type(&fields, &field) == TYPE_UNKNOWN);
     ctx_error(&context, "first"); ctx_error(&context, "second");
     assert(strcmp(context.error, "first") == 0);
 
