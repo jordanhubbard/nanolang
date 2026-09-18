@@ -111,3 +111,15 @@ proof for a bound callable or guess UNKNOWN. I reuse existing resolution and
 array helpers, including their reviewed operand snapshots. Other expression
 shapes and callback admission remain unchanged. Mandatory helper shadows and
 the unchanged source-order fixture precede closure after a fresh bootstrap.
+
+## My Darwin fault-injection harness prerequisite
+
+I record task_8674e6954ba44d3da54ea5809d0bba9c before repair. Darwin acb65661
+passes full bootstrap, all five source methods, 408 direct evaluator results,
+24 empty results and the existing optimized callback checks. Its VM adjacent
+build stops because the SDK defines a fortified snprintf macro and the existing
+test_substring_contract.c defines its formatting fault hook under -Werror.
+I preserve that incomplete log. I explicitly undefine only that preexisting
+macro inside the test translation unit before the existing hook. Production
+fortification, warnings, code and test assertions stay unchanged. Corrected
+Linux/Darwin VM gates retain all existing refusal and allocation budgets.
