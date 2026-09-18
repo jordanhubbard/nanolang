@@ -774,7 +774,7 @@ shadow main { assert true }
             'formal_write': text.replace('set target.value (+ target.value source.value)', 'set source.value 9'),
             'deeper_call': text.replace('return target.value', 'return (combine target source)'),
             'wrong_nominal': text.replace('let tree: Pair = Pair { right: second, left: first }', 'let tree: Pair = first'),
-            'hidden_owner': text.replace('let first: Leaf = Leaf { value: 100, active: true }', 'let first: Leaf = (if true { Leaf { value: 100, active: true } } else { Leaf { value: 100, active: true } })'),
+            'hidden_owner': text.replace('let first: Leaf = Leaf { value: 100, active: true }', 'let first: Leaf = if true { Leaf { value: 100, active: true } } else { Leaf { value: 100, active: true } }'),
             'local_write': text.replace('assert (== first.value 100)', 'set first.value 100', 1).replace('let first: Leaf', 'let mut first: Leaf', 1),
         }
         for name, content in cases.items():
