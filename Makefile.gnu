@@ -4913,3 +4913,7 @@ test-scalar-match-values: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa
 test-canonical-prefix-conversion: bootstrap nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_canonical_prefix_conversion
 test-units: test-canonical-prefix-conversion
+.PHONY: test-generic-union-emission
+test-units: test-generic-union-emission
+test-generic-union-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
+	@python3 -m unittest -v tests.test_generic_union_emission

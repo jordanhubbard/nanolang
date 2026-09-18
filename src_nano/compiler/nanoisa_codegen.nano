@@ -1,3 +1,4 @@
+from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
 from "src_nano/compiler/nanoisa_borrows.nano" import nanoisa_has_borrows, nanoisa_borrow_emit, nanoisa_borrow_error
 from "src_nano/compiler/passive_graph.nano" import passive_order, passive_reads
 from "src_nano/compiler/passive_purity.nano" import par_closed_call
@@ -721,18 +722,64 @@ shadow nisa_value_type_matches {
     assert (not (nisa_value_type_matches parser "Mode" "bool"))
 }
 
+# I retain concrete spelling at the source boundary; wire IDs name declarations.
+fn nisa_union_base(name: string) -> string {
+    let compact: string = (nisa_compact_type name)
+    let mut i: int = 0
+    while (< i (str_length compact)) {
+        if (== (str_substring compact i 1) "<") { return (str_substring compact 0 i) }
+        set i (+ i 1)
+    }
+    return compact
+}
+shadow nisa_union_base {
+    assert (== (nisa_union_base "Box<array<int>>") "Box")
+    assert (== (nisa_union_base "Choice") "Choice")
+}
+fn nisa_union_arguments(name: string) -> array<string> {
+    let compact: string = (nisa_compact_type name)
+    let base: string = (nisa_union_base compact)
+    let length: int = (str_length compact)
+    let start: int = (str_length base)
+    if (or (== start length) (< length (+ start 3))) { return [] }
+    if (!= (str_substring compact (- length 1) 1) ">") { return [] }
+    let mut args: array<string> = []
+    let mut part: string = ""
+    let mut depth: int = 0
+    let mut i: int = (+ start 1)
+    while (< i (- length 1)) {
+        let ch: string = (str_substring compact i 1)
+        if (== ch "<") { set depth (+ depth 1) }
+        if (== ch ">") { set depth (- depth 1) if (< depth 0) { return [] } }
+        if (and (== ch ",") (== depth 0)) {
+            if (== part "") { return [] }
+            set args (array_push args part) set part ""
+        } else { set part (+ part ch) }
+        set i (+ i 1)
+    }
+    if (or (!= depth 0) (== part "")) { return [] }
+    return (array_push args part)
+}
+shadow nisa_union_arguments {
+    let args: array<string> = (nisa_union_arguments "Choice<int,array<int>>")
+    assert (== (array_length args) 2) assert (== (at args 1) "array<int>")
+    assert (== (array_length (nisa_union_arguments "Box<int><string>")) 0)
+    assert (== (array_length (nisa_union_arguments "Box<int,>")) 0)
+}
+
 fn nisa_union_index(parser: Parser, name: string) -> int {
+    let base: string = (nisa_union_base name)
     let mut found: int = -1
     let mut i: int = 0
     while (< i (parser_get_union_count parser)) {
-        if (== (parser_get_union parser i).name name) {
+        if (== (parser_get_union parser i).name base) {
             if (>= found 0) { return -1 }
             set found i
         }
         set i (+ i 1)
     }
     if (>= found 0) {
-        if (or (>= (nisa_struct_index parser name) 0) (>= (nisa_enum_index parser name) 0)) { return -1 }
+        if (or (>= (nisa_struct_index parser base) 0) (>= (nisa_enum_index parser base) 0)) { return -1 }
     }
     return found
 }
@@ -780,18 +827,48 @@ shadow nisa_union_offset {
     assert (== (nisa_union_offset (parser_get_union p 0) 1) 1)
 }
 
+fn nisa_union_payload_type(t: string) -> bool {
+    return (or (== t "int") (or (== t "bool") (or (== t "float") (or (== t "string") (== t "array<int>")))))
+}
+shadow nisa_union_payload_type {
+    assert (nisa_union_payload_type "array<int>")
+    assert (not (nisa_union_payload_type "Handle"))
+}
+fn nisa_union_concrete_field(definition: ASTUnion, identity: string, field: int) -> string {
+    if (or (< field 0) (>= field (array_length definition.variant_field_types))) { return "" }
+    return (substitute_type_parameters (at definition.variant_field_types field) definition.generic_params (nisa_union_arguments identity))
+}
+shadow nisa_union_concrete_field {
+    let tokens: List<LexerToken> = (tokenize_string "union Box<T> { Some { value: T }, None {} }" "union.nano" (diag_list_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "union.nano")
+    assert (== (nisa_union_concrete_field (parser_get_union p 0) "Box<string>" 0) "string")
+}
+
 fn nisa_union_supported(parser: Parser, name: string) -> bool {
     let index: int = (nisa_union_index parser name)
     if (< index 0) { return false }
     let definition: ASTUnion = (parser_get_union parser index)
-    if (or (!= definition.generic_param_count 0) (<= definition.variant_count 0)) { return false }
+    let args: array<string> = (nisa_union_arguments name)
+    if (or (!= definition.generic_param_count (array_length args)) (<= definition.variant_count 0)) { return false }
+    if (!= definition.generic_param_count (array_length definition.generic_params)) { return false }
+    if (and (== definition.generic_param_count 0) (!= (nisa_compact_type name) definition.name)) { return false }
+    let mut parameter: int = 0
+    while (< parameter definition.generic_param_count) {
+        if (not (nisa_union_payload_type (at args parameter))) { return false }
+        let mut prior: int = 0
+        while (< prior parameter) {
+            if (== (at definition.generic_params prior) (at definition.generic_params parameter)) { return false }
+            set prior (+ prior 1)
+        }
+        set parameter (+ parameter 1)
+    }
     if (or (!= definition.variant_count (array_length definition.variant_names)) (!= definition.variant_count (array_length definition.variant_field_counts))) { return false }
     let count: int = (nisa_union_offset definition definition.variant_count)
     if (or (!= count (array_length definition.variant_field_names)) (!= count (array_length definition.variant_field_types))) { return false }
     let mut i: int = 0
     while (< i count) {
-        let t: string = (at definition.variant_field_types i)
-        if (not (or (== t "int") (or (== t "bool") (or (== t "float") (== t "string"))))) { return false }
+        let t: string = (nisa_union_concrete_field definition name i)
+        if (not (nisa_union_payload_type t)) { return false }
         set i (+ i 1)
     }
     set i 0
@@ -820,23 +897,42 @@ shadow nisa_union_supported {
 }
 
 # I use a private variant-qualified type only for lexically bound match payloads.
-fn nisa_union_field(parser: Parser, payload: string, field: string) -> int {
+fn nisa_union_payload_owner(parser: Parser, payload: string) -> string {
     let mut u: int = 0
     while (< u (parser_get_union_count parser)) {
         let definition: ASTUnion = (parser_get_union parser u)
         let mut v: int = 0
         while (< v definition.variant_count) {
-            if (== payload (+ definition.name (+ "." (at definition.variant_names v)))) {
-                let offset: int = (nisa_union_offset definition v)
-                let mut f: int = 0
-                while (< f (at definition.variant_field_counts v)) {
-                    if (== field (at definition.variant_field_names (+ offset f))) { return f }
-                    set f (+ f 1)
-                }
+            let suffix: string = (+ "." (at definition.variant_names v))
+            if (str_ends_with payload suffix) {
+                let owner: string = (str_substring payload 0 (- (str_length payload) (str_length suffix)))
+                if (== (nisa_union_index parser owner) u) { return owner }
             }
             set v (+ v 1)
         }
         set u (+ u 1)
+    }
+    return ""
+}
+shadow nisa_union_payload_owner {
+    let tokens: List<LexerToken> = (tokenize_string "union Box<T> { Some { value: T }, None {} }" "union.nano" (diag_list_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "union.nano")
+    assert (== (nisa_union_payload_owner p "Box<string>.Some") "Box<string>")
+    assert (== (nisa_union_payload_owner p "Other.Some") "")
+}
+fn nisa_union_field(parser: Parser, payload: string, field: string) -> int {
+    let owner: string = (nisa_union_payload_owner parser payload)
+    let index: int = (nisa_union_index parser owner)
+    if (< index 0) { return -1 }
+    let definition: ASTUnion = (parser_get_union parser index)
+    let variant_name: string = (str_substring payload (+ (str_length owner) 1) (- (str_length payload) (+ (str_length owner) 1)))
+    let variant: int = (nisa_union_variant definition variant_name)
+    if (< variant 0) { return -1 }
+    let offset: int = (nisa_union_offset definition variant)
+    let mut i: int = 0
+    while (< i (at definition.variant_field_counts variant)) {
+        if (== (at definition.variant_field_names (+ offset i)) field) { return i }
+        set i (+ i 1)
     }
     return -1
 }
@@ -848,21 +944,15 @@ shadow nisa_union_field {
 }
 
 fn nisa_union_field_type(parser: Parser, payload: string, field: string) -> string {
-    let mut u: int = 0
-    while (< u (parser_get_union_count parser)) {
-        let definition: ASTUnion = (parser_get_union parser u)
-        let mut v: int = 0
-        while (< v definition.variant_count) {
-            if (== payload (+ definition.name (+ "." (at definition.variant_names v)))) {
-                let f: int = (nisa_union_field parser payload field)
-                if (< f 0) { return "" }
-                return (at definition.variant_field_types (+ (nisa_union_offset definition v) f))
-            }
-            set v (+ v 1)
-        }
-        set u (+ u 1)
-    }
-    return ""
+    let owner: string = (nisa_union_payload_owner parser payload)
+    let index: int = (nisa_union_index parser owner)
+    if (< index 0) { return "" }
+    let definition: ASTUnion = (parser_get_union parser index)
+    let variant_name: string = (str_substring payload (+ (str_length owner) 1) (- (str_length payload) (+ (str_length owner) 1)))
+    let variant: int = (nisa_union_variant definition variant_name)
+    let f: int = (nisa_union_field parser payload field)
+    if (or (< variant 0) (< f 0)) { return "" }
+    return (nisa_union_concrete_field definition owner (+ (nisa_union_offset definition variant) f))
 }
 shadow nisa_union_field_type {
     let tokens: List<LexerToken> = (tokenize_string "union Choice { Yes { value: int }, No {} }" "union.nano" (diag_list_new))
@@ -871,11 +961,15 @@ shadow nisa_union_field_type {
     assert (== (nisa_union_field_type p "Choice.No" "value") "")
 }
 
-fn nisa_emit_union(parser: Parser, node_id: int) -> string {
+fn nisa_emit_union_context(parser: Parser, node_id: int, identity: string) -> string {
     if (not nisa_ok) { return "" }
     let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
-    if (not (nisa_union_supported parser literal.union_name)) { return (nisa_fail "I require an exact scalar union declaration") }
-    let index: int = (nisa_union_index parser literal.union_name)
+    if (not (nisa_union_supported parser identity)) { return (nisa_fail "I require an exact supported union instance") }
+    let index: int = (nisa_union_index parser identity)
+    if (!= (nisa_union_index parser literal.union_name) index) { return (nisa_fail "I require the exact constructor declaration") }
+    if (!= (nisa_union_base literal.union_name) (nisa_compact_type literal.union_name)) {
+        if (!= (nisa_compact_type literal.union_name) (nisa_compact_type identity)) { return (nisa_fail "I require the exact constructor arguments") }
+    }
     let definition: ASTUnion = (parser_get_union parser index)
     let variant: int = (nisa_union_variant definition literal.variant_name)
     if (< variant 0) { return (nisa_fail "I require a declared union variant") }
@@ -887,14 +981,14 @@ fn nisa_emit_union(parser: Parser, node_id: int) -> string {
     let mut i: int = 0
     while (< i count) {
         let name: string = (at literal.field_names i)
-        let field: int = (nisa_union_field parser (+ literal.union_name (+ "." literal.variant_name)) name)
+        let field: int = (nisa_union_field parser (+ identity (+ "." literal.variant_name)) name)
         if (< field 0) { return (nisa_fail "I require a declared union field") }
         let mut previous: int = 0
         while (< previous i) {
             if (== (at literal.field_names previous) name) { return (nisa_fail "I require each union field once") }
             set previous (+ previous 1)
         }
-        let expected: string = (at definition.variant_field_types (+ offset field))
+        let expected: string = (nisa_union_concrete_field definition identity (+ offset field))
         let value: int = (at literal.field_value_ids i)
         let kind: int = (at literal.field_value_types i)
         if (!= (nisa_expr_type parser value kind) expected) { return (nisa_fail "I require the declared union field type") }
@@ -916,6 +1010,19 @@ fn nisa_emit_union(parser: Parser, node_id: int) -> string {
     }
     let operands: string = (+ "1 " (+ (int_to_string index) (+ " " (+ (int_to_string variant) (+ " " (int_to_string count))))))
     return (+ out (nisa_line_imm "AGG_PACK" operands))
+}
+fn nisa_emit_union(parser: Parser, node_id: int) -> string {
+    return (nisa_emit_union_context parser node_id (parser_get_union_construct parser node_id).union_name)
+}
+shadow nisa_emit_union_context {
+    let tokens: List<LexerToken> = (tokenize_string "union Box<T> { Some { value: T }, None {} } fn main() -> int { let boxed: Box<int> = Box.Some { value: 7 } return 0 }" "union.nano" (diag_list_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "union.nano")
+    let _: int = (nisa_reset)
+    assert (str_contains (nisa_emit_union_context p 0 "Box<int>") "AGG_PACK 1 0 0 1")
+    let _: int = (nisa_reset)
+    assert (== (nisa_emit_union_context p 0 "Box<string>") "")
+    assert (not nisa_ok)
+    let _: int = (nisa_reset)
 }
 shadow nisa_emit_union {
     let _: int = (nisa_reset)
@@ -2328,6 +2435,9 @@ shadow nisa_emit_tuple_literal {
 
 # I carry declared constructor context without changing the AST.
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
+    if (and (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (>= (nisa_union_index parser expected) 0)) {
+        return (nisa_emit_union_context parser node_id expected)
+    }
     if (nisa_tuple_type_ok parser expected) {
         if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
             return (nisa_emit_tuple_literal parser node_id expected)
