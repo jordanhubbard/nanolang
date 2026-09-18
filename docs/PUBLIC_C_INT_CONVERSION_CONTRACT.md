@@ -22,3 +22,11 @@ My registry declares int_to_string(INT)->STRING. My interpreter returns a fresh 
 I keep the full parent open. These are static findings, not executed failure reproductions or whole-target acceptance. My literal normalization childcf871 is complete through canonical PR756 exactdee259e9 and its retained evidence.
 
 My first frozen GCC/Clang runs pass three methods each and stop the endpoint method before generated C compilation: my harness namespace assertion also matches the intentionally declared user function. Generated private helper selection is correctly nano_cb_1. I retain both logs and correct only the assertion to inspect the private static const char pointer signature; production and all original frozen identities were unchanged.
+
+## My exact string-length prerequisite
+
+I record task_66f75e0c3cd74d2989d158237c7be305 before production.
+
+I execute a prerequisite of task_3a0411f257e4437ca446d2bbec0e5ed6 under parent6ade. My first frozen full backend suite passes6/7 but unchanged03_strings checked-refuses int_to_string(str_length msg): str_length already emits (int64_t)strlen but infer_expr_type returns UNKNOWN. I retain /tmp/nanolang-public-c-int-backend.log; no rejected artifact executes. I require builtin-resolved str_length with exactly one exact STRING argument to infer INT and emit the existing length operation, with declaration/lexical/checked signature/func_expr precedence preserved. Other arities/types remain checked refusals with previous output and same-process recovery. I do not widen generic unknown inference or alter NUL-terminated length semantics. I record this contract before code, add fresh ordinary nested conversion/length and scoped API controls, retain the unchanged seven-program gate, then freeze/requalify the changed integration including existing float controls. Full6ade remains open.
+
+My terminal initial corrected gates pass GCC4 (1.546s), Clang4 (2.181s), adjacent GCC18 (7.888s) and Clang18 (9.673s). I verified all 20 frozen identities after every process terminated. The existing suite is 6/7, not complete acceptance.
