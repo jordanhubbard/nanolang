@@ -15,3 +15,7 @@ The peer completes full `make -j8 test-quick` under PTY at `c9c747858ee4c557563f
 I retain the peer's [sealed report](product-acceptance-ece241ba-darwin-corrected.txt), published in evidence-only commit `cd142d78`. I copied and independently hashed its192219-byte full log at `/tmp/nanolang-product-ece-forth-corrected-c9c74785-test-quick.log`: `47ef1a62b9004841cffea574998f783b02177ddd01b7fe5e00670c49562c1d26`. Bootstrap,17core examples,244eligible VM examples, all Jackson wordsets,280Forth cases, production PTY REPL and IDE build/smoke pass. The report's older component-driver validation means that those drivers compiled and exited successfully; it does not establish all imported shadows or the new PR691 entry assertions.
 
 This closes the corrected earlier-source platform comparison. It does not qualify the later63c production integration. Current-candidate Darwin acceptance is separately requested; all broader release parents and the publication hold remain open.
+
+## Bounded Sail model refresh
+
+At documentation-only f38b6409, the existing `scripts/check_sail_container.sh --rocq-check` completes on the peer in 529.47 seconds. I independently verify the [report](sail-rocq-f38b6409-evidence.txt) and [log](sail-rocq-f38b6409.log) hashes against MAC evidence, count all nine closed-assumption reports and the independent-check marker, and match the model/proof/script/checker inputs to this63c source. Taskf352 is completed. This proof-only gate does not run decoder/VM corpora and does not close full formal foundations or production correspondence.
