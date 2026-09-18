@@ -1625,6 +1625,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_ARR_SET && arr.kind != NVM2C_VK_UNK &&
                 val.kind != NVM2C_VK_UNK) {
                 uint8_t expected = val.kind == NVM2C_VK_REC ? NVM2C_VK_RARR :
+                    val.kind == NVM2C_VK_VALUE && integer_array_storage(arr.kind) ? arr.kind :
                     val.kind == NVM2C_VK_VALUE && arr.kind == NVM2C_VK_SARR ? NVM2C_VK_SARR :
                     val.kind == NVM2C_VK_STR ? NVM2C_VK_SARR :
                     val.kind == NVM2C_VK_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR;
@@ -1667,13 +1668,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
             } else {
-                uint8_t kind = val.kind == NVM2C_VK_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR;
+                uint8_t kind = val.kind == NVM2C_VK_BOOL || arr.kind == NVM2C_VK_BARR ? NVM2C_VK_BARR : NVM2C_VK_ARR;
                 mark_origin(local_kind, nloc, arr.origin, kind);
                 if (!sim_push(b, idx, stk, &sp, kind, -1)) return 0;
             }
             /* A tagged scalar is checked and unboxed at the typed write.
              * Its present payload, not its optional wrapper, is a string. */
-            NvmShapeId written_shape = val.kind == NVM2C_VK_VALUE && arr.kind == NVM2C_VK_SARR
+            NvmShapeId written_shape = val.kind == NVM2C_VK_VALUE &&
+                (arr.kind == NVM2C_VK_SARR || integer_array_storage(arr.kind))
                 ? shape_child(b, val.shape, 0) : val.shape;
             if (!shape_equal(b, shape_child(b, arr.shape, 0), written_shape) ||
                 !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
@@ -3831,8 +3833,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 break;
             }
             const char *array = NULL, *value = NULL;
-            if ((ak == NVM2C_VK_ARR && vk == NVM2C_VK_INT) ||
-                (ak == NVM2C_VK_BARR && vk == NVM2C_VK_BOOL)) { array = "a"; value = "t"; }
+            if ((ak == NVM2C_VK_ARR && (vk == NVM2C_VK_INT || vk == NVM2C_VK_VALUE)) ||
+                (ak == NVM2C_VK_BARR && (vk == NVM2C_VK_BOOL || vk == NVM2C_VK_VALUE))) { array = "a"; value = "t"; }
             else if (ak == NVM2C_VK_SARR && (vk == NVM2C_VK_STR || vk == NVM2C_VK_VALUE)) { array = "sa"; value = "s"; }
             else if (ak == NVM2C_VK_RARR && vk == NVM2C_VK_REC) { array = "ra"; value = "r"; }
             else {
@@ -3854,6 +3856,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (ak == NVM2C_VK_SARR && vk == NVM2C_VK_VALUE)
                 nvm2c_printf(b, "    sa[%d]->data[t[%d]] = nvalue_require_string(v[%d]);\n", arr, ix, val);
+            else if (integer_array_storage(ak) && vk == NVM2C_VK_VALUE)
+                nvm2c_printf(b, "    a[%d]->data[t[%d]] = nvalue_require_%s(v[%d]);\n",
+                             arr, ix, ak == NVM2C_VK_BARR ? "bool" : "int", val);
             else nvm2c_printf(b, "    %s[%d]->data[t[%d]] = %s[%d];\n", array, arr, ix, value, val);
             /* The result is the same handle, not a copy: aliases see the write. */
             st.slots[st.sp] = arr;
@@ -3872,6 +3877,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
                 snprintf(expr, sizeof expr, "nvalue_array_push(v[%d], %s)", arr, boxed);
                 stack_push_value(b, &st, expr);
+            } else if (integer_array_storage(ak) && vk == NVM2C_VK_VALUE) {
+                char expr[96];
+                snprintf(expr, sizeof expr, "narr_push(a[%d], nvalue_require_%s(v[%d]))",
+                         arr, ak == NVM2C_VK_BARR ? "bool" : "int", val);
+                stack_push_iarray(b, &st, expr, ak);
             } else if ((ak == NVM2C_VK_ARR && vk == NVM2C_VK_INT) ||
                        (ak == NVM2C_VK_BARR && vk == NVM2C_VK_BOOL)) {
                 char expr[80];
