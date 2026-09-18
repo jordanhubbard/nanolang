@@ -139,3 +139,15 @@ status tests require complete frame cleanup and retained prior globals. Native
 sanitizers, finite-memory Wasm reclamation, zero imports, packaged ABI checks,
 existing mutable/string/core/profile tests and old-output refusal remain
 required. This bounded result cannot close either full parent or release scope.
+
+## My first private checkpoint
+
+I implement borrowed scalar-array literal inputs (`uint64_t` payloads and
+`uint32_t` tags, count <= UINT16_MAX) and a borrowed-source uint32-endpoint slice.
+A literal count outside the instruction's range returns STATE before input
+access. Module adapters keep those scalar/pointer arguments and return a handle
+only after complete publication. Slice module adapters select default endpoints
+from exact INT tags and otherwise use zero/source length, then truncate to
+uint32. They borrow every input; emitted consuming ownership is later work.
+Existing constructors and admitted instructions retain their behavior. This
+checkpoint adds no verifier, shape-transfer or opcode admission.
