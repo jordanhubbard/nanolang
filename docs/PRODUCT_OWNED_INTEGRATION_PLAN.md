@@ -45,3 +45,26 @@ phase boundaries and preserve build-command evidence for actual component use.
 The parent coordinates the Darwin gate at this exact pin. New fixed points and
 full release qualification remain separate; older e9 passing fixed points do
 not qualify these new sources. Any new failure remains recorded before repair.
+
+## My documentation-corrected continuation
+
+My first cd72dab3 attempt is sealed in
+[evidence](evidence/product-acceptance-cd72dab3.md). It passes all 244 eligible
+examples, then stops at the documentation check. I leave that tree, tools and
+libraries unchanged. Its example boundary completes c435; full parent d76
+remains open.
+
+I create `/home/jkh/Src/nanolang-product-docs-integration` on branch
+`feat/nanoisa-product-docs-integration` from evidence commit 03b8c39e. I apply
+only PR771's documentation correction as f48c82ba, retaining the recorded
+product roadmap history. My compiler, runtime, tests, scripts, schema and
+Makefiles are byte-identical to cd72dab3. The unchanged documentation target
+passes with all 158 builtins and every section count accurate.
+
+After review, I freeze this new pin and repeat the three phases above from
+fresh local build outputs and module cache, including the full unchanged
+`make test-quick`. I do not skip earlier targets or substitute combined partial
+results for a complete run. I record the first terminal result, compiler
+selection and source/artifact manifests independently of cd72. This docs
+correction neither incorporates newer compiler changes from canonical main
+nor qualifies them. Darwin coordination uses the exact new pin explicitly.
