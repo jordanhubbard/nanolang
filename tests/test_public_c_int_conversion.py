@@ -16,7 +16,7 @@ class PublicCInt(unittest.TestCase):
     def test_endpoints_once_evaluation_and_private_names(self):
         output,code=self.emit(ENDPOINTS)
         self.assertNotIn('static char _ibuf',code)
-        self.assertNotIn('nano_cb_0_int_text_new(int64_t',code)
+        self.assertNotIn('static const char *nano_cb_0_int_text_new(int64_t',code)
         expected='-9223372036854775808\n9223372036854775807\n-1\n0\n1\n'
         for standard in ('c99','c11'):
             for optimization in ('-O0','-O2'):

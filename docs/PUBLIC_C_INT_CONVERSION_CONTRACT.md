@@ -20,3 +20,5 @@ My registry declares int_to_string(INT)->STRING. My interpreter returns a fresh 
 | c_backend.h string description | static/no-heap claim contradicts conversion snapshots and concat | Parent6ade: document actual ownership by operation; no deletion of release obligations |
 
 I keep the full parent open. These are static findings, not executed failure reproductions or whole-target acceptance. My literal normalization childcf871 is complete through canonical PR756 exactdee259e9 and its retained evidence.
+
+My first frozen GCC/Clang runs pass three methods each and stop the endpoint method before generated C compilation: my harness namespace assertion also matches the intentionally declared user function. Generated private helper selection is correctly nano_cb_1. I retain both logs and correct only the assertion to inspect the private static const char pointer signature; production and all original frozen identities were unchanged.
