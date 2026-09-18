@@ -10024,6 +10024,10 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
+- [ ] I check VM STR_FROM_INT/FLOAT formatter status/capacity, popped operand
+      release and final allocation before publication. MAC `task_4ba402d50b864467bda1e8acf7dd601d`;
+      my [format lifetime contract](NANOISA_PRIMITIVE_FORMAT_LIFETIME.md)
+      requires corrected ordinary lifecycle and VM gates before managed admission.
 - [x] I match managed STR_TO_LOWER/UPPER ASCII stored-byte conversion with
       consuming owner cleanup, fresh private results and explicit VM interning
       distinction. MAC `task_31acd26441144d52a82a533929669763`;
