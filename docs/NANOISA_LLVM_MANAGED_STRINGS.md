@@ -18,8 +18,10 @@ my [substring contract](NANOISA_MANAGED_SUBSTRING.md) defines the matched extens
 My [decimal conversion contract](NANOISA_MANAGED_STRING_INT.md) adds managed
 string CAST_INT with C-locale decimal prefix parsing and signed saturation.
 My [scalar formatting contract](NANOISA_MANAGED_SCALAR_FORMAT.md) admits exact
-non-floating CAST_STRING. Modules combining that opcode with floating
-instructions or signatures remain refused pending portable binary64 formatting.
+non-floating CAST_STRING. My [binary64 formatter](NANOISA_MANAGED_BINARY64_FORMAT.md)
+now adds exact closed C-locale/default-rounding `%g` output for floating operands;
+the temporary floating-module formatting exclusion is removed. String-bearing
+modules with CAST_FLOAT remain refused pending portable parsing.
 
 ## My ownership and errors
 

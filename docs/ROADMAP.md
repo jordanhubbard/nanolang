@@ -9934,10 +9934,11 @@ Other translators:
 - [x] I lower exact non-floating managed CAST_STRING with checked ownership.
       MAC `task_074f76d564d145b88554a66b4fcfb204`; contract
       `docs/NANOISA_MANAGED_SCALAR_FORMAT.md`; [evidence](evidence/managed-scalar-format.md).
-- [ ] I implement portable binary64 string formatting matching the closed VM
+- [x] I implement portable binary64 string formatting matching the closed VM
       C-locale `%g` contract before removing the floating CAST_STRING boundary.
       MAC `task_4fa62bcd01324cdfa0612d278d3bbaf0`; required under managed parent51da.
-      My pre-code contract is `docs/NANOISA_MANAGED_BINARY64_FORMAT.md`.
+      My pre-code contract is `docs/NANOISA_MANAGED_BINARY64_FORMAT.md`;
+      [bounded target evidence](evidence/managed-binary64-format.md).
 - [ ] I implement portable string-to-binary64 parsing matching the closed VM
       strtod contract before admitting string CAST_FLOAT.
       MAC `task_4d2f69a19d754ac88876f93a0913d1fb`; required under managed parent51da.

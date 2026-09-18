@@ -36,7 +36,7 @@ NmsStatus nms_substr_owned(NmsRuntime *, NmsHandle, uint32_t, uint32_t, NmsHandl
 /* I consume one owned reference per input on success or failure. Equal inputs
  * require two references. Other aliases survive; out is unchanged on failure. */
 NmsStatus nms_concat_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
-/* I create one owner from non-floating scalar bits; strings transfer in lowering. */
+/* I create one owner from scalar bits; strings transfer in lowering. */
 NmsStatus nms_format_scalar(NmsRuntime *, uint64_t, uint32_t, NmsHandle *);
 /* I borrow the handle, parse C-locale decimal bytes, and allocate nothing. */
 NmsStatus nms_parse_i64(const NmsRuntime *, NmsHandle, int64_t *);
