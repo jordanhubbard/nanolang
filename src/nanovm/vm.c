@@ -2548,11 +2548,33 @@ dynamic_div:
                                   callee_idx, callee->arity);
             }
 
+            if (owned_execution) {
+                if (vm->frame_count!=1 || vm->current_fn!=0 || callee_idx!=1 ||
+                    vm->callee_references.active || vm->reference_generation==UINT64_MAX)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require one checked consuming helper activation");
+                NvmAffineState *contract=nvm_affine_state_create(vm->module,1,callee->local_count);
+                if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I could not allocate consuming parameter facts");
+                NvmAffineType parameter={0};
+                bool valid=nvm_affine_owned_parameter_type(contract,&parameter);
+                nvm_affine_state_free(contract);
+                NanoValue argument=stack_peek(vm,0);
+                if (!valid || argument.tag!=TAG_STRUCT || !argument.as.sval ||
+                    argument.as.sval->def_idx!=parameter.layout)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require the exact owned parameter layout");
+            }
+
             /* Arguments are already on the stack, pop them into the new frame */
             uint32_t new_base = vm->stack_size - callee->arity;
             VmResult reserved = stack_reserve_frame(vm, new_base, callee);
             if (reserved != VM_OK)
                 return trap_error(vm, reserved, "I could not reserve the call frame.");
+
+            if (owned_execution) {
+                /* I publish the new activation only after the frame preflight. */
+                memset(&vm->callee_references,0,sizeof(vm->callee_references));
+                vm->callee_references.active=true;
+                vm->callee_references.generation=++vm->reference_generation;
+            }
 
             /* Allocate space for remaining locals */
             for (uint16_t i = callee->arity; i < callee->local_count; i++) {

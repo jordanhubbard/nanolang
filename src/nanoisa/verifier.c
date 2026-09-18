@@ -887,7 +887,7 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
 /* I keep runtime admission closed even if affine analysis grows new operations. */
 static bool owned_runtime_opcode(uint8_t op) {
     switch (op) {
-    case OP_CALL_REF:
+    case OP_CALL: case OP_CALL_REF:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
@@ -910,26 +910,29 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     if (!mod->ownership_size || (mod->function_count != 1 && mod->function_count != 2) || mod->header.entry_point != 0 ||
         mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
         return fail("I require standalone ownership instruction execution semantics without linked contracts");
+    bool consuming_helper=false;
     for(uint32_t function=0;function<mod->function_count;function++) {
         const NvmFunctionEntry *fn=&mod->functions[function];
         const char *name=nvm_get_string(mod,fn->name_idx);
         if ((function ? (!fn->arity || fn->arity>NVM_AFFINE_MAX_PARAMETERS) : fn->arity!=0) || fn->upvalue_count || fn->result_count!=1 ||
             (fn->result_tag!=TAG_INT && fn->result_tag!=TAG_BOOL && fn->result_tag!=TAG_U8) ||
             fn->local_count>NVM_AFFINE_MAX_LOCALS || (name && !strcmp(name,"__init__")))
-            return fail("I require entry and optional bounded borrowed-parameter scalar-result helper signatures");
+            return fail("I require entry and optional bounded scalar-result helper signatures");
         NvmAffineState *state=nvm_affine_state_create(mod,function,fn->local_count);
         if(!state) return fail("I require complete ownership local declarations");
+        NvmAffineType owned_parameter;
+        if(function) consuming_helper=nvm_affine_owned_parameter_type(state,&owned_parameter);
         bool valid=true;
         for(uint16_t i=0;i<fn->local_count;i++) {
             NvmAffineType type;NvmReferenceMode mode;
-            if(function && i<fn->arity) {
+            if(function && !consuming_helper && i<fn->arity) {
                 if(!nvm_affine_parameter_at(state,i,&type,&mode)) valid=false;
             } else if(!nvm_affine_local_type(state,i,&type) ||
                 (type.tag!=TAG_INT && type.tag!=TAG_BOOL && type.tag!=TAG_U8 &&
                  type.tag!=TAG_STRUCT)) valid=false;
         }
         nvm_affine_state_free(state);
-        if(!valid) return fail("I require value entry locals and bounded borrowed helper parameters with exact value locals");
+        if(!valid) return fail("I require value entry locals and exact borrowed or single owned helper parameters");
     }
     NvmV2Layouts layouts = {0};
     if (nvm_v2_layouts_decode(mod->layout_data, mod->layout_size, &layouts) != NVM_V2_OK)
@@ -956,13 +959,14 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             uint8_t op=in->opcode;
             if(op>=OP_OWN_MOVE_LOCAL && op<=OP_OWN_UNPACK_LOCAL) transfer=true;
             if(!owned_runtime_opcode(op)) supported=false;
-            if(op==OP_CALL_REF && (function || mod->function_count!=2 || in->operands[0].u32!=1)) supported=false;
-            if(function && (op==OP_AGG_GET || op==OP_STRUCT_GET ||
+            if(op==OP_CALL_REF && (function || consuming_helper || mod->function_count!=2 || in->operands[0].u32!=1)) supported=false;
+            if(op==OP_CALL && (function || !consuming_helper || mod->function_count!=2 || in->operands[0].u32!=1)) supported=false;
+            if(function && (op==OP_AGG_GET || op==OP_STRUCT_GET || (!consuming_helper && (
                 ((op==OP_LOAD_LOCAL || op==OP_STORE_LOCAL || op==OP_OWN_MOVE_LOCAL ||
                   op==OP_OWN_STORE_LOCAL || op==OP_OWN_UNPACK_LOCAL) && in->operands[0].u16<mod->functions[function].arity) ||
                 ((op==OP_BORROW_LOCAL_SHARED || op==OP_BORROW_LOCAL_EXCLUSIVE ||
                   op==OP_BORROW_PATH_SHARED || op==OP_BORROW_PATH_EXCLUSIVE) &&
-                 in->operands[1].u16<mod->functions[function].arity))) supported=false;
+                 in->operands[1].u16<mod->functions[function].arity))))) supported=false;
         }
         vm_decoded_function_free(&decoded);
         if(function && !nvm_affine_analyze_function(mod,function).ok) supported=false;
