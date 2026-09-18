@@ -53,5 +53,24 @@ Its log is `/tmp/nanolang-generic-union-native-companion.log`; producer and
 translator hashes are in
 `/tmp/nanolang-generic-union-native-companion-hashes.txt`.
 
-Final paired native acceptance and canonical integration are still pending.
-Frozen product qualification and release remain separate gates.
+The corrected external native checkpoints then passed all sixteen unchanged
+methods: `d7ce6385` in 57.246 seconds, and its optional-payload refinement
+`9a45a788` in 56.226 seconds. The native prerequisite is now merged as PR673.
+
+I restacked onto canonical `01b6cd24`; range comparison confirmed unchanged
+generic production and test patches. At `de6b9615`,
+`make test-generic-union-emission` passed a fresh bootstrap and all sixteen
+methods in 56.897 seconds using my own rebuilt translator. This includes the
+25 unchanged affine module/generic decisions through explicit canonical
+emission, verification, VM execution and sanitized native execution. The
+integrated log is `/tmp/nanolang-generic-union-integrated.log`, with tool hashes
+in `/tmp/nanolang-generic-union-integrated-hashes.txt`.
+
+The later PR675 restack is compiler-source and generic-test identical; it
+only adds the independently qualified managed-runtime slice from main.
+At `3bc2c50b`, I rebuilt my VM/native tools for that delta and all sixteen
+methods passed again in 56.209 seconds. I did not repeat the unchanged
+compiler bootstrap. The final log is
+`/tmp/nanolang-generic-union-final-head.log`.
+Canonical source-task completion still requires this PR's merge. Frozen
+product qualification and release remain separate gates.
