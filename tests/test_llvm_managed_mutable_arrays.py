@@ -104,7 +104,7 @@ class MutableArrays(unittest.TestCase):
         self.node(wasm,'check(e.nano_try_entry()===0n);let pages=e.memory.buffer.byteLength;for(let i=0;i<4;i++)check(e.nano_try_entry()===0n);check(e.memory.buffer.byteLength===pages);check(e.nano_dispose()===0);')
 
     def test_unsupported_shapes_and_transfers_preserve_output(self):
-        for body in ['ARR_NEW 5\nARR_NEW 1\nARR_PUSH\nPOP\n',
+        for body in ['ARR_NEW 1\nARR_NEW 5\nARR_PUSH\nPOP\n',
                      'ARR_NEW 1\nPUSH_STR a\nARR_PUSH\nPOP\n',
                      'ARR_NEW 1\nPOP\nPUSH_I64 1\nPUSH_I64 2\nADD\nPOP\n']:
             assembly,module=self.work/'refuse.nasm',self.work/'refuse.nvm'

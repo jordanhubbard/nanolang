@@ -6,6 +6,8 @@
 #include <string.h>
 #include "managed_runtime_ir.h"
 #include "managed_strings.h"
+#include "managed_array_shapes.h"
+_Static_assert(NMS_MEMORY == 3, "I retain graph begin acquired-memory status ABI");
 #include "nvm2llvm_managed.inc"
 
 static int refuse(char *error, size_t size, const char *format, ...) {
@@ -300,7 +302,20 @@ static void result(FrameOutput *frame, uint32_t pc, uint8_t tag) {
         " %%p%u_v = insertvalue %%V %%p%u_v0, i8 %u, 1\n", pc, pc, pc, pc, tag);
     push(frame, pc, "v");
 }
-static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed, bool mutable_arrays) {
+/* I collect only before operands leave their complete counted-root locations.
+ * This list is an allocation audit, not an opcode eligibility whitelist. */
+static bool graph_allocation_instruction(uint8_t opcode) {
+    switch (opcode) {
+    case OP_ARR_NEW: case OP_ARR_PUSH: case OP_ARR_SET:
+    case OP_ARR_LITERAL: case OP_ARR_SLICE: case OP_STR_SPLIT:
+    case OP_STR_CONCAT: case OP_STR_SUBSTR: case OP_STR_REPLACE:
+    case OP_STR_TRIM: case OP_STR_TO_LOWER: case OP_STR_TO_UPPER:
+    case OP_STR_FROM_INT: case OP_STR_FROM_FLOAT: case OP_CAST_STRING:
+    case OP_ADD: return true;
+    default: return false;
+    }
+}
+static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t depth, bool managed, bool mutable_arrays, bool graph_arrays) {
     FrameOutput frame = {.out = out, .managed = managed};
     const NvmFunctionEntry *f = &m->functions[index];
     fprintf(out, "define internal %s @f%u(", managed ? "%R" : f->result_count ? "%V" : "void", index);
@@ -328,6 +343,11 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         int terminates = 0;
         frame.count = 0;
         fprintf(out, "b%u:\n", pc);
+        if (graph_arrays && graph_allocation_instruction(ins.opcode))
+            fprintf(out, " %%p%u_gc_status = call i32 @nms_module_graph_collect()\n"
+                " %%p%u_gc_ok = icmp eq i32 %%p%u_gc_status, 0\n"
+                " br i1 %%p%u_gc_ok, label %%p%u_collected, label %%error_cleanup\n"
+                "p%u_collected:\n", pc, pc, pc, pc, pc, pc);
         switch (ins.opcode) {
         case OP_NOP: break;
         case OP_ENUM_VAL: case OP_PUSH_U8: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID: case OP_PUSH_F64: {
@@ -725,6 +745,12 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
             pc += width;
         }
     }
+    int graph_arrays = 0;
+    if (managed && mutable_arrays) {
+        NvmArrayEligibilityResult mode = nvm_select_managed_array_mode(m, &graph_arrays);
+        if (mode.status != NVM_ARRAY_ELIGIBLE)
+            return refuse(error, size, "I cannot select managed array lifetime: %s", mode.message);
+    }
     if (managed) fputs(target == NVM_LLVM_WASM32 ? nms_runtime_ir_wasm32 : nms_runtime_ir_native, out);
     runtime(out, managed);
     if (global_count)
@@ -738,10 +764,10 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
         uint16_t depth = 0;
         verified = nvm_verify_function_max_stack(m, i, &depth);
         if (!verified.ok) return refuse(error, size, "I cannot establish scalar stack depth");
-        function(out, m, i, depth, managed, mutable_arrays);
+        function(out, m, i, depth, managed, mutable_arrays, graph_arrays != 0);
     }
     if (managed) {
-        managed_entry(out, m, entry, initializer, global_count);
+        managed_entry(out, m, entry, initializer, global_count, graph_arrays != 0);
         if (ferror(out)) return refuse(error, size, "I could not write managed LLVM IR");
         return 1;
     }

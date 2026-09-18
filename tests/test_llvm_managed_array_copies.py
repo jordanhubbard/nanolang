@@ -91,8 +91,8 @@ class ArrayCopies(unittest.TestCase):
         self.node(wasm,'for(let i=0;i<3;i++){check(e.nano_try_entry()===(3n<<32n));check(e.nms_module_live_objects()===3n);}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);')
 
     def test_refusal_preserves_outputs(self):
-        for body in ('ARR_NEW 1\nARR_LITERAL 5 1\nPOP\n','PUSH_STR a\nARR_LITERAL 1 1\nPOP\n',
-                     'ARR_NEW 7\nPUSH_I64 0\nPUSH_I64 1\nARR_SLICE\nPOP\n'):
+        for body in ('ARR_NEW 5\nARR_LITERAL 1 1\nPOP\n','PUSH_STR a\nARR_LITERAL 1 1\nPOP\n',
+                     'ARR_NEW 7\nPUSH_I64 0\nPUSH_I64 1\nARR_SLICE\nARR_LITERAL 1 1\nPOP\n'):
             assembly,module=self.work/'bad.nasm',self.work/'bad.nvm'
             assembly.write_text(self.program(body));self.run_cmd([ROOT/'bin/nanoisa','asm',assembly,'-o',module])
             for tool in ('nvm2llvm','nvm2wasm'):

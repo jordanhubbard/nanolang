@@ -394,3 +394,21 @@ NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArray
 NvmArrayEligibilityResult nvm_analyze_managed_array_graphs(const NvmModule *m,NvmArrayGraphEligibilityReport **out) {
     return analyze(m,NULL,out);
 }
+
+NvmArrayEligibilityResult nvm_select_managed_array_mode(const NvmModule *m,int *graph_required) {
+    if(!graph_required) {
+        NvmArrayEligibilityResult result={.status=NVM_ARRAY_INVALID};
+        snprintf(result.message,sizeof result.message,"I require an array-mode output.");
+        return result;
+    }
+    NvmArrayEligibilityReport *leaf=NULL;
+    NvmArrayEligibilityResult result=nvm_analyze_managed_arrays(m,&leaf);
+    nvm_array_eligibility_free(leaf);
+    if(result.status==NVM_ARRAY_ELIGIBLE){*graph_required=0;return result;}
+    if(result.status!=NVM_ARRAY_UNRESOLVED)return result;
+    NvmArrayGraphEligibilityReport *graph=NULL;
+    result=nvm_analyze_managed_array_graphs(m,&graph);
+    nvm_array_graph_eligibility_free(graph);
+    if(result.status==NVM_ARRAY_ELIGIBLE)*graph_required=1;
+    return result;
+}

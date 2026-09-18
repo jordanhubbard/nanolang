@@ -38,6 +38,11 @@ void nvm_array_eligibility_free(NvmArrayEligibilityReport *report);
 NvmArrayEligibilityResult nvm_analyze_managed_array_graphs(
     const NvmModule *module, NvmArrayGraphEligibilityReport **out);
 void nvm_array_graph_eligibility_free(NvmArrayGraphEligibilityReport *report);
+/* I select graph lifetime only after leaf UNRESOLVED and graph ELIGIBLE.
+ * Other failures are final; on failure *graph_required stays unchanged.
+ * Selection remains shape evidence: the profile and emitter supply lifetime. */
+NvmArrayEligibilityResult nvm_select_managed_array_mode(
+    const NvmModule *module, int *graph_required);
 #ifdef NMA_TESTING
 void nvm_array_analysis_fail_after(uint64_t allocations);
 #endif

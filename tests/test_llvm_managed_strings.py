@@ -202,7 +202,7 @@ class ManagedStrings(unittest.TestCase):
         self.node(wasm,'for(let i=0;i<10;i++){check(e.nano_try_entry()===(1n<<32n));check(e.nms_module_live_objects()===1n);}check(e.nano_dispose()===0);')
 
     def test_unsupported_array_shape_and_reserved_entry_refusals_preserve_output(self):
-        for body in ('PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nARR_NEW 1\nARR_PUSH\nPOP\n',
+        for body in ('ARR_NEW 1\nPUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nARR_PUSH\nPOP\n',
                      'ARR_NEW 1\nPUSH_STR a\nARR_PUSH\nPOP\n'):
             asm,mod=self.work/'refuse.nasm',self.work/'refuse.nvm'
             asm.write_text(self.program(body))

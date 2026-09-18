@@ -1119,9 +1119,8 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         }
     }
     if (mutable_arrays) {
-        NvmArrayEligibilityReport *report = NULL;
-        NvmArrayEligibilityResult arrays = nvm_analyze_managed_arrays(m, &report);
-        nvm_array_eligibility_free(report);
+        int graph_required = 0;
+        NvmArrayEligibilityResult arrays = nvm_select_managed_array_mode(m, &graph_required);
         if (arrays.status != NVM_ARRAY_ELIGIBLE)
             return fail("I cannot establish mutable array eligibility (status %u) at function %u offset %u: %s",
                         (unsigned)arrays.status, arrays.function, arrays.pc, arrays.message);

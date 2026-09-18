@@ -24,7 +24,7 @@ class ArrayGraphs(unittest.TestCase):
                 for name in names:self.assertEqual(self.run_command(['wasmtime','run','--invoke',name,wasm]),'0\n')
                 script="const fs=require('fs');const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));if(WebAssembly.Module.imports(m).length)throw Error('imports');for(let i=0;i<2;i++){const e=new WebAssembly.Instance(m).exports;for(let j=0;j<4;j++)for(const name of process.argv.slice(2))if(e[name]())throw Error(name);}"
                 self.run_command(['node','-e',script,wasm,*names])
-    def test_vm_nested_identity_and_managed_refusal(self):
+    def test_vm_nested_identity_and_managed_translation(self):
         import subprocess
         with tempfile.TemporaryDirectory(prefix='nano-graph-vm-') as temp:
             work=Path(temp);source=work/'graph.nasm';module=work/'graph.nvm'
@@ -39,7 +39,7 @@ class ArrayGraphs(unittest.TestCase):
             self.run_command([ROOT/'bin/nanoisa','asm',source,'-o',module])
             self.run_command([ROOT/'bin/nano_vm',module])
             for tool in ('nvm2llvm','nvm2wasm'):
-                output=work/(tool+'.old');output.write_bytes(b'prior output')
-                p=subprocess.run([ROOT/'bin'/tool,module,'-o',output],capture_output=True,timeout=30)
-                self.assertNotEqual(p.returncode,0);self.assertEqual(output.read_bytes(),b'prior output')
+                output=work/(tool+'.out')
+                self.run_command([ROOT/'bin'/tool,module,'-o',output])
+                self.assertTrue(output.stat().st_size)
 if __name__=='__main__':unittest.main()
