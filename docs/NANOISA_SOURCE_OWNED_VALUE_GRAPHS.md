@@ -119,8 +119,9 @@ No successful metadata is published from a partial graph.
 
 I leave full normative ownership, mixed reference graphs, owner entry results,
 new nested returned layouts and the full c435 blocker open until their exact
-acceptance is measured. This document records a proposal, not implementation
-or admission evidence.
+acceptance is measured. This document preserves my preimplementation contract. My bounded implementation
+and measured admission evidence are recorded in
+[evidence/source-owned-value-graphs.md](evidence/source-owned-value-graphs.md).
 
 ## My specialized admission correction
 
