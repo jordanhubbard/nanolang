@@ -26,7 +26,7 @@ ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 're
               'I64_DIV_U': 'div_u', 'I64_REM_U': 'rem_u',
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
-SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'LOAD_LOCAL', 'STORE_LOCAL',
+SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
           'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE)
 
@@ -189,6 +189,8 @@ class Analyze:
                     left = Expr(INT, 'bool_int', None, (left,))
                     right = Expr(INT, 'bool_int', None, (right,))
                 expr = Expr(BOOL, 'binary', GENERIC_COMPARE[op], (left, right))
+        elif op == 'F64_NEG':
+            expr = Expr(FLOAT, 'float_neg', None, (self.pop(stack, FLOAT),))
         elif op in FLOAT_COMPARE:
             right, left = self.pop(stack, FLOAT), self.pop(stack, FLOAT)
             expr = Expr(BOOL, 'binary', FLOAT_COMPARE[op], (left, right))
@@ -361,6 +363,8 @@ class Emit:
         if expr.kind == 'temporary':
             return f'nlr_t{expr.value}'
         args = [self.expression(a) for a in expr.args]
+        if expr.kind == 'float_neg':
+            return '(-' + args[0] + ')' if self.language == 'c' else '(- ' + args[0] + ')'
         if expr.kind in ('from_bits', 'to_bits'):
             if self.language == 'c':
                 return ('nlr_f64_from_bits((uint64_t)' if expr.kind == 'from_bits' else 'nlr_f64_to_bits(') + args[0] + ')'
