@@ -9913,7 +9913,9 @@ Other translators:
 - [ ] I establish checked VM substring clipping and explicit allocation-failure
       propagation before admitting the shared managed substring path. Static
       review at `58e0353d`; no malformed crash reproduction.
-      MAC `task_ce840367841a4bdb94ab69fd2446b635`.
+      MAC `task_ce840367841a4bdb94ab69fd2446b635`; contract
+      `docs/NANOISA_SUBSTRING_CONTRACT.md` orders checked clipping, popped-operand
+      cleanup, allocation-status propagation and fresh ordinary recovery gates.
 - [x] I implement the non-admitting managed-string runtime core: portable
       allocation, stable handles, reference/status/disposal helpers, checked
       growth and deterministic native/Wasm reclamation/failure tests.
