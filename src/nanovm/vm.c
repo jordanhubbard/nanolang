@@ -216,6 +216,32 @@ static bool vm_ownership_supported(const VmState *vm) {
     return true;
 }
 
+/* I keep this proof only on one synchronous public invocation's C stack.
+ * The admitted standalone module is immutable while that invocation executes. */
+typedef struct { const NvmModule *module; } VmOwnedInvocationProof;
+
+static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationProof *proof) {
+    return proof && proof->module && vm && vm->module==proof->module &&
+        vm->root_module==proof->module && !vm->linked_module_count &&
+        !vm->callbacks && !vm->opcode_trace;
+}
+
+static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
+    proof->module=NULL;
+    if (vm && vm->module && vm->module==vm->root_module &&
+        !vm->linked_module_count && !vm->callbacks && !vm->opcode_trace &&
+        !vm->references.active && vm->module->ownership_size) {
+        bool needs=false;
+        if (nvm_ownership_contracts_validate(vm->module,&needs)!=NVM_V2_OK) return false;
+        if (needs || nvm_uses_owned_transfers(vm->module)) {
+            if (!nvm_verify_owned_module(vm->module).ok) return false;
+            proof->module=vm->module;
+            return true;
+        }
+    }
+    return vm_ownership_supported(vm);
+}
+
 static const char VM_OWNERSHIP_REQUIRED[] =
     "I require reference lifetime and ownership instruction verification before execution";
 
@@ -1209,11 +1235,12 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
  * external operation (I/O, FFI, halt) or completes / errors.
  * ======================================================================== */
 
-VmTrap vm_core_execute(VmState *vm) {
-    if (!vm_ownership_supported(vm))
+static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof) {
+    bool admitted=vm_owned_proof_matches(vm,proof);
+    if (!admitted && !vm_ownership_supported(vm))
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
-    const bool owned_execution = vm->module->ownership_size &&
-        nvm_verify_owned_module(vm->module).ok;
+    const bool owned_execution = admitted || (vm->module->ownership_size &&
+        nvm_verify_owned_module(vm->module).ok);
     if (owned_execution) {
         if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
             vm->frames[0].fn_idx!=0)
@@ -4255,6 +4282,10 @@ vm_dispatch_done: ;
     return trap_none();
 }
 
+VmTrap vm_core_execute(VmState *vm) {
+    return vm_core_execute_scoped(vm,NULL);
+}
+
 /* ========================================================================
  * Debug: Source-Mapped Stack Trace
  * ======================================================================== */
@@ -4350,7 +4381,8 @@ static bool vm_stack_address(const VmState *vm, const void *pointer) {
 }
 
 static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *args,
-                                      uint16_t arg_count, NanoValue callable) {
+                                      uint16_t arg_count, NanoValue callable,
+                                      VmOwnedInvocationProof *proof) {
     if (arg_count && vm_stack_address(vm, args))
         return vm_error(vm, VM_ERR_TYPE_ERROR,
                         "I borrow stack arguments through vm_invoke, not vm_call_function.");
@@ -4416,14 +4448,19 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
         /* I do not recursively drain queued requests before a newly entered
          * callback executes its first instruction. Nested native waits pump
          * explicitly; pure execution gets its own bounded safe points. */
-        if (pump_at_boundary && vm->callbacks) vm_callback_pump(vm, false);
+        if (pump_at_boundary && vm->callbacks) {
+            proof->module=NULL;
+            vm_callback_pump(vm, false);
+        }
         pump_at_boundary = true;
         if (vm->callback_error != VM_OK)
             return vm_error(vm, vm->callback_error, "%s", vm->callback_error_msg);
-        VmTrap trap = vm_core_execute(vm);
+        if (!vm_owned_proof_matches(vm,proof)) proof->module=NULL;
+        VmTrap trap = vm_core_execute_scoped(vm,proof);
 
         switch (trap.type) {
         case TRAP_YIELD:
+            proof->module=NULL;
             break;
         case TRAP_NONE:
             return VM_OK;
@@ -4432,6 +4469,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
             return VM_OK;
 
         case TRAP_PRINT:
+            proof->module=NULL;
             val_print(trap.data.print.value, vm_out(vm));
             if (trap.data.print.newline) fprintf(vm_out(vm), "\n");
             vm_release(&vm->heap, trap.data.print.value);
@@ -4452,6 +4490,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
             break;
 
         case TRAP_EXTERN_CALL: {
+            proof->module=NULL;
             NanoValue ext_result;
             char ext_err[256];
             bool ffi_ok;
@@ -4539,10 +4578,11 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     }
 }
 
-VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue *args,
+                                         uint16_t arg_count, VmOwnedInvocationProof *proof) {
     if (nvm_uses_owned_transfers(vm->module) && fn_idx!=0)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse host entry into a borrowed helper");
-    if (!vm_ownership_supported(vm))
+    if (!vm_owned_proof_matches(vm,proof) && !vm_ownership_admit(vm,proof))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm->references.active)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a call in my standalone reference activation");
@@ -4550,7 +4590,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     bool owned = nvm_uses_owned_transfers(vm->module);
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
-    VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void());
+    VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void(),proof);
     vm->activation_floor = floor;
     if (result!=VM_OK) {
         vm_clear_reference_activations(vm);
@@ -4569,12 +4609,18 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     return result;
 }
 
+VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+    VmOwnedInvocationProof proof={0};
+    return vm_call_function_scoped(vm,fn_idx,args,arg_count,&proof);
+}
+
 VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *args,
                             uint16_t arg_count, NanoValue *out_result) {
     const NvmModule *target;
     uint32_t function_index;
     if (!vm) return VM_ERR_UNDEFINED_FUNCTION;
-    if (!vm_ownership_supported(vm))
+    VmOwnedInvocationProof proof={0};
+    if (!vm_ownership_admit(vm,&proof))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm->references.active)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a callable in my standalone reference activation");
@@ -4615,10 +4661,11 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
         return status;
     }
     if (out_result) *out_result = val_void();
+    if (target!=proof.module) proof.module=NULL;
     vm->module = target;
     vm->activation_floor = frames;
     for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, stable_args[i]);
-    status = vm_call_function_impl(vm, function_index, stable_args, arg_count, callable);
+    status = vm_call_function_impl(vm, function_index, stable_args, arg_count, callable,&proof);
     if (status!=VM_OK && target->ownership_size) {
         vm_clear_reference_activations(vm);
     }
@@ -4655,7 +4702,8 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
     if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
     if (nvm_uses_owned_transfers(vm->module) && fn_idx!=0)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse invocation entry into a borrowed helper");
-    if (!vm_ownership_supported(vm))
+    VmOwnedInvocationProof proof={0};
+    if (!vm_ownership_admit(vm,&proof))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (vm_stack_address(vm, out_result))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "I need result storage outside my movable stack.");
@@ -4708,7 +4756,7 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
     /* vm_call_function consumes argument ownership through its frame cleanup. */
     for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, stable_args[i]);
 
-    VmResult result = vm_call_function(vm, fn_idx, stable_args, arg_count);
+    VmResult result = vm_call_function_scoped(vm, fn_idx, stable_args, arg_count,&proof);
     if (stable_args != inline_args) free(stable_args);
     NanoValue returned = val_void();
     if (result == VM_OK && vm->stack_size > stack_base) {
