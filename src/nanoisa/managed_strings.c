@@ -388,7 +388,7 @@ static NmsStatus nms_format_binary64(NmsRuntime *runtime, uint64_t bits, NmsHand
 }
 NmsStatus nms_format_scalar(NmsRuntime *runtime, uint64_t bits, uint32_t tag, NmsHandle *out) {
     if (tag == 3) return nms_format_binary64(runtime, bits, out);
-    if (tag == 0 || tag == 9) return nms_create(runtime, NULL, 0, out);
+    if (tag == 0 || tag == NMS_ARRAY_TAG || tag == 9) return nms_create(runtime, NULL, 0, out);
     if (tag == 4) return nms_create(runtime,
         (const unsigned char *)(bits ? "true" : "false"), bits ? 4 : 5, out);
     if (tag != 1 && tag != 2) return NMS_TYPE;
@@ -601,6 +601,46 @@ static int find_bytes(NmsView source, NmsView needle, uint32_t start, uint32_t *
         }
     }
     return 0;
+}
+static NmsStatus append_segment(NmsRuntime *runtime, NmsHandle array,
+                                 const unsigned char *bytes, uint32_t length) {
+    NmsHandle child = 0;
+    NmsStatus status = nms_create(runtime, bytes, length, &child);
+    if (status != NMS_OK) return status;
+    status = nms_string_array_append(runtime, array, child);
+    NmsStatus released = nms_release(runtime, child);
+    return status != NMS_OK ? status : released;
+}
+NmsStatus nms_split_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle delimiter,
+                          NmsHandle *out) {
+    NmsView a, b;
+    NmsHandle array = 0;
+    NmsStatus status = out ? nms_view(runtime, source, &a) : NMS_STATE;
+    if (status == NMS_OK) status = nms_view(runtime, delimiter, &b);
+    if (status == NMS_OK) status = nms_string_array_create(runtime, &array);
+    if (status == NMS_OK && !b.length) {
+        for (uint32_t i = 0; i < a.length && status == NMS_OK; i++)
+            status = append_segment(runtime, array, a.data + i, 1);
+    } else if (status == NMS_OK) {
+        uint32_t position = 0, found = 0;
+        while (status == NMS_OK && find_bytes(a, b, position, &found)) {
+            status = append_segment(runtime, array, a.data + position, found - position);
+            position = found + b.length;
+        }
+        if (status == NMS_OK)
+            status = append_segment(runtime, array, a.data + position, a.length - position);
+    }
+    /* Views point at retained byte buffers, never relocated slot-table cells.
+     * I finish every read before consuming either input owner. */
+    NmsStatus left = nms_release(runtime, source);
+    NmsStatus right = nms_release(runtime, delimiter);
+    if (status == NMS_OK) status = left != NMS_OK ? left : right;
+    if (status != NMS_OK) {
+        if (array) nms_release(runtime, array);
+        return status;
+    }
+    *out = array;
+    return NMS_OK;
 }
 NmsStatus nms_replace_owned(NmsRuntime *runtime, NmsHandle source, NmsHandle needle,
                             NmsHandle replacement, NmsHandle *out) {

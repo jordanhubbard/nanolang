@@ -231,7 +231,7 @@ static void comparison_runtime(FILE *out) {
         " %g = zext i1 %greater to i64\n"
         " %payload = sub i64 %g, %l\n"
         " %void = icmp eq i8 %at, 0\n"
-        " %enums = and i1 %ae, %be\n %zero_order = or i1 %void, %enums\n"
+        " %enums = and i1 %ae, %be\n %default_order = or i1 %void, %enums\n %array = icmp eq i8 %at, 7\n %zero_order = or i1 %default_order, %array\n"
         " %value = select i1 %zero_order, i64 0, i64 %payload\n"
         " %ati = zext i8 %at to i64\n"
         " %bti = zext i8 %bt to i64\n"
@@ -440,6 +440,22 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_STR_SPLIT:
+            pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_split(%%V %%p%u_a, %%V %%p%u_b)\n", pc, pc, pc);
+            transferred(&frame, "a"); transferred(&frame, "b");
+            push(&frame, pc, "value");
+            break;
+        case OP_ARR_GET:
+            pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_array_get(%%V %%p%u_a, %%V %%p%u_b)\n", pc, pc, pc);
+            push(&frame, pc, "value");
+            break;
+        case OP_ARR_LEN:
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_result = call i64 @managed_array_length(%%V %%p%u_a)\n", pc, pc);
+            result(&frame, pc, TAG_INT);
+            break;
         case OP_STR_REPLACE:
             pop(&frame, pc, "c"); pop(&frame, pc, "b"); pop(&frame, pc, "a");
             fprintf(out, " %%p%u_value = call %%V @managed_replace(%%V %%p%u_a, %%V %%p%u_b, %%V %%p%u_c)\n", pc, pc, pc, pc);
