@@ -171,3 +171,12 @@ it contains any extern token. Foreign import tables and passive parallel/flow
 functions also remain outside this first producer checkpoint. This lexical
 exclusion supplies no positive authority; checked record fields still determine
 every emitted complete declaration.
+
+## My qualified forward-order extension
+
+My [forward authority contract](NANOISA_FORWARD_ORDINARY_AUTHORITY.md) extends
+the original prior-only optional publisher to finite acyclic ordinary record
+graphs without reordering identities. Resource-bearing authority, owned
+execution and managed descriptor/field-origin admission keep their prior-only
+boundaries. The original import/generic/array/other nominal exclusions remain;
+this extension changes the forward-order exclusion only.
