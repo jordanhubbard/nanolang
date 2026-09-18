@@ -118,7 +118,9 @@ fed07eda1154c762622e1b623fed84ad0d9c248a946387320f76d952ee845d34.
 ASan/UBSan, `halt_on_error=1` and every generated `live==0` assertion remain
 enabled in both runs. I do not claim unchanged leak-sanitizer coverage: Apple
 Clang uses the explicit zero-live-allocation boundary while Homebrew LLVM 23
-also executes LeakSanitizer.
+also executes LeakSanitizer. The Homebrew LLVM 23 run is my required Darwin
+qualification. The Apple Clang run is optional additional ASan/UBSan evidence;
+it does not substitute for the required LeakSanitizer gate.
 
 This portability correction changes only test policy and documentation; the
 qualified owned-result production remains unchanged. Full source admission,
