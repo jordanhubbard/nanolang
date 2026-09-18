@@ -227,7 +227,7 @@ shadow main { assert true }
                     self.assertEqual(output.read_text(), 'accepted-output')
 
     def test_control_flow_preserves_exact_joins_and_effects(self):
-        for fixture in ('source_borrow_control_flow.nano',):
+        for fixture in ('source_borrow_control_flow.nano', 'source_borrow_control_shared.nano'):
             source = FIXTURES / fixture
             seed = self.work / 'nested-seed.nvm'
             self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
@@ -235,7 +235,8 @@ shadow main { assert true }
             self.assertIn('.ownership "02000000', baseline)
             self.assertIn('JMP_FALSE', baseline)
             self.assertIn('JMP ', baseline)
-            self.assertIn('BORROW_PATH_EXCLUSIVE', baseline)
+            expected = 'BORROW_PATH_SHARED' if fixture.endswith('_shared.nano') else 'BORROW_PATH_EXCLUSIVE'
+            self.assertIn(expected, baseline)
             self.names_and_strip(seed)
             for emitter in self.emitters:
                 assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
