@@ -87,3 +87,9 @@ now with a diagnostic in `parser_set_let_var_type`; I retain that separate
 artifact and log in `/tmp/nanolang-product-exports-85d2e294/evidence.json`.
 This completes the storage task's fresh bootstrap requirement. It does not
 complete export-shadow task dd74, product PR522 or release acceptance.
+
+After integrating main through PR622 at `da829158`, I rebuild the native
+translator, NanoISA CLI and VM and pass all 23 optional-storage, numeric-union,
+enum and U8 tail-result methods in 23.740 seconds. The conflict was confined
+to additive roadmap entries; native code merged without conflict. This
+integration check is recorded in `/tmp/nanolang-storage-current-integration.log`.
