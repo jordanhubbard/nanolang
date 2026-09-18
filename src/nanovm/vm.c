@@ -3781,6 +3781,13 @@ vm_return_values: ;
                 vm_release(&vm->heap, v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_SET: not a hashmap");
             }
+            if (key.tag != map.as.hashmap->key_type || v.tag != map.as.hashmap->val_type) {
+                vm_release(&vm->heap, map);
+                vm_release(&vm->heap, key);
+                vm_release(&vm->heap, v);
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "I require HM_SET key/value tags to match the map declaration.");
+            }
             vm_hashmap_set(&vm->heap, map.as.hashmap, key, v);
             vm_release(&vm->heap, key);
             vm_release(&vm->heap, v);

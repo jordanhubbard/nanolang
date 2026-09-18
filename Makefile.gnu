@@ -1108,6 +1108,21 @@ test-units: test-string-boundaries test-map-results
 test-map-results: $(COMPILER_C) nano_virt nano_vm
 	@python3 tests/test_map_results.py
 
+
+.PHONY: test-map-declared-tags-sanitizers
+test-map-declared-tags-sanitizers: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -fsanitize=address,undefined -fno-sanitize-recover=all -o $(OBJ_DIR)/test_map_declared_tags \
+		tests/nanovm/test_map_declared_tags.c src/nanovm/vm.c src/nanovm/heap.c src/nanovm/heap_cycles.c src/nanovm/value.c \
+		$(filter-out $(OBJ_DIR)/nanovm/vm.o $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/heap_cycles.o $(OBJ_DIR)/nanovm/value.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=$(if $(filter Darwin,$(UNAME_S)),0,1) $(OBJ_DIR)/test_map_declared_tags
+
+.PHONY: test-map-declared-tags
+test-map-declared-tags: nano_virt nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_map_declared_tags tests.test_native_map_globals
+
+test-units: test-map-declared-tags
+
 .PHONY: test-selfhost-map-results
 test-selfhost-map-results: bootstrap3
 	@NANOLANG_MAP_SELFHOST=1 python3 tests/test_map_results.py
