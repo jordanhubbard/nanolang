@@ -1,0 +1,27 @@
+mkdir -p obj/runtime
+mkdir -p obj/eval
+[schema] Generating compiler schema artifacts...
+python3 scripts/embed_binary64_parser.py --check
+[schema] Using Python version (bootstrap)...
+python3 scripts/embed_managed_runtime.py --clang "/tmp/nanolang-projection-clang" --opt "opt" --header obj/nanoisa/managed_runtime_ir.h --manifest obj/nanoisa/managed_runtime_ir.json
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/dump_main.c -o obj/nanoisa/dump_main.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/value.c -o obj/nanovm/value.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-flat-array-proof-ready/scripts/embed_managed_runtime.py", line 88, in <module>
+    main()
+    ~~~~^^
+  File "/home/jkh/Src/nanolang-mixed-flat-array-proof-ready/scripts/embed_managed_runtime.py", line 79, in main
+    header, manifest, _ = generate(shlex.split(args.clang), shlex.split(args.opt))
+                          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-flat-array-proof-ready/scripts/embed_managed_runtime.py", line 42, in generate
+    invoke(clang + flags + [SOURCE, '-o', str(output)])
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-flat-array-proof-ready/scripts/embed_managed_runtime.py", line 23, in invoke
+    raise RuntimeError('I could not build or verify runtime IR: '+
+                       shlex.join(args)+'\n'+result.stdout+result.stderr)
+RuntimeError: I could not build or verify runtime IR: /tmp/nanolang-projection-clang -std=c11 -O2 -ffreestanding -fno-builtin -fno-ident -Wall -Wextra -Werror -S -emit-llvm --target=wasm32-unknown-unknown src/nanoisa/managed_module.c -o /tmp/nano-runtime-ir-4c60nfp8/wasm32.ll
+clang: error: argument unused during compilation: '--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13' [-Werror,-Wunused-command-line-argument]
+
+make: *** [Makefile.gnu:4709: managed-runtime-package] Error 1
+make: *** Waiting for unfinished jobs....

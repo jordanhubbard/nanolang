@@ -1,0 +1,18 @@
+{
+  "name": "prepare",
+  "command": [
+    "make",
+    "-j2",
+    "nano_vm",
+    "nvm2c",
+    "nvm2wasm",
+    "nanoisa_dump"
+  ],
+  "environment": {
+    "NMS_RUNTIME_CLANG": "clang",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "CC": "cc"
+  },
+  "status": 0,
+  "seconds": 18.52432487398619
+}

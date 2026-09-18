@@ -1,0 +1,37 @@
+{
+  "pin": "ae07f575e5c3685a5d34afff45028744d01fcefd",
+  "results": [
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-mixed-float-proof"
+      ],
+      "environment": {
+        "CC": "/tmp/nanolang-projection-clang",
+        "MIXED_CFLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+      },
+      "status": 0,
+      "seconds": 1.366782383993268
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "-j2",
+        "test-mixed-layout-view",
+        "test-retained-layouts",
+        "test-ownership-contracts",
+        "test-verifier",
+        "test-managed-record-plan"
+      ],
+      "environment": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+      },
+      "status": 0,
+      "seconds": 16.507838775985874
+    }
+  ]
+}
