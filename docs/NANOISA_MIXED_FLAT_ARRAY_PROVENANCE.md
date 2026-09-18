@@ -248,3 +248,11 @@ This is a source inspection of ordinary codegen.c/nanoisa_codegen.nano and owned
 borrow_codegen.inc/nanoisa_borrows.nano, not an emitted mixed artifact: current
 source profile guards still refuse the combined Samples module. I preserve that
 honest boundary until later paired source admission.
+
+I retain first qualification830d8bd4, status2 in6.580s, under this task. An ordinary
+branch query returned INVALID at pc29, causing the fixture assertion to terminate.
+My new target calculation incorrectly included instruction width. Existing
+vm_decode.c and verifier.c establish opcode-PC-relative offsets: target equals
+instruction PC plus signed displacement. I correct only that private calculation,
+preserve the original log/status/inventory, and qualify a fresh corrected query.
+No pending module was executed and no shared branch behavior changes.
