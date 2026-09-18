@@ -226,6 +226,40 @@ shadow main { assert true }
                     self.assertGreater(result.returncode, 0, (name, emitter, result.stderr))
                     self.assertEqual(output.read_text(), 'accepted-output')
 
+    def test_control_flow_preserves_exact_joins_and_effects(self):
+        for fixture in ('source_borrow_control_flow.nano',):
+            source = FIXTURES / fixture
+            seed = self.work / 'nested-seed.nvm'
+            self.command(ROOT / 'bin/nano_virt', source, '--emit-nvm', '--strip-debug', '-o', seed)
+            baseline = self.command(ROOT / 'bin/nanoisa', 'dump', seed).stdout
+            self.assertIn('.ownership "02000000', baseline)
+            self.assertIn('JMP_FALSE', baseline)
+            self.assertIn('JMP ', baseline)
+            self.assertIn('BORROW_PATH_EXCLUSIVE', baseline)
+            self.names_and_strip(seed)
+            for emitter in self.emitters:
+                assembly, module = self.work / 'nested.nasm', self.work / 'nested.nvm'
+                self.command(emitter, source, '-o', assembly)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            for compiler in ('nanoc_stage1', 'nanoc_stage2'):
+                module = self.work / (compiler + '-nested.nvm')
+                self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+                self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+                self.execute_pair(module)
+            shadow_dump = None
+            for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+                args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+                assembly, module = self.work / 'nested-shadow.nasm', self.work / 'nested-shadow.nvm'
+                assembly.write_text(self.command(tool, *args).stdout)
+                self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+                current = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+                if shadow_dump is None:
+                    shadow_dump = current
+                self.assertEqual(current, shadow_dump)
+                self.execute_pair(module)
+
     def test_nested_paths_preserve_trees_and_callers(self):
         for fixture in ('source_borrow_nested.nano', 'source_borrow_nested_shared.nano'):
             source = FIXTURES / fixture
@@ -259,6 +293,67 @@ shadow main { assert true }
                     shadow_dump = current
                 self.assertEqual(current, shadow_dump)
                 self.execute_pair(module)
+
+    def test_control_flow_refusals_preserve_publication(self):
+        text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
+        cases = {
+            'branch_local': text.replace('set total (+ total 2)', 'let value: int = 2 set total (+ total value)'),
+            'loop_local': text.replace('set j 0', 'let value: int = 0 set j value'),
+            'branch_owner': text.replace('set total (+ total 2)', 'let moved: Pair = root'),
+            'branch_destructure': text.replace('set total (+ total 2)', 'let Pair { left, right } = root'),
+            'loop_destructure': text.replace('set j 0', 'let Pair { left, right } = root'),
+            'branch_return': text.replace('set total (+ total 2)', 'return 0'),
+            'loop_return': text.replace('set j 0', 'return 0'),
+            'break': text.replace('set j 0', 'break'),
+            'continue': text.replace('set j 0', 'continue'),
+            'integer_condition': text.replace('while (< i 3)', 'while 1'),
+            'changed_scalar_type': text.replace('set j 0', 'set j true'),
+            'failed_shadow': text.replace('shadow main { if true { assert true }', 'shadow main { if true { assert false }'),
+        }
+        for name, content in cases.items():
+            source = self.work / (name + '.nano')
+            source.write_text(content)
+            for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                output = self.work / 'control-preserved.nvm'
+                output.write_bytes(b'accepted-output')
+                result = subprocess.run([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output],
+                                        cwd=ROOT, capture_output=True, text=True, timeout=60)
+                self.assertGreater(result.returncode, 0, (name, compiler, result.stderr))
+                self.assertEqual(output.read_bytes(), b'accepted-output')
+            if name != 'failed_shadow':
+                for emitter in self.emitters:
+                    output = self.work / 'control-preserved.nasm'
+                    output.write_text('accepted-output')
+                    result = subprocess.run([emitter, source, '-o', output], cwd=ROOT,
+                                            capture_output=True, text=True, timeout=60)
+                    self.assertGreater(result.returncode, 0, (name, emitter, result.stderr))
+                    self.assertEqual(output.read_text(), 'accepted-output')
+
+    def test_control_flow_depth_boundary(self):
+        text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
+        for depth in (32, 33):
+            nested = 'if true { ' * depth + 'assert true' + ' }' * depth
+            source = self.work / f'control-depth{depth}.nano'
+            source.write_text(text.replace('if true { assert (== root.left.value 6) }', nested))
+            baseline = None
+            for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                output = self.work / f'control-depth{depth}-{compiler}.nvm'
+                output.write_bytes(b'accepted-output')
+                args = [ROOT / 'bin' / compiler, source, '--emit-nvm']
+                if compiler == 'nano_virt':
+                    args.append('--strip-debug')
+                result = subprocess.run([*args, '-o', output], cwd=ROOT,
+                                        capture_output=True, text=True, timeout=60)
+                if depth == 33:
+                    self.assertGreater(result.returncode, 0, (compiler, result.stderr))
+                    self.assertEqual(output.read_bytes(), b'accepted-output')
+                else:
+                    self.assertEqual(result.returncode, 0, (compiler, result.stderr))
+                    dump = self.command(ROOT / 'bin/nanoisa', 'dump', output).stdout
+                    if baseline is None:
+                        baseline = dump
+                    self.assertEqual(dump, baseline)
+                    self.execute_pair(output)
 
     def test_nested_source_refusals_preserve_publication(self):
         text = (FIXTURES / 'source_borrow_nested.nano').read_text()
@@ -424,7 +519,7 @@ shadow main { assert true }
             'false shadow': text.replace('shadow main { assert true }', 'shadow main { assert false }'),
             'shadow calls main': text.replace('shadow main { assert true }', 'shadow main { assert (== (main) 0) }'),
             'extra function': text + '\nfn extra() -> int { return 1 } shadow extra { assert true }\n',
-            'loop': text.replace('return 0', 'while false { assert true } return 0'),
+            'loop local initialization': text.replace('return 0', 'while false { let extra: int = 1 assert (== extra 1) } return 0'),
             'heap field': text.replace('resource struct Other { value: int, active: bool }',
                                        'resource struct Other { label: string }'),
             'wrong nominal': text.replace('let owner: Counter = Counter { value: 12, active: false }',

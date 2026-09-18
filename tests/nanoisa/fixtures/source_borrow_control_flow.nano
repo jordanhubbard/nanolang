@@ -1,0 +1,80 @@
+resource struct Leaf { value: int, enabled: bool }
+resource struct Pair { left: Leaf, right: Leaf }
+fn step(view: &mut Leaf) -> int {
+ let mut result: int = 0
+ let mut index: int = 0
+ if view.enabled {
+  while (< index 2) {
+   set view.value (+ view.value 1)
+   set index (+ index 1)
+  }
+  set result view.value
+ } else { set result -1 }
+ return result
+}
+shadow step {
+ let left: Leaf = Leaf { value: 0, enabled: true }
+ let right: Leaf = Leaf { value: 100, enabled: false }
+ let mut root: Pair = Pair { left: left, right: right }
+ let mut i: int = 0
+ let mut j: int = 0
+ let mut total: int = 0
+ while (< i 3) {
+  set j 0
+  while (< j 2) {
+   if (== j 0) { set total (+ total (step &mut root.left)) }
+   else { set total (+ total (step &mut root.right)) }
+   set j (+ j 1)
+  }
+  set i (+ i 1)
+ }
+ assert (== total 9)
+ while false { (step &mut root.left) }
+ if false { assert false } else { assert (== total 9) }
+ if true { assert (== root.left.value 6) }
+ while (< (step &mut root.left) 10) { set total (+ total 1) }
+ assert (== root.left.value 10)
+ assert (== total 10)
+ if (> (step &mut root.left) 10) { set total (+ total 2) }
+ else { assert false }
+ assert (== total 12)
+ let Pair { right, left } = root
+ let Leaf { value, enabled } = left
+ assert (== value 12) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 100) assert (not enabled)
+}
+fn main() -> int {
+ let left: Leaf = Leaf { value: 0, enabled: true }
+ let right: Leaf = Leaf { value: 100, enabled: false }
+ let mut root: Pair = Pair { left: left, right: right }
+ let mut i: int = 0
+ let mut j: int = 0
+ let mut total: int = 0
+ while (< i 3) {
+  set j 0
+  while (< j 2) {
+   if (== j 0) { set total (+ total (step &mut root.left)) }
+   else { set total (+ total (step &mut root.right)) }
+   set j (+ j 1)
+  }
+  set i (+ i 1)
+ }
+ assert (== total 9)
+ while false { (step &mut root.left) }
+ if false { assert false } else { assert (== total 9) }
+ if true { assert (== root.left.value 6) }
+ while (< (step &mut root.left) 10) { set total (+ total 1) }
+ assert (== root.left.value 10)
+ assert (== total 10)
+ if (> (step &mut root.left) 10) { set total (+ total 2) }
+ else { assert false }
+ assert (== total 12)
+ let Pair { right, left } = root
+ let Leaf { value, enabled } = left
+ assert (== value 12) assert enabled
+ let Leaf { value, enabled } = right
+ assert (== value 100) assert (not enabled)
+ return 0
+}
+shadow main { if true { assert true } else { assert false } }
