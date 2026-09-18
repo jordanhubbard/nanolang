@@ -469,7 +469,7 @@ void test_infer_match_guard_requires_bool(void) {
 }
 
 void test_infer_match_guard_uses_arm_binding_scope(void) {
-    Parameter parameter = { "payload", TYPE_INT, NULL, TYPE_INT, NULL, NULL };
+    Parameter parameter = { "payload", TYPE_BOOL, NULL, TYPE_BOOL, NULL, NULL };
     ASTNode scrutinee;
     ASTNode guard;
     ASTNode body;
@@ -503,13 +503,13 @@ void test_infer_match_guard_uses_arm_binding_scope(void) {
     function.as.function.return_type = TYPE_INT;
     function.as.function.body = &match;
 
-    ASSERT(hm_infer_program(&function, "match-binding-guard.nano"));
-
-    bindings[0] = "arm_payload";
     suppress_stderr();
-    bool ok = hm_infer_program(&function, "match-outer-guard.nano");
+    bool ok = hm_infer_program(&function, "match-binding-guard.nano");
     restore_stderr();
     ASSERT(!ok);
+
+    bindings[0] = "arm_payload";
+    ASSERT(hm_infer_program(&function, "match-outer-guard.nano"));
 }
 
 /* ============================================================================
