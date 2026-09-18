@@ -5278,6 +5278,11 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             host->name, types, host->name, release_name);
         nvm2c_puts(b,
             "        if (!walk || !release) NVM2C_ABORT();\n"
+            "        Dl_info producer, marker, companion;\n"
+            "        if (!dladdr((void *)walk, &producer) || !dladdr((void *)abi, &marker) ||\n"
+            "            !dladdr((void *)release, &companion) ||\n"
+            "            producer.dli_fbase != marker.dli_fbase ||\n"
+            "            producer.dli_fbase != companion.dli_fbase) NVM2C_ABORT();\n"
             "    }\n");
         nvm2c_printf(b, "    nh_array_value *foreign = walk(%s);\n", host->argc == 2 ? "root, extension" : "root");
         nvm2c_puts(b,
