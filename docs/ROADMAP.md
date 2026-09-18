@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I refresh my bounded Sail-to-Rocq model gate (`task_f3524c87530e4b49aa71b5bf50e287e5`) at the current product source. I retain exact model/script/dependency identities and require all nine named assumption reports plus independent checking through the execution-capable peer. This proof-only refresh does not execute decoder/VM corpora or establish ISA refinement.
+
 - [x] I refresh the exact candidate proof gate on an execution-capable host (`task_414caa6f28504b3ba47fdf7891d329f3`). At frozen product `ece241ba`, I preserve the Linux ARM64 image-execution failure. My Darwin peer completes the same pinned gate in 224.41 seconds: fresh Rocq 9.0.1 compilation, 43 closed-assumption reports, assumption audit and independent checker pass. [Evidence](evidence/product-formal-ece241ba.md). This validates my model, not production correspondence.
 
 - [ ] I resolve my Darwin Forth core gate timeout (`task_1b914e18e8c830e9db6fcb2be90e73b1`). At frozen product `ece241ba`, the configured 600-second alarm fires during `core.fr` after earlier platform checks pass. I preserve the sealed failure and investigate deterministic harness input before changing source; a terminal-dependent ACCEPT path is a static candidate, not an established diagnosis. [Evidence](evidence/product-acceptance-ece241ba.md). Full product acceptance remains open.
