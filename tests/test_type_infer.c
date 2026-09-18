@@ -436,6 +436,82 @@ void test_infer_for_lsp_and_free(void) {
     hm_infer_result_free(&result);
 }
 
+void test_infer_match_guard_requires_bool(void) {
+    ASTNode scrutinee;
+    ASTNode guard;
+    ASTNode body;
+    ASTNode match;
+    ASTNode *guards[1];
+    ASTNode *bodies[1];
+    memset(&scrutinee, 0, sizeof(scrutinee));
+    memset(&guard, 0, sizeof(guard));
+    memset(&body, 0, sizeof(body));
+    memset(&match, 0, sizeof(match));
+
+    scrutinee.type = AST_NUMBER;
+    guard.type = AST_NUMBER;
+    body.type = AST_NUMBER;
+    guards[0] = &guard;
+    bodies[0] = &body;
+    match.type = AST_MATCH;
+    match.as.match_expr.expr = &scrutinee;
+    match.as.match_expr.arm_count = 1;
+    match.as.match_expr.guard_exprs = guards;
+    match.as.match_expr.arm_bodies = bodies;
+
+    suppress_stderr();
+    bool ok = hm_infer_program(&match, "match-guard.nano");
+    restore_stderr();
+    ASSERT(!ok);
+
+    guard.type = AST_BOOL;
+    ASSERT(hm_infer_program(&match, "match-guard-control.nano"));
+}
+
+void test_infer_match_guard_uses_arm_binding_scope(void) {
+    Parameter parameter = { "payload", TYPE_BOOL, NULL, TYPE_BOOL, NULL, NULL };
+    ASTNode scrutinee;
+    ASTNode guard;
+    ASTNode body;
+    ASTNode match;
+    ASTNode function;
+    ASTNode *guards[1];
+    ASTNode *bodies[1];
+    char *bindings[1] = { "payload" };
+    memset(&scrutinee, 0, sizeof(scrutinee));
+    memset(&guard, 0, sizeof(guard));
+    memset(&body, 0, sizeof(body));
+    memset(&match, 0, sizeof(match));
+    memset(&function, 0, sizeof(function));
+
+    scrutinee.type = AST_NUMBER;
+    guard.type = AST_IDENTIFIER;
+    guard.as.identifier = "payload";
+    body.type = AST_NUMBER;
+    guards[0] = &guard;
+    bodies[0] = &body;
+    match.type = AST_MATCH;
+    match.as.match_expr.expr = &scrutinee;
+    match.as.match_expr.arm_count = 1;
+    match.as.match_expr.pattern_bindings = bindings;
+    match.as.match_expr.guard_exprs = guards;
+    match.as.match_expr.arm_bodies = bodies;
+    function.type = AST_FUNCTION;
+    function.as.function.name = "guard_scope";
+    function.as.function.params = &parameter;
+    function.as.function.param_count = 1;
+    function.as.function.return_type = TYPE_INT;
+    function.as.function.body = &match;
+
+    suppress_stderr();
+    bool ok = hm_infer_program(&function, "match-binding-guard.nano");
+    restore_stderr();
+    ASSERT(!ok);
+
+    bindings[0] = "arm_payload";
+    ASSERT(hm_infer_program(&function, "match-outer-guard.nano"));
+}
+
 /* ============================================================================
  * main
  * ============================================================================ */
@@ -487,6 +563,8 @@ int main(void) {
     TEST(infer_empty_program);
     TEST(infer_with_effects);
     TEST(infer_for_lsp_and_free);
+    TEST(infer_match_guard_requires_bool);
+    TEST(infer_match_guard_uses_arm_binding_scope);
 
     printf("\n✓ All type inference tests passed!\n");
     return 0;

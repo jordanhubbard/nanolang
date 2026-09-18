@@ -10,6 +10,7 @@
 
 #include "../src/nanolang.h"
 #include "../src/nanocore_export.h"
+#include "../src/nanocore_subset.h"
 #include "../src/emit_typed_ast.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -369,6 +370,39 @@ static void test_export_func_string_param(void) {
     free_ast(prog);
 }
 
+static void test_export_unguarded_match_control(void) {
+    ASTNode *prog = parse_nano(
+        "fn f(n: int) -> int { return match n { 0 => 1, _ => 2 } }"
+    );
+    ASSERT_NOT_NULL(prog);
+    ASTNode *expr = get_return_val(get_func(prog));
+    ASSERT_NOT_NULL(expr);
+    ASSERT(nanocore_is_subset(expr, NULL));
+    char *s = nanocore_export_sexpr(expr, NULL);
+    ASSERT_NOT_NULL(s);
+    ASSERT_STR_CONTAINS(s, "EMatch");
+    free(s);
+    free_ast(prog);
+}
+
+static void test_guarded_match_is_not_exported(void) {
+    ASTNode *prog = parse_nano(
+        "fn f(n: int) -> int { return match n { 0 if true => 1, _ => 2 } }"
+    );
+    ASSERT_NOT_NULL(prog);
+    ASTNode *expr = get_return_val(get_func(prog));
+    ASSERT_NOT_NULL(expr);
+    ASSERT(!nanocore_is_subset(expr, NULL));
+    ASSERT_NULL(nanocore_export_sexpr(expr, NULL));
+    TrustReport *report = nanocore_trust_report(prog, NULL);
+    ASSERT_NOT_NULL(report);
+    ASSERT(report->count == 1);
+    ASSERT_STR_CONTAINS(report->entries[0].reason,
+                        "I do not model match guards in NanoCore");
+    nanocore_free_trust_report(report);
+    free_ast(prog);
+}
+
 /* ============================================================================
  * emit_typed_ast_json tests
  * (stdout is suppressed — we only verify no crash and basic structure)
@@ -565,6 +599,8 @@ int main(void) {
     TEST(export_func_no_params);
     TEST(export_func_bool_param);
     TEST(export_func_string_param);
+    TEST(export_unguarded_match_control);
+    TEST(guarded_match_is_not_exported);
 
     /* emit_typed_ast_json */
     TEST(emit_null_program);

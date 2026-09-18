@@ -530,6 +530,54 @@ void test_cps_multiple_functions(void) {
     free_ast(prog);
 }
 
+void test_cps_visits_match_guards(void) {
+    ASTNode scrutinee;
+    ASTNode awaited;
+    ASTNode guard;
+    ASTNode body;
+    ASTNode match;
+    ASTNode program;
+    ASTNode *guards[1];
+    ASTNode *bodies[1];
+    ASTNode *items[1];
+    memset(&scrutinee, 0, sizeof(scrutinee));
+    memset(&awaited, 0, sizeof(awaited));
+    memset(&guard, 0, sizeof(guard));
+    memset(&body, 0, sizeof(body));
+    memset(&match, 0, sizeof(match));
+    memset(&program, 0, sizeof(program));
+
+    scrutinee.type = AST_NUMBER;
+    awaited.type = AST_BOOL;
+    guard.type = AST_AWAIT;
+    guard.as.await_expr.expr = &awaited;
+    body.type = AST_NUMBER;
+    guards[0] = &guard;
+    bodies[0] = &body;
+    match.type = AST_MATCH;
+    match.as.match_expr.expr = &scrutinee;
+    match.as.match_expr.arm_count = 1;
+    match.as.match_expr.guard_exprs = guards;
+    match.as.match_expr.arm_bodies = bodies;
+    items[0] = &match;
+    program.type = AST_PROGRAM;
+    program.as.program.items = items;
+    program.as.program.count = 1;
+
+    FILE *saved = stderr;
+    FILE *captured = tmpfile();
+    ASSERT_NOT_NULL(captured);
+    stderr = captured;
+    ASSERT_EQ(cps_pass(&program), 0);
+    fflush(stderr);
+    ASSERT_EQ(fseek(captured, 0, SEEK_SET), 0);
+    char message[256] = {0};
+    ASSERT_NOT_NULL(fgets(message, sizeof(message), captured));
+    stderr = saved;
+    fclose(captured);
+    ASSERT(strstr(message, "await' outside async function") != NULL);
+}
+
 /* ============================================================================
  * Additional DCE tests: dead lets with array/struct/tuple literals,
  * and programs with if/while/for constructs for count_refs coverage.
@@ -712,6 +760,7 @@ int main(void) {
     TEST(cps_empty_program);
     TEST(cps_non_async_functions);
     TEST(cps_multiple_functions);
+    TEST(cps_visits_match_guards);
 
     printf("\n=== DCE: Dead literal / count_refs branch coverage ===\n");
     TEST(dce_dead_array_literal);

@@ -345,6 +345,11 @@ static SubsetResult check_subset(ASTNode *node, Environment *env) {
 
         /* ── Pattern matching: EMatch ── */
         case AST_MATCH: {
+            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                if (node->as.match_expr.guard_exprs &&
+                    node->as.match_expr.guard_exprs[i])
+                    return outside_ast("I do not model match guards in NanoCore");
+            }
             SubsetResult result = check_subset(node->as.match_expr.expr, env);
             for (int i = 0; i < node->as.match_expr.arm_count; i++) {
                 result = merge_results(result,

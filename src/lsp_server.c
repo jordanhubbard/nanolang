@@ -350,8 +350,15 @@ static const char *find_identifier_at(ASTNode *node, int line, int col) {
         case AST_MATCH: {
             const char *id = find_identifier_at(node->as.match_expr.expr, line, col);
             if (id) return id;
-            return check_children(node->as.match_expr.arm_bodies,
-                                  node->as.match_expr.arm_count, line, col);
+            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                if (node->as.match_expr.guard_exprs) {
+                    id = find_identifier_at(node->as.match_expr.guard_exprs[i], line, col);
+                    if (id) return id;
+                }
+                id = find_identifier_at(node->as.match_expr.arm_bodies[i], line, col);
+                if (id) return id;
+            }
+            return NULL;
         }
 
         case AST_TUPLE_LITERAL:
@@ -405,7 +412,7 @@ typedef struct {
     HMInferResult hm;   /* HM inference result for row-poly hover (ctx may be NULL) */
 } Document;
 
-static Document g_doc = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0};
+static Document g_doc = {0};
 
 static void doc_free_compiled(void) {
     if (g_doc.ast) {
