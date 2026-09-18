@@ -1,4 +1,5 @@
 #include "retained_layouts.h"
+#include "ownership_contracts.h"
 #include <stdlib.h>
 
 bool nvm_layouts_have_facts(const NvmV2Layouts *layouts) {
@@ -140,8 +141,6 @@ NvmRecordPlanResult nvm_describe_managed_records(const NvmModule *module,
     if (!module || !out || (!module->layout_data != !module->layout_size) ||
         (!module->ownership_data != !module->ownership_size))
         return record_result(NVM_RECORD_INVALID, 0, 0, "I require a consistent module and plan output.");
-    if (module->ownership_size)
-        return record_result(NVM_RECORD_UNRESOLVED, 0, 0, "I do not infer shared authority from ownership declarations.");
     if (!module->layout_size)
         return record_result(NVM_RECORD_UNRESOLVED, 0, 0, "I require retained layout facts, not count-only placeholders.");
     NvmRecordPlanResult result = record_preflight(module);
@@ -176,6 +175,23 @@ NvmRecordPlanResult nvm_describe_managed_records(const NvmModule *module,
             }
         }
     }
+    NvmRecordAuthority authority = NVM_RECORD_AUTHORITY_UNKNOWN;
+    if (module->ownership_size) {
+        NvmLayoutAuthority declared[NVM_RECORD_PLAN_MAX_LAYOUTS];
+        if (nvm_ownership_layout_authorities(module, layouts.count, declared) != NVM_V2_OK) {
+            /* The legacy validator conflates some invalid/allocation outcomes. */
+            result = record_result(NVM_RECORD_UNRESOLVED, 0, 0, "I could not establish checked ownership declarations.");
+            goto fail;
+        }
+        for (uint32_t i = 0; i < layouts.count; i++) {
+            if (layouts.items[i].kind == NVM_V2_LAYOUT_STRUCT &&
+                declared[i] != NVM_LAYOUT_AUTHORITY_ORDINARY) {
+                result = record_result(NVM_RECORD_UNRESOLVED, i, 0, "I require explicit ordinary authority for every record.");
+                goto fail;
+            }
+        }
+        authority = NVM_RECORD_AUTHORITY_ORDINARY;
+    }
     NvmRecordPlan *plan = calloc(1, sizeof *plan);
     if (!plan) { result = record_result(NVM_RECORD_MEMORY, 0, 0, "I could not allocate my record plan."); goto fail; }
     plan->record_count = module->struct_count;
@@ -193,9 +209,9 @@ NvmRecordPlanResult nvm_describe_managed_records(const NvmModule *module,
         }
     }
     plan->layouts = layouts;
-    plan->authority = NVM_RECORD_AUTHORITY_UNKNOWN;
+    plan->authority = authority;
     *out = plan;
-    return record_result(NVM_RECORD_DESCRIBED, 0, 0, "I described record identities without shared-storage authority.");
+    return record_result(NVM_RECORD_DESCRIBED, 0, 0, "I described record identities without executable admission.");
 fail:
     nvm_v2_layouts_free(&layouts);
     return result;
