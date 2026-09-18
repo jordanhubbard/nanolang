@@ -4654,6 +4654,12 @@ test-native-total-arithmetic: nvm2c nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_native_total_arithmetic
 test-units: test-native-total-arithmetic
 
+.PHONY: test-native-generic-arithmetic
+test-native-generic-arithmetic: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_generic_arithmetic
+
+test-units: test-native-generic-arithmetic
+
 .PHONY: test-native-optional-array-reads
 test-native-optional-array-reads: nanoisa_dump nano_vm nvm2c
 	python3 -m unittest tests.test_native_optional_array_reads -v
