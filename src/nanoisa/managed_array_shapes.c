@@ -25,6 +25,8 @@ typedef struct {
     const NvmModule *module;
     Function functions[FUNCTIONS];
     Value globals[SLOTS];
+    Value children[ORIGINS];
+    int graph;
     NvmArrayEligibilityReport report;
     NvmArrayEligibilityResult result;
     uint32_t global_count;
@@ -43,6 +45,7 @@ static void *allocate(size_t n, size_t width) {
     return calloc(n, width);
 }
 void nvm_array_eligibility_free(NvmArrayEligibilityReport *report) { free(report); }
+void nvm_array_graph_eligibility_free(NvmArrayGraphEligibilityReport *report) { free(report); }
 static Value tag(uint8_t t) { Value v = {0, BIT(t), 0}; return v; }
 static int merge(Value *to, Value from) {
     Value old = *to;
@@ -128,6 +131,7 @@ static Value read_array(Analysis *a,Value receiver) {
     for(uint32_t i=0;i<a->report.origin_count;i++) if(receiver.origins&(UINT64_C(1)<<i)) {
         NvmArrayOrigin *o=&a->report.origins[i];
         result.tags |= o->packed?BIT(o->declared_tag):o->child_tags;
+        if(a->graph && !o->packed)merge(&result,a->children[i]);
     }
     return result;
 }
@@ -137,6 +141,7 @@ static void write_array(Analysis *a,Value receiver,Value value) {
         if(!o->packed) {
             uint16_t old=o->child_tags;o->child_tags|=value.tags;
             a->changed |= old!=o->child_tags;
+            if(a->graph)a->changed |= merge(&a->children[i],value);
         }
     }
 }
@@ -144,6 +149,11 @@ static void write_array(Analysis *a,Value receiver,Value value) {
 static int slice_origins(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Value *result) {
     *result=tag(TAG_ARRAY);
     result->unknown=receiver.unknown || ((receiver.tags&BIT(TAG_ARRAY)) && !receiver.origins);
+    /* A graph slice cannot succeed on a currently non-array receiver. Keep
+     * this transfer at bottom until a possible source origin arrives; a
+     * tag-only fabricated ARRAY would poison later joins with unknown. */
+    if(a->graph && !receiver.origins && !receiver.unknown && !(receiver.tags&BIT(TAG_ARRAY)))
+        *result=(Value){0};
     for(uint32_t i=0;i<a->report.origin_count;i++)if(receiver.origins&(UINT64_C(1)<<i)) {
         NvmArrayOrigin source=a->report.origins[i];
         uint32_t target=0;
@@ -161,14 +171,19 @@ static int slice_origins(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Valu
         NvmArrayOrigin *o=&a->report.origins[target];
         uint16_t old=o->child_tags;o->child_tags|=source.child_tags;
         a->changed|=old!=o->child_tags;
+        if(a->graph && !o->packed)a->changed|=merge(&a->children[target],a->children[i]);
         result->origins|=UINT64_C(1)<<target;
     }
     return 1;
 }
 static int check_write(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Value value) {
     a->report.checked_writes++;
-    if(value.unknown || !value.tags || (value.tags&~LEAVES))
-        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require proved scalar/string leaf writes.");
+    uint16_t allowed=LEAVES|(a->graph?BIT(TAG_ARRAY):0);
+    if(value.unknown || !value.tags || (value.tags&~allowed))
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,a->graph?
+            "I require proved scalar/string/array graph writes.":"I require proved scalar/string leaf writes.");
+    if(a->graph && (value.tags&BIT(TAG_ARRAY)) && !value.origins)
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require authoritative child array origins.");
     for(uint32_t i=0;i<a->report.origin_count;i++)if(receiver.origins&(UINT64_C(1)<<i)) {
         NvmArrayOrigin *o=&a->report.origins[i];
         if(o->packed && (value.tags&~writes(o->declared_tag)))
@@ -279,12 +294,13 @@ static void destroy(Analysis *a) {
     }
     free(a);
 }
-NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArrayEligibilityReport **out) {
+static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityReport **out,
+                                          NvmArrayGraphEligibilityReport **graph_out) {
     NvmArrayEligibilityResult early={NVM_ARRAY_INVALID,0,0,"I require a module and report output."};
-    if(!m || !out)return early;
+    if(!m || (!out && !graph_out))return early;
     Analysis *a=allocate(1,sizeof *a);
     if(!a){early.status=NVM_ARRAY_MEMORY;snprintf(early.message,sizeof early.message,"I could not allocate array analysis state.");return early;}
-    a->module=m;
+    a->module=m;a->graph=graph_out!=NULL;
     if(!verified(a,nvm_verify(m)))goto done;
     if(m->function_count>FUNCTIONS){stop(a,NVM_ARRAY_LIMIT,0,0,"I reached my array analysis function limit.");goto done;}
     if(!(m->header.flags&NVM_FLAG_HAS_MAIN) || m->functions[m->header.entry_point].arity ||
@@ -328,10 +344,11 @@ NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArray
             f->origins[i]=-1;
             if(op!=OP_ARR_NEW && op!=OP_STR_SPLIT && op!=OP_ARR_LITERAL)continue;
             uint8_t declared=op==OP_STR_SPLIT?TAG_STRING:d->instruction.operands[0].u8;
-            if(!(LEAVES&BIT(declared))){stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I have not qualified this declared array shape.");goto done;}
+            if(!((LEAVES|(a->graph?BIT(TAG_ARRAY):0))&BIT(declared))){stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I have not qualified this declared array shape.");goto done;}
             if(a->report.origin_count==ORIGINS){stop(a,NVM_ARRAY_LIMIT,fi,d->byte_offset,"I reached my allocation-site origin limit.");goto done;}
             uint32_t origin=a->report.origin_count++;f->origins[i]=(int16_t)origin;
             a->report.origins[origin]=(NvmArrayOrigin){fi,d->byte_offset,op==OP_STR_SPLIT?BIT(TAG_STRING):0,declared,(uint8_t)packed(declared)};
+            if(op==OP_STR_SPLIT)a->children[origin]=tag(TAG_STRING);
         }
     }
     for(uint32_t i=0;i<a->global_count;i++)a->globals[i]=tag(TAG_VOID);
@@ -351,10 +368,29 @@ NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArray
         }
     } while(a->changed);
     if(!final_check(a))goto done;
-    NvmArrayEligibilityReport *report=allocate(1,sizeof *report);
-    if(!report){stop(a,NVM_ARRAY_MEMORY,0,0,"I could not publish my array analysis report.");goto done;}
-    *report=a->report;*out=report;a->result.status=NVM_ARRAY_ELIGIBLE;
+    if(graph_out) {
+        NvmArrayGraphEligibilityReport *report=allocate(1,sizeof *report);
+        if(!report){stop(a,NVM_ARRAY_MEMORY,0,0,"I could not publish my graph analysis report.");goto done;}
+        report->arrays=a->report;
+        for(uint32_t i=0;i<a->report.origin_count;i++) {
+            report->child_origins[i]=a->children[i].origins;
+            report->child_unknown[i]=a->children[i].unknown;
+        }
+        *graph_out=report;
+    } else {
+        NvmArrayEligibilityReport *report=allocate(1,sizeof *report);
+        if(!report){stop(a,NVM_ARRAY_MEMORY,0,0,"I could not publish my array analysis report.");goto done;}
+        *report=a->report;*out=report;
+    }
+    a->result.status=NVM_ARRAY_ELIGIBLE;
     snprintf(a->result.message,sizeof a->result.message,"I established only the bounded portable array-shape obligations.");
  done:;
     NvmArrayEligibilityResult result=a->result;destroy(a);return result;
+}
+
+NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArrayEligibilityReport **out) {
+    return analyze(m,out,NULL);
+}
+NvmArrayEligibilityResult nvm_analyze_managed_array_graphs(const NvmModule *m,NvmArrayGraphEligibilityReport **out) {
+    return analyze(m,NULL,out);
 }
