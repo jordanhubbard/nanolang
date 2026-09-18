@@ -30,3 +30,7 @@ MAC `task_438ff01101234d6cb3cad5dfeaa0e9f2` replaces the cancelled fleet task
 `task_ed0f455484d04f13818362fd857d2889`. PRs 307, 331, 343, 349 and 356 are
 obsolete attempts at that older contract; I retire them only after this repair
 lands. This bounded repair does not close my compiler publication or release hold.
+
+I integrated main through PRs 593 and 595 at `d4823b20`; the only merge conflict
+was two independently added test targets, both retained. A fresh tool rebuild
+and the three focused methods passed again in 1.765 seconds.
