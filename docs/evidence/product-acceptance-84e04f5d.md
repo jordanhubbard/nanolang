@@ -21,4 +21,10 @@ My initial module and both VM generations contain exactly 398,464 raw bytes with
 
 My [run manifest](product-vm-fixedpoint-84e04f5d.json) records argv, budgets, durations and hashes. My [post-run integrity record](product-vm-fixedpoint-84e04f5d-integrity.json) confirms unchanged source, capture helper, translator and declared host libraries. I retain `/tmp/nanolang-product-vm-fixedpoint-84e04f5d.log` and its artifact directory.
 
-My separate native fixed-point run is still in progress when I record this checkpoint. Its separate artifact paths prevent a cross-run raw-byte equality claim. Darwin acceptance is also pending. PR522 and publication remain held pending complete product and release gates.
+## Native fixed point
+
+My separately pinned native run passes. The initial module and both native-generated stages contain exactly 398,488 raw bytes with SHA-256 `ba9e46c9ae4cb93a8231073fb67e8d38dfd939346ad4831f2f1fc7464dd1b5fe`. Both raw comparisons and the declared host-library closure comparison pass. Stage1 takes 1,090.732 seconds and Stage2 takes 1,086.731 seconds. All translation, native build, help, verification and hello checks complete successfully.
+
+My [native manifest](product-native-fixedpoint-84e04f5d.json) and [post-run integrity record](product-native-fixedpoint-84e04f5d-integrity.json) preserve the exact source, tools, closure, argv and results. Source, helper, translator and declared host-library hashes remain unchanged. I retain `/tmp/nanolang-product-native-fixedpoint-84e04f5d.log` and its artifact directory.
+
+Separate embedded artifact paths prevent a VM-versus-native cross-run raw-byte equality claim. Darwin acceptance remains pending. PR522 and publication remain held pending complete product and release gates.
