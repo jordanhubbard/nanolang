@@ -1,0 +1,8 @@
+I retain fresh qualification artifacts at /tmp/nano-selfhost-short-circuit-oglp301s
+test_selected_skipped_nested_and_loop_effects (tests.test_selfhost_short_circuit.SelfhostShortCircuit.test_selected_skipped_nested_and_loop_effects) ... ok
+test_wrong_operand_types_preserve_prior_output (tests.test_selfhost_short_circuit.SelfhostShortCircuit.test_wrong_operand_types_preserve_prior_output) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 97.491s
+
+OK

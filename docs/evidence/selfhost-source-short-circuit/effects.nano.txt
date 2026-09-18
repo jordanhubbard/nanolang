@@ -1,0 +1,31 @@
+let mut trace: int = 0
+fn mark(digit: int, result: bool) -> bool {
+    set trace (+ (* trace 10) digit)
+    return result
+}
+shadow mark { set trace 0 assert (mark 1 true) assert (== trace 1) set trace 0 }
+fn main() -> int {
+    set trace 0
+    assert (not (and (mark 1 false) (mark 2 true)))
+    assert (== trace 1)
+    set trace 0
+    assert (not (and (mark 1 true) (mark 2 false)))
+    assert (== trace 12)
+    set trace 0
+    assert (or (mark 1 true) (mark 2 false))
+    assert (== trace 1)
+    set trace 0
+    assert (or (mark 1 false) (mark 2 true))
+    assert (== trace 12)
+    set trace 0
+    assert (or (and (mark 1 false) (mark 2 true)) (and (mark 3 true) (mark 4 true)))
+    assert (== trace 134)
+    set trace 0
+    let mut index: int = 0
+    while (and (< index 2) (mark 5 true)) { set index (+ index 1) }
+    assert (== index 2)
+    assert (== trace 55)
+    (println "selfhost short-circuit")
+    return 0
+}
+shadow main { assert (== (main) 0) }

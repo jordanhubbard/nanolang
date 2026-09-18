@@ -1,0 +1,62 @@
+{
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects-0.c": {
+    "sha256": "1c1d45e5b9640fba9ca4858f929622c0b21cc80bd928082d9e41685642a675e5",
+    "bytes": 45013
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects-0.native": {
+    "sha256": "154bd9c12e8a954f714a725f11b9a1814e700e1a1462b72606e3f77488e5eaa8",
+    "bytes": 106376
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects-0.nvm": {
+    "sha256": "e748d8b64e91de73777ad717dcd3216a3e519ae58ca80774d8e8e22d59f3a49c",
+    "bytes": 1200
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects-1.c": {
+    "sha256": "1c1d45e5b9640fba9ca4858f929622c0b21cc80bd928082d9e41685642a675e5",
+    "bytes": 45013
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects-1.native": {
+    "sha256": "a5c41dfd2ffedf8d5f6728fd7c1c7fedb3b0c603d03de0535bff59e0a463d8be",
+    "bytes": 106376
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects-1.nvm": {
+    "sha256": "e748d8b64e91de73777ad717dcd3216a3e519ae58ca80774d8e8e22d59f3a49c",
+    "bytes": 1200
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects-2.c": {
+    "sha256": "1c1d45e5b9640fba9ca4858f929622c0b21cc80bd928082d9e41685642a675e5",
+    "bytes": 45013
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects-2.native": {
+    "sha256": "174a9788171f8b451680baa9949f0c0f67959b7e9a1c325e9be4bc0d4ecb7b48",
+    "bytes": 106376
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects-2.nvm": {
+    "sha256": "e748d8b64e91de73777ad717dcd3216a3e519ae58ca80774d8e8e22d59f3a49c",
+    "bytes": 1200
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/effects.nano": {
+    "sha256": "5eca6e22c2aa76afe1d85979d1e039628499fd0c51bc47c94aa45ab57e6b793e",
+    "bytes": 958
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/nanoc_c-emit": {
+    "sha256": "e44939ce5c32c8bfca7df8f1bfeba916feb0594253a726c0c87abc505b56580f",
+    "bytes": 13751688
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/nanoc_stage1-emit": {
+    "sha256": "668bec148f9e8585222b2f1ed85be8811a5dbfe9ab981be6f70144a3fe8554c2",
+    "bytes": 10440856
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/nanoc_stage2-emit": {
+    "sha256": "668bec148f9e8585222b2f1ed85be8811a5dbfe9ab981be6f70144a3fe8554c2",
+    "bytes": 10440856
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/prior.nvm": {
+    "sha256": "97e20be976afeac8391bab2e42628fb3502bbd344132981d8cbd2d68a536282a",
+    "bytes": 12
+  },
+  "/tmp/nano-selfhost-short-circuit-oglp301s/refused.nano": {
+    "sha256": "b33484075b2126ecbb61a0ec35a7f2ac71abe9ce2cd6d1354cd36490348d0b69",
+    "bytes": 69
+  }
+}
