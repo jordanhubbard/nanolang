@@ -1083,14 +1083,14 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         }
         if (f->upvalue_count || !((f->result_count == 0 && f->result_tag == TAG_VOID) ||
             (f->result_count == 1 && (f->result_tag == TAG_INT || f->result_tag == TAG_U8 || f->result_tag == TAG_ENUM || f->result_tag == TAG_BOOL || f->result_tag == TAG_FLOAT ||
-             (literal_profile && f->result_tag == TAG_STRING)))))
+             (literal_profile && f->result_tag == TAG_STRING) || (managed_profile && f->result_tag == TAG_ARRAY)))))
             return fail("I require zero void results or one admitted closed-profile result and no captures in function %u", i);
         has_strings |= f->result_count && f->result_tag == TAG_STRING;
         for (uint16_t p = 0; p < f->arity; ++p) {
             if (!m->function_param_types || !m->function_param_types[i]) continue;
             uint8_t tag = m->function_param_types[i][p];
             has_strings |= tag == TAG_STRING;
-            if (!profile_scalar(tag) && !(literal_profile && tag == TAG_STRING))
+            if (!profile_scalar(tag) && !(literal_profile && tag == TAG_STRING) && !(managed_profile && tag == TAG_ARRAY))
                 return fail("I require admitted closed-profile parameters in function %u", i);
         }
         for (uint32_t pc = 0; pc < f->code_length;) {
@@ -1100,7 +1100,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
             needs_string_runtime |= !managed_profile && (ins.opcode == OP_ADD || ins.opcode == OP_CAST_INT || ins.opcode == OP_CAST_FLOAT);
             bool literal_op = literal_profile && (ins.opcode == OP_PUSH_STR ||
                               ins.opcode == OP_STR_LEN || ins.opcode == OP_STR_EQ ||
-                              (managed_profile && (ins.opcode == OP_STR_REPLACE || ins.opcode == OP_STR_FROM_INT || ins.opcode == OP_STR_FROM_FLOAT || ins.opcode == OP_STR_TO_LOWER || ins.opcode == OP_STR_TO_UPPER || ins.opcode == OP_STR_CHAR_AT || ins.opcode == OP_STR_TRIM || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR || ins.opcode == OP_CAST_STRING ||
+                              (managed_profile && (ins.opcode == OP_STR_SPLIT || ins.opcode == OP_ARR_GET || ins.opcode == OP_ARR_LEN || ins.opcode == OP_STR_REPLACE || ins.opcode == OP_STR_FROM_INT || ins.opcode == OP_STR_FROM_FLOAT || ins.opcode == OP_STR_TO_LOWER || ins.opcode == OP_STR_TO_UPPER || ins.opcode == OP_STR_CHAR_AT || ins.opcode == OP_STR_TRIM || ins.opcode == OP_STR_CONCAT || ins.opcode == OP_STR_SUBSTR || ins.opcode == OP_CAST_STRING ||
                                ins.opcode == OP_STR_CONTAINS || ins.opcode == OP_STR_STARTS_WITH || ins.opcode == OP_STR_ENDS_WITH)));
             if (!width || (!profile_supported(ins.opcode) && !literal_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;

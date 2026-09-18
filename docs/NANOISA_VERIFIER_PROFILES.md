@@ -23,8 +23,9 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   CLOSED_SCALAR selector continues to refuse strings. Details and lifetime are
   in `NANOISA_LLVM_LITERAL_STRINGS.md`.
 - `NVM_PROFILE_CLOSED_MANAGED_STRINGS` retains those closed module rules and
-  adds matched STR_CONCAT and string/numeric ADD. It retains string-bearing
-  numeric-cast refusal and all other heap/import exclusions. Ownership and
+  adds matched managed string operations/conversions and string/numeric ADD.
+  My split extension admits string-child arrays through STR_SPLIT, ARR_GET/LEN
+  and array signatures; all mutation/other heap/import exclusions remain. Ownership and
   errors follow `NANOISA_LLVM_MANAGED_STRINGS.md`.
 - I reject unknown profile selectors. Neither a source annotation nor arbitrary
   metadata can select or bypass the consuming tool's profile.

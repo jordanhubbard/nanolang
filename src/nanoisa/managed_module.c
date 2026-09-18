@@ -38,12 +38,12 @@ uint32_t nms_module_dispose(void) {
     return nms_dispose(&nms_module_instance);
 }
 uint32_t nms_module_retain(uint64_t payload, uint32_t tag) {
-    NmsStatus status = tag == 5 ? nms_retain(&nms_module_instance, payload) : NMS_OK;
+    NmsStatus status = (tag == 5 || tag == NMS_ARRAY_TAG) ? nms_retain(&nms_module_instance, payload) : NMS_OK;
     nms_module_fail(status);
     return status;
 }
 void nms_module_release(uint64_t payload, uint32_t tag) {
-    if (tag == 5) nms_module_fail(nms_release(&nms_module_instance, payload));
+    if (tag == 5 || tag == NMS_ARRAY_TAG) nms_module_fail(nms_release(&nms_module_instance, payload));
 }
 uint64_t nms_module_format_scalar(uint64_t bits, uint32_t tag) {
     NmsHandle result = 0;
@@ -68,6 +68,21 @@ uint64_t nms_module_parse_f64(uint64_t source) {
 int64_t nms_module_parse_i64(uint64_t source) {
     int64_t result = 0;
     nms_module_fail(nms_parse_i64(&nms_module_instance, source, &result));
+    return result;
+}
+uint64_t nms_module_split(uint64_t source, uint64_t delimiter) {
+    NmsHandle result = 0;
+    nms_module_fail(nms_split_owned(&nms_module_instance, source, delimiter, &result));
+    return result;
+}
+uint64_t nms_module_array_get(uint64_t array, uint64_t index) {
+    NmsHandle result = 0;
+    nms_module_fail(nms_string_array_get(&nms_module_instance, array, index, &result));
+    return result;
+}
+uint32_t nms_module_array_length(uint64_t array) {
+    uint32_t result = 0;
+    nms_module_fail(nms_string_array_length(&nms_module_instance, array, &result));
     return result;
 }
 uint64_t nms_module_replace(uint64_t source, uint64_t needle, uint64_t replacement) {
