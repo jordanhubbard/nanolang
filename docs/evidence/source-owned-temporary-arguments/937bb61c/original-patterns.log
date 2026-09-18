@@ -1,0 +1,20 @@
+test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) ... ok
+test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) ... ok
+test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) ... ok
+test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) ... 
+  test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='tests/test_affine_integration.nano') ... FAIL
+
+======================================================================
+FAIL: test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) (compiler='nano_virt', filename='tests/test_affine_integration.nano')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-source-owned-temporary-arguments/tests/test_owned_record_patterns.py", line 27, in check_case
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 39: I require distinct finite plain resource records in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 49.974s
+
+FAILED (failures=1)
