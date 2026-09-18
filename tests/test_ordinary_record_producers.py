@@ -52,7 +52,9 @@ class OrdinaryProducers(unittest.TestCase):
             at=8+((count+3)&~3);functions=struct.unpack_from('<I',ownership,at)[0];at+=4
             headers=re.findall(r'^\.function \S+ (\d+) (\d+) (\d+) (\w+) (\d+)',dump,re.M)
             self.assertEqual(functions,len(headers))
-            for params,locals_,_,result,results in headers:
+            tags={'void':0,'int':1,'u8':2,'float':3,'bool':4,'string':5,'struct':8}
+            parameters={int(index):values.split() for index,values in re.findall(r'^\.parameters (\d+)(.*)$',dump,re.M)}
+            for function,(params,locals_,_,result,results) in enumerate(headers):
                 slots,arity=struct.unpack_from('<HH',ownership,at);at+=4
                 self.assertEqual((slots,arity),(int(locals_),int(params)))
                 for i in range(slots+1):
@@ -60,6 +62,8 @@ class OrdinaryProducers(unittest.TestCase):
                     self.assertEqual((mode,reserved,identity),(0,0,0xffffffff))
                     self.assertIn(tag,(0,1,2,3,4,5,8))
                     if i:self.assertNotEqual(tag,0)
+                    else:self.assertEqual(tag,tags[result] if int(results) else 0)
+                    if 0<i<=arity:self.assertEqual(tag,tags[parameters[function][i-1]])
             self.assertEqual(at,len(ownership))
             asm=self.work/'roundtrip.nasm';copy=self.work/'roundtrip.nvm';asm.write_text(dump)
             self.command(ROOT/'bin/nanoisa','asm',asm,'-o',copy)
@@ -85,6 +89,13 @@ class OrdinaryProducers(unittest.TestCase):
     def test_nested_empty_distinct_records_and_all_stages(self):
         facts=[self.qualify(module) for module in self.modules(POSITIVE)]
         self.assertTrue(all(item==facts[0] for item in facts))
+    def test_initializer_and_scalar_fields(self):
+        source='''struct Scalars { i: int, f: float, b: bool }
+let initial: Scalars = Scalars { i: 7, f: 2.5, b: true }
+fn main() -> int { assert (== initial.i 7) assert (== initial.f 2.5) assert initial.b return 0 }
+shadow main { assert true }
+'''
+        for module in self.modules(source):self.qualify(module)
     def test_all_selected_shadows_keep_authority(self):
         source=self.source(POSITIVE)
         text=self.command(ROOT/'obj/borrow_shadow_names',source)
