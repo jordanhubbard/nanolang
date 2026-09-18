@@ -78,7 +78,7 @@ static bool mf_scalar_layout(const NvmMixedLayoutView *v,uint32_t layout) {
     const NvmV2Layout *l=&v->layouts.items[layout];
     for(uint16_t i=0;i<l->field_count;i++) {
         uint8_t tag=l->fields[i].type_tag;
-        if((tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_FLOAT) || l->fields[i].nested_idx!=NVM_V2_NO_INDEX)return false;
+        if((tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8) || l->fields[i].nested_idx!=NVM_V2_NO_INDEX)return false;
     }
     return true;
 }
