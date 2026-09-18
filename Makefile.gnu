@@ -4581,6 +4581,10 @@ test-unreachable-warning: bootstrap
 	python3 -m unittest -v tests.test_unreachable_warning
 test-units: test-unreachable-warning
 
+.PHONY: test-underscore-payload
+test-underscore-payload: bootstrap bin/nano nano_virt nano_vm
+	python3 -m unittest -v tests.test_underscore_payload
+test-units: test-underscore-payload
 .PHONY: test-owned-assertions
 test-units: test-owned-assertions
 test-owned-assertions: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c

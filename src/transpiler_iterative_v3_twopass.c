@@ -3126,7 +3126,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                 }
                             }
                         }
-                        if (variant_field_count > 0) {
+                        if (variant_field_count > 0 && binding_name && strcmp(binding_name, "_") != 0) {
                             emit_literal(list, "nl_");
                             emit_literal(list, union_c_name);
                             emit_literal(list, "_");
@@ -3234,7 +3234,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         }
 
                         /* Declare binding only if variant has fields */
-                        if (variant_field_count > 0) {
+                        if (variant_field_count > 0 && binding_name && strcmp(binding_name, "_") != 0) {
                             emit_literal(list, "nl_");
                             emit_literal(list, union_c_name);
                             emit_literal(list, "_");

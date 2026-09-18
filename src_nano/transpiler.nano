@@ -6800,7 +6800,8 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
 
             /* Register binding with actual inner field type */
             let binding_type_expr: string = (get_variant_field_type parser union_name variant)
-            let env_arm: GenEnv = (genenv_put env binding binding_type_expr false)
+            let mut env_arm: GenEnv = env
+            if (!= binding "_") { set env_arm (genenv_put env binding binding_type_expr false) }
 
             set parts (cg_append parts (generate_match_arm_value parser body_id body_type env_arm expected_type))
 
@@ -6947,6 +6948,7 @@ shadow get_variant_first_field_access {
  *   - If variant has >1 fields: struct declaration (old behaviour)
  * Caller provides indentation string. */
 fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string, binding: string, indent_str: string) -> string {
+    if (== binding "_") { return "" }
     /* Search for the union definition */
     let ucount: int = (parser_get_union_count parser)
     let mut ui: int = 0
@@ -7064,6 +7066,7 @@ shadow gen_match_variant_binding {
     let b1: string = (gen_match_variant_binding p "Opt" "None" "x" "  ")
     assert (== b1 "")
     /* Single positional _0 field — generates C binding */
+    assert (== (gen_match_variant_binding p "Opt" "Some" "_" "  ") "")
     let b2: string = (gen_match_variant_binding p "Opt" "Some" "val" "  ")
     assert (str_contains b2 "nl_val")
     /* Unknown union — generates fallback struct binding */
@@ -7200,7 +7203,8 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
 
             /* Register binding with actual inner field type so expr generators use the right type */
             let binding_type: string = (get_variant_field_type parser union_name variant)
-            let env_arm: GenEnv = (genenv_put env binding binding_type false)
+            let mut env_arm: GenEnv = env
+            if (!= binding "_") { set env_arm (genenv_put env binding binding_type false) }
 
             if (== body_type ParseNodeType.PNODE_BLOCK) {
                 set parts (cg_append parts (generate_block parser body_id (+ indent 3) env_arm return_type))
