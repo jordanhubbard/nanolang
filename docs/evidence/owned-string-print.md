@@ -1,9 +1,10 @@
 # My bounded owned string and print evidence
 
 I implemented `task_badd6be9c31a6e2eac810b95913b4f84` on branch
-`feat/owned-string-print-runtime`. My production-only checkpoint is
-`ae4b064c4455e083a7d6fc596392811a91bc3bae`; my tested checkpoint is
-`b5861147d662a73fb00789dbc1f4f6287f315b1c`. Both are pushed. I leave the
+`feat/owned-string-print-runtime`. After rebasing without conflict onto
+canonical main `dd99573e29db07190c491841ab65803d166589bd`, my production-only
+checkpoint is `ab0f0953ac235aeda198ca0a565d4621544c2830`; my tested checkpoint is
+`7a0a39fa98094daee133e297ec34e0fe162f6fe0`. Both are pushed. I leave the
 roadmap item open until the production change receives independent review.
 
 I admit only mode-zero `TAG_STRING` parameters and their exact locals in my
@@ -50,9 +51,9 @@ The focused gate covers:
   operations, missing or extra PRINT operands, tail calls and recursive value
   graphs.
 
-The log is
-`/private/tmp/nanolang-owned-string-print-llvm23-lsan-b5861147.log`, SHA-256
-`73fdd1d02ee814c91d6227f3dca3c2e0c6d502013b8c527e99e880d38b91bdef`.
+The final rebased log is
+`/private/tmp/nanolang-owned-string-print-llvm23-lsan-7a0a39fa.log`, SHA-256
+`fe2456393f73cd84fd52422e83c0b63c66c7a65913924acb88e90bc43f3b2568`.
 
 ## Adjacent ownership qualification
 
@@ -61,9 +62,9 @@ multiple consuming-call suites all pass under the same explicit Homebrew LLVM
 selection. This includes their graph bounds, recursion, ownership authority,
 allocation, preflight, verification-reuse and generated native sanitizer
 checks. The log is
-`/private/tmp/nanolang-owned-string-print-adjacent-llvm23-b5861147.log`,
+`/private/tmp/nanolang-owned-string-print-adjacent-llvm23-7a0a39fa.log`,
 SHA-256
-`f8180d879019837c7a029b25001dd939a6d5e10667a72521f8eb592ca15fd267`.
+`6a8f6baf6c2d0338e06b8e71591aed624388c9355fb3f7b0eaaf1362834efd90`.
 
 I preserve the first default-compiler adjacent run separately. Its ordinary C
 and VM fixtures pass, then its older Python harnesses request LeakSanitizer
