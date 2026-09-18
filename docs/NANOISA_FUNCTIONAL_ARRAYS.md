@@ -21,3 +21,9 @@ I retained the initial failing build and fixture logs. The first shadows exposed
 I retain indirect/computed callbacks, extern callbacks, generic or heap element signatures and unsupported nested result types as explicit refusals. Parent2578 and c835 require the merged integrated acceptance; this source checkpoint alone does not close them.
 
 The same eight methods pass Clang O2 ASan/UBSan/LSan in 29.083 seconds. My unchanged adjacent emitter gate passes 86 comparisons and 88 Python methods in 127.839 seconds. Logs are `/tmp/nanolang-functional-complete-gcc.log`, `/tmp/nanolang-functional-complete-clang.log` and `/tmp/nanolang-functional-emitter.log`. Fresh merged-source bootstrap remains the final integration gate.
+
+## My final integrated source
+
+I rebased onto main `52bfde90`, including merged PR649, at tested source `5a776e68`. Fresh `make bootstrap` passed both stages, their hello checks, recorded comparison and installed-compiler checks. I then rebuilt nanoisa_emit, nano_virt, nano_vm, nvm2c and nanoisa_dump in that checkout and reran all eight functional methods with its default local tools: all pass in 39.122 seconds. Logs are `/tmp/nanolang-functional-integrated-bootstrap.log`, `/tmp/nanolang-functional-final-tools.log` and `/tmp/nanolang-functional-final-paired.log`. The final documentation commit does not change this tested source.
+
+This satisfies the recorded scalar callback acceptance of c835 and the first_float/filter criterion of parent2578, subject to actual canonical merge. I do not infer full product or release readiness from these bounded gates.
