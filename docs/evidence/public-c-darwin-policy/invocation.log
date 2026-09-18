@@ -1,0 +1,9 @@
+/private/tmp/nanolang-public-c-darwin-fsmr149n
+From github.com:jordanhubbard/nanolang
+ * branch              main       -> FETCH_HEAD
+   44ad5f69..a5985842  main       -> origin/main
+Preparing worktree (detached HEAD a5985842)
+HEAD is now at a5985842 Merge pull request #752 from jordanhubbard/fix/legacy-signed-nan-format
+{"name": "build", "command": ["make", "-j8", "bin/nanoc_c", "bin/nano", "nano_virt", "nano_vm", "nvm2c", "CC=/usr/bin/clang"], "status": 0, "timed_out": false, "seconds": 4.297}
+{"name": "suite", "command": ["python3", "-m", "unittest", "-f", "-v", "tests.test_public_c_binary64", "tests.test_public_c_nonfinite_format", "tests.test_public_c_string_equality"], "status": 0, "timed_out": false, "seconds": 37.971}
+{"unchanged": true, "out": "/private/tmp/nanolang-public-c-darwin-fsmr149n"}
