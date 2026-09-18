@@ -93,3 +93,12 @@ This is finite native payload acceptance. I do not claim a current-main
 bootstrap, a new compiler fixed point, or general heap/array-kind unions.
 
 I also passed the complete 2,422-check native gate with zero failures at this implementation checkpoint (`/tmp/nanolang-variant-array-full-native.log`). The final tool-hash verification passes after all gates. I reconcile the task only after reviewed canonical merge.
+
+I restack cleanly onto main `25ca7ed8`, preserving the merged integer-pair
+helper, opcode cases and helper reference. My carrier implementation and
+its tests remain unchanged. At integrated source `0a4b235e`, I pass all
+1,365 solver checks, 17 GCC methods (12.180s, including the five integer-pair
+methods) and five affected Clang methods (3.406s). I retain the preceding
+full native and full Clang/source-owner gates for the unchanged carrier
+implementation. Logs are `/tmp/nanolang-variant-array-restack-{build,gcc,clang}.log`;
+`/tmp/nanolang-variant-array-restack-tools.sha256` records the integrated tools.
