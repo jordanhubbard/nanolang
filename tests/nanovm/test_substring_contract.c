@@ -30,6 +30,9 @@ static int format_snprintf(char *buffer, size_t capacity, const char *format, ..
     va_end(args);
     return result;
 }
+#ifdef snprintf
+#undef snprintf
+#endif
 #define snprintf format_snprintf
 #define malloc substring_malloc
 #define calloc array_calloc
