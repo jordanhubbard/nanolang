@@ -4650,7 +4650,7 @@ test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runt
 
 .PHONY: test-managed-array-graph-core
 test-managed-array-graph-core: nvm2wasm nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_managed_array_graphs
+	python3 -m unittest -v tests.test_managed_array_graphs tests.test_managed_graph_safepoints
 
 .PHONY: test-managed-array-copy-runtime
 test-managed-array-copy-runtime:
