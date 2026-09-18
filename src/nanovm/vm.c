@@ -3496,12 +3496,17 @@ vm_return_values: ;
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
+                vm_release(&vm->heap, start_v);
+                vm_release(&vm->heap, end_v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_SLICE: not an array");
             }
             uint32_t start = (uint32_t)(start_v.tag == TAG_INT ? start_v.as.i64 : 0);
             uint32_t end = (uint32_t)(end_v.tag == TAG_INT ? end_v.as.i64 : arr.as.array->length);
             VmArray *result = vm_array_slice(&vm->heap, arr.as.array, start, end);
             vm_release(&vm->heap, arr);
+            vm_release(&vm->heap, start_v);
+            vm_release(&vm->heap, end_v);
+            if (!result) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array slice.");
             stack_push(vm, val_array(result));
             VM_NEXT();
         }
