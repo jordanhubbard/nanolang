@@ -10012,11 +10012,12 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
-- [ ] I match managed byte-string CONTAINS/STARTS_WITH/ENDS_WITH across
+- [x] I match managed byte-string CONTAINS/STARTS_WITH/ENDS_WITH across
       VM, LLVM and import-free Wasm with exact stored lengths, no allocations,
       aliases and existing operand/frame error cleanup. MAC
       `task_b9a83a6b239b4c858ca6324d3066ac33`; my pre-code
-      [predicate contract](NANOISA_MANAGED_STRING_PREDICATES.md) retains
+      [predicate contract](NANOISA_MANAGED_STRING_PREDICATES.md) and
+      [paired evidence](evidence/managed-string-predicates.md) retain
       all other full-coverage and platform obligations.
 - [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
       MAC `task_51da49b39230468784da3481b893563b`; allocator, lifetime
