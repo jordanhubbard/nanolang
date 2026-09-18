@@ -11102,3 +11102,5 @@ I qualify both legacy formatting children with fresh Linux/Darwin bootstrap and 
 
 I retain reviewed source short-circuit qualification in `docs/evidence/nanovirt-source-short-circuit.md`: corrected three focused methods pass and the codegen log reports90 passed/0 failed/90 total, plus external public C lifting five methods under GCC/Clang. Tasks0b335 and5772 are merged in PR774 and reconciled from canonical64301352; selfhost6e16 and public C lifting remain separate.
 
+
+I qualify public C value child33f74 at integrated436ea9c8 with44 GCC and44 Clang methods plus seven existing C programs; [sealed evidence](evidence/public-c-expression-lifting.md) retains first failures and exact local tools. Canonical merge precedes child closure. My [remaining original-scope inventory](PUBLIC_C_REMAINING_PROFILE_INVENTORY.md) keeps option behavior and advertised capture/effect boundaries open under6ade; portable support or checked refusal, not universal admission, is the acceptance criterion.
