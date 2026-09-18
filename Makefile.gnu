@@ -526,7 +526,7 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	chmod +x $(BIN_DIR)/nvm2hl
 
 test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm bootstrap
-	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division
+	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics
 test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit

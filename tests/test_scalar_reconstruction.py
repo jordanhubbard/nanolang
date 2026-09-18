@@ -85,9 +85,11 @@ RET
 
 class ScalarReconstruction(unittest.TestCase):
     def checked(self, args, expected=0):
-        p = subprocess.run(list(map(str,args)), cwd=ROOT, text=True, capture_output=True, timeout=120,
+        argv = list(map(str, args))
+        p = subprocess.run(argv, cwd=ROOT, text=True, capture_output=True, timeout=120,
                            env={**os.environ,'NANOLANG_SHADOW_TIMEOUT_SECONDS':'60'})
-        self.assertEqual(p.returncode,expected,p.stdout+p.stderr)
+        self.assertEqual(p.returncode, expected,
+                         'I ran: '+shlex.join(argv)+'\n'+p.stdout+p.stderr)
         return p
 
     def assemble(self, directory, text):
