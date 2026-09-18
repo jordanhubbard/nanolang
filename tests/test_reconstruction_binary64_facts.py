@@ -56,7 +56,7 @@ class Binary64Facts(unittest.TestCase):
     def test_source_refusal_preserves_previous_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
-            module = self.module(directory, 'F64_NEG\n')
+            module = self.module(directory, 'DUP\nF64_ADD\n')
             for target in ('c', 'nano'):
                 output = directory/f'previous.{target}'
                 output.write_text('retained output\n')
@@ -64,7 +64,7 @@ class Binary64Facts(unittest.TestCase):
                                          '-o', output], cwd=ROOT, capture_output=True,
                                         text=True, timeout=30)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn('F64_NEG', result.stderr)
+                self.assertIn('F64_ADD', result.stderr)
                 self.assertEqual(output.read_text(), 'retained output\n')
 
 if __name__ == '__main__':
