@@ -525,6 +525,10 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	cp scripts/nvm2hl.py $(BIN_DIR)/nvm2hl
 	chmod +x $(BIN_DIR)/nvm2hl
 
+.PHONY: test-binary64-arithmetic-backends
+test-binary64-arithmetic-backends: nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_binary64_arithmetic_backends
+
 .PHONY: test-binary64-arithmetic
 test-binary64-arithmetic:
 	python3 -m unittest -v tests.test_binary64_arithmetic
@@ -5049,3 +5053,4 @@ test-multiple-consuming-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJ
 
 # I rebuild scalar dispatch when its reviewed arithmetic policy changes.
 $(OBJ_DIR)/nanovm/vm.o: src/binary64_arithmetic.h
+$(OBJ_DIR)/nanovm/vm.o: CFLAGS += -ffp-contract=off -fno-fast-math
