@@ -112,6 +112,16 @@ int main(void){return run();}
         self.node(wasm, 'for(let i=0;i<3;i++){check(e.nano_try_entry()===(3n<<32n));check(e.nms_module_live_objects()===4n);}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);')
         self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nano_try_entry',wasm]).stdout, '12884901888\n')
 
+    def test_prior_split_global_and_array_initializer_result(self):
+        suffix = ('.function __init__ 0 0 0 array 1\n'
+                  'PUSH_STR text\nPUSH_STR text\nSTR_SPLIT\nRET\n.end\n')
+        text = '.string text "ordinary"\n' + self.program(
+            'PUSH_STR text\nPUSH_STR text\nSTR_SPLIT\nSTORE_GLOBAL 0\n', suffix)
+        _, ir, wasm = self.compile(text)
+        self.native_harness(ir, 'for(int i=0;i<4;i++)if(nano_try_entry()||nms_module_live_objects()!=3)return 1;return nano_dispose();')
+        self.node(wasm, 'for(let instance=0;instance<2;instance++){e=new WebAssembly.Instance(m).exports;check(e.nms_module_live_objects()===0n);for(let i=0;i<3;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===3n);}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);}')
+        self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nano_entry',wasm]).stdout, '0\n')
+
     def test_mutation_refusals_preserve_output(self):
         for op in ('ARR_NEW 5\nPOP\n', 'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPUSH_STR a\nARR_PUSH\nPOP\n',
                    'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPUSH_I64 0\nPUSH_STR a\nARR_SET\nPOP\n'):
