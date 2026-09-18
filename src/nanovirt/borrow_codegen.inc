@@ -595,6 +595,7 @@ static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool 
 /* I inspect lexical syntax, not the lifetime of checker scope entries. */
 static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
     if(!n)return false;
+    if(n->lambda_definition && borrow_source_uses_owner(n->lambda_definition,env))return true;
     const char *name=n->type==AST_LET?n->as.let.type_name:
         n->type==AST_STRUCT_LITERAL?n->as.struct_literal.struct_name:NULL;
     StructDef *record=name?env_get_struct(env,name):NULL;
@@ -609,9 +610,27 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
         case AST_UNSAFE_BLOCK:
             for(int i=0;i<n->as.unsafe_block.count;i++)if(borrow_source_uses_owner(n->as.unsafe_block.statements[i],env))return true;
             break;
-        case AST_FUNCTION:return borrow_source_uses_owner(n->as.function.body,env);
+        case AST_FUNCTION:
+            if(n->as.function.return_struct_type_name) {
+                StructDef *returned=env_get_struct(env,n->as.function.return_struct_type_name);
+                if(returned && returned->is_resource)return true;
+            }
+            for(int i=0;i<n->as.function.param_count;i++) {
+                Parameter *p=&n->as.function.params[i];
+                StructDef *parameter=p->struct_type_name?env_get_struct(env,p->struct_type_name):NULL;
+                if(p->type==TYPE_BORROW_SHARED || p->type==TYPE_BORROW_MUT || (parameter && parameter->is_resource))return true;
+            }
+            return borrow_source_uses_owner(n->as.function.body,env);
         case AST_SHADOW:return borrow_source_uses_owner(n->as.shadow.body,env);
         case AST_LET:return borrow_source_uses_owner(n->as.let.value,env);
+        case AST_SET:return borrow_source_uses_owner(n->as.set.value,env);
+        case AST_PRINT:return borrow_source_uses_owner(n->as.print.expr,env);
+        case AST_ASSERT:return borrow_source_uses_owner(n->as.assert.condition,env);
+        case AST_FIELD_ACCESS:return borrow_source_uses_owner(n->as.field_access.object,env);
+        case AST_TUPLE_INDEX:return borrow_source_uses_owner(n->as.tuple_index.tuple,env);
+        case AST_TRY_OP:return borrow_source_uses_owner(n->as.try_op.operand,env);
+        case AST_ASYNC_FN:return borrow_source_uses_owner(n->as.async_fn.function,env);
+        case AST_AWAIT:return borrow_source_uses_owner(n->as.await_expr.expr,env);
         case AST_RETURN:return borrow_source_uses_owner(n->as.return_stmt.value,env);
         case AST_IF:return borrow_source_uses_owner(n->as.if_stmt.condition,env) ||
             borrow_source_uses_owner(n->as.if_stmt.then_branch,env) || borrow_source_uses_owner(n->as.if_stmt.else_branch,env);
@@ -619,11 +638,48 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
         case AST_FOR:return borrow_source_uses_owner(n->as.for_stmt.range_expr,env) || borrow_source_uses_owner(n->as.for_stmt.body,env);
         case AST_MATCH:
             if(borrow_source_uses_owner(n->as.match_expr.expr,env))return true;
-            for(int i=0;i<n->as.match_expr.arm_count;i++)if(borrow_source_uses_owner(n->as.match_expr.arm_bodies[i],env))return true;
+            for(int i=0;i<n->as.match_expr.arm_count;i++)
+                if(borrow_source_uses_owner(n->as.match_expr.arm_bodies[i],env) ||
+                   (n->as.match_expr.guard_exprs && borrow_source_uses_owner(n->as.match_expr.guard_exprs[i],env)))return true;
             break;
         case AST_CALL:
             if(borrow_source_uses_owner(n->as.call.func_expr,env))return true;
             for(int i=0;i<n->as.call.arg_count;i++)if(borrow_source_uses_owner(n->as.call.args[i],env))return true;
+            break;
+        case AST_COND:
+            for(int i=0;i<n->as.cond_expr.clause_count;i++)
+                if(borrow_source_uses_owner(n->as.cond_expr.conditions[i],env) || borrow_source_uses_owner(n->as.cond_expr.values[i],env))return true;
+            return borrow_source_uses_owner(n->as.cond_expr.else_value,env);
+        case AST_STRUCT_LITERAL:
+            if(borrow_source_uses_owner(n->as.struct_literal.spread_source,env))return true;
+            for(int i=0;i<n->as.struct_literal.field_count;i++)if(borrow_source_uses_owner(n->as.struct_literal.field_values[i],env))return true;
+            break;
+        case AST_UNION_CONSTRUCT:
+            for(int i=0;i<n->as.union_construct.field_count;i++)if(borrow_source_uses_owner(n->as.union_construct.field_values[i],env))return true;
+            break;
+        case AST_ARRAY_LITERAL:
+            for(int i=0;i<n->as.array_literal.element_count;i++)if(borrow_source_uses_owner(n->as.array_literal.elements[i],env))return true;
+            break;
+        case AST_TUPLE_LITERAL:
+            for(int i=0;i<n->as.tuple_literal.element_count;i++)if(borrow_source_uses_owner(n->as.tuple_literal.elements[i],env))return true;
+            break;
+        case AST_MODULE_QUALIFIED_CALL:
+            for(int i=0;i<n->as.module_qualified_call.arg_count;i++)if(borrow_source_uses_owner(n->as.module_qualified_call.args[i],env))return true;
+            break;
+        case AST_PAR_BLOCK:
+            for(int i=0;i<n->as.par_block.count;i++)if(borrow_source_uses_owner(n->as.par_block.bindings[i],env))return true;
+            break;
+        case AST_PAR_LET:
+            for(int i=0;i<n->as.par_let.count;i++)if(borrow_source_uses_owner(n->as.par_let.values[i],env))return true;
+            return borrow_source_uses_owner(n->as.par_let.body,env);
+        case AST_HANDLE_EXPR:
+            for(int i=0;i<n->as.handle_expr.handler_count;i++)if(borrow_source_uses_owner(n->as.handle_expr.handler_bodies[i],env))return true;
+            return borrow_source_uses_owner(n->as.handle_expr.body,env);
+        case AST_EFFECT_HANDLER:
+            for(int i=0;i<n->as.effect_handler.handler_count;i++)if(borrow_source_uses_owner(n->as.effect_handler.handler_bodies[i],env))return true;
+            return borrow_source_uses_owner(n->as.effect_handler.body,env);
+        case AST_EFFECT_OP:
+            for(int i=0;i<n->as.effect_op.arg_count;i++)if(borrow_source_uses_owner(n->as.effect_op.args[i],env))return true;
             break;
         case AST_PREFIX_OP:
             for(int i=0;i<n->as.prefix_op.arg_count;i++)if(borrow_source_uses_owner(n->as.prefix_op.args[i],env))return true;

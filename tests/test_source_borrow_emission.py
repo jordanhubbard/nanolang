@@ -1209,7 +1209,8 @@ shadow main { assert true }
     def test_owned_value_graph_refusals_preserve_output(self):
         base = (FIXTURES / 'source_owned_value_graph.nano').read_text()
         cases = {
-            'duplicate_move': base.replace('(forward 7 h true)', '(forward h.value h (== h.value 42))'),
+            'late_observation': base.replace('(forward 7 h true)', '(forward h.value h (== h.value 42))'),
+            'duplicate_move': base.replace('yes: bool', 'other: Handle').replace('assert yes', '(consume other)').replace('(forward 7 h true)', '(forward 7 h h)'),
             'discard_result': base.replace('let k: Handle = (forward 7 h true)\n    (consume k)', '(forward 7 h true)'),
             'wrong_return_nominal': base.replace('resource struct Handle', 'resource struct Other { value: int }\nresource struct Handle', 1).replace('return Handle { value: 42 }', 'return Other { value: 42 }'),
             'unconsumed': base.replace('return h', 'return Handle { value: 42 }'),
@@ -1270,6 +1271,30 @@ shadow main { assert true }
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
                     self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
                     self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|owned|global|transfer')
+
+    def test_inline_owner_wrappers_refuse_without_ordinary_fallback(self):
+        cases = {
+            'tuple': 'let wrapped: (Leaf, int) = (Leaf { value: 1 }, 2)',
+            'array': 'let wrapped: array<Leaf> = [Leaf { value: 1 }]',
+            'field': 'let wrapped: int = Leaf { value: 1 }.value',
+            'call': 'let wrapped: int = (unknown Leaf { value: 1 })',
+            'set': 'let mut wrapped: int = 0 set wrapped Leaf { value: 1 }',
+        }
+        for name, body in cases.items():
+            source = self.work / ('inline-owner-' + name + '.nano')
+            source.write_text('resource struct Leaf { value: int }\nfn main() -> int { ' + body + ' return 0 } shadow main { assert true }\n')
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler):
+                    output = self.work / 'inline-prior.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|scalar|exact|call|type|borrow|live|field')
 
 
 if __name__ == '__main__':

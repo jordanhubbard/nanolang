@@ -134,3 +134,13 @@ preserves previous output. I replace checker-symbol lifetime dependence with
 lexical AST inspection for local/global/shadow resource uses. The current C
 local-only control already retains OWN metadata; no erased-symbol failure is
 claimed. I retain the existing runtime transfer requirement and add no fallback.
+
+My lexical scan also descends every current expression container, including
+assignment, assertion/print, field/tuple access, array/tuple/struct/union values,
+conditional/match arms and guards, calls (including casts represented as calls),
+parallel/effect forms, parser-linked lambda declarations, async and await.
+The selfhost parser's complete literal table detects inline resource constructors
+independently of let annotations. Detection routes unsupported wrappers to
+explicit refusal; it does not admit those wrappers. I interrupt the superseded
+8c3 paired qualification after its bootstrap completes and before substantive
+paired acceptance, preserving its log/status as interrupted (143).

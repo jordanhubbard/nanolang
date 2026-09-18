@@ -960,6 +960,12 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
         if (>= record 0) { if (parser_get_struct_def parser record).is_resource { return true } }
         set i (+ i 1)
     }
+    set i 0
+    while (< i (parser_get_struct_literal_count parser)) {
+        let record: int = (nb_record parser (parser_get_struct_literal parser i).struct_name)
+        if (>= record 0) { if (parser_get_struct_def parser record).is_resource { return true } }
+        set i (+ i 1)
+    }
     return false
 }
 pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> string {
