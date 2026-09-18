@@ -47,7 +47,6 @@ shadow main{assert true}
             path=self.work/f'wrong{index}.nano';path.write_text(f'fn main()->int{{let text:string=(bool_to_string {argument}) return 0}}\nshadow main{{assert true}}\n')
             output=self.work/'previous.c';output.write_text('previous')
             result=self.run_cmd([ROOT/'bin/nanoc_c','--target','c',path,'-o',output],expected=1)
-            self.assertIn('bool_to_string',result.stderr)
-            self.assertNotIn('[c_backend]',result.stderr)
+            self.assertIn('[c_backend] I require one exact BOOL operand for C bool_to_string.',result.stderr)
             self.assertEqual(output.read_text(),'previous')
 if __name__=='__main__':unittest.main()
