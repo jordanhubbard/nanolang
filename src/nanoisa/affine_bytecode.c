@@ -53,8 +53,52 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
         f->stack[f->count-1].tag!=tag) return false;
     f->count--;return true;
 }
+typedef struct {
+    bool value_graph;
+    uint8_t status[NVM_OWNED_MAX_FUNCTIONS];
+    NvmAffineAnalysis results[NVM_OWNED_MAX_FUNCTIONS];
+} AnalysisCalls;
+
+bool nvm_affine_value_call_graph(const NvmModule *m) {
+    if (!m || !m->functions || !m->function_count ||
+        m->function_count>NVM_OWNED_MAX_FUNCTIONS || m->header.entry_point!=0) return false;
+    bool edges[NVM_OWNED_MAX_FUNCTIONS][NVM_OWNED_MAX_FUNCTIONS]={{false}};
+    for (uint32_t f=0;f<m->function_count;f++) {
+        const NvmFunctionEntry *fn=&m->functions[f];
+        if ((!f && fn->arity) || fn->upvalue_count || fn->result_count!=1 ||
+            (fn->result_tag!=TAG_INT && fn->result_tag!=TAG_BOOL && fn->result_tag!=TAG_U8) ||
+            fn->local_count>NVM_AFFINE_MAX_LOCALS ||
+            fn->code_length>NVM_AFFINE_MAX_INSTRUCTIONS*ISA_MAX_INSTRUCTION_SIZE) return false;
+        NvmAffineState *state=nvm_affine_state_create(m,f,fn->local_count);
+        NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
+        bool valid=nvm_affine_value_parameters(state,parameters,NVM_AFFINE_MAX_PARAMETERS,&count) && count==fn->arity;
+        nvm_affine_state_free(state);
+        if (!valid) return false;
+        VmDecodedFunction decoded={0};char error[VM_DECODE_ERROR_SIZE];
+        if (!vm_decode_function(m,f,&decoded,error)) return false;
+        if (!decoded.instruction_count || decoded.instruction_count>NVM_AFFINE_MAX_INSTRUCTIONS) valid=false;
+        for (uint32_t i=0;i<decoded.instruction_count && valid;i++) {
+            const DecodedInstruction *in=&decoded.instructions[i].instruction;
+            if (in->opcode==OP_CALL) {
+                uint32_t target=in->operands[0].u32;
+                if (!target || target>=m->function_count) valid=false;
+                else edges[f][target]=true;
+            } else if (in->opcode==OP_CALL_REF || in->opcode==OP_TAIL_CALL ||
+                       in->opcode==OP_CALL_INDIRECT || in->opcode==OP_CALL_MODULE ||
+                       in->opcode==OP_CALL_EXTERN) valid=false;
+        }
+        vm_decoded_function_free(&decoded);
+        if (!valid) return false;
+    }
+    for (uint32_t k=0;k<m->function_count;k++)
+        for (uint32_t i=0;i<m->function_count;i++)
+            for (uint32_t j=0;j<m->function_count;j++)
+                edges[i][j]=edges[i][j] || (edges[i][k] && edges[k][j]);
+    for (uint32_t i=0;i<m->function_count;i++) if (edges[i][i]) return false;
+    return true;
+}
 static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
-                                   const NvmAffineState *caller,uint32_t reference);
+                                   const NvmAffineState *caller,uint32_t reference,AnalysisCalls *calls);
 static bool supported(uint8_t op) {
     switch(op) {
     case OP_CALL: case OP_CALL_REF:
@@ -75,19 +119,20 @@ static bool supported(uint8_t op) {
     default:return false;
     }
 }
-static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function) {
+static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,AnalysisCalls *calls) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
     switch(op) {
     case OP_NOP: case OP_JMP: return NULL;
     case OP_CALL: {
-        if (function!=0 || module->function_count!=2 || in->operands[0].u32!=1 || !f->count)
-            return "I require an entry-to-helper consuming call";
-        NvmAffineState *callee=nvm_affine_state_create(module,1,module->functions[1].local_count);
+        uint32_t target=in->operands[0].u32;
+        if (!calls->value_graph || !target || target>=module->function_count)
+            return "I require a checked acyclic owned value call";
+        NvmAffineState *callee=nvm_affine_state_create(module,target,module->functions[target].local_count);
         NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
-        bool valid=nvm_affine_consuming_parameters(callee,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
+        bool valid=nvm_affine_value_parameters(callee,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
         nvm_affine_state_free(callee);
-        if (!valid || count!=module->functions[1].arity || f->count<count)
+        if (!valid || count!=module->functions[target].arity || f->count<count)
             return "I require a complete consuming argument list";
         for (uint16_t p=0;p<count;p++) {
             Value argument=f->stack[f->count-count+p];
@@ -97,10 +142,10 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
                 (argument.owned && argument.layout!=parameter.layout))
                 return "I require exact positional consuming argument types";
         }
-        NvmAffineAnalysis call=analyze(module,1,NULL,0);
+        NvmAffineAnalysis call=analyze(module,target,NULL,0,calls);
         if (!call.ok) return "I require complete consuming-helper owner resolution";
-        tag=module->functions[1].result_tag;
-        if (module->functions[1].result_count!=1 ||
+        tag=module->functions[target].result_tag;
+        if (module->functions[target].result_count!=1 ||
             (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8))
             return "I require a single scalar consuming-call result";
         f->count-=count;
@@ -109,7 +154,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     case OP_CALL_REF: {
         if (function!=0 || module->function_count!=2 || in->operands[0].u32!=1)
             return "I require entry-to-helper reference calls without recursion";
-        NvmAffineAnalysis call=analyze(module,1,f->locals,in->operands[1].u16);
+        NvmAffineAnalysis call=analyze(module,1,f->locals,in->operands[1].u16,calls);
         if (!call.ok) return "I require checked caller authority and a non-escaping helper";
         tag=module->functions[1].result_tag;
         if (module->functions[1].result_count!=1 ||
@@ -297,12 +342,17 @@ static bool propagate(Frame **frames,uint32_t target,const Frame *state,Worklist
 extern uint32_t NVM_AFFINE_TEST_VISIT_LIMIT(uint32_t limit);
 #endif
 static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
-                                   const NvmAffineState *caller,uint32_t reference) {
+                                   const NvmAffineState *caller,uint32_t reference,AnalysisCalls *calls) {
     NvmAffineAnalysis result={0};
     const char *error="I require checked ownership declarations";
     VmDecodedFunction decoded={0};Frame **frames=NULL;Worklist work={0};
     Frame *current=NULL;
     if (!m || !m->functions || function>=m->function_count) goto done;
+    if (calls->value_graph && !caller) {
+        if (calls->status[function]==2) return calls->results[function];
+        if (calls->status[function]==1) {error="I refuse recursive owned value analysis";goto done;}
+        calls->status[function]=1;
+    }
     const NvmFunctionEntry *entry=&m->functions[function];
     if (entry->local_count>NVM_AFFINE_MAX_LOCALS ||
         entry->code_length>NVM_AFFINE_MAX_INSTRUCTIONS*ISA_MAX_INSTRUCTION_SIZE) {
@@ -360,7 +410,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                 error="I require an exact scalar result and no live owned obligations";goto done;
             }
         } else {
-            error=step(current,&instruction->instruction,entry->local_count,m,function);
+            error=step(current,&instruction->instruction,entry->local_count,m,function,calls);
             if (error) goto done;
             if (op==OP_JMP || op==OP_JMP_TRUE || op==OP_JMP_FALSE) {
                 uint32_t relative=instruction->resolved_target-entry->code_offset;
@@ -381,9 +431,13 @@ done:
     if (frames) for (uint32_t i=0;i<decoded.instruction_count;i++) frame_free(frames[i]);
     free(frames);free(work.items);free(work.queued);vm_decoded_function_free(&decoded);
     if (error) snprintf(result.message,sizeof(result.message),"%s",error);
+    if (calls->value_graph && !caller && function<NVM_OWNED_MAX_FUNCTIONS) {
+        calls->results[function]=result;calls->status[function]=2;
+    }
     return result;
 }
 
 NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t function) {
-    return analyze(m,function,NULL,0);
+    AnalysisCalls calls={0};calls.value_graph=nvm_affine_value_call_graph(m);
+    return analyze(m,function,NULL,0,&calls);
 }
