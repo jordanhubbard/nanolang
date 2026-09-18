@@ -32,3 +32,36 @@ same module in VM, reconstructed sanitizer C, and NanoLang compiled by
 three explicitly pinned producers. I retain byte roundtrip and previous
 output on refusal. I never replay or minimize the preserved carry679
 compiler failure; that task and full reconstruction remain open.
+
+## My implementation and first acceptance
+
+My generator checkpoint is `4bca6f0f`, on canonical main `1826a810`.
+I build truth expressions from exact int/bool nodes. I emit one small
+NanoLang helper for bool-to-int only when needed; C uses its canonical
+`bool` representation. Both helper branches have independent shadows.
+
+My first five methods pass in 45.693 seconds, retained at
+`/tmp/nanolang-reconstruct-truthiness-first.log`: 32 mixed-tag binary truth
+cases, 17 endpoint/identity casts, bool negation, eager call assignments,
+local mutation snapshots, a three-iteration pure cast condition, 50
+other-tag/language output-preservation refusals and six verifier arity/type
+refusals. The reconstructor receives only the module after the assembly
+source is removed; dump/reassembly preserves the module bytes.
+
+I reuse immutable compiler tools from
+`/home/jkh/Src/nanolang-functional-array-builtins/bin`, whose recorded build
+source is `4a75f984`. This is a separate producer pin, not a bootstrap of my
+current generator checkout:
+
+| Compiler | SHA-256 |
+| --- | --- |
+| Cseed | 442caf121e671388e4d22ea207789ad56efca659555c4ee451596eb3d4b99041 |
+| Stage1 | d078dc8c6747b849cb2228fa33165b06aa350d5f6e53b8911fd72696515542fa |
+| Stage2 | b276026caf525bde10c063b2f7654f192b81ace73587e5af5bebda4986581a40 |
+
+`/tmp/nanolang-reconstruct-truthiness-pins.sha256` records those compilers
+and the generator; `/tmp/nanolang-reconstruct-truthiness-tools.sha256`
+records my rebuilt facts reader, reconstructor CLI, assembler and VM.
+My Cseed-produced Nano-C check has UBSan enabled; reconstructed C checks use
+ASan/UBSan with strict warnings. Fixture shadows validate output but do not
+claim recovery of original source shadows.
