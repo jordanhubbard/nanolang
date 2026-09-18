@@ -55,3 +55,23 @@ heap/profile boundaries are unchanged. Both reconstruction targets still refuse
 `F64_FROM_BITS` and preserve previous outputs; full executable float reconstruction
 and the broader reconstruction parent remain open. I make no Darwin or full
 product-platform acceptance claim from this Linux transport gate.
+
+## Current-main integration
+
+I integrated main through PR719 without conflicts at `a61f6585`. My bit transport,
+C/source checker, legacy emitter, ordinary native emitter and LLVM lowering files
+retain the reviewed production identity. Main contributes separate VM slice
+cleanup and managed-array shape/runtime changes. I rebuilt the affected VM and
+translators, then all nine transport/source/managed methods passed. The combined
+invocation also requested an adjacent shape class without its required
+`NMA_LINK_OBJECTS`, so that invocation retains a setup error rather than a green
+suite claim. The proper Make target, with the configured native Clang GCC path,
+subsequently passed all 18 shape methods in 2.507 seconds. I retain both that
+missing-environment log and the unconfigured Clang setup log separately.
+
+My four source compiler/producer hashes remain identical to the fresh bootstrap
+qualification; rebuilt execution tools and exact integration logs have their own
+manifest entries. A strengthened interpreter check also retained zero floating
+exception flags after every bit roundtrip. No failed historical compiler or
+carry artifact was replayed, and no full product/reconstruction gate is closed
+by this integration.

@@ -25,5 +25,25 @@
     "/tmp/nanolang-bit-transport-source-first.log": "ec274a19bd5a49188368f6cba39aa761cf7845784c414295e4efc75def486ded",
     "/tmp/nanolang-bit-transport-existing-facts-text-corrected.log": "76ea8dba39dc2d73d5b30f5fc7039d02c86890e4b6950de9ac6fbec6a692aca3"
   },
-  "reconstruction_admitted": false
+  "reconstruction_admitted": false,
+  "integration": {
+    "source": "a61f6585da222e4835c271a10f16f7aec80b7dc3",
+    "tools": {
+      "bin/nanoc_c": "8c6c78de64845b723d2edf698e5639a5f22ba08254f3870cfc0394e5e6d8cb37",
+      "bin/nanoc_stage1": "7cb4f38745e77e9a9d84b0e58ae6df5395b91f4e5502fad48da026433b555941",
+      "bin/nanoc_stage2": "bae22e738d1bf2fb712870555e259d0985361ee2574e5d49d213b98ced0f2cba",
+      "bin/nano_virt": "e7ca539d3b741ccbb23f948e433de8d5c4145282db35aaef7c1d2f6535705d53",
+      "bin/nano_vm": "6f8901a47386a5ee45ed351b2e145b519152dc86834c2f46779c82015d81feb2",
+      "bin/nvm2c": "ecbde3ffa96fb3613a91da56fc909aecd07dfd91e88722495735d1210346e061",
+      "bin/nvm2llvm": "2a89ab1da2d98f89bc02af33d7a894602f962d52950e5ec18f36f5b7e0256e2c",
+      "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+      "bin/nanoisa": "4f078f589b44a6143aa727a85d025deeb979d7d6011a00a42c9e0e0221a2e2c1"
+    },
+    "logs": {
+      "/tmp/nanolang-bit-transport-integrated-build.log": "521f4b31e5f7a656195544a7ec0da5bfcc6a084cd3c2326a457d7187c0bdcb9d",
+      "/tmp/nanolang-bit-transport-integrated-tests.log": "732b7309acb37ee83adeabd0814af68c02335365c8e047349f1609b3321bd492",
+      "/tmp/nanolang-bit-integrated-shape-configured.log": "1239b59c79f7621793426fb60f0a78512282b7c26b1436ec9e5b106b76f2c953",
+      "/tmp/nanolang-bit-interpreter-fenv.log": "ce4830d14e4733b9fddb4cc0c7c45181b4f788a20ef4754c2367bbb38de7d2e3"
+    }
+  }
 }

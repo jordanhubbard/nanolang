@@ -3,6 +3,7 @@
 #include "test_eval.c"
 #undef main
 #include "../src/binary64_bits.h"
+#include <fenv.h>
 int main(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
@@ -18,7 +19,9 @@ int main(void) {
         int64_t signed_bits = bits <= INT64_MAX ? (int64_t)bits :
                              -1 - (int64_t)(UINT64_MAX - bits);
         Value arg = create_int(signed_bits);
+        ASSERT(feclearexcept(FE_ALL_EXCEPT) == 0);
         Value result = call_function("copy", &arg, 1, ctx.env);
+        ASSERT(fetestexcept(FE_ALL_EXCEPT) == 0);
         ASSERT(result.type == VAL_INT);
         ASSERT_EQ(result.as.int_val, signed_bits);
     }
