@@ -107,6 +107,76 @@ class ArrayShapes(unittest.TestCase):
             extra='.function unused 1 1 0 int 1\n'+body+'\n.end\n'
             self.analyze(self.program('',extra),1)
 
+    def test_literal_count_matrix_and_empty_origins(self):
+        pairs=[(1,'PUSH_I64 -1'),(1,'PUSH_U8 255'),(2,'PUSH_U8 255'),
+               (2,'PUSH_I64 -1'),(3,'PUSH_F64 -0.0'),(3,'PUSH_I64 17'),(4,'PUSH_BOOL 1')]
+        for kind,value in pairs:
+            for count in (0,1,8,9,17):
+                fields,origins=self.analyze(self.program((value+'\n')*count+f'ARR_LITERAL {kind} {count}\nARR_LEN\nPUSH_I64 {count}\nI64_EQ\nASSERT'),vm=True)
+                self.assertEqual(fields[4],count);self.assertEqual(origins[0][2:],[kind,1,0])
+        values=['PUSH_VOID','PUSH_I64 7','PUSH_U8 255','PUSH_F64 -0.0','PUSH_BOOL 1','PUSH_STR text','ENUM_VAL 2 3']
+        for kind in (0,5,9):
+            fields,origins=self.analyze(self.program('\n'.join(values)+f'\nARR_LITERAL {kind} 7\nPOP'),vm=True)
+            self.assertEqual(fields[4],7);self.assertEqual(origins[0][4],sum(1<<t for t in (0,1,2,3,4,5,9)))
+        for body in ('PUSH_STR text\nARR_LITERAL 1 1\nPOP','ARR_NEW 1\nARR_LITERAL 5 1\nPOP','ARR_LITERAL 7 0\nPOP'):
+            self.analyze(self.program(body),1)
+
+    def test_slice_fresh_origin_and_independent_writes(self):
+        body=('PUSH_STR text\nARR_LITERAL 5 1\nSTORE_LOCAL 0\n'
+              'LOAD_LOCAL 0\nPUSH_I64 0\nPUSH_I64 1\nARR_SLICE\nSTORE_LOCAL 1\n'
+              'LOAD_LOCAL 1\nPUSH_BOOL 1\nARR_PUSH\nPOP\n'
+              'LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 1\nI64_EQ\nASSERT')
+        fields,origins=self.analyze(self.program(body),vm=True)
+        self.assertEqual(fields[3],2)
+        self.assertEqual(origins[0][4],1<<5);self.assertEqual(origins[1][4],(1<<5)|(1<<4))
+        # Later source writes conservatively reach the copy summary, never vice versa.
+        _,origins=self.analyze(self.program(body+'\nLOAD_LOCAL 0\nPUSH_I64 7\nARR_PUSH\nPOP'),vm=True)
+        self.assertEqual(origins[0][4],(1<<5)|(1<<1));self.assertEqual(origins[1][4],(1<<5)|(1<<1)|(1<<4))
+
+    def test_slice_join_keeps_each_declared_storage(self):
+        prefix='PUSH_BOOL 1\nJMP_FALSE other\nARR_NEW 1\nJMP joined\nother:\nARR_NEW 2\njoined:\nPUSH_VOID\nPUSH_STR text\nARR_SLICE\n'
+        fields,origins=self.analyze(self.program(prefix+'PUSH_I64 257\nARR_PUSH\nPOP'),vm=True)
+        self.assertEqual(fields[3],4)
+        self.assertEqual(sorted(o[2] for o in origins),[1,1,2,2])
+        self.assertEqual(len({o[1] for o in origins}),3)
+        self.analyze(self.program(prefix.replace('ARR_NEW 2','ARR_NEW 3')+'PUSH_U8 7\nARR_PUSH\nPOP'),1)
+
+    def test_repeated_slice_site_and_recursive_source_summary(self):
+        extra=('.function copy 1 1 0 array 1\nLOAD_LOCAL 0\nPUSH_I64 0\nPUSH_I64 9\nARR_SLICE\nRET\n.end\n')
+        body=('PUSH_STR text\nARR_LITERAL 5 1\nCALL copy\nSTORE_LOCAL 0\n'
+              'LOAD_LOCAL 0\nPUSH_BOOL 1\nARR_PUSH\nCALL copy\nPOP\n'
+              'LOAD_LOCAL 0\nPUSH_I64 7\nARR_PUSH\nPOP')
+        fields,origins=self.analyze(self.program(body,extra),vm=True)
+        self.assertEqual(fields[3],2);self.assertEqual(origins[1][4],(1<<5)|(1<<4)|(1<<1))
+        recursive=('.function copy 2 2 0 array 1\nLOAD_LOCAL 1\nPUSH_I64 0\nI64_EQ\nJMP_TRUE base\n'
+                   'LOAD_LOCAL 0\nPUSH_I64 0\nPUSH_I64 9\nARR_SLICE\n'
+                   'LOAD_LOCAL 1\nPUSH_I64 1\nI64_SUB\nCALL copy\nRET\nbase:\n'
+                   'LOAD_LOCAL 0\nPUSH_STR text\nARR_PUSH\nRET\n.end\n')
+        fields,origins=self.analyze(self.program('ARR_NEW 5\nPUSH_I64 2\nCALL copy\nPOP',recursive),vm=True)
+        self.assertEqual(fields[3],2);self.assertTrue(all(o[4]==1<<5 for o in origins))
+
+    def test_slice_globals_reentry_unknown_origins_and_limits(self):
+        init='.function __init__ 0 0 0 void 0\nARR_NEW 5\nSTORE_GLOBAL 0\nRET\n.end\n'
+        body=('LOAD_GLOBAL 0\nPUSH_I64 0\nPUSH_I64 9\nARR_SLICE\nPUSH_I64 2\nARR_PUSH\nPOP\n'
+              'LOAD_GLOBAL 0\nPUSH_STR text\nARR_PUSH\nPOP')
+        fields,origins=self.analyze(self.program(body,init),vm=True)
+        self.assertEqual(fields[3],2);self.assertEqual(origins[1][4],(1<<1)|(1<<5))
+        unused='.function unused 1 1 0 array 1\nLOAD_LOCAL 0\nPUSH_I64 0\nPUSH_I64 1\nARR_SLICE\nRET\n.end\n'
+        self.analyze(self.program('',unused),1)
+        self.analyze(self.program('ARR_NEW 5\n'+'PUSH_I64 0\nPUSH_I64 1\nARR_SLICE\n'*64+'POP'),3)
+        self.analyze(self.program('PUSH_VOID\n'*257+'ARR_LITERAL 5 257\nPOP'),3)
+
+    def test_copy_analysis_allocation_failure_and_no_admission(self):
+        text=self.program('PUSH_STR text\nARR_LITERAL 5 1\nPUSH_I64 0\nPUSH_I64 1\nARR_SLICE\nPOP')
+        for budget in range(8):self.analyze(text,4,budget=budget)
+        self.analyze(text,0,budget=8)
+        source=self.work/'copy.nasm';source.write_text(text)
+        module=self.work/'copy.nvm';self.command([ROOT/'bin/nanoisa','asm',source,'-o',module])
+        for tool in ('nvm2llvm','nvm2wasm'):
+            output=self.work/(tool+'.copy.old');output.write_bytes(b'prior output')
+            p=subprocess.run([ROOT/'bin'/tool,module,'-o',output],capture_output=True,timeout=30)
+            self.assertNotEqual(p.returncode,0);self.assertEqual(output.read_bytes(),b'prior output')
+
     def test_every_private_allocation_failure_is_atomic(self):
         text=self.program('ARR_NEW 5\nPUSH_STR text\nARR_PUSH\nPOP')
         # One analysis context, six function allocations, then report publication.
