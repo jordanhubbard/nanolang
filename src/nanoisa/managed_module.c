@@ -45,6 +45,11 @@ uint32_t nms_module_retain(uint64_t payload, uint32_t tag) {
 void nms_module_release(uint64_t payload, uint32_t tag) {
     if (tag == 5) nms_module_fail(nms_release(&nms_module_instance, payload));
 }
+uint64_t nms_module_format_scalar(uint64_t bits, uint32_t tag) {
+    NmsHandle result = 0;
+    nms_module_fail(nms_format_scalar(&nms_module_instance, bits, tag, &result));
+    return result;
+}
 int64_t nms_module_parse_i64(uint64_t source) {
     int64_t result = 0;
     nms_module_fail(nms_parse_i64(&nms_module_instance, source, &result));

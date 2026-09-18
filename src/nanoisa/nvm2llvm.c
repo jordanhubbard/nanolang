@@ -479,6 +479,11 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             result(&frame, pc, TAG_BOOL);
             break;
         }
+        case OP_CAST_STRING:
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_value = call %%V @managed_cast_string(%%V %%p%u_a)\n", pc, pc);
+            transferred(&frame, "a"); push(&frame, pc, "value");
+            break;
         case OP_CAST_INT: case OP_CAST_FLOAT:
             pop(&frame, pc, "a");
             if (ins.opcode == OP_CAST_FLOAT) {

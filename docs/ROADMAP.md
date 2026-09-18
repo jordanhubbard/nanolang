@@ -9929,6 +9929,15 @@ Other translators:
       cleanup, allocation-status propagation and fresh ordinary recovery gates.
       [Bounded evidence](evidence/vm-substring-contract.md); translator admission
       and the managed-runtime parent remain open.
+- [x] I lower exact non-floating managed CAST_STRING with checked ownership.
+      MAC `task_074f76d564d145b88554a66b4fcfb204`; contract
+      `docs/NANOISA_MANAGED_SCALAR_FORMAT.md`; [evidence](evidence/managed-scalar-format.md).
+- [ ] I implement portable binary64 string formatting matching the closed VM
+      C-locale `%g` contract before removing the floating CAST_STRING boundary.
+      MAC `task_4fa62bcd01324cdfa0612d278d3bbaf0`; required under managed parent51da.
+- [ ] I implement portable string-to-binary64 parsing matching the closed VM
+      strtod contract before admitting string CAST_FLOAT.
+      MAC `task_4d2f69a19d754ac88876f93a0913d1fb`; required under managed parent51da.
 - [x] I match managed decimal string-to-int conversion across LLVM/Wasm.
       MAC `task_34ce900cad86496b876bdf262b46bdaf`; contract
       `docs/NANOISA_MANAGED_STRING_INT.md`; [evidence](evidence/managed-decimal.md).
