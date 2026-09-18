@@ -9,6 +9,9 @@ whitespace rules and a fresh owned result, including empty or unchanged text.
 My [character-byte helper](NANOISA_MANAGED_CHARACTER.md) admits STR_CHAR_AT
 with signed index bounds, unsigned byte/-1 integer results and the existing
 non-integer index fallback to zero; it borrows without allocating.
+My [ASCII case conversion](NANOISA_MANAGED_CASE.md) admits STR_TO_LOWER/UPPER
+with consuming cleanup and fresh private results. I preserve all other bytes,
+and do not claim matching physical handles or allocation events with VM interning.
 Mixed string/numeric ADD reports a type error. I retain exact byte lengths,
 embedded NUL bytes, unsigned byte ordering and truthy empty strings. These
 operations do not complete my required full-language LLVM/Wasm scope.
