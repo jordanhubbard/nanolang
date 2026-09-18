@@ -1,6 +1,6 @@
 # My Roadmap
 
-- [ ] I handle hashmap allocation failures explicitly (`task_bc7264a337074246953284ef892785d2`). My heap constructor returns NULL but HM_NEW does not check before publishing; my void heap setter silently returns after failed resize. I need checked failure propagation with unchanged prior contents and owner cleanup. This static finding is separate from declared-tag checking; I have not run a failure reproducer.
+- [ ] I handle hashmap allocation failures explicitly (`task_bc7264a337074246953284ef892785d2`). I check constructor failure before publication, return a checked heap-set status, preserve contents and borrowed input ownership on failed growth, and propagate VM_ERR_MEMORY after releasing consumed arguments. Existing-key replacement stays allocation-free. I require deterministic corrected-source allocator tests and ordinary recovery; no old failure replay. [Contract](NANOISA_MAP_ALLOCATION.md).
 
 - [x] I enforce declared key/value tags before ordinary VM map writes (`task_b19f8bf0527d4a33911be26706629616`). HM_NEW records tags and key/value extraction publishes typed arrays, while native writes already check their supported value tags. I require exact HM_SET tags before mutation, release consumed owners on refusal and retain aliases/prior contents; lookup/delete and native non-string-key admission stay separate. The VM gate passes 274,493 checks; seven paired methods and 77 focused VM ownership checks pass with GCC/Clang sanitizers. [Contract and evidence](NANOISA_MAP_DECLARED_TAGS.md).
 
