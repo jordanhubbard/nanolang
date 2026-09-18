@@ -116,9 +116,9 @@ shadow main { assert (== (main) 0) }
         self.execute(self.emit(failed).stdout, success=False)
 
     def test_reachable_unsupported_shadow_refused(self):
-        source = '''extern fn unsupported() -> array<float>
-fn unused() -> array<float> { return (unsupported) }
-shadow unused { let values: array<float> = (unused) }
+        source = '''extern fn unsupported() -> array<array<float>>
+fn unused() -> array<array<float>> { return (unsupported) }
+shadow unused { let values: array<array<float>> = (unused) }
 '''
         refusal = self.emit(source, expected=1)
         self.assertIn("I cannot lower shadow unused at merged line", refusal.stdout)

@@ -339,7 +339,7 @@ shadow nisa_map_value_type {
 
 fn nisa_local_type_ok(t: string) -> bool {
     if (== t "float") { return true }
-    if (== t "array<bool>") { return true }
+    if (or (== t "array<bool>") (== t "array<float>")) { return true }
     if (!= (nisa_map_value_type t) "") { return true }
     if (== t "int") {
         return true
@@ -372,6 +372,7 @@ shadow nisa_local_type_ok {
     assert (nisa_local_type_ok "List<string>")
     assert (nisa_local_type_ok "list_string")
     assert (nisa_local_type_ok "array<bool>")
+    assert (nisa_local_type_ok "array<float>")
 }
 
 fn nisa_is_arr_builtin(name: string) -> bool {
@@ -648,6 +649,7 @@ fn nisa_field_shape_supported(parser: Parser, field: string, ancestors: array<st
     if (>= (nisa_enum_index parser field) 0) { return true }
     if (!= (nisa_map_value_type field) "") { return true }
     if (or (== field "float") (or (== field "int") (or (== field "string") (== field "bool")))) { return true }
+    if (== field "array<float>") { return true }
     if (or (== field "array<bool>") (or (== field "array<int>") (== field "array<string>"))) { return true }
     if (or (== field "List<int>") (== field "List<string>")) { return true }
     if (and (str_starts_with field "array<") (str_ends_with field ">")) {
@@ -669,7 +671,8 @@ shadow nisa_field_shape_supported {
     assert (not (nisa_field_shape_supported parser "HashMap<int,int>" []))
     assert (nisa_field_shape_supported parser "array<bool>" [])
     assert (nisa_field_shape_supported parser "float" [])
-    assert (not (nisa_field_shape_supported parser "array<float>" []))
+    assert (nisa_field_shape_supported parser "array<float>" [])
+    assert (not (nisa_field_shape_supported parser "array<array<float>>" []))
 }
 
 fn nisa_record_shape_supported(parser: Parser, name: string, ancestors: array<string>) -> bool {
@@ -723,6 +726,7 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
     if (>= (nisa_enum_index parser t) 0) { return true }
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
         let element: string = (str_substring t 6 (- (str_length t) 7))
+        if (== element "float") { return true }
         if (or (== element "bool") (or (== element "int") (== element "string"))) { return true }
         return (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element))
     }
@@ -1481,6 +1485,7 @@ shadow nisa_call_name {
 }
 
 fn nisa_element_type(parser: Parser, container: string) -> string {
+    if (== container "array<float>") { return "float" }
     if (== container "array<bool>") { return "bool" }
     if (and (str_starts_with container "array<") (str_ends_with container ">")) {
         let element: string = (str_substring container 6 (- (str_length container) 7))
@@ -1502,6 +1507,7 @@ shadow nisa_element_type {
     assert (== (nisa_element_type parser "List<int>") "int")
     assert (== (nisa_element_type parser "List<Entry>") "Entry")
     assert (== (nisa_element_type parser "array<bool>") "bool")
+    assert (== (nisa_element_type parser "array<float>") "float")
 }
 
 fn nisa_access_result(parser: Parser, call: ASTCall) -> string {
@@ -1584,6 +1590,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             if (!= actual element) { return "" }
             set i (+ i 1)
         }
+        if (== element "float") { return "array<float>" }
         if (or (== element "bool") (or (== element "int") (or (== element "string") (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element))))) { return (+ "array<" (+ element ">")) }
         return ""
     }
@@ -1761,6 +1768,12 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
             return (nisa_fail "I require the declared float value type")
         }
     }
+    if (and (!= expected "") (!= node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
+        let actual: string = (nisa_expr_type parser node_id node_type)
+        if (and (or (== expected "array<float>") (== actual "array<float>")) (!= actual expected)) {
+            return (nisa_fail "I require the declared float array element type")
+        }
+    }
     if (and (!= (nisa_map_value_type expected) "") (nisa_is_map_constructor parser node_id node_type)) {
         if (== (nisa_map_value_type expected) "string") { return (nisa_line_imm "HM_NEW" "5 5") }
         return (nisa_line_imm "HM_NEW" "5 1")
@@ -1776,6 +1789,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         let element: string = (nisa_element_type parser expected)
         if (== element "string") { set tag "5" }
         if (== element "bool") { set tag "4" }
+        if (== element "float") { set tag "3" }
         if (nisa_is_pin_record parser element) { set tag "8" }
         let mut output: string = ""
         let mut i: int = 0
@@ -1799,6 +1813,7 @@ shadow nisa_emit_expected_expr {
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<string>") "  ARR_LITERAL 5 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<int>") "  ARR_LITERAL 1 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<bool>") "  ARR_LITERAL 4 0\n")
+    assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<float>") "  ARR_LITERAL 3 0\n")
 }
 
 fn nisa_emit_call_args(parser: Parser, call: ASTCall) -> string {
@@ -2077,6 +2092,7 @@ fn nisa_emit_filled_array(parser: Parser, call: ASTCall) -> string {
     let mut tag: string = "1"
     if (== element "string") { set tag "5" }
     if (== element "bool") { set tag "4" }
+    if (== element "float") { set tag "3" }
     if (nisa_is_pin_record parser element) { set tag "8" }
     let mut output: string = (nisa_emit_expr parser count.node_id count.node_type)
     let size_slot: string = (nisa_temp_local "int")
@@ -2997,10 +3013,10 @@ shadow nisa_emit_typed_let {
     assert (str_contains emitted "STORE_LOCAL 0")
     assert (== (at nisa_types 0) "int")
     assert (== (nisa_reset) 0)
-    let unsupported_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let values: array<float> = [1.5] return 0 }" "unsupported.nano" (diag_list_new))
+    let unsupported_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let values: array<array<float>> = [[1.5]] return 0 }" "unsupported.nano" (diag_list_new))
     let unsupported: Parser = (parse_program unsupported_tokens (list_LexerToken_length unsupported_tokens) "unsupported.nano")
-    assert (== (nisa_emit_typed_let unsupported (parser_get_let unsupported 0) "array<float>") "")
-    assert (== nisa_err "unsupported local type array<float>")
+    assert (== (nisa_emit_typed_let unsupported (parser_get_let unsupported 0) "array<array<float>>") "")
+    assert (== nisa_err "unsupported local type array<array<float>>")
     assert (== (array_length nisa_names) 0)
     assert (== (nisa_reset) 0)
     let missing_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value: int = missing return 0 }" "missing.nano" (diag_list_new))
@@ -3988,7 +4004,7 @@ shadow nisa_emit_module_nasm {
     let good_source: string = "fn main() -> int { return 7 }"
     let good: string = (nanoisa_emit_nasm good_source)
     assert (!= good "")
-    let rejected_declaration: string = (nanoisa_emit_nasm "extern fn unsupported(xs: array<float>) -> int fn main() -> int { return 0 }")
+    let rejected_declaration: string = (nanoisa_emit_nasm "extern fn unsupported(xs: array<array<float>>) -> int fn main() -> int { return 0 }")
     assert (== rejected_declaration "")
     assert (== (array_length nisa_names) 0)
     assert (== nisa_import_text "")
