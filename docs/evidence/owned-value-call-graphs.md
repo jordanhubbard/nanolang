@@ -80,8 +80,14 @@ remains incomplete. I retain `/tmp/nanolang-owned-value-graph-sanitizers.log`;
 there is no passing claim for that run and no demonstrated correctness failure.
 I preserve all ten cases, all four APIs and two repeats in a separate O2
 ASan/UBSan/LSan build. Its log is
-`/tmp/nanolang-owned-value-graph-sanitizers-optimized.log`; that result remains
-pending. Both builds instrument the test driver and every linked NanoVM and
+`/tmp/nanolang-owned-value-graph-sanitizers-optimized.log`; it also reaches the
+600-second bound and remains incomplete. After both runs terminate, I add an
+optional case selector to the harness. The default full gate still passes
+1847 checks and 338 preflight checks unchanged. A separate partition invokes
+each of the ten identical cases with all four APIs, two repeats and every
+assertion, at most two processes at once and 300 seconds per case. Per-case logs
+and statuses are in `/tmp/nanolang-owned-value-graph-sanitizer-parts`; their
+aggregate remains pending. I do not relabel either full-run timeout as a pass. Both builds instrument the test driver and every linked NanoVM and
 NanoISA object, with ordinary compiler/runtime support objects linked normally.
 I do not claim that the entire legacy compiler is instrumented.
 

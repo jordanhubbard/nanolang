@@ -74,9 +74,14 @@ static void ordinary_chain(void) {
 }
 #ifndef OWNED_GRAPH_ALLOC_TEST
 int main(int argc,char **argv) {
-    CHECK(argc==2);ordinary_chain();graph_refusals();
+    CHECK(argc==2||argc==3);ordinary_chain();graph_refusals();
+    unsigned begin=0,end=10;
+    if(argc==3) {
+        char *text_end=NULL;unsigned long selected=strtoul(argv[2],&text_end,10);
+        CHECK(argv[2][0]&&!*text_end&&selected<10);begin=(unsigned)selected;end=begin+1;
+    }
     NvmModule *four=graph_fixture(0,4);consuming_verified(four);nvm_module_free(four);
-    for(unsigned index=0;index<10;index++) {
+    for(unsigned index=begin;index<end;index++) {
         bool fails=index>0&&index<9;
         NvmModule *m=graph_fixture(fails?index:0,index==9?4:8);consuming_verified(m);artifacts(m,argv[1],index);
         VmState vm;vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
