@@ -10233,7 +10233,6 @@ Other translators:
     - [x] I validate/query explicit ordinary scalar/string/prior-record declarations without relaxing transitive resource eligibility ([transport evidence](evidence/ordinary-record-authority.md)); no descriptor adapter or execution admission is implied.
     - [x] I connect checked declaration authority to owned record descriptors with failure-atomic batch queries, preserving UNKNOWN absence and unresolved resource/mixed declarations ([adapter evidence](evidence/record-authority-adapter.md)); executable admission remains unchanged.
     - [ ] I publish truthful retained layouts/authority in both ordinary source producers, including normal entries and all selected shadows.
-      - [ ] I preserve generated C shadow identifiers through canonical text assembly (task_bda9ec8435ab48a4b3cd21002a0002cd); the first paired shadow method refused `$shadow_0_length` before execution.
       - [ ] I preserve selfhost extern-record provenance through AST and merged producers (task_f366494d5921451eaf57128629eb9e4c); the bounded producer conservatively omits optional authority for extern tokens until then.
     - [ ] I retain required array-element ownership, generic/import/forward-order and remaining nominal coverage under15f; absent or unsupported metadata stays UNKNOWN until its own contract qualifies it.
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
