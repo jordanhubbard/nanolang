@@ -1,0 +1,33 @@
+{
+  "source": "32b91d527e941c1aed90e5e79648cd8e87c783e5",
+  "runner_sha256": "e77310472a1c6b4a28a477cb5dd0112d0e06944c96ac464c03344d8af1c2cc3b",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 257.456,
+      "sha256": "a2eaac3492e3bf43cffac9f04763417bd36ab08279d8dde2d9c6a4c318e09cde"
+    },
+    {
+      "name": "tools",
+      "command": [
+        "make",
+        "-j2",
+        "bin/nano_asm",
+        "bin/nano_vm",
+        "bin/nvm2c"
+      ],
+      "status": 2,
+      "seconds": 0.06,
+      "sha256": "1251fab2a7d52c8e5896bfbeaed335f26a7174ad23ab1ba0bfe1e11163ae6eed"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

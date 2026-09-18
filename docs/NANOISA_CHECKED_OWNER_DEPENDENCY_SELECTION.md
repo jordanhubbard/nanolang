@@ -1,6 +1,6 @@
 # My checked ownership dependency-selection prerequisite
 
-I record task_fa08b9ffba9c40f0bb4ce22a63321589 before production, under installed-product affine task_e8d860a16da0464891dd32e91c42bef1. My first950f product result remains sealed at0ab42bcc on docs/product-gates-950f36d1. This checkpoint is a bounded proposal for review; no production or tests change here.
+I record task_fa08b9ffba9c40f0bb4ce22a63321589 before production, under installed-product affine task_e8d860a16da0464891dd32e91c42bef1. My first950f product result remains sealed at0ab42bcc on docs/product-gates-950f36d1. This contract preceded the bounded implementation; my final qualification is recorded in [sealed evidence](evidence/checked-owner-selection.md).
 
 ## My observed boundary
 
@@ -10,7 +10,7 @@ My ordinary selfhost `nanoisa_emit_program_nasm` already schedules direct execut
 
 My C-seed `codegen_compile` currently retains its full-module behavior and has no equivalent program-selection flag. The original C-seed native C-output probes already pass. I do not quietly redefine that public API or claim C-seed NanoVirt full-module emission has acquired executable pruning from this first selfhost prerequisite.
 
-## My proposed first checkpoint: prove an owner-free selected closure
+## My bounded checkpoint: prove an owner-free selected closure
 
 I change only routing for program publication and selected-shadow publication after the canonical frontend's full source checks. I add a conservative, nonmutating selection analysis with three outcomes: proved owner-free selected closure, selected ownership, or unknown/unsupported dependency. Only the positive proof permits ordinary program/shadow lowering when unrelated declarations contain ownership. Selected ownership and unknown cases retain the existing specialized route and its existing checked refusals. I do not prune or weaken an owned graph in this checkpoint.
 
@@ -44,4 +44,4 @@ After the focused0989576c qualification passed all three methods (154.282s), I r
 
 The accidental imported C-exporter probes at6ae02fa1 are separate reviewed public C-profile limitations (indirect callables and non-scalar union results), recorded in the installed-product route matrix under task_e8d860a16da0464891dd32e91c42bef1. I do not invent new public C ABI requirements or claim these are repaired by canonical executable selection.
 
-My complete f6d2eb4e source-borrow gate ran46 methods in377.239s (make405.034s):44 methods passed; the remaining method's Stage1/2 `no-transfer` subcases still expected refusal for scalar main plus a mandatory owning shadow. I retain that first result. The reviewed third migration keeps the exact source, publishes and verifies the scalar main through Stage1/2, and executes VM/native. A new false-owned-shadow variant must fail the canonical compiler before replacing prior output. Raw full-module emitters, C-seed NanoVirt, global-owner refusal and the original owned-shadow metadata/execution checks remain unchanged. I qualify this affected method plus the owned graph gate after this test-only correction; I do not relabel the earlier full46 run as passing or repeat unchanged bootstrap/compiler work.
+My complete f6d2eb4e source-borrow gate ran46 methods in377.239s (make405.034s):45 methods passed; the remaining method's Stage1/2 `no-transfer` subcases still expected refusal for scalar main plus a mandatory owning shadow. I retain that first result. The reviewed third migration keeps the exact source, publishes and verifies the scalar main through Stage1/2, and executes VM/native. A new false-owned-shadow variant must fail the canonical compiler before replacing prior output. Raw full-module emitters, C-seed NanoVirt, global-owner refusal and the original owned-shadow metadata/execution checks remain unchanged. I qualify this affected method plus the owned graph gate after this test-only correction; I do not relabel the earlier full46 run as passing or repeat unchanged bootstrap/compiler work.

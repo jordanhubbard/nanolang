@@ -1,0 +1,234 @@
+{
+  "32b91d52": {
+    "source": "32b91d527e941c1aed90e5e79648cd8e87c783e5",
+    "steps": [
+      {
+        "name": "bootstrap",
+        "command": [
+          "make",
+          "-j2",
+          "bootstrap"
+        ],
+        "status": 0,
+        "seconds": 257.456,
+        "sha256": "a2eaac3492e3bf43cffac9f04763417bd36ab08279d8dde2d9c6a4c318e09cde"
+      },
+      {
+        "name": "tools",
+        "command": [
+          "make",
+          "-j2",
+          "bin/nano_asm",
+          "bin/nano_vm",
+          "bin/nvm2c"
+        ],
+        "status": 2,
+        "seconds": 0.06,
+        "sha256": "1251fab2a7d52c8e5896bfbeaed335f26a7174ad23ab1ba0bfe1e11163ae6eed"
+      }
+    ],
+    "source_files": 1695,
+    "source_unchanged": true
+  },
+  "29133945": {
+    "source": "29133945d9fedc02943746b30b05296fcb612dd8",
+    "steps": [
+      {
+        "name": "tools",
+        "command": [
+          "make",
+          "-j2",
+          "nano_asm",
+          "nano_vm",
+          "nvm2c"
+        ],
+        "status": 2,
+        "seconds": 0.063,
+        "sha256": "fa943061cd034fda7391df3f0ceed90275d64ecc036ee05c5a767009b49643a3"
+      }
+    ],
+    "source_files": 1695,
+    "source_unchanged": true
+  },
+  "6ae02fa1": {
+    "source": "6ae02fa141e36adb2ec08399e298432ab927889b",
+    "steps": [
+      {
+        "name": "tools",
+        "command": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c"
+        ],
+        "status": 0,
+        "seconds": 0.393,
+        "sha256": "daee5aa990d8c0935b2c6498b2bbb28a0743d08157f423213c4d7cfc265b381d"
+      },
+      {
+        "name": "checked-selection",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_checked_owner_selection"
+        ],
+        "status": 1,
+        "seconds": 324.48,
+        "sha256": "17d75eda390d33ed9b39ac9d14d9d1f839b71aea341cf0fae9a904d12b6f4371"
+      }
+    ],
+    "source_files": 1695,
+    "source_unchanged": true
+  },
+  "0989576c": {
+    "source": "0989576ca5ff171353cad5e1a0103cfffcd95c08",
+    "steps": [
+      {
+        "name": "tools",
+        "command": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c"
+        ],
+        "status": 0,
+        "seconds": 0.246,
+        "sha256": "f97b59a24711cd68dfc3fed2ed788f6c9aa8ff6c55449a544cda2e882c2ce806"
+      },
+      {
+        "name": "checked-selection",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_checked_owner_selection.CheckedOwnerSelection"
+        ],
+        "status": 0,
+        "seconds": 154.282,
+        "sha256": "cfe6c16b51a7eff7b0db2d67563b4866e208bcc1b6f21aed5b23f4466440c08c"
+      }
+    ],
+    "source_files": 1695,
+    "source_unchanged": true
+  },
+  "f6d2eb4e": {
+    "source": "f6d2eb4e0ea9631903f9f75fa0dc7cabdf963e6e",
+    "steps": [
+      {
+        "name": "source-borrows",
+        "command": [
+          "make",
+          "-o",
+          "bootstrap",
+          "test-source-borrow-emission"
+        ],
+        "status": 2,
+        "seconds": 405.034,
+        "sha256": "613260f45d37d5d28da19dbdb9bdd12cfa622e8ce5a56eba3f39879221a98ac3"
+      }
+    ],
+    "source_files": 1695,
+    "source_unchanged": true
+  },
+  "4abe5e94": {
+    "source": "4abe5e94783b584025ed5feaa650faf7c31ca04b",
+    "steps": [
+      {
+        "name": "affected-method",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_local_routing_and_shadow_only_admission"
+        ],
+        "status": 0,
+        "seconds": 167.049,
+        "sha256": "d6804880c24cff15aa9ea5c7a3e7335f63d1c0e65594ed44f51f27c6166b206d"
+      },
+      {
+        "name": "owned-graphs",
+        "command": [
+          "make",
+          "test-owned-value-graphs"
+        ],
+        "status": 0,
+        "seconds": 16.859,
+        "sha256": "588d98a5c79f03bdc47863fa23e7286187223aedf7a6ed51caaf2e269be10018"
+      }
+    ],
+    "source_files": 1695,
+    "source_unchanged": true
+  },
+  "9b87b18c": {
+    "source": "9b87b18ca6656e5cde472d9cf56872c881a1be5b",
+    "steps": [
+      {
+        "name": "bootstrap",
+        "command": [
+          "make",
+          "-j2",
+          "bootstrap"
+        ],
+        "status": 0,
+        "seconds": 259.259,
+        "sha256": "2b73366f5e5933ce6512498c6daa853751bb4add3633697968c622a3f21f03ea"
+      },
+      {
+        "name": "tools",
+        "command": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c"
+        ],
+        "status": 0,
+        "seconds": 0.368,
+        "sha256": "daee5aa990d8c0935b2c6498b2bbb28a0743d08157f423213c4d7cfc265b381d"
+      },
+      {
+        "name": "checked-selection",
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_checked_owner_selection.CheckedOwnerSelection"
+        ],
+        "status": 0,
+        "seconds": 154.731,
+        "sha256": "266087871eaa5ddc2ca868f33bfce12fa4de1a6861ec1db8b1e89c3e4a96c880"
+      },
+      {
+        "name": "source-borrows",
+        "command": [
+          "make",
+          "-o",
+          "bootstrap",
+          "test-source-borrow-emission"
+        ],
+        "status": 0,
+        "seconds": 404.057,
+        "sha256": "f008bedafa30d5744a10d4756f705c23709aaba507b11c68a85fbe8df63678a9"
+      },
+      {
+        "name": "owned-graphs",
+        "command": [
+          "make",
+          "test-owned-value-graphs"
+        ],
+        "status": 0,
+        "seconds": 17.153,
+        "sha256": "df41171c280e89eb462ae101b6066603614e823bb285fd07cb0cfa8855e45f57"
+      }
+    ],
+    "source_files": 1708,
+    "source_unchanged": true
+  }
+}
