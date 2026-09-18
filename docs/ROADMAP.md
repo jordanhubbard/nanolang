@@ -63,7 +63,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 ## Active Execution Queue
 
-- [ ] I report generated C function and line before native invariant aborts (`task_fb49a88a8ab84385a52858243214d237`). I preserve every guard and SIGABRT behavior, check normal assertion refusal and passing GCC/Clang controls, and run native regressions. This diagnostic foundation neither attributes nor resolves the product startup or export-shadow holds.
+- [x] I report generated C function and line before ordinary native invariant aborts (`task_fb49a88a8ab84385a52858243214d237`). I preserve every guard and SIGABRT behavior, with exact refusal and passing GCC/Clang controls, native regression checks and integrated numeric/map checks. Separate owned emission and foreign code remain outside this diagnostic change. This foundation neither attributes nor resolves the product startup or export-shadow holds. [Evidence](evidence/native-invariant-diagnostics.md).
 
 - [x] I preserve optional int/bool/string results from ordinary native array reads (`task_438ff01101234d6cb3cad5dfeaa0e9f2`). I replace cancelled task ed0f and stale PR307/331/343/349/356 against current signed-64-bit index semantics: no uint32 wrap. Valid reads retain payload tags; missing indices retain void through ignored, tag-tested, local/call/join consumers; typed consumers check before unboxing. Existing record-array and ownership contracts stay separate. My corrected-source VM/native and GCC/Clang sanitizer acceptance passes, alongside 2,422 native and 1,092 shape checks. Evidence: `docs/evidence/native-optional-array-reads.md`.
 

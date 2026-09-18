@@ -29,7 +29,18 @@ Independent review normalized the emitted macro calls back to `abort()` and
 confirmed that the initial production delta then reduces to the diagnostic
 macro and its standard header. Final source `40d78215` integrates main through
 PR611/612 and applies the same replacement to its numeric helper and ordinary
-map include files. Its focused integration gates are still running.
+map include files. Independent normalization of that incremental delta also
+confirms unchanged conditions and ordering. Its 29 generated diagnostic,
+numeric and map methods pass under GCC; 16 diagnostic/numeric methods pass
+under Clang in 13.189 seconds with generated-code sanitizers.
+
+The first combined integration invocation also selected five adjacent
+returned-map frontend methods before I had built `nanoc_c` and `nano_virt` in
+this new worktree. Those methods reported 31 missing-tool errors; the other
+29 methods passed. I retain the complete failed invocation in
+`/tmp/nanolang-native-invariant-integrated-gcc.log`. After building the missing
+tools, all five returned-map methods pass in 11.246 seconds without changing
+source or assertions (`/tmp/nanolang-native-invariant-returned-maps.log`).
 
 I retain logs under `/tmp/nanolang-native-invariant-*`. The separate product
 startup and export-shadow holds remain open. I did not replay their artifacts.
