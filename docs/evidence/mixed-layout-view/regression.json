@@ -1,0 +1,17 @@
+{
+  "pin": "1e2df4851855a5bcc50d5703f5e8b83034d986e3",
+  "command": [
+    "make",
+    "-j2",
+    "test-retained-layouts",
+    "test-ownership-contracts",
+    "test-verifier",
+    "test-managed-record-plan"
+  ],
+  "environment": {
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+  },
+  "status": 0,
+  "seconds": 16.609392418991774
+}
