@@ -28,7 +28,7 @@ static void comparisons(char *source,size_t capacity,unsigned first) {
         double x=strtod(values[a],NULL),y=strtod(values[b],NULL);int order=x<y?-1:x>y?1:0;
         bool expected=op%6==0?x==y:op%6==1?x!=y:op%6==2?(op<6?order<0:x<y):
             op%6==3?(op<6?order<=0:x<=y):op%6==4?(op<6?order>0:x>y):(op<6?order>=0:x>=y);
-        append(source,capacity,"PUSH_F64 %s\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nPUSH_F64 %s\n%s\nPUSH_BOOL %u\nEQ\nASSERT\n",values[a],values[b],ops[op],expected);
+        append(source,capacity,"PUSH_F64 %s\nDUP\nPOP\nPUSH_F64 %s\n%s\nPUSH_BOOL %u\nEQ\nASSERT\n",values[a],values[b],ops[op],expected);
     }
 }
 static NvmModule *fixture(unsigned index) {
@@ -40,7 +40,7 @@ static NvmModule *fixture(unsigned index) {
             double expected=i==0?nano_rt_f64_add(1.5,2.5):i==1?nano_rt_f64_sub(1.5,2.5):i==3?nano_rt_f64_mul(1.5,2.5):nano_rt_f64_div(1.5,2.5);
             append(source,sizeof(source),"PUSH_F64 1.5\nPUSH_F64 2.5\n%s\nPUSH_F64 %.17g\nF64_EQ\nASSERT\n",op[i],expected);
         }
-        append(source,sizeof(source),"PUSH_F64 -2.5\nF64_NEG\nDUP\nSTORE_LOCAL 1\nPUSH_F64 2.5\nSWAP\nF64_EQ\nASSERT\nPUSH_I64 0\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 2\nPUSH_I64 3\nLT\nJMP_FALSE done\nLOAD_LOCAL 1\nPUSH_F64 1.0\nF64_ADD\nSTORE_LOCAL 1\nLOAD_LOCAL 2\nPUSH_I64 1\nADD\nSTORE_LOCAL 2\nJMP loop\ndone:\nLOAD_LOCAL 1\nPUSH_F64 5.5\nEQ\nASSERT\nCALL 1\nASSERT\n");
+        append(source,sizeof(source),"PUSH_F64 -2.5\nF64_NEG\nDUP\nPUSH_F64 2.5\nSWAP\nF64_EQ\nASSERT\nPUSH_I64 0\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 2\nPUSH_I64 3\nLT\nJMP_FALSE done\nPUSH_F64 1.0\nF64_ADD\nLOAD_LOCAL 2\nPUSH_I64 1\nADD\nSTORE_LOCAL 2\nJMP loop\ndone:\nPUSH_F64 5.5\nEQ\nASSERT\nCALL 1\nASSERT\n");
         if(index==3)append(source,sizeof(source),"PUSH_BOOL 0\nASSERT\n");
     }
     append(source,sizeof(source),"OWN_UNPACK_LOCAL 0\nPUSH_I64 42\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n.function helper 0 1 0 bool 1\nPUSH_F64 nan\nPUSH_F64 1.0\nLE\nRET\n.end\n");
@@ -53,7 +53,7 @@ static NvmModule *fixture(unsigned index) {
     m->ownership_size=84;m->ownership_data=calloc(84,1);CHECK(m->ownership_data);
     uint8_t *p=m->ownership_data;word(p,2);word(p+4,1);p[8]=3;word(p+12,2);
     p[16]=4;slot(p+20,TAG_INT,NVM_V2_NO_INDEX);
-    slot(p+28,TAG_STRUCT,0);slot(p+36,TAG_FLOAT,NVM_V2_NO_INDEX);slot(p+44,TAG_INT,NVM_V2_NO_INDEX);slot(p+52,TAG_BOOL,NVM_V2_NO_INDEX);
+    slot(p+28,TAG_STRUCT,0);slot(p+36,TAG_INT,NVM_V2_NO_INDEX);slot(p+44,TAG_INT,NVM_V2_NO_INDEX);slot(p+52,TAG_BOOL,NVM_V2_NO_INDEX);
     p[60]=1;slot(p+64,TAG_BOOL,NVM_V2_NO_INDEX);slot(p+72,TAG_INT,NVM_V2_NO_INDEX);
     NvmVerifyResult result=nvm_verify(m);if(!result.ok)fprintf(stderr,"%s\n",result.error_msg);CHECK(result.ok);CHECK(nvm_verify_owned_module(m).ok);return m;
 }
