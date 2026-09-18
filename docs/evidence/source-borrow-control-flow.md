@@ -44,3 +44,21 @@ loop state and read-only post-loop owner values. I rerun that positive method
 explicitly because the earlier test process had already loaded its harness.
 Broader path-sensitive owner movement, lexical initialization and early-exit
 resource flow remain outside this slice and do not become complete here.
+
+The added shared/Boolean positive method passed in 140.027 seconds:
+`/tmp/nanolang-source-control-shared.log`. The unchanged affine-bytecode gates
+passed 300 ordinary and 419 sanitized checks; owned-assertion lifecycle passed
+959 checks, with its ordinary supervised/native wrapper method also passing:
+`/tmp/nanolang-source-control-runtime.log`.
+
+I rebased onto main `e2318f47` after PR #615. The only conflict was two additive
+roadmap rows, both retained. Neither producer differs from reviewed production
+`579b656b`; the three-stage bootstrap remains applicable to those unchanged
+compiler sources. I rebuild the integrated native backend before the final
+paired gate.
+
+The final integrated fifteen-method paired gate passed in 164.412 seconds at
+`b919b83d`, including both new control-flow fixtures, all refusal/depth controls
+and the unchanged prior source-borrow suite. Log:
+`/tmp/nanolang-source-control-integrated.log`. The 123/5/20 advisory-name
+codec/allocation checks also passed. Subsequent edits record this evidence only.
