@@ -1,0 +1,509 @@
+mkdir -p obj/build_bootstrap
+mkdir -p obj
+mkdir -p obj/nanoisa
+mkdir -p obj/nanovirt
+mkdir -p obj/nanovm
+mkdir -p bin
+mkdir -p obj/runtime
+[schema] Generating compiler schema artifacts...
+[schema] Using Python version (bootstrap)...
+mkdir -p obj/eval
+cc -std=c99 -O2 -Wall -Wextra -Werror -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -ldl
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o obj/nanoisa/local_bindings.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP  -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap_cycles.c -o obj/nanovm/heap_cycles.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/value.c -o obj/nanovm/value.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_builtins.c -o obj/nanovm/vm_builtins.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_callback.c -o obj/nanovm/vm_callback.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_dispatch.c -o obj/nanovm/vm_dispatch.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o obj/nanovm/vm_ffi_arrays.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nominal_types.c -o obj/nominal_types.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/opencl_backend.c -o obj/opencl_backend.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/par_let_pass.c -o obj/par_let_pass.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/parser.c -o obj/parser.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/pgo_pass.c -o obj/pgo_pass.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/ptx_backend.c -o obj/ptx_backend.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/reflection.c -o obj/reflection.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/resource_flow.c -o obj/resource_flow.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/resource_tracking.c -o obj/resource_tracking.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/riscv_backend.c -o obj/riscv_backend.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/callback_runtime.c -o obj/runtime/callback_runtime.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/cli.c -o obj/runtime/cli.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/dyn_array.c -o obj/runtime/dyn_array.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/effect_runtime.c -o obj/runtime/effect_runtime.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/ffi_loader.c -o obj/runtime/ffi_loader.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/gc.c -o obj/runtime/gc.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/gc_struct.c -o obj/runtime/gc_struct.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTArrayLiteral.c -o obj/runtime/list_ASTArrayLiteral.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTAssert.c -o obj/runtime/list_ASTAssert.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTBinaryOp.c -o obj/runtime/list_ASTBinaryOp.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTBlock.c -o obj/runtime/list_ASTBlock.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTBool.c -o obj/runtime/list_ASTBool.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTCall.c -o obj/runtime/list_ASTCall.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTEnum.c -o obj/runtime/list_ASTEnum.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFieldAccess.c -o obj/runtime/list_ASTFieldAccess.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFloat.c -o obj/runtime/list_ASTFloat.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFor.c -o obj/runtime/list_ASTFor.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTFunction.c -o obj/runtime/list_ASTFunction.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTIdentifier.c -o obj/runtime/list_ASTIdentifier.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTIf.c -o obj/runtime/list_ASTIf.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTImport.c -o obj/runtime/list_ASTImport.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTLet.c -o obj/runtime/list_ASTLet.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTMatch.c -o obj/runtime/list_ASTMatch.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTModuleQualifiedCall.c -o obj/runtime/list_ASTModuleQualifiedCall.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTNumber.c -o obj/runtime/list_ASTNumber.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTOpaqueType.c -o obj/runtime/list_ASTOpaqueType.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTPrint.c -o obj/runtime/list_ASTPrint.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTReturn.c -o obj/runtime/list_ASTReturn.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTSet.c -o obj/runtime/list_ASTSet.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTShadow.c -o obj/runtime/list_ASTShadow.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTStmtRef.c -o obj/runtime/list_ASTStmtRef.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTString.c -o obj/runtime/list_ASTString.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTStruct.c -o obj/runtime/list_ASTStruct.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTStructLiteral.c -o obj/runtime/list_ASTStructLiteral.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTTupleIndex.c -o obj/runtime/list_ASTTupleIndex.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTTupleLiteral.c -o obj/runtime/list_ASTTupleLiteral.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTUnion.c -o obj/runtime/list_ASTUnion.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTUnionConstruct.c -o obj/runtime/list_ASTUnionConstruct.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTUnsafeBlock.c -o obj/runtime/list_ASTUnsafeBlock.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_ASTWhile.c -o obj/runtime/list_ASTWhile.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_CompilerDiagnostic.c -o obj/runtime/list_CompilerDiagnostic.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_CompilerSourceLocation.c -o obj/runtime/list_CompilerSourceLocation.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_LexerToken.c -o obj/runtime/list_LexerToken.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_int.c -o obj/runtime/list_int.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_string.c -o obj/runtime/list_string.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/list_token.c -o obj/runtime/list_token.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/module_build_dir.c -o obj/runtime/module_build_dir.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/nl_string.c -o obj/runtime/nl_string.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/regex.c -o obj/runtime/regex.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/runtime/token_helpers.c -o obj/runtime/token_helpers.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/stdlib_runtime.c -o obj/stdlib_runtime.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/tco_pass.c -o obj/tco_pass.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/toon_output.c -o obj/toon_output.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/transpiler.c -o obj/transpiler.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/type_infer.c -o obj/type_infer.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/typechecker.c -o obj/typechecker.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/utf8.c -o obj/utf8.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bcp47.c -o obj/bcp47.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench.c -o obj/bench.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench_native.c -o obj/bench_native.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/builtins_registry.c -o obj/builtins_registry.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cJSON.c -o obj/cJSON.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/c_backend.c -o obj/c_backend.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/catalog.c -o obj/catalog.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/channel.c -o obj/channel.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/coroutine.c -o obj/coroutine.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cps_pass.c -o obj/cps_pass.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dce_pass.c -o obj/dce_pass.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/diag_id.c -o obj/diag_id.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen.c -o obj/docgen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen_md.c -o obj/docgen_md.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dwarf_info.c -o obj/dwarf_info.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/effects.c -o obj/effects.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/emit_typed_ast.c -o obj/emit_typed_ast.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/env.c -o obj/env.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_hashmap.c -o obj/eval/eval_hashmap.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_io.c -o obj/eval/eval_io.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_math.c -o obj/eval/eval_math.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_string.c -o obj/eval/eval_string.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/fmt.c -o obj/fmt.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/fold_constants.c -o obj/fold_constants.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/interpreter_ffi.c -o obj/interpreter_ffi.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/json_diagnostics.c -o obj/json_diagnostics.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/lexer.c -o obj/lexer.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/locale.c -o obj/locale.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/main.c -o obj/main.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module.c -o obj/module.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module_builder.c -o obj/module_builder.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module_metadata.c -o obj/module_metadata.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanocore_export.c -o obj/nanocore_export.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanocore_subset.c -o obj/nanocore_subset.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+✓ Bootstrap Stage 0: C reference compiler ready
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 1934, column 9: Unused variable 'rejected'
+Warning at line 2055, column 9: Unused variable 'rejected'
+Warning at line 2062, column 13: Unused variable 'rejected'
+Warning at line 2100, column 9: Unused variable 'rejected'
+Warning at line 2104, column 9: Unused variable 'rejected'
+Warning at line 2111, column 13: Unused variable 'rejected'
+Warning at line 5137, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 1934, column 9: Unused variable 'rejected'
+Warning at line 2055, column 9: Unused variable 'rejected'
+Warning at line 2062, column 13: Unused variable 'rejected'
+Warning at line 2100, column 9: Unused variable 'rejected'
+Warning at line 2104, column 9: Unused variable 'rejected'
+Warning at line 2111, column 13: Unused variable 'rejected'
+Warning at line 5137, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+✓ Stage 1 compiler created: bin/nanoc_stage1
+
+Testing stage 1 compiler...
+Hello from NanoLang!
+✓ Stage 1 compiler works!
+
+==========================================
+Bootstrap Stage 2: Recompilation
+==========================================
+Compiling nanoc_v06.nano with stage 1 compiler...
+In file included from /tmp/nano_native_1789760220_0/program.c:135:
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___16_check_function’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:18683:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:18684:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___20_reduce_emission_fail’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:21880:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___21_nb_body’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29247:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29247:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29254:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29254:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_fail’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29993:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_globals’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:31489:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_while’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33698:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33699:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33717:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33718:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33719:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_for’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33766:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33767:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33768:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33788:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33789:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33790:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘__nano_shadow_593’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:21891:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘__nano_shadow_594’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:21899:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/modules/std/collections/collections.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/modules/std/json/json.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+=== Code Generation ===
+Generating C code for 2 functions
+=== Code Generation ===
+Generating C code for 1 functions
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /tmp/nano_source_guard_1789760229_0/source.nano
+I will not overwrite a source file: /tmp/nano_source_guard_1789760229_0/source.nano
+I cannot check source/output file identity: /tmp/nano_source_guard_1789760229_0/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Options:
+  -o <file>        Output executable (default: a.out)
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native (default) or c (source output, no native compilation)
+  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → Transpile → Compile
+
+In file included from /tmp/nano_native_1789760220_0/program.c:133:
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___16_check_function’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:18683:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:18684:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___20_reduce_emission_fail’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:21880:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___21_nb_body’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29247:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29247:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29254:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29254:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_fail’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:29993:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_globals’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:31489:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_while’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33698:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33699:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33717:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33718:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33719:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___23_nisa_emit_for’:
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33766:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33767:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33768:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33788:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33789:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33790:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/modules/std/collections/collections.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+/home/jkh/Src/nanolang-source-owned-temporary-arguments/modules/std/json/json.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+✓ Stage 2 compiler created: bin/nanoc_stage2
+
+Testing stage 2 compiler...
+Hello from NanoLang!
+✓ Stage 2 compiler works!
+
+==========================================
+Bootstrap Stage 3: Verification
+==========================================
+Comparing stage 1 and stage 2 binaries...
+
+-rwxrwxr-x 1 jkh jkh 16M Sep 18 12:34 bin/nanoc_stage1
+-rwxrwxr-x 1 jkh jkh 11M Sep 18 12:37 bin/nanoc_stage2
+
+⚠️  Bootstrap verification: Binaries differ
+
+Stage 1 size: 16647200
+Stage 2 size: 11008912
+
+I have not diagnosed the difference. These causes remain hypotheses:
+  - Embedded timestamps or other native artifact metadata
+  - Non-deterministic code generation
+  - Different compiler optimizations
+
+Both stages passed the configured smoke test; that is not a correctness proof.
+Canonical NanoISA artifact equality remains a separate 5.0 gate.
+
+==========================================
+Installing Self-Hosted Compiler
+==========================================
+Updating bin/nanoc to use self-hosted compiler...
+✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)
+
+Smoke test: installed bin/nanoc compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ installed compiler works
+
+Verifying bin/nanoc does not depend on bin/nanoc_c...
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+All subsequent builds (test, examples) will use the self-hosted compiler!
+
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+make[1]: Entering directory '/home/jkh/Src/nanolang-source-owned-temporary-arguments'
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+make[1]: Leaving directory '/home/jkh/Src/nanolang-source-owned-temporary-arguments'
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+
