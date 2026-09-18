@@ -11,10 +11,12 @@ verification and the existing closed module/signature rules before admitting
 these operations. The translator first tries its literal profile, then the
 managed profile. The original CLOSED_SCALAR and CLOSED_LITERAL_STRINGS API
 selectors retain their previous decisions. I still refuse string-bearing
-modules containing CAST_INT or CAST_FLOAT; CAST_STRING, tail calls,
+modules containing CAST_FLOAT; CAST_STRING, tail calls,
 other heap values, imports, nominal layouts, ownership/reference and passive
 contracts remain outside this subset. My checked substring prerequisite is merged;
 my [substring contract](NANOISA_MANAGED_SUBSTRING.md) defines the matched extension.
+My [decimal conversion contract](NANOISA_MANAGED_STRING_INT.md) adds managed
+string CAST_INT with C-locale decimal prefix parsing and signed saturation.
 
 ## My ownership and errors
 

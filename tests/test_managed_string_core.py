@@ -43,7 +43,7 @@ class ManagedCore(unittest.TestCase):
 
     def wasm_build(self, testing):
         out = self.work/('core.wasm' if testing else 'production.wasm')
-        names = ['nms_core_tests','nms_substr_tests','nms_concat_tests','nms_failure_tests','nms_reuse_tests','nms_pressure_tests'] if testing else ['nms_product_smoke']
+        names = ['nms_core_tests','nms_decimal_tests','nms_substr_tests','nms_concat_tests','nms_failure_tests','nms_reuse_tests','nms_pressure_tests'] if testing else ['nms_product_smoke']
         self.run_cmd(self.wasm_cc+['--target=wasm32-unknown-unknown','-std=c11','-O2',
                      '-ffreestanding','-fno-builtin','-nostdlib','-Wall','-Wextra','-Werror']+
                      (['-DNMS_TESTING'] if testing else [])+
@@ -66,7 +66,7 @@ for(let instance=0;instance<2;instance++) {
   const result=e[name](); if(result) throw Error(name+' failed at line '+result);
  }
 }
-console.log('I passed two instances, three rounds, six runtime groups.');'''
+console.log('I passed two instances, three rounds, seven runtime groups.');'''
         result = self.run_cmd(['node','-e',script,wasm,json.dumps(names)])
         self.assertIn('two instances', result.stdout)
         for name in names:

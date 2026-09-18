@@ -36,6 +36,8 @@ NmsStatus nms_substr_owned(NmsRuntime *, NmsHandle, uint32_t, uint32_t, NmsHandl
 /* I consume one owned reference per input on success or failure. Equal inputs
  * require two references. Other aliases survive; out is unchanged on failure. */
 NmsStatus nms_concat_owned(NmsRuntime *, NmsHandle, NmsHandle, NmsHandle *);
+/* I borrow the handle, parse C-locale decimal bytes, and allocate nothing. */
+NmsStatus nms_parse_i64(const NmsRuntime *, NmsHandle, int64_t *);
 NmsStatus nms_view(const NmsRuntime *, NmsHandle, NmsView *);
 NmsStatus nms_retain(NmsRuntime *, NmsHandle);
 NmsStatus nms_release(NmsRuntime *, NmsHandle);

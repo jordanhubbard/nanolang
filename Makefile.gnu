@@ -4580,7 +4580,7 @@ test-managed-runtime-package: managed-runtime-package
 
 .PHONY: test-llvm-managed-strings
 test-llvm-managed-strings: test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_llvm_managed_strings
+	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal
 
 .PHONY: test-managed-string-core
 test-managed-string-core:
