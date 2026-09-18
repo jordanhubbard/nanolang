@@ -71,13 +71,13 @@ static void test_empty_record_allocation_status(void) {
     assert(result.tag == TAG_STRUCT && result.as.sval);
     assert(result.as.sval->def_idx == 1 && result.as.sval->field_count == 0);
     vm_release(&vm.heap, result);
-    vm_collect_cycles(&vm.heap);
+    vm_gc_collect_cycles(&vm.heap);
     assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated);
     result = val_void();
     assert(vm_invoke(&vm, 0, NULL, 0, &result) == VM_OK);
     assert(result.tag == TAG_STRUCT && result.as.sval->def_idx == 1);
     vm_release(&vm.heap, result);
-    vm_collect_cycles(&vm.heap);
+    vm_gc_collect_cycles(&vm.heap);
     assert(vm.heap.stats.num_objects == objects && vm.heap.stats.allocated == allocated);
     vm_destroy(&vm);
     nvm_module_free(module);
