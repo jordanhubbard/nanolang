@@ -103,3 +103,29 @@ unescaped source `\0` before the general C-string decoder could truncate it.
 The selfhost path quotes normalized bytes with the existing assembler escape
 rules; this is local transport support, not a change to general string syntax.
 The literal backslash followed by zero remains distinct from decoded NUL.
+
+## My literal and advisory constant ordering prerequisite
+
+I record `task_c396592893874b81924dea82a9f5c769` before correction. At frozen
+source d77c41ac my 42-method gate passed 40 methods in 357.378 seconds. The
+new byte fixture and unchanged affine example failed exact canonical dump
+equality: my C producer added local-name metadata strings after each function,
+while my selfhost/assembler placed executable string constants before advisory
+metadata constants. My retained log is
+`/tmp/nanolang-source-owned-string-paired.log`; all twelve source/tool hashes
+remained unchanged. I demonstrated a serialization mismatch, not a runtime
+lifetime or execution defect.
+
+I retain pending local-name descriptors in my specialized C compiler context,
+bounded by eight functions times 256 slots. Each descriptor keeps its exact
+function, slot, PC interval and AST-owned name pointer until compilation ends.
+After all functions emit successfully, I publish those descriptors in existing
+function/slot order through the unchanged validated metadata API. This matches
+the existing selfhost ordering: layout/function names, executable literals in
+emission order, then lexical metadata. No literal moves across a source
+evaluation, and neither ownership metadata nor wire format changes.
+
+A failed function prevents all pending name publication and releases the
+compiler context normally. My original exact-dump, strip/roundtrip, raw-byte
+VM/native and complete shadow assertions remain unchanged. I rerun the affected
+paired gate after correction and retain the first 40/42 outcome separately.
