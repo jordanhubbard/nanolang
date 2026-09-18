@@ -42,3 +42,13 @@ My first additional owned-routing invocation lacked the isolated checkout's
 `bin/nvm2c`; both methods stopped at FileNotFoundError. I preserved that log,
 built the missing tool and reran only those controls without source changes.
 I do not infer release readiness from this checkpoint.
+
+My subsequent integration onto PR748 preserves producer production and tests.
+Its assertion-only arithmetic provider delta was independently qualified. I
+retain the actual fresh bootstrap at f5fb7efb; I do not claim a new final-head
+Stage1/Stage2 bootstrap. Those stage binaries keep their qualified hashes.
+My first tool rebuild omitted the established Clang GCC-selection flag and
+stopped on its warning-as-error; the shell then ran the paired suite. I retain
+that attempt separately from the corrected tool build and final qualification.
+
+My corrected final tool build and six paired methods pass at `54f7e014` in 182.353 seconds. I seal final tool/source/log hashes separately from the original bootstrap.
