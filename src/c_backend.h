@@ -10,7 +10,8 @@
  *   nano int    → int64_t
  *   nano float  → double
  *   nano bool   → bool
- *   nano string → const char *  (static strings; no heap allocation)
+ *   nano string → const char *  (literals are static; scalar conversions and
+ *                               concatenation retain owned snapshots until exit)
  *   nano void   → void
  *   nano struct → C struct (typedef'd)
  *
