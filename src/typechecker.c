@@ -1298,12 +1298,24 @@ static TypeInfo reduce_type_view(Type type, const char *name, const TypeInfo *in
     return view;
 }
 
+/* I recover nominal annotations erased by the legacy declaration pass. */
+static Type reduce_identity_kind(const TypeInfo *info, Environment *env) {
+    if (info->generic_name) {
+        if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_INT ||
+             info->base_type == TYPE_ENUM) && env_get_enum(env, info->generic_name))
+            return TYPE_ENUM;
+        if (info->base_type == TYPE_STRUCT && env_get_union(env, info->generic_name))
+            return TYPE_UNION;
+    }
+    return info->base_type;
+}
+
 static bool reduce_types_exact(const TypeInfo *a, const TypeInfo *b,
                                Environment *env, unsigned depth) {
     if (!a || !b || depth > 128 || a->is_open_row || b->is_open_row ||
         a->type_var_count || b->type_var_count) return false;
-    Type at = resolved_array_element(a->base_type, a->generic_name, env);
-    Type bt = resolved_array_element(b->base_type, b->generic_name, env);
+    Type at = reduce_identity_kind(a, env);
+    Type bt = reduce_identity_kind(b, env);
     if (at != bt) return false;
     switch (at) {
         case TYPE_INT: case TYPE_U8: case TYPE_FLOAT: case TYPE_BOOL:
@@ -1390,8 +1402,7 @@ static bool reduce_expression_matches(ASTNode *expression, const TypeInfo *expec
                                       Environment *env, unsigned depth) {
     if (!expression || !expected || depth > 128) return false;
     Type actual = check_expression(expression, env);
-    Type wanted = resolved_array_element(expected->base_type, expected->generic_name, env);
-    if (actual != wanted) return false;
+    if (actual == TYPE_UNKNOWN || actual == TYPE_VOID) return false;
     if (actual == TYPE_ARRAY && expression->type == AST_ARRAY_LITERAL) {
         if (!reduce_types_exact(expected, expected, env, depth + 1)) return false;
         for (int i = 0; i < expression->as.array_literal.element_count; ++i)
@@ -1457,8 +1468,7 @@ static Type check_reduce_call(ASTNode *call, Environment *env) {
         reduce_expression_matches(initial, &parameters[0], env, 0);
     if (valid && array->type == AST_ARRAY_LITERAL) {
         Type element = infer_array_element_type(array, env);
-        Type wanted = resolved_array_element(parameters[1].base_type,
-                                              parameters[1].generic_name, env);
+        Type wanted = reduce_identity_kind(&parameters[1], env);
         valid = element == wanted; /* An unchecked empty literal is not evidence. */
         for (int i = 0; valid && i < array->as.array_literal.element_count; ++i)
             valid = reduce_expression_matches(array->as.array_literal.elements[i],
