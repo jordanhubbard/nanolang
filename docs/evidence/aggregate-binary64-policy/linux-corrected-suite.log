@@ -1,0 +1,57 @@
+test_exact_arithmetic_canonical_vm_routes (tests.test_aggregate_binary64_policy.AggregateBinary64.test_exact_arithmetic_canonical_vm_routes) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-4gjejtsm
+ok
+test_exact_arithmetic_existing_legacy_routes (tests.test_aggregate_binary64_policy.AggregateBinary64.test_exact_arithmetic_existing_legacy_routes) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-vl_kbwud
+ok
+test_order_alias_empty_and_neighbors_canonical_vm (tests.test_aggregate_binary64_policy.AggregateBinary64.test_order_alias_empty_and_neighbors_canonical_vm) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-_15pu24m
+ok
+test_order_alias_empty_and_neighbors_legacy (tests.test_aggregate_binary64_policy.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-vix_zp_f
+
+  test_order_alias_empty_and_neighbors_legacy (tests.test_aggregate_binary64_policy.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) (compiler='nanoc_stage1') ... FAIL
+  test_order_alias_empty_and_neighbors_legacy (tests.test_aggregate_binary64_policy.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) (compiler='nanoc_stage2') ... FAIL
+test_selfhost_mixed_numeric_types_preserve_output (tests.test_aggregate_binary64_policy.AggregateBinary64.test_selfhost_mixed_numeric_types_preserve_output) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-14pl6i8l
+ok
+
+======================================================================
+FAIL: test_order_alias_empty_and_neighbors_legacy (tests.test_aggregate_binary64_policy.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-corrected/tests/test_aggregate_binary64_policy.py", line 102, in legacy
+    self.command(ROOT/'bin'/compiler,source,'-o',exe)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-corrected/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-corrected/bin/nanoc_stage1', '/tmp/nano-aggregate-policy-vix_zp_f/ordered-broadcast.nano', '-o', '/tmp/nano-aggregate-policy-vix_zp_f/nanoc_stage1']
+/tmp/nano-aggregate-policy-vix_zp_f/ordered-broadcast.nano: In function ‘nl_main’:
+/tmp/nano-aggregate-policy-vix_zp_f/ordered-broadcast.nano:19:42: error: invalid operands to binary - (have ‘double’ and ‘DynArray *’)
+   19 |  let result:array<float> = (- (scalar) (source values))
+      |                            ~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~          
+      |                             |               |
+      |                             double          DynArray *
+I could not compile native shadows
+
+
+======================================================================
+FAIL: test_order_alias_empty_and_neighbors_legacy (tests.test_aggregate_binary64_policy.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-aggregate-policy-corrected/tests/test_aggregate_binary64_policy.py", line 102, in legacy
+    self.command(ROOT/'bin'/compiler,source,'-o',exe)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-aggregate-policy-corrected/tests/test_aggregate_binary64_policy.py", line 93, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-aggregate-policy-corrected/bin/nanoc_stage2', '/tmp/nano-aggregate-policy-vix_zp_f/ordered-broadcast.nano', '-o', '/tmp/nano-aggregate-policy-vix_zp_f/nanoc_stage2']
+/tmp/nano-aggregate-policy-vix_zp_f/ordered-broadcast.nano: In function ‘nl_main’:
+/tmp/nano-aggregate-policy-vix_zp_f/ordered-broadcast.nano:19:42: error: invalid operands to binary - (have ‘double’ and ‘DynArray *’)
+   19 |  let result:array<float> = (- (scalar) (source values))
+      |                            ~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~          
+      |                             |               |
+      |                             double          DynArray *
+I could not compile native shadows
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 13.540s
+
+FAILED (failures=2)

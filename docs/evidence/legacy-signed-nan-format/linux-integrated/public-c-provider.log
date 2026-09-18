@@ -1,0 +1,13 @@
+test_aliases_globals_returns_and_loop_snapshots (__main__.PublicCFormat.test_aliases_globals_returns_and_loop_snapshots) ... I retain public C formatting evidence at /tmp/nano-public-c-format-old5_k8i
+ok
+test_exact_output_input_bits_and_once_evaluation (__main__.PublicCFormat.test_exact_output_input_bits_and_once_evaluation) ... I retain public C formatting evidence at /tmp/nano-public-c-format-x3ws474b
+ok
+test_generated_cleanup_and_allocation_registration_refusals (__main__.PublicCFormat.test_generated_cleanup_and_allocation_registration_refusals) ... I retain public C formatting evidence at /tmp/nano-public-c-format-zgjyicjz
+ok
+test_scoped_builtin_resolution_and_previous_output (__main__.PublicCFormat.test_scoped_builtin_resolution_and_previous_output) ... I retain public C formatting evidence at /tmp/nano-public-c-format-njveyplv
+ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.186s
+
+OK

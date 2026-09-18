@@ -1,0 +1,108 @@
+I retain named callback artifacts at /tmp/nano-named-callbacks-ktmm9xd4
+test_exact_binary64_results_and_unchanged_inputs (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_exact_binary64_results_and_unchanged_inputs) ... ok
+test_global_alias_after_initializer_mutation_stays_indirect (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_global_alias_after_initializer_mutation_stays_indirect) ... ok
+test_int_bool_results_and_typed_empty (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_int_bool_results_and_typed_empty) ... ok
+test_local_and_computed_callbacks_keep_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_local_and_computed_callbacks_keep_indirect_boundary) ... ok
+test_source_initializer_order_and_alias_length (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_source_initializer_order_and_alias_length) ... ok
+test_u8_keeps_existing_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_u8_keeps_existing_indirect_boundary) ... FAIL
+test_user_builtin_names_keep_direct_function_binding (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_user_builtin_names_keep_direct_function_binding) ... FAIL
+test_wrong_signatures_preserve_previous_output (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_wrong_signatures_preserve_previous_output) ... FAIL
+
+======================================================================
+FAIL: test_u8_keeps_existing_indirect_boundary (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_u8_keeps_existing_indirect_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 113, in test_u8_keeps_existing_indirect_boundary
+            self.execute(self.seed(self.source('''fn byte_identity(x:u8)->u8{return x}
+                         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow byte_identity{let value:u8=2 assert (== (byte_identity value) 2)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int{let input:array<u8> = [] let result:array<u8> = (map input byte_identity) assert (== (array_length result) 0) return 0}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow main{assert (== (main) 0)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')), direct=False)
+    ^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 36, in seed
+    self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 16, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_virt'), PosixPath('/tmp/nano-named-callbacks-ktmm9xd4/test_u8_keeps_existing_indirect_boundary.nano'), '--emit-nvm', '-o', PosixPath('/tmp/nano-named-callbacks-ktmm9xd4/test_u8_keeps_existing_indirect_boundary.nvm')): 1
+
+
+Runtime error: Type error
+  Function 0 returned int, expected u8
+Stack trace (most recent call first):
+  #0   byte_identity  /tmp/nano-named-callbacks-ktmm9xd4/test_u8_keeps_existing_indirect_boundary.nano:3:16
+  #1   $shadow_0_byte_identity  /tmp/nano-named-callbacks-ktmm9xd4/test_u8_keeps_existing_indirect_boundary.nano:4:13
+  #2   $shadow_entry  /tmp/nano-named-callbacks-ktmm9xd4/test_u8_keeps_existing_indirect_boundary.nano:1:28
+I failed a shadow: Function 0 returned int, expected u8
+I will not publish output after failed shadow execution
+
+
+======================================================================
+FAIL: test_user_builtin_names_keep_direct_function_binding (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_user_builtin_names_keep_direct_function_binding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 89, in test_user_builtin_names_keep_direct_function_binding
+            self.paired('''fn map(x:int)->int{return (+ x 2)}
+            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow map{assert (== (map 3) 5)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    shadow main{assert (== (main) 0)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 65, in paired
+    self.execute(self.seed(source))
+                 ~~~~~~~~~^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 36, in seed
+    self.command(ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 16, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_virt'), PosixPath('/tmp/nano-named-callbacks-ktmm9xd4/test_user_builtin_names_keep_direct_function_binding.nano'), '--emit-nvm', '-o', PosixPath('/tmp/nano-named-callbacks-ktmm9xd4/test_user_builtin_names_keep_direct_function_binding.nvm')): 1
+
+Error at line 1, column 1: Cannot redefine built-in function 'map'
+  Built-in functions cannot be shadowed
+  Choose a different function name
+Error at line 3, column 1: Cannot redefine built-in function 'reduce'
+  Built-in functions cannot be shadowed
+  Choose a different function name
+-- E001 TYPE MISMATCH --- /tmp/nano-named-callbacks-ktmm9xd4/test_user_builtin_names_keep_direct_function_binding.nano
+Return type mismatch: got int, expected array.
+
+1| fn map(x:int)->int{return (+ x 2)}
+                      ^
+Hint: Ensure the returned value matches the function's declared return type.
+-- E003 ARITY MISMATCH --- /tmp/nano-named-callbacks-ktmm9xd4/test_user_builtin_names_keep_direct_function_binding.nano
+I require an array and a transform for map.
+
+5| fn main()->int{assert (== (map 1) 3) assert (== (reduce 1) 5) return 0}
+                             ^
+Hint: Pass exactly two arguments.
+error: type check failed
+
+
+======================================================================
+FAIL: test_wrong_signatures_preserve_previous_output (tests.test_named_scalar_callbacks.NamedScalarCallbacks.test_wrong_signatures_preserve_previous_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 128, in test_wrong_signatures_preserve_previous_output
+    self.command(ROOT/'bin'/compiler, source, '--emit-nvm', '-o', output, ok=False)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-named-scalar-callbacks/tests/test_named_scalar_callbacks.py", line 16, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-named-scalar-callbacks/bin/nano_virt'), PosixPath('/tmp/nano-named-callbacks-ktmm9xd4/test_wrong_signatures_preserve_previous_output.nano'), '--emit-nvm', '-o', PosixPath('/tmp/nano-named-callbacks-ktmm9xd4/previous.nvm')): 0
+
+Warning at line 1, column 1: Unused variable 'b'
+Warning: Function 'fold' is missing a shadow test
+Warning at line 1, column 54: Unused variable 'x'
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 113.112s
+
+FAILED (failures=3)

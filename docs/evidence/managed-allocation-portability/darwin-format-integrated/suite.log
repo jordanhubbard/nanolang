@@ -1,0 +1,59 @@
+test_allocation_failure_unwinds_callee_and_preserves_global_owner (tests.test_llvm_managed_strings.ManagedStrings.test_allocation_failure_unwinds_callee_and_preserves_global_owner) ... ok
+test_callee_errors_unwind_all_frames_and_preserve_prior_global_writes (tests.test_llvm_managed_strings.ManagedStrings.test_callee_errors_unwind_all_frames_and_preserve_prior_global_writes) ... ok
+test_content_aliases_branches_loop_and_nested_calls (tests.test_llvm_managed_strings.ManagedStrings.test_content_aliases_branches_loop_and_nested_calls) ... ok
+test_dynamic_return_tag_errors_clean_explicit_and_implicit_frames (tests.test_llvm_managed_strings.ManagedStrings.test_dynamic_return_tag_errors_clean_explicit_and_implicit_frames) ... ok
+test_global_ownership_reentry_initializer_and_terminal_disposal (tests.test_llvm_managed_strings.ManagedStrings.test_global_ownership_reentry_initializer_and_terminal_disposal) ... ok
+test_managed_profile_preserves_numeric_tags_and_total_boundaries (tests.test_llvm_managed_strings.ManagedStrings.test_managed_profile_preserves_numeric_tags_and_total_boundaries) ... ok
+test_native_byte_and_descriptor_allocation_failure_are_recoverable (tests.test_llvm_managed_strings.ManagedStrings.test_native_byte_and_descriptor_allocation_failure_are_recoverable) ... ok
+test_substring_allocation_failure_and_type_error_cleanup (tests.test_llvm_managed_strings.ManagedStrings.test_substring_allocation_failure_and_type_error_cleanup) ... ok
+test_substring_bytes_indices_aliases_and_reentry (tests.test_llvm_managed_strings.ManagedStrings.test_substring_bytes_indices_aliases_and_reentry) ... ok
+test_unsupported_array_shape_and_reserved_entry_refusals_preserve_output (tests.test_llvm_managed_strings.ManagedStrings.test_unsupported_array_shape_and_reserved_entry_refusals_preserve_output) ... ok
+test_wasm_memory_cap_failure_cleans_frames_and_reuses_storage (tests.test_llvm_managed_strings.ManagedStrings.test_wasm_memory_cap_failure_cleans_frames_and_reuses_storage) ... ok
+test_decimal_bytes_limits_and_dynamic_aliases (tests.test_llvm_managed_decimal.ManagedDecimal.test_decimal_bytes_limits_and_dynamic_aliases) ... ok
+test_globals_nonstrings_and_error_cleanup (tests.test_llvm_managed_decimal.ManagedDecimal.test_globals_nonstrings_and_error_cleanup) ... ok
+test_allocation_failure_and_allocation_free_identity (tests.test_llvm_managed_format.ManagedFormat.test_allocation_failure_and_allocation_free_identity) ... ok
+test_exact_scalar_bytes_and_string_owner_transfer (tests.test_llvm_managed_format.ManagedFormat.test_exact_scalar_bytes_and_string_owner_transfer) ... ok
+test_float_instruction_and_signature_publication (tests.test_llvm_managed_format.ManagedFormat.test_float_instruction_and_signature_publication) ... ok
+test_emitted_formatting_matches_vm_and_reference (tests.test_managed_binary64_format.Binary64Format.test_emitted_formatting_matches_vm_and_reference) ... ok
+test_float_format_allocation_failure_recovers (tests.test_managed_binary64_format.Binary64Format.test_float_format_allocation_failure_recovers) ... ok
+test_portable_core_matches_2077_reference_values (tests.test_managed_binary64_format.Binary64Format.test_portable_core_matches_2077_reference_values) ... ok
+test_core_bits_and_ownership_match_reference_on_native_and_wasm (tests.test_managed_binary64_parse.Binary64Parse.test_core_bits_and_ownership_match_reference_on_native_and_wasm) ... ok
+test_emitted_float_parsing_aliases_and_cleanup (tests.test_managed_binary64_parse.Binary64Parse.test_emitted_float_parsing_aliases_and_cleanup) ... ok
+test_vm_bits_and_both_generated_c_conversion_paths (tests.test_managed_binary64_parse.Binary64Parse.test_vm_bits_and_both_generated_c_conversion_paths) ... ok
+test_actual_byte_predicates_calls_globals_and_aliases (tests.test_llvm_managed_predicates.ManagedPredicates.test_actual_byte_predicates_calls_globals_and_aliases) ... ok
+test_borrowed_runtime_predicates_allocate_nothing (tests.test_llvm_managed_predicates.ManagedPredicates.test_borrowed_runtime_predicates_allocate_nothing) ... ok
+test_dynamic_wrong_tags_clean_operands_and_keep_globals (tests.test_llvm_managed_predicates.ManagedPredicates.test_dynamic_wrong_tags_clean_operands_and_keep_globals) ... ok
+test_emitted_allocation_failure_recovery_and_wrong_tag (tests.test_llvm_managed_trim.ManagedTrim.test_emitted_allocation_failure_recovery_and_wrong_tag) ... ok
+test_exact_bytes_literals_dynamic_calls_globals_reentry (tests.test_llvm_managed_trim.ManagedTrim.test_exact_bytes_literals_dynamic_calls_globals_reentry) ... ok
+test_fresh_core_results_aliases_and_failure (tests.test_llvm_managed_trim.ManagedTrim.test_fresh_core_results_aliases_and_failure) ... ok
+test_borrowed_core_bytes_no_allocation_and_reference_stability (tests.test_llvm_managed_character.ManagedCharacter.test_borrowed_core_bytes_no_allocation_and_reference_stability) ... ok
+test_exact_bytes_indices_calls_globals_and_nonnumeric_fallback (tests.test_llvm_managed_character.ManagedCharacter.test_exact_bytes_indices_calls_globals_and_nonnumeric_fallback) ... ok
+test_wrong_source_releases_string_index_and_preserves_globals (tests.test_llvm_managed_character.ManagedCharacter.test_wrong_source_releases_string_index_and_preserves_globals) ... ok
+test_all_bytes_literals_dynamic_calls_globals_and_reentry (tests.test_llvm_managed_case.ManagedCase.test_all_bytes_literals_dynamic_calls_globals_and_reentry) ... ok
+test_core_fresh_aliases_failures_and_descriptor_growth (tests.test_llvm_managed_case.ManagedCase.test_core_fresh_aliases_failures_and_descriptor_growth) ... ok
+test_emitted_allocation_failure_recovery_and_wrong_tag (tests.test_llvm_managed_case.ManagedCase.test_emitted_allocation_failure_recovery_and_wrong_tag) ... ok
+test_fallback_allocation_failure_releases_input_and_recovers (tests.test_llvm_managed_primitive_format.ManagedPrimitiveFormat.test_fallback_allocation_failure_releases_input_and_recovers) ... ok
+test_numeric_boundaries_reference_bytes_and_exact_tag_fallback (tests.test_llvm_managed_primitive_format.ManagedPrimitiveFormat.test_numeric_boundaries_reference_bytes_and_exact_tag_fallback) ... FAIL
+
+======================================================================
+FAIL: test_numeric_boundaries_reference_bytes_and_exact_tag_fallback (tests.test_llvm_managed_primitive_format.ManagedPrimitiveFormat.test_numeric_boundaries_reference_bytes_and_exact_tag_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-managed-portability-darwin-p_prq3et/source/tests/test_llvm_managed_primitive_format.py", line 37, in test_numeric_boundaries_reference_bytes_and_exact_tag_fallback
+    _,ir,wasm=self.compile(strings+self.program(body,suffix))
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-managed-portability-darwin-p_prq3et/source/tests/test_llvm_managed_strings.py", line 35, in compile
+    self.run_cmd([ROOT/'bin/nano_vm',module],success=vm_ok)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-managed-portability-darwin-p_prq3et/source/tests/test_llvm_managed_strings.py", line 24, in run_cmd
+    self.assertEqual(p.returncode == 0, success, str(args)+'\n'+p.stdout+p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : [PosixPath('/private/tmp/nanolang-managed-portability-darwin-p_prq3et/source/bin/nano_vm'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-managed-emitted-yg4hxiux/input.nvm')]
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+----------------------------------------------------------------------
+Ran 36 tests in 90.610s
+
+FAILED (failures=1)

@@ -31,14 +31,6 @@ class ArithmeticSource(unittest.TestCase):
                 self.assertIn('F64_',assembly)
                 (self.work/(name+'.nasm')).write_text(assembly)
                 c=self.work/(name+'.c');exe=self.work/(name+'-native')
-                if callback and name=='nano_virt':
-                    c.write_text('retained')
-                    args=[ROOT/'bin/nvm2c',module,'-o',c]
-                    refused=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60)
-                    self.assertGreater(refused.returncode,0,str(args))
-                    self.assertIn('unsupported opcode FUNCREF',refused.stderr)
-                    self.assertEqual(c.read_text(),'retained')
-                    continue
                 self.command(ROOT/'bin/nvm2c',module,'-o',c)
                 self.command(os.environ.get('CC','cc'),'-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',c,'-lm','-o',exe)
                 self.command(exe)

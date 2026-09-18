@@ -1,6 +1,7 @@
 #include "stdlib_runtime.h"
 #include "binary64_bits.h"
 #include "binary64_arithmetic_source.h"
+#include "binary64_format.h"
 #include "nanolang.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +14,7 @@ extern void sb_append(StringBuilder *sb, const char *str);
 void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, NL_BINARY64_BITS_SOURCE);
     sb_append(sb, nl_binary64_arithmetic_source);
+    sb_append(sb, NL_BINARY64_FORMAT_SOURCE);
     sb_append(sb, "/* ========== Math and Utility Built-in Functions ========== */\n\n");
 
     /* abs function - works with int and float via macro */
@@ -83,7 +85,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static void nl_print_float(double value) {\n");
-    sb_append(sb, "    printf(\"%g\", value);\n");
+    sb_append(sb, "    nano_rt_f64_print(stdout, value);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static void nl_print_string(const char* value) {\n");
@@ -100,7 +102,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static void nl_println_float(double value) {\n");
-    sb_append(sb, "    printf(\"%g\\n\", value);\n");
+    sb_append(sb, "    nano_rt_f64_print(stdout, value); fputc('\\n', stdout);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static void nl_println_string(const char* value) {\n");
@@ -529,7 +531,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "                printf(\"%u\", (unsigned)((uint8_t*)arr->data)[i]);\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            case ELEM_FLOAT:\n");
-    sb_append(sb, "                printf(\"%g\", ((double*)arr->data)[i]);\n");
+    sb_append(sb, "                nano_rt_f64_print(stdout, ((double*)arr->data)[i]);\n");
     sb_append(sb, "                break;\n");
     sb_append(sb, "            default:\n");
     sb_append(sb, "                printf(\"?\");\n");
@@ -598,6 +600,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
 
 /* Generate string operations */
 void generate_string_operations(StringBuilder *sb) {
+    sb_append(sb, nl_binary64_arithmetic_source);
+    sb_append(sb, NL_BINARY64_FORMAT_SOURCE);
     sb_append(sb, "/* ========== Advanced String Operations ========== */\n\n");
     
     /* char_at - use strnlen for safety */
@@ -656,7 +660,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "static char* float_to_string(double x) {\n");
     sb_append(sb, "    char* buffer = gc_alloc_string(63);\n");
     sb_append(sb, "    if (!buffer) return \"\";\n");
-    sb_append(sb, "    snprintf(buffer, 64, \"%g\", x);\n");
+    sb_append(sb, "    nano_rt_f64_format(buffer, 64, x);\n");
     sb_append(sb, "    /* Ensure at least one decimal place for whole-number floats\n");
     sb_append(sb, "     * so 0.0 -> \"0.0\" rather than \"0\" */\n");
     sb_append(sb, "    if (!strchr(buffer, '.') && !strchr(buffer, 'e')\n");
@@ -796,7 +800,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    DynArray* out = dyn_array_new(t);\n");
     sb_append(sb, "    switch (t) {\n");
     sb_append(sb, "        case ELEM_INT: for (int64_t i=0;i<len;i++) dyn_array_push_int(out, dyn_array_get_int(a,i)+dyn_array_get_int(b,i)); break;\n");
-    sb_append(sb, "        case ELEM_FLOAT: for (int64_t i=0;i<len;i++) dyn_array_push_float(out, dyn_array_get_float(a,i)+dyn_array_get_float(b,i)); break;\n");
+    sb_append(sb, "        case ELEM_FLOAT: for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_add(dyn_array_get_float(a,i), dyn_array_get_float(b,i))); break;\n");
     sb_append(sb, "        case ELEM_STRING: for (int64_t i=0;i<len;i++) dyn_array_push_string(out, nl_str_concat(dyn_array_get_string(a,i), dyn_array_get_string(b,i))); break;\n");
     sb_append(sb, "        case ELEM_ARRAY: for (int64_t i=0;i<len;i++) dyn_array_push_array(out, nl_array_add(dyn_array_get_array(a,i), dyn_array_get_array(b,i))); break;\n");
     sb_append(sb, "        default: assert(false && \"nl_array_add: unsupported element type\");\n");
@@ -811,7 +815,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    DynArray* out = dyn_array_new(t);\n");
     sb_append(sb, "    switch (t) {\n");
     sb_append(sb, "        case ELEM_INT: for (int64_t i=0;i<len;i++) dyn_array_push_int(out, dyn_array_get_int(a,i)-dyn_array_get_int(b,i)); break;\n");
-    sb_append(sb, "        case ELEM_FLOAT: for (int64_t i=0;i<len;i++) dyn_array_push_float(out, dyn_array_get_float(a,i)-dyn_array_get_float(b,i)); break;\n");
+    sb_append(sb, "        case ELEM_FLOAT: for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_sub(dyn_array_get_float(a,i), dyn_array_get_float(b,i))); break;\n");
     sb_append(sb, "        case ELEM_ARRAY: for (int64_t i=0;i<len;i++) dyn_array_push_array(out, nl_array_sub(dyn_array_get_array(a,i), dyn_array_get_array(b,i))); break;\n");
     sb_append(sb, "        default: assert(false && \"nl_array_sub: unsupported element type\");\n");
     sb_append(sb, "    }\n");
@@ -825,7 +829,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    DynArray* out = dyn_array_new(t);\n");
     sb_append(sb, "    switch (t) {\n");
     sb_append(sb, "        case ELEM_INT: for (int64_t i=0;i<len;i++) dyn_array_push_int(out, dyn_array_get_int(a,i)*dyn_array_get_int(b,i)); break;\n");
-    sb_append(sb, "        case ELEM_FLOAT: for (int64_t i=0;i<len;i++) dyn_array_push_float(out, dyn_array_get_float(a,i)*dyn_array_get_float(b,i)); break;\n");
+    sb_append(sb, "        case ELEM_FLOAT: for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_mul(dyn_array_get_float(a,i), dyn_array_get_float(b,i))); break;\n");
     sb_append(sb, "        case ELEM_ARRAY: for (int64_t i=0;i<len;i++) dyn_array_push_array(out, nl_array_mul(dyn_array_get_array(a,i), dyn_array_get_array(b,i))); break;\n");
     sb_append(sb, "        default: assert(false && \"nl_array_mul: unsupported element type\");\n");
     sb_append(sb, "    }\n");
@@ -839,7 +843,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "    DynArray* out = dyn_array_new(t);\n");
     sb_append(sb, "    switch (t) {\n");
     sb_append(sb, "        case ELEM_INT: for (int64_t i=0;i<len;i++) dyn_array_push_int(out, dyn_array_get_int(a,i)/dyn_array_get_int(b,i)); break;\n");
-    sb_append(sb, "        case ELEM_FLOAT: for (int64_t i=0;i<len;i++) dyn_array_push_float(out, dyn_array_get_float(a,i)/dyn_array_get_float(b,i)); break;\n");
+    sb_append(sb, "        case ELEM_FLOAT: for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_div(dyn_array_get_float(a,i), dyn_array_get_float(b,i))); break;\n");
     sb_append(sb, "        case ELEM_ARRAY: for (int64_t i=0;i<len;i++) dyn_array_push_array(out, nl_array_div(dyn_array_get_array(a,i), dyn_array_get_array(b,i))); break;\n");
     sb_append(sb, "        default: assert(false && \"nl_array_div: unsupported element type\");\n");
     sb_append(sb, "    }\n");
@@ -913,39 +917,39 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "static DynArray* nl_array_add_scalar_float(DynArray* a, double s) {\n");
     sb_append(sb, "    assert(a); assert(dyn_array_get_elem_type(a) == ELEM_FLOAT);\n");
     sb_append(sb, "    int64_t len = dyn_array_length(a); DynArray* out = dyn_array_new(ELEM_FLOAT);\n");
-    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, dyn_array_get_float(a,i) + s);\n");
+    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_add(dyn_array_get_float(a,i), s));\n");
     sb_append(sb, "    return out;\n");
     sb_append(sb, "}\n\n");
     sb_append(sb, "static DynArray* nl_array_radd_scalar_float(double s, DynArray* a) { return nl_array_add_scalar_float(a, s); }\n\n");
     sb_append(sb, "static DynArray* nl_array_sub_scalar_float(DynArray* a, double s) {\n");
     sb_append(sb, "    assert(a); assert(dyn_array_get_elem_type(a) == ELEM_FLOAT);\n");
     sb_append(sb, "    int64_t len = dyn_array_length(a); DynArray* out = dyn_array_new(ELEM_FLOAT);\n");
-    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, dyn_array_get_float(a,i) - s);\n");
+    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_sub(dyn_array_get_float(a,i), s));\n");
     sb_append(sb, "    return out;\n");
     sb_append(sb, "}\n\n");
     sb_append(sb, "static DynArray* nl_array_rsub_scalar_float(double s, DynArray* a) {\n");
     sb_append(sb, "    assert(a); assert(dyn_array_get_elem_type(a) == ELEM_FLOAT);\n");
     sb_append(sb, "    int64_t len = dyn_array_length(a); DynArray* out = dyn_array_new(ELEM_FLOAT);\n");
-    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, s - dyn_array_get_float(a,i));\n");
+    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_sub(s, dyn_array_get_float(a,i)));\n");
     sb_append(sb, "    return out;\n");
     sb_append(sb, "}\n\n");
     sb_append(sb, "static DynArray* nl_array_mul_scalar_float(DynArray* a, double s) {\n");
     sb_append(sb, "    assert(a); assert(dyn_array_get_elem_type(a) == ELEM_FLOAT);\n");
     sb_append(sb, "    int64_t len = dyn_array_length(a); DynArray* out = dyn_array_new(ELEM_FLOAT);\n");
-    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, dyn_array_get_float(a,i) * s);\n");
+    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_mul(dyn_array_get_float(a,i), s));\n");
     sb_append(sb, "    return out;\n");
     sb_append(sb, "}\n\n");
     sb_append(sb, "static DynArray* nl_array_rmul_scalar_float(double s, DynArray* a) { return nl_array_mul_scalar_float(a, s); }\n\n");
     sb_append(sb, "static DynArray* nl_array_div_scalar_float(DynArray* a, double s) {\n");
     sb_append(sb, "    assert(a); assert(dyn_array_get_elem_type(a) == ELEM_FLOAT);\n");
     sb_append(sb, "    int64_t len = dyn_array_length(a); DynArray* out = dyn_array_new(ELEM_FLOAT);\n");
-    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, dyn_array_get_float(a,i) / s);\n");
+    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_div(dyn_array_get_float(a,i), s));\n");
     sb_append(sb, "    return out;\n");
     sb_append(sb, "}\n\n");
     sb_append(sb, "static DynArray* nl_array_rdiv_scalar_float(double s, DynArray* a) {\n");
     sb_append(sb, "    assert(a); assert(dyn_array_get_elem_type(a) == ELEM_FLOAT);\n");
     sb_append(sb, "    int64_t len = dyn_array_length(a); DynArray* out = dyn_array_new(ELEM_FLOAT);\n");
-    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, s / dyn_array_get_float(a,i));\n");
+    sb_append(sb, "    for (int64_t i=0;i<len;i++) dyn_array_push_float(out, nano_rt_f64_div(s, dyn_array_get_float(a,i)));\n");
     sb_append(sb, "    return out;\n");
     sb_append(sb, "}\n\n");
 

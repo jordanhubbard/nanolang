@@ -30,6 +30,10 @@ static int format_snprintf(char *buffer, size_t capacity, const char *format, ..
     va_end(args);
     return result;
 }
+/* I replace a platform fortified macro only inside this fault-injection fixture. */
+#ifdef snprintf
+#undef snprintf
+#endif
 #define snprintf format_snprintf
 #define malloc substring_malloc
 #define calloc array_calloc

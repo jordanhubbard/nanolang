@@ -46,7 +46,7 @@ class ManagedStrings(unittest.TestCase):
             '-Wl,--export=nms_module_live_objects','-Wl,--export=nms_module_live_bytes','-o',wasm])
         return module,native,wasm
 
-    def native_harness(self, ir, body, extra='', flags=()):
+    def native_harness(self, ir, body, extra='', flags=(), allocation_control=False):
         source, exe = self.work/'harness.c', self.work/'harness'
         source.write_text('#include <stdint.h>\n#include <stdlib.h>\n'
             'extern uint64_t nano_try_entry(void),nms_module_live_objects(void),nms_module_live_bytes(void);\n'
@@ -55,13 +55,22 @@ class ManagedStrings(unittest.TestCase):
         # explicitly instrument the emitted functions, then link their object
         # with a sanitizer-built harness and runtime interceptors.
         marked, instrumented, obj = self.work/'asan-input.ll', self.work/'asan.ll', self.work/'asan.o'
-        marked.write_text(re.sub(r'^(define [^\n]+) \{', r'\1 sanitize_address {', ir.read_text(), flags=re.M))
+        original_ir = ir.read_text()
+        input_ir = original_ir
+        if allocation_control:
+            # I control only this generated module, leaving harness/runtime malloc alone.
+            self.assertRegex(input_ir, r'declare[^\n]*@malloc\(')
+            self.assertRegex(input_ir, r'call[^\n]*@malloc\(')
+            input_ir = re.sub(r'@malloc(?=\()', '@nano_test_malloc', input_ir)
+            (self.work/'allocation-controlled.ll').write_text(input_ir)
+        marked.write_text(re.sub(r'^(define [^\n]+) \{', r'\1 sanitize_address {', input_ir, flags=re.M))
         self.run_cmd(['opt','-passes=asan','-S',marked,'-o',instrumented])
         self.assertIn('__asan_report_',instrumented.read_text())
         self.run_cmd(['llc','-relocation-model=pic','-filetype=obj',instrumented,'-o',obj])
         self.run_cmd(self.clang+['-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all',
                                 obj,source,*flags,'-o',exe])
         self.run_cmd([exe])
+        self.assertEqual(ir.read_text(), original_ir)
 
     def node(self, wasm, body):
         script = "const fs=require('fs');const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));if(WebAssembly.Module.imports(m).length)throw Error('imports');let e=new WebAssembly.Instance(m).exports;function check(v){if(!v)throw Error('managed assertion');}\n"+body
@@ -145,8 +154,8 @@ class ManagedStrings(unittest.TestCase):
     def test_native_byte_and_descriptor_allocation_failure_are_recoverable(self):
         _,ir,_=self.compile(self.program('PUSH_STR a\nPUSH_STR a\nSTR_CONCAT\nPOP\n'))
         for fail in (0,1):
-            extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
-            self.native_harness(ir,f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects())return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+            extra='static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
+            self.native_harness(ir,f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects())return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 2;return nano_dispose();',extra,allocation_control=True)
 
     def test_allocation_failure_unwinds_callee_and_preserves_global_owner(self):
         body=('PUSH_STR a\nPUSH_STR a\nSTR_CONCAT\nDUP\nSTORE_GLOBAL 0\nSTORE_LOCAL 0\n'
@@ -154,8 +163,8 @@ class ManagedStrings(unittest.TestCase):
         suffix=('.function append 1 1 0 string 1\n.parameters append string\n'
                 'LOAD_LOCAL 0\nPUSH_STR a\nSTR_CONCAT\nRET\n.end\n')
         _,ir,_=self.compile(self.program(body,suffix))
-        extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
-        self.native_harness(ir,'budget=2;if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1||nms_module_live_bytes()!=6)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=1)return 2;if(nano_dispose()||nms_module_live_objects())return 3;return 0;',extra,['-Wl,--wrap=malloc'])
+        extra='static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
+        self.native_harness(ir,'budget=2;if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1||nms_module_live_bytes()!=6)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=1)return 2;if(nano_dispose()||nms_module_live_objects())return 3;return 0;',extra,allocation_control=True)
 
     def test_wasm_memory_cap_failure_cleans_frames_and_reuses_storage(self):
         body=('PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_LOCAL 0\n'
@@ -192,8 +201,8 @@ class ManagedStrings(unittest.TestCase):
         suffix = ('.function slice 3 3 0 string 1\n.parameters slice string int int\n'
                   'LOAD_LOCAL 0\nLOAD_LOCAL 1\nLOAD_LOCAL 2\nSTR_SUBSTR\nRET\n.end\n')
         _, ir, wasm = self.compile(self.program(body,suffix))
-        extra = 'static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
-        self.native_harness(ir,'budget=2;if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1||nms_module_live_bytes()!=3)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+        extra = 'static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
+        self.native_harness(ir,'budget=2;if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1||nms_module_live_bytes()!=3)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,allocation_control=True)
         self.node(wasm,'check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===1n);check(e.nano_dispose()===0);')
         bad = ('PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_GLOBAL 0\n'
                'PUSH_I64 7\nSTORE_GLOBAL 1\nLOAD_GLOBAL 1\nLOAD_GLOBAL 0\nLOAD_GLOBAL 0\nSTR_SUBSTR\nPOP\n')

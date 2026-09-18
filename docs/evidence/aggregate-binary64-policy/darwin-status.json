@@ -1,0 +1,49 @@
+{
+  "source": "acb656611e9509e266443411163ca3a8259a4872",
+  "results": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j8",
+        "bootstrap",
+        "bin/nano",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nanoisa_dump",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 290.866
+    },
+    {
+      "name": "suite",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_aggregate_binary64_policy"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 21.261
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "-j8",
+        "CC=/usr/bin/clang",
+        "test-aggregate-binary64-eval",
+        "test-nanovm",
+        "test-binary64-arithmetic-eval"
+      ],
+      "status": 2,
+      "timed_out": false,
+      "seconds": 2.292
+    }
+  ]
+}

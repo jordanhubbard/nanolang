@@ -1,0 +1,73 @@
+{
+  "schema": "nanolang.bounded-evidence.v1",
+  "tested_head": "9ec4a5736414562fc7a39f35c976e9c5889422e8",
+  "production_checkpoints": [
+    "9dafc96d",
+    "6db93a4c"
+  ],
+  "frozen": {
+    "head": "9ec4a5736414562fc7a39f35c976e9c5889422e8",
+    "files": {
+      "src/c_backend.c": "9f1c2516f621f4a7147cb6edd8205a7e92627a0302292fb238d8780434dad80b",
+      "src/c_backend.h": "55f6887497ac0207d75de6342b05d13ce7e1b00d24af1ee863d831c68f37c1f0",
+      "src/binary64_format.h": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+      "src/binary64_arithmetic.h": "97a282226c07249d2c2c28f4e14f4bed3a07a838267534928e36f889d26a67d5",
+      "src/binary64_bits.h": "d106a6bdbf7d10a75256bf07b0bcebcebbb50a5a8845acee306a0e20d61d00bb",
+      "src/string_literal_decode.h": "82a0b629d83f92c7805bf6d2ad37f2b6cd6ed6ccaba54baf8213df67aeda6e14",
+      "tests/test_public_c_match_payloads.py": "d0bda22a573420aa6e54a12a184756adf8d64b0f70035839dab4c533322c9c8d",
+      "tests/test_public_c_match_api.c": "0b700e89bfed6bae4253163a7e72019b086801ba50df99f6245b7f4ffe5776a0",
+      "tests/test_public_c_concat.py": "ad6a6505f5ed67e3a05274392451b68c5c3139df34a1caf85e3081af87aad728",
+      "tests/test_public_c_concat_api.c": "f7ecabfb908c9807faea0869a738e250230fa881607178fa2fe8a71259cd8e8f",
+      "tests/test_public_c_int_conversion.py": "08bacc41dae71968f7428b0335f7afe126e2d27ce280925035f85020c2ba315e",
+      "tests/test_public_c_int_api.c": "78623adeb70275d10bb7ba68fc53879ac069f85bb14e6707e634292219eba732",
+      "tests/test_public_c_length_api.c": "04ff1199eacf1587f6af806ed26f355c680ed133a13e554ccf7cfd28379a4589",
+      "tests/test_public_c_nonfinite_format.py": "b90f22ac440cd80ed289762642e7d61838e04ae9bc173e0e47d961aa1fec0942",
+      "tests/test_public_c_format_api.c": "8dbaffccdc8d9fd58e3d3fd207ef51965ed17d3a94a42d1b4e3e6b3e8c125a32",
+      "tests/test_public_c_binary64.py": "1a7951505888bedcc435ac9fb38cda765f235c63fcc860013c72be1f4f3f4fc3",
+      "tests/test_public_c_string_equality.py": "4542f2a2415989fcdd0e17cde51b017e03dfa0449770b0e04b57fb2b72179d09",
+      "tests/test_public_c_literal_normalization.py": "91a068b28891bffbe97a619cf1718e2a168d36b7bb8e63e9f09feb293b80a981",
+      "tests/cross-backend/05_match.nano": "9d44a3e9557e54f95b952a47a3c75de2f674ecc32d683f8e983a47ef65608952",
+      "tests/cross-backend/06_single_field_variant.nano": "0e073b4ab48794ae22f2cfff34dd3478517d4c679ea6bcf47b3aa7cdb1bf68cf",
+      "bin/nanoc_c": "2de47299e58b4d1f7b2dec4674ae4f4e7bc98467ecd357d655ce2c1157e31eed",
+      "bin/nano": "a5fc93d806b4c3c8db3028fb00b9763983926d61f7080341d8df2fef4902679b",
+      "bin/nano_virt": "9c2ee55b7c8f54aded684b0123a66d60f09cfdc29cb657670dc7214da978fcd6",
+      "bin/nano_vm": "cb97fd3bc159d5cf03dcad7339fcdf59c6e906eab9f8db8090d9bd10fbf394aa",
+      "bin/nvm2c": "0e98889c0e037f40c19eb5aa2fb46927dcec55a454651035f2fdca3d8753be6d"
+    },
+    "compilers": {
+      "/usr/bin/cc": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+      "/tmp/nanolang-truthiness-clang-bin/cc": "0434facefba56a23f73b2a7ce18f968fe23b9e8aa9e48ac25d5998a2aeca6235"
+    }
+  },
+  "logs": {
+    "/tmp/nanolang-public-c-match-build.log": "5e42cfa161c3a651f483c110326e5431fe356036455109864d55923e30af0dc7",
+    "/tmp/nanolang-public-c-match-clang.log": "8c4bb7f752bd11cd95d4b5c32638c0ea0592c6b449c174b2b99f2fe9375b0ae7",
+    "/tmp/nanolang-public-c-match-final-backend.log": "87a386c45f1087421445da82915c277359d286789929af5841c1e6e55e489933",
+    "/tmp/nanolang-public-c-match-final-clang.log": "e944fd18b71b007d79398d70f0a357900cfb5caf0ba6a4af5063501957fc067e",
+    "/tmp/nanolang-public-c-match-final-gcc.log": "080e3228668be445e65a75ce02bc7a62f078f2b8a5dfd8e7c90adcaafaa65229",
+    "/tmp/nanolang-public-c-match-gcc.log": "41588a92cc03386ce895faa0b286470240c039505d5b5fd0c0d8476dc3b5b544",
+    "/tmp/nanolang-public-c-match-terminal-build.log": "172c9bb3043e33e9ed773442dcf258fe313fb8fe048a3c12001ff6dda102917d"
+  },
+  "results": {
+    "gcc": {
+      "methods": 32,
+      "seconds": 14.512,
+      "status": "pass"
+    },
+    "clang": {
+      "methods": 32,
+      "seconds": 19.634,
+      "status": "pass"
+    },
+    "unchanged_backend": {
+      "programs": 7,
+      "status": "pass"
+    }
+  },
+  "initial_result": "Three new methods pass on both compilers; unchanged05/06 strict compile stops on missing-return warning. No rejected binary executes.",
+  "limits": [
+    "Unguarded exact declared nongeneric scalar variants; no general match control-flow closure.",
+    "Guard/wildcard correctness7a99 and union-valued results8106 remain required.",
+    "No bootstrap or Darwin qualification; full6ade remains open."
+  ]
+}

@@ -1,0 +1,66 @@
+test_discarded_calls_keep_order (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_discarded_calls_keep_order) ... FAIL
+test_exact_results_and_preserved_inputs (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_exact_results_and_preserved_inputs) ... FAIL
+test_exact_tag_and_missing_operand_refusals (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_exact_tag_and_missing_operand_refusals) ... ok
+test_refusals_preserve_outputs (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_refusals_preserve_outputs) ... ok
+test_rounding_snapshots_calls_branches_and_loop (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_rounding_snapshots_calls_branches_and_loop) ... ok
+
+======================================================================
+FAIL: test_discarded_calls_keep_order (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_discarded_calls_keep_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/tests/test_reconstruction_f64_arithmetic.py", line 189, in test_discarded_calls_keep_order
+    _, c = self.paired(text, 'shadow nlr_f1_relay { assert (== (float_to_bits (nlr_f1_relay (float_from_bits 1))) 1) }')
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/tests/test_reconstruction_f64_transport.py", line 42, in paired
+    self.command(shlex.split(os.environ.get('CC','cc'))+['-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',c,'-o',self.work/'reconstructed'])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/tests/test_reconstruction_f64_transport.py", line 25, in command
+    self.assertEqual(p.returncode==0,success,f'{args}\n{p.stdout}\n{p.stderr}\nI retained {self.work}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : ['/tmp/nanolang-named-callback-clang', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', PosixPath('/tmp/nano-reconstruct-f64-ctujr6ql/reconstructed.c'), '-o', PosixPath('/tmp/nano-reconstruct-f64-ctujr6ql/reconstructed')]
+
+/tmp/nano-reconstruct-f64-ctujr6ql/reconstructed.c:43:22: error: unused function 'nano_rt_f64_sub' [-Werror,-Wunused-function]
+   43 | static inline double nano_rt_f64_sub(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/tmp/nano-reconstruct-f64-ctujr6ql/reconstructed.c:47:22: error: unused function 'nano_rt_f64_mul' [-Werror,-Wunused-function]
+   47 | static inline double nano_rt_f64_mul(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/tmp/nano-reconstruct-f64-ctujr6ql/reconstructed.c:51:22: error: unused function 'nano_rt_f64_div' [-Werror,-Wunused-function]
+   51 | static inline double nano_rt_f64_div(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+3 errors generated.
+
+I retained /tmp/nano-reconstruct-f64-ctujr6ql
+
+======================================================================
+FAIL: test_exact_results_and_preserved_inputs (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_exact_results_and_preserved_inputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/tests/test_reconstruction_f64_arithmetic.py", line 72, in test_exact_results_and_preserved_inputs
+    _, c = self.paired('.entry main\n.function main 0 2 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n')
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/tests/test_reconstruction_f64_transport.py", line 42, in paired
+    self.command(shlex.split(os.environ.get('CC','cc'))+['-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',c,'-o',self.work/'reconstructed'])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-reconstruct-f64-arithmetic/tests/test_reconstruction_f64_transport.py", line 25, in command
+    self.assertEqual(p.returncode==0,success,f'{args}\n{p.stdout}\n{p.stderr}\nI retained {self.work}')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : ['/tmp/nanolang-named-callback-clang', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', PosixPath('/tmp/nano-reconstruct-f64-a2gtlqt3/reconstructed.c'), '-o', PosixPath('/tmp/nano-reconstruct-f64-a2gtlqt3/reconstructed')]
+
+/tmp/nano-reconstruct-f64-a2gtlqt3/reconstructed.c:42:22: error: unused function 'nano_rt_f64_sub' [-Werror,-Wunused-function]
+   42 | static inline double nano_rt_f64_sub(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/tmp/nano-reconstruct-f64-a2gtlqt3/reconstructed.c:46:22: error: unused function 'nano_rt_f64_mul' [-Werror,-Wunused-function]
+   46 | static inline double nano_rt_f64_mul(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/tmp/nano-reconstruct-f64-a2gtlqt3/reconstructed.c:50:22: error: unused function 'nano_rt_f64_div' [-Werror,-Wunused-function]
+   50 | static inline double nano_rt_f64_div(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+3 errors generated.
+
+I retained /tmp/nano-reconstruct-f64-a2gtlqt3
+
+----------------------------------------------------------------------
+Ran 5 tests in 20.081s
+
+FAILED (failures=2)

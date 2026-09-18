@@ -1,0 +1,10 @@
+HEAD is now at bc6414fe test: include complete emitted provider dependencies and orders
+{"source": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-emitted-array-vsjbcwun/source", "head": "bc6414fe7bc838eb41add9c3ccccdf5d652720eb"}
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-emitted-array-vsjbcwun/string-first
+{"order": "string-first", "status": 0}
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-emitted-array-vsjbcwun/math-first
+{"order": "math-first", "status": 0}
+From github.com:jordanhubbard/nanolang
+ * branch              test/emitted-array-binary64-policy -> FETCH_HEAD
+ * [new branch]        test/emitted-array-binary64-policy -> origin/test/emitted-array-binary64-policy
+Preparing worktree (detached HEAD bc6414fe)

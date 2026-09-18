@@ -8,6 +8,7 @@
 
 #include "nvm2c.h"
 #include "../binary64_bits.h"
+#include "../binary64_format.h"
 #include "../binary64_arithmetic_source.h"
 #include "binary64_parse_source.h"
 #include "isa.h"
@@ -490,7 +491,7 @@ static void emit_c_string_lit(Nvm2cBuf *b, const char *s, uint32_t len) {
     nvm2c_puts(b, "\"");
     for (i = 0; i < len; i++) {
         unsigned char c = (unsigned char)s[i];
-        if (c == '\\' || c == '"') {
+        if (c == '\\' || c == '"' || c == '?') {
             nvm2c_printf(b, "\\%c", (char)c);
         } else if (c == '\n') {
             nvm2c_puts(b, "\\n");
@@ -5193,7 +5194,7 @@ static void emit_nstr_from_i64(Nvm2cBuf *b) {
 static void emit_nstr_from_f64(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nstr_from_f64(double value) {\n"
-        "    char tmp[64]; int n = snprintf(tmp, sizeof tmp, \"%g\", value);\n"
+        "    char tmp[64]; int n = nano_rt_f64_format(tmp, sizeof tmp, value);\n"
         "    if (n < 0 || (size_t)n >= sizeof tmp) NVM2C_ABORT();\n"
         "    char *text = nstr_allocate((size_t)n);\n"
         "    memcpy(text, tmp, (size_t)n + 1); return text;\n}\n");
@@ -6492,9 +6493,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (module_has_opcode(mod, OP_F64_FROM_BITS) || module_has_opcode(mod, OP_F64_TO_BITS))
             nvm2c_puts(&b, NL_BINARY64_BITS_SOURCE);
+        if (need_print || need_cast) nvm2c_puts(&b, NL_BINARY64_FORMAT_SOURCE);
         if (need_print) nvm2c_puts(&b,
             "static inline void nf64_print(double value) {\n"
-            "    if (value >= -1e15 && value <= 1e15 && value == (int64_t)value) printf(\"%.1f\", value);\n"
+            "    const char *special = nano_rt_f64_nonfinite(value);\n"
+            "    if (special) fputs(special, stdout);\n"
+            "    else if (value >= -1e15 && value <= 1e15 && value == (int64_t)value) printf(\"%.1f\", value);\n"
             "    else printf(\"%g\", value);\n}\n");
         if (need_concat || need_cast || need_substr || need_trim || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
@@ -6752,6 +6756,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
+        if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN) ||
+            module_has_opcode(mod, OP_CAST_STRING))
+            nvm2c_puts(&b, "    (void)nano_rt_f64_format; (void)nano_rt_f64_print;\n");
         if (b.has_float_arithmetic) nvm2c_puts(&b,
             "    (void)nano_rt_f64_add; (void)nano_rt_f64_sub; (void)nano_rt_f64_mul; (void)nano_rt_f64_div;\n");
         if (module_has_opcode(mod, OP_F64_FROM_BITS) || module_has_opcode(mod, OP_F64_TO_BITS))

@@ -1,0 +1,52 @@
+{
+  "head": "43b03d236c7ffc5e04bce79dd19adf446b177cf6",
+  "files": {
+    "src/c_backend.c": "c7797e54c29e9f59a06ca7268df7151a4387822497f47ce51389719069441460",
+    "src/c_backend.h": "55f6887497ac0207d75de6342b05d13ce7e1b00d24af1ee863d831c68f37c1f0",
+    "src/binary64_format.h": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+    "src/binary64_arithmetic.h": "97a282226c07249d2c2c28f4e14f4bed3a07a838267534928e36f889d26a67d5",
+    "src/binary64_bits.h": "d106a6bdbf7d10a75256bf07b0bcebcebbb50a5a8845acee306a0e20d61d00bb",
+    "src/string_literal_decode.h": "82a0b629d83f92c7805bf6d2ad37f2b6cd6ed6ccaba54baf8213df67aeda6e14",
+    "tests/test_public_c_match_payloads.py": "d0bda22a573420aa6e54a12a184756adf8d64b0f70035839dab4c533322c9c8d",
+    "tests/test_public_c_match_api.c": "beea13803cec2628d73fc8f4514dbb146514dd81f9d31eaf66fd9fb10073c89c",
+    "tests/test_public_c_concat.py": "ad6a6505f5ed67e3a05274392451b68c5c3139df34a1caf85e3081af87aad728",
+    "tests/test_public_c_concat_api.c": "f7ecabfb908c9807faea0869a738e250230fa881607178fa2fe8a71259cd8e8f",
+    "tests/test_public_c_int_conversion.py": "08bacc41dae71968f7428b0335f7afe126e2d27ce280925035f85020c2ba315e",
+    "tests/test_public_c_int_api.c": "78623adeb70275d10bb7ba68fc53879ac069f85bb14e6707e634292219eba732",
+    "tests/test_public_c_length_api.c": "04ff1199eacf1587f6af806ed26f355c680ed133a13e554ccf7cfd28379a4589",
+    "tests/test_public_c_nonfinite_format.py": "b90f22ac440cd80ed289762642e7d61838e04ae9bc173e0e47d961aa1fec0942",
+    "tests/test_public_c_format_api.c": "8dbaffccdc8d9fd58e3d3fd207ef51965ed17d3a94a42d1b4e3e6b3e8c125a32",
+    "tests/test_public_c_binary64.py": "1a7951505888bedcc435ac9fb38cda765f235c63fcc860013c72be1f4f3f4fc3",
+    "tests/test_public_c_string_equality.py": "4542f2a2415989fcdd0e17cde51b017e03dfa0449770b0e04b57fb2b72179d09",
+    "tests/test_public_c_literal_normalization.py": "91a068b28891bffbe97a619cf1718e2a168d36b7bb8e63e9f09feb293b80a981",
+    "tests/cross-backend/05_match.nano": "9d44a3e9557e54f95b952a47a3c75de2f674ecc32d683f8e983a47ef65608952",
+    "tests/cross-backend/06_single_field_variant.nano": "0e073b4ab48794ae22f2cfff34dd3478517d4c679ea6bcf47b3aa7cdb1bf68cf",
+    "bin/nanoc_c": "70e40fb83eff2a3ada50cb560be9acf77b6ac764a37fa9777ad70b663eda93de",
+    "bin/nano": "17618b9ac193514e243319f644b04bf8efb938d4ab2bb1e6248ed3e521eb245f",
+    "bin/nano_virt": "e1ad5d0230ecaeab2f1418362eb56100678ce93761f11da3fe73d31af8604436",
+    "bin/nano_vm": "339f9436258bc03b7b82a84006ad98493bc2d424c242e11cca9c39ec77d02679",
+    "bin/nvm2c": "76b7f41d97e406f3af490caa58eabe9f18222f0b4c881dc9277f4fa9abbadb1d",
+    "tests/test_public_c_guarded_matches.py": "1c811dd8cff982686c9ef8f1cb873ea23606e22fb964144969c664dd792dad92",
+    "tests/test_public_c_guarded_api.c": "fdc31016541e053ffe6c54dd0789b53ec429bc9a55e5d340768776cc5271ad3d",
+    "src/nanovirt/codegen.c": "b2ac87b8e1ca5bd50c4dd13ff0c8c8c67e2765439d5df4e897be680c3a562dab",
+    "tests/test_nanovirt_match_bindings.py": "5021af98e809fc27ed9ebdea8ae56754e644cd39a5260f5ddb6725c759bb4f9a",
+    "tests/test_public_c_union_results.py": "a2ea526ea369f04eac1b8e05c6326d7e979b331d9fc9d305be6b97eb0523fc4a",
+    "tests/test_public_c_union_results_api.c": "bf816425fb2fb58b602cf3d72c2ccbb2ef5faf316c19ff8a7700e5ef24ec4eaa"
+  },
+  "compilers": {
+    "/usr/bin/cc": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+    "/tmp/nanolang-truthiness-clang-bin/cc": "0434facefba56a23f73b2a7ce18f968fe23b9e8aa9e48ac25d5998a2aeca6235"
+  },
+  "integration_head": "424af24c066f367db9abd7920da0d1eb8c9d2abd",
+  "logs": {
+    "/tmp/nanolang-public-c-union-results-build.log": "7c0854c2b2b294dfc72613d548868d9902200ee59d0ec970d1cef2f9310bcd22",
+    "/tmp/nanolang-public-c-union-results-gcc.log": "c2448ecd2d47a3eca4cac76e75c553b64cf8f4df6c98949ab9394b49236ce77a",
+    "/tmp/nanolang-public-c-union-results-clang.log": "7100619e8a269757ca5a227d157e592eb9ebe35d834742a57cddc65d4ce7ea7b",
+    "/tmp/nanolang-public-c-union-results-corrected-build.log": "172c9bb3043e33e9ed773442dcf258fe313fb8fe048a3c12001ff6dda102917d",
+    "/tmp/nanolang-public-c-union-results-corrected-gcc.log": "d97291d32b692dc1b811d79ee157bf4a504ec36818fe8ce10d0999be89afbd24",
+    "/tmp/nanolang-public-c-union-results-corrected-clang.log": "2382eb569447f84ea1020d05fa6a069cf2420c2a389d20ae9b58c1d666025cea",
+    "/tmp/nanolang-public-c-union-results-adjacent-gcc.log": "e5c599a9bc1acbf30ab8b06f9e05e0378725db016b002339a5fa01e98809677b",
+    "/tmp/nanolang-public-c-union-results-adjacent-clang.log": "a6947074b4c67d423e9be1a004c6451e6fe318bb40b6c0b2955f48f3d143b4f4",
+    "/tmp/nanolang-public-c-union-results-backend.log": "87a386c45f1087421445da82915c277359d286789929af5841c1e6e55e489933"
+  }
+}

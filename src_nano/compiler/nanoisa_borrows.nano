@@ -17,6 +17,13 @@ let mut nb_strings: array<string> = []
 let mut nb_helper: int = -1
 let mut nb_arity: int = 0
 let mut nb_consuming: bool = false
+let mut nb_value_graph: bool = false
+let mut nb_functions: array<int> = []
+let mut nb_result_layout: int = 4294967295
+let mut nb_expression_layout: int = 4294967295
+let mut nb_any_transfer: bool = false
+let mut nb_current_function: int = 0
+let mut nb_edges: array<bool> = []
 let mut nb_paths: array<string> = []
 let mut nb_depths: array<int> = []
 let mut nb_projection_parents: array<int> = []
@@ -49,6 +56,83 @@ fn nb_tag(name: string) -> int {
     return 0
 }
 shadow nb_tag { assert (== (nb_tag "int") 1) assert (== (nb_tag "bool") 4) assert (== (nb_tag "string") 0) }
+# I keep string parameters separate from scalar resource leaves and results.
+fn nb_parameter_tag(name: string) -> int {
+    if (== name "string") { return 5 }
+    return (nb_tag name)
+}
+shadow nb_parameter_tag {
+    assert (== (nb_parameter_tag "string") 5)
+    assert (== (nb_parameter_tag "int") 1)
+    assert (== (nb_tag "string") 0)
+    assert (== (nb_parameter_tag "array<string>") 0)
+}
+fn nb_decode_string(raw: string) -> string {
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i (str_length raw)) {
+        let mut part: string = (str_substring raw i 1)
+        if (and (== (char_at raw i) 92) (< (+ i 1) (str_length raw))) {
+            set i (+ i 1)
+            let code: int = (char_at raw i)
+            set part (str_substring raw i 1)
+            # I refuse NUL before my C-string ABI could truncate it.
+            if (== code 48) { let _: int = (nb_fail "string literals without embedded NUL") return "" }
+            if (== code 110) { set part "\n" }
+            if (== code 116) { set part "\t" }
+            if (== code 114) { set part "\r" }
+            if (not (or (== code 110) (or (== code 116) (or (== code 114)
+                    (or (== code 92) (or (== code 34) (== code 39))))))) {
+                set part (+ "\\" part)
+            }
+        }
+        set output (+ output part)
+        set i (+ i 1)
+    }
+    return output
+}
+shadow nb_decode_string {
+    assert (== (nb_decode_string "\\n\\r\\t") "\n\r\t")
+    assert (== (nb_decode_string "\\\"\\\\\\'") "\"\\'")
+    assert (== (nb_decode_string "a\\qb") "a\\qb")
+    set nb_error ""
+    assert (== (nb_decode_string "a\\0b") "")
+    assert (!= nb_error "")
+    set nb_error ""
+}
+
+# I escape bytes using the assembler quoted-string grammar.
+fn nb_escape_string(value: string) -> string {
+    let digits: string = "0123456789abcdef"
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i (str_length value)) {
+        let octet: int = (char_at value i)
+        let mut escaped: string = (str_substring value i 1)
+        if (== octet 34) { set escaped "\\\"" }
+        if (== octet 92) { set escaped "\\\\" }
+        if (== octet 10) { set escaped "\\n" }
+        if (== octet 13) { set escaped "\\r" }
+        if (== octet 9) { set escaped "\\t" }
+        if (and (or (< octet 32) (== octet 127))
+                (and (!= octet 10) (and (!= octet 13) (!= octet 9)))) {
+            set escaped (+ "\\x" (+ (str_substring digits (/ octet 16) 1)
+                                      (str_substring digits (% octet 16) 1)))
+        }
+        set output (+ output escaped)
+        set i (+ i 1)
+    }
+    return output
+}
+shadow nb_escape_string {
+    assert (== (nb_escape_string "plain") "plain")
+    assert (== (nb_escape_string "\n\r\t") "\\n\\r\\t")
+    assert (== (nb_escape_string "\"\\") "\\\"\\\\")
+    assert (== (nb_escape_string "café") "café")
+    assert (== (nb_escape_string (string_from_char 1)) "\\x01")
+    assert (== (nb_escape_string (string_from_char 127)) "\\x7f")
+}
+
 fn nb_hex(value: int, width: int) -> string {
     let digits: string = "0123456789abcdef"
     let mut out: string = ""
@@ -393,8 +477,28 @@ fn nb_binary(op: int, tag: int) -> string {
     return ""
 }
 shadow nb_binary { assert (== (nb_binary LexerTokenType.TOKEN_PLUS 1) "ADD") assert (== (nb_binary LexerTokenType.TOKEN_PLUS 4) "") assert (== (nb_binary LexerTokenType.TOKEN_EQ 4) "EQ") }
+fn nb_function_index(parser: Parser, name: string) -> int {
+    let mut i: int = 0
+    while (< i (array_length nb_functions)) {
+        let source: int = (at nb_functions i)
+        if (>= source 0) { if (== (parser_get_function parser source).name name) { return i } }
+        set i (+ i 1)
+    }
+    return -1
+}
+fn nb_result_tag(parser: Parser, name: string) -> int {
+    if (>= (nb_record parser name) 0) { return 8 }
+    return (nb_tag name)
+}
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (!= nb_error "") { return 0 }
+    if (== kind ParseNodeType.PNODE_STRING) {
+        if (not nb_value_graph) { return (nb_fail "string literals only in a value-call graph") }
+        let value: string = (nb_decode_string (parser_get_string parser id).value)
+        if (!= nb_error "") { return 0 }
+        let index: int = (nb_string value)
+        let _: int = (nb_op1 "PUSH_STR" index) return 5
+    }
     if (== kind ParseNodeType.PNODE_NUMBER) {
         let _: int = (nb_emit (+ "PUSH_I64 " (parser_get_number parser id).value)) return 1
     }
@@ -447,13 +551,59 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (== kind ParseNodeType.PNODE_CALL) {
         let call: ASTCall = (parser_get_call parser id)
         if (and (== call.function_type ParseNodeType.PNODE_IDENTIFIER) (== call.borrow_mode 0)) {
-            if (== (parser_get_identifier parser call.function).name "not") {
+            if (and (== (parser_get_identifier parser call.function).name "not") (and (< (nb_local "not") 0) (< (nb_function_index parser "not") 0))) {
                 if (!= call.arg_count 1) { return (nb_fail "one Boolean not operand") }
                 let arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                 if (!= (nb_expr parser arg.node_id arg.node_type) 4) { return (nb_fail "a Boolean not operand") }
                 let _: int = (nb_emit "NOT") return 4
             }
         }
+    }
+    if (and (== kind ParseNodeType.PNODE_CALL) nb_value_graph) {
+        let call: ASTCall = (parser_get_call parser id)
+        if (and (== call.function_type ParseNodeType.PNODE_IDENTIFIER) (== call.borrow_mode 0)) {
+            let name: string = (parser_get_identifier parser call.function).name
+            if (and (or (== name "print") (== name "println")) (and (< (nb_local name) 0) (< (nb_function_index parser name) 0))) {
+                if (!= call.arg_count 1) { return (nb_fail "one exact immutable string print operand") }
+                let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                if (!= (nb_expr parser argument.node_id argument.node_type) 5) { return (nb_fail "one exact immutable string print operand") }
+                if (== name "println") { let _: int = (nb_emit "PRINTLN") }
+                else { let _: int = (nb_emit "PRINT") }
+                return 0
+            }
+        }
+    }
+    if (and (== kind ParseNodeType.PNODE_CALL) nb_value_graph) {
+        let call: ASTCall = (parser_get_call parser id)
+        if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.borrow_mode 0)) { return (nb_fail "a direct mode-zero value call") }
+        let name: string = (parser_get_identifier parser call.function).name
+        let target: int = (nb_function_index parser name)
+        if (or (<= target 0) (>= (nb_local name) 0)) { return (nb_fail "an unshadowed direct non-entry value-call target") }
+        let function: ASTFunction = (parser_get_function parser (at nb_functions target))
+        if (!= call.arg_count function.param_count) { return (nb_fail "the exact declared value-call arity") }
+        let mut i: int = 0
+        while (and (== nb_error "") (< i call.arg_count)) {
+            let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            let layout: int = (nb_record parser parameter.var_type)
+            if (>= layout 0) {
+                if (!= argument.node_type ParseNodeType.PNODE_IDENTIFIER) { return (nb_fail "a named whole owner argument") }
+                let local: int = (nb_local (parser_get_identifier parser argument.node_id).name)
+                if (< local 0) { return (nb_fail "an existing owner argument") }
+                if (or (not (at nb_live local)) (or (!= (at nb_modes local) 0) (or (at nb_disposal_pending local) (or (!= (at nb_tags local) 8) (!= (at nb_layouts local) layout))))) { return (nb_fail "a named live exact whole owner argument") }
+                let _: int = (nb_op1 "OWN_MOVE_LOCAL" local)
+                (array_set nb_live local false)
+                set nb_any_transfer true
+            } else {
+                if (!= (nb_expr parser argument.node_id argument.node_type) (nb_parameter_tag parameter.var_type)) { return (nb_fail "the exact positional scalar argument") }
+            }
+            set i (+ i 1)
+        }
+        if (!= nb_error "") { return 0 }
+        (array_set nb_edges (+ (* nb_current_function 8) target) true)
+        let _: int = (nb_op1 "CALL" target)
+        set nb_expression_layout (nb_record parser function.return_type)
+        return (nb_result_tag parser function.return_type)
     }
     if (and (== kind ParseNodeType.PNODE_CALL) (not nb_in_helper)) {
         let call: ASTCall = (parser_get_call parser id)
@@ -508,61 +658,71 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     }
     return (nb_fail "straight-line scalar expressions and one borrowed helper")
 }
+fn nb_owner(parser: Parser, id: int, kind: int, layout: int) -> int {
+    if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
+        let value: ASTStructLiteral = (parser_get_struct_literal parser id)
+        let record: ASTStruct = (parser_get_struct_def parser layout)
+        if (or (!= value.struct_name (parser_get_struct_def parser layout).name) (!= value.field_count record.field_count)) { return (nb_fail "every exact constructor field once") }
+        let mut slots: array<int> = []
+        let mut i: int = 0
+        while (< i record.field_count) { set slots (array_push slots -1) set i (+ i 1) }
+        set i 0
+        while (and (== nb_error "") (< i value.field_count)) {
+            let mut index: int = -1
+            let mut j: int = 0
+            while (< j record.field_count) { if (== (at record.field_names j) (at value.field_names i)) { set index j } set j (+ j 1) }
+            if (< index 0) { return (nb_fail "declared constructor fields") }
+            if (>= (at slots index) 0) { return (nb_fail "distinct constructor fields") }
+            let child: int = (nb_record parser (at record.field_types index))
+            let mut tag: int = 8
+            let mut field_layout: int = 4294967295
+            if (>= child 0) {
+                if (!= (at value.field_value_types i) ParseNodeType.PNODE_IDENTIFIER) { return (nb_fail "a named exact child owner") }
+                let source: int = (nb_local (parser_get_identifier parser (at value.field_value_ids i)).name)
+                if (< source 0) { return (nb_fail "an existing child owner") }
+                if (or (not (at nb_live source)) (or (!= (at nb_modes source) 0) (or (at nb_disposal_pending source) (or (!= (at nb_tags source) 8) (!= (at nb_layouts source) child))))) { return (nb_fail "an exact live child owner") }
+                let _: int = (nb_op1 "OWN_MOVE_LOCAL" source)
+                (array_set nb_live source false) set field_layout child
+            } else {
+                set tag (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i))
+                if (!= tag (nb_tag (at record.field_types index))) { return (nb_fail "exact scalar field types") }
+            }
+            let slot: int = (nb_slot "" tag field_layout 0 false)
+            (array_set slots index slot)
+            if (== tag 8) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
+            else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
+            set i (+ i 1)
+        }
+        set i 0
+        while (< i record.field_count) {
+            let slot: int = (at slots i)
+            if (== (at nb_tags slot) 8) { let _: int = (nb_op1 "OWN_MOVE_LOCAL" slot) (array_set nb_live slot false) }
+            else { let _: int = (nb_op1 "LOAD_LOCAL" slot) }
+            set i (+ i 1)
+        }
+        let _: int = (nb_op1 "OWN_PACK" layout)
+    } else {
+        if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+            let old: int = (nb_local (parser_get_identifier parser id).name)
+            if (< old 0) { return (nb_fail "an existing destructured owner") }
+            if (or (not (at nb_live old)) (or (!= (at nb_modes old) 0) (or (at nb_disposal_pending old) (!= (at nb_layouts old) layout)))) { return (nb_fail "an unborrowed exact destructured owner") }
+            let _: int = (nb_op1 "OWN_MOVE_LOCAL" old)
+            (array_set nb_live old false) (array_set nb_disposal_pending old false)
+        } else {
+            if (and (== kind ParseNodeType.PNODE_CALL) nb_value_graph) {
+                if (!= (nb_expr parser id kind) 8) { return (nb_fail "an owned call result") }
+                if (!= nb_expression_layout layout) { return (nb_fail "the exact nominal owned call result") }
+            } else { return (nb_fail "a resource constructor, exact owner move or destructive pattern") }
+        }
+    }
+    set nb_any_transfer true
+    return 0
+}
 fn nb_binding(parser: Parser, binding: ASTLet) -> int {
     if (nb_project_binding parser binding) { return 0 }
     let layout: int = (nb_record parser binding.var_type)
     if (>= layout 0) {
-        if (== binding.value_type ParseNodeType.PNODE_STRUCT_LITERAL) {
-            let value: ASTStructLiteral = (parser_get_struct_literal parser binding.value)
-            let record: ASTStruct = (parser_get_struct_def parser layout)
-            if (or (!= value.struct_name binding.var_type) (!= value.field_count record.field_count)) { return (nb_fail "every exact constructor field once") }
-            let mut slots: array<int> = []
-            let mut i: int = 0
-            while (< i record.field_count) { set slots (array_push slots -1) set i (+ i 1) }
-            set i 0
-            while (and (== nb_error "") (< i value.field_count)) {
-                let mut index: int = -1
-                let mut j: int = 0
-                while (< j record.field_count) { if (== (at record.field_names j) (at value.field_names i)) { set index j } set j (+ j 1) }
-                if (< index 0) { return (nb_fail "declared constructor fields") }
-                if (>= (at slots index) 0) { return (nb_fail "distinct constructor fields") }
-                let child: int = (nb_record parser (at record.field_types index))
-                let mut tag: int = 8
-                let mut field_layout: int = 4294967295
-                if (>= child 0) {
-                    if (!= (at value.field_value_types i) ParseNodeType.PNODE_IDENTIFIER) { return (nb_fail "a named exact child owner") }
-                    let source: int = (nb_local (parser_get_identifier parser (at value.field_value_ids i)).name)
-                    if (< source 0) { return (nb_fail "an existing child owner") }
-                    if (or (not (at nb_live source)) (or (!= (at nb_modes source) 0) (or (!= (at nb_tags source) 8) (!= (at nb_layouts source) child)))) { return (nb_fail "an exact live child owner") }
-                    let _: int = (nb_op1 "OWN_MOVE_LOCAL" source)
-                    (array_set nb_live source false) set field_layout child
-                } else {
-                    set tag (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i))
-                    if (!= tag (nb_tag (at record.field_types index))) { return (nb_fail "exact scalar field types") }
-                }
-                let slot: int = (nb_slot "" tag field_layout 0 false)
-                (array_set slots index slot)
-                if (== tag 8) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
-                else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
-                set i (+ i 1)
-            }
-            set i 0
-            while (< i record.field_count) {
-                let slot: int = (at slots i)
-                if (== (at nb_tags slot) 8) { let _: int = (nb_op1 "OWN_MOVE_LOCAL" slot) (array_set nb_live slot false) }
-                else { let _: int = (nb_op1 "LOAD_LOCAL" slot) }
-                set i (+ i 1)
-            }
-            let _: int = (nb_op1 "OWN_PACK" layout)
-        } else {
-            if (== binding.value_type ParseNodeType.PNODE_IDENTIFIER) {
-                let old: int = (nb_local (parser_get_identifier parser binding.value).name)
-                if (< old 0) { return (nb_fail "an existing destructured owner") }
-                if (or (not (at nb_live old)) (or (!= (at nb_modes old) 0) (!= (at nb_layouts old) layout))) { return (nb_fail "an unborrowed exact destructured owner") }
-                let _: int = (nb_op1 "OWN_MOVE_LOCAL" old)
-                (array_set nb_live old false) (array_set nb_disposal_pending old false)
-            } else { return (nb_fail "a resource constructor, exact owner move or destructive pattern") }
-        }
+        let _: int = (nb_owner parser binding.value binding.value_type layout)
         if (!= nb_error "") { return 0 }
         let slot: int = (nb_slot binding.name 8 layout 0 binding.is_mut)
         set nb_transfers_owner true
@@ -630,7 +790,7 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                 let call: ASTCall = (parser_get_call parser loop.iterable)
                 if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.borrow_mode 0)) { return (nb_fail "a direct builtin range") }
                 if (!= (parser_get_identifier parser call.function).name "range") { return (nb_fail "a direct builtin range") }
-                if (or (>= (nb_local "range") 0) (== (parser_get_function parser nb_helper).name "range")) { return (nb_fail "an unshadowed builtin range") }
+                if (or (>= (nb_local "range") 0) (>= (nb_function_index parser "range") 0)) { return (nb_fail "an unshadowed builtin range") }
                 if (!= call.arg_count 2) { return (nb_fail "two integer range bounds") }
                 let first_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                 if (!= (nb_expr parser first_arg.node_id first_arg.node_type) 1) { return (nb_fail "integer range bounds") }
@@ -764,16 +924,23 @@ fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
                     }
                 } else {
                     if (and (== stmt.node_type ParseNodeType.PNODE_RETURN) (not is_shadow)) {
-                        if (not (nb_consumed 0)) { return 0 }
                         let result: ASTReturn = (parser_get_return parser stmt.node_id)
-                        if (!= (nb_expr parser result.value result.value_type) nb_result) { return (nb_fail "the declared scalar result") }
+                        if (== nb_result 8) { let _: int = (nb_owner parser result.value result.value_type nb_result_layout) }
+                        else {
+                            if (== nb_result 0) {
+                                if (>= result.value 0) { return (nb_fail "a zero-value void return") }
+                            } else {
+                                if (!= (nb_expr parser result.value result.value_type) nb_result) { return (nb_fail "the declared scalar result") }
+                            }
+                        }
+                        if (not (nb_consumed 0)) { return 0 }
                         let _: int = (nb_cleanup parser 0)
                         let _: int = (nb_emit "RET") set nb_returned true
                     } else {
                         if (== stmt.node_type ParseNodeType.PNODE_CALL) {
                             let tag: int = (nb_expr parser stmt.node_id stmt.node_type)
-                            if (== tag 0) { return 0 }
-                            let _: int = (nb_emit "POP")
+                            if (== tag 8) { return (nb_fail "explicit consumption of an owned call result") }
+                            if (!= tag 0) { let _: int = (nb_emit "POP") }
                         } else { return (nb_fail "straight-line let/set/assert/call/return statements") }
                     }
                 }
@@ -798,7 +965,10 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
     let _: int = (nb_reset_locals)
     set nb_in_helper helper
     let function: ASTFunction = (parser_get_function parser index)
-    set nb_result (nb_tag function.return_type)
+    set nb_result (nb_result_tag parser function.return_type)
+    set nb_result_layout 4294967295
+    if (== nb_result 8) { set nb_result_layout (nb_record parser function.return_type) }
+    if nb_value_graph { set nb_helper index set nb_arity function.param_count }
     let mut arity: int = 0
     let mut name: string = function.name
     if helper {
@@ -808,18 +978,22 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
             let parameter: ASTLet = (parser_get_let parser (+ function.param_start parameter_index))
             let mut mode: int = 0
             let mut nominal: string = parameter.var_type
-            if (not nb_consuming) {
+            if (not nb_value_graph) {
                 set mode 1 set nominal (str_substring parameter.var_type 1 (- (str_length parameter.var_type) 1))
                 if (str_starts_with parameter.var_type "&mut ") { set mode 2 set nominal (str_substring parameter.var_type 5 (- (str_length parameter.var_type) 5)) }
             }
-            let _: int = (nb_slot parameter.name 8 (nb_record parser nominal) mode false)
+            let mut layout: int = (nb_record parser nominal)
+            let mut tag: int = 8
+            if (< layout 0) { set layout 4294967295 set tag (nb_parameter_tag parameter.var_type) }
+            let _: int = (nb_slot parameter.name tag layout mode false)
             let _: int = (nb_name_begin parameter_index parameter.name)
             set parameter_index (+ parameter_index 1)
         }
     }
     if (and shadows (not helper)) {
         set name "__nanoisa_shadow_entry"
-        if (== (parser_get_function parser nb_helper).name name) { set name (+ name "_") }
+        while (>= (nb_function_index parser name) 0) { set name (+ name "_") }
+        set nb_result 1 set nb_result_layout 4294967295
         let mut i: int = first_shadow
         while (and (== nb_error "") (< i parser.shadows_count)) {
             let selected: ASTShadow = (list_ASTShadow_get parser.shadows i)
@@ -829,18 +1003,25 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
         let _: int = (nb_op1 "PUSH_I64" 0) let _: int = (nb_emit "RET")
     } else {
         let _: int = (nb_body parser function.body false)
-        if (not nb_returned) { let _: int = (nb_fail "an explicit scalar return") }
+        if (not nb_returned) {
+            if (== nb_result 0) {
+                if (nb_consumed 0) { let _: int = (nb_cleanup parser 0) let _: int = (nb_emit "RET") }
+            } else { let _: int = (nb_fail "an explicit declared result return") }
+        }
     }
-    if (and (not helper) (not nb_transfers_owner)) { let _: int = (nb_fail "an actual owned transfer in entry") }
+    if (and (not nb_value_graph) (and (not helper) (not nb_transfers_owner))) { let _: int = (nb_fail "an actual owned transfer in entry") }
     let _: int = (nb_names_end 0)
     let mut tag_name: string = "int"
     if (== nb_result 4) { set tag_name "bool" }
-    return (+ ".function " (+ name (+ " " (+ (int_to_string arity) (+ " " (+ (int_to_string (array_length nb_names)) (+ " 0 " (+ tag_name (+ " 1\n" (+ nb_code ".end\n"))))))))))
+    if (== nb_result 8) { set tag_name "struct" }
+    let mut result_count: string = "1"
+    if (== nb_result 0) { set tag_name "void" set result_count "0" }
+    return (+ ".function " (+ name (+ " " (+ (int_to_string arity) (+ " " (+ (int_to_string (array_length nb_names)) (+ " 0 " (+ tag_name (+ " " (+ result_count (+ "\n" (+ nb_code ".end\n"))))))))))))
 }
 fn nb_function_contract(helper: bool) -> string {
     let mut arity: int = 0
     if helper { set arity nb_arity }
-    let mut out: string = (+ (nb_hex (array_length nb_names) 2) (+ (nb_hex arity 2) (nb_descriptor nb_result 0 4294967295)))
+    let mut out: string = (+ (nb_hex (array_length nb_names) 2) (+ (nb_hex arity 2) (nb_descriptor nb_result 0 nb_result_layout)))
     let mut i: int = 0
     while (< i (array_length nb_names)) {
         set out (+ out (nb_descriptor (at nb_tags i) (at nb_modes i) (at nb_layouts i)))
@@ -858,6 +1039,8 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
     let mut i: int = 0
     while (< i (parser_get_function_count parser)) {
         let function: ASTFunction = (parser_get_function parser i)
+        let returned: int = (nb_record parser function.return_type)
+        if (>= returned 0) { if (parser_get_struct_def parser returned).is_resource { return true } }
         let mut j: int = 0
         while (< j function.param_count) {
             let spelling: string = (parser_get_let parser (+ function.param_start j)).var_type
@@ -868,50 +1051,97 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
         }
         set i (+ i 1)
     }
+    let local_flags: array<bool> = (declaration_local_lets parser)
+    set i 0
+    while (< i (array_length local_flags)) {
+        let record: int = (nb_record parser (parser_get_let parser i).var_type)
+        if (>= record 0) { if (parser_get_struct_def parser record).is_resource { return true } }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_struct_literal_count parser)) {
+        let record: int = (nb_record parser (parser_get_struct_literal parser i).struct_name)
+        if (>= record 0) { if (parser_get_struct_def parser record).is_resource { return true } }
+        set i (+ i 1)
+    }
     return false
 }
 pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> string {
     set nb_error "" set nb_next_label 0 set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_consuming false set nb_paths [] set nb_depths []
+    set nb_value_graph true set nb_functions [] set nb_any_transfer false set nb_edges []
+    let mut edge: int = 0
+    while (< edge 64) { set nb_edges (array_push nb_edges false) set edge (+ edge 1) }
     if (or (parser_has_error parser) (or (< first_shadow 0) (> first_shadow parser.shadows_count))) { let _: int = (nb_fail "a parsed module and valid shadow selection") return "" }
     let records: int = (parser_get_struct_def_count parser)
-    if (or (!= (parser_get_function_count parser) 2) (or (<= records 0) (or (> parser.imports_count 0) (or (> parser.enums_count 0) (or (> parser.unions_count 0) (> parser.opaque_types_count 0)))))) { let _: int = (nb_fail "only resource records, main, one helper and selected shadows") return "" }
+    if (or (> (parser_get_function_count parser) 8) (or (<= records 0) (or (> parser.imports_count 0) (or (> parser.enums_count 0) (or (> parser.unions_count 0) (> parser.opaque_types_count 0)))))) { let _: int = (nb_fail "only resource records, main, one helper and selected shadows") return "" }
     let flags: array<bool> = (declaration_local_lets parser)
     let mut i: int = 0
     while (< i (array_length flags)) { if (not (at flags i)) { let _: int = (nb_fail "no global initializers") return "" } set i (+ i 1) }
     let mut entry: int = -1
     set i 0
-    while (< i 2) {
+    while (< i (parser_get_function_count parser)) {
         let function: ASTFunction = (parser_get_function parser i)
         if (< function.body 0) { let _: int = (nb_fail "defined source functions") return "" }
         if (== function.name "main") { if (>= entry 0) { let _: int = (nb_fail "one main") return "" } set entry i }
         else { set nb_helper i }
+        let mut prior: int = 0
+        while (< prior i) { if (== function.name (parser_get_function parser prior).name) { let _: int = (nb_fail "distinct function declarations") return "" } set prior (+ prior 1) }
+        let mut j: int = 0
+        while (< j function.param_count) {
+            if (str_starts_with (parser_get_let parser (+ function.param_start j)).var_type "&") { set nb_value_graph false }
+            set j (+ j 1)
+        }
         set i (+ i 1)
     }
-    if (or (< entry 0) (< nb_helper 0)) { let _: int = (nb_fail "main and one borrowed helper") return "" }
+    if (< entry 0) { let _: int = (nb_fail "one main") return "" }
     let main_function: ASTFunction = (parser_get_function parser entry)
-    let helper: ASTFunction = (parser_get_function parser nb_helper)
-    if (or (!= main_function.param_count 0) (or (!= main_function.return_type "int") (or (or (< helper.param_count 1) (> helper.param_count 8)) (== (nb_tag helper.return_type) 0)))) { let _: int = (nb_fail "entry0 and one scalar-result borrowed helper") return "" }
-    set nb_arity helper.param_count
-    if (== helper.param_count 1) {
-        let parameter: ASTLet = (parser_get_let parser helper.param_start)
-        set nb_consuming (>= (nb_record parser parameter.var_type) 0)
+    if (or (!= main_function.param_count 0) (!= main_function.return_type "int")) { let _: int = (nb_fail "a zero-argument int main") return "" }
+    if (not nb_value_graph) {
+        if (or (!= (parser_get_function_count parser) 2) (< nb_helper 0)) { let _: int = (nb_fail "exactly main and one borrowed helper") return "" }
     }
-    let mut parameter_index: int = 0
-    while (< parameter_index helper.param_count) {
-        let parameter: ASTLet = (parser_get_let parser (+ helper.param_start parameter_index))
-        let mut nominal: string = ""
-        if nb_consuming { set nominal parameter.var_type }
-        if (str_starts_with parameter.var_type "&mut ") { set nominal (str_substring parameter.var_type 5 (- (str_length parameter.var_type) 5)) }
-        else { if (str_starts_with parameter.var_type "&") { set nominal (str_substring parameter.var_type 1 (- (str_length parameter.var_type) 1)) } }
-        let referent: int = (nb_record parser nominal)
-        if (< referent 0) { let _: int = (nb_fail "an exact borrowed record parameter") return "" }
-        if (not nb_consuming) { if (not (nb_leaf parser referent)) { let _: int = (nb_fail "a scalar-leaf borrowed formal") return "" } }
-        let mut prior: int = 0
-        while (< prior parameter_index) {
-            if (== parameter.name (parser_get_let parser (+ helper.param_start prior)).name) { let _: int = (nb_fail "distinct parameter names") return "" }
-            set prior (+ prior 1)
+    set nb_consuming nb_value_graph
+    if (and nb_value_graph shadows) { set nb_functions (array_push nb_functions -1) }
+    else { set nb_functions (array_push nb_functions entry) }
+    set i 0
+    while (< i (parser_get_function_count parser)) {
+        if (or (!= i entry) (and nb_value_graph shadows)) {
+            if (>= (array_length nb_functions) 8) { let _: int = (nb_fail "at most eight emitted functions including shadow entry") return "" }
+            set nb_functions (array_push nb_functions i)
         }
-        set parameter_index (+ parameter_index 1)
+        set i (+ i 1)
+    }
+    set i 1
+    while (< i (array_length nb_functions)) {
+        let function: ASTFunction = (parser_get_function parser (at nb_functions i))
+        if (> function.param_count 8) { let _: int = (nb_fail "at most eight exact parameters") return "" }
+        let result_layout: int = (nb_record parser function.return_type)
+        if nb_value_graph {
+            if (and (== (nb_tag function.return_type) 0) (!= function.return_type "void")) {
+                if (< result_layout 0) { let _: int = (nb_fail "an exact declared result") return "" }
+                if (not (nb_leaf parser result_layout)) { let _: int = (nb_fail "a scalar-leaf owned result") return "" }
+            }
+        } else {
+            if (or (< function.param_count 1) (== (nb_tag function.return_type) 0)) { let _: int = (nb_fail "a scalar-result borrowed helper") return "" }
+            set nb_arity function.param_count
+        }
+        let mut j: int = 0
+        while (< j function.param_count) {
+            let parameter: ASTLet = (parser_get_let parser (+ function.param_start j))
+            let mut nominal: string = parameter.var_type
+            if (not nb_value_graph) {
+                if (str_starts_with nominal "&mut ") { set nominal (str_substring nominal 5 (- (str_length nominal) 5)) }
+                else { if (str_starts_with nominal "&") { set nominal (str_substring nominal 1 (- (str_length nominal) 1)) }
+                    else { let _: int = (nb_fail "a separate borrowed-only signature") return "" } }
+            }
+            let layout: int = (nb_record parser nominal)
+            if (< layout 0) {
+                if (or (not nb_value_graph) (== (nb_parameter_tag nominal) 0)) { let _: int = (nb_fail "an exact positional parameter") return "" }
+            } else { if (not nb_value_graph) { if (not (nb_leaf parser layout)) { let _: int = (nb_fail "a scalar-leaf borrowed formal") return "" } } }
+            let mut prior: int = 0
+            while (< prior j) { if (== parameter.name (parser_get_let parser (+ function.param_start prior)).name) { let _: int = (nb_fail "distinct parameter names") return "" } set prior (+ prior 1) }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
     }
     let mut layouts: string = (nb_hex records 4)
     let mut ownership: string = (+ "01000000" (nb_hex records 4))
@@ -945,21 +1175,60 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         set ownership (+ ownership "03") set i (+ i 1)
     }
     while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
-    set ownership (+ ownership "02000000")
-    # I intern both function names before optional per-function name records.
+    set ownership (+ ownership (nb_hex (array_length nb_functions) 4))
     let mut entry_name: string = "main"
     if shadows {
         set entry_name "__nanoisa_shadow_entry"
-        if (== helper.name entry_name) { set entry_name (+ entry_name "_") }
+        while (>= (nb_function_index parser entry_name) 0) { set entry_name (+ entry_name "_") }
     }
     let _: int = (nb_string entry_name)
-    let _: int = (nb_string helper.name)
-    let first: string = (nb_function parser entry shadows first_shadow false)
-    set ownership (+ ownership (nb_function_contract false))
+    set i 1
+    while (< i (array_length nb_functions)) { let _: int = (nb_string (parser_get_function parser (at nb_functions i)).name) set i (+ i 1) }
+    let mut functions: string = ""
+    let mut parameters: string = ""
+    set i 0
+    while (and (== nb_error "") (< i (array_length nb_functions))) {
+        let mut source: int = (at nb_functions i)
+        if (< source 0) { set source entry }
+        let function: ASTFunction = (parser_get_function parser source)
+        set nb_current_function i
+        set functions (+ functions (nb_function parser source (and shadows (== i 0)) first_shadow (> i 0)))
+        set ownership (+ ownership (nb_function_contract (> i 0)))
+        if (> i 0) {
+            set parameters (+ parameters (+ ".parameters " (int_to_string i)))
+            let mut j: int = 0
+            while (< j function.param_count) {
+                let spelling: string = (parser_get_let parser (+ function.param_start j)).var_type
+                let mut tag_name: string = "struct"
+                if nb_value_graph { if (== spelling "int") { set tag_name "int" } if (== spelling "bool") { set tag_name "bool" } if (== spelling "string") { set tag_name "string" } }
+                set parameters (+ parameters (+ " " tag_name)) set j (+ j 1)
+            }
+            set parameters (+ parameters "\n")
+        }
+        set i (+ i 1)
+    }
     if (!= nb_error "") { return "" }
-    let second: string = (nb_function parser nb_helper false 0 true)
-    set ownership (+ ownership (nb_function_contract true))
-    if (!= nb_error "") { return "" }
+    if nb_value_graph {
+        let mut k: int = 0
+        while (< k (array_length nb_functions)) {
+            set i 0
+            while (< i (array_length nb_functions)) {
+                let mut j: int = 0
+                while (< j (array_length nb_functions)) {
+                    if (and (at nb_edges (+ (* i 8) k)) (at nb_edges (+ (* k 8) j))) { (array_set nb_edges (+ (* i 8) j) true) }
+                    set j (+ j 1)
+                }
+                set i (+ i 1)
+            }
+            set k (+ k 1)
+        }
+        set i 0
+        while (< i (array_length nb_functions)) {
+            if (at nb_edges (+ (* i 8) i)) { let _: int = (nb_fail "an acyclic complete value-call graph") return "" }
+            set i (+ i 1)
+        }
+    }
+    if (and nb_value_graph (not nb_any_transfer)) { let _: int = (nb_fail "an actual owned transfer in my module") return "" }
     if (> (array_length nb_paths) 0) {
         set ownership (+ "02000000" (str_substring ownership 8 (- (str_length ownership) 8)))
         set ownership (+ ownership (nb_hex (array_length nb_paths) 4))
@@ -974,15 +1243,12 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     let mut prelude: string = (+ ".types " (+ (int_to_string records) " 0 0\n.entry 0\n"))
     set i 0
     while (< i (array_length nb_strings)) {
-        set prelude (+ prelude (+ ".string \"" (+ (at nb_strings i) "\"\n")))
+        set prelude (+ prelude (+ ".string \"" (+ (nb_escape_string (at nb_strings i)) "\"\n")))
         set i (+ i 1)
     }
     set prelude (+ prelude (+ ".layouts \"" (+ layouts "\"\n")))
     set prelude (+ prelude (+ ".ownership \"" (+ ownership "\"\n")))
-    let mut parameters: string = ".parameters 1"
-    set i 0
-    while (< i nb_arity) { set parameters (+ parameters " struct") set i (+ i 1) }
-    return (+ prelude (+ first (+ second (+ parameters "\n"))))
+    return (+ prelude (+ functions parameters))
 }
 fn nb_fixture() -> Parser {
     let source: string = (+ "resource struct R { value: int, yes: bool } f" (+ "n read(view: &R) -> int { return view.value } shadow read { let owner: R = R { yes: true, value: 7 } assert (== (read &owner) 7) let R { value, yes } = owner assert yes } f" "n main() -> int { let owner: R = R { value: 9, yes: false } assert (== (read &owner) 9) let R { value, yes } = owner return 0 } shadow main { assert true }"))
@@ -1043,4 +1309,29 @@ shadow nanoisa_borrow_emit {
     assert (str_contains shadows "ASSERT")
     assert (== (nanoisa_borrow_emit parser true -1) "")
     assert (!= (nanoisa_borrow_emit parser false 0) "")
+}
+
+shadow nb_function_index {
+    let parser: Parser = (nb_fixture)
+    set nb_functions [] set nb_functions (array_push nb_functions 1) set nb_functions (array_push nb_functions 0)
+    assert (== (nb_function_index parser "main") 0)
+    assert (== (nb_function_index parser "read") 1)
+    assert (== (nb_function_index parser "absent") -1)
+    set nb_functions []
+}
+shadow nb_result_tag {
+    let parser: Parser = (nb_fixture)
+    assert (== (nb_result_tag parser "R") 8)
+    assert (== (nb_result_tag parser "int") 1)
+    assert (== (nb_result_tag parser "bool") 4)
+    assert (== (nb_result_tag parser "void") 0)
+}
+shadow nb_owner {
+    let parser: Parser = (nb_fixture)
+    set nb_error "" let _: int = (nb_reset_locals)
+    let binding: ASTLet = (parser_get_let parser 1)
+    let _: int = (nb_owner parser binding.value binding.value_type 0)
+    assert (== nb_error "") assert (str_contains nb_code "OWN_PACK 0")
+    assert nb_any_transfer
+    let _: int = (nb_reset_locals)
 }

@@ -410,6 +410,8 @@ $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/n
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
 
 $(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
+$(OBJ_DIR)/c_backend.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/string_literal_decode.h
+$(OBJ_DIR)/c_backend.o: src/binary64_format.h
 $(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
 $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h
 
@@ -532,6 +534,10 @@ test-binary64-arithmetic-backends: nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm
 .PHONY: test-binary64-arithmetic
 test-binary64-arithmetic:
 	python3 -m unittest -v tests.test_binary64_arithmetic
+
+.PHONY: test-reconstruction-f64-arithmetic
+test-reconstruction-f64-arithmetic: nvm2hl nanoisa_dump nano_vm nvm2c bootstrap
+	NANO_HL_COMPILER_DIR=$(CURDIR)/bin python3 -m unittest -v tests.test_reconstruction_f64_arithmetic
 
 .PHONY: test-reconstruction-f64-negation
 test-reconstruction-f64-negation: nvm2hl nanoisa_dump nano_vm nvm2c
@@ -1029,6 +1035,12 @@ test-binary64-bit-transport: nvm2hl nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm
 
 test-binary64-source-transport: bootstrap nano_virt
 	python3 -m unittest -v tests.test_binary64_source_transport
+
+.PHONY: test-aggregate-binary64-eval
+test-aggregate-binary64-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
+	$(CC) $(CFLAGS) -o tests/test_aggregate_binary64_eval tests/test_aggregate_binary64_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_aggregate_binary64_eval
+	@rm -f tests/test_aggregate_binary64_eval
 
 # I exercise actual dynamic-array optimized scalar callbacks.
 .PHONY: test-binary64-arithmetic-eval
@@ -4524,6 +4536,12 @@ test-reference-places:
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_reference_places tests/nanoisa/test_reference_places.c $(NANOISA_DIR)/reference_places.c $(LDFLAGS)
 	./obj/test_reference_places
 
+.PHONY: test-shadow-identifiers
+test-units: test-shadow-identifiers
+test-shadow-identifiers: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nanoisa_dump nano_vm
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_shadow_identifiers
+
 .PHONY: test-managed-record-plan
 test-units: test-managed-record-plan
 test-managed-record-plan: nvm2wasm nanoisa_dump nano_vm
@@ -4539,6 +4557,17 @@ test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 test-calculator-host-abi: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_calculator_host_abi
 test-units: test-calculator-host-abi
+.PHONY: test-named-scalar-callbacks
+test-units: test-named-scalar-callbacks
+test-named-scalar-callbacks: bootstrap $(INTERPRETER) nano_virt nano_vm nanoisa_dump nvm2c
+	python3 -m unittest -v tests.test_named_scalar_callbacks
+
+.PHONY: test-ordinary-record-producers
+test-units: test-ordinary-record-producers
+test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2wasm
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_ordinary_record_producers
+
 .PHONY: test-ordinary-record-authority
 test-units: test-ordinary-record-authority
 test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm
@@ -5106,7 +5135,22 @@ test-owned-value-results: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS)
 	./obj/test_owned_result_preflight
 	python3 -m unittest -v tests.test_owned_value_results
 
+.PHONY: test-owned-string-print
+test-units: test-owned-string-print
+test-owned-string-print: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_print tests/nanoisa/test_owned_string_print.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_string_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_alloc tests/nanoisa/test_owned_string_alloc.c obj/test_owned_string_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_string_alloc
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_proof tests/nanoisa/test_owned_string_proof.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_string_proof
+	python3 -m unittest -v tests.test_owned_string_print
+
 # I retain scalar arithmetic policy dependencies in source execution/emission.
 $(OBJ_DIR)/eval.o: src/binary64_arithmetic.h
 $(OBJ_DIR)/eval.o: CFLAGS += -ffp-contract=off -fno-fast-math
 $(OBJ_DIR)/stdlib_runtime.o: src/binary64_arithmetic_source.h
+
+$(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_format.h
+
+$(OBJ_DIR)/eval.o $(OBJ_DIR)/stdlib_runtime.o: src/binary64_format.h

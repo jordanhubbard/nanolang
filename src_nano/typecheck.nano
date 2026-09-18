@@ -3716,7 +3716,55 @@ shadow check_bool_literal {
 }
 
 /* Check if operator is valid for given types */
+/* I select only exact flat numeric arrays; other legacy profiles keep their checker path. */
+fn array_arithmetic_element(t: NSType) -> int {
+    if (!= t.kind TypeKind.TYPE_ARRAY) { return TypeKind.TYPE_UNKNOWN }
+    if (and (== t.element_type_kind TypeKind.TYPE_INT)
+            (or (== t.element_type_name "") (== t.element_type_name "int"))) { return TypeKind.TYPE_INT }
+    if (and (== t.element_type_kind TypeKind.TYPE_FLOAT)
+            (or (== t.element_type_name "") (== t.element_type_name "float"))) { return TypeKind.TYPE_FLOAT }
+    return TypeKind.TYPE_UNKNOWN
+}
+shadow array_arithmetic_element {
+    assert (== (array_arithmetic_element (type_array TypeKind.TYPE_INT "int")) TypeKind.TYPE_INT)
+    assert (== (array_arithmetic_element (type_array TypeKind.TYPE_FLOAT "")) TypeKind.TYPE_FLOAT)
+    assert (== (array_arithmetic_element (type_array TypeKind.TYPE_INT "u8")) TypeKind.TYPE_UNKNOWN)
+    assert (== (array_arithmetic_element (type_array TypeKind.TYPE_ARRAY "array<int>")) TypeKind.TYPE_UNKNOWN)
+}
+fn array_arithmetic_selected(op: string, left: NSType, right: NSType) -> bool {
+    let arithmetic: bool = (or (or (== op "+") (== op "-")) (or (== op "*") (== op "/")))
+    return (and arithmetic (or (!= (array_arithmetic_element left) TypeKind.TYPE_UNKNOWN)
+                               (!= (array_arithmetic_element right) TypeKind.TYPE_UNKNOWN)))
+}
+shadow array_arithmetic_selected {
+    let ints: NSType = (type_array TypeKind.TYPE_INT "int")
+    assert (array_arithmetic_selected "+" ints (type_int))
+    assert (not (array_arithmetic_selected "%" ints ints))
+    assert (not (array_arithmetic_selected "+" (type_array TypeKind.TYPE_STRING "string") (type_string)))
+}
+fn array_arithmetic_matches(t: NSType, element: int) -> bool {
+    if (== t.kind TypeKind.TYPE_ARRAY) { return (== (array_arithmetic_element t) element) }
+    let mut name: string = "int"
+    if (== element TypeKind.TYPE_FLOAT) { set name "float" }
+    return (and (== t.kind element) (or (== t.name "") (== t.name name)))
+}
+shadow array_arithmetic_matches {
+    assert (array_arithmetic_matches (type_float) TypeKind.TYPE_FLOAT)
+    assert (not (array_arithmetic_matches (type_int) TypeKind.TYPE_FLOAT))
+    assert (not (array_arithmetic_matches (type_unknown_named "") TypeKind.TYPE_INT))
+}
+
 fn check_binary_op(op: string, left_type: NSType, right_type: NSType) -> NSType {
+    if (array_arithmetic_selected op left_type right_type) {
+        let mut array_type: NSType = left_type
+        if (!= left_type.kind TypeKind.TYPE_ARRAY) { set array_type right_type }
+        let element: int = (array_arithmetic_element array_type)
+        if (and (array_arithmetic_matches left_type element) (array_arithmetic_matches right_type element)) {
+            return array_type
+        }
+        return (type_unknown_named "incompatible numeric array arithmetic")
+    }
+
     /* Special case: + for string concatenation */
     if (== op "+") {
         if (and (== left_type.kind TypeKind.TYPE_STRING) (== right_type.kind TypeKind.TYPE_STRING)) {
@@ -3785,6 +3833,15 @@ shadow check_binary_op {
     let result1: NSType = (check_binary_op "+" int_t int_t)
     assert (== result1.kind TypeKind.TYPE_INT)
     
+    let floats: NSType = (type_array TypeKind.TYPE_FLOAT "float")
+    let broadcast: NSType = (check_binary_op "-" (type_float) floats)
+    assert (== broadcast.kind TypeKind.TYPE_ARRAY)
+    assert (== broadcast.element_type_kind TypeKind.TYPE_FLOAT)
+    let pair: NSType = (check_binary_op "/" floats floats)
+    assert (== pair.kind TypeKind.TYPE_ARRAY)
+    let mismatch: NSType = (check_binary_op "+" floats int_t)
+    assert (== mismatch.kind TypeKind.TYPE_UNKNOWN)
+
     /* Test comparison */
     let result2: NSType = (check_binary_op "==" int_t int_t)
     assert (== result2.kind TypeKind.TYPE_BOOL)
@@ -4347,7 +4404,11 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let left_t: NSType = (check_expr_node parser binop.left binop.left_type symbols diags file_name)
         let right_t: NSType = (check_expr_node parser binop.right binop.right_type symbols diags file_name)
         let op_str: string = (op_token_to_string binop.op)
-        return (check_binary_op op_str left_t right_t)
+        let result: NSType = (check_binary_op op_str left_t right_t)
+        if (and (array_arithmetic_selected op_str left_t right_t) (== result.kind TypeKind.TYPE_UNKNOWN)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I require matching flat numeric array and scalar element types for arithmetic." (Diagnostics.diag_location file_name binop.line binop.column)))
+        }
+        return result
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call_node: ASTCall = (parser_get_call parser node_id)

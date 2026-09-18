@@ -1,0 +1,11 @@
+test_exact_bits_and_captured_scalar_output (__main__.LegacySignedNan.test_exact_bits_and_captured_scalar_output) ... I retain legacy format artifacts at /tmp/nano-legacy-nan-1gy077c7
+ok
+test_generated_provider_identity (__main__.LegacySignedNan.test_generated_provider_identity) ... I retain legacy format artifacts at /tmp/nano-legacy-nan-9k2nwkyp
+ok
+test_interpreter_array_and_generic_format (__main__.LegacySignedNan.test_interpreter_array_and_generic_format) ... I retain legacy format artifacts at /tmp/nano-legacy-nan-nltoy8zr
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 8.159s
+
+OK

@@ -1,0 +1,20 @@
+test_all_existing_operator_families_keep_float_refusals (tests.test_reconstruction_f64_transport.FloatReconstruction.test_all_existing_operator_families_keep_float_refusals) ... ok
+test_float_entry_mixed_local_and_stack_join_refusals (tests.test_reconstruction_f64_transport.FloatReconstruction.test_float_entry_mixed_local_and_stack_join_refusals) ... ok
+test_float_helpers_snapshots_local_joins_and_loop (tests.test_reconstruction_f64_transport.FloatReconstruction.test_float_helpers_snapshots_local_joins_and_loop) ... ok
+test_float_operations_remain_refused_without_publication (tests.test_reconstruction_f64_transport.FloatReconstruction.test_float_operations_remain_refused_without_publication) ... ok
+test_missing_or_nonhex_fact_and_unmapped_tags_refuse (tests.test_reconstruction_f64_transport.FloatReconstruction.test_missing_or_nonhex_fact_and_unmapped_tags_refuse) ... ok
+test_signed_integer_boundary_nan_payloads (tests.test_reconstruction_f64_transport.FloatReconstruction.test_signed_integer_boundary_nan_payloads) ... ok
+test_small_exact_constant_chunks (tests.test_reconstruction_f64_transport.FloatReconstruction.test_small_exact_constant_chunks) ... ok
+test_exact_operand_boundaries (tests.test_reconstruction_f64_comparisons.FloatComparisons.test_exact_operand_boundaries) ... ok
+test_ieee_results_and_unchanged_operand_bits (tests.test_reconstruction_f64_comparisons.FloatComparisons.test_ieee_results_and_unchanged_operand_bits) ... ok
+test_other_float_operations_preserve_outputs (tests.test_reconstruction_f64_comparisons.FloatComparisons.test_other_float_operations_preserve_outputs) ... ok
+test_snapshots_calls_branches_and_pure_loop (tests.test_reconstruction_f64_comparisons.FloatComparisons.test_snapshots_calls_branches_and_pure_loop) ... ok
+test_calls_snapshots_branches_and_loop (tests.test_reconstruction_f64_negation.FloatNegation.test_calls_snapshots_branches_and_loop) ... ok
+test_other_tags_refused (tests.test_reconstruction_f64_negation.FloatNegation.test_other_tags_refused) ... ok
+test_remaining_float_operations_preserve_outputs (tests.test_reconstruction_f64_negation.FloatNegation.test_remaining_float_operations_preserve_outputs) ... ok
+test_sign_bit_original_and_double_negation (tests.test_reconstruction_f64_negation.FloatNegation.test_sign_bit_original_and_double_negation) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 215.447s
+
+OK

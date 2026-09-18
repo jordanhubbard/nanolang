@@ -99,9 +99,9 @@ int main(void){return run();}
         self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','run',wasm]).stdout, '0\n')
         body = 'PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nDUP\nSTORE_GLOBAL 0\nPUSH_STR empty\nSTR_SPLIT\nSTORE_GLOBAL 1\n'
         _, ir, _ = self.compile(self.program(body))
-        extra = 'static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
+        extra = 'static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
         for fail in range(2,6):
-            self.native_harness(ir, f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=5)return 2;return nano_dispose();', extra, ['-Wl,--wrap=malloc'])
+            self.native_harness(ir, f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=5)return 2;return nano_dispose();', extra, allocation_control=True)
 
     def test_wasm_memory_limit_cleans_partial_array_and_preserves_global(self):
         text = '.string large ' + c_bytes(b'a' * 100000) + '\n'

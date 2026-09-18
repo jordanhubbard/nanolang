@@ -2,24 +2,35 @@
 #include "test_affine_state.c"
 #undef main
 #include "affine_bytecode.h"
+#include "nvm2c.h"
 
-static NvmModule *call_fixture_impl(const char *call,const char *helper,bool nested) {
+static NvmModule *call_fixture_profile(const char *call,const char *helper,bool nested,
+                                       bool strings) {
     NvmModule *m=fixture();
     char source[16384];
     snprintf(source,sizeof(source),
-        ".types 3 0 0\n.entry 0\n.function main 0 8 0 int 1\n"
+        "%s.types 3 0 0\n.entry 0\n.function main 0 8 0 int 1\n"
         "PUSH_I64 10\nOWN_PACK 0\nOWN_STORE_LOCAL 2\n"
         "PUSH_I64 32\nOWN_PACK 0\nOWN_STORE_LOCAL 3\n"
         "OWN_MOVE_LOCAL 2\nOWN_MOVE_LOCAL 3\nOWN_PACK 1\nOWN_STORE_LOCAL 5\n"
         "%s%s\nPOP\nREGION_END\n%s"
         "OWN_UNPACK_LOCAL 2\nOWN_UNPACK_LOCAL 3\nADD\nRET\n.end\n"
         ".function inspect 1 2 0 int 1\n%s\n.end\n.parameters 1 struct\n",
+        strings?".string borrowed \"borrowed\"\n":"",
         nested?"REGION_BEGIN\nBORROW_PATH_EXCLUSIVE 0 5 0\n":
             "OWN_UNPACK_LOCAL 5\nOWN_STORE_LOCAL 3\nOWN_STORE_LOCAL 2\nREGION_BEGIN\nBORROW_LOCAL_EXCLUSIVE 0 2\n",call,
         nested?"OWN_UNPACK_LOCAL 5\nOWN_STORE_LOCAL 3\nOWN_STORE_LOCAL 2\n":"",helper);
     AsmResult result;NvmModule *code=asm_assemble_unverified(source,&result);if(!code)fprintf(stderr,"assemble: %s\n",result.message);CHECK(code);
     free(m->code);m->code=code->code;code->code=NULL;m->code_size=code->code_size;
     memcpy(m->functions,code->functions,2*sizeof(*m->functions));
+    if(strings) {
+        for(uint32_t i=0;i<m->string_count;i++)free(m->strings[i]);
+        free(m->strings);free(m->string_lengths);
+        m->strings=code->strings;code->strings=NULL;
+        m->string_lengths=code->string_lengths;code->string_lengths=NULL;
+        m->string_count=code->string_count;code->string_count=0;
+        m->string_capacity=code->string_capacity;code->string_capacity=0;
+    }
     nvm_module_free(code);
     slot(m->ownership_data+20,TAG_INT,0,NVM_V2_NO_INDEX);
     slot(m->ownership_data+96,TAG_INT,0,NVM_V2_NO_INDEX);
@@ -30,6 +41,9 @@ static NvmModule *call_fixture_impl(const char *call,const char *helper,bool nes
     if(!nested){word(m->ownership_data,1);m->ownership_size=120;}
     bool needs;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK);
     return m;
+}
+static NvmModule *call_fixture_impl(const char *call,const char *helper,bool nested) {
+    return call_fixture_profile(call,helper,nested,false);
 }
 static NvmModule *call_fixture(const char *call,const char *helper) {
     return call_fixture_impl(call,helper,true);
@@ -58,6 +72,29 @@ int main(void) {
     m=call_fixture("CALL_REF 1 0","REF_GET 0 0\nRET");
     slot(m->ownership_data+104,TAG_STRUCT,2,2);
     CHECK(!nvm_affine_analyze_function(m,0).ok);nvm_module_free(m);
+    m=call_fixture_profile("CALL_REF 1 0","PUSH_STR borrowed\nPRINT\nREF_GET 0 0\nRET",true,true);
+    NvmAffineAnalysis string=nvm_affine_analyze_function(m,1);
+    CHECK(!string.ok&&!strcmp(string.message,
+        "I require string literals inside an owned value-call graph"));
+    CHECK(!nvm_verify_owned_module(m).ok);
+    string=nvm_affine_analyze_function(m,0);
+    CHECK(!string.ok&&!strcmp(string.message,
+        "I require checked caller authority and a non-escaping helper"));
+    char error[256];CHECK(nvm2c_emit(m,error,sizeof(error))==NULL);
+    nvm_module_free(m);
+    const char *output_helpers[]={
+        "PUSH_I64 1\nPRINT\nREF_GET 0 0\nRET",
+        "PUSH_I64 1\nPRINTLN\nREF_GET 0 0\nRET"
+    };
+    for(unsigned i=0;i<2;i++) {
+        m=call_fixture("CALL_REF 1 0",output_helpers[i]);
+        string=nvm_affine_analyze_function(m,1);
+        CHECK(!string.ok&&!strcmp(string.message,
+            "I require string output inside an owned value-call graph"));
+        CHECK(!nvm_verify_owned_module(m).ok);
+        CHECK(nvm2c_emit(m,error,sizeof(error))==NULL);
+        nvm_module_free(m);
+    }
     printf("%u caller-origin analysis checks passed\n",checks);return 0;
 }
 

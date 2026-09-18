@@ -1,0 +1,16 @@
+{
+  "command": [
+    "make",
+    "-j8",
+    "bootstrap",
+    "bin/nano",
+    "nano_virt",
+    "nano_vm",
+    "nvm2c",
+    "nanoisa_dump",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "source": "acb656611e9509e266443411163ca3a8259a4872",
+  "exit": 0,
+  "seconds": 245.96117715298897
+}
