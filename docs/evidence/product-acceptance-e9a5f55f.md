@@ -23,3 +23,9 @@ I record repair `task_c4351c720aee424ea9b90187e51a08f2` and preserve the [full l
 My fresh VM run exits zero. Initial, Stage1 and Stage2 compiler modules each contain 408,836 bytes and share SHA-256 `27e281811a8fab6dabddd311d6fef36bbe8bac6905e14bdfb1cdb3478c7c403d`. The two complete generations take 910.103 and 912.126 seconds under their unchanged 1200-second bounds. Verification and Stage2 hello compilation/execution pass. The three embedded host-library paths and hashes match across generations.
 
 My [manifest](product-vm-fixedpoint-e9a5f55f.json) and [integrity report](product-vm-fixedpoint-e9a5f55f-integrity.json) retain clean unchanged source plus unchanged capture helper, translator and recorded host libraries. The runner does not record a before/after VM executable hash, so I do not extend the integrity claim to that binary. This raw fixed point does not establish full compiler correctness, supersede the failed Linux quick gate, or qualify later main changes. Native qualification remains active.
+
+## My completed native fixed point
+
+My independent native run exits zero. Initial, Stage1 and Stage2 compiler modules each contain 408,848 bytes and share SHA-256 `0a64dec9f362b6b572c931d5ba51035f584175a221fce7b9cf7fae807f306759`. Complete generations take 1194.313 and 1118.534 seconds under unchanged 1800-second bounds. Module verification, native translation/build/help, and Stage2 hello compilation/execution pass. The three embedded host-library paths and hashes match across generations.
+
+My [manifest](product-native-fixedpoint-e9a5f55f.json) and [integrity report](product-native-fixedpoint-e9a5f55f-integrity.json) retain clean unchanged source and unchanged recorded helper, translator, initial native compiler and host libraries. This route has different embedded paths from the VM run, so I claim equality within each route only. Both fixed points pass while the full Linux quick gate remains failed; this candidate remains held.
