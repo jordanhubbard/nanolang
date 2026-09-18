@@ -1,0 +1,17 @@
+{
+  "canonical-help.log": "62c6c7677423e2d427693cd0b95dc33279ffa6e4a4b3aad09aaaba9dc408d1f3",
+  "canonical-seed.log": "756e8149062588ffe7fcaa06f4f582e3a169f96a40235b2c94a8d8b9bde51525",
+  "corrected-focused.log": "9465aea3a7d9925a920eacbdf6d73ac0733b420eafe35b940efc1bfece6d2a65",
+  "extended-focused.log": "b1c53167fa81128d400e3d5f0544fe8688e0e7e32a61fb2666c594359720ca49",
+  "final-adjacent.log": "155bfc1a04fbf979104e4e7d6edd5c65d08981070f6acbd64fd1aba8c4532cf2",
+  "focused.log": "ccc9593bfd57c461c50acac81a409439d2ddd74221438dd3d2c835a86fc280b5",
+  "full-managed.log": "5bd9537804fde415ed1bcde2f74edb4ed7b23808e226da67742a166af92a5b28",
+  "hello-emission.log": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+  "hello-execution.log": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+  "host-closure.log": "121eae87626d0682a1a8a73acf41f5ca6395723c8a194451ad40c7d29d7e7dc4",
+  "host-results.json": "8b38e64e6a8d8eeee1eee320ea0800947da4faf8037ac53e5e2497af7f4f5f9e",
+  "integrated-inputs.json": "982f2761fb537818c41eaa34cb8944a938fe187f14bc4e69527e4272d49151a2",
+  "integrated-result.json": "917b1ee0862627fc03215192ef67c802997ab0bc7aaa6610db8870d8f49f4dd8",
+  "integrated.log": "6ddb813045b63991440ff5345abd19327458aa836f5c58e3a4f28e85e41b235a",
+  "qualification.json": "8191ecd44b309f277adb375aa3abc05336531d22f293629bf5583963a15e142f"
+}
