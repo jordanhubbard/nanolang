@@ -961,9 +961,11 @@ shadow main { assert true }
                                     cwd=ROOT, capture_output=True, text=True, timeout=30)
             self.assertNotEqual(failed.returncode, 0)
             self.execute_pair(module, expected=1)
-            # My owned profile requires an actual transfer in entry.
-            refused = self.command(tool, source, 2, 'raw', expected=1)
-            self.assertIn('owned transfer', refused.stdout)
+            # My empty selected suffix has a proved owner-free scalar entry.
+            assembly.write_text(self.command(tool, source, 2, 'raw').stdout)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.command(ROOT / 'bin/nano_vm', '--check-shadows', module)
+            self.execute_pair(module)
 
     def test_false_borrowed_helper_cleans_actual_caller_owners(self):
         source = self.work / 'helper-assertion.nano'
@@ -1027,6 +1029,11 @@ shadow main { assert true }
                     output.write_bytes(b'previous verified publication')
                     result = subprocess.run([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output],
                                             cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    if label == 'scalar-only selected shadows' and compiler != 'nano_virt':
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertNotEqual(output.read_bytes(), b'previous verified publication')
+                        self.execute_pair(output)
+                        continue
                     self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                     self.assertGreater(result.returncode, 0, 'I require an ordinary reported refusal')
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
@@ -1272,6 +1279,20 @@ shadow main { assert true }
                     if compiler not in self.emitters:
                         args.append('--emit-nvm')
                     result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    if label == 'no-transfer' and compiler.name in ('nanoc_stage1', 'nanoc_stage2'):
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertNotEqual(output.read_bytes(), b'previous verified publication')
+                        self.execute_pair(output)
+                        failed_source = self.work / 'failed-owned-shadow.nano'
+                        self.assertIn('assert (== value 7)', text)
+                        failed_source.write_text(text.replace('assert (== value 7)', 'assert false'))
+                        output.write_bytes(b'previous verified publication')
+                        failed = subprocess.run([compiler, failed_source, '--emit-nvm', '-o', output],
+                                                cwd=ROOT, capture_output=True, text=True, timeout=180)
+                        self.assertGreater(failed.returncode, 0, failed.stdout + failed.stderr)
+                        self.assertIn('shadow', (failed.stdout + failed.stderr).lower())
+                        self.assertEqual(output.read_bytes(), b'previous verified publication')
+                        continue
                     self.assertGreater(result.returncode, 0, result.stderr)
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
                     self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')

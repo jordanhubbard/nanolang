@@ -1,0 +1,28 @@
+test_forward_global_vm_reentry_and_allocation_cleanup (tests.test_llvm_managed_forward_records.ForwardRecords.test_forward_global_vm_reentry_and_allocation_cleanup) ... ok
+test_original_forward_and_diamond_aliases_exact_bits (tests.test_llvm_managed_forward_records.ForwardRecords.test_original_forward_and_diamond_aliases_exact_bits) ... ok
+test_permuted_chain_get_temporary_and_bounded_live_churn (tests.test_llvm_managed_forward_records.ForwardRecords.test_permuted_chain_get_temporary_and_bounded_live_churn) ... ok
+test_unknown_and_wrong_forward_nominal_preserve_output (tests.test_llvm_managed_forward_records.ForwardRecords.test_unknown_and_wrong_forward_nominal_preserve_output) ... ok
+test_owned_plans_limits_roundtrip_and_runtime_refusal (tests.test_managed_record_plan.RecordPlan.test_owned_plans_limits_roundtrip_and_runtime_refusal) ... ok
+test_declarations_transport_and_unchanged_profiles (tests.test_ordinary_record_authority.OrdinaryAuthority.test_declarations_transport_and_unchanged_profiles) ... ok
+test_alias_join_requires_every_receiver_field (tests.test_managed_record_shapes.RecordShapes.test_alias_join_requires_every_receiver_field) ... ok
+test_allocation_failure_output_atomicity_and_recovery (tests.test_managed_record_shapes.RecordShapes.test_allocation_failure_output_atomicity_and_recovery) ... ok
+test_call_return_reordered_arguments_and_bottom (tests.test_managed_record_shapes.RecordShapes.test_call_return_reordered_arguments_and_bottom) ... ok
+test_disjoint_array_origins_and_mixed_storage_boundary (tests.test_managed_record_shapes.RecordShapes.test_disjoint_array_origins_and_mixed_storage_boundary) ... ok
+test_empty_struct_new_and_exact_count_boundary (tests.test_managed_record_shapes.RecordShapes.test_empty_struct_new_and_exact_count_boundary) ... ok
+test_exact_identity_counted_construction_and_checked_admission (tests.test_managed_record_shapes.RecordShapes.test_exact_identity_counted_construction_and_checked_admission) ... ok
+test_forward_origins_preserve_exact_declared_indices (tests.test_managed_record_shapes.RecordShapes.test_forward_origins_preserve_exact_declared_indices) ... ok
+test_loop_site_and_reentry_global_writes (tests.test_managed_record_shapes.RecordShapes.test_loop_site_and_reentry_global_writes) ... ok
+test_nested_reads_and_shared_field_replacement (tests.test_managed_record_shapes.RecordShapes.test_nested_reads_and_shared_field_replacement) ... ok
+test_origin_limit_and_combined_storage_cap (tests.test_managed_record_shapes.RecordShapes.test_origin_limit_and_combined_storage_cap) ... ok
+test_recursive_summary_and_global_initialization (tests.test_managed_record_shapes.RecordShapes.test_recursive_summary_and_global_initialization) ... ok
+test_repeated_site_retains_distinct_nested_origins (tests.test_managed_record_shapes.RecordShapes.test_repeated_site_retains_distinct_nested_origins) ... ok
+test_resource_authority_preserves_normal_verifier_refusal (tests.test_managed_record_shapes.RecordShapes.test_resource_authority_preserves_normal_verifier_refusal) ... ok
+test_same_shape_different_nominal_and_interleaved_layout (tests.test_managed_record_shapes.RecordShapes.test_same_shape_different_nominal_and_interleaved_layout) ... ok
+test_scalar_tags_string_fields_and_exact_float_bits (tests.test_managed_record_shapes.RecordShapes.test_scalar_tags_string_fields_and_exact_float_bits) ... ok
+test_unknown_authority_parameters_and_deferred_operations (tests.test_managed_record_shapes.RecordShapes.test_unknown_authority_parameters_and_deferred_operations) ... ok
+test_shared_admission_and_publication (tests.test_verifier_profiles.VerifierProfiles.test_shared_admission_and_publication) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 16.541s
+
+OK

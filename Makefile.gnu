@@ -4667,6 +4667,10 @@ test-llvm-managed-records: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	$(CC) $(CFLAGS) -o obj/managed_record_reentry tests/nanoisa/managed_record_reentry.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_llvm_managed_records
 
+.PHONY: test-llvm-managed-forward-records
+test-llvm-managed-forward-records: test-llvm-managed-records test-managed-record-plan test-ordinary-record-authority
+	python3 -m unittest -v tests.test_llvm_managed_forward_records
+
 .PHONY: test-llvm-generic-numeric
 test-llvm-generic-numeric: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	$(CC) $(CFLAGS) -o obj/generic_numeric_bits tests/nanoisa/generic_numeric_bits.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -5170,3 +5174,12 @@ $(OBJ_DIR)/stdlib_runtime.o: src/binary64_arithmetic_source.h
 $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_format.h
 
 $(OBJ_DIR)/eval.o $(OBJ_DIR)/stdlib_runtime.o: src/binary64_format.h
+
+.PHONY: test-checked-owner-selection
+test-units: test-checked-owner-selection
+test-checked-owner-selection: bootstrap nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_checked_owner_selection.CheckedOwnerSelection
+
+.PHONY: test-selfhost-native-array-slice
+test-selfhost-native-array-slice: bootstrap nano_virt nano_vm
+	python3 -m unittest -v tests.test_selfhost_native_array_slice

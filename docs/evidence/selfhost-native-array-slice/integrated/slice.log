@@ -1,0 +1,9 @@
+I retain source, logs and generated artifacts at /tmp/nano-native-slice-qualified-h2en0ixq
+test_arguments_are_evaluated_once (tests.test_selfhost_native_array_slice.NativeArraySlice.test_arguments_are_evaluated_once) ... ok
+test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) ... ok
+test_source_and_normal_shadows (tests.test_selfhost_native_array_slice.NativeArraySlice.test_source_and_normal_shadows) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 48.736s
+
+OK

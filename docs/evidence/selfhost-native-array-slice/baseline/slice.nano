@@ -1,0 +1,2 @@
+fn main() -> int { let values: array<int> = [10, 20, 30] let part: array<int> = (array_slice values 0 2) assert (== (array_length part) 2) assert (== (at part 1) 20) return 0 }
+shadow main { assert (== (main) 0) }

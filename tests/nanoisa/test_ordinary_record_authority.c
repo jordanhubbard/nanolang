@@ -56,7 +56,9 @@ static void forward_authority(const char *path) {
     CHECK(nvm_verify(m).ok);
     for(unsigned i=0;i<4;i++)check_authority(m,i,NVM_LAYOUT_AUTHORITY_ORDINARY);
     NvmRecordPlan sentinel={0},*plan=&sentinel;
-    CHECK(nvm_describe_managed_records(m,&plan).status!=NVM_RECORD_DESCRIBED && plan==&sentinel);
+    CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_DESCRIBED && plan!=&sentinel);
+    CHECK(plan->authority==NVM_RECORD_AUTHORITY_ORDINARY && plan->record_to_layout[3]==3);
+    CHECK(plan->layouts.items[0].fields[1].nested_idx==2);nvm_record_plan_free(plan);
     char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
     NvmModule *copy=asm_assemble(text,&error);CHECK(copy);
     CHECK(copy->layout_size==m->layout_size && !memcmp(copy->layout_data,m->layout_data,m->layout_size));

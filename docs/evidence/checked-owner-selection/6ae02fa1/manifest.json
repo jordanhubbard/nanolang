@@ -1,0 +1,35 @@
+{
+  "source": "6ae02fa141e36adb2ec08399e298432ab927889b",
+  "runner_sha256": "7b41a9c8400dcb8a6c488758ccb7080bd2b9a26651600346a4fd1fa8f674295a",
+  "steps": [
+    {
+      "name": "tools",
+      "command": [
+        "make",
+        "-j2",
+        "nanoisa_dump",
+        "nano_vm",
+        "nvm2c"
+      ],
+      "status": 0,
+      "seconds": 0.393,
+      "sha256": "daee5aa990d8c0935b2c6498b2bbb28a0743d08157f423213c4d7cfc265b381d"
+    },
+    {
+      "name": "checked-selection",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_checked_owner_selection"
+      ],
+      "status": 1,
+      "seconds": 324.48,
+      "sha256": "17d75eda390d33ed9b39ac9d14d9d1f839b71aea341cf0fae9a904d12b6f4371"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

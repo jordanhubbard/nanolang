@@ -136,6 +136,15 @@ class RecordShapes(unittest.TestCase):
         self.analyze(program('STRUCT_LITERAL 0 0\nPOP'), status=1)
         self.analyze(program('PUSH_I64 1\nPUSH_I64 2\nSTRUCT_LITERAL 0 2\nPOP'), status=1)
 
+    def test_forward_origins_preserve_exact_declared_indices(self):
+        layouts = [(0, [(8, 2)]), (0, [(1, NO)]), (0, [(1, NO)])]
+        body = 'PUSH_I64 17\nSTRUCT_LITERAL 2 1\nSTRUCT_LITERAL 0 1\nAGG_GET 0\nAGG_GET 0\nPUSH_I64 17\nEQ\nASSERT'
+        header, origins, fields = self.analyze(program(body, layouts), vm=True)
+        self.assertEqual(header[1:3], [2, 2])
+        self.assertEqual([row[3:7] for row in origins], [[2, 2, 0, 1], [0, 0, 1, 1]])
+        self.assertEqual(fields, [[1 << 1, 0, 0], [1 << 8, 0, 1]])
+        self.analyze(program(body.replace('STRUCT_LITERAL 2 1', 'STRUCT_LITERAL 1 1'), layouts), status=1)
+
     def test_nested_reads_and_shared_field_replacement(self):
         layouts = [(0, [(1, NO)]), (0, [(8, 0)])]
         body = ('PUSH_I64 7\nAGG_PACK 0 0 0 1\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 0\n'
