@@ -5,6 +5,8 @@
 
 - [ ] I reconstruct indexed scalar stack operations (`task_70b0aa8374904271b66caa86bdf77d7f`, parent4bd034): checked PICK/ROLL depth, exact int/bool snapshots and order, fresh small VM/C/pinned-stage parity and output-preservation refusal. This is independent of blocked carry679. [Contract](NANOISA_RECONSTRUCT_INDEXED_STACK.md).
 
+- [ ] I reconstruct typed carry/borrow result pairs (`task_cbdce24cc6b747f6b39ceb4c87f20676`, parent4bd034): exact three-int input and low/high integer stack results, normalized input bit, portable total helpers, snapshot/loop/tag/arity acceptance and pinned-tool parity. [Contract](NANOISA_RECONSTRUCT_CARRY_BORROW.md).
+
 - [x] I reconstruct typed unsigned division and remainder (`task_d0b4b473329745cd848694ec835965ad`, parent4bd034): exact unsigned bit-pattern operands/results, zero divisor results, portable C and bounded Nano long division with explicit carry, pinned-tool parity and output-preservation refusal. [Contract](NANOISA_RECONSTRUCT_UNSIGNED_DIVISION.md).
 
 - [x] I lower declared `string_to_float` calls with an exact string operand and float result (`task_1c2a4d2d7b5a4b6caca5d186d3c7c181`). The product prefix-conversion fixture is initially checked-refused. My first corrected gate passes that retained fixture but exposes missing checker builtin result metadata for an inferred local; I retain the initial log and correct that same conversion boundary. I reuse portable `CAST_FLOAT`, evaluate the operand once, preserve declaration resolution and retain legacy plus canonical VM/native acceptance with wrong-type output preservation. Fresh bootstrap and seven GCC/Clang methods pass, including declared-name controls and the unchanged prefix fixture. [Contract and evidence](NANOISA_PREFIX_CONVERSION.md).
