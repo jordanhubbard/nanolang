@@ -4760,6 +4760,11 @@ test-local-binding-metadata: test-local-marker-alloc
 test-local-marker-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_local_markers_alloc tests/nanoisa/test_local_markers_alloc.c $(filter-out $(OBJ_DIR)/nanoisa/assembler.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(OBJ_DIR)/test_local_markers_alloc
+.PHONY: test-native-referenced-labels
+test-native-referenced-labels: nvm2c nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_native_referenced_labels
+test-units: test-native-referenced-labels
+
 .PHONY: test-native-scalar-rot3
 test-native-scalar-rot3: nvm2c nanoisa_dump nano_vm
 	python3 -m unittest -v tests.test_native_scalar_rot3
