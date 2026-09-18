@@ -30,3 +30,64 @@ source generic instances where supported, GCC/Clang sanitizer ownership
 checks, directed solver controls, existing scalar-carrier regressions, and
 previous-output preservation. I retain first failed gate logs. I do not
 execute historical compiler failures. Full reconstruction remains open.
+
+## My implementation and retained evidence
+
+My native implementation checkpoint is `1483b746`, based on canonical main
+`8f7fc062`. Constructor fields retain classifier-only member masks; the new
+shape is an explicit finite leaf, not an unknown heap shape. My array member
+conversion checks its exact integer element, and record joins use separate
+destination storage. I preserve strict exact unification. A legacy empty
+integer-array placeholder acquires its integer element constraint at this
+explicit constructor boundary. Other empty-array contexts are unchanged.
+
+I reuse the boxed array representation `(TAG_ARRAY, integer-array-kind,
+handle)`. Existing `nroot_value` follows that kind and handle. My checked
+array-result extraction validates the tag, storage kind and non-null handle;
+I do not change collector thresholds, owner pools or array allocation.
+
+I retain initial failures separately:
+
+- `/tmp/nanolang-variant-array-build.log` requested a nonexistent Make target;
+  the corrected tool build uses `nano_vm`.
+- `/tmp/nanolang-variant-array-first.log` identified the missing empty-array
+  element constraint. `/tmp/nanolang-variant-array-focused2.log` identified a
+  mistaken pointer-to-pointer declaration in my new extraction helper.
+- `/tmp/nanolang-variant-array-joins.log` identified exact unification of two
+  different finite payload sets at a record branch join. I give that join
+  separate destination storage and directed conversions before qualification.
+
+At the corrected implementation, I tested:
+
+- 1,365 solver checks, including directed scalar-set/integer-array admission,
+  late element resolution, unchanged producer constraints, exact-unification
+  refusal and unknown/non-integer element exclusions.
+- 12 methods with GCC (11.831s) and Clang (14.633s), including ASan/UBSan/LSan
+  generated programs. I cover both call orders, same/different variant tags,
+  empty variants/arrays, record joins, projected calls, checked returned array
+  handles, mutations observed through aliases after 2,048 allocation cycles,
+  scalar/string regressions and retained-output refusals.
+- All 16 unchanged generic-emission methods (58.418s), including their existing
+  affine and scalar-match fixtures, using my translator as an external tool.
+
+My new `generic_scalar_array.nano` source passes Cseed, Stage1 and Stage2
+emission, VM verification/execution and sanitizer native execution. I use
+immutable tools in `/home/jkh/Src/nanolang-canonical-generic-unions/bin`:
+
+| Producer | SHA-256 |
+| --- | --- |
+| nano_virt | bbfe909261b2b722f5e3f6feddd298922d6684d615992fd5f87bdf35e100e90f |
+| nanoc_stage1 | bbd3f8ed7e03427c703c1376c3adafeeaaa0bd894ff6b1d7b97e6195c7288ba1 |
+| nanoc_stage2 | 2cbb2c590811aeb92f97b89c38f931e630b39c63a4b59a377c802e352f4f7c77 |
+
+The containing checkout is `afd8e61bee7f9be82bc846b8a01c5cebcc3afb0e`;
+I identify the actual binaries by their hashes rather than claiming a fresh
+bootstrap from that checkout. My translator hash is
+`e1e9d1b6b505a13d40f793c41ce36cf73b7afc6638589da507328f9fbd274170`.
+The tool manifest and verification are retained at
+`/tmp/nanolang-variant-array-tools{,-verified}.log` (the manifest itself is
+`/tmp/nanolang-variant-array-tools.sha256`). Focused logs are
+`/tmp/nanolang-variant-array-{gcc-final,clang-final,generic-existing}.log`.
+
+This is finite native payload acceptance. I do not claim a current-main
+bootstrap, a new compiler fixed point, or general heap/array-kind unions.
