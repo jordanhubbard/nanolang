@@ -10029,11 +10029,13 @@ Other translators:
       contract `docs/NANOISA_MANAGED_CONCAT.md` and paired VM/native/Wasm
       evidence `docs/evidence/managed-string-concat.md`. Substring and conversion
       prerequisites remain separate; parent managed runtime remains open.
-- [ ] I check VM STR_REPLACE result arithmetic, scratch size and allocation
+- [x] I check VM STR_REPLACE result arithmetic, scratch size and allocation
       before publication, preserving stored-byte replacement and three-owner
       cleanup. MAC `task_6b3d7306179f4a7786adbd29b9acbe6c`; my
       [replacement contract](NANOISA_REPLACE_ALLOCATION.md) requires direct
       scalar guard tests and corrected ordinary lifecycle gates before managed admission.
+      My [checked evidence](evidence/vm-replacement-allocation.md) records
+      focused sanitizers and all 274493 VM checks passing.
 - [x] I match managed STR_FROM_INT/FLOAT exact-tag formatting and zero
       fallback with existing portable formatters and original-operand cleanup.
       MAC `task_b029d365b4334e7d9399e7230e37eeac`; my
