@@ -1,0 +1,68 @@
+{
+  "source": "9b87b18ca6656e5cde472d9cf56872c881a1be5b",
+  "runner_sha256": "88ee636af033445a8f23810fcab42e1f9e15b9170dfa2014369f2e97d2e51ef2",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 259.259,
+      "sha256": "2b73366f5e5933ce6512498c6daa853751bb4add3633697968c622a3f21f03ea"
+    },
+    {
+      "name": "tools",
+      "command": [
+        "make",
+        "-j2",
+        "nanoisa_dump",
+        "nano_vm",
+        "nvm2c"
+      ],
+      "status": 0,
+      "seconds": 0.368,
+      "sha256": "daee5aa990d8c0935b2c6498b2bbb28a0743d08157f423213c4d7cfc265b381d"
+    },
+    {
+      "name": "checked-selection",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_checked_owner_selection.CheckedOwnerSelection"
+      ],
+      "status": 0,
+      "seconds": 154.731,
+      "sha256": "266087871eaa5ddc2ca868f33bfce12fa4de1a6861ec1db8b1e89c3e4a96c880"
+    },
+    {
+      "name": "source-borrows",
+      "command": [
+        "make",
+        "-o",
+        "bootstrap",
+        "test-source-borrow-emission"
+      ],
+      "status": 0,
+      "seconds": 404.057,
+      "sha256": "f008bedafa30d5744a10d4756f705c23709aaba507b11c68a85fbe8df63678a9"
+    },
+    {
+      "name": "owned-graphs",
+      "command": [
+        "make",
+        "test-owned-value-graphs"
+      ],
+      "status": 0,
+      "seconds": 17.153,
+      "sha256": "df41171c280e89eb462ae101b6066603614e823bb285fd07cb0cfa8855e45f57"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

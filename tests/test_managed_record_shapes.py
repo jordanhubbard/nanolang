@@ -71,7 +71,7 @@ class RecordShapes(unittest.TestCase):
         self.assertEqual(run.returncode == 0, success, run.stdout + run.stderr)
         return run
 
-    def analyze(self, text, status=0, vm=False, budget=None, refuse=False):
+    def analyze(self, text, status=0, vm=False, budget=None, admit=False):
         source = self.work/'input.nasm'
         source.write_text(text)
         outputs = []
@@ -84,23 +84,28 @@ class RecordShapes(unittest.TestCase):
         self.assertEqual(outputs[0], outputs[1])
         origins = [list(map(int, s.split()[1:])) for s in outputs[0][2:] if s.startswith('O ')]
         fields = [list(map(int, s.split()[1:])) for s in outputs[0][2:] if s.startswith('F ')]
-        if vm or refuse:
+        if vm or admit:
             module = self.work/'input.nvm'
             self.command([ROOT/'bin/nanoisa', 'asm', source, '-o', module])
             if vm:
                 self.command([ROOT/'bin/nano_vm', module])
-            if refuse:
+            if admit:
                 for tool in ['nvm2llvm', 'nvm2wasm']:
-                    output = self.work/'prior.out'
-                    output.write_bytes(b'prior record output')
-                    self.command([ROOT/'bin'/tool, module, '-o', output], success=False)
-                    self.assertEqual(output.read_bytes(), b'prior record output')
+                    output = self.work/('record.ll' if tool == 'nvm2llvm' else 'record.wasm')
+                    self.command([ROOT/'bin'/tool, module, '-o', output])
+                    if tool == 'nvm2wasm':
+                        self.assertEqual(self.command(['wasmtime', 'run', '--invoke', 'nano_entry', output]).stdout, '0\n')
+                    else:
+                        native = self.work/'record-native'
+                        self.command(['clang', *shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS', '')),
+                                      output, '-x', 'none', '-o', native])
+                        self.command([native])
         return header, origins, fields
 
-    def test_exact_identity_counted_construction_and_no_admission(self):
+    def test_exact_identity_counted_construction_and_checked_admission(self):
         for constructor in ['STRUCT_LITERAL 0 1', 'AGG_PACK 0 0 0 1']:
             h, origins, fields = self.analyze(program('PUSH_I64 42\n' + constructor +
-                '\nDUP\nPUSH_I64 43\nSTRUCT_SET 0\nPOP\nAGG_GET 0\nPUSH_I64 43\nEQ\nASSERT'), vm=True, refuse=True)
+                '\nDUP\nPUSH_I64 43\nSTRUCT_SET 0\nPOP\nAGG_GET 0\nPUSH_I64 43\nEQ\nASSERT'), vm=True, admit=True)
             self.assertEqual(h[1:4], [1, 1, 2])
             self.assertEqual(origins[0][3:7], [0, 0, 0, 1])
             self.assertEqual(fields, [[1 << 1, 0, 0]])
@@ -113,7 +118,7 @@ class RecordShapes(unittest.TestCase):
                 'PUSH_I64 -9223372036854775808\nEQ\nASSERT\nLOAD_LOCAL 0\nAGG_GET 1\nASSERT\n'
                 'LOAD_LOCAL 0\nAGG_GET 2\nPUSH_STR text\nSTR_EQ\nASSERT\n'
                 'LOAD_LOCAL 0\nAGG_GET 3\nPUSH_U8 255\nEQ\nASSERT')
-        _, _, fields = self.analyze(program(body, layouts, [8]), vm=True, refuse=True)
+        _, _, fields = self.analyze(program(body, layouts, [8]), vm=True, admit=True)
         self.assertEqual(fields, [[1 << t, 0, 0] for t in (3, 4, 5, 2)])
 
     def test_resource_authority_preserves_normal_verifier_refusal(self):
@@ -130,6 +135,15 @@ class RecordShapes(unittest.TestCase):
         self.analyze(program('STRUCT_NEW 0\nPOP'), status=1)
         self.analyze(program('STRUCT_LITERAL 0 0\nPOP'), status=1)
         self.analyze(program('PUSH_I64 1\nPUSH_I64 2\nSTRUCT_LITERAL 0 2\nPOP'), status=1)
+
+    def test_forward_origins_preserve_exact_declared_indices(self):
+        layouts = [(0, [(8, 2)]), (0, [(1, NO)]), (0, [(1, NO)])]
+        body = 'PUSH_I64 17\nSTRUCT_LITERAL 2 1\nSTRUCT_LITERAL 0 1\nAGG_GET 0\nAGG_GET 0\nPUSH_I64 17\nEQ\nASSERT'
+        header, origins, fields = self.analyze(program(body, layouts), vm=True)
+        self.assertEqual(header[1:3], [2, 2])
+        self.assertEqual([row[3:7] for row in origins], [[2, 2, 0, 1], [0, 0, 1, 1]])
+        self.assertEqual(fields, [[1 << 1, 0, 0], [1 << 8, 0, 1]])
+        self.analyze(program(body.replace('STRUCT_LITERAL 2 1', 'STRUCT_LITERAL 1 1'), layouts), status=1)
 
     def test_nested_reads_and_shared_field_replacement(self):
         layouts = [(0, [(1, NO)]), (0, [(8, 0)])]
@@ -224,7 +238,7 @@ class RecordShapes(unittest.TestCase):
             self.analyze(text, status=status, budget=budget)
             statuses.append(status)
         self.assertIn(4, statuses)
-        self.analyze(text, vm=True, refuse=True)
+        self.analyze(text, vm=True, admit=True)
 
 
 if __name__ == '__main__':

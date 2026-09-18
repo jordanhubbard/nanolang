@@ -1,0 +1,16 @@
+{
+  "name": "prepare",
+  "command": [
+    "make",
+    "-j2",
+    "nano_vm",
+    "nvm2c",
+    "nvm2wasm",
+    "nanoisa_dump"
+  ],
+  "environment": {
+    "CC": "cc"
+  },
+  "status": 2,
+  "seconds": 0.314943614997901
+}

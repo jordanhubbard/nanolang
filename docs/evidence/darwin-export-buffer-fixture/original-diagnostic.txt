@@ -1,0 +1,61 @@
+Original retained rollout line 157221
+2026-09-18T20:37:42.488Z
+['/usr/local/bin/bash', '-lc', "set -o pipefail\nmake -n test-nanocore | awk '/^cc .*tests\\/test_nanocore_export_buffer.c/{print; exit}' | bash\n./obj/test_nanocore_export_buffer\nmake -n test-nanocore | awk '/^cc .*tests\\/test_nanocore.c/{print; exit}' | bash\n./tests/test_nanocore"]
+tests/test_nanocore_export_buffer.c:33:9: error: 'vsnprintf' macro redefined [-Werror,-Wmacro-redefined]
+   33 | #define vsnprintf buffer_vsnprintf
+      |         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h:124:9: note: previous definition is here
+  124 | #define vsnprintf(str, len, ...) __vsnprintf_chk_func (str, len, 0, __VA_ARGS__)
+      |         ^
+1 error generated.
+/usr/local/bin/bash: line 3: ./obj/test_nanocore_export_buffer: No such file or directory
+
+[test_nanocore] nanocore_export and emit_typed_ast tests...
+
+  Testing export_null_node... ✓
+  Testing export_int_literal... ✓
+  Testing export_binop_sub... ✓
+  Testing export_binop_div... ✓
+  Testing export_binop_mod... ✓
+  Testing export_binop_eq... ✓
+  Testing export_binop_ne... ✓
+  Testing export_binop_lt... ✓
+  Testing export_binop_le... ✓
+  Testing export_binop_gt... ✓
+  Testing export_binop_ge... ✓
+  Testing export_binop_and... ✓
+  Testing export_binop_or... ✓
+  Testing export_unary_neg... ✓
+  Testing export_unary_not... ✓
+  Testing export_string_literal... ✓
+  Testing export_empty_block... ✓
+  Testing export_multi_stmt_block... ✓
+  Testing export_func_no_params... ✓
+  Testing export_func_bool_param... ✓
+  Testing export_func_string_param... ✓
+  Testing export_unguarded_match_control... ✓
+  Testing guarded_match_is_not_exported... ✓
+  Testing emit_null_program... ✓
+  Testing emit_empty_function... ✓
+  Testing emit_float_return_type... ✓
+  Testing emit_void_return_type... ✓
+  Testing emit_let_statement... ✓
+  Testing emit_set_statement...Error at line 3, column 12: I cannot find a variable named `x`.
+Hint: Check spelling or ensure the variable is in scope.
+Error at line 4, column 12: I cannot find a variable named `x`.
+Hint: Check spelling or ensure the variable is in scope.
+ ✓
+  Testing emit_if_statement... ✓
+  Testing emit_while_statement...Error at line 4, column 12: I cannot find a variable named `x`.
+Hint: Check spelling or ensure the variable is in scope.
+ ✓
+  Testing emit_for_statement...Error at line 4, column 12: I cannot find a variable named `s`.
+Hint: Check spelling or ensure the variable is in scope.
+ ✓
+  Testing emit_multi_type_params... ✓
+  Testing emit_let_float_type...Error at line 3, column 12: I cannot find a variable named `x`.
+Hint: Check spelling or ensure the variable is in scope.
+ ✓
+
+All tests passed.
+

@@ -1,0 +1,11 @@
+test_float_local_unsafe_original_pattern (tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_original_pattern) ... ok
+test_float_local_unsafe_control_flow (tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_control_flow) ... ok
+test_float_local_in_borrowed_control_flow (tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_in_borrowed_control_flow) ... ok
+test_float_local_unsafe_refusals_preserve_publication (tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_refusals_preserve_publication) ... ok
+I retain fresh float fixtures at /tmp/nano-source-borrows-_l67nbdt
+test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 183.634s
+
+OK

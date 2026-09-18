@@ -1,0 +1,11 @@
+DRIVER nanoc_c sha256=79be3d3d5d036e748a5c78783a952b3ee0523e2e7d382330e7b4e98f6cc031fe
+DRIVER nanoc_stage1 sha256=affd98e803ab0031e7298c0993899751ab8b35cb8063fc8b301209b954cc7f50
+DRIVER nanoc_stage2 sha256=affd98e803ab0031e7298c0993899751ab8b35cb8063fc8b301209b954cc7f50
+test_exact_lexical_dependencies_and_selected_suffix (tests.test_checked_owner_selection.CheckedOwnerSelection.test_exact_lexical_dependencies_and_selected_suffix) ... ok
+test_full_source_invalid_unused_and_raw_full_module_refusal (tests.test_checked_owner_selection.CheckedOwnerSelection.test_full_source_invalid_unused_and_raw_full_module_refusal) ... ok
+test_original_declaration_probes_keep_whole_source_checks (tests.test_checked_owner_selection.CheckedOwnerSelection.test_original_declaration_probes_keep_whole_source_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 154.239s
+
+OK

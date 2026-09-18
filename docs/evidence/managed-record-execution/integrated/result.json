@@ -1,0 +1,13 @@
+{
+  "head": "e90062e93f5ef2536b06755ec8219dd84be3b735",
+  "tests": [
+    "tests.test_llvm_managed_records",
+    "tests.test_managed_record_plan",
+    "tests.test_verifier_profiles",
+    "tests.test_managed_record_shapes",
+    "tests.test_managed_array_shapes",
+    "tests.test_managed_graph_origins"
+  ],
+  "status": 0,
+  "seconds": 30.02393755200319
+}

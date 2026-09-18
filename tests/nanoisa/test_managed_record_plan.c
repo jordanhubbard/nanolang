@@ -168,7 +168,80 @@ static void boundaries(void) {
     memset(&m,0,sizeof m);m.struct_count=2;retain(&m,large,2);expect(&m,NVM_RECORD_LIMIT);
     large[1].field_count=1;retain(&m,large,2);expect(&m,NVM_RECORD_DESCRIBED);free(m.layout_data);free(fields);
 }
+static void forward_facts(NvmModule *m) {
+    uint32_t prefix=(8+m->struct_count+3)&~3u;
+    free(m->ownership_data);m->ownership_size=prefix+16;
+    m->ownership_data=calloc(m->ownership_size,1);CHECK(m->ownership_data);
+    word(m->ownership_data,1);word(m->ownership_data+4,m->struct_count);
+    memset(m->ownership_data+8,NVM_LAYOUT_COMPLETE,m->struct_count);
+    word(m->ownership_data+prefix,1);m->ownership_data[prefix+8]=TAG_INT;
+    word(m->ownership_data+prefix+12,NVM_V2_NO_INDEX);
+}
+static void forward_plans(void) {
+    NvmModule *m=assemble(".types 6 0 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n");
+    NvmV2LayoutField edges[6]={{TAG_STRUCT,2,NVM_V2_NO_INDEX},{TAG_STRUCT,3,NVM_V2_NO_INDEX},
+        {TAG_STRUCT,4,NVM_V2_NO_INDEX},{TAG_STRUCT,4,NVM_V2_NO_INDEX},
+        {TAG_STRING,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX},{TAG_STRUCT,5,NVM_V2_NO_INDEX}};
+    NvmV2Layout layouts[6]={{0,2,NVM_V2_NO_INDEX,edges},{0,1,NVM_V2_NO_INDEX,edges+5},
+        {0,1,NVM_V2_NO_INDEX,edges+2},{0,1,NVM_V2_NO_INDEX,edges+3},
+        {0,1,NVM_V2_NO_INDEX,edges+4},{0,0,NVM_V2_NO_INDEX,NULL}};
+    retain(m,layouts,6);
+    expect(m,NVM_RECORD_UNRESOLVED); /* Raw forward facts do not publish UNKNOWN. */
+    forward_facts(m);
+    NvmRecordPlan *plan=NULL;
+    CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_DESCRIBED);
+    CHECK(plan->authority==NVM_RECORD_AUTHORITY_ORDINARY && plan->record_count==6);
+    for(uint32_t i=0;i<6;i++)CHECK(plan->record_to_layout[i]==i && plan->layout_to_record[i]==i);
+    CHECK(plan->layouts.items[0].fields[0].nested_idx==2);
+    CHECK(plan->layouts.items[0].fields[1].nested_idx==3);
+    CHECK(plan->layouts.items[1].fields[0].nested_idx==5);
+    nvm_record_plan_free(plan);
+    char *before=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(before);
+    unsigned memory=0,unresolved=0,success=0;
+    for(long n=0;n<40;n++) {
+        NvmRecordPlan sentinel={0};plan=&sentinel;budget=n;
+        NvmRecordPlanResult result=nvm_describe_managed_records(m,&plan);budget=-1;
+        if(result.status==NVM_RECORD_DESCRIBED) {CHECK(plan!=&sentinel);nvm_record_plan_free(plan);success++;}
+        else {CHECK(plan==&sentinel);CHECK(result.status==NVM_RECORD_MEMORY || result.status==NVM_RECORD_UNRESOLVED);
+              memory+=result.status==NVM_RECORD_MEMORY;unresolved+=result.status==NVM_RECORD_UNRESOLVED;}
+    }
+    CHECK(memory && unresolved && success);
+    char *after=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(after && !strcmp(before,after));free(after);free(before);
+    m->ownership_data[8+5]=0;expect(m,NVM_RECORD_UNRESOLVED);m->ownership_data[8+5]=NVM_LAYOUT_COMPLETE;
+    m->ownership_data[8+5]|=NVM_LAYOUT_RESOURCE;expect(m,NVM_RECORD_UNRESOLVED);m->ownership_data[8+5]=NVM_LAYOUT_COMPLETE;
+    /* A mixed-kind forward table refuses before any allocation. */
+    size_t last_header=m->layout_size-8;
+    uint8_t saved=m->layout_data[last_header];m->layout_data[last_header]=NVM_V2_LAYOUT_ENUM;
+    m->struct_count--;m->enum_count++;
+    budget=0;expect(m,NVM_RECORD_INVALID);budget=-1;
+    m->layout_data[last_header]=saved;m->struct_count++;m->enum_count--;
+    NvmV2LayoutField tail={TAG_STRUCT,4,NVM_V2_NO_INDEX};
+    layouts[5].field_count=1;layouts[5].fields=&tail;retain(m,layouts,6);
+    word(m->layout_data+m->layout_size-8,1); /* Disconnected 1 -> 5 -> 1 cycle. */
+    budget=0;expect(m,NVM_RECORD_INVALID);budget=-1;
+    word(m->layout_data+m->layout_size-8,4);expect(m,NVM_RECORD_DESCRIBED);
+    nvm_module_free(m);
+
+    /* A full-depth chain and a last-field edge exercise both bounded cursors. */
+    m=assemble(".types 256 0 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n");
+    NvmV2Layout chain[256];NvmV2LayoutField fields[256];
+    for(uint32_t i=0;i<256;i++) {
+        fields[i]=(NvmV2LayoutField){i==255?TAG_INT:TAG_STRUCT,i==255?NVM_V2_NO_INDEX:i+1,NVM_V2_NO_INDEX};
+        chain[i]=(NvmV2Layout){0,1,NVM_V2_NO_INDEX,&fields[i]};
+    }
+    retain(m,chain,256);forward_facts(m);expect(m,NVM_RECORD_DESCRIBED);nvm_module_free(m);
+    m=assemble(".types 2 0 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n");
+    NvmV2LayoutField *wide=calloc(65535,sizeof *wide);CHECK(wide);
+    for(uint32_t i=0;i<65535;i++)wide[i]=(NvmV2LayoutField){TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
+    wide[65534]=(NvmV2LayoutField){TAG_STRUCT,1,NVM_V2_NO_INDEX};
+    NvmV2Layout maximum[2]={{0,65535,NVM_V2_NO_INDEX,wide},{0,1,NVM_V2_NO_INDEX,wide}};
+    retain(m,maximum,2);forward_facts(m);expect(m,NVM_RECORD_DESCRIBED);
+    maximum[1].field_count=2;retain(m,maximum,2);budget=0;expect(m,NVM_RECORD_LIMIT);budget=-1;
+    free(wide);nvm_module_free(m);
+}
+
 int main(int argc,char **argv) {
+    forward_plans();
     empty_and_authority();mixed_authority();mapping_and_allocation(argc==2?argv[1]:NULL);boundaries();
     printf("%u record plan checks passed\n",checks);return 0;
 }

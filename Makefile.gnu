@@ -395,7 +395,7 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
-NANOISA_SOURCES = $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
+NANOISA_SOURCES = $(NANOISA_DIR)/mixed_float_proof.c $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c \
 	$(NANOISA_DIR)/frontend.c
@@ -4672,6 +4672,15 @@ test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_verifier_profiles tests/nanoisa/test_verifier_profiles.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	python3 -m unittest -v tests.test_verifier_profiles
 
+.PHONY: test-llvm-managed-records
+test-llvm-managed-records: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	$(CC) $(CFLAGS) -o obj/managed_record_reentry tests/nanoisa/managed_record_reentry.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_llvm_managed_records
+
+.PHONY: test-llvm-managed-forward-records
+test-llvm-managed-forward-records: test-llvm-managed-records test-managed-record-plan test-ordinary-record-authority
+	python3 -m unittest -v tests.test_llvm_managed_forward_records
+
 .PHONY: test-llvm-generic-numeric
 test-llvm-generic-numeric: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	$(CC) $(CFLAGS) -o obj/generic_numeric_bits tests/nanoisa/generic_numeric_bits.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -5145,6 +5154,18 @@ test-owned-result-descriptors: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_result_descriptors tests/nanoisa/test_owned_result_descriptors.c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	./obj/test_owned_result_descriptors
 
+.PHONY: test-nested-owned-results
+test-units: test-nested-owned-results
+test-nested-owned-results: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dcalloc=nested_query_calloc -c src/nanoisa/affine_state.c -o obj/test_nested_result_state.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nested_result_descriptors tests/nanoisa/test_nested_result_descriptors.c obj/test_nested_result_state.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)
+	./obj/test_nested_result_descriptors
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nested_owned_results tests/nanoisa/test_nested_owned_results.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_nested_result_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nested_result_alloc tests/nanoisa/test_nested_result_alloc.c obj/test_nested_result_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_nested_result_alloc
+	python3 -m unittest -v tests.test_nested_owned_results
+
 .PHONY: test-owned-value-results
 test-units: test-owned-value-results
 test-owned-value-results: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
@@ -5175,3 +5196,28 @@ $(OBJ_DIR)/stdlib_runtime.o: src/binary64_arithmetic_source.h
 $(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_format.h
 
 $(OBJ_DIR)/eval.o $(OBJ_DIR)/stdlib_runtime.o: src/binary64_format.h
+
+.PHONY: test-checked-owner-selection
+test-units: test-checked-owner-selection
+test-checked-owner-selection: bootstrap nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_checked_owner_selection.CheckedOwnerSelection
+
+.PHONY: test-selfhost-native-array-slice
+test-selfhost-native-array-slice: bootstrap nano_virt nano_vm
+	python3 -m unittest -v tests.test_selfhost_native_array_slice
+
+.PHONY: test-owned-binary64
+test-units: test-owned-binary64
+test-owned-binary64: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_binary64 tests/nanoisa/test_owned_binary64.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_binary64
+
+.PHONY: test-mixed-layout-view
+test-units: test-mixed-layout-view
+test-mixed-layout-view: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MIXED_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_layout_view
+
+.PHONY: test-mixed-float-proof
+test-units: test-mixed-float-proof
+test-mixed-float-proof: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MIXED_PROOF_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_float_proof

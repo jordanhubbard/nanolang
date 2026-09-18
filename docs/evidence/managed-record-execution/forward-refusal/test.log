@@ -1,0 +1,6 @@
+test_unknown_wrong_nominal_and_mixed_edges_preserve_output (tests.test_llvm_managed_records.ManagedRecords.test_unknown_wrong_nominal_and_mixed_edges_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.279s
+
+OK

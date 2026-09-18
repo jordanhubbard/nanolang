@@ -42,6 +42,10 @@ static void borrow_error(BorrowCG *b, ASTNode *n, const char *message) {
 static uint8_t borrow_tag(Type type) {
     return type==TYPE_INT?TAG_INT:type==TYPE_BOOL?TAG_BOOL:TAG_VOID;
 }
+/* I do not grant float fields or signatures by admitting scalar locals. */
+static uint8_t borrow_local_tag(Type type) {
+    return type==TYPE_FLOAT?TAG_FLOAT:borrow_tag(type);
+}
 /* I keep parameter transport separate from resource-leaf eligibility. */
 static uint8_t borrow_parameter_tag(Type type) {
     return type==TYPE_STRING?TAG_STRING:borrow_tag(type);
@@ -202,6 +206,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         emit_op(cg,OP_PUSH_STR,index);return TAG_STRING;
     }
     if(n->type==AST_NUMBER){emit_op(cg,OP_PUSH_I64,(int64_t)n->as.number);return TAG_INT;}
+    if(n->type==AST_FLOAT){emit_op(cg,OP_PUSH_F64,n->as.float_val);return TAG_FLOAT;}
     if(n->type==AST_BOOL){emit_op(cg,OP_PUSH_BOOL,(int)n->as.bool_val);return TAG_BOOL;}
     if(n->type==AST_IDENTIFIER) {
         int local=borrow_local(b,n->as.identifier);
@@ -235,6 +240,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         if(count==1) {
             if(op==TOKEN_NOT && left==TAG_BOOL){emit_op(cg,OP_NOT);return TAG_BOOL;}
             if(op==TOKEN_MINUS && left==TAG_INT){emit_op(cg,OP_NEG);return TAG_INT;}
+            if(op==TOKEN_MINUS && left==TAG_FLOAT){emit_op(cg,OP_F64_NEG);return TAG_FLOAT;}
         } else {
             uint8_t right=borrow_expr(b,n->as.prefix_op.args[1]);uint8_t opcode=0,result=left;
             if(left!=right){borrow_error(b,n,"matching scalar operand types");return TAG_VOID;}
@@ -246,6 +252,16 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
             if(left==TAG_BOOL) {
                 if(op==TOKEN_AND)opcode=OP_AND;
                 if(op==TOKEN_OR)opcode=OP_OR;
+            }
+            if(left==TAG_FLOAT) switch(op) {
+                case TOKEN_PLUS:opcode=OP_F64_ADD;break;case TOKEN_MINUS:opcode=OP_F64_SUB;break;
+                case TOKEN_STAR:opcode=OP_F64_MUL;break;case TOKEN_SLASH:opcode=OP_F64_DIV;break;
+                case TOKEN_EQ:opcode=OP_F64_EQ;result=TAG_BOOL;break;
+                case TOKEN_NE:opcode=OP_F64_NE;result=TAG_BOOL;break;
+                case TOKEN_LT:opcode=OP_F64_LT;result=TAG_BOOL;break;
+                case TOKEN_LE:opcode=OP_F64_LE;result=TAG_BOOL;break;
+                case TOKEN_GT:opcode=OP_F64_GT;result=TAG_BOOL;break;
+                case TOKEN_GE:opcode=OP_F64_GE;result=TAG_BOOL;break;default:break;
             }
             if(left==TAG_INT || left==TAG_BOOL) switch(op) {
                 case TOKEN_EQ:opcode=OP_EQ;result=TAG_BOOL;break;
@@ -395,11 +411,18 @@ static void borrow_increment(BorrowCG *b,int slot) {
     emit_op(b->cg,OP_ADD);emit_op(b->cg,OP_STORE_LOCAL,slot);
 }
 static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
-    if(!body || body->type!=AST_BLOCK){borrow_error(b,body,"a lexical function/shadow body");return;}
+    if(!body || (body->type!=AST_BLOCK && body->type!=AST_UNSAFE_BLOCK)) {
+        borrow_error(b,body,"a lexical function/shadow body");return;
+    }
+    ASTNode **statements=body->type==AST_BLOCK?body->as.block.statements:body->as.unsafe_block.statements;
+    int statement_count=body->type==AST_BLOCK?body->as.block.count:body->as.unsafe_block.count;
     unsigned first=b->count;
-    for(int i=0;i<body->as.block.count && !b->cg->had_error && !b->returned && !b->transferred;i++) {
-        ASTNode *n=body->as.block.statements[i];CG *cg=b->cg;
-        if(n->type==AST_IF || n->type==AST_WHILE || n->type==AST_FOR) {
+    for(int i=0;i<statement_count && !b->cg->had_error && !b->returned && !b->transferred;i++) {
+        ASTNode *n=statements[i];CG *cg=b->cg;
+        if(n->type==AST_UNSAFE_BLOCK) {
+            if(b->control_depth==32){borrow_error(b,n,"at most 32 nested control-flow bodies");break;}
+            b->control_depth++;borrow_body(b,n,shadow);b->control_depth--;
+        } else if(n->type==AST_IF || n->type==AST_WHILE || n->type==AST_FOR) {
             if(b->control_depth==32){borrow_error(b,n,"at most 32 nested control-flow bodies");break;}
             unsigned for_first=b->count;int index=-1,end=-1;
             if(n->type==AST_FOR) {
@@ -520,9 +543,9 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                     }
                 }
             } else {
-                uint8_t tag=borrow_expr(b,n->as.let.value),declared=borrow_tag(n->as.let.var_type);
-                if((n->as.let.var_type!=TYPE_UNKNOWN && tag!=declared) || (tag!=TAG_INT && tag!=TAG_BOOL)) {
-                    borrow_error(b,n,"int/bool scalar local types");break;
+                uint8_t tag=borrow_expr(b,n->as.let.value),declared=borrow_local_tag(n->as.let.var_type);
+                if((n->as.let.var_type!=TYPE_UNKNOWN && tag!=declared) || (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_FLOAT)) {
+                    borrow_error(b,n,"int/bool/float scalar local types");break;
                 }
                 int slot=borrow_slot(b,n->as.let.name,tag,NVM_V2_NO_INDEX,0,n->as.let.is_mut);
                 emit_op(cg,OP_STORE_LOCAL,slot);
@@ -637,7 +660,7 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
     const char *name=n->type==AST_LET?n->as.let.type_name:
         n->type==AST_STRUCT_LITERAL?n->as.struct_literal.struct_name:NULL;
     StructDef *record=name?env_get_struct(env,name):NULL;
-    if(record && record->is_resource)return true;
+    if(record && is_resource_type(env,name))return true;
     switch(n->type) {
         case AST_PROGRAM:
             for(int i=0;i<n->as.program.count;i++)if(borrow_source_uses_owner(n->as.program.items[i],env))return true;
@@ -651,12 +674,12 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
         case AST_FUNCTION:
             if(n->as.function.return_struct_type_name) {
                 StructDef *returned=env_get_struct(env,n->as.function.return_struct_type_name);
-                if(returned && returned->is_resource)return true;
+                if(returned && is_resource_type(env,n->as.function.return_struct_type_name))return true;
             }
             for(int i=0;i<n->as.function.param_count;i++) {
                 Parameter *p=&n->as.function.params[i];
                 StructDef *parameter=p->struct_type_name?env_get_struct(env,p->struct_type_name):NULL;
-                if(p->type==TYPE_BORROW_SHARED || p->type==TYPE_BORROW_MUT || (parameter && parameter->is_resource))return true;
+                if(p->type==TYPE_BORROW_SHARED || p->type==TYPE_BORROW_MUT || (parameter && is_resource_type(env,p->struct_type_name)))return true;
             }
             return borrow_source_uses_owner(n->as.function.body,env);
         case AST_SHADOW:return borrow_source_uses_owner(n->as.shadow.body,env);
@@ -736,21 +759,26 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
     for(int i=0;i<program->as.program.count && !cg->had_error;i++) {
         ASTNode *n=program->as.program.items[i];
         if(n->type==AST_STRUCT_DEF) {
-            if(!n->as.struct_def.is_resource || n->as.struct_def.is_extern || b->record_count==MAX_STRUCT_DEFS ||
+            if(n->as.struct_def.is_extern || b->record_count==MAX_STRUCT_DEFS ||
                n->as.struct_def.field_count>256 || strchr(n->as.struct_def.name,'<') || borrow_record(b,n->as.struct_def.name)>=0) {
                 borrow_error(b,n,"distinct finite plain resource records");break;
             }
+            bool owned=n->as.struct_def.is_resource;
             for(int f=0;f<n->as.struct_def.field_count;f++) {
                 if(!borrow_tag(n->as.struct_def.field_types[f])) {
                     int child=n->as.struct_def.field_types[f]==TYPE_STRUCT
                         ?borrow_record(b,n->as.struct_def.field_type_names[f]):-1;
                     if(child<0 || b->depths[child]>=32)borrow_error(b,n,"earlier resource child declarations and depth at most 32");
-                    else if(b->depths[b->record_count]<b->depths[child]+1)b->depths[b->record_count]=b->depths[child]+1;
+                    else {
+                        owned=true;
+                        if(b->depths[b->record_count]<b->depths[child]+1)b->depths[b->record_count]=b->depths[child]+1;
+                    }
                 }
                 for(int prior=0;prior<f;prior++)
                     if(!strcmp(n->as.struct_def.field_names[prior],n->as.struct_def.field_names[f]))
                         borrow_error(b,n,"distinct field declarations");
             }
+            if(!owned){borrow_error(b,n,"explicit or transitive resource records");break;}
             b->records[b->record_count++]=n;
         } else if(n->type==AST_FUNCTION && !n->as.function.is_extern) {
             if(!strcmp(n->as.function.name,"main")){if(entry)borrow_error(b,n,"one main entry");entry=n;}
@@ -778,8 +806,8 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         if(h->as.function.param_count>8 || (h->as.function.param_count && !p))borrow_error(b,h,"at most eight exact parameters");
         if(b->value_graph) {
             if(!borrow_tag(h->as.function.return_type) && h->as.function.return_type!=TYPE_VOID &&
-               !(h->as.function.return_type==TYPE_STRUCT && result_layout>=0 && borrow_leaf(b,(unsigned)result_layout)))
-                borrow_error(b,h,"an int/bool, void or exact scalar-leaf owner result");
+               !(h->as.function.return_type==TYPE_STRUCT && result_layout>=0))
+                borrow_error(b,h,"an int/bool, void or exact declared owner result");
         } else if(h->as.function.param_count<1 || !borrow_tag(h->as.function.return_type))borrow_error(b,h,"a scalar-result borrowed helper");
         for(int i=0;i<h->as.function.param_count && !cg->had_error;i++) {
             int layout=borrow_record(b,p[i].struct_type_name);

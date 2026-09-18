@@ -1,3 +1,4 @@
+from "src_nano/compiler/owner_selection.nano" import nanoisa_selected_ownership
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
 from "src_nano/compiler/nanoisa_borrows.nano" import nanoisa_has_borrows, nanoisa_borrow_emit, nanoisa_borrow_error
 from "src_nano/compiler/passive_graph.nano" import passive_order, passive_reads
@@ -5127,7 +5128,9 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
         return (nisa_fail "I require a valid first-shadow index")
     }
     if (parser_has_error parser) { return (nisa_fail "parse failed") }
-    if (nanoisa_has_borrows parser) {
+    let mut selected_owned: bool = (nanoisa_has_borrows parser)
+    if selected_owned { if (== (nanoisa_selected_ownership parser true first_shadow) 1) { set selected_owned false } }
+    if selected_owned {
         let emitted: string = (nanoisa_borrow_emit parser true first_shadow)
         if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
         return emitted
@@ -5197,7 +5200,9 @@ shadow nanoisa_emit_shadows_nasm {
 fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
     let _: int = (nisa_reset)
     set nisa_program_mode program
-    if (nanoisa_has_borrows parser) {
+    let mut selected_owned: bool = (nanoisa_has_borrows parser)
+    if program { if selected_owned { if (== (nanoisa_selected_ownership parser false 0) 1) { set selected_owned false } } }
+    if selected_owned {
         let emitted: string = (nanoisa_borrow_emit parser false 0)
         if (== emitted "") { return (nisa_fail (nanoisa_borrow_error)) }
         return emitted

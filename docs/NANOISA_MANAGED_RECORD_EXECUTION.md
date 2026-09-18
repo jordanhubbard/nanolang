@@ -214,3 +214,32 @@ receiver and value owners; GET publishes retained scalar outputs only on success
 The aggregate selector is exactly0 (STRUCT) or1 (AGG). Receiver validation maps
 wrong-kind TYPE to BOUNDS only for AGG; a later value-retain error is not
 misclassified as a receiver error. Module retain/release now count record tags.
+
+## My combined selector and lowering checkpoint
+
+I continue from canonical PR783 in a separate worktree. My shared heap plan
+selects the existing leaf/array graph path or requires both ORDINARY descriptors
+and the unchanged record-origin query. I publish an owned plan only after all
+selection succeeds. The verifier and emitter use this same selection; scalar
+and literal profiles keep their nominal refusal.
+
+I emit immutable record descriptors, explicit acquired-bit entry cleanup,
+counted constructor staging, retained GET results and shared SET receivers.
+Record constructors collect before operands leave the stack. Record casts and
+same-tag ordering follow the existing VM defaults while releasing record roots.
+No new translation unit or host linkage dependency is introduced.
+
+My first compiler-object build found an incorrect descriptor member spelling
+(`entries` rather than `items`); I retained that build log and corrected it
+before any fixture execution. The corrected tools/package build passes. This
+is a production review checkpoint, not executable acceptance: actual generated
+native/Wasm tests and the preserved old-profile/refusal gates follow independent
+review. The qualified private-adapter tree and tools remain unchanged.
+
+## My subsequent forward declaration extension
+
+The original contract above qualified prior-order declarations through789. My
+separate [forward ordinary DAG contract](NANOISA_MANAGED_FORWARD_RECORDS.md) now
+qualifies exact all-record acyclic forward tables using the same indexed field
+origins and counted runtime. I keep absent/UNKNOWN forward authority, resources,
+owned/reference execution and mixed record-array shapes outside that extension.

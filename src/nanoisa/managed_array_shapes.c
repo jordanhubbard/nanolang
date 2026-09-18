@@ -229,7 +229,7 @@ static int prepare_records(Analysis *a) {
         for(uint16_t j=0;j<layout->field_count;j++) {
             const NvmV2LayoutField *field=&layout->fields[j];
             if(field->type_tag!=TAG_STRUCT && !(LEAVES&BIT(field->type_tag)))
-                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require the bounded scalar/string/prior-record field schema.");
+                return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require the bounded scalar/string/acyclic-record field schema.");
         }
     }
     return 1;
@@ -606,5 +606,49 @@ NvmArrayEligibilityResult nvm_select_managed_array_mode(const NvmModule *m,int *
     result=nvm_analyze_managed_array_graphs(m,&graph);
     nvm_array_graph_eligibility_free(graph);
     if(result.status==NVM_ARRAY_ELIGIBLE)*graph_required=1;
+    return result;
+}
+
+void nvm_managed_heap_plan_free(NvmManagedHeapPlan *plan) {
+    if(!plan)return;
+    nvm_record_plan_free(plan->records);
+    nvm_record_eligibility_free(plan->fields);
+    free(plan);
+}
+NvmArrayEligibilityResult nvm_select_managed_heap(const NvmModule *m,int mutable_arrays,
+                                                 NvmManagedHeapPlan **out) {
+    NvmArrayEligibilityResult result={.status=NVM_ARRAY_INVALID};
+    snprintf(result.message,sizeof result.message,"I require a module and heap-plan output.");
+    if(!m || !out)return result;
+    NvmVerifyResult verified=nvm_verify(m);
+    if(!verified.ok)return result;
+    NvmManagedHeapPlan staged={0};
+    if(m->struct_count || m->layout_size || m->ownership_size) {
+        NvmRecordPlanResult described=nvm_describe_managed_records(m,&staged.records);
+        if(described.status!=NVM_RECORD_DESCRIBED) {
+            result.status=described.status==NVM_RECORD_MEMORY?NVM_ARRAY_MEMORY:
+                described.status==NVM_RECORD_LIMIT?NVM_ARRAY_LIMIT:
+                described.status==NVM_RECORD_INVALID?NVM_ARRAY_INVALID:NVM_ARRAY_UNRESOLVED;
+            snprintf(result.message,sizeof result.message,"%s",described.message);
+            return result;
+        }
+        if(staged.records->authority!=NVM_RECORD_AUTHORITY_ORDINARY) {
+            result.status=NVM_ARRAY_UNRESOLVED;
+            snprintf(result.message,sizeof result.message,"I require checked ordinary record authority.");
+        } else result=nvm_analyze_managed_records(m,&staged.fields);
+        staged.mode=NVM_MANAGED_RECORD;
+    } else if(mutable_arrays) {
+        int graph=0;
+        result=nvm_select_managed_array_mode(m,&graph);
+        staged.mode=graph?NVM_MANAGED_ARRAY_GRAPH:NVM_MANAGED_LEAF;
+    } else result.status=NVM_ARRAY_ELIGIBLE;
+    if(result.status==NVM_ARRAY_ELIGIBLE) {
+        NvmManagedHeapPlan *plan=allocate(1,sizeof *plan);
+        if(plan){*plan=staged;*out=plan;return result;}
+        result.status=NVM_ARRAY_MEMORY;
+        snprintf(result.message,sizeof result.message,"I could not publish my managed heap plan.");
+    }
+    nvm_record_plan_free(staged.records);
+    nvm_record_eligibility_free(staged.fields);
     return result;
 }

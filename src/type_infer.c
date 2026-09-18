@@ -1292,14 +1292,26 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
             infer_expr(ctx, env, node->as.match_expr.expr);
             HMType *res = hm_tv_fresh(ctx);
             for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                HMEnv *arm_env = env;
+                const char *binding = node->as.match_expr.pattern_bindings
+                    ? node->as.match_expr.pattern_bindings[i] : NULL;
+                if (binding && strcmp(binding, "_") != 0) {
+                    /* I do not have exact variant payload facts in this pass.
+                     * I keep the arm binding opaque instead of guessing that
+                     * a direct payload expression can satisfy a bool guard. */
+                    arm_env = env_extend(ctx, env, binding,
+                                         mono_scheme(ctx, hm_con_type(ctx,
+                                                                      "match_payload")));
+                }
                 ASTNode *guard = node->as.match_expr.guard_exprs
                     ? node->as.match_expr.guard_exprs[i] : NULL;
                 if (guard) {
-                    HMType *guard_t = infer_expr(ctx, env, guard);
+                    HMType *guard_t = infer_expr(ctx, arm_env, guard);
                     if (guard_t) hm_unify(ctx, guard_t, hm_con_type(ctx, "bool"),
                                           guard->line, guard->column);
                 }
-                HMType *arm_t = infer_expr(ctx, env, node->as.match_expr.arm_bodies[i]);
+                HMType *arm_t = infer_expr(ctx, arm_env,
+                                           node->as.match_expr.arm_bodies[i]);
                 if (arm_t) hm_unify(ctx, res, arm_t,
                                      node->as.match_expr.arm_bodies[i]->line,
                                      node->as.match_expr.arm_bodies[i]->column);

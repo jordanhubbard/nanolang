@@ -1,0 +1,32 @@
+{
+  "source": "4abe5e94783b584025ed5feaa650faf7c31ca04b",
+  "runner_sha256": "e58ccf1fc86b53f868e3f1181b3ac7891284e7cd294a7bb6b2feae73563ab323",
+  "steps": [
+    {
+      "name": "affected-method",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_owned_local_routing_and_shadow_only_admission"
+      ],
+      "status": 0,
+      "seconds": 167.049,
+      "sha256": "d6804880c24cff15aa9ea5c7a3e7335f63d1c0e65594ed44f51f27c6166b206d"
+    },
+    {
+      "name": "owned-graphs",
+      "command": [
+        "make",
+        "test-owned-value-graphs"
+      ],
+      "status": 0,
+      "seconds": 16.859,
+      "sha256": "588d98a5c79f03bdc47863fa23e7286187223aedf7a6ed51caaf2e269be10018"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

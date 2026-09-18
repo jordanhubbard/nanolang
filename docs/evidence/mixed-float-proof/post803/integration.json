@@ -1,0 +1,87 @@
+{
+  "pin": "ffa8d812e58e1292263fb12b79924d289c0d9a34",
+  "main": "d6cacdb94ec4dd0f033f221cc6c71d4489eed0d4",
+  "previous_qualified": "adf3613a73a1675dbe41619cd8189a47c031b1cd",
+  "proof_and_fixtures_unchanged": [
+    "src/nanoisa/mixed_float_proof.c",
+    "src/nanoisa/mixed_float_proof.h",
+    "tests/nanoisa/test_mixed_float_proof.c",
+    "tests/test_mixed_float_proof.py"
+  ],
+  "results": {
+    "prepare": {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "nano_vm",
+        "nvm2c",
+        "nvm2wasm",
+        "nanoisa_dump"
+      ],
+      "environment": {
+        "NMS_RUNTIME_CLANG": "clang",
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "CC": "cc"
+      },
+      "status": 0,
+      "seconds": 17.911970746004954
+    },
+    "gcc": {
+      "name": "gcc",
+      "command": [
+        "make",
+        "test-mixed-float-proof"
+      ],
+      "environment": {
+        "NMS_RUNTIME_CLANG": "clang",
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "CC": "cc"
+      },
+      "status": 0,
+      "seconds": 0.5654320099856704
+    },
+    "clang": {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-mixed-float-proof"
+      ],
+      "environment": {
+        "NMS_RUNTIME_CLANG": "clang",
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "CC": "/tmp/nanolang-projection-clang",
+        "MIXED_CFLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+      },
+      "status": 0,
+      "seconds": 1.266445509972982
+    },
+    "adjacent": {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "-j2",
+        "test-mixed-layout-view",
+        "test-retained-layouts",
+        "test-ownership-contracts",
+        "test-verifier",
+        "test-managed-record-plan",
+        "test-owned-result-descriptors"
+      ],
+      "environment": {
+        "NMS_RUNTIME_CLANG": "clang",
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "CC": "cc",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+      },
+      "status": 0,
+      "seconds": 3.7258377029793337
+    }
+  },
+  "identity": {
+    "unchanged_tools": 49,
+    "unchanged_sources": 1611,
+    "additional_objects": 0
+  }
+}

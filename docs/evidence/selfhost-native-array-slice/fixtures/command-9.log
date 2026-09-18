@@ -1,0 +1,2 @@
+('/tmp/nanolang-projection-clang', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I', '/home/jkh/Src/nanolang-native-array-slice/src/runtime', '/tmp/nano-native-slice-qualified-92yoajic/helper.c', '/home/jkh/Src/nanolang-native-array-slice/src/runtime/dyn_array.c', '/home/jkh/Src/nanolang-native-array-slice/src/runtime/gc.c', '/home/jkh/Src/nanolang-native-array-slice/src/runtime/gc_struct.c', '-lm', '-o', '/tmp/nano-native-slice-qualified-92yoajic/helper-nanolang-projection-clang')
+

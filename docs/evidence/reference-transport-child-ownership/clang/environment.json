@@ -1,0 +1,9 @@
+{
+  "head": "8dc7edb09efe4194dd837086c54f7d935b23f348",
+  "compiler": "/usr/lib/llvm-18/bin/clang",
+  "compiler_sha256": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d",
+  "compiler_version": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: aarch64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-18/bin\n",
+  "python": "3.14.5 (main, May 10 2026, 10:21:34) [GCC 12.3.0]",
+  "platform": "linux",
+  "runner_sha256": "107a1a9ad0ee2455767c3a9c1ce69f639e447285aa40c41d6392e5cdd69b05db"
+}

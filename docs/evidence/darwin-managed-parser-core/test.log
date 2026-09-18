@@ -1,0 +1,6 @@
+test_core_bits_and_ownership_match_reference_on_native_and_wasm (tests.test_managed_binary64_parse.Binary64Parse.test_core_bits_and_ownership_match_reference_on_native_and_wasm) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.291s
+
+OK
