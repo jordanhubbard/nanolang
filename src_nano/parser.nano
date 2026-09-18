@@ -2049,7 +2049,14 @@ fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parse
         while (< v definition.variant_count) {
             let selected: string = (+ definition.name (+ "." (at definition.variant_names v)))
             if (== name selected) {
-                return (parse_union_construct p definition.name (at definition.variant_names v) line column)
+                let mut matches: int = 0
+                let mut declaration: int = 0
+                while (< declaration (parser_get_union_count p)) {
+                    if (== (parser_get_union p declaration).name definition.name) { set matches (+ matches 1) }
+                    set declaration (+ declaration 1)
+                }
+                if (== matches 1) { return (parse_union_construct p definition.name (at definition.variant_names v) line column) }
+                return (parse_struct_literal p name line column)
             }
             set v (+ v 1)
         }
@@ -2065,6 +2072,10 @@ shadow parse_named_literal {
     let value: ASTUnionConstruct = (parser_get_union_construct parsed 0)
     assert (== value.union_name "Choice")
     assert (== value.variant_name "Some")
+    let ambiguous_tokens: List<LexerToken> = (tokenize_string "union Choice { Some { n: int } } union Choice { Other {} } fn f() -> void { (consume (Choice.Some { n: 1 })) }" "ambiguous.nano" (list_CompilerDiagnostic_new))
+    let ambiguous: Parser = (parse_program ambiguous_tokens (list_LexerToken_length ambiguous_tokens) "ambiguous.nano")
+    assert (== (parser_get_union_construct_count ambiguous) 0)
+    assert (== (parser_get_struct_literal_count ambiguous) 1)
 }
 
 /* Parse union construction: UnionName.Variant{field: value} */
