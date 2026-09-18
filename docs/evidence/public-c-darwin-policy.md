@@ -12,7 +12,7 @@ The suite retains strict C99/C11 O0/O2, contraction controls, exact result/input
 bits, independent output bytes, once evaluation, globals/entry/fields, stable
 conversion aliases, cleanup/failure controls, private names, prior-output
 preservation and ordinary interpreter/verified VM/sanitized native comparison.
-Nothing is skipped or weakened for Darwin. Before/after source/tool hashes match.
+My retained `qualification-runner.py` and `invocation.json` record the exact suite CC/ASAN_OPTIONS assignments and separate build compiler selection. Nothing is skipped or weakened for Darwin. Before/after source/tool hashes match.
 I independently compare all eight transferred reports with remote SHA256; the
 [sealed report directory](public-c-darwin-policy/) retains command/status,
 inventory, logs and complete hashes.
