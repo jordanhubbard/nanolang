@@ -1,5 +1,6 @@
 """I qualify generated graph ownership through normal VM and target admission."""
 import unittest
+import re
 from tests import test_llvm_managed_mutable_arrays as arrays
 ROOT=arrays.ROOT
 class ManagedGraphs(unittest.TestCase):
@@ -73,12 +74,20 @@ class ManagedGraphs(unittest.TestCase):
               'LOAD_LOCAL 3\nPUSH_I64 1\nI64_ADD\nDUP\nSTORE_LOCAL 3\nPUSH_I64 20\nLT\nJMP_TRUE fill\n'
               +'LOAD_LOCAL 0\n'*17+'ARR_LITERAL 7 17\nPUSH_I64 0\nPUSH_I64 17\nARR_SLICE\nPOP\n')
         _,ir,wasm=self.compile(self.program(body))
-        extra=('static long budget=-1;extern void *__real_malloc(size_t);'
-               'void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}')
+        # I redirect only this generated module, before its existing ASan pass.
+        # The separate harness and sanitizer runtime keep normal allocations.
+        original_ir=ir.read_text()
+        self.assertRegex(original_ir,r'declare[^\n]*@malloc\(')
+        self.assertRegex(original_ir,r'call[^\n]*@malloc\(')
+        controlled_ir=self.work/'allocation-controlled.ll'
+        controlled_ir.write_text(re.sub(r'@malloc\b','@nano_test_graph_malloc',original_ir))
+        extra=('static long budget=-1;'
+               'void *nano_test_graph_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}')
         # Fresh executables independently cover begin allocation and subsequent
         # table/workspace/buffer preparation; every failure must end active entry.
         for b in (0,1,2,3,4,6,10,15,25,45,80):
-            self.native_harness(ir,f'budget={b};uint64_t s=nano_try_entry();if(s && s!=((uint64_t)3<<32))return 1;if({b}==0 && s!=((uint64_t)3<<32))return 8;if(nms_module_live_objects())return 2;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 3;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+            self.native_harness(controlled_ir,f'budget={b};uint64_t s=nano_try_entry();if(s && s!=((uint64_t)3<<32))return 1;if({b}==0 && s!=((uint64_t)3<<32))return 8;if(nms_module_live_objects())return 2;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 3;return nano_dispose();',extra)
+        self.assertEqual(ir.read_text(),original_ir)
         extra=('extern unsigned nms_module_graph_begin(const void*,unsigned),nms_module_active(void),nms_module_status(void);'
                'extern void nms_module_fail(unsigned);extern uint64_t nms_module_graph_finish(int);')
         self.native_harness(ir,'if(nms_module_graph_begin(0,0))return 1;nms_module_fail(2);if(nano_try_entry()!=((uint64_t)4<<32)||!nms_module_active()||nms_module_status()!=2)return 2;if(nms_module_graph_finish(0)!=((uint64_t)2<<32))return 3;if(nano_try_entry())return 4;if(nano_dispose())return 5;return nano_try_entry()!=((uint64_t)5<<32);',extra)
