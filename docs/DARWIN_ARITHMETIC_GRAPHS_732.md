@@ -128,3 +128,28 @@ nested-entry/first-error/disposed and Wasm controls. I retain sanitizer passes,
 inner/outer bounds and complete graph method counts. Any budget that succeeds
 must still satisfy its original successful cleanup assertions. I qualify the
 corrected full graph gate on both hosts, preserving earlier outcomes.
+
+## My completed bounded qualification
+
+At corrected harness5eeafe52, Darwin passes every ordered phase: build3.880383s,
+helper2/2 in1.325555s, backend4/4 in12.950683s and graph8/8 in19.843372s.
+No method is skipped. The original production source remains25a685ad; this is
+not acceptance of later merged compiler/runtime changes. Before/after tracked
+source manifests are identical, the four built artifact hashes are unchanged,
+and selected tool identities are retained. The coordinator copies all sealed
+reports/logs over SSH and independently verifies every recorded SHA256.
+
+The corrected full graph suite also passes Linux8/8 in13.129s, including every
+allocation budget and recovery assertion. Its first build stops on Clang's
+GCC-installation warning under Werror; selecting the native-only GCC-directory
+wrapper then fails for the Wasm target's unused argument. I preserve both logs.
+An explicit clang18/opt18 runtime-package build succeeds without weakening
+warnings; native execution uses the existing explicit GCC13 include selection.
+These build failures establish no product runtime defect.
+
+My [qualified manifest](evidence/darwin-arithmetic-graphs-732/qualified-manifest.json)
+identifies successful and preserved artifacts. The earlier missing prerequisites,
+LLD/SDK failure and GNU-wrap failure remain separate terminal outcomes. This
+qualification completes only209f and the two portable-harness repairs after
+canonical merge. All product, ownership, source-wide arithmetic, aggregate and
+release obligations remain open; e9 and PR522 remain held.

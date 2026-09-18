@@ -1,0 +1,38 @@
+started_utc=2026-09-18T14:06:13.913530+00:00
+command=python3 -m unittest -f -v tests.test_llvm_managed_graphs
+CC=/usr/bin/clang
+PATH=/opt/homebrew/opt/llvm/bin:/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin:/opt/homebrew/bin:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/VMware Fusion.app/Contents/Public:/opt/homebrew/bin:/Users/jordanh/.codex/tmp/arg0/codex-arg0gMdlrY:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jordanh/Library/pnpm:/opt/homebrew/sbin:/Applications/Docker.app/Contents/Resources/bin:/Users/jordanh/.cargo/bin:/Users/jordanh/.local/bin:/Users/jordanh/Bin:.
+test_generated_pressure_preserves_live_graph_and_disposal (tests.test_llvm_managed_graphs.ManagedGraphs.test_generated_pressure_preserves_live_graph_and_disposal) ... ok
+test_global_cycles_reentry_initializer_and_first_error (tests.test_llvm_managed_graphs.ManagedGraphs.test_global_cycles_reentry_initializer_and_first_error) ... ok
+test_initializer_and_helper_failures_collect_only_dead_roots (tests.test_llvm_managed_graphs.ManagedGraphs.test_initializer_and_helper_failures_collect_only_dead_roots) ... ok
+test_leaf_mode_stays_unprepared (tests.test_llvm_managed_graphs.ManagedGraphs.test_leaf_mode_stays_unprepared) ... ok
+test_nested_literal_slice_get_pop_and_calls (tests.test_llvm_managed_graphs.ManagedGraphs.test_nested_literal_slice_get_pop_and_calls) ... ok
+test_preparation_growth_failures_and_nested_entry (tests.test_llvm_managed_graphs.ManagedGraphs.test_preparation_growth_failures_and_nested_entry) ... FAIL
+
+======================================================================
+FAIL: test_preparation_growth_failures_and_nested_entry (tests.test_llvm_managed_graphs.ManagedGraphs.test_preparation_growth_failures_and_nested_entry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native.d80dYj/tests/test_llvm_managed_graphs.py", line 81, in test_preparation_growth_failures_and_nested_entry
+    self.native_harness(ir,f'budget={b};uint64_t s=nano_try_entry();if(s && s!=((uint64_t)3<<32))return 1;if({b}==0 && s!=((uint64_t)3<<32))return 8;if(nms_module_live_objects())return 2;budget=-1;if(nano_try_entry()||nms_module_live_objects())return 3;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native.d80dYj/tests/test_llvm_managed_strings.py", line 62, in native_harness
+    self.run_cmd(self.clang+['-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            obj,source,*flags,'-o',exe])
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native.d80dYj/tests/test_llvm_managed_strings.py", line 24, in run_cmd
+    self.assertEqual(p.returncode == 0, success, str(args)+'\n'+p.stdout+p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : ['clang', '-O1', '-g', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-managed-emitted-6b1rag62/asan.o'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-managed-emitted-6b1rag62/harness.c'), '-Wl,--wrap=malloc', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-managed-emitted-6b1rag62/harness')]
+ld: unknown options: --wrap=malloc 
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 6.506s
+
+FAILED (failures=1)
+finished_utc=2026-09-18T14:06:20.537136+00:00
+elapsed_seconds=6.623618
+exit_status=1

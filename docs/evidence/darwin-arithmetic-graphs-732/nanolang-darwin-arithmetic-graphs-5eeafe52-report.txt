@@ -1,0 +1,114 @@
+Darwin arithmetic and array-graph qualification report
+
+Task: task_209f1e88044b4e29886228dc7357188d
+Prior LLD task: task_39536e6a885e47b88bed4445bb289e5e
+Prior GNU-wrap task: task_f0a43b04e0c3444fb922e95084664bbb
+Outcome: PASS — every ordered phase completed
+Corrected commit: 5eeafe52ab60adca711bb17978eda4dfe36919b9
+Corrected tree: 0c51c7c8d05f52e4cb3e3fc7af6a4970fb03395b
+Production source base: 25a685adfb4f9bf32c68c9e6de04eb0298673c45
+Checkout: /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52.DQ4IdQ
+Checkout state: detached HEAD; tracked source clean before and after
+
+The correction changes the test harness only. There is no production-directory
+delta from 25a685ad. The prior Homebrew LLD/SDK and GNU --wrap outcomes remain
+separate failures; this run does not claim either mechanism is qualified.
+
+Selected environment
+- CC=/usr/bin/clang: Apple clang 21.0.0.
+- Darwin LTO: Apple ld-27037.1 with Xcode LLVM/TAPI 21.0.0.
+- Explicit PATH begins with Homebrew LLVM 23.1.1, the dedicated Python venv,
+  and Homebrew. It selects clang/opt/llvm-link 23.1.1, Python 3.14.6 with
+  wasmtime 48.0.0, Node v26.8.2 and Wasmtime CLI 48.0.2.
+- SDK: macOS 27.0 at the active Xcode SDK path.
+
+Phase 1 — prerequisite inventory
+Started: 2026-09-18T14:13:34Z
+Finished: 2026-09-18T14:13:36Z
+Elapsed: 1.921229 seconds
+Result: PASS
+
+Phase 2 — requested build
+Command: make -j8 nano_vm nvm2c nvm2wasm nanoisa_dump
+Started: 2026-09-18T14:14:00.156785+00:00
+Finished: 2026-09-18T14:14:04.037124+00:00
+Elapsed: 3.880383 seconds
+Outer bound: 900 seconds
+Result: PASS, exit 0
+
+Built artifacts
+- bin/nano_vm
+  SHA256 5be0115af10f3836ce73ebc9a1cf4c819b55550161d5b4c8049fe2376667d8dc
+- bin/nvm2c
+  SHA256 0d77fd275c58f8ea9043c9c69230f8c23972e76dbab909ae920c8ccfc4d3bf04
+- bin/nvm2wasm
+  SHA256 13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a
+- nanoisa_dump target output bin/nanoisa
+  SHA256 b7160222c8ec08b5169abf95fb5f3f1e6935dc811b9026e681dd82312e2a5833
+
+Phase 3 — helper2
+Command: python3 -m unittest -f -v tests.test_binary64_arithmetic
+Started: 2026-09-18T14:14:29.684502+00:00
+Finished: 2026-09-18T14:14:31.010025+00:00
+Elapsed: 1.325555 seconds
+Outer bound: 900 seconds
+Result: PASS, 2/2 methods, exit 0
+The direct and embedded sources retained all four optimization modes, ASan,
+UBSan, -flto and all 133 arithmetic-bit assertions. Darwin LTO used Apple ld.
+
+Phase 4 — backend4
+Command: python3 -m unittest -f -v tests.test_binary64_arithmetic_backends
+Started: 2026-09-18T14:14:48.185377+00:00
+Finished: 2026-09-18T14:15:01.136056+00:00
+Elapsed: 12.950683 seconds
+Outer bound: 900 seconds
+Result: PASS, 4/4 methods, exit 0
+The VM, native, LLVM, Node/Wasm and Wasmtime routes completed.
+
+Phase 5 — graph8
+Command: python3 -m unittest -f -v tests.test_llvm_managed_graphs
+Started: 2026-09-18T14:15:15.562979+00:00
+Finished: 2026-09-18T14:15:35.406345+00:00
+Elapsed: 19.843372 seconds
+Outer bound: 900 seconds
+Result: PASS, 8/8 methods, exit 0
+
+The allocation-control method retained all eleven budgets, the zero-budget
+MEMORY result, no-live-object checks, recovery, nested entry, normal generated
+IR identity assertion and unchanged Wasm route. The corrected native path copied
+only generated IR, renamed the exact malloc declaration/calls to the private
+test symbol before the existing ASan pass, and used a separate C wrapper that
+called libc malloc. No method was skipped.
+
+Retained current evidence
+- /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52-prerequisites.log
+  SHA256 4269c6d4f4acc93bc898f4370415a648e97fafdfd69151a64ce1923ce9b95712
+- /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52-build.log
+  SHA256 85f7e8d63a35fc511744507bef7c5c9f5f619ac0a93cb170acc187707ff093c3
+- /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52-build-artifacts.log
+  SHA256 eb82002855990ad77ac03edf28ee5c6cac7f5fc331b83908ffbc68dcb71fd74d
+- /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52-helper2.log
+  SHA256 e771fa2b52bbf36ee1cbe84ee21fb2a464ccd2b2a35f9bbf97c854c5d6e94f32
+- /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52-backend4.log
+  SHA256 10bbd999698bd433db44232a0f08cd9f5c606872e8208cd3fc03f78cecf0b4cd
+- /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52-graph8.log
+  SHA256 b81f603a2124b7b2731afde4e3eccda1d2070c4688304a11c51d6925bb1cdb89
+- /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52-final-inventory.log
+  SHA256 7739ca2d2bd93df3681ac98cd308920758c57d0b5ae67f2d40cdc41e0be45b11
+- /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52-source-manifest-before.txt
+  SHA256 2f71045fdfeacd3011e8862ddbcfd9c44b4a978d749646ed59823040d98e5384
+- /private/tmp/nanolang-darwin-arithmetic-graphs-5eeafe52-source-manifest-after.txt
+  SHA256 2f71045fdfeacd3011e8862ddbcfd9c44b4a978d749646ed59823040d98e5384
+
+Preserved prior terminal reports
+- LLD/SDK incompatibility:
+  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-report.txt
+  SHA256 d3ecae65a096925c6585c602332d5e4197da2d6bb0b127477cfc291e23c98923
+- GNU --wrap incompatibility:
+  /private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native-report.txt
+  SHA256 673e251581bbf1b149be626b00cc9356ce601fda68c6f2c848a3218f6669887d
+
+The tracked manifests are byte-identical and final git porcelain is empty.
+This bounded qualification tests the named helper/backend/graph contracts; it
+is not a product quick run, bootstrap, release candidate or release permission.
+Frozen e9 and PR522 remain held.

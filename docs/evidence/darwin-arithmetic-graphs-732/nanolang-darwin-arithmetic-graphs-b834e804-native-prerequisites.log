@@ -1,0 +1,90 @@
+started_utc=2026-09-18T14:04:31Z
+checkout=/private/tmp/nanolang-darwin-arithmetic-graphs-b834e804-native.d80dYj
+source=b834e8042db6378fe83d1afa4484406b61d28807
+tree=c2798b98475d1c116380254ccf20874f2b95c1f0
+production_base=25a685adfb4f9bf32c68c9e6de04eb0298673c45
+git_status_lines=0
+CC=/usr/bin/clang
+explicit_PATH=/opt/homebrew/opt/llvm/bin:/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin:/opt/homebrew/bin:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/VMware Fusion.app/Contents/Public:/opt/homebrew/bin:/Users/jordanh/.codex/tmp/arg0/codex-arg0gMdlrY:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jordanh/Library/pnpm:/opt/homebrew/sbin:/Applications/Docker.app/Contents/Resources/bin:/Users/jordanh/.cargo/bin:/Users/jordanh/.local/bin:/Users/jordanh/Bin:.
+cc_path=/usr/bin/cc
+b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9  /usr/bin/cc
+clang_path=/opt/homebrew/opt/llvm/bin/clang
+570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888  /opt/homebrew/opt/llvm/bin/clang
+opt_path=/opt/homebrew/opt/llvm/bin/opt
+b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b  /opt/homebrew/opt/llvm/bin/opt
+llvm-link_path=/opt/homebrew/opt/llvm/bin/llvm-link
+1ea6fac182854f600dbeb0c6bf914b08ea836cdb581775c43ea308574abb431e  /opt/homebrew/opt/llvm/bin/llvm-link
+ld_path=/usr/bin/ld
+b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9  /usr/bin/ld
+ld64.lld_path=/opt/homebrew/bin/ld64.lld
+1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e  /opt/homebrew/bin/ld64.lld
+ld.lld_path=/opt/homebrew/bin/ld.lld
+1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e  /opt/homebrew/bin/ld.lld
+wasm-ld_path=/opt/homebrew/bin/wasm-ld
+1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e  /opt/homebrew/bin/wasm-ld
+python3_path=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin/python3
+07919b0fbf82742c24420d7dcadbd459f61bc1feb638eca02b81dccab2daf4d5  /private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin/python3
+node_path=/opt/homebrew/bin/node
+902b6a6984d5d825829ea9064ab73b734548df37bc0683990dca31c8dc2a9253  /opt/homebrew/bin/node
+wasmtime_path=/opt/homebrew/bin/wasmtime
+130b4a32cecb619d52aefedda39c6733f00ee7460bbe8748f99eac72143c980c  /opt/homebrew/bin/wasmtime
+make_path=/usr/bin/make
+b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9  /usr/bin/make
+CC_path=/usr/bin/clang
+b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9  /usr/bin/clang
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin25.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+clang_version:
+Homebrew clang version 23.1.1
+Target: arm64-apple-darwin25.6.0
+Thread model: posix
+InstalledDir: /opt/homebrew/Cellar/llvm/23.1.1/bin
+Configuration file: /opt/homebrew/Cellar/llvm/23.1.1/etc/clang/arm64-apple-darwin25.cfg
+opt_version:
+Homebrew LLVM version 23.1.1
+  Optimized build.
+  Default target: arm64-apple-darwin25.6.0
+  Host CPU: apple-m4
+llvm_link_version:
+Homebrew LLVM version 23.1.1
+  Optimized build.
+apple_ld_path=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+374d9f0713bce2c8a9e1e82bde51615d5433516a10d99b63107eb6ee70542e4c  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+@(#)PROGRAM:ld PROJECT:ld-27037.1
+BUILD 21:17:51 Aug 25 2026
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em armv8m.main armv8.1m.main
+LTO support using: LLVM version 21.0.0 (static support for 30, runtime is 30)
+TAPI support using: Apple TAPI version 21.0.0 (tapi-2100.3.8.1)
+ld64_lld_version:
+Homebrew LLD 23.1.1
+ld_lld_version:
+Homebrew LLD 23.1.1 (compatible with GNU linkers)
+wasm_ld_version:
+Homebrew LLD 23.1.1
+python_version:
+Python 3.14.6
+node_version:
+v26.8.2
+wasmtime_version:
+wasmtime 48.0.2 (e9f1ea232 2026-09-10)
+sdk_path=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+sdk_version=27.0
+apple_cc_lto_link_selection:
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin25.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" "-cc1" "-triple" "arm64-apple-macosx26.0.0" "-Wundef-prefix=TARGET_OS_" "-Wdeprecated-objc-isa-usage" "-Werror=deprecated-objc-isa-usage" "-Werror=implicit-function-declaration" "-emit-llvm-bc" "-flto=full" "-flto-unit" "-dumpdir" "/private/tmp/nanolang-darwin-native-lto-probe-" "-disable-free" "-clear-ast-before-backend" "-disable-llvm-verifier" "-discard-value-names" "-main-file-name" "null" "-mrelocation-model" "pic" "-pic-level" "2" "-mframe-pointer=non-leaf" "-fno-strict-return" "-ffp-contract=on" "-fno-rounding-math" "-funwind-tables=1" "-fobjc-msgsend-selector-stubs" "-fno-sized-deallocation" "-target-sdk-version=27.0" "-fdepfile-entry=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/SDKSettings.json" "-fvisibility-inlines-hidden-static-local-var" "-fno-modulemap-allow-subdirectory-search" "-fdefine-target-os-macros" "-fno-assume-unique-vtables" "-fno-modulemap-allow-subdirectory-search" "-enable-tlsdesc" "-target-cpu" "apple-m1" "-target-feature" "+v8.5a" "-target-feature" "+aes" "-target-feature" "+altnzcv" "-target-feature" "+ccdp" "-target-feature" "+ccpp" "-target-feature" "+complxnum" "-target-feature" "+crc" "-target-feature" "+dotprod" "-target-feature" "+flagm" "-target-feature" "+fp-armv8" "-target-feature" "+fp16fml" "-target-feature" "+fptoint" "-target-feature" "+fullfp16" "-target-feature" "+jsconv" "-target-feature" "+lse" "-target-feature" "+neon" "-target-feature" "+pauth" "-target-feature" "+perfmon" "-target-feature" "+predres" "-target-feature" "+ras" "-target-feature" "+rcpc" "-target-feature" "+rdm" "-target-feature" "+sb" "-target-feature" "+sha2" "-target-feature" "+sha3" "-target-feature" "+specrestrict" "-target-feature" "+ssbs" "-target-abi" "darwinpcs" "-debugger-tuning=lldb" "-fdebug-compilation-dir=/Users/jordanh/Src/nanolang" "-target-linker-version" "1166.2" "-fcoverage-compilation-dir=/Users/jordanh/Src/nanolang" "-resource-dir" "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/21" "-isysroot" "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk" "-I/usr/local/include" "-internal-isystem" "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include" "-internal-isystem" "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/21/include" "-internal-externc-isystem" "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include" "-internal-externc-isystem" "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include" "-internal-iframework" "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks" "-internal-iframework" "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/SubFrameworks" "-internal-iframework" "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/Library/Frameworks" "-Wno-elaborated-enum-base" "-ferror-limit" "19" "-stack-protector" "1" "-fstack-check" "-mdarwin-stkchk-strong-link" "-fblocks" "-fencode-extended-block-signature" "-fregister-global-dtors-with-atexit" "-fgnuc-version=4.2.1" "-fskip-odr-check-in-gmf" "-fmax-type-align=16" "-fcommon" "-clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation" "-fno-odr-hash-protocols" "-clang-vendor-feature=+enableAggressiveVLAFolding" "-clang-vendor-feature=+revert09abecef7bbf" "-clang-vendor-feature=+thisNoAlignAttr" "-clang-vendor-feature=+thisNoNullAttr" "-clang-vendor-feature=+disableAtImportPrivateFrameworkInImplementationError" "-Wno-error=allocator-wrappers" "-fdwarf2-cfi-asm" "-o" "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/null-fe9b79.o" "-x" "c" "/dev/null"
+ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" "-demangle" "-object_path_lto" "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-17aaab.o" "-lto_library" "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libLTO.dylib" "-no_deduplicate" "-dynamic" "-arch" "arm64" "-platform_version" "macos" "26.0.0" "27.0" "-syslibroot" "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk" "-mllvm" "-enable-linkonceodr-outlining" "-o" "/private/tmp/nanolang-darwin-native-lto-probe" "-L/usr/local/lib" "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/null-fe9b79.o" "-lSystem" "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/21/lib/darwin/libclang_rt.osx.a"
+python_wasmtime_version=48.0.0
+python_wasmtime_module=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/lib/python3.14/site-packages/wasmtime/__init__.py
+requested_binaries_before_build:
+ABSENT bin/nano_vm
+ABSENT bin/nvm2c
+ABSENT bin/nvm2wasm
+ABSENT bin/nanoisa_dump
+ABSENT bin/nanoisa
+finished_utc=2026-09-18T14:04:32Z
+elapsed_seconds=0.956535

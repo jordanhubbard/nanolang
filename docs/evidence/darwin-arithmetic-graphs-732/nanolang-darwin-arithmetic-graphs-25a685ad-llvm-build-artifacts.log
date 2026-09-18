@@ -1,0 +1,10 @@
+captured_utc=2026-09-18T13:59:39Z
+17a340e38a7580c05a86f451b4ac54290a0ca0a0b2c4a1cc09a66c3372ec7c62  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nano_vm
+/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nano_vm: Mach-O 64-bit executable arm64
+3d0b0fe22c7f147873da08d3f2abf0f26d31c4d55d915f029c3ad53886abb6af  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nvm2c
+/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nvm2c: Mach-O 64-bit executable arm64
+13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nvm2wasm
+/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nvm2wasm: Python script text executable, ASCII text
+67d4b4364f27da3299a9a950eb0ceeb28cb8d662c154fea426073aa63b0dcf5e  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nanoisa
+/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nanoisa: Mach-O 64-bit executable arm64
+ABSENT bin/nanoisa_dump
