@@ -258,3 +258,9 @@ public route. I retain parent500906 open until this prerequisite is resolved.
 My native legacy helper identity test instead uses C-seed `--keep-c`; selfhost
 `--target c` already selects its legacy transpiler. These route names are not
 interchangeable.
+
+My [bounded stage-3 source evidence](evidence/binary64-arithmetic-source.md)
+qualifies the reviewed interpreter and legacy arithmetic operators, exact helper
+text and ordered global initialization. Its explicit route matrix retains failed
+legacy reduce ABI acceptance, other callback refusals and the separate public
+C-source target prerequisite. I do not report source-wide policy completion.

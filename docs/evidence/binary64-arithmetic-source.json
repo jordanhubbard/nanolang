@@ -79,5 +79,48 @@
     "optimized_callback_results": 24,
     "optimized_input_patterns": 8
   },
-  "immutable_pr720_tools_unchanged": true
+  "immutable_pr720_tools_unchanged": true,
+  "integration": {
+    "tested_head": "c732e2bb946c0f6a74a2a275e73b59bc267375f4",
+    "main_base": "11d64547812c6a9c6d720e24dfec41948be32dfd",
+    "source_implementation_unchanged_from_preintegration": true,
+    "fresh_bootstrap": true,
+    "gcc_methods": 5,
+    "gcc_seconds": 53.213,
+    "clang_methods": 5,
+    "clang_seconds": 38.28,
+    "combined_graph_arithmetic_methods": 3,
+    "combined_graph_arithmetic_seconds": 3.423,
+    "tools": {
+      "bin/nvm2c": "aa16839bf1bd327beb5e207d15a9d1c918b2e8ee933bc969894399428668e9ac",
+      "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+      "bin/nanoc": "8740386911a517cc9a071f8e398789ff4e11faac87bb8d01fbf09a4aa60df764",
+      "bin/nanoc_stage1": "63326d6bf644a2bc20aa8ccc00159084ff9573ec230f1e5ad1686e73a3820e42",
+      "bin/nanoisa": "f40c3c1ff83985a2e8925f4173bd7e4ed8e83002e7ba05a25ebff19a163b1bd6",
+      "bin/nano_vm": "86da1ba5465ed190a6c725389ba43c1e2ec65d2a41c832dee7c66a482a8e7a51",
+      "bin/nano_virt": "ca137098e4ab655c9aa5116c5199f60051e55d58c34209b83820fe369650d3fc",
+      "bin/nanoc_stage2": "8740386911a517cc9a071f8e398789ff4e11faac87bb8d01fbf09a4aa60df764",
+      "bin/nanoc_c": "a9a84c219114e472165d8fa127087000574097fbffba6ffc5f4364755b803c9a",
+      "bin/nano_as_capture.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+      "bin/nvm2llvm": "8d66891abc9bd2a65a113661b24543a6c2de5be3bc58a1a70290b17a280f6ee7",
+      "bin/nano": "52e740adeb09ac913019f0fa99e913a87b97977e364ea77617be1dce8092d94d"
+    },
+    "logs": {
+      "/tmp/nanolang-arithmetic-source-integration-build.log": "0b4e9709171998811a00f1d172bdc935a3c3274fd0a2589190cf26e9220a99ac",
+      "/tmp/nanolang-arithmetic-source-integrated-gcc.log": "4ba8eaab4c7d314074c2bfa8ea9e8fe2f9b4f8eb69229d25ba25630f0c71916f",
+      "/tmp/nanolang-arithmetic-source-integrated-clang.log": "35de4f0218d5de0ee41df28a8f60f70ac27bd7aeede3b1eaa471656112cfa0d4",
+      "/tmp/nanolang-arithmetic-source-integrated-graph.log": "9c4061efd761f6dcab591dd914ddcbae438fff4886a5a3949735514a298abae3"
+    },
+    "typed_scalar_assembly": {
+      "/tmp/nano-arithmetic-source-uapmlmwo/nano_virt.nasm": "ff3b2e2a3025e954e99730eab69553cc229e6ef1f3269b6b56509404aa1789fa",
+      "/tmp/nano-arithmetic-source-uapmlmwo/nanoc_stage2.nasm": "a3d4de1bcec12101ff2dc158ecd4d27c0f3c900df24ae939feb7383a8b9aa242",
+      "/tmp/nano-arithmetic-source-uapmlmwo/nanoc_stage1.nasm": "a3d4de1bcec12101ff2dc158ecd4d27c0f3c900df24ae939feb7383a8b9aa242",
+      "/tmp/nano-arithmetic-source-9k4nhhyv/nano_virt.nasm": "ff3b2e2a3025e954e99730eab69553cc229e6ef1f3269b6b56509404aa1789fa",
+      "/tmp/nano-arithmetic-source-9k4nhhyv/nanoc_stage2.nasm": "a3d4de1bcec12101ff2dc158ecd4d27c0f3c900df24ae939feb7383a8b9aa242",
+      "/tmp/nano-arithmetic-source-9k4nhhyv/nanoc_stage1.nasm": "a3d4de1bcec12101ff2dc158ecd4d27c0f3c900df24ae939feb7383a8b9aa242"
+    },
+    "freeze_manifest": "/tmp/nanolang-arithmetic-source-integrated-freeze.json",
+    "freeze_manifest_sha256": "0e1c66ba4f97e4940f9e2c23e6c128d0a8fd604b3b9c5d0908acbec64a0b4ecd",
+    "all_recorded_hashes_unchanged": true
+  }
 }

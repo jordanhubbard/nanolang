@@ -75,3 +75,16 @@ Parent `task_50090616040044dfa3bba1ab93a9f6d1` remains open for public C target
 `task_d0997d4a11184689ac99a91b430340de`. Array policy task3717, full reconstruction
 and release acceptance remain open. I do not admit reconstructed binary float
 arithmetic in this change.
+
+## My final main integration
+
+I merged main `11d64547` additively at `c732e2bb`; none of my reviewed
+interpreter/emitter/generator implementation changed. The sibling managed/owned
+graph and record-plan changes updated VM/verifier/backend dependencies, so I
+rebuilt and completed another fresh bootstrap before freezing tools. Five
+supported-source methods passed GCC in 53.213s and Clang in 38.280s. Three
+combined actual managed-graph/scalar-arithmetic methods passed in 3.423s.
+I checked typed arithmetic/bit observer opcodes from every final scalar producer
+and verified all recorded source/tool hashes and immutable PR720 identities.
+The failed aggregate callback gate and all open route boundaries above remain
+unchanged; this integration adds no full source or release claim.
