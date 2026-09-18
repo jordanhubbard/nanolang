@@ -294,8 +294,7 @@ static NvmV2Result validate_cross_section(const NvmV2Module *m,
         for (uint16_t f = 0; f < l->field_count; f++) {
             if (!index_ok(l->fields[f].name_idx, nc, true))
                 return NVM_V2_ERR_INDEX_RANGE;
-            /* The LAYOUTS codec already enforced nested < i; this only bounds
-             * it against the table that actually decoded. */
+            /* I retain the codec's acyclic exact indices without reordering. */
             if (!index_ok(l->fields[f].nested_idx, nl, true))
                 return NVM_V2_ERR_INDEX_RANGE;
         }

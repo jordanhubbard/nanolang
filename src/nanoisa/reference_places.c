@@ -29,8 +29,8 @@ bool nvm_reference_place_valid(const NvmV2Layouts *layouts,
         if (!record_valid(layout) || place->fields[i] >= layout->field_count)
             return false;
         const NvmV2LayoutField *field = &layout->fields[place->fields[i]];
-        /* v2 layout edges are strictly backward. I retain that invariant
-         * even when this API is given producer-owned, not decoded, tables. */
+        /* I retain prior-only reference paths even when the structural
+         * codec accepts an ordinary DAG or a producer supplies the table. */
         if (field->type_tag != TAG_STRUCT || field->nested_idx >= current)
             return false;
         current = field->nested_idx;

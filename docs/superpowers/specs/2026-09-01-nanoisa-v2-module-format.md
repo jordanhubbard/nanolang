@@ -214,9 +214,12 @@ per entry:
     name_idx  u32
 ```
 
-A layout is closed: every nested index refers to a lower-numbered layout, so
-the table is acyclic by construction and a verifier can validate it in one
-forward pass.
+I retain the original lower-numbered nested-index path. I also decode a
+forward-containing table when every entry is STRUCT, every field is an exact
+scalar/string leaf or STRUCT edge, and an iterative check establishes a finite
+acyclic graph. I preserve table indices. This structural fact does not establish
+ordinary or resource authority: ownership declarations are checked separately,
+and resource-bearing authority and owned execution retain prior-only edges.
 
 ### FUNCTIONS
 
@@ -334,7 +337,8 @@ Loading is not trusting. A v2 module is rejected unless:
 5. Every required section for the declared feature bits is present.
 6. Every index is in range for its target table: constant, signature, layout,
    function, global, import, link.
-7. Every layout's nested indices are lower-numbered.
+7. Every layout is acyclic: prior-only tables retain their original validation;
+   forward-containing tables require the exact all-record graph check above.
 8. `checksum` matches.
 
 Only after these does instruction-level verification run. Several verifier

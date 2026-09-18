@@ -1,0 +1,19 @@
+[
+  {
+    "name": "bootstrap",
+    "command": [
+      "make",
+      "-j4",
+      "bootstrap",
+      "nano_virt",
+      "nano_vm",
+      "nanoisa_dump",
+      "nvm2c",
+      "nvm2llvm",
+      "nvm2wasm",
+      "bin/nano"
+    ],
+    "status": 2,
+    "seconds": 237.34545883804094
+  }
+]
