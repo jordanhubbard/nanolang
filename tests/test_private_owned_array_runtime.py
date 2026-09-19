@@ -75,13 +75,21 @@ class PrivateOwnedArrayRuntime(unittest.TestCase):
             self.assertNotIn(symbol, self.command(['nm', '-g', obj]).stdout)
         providers = shlex.split(os.environ['PRIVATE_OWNER_ARRAY_OBJECTS'])
         libraries = shlex.split(os.environ['PRIVATE_OWNER_ARRAY_LDFLAGS'])
-        for threaded in (False, True):
+        switch_only = os.environ.get("PRIVATE_OWNER_ARRAY_SWITCH_ONLY") == "1"
+        for threaded in ((False,) if switch_only else (False, True)):
             phase = self.work / ('threaded' if threaded else 'switch')
             phase.mkdir()
             objects = []
             for name, source in [('vm', 'src/nanovm/vm.c'), ('nvm2c', 'src/nanoisa/nvm2c.c'), ('heap', 'src/nanovm/heap.c')]:
                 obj = phase / (name + '.o')
-                extra = ['-DNANO_COMPUTED_GOTO'] if threaded and name == 'vm' else []
+                extra = (['-DNANO_COMPUTED_GOTO'] if threaded else ['-DNANO_NO_COMPUTED_GOTO']) if name == 'vm' else []
+                if name == 'vm':
+                    macros = self.command([*common, *extra, '-dM', '-E', source]).stdout
+                    if threaded:
+                        self.assertIn('#define NANO_COMPUTED_GOTO 1', macros)
+                    else:
+                        self.assertIn('#define NANO_NO_COMPUTED_GOTO 1', macros)
+                        self.assertNotIn('#define NANO_COMPUTED_GOTO ', macros)
                 if name == 'heap':
                     extra += ['-Dmalloc=private_array_malloc', '-Dcalloc=private_array_calloc', '-Drealloc=private_array_realloc']
                 self.command([*common, *extra, '-c', source, '-o', obj])
@@ -94,6 +102,8 @@ class PrivateOwnedArrayRuntime(unittest.TestCase):
             if threaded:
                 for _, index, _ in rows:
                     self.assertEqual((phase/f'case{index}.c').read_bytes(), (self.work/'switch'/f'case{index}.c').read_bytes())
+                continue
+            if switch_only:
                 continue
             for _, index, status in rows:
                 harness = phase / f'native{index}.c'
