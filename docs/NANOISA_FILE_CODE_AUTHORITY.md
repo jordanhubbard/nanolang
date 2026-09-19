@@ -197,3 +197,23 @@ count limit does not promise it fits the byte budget. Failure remains atomic.
    bindings, generated ownership metadata and complete original source/shadows
    follow with actual temporary-file lifecycle acceptance. These remain72556/6931,
    d03c/ed702 and full-release obligations after the private query lands.
+
+## My first-checkpoint implementation audit
+
+Before code I distinguish metadata presence from execution refusal. I add an
+allocation-free instruction-family scan plus a separate pending-execution query;
+I do not redefine `service_bindings_present` or infer required feature bits from
+arbitrary immediate bytes. I scan declared function instruction boundaries and
+recognize a new opcode before reading its operands, so a truncated new opcode
+still refuses. Malformed ranges/earlier undecodable bytes remain the existing
+structural decoder's responsibility, never positive File authority. Metadata
+validation requires exact nominal version2 when a new instruction is present;
+bare/v1 instruction modules cannot pass the non-executing bridge/container path.
+
+Module disassembly/reconstruction that drops service authority continues refusing.
+Raw instruction/function disassembly without a module remains available for exact
+text controls and conveys no ownership metadata. Its common branch formatting
+currently adds signed32 offsets directly; I record that static arithmetic finding
+before widening target arithmetic for this checkpoint. I execute no pre-fix
+boundary fixture. Raw `isa_decode` retains its existing partial-output-on-truncation
+contract; staged immutable query outputs are a separate later API guarantee.
