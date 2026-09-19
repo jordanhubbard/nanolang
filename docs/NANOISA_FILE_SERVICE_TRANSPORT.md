@@ -277,3 +277,19 @@ manifest declares no include directory. Make's `-Isrc/nanoisa` therefore cannot
 be assumed for module builds. I record the source include omission before
 matching the established `../../src/nanoisa/` path. No build was attempted.
 I also integrate reviewed mixed-proof closure64db8f922 before qualification.
+
+### My first combined qualification and next fixture checkpoint
+
+At c34c7324f my fresh clean bootstrap passes in254.286s. The next focused setup
+stops before fixture compilation/execution: runtime IR compilation lacks the
+explicit GCC13 selection used by my existing Linux Clang qualification and
+`-Werror` rejects its installation-selection warning. I preserve the complete
+first terminal under `/tmp/nanolang-service-module-c34c`; source/tool inventories
+are unchanged. I record this harness configuration omission under6833 before
+setting `NMS_NATIVE_CLANG_FLAGS` for the corrected fresh run. I do not weaken
+warnings or rerun the old failed setup artifacts.
+
+My next fixture checkpoint additionally covers actual reconstruction/LLVM/C/Wasm
+CLI output preservation and public callable-entry/FFI loader-state refusal.
+It receives fresh input maps and its own pin. The completed bootstrap remains
+at c34; unchanged production does not turn it into a bootstrap of new fixtures.
