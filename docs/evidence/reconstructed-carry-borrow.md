@@ -73,3 +73,26 @@ e2a95f05c6a419be92ab10d7bdc19ae27d40c1a1c2251c569d152524bb6a8aca  bin/nvm2c
 ```
 
 This integrated rerun includes the now-merged owner-ARRAY runtime/source work, but it remains a scalar reconstruction qualification rather than a full product or release gate.
+
+## My File-body integration
+
+Canonical main then advanced to `ec8f5b7a9317f48412c673973729f768122c01b4`, including the reviewed File-body implementation. I merged that exact commit without a conflict at `ea8d5aaadeaf425d1f22c5f57f34e2a84eb71cba`. The File-body dependency and target lines in `Makefile.gnu` remain byte-identical to canonical main, SHA-256 `59f232b171483dabd8ac76bc37fd45f1e4ea992829cf2bb478660912c013768f`; my sole Make delta adds `tests.test_reconstructed_carry_borrow` to `test-scalar-reconstruction`. My four production and affected-test hashes remain the values recorded above.
+
+I ran the qualification from a new detached checkout at that merge. My first fresh bootstrap stopped at the unchanged ten-second shadow deadline after 94.37s without a semantic diagnostic. I preserve `/private/tmp/nanolang-pr850-ec8-evidence/bootstrap.log`, SHA-256 `45668c118230b9d2491051527dc434aedd1ef7498ce52baa5302fa11aed35dbb`. The unchanged retry passed in 324.37s with Stage 1, Stage 2, installed hello and C-seed-independence smokes; its log is `/private/tmp/nanolang-pr850-ec8-evidence/bootstrap-retry.log`, SHA-256 `d4db34e213dde99e2fdd4ba5f0c3c23d9090640f5057b9b297e4a8eb47aef125`. The first attempt selected the Command Line Tools macOS 26 SDK, while the retry selected the installed Xcode macOS 27 SDK. I changed no project or shell configuration and make no cause claim for that external selection difference.
+
+My first direct focused invocation then stopped immediately because bootstrap does not build `bin/nanoisa`. It exercised no language behavior. I preserve `/private/tmp/nanolang-pr850-ec8-evidence/focused.log`, SHA-256 `1ea3c641d8042f99f4115aa6085ab4e9a1647cf837c8118bc7c5a386e48e8c53`. I built the exact `nvm2hl nanoisa_dump nano_vm nvm2c nvm2c-runtime` prerequisites in 0.45s, then reran the unchanged fixture. All three carry/borrow methods passed in 79.794s; `/private/tmp/nanolang-pr850-ec8-evidence/focused-corrected.log` hashes to `74b19e529ee34fe20377ed1b0bd9d537617b85561e46d2d66c2ff724575fbea5`. The complete scalar reconstruction target passed all 55 methods in 572.581s; `/private/tmp/nanolang-pr850-ec8-evidence/scalar.log` hashes to `bd4cbf36f1c2345216276b1f94de6df799acc73da8c12839a95c8fcbd91fda6a`.
+
+The passing run selected Apple Clang 21.0.0 at `/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang`, SHA-256 `1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9`, Xcode macOS SDK 27.0, Python 3.14.6 and GNU Make 3.81. Its principal artifacts were:
+
+```text
+7427895d14103ca982d4c8aa819c3552415686780233a31ddbfda97d9c685249  bin/nanoc_c
+1f79004bb742148fe673dce298b7e96653088bb19837bbe25271a1acdab13ebf  bin/nanoc_stage1
+616ca5851503266eb1f1f37b64e5e0d5465c0ee277283e030e0c6806c76858ba  bin/nanoc_stage2
+616ca5851503266eb1f1f37b64e5e0d5465c0ee277283e030e0c6806c76858ba  bin/nanoc
+24cbcfa8ef384094fbbfbc50f508ab9fa4167994664be3d0237c1d040581ba8e  bin/nanoisa
+269542a41c72660ca6f81a84c63cb198cfb910023b76e55755c46d15491672eb  bin/nano_vm
+78b5b111247155e51f052edf06756af2d89d838e4339ff30de017515b9cf7816  bin/nvm2c
+c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4  bin/nvm2hl
+```
+
+This gate qualifies the bounded carry/borrow integration through canonical File-body main. It does not qualify the separately active owner-ARRAY mutation source work, full reconstruction, PR522 or release publication.
