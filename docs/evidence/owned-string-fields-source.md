@@ -47,3 +47,27 @@ the seals.
 I qualify Linux at these exact pins. Darwin source acceptance, subsequent
 canonical integration and whole-product/release gates remain distinct; this
 source evidence alone does not close the full platform task or its parents.
+
+## My canonical integration
+
+I preserve the source-qualified tree and its tools, then merge canonical
+`9821e3901a407f392cf5fb60ab23222809181dc7` in a separate tree at
+`c54af77e`. Both source producers remain byte-identical to the reviewed source
+seal. Make and roadmap conflicts preserve both additive branches; the shared
+affine-state addition includes the canonical private mixed Samples query.
+
+My [integration seal](owned-string-fields-integrated.json) records all six
+phases passing: GCC setup8.959/fixture30.768/frozen13.412 seconds and Clang
+setup0.343/fixture19.587/frozen15.987 seconds. Sources and frozen tools/objects
+remain unchanged. STRING fields, initialization joins, print/failure recovery,
+nested results, borrowed references, private mixed layout/FLOAT proofs, the
+112,454-check mixed Samples composition suite and1,239 owned binary64 controls
+pass. This native-only integration does not repeat source bootstrap.
+
+The private composed query always constructs the FLOAT proof first and returns
+on its failure. Existing direct STRING-owner proof refusals plus the integrated
+composition suite preserve that boundary. I did not separately execute a
+composed-STRING control. The mixed query target uses its normal strict C11 O1
+flags; generated native STRING/nested controls retain their sanitizer flags.
+Exact commands and object reuse are recorded, not described as a fully
+sanitizer-instrumented runtime. Darwin source acceptance remains open.
