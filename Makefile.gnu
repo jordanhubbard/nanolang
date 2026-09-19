@@ -5306,4 +5306,4 @@ test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 # I exercise real container/consumer objects; only the allocation-prefix variant
 # replaces three translation units with named malloc/calloc/realloc hooks.
 test-service-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o nvm2llvm nvm2hl nvm2c
-	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_service_bindings_module
+	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_service_bindings_module

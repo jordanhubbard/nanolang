@@ -17,7 +17,7 @@ class ServiceModule(unittest.TestCase):
         cls.compiler = shlex.split(os.environ.get("NANO_SERVICE_MODULE_TEST_CC", "cc"))
         cls.flags = ["-std=c11", "-D_DEFAULT_SOURCE", "-g", "-O1", "-Wall", "-Wextra",
                      "-Werror", "-fsanitize=address,undefined", "-fno-omit-frame-pointer",
-                     "-Isrc/nanoisa", "-Imodules/nanoisa"]
+                     "-Isrc", "-Isrc/nanoisa", "-Imodules/nanoisa"]
         cls.flags += shlex.split(os.environ.get("NANO_SERVICE_MODULE_TEST_CFLAGS", ""))
         cls.objects = shlex.split(os.environ["SERVICE_MODULE_OBJECTS"])
         cls.linkflags = shlex.split(os.environ.get("SERVICE_MODULE_LDFLAGS", ""))
