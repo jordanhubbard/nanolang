@@ -1,0 +1,10 @@
+I retain private file artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-local-file-0412ntdp
+test_instrumented_lifetimes_and_faults (tests.test_nsi_file.LocalFileService) ... PASS 2634 checks; 395 real opens and 395 real closes; 20 allocator calls; no live resources
+ok
+test_ordinary_linked_adapter (tests.test_nsi_file.LocalFileService) ... PASS ordinary linked private local-file adapter
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.956s
+
+OK

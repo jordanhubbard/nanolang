@@ -1,0 +1,82 @@
+Running NSI capability-runtime tests...
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o tests/test_nsi_cap tests/test_nsi_cap.c \
+		src/nsi_cap.c
+NSI capability runtime tests
+  cap: integers and pointers are forged                        PASS
+  cap: type, service, rights, delegation, revocation           PASS
+  cap: rights attenuate on delegate                            PASS
+  cap: transfer requires permission                            PASS
+  cap: restart invalidates; generation not reused              PASS
+  cap: resource own/consume; Forth cells not pointers          PASS
+  cap: audit create, delegate, use, revoke, fail               PASS
+7 passed, 0 failed
+Running NSI shared-memory tests...
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o tests/test_nsi_shm tests/test_nsi_shm.c \
+		src/nsi_shm.c src/nsi_cap.c
+NSI shared-memory tests
+  shm: kinds, mmap and copy fallback match                     PASS
+  shm: offset, length, alignment, direction                    PASS
+  shm: rights, ownership, seal, revoke                         PASS
+  shm: bench control, copy, map by payload                     PASS
+4 passed, 0 failed
+Running NSI fabric, supervisor, and editor-client tests...
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o tests/test_nsi_fabric tests/test_nsi_fabric.c \
+		src/nsi_fabric.c src/nsi_shm.c src/nsi_cap.c \
+		src/nsi.c src/utf8.c src/cJSON.c 
+NSI fabric tests
+  fabric: discover, order, health, ready, shutdown             PASS
+  fabric: restart, fail-request, fail-application              PASS
+  fabric: failure classes, idempotent retry, context           PASS
+  fabric: preserve state and rolling replace                   PASS
+  fabric: posix host, inproc policy match, remote no caps      PASS
+  fabric: migrated services with scoped caps                   PASS
+  fabric: quotas, cancel, accounting, flood                    PASS
+  fabric: editor walker/freeze caps, quotas, kill, stale       PASS
+8 passed, 0 failed
+Running NSI runtime, transport, and acceptance tests...
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o tests/test_nsi_runtime tests/test_nsi_runtime.c \
+		src/nsi_runtime.c src/nsi.c src/utf8.c src/cJSON.c
+  nsi_rt: one client vs inproc/mock/local                      PASS
+  nsi_rt: vector2d inproc and local match                      PASS
+  nsi_rt: replace impl without changing client                 PASS
+  nsi_rt: auth, malformed, extra keys fail closed              PASS
+  nsi_rt: backpressure, cancel, deadline                       PASS
+  nsi_rt: idempotent write_event and frames                    PASS
+  nsi_rt: bounded copies keep a terminator                     PASS
+  nsi_rt: resource handle and schema evolution                 PASS
+  nsi_rt: process/net/audio/graphics/gpu/python                PASS
+
+9 passed, 0 failed
+Running NSI binding-generator tests...
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o tests/test_nsi_gen tests/test_nsi_gen.c \
+		src/nsi_gen.c src/nsi.c src/utf8.c src/cJSON.c
+  nsi_gen: NanoLang and Forth from the same NSI                PASS
+  nsi_gen: dispatch ids and NanoISA imports                    PASS
+  nsi_gen: C/C++/Python/Rust/NanoVM share method ids           PASS
+
+3 passed, 0 failed
+Running NSI v0 identifier tests...
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o tests/test_nsi tests/test_nsi.c \
+		src/nsi.c src/utf8.c src/cJSON.c
+  nsi: load log example and read stable ids                    PASS
+  nsi: load records variants arrays resources callbacks async  PASS
+  nsi: reject missing interface id                             PASS
+  nsi: reject duplicate method id                              PASS
+  nsi: reject method id outside interface                      PASS
+  nsi: reject unknown nsi_version                              PASS
+  nsi: reject invalid UTF-8                                    PASS
+  nsi: reject capability without cap: prefix                   PASS
+  nsi: reject param missing direction                          PASS
+  nsi: reject unknown ownership                                PASS
+  nsi: reject streaming in on out param                        PASS
+  nsi: reject unknown type kind                                PASS
+  nsi: reject empty variant                                    PASS
+  nsi: reject array without element                            PASS
+  nsi: document is compatible with itself                      PASS
+  nsi: adding a method is compatible                           PASS
+  nsi: removing a method is breaking                           PASS
+  nsi: reject method without explicit params                   PASS
+  nsi: reject c_type ABI hint                                  PASS
+  nsi: reject unresolved param type                            PASS
+
+20 passed, 0 failed

@@ -234,3 +234,10 @@ no public setters or hooks. Host error wrappers perform real closes before
 reporting a requested close error. I retain strict warnings and actual allocator,
 file and sentinel accounting. Existing NSI checks in this fresh C-only checkout
 do not establish source-client compilation if no compiler binary is installed.
+
+## My qualified private checkpoint
+
+I retain my first frozen `4aad73a0` Linux and Darwin results in
+[the acceptance report](evidence/local-file-service.md). My earlier statements
+about no execution describe their preimplementation checkpoints. I now test
+real private file ownership; public NSI/source/VM/AOT integration remains open.

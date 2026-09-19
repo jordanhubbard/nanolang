@@ -9214,10 +9214,10 @@ Ownership and proposal closure:
 - [ ] I encode and verify ownership facts in `.nvm` v2, preserving them through
       serialization, linking, reconstruction, `nvm2c`, and every shipped
       translator (`task_ed70242ac4d83be7b2327da7ece387ad`).
-- [ ] I establish a private real local-file service adapter before public handle migration (`task_f9ac5bb2adbf44198a5bdb8ed41309ff`, child of d03c). My [preimplementation contract](NSI_LOCAL_FILE_SERVICE.md) first fixes actual temporary-file acquisition, rights/generation identity, transfer and consumed-close Result/error ownership; I review capability retirement/reuse before code, then qualify real byte I/O, failure cleanup, stale/duplicate isolation and bounded-live reuse on Linux/Darwin with exact source/tool evidence. I keep public NSI generation, paired source/import/VM/AOT admission and remaining File/Socket/GPU integration as later reviewed phases. This row records a contract only; no resource operation has run.
-  - [ ] I independently review private identity, capability retirement/reuse, Result ownership and cleanup before implementation.
-  - [ ] I implement only the unselected local-file adapter and review production before resource operations.
-  - [ ] I qualify actual Linux/Darwin byte I/O, transfer/close/reuse, stale/duplicate isolation and deterministic allocation/host-error cleanup with retained source/tool evidence.
+- [ ] I establish a private real local-file service adapter before public handle migration (`task_f9ac5bb2adbf44198a5bdb8ed41309ff`, child of d03c). My [preimplementation contract](NSI_LOCAL_FILE_SERVICE.md) first fixes actual temporary-file acquisition, rights/generation identity, transfer and consumed-close Result/error ownership; I review capability retirement/reuse before code, then qualify real byte I/O, failure cleanup, stale/duplicate isolation and bounded-live reuse on Linux/Darwin with exact source/tool evidence. I keep public NSI generation, paired source/import/VM/AOT admission and remaining File/Socket/GPU integration as later reviewed phases. My [private acceptance evidence](evidence/local-file-service.md) records frozen `4aad73a0` Linux/Darwin real-file and sanitizer controls; public migration and final integration remain separate.
+  - [x] I independently review private identity, capability retirement/reuse, Result ownership and cleanup before implementation.
+  - [x] I implement only the unselected local-file adapter and review production before resource operations.
+  - [x] I qualify actual Linux/Darwin byte I/O, transfer/close/reuse, stale/duplicate isolation and deterministic allocation/host-error cleanup with retained source/tool evidence.
   - [ ] I independently review and integrate this private child; I then contract public NSI/paired source/VM/AOT integration separately without closing d03c.
 - [ ] I migrate real file, socket, GPU, and capability/service handles only
       after that contract and IR are enforceable
