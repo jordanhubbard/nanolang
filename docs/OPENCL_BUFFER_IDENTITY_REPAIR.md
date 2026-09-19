@@ -132,3 +132,25 @@ The initial local header search found no installed CL/cl.h; a separate urllib
 fetch returned HTTP404, so I claim web-header inspection, not a sealed downloaded
 header or measured ABI acceptance. Production and execution remain held for
 review of this addition.
+
+## I preserve my first compile refusal and check source-reader publication
+
+At frozen634595907, my first gate stopped in strict GCC compilation: two
+existing unchecked fread results and one possibly truncated path diagnostic in
+the unified runtime. No fixture or driver operation ran. The before/after source
+and tool maps agree; the compiler log SHA256 is
+c3d009d078fb100681a6822b40bcaeeb0fef423390d28b263ff1d5c98084ea84,
+retained under /tmp/nanolang-opencl-first-634595907. Static review finds the
+adjacent CUDA-only reader also discards fread. I track this prerequisite as
+task_f13e8a01c0e4466b8aa4e523c17bac96 before correction.
+
+I propose to check both seeks, nonnegative tell and size+terminator
+representability before allocation; require the exact read count, no stream
+error and successful close before handing source bytes to any driver. On refusal
+I free allocated bytes and close the file exactly once. I bound paths in
+first-person diagnostics without disabling warnings. This covers only the
+three existing PTX/OpenCL source readers in unified and CUDA-only runtimes;
+valid source bytes, backend selection, cache semantics and public ABI remain
+unchanged. Fresh strict compilation and ordinary host reader publication/cleanup
+controls qualify the repair after review. I do not rerun the old failed artifact
+or claim a device outcome from the compile failure.
