@@ -12064,3 +12064,10 @@ full Forth conformance and release acceptance remain open.
   checkout only for evaluator execution; assertions and production remain intact.
 
 - [x] I qualify the corrected C-seed match fixtures on Linux at `7a21096f8`: all 122 evaluator cases and eight totality tests pass with unchanged source, 155 providers, and six tool identities. I retain every first terminal in [my sealed evidence](evidence/shared-match-linux/README.md). Integration, fresh bootstrap, Darwin acceptance, and the shared parent tasks remain open.
+- [ ] I await the completed checkout transfer/fetch and verify exact clean HEAD
+  before launching Darwin push qualification (`task_6cd6a0d6ecc44c5f5beba3c8f5c867ab`). My
+  first925c runner failed HEAD lookup before make because fetch was still active;
+  I preserve that log and empty evidence directory. Fetch then completed normally.
+  I correct only external launch ordering/evidence destinations, retaining925c
+  source and explicit tools. Linux bootstrap remains independent; no compiler
+  result or product defect follows from this preparation failure.
