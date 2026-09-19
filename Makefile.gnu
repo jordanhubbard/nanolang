@@ -5354,3 +5354,8 @@ test-nsi-gpu-private:
 test-units: test-owned-array-layouts
 test-owned-array-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	OWNED_ARRAY_LAYOUT_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_layouts
+
+.PHONY: test-owned-array-origins
+test-units: test-owned-array-origins
+test-owned-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	OWNED_ARRAY_ORIGIN_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_origins
