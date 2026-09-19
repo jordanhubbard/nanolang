@@ -288,3 +288,22 @@ separately from the original E035 refusal and the preparation guard failure.
 I make no duplicate match production repair. Qualified PR855 integration must
 precede a fresh complete evaluator gate and dependent identity/mutation/pattern
 gates. My reviewed declared-push initializer production remains unchanged.
+
+## My independent pre-integration gate schedule
+
+After root review I separate scheduling from acceptance. My complete evaluator
+suite remains FAILED pending qualified PR855; I retain its assertion and all
+terminals. The new lookup low-level control has passed in both Linux evaluator
+attempts. I may now run the unchanged six identity methods, then unchanged
+twelve mutation/source methods and full twelve owned-record-pattern methods
+on frozen9f7, only advancing after each independent source gate passes. Darwin
+first builds its own C providers and runs the new lookup control in a separate
+fresh fixture; I do not replay the known-failing complete evaluator there.
+
+These results are partial pre-integration evidence. They cannot complete the
+evaluator gate, this prerequisite, or parent tasks, and cannot authorize merge.
+After qualified PR855 integration I require the complete evaluator suite and
+justified affected source gates. Reused0c54 selfhost binaries keep their original
+bootstrap attribution and exact Nano/C-provider dependency evidence; they are
+not presented as a new bootstrap. My gate runner records the held evaluator
+dependency explicitly instead of treating its failed status as successful.
