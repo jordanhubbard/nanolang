@@ -137,8 +137,8 @@ shadow joined { let empty: Result<Handle,string> = Result.Err { error: "empty" }
         source = PREFIX + CONSUME.replace('Ok(payload) =>', 'Ok(payload) if true =>') + MAIN
         selected.SelectedVariantOwnership().program(source, False, {
             'nanoc_c': 'exhaustive unguarded owned match',
-            'nanoc_stage1': "Parse error.*unexpected token 'if'",
-            'nanoc_stage2': "Parse error.*unexpected token 'if'",
+            'nanoc_stage1': 'I do not yet accept guarded match arms in my self-hosted parser',
+            'nanoc_stage2': 'I do not yet accept guarded match arms in my self-hosted parser',
         })
 
     def test_resource_collection_still_rejected(self):

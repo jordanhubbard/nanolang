@@ -373,17 +373,16 @@ static bool borrow_owner(BorrowCG *b,ASTNode *value,unsigned layout) {
             if(index<0 || slots[index]>=0){borrow_error(b,value,"distinct declared constructor fields");return false;}
             int child=borrow_child(b,(unsigned)layout,index);uint8_t tag;
             if(child>=0) {
-                ASTNode *item=value->as.struct_literal.field_values[f];
-                int source=item->type==AST_IDENTIFIER?borrow_local(b,item->as.identifier):-1;
-                if(source<0 || !b->live[source] || b->modes[source] || b->disposal_pending[source] || b->tags[source]!=TAG_STRUCT || b->layouts[source]!=(uint32_t)child) {
-                    borrow_error(b,value,"an exact live child owner in a nested constructor");return false;
-                }
-                emit_op(cg,OP_OWN_MOVE_LOCAL,source);b->live[source]=false;tag=TAG_STRUCT;
+                /* I root each completed child before the next source field. */
+                if((unsigned)child>=layout){borrow_error(b,value,"a strictly earlier exact child layout");return false;}
+                if(!borrow_owner(b,value->as.struct_literal.field_values[f],(unsigned)child))return false;
+                tag=TAG_STRUCT;
             } else {
                 tag=borrow_expr(b,value->as.struct_literal.field_values[f]);
                 if(tag!=borrow_tag(record->as.struct_def.field_types[index])){borrow_error(b,value,"exact constructor field types");return false;}
             }
             slots[index]=borrow_slot(b,NULL,tag,child>=0?(uint32_t)child:NVM_V2_NO_INDEX,0,false);
+            if(cg->had_error)return false;
             emit_op(cg,child>=0?OP_OWN_STORE_LOCAL:OP_STORE_LOCAL,slots[index]);
         }
         if(cg->had_error)return false;

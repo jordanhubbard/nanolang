@@ -1,0 +1,16 @@
+test_ordered_children_and_all_selected_shadows (tests.test_inline_owned_construction.InlineOwnedConstruction.test_ordered_children_and_all_selected_shadows) ... ok
+test_refusals_and_physical_local_budget (tests.test_inline_owned_construction.InlineOwnedConstruction.test_refusals_and_physical_local_budget) ... ok
+test_emitted_partial_construction_cleanup (tests.test_inline_owned_construction.InlineOwnedConstruction.test_emitted_partial_construction_cleanup) ... ok
+test_float_local_unsafe_original_pattern (tests.test_inline_owned_construction.InlineOwnedConstruction.test_float_local_unsafe_original_pattern) ... ok
+test_float_local_unsafe_control_flow (tests.test_inline_owned_construction.InlineOwnedConstruction.test_float_local_unsafe_control_flow) ... ok
+test_float_local_in_borrowed_control_flow (tests.test_inline_owned_construction.InlineOwnedConstruction.test_float_local_in_borrowed_control_flow) ... ok
+test_float_local_unsafe_refusals_preserve_publication (tests.test_inline_owned_construction.InlineOwnedConstruction.test_float_local_unsafe_refusals_preserve_publication) ... ok
+test_nested_owner_results_preserve_exact_transfer_and_order (tests.test_inline_owned_construction.InlineOwnedConstruction.test_nested_owner_results_preserve_exact_transfer_and_order) ... ok
+test_nested_owner_result_refusals_preserve_output (tests.test_inline_owned_construction.InlineOwnedConstruction.test_nested_owner_result_refusals_preserve_output) ... ok
+test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 197.452s
+
+OK
+I retain inline owner fixtures at /tmp/nano-source-borrows-vp9xeo_r
