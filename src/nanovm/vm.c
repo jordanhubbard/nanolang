@@ -207,7 +207,7 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
  * this classification before it asks whether instantiated constants are ready. */
 static bool vm_module_ownership_required(const NvmModule *module, bool *required) {
     if (required) *required=false;
-    if (!module || !required || nvm_service_bindings_present(module)) return false;
+    if (!module || !required || nvm_service_execution_pending(module)) return false;
     if(nvm_mixed_samples_candidate(module)){*required=true;return true;}
     if (!module->ownership_data && !module->ownership_size) return true;
     bool needs=false;
@@ -217,7 +217,7 @@ static bool vm_module_ownership_required(const NvmModule *module, bool *required
 }
 
 static bool vm_module_ownership_supported(const NvmModule *module, bool standalone) {
-    if (nvm_service_bindings_present(module)) return false;
+    if (nvm_service_execution_pending(module)) return false;
     if(nvm_mixed_samples_candidate(module)) {
         if(!standalone)return false;
         NvmMixedSamplesPlan *plan=NULL;

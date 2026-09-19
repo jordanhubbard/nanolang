@@ -1,0 +1,5 @@
+{
+  "NANO_FILE_OPCODE_TEST_CC": "gcc",
+  "NANO_SERVICE_MODULE_TEST_CC": "gcc",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+}

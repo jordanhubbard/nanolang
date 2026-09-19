@@ -598,7 +598,7 @@ void nvm_owned_array_origins_free(NvmOwnedArrayOrigins *p) {
 NvmOwnerOriginResult nvm_analyze_owned_array_origins(const NvmModule *m,NvmOwnedArrayOrigins **out) {
     NvmOwnerOriginResult invalid={NVM_OWNER_ORIGIN_INVALID,0,0,"I require a complete immutable module envelope and output."};
     if(!m || !out)return invalid;
-    if(nvm_service_bindings_present(m))return (NvmOwnerOriginResult){NVM_OWNER_ORIGIN_UNRESOLVED,0,0,"I refuse service claims before origin analysis."};
+    if(nvm_service_execution_pending(m))return (NvmOwnerOriginResult){NVM_OWNER_ORIGIN_UNRESOLVED,0,0,"I refuse service claims before origin analysis."};
     if(!m->functions || !m->code || !m->function_count || !m->code_size ||
        m->header.magic[0]!=NVM_MAGIC_0 || m->header.magic[1]!=NVM_MAGIC_1 ||
        m->header.magic[2]!=NVM_MAGIC_2 || m->header.magic[3]!=NVM_MAGIC_3 ||

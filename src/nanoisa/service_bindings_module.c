@@ -19,6 +19,18 @@ bool nvm_v2_service_bindings_present(const NvmV2Module *m) {
         if (m->imports.items[i].kind==NVM_V2_IMPORT_SERVICE) return true;
     return false;
 }
+bool nvm_v2_file_instructions_present(const NvmV2Module *m) {
+    if(!m || !m->functions.items || !m->code || m->code_size>SIZE_MAX)return false;
+    for(uint32_t i=0;i<m->functions.count;i++) {
+        const NvmV2Function *f=&m->functions.items[i];
+        if(f->code_offset>m->code_size || f->code_length>m->code_size-f->code_offset)continue;
+        if(isa_code_has_file_instructions(m->code+(size_t)f->code_offset,(size_t)f->code_length))return true;
+    }
+    return false;
+}
+bool nvm_service_execution_pending(const NvmModule *m) {
+    return nvm_service_bindings_present(m) || nvm_file_instructions_present(m);
+}
 static bool exact_bytes(const uint8_t *bytes,uint32_t length,const char *text) {
     size_t n=strlen(text);
     return bytes && length==n && memcmp(bytes,text,n)==0;
@@ -154,6 +166,8 @@ done:
 }
 NvmV2Result nvm_service_bindings_validate(const NvmModule *m) {
     if (!m) return NVM_V2_ERR_INDEX_RANGE;
+    if (nvm_file_instructions_present(m) && !nominal_version(m->service_data,m->service_size))
+        return NVM_V2_ERR_SECTION_TYPE;
     if (!nvm_service_bindings_present(m)) return NVM_V2_OK;
     if (nominal_version(m->service_data,m->service_size)) return nominal_module(m);
     NvmServiceBindings value;
@@ -177,6 +191,8 @@ NvmV2Result nvm_service_bindings_validate(const NvmModule *m) {
 }
 NvmV2Result nvm_v2_service_bindings_validate(const NvmV2Module *m) {
     if (!m) return NVM_V2_ERR_INDEX_RANGE;
+    if (nvm_v2_file_instructions_present(m) && !nominal_version(m->service_data,m->service_size))
+        return NVM_V2_ERR_SECTION_TYPE;
     if (!nvm_v2_service_bindings_present(m)) return NVM_V2_OK;
     if (nominal_version(m->service_data,m->service_size)) return nominal_v2(m);
     NvmServiceBindings value;

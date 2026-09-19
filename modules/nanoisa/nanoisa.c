@@ -362,7 +362,7 @@ char *nanoisa_print(const NvmModule *mod) {
 }
 
 char *nanoisa_pretty_print(const NvmModule *mod) {
-    if (!mod || nvm_service_bindings_present(mod)) {
+    if (!mod || nvm_service_execution_pending(mod)) {
         return NULL;
     }
 

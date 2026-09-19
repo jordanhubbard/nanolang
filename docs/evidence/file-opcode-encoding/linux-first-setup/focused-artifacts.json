@@ -1,0 +1,18 @@
+{
+  "obj/nanoisa/nvm2c_main.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-c018-linux/focused-artifacts/1b4c0788dad408a1a6b059e93f104a58e97c2b66ff6e812407e87c899d149ed2",
+    "sha256": "1b4c0788dad408a1a6b059e93f104a58e97c2b66ff6e812407e87c899d149ed2"
+  },
+  "obj/nanoisa/nvm2llvm_main.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-c018-linux/focused-artifacts/3c13a8211907d4c61356dc69f86ed104249410b2f4fff3442a5f617fdc62e90b",
+    "sha256": "3c13a8211907d4c61356dc69f86ed104249410b2f4fff3442a5f617fdc62e90b"
+  },
+  "obj/nanovm/heap.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-c018-linux/focused-artifacts/1df891cf1bac80e1af930e2d924162f1f6cf33f60ea97d8f8e4ae790d3ad0c37",
+    "sha256": "1df891cf1bac80e1af930e2d924162f1f6cf33f60ea97d8f8e4ae790d3ad0c37"
+  },
+  "obj/nanovm/value.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-c018-linux/focused-artifacts/e63f2cf2cc3062289d47b99caea96b24e352a41f089f24d6ace75ecaf1b3eb48",
+    "sha256": "e63f2cf2cc3062289d47b99caea96b24e352a41f089f24d6ace75ecaf1b3eb48"
+  }
+}

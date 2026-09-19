@@ -5912,7 +5912,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (err && err_len) snprintf(err, err_len, "module is null");
         return NULL;
     }
-    if (nvm_service_bindings_present(mod)) {
+    if (nvm_service_execution_pending(mod)) {
         if (err && err_len) snprintf(err, err_len,
             "I require reviewed service lifetime and dispatch admission before translation");
         return NULL;

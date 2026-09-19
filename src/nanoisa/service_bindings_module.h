@@ -9,6 +9,12 @@
  * refuse any claim; they do not use successful transport validation as proof. */
 bool nvm_service_bindings_present(const NvmModule *);
 bool nvm_v2_service_bindings_present(const NvmV2Module *);
+/* Instruction scans do not validate CODE or infer metadata/feature authority.
+ * I recognize a File opcode before its operands, including truncated claims. */
+bool nvm_file_instructions_present(const NvmModule *);
+bool nvm_v2_file_instructions_present(const NvmV2Module *);
+/* Executing/dropping consumers reject either metadata or instruction claims. */
+bool nvm_service_execution_pending(const NvmModule *);
 /* Valid in-memory containers must supply storage for their declared tables.
  * These queries validate this catalog's own pointers/counts and crossrefs. */
 NvmV2Result nvm_service_bindings_validate(const NvmModule *);

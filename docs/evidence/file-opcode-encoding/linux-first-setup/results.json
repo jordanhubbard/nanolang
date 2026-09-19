@@ -1,0 +1,12 @@
+[
+  {
+    "command": [
+      "make",
+      "-j4",
+      "test-file-opcodes"
+    ],
+    "phase": "focused",
+    "seconds": 0.295,
+    "status": 2
+  }
+]
