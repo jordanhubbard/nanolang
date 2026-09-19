@@ -5221,3 +5221,8 @@ test-mixed-layout-view: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 test-units: test-mixed-float-proof
 test-mixed-float-proof: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	MIXED_PROOF_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_float_proof
+
+.PHONY: test-mixed-samples
+test-units: test-mixed-samples
+test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MIXED_SAMPLES_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_samples
