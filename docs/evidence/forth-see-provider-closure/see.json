@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/tmp/nanolang-forth-provider-qualification/forth",
+    "/tmp/nanolang-forth-provider-qualification/see.fth"
+  ],
+  "returncode": 0,
+  "seconds": 0.0074740510317496955,
+  "builtin_missing_bytecode_reported": true,
+  "user_definition_shown": true,
+  "squared_value": true
+}
