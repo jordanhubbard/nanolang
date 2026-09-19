@@ -11868,3 +11868,6 @@ The source18731 and fixtured27a checkboxes record completed bounded acceptance;
 actual merge-ledger reconciliation is pending. Mutationbba622, parent430220/4be,
 product and release remain open. Ready integration adds only canonical private
 File query code after qualification, preserving both frozen trees and public paths.
+
+- [x] I reconcile bounded Linux mutation task5652 from actual847 merge a52d990d7 through the default-profile actual-merge helper; its verified MAC state is COMPLETED. I retain all qualified trees and broader parent/source obligations.
+- [ ] I qualify the unchanged mutation runtime supplement on isolated Darwin task_d5da9c17547f495793d4359c57cadbee after reviewing my [setup/compiler/freeze contract](NANOISA_OWNED_ARRAY_MUTATION_DARWIN.md). I require explicit Apple ordinary and Homebrew sanitizer selection, exact per-phase inventories, first terminals and unchanged fixture assertions; Linux evidence does not substitute for this host.
