@@ -295,3 +295,17 @@ required normal EXIT_FAILURE and exact invariant diagnostic. I print captured
 child status/diagnostic if assertions fail. No production changes or assertion
 removals follow. A new corrected test binary may reuse the unchanged, hashed
 providers; the original failed binary is never replayed.
+
+## My later integer-reduce fixture correction
+
+Task `task_d4427bf731b14e899228b1443922a066` retains the next independent
+evaluator terminal at `cd25b66cd`: the corrected unchecked-match backstop and
+earlier match controls pass, then eval_reduce_pure_arithmetic_int fails its
+initialization assertion. A fresh compiler diagnostic on its exact call shape
+reports E001: reduce requires array<E>, initializer A, then fn(A,E)->A.
+The two fixture calls put the function before the initializer.
+
+Before another gate I swap only those fixture arguments to `(reduce arr 0 add_ints)`
+and run the existing result15 shadow in this test. I retain all source assertions,
+the diagnosed rejected source, both earlier gate terminals and unchanged compiler
+providers. No production or type-rule change follows.

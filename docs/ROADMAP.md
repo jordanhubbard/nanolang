@@ -11911,3 +11911,8 @@ I reconcile only the original bounded87ca identity acceptance after reviewing it
   evaluator controls then fails the child-exit assertion; run_program deliberately
   skips function registration. I retain that terminal and require explicit
   fixture-only registration, unchanged backstop assertions and fresh qualification.
+
+- [ ] I repair the stale integer-reduce evaluator fixture argument order
+  (`task_d4427bf731b14e899228b1443922a066`). The fresh diagnostic confirms E001
+  for function-before-initializer. I retain the result15 shadow and execute it
+  after correcting the two calls, without relaxing my checked reduce contract.
