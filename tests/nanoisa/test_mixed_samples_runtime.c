@@ -70,6 +70,16 @@ static void runtime_clean(VmState *vm,size_t baseline) {
     CHECK(!vm->stack_size && !vm->frame_count);
     CHECK(!vm->references.active && !vm->callee_references.active);
     for(unsigned f=0;f<NVM_OWNED_MAX_FUNCTIONS-2;f++)CHECK(!vm->value_references[f].active);
+    fprintf(stderr,"mixed cleanup allocated=%zu baseline=%zu buffered=%u\n",
+            (size_t)vm->heap.stats.num_objects,baseline,vm->heap.cycle_count);
+    for(uint32_t n=0;n<vm->heap.cycle_count;n++) {
+        VmHeapHeader *header=vm->heap.cycle_buf[n];
+        CHECK(header);
+        fprintf(stderr,"mixed buffered index=%u kind=%u refs=%u\n",n,
+                (unsigned)header->obj_type,(unsigned)header->ref_count);
+        CHECK(header->ref_count==0);
+    }
+    vm_gc_collect_cycles(&vm->heap);
     CHECK(vm->heap.stats.num_objects==baseline);
 }
 int main(int argc,char **argv) {
@@ -88,6 +98,7 @@ int main(int argc,char **argv) {
         VmState vm;vm_init(&vm,m);size_t baseline=vm.heap.stats.num_objects;
         VmResult wanted=(index==4||index==8)?VM_ERR_ASSERT_FAILED:index>=1&&index<=3?VM_ERR_TYPE_ERROR:VM_OK;
         for(unsigned api=0;api<4;api++)for(unsigned repeat=0;repeat<2;repeat++) {
+            fprintf(stderr,"mixed case=%u api=%u repeat=%u\n",index,api,repeat);
             NanoValue out=val_int(-91);VmResult result=runtime_api(&vm,api,&out);
             if(result!=wanted)fprintf(stderr,"case%u api%u repeat%u wanted%d got%d: %s\n",index,api,repeat,wanted,result,vm.error_msg);
             CHECK(result==wanted);
