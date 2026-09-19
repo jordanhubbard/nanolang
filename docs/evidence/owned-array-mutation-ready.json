@@ -1,0 +1,67 @@
+{
+  "canonical": "19b0d0ca6c89bebdc0294e731e14afc2262b701c",
+  "integrated_head": "a950bbce0469882eded9df8fb700562ce5a44df1",
+  "inputs": {
+    "Makefile.gnu": {
+      "qualified": "f568170dbf19cdd06f9905015aed23ae3a964aca5379663c2f76497480b4e50f",
+      "integrated": "2ae8299d7cb988fc94170c1c5269cb656d90221db2c1254883aa11f0cfcc0572",
+      "equal": false
+    },
+    "src/nanovm/vm.c": {
+      "qualified": "cd17e3cfb2875ee199608214f8185af7c4bd167592f4d43317aded4f7eca1481",
+      "integrated": "cd17e3cfb2875ee199608214f8185af7c4bd167592f4d43317aded4f7eca1481",
+      "equal": true
+    },
+    "src/nanovm/heap.c": {
+      "qualified": "38eaa2551ddeb42deec5bdb162b3764b5f224d2f06559fcacbce5075667cb1cd",
+      "integrated": "38eaa2551ddeb42deec5bdb162b3764b5f224d2f06559fcacbce5075667cb1cd",
+      "equal": true
+    },
+    "src/nanoisa/nvm2c.c": {
+      "qualified": "bd5e2019000da9c872d4216f3a45410b010436f55d3286c8217103e516fa62ff",
+      "integrated": "bd5e2019000da9c872d4216f3a45410b010436f55d3286c8217103e516fa62ff",
+      "equal": true
+    },
+    "src/nanoisa/nvm2c_owned.h": {
+      "qualified": "713f23310c9c91e4dcee14d067f3019220df9437827fe4e25c3ee4e21e9561a8",
+      "integrated": "713f23310c9c91e4dcee14d067f3019220df9437827fe4e25c3ee4e21e9561a8",
+      "equal": true
+    },
+    "src/nanoisa/owned_array_admit.inc": {
+      "qualified": "6bd4156d432ac3cabb900bf63d3b97f88f3ba88017bb213fc59217019e463551",
+      "integrated": "6bd4156d432ac3cabb900bf63d3b97f88f3ba88017bb213fc59217019e463551",
+      "equal": true
+    },
+    "src/nanoisa/verifier.c": {
+      "qualified": "5160ad3f3a7b8a3731b79ee2a491bf34d2759f9062e4e9de9517207f9c95da5c",
+      "integrated": "5160ad3f3a7b8a3731b79ee2a491bf34d2759f9062e4e9de9517207f9c95da5c",
+      "equal": true
+    },
+    "tests/nanoisa/test_private_owned_array_runtime.c": {
+      "qualified": "d40a7369664752b1fedc7ee59c9f8df5b7bd0583d7d1b36f3f1f7efce97c96a4",
+      "integrated": "d40a7369664752b1fedc7ee59c9f8df5b7bd0583d7d1b36f3f1f7efce97c96a4",
+      "equal": true
+    },
+    "tests/test_private_owned_array_runtime.py": {
+      "qualified": "a3747a519bab506600ee3a51bf6e5ca3bb42ac2837832d98270d44d6ec37ab28",
+      "integrated": "a3747a519bab506600ee3a51bf6e5ca3bb42ac2837832d98270d44d6ec37ab28",
+      "equal": true
+    },
+    "tests/nanoisa/test_owned_array_mutation_runtime.c": {
+      "qualified": "3f03f04ab85a9ec8e79a29477588a2b25bf5b41476ec577f25099080a9db235c",
+      "integrated": "3f03f04ab85a9ec8e79a29477588a2b25bf5b41476ec577f25099080a9db235c",
+      "equal": true
+    },
+    "tests/nanoisa/owned_array_mutation_native.inc": {
+      "qualified": "1c7559268ecd3464c16048ae4d7590f50aaaa144b630e326ae4c8e384be9e7ed",
+      "integrated": "1c7559268ecd3464c16048ae4d7590f50aaaa144b630e326ae4c8e384be9e7ed",
+      "equal": true
+    },
+    "tests/test_owned_array_mutation_runtime.py": {
+      "qualified": "30e00b15b45e718a92baac4926498c2ef92a469eb87d48154e6e5e3bee7fdaaa",
+      "integrated": "30e00b15b45e718a92baac4926498c2ef92a469eb87d48154e6e5e3bee7fdaaa",
+      "equal": true
+    }
+  },
+  "scope": "I preserve every qualified production/fixture input except Makefile.gnu, where I retain both additive File-code and mutation targets. Canonical File private preparation and Forth changes do not alter my exercised owner runtime production. I do not rebuild or rerun unchanged qualified routes."
+}
