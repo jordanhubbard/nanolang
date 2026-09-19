@@ -125,7 +125,7 @@ static void nested_owner_tokens(void) {
     NvmMixedFloatProof *p=expect(m,NVM_MIXED_SHAPE_PROVED);
     nvm_mixed_float_proof_free(p);nvm_module_free(m);
     m=build_with_ordinary_owner("ARR_NEW 3\nAGG_PACK 0 1 0 1\nOWN_PACK 5\nPOP\nPUSH_I64 0\nRET\n",NULL,0,NULL,false,true);
-    expect(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
+    expect(m,NVM_MIXED_SHAPE_INVALID);nvm_module_free(m);
 }
 static void refusal_cases(void) {
     struct {const char *body;NvmMixedShapeStatus status;} cases[]={

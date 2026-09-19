@@ -133,7 +133,7 @@ static void scalar_obligations(void) {
         composition(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
     }
     NvmModule *m=build("ARR_NEW 3\nARR_NEW 3\nEQ\nPOP\nPUSH_I64 0\nRET\n",NULL,0,NULL,false);
-    composition(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
+    composition(m,NVM_MIXED_SHAPE_INVALID);nvm_module_free(m);
 }
 static void independent_owner_checks(void) {
     puts("I check independent owner exits and reordered observations.");fflush(stdout);
