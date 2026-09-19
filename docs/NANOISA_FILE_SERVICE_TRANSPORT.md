@@ -269,3 +269,11 @@ omitted their source entries from `modules/nanoisa/module.json`. I record this
 static prequalification finding under6833 before correcting that manifest. No
 service checkpoint build or source fixture has executed. I retain c7e65df4f as
 the reviewed prior checkpoint and require review of the additive manifest delta.
+
+My second prequalification review finds that `nanoisa.c` used an unqualified
+service-query header while its other core includes are relative to the source
+file. `module_compile_prefix` adds only manifest/include/compiler flags; this
+manifest declares no include directory. Make's `-Isrc/nanoisa` therefore cannot
+be assumed for module builds. I record the source include omission before
+matching the established `../../src/nanoisa/` path. No build was attempted.
+I also integrate reviewed mixed-proof closure64db8f922 before qualification.
