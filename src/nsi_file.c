@@ -23,6 +23,14 @@ struct NlFileService {
     FileEntry files[NL_CAP_PRIVATE_SLOTS];
 };
 
+bool nl_file_service_storage_bound(size_t *out) {
+    size_t capabilities;
+    if (!out || !nl_cap_private_storage_bound(&capabilities) ||
+        capabilities > SIZE_MAX - sizeof(NlFileService)) return false;
+    *out = sizeof(NlFileService) + capabilities;
+    return true;
+}
+
 /* Serialized private context creation, not a process-shared/remote token ABI.
  * I never reset this identity when a context is freed or its address is reused. */
 static uint64_t file_context_counter;

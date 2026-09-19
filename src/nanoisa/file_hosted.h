@@ -30,4 +30,7 @@ bool nvm_file_hosted_function(const NvmFileHostedPlan *,uint32_t,NvmFileHostedFu
 bool nvm_file_hosted_local(const NvmFileHostedPlan *,uint32_t,uint16_t,NvmFileFlowDeclaration *);
 bool nvm_file_hosted_instruction(const NvmFileHostedPlan *,uint32_t,uint16_t,
                                 NvmFileCodeInstruction *,NvmFileBodyInstruction *);
+/* Read-only exact nominal/catalog maps owned by this same hosted plan. */
+bool nvm_file_hosted_type(const NvmFileHostedPlan *,uint32_t,NvmFileNominalLayout *);
+bool nvm_file_hosted_import(const NvmFileHostedPlan *,uint32_t,uint32_t *);
 #endif
