@@ -1,4 +1,5 @@
 #include "nsi_file_plan.h"
+#include "nsi_file_catalog.h"
 #include "nsi_cap.h"
 #include <stdlib.h>
 #include <string.h>
@@ -118,4 +119,9 @@ const NlFilePlanMethod *nl_file_plan_method(const NlFilePlan *p,size_t i) {
 }
 const NlFilePlanType *nl_file_plan_type(const NlFilePlan *p,size_t i) {
     return p && i<COUNT(types) ? &p->types[i] : NULL;
+}
+
+const char *nl_file_catalog_interface(void) { return IFACE; }
+const NlFilePlanMethod *nl_file_catalog_method(size_t i) {
+    return i<COUNT(methods) ? &methods[i] : NULL;
 }

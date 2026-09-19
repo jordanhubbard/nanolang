@@ -1,0 +1,35 @@
+{
+  "pin": "c34c7324f48522656c27f9cdd84489634634bd81",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j8",
+        "bootstrap"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 254.286,
+      "log_sha256": "c9228509ef7915b44925a2209f44f5c7287e076140402f9a06ec5f2683cb7b6c"
+    },
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "-j8",
+        "test-service-module"
+      ],
+      "env": {
+        "NANO_SERVICE_MODULE_TEST_CC": "/bin/gcc"
+      },
+      "status": 2,
+      "seconds": 0.148,
+      "log_sha256": "030536aba361210b7fad6e39d69ab6f2492d9dcb91c1a927445ee774419c4f99"
+    }
+  ],
+  "terminal": 2,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

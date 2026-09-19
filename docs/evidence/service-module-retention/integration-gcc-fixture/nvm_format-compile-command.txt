@@ -1,0 +1,1 @@
+/bin/gcc -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -Isrc -Isrc/nanoisa -Imodules/nanoisa -include tests/nanoisa/service_alloc_hooks.h -Dmalloc=service_test_malloc -Dcalloc=service_test_calloc -Drealloc=service_test_realloc -c src/nanoisa/nvm_format.c -o /tmp/nano-service-module-wgahra25/nvm_format-instrumented.o

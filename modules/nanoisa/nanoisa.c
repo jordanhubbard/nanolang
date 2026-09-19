@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 
+#include "../../src/nanoisa/service_bindings_module.h"
 #include "nanoisa.h"
 
 #include "../../src/nanoisa/assembler.h"
@@ -361,7 +362,7 @@ char *nanoisa_print(const NvmModule *mod) {
 }
 
 char *nanoisa_pretty_print(const NvmModule *mod) {
-    if (!mod) {
+    if (!mod || nvm_service_bindings_present(mod)) {
         return NULL;
     }
 

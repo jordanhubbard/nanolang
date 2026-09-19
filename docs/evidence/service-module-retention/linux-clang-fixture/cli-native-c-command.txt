@@ -1,0 +1,1 @@
+/home/jkh/Src/nanolang-service-module-linked/bin/nvm2c /tmp/nano-service-module-66ru6dw7/linked.nvm -o /tmp/nano-service-module-66ru6dw7/native-c-preserved

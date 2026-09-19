@@ -1,0 +1,31 @@
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+
+=================================================================
+==234397==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 384 byte(s) in 1 object(s) allocated from:
+    #0 0xe73f1e1f709c in calloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:77
+    #1 0xb94d2c8215bc in nvm_module_new src/nanoisa/nvm_format.c:99
+    #2 0xb94d2c82ec2c in asm_assemble_impl src/nanoisa/assembler.c:1512
+    #3 0xb94d2c7ff92c in build tests/nanoisa/test_mixed_float_proof.c:25
+    #4 0xb94d2c804250 in runtime_fixture tests/nanoisa/test_mixed_samples_runtime.c:72
+    #5 0xb94d2c804250 in main tests/nanoisa/test_service_mixed_boundaries.c:10
+    #6 0xe73f1d2284c0 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+    #7 0xe73f1d228594 in __libc_start_main_impl ../csu/libc-start.c:360
+    #8 0xb94d2c7fdcec in _start (/tmp/nano-service-module-shpmfuo5/mixed-boundary+0x2dcec) (BuildId: b5e81162ad24f93de81b139f1280fa7ed91404bd)
+
+SUMMARY: AddressSanitizer: 384 byte(s) leaked in 1 allocation(s).
