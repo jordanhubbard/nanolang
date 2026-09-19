@@ -5221,3 +5221,12 @@ test-mixed-layout-view: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 test-units: test-mixed-float-proof
 test-mixed-float-proof: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	MIXED_PROOF_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_float_proof
+
+.PHONY: test-owned-string-fields
+test-units: test-owned-string-fields
+test-owned-string-fields: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_fields tests/nanoisa/test_owned_string_fields.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_string_fields_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_fields_alloc tests/nanoisa/test_owned_string_fields_alloc.c obj/test_owned_string_fields_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_string_fields_alloc
+	python3 -m unittest -v tests.test_owned_string_fields

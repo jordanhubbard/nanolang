@@ -275,3 +275,13 @@ The nested-result descriptor suite's FLOAT refusal remains valid. Existing
 reference-place STRING refusal remains valid. I add fresh positive STRING
 field/local/call/result fixtures and exact borrowed-root/unsupported-result/tag
 refusals; I do not turn broad old refusal coverage into unconditional success.
+
+After canonical805 integration, I also audit `mixed_layout_view.inc` and
+`mixed_float_proof.c`. The private view retains its separate scalar-tree-only
+resource classification (`resource && !scalar_tree` refuses STRING resource
+leaves); it cannot assign these shells ordinary-managed identity. The private
+float proof additionally requires exact INT/BOOL/U8 scalar-leaf owner
+signatures/effects through `mf_scalar_layout`. Neither query gains STRING owner
+proof, verifier admission or execution. My fresh runtime refusal fixture checks
+both query failures and unchanged output pointers, alongside all three closed
+target-profile refusals. I leave their private production unchanged.
