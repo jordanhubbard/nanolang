@@ -11424,3 +11424,5 @@ GCC/runtime/heap/admission/private query gates and raw service-codec sanitizer
 adjacency pass; my [integration seal](evidence/mixed-samples-runtime-integration.md)
 retains source/tool/object identities. Service-required refusal is not yet
 canonical and must remain ahead of mixed admission when separately integrated.
+
+- [ ] I correct integration evidence packaging (`task_6f81cf41f8854642bf8a5ed18666d748`). At81d1c1f58 my seal wrongly requires whole object-map equality, while allocation fixtures add exactly two new hook objects. Existing sources/tools/objects remain identical and all gates pass; I preserve partial81d evidence, correct the prose and require subset equality plus explicit added-object hashes before publishing a complete manifest. No execution is repeated.
