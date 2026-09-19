@@ -5378,3 +5378,13 @@ test-file-nominal-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS)
 test-units: test-owned-array-authority
 test-owned-array-authority: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	OWNED_ARRAY_AUTHORITY_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_authority
+
+.PHONY: test-file-flow test-file-flow-sanitizers
+test-file-flow: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DFLOW_INSTRUMENT tests/nanoisa/test_file_flow.c $(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_flow_instrumented
+	./obj/test_file_flow_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_file_flow.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_flow_linked
+	./obj/test_file_flow_linked
+test-units: test-file-flow
+test-file-flow-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_FLOW_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_FLOW_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_flow
