@@ -1,0 +1,42 @@
+{
+  "pin": "4aad73a034f1b53d2072b2a1f9f88dbf25e2546b",
+  "steps": [
+    {
+      "name": "darwin",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_nsi_file"
+      ],
+      "env": {
+        "NANO_FILE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang"
+      },
+      "status": 0,
+      "seconds": 3.196,
+      "log_sha256": "80c3c2765eef38f8e08a5485a1c380eed8aec6cea9a053e918aca3da62273fe6"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-nsi-cap",
+        "test-nsi-shm",
+        "test-nsi-fabric",
+        "test-nsi-runtime",
+        "test-nsi-gen",
+        "test-nsi"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 5.048,
+      "log_sha256": "bb178a3a555daab937c040cd45015a3142ae8c58804ddc5cfd2a4f56fab9aca5"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

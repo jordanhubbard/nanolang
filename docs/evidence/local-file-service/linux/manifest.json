@@ -1,0 +1,60 @@
+{
+  "pin": "4aad73a034f1b53d2072b2a1f9f88dbf25e2546b",
+  "steps": [
+    {
+      "name": "gcc",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_nsi_file"
+      ],
+      "env": {
+        "NANO_FILE_TEST_CC": "/bin/gcc"
+      },
+      "status": 0,
+      "seconds": 1.027,
+      "log_sha256": "6f2a45263ae13e4ec3137771af077ff3c96ef5c9db0be381df1bef27b88ec631"
+    },
+    {
+      "name": "clang",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_nsi_file"
+      ],
+      "env": {
+        "NANO_FILE_TEST_CC": "/usr/local/bin/clang",
+        "NANO_FILE_TEST_CFLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 1.035,
+      "log_sha256": "ec294125e887c218dfcf0a2451f5a23ab14f538e9053929afb8f11f4f8a84fa4"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-nsi-cap",
+        "test-nsi-shm",
+        "test-nsi-fabric",
+        "test-nsi-runtime",
+        "test-nsi-gen",
+        "test-nsi"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 4.89,
+      "log_sha256": "42d1e2cabe4091177bcd737fa8ee663c7b95f8c19d20806db1486bd3376b7fc3"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

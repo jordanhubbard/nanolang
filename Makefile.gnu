@@ -1389,6 +1389,19 @@ test-nsi-cap:
 	@./tests/test_nsi_cap
 	@rm -f tests/test_nsi_cap
 
+.PHONY: test-nsi-file test-nsi-file-sanitizers
+test-nsi-file:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file.c -o $(OBJ_DIR)/test_nsi_file_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_linked.c src/nsi_file.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_file_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_linked
+
+test-units: test-nsi-file
+
+test-nsi-file-sanitizers:
+	python3 -m unittest -v tests.test_nsi_file
+
 .PHONY: test-nsi-shm
 test-nsi-shm:
 	@echo "Running NSI shared-memory tests..."
