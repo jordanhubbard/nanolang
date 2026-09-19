@@ -28,9 +28,10 @@ class MixedSamples(unittest.TestCase):
                               '-Dmalloc=mcs_' + domain + '_malloc', '-Dfree=mcs_test_free',
                               '-c', 'src/nanoisa/' + name + '.c', '-o', obj])
             executable = work / 'query'
+            link_flags = shlex.split(os.environ.get('MIXED_SAMPLES_LDFLAGS', '-lm -lcrypto'))
             self.command([*common, 'tests/nanoisa/test_mixed_samples.c', *objects,
                           *shlex.split(os.environ['MIXED_SAMPLES_LINK_OBJECTS']),
-                          '-lm', '-lcrypto', '-o', executable])
+                          *link_flags, '-o', executable])
             result = self.command([executable])
             self.assertIn('mixed Samples composition checks passed; no pending module execution', result.stdout)
             print(result.stdout, end='')
