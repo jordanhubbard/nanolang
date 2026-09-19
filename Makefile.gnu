@@ -5437,3 +5437,7 @@ test-file-hosted-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 .PHONY: test-owned-array-bits-boundaries
 test-owned-array-bits-boundaries: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_owned_array_bits_boundaries
+
+.PHONY: test-nvm-v2-code-publication
+test-nvm-v2-code-publication: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	CODE_PUBLICATION_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/nvm_format.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" CODE_PUBLICATION_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_nvm_v2_code_publication
