@@ -3541,7 +3541,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           Both VM strategies complete the million-step check; bytecode and
           ordinary native compilation pass the bounded shadows. Native execution
           without TCO crashes, and native --tco fails all six shadows.
-        - [x] I repair native TCO parameter binding, simultaneous argument
+        - [ ] I repair native TCO parameter binding, simultaneous argument
           evaluation, exit semantics and typed results. I retain the corrected
           million-step fixture and require successful native execution.
           MAC `task_ab36fda5e6846c45beaf42b3ba819c13`.
@@ -3552,7 +3552,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
             results, generated-name collisions, void fallthrough and one million
             optimized calls. The gate is part of `test-opt-passes`; its C unit
             tests also pass. Unoptimized shallow programs remain the comparison.
-          - [x] I extend binding-aware lowering and acceptance to aggregate
+          - [ ] I extend binding-aware lowering and acceptance to aggregate
             parameters, callable expressions, loops and parameter-shadowing
             bindings under my [remaining TCO contract](NATIVE_TCO_BINDINGS.md).
             The former scalar-only preflight left these functions unchanged;
@@ -3563,7 +3563,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
             - [x] I route tail returns out of nested loops to the generated
               outer TCO loop without changing ordinary `break`, `continue`,
               fallthrough or left-to-right argument evaluation.
-            - [x] I qualify scalar-element arrays, non-resource records, tuples
+            - [ ] I qualify scalar-element arrays, non-resource records, tuples
               and callable parameters;
               callable expressions; `while` and `for`; nested-loop propagation;
               and same-name lexical bindings against unoptimized execution.
@@ -3599,6 +3599,20 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
               [sealed Darwin evidence](evidence/native-tco-bindings.md)
               records the fresh bootstrap, 14 executable methods, strict C
               units, retained first failures and exact admitted boundary.
+              Independent review of the pushed checkpoint found two admission
+              defects before merge. `par` blocks publish bindings after their
+              initializers, but my traversal did not publish them, so a later
+              reference could be renamed to an outer TCO parameter. I refuse
+              `AST_PAR_BLOCK` before mutation until I model that publication
+              and its flow graph explicitly. The same review found that I
+              admitted tuples without complete element metadata, array element
+              kinds beyond the claimed scalar boundary, and records whose
+              nested ownership was not proved. I narrow this stage to exact
+              scalar-element arrays, fully described scalar tuples, flat
+              ordinary scalar-field records and the already tested callable
+              values. I require refusal and whole-tree immutability controls for
+              missing aggregate metadata, nested/resource-bearing records and
+              `par` blocks before I restore these checkboxes.
         - [ ] I preserve the outer binding in a same-name native C initializer
           before publishing the new local
           (`task_19e8c98dcc774e21975f763648e91adb`). The TCO gate keeps a direct
