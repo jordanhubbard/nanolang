@@ -12071,3 +12071,11 @@ full Forth conformance and release acceptance remain open.
   I correct only external launch ordering/evidence destinations, retaining925c
   source and explicit tools. Linux bootstrap remains independent; no compiler
   result or product defect follows from this preparation failure.
+
+- [ ] I freshly integrate mutationbba622, declared-push286b/aabb and evaluator
+  dependency855 under my [final integration gate](OWNED_ARRAY_MUTATION_FINAL_INTEGRATION.md).
+  I preserve partial9f7 evidence and every failed first terminal, merge canonical
+  File providers and reviewed match fixtures, then require new bootstraps and
+  full evaluator/totality plus six identity, twelve mutation/source and twelve
+  unchanged owned-pattern methods on both hosts. Review precedes execution;
+  existing task children and broader parents remain open until actual acceptance.
