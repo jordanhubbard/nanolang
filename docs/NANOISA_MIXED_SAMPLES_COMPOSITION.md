@@ -217,3 +217,40 @@ ordering requires exact matching supported non-VOID scalar tags. Mixed numeric
 tags and possible-VOID ordering remain unresolved. Neither owner tokens nor
 ordinary heap handles participate in generic comparisons. This is deliberately
 narrower than the general VM, without changing its comparison behavior.
+
+## My first production checkpoint
+
+I compile `mixed_samples.inc` inside affine_state.c solely to keep its checked
+Facts constructor static. The existing public state constructor and all existing
+transition bodies are unchanged. My new header exposes only a report/free query,
+not the private state. The report owns the earlier shape report and a separate
+certified ordinary identity map; `runtime_admitted` stays false.
+
+| Reused operation | My private call boundary |
+| --- | --- |
+| state clone/initialization meet | I clone one function's real facts; ordinary local values have their own state, owner liveness and stack observations join exactly. |
+| record_fields | I first require the exact global RESOURCE row with only INT/BOOL/U8 leaves; pending/ordinary rows cannot reach it. |
+| OWN_PACK | I use that checked field list and exact scalar operands, then create one stack owner token. The local-normalized pack API is not used. |
+| OWN_UNPACK_LOCAL/take_local | I first require a RESOURCE local, no outstanding stack observation and a live exact owner, then publish each checked scalar field. The local-normalized unpack API is not used. |
+| put_local | I require a RESOURCE destination and an exact matching stack owner; the existing availability check prevents overwriting a live owner. |
+| local_info/scalar_field | I invoke these only for a positively RESOURCE local/observation with matching original nominal identity. Ordinary projections use all closed origin alternatives instead. |
+| scalar_define | I call it only for declared numeric/Boolean scalar locals; ordinary ARRAY/STRUCT initialization never uses it. |
+| can_exit_type | I first check the exact declared result/count and the stack token category; the shared exit check then independently rejects every remaining live resource local. |
+| calls | I inspect every exact positional signature before consuming any prepared stack value; every callee is independently analyzed, including unused helpers. |
+
+My concrete opcode inventory is PUSH_I64/F64/U8/BOOL/VOID; NOP/DUP/POP/SWAP/ROT3;
+LOAD/STORE_LOCAL; I64_ADD/SUB/MUL/DIV_S/REM_S/NEG and comparisons;
+F64_ADD/SUB/MUL/DIV/NEG and comparisons; BOOL_AND/OR/NOT; scalar EQ/NE/LT/LE/GT/GE;
+JMP/JMP_TRUE/JMP_FALSE; CALL/RET/ASSERT; OWN_MOVE_LOCAL/STORE_LOCAL/PACK/UNPACK_LOCAL;
+ordinary STRUCT AGG_PACK/AGG_GET; and FLOAT ARR_NEW/LITERAL/PUSH/SET/GET/LEN.
+Every other opcode is unresolved. The earlier positive shape query and the new
+independent pass must both accept the entire graph; an absent transition is not
+an invitation to ordinary execution.
+
+I retain a separate bounded deduplicated worklist with262,144 visits, at most
+4,096 instructions,256 locals/stack slots and1,048,576 stored value cells. I cap
+scalar records at two per instruction, retaining each operand's actual tags and
+policy. These records identify typed FLOAT-or-VOID checks and generic value
+comparison semantics; they do not claim to enumerate ordinary division-by-zero,
+allocation or other existing runtime failure conditions. My first checkpoint has
+not been compiled or executed; I hold fixtures and gates for independent review.
