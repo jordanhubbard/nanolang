@@ -329,3 +329,15 @@ and explicit remaining-input maps precede any fresh Darwin mutation setup.
 Linux independently passes its unchanged mutation12 (600.513s; runner600.951s)
 and begins the full unchanged owned-pattern suite; evaluator acceptance remains
 held on PR855.
+
+My recovered Darwin mutation12 passes583.475s (runner584.664s), followed by the
+entire unchanged owned-pattern suite12 in146.752s (runner149.175s). These remain
+partial pre-integration results pending PR855 and the fresh final bootstrap.
+The off-host archive contains205 report files and2611 remaining entries; every
+file matches its remote hash. Its SHA256 is
+ae39b5efb12941f7ab91acf32c86548df80ce63fc52b73c031ae9cd74d9bc84d.
+My first duplicate-removal preflight stops before any deletion: the selector
+also included root-level `artifacts-method.json` inventory files as directory
+candidates. I retain that assertion and first intent/result, then select only
+nested entries beneath actual `artifacts-*` directories and repeat complete
+local/archive/remote hash checks. Reports, source trees and providers stay put.

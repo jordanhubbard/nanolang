@@ -11968,3 +11968,8 @@ prerequisites pass, not a narrowed Bundle replacement.
   I preserve the unknown exception boundary, remove only self-owned verified
   duplicate copies after off-host hashing, and require a fresh setup/result.
   I leave qualified providers, other sessions and full acceptance untouched.
+
+  Recovered Darwin mutation12 and full owned-pattern12 pass. The first offload
+  removal preflight refuses inventory JSON files misclassified as directories,
+  before any deletion. I preserve it and restrict selection to nested artifact
+  directory entries, with full hashes checked again before duplicate removal.
