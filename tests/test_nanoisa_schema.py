@@ -126,13 +126,23 @@ class NanoisaSchemaTests(unittest.TestCase):
         # The dispatch handlers are written once and reached either through a
         # switch or through a computed-goto table, so the opcode labels are
         # VM_CASE(...) rather than `case ...:`. This test is the guarantee that
-        # every ISA opcode has a handler at all, so it has to read whichever
+        # every executable ISA opcode has a handler, so I read whichever
         # form the source uses rather than assume the switch.
         vm_source = (ROOT / "src/nanovm/vm.c").read_text()
         dispatch = self.dispatch_body(vm_source)
         vm_opcodes = set(re.findall(r"\bVM_CASE\((OP_[A-Z0-9_]+)\)", dispatch))
         vm_opcodes |= set(re.findall(r"\bcase\s+(OP_[A-Z0-9_]+)\s*:", dispatch))
-        self.assertEqual(vm_opcodes, set(expected))
+        # I recognize these exact bytes for transport and private analysis,
+        # while public execution refuses them before reaching dispatch.
+        non_executing = {
+            "OP_FILE_SERVICE": 0x91, "OP_FILE_RESULT_BRANCH": 0x92,
+            "OP_FILE_RESULT_TAKE": 0x93, "OP_FILE_DROP_LOCAL": 0x94,
+            "OP_FILE_DROP_STACK": 0x95, "OP_FILE_END_BORROW": 0x96,
+        }
+        self.assertEqual({name: expected[name] for name in non_executing},
+                         non_executing)
+        self.assertTrue(vm_opcodes.isdisjoint(non_executing))
+        self.assertEqual(vm_opcodes, set(expected) - set(non_executing))
 
     def test_computed_goto_table_matches_the_handlers(self):
         """Every handler must be reachable through the computed-goto table.

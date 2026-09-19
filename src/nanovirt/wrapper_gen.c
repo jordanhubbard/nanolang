@@ -12,6 +12,8 @@
 
 #include "wrapper_gen.h"
 #include "../nanoisa/nvm_format.h"
+#include "../nanoisa/service_bindings_module.h"
+#include "../../modules/nanoisa/nanoisa.h"
 #include "../nanolang.h"
 #include "../shell_path.h"
 
@@ -381,6 +383,22 @@ static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
     FILE *f = NULL;
     if (!output_path || !*output_path || !blob || !blob_size || (!daemon && !module)) {
         fprintf(stderr, "I require a module and a nonempty wrapper output path\n");
+        return false;
+    }
+    if (module && nvm_service_execution_pending(module)) {
+        fprintf(stderr, "I cannot publish a wrapper with pending File or service authority\n");
+        return false;
+    }
+    NanoisaErr load_error;
+    NvmModule *embedded = nanoisa_load_bytes(blob, blob_size, &load_error);
+    if (!embedded) {
+        fprintf(stderr, "I cannot publish a wrapper with invalid embedded bytes\n");
+        return false;
+    }
+    bool pending = nvm_service_execution_pending(embedded);
+    nvm_module_free(embedded);
+    if (pending) {
+        fprintf(stderr, "I cannot publish a wrapper with pending File or service authority\n");
         return false;
     }
 

@@ -80,7 +80,7 @@ static bool mp_signatures(const NvmModule *module,NvmMixedSamplesPlan *p) {
 }
 NvmMixedShapeResult nvm_mixed_samples_prepare(const NvmModule *module,NvmMixedSamplesPlan **out) {
     if(!out)return mp_result(NVM_MIXED_SHAPE_INVALID,"I require an output for private mixed preparation.");
-    if(nvm_service_bindings_present(module))
+    if(nvm_service_execution_pending(module))
         return mp_result(NVM_MIXED_SHAPE_UNRESOLVED,"I refuse service contracts before mixed preparation.");
     NvmMixedSamplesProof *proof=NULL;
     NvmMixedShapeResult r=nvm_analyze_mixed_samples(module,&proof);
@@ -146,7 +146,7 @@ const NvmMixedSamplesProof *nvm_mixed_samples_obligations(const NvmMixedSamplesP
 /* I inspect only bounded transport bytes, without allocating or claiming their
  * validity. The full descriptor reader and independent analyses remain mandatory. */
 bool nvm_mixed_samples_candidate(const NvmModule *module) {
-    if(!module || nvm_service_bindings_present(module) ||
+    if(!module || nvm_service_execution_pending(module) ||
        !module->ownership_data || !module->layout_data)return false;
     NvmV2Cursor c;uint32_t version,count,layout_count;const uint8_t *flags;
     nvm_v2_cursor_init(&c,module->ownership_data,module->ownership_size);

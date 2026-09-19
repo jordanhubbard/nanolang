@@ -1,0 +1,24 @@
+[
+  {
+    "command": [
+      "make",
+      "test-file-opcodes"
+    ],
+    "phase": "clang",
+    "seconds": 4.371,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "test-nanoisa",
+      "test-disasm-roundtrip",
+      "test-nvm-v2-convert",
+      "test-service-module",
+      "test-file-nominal-module"
+    ],
+    "phase": "adjacent",
+    "seconds": 1.784,
+    "status": 2
+  }
+]
