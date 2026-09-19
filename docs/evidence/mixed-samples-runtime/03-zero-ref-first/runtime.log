@@ -1,0 +1,5 @@
+mixed case=0 api=0 repeat=0
+mixed cleanup allocated=4 baseline=2 buffered=2
+mixed buffered index=0 kind=8 refs=0
+mixed buffered index=1 kind=7 refs=1
+test_mixed_samples_runtime: tests/nanoisa/test_mixed_samples_runtime.c:80: runtime_clean: Assertion `header->ref_count==0' failed.

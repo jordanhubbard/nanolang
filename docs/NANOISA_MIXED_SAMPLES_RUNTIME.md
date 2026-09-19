@@ -393,3 +393,13 @@ My reviewed direct-refcount fixture at5ab080edb measures case0/API0/repeat0: fou
 My fa42a79e3 graph qualification passes build0.615seconds, private112482/339 checks1.619seconds, and nine-case/four-API/two-repeat VM1274 checks0.032seconds. Before collection, internal-edge counts explain the deferred parent/child references; the retained external-reference self-check is rejected as required. The first7937fc15b native gate preserves nine strict-compilation failures in3.521seconds at a one-line cleanup footer. No generated native program ran. Child0b47 records formatting-only statement separation before correction.
 
 My extended c9e4289f1 runtime gate stops at case11 before execution: its newly added loop fixture uses generic ADD, absent from the closed transfer inventory. Cases0–10 complete VM/core checks, including NaN and lower-index calls; no native program runs in this extended gate because fixture preparation stops. I retain the1.768second refusal and replace only the loop increment spelling with existing I64_ADD after recording the fixture task. My earlier nine-case GCC/Clang and general2422 native results remain separate passing evidence.
+
+## My measured bounded runtime checkpoint
+
+My [qualification seal](evidence/mixed-samples-runtime.md) records the corrected
+12-case GCC/Clang strict native sanitizer/allocation gates, 2,006 VM lifecycle,
+13,358 heap, 127 admission/output, 112,482 private composition and 339 provenance
+checks. Existing STRING/reference/value profiles and general verifier/native
+regressions pass. I preserve five distinct first terminals and their corrections.
+I keep Darwin, paired source lowering and owner-shell managed fields outside this
+measured checkpoint; the corresponding parents remain open until their own gates.

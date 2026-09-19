@@ -11368,3 +11368,10 @@ I retain the second9c4 accounting terminal at5ab080edb: the strict check measure
 I extend0b47 with the separately preserved7937fc15b native terminal: all nine generated programs fail strict compilation at the same one-line cleanup footer; no native execution occurs. My VM1274 and private112482/339 checks remain passing evidence. I separate emitted cleanup statements without semantics changes and use fail-fast qualification before a reviewed fresh gate.
 
 - [ ] I correct the new repeated-site loop fixture's opcode (`task_8f91de6457894ca98eac69ecf44b1ebe`): c9e4289f1 uses generic ADD outside my documented closed transfer inventory. I preserve its1.768second checked refusal before execution and use existing exact I64_ADD, with no production/profile expansion.
+
+My runtime child78c9 has a [bounded Linux seal](evidence/mixed-samples-runtime.md):
+corrected12-case GCC/Clang native sanitizer/allocation gates, VM2006, heap13358,
+admission127, private112482/339, old-profile regressions and generalnative2422
+pass. I preserve all five first terminals. Child78c9 and fixture/embedding children
+await canonical merge reconciliation; source Samples/PREFIX and owner ARRAY430220
+remain open, and no release claim follows.

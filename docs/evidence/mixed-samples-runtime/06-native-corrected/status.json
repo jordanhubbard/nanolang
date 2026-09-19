@@ -1,0 +1,10 @@
+{
+  "native": {
+    "command": [
+      "make",
+      "test-mixed-samples-runtime"
+    ],
+    "status": 0,
+    "seconds": 27.18279617303051
+  }
+}

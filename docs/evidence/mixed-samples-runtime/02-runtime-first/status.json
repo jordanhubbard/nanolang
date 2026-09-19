@@ -1,0 +1,28 @@
+{
+  "build": {
+    "command": [
+      "make",
+      "-j2",
+      "mixed-samples-runtime-fixture"
+    ],
+    "status": 0,
+    "seconds": 13.268176896031946
+  },
+  "query": {
+    "command": [
+      "make",
+      "test-mixed-samples",
+      "test-mixed-float-proof"
+    ],
+    "status": 0,
+    "seconds": 1.6169942439883016
+  },
+  "runtime": {
+    "command": [
+      "/home/jkh/Src/nanolang-mixed-samples-runtime/obj/test_mixed_samples_runtime",
+      "/tmp/nanolang-mixed-runtime-corrected-43d72/artifacts"
+    ],
+    "status": -6,
+    "seconds": 1.1176200400223024
+  }
+}

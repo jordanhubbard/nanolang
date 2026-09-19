@@ -1,0 +1,258 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+	obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+	obj/nanovm/main.o -lm -lcrypto -lffi  -rdynamic -rdynamic
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -Isrc/nanoisa -o obj/test_mixed_samples_runtime tests/nanoisa/test_mixed_samples_runtime.c obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi  -rdynamic
+python3 -m unittest -v tests.test_mixed_samples_runtime
+test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) ... 
+  test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='0') ... FAIL
+  test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='1') ... FAIL
+  test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='2') ... FAIL
+  test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='3') ... FAIL
+  test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='4') ... FAIL
+  test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='5') ... FAIL
+  test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='6') ... FAIL
+  test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='7') ... FAIL
+  test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='8') ... FAIL
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 69, in test_vm_native_lifecycle_and_allocations
+    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  optimization, '-fsanitize=address,undefined',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from /tmp/nanolang-mixed-native-first-422f/artifacts/harness0.c:13:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case0.c: In function ‘nvm_owned_entry’:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case0.c:2150:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 2150 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |  ^~
+/tmp/nanolang-mixed-native-first-422f/artifacts/case0.c:2150:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 2150 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |                                                            ^~
+cc1: all warnings being treated as errors
+
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 69, in test_vm_native_lifecycle_and_allocations
+    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  optimization, '-fsanitize=address,undefined',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from /tmp/nanolang-mixed-native-first-422f/artifacts/harness1.c:13:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case1.c: In function ‘nvm_owned_entry’:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case1.c:2087:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 2087 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |  ^~
+/tmp/nanolang-mixed-native-first-422f/artifacts/case1.c:2087:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 2087 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |                                                            ^~
+cc1: all warnings being treated as errors
+
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 69, in test_vm_native_lifecycle_and_allocations
+    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  optimization, '-fsanitize=address,undefined',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from /tmp/nanolang-mixed-native-first-422f/artifacts/harness2.c:13:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case2.c: In function ‘nvm_owned_entry’:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case2.c:2087:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 2087 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |  ^~
+/tmp/nanolang-mixed-native-first-422f/artifacts/case2.c:2087:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 2087 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |                                                            ^~
+cc1: all warnings being treated as errors
+
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='3')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 69, in test_vm_native_lifecycle_and_allocations
+    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  optimization, '-fsanitize=address,undefined',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from /tmp/nanolang-mixed-native-first-422f/artifacts/harness3.c:13:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case3.c: In function ‘nvm_owned_entry’:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case3.c:2039:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 2039 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |  ^~
+/tmp/nanolang-mixed-native-first-422f/artifacts/case3.c:2039:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 2039 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |                                                            ^~
+cc1: all warnings being treated as errors
+
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 69, in test_vm_native_lifecycle_and_allocations
+    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  optimization, '-fsanitize=address,undefined',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from /tmp/nanolang-mixed-native-first-422f/artifacts/harness4.c:13:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case4.c: In function ‘nvm_owned_entry’:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case4.c:2016:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 2016 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |  ^~
+/tmp/nanolang-mixed-native-first-422f/artifacts/case4.c:2016:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 2016 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |                                                            ^~
+cc1: all warnings being treated as errors
+
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='5')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 69, in test_vm_native_lifecycle_and_allocations
+    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  optimization, '-fsanitize=address,undefined',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from /tmp/nanolang-mixed-native-first-422f/artifacts/harness5.c:13:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case5.c: In function ‘nvm_owned_entry’:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case5.c:2046:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 2046 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |  ^~
+/tmp/nanolang-mixed-native-first-422f/artifacts/case5.c:2046:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 2046 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |                                                            ^~
+cc1: all warnings being treated as errors
+
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='6')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 69, in test_vm_native_lifecycle_and_allocations
+    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  optimization, '-fsanitize=address,undefined',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from /tmp/nanolang-mixed-native-first-422f/artifacts/harness6.c:13:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case6.c: In function ‘nvm_owned_entry’:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case6.c:2214:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 2214 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |  ^~
+/tmp/nanolang-mixed-native-first-422f/artifacts/case6.c:2214:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 2214 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |                                                            ^~
+cc1: all warnings being treated as errors
+
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 69, in test_vm_native_lifecycle_and_allocations
+    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  optimization, '-fsanitize=address,undefined',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from /tmp/nanolang-mixed-native-first-422f/artifacts/harness7.c:13:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case7.c: In function ‘nvm_owned_entry’:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case7.c:2232:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 2232 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |  ^~
+/tmp/nanolang-mixed-native-first-422f/artifacts/case7.c:2232:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 2232 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |                                                            ^~
+cc1: all warnings being treated as errors
+
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) (case='8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 69, in test_vm_native_lifecycle_and_allocations
+    self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  optimization, '-fsanitize=address,undefined',
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : In file included from /tmp/nanolang-mixed-native-first-422f/artifacts/harness8.c:13:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case8.c: In function ‘nvm_owned_entry’:
+/tmp/nanolang-mixed-native-first-422f/artifacts/case8.c:2156:2: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 2156 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |  ^~
+/tmp/nanolang-mixed-native-first-422f/artifacts/case8.c:2156:60: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 2156 |  if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;
+      |                                                            ^~
+cc1: all warnings being treated as errors
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.861s
+
+FAILED (failures=9)
+case 0 0 0
+case 1 3 0
+case 2 3 0
+case 3 3 0
+case 4 2 0
+case 5 0 0
+case 6 0 0
+case 7 0 0
+case 8 2 0
+1274 mixed runtime lifecycle checks passed
+make: *** [Makefile.gnu:5276: test-mixed-samples-runtime] Error 1
