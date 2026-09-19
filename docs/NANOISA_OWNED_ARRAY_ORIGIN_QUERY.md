@@ -120,3 +120,28 @@ I do not execute pending owner ARRAY modules. GCC/Clang strict sanitizer query
 gates and existing retained/mixed/provider adjacency precede any later authority
 integration. Runtime mutable aliases, ownership cleanup, public admission and
 unchanged Bundle/PREFIX source acceptance remain separate required checkpoints.
+
+## I select one explicit entry and expose conditional helpers honestly
+
+My root is exactly header.entry_point0, with HAS_MAIN set, no unknown header
+flags or NEEDS_EXTERN, canonical NVM magic/format version, nonzero bounded
+function table and a zero-argument function0. DEBUG_INFO may remain; this query
+validates the decoded module envelope, not serialized offsets/checksum. I reject
+missing/nonzero roots, imports/module references/callback contracts, passive
+claims, captures, `__init__` functions and calls to entry0. Function names,
+nonoverlapping nonempty code ranges, local/parameter counts and result metadata
+must agree with retained ownership signatures. Entry result is INT/BOOL/U8 or
+VOID; owner results are helper summaries only. I do not select roots by spelling,
+scan for another main or quietly omit initialization.
+
+I mark call-graph reachability from function0 separately from body analysis.
+Every body is analyzed from its declared symbolic parameters. Exported helper
+summaries always identify their own formal namespace and are explicitly
+conditional, even when the helper is reachable. An uncalled helper may have
+formal-only obligations and remains labelled conditional/unreachable; it is
+never reported as having concrete caller evidence. I expose the entry's
+transitively substituted obligation set separately, requiring zero formal bits
+and only checked concrete FLOAT sites there. Thus PROVED asserts conditional
+well-formed summaries for all bodies plus closed concrete origin obligations
+for the selected entry, not unconditional concrete origins for every helper.
+It grants no affine, complete scalar or runtime permission.
