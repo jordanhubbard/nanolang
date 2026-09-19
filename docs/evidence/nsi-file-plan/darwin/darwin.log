@@ -1,0 +1,10 @@
+I retain private descriptor artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-plan-3x13mstj
+test_instrumented_descriptor_and_allocations (tests.test_nsi_file_plan.LocalFilePlan) ... PASS 1315 checks; exact private file plan, no service execution
+ok
+test_ordinary_linked_descriptor (tests.test_nsi_file_plan.LocalFilePlan) ... PASS 902 checks; exact private file plan, no service execution
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.564s
+
+OK
