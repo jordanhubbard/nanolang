@@ -11631,3 +11631,14 @@ remain unchanged in `/tmp/nanolang-mutation-identity-66a-bootstrap`. I record th
 shadow syntax defect before correcting the two delimiters in a fresh tree.
 Checker guard production is unchanged; no bootstrap or source acceptance is
 claimed from this terminal. Corrected qualification awaits review.
+
+I retain13d1's corrected82ce bootstrap PASS269.511s and first focused54ea
+terminal separately. Three methods pass:36 full-source checker-driver cases,
+16 typed output-preserving refusals and C's reserved-set declaration policy.
+The unbound fixture fails parsing in all three producers because two
+`array<float>=` spellings form GE tokens. No rejected output is executed.
+I record this test spelling defect before inserting spaces in those two lines;
+compiler guards remain unchanged. The97.103s terminal and equal source/host-tool
+maps remain in `/tmp/nanolang-mutation-identity-54ea-focused`. I rerun only the
+affected unbound control plus previously unrun adjacency after correction;
+I do not repeat the unchanged successful bootstrap or checker-driver matrix.
