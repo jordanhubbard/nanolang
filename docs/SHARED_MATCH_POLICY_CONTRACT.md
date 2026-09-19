@@ -226,3 +226,34 @@ No skipped route, warning-only checker result, old failed artifact, widened
 timeout or removed sanitizer qualifies this contract.
 
 Full product acceptance and the publication decision remain separate gates.
+
+## My bounded C-seed interpreter slice
+
+I implement the next dependency-ordered slice from canonical
+`8ddba93efe2a888e21c9ab484f60fabea51d02be`. My shared C-seed checker already
+requires exact `bool` guards and total `int` or known-union matches. I now make
+that checker reject the first arm after an unconditional wildcard, including a
+wildcard guarded by literal `true`. A conditional wildcard remains reachable
+and may continue to later arms when its guard is false.
+
+My interpreter scans every arm once in lexical order. A wildcard participates
+at its written position instead of being remembered as a deferred default.
+Named and or-pattern payload bindings remain scoped to their matching guard and
+body, and a false guard restores the arm scope before the next arm. I evaluate
+the scrutinee once and preserve enclosing `return`, `break` and `continue`
+signals.
+
+Checked source cannot normally miss every arm. For an unchecked or corrupted
+AST that does, the interpreter prints one first-person invariant diagnostic and
+terminates with failure. It does not return `void` to its caller or execute a
+later source effect. A forked unit control reaches this backstop without
+executing any historical failed artifact.
+
+Fresh qualification covers expression and statement rejection after both bare
+and literal-true unconditional wildcards; early true/false conditional
+wildcards; repeated conditional wildcards; named and or-pattern fallthrough;
+once-only scrutinee/guard/body effects; binding restoration; and the low-level
+terminal backstop. I retain the existing C-seed totality matrix and interpreter
+suite. This slice does not widen the self-hosted parser, self-hosted checker,
+public C profile or NanoCore subset, and it does not close either shared parent
+or the release gate.
