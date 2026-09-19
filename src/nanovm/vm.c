@@ -4513,6 +4513,12 @@ vm_dispatch_done: ;
 }
 
 VmTrap vm_core_execute(VmState *vm) {
+    if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+        VmTrap refused={.type=TRAP_ERROR};
+        refused.data.error.code=vm_error(vm,VM_ERR_TYPE_ERROR,
+            "I require a synchronous owner ARRAY root invocation before execution.");
+        return refused;
+    }
     bool mixed=vm && nvm_mixed_samples_candidate(vm->module);
     uint32_t base=mixed && vm->frame_count?vm->frames[0].stack_base:0;
     VmTrap trap=vm_core_execute_scoped(vm,NULL);
