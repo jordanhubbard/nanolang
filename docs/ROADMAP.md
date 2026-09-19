@@ -2953,12 +2953,25 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         process-name counts cannot prove per-client isolation or lazy launch.
         I require observed owned-worker identity and an actual injected crash,
         not merely successful repeated calls or matching ambient counts.
-      - [ ] I require semantic rejection evidence in the self-hosted shell
+      - [x] I require semantic rejection evidence in the self-hosted shell
         suite. Its negative-test loop currently counts any compiler failure,
         including timeout or launch failure, as a pass and discards diagnostics.
         I preserve the corpus and distinguish expected diagnostics from
         infrastructure failures with injected regressions. MAC
-        `task_4f84d7b8485a467da3909f79e2417233`.
+        `task_4f84d7b8485a467da3909f79e2417233`. Evidence:
+        `docs/evidence/selfhost-semantic-rejections.md`.
+      - [x] I preserve prior failed artifacts at the shell caller boundary
+        (`task_ac3fa27024ac41d186bb1536133875ed`). Static review of PR806
+        found that its unconditional removal of the fixed negative output path
+        bypasses the new helper's pre-existing-artifact check. I retain prior
+        output/logs using fresh per-run paths or explicit refusal, and require
+        a caller-level regression before clearing the scoped review hold. I use
+        fresh per-run and per-case negative paths, remove no negative output,
+        and retain the old fixed artifact plus a newly published rejected
+        artifact in the caller regression. Shell/Python checks and all nine
+        focused methods pass at production checkpoint `72f7268a`; the original
+        PR806 qualification remains pinned separately in
+        `docs/evidence/selfhost-semantic-rejections.md`.
       - [x] I make dispatch-equivalence coverage explicit: unexpected compile
         failures and zero comparisons fail, expected exclusions are reported,
         and compilation/VM executions have deadlines and retained diagnostics.
@@ -9214,6 +9227,12 @@ Ownership and proposal closure:
 - [ ] I encode and verify ownership facts in `.nvm` v2, preserving them through
       serialization, linking, reconstruction, `nvm2c`, and every shipped
       translator (`task_ed70242ac4d83be7b2327da7ece387ad`).
+- [ ] I establish a private real local-file service adapter before public handle migration (`task_f9ac5bb2adbf44198a5bdb8ed41309ff`, child of d03c). My [preimplementation contract](NSI_LOCAL_FILE_SERVICE.md) first fixes actual temporary-file acquisition, rights/generation identity, transfer and consumed-close Result/error ownership; I review capability retirement/reuse before code, then qualify real byte I/O, failure cleanup, stale/duplicate isolation and bounded-live reuse on Linux/Darwin with exact source/tool evidence. I keep public NSI generation, paired source/import/VM/AOT admission and remaining File/Socket/GPU integration as later reviewed phases. My [private acceptance evidence](evidence/local-file-service.md) records frozen `4aad73a0` Linux/Darwin real-file and sanitizer controls; public migration and final integration remain separate.
+  - [x] I independently review private identity, capability retirement/reuse, Result ownership and cleanup before implementation.
+  - [x] I implement only the unselected local-file adapter and review production before resource operations.
+  - [x] I qualify actual Linux/Darwin byte I/O, transfer/close/reuse, stale/duplicate isolation and deterministic allocation/host-error cleanup with retained source/tool evidence.
+  - [x] I include both unchanged private fixtures in normal `test-units` through `CC/CFLAGS/LDFLAGS`, retaining a separate explicit strict sanitizer target. I qualify only the new normal target with Linux GCC and actual Darwin Apple Clang; my frozen4aad sanitizer evidence remains unchanged.
+  - [ ] I independently review and integrate this private child; I then contract public NSI/paired source/VM/AOT integration separately without closing d03c.
 - [ ] I migrate real file, socket, GPU, and capability/service handles only
       after that contract and IR are enforceable
       (`task_d03c232dc067e75cbc2fb2b7fb84ee46`).
@@ -11301,6 +11320,12 @@ I qualify793523 runtime-only6b0888c5 after canonical804/805 integration: GCC fro
 I record793523's initialization-join acceptance gap before new fixtures: sealed6b branches precede STRING creation, so linear locals do not qualify the changed STRING initialization meet. I require direct meet queries, both-arm-initialized runtime/native positives for each branch and one-arm-uninitialized checked refusal without execution, in a separate tree with production unchanged. The original25-report runtime seal and tools remain preserved; scoped GCC/Clang evidence precedes source admission.
 
 I close793523's bounded initialization-meet acceptance gap at frozen80c8830b:377 direct-query/refusal/four-API checks and both initialized-arm native controls pass GCC0.427seconds/Clang0.440seconds with unchanged source/tools. One-arm-uninitialized modules are refused without execution; my [additional seal](evidence/owned-string-initialization-joins.json) preserves the original6b runtime seal separately. Source production may now proceed for review in a fresh tree after canonical inline807 integration; source execution remains held.
+I reconcile only a2e469 from canonical PR805 merge47ad402f after independent96-report/40-tool/1,611-source review. Shape success still grants no executable authority; mixed parent4be remains open.
+
+- [ ] I compose the descriptive view and closed Samples FLOAT-array proof with an independent affine/scalar analysis (`task_1bf5b051b828444c989382f8cc7702b6`, parent4be). My [preimplementation contract](NANOISA_MIXED_SAMPLES_COMPOSITION.md) requires exact original/compact maps, explicit ordinary-versus-owner facts, real consumption/join checks and visible FLOAT-or-VOID runtime obligations. The first checkpoint is query-only; public selectors and execution stay unchanged.
+- [ ] After that private composition, I record and qualify separate VM/native mixed-root lifecycle and scalar-check contracts before public admission. I then qualify paired C-seed/Stage1/Stage2/NanoVirt publication of unchanged Samples/PREFIX with every selected shadow. Managed fields inside an owner remain a separate required path; no mixed parent closes from the query alone.
+
+I qualify private composition1bf5 at56653e66 and fixture-only805ff5c4: GCC/Clang sanitizer gates pass, full allocation sweep reaches success320 with no live query allocations, and five adjacent suites pass at the first pin. My [26-report evidence](evidence/mixed-samples-composition.md) preserves1,615 sources and31 linked objects; public pending-module refusals remain unchanged. This is not VM/native execution or source admission, and canonical child closure remains pending.
 ## My canonical ownership checkpoint reconciliation
 
 I reconcile these completed child checkboxes from actual canonical merges and the MAC ledger: owned string parameters/printing through PR750 and PR761; transitive scalar wrappers through PR801; descriptive mixed layouts through PR802; nested owned results through PR803; float locals, their wire-tag correction and lexical unsafe scopes through PR804; private mixed-array provenance through PR805; ordered inline child construction through PR807. I retain each preimplementation entry and historical failure above as evidence, with current completion stated here. The superseded contract-only PR746 is closed because its refined contract already exists on main.
@@ -11316,3 +11341,7 @@ I record793523 source-fixture migration before execution: old STRING-local refus
 I retain793523 source366f77 first qualification before correcting its migrated diagnostic fixture: fresh bootstrap265.899seconds, focused3 GCC191.461seconds/Clang191.904seconds pass; the adjacent58-method run exits1 after604.558seconds because five producer subtests in managed_string_order omit the existing supported-scalar-operator diagnostic from their regex. Each affected checked refusal and unchanged-output assertion passed; the other57 methods pass. My [first seal](evidence/owned-string-fields-source-first.json) preserves frozen sources, reports, tools and final fixture artifacts. I will change only this case diagnostic expectation and rerun the affected method, without relabeling the first full run as green.
 
 I qualify793523 Linux source at366f77 with fresh bootstrap, unchanged original Bundle/PREFIX and focused3 GCC/3 Clang passes. The first adjacent58-method run retains its diagnostic-only failure; after recorded case-specific correctionff570537, the affected method passes174.458seconds on unchanged production/tools. My [source evidence](evidence/owned-string-fields-source.md) distinguishes the57 prior passing methods from this fresh corrected method and preserves all original seals. Darwin source acceptance and canonical shared-authority integration remain required; the task and full parents stay open.
+
+- [ ] I retain mutable FLOAT arrays inside affine Bundle owners (`task_430220ce190946518d404088533531b6`) under my [preimplementation contract](NANOISA_OWNED_FLOAT_ARRAY_FIELDS.md). After qualified mixed ordinary arrays and retained STRING owner lifecycle, I require exact owner-field provenance through pack/projection/unpack/calls/results, shared mutable identity, failure-atomic retain/growth/cleanup, then reviewed paired source admission. I preserve the unchanged original Bundle/PREFIX and all selected shadows; descriptor ARRAY alone grants no element proof. Private partial checkpoints do not close owner calls/results or broader managed/ownership/product acceptance.
+
+I integrate private composition1bf5 with main5d660625 atb8cc31f7, preserving prior artifacts and exact analysis/fixture identity. Fresh GCC/Clang sanitizer query gates pass112,454 assertions each;39 sealed reports retain8 actual tools,31 linked objects and1,619 source identities. No pending execution or public admission follows; canonical child closure remains pending.

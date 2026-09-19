@@ -1,0 +1,32 @@
+{
+  "pin": "805ff5c4261526c7b4c77750d6e30b8d26083549",
+  "results": [
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "-j2",
+        "test-mixed-samples"
+      ],
+      "environment": {
+        "CC": "cc"
+      },
+      "status": 0,
+      "seconds": 0.8659729109494947
+    },
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-mixed-samples"
+      ],
+      "environment": {
+        "CC": "/tmp/nanolang-projection-clang",
+        "MIXED_CFLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+      },
+      "status": 0,
+      "seconds": 3.3223113999702036
+    }
+  ]
+}

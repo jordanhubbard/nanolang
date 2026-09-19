@@ -581,3 +581,6 @@ bool nvm_affine_parameter_type(const NvmAffineState *s,NvmAffineType *type,
                                  NvmReferenceMode *mode) {
     return s && s->facts->params==1 && nvm_affine_parameter_at(s,0,type,mode);
 }
+
+/* I keep mixed checked facts construction private; this query grants no execution. */
+#include "mixed_samples.inc"

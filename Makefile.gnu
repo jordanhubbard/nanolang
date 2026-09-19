@@ -886,6 +886,10 @@ test-daemon-gate:
 test-selfhost-returned-calls: bootstrap3
 	@python3 -m unittest tests.test_selfhost_returned_calls
 
+.PHONY: test-selfhost-rejection-gate
+test-selfhost-rejection-gate:
+	@python3 -m unittest -v tests.test_selfhost_rejection_gate
+
 .PHONY: test-selfhost-map-types
 test-selfhost-map-types: bootstrap3
 	@python3 -m unittest tests.test_selfhost_map_types
@@ -894,7 +898,7 @@ test-selfhost-map-types: bootstrap3
 test-selfhost-array-compatibility: bootstrap3
 	@python3 -m unittest tests.test_selfhost_array_compatibility
 
-test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls
+test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls test-selfhost-rejection-gate
 
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop
@@ -1384,6 +1388,19 @@ test-nsi-cap:
 		$(SRC_DIR)/nsi_cap.c
 	@./tests/test_nsi_cap
 	@rm -f tests/test_nsi_cap
+
+.PHONY: test-nsi-file test-nsi-file-sanitizers
+test-nsi-file:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file.c -o $(OBJ_DIR)/test_nsi_file_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_linked.c src/nsi_file.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_file_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_linked
+
+test-units: test-nsi-file
+
+test-nsi-file-sanitizers:
+	python3 -m unittest -v tests.test_nsi_file
 
 .PHONY: test-nsi-shm
 test-nsi-shm:
@@ -5242,3 +5259,7 @@ test-units: test-owned-string-joins
 test-owned-string-joins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_joins tests/nanoisa/test_owned_string_joins.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	python3 -m unittest -v tests.test_owned_string_joins
+.PHONY: test-mixed-samples
+test-units: test-mixed-samples
+test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MIXED_SAMPLES_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_samples
