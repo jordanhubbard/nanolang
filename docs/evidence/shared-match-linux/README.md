@@ -7,3 +7,5 @@ I retain each first terminal in its own directory. My first run stopped because 
 My repeated wildcard controls check lexical guard order, selected body, and once-only scrutinee evaluation. My terminal backstop registers only its unchecked function, drains stderr to EOF with EINTR handling, checks normal failure status, and checks the diagnostic. My handler fixture retains its required fallback and original result assertions.
 
 The manifest seals copied reports, maps, runner sources, and raw logs. The retained binaries remain at the paths in the binary maps. Raw failure logs preserve their original formatting. I do not claim Darwin qualification, a fresh current bootstrap, all compiler routes, or release readiness from these results.
+
+My independent read-only audit rehashes all four binaries, every source/provider/tool map against its retained tree, and all 57 original copied records. It confirms each retained failure and the final bounded Linux result. I preserve that audit separately in `independent-audit.json`.
