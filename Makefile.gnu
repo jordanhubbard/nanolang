@@ -5270,3 +5270,7 @@ test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 .PHONY: mixed-samples-runtime-fixture
 mixed-samples-runtime-fixture: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime tests/nanoisa/test_mixed_samples_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+.PHONY: test-mixed-samples-runtime
+test-mixed-samples-runtime: mixed-samples-runtime-fixture
+	python3 -m unittest -v tests.test_mixed_samples_runtime
