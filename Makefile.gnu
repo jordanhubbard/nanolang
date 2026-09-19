@@ -407,7 +407,7 @@ NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA
 NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 
 # My retained service ABI and immutable catalog participate in incremental builds.
-$(NANOISA_OBJECTS): $(NANOISA_DIR)/file_body.h $(NANOISA_DIR)/file_body.inc $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
+$(NANOISA_OBJECTS): $(NANOISA_DIR)/file_hosted.h $(NANOISA_DIR)/file_hosted.inc $(NANOISA_DIR)/file_body.h $(NANOISA_DIR)/file_body.inc $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
 $(OBJ_DIR)/nsi_file_plan.o: $(SRC_DIR)/nsi.h $(SRC_DIR)/nsi_cap.h
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
@@ -5426,6 +5426,13 @@ test-file-body-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 .PHONY: test-owned-array-mutation-runtime
 test-owned-array-mutation-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_owned_array_mutation_runtime
+
+.PHONY: test-file-hosted test-file-hosted-sanitizers
+test-units: test-file-hosted
+test-file-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_HOSTED_CC="$(CC)" NANO_FILE_HOSTED_CFLAGS="$(CFLAGS)" NANO_FILE_HOSTED_SANITIZERS=0 FILE_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_hosted
+test-file-hosted-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_hosted
 
 .PHONY: test-owned-array-bits-boundaries
 test-owned-array-bits-boundaries: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)

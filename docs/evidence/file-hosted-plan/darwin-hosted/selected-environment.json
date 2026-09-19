@@ -1,0 +1,6 @@
+{
+  "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+  "NANO_FILE_HOSTED_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+}
