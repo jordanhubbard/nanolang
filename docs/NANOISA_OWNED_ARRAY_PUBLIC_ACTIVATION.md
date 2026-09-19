@@ -70,3 +70,11 @@ I leave both source producers untouched. Source18731 must explicitly require SEL
 ## Routing-envelope review correction
 
 Static review ofcac460fee finds my route reads more envelope bytes than it validates. I correct that mismatch before qualification: once any RESOURCE flag selects the resource-bearing scan, all flag bits and RESOURCE→COMPLETE consistency, zero alignment padding and retained function-count word, layout kind/header reserved byte, field tag/reserved bytes and exact layout cursor extent must be checked. These bounded transport checks return INVALID. They do not prove nested nominal identity, per-function declarations, origins, lifetime or runtime permission; full admission still owns those checks. No-RESOURCE tables keep their established ordinary fast path.
+
+## Direct-core refusal preserves caller state
+
+Review off8f7 finds the outer `vm_core_execute` still classifies owner ARRAY as broad Samples and can run Samples cleanup after refusing an unproved continuation. Moreover, the shared `trap_error` helper clears reference activations. Neither operation is appropriate before I admit a synchronous owner ARRAY invocation.
+
+I require the public direct-core wrapper to detect owner SELECTED/INVALID before calling the scoped core or entering Samples cleanup. It returns a type-error trap and may update only `last_error`/`error_msg`; stack values/count, frames/count/owned callable roots, active reference contexts/generations, effect state, instruction/function/module/activation state, heap references/accounting and output remain unchanged. The caller still owns that continuation and its cleanup. I use the existing diagnostic-only `vm_error` path rather than `trap_error`. Existing Samples cleanup and failed admitted synchronous owner cleanup remain unchanged.
+
+Focused controls will retain actual caller-owned STRING/ARRAY roots and snapshot reference/frame/control state around direct-core refusal, compare exact state and counts, then release those roots through the caller's normal cleanup. Refused continuations never enter a bytecode handler. This does not introduce public owner continuation/resume support.
