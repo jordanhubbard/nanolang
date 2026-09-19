@@ -193,3 +193,30 @@ I do not replace them with universal hardware support, container semantics or a
 new release gate. ed702 metadata/translator preservation, full affine28f2 and the
 5.1 product/release parents remain open. I claim no implementation or acceptance
 from this contract-only commit.
+
+## My first private production checkpoint
+
+I add `src/nsi_cap_private.h` and private lifecycle functions to the existing
+capability implementation; existing public function bodies remain unchanged.
+Private consume validates the live token, marks it revoked and retires that exact
+slot atomically. Private transfer mints a distinct destination before retiring
+the source, preserving source/output aliasing and failure rollback. Retirement
+also invalidates any old Forth slot binding rather than letting slot reuse retarget
+it. Generation exhaustion is checked before mint, without resetting the counter.
+
+`src/nsi_file.c/.h` remain unselected by existing build/runtime entry points.
+The fixed registry is allocated with the context; its capability table is the
+second allocation. Every host stream is acquired only after context creation.
+Mint rejection after tmpfile exercises acquired-stream rollback; I do not invent
+a per-file allocator fault where the implementation has no allocation. Context
+identity is a separately checked monotone uint64 counter. File slot identity,
+capability generation/secret, rights and exact type/service are checked together.
+
+I require explicit positioning before either nonempty direction change. Each
+fread/fwrite/fseek/fclose captures errno before any subsequent inspection or
+cleanup; error results retain consumed state and partial progress where relevant.
+Close/transfer detach the old registry entry before private token retirement and
+restore it if preparation refuses. Successful transfer has no fallible operation
+after capability commit. Disposal closes all remaining privately stored streams
+even if a later token check unexpectedly refuses, while retaining the first error.
+I have run only a diff check. No build, fixture or host file operation has run.
