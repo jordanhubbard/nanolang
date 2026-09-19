@@ -21,6 +21,9 @@ typedef struct { uint32_t functions, sites, obligations; } NvmOwnerOriginCounts;
 typedef struct {
     uint32_t function, pc;
     uint16_t actual_tags, required_tags, read_tags;
+    /* Operand0 is lower/left; operand1 is top/right. Checks remain runtime work. */
+    uint16_t operand_actual[2], operand_required[2];
+    uint8_t opcode, operand_count, runtime_checks;
 } NvmOwnerOriginObligation;
 /* All failures preserve outputs. I borrow immutable module bytes during this
  * call only. Helper summaries use function-local formals; entry is closed. */
