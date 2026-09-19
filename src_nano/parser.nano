@@ -5001,78 +5001,62 @@ shadow parse_owned_pattern {
 }
 
 fn parse_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
-    if (parser_has_error p) { return p }
-    if (parser_starts_owned_pattern p) {
-        return (parse_block_recursive (parse_owned_pattern p stmts) stmts start_line start_column)
-    }
-    if (parser_has_error p) {
-        return p
-    } else {
-        if (parser_is_at_end p) {
-            return (parser_with_error p true)
+    let mut cursor: Parser = p
+    while true {
+        if (parser_has_error cursor) { return cursor }
+        if (parser_starts_owned_pattern cursor) {
+            set cursor (parse_owned_pattern cursor stmts)
         } else {
-            let tok: LexerToken = (parser_current p)
-            
+            if (parser_is_at_end cursor) { return (parser_with_error cursor true) }
+            let tok: LexerToken = (parser_current cursor)
+
             if (== tok.token_type (token_rbrace)) {
                 /* End of block */
-                let p1: Parser = (parser_advance p)  /* consume '}' */
-                return (parser_store_block p1 stmts start_line start_column)
-            } else {
-                /* Check for tuple destructuring: let (a, b) = ... or let mut (a, b) = ... */
-                let is_tuple_destr: bool =
-                    (or
-                        (and (== tok.token_type (token_let))
-                             (== (parser_peek p 1) (token_lparen)))
-                        (and (== tok.token_type (token_let))
-                             (and (== (parser_peek p 1) (token_mut))
-                                  (== (parser_peek p 2) (token_lparen)))))
+                let closed: Parser = (parser_advance cursor)  /* consume '}' */
+                return (parser_store_block closed stmts start_line start_column)
+            }
 
-                if is_tuple_destr {
-                    /* Consume 'let' */
-                    let p_let: Parser = (parser_advance p)
-                    /* Check for 'mut' — current token of p_let is first token after 'let' */
-                    let mut is_mut: bool = false
-                    let mut p_after_let: Parser = p_let
-                    if (not (parser_is_at_end p_let)) {
-                        let tok_after_let: LexerToken = (parser_current p_let)
-                        if (== tok_after_let.token_type (token_mut)) {
-                            set is_mut true
-                            set p_after_let (parser_advance p_let)
-                        } else {
-                            (print "")
-                        }
+            /* Check for tuple destructuring: let (a, b) = ... or let mut (a, b) = ... */
+            let is_tuple_destr: bool =
+                (or
+                    (and (== tok.token_type (token_let))
+                         (== (parser_peek cursor 1) (token_lparen)))
+                    (and (== tok.token_type (token_let))
+                         (and (== (parser_peek cursor 1) (token_mut))
+                              (== (parser_peek cursor 2) (token_lparen)))))
+
+            if is_tuple_destr {
+                /* Consume 'let' */
+                let p_let: Parser = (parser_advance cursor)
+                /* Check for 'mut' — current token of p_let is first token after 'let' */
+                let mut is_mut: bool = false
+                let mut p_after_let: Parser = p_let
+                if (not (parser_is_at_end p_let)) {
+                    let tok_after_let: LexerToken = (parser_current p_let)
+                    if (== tok_after_let.token_type (token_mut)) {
+                        set is_mut true
+                        set p_after_let (parser_advance p_let)
                     } else {
                         (print "")
                     }
-                    let p2: Parser = (parse_tuple_destructure p_after_let stmts is_mut tok.line tok.column)
-                    if (parser_has_error p2) {
-                        return p2
-                    } else {
-                        return (parse_block_recursive p2 stmts start_line start_column)
-                    }
                 } else {
+                    (print "")
+                }
+                set cursor (parse_tuple_destructure p_after_let stmts is_mut tok.line tok.column)
+            } else {
                 /* Parse statement */
-                let p2: Parser = (parse_statement p)
-                if (parser_has_error p2) {
-                    return p2
-                } else {
-                    let stmt_id: int = p2.last_expr_node_id
-                    let stmt_type: int = p2.last_expr_node_type
-
-                    /* Add statement to this block's list */
-                    let stmt: ASTStmtRef = ASTStmtRef {
-                        node_id: stmt_id,
-                        node_type: stmt_type
-                    }
-                    (list_ASTStmtRef_push stmts stmt)
-
-                    /* Continue parsing more statements */
-                    return (parse_block_recursive p2 stmts start_line start_column)
+                let next: Parser = (parse_statement cursor)
+                if (parser_has_error next) { return next }
+                let stmt: ASTStmtRef = ASTStmtRef {
+                    node_id: next.last_expr_node_id,
+                    node_type: next.last_expr_node_type
                 }
-                }
+                (list_ASTStmtRef_push stmts stmt)
+                set cursor next
             }
         }
     }
+    return cursor
 }
 
 fn parse_block(p: Parser) -> Parser {
@@ -5194,35 +5178,31 @@ shadow parser_store_unsafe_block {
 
 /* Parse unsafe block recursively */
 fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
-    if (parser_has_error p) { return p }
-    if (parser_starts_owned_pattern p) {
-        return (parse_unsafe_block_recursive (parse_owned_pattern p stmts) stmts start_line start_column)
-    }
-    if (parser_has_error p) {
-        return p
-    } else {
-        if (parser_is_at_end p) {
-            return (parser_with_error p true)
+    let mut cursor: Parser = p
+    while true {
+        if (parser_has_error cursor) { return cursor }
+        if (parser_starts_owned_pattern cursor) {
+            set cursor (parse_owned_pattern cursor stmts)
         } else {
-            let tok: LexerToken = (parser_current p)
-            
+            if (parser_is_at_end cursor) { return (parser_with_error cursor true) }
+            let tok: LexerToken = (parser_current cursor)
+
             if (== tok.token_type (token_rbrace)) {
-                let p1: Parser = (parser_advance p)
-                return (parser_store_unsafe_block p1 stmts start_line start_column)
-            } else {
-                let p2: Parser = (parse_statement p)
-                if (parser_has_error p2) {
-                    return p2
-                } else {
-                    let stmt_id: int = p2.last_expr_node_id
-                    let stmt_type: int = p2.last_expr_node_type
-                    let stmt: ASTStmtRef = ASTStmtRef { node_id: stmt_id, node_type: stmt_type }
-                    (list_ASTStmtRef_push stmts stmt)
-                    return (parse_unsafe_block_recursive p2 stmts start_line start_column)
-                }
+                let closed: Parser = (parser_advance cursor)
+                return (parser_store_unsafe_block closed stmts start_line start_column)
             }
+
+            let next: Parser = (parse_statement cursor)
+            if (parser_has_error next) { return next }
+            let stmt: ASTStmtRef = ASTStmtRef {
+                node_id: next.last_expr_node_id,
+                node_type: next.last_expr_node_type
+            }
+            (list_ASTStmtRef_push stmts stmt)
+            set cursor next
         }
     }
+    return cursor
 }
 shadow parse_unsafe_block_recursive {
     assert (== 1 1)
