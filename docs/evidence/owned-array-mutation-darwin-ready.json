@@ -1,0 +1,68 @@
+{
+  "canonical": "ab17e610786397670321b846de137f3c8bee9bf6",
+  "integration": "b68c7e4c756427296b4d62698ae75d52e4c143f7",
+  "qualified_head": "92ee0e38a92f55255390ccfcceee200699be48f7",
+  "inputs": {
+    "Makefile.gnu": {
+      "qualified": "c555c199f8e0e739f3dca1ec35c0ea5c74fb88b0ffc5ef1efd9b167def4cf1b2",
+      "ready": "9884e043d2e36ef60d0cefbd2ef1cd8a6fcfeb6961c9db7137494d154a7dacfc",
+      "equal": false
+    },
+    "src/nanovm/vm.c": {
+      "qualified": "cd17e3cfb2875ee199608214f8185af7c4bd167592f4d43317aded4f7eca1481",
+      "ready": "cd17e3cfb2875ee199608214f8185af7c4bd167592f4d43317aded4f7eca1481",
+      "equal": true
+    },
+    "src/nanovm/heap.c": {
+      "qualified": "38eaa2551ddeb42deec5bdb162b3764b5f224d2f06559fcacbce5075667cb1cd",
+      "ready": "38eaa2551ddeb42deec5bdb162b3764b5f224d2f06559fcacbce5075667cb1cd",
+      "equal": true
+    },
+    "src/nanoisa/nvm2c.c": {
+      "qualified": "bd5e2019000da9c872d4216f3a45410b010436f55d3286c8217103e516fa62ff",
+      "ready": "bd5e2019000da9c872d4216f3a45410b010436f55d3286c8217103e516fa62ff",
+      "equal": true
+    },
+    "src/nanoisa/nvm2c_owned.h": {
+      "qualified": "713f23310c9c91e4dcee14d067f3019220df9437827fe4e25c3ee4e21e9561a8",
+      "ready": "713f23310c9c91e4dcee14d067f3019220df9437827fe4e25c3ee4e21e9561a8",
+      "equal": true
+    },
+    "src/nanoisa/owned_array_admit.inc": {
+      "qualified": "6bd4156d432ac3cabb900bf63d3b97f88f3ba88017bb213fc59217019e463551",
+      "ready": "6bd4156d432ac3cabb900bf63d3b97f88f3ba88017bb213fc59217019e463551",
+      "equal": true
+    },
+    "src/nanoisa/verifier.c": {
+      "qualified": "5160ad3f3a7b8a3731b79ee2a491bf34d2759f9062e4e9de9517207f9c95da5c",
+      "ready": "5160ad3f3a7b8a3731b79ee2a491bf34d2759f9062e4e9de9517207f9c95da5c",
+      "equal": true
+    },
+    "tests/nanoisa/test_private_owned_array_runtime.c": {
+      "qualified": "d40a7369664752b1fedc7ee59c9f8df5b7bd0583d7d1b36f3f1f7efce97c96a4",
+      "ready": "d40a7369664752b1fedc7ee59c9f8df5b7bd0583d7d1b36f3f1f7efce97c96a4",
+      "equal": true
+    },
+    "tests/test_private_owned_array_runtime.py": {
+      "qualified": "a3747a519bab506600ee3a51bf6e5ca3bb42ac2837832d98270d44d6ec37ab28",
+      "ready": "a3747a519bab506600ee3a51bf6e5ca3bb42ac2837832d98270d44d6ec37ab28",
+      "equal": true
+    },
+    "tests/nanoisa/test_owned_array_mutation_runtime.c": {
+      "qualified": "3f03f04ab85a9ec8e79a29477588a2b25bf5b41476ec577f25099080a9db235c",
+      "ready": "3f03f04ab85a9ec8e79a29477588a2b25bf5b41476ec577f25099080a9db235c",
+      "equal": true
+    },
+    "tests/nanoisa/owned_array_mutation_native.inc": {
+      "qualified": "1c7559268ecd3464c16048ae4d7590f50aaaa144b630e326ae4c8e384be9e7ed",
+      "ready": "1c7559268ecd3464c16048ae4d7590f50aaaa144b630e326ae4c8e384be9e7ed",
+      "equal": true
+    },
+    "tests/test_owned_array_mutation_runtime.py": {
+      "qualified": "30e00b15b45e718a92baac4926498c2ef92a469eb87d48154e6e5e3bee7fdaaa",
+      "ready": "30e00b15b45e718a92baac4926498c2ef92a469eb87d48154e6e5e3bee7fdaaa",
+      "equal": true
+    }
+  },
+  "scope": "I integrate private File body848 after qualification. Its new file_body.h/inc and file_flow.c include/query additions plus additive Make target are independently qualified canonical work. All eleven non-Make selected runtime/fixture inputs stay identical. I preserve the original Darwin seal/input map and puck92ee source/providers; no runtime rerun or claim of testing new File body with old providers follows."
+}
