@@ -5274,3 +5274,9 @@ mixed-samples-runtime-fixture: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJ
 .PHONY: test-mixed-samples-runtime
 test-mixed-samples-runtime: mixed-samples-runtime-fixture
 	python3 -m unittest -fv tests.test_mixed_samples_runtime
+
+.PHONY: test-mixed-samples-runtime-alloc
+test-mixed-samples-runtime-alloc: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -Dmalloc=mixed_heap_malloc -Dcalloc=mixed_heap_calloc -Drealloc=mixed_heap_realloc -c src/nanovm/heap.c -o obj/test_mixed_samples_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime_alloc tests/nanoisa/test_mixed_samples_runtime_alloc.c obj/test_mixed_samples_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_mixed_samples_runtime_alloc

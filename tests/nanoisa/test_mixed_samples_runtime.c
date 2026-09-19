@@ -126,6 +126,33 @@ static void runtime_clean(VmState *vm,size_t baseline) {
     vm_gc_collect_cycles(&vm->heap);
     CHECK(vm->heap.stats.num_objects==baseline);
 }
+static void runtime_core(NvmModule *m,unsigned index,VmResult wanted) {
+    VmState vm;vm_init(&vm,m);CHECK(vm.last_error==VM_OK);
+    size_t baseline=vm.heap.stats.num_objects;
+    vm.frame_count=1;vm.current_fn=0;vm.ip=m->functions[0].code_offset;
+    vm.frames[0]=(VmCallFrame){.fn_idx=0,.local_count=m->functions[0].local_count,.module=m};
+    vm.stack_size=m->functions[0].local_count;
+    for(uint32_t n=0;n<vm.stack_size;n++)vm.stack[n]=val_void();
+    VmTrap trap;unsigned traps=0;bool failed_assert=false;
+    do {
+        CHECK(traps++<64);trap=vm_core_execute(&vm);
+        if(trap.type==TRAP_ASSERT) {
+            CHECK(trap.data.assert_check.condition.tag==TAG_BOOL);
+            failed_assert=!val_truthy(trap.data.assert_check.condition);
+            vm_release(&vm.heap,trap.data.assert_check.condition);
+            if(failed_assert)break;
+        }
+    } while(trap.type==TRAP_ASSERT);
+    fprintf(stderr,"mixed direct core case=%u traps=%u terminal=%u\n",index,traps,(unsigned)trap.type);
+    if(wanted==VM_OK) {
+        CHECK(trap.type==TRAP_NONE && vm.stack_size==1);
+        NanoValue value=vm.stack[--vm.stack_size];CHECK(value.tag==TAG_INT && !value.as.i64);vm_release(&vm.heap,value);
+    } else if(wanted==VM_ERR_ASSERT_FAILED)CHECK(failed_assert && trap.type==TRAP_ASSERT);
+    else CHECK(trap.type==TRAP_ERROR && trap.data.error.code==wanted);
+    runtime_clean(&vm,baseline);vm_destroy(&vm);
+}
+#ifndef MIXED_RUNTIME_ALLOC_TEST
+
 int main(int argc,char **argv) {
     CHECK(argc==2);
     for(unsigned index=0;index<9;index++) {
@@ -149,7 +176,9 @@ int main(int argc,char **argv) {
             if(result==VM_OK){if(api==1||api==2){CHECK(vm.stack_size==1);out=vm.stack[--vm.stack_size];}CHECK(out.tag==TAG_INT && !out.as.i64);vm_release(&vm.heap,out);}
             runtime_clean(&vm,baseline);
         }
-        vm_destroy(&vm);nvm_module_free(m);printf("case %u %u 0\n",index,(index==4||index==8)?2:index>=1&&index<=3?3:0);
+        vm_destroy(&vm);runtime_core(m,index,wanted);nvm_module_free(m);printf("case %u %u 0\n",index,(index==4||index==8)?2:index>=1&&index<=3?3:0);
     }
     printf("%u mixed runtime lifecycle checks passed\n",checks);return 0;
 }
+
+#endif
