@@ -1,0 +1,86 @@
+[
+  {
+    "frame": "#1 0xf8878bb1b24c  (<unknown module>)",
+    "matches": [
+      {
+        "module": "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0",
+        "pc": "0xf8878bb1b24c",
+        "mapping_start": "0xf8878bb10000",
+        "mapping_offset": "0x0",
+        "file_offset": "0xb24c"
+      }
+    ]
+  },
+  {
+    "frame": "#2 0xf8878bb1c1b4  (<unknown module>)",
+    "matches": [
+      {
+        "module": "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0",
+        "pc": "0xf8878bb1c1b4",
+        "mapping_start": "0xf8878bb10000",
+        "mapping_offset": "0x0",
+        "file_offset": "0xc1b4"
+      }
+    ]
+  },
+  {
+    "frame": "#1 0xf8878bb1b0ac  (<unknown module>)",
+    "matches": [
+      {
+        "module": "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0",
+        "pc": "0xf8878bb1b0ac",
+        "mapping_start": "0xf8878bb10000",
+        "mapping_offset": "0x0",
+        "file_offset": "0xb0ac"
+      }
+    ]
+  },
+  {
+    "frame": "#2 0xf8878bb1c1b4  (<unknown module>)",
+    "matches": [
+      {
+        "module": "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0",
+        "pc": "0xf8878bb1c1b4",
+        "mapping_start": "0xf8878bb10000",
+        "mapping_offset": "0x0",
+        "file_offset": "0xc1b4"
+      }
+    ]
+  },
+  {
+    "frame": "#1 0xf8878bb1a8cc  (<unknown module>)",
+    "matches": [
+      {
+        "module": "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0",
+        "pc": "0xf8878bb1a8cc",
+        "mapping_start": "0xf8878bb10000",
+        "mapping_offset": "0x0",
+        "file_offset": "0xa8cc"
+      }
+    ]
+  },
+  {
+    "frame": "#2 0xf8878bb1b50c  (<unknown module>)",
+    "matches": [
+      {
+        "module": "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0",
+        "pc": "0xf8878bb1b50c",
+        "mapping_start": "0xf8878bb10000",
+        "mapping_offset": "0x0",
+        "file_offset": "0xb50c"
+      }
+    ]
+  },
+  {
+    "frame": "#3 0xf8878bb1c1b4  (<unknown module>)",
+    "matches": [
+      {
+        "module": "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0",
+        "pc": "0xf8878bb1c1b4",
+        "mapping_start": "0xf8878bb10000",
+        "mapping_offset": "0x0",
+        "file_offset": "0xc1b4"
+      }
+    ]
+  }
+]

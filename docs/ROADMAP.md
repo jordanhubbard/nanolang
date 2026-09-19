@@ -11927,4 +11927,6 @@ and the default-profile MAC completed state. All16 committed report hashes in
 The pending-merge statement above records the earlier qualification checkpoint;
 full Forth conformance and release acceptance remain open.
 
-- [ ] I investigate the retained OpenCL unload-time leak under `task_315caf01b3764a3eb655d825c9203e24` by [capturing same-process module maps before the unchanged loader close](OPENCL_UNLOAD_MAPPING_DIAGNOSTIC.md). I preserve the original failure and require one fresh diagnostic build/run with unchanged sanitizers and GPU assertions before drawing an allocation-module conclusion.
+- [x] I investigate the retained OpenCL unload-time leak under `task_315caf01b3764a3eb655d825c9203e24` by [capturing same-process module maps before the unchanged loader close](OPENCL_UNLOAD_MAPPING_DIAGNOSTIC.md). I preserve the original failure and require one fresh diagnostic build/run with unchanged sanitizers and GPU assertions before drawing an allocation-module conclusion.
+
+I capture and attribute the same-process OpenCL unload diagnostic at `4b71cc2ab`: the unchanged GPU assertions pass, the 75-byte/three-allocation LSan failure persists, and all seven unknown frames map to the installed OpenCL loader. [My evidence](evidence/opencl-unload-attribution.md) identifies the module only; task315caf, ownership diagnosis and sanitizer acceptance remain open.
