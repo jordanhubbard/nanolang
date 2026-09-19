@@ -308,3 +308,13 @@ CLI/evaluator objects. No fixture executable runs. I preserve
 `/tmp/nanolang-service-module-includes` before supplying those ordinary harness
 entrypoint globals, as the adjacent VM fixture executables do. Production stays
 unchanged and warnings/sanitizers/assertions remain intact.
+
+At 47f9254ef both complete focused service methods pass with GCC (7.273s) and
+Clang (3.462s), including public CLI output preservation. Adjacent qualification
+then stops on the old container fixture which calls required bit9 unknown. I
+preserve that 28-pass/1-failure outcome in /tmp/nanolang-service-module-linked.
+Bit9 is now intentionally recognized; before correction I record migration of
+this negative control to unassigned bit10. Exact service cross-section refusal
+controls stay intact. I also inspect adjacent unknown section/import fixtures
+before a fresh corrected gate. This is a fixture boundary update, not a product
+refusal to be hidden or a new bootstrap claim.
