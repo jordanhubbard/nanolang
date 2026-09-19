@@ -1,0 +1,26 @@
+=== Forth 83 Demo ===
+
+-- Arithmetic --
+5 3 1 
+-- Stack words --
+1 2 9 
+-- User words --
+25 27 
+-- Recursion --
+120 
+-- do/loop --
+0 1 2 3 4 
+-- begin/until --
+3 2 1 
+-- Variables and constants --
+42 52 100 
+-- Base switching --
+255 
+-- Conditionals --
+42 77 
+-- +loop --
+0 2 4 6 8 
+-- String output --
+ Hello from Forth!"
+
+=== Demo complete. Stack empty. ===
