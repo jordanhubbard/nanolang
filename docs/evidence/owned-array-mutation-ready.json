@@ -1,6 +1,6 @@
 {
-  "canonical": "19b0d0ca6c89bebdc0294e731e14afc2262b701c",
-  "integrated_head": "a950bbce0469882eded9df8fb700562ce5a44df1",
+  "canonical": "3660228d933537082ee727a64333d97302e5e805",
+  "integrated_head": "65b28d7f3b87b4722d78701bc84da3361d9a189a",
   "inputs": {
     "Makefile.gnu": {
       "qualified": "f568170dbf19cdd06f9905015aed23ae3a964aca5379663c2f76497480b4e50f",
@@ -64,5 +64,6 @@
     }
   },
   "scope": "I preserve every qualified production/fixture input except Makefile.gnu, where I retain both additive File-code and mutation targets. Canonical File private preparation and Forth changes do not alter my exercised owner runtime production. I do not rebuild or rerun unchanged qualified routes.",
-  "comment_correction": "I restore unrelated canonical separator bytes after static review; only the additive mutation target differs from canonical Makefile."
+  "comment_correction": "I restore unrelated canonical separator bytes after static review; only the additive mutation target differs from canonical Makefile.",
+  "source_integration": "I integrate independently qualified paired source846 at3660228d. All twelve ready inputs remain identical, including corrected Makefile comments. I do not repeat unchanged runtime gates."
 }
