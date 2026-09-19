@@ -74,7 +74,9 @@ I kept each first terminal and corrected only the demonstrated boundary:
 At the production checkpoint:
 
 - `src/tco_pass.c`:
-  `233f21f0aa1db09ccf246a63b3eddd9d5aab18119003e2d2722a995b93d9b514`
+  `7e91cd0d52d3e003f9596b51aa3bbaf2382343865c55675e09cb73e1827be14b`
+- `src/tco_pass.h`:
+  `fe6c2b50f9f676aa2d53b43b3967577e4ce4d678452275ba5b605a70f889a208`
 - `src/eval.c`:
   `6ad79837473f7ca736610476a9f9e1b5bc17e735d14a68365a45ac9e914f7187`
 - `tests/test_native_tco.py`:

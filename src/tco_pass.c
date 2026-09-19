@@ -1,5 +1,5 @@
-/* I lower checked scalar self-tail returns to simultaneous updates and a loop.
- * Ordinary returns keep their meaning and their original result type. */
+/* I lower admitted checked self-tail returns to simultaneous updates and a
+ * loop. Ordinary returns keep their meaning and their original result type. */
 #include "tco_pass.h"
 #include <stdio.h>
 #include <stdlib.h>

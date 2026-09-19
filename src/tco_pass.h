@@ -10,11 +10,12 @@
  *   - Tail calls in if/else branches
  *   - Explicit returns before later statements in a block
  *
- * I currently lower scalar parameters in the supported expression/block/if
- * subset. I leave loops, closures, aggregates and parameter-shadowing bindings
- * unchanged rather than guessing their binding or ownership rules. Arguments
- * are evaluated left to right into temporaries before state updates. Generated
- * names avoid source identifiers, and ordinary returns retain their type.
+ * I lower supported scalar, ordinary aggregate and callable parameters after a
+ * complete preflight. I preserve lexical binding identity and route tail
+ * returns through original nested loops. I refuse resource-bearing or unknown
+ * ownership profiles rather than guessing their rules. Arguments are evaluated
+ * left to right into typed temporaries before state updates. Generated names
+ * avoid source identifiers, and ordinary returns retain their type.
  *
  * After the pass, tail-recursive functions gain a TCO body that uses
  * AST_WHILE + AST_SET nodes instead of recursion.
