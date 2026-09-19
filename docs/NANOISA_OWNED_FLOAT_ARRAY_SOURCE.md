@@ -200,3 +200,31 @@ representation, not floating equality as a bit-preservation proof.
    This child remains open until its own paired platform acceptance lands.
    Parent430220 retains all runtime/public/managed obligations; full ownership,
    full product/fixed-point acceptance and release remain independently open.
+
+## I select the exact scalar opcodes of the new profile
+
+Before completing source18731 production, I record the static interface mismatch:
+my existing specialized producers emit generic integer/Boolean operations and
+range-test/increment instructions, while owned_array_origins.inc admits exact
+I64/BOOL operations (and only generic EQ/NE comparisons). No rejected module was
+executed to establish this; the source and query opcode tables are explicit.
+
+Only inside the distinct owner-ARRAY profile, I select I64_ADD/SUB/MUL/DIV_S/REM_S,
+I64_NEG and the six signed integer comparison instructions for exact INT source
+operands; BOOL_AND/OR/NOT for exact BOOL operands; and existing generic EQ/NE for
+BOOL equality. FLOAT operations keep their existing F64 instructions and complete
+FLOAT|VOID obligations. Range comparisons and increments use I64_LT_S/I64_ADD.
+I do not change non-owner-ARRAY opcode selection or admit new runtime instructions.
+
+The exact INT handlers retain the existing integer contract: add/subtract/multiply
+wrap modulo2^64, zero division/remainder returns zero, minimum/-1 division wraps
+to minimum, minimum%-1 is zero, and minimum negation wraps to minimum. I verify
+these source operand boundaries with meaningful mandatory mapping shadows and
+later paired source controls, including range/while Boolean conditions. Source
+annotations cannot discharge unknown/optional values in the final authority.
+
+BOOL ordering has no admitted typed instruction in this profile and remains a
+checked refusal. STRING comparisons and STRING printing remain refused only in
+this new profile; existing STRING-only source acceptance stays unchanged. No
+BOOL-to-INT conversion, generic dispatch fallback, new INT-print surface or
+broader scalar policy follows. The original Bundle/PREFIX/shadows remain required.

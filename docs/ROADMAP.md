@@ -11694,3 +11694,11 @@ verified after the default-profile operator reconciliation. The reviewed guard
 head18593 and [sealed checker evidence](evidence/mutation-builtin-identity.md)
 remain the acceptance boundary; this does not close either owner-ARRAY source
 checkpoint or mutation/runtime/full parents.
+
+I record source18731's static opcode alignment before editing those paths: the
+new owner-ARRAY query accepts I64/BOOL exact opcodes while existing specialized
+scalar/range lowering emits generic operations. My [source contract amendment](NANOISA_OWNED_FLOAT_ARRAY_SOURCE.md#i-select-the-exact-scalar-opcodes-of-the-new-profile)
+requires owner-ARRAY-only exact INT/BOOL selection, unchanged integer boundary
+semantics, existing F64 obligations and typed range compare/increment. Existing
+profiles remain unchanged; unsupported BOOL ordering and STRING operations in
+the new profile remain checked refusals. I claim no runtime defect or execution.
