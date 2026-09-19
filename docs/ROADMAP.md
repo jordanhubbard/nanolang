@@ -11157,8 +11157,8 @@ I qualify both legacy formatting children with fresh Linux/Darwin bootstrap and 
 - [ ] I define and align early/multiple wildcard ordering (`task_477bdd430a1442e7bc19cbacdbac0bde`, required7a99/shared-source prerequisite). My [static audit](PUBLIC_C_GUARDED_MATCH_CONTRACT.md#my-specification-and-source-audit) distinguishes interpreter specific-first/last-wildcard behavior from source-order NanoVirt/legacy emission; inspected guides do not settle that ordering. My [shared preimplementation policy](SHARED_MATCH_POLICY_CONTRACT.md) selects lexical first-success order, permits multiple conditional wildcards, rejects arms after an unconditional wildcard and requires all-route acceptance rather than a majority-backend assumption.
 
   - [x] I publish the approved match rule in my normative specification, machine-readable specification, control-flow guide and canonical guidance before changing checker behavior. I include migration examples for early unconditional wildcards, incomplete statement/value matches and non-BOOL guards, and distinguish the intended rule from routes that still issue capability refusals. Reviewed PR790 merged as `9c52fdae`; this documentation gate does not claim runtime alignment.
-  - [ ] I align my C-seed interpreter with lexical first-success match selection and a terminal impossible-miss invariant (`task_477bdd430a1442e7bc19cbacdbac0bde`, `task_70c5a56802e44142af0f19da2469f654`). I reject the first arm after an unconditional wildcard, evaluate conditional wildcards in their source position, retain one scrutinee evaluation and arm-local scope, and terminate rather than return `void` when malformed unchecked input reaches no arm. Fresh checker refusals, interpreter effects/order controls and a forked low-level backstop test precede completion. Self-hosted, public C and all-route alignment remain open.
-    - [ ] I register the existing `E035 NON-EXHAUSTIVE MATCH` and new `E036 UNREACHABLE MATCH ARM` in my stable diagnostic catalog before qualifying the new refusal. The catalog must not lag the checked errors that callers consume.
+  - [x] I align my C-seed interpreter with lexical first-success match selection and a terminal impossible-miss invariant (`task_477bdd430a1442e7bc19cbacdbac0bde`, `task_70c5a56802e44142af0f19da2469f654`). I reject the first arm after an unconditional wildcard, evaluate conditional wildcards in their source position, retain one scrutinee evaluation and arm-local scope, and terminate rather than return `void` when malformed unchecked input reaches no arm. Fresh checker refusals, interpreter effects/order controls and a forked low-level backstop test precede completion. Self-hosted, public C and all-route alignment remain open.
+    - [x] I register the existing `E035 NON-EXHAUSTIVE MATCH` and new `E036 UNREACHABLE MATCH ARM` in my stable diagnostic catalog before qualifying the new refusal. The catalog must not lag the checked errors that callers consume.
   - [x] I give my self-hosted parser an exact guarded-match capability refusal until its schema can retain guards losslessly. I preserve the guard token location and route the specific parser diagnostic through the ordinary phase result instead of rewriting the arm or reporting only an unexpected token. I qualify integer, wildcard and named-payload guarded arms at the exact `if`, retain ordinary unguarded controls, and preserve the existing non-match phase diagnostic fallback. This checked refusal does not claim guarded-match or totality support. My [bounded evidence](evidence/selfhost-match-guard-refusal.md) retains the first installed-route mismatch and qualifies the corrected modular and installed paths.
     - [x] I route that specific refusal through my installed self-hosted compiler too (`task_9e3ccdb98a98b654dbf22e7f2af634cb`). Fresh checkpoint `5f7d521e` passes bootstrap and the modular phase shadows, but my first Stage 1 source control still reports `unexpected token 'if'` at the correct location. I retain that first outcome and qualify corrected checkpoint `0d13778a` through fresh bootstrap, both installed stages, all three guarded arm forms, unguarded controls and the unchanged generic fallback in [my bounded evidence](evidence/selfhost-match-guard-refusal.md).
   - [x] I preserve match guards through every accepting analysis and clone path before changing dispatch. I include effect and CPS walks, BOOL type inference, PGO cloning/substitution and source lookup, with guard-only effects/references and clone-integrity regressions. My [bounded evidence](evidence/shared-match-short-paths.md) passes the focused and adjacent suites; I do not let a correct emitter hide a guard erased earlier in the pipeline.
@@ -11638,8 +11638,8 @@ routes stay distinct; combining ordinary managed-record operations with owner
 ARRAY needs separate complete authority rather than reusing a profile flag.
 
 - [x] I establish checked lexical/declaration identity for mutation builtin typing (`task_13d1c53953674d279a849306c9eee26d`) before the owner-ARRAY mutation extension. Static5f988 selfhost array_push inference and generic array_set result precede ordinary symbol lookup; I audit exact owner/name resolution and qualify narrowly reviewed guards if needed, preserving C's reserved array_set declaration policy and typed/phase/output assertions. No counterexample is executed at this contract checkpoint.
-- [ ] I implement the explicit read operation required by mutation task_bba6228369c04b6c900f628d501e5553: only unbound direct `array_length(array<float>)->INT`, receiver evaluated once and `ARR_LEN`, with lexical/declaration precedence, existing C reserved-name policy, exact-origin/output-preserving refusals and alias/growth controls. This remains ordered after qualified public activation and source18731; I do not widen builtin dispatch or infer ordinary/owner-ARRAY composition. My [length addendum](NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md#i-measure-mutation-through-a-bounded-length-operation) records the requirement before source code.
-- [ ] I complete parent430220's explicit paired source mutation extension (`task_bba6228369c04b6c900f628d501e5553`) after13d1,18731 and qualified public runtime activation: exact `array_set(array<float>,int,float)->void` and `array_push(array<float>,float)->same array<float>`, ordered once-only arguments, shared aliases across owner pack/unpack/calls/results and precise failure cleanup. My [mutation source contract](NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md) specifies binding/result semantics, optional-value refusals, all original PREFIX/shadows, mutation/growth/alias cases, Linux/Darwin paired producers and artifact preservation. I add no production or public activation here.
+- [x] I implement the explicit read operation required by mutation task_bba6228369c04b6c900f628d501e5553: only unbound direct `array_length(array<float>)->INT`, receiver evaluated once and `ARR_LEN`, with lexical/declaration precedence, existing C reserved-name policy, exact-origin/output-preserving refusals and alias/growth controls. This remains ordered after qualified public activation and source18731; I do not widen builtin dispatch or infer ordinary/owner-ARRAY composition. My [length addendum](NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md#i-measure-mutation-through-a-bounded-length-operation) records the requirement before source code.
+- [x] I complete parent430220's explicit paired source mutation extension (`task_bba6228369c04b6c900f628d501e5553`) after13d1,18731 and qualified public runtime activation: exact `array_set(array<float>,int,float)->void` and `array_push(array<float>,float)->same array<float>`, ordered once-only arguments, shared aliases across owner pack/unpack/calls/results and precise failure cleanup. My [mutation source contract](NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md) specifies binding/result semantics, optional-value refusals, all original PREFIX/shadows, mutation/growth/alias cases, Linux/Darwin paired producers and artifact preservation. I add no production or public activation here.
 
 I qualifya522's remaining standalone Darwin embedding boundary at canonical
 `5f988ed79dd1f343fd9dca3d9b40c928264e668c` without production or fixture edits.
@@ -11896,7 +11896,7 @@ ordered consuming helper/constructor observations, aliases/growth/length/return,
 lexical/declared identity, exact refusal phases and prepared-root failure cleanup.
 Only Python syntax and whitespace are checked; fixture review precedes execution.
 
-- [ ] Before completing mutationbba622, I correct permitted declared `array_push`
+- [x] Before completing mutationbba622, I correct permitted declared `array_push`
   identity across C checking/shadow attachment, interpretation and paired native
   emission/inference (`task_286bcd3cbf28b8ad009677ed6b9f8c73`). My
   [bounded contract](DECLARED_ARRAY_PUSH_IDENTITY.md) preserves reserved set/length,
@@ -11921,7 +11921,7 @@ with both961a failures and the full mutation suite preserved. The next product
 acceptance remains the entire unchanged owned-record-pattern suite after these
 prerequisites pass, not a narrowed Bundle replacement.
 
-- [ ] I separate accepted declared push C names from my retained builtin helper
+- [x] I separate accepted declared push C names from my retained builtin helper
   (`task_c6d34913ce079519f958caaeef7817fb`, dependency of286b/bba622). My frozenbb52 first
   identity case fails C compilation with duplicate `nl_array_push`; both fresh
   bootstraps/tools pass independently. I retain all old outcomes, builtin helper
@@ -11929,7 +11929,7 @@ prerequisites pass, not a narrowed Bundle replacement.
   definition/prototype/call/function-value agreement, meaningful controls and
   complete review before fresh qualification. Darwin source gates remain unrun.
 
-- [ ] I retain exact declared push identity in ordinary canonical type/emission
+- [x] I retain exact declared push identity in ordinary canonical type/emission
   (`task_3615e58e593058d66ea4cdd2915df4d9`, dependency of286b/bba622). Frozen925c firstcase
   passes all native routes and Ccanonical, then Stage1canonical refuses because
   receiver inference precedes declared result lookup; ARR_PUSH emission has the
@@ -11937,7 +11937,7 @@ prerequisites pass, not a narrowed Bundle replacement.
   nonextern push guards with mandatory identity/type/opcode shadows. Existing
   return context, indirect refusals and builtin behavior stay unchanged.
 
-- [ ] I align the ordinary declared-push fixture with my existing canonical
+- [x] I align the ordinary declared-push fixture with my existing canonical
   generation comparison contract (`task_1b9beb8884f241d34478c3275178f43b`). I preserve0c54's
   first dump assertion failure and all successful native/canonical operations.
   Raw Stage1/Stage2 equality and per-producer deterministic bytes replace an
@@ -11945,7 +11945,7 @@ prerequisites pass, not a narrowed Bundle replacement.
   and all original twelve owner-profile exact comparisons remain. No normalized
   metadata-equivalence or fullcompilerfixedpoint completion is claimed.
 
-- [ ] I preserve declared push through interpreted function-value initializers
+- [x] I preserve declared push through interpreted function-value initializers
   (`task_aabb6d691adff0b1f98a3aae572b16ce`, prerequisite of286b/bba622). I retain
   both0c54/7e76 first terminals and successful earlier groups. I distinguish only
   retained non-global located VOID checker rows from actual bindings for an
@@ -11953,7 +11953,7 @@ prerequisites pass, not a narrowed Bundle replacement.
   unchanged. I review the bounded C correction and meaningful controls before
   fresh affected/unrun gates; parent mutation/product acceptance stays open.
 
-- [ ] I localize my existing evaluator handler-order initialization refusal
+- [x] I localize my existing evaluator handler-order initialization refusal
   (`task_6ba90e4583d504291f90cf3f11bd2cc9`). At frozen9f7 my Linux C setup passes
   52.500s and the new initializer boundary plus six existing evaluator controls
   pass, then `eval_handler_return_expression_order` fails run_ctx_init at2694
@@ -11983,7 +11983,7 @@ prerequisites pass, not a narrowed Bundle replacement.
   partial evidence; evaluator acceptance stays FAILED and all completion/merge
   claims stay held until integration and its full evaluator/affected gates pass.
 
-- [ ] I preserve and recover my Darwin source-gate storage boundary
+- [x] I preserve and recover my Darwin source-gate storage boundary
   (`task_0ff247470372fbf16059e2403df75be0`). After identity6 passes, mutation setup
   stops with truncated traceback/no method results; subsequent df shows100%.
   I preserve the unknown exception boundary, remove only self-owned verified
@@ -12051,31 +12051,31 @@ and the default-profile MAC completed state. All16 committed report hashes in
 [my literal-output seal](evidence/forth-string-output/report-sha256.json) match.
 The pending-merge statement above records the earlier qualification checkpoint;
 full Forth conformance and release acceptance remain open.
-- [ ] I qualify the bounded C-seed match-ordering slice in PR855 with repeated
+- [x] I qualify the bounded C-seed match-ordering slice in PR855 with repeated
   conditional wildcards, integer early-wildcard order and complete stderr capture
   (`task_477bdd430a1442e7bc19cbacdbac0bde`, `task_70c5a56802e44142af0f19da2469f654`).
   I retain the reviewed exhaustive handler-order correction from task6ba90 and
   its original E035/4099 terminals. No production change or parent closure follows
   from preparing these additional controls.
 
-- [ ] I register the unchecked match-backstop fixture function before its named
+- [x] I register the unchecked match-backstop fixture function before its named
   call (`task_3f1a7d4857974ba399007aabc5239b0b`). My first855 supplement passes88
   evaluator controls then fails the child-exit assertion; run_program deliberately
   skips function registration. I retain that terminal and require explicit
   fixture-only registration, unchanged backstop assertions and fresh qualification.
 
-- [ ] I repair the stale integer-reduce evaluator fixture argument order
+- [x] I repair the stale integer-reduce evaluator fixture argument order
   (`task_d4427bf731b14e899228b1443922a066`). The fresh diagnostic confirms E001
   for function-before-initializer. I retain the result15 shadow and execute it
   after correcting the two calls, without relaxing my checked reduce contract.
 
-- [ ] I correct the match-gate runner working directory for its retained relative
+- [x] I correct the match-gate runner working directory for its retained relative
   native FFI fixture library (qualification prerequisite under taskd4427).
   I preserve the12b61 library-open terminal and select the hash-verified provider
   checkout only for evaluator execution; assertions and production remain intact.
 
 - [x] I qualify the corrected C-seed match fixtures on Linux at `7a21096f8`: all 122 evaluator cases and eight totality tests pass with unchanged source, 155 providers, and six tool identities. I retain every first terminal in [my sealed evidence](evidence/shared-match-linux/README.md). Integration, fresh bootstrap, Darwin acceptance, and the shared parent tasks remain open.
-- [ ] I await the completed checkout transfer/fetch and verify exact clean HEAD
+- [x] I await the completed checkout transfer/fetch and verify exact clean HEAD
   before launching Darwin push qualification (`task_6cd6a0d6ecc44c5f5beba3c8f5c867ab`). My
   first925c runner failed HEAD lookup before make because fetch was still active;
   I preserve that log and empty evidence directory. Fetch then completed normally.
@@ -12083,7 +12083,7 @@ full Forth conformance and release acceptance remain open.
   source and explicit tools. Linux bootstrap remains independent; no compiler
   result or product defect follows from this preparation failure.
 
-- [ ] I freshly integrate mutationbba622, declared-push286b/aabb and evaluator
+- [x] I freshly integrate mutationbba622, declared-push286b/aabb and evaluator
   dependency855 under my [final integration gate](OWNED_ARRAY_MUTATION_FINAL_INTEGRATION.md).
   I preserve partial9f7 evidence and every failed first terminal, merge canonical
   File providers and reviewed match fixtures, then require new bootstraps and
@@ -12091,7 +12091,7 @@ full Forth conformance and release acceptance remain open.
   unchanged owned-pattern methods on both hosts. Review precedes execution;
   existing task children and broader parents remain open until actual acceptance.
 
-- [ ] I correct only integrated evaluator archive orchestration (task_a9c5d7f9b908eab1d423f1265f665129): make removes its passing binary. I preserve Linux123 PASS and the runner failure separately, resume unrun gates, and retain a build-only external evaluator binary on Darwin under my amended integration contract.
+- [x] I correct only integrated evaluator archive orchestration (task_a9c5d7f9b908eab1d423f1265f665129): make removes its passing binary. I preserve Linux123 PASS and the runner failure separately, resume unrun gates, and retain a build-only external evaluator binary on Darwin under my amended integration contract.
 
 - [x] I qualify frozen916424260 with fresh Linux and puck bootstraps, complete
   evaluator123 and totality8, all six identity methods, all twelve mutation/source
@@ -12099,6 +12099,31 @@ full Forth conformance and release acceptance remain open.
   both hosts. My [integrated seal](evidence/owned-array-mutation-final/README.md)
   preserves Linux's successful evaluator followed by runner-only archive failure
   and its corrected unrun-gate continuation; Darwin retains its evaluator binary.
-  I preserve prior partial9f7 acceptance and all first terminals. Canonical review
-  and actual merge reconciliation remain pending; mutation and broader parents
-  are not closed by this evidence checkpoint.
+  I preserve prior partial9f7 acceptance and all first terminals. The pending
+  review/merge statements above describe historical qualification checkpoints.
+  PR861 now supplies canonical merge and bounded child reconciliation as recorded
+  below; broader parents remain open.
+
+### I reconcile only my measured PR861 children
+
+I verify actual PR861 merge `59ffceccf422047c91395e1cf5d08e62e5a1d64c` contains
+reviewed head `ae8383ce9fde35de459a930d6270b60f28420cb9` and frozen qualified
+`916424260d93f3f41ae4c630ea57b5dbadbde9ae`. My
+[integrated evidence](evidence/owned-array-mutation-final/README.md) records fresh
+Linux and Darwin bootstraps, evaluator123, totality8, identity6, mutation/source12
+and the complete unchanged owned-pattern12 suite on each host. Independent review
+rehashes both archives, all reports and current source/provider/tool identities.
+
+My [bounded ledger record](evidence/pr861-child-reconciliation.json) confirms
+COMPLETED for mutationbba622, identity286b, namingc6d, checkout6cd, canonical3615,
+comparison1b9, initializeraabb, evaluatorfixture6ba, storage0ff, archivera9c5,
+unchecked-backstop3f1a and reduce/working-directoryd442. I mark only their fulfilled
+rows and the bounded C-seed match/catalog qualification checked. PR855's reviewed
+production and fixture history land through PR861; its separate PR was closed as
+delivered. This does not close the full477/70c shared-match parents.
+
+Earlier unrun, failed and pending statements remain historical evidence. I retain
+the first checkout, fixture, archive and storage terminals; the truncated storage
+exception remains unknown, and Linux's deleted passing evaluator binary is not
+claimed archived. Later measured acceptance does not rewrite those outcomes.
+Parent430220, full4be, shared-match477/70c, full product and release remain open.
