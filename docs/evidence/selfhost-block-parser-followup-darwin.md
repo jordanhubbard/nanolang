@@ -206,9 +206,37 @@ publication route creates compiler and linker intermediates under `TMPDIR`;
 therefore I do not infer a semantic regression or pretend the new bytes equal
 the old ones.
 
-I preserve this terminal and correct only the runner environment: the next
-attempt keeps `CC` unset, inherits the original host `TMPDIR` for all driver
-construction, and retains `NANO_NATIVE_TEST_CC` solely for generated-native
-fixture compilation. I require the three original driver hashes before I run
-the previously unrun affine modules. I do not repeat any already qualified
+I preserved this terminal and tested that environment hypothesis once without
+changing source or tools. The host-`TMPDIR` attempt also passed with full leak
+checking in211.32 seconds; its log SHA-256 is
+`65d32410a5ccabfa555dd81d50f5a01023a6a7046a4748b81d0b0dfedf59da29`.
+It produced the same three hashes as the explicit-`TMPDIR` attempt, disproving
+my initial attribution.
+
+I then performed a build-only provenance comparison; neither generated driver
+was executed. The same Stage1 compiler bytes compiled the same absolute input
+path once from the old checkout and once from the new checkout. The outputs
+were equal-sized but different:
+
+| Build root | Driver SHA-256 | Log SHA-256 |
+|---|---|---|
+| `/private/tmp/nanolang-parser-followup-gate.pZZgXm` | `6a94110385cc6a95790226d1de7911bff56591828b4d2dd1e7a69e51e4d63531` | `f5d8033bdb6e4d2ecf9578a8a71fcc779224b58bd2fbf258eddbb9679c35298a` |
+| `/private/tmp/nanolang-parser-lsan-gate-603785c9` | `643b79ac2f17c00f07058c572321d89f70cf852889733df521af483aeae82079` | `f4da68fc582c42946ebb5b6debdd377aaa8aec54e0542d9feffec39ecb10734e` |
+
+String inspection finds21 old-root absolute source paths in the old-root
+binary and a new-root header path in the new-root binary. Native driver bytes
+therefore encode checkout provenance; exact cross-checkout equality is not a
+valid requirement. Both complete selector-separated attempts in the new
+checkout independently reproduce these actual driver identities:
+
+```text
+3b0461984a3fca2f8a47bdb6b8d20bcaa6accfee66dff54319cf8f1abedbb337
+7e9be553e24080e4c81191f6505b568de3671eb33220ab316def3d4152d34895
+c21f93b2b8770017ba8e03d3e4a5fb86ac6c1111d21efc663e043ad4d00ea8ba
+```
+
+The copied producer compilers and runtime tools remain byte-identical to their
+qualified maps. I use the current-checkout reproducible driver identities,
+retain both prior hashes and the disproved hypothesis, and proceed only with
+the two previously unrun affine modules. I do not repeat any already qualified
 bootstrap, matrix, callable or union gate.
