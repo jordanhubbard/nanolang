@@ -1119,6 +1119,11 @@ fn nb_ordinary(parser: Parser, id: int, kind: int, layout: int) -> int {
         set nb_expression_layout layout
         return (nb_op1 "LOAD_LOCAL" local)
     }
+    if (and nb_value_graph (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL))) {
+        if (!= (nb_expr parser id kind) 8) { return (nb_fail "an ordinary record call result") }
+        if (!= nb_expression_layout layout) { return (nb_fail "the exact nominal ordinary call result") }
+        return 8
+    }
     if (!= kind ParseNodeType.PNODE_STRUCT_LITERAL) { return (nb_fail "an exact complete ordinary constructor") }
     let value: ASTStructLiteral = (parser_get_struct_literal parser id)
     let record: ASTStruct = (parser_get_struct_def parser layout)
@@ -1160,6 +1165,19 @@ shadow nb_ordinary {
     set nb_error "" set nb_mixed false
     let _: int = (nb_ordinary (nb_fixture) 0 ParseNodeType.PNODE_NUMBER 0)
     assert (!= nb_error "") set nb_error ""
+    let tokens: List<LexerToken> = (tokenize_string "struct Plain { value: int } struct Other { value: int } fn identity(value: Plain) -> Plain { return value } fn main() -> int { let value: Plain = (identity Plain { value: 7 }) return value.value }" "ordinary-call.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "ordinary-call.nano")
+    let _: int = (nb_reset_locals)
+    set nb_mixed true set nb_value_graph true set nb_functions [1, 0]
+    set nb_ordinary_layouts [true, true] set nb_edges [false, false, false, false, false, false, false, false]
+    assert (== (nb_ordinary parser 0 ParseNodeType.PNODE_CALL 0) 8)
+    assert (== nb_error "") assert (== nb_expression_layout 0)
+    assert (str_contains nb_code "CALL 1")
+    let _: int = (nb_reset_locals)
+    let _: int = (nb_ordinary parser 0 ParseNodeType.PNODE_CALL 1)
+    assert (!= nb_error "") assert (== nb_expression_layout 0)
+    set nb_functions [] set nb_ordinary_layouts [] set nb_edges []
+    set nb_mixed false let _: int = (nb_reset_locals)
 }
 fn nb_binding(parser: Parser, binding: ASTLet) -> int {
     if (nb_project_binding parser binding) { return 0 }
