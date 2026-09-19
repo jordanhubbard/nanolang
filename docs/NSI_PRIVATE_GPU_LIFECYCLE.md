@@ -287,3 +287,24 @@ module/schema/producer/VM/native paths. Numeric negative adapter error codes
 CUDA status values. The header documents caller serialization across all contexts.
 I have prepared no fixture, compiled no adapter and executed no driver operation;
 I request complete independent production review before those next checkpoints.
+
+## My per-buffer accounting correction before qualification
+
+Independent review of eeb497 identifies that my original `retired` bit merges
+an attempted failed free and an unattempted skipped free. I record that gap in
+MAC and the roadmap before correcting it. Each bounded registry row now retains
+an allocation serial, byte size, live-owner flag, explicit PENDING/FREED/FAILED/
+SKIPPED disposition, release-attempt flag, actual free status, skipped-cleanup
+cause and a separate confirmed-context-reclamation flag. My diagnostic snapshot
+copies those64 rows for each retained lifetime record without exposing raw device
+pointers or capability secrets. Successful context destruction marks outstanding
+rows reclaimed without changing their original FAILED/SKIPPED outcome.
+
+A successful free retains its last row until a later acquired allocation reuses
+that confirmed slot. I keep cumulative allocation/free/skipped counters and
+monotone allocation serials; I refuse before serial wrap. Unknown rows are never
+reused, and permanent acquisition latching prevents new allocations after that
+uncertainty. I promise bounded current/last-slot history plus cumulative counts,
+not an unbounded event journal. Resolved lifetime records may be released with
+the wrapper; quarantined records and their exact rows survive it. No production
+fixture or driver operation has run before this corrected review checkpoint.

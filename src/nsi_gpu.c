@@ -39,7 +39,10 @@ typedef struct {
     GpuResult (*read)(void *, GpuPointer, size_t);
 } GpuApi;
 typedef struct {
-    bool occupied, live, retired, contents_unknown;
+    bool occupied, live, contents_unknown, release_attempted, context_reclaimed;
+    NlGpuReleaseDisposition disposition;
+    int release_error, skipped_error;
+    uint64_t allocation_id;
     GpuPointer pointer;
     size_t bytes;
     NlCap token;
@@ -52,7 +55,7 @@ typedef struct {
     void *library;
     GpuApi api;
     GpuContext context;
-    unsigned free_attempts, freed_count;
+    uint64_t allocations, free_attempts, freed_count, skipped_count;
     GpuBuffer buffers[NL_GPU_BUFFER_LIMIT];
 } GpuLifetime;
 struct NlGpuService {
@@ -182,12 +185,23 @@ static bool gpu_begin(GpuLifetime *life,GpuBracket *bracket,NlGpuResult *r) {
     }
     return true;
 }
+static void gpu_skip_free(GpuLifetime *life,GpuBuffer *entry,int code) {
+    if(!entry->occupied || entry->disposition!=NL_GPU_RELEASE_PENDING)return;
+    entry->disposition=NL_GPU_RELEASE_SKIPPED;
+    entry->skipped_error=code?code:GPU_HOST_CONTRACT;
+    life->skipped_count++;gpu_uncertain(life,entry->skipped_error,false);
+}
 static void gpu_free_once(GpuLifetime *life,GpuBuffer *entry,NlGpuResult *r) {
-    if(entry->retired)return;
-    entry->retired=true;r->free_attempts++;life->free_attempts++;
-    int rc=life->api.release(entry->pointer);
-    if(rc){gpu_error(r,rc);gpu_uncertain(life,rc,false);}
-    else {r->freed_count++;life->freed_count++;*entry=(GpuBuffer){0};}
+    if(!entry->occupied || entry->disposition!=NL_GPU_RELEASE_PENDING)return;
+    entry->release_attempted=true;r->free_attempts++;life->free_attempts++;
+    int rc=life->api.release(entry->pointer);entry->release_error=rc;
+    if(rc) {
+        entry->disposition=NL_GPU_RELEASE_FAILED;
+        gpu_error(r,rc);gpu_uncertain(life,rc,false);
+    } else {
+        entry->disposition=NL_GPU_RELEASE_FREED;
+        r->freed_count++;life->freed_count++;
+    }
 }
 /* I never use a failed free pointer again. Explicit context destruction is the
  * separately documented final reclamation operation, not a repeated free. */
@@ -197,7 +211,14 @@ static void gpu_destroy_context(GpuLifetime *life,NlGpuResult *r) {
         GpuContext prior=NULL,after=NULL;int before=life->api.current(&prior);
         int rc=life->api.destroy(life->context);
         if(rc){gpu_error(r,rc);life->context_unknown=true;gpu_uncertain(life,rc,false);}
-        else {life->context=NULL;life->context_destroyed=true;}
+        else {
+            life->context=NULL;life->context_destroyed=true;
+            for(unsigned i=0;i<NL_GPU_BUFFER_LIMIT;i++) {
+                GpuBuffer *entry=&life->buffers[i];
+                if(entry->occupied && entry->disposition!=NL_GPU_RELEASE_FREED)
+                    entry->context_reclaimed=true;
+            }
+        }
         int query=life->api.current(&after);
         /* Normal destruction sees the caller's context, not my detached one.
          * An already unknown restoration never becomes a success claim here. */
@@ -216,13 +237,13 @@ static void gpu_release_record(GpuLifetime *life) {
     else *life=(GpuLifetime){0};
 }
 static void gpu_rollback_buffer(GpuLifetime *life,GpuBuffer *entry,NlGpuResult *r) {
-    if(!entry->occupied)return;
+    if(!entry->occupied || entry->disposition!=NL_GPU_RELEASE_PENDING)return;
     if(life->restore_unknown) {
-        entry->retired=true;gpu_uncertain(life,GPU_HOST_CONTRACT,false);return;
+        gpu_skip_free(life,entry,GPU_HOST_CONTRACT);return;
     }
     GpuBracket bracket;
     if(gpu_begin(life,&bracket,r)){gpu_free_once(life,entry,r);gpu_end(life,&bracket,r);}
-    else {entry->retired=true;gpu_uncertain(life,GPU_HOST_CONTRACT,false);}
+    else gpu_skip_free(life,entry,r->driver_error);
 }
 
 NlGpuResult nl_gpu_service_create(int ordinal,NlGpuService **out) {
@@ -279,14 +300,16 @@ NlGpuResult nl_gpu_buffer_allocate(NlGpuService *s,size_t bytes,uint32_t rights,
     GpuLifetime *life=s->lifetime;
     if(gpu_acquisition_latched || life->faulted)return gpu_report(life,gpu_result(NL_GPU_TERMINAL));
     GpuBuffer *entry=NULL;
-    for(unsigned i=0;i<NL_GPU_BUFFER_LIMIT;i++)if(!life->buffers[i].occupied){entry=&life->buffers[i];break;}
+    for(unsigned i=0;i<NL_GPU_BUFFER_LIMIT;i++)if(!life->buffers[i].occupied || life->buffers[i].disposition==NL_GPU_RELEASE_FREED){entry=&life->buffers[i];break;}
     if(!entry)return gpu_result(NL_GPU_CAPACITY);
+    if(life->allocations==UINT64_MAX)return gpu_result(NL_GPU_LIMIT);
     NlCap cap;int rc=nl_cap_private_mint(s->caps,GPU_TYPE,GPU_SERVICE,rights,&cap);
     if(rc!=NL_CAP_OK)return gpu_result(gpu_cap_status(rc));
     NlGpuResult r=gpu_result(NL_GPU_OK);GpuBracket bracket;
     if(gpu_begin(life,&bracket,&r)) {
         GpuPointer pointer=0;rc=life->api.alloc(&pointer,bytes);
-        if(pointer)*entry=(GpuBuffer){.occupied=true,.pointer=pointer,.bytes=bytes,.token=cap};
+        if(pointer)*entry=(GpuBuffer){.occupied=true,.pointer=pointer,.bytes=bytes,.token=cap,
+            .allocation_id=++life->allocations,.disposition=NL_GPU_RELEASE_PENDING};
         if(rc || !pointer){gpu_error(&r,rc?rc:GPU_HOST_CONTRACT);if(!rc && !pointer)gpu_uncertain(life,GPU_HOST_CONTRACT,false);}
         gpu_end(life,&bracket,&r);
     }
@@ -344,10 +367,10 @@ NlGpuResult nl_gpu_buffer_close(NlGpuService *s,const NlGpuToken *token) {
     NlCap cap=entry->token;entry->live=false;int rc=nl_cap_private_consume(s->caps,&cap);
     if(rc!=NL_CAP_OK){entry->live=true;return gpu_result(gpu_cap_status(rc));}
     NlGpuResult r=gpu_result(NL_GPU_OK);r.consumed=true;GpuLifetime *life=s->lifetime;
-    if(life->faulted){entry->retired=true;gpu_uncertain(life,GPU_HOST_CONTRACT,false);return gpu_report(life,r);}
+    if(life->faulted){gpu_skip_free(life,entry,life->first_error);return gpu_report(life,r);}
     GpuBracket bracket;
     if(gpu_begin(life,&bracket,&r)){gpu_free_once(life,entry,&r);gpu_end(life,&bracket,&r);}
-    else {entry->retired=true;gpu_uncertain(life,GPU_HOST_CONTRACT,false);}
+    else gpu_skip_free(life,entry,r.driver_error);
     return gpu_report(life,r);
 }
 NlGpuResult nl_gpu_service_dispose(NlGpuService *s) {
@@ -366,9 +389,8 @@ NlGpuResult nl_gpu_service_dispose(NlGpuService *s) {
                 gpu_free_once(life,&life->buffers[i],&r);
             gpu_end(life,&bracket,&r);
         } else {
-            for(unsigned i=0;i<NL_GPU_BUFFER_LIMIT;i++)if(life->buffers[i].occupied && !life->buffers[i].retired) {
-                life->buffers[i].retired=true;gpu_uncertain(life,GPU_HOST_CONTRACT,false);
-            }
+            for(unsigned i=0;i<NL_GPU_BUFFER_LIMIT;i++)if(life->buffers[i].occupied)
+                gpu_skip_free(life,&life->buffers[i],r.driver_error?r.driver_error:life->first_error);
         }
         gpu_destroy_context(life,&r);
     }
@@ -388,8 +410,18 @@ NlGpuDiagnostics nl_gpu_service_diagnostics(void) {
         row->context_retained=life->context!=NULL;row->library_retained=life->library!=NULL;
         row->release_unknown=life->release_unknown;row->context_restore_unknown=life->restore_unknown;
         row->context_unknown=life->context_unknown;row->first_error=life->first_error;
-        row->free_attempts=life->free_attempts;row->freed_count=life->freed_count;
-        for(unsigned n=0;n<NL_GPU_BUFFER_LIMIT;n++)row->tracked_allocations+=life->buffers[n].occupied;
+        row->allocations=life->allocations;row->free_attempts=life->free_attempts;
+        row->freed_count=life->freed_count;row->skipped_count=life->skipped_count;
+        for(unsigned n=0;n<NL_GPU_BUFFER_LIMIT;n++) {
+            const GpuBuffer *entry=&life->buffers[n];if(!entry->occupied)continue;
+            row->tracked_allocations++;
+            row->unresolved_allocations+=entry->disposition!=NL_GPU_RELEASE_FREED && !entry->context_reclaimed;
+            row->allocations_by_slot[n]=(NlGpuAllocation){
+                .allocation_id=entry->allocation_id,.bytes=entry->bytes,.disposition=entry->disposition,
+                .release_error=entry->release_error,.skipped_error=entry->skipped_error,
+                .live_owner=entry->live,.release_attempted=entry->release_attempted,
+                .context_reclaimed=entry->context_reclaimed};
+        }
     }
     return out;
 }

@@ -32,9 +32,25 @@ typedef struct {
     unsigned char uuid[16];
     bool cuda_gpu;
 } NlGpuDevice;
+typedef enum {
+    NL_GPU_RELEASE_NONE, NL_GPU_RELEASE_PENDING, NL_GPU_RELEASE_FREED,
+    NL_GPU_RELEASE_FAILED, NL_GPU_RELEASE_SKIPPED
+} NlGpuReleaseDisposition;
+/* I expose bounded identities/outcomes, never raw device pointers or secrets.
+ * A confirmed freed row may be replaced by a later allocation in that slot;
+ * lifetime counters remain cumulative. Unknown rows are never reused. */
+typedef struct {
+    uint64_t allocation_id;
+    size_t bytes;
+    NlGpuReleaseDisposition disposition;
+    int release_error, skipped_error;
+    bool live_owner, release_attempted, context_reclaimed;
+} NlGpuAllocation;
 typedef struct {
     uint64_t record_id;
-    unsigned tracked_allocations, free_attempts, freed_count;
+    unsigned tracked_allocations, unresolved_allocations;
+    uint64_t allocations, free_attempts, freed_count, skipped_count;
+    NlGpuAllocation allocations_by_slot[NL_GPU_BUFFER_LIMIT];
     bool quarantined, context_retained, library_retained;
     bool release_unknown, context_restore_unknown, context_unknown;
     int first_error;
