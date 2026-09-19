@@ -201,3 +201,18 @@ NanoVM `fa47bae0787bb0bce80d85045a57c98f0ad089480b1d371859b77594543e57f3`,
 and the NanoISA tool
 `ad0e54d01ca73bd6cd64b263d74675795f98ea3befedfd6edaf7e4aad487c1ad`.
 I make no release claim from this bounded integration gate.
+
+## Current canonical restack
+
+Before merge review I fetched canonical
+`8711402bef0dc290df5914cf0c08333563a7471b` and rebased this branch without a
+conflict. The exact U8 production patch keeps stable patch ID
+`581a745317e45e077da71e7507c3fd3209b103c9`, the parameter correction keeps
+`dda5e7192387b1a0aa6f0da564074cea8fc50853`, and the scalar-gate prerequisite
+keeps `40ad16887eb22136faf32d1012fe1a474ce276d7`. Canonical changes overlapped
+only additive Makefile and roadmap history; no U8 production file changed
+after the qualified `59ffcecc` integration base. I did not start another large
+build while the Darwin data volume was under an explicit storage hold. The
+existing fresh qualification remains pinned to its recorded source and tools;
+this rebase establishes patch identity and mergeability, not a relabeled test
+run.
