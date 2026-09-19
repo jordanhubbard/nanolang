@@ -266,34 +266,37 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         Value value=f->stack[f->count-1];
         /* Defining a scalar consults its exact declaration. The subsequent
          * lookup makes type disagreement a refusal, never a widening. */
-        if (!scalar(value.tag) || !nvm_affine_scalar_define(f->locals,local) ||
+        if (!(scalar(value.tag) ? nvm_affine_scalar_define(f->locals,local) :
+              calls->value_graph && value.tag==TAG_STRING && nvm_affine_string_define(f->locals,local)) ||
             !nvm_affine_local_info(f->locals,local,&tag,&mode) || tag!=value.tag)
             return "I require the exact scalar local type";
         f->count--;return NULL;
     }
     case OP_AGG_GET: case OP_STRUCT_GET:
         if (!f->count || !f->stack[f->count-1].observation || f->stack[f->count-1].owned ||
-            !nvm_affine_scalar_field(f->locals,f->stack[f->count-1].root,
-                                     in->operands[0].u16,&tag))
+            !(nvm_affine_scalar_field(f->locals,f->stack[f->count-1].root,
+                                     in->operands[0].u16,&tag) ||
+              (calls->value_graph && nvm_affine_string_field(f->locals,f->stack[f->count-1].root,
+                                     in->operands[0].u16,&tag))))
             return "I require a checked scalar field observation";
         f->count--;break;
     case OP_DUP:
         if (!f->count || (f->stack[f->count-1].observation || f->stack[f->count-1].owned))
             return "I refuse to duplicate reference authority";
-        if (f->stack[f->count-1].tag==TAG_STRING)
+        if (!calls->value_graph && f->stack[f->count-1].tag==TAG_STRING)
             return "I refuse unsupported string duplication";
         if (!push(f,f->stack[f->count-1])) return "I cannot extend my analysis stack";
         return NULL;
     case OP_POP:
         if (!f->count || (f->stack[f->count-1].observation || f->stack[f->count-1].owned))
             return "I require a scalar discard; an observation is not an owned consume";
-        if (f->stack[f->count-1].tag==TAG_STRING)
+        if (!calls->value_graph && f->stack[f->count-1].tag==TAG_STRING)
             return "I require PRINT or PRINTLN to consume a string";
         f->count--;return NULL;
     case OP_SWAP:
         if (f->count<2 || (f->stack[f->count-1].observation || f->stack[f->count-1].owned) || (f->stack[f->count-2].observation || f->stack[f->count-2].owned))
             return "I require scalar stack permutation";
-        if (f->stack[f->count-1].tag==TAG_STRING || f->stack[f->count-2].tag==TAG_STRING)
+        if (!calls->value_graph && (f->stack[f->count-1].tag==TAG_STRING || f->stack[f->count-2].tag==TAG_STRING))
             return "I refuse unsupported string permutation";
         {Value value=f->stack[f->count-1];f->stack[f->count-1]=f->stack[f->count-2];f->stack[f->count-2]=value;}
         return NULL;
@@ -323,6 +326,12 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             return "I require float comparison operands";
         tag=TAG_BOOL;break;
     case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE:
+        if (calls->value_graph && (op==OP_EQ || op==OP_NE) && f->count &&
+            f->stack[f->count-1].tag==TAG_STRING) {
+            if (!pop_scalar(f,TAG_STRING) || !pop_scalar(f,TAG_STRING))
+                return "I require exact STRING equality operands";
+            tag=TAG_BOOL;break;
+        }
         if (!f->count || (f->stack[f->count-1].observation || f->stack[f->count-1].owned) || !scalar(f->stack[f->count-1].tag))
             return "I require scalar comparison operands";
         tag=f->stack[f->count-1].tag;

@@ -1,0 +1,26 @@
+{
+  "pin": "4aad73a034f1b53d2072b2a1f9f88dbf25e2546b",
+  "steps": [
+    {
+      "name": "adjacent-explicit-apple",
+      "command": [
+        "make",
+        "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "test-nsi-cap",
+        "test-nsi-shm",
+        "test-nsi-fabric",
+        "test-nsi-runtime",
+        "test-nsi-gen",
+        "test-nsi"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 5.128,
+      "log_sha256": "4ee927626ca1500ab3fdd655e3dc61cd2a306a614e19ad186c63aec88e54e7a7"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

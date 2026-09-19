@@ -1389,6 +1389,19 @@ test-nsi-cap:
 	@./tests/test_nsi_cap
 	@rm -f tests/test_nsi_cap
 
+.PHONY: test-nsi-file test-nsi-file-sanitizers
+test-nsi-file:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file.c -o $(OBJ_DIR)/test_nsi_file_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_linked.c src/nsi_file.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_file_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_linked
+
+test-units: test-nsi-file
+
+test-nsi-file-sanitizers:
+	python3 -m unittest -v tests.test_nsi_file
+
 .PHONY: test-nsi-shm
 test-nsi-shm:
 	@echo "Running NSI shared-memory tests..."
@@ -5232,6 +5245,20 @@ test-units: test-mixed-float-proof
 test-mixed-float-proof: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	MIXED_PROOF_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_float_proof
 
+.PHONY: test-owned-string-fields
+test-units: test-owned-string-fields
+test-owned-string-fields: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_fields tests/nanoisa/test_owned_string_fields.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_string_fields_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_fields_alloc tests/nanoisa/test_owned_string_fields_alloc.c obj/test_owned_string_fields_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_string_fields_alloc
+	python3 -m unittest -v tests.test_owned_string_fields
+
+.PHONY: test-owned-string-joins
+test-units: test-owned-string-joins
+test-owned-string-joins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_joins tests/nanoisa/test_owned_string_joins.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_string_joins
 .PHONY: test-mixed-samples
 test-units: test-mixed-samples
 test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)

@@ -201,3 +201,27 @@ separately qualified and unchanged in authority.
 
 I preserve all earlier sealed product artifacts and failures without replay. This
 contract is reviewable work only; it records no new runtime acceptance.
+
+## My reviewed checkpoint clarifications
+
+I base implementation on canonical STRING PR813 merge1cbe8c6f. Zero-link
+`nvm_verify_linked` must establish the same standalone conjunction as verification
+without a linked table, because VM initialization uses that API. Any nonzero link
+count remains refused for this mixed profile.
+
+My native descriptor storage outlives the NmsRuntime. I bind it before nms_begin,
+finish active state with nms_finish before disposal, and check zero-root counters
+before any terminal nms_dispose sweep can hide a missed release. The context
+outlives every temporary and argument cleanup; nested failure records whether
+this frame acquired the context or merely borrowed its enclosing invocation.
+Category-aware release never sends ordinary handles to STRING-cell or owner
+allocators, nor owner shells to ordinary release.
+
+My first production checkpoint prepares an internal opaque, non-admitting plan:
+fresh composed proof plus independent common structure, exact checked local and
+signature queries, certified ordinary mappings and retained transport snapshots.
+It exposes no unchecked owner-state constructor. Preparation is not a selector;
+VM/native/public verifier and converter admission stay unchanged until the complete
+implementation is reviewed. Its checked transport facts precede later converter
+integration and do not themselves broaden format acceptance. I send this checkpoint
+for review before fixtures or execution.

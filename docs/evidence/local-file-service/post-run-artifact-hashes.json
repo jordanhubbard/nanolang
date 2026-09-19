@@ -1,0 +1,41 @@
+{
+  "gcc": {
+    "path": "/tmp/nano-local-file-bh27f5ah",
+    "files": {
+      "instrumented": "9c2b7376e45f6b5cc7d4d723af3d207528fa98f693ef6399cdd43925c5da60de",
+      "instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "instrumented-run.log": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f",
+      "linked": "2184ac79c16e1550cc52fe3f79a2bd49fbc8eedbf6025469ead920065420fe12",
+      "linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "linked-run.log": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7"
+    }
+  },
+  "clang": {
+    "path": "/tmp/nano-local-file-n90m7qwi",
+    "files": {
+      "instrumented": "f0e4b262eeb80527303497fa5fe007a78c04afd611ba348e6c28c76d0e240bd5",
+      "instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "instrumented-run.log": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f",
+      "linked": "cf77ad4358937fdb0996f2abe7cf1c44a466ffeaa01bb63f2b5a290308f517a5",
+      "linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "linked-run.log": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7"
+    }
+  },
+  "darwin": {
+    "path": "/tmp/nanolang-local-file-darwin-artifacts",
+    "files": {
+      "instrumented": "c52972c516094e4ce09322c2c3bebb7227ca5d4ff72180b35400aaa5afef3f33",
+      "instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "instrumented-run.log": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f",
+      "instrumented.dSYM/Contents/Info.plist": "6688c8185b4b53914d6ea45c6ce0cc7908c9b75cf37a71c9e33f1026164b1b9d",
+      "instrumented.dSYM/Contents/Resources/DWARF/instrumented": "fb2dd21214d714f4432003597d5cf483b2757c60547d2625f93f891284c2e832",
+      "instrumented.dSYM/Contents/Resources/Relocations/aarch64/instrumented.yml": "d9fbaaeba3ec37224b9d2161003d57f2f3a9e8d6ccc6561f61b2bbc5b713db96",
+      "linked": "fdd9dc39121dd5f584308c46a1323de1261063e17cd4610c5deb8e02a090f452",
+      "linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "linked-run.log": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7",
+      "linked.dSYM/Contents/Info.plist": "56270fd203fd46e9b96f1952925f593f5426f5430537c6b1cc2161d06cc24d1d",
+      "linked.dSYM/Contents/Resources/DWARF/linked": "cea253fde79a25982f65b307f4f5b099b1e4eba4f40cbd94968228f8ab99b26d",
+      "linked.dSYM/Contents/Resources/Relocations/aarch64/linked.yml": "8bd2392519635fa0742780e91a8849a24c6ea7fdf7828ba0ed25690f77f01d16"
+    }
+  }
+}

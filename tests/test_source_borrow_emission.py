@@ -1374,7 +1374,6 @@ shadow main { assert (== (main) 0) }
         cases = {
             'nul': base.replace('A\\tB', 'A\\0B'),
             'field': base.replace('value: int', 'value: string').replace('value: 7', 'value: "seven"'),
-            'local': base.replace('(print "")', 'let extra: string = "extra" (print extra)'),
             'operation': base.replace('(print text)', '(print (str_concat text "!"))'),
             'argument': base.replace('owner "" 7 true', 'owner 1 7 true'),
             'result': base.replace('-> void {\n    (print text)', '-> string {\n    (print text)').replace('assert yes\n}', 'assert yes return text\n}'),
@@ -1641,8 +1640,8 @@ shadow main { assert (== (main) 0) }
             'inline_child': base.replace('leaf: leaf, yes:', 'leaf: Leaf { value: 7 }, yes:', 1),
             'missing_field': base.replace(', extra: (scalar 9 "B")', ''),
             'duplicate_field': base.replace('yes: true', 'yes: true, yes: false'),
-            'managed_string': base.replace('extra: int', 'extra: string').replace('extra: (scalar 9 "B")', 'extra: "B"')
-                .replace('return (+ value extra)', 'return value'),
+            'managed_string_order': base.replace('extra: int', 'extra: string').replace('extra: (scalar 9 "B")', 'extra: "B"')
+                .replace('return (+ value extra)', 'assert (< extra "Z") return value'),
             'managed_array': base.replace('extra: int', 'extra: array<float>').replace('extra: (scalar 9 "B")', 'extra: [1.5]')
                 .replace('return (+ value extra)', 'return value'),
             'forward_child': base.replace('resource struct Leaf { value: int }\nstruct Inner { leaf: Leaf, yes: bool }',
@@ -1662,7 +1661,10 @@ shadow main { assert (== (main) 0) }
                     self.assertGreater(result.returncode, 0, result.stderr)
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
                     self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
-                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|nominal|field|type|expected|duplicate|exact|earlier')
+                    diagnostic = r'(?i)owner|resource|nominal|field|type|expected|duplicate|exact|earlier'
+                    if name == 'managed_string_order':
+                        diagnostic += r'|I require a supported scalar operator in my source borrow profile'
+                    self.assertRegex(result.stdout + result.stderr, diagnostic)
 
 
     def nested_owner_result_source(self):

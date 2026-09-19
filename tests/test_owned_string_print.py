@@ -55,11 +55,23 @@ static void release(void *p){assert(live);live--;free(p);}
   int64_t result=-91;int status=nvm_owned_entry(&result);
   assert(status==EXPECTED_STATUS);assert(result==EXPECTED_RESULT);assert(live==0);
  }
+ fflush(stdout);
  for(fail_at=1;fail_at<32;fail_at++){
+  assert(freopen("allocation-output", "w", stdout));
   attempts=0;int64_t result=-91;int status=nvm_owned_entry(&result);
-  assert(live==0);
+  assert(live==0);assert(!fflush(stdout));
+  FILE *observed=fopen("allocation-output","rb");assert(observed);
+  char bytes[128];size_t count=fread(bytes,1,sizeof(bytes),observed);assert(!ferror(observed));assert(!fclose(observed));
+  const char expected[]="before\\nbefore\\n\\nresource closed";
+  assert(count<=sizeof(expected)-1 && !memcmp(bytes,expected,count));
+  fprintf(stderr,"native print fault=%zu status=%d prefix_bytes=%zu live=%zu\\n",fail_at,status,count,live);
+  if(status!=1){assert(count==sizeof(expected)-1);}
   if(status!=1){assert(status==EXPECTED_STATUS);assert(result==EXPECTED_RESULT);break;}
   assert(result==-91);
+  size_t saved=fail_at;fail_at=0;assert(freopen("recovery-output","w",stdout));result=-91;
+  assert(nvm_owned_entry(&result)==EXPECTED_STATUS);assert(result==EXPECTED_RESULT);assert(!live);assert(!fflush(stdout));
+  observed=fopen("recovery-output","rb");assert(observed);count=fread(bytes,1,sizeof(bytes),observed);assert(!ferror(observed));assert(!fclose(observed));
+  assert(count==sizeof(expected)-1&&!memcmp(bytes,expected,count));fail_at=saved;
  }
  assert(fail_at<32);return 0;
 }
@@ -73,7 +85,10 @@ static void release(void *p){assert(live);live--;free(p);}
                                             env={**os.environ,
                                                  'ASAN_OPTIONS': f'detect_leaks={leaks}:halt_on_error=1'})
                     self.assertEqual(native.returncode, 0, native.stderr.decode(errors='replace'))
-                    self.assertEqual(native.stdout, EXPECTED * 5)
+                    self.assertEqual(native.stdout, EXPECTED * 4)
+                    self.assertEqual((tmp/"allocation-output").read_bytes(), EXPECTED)
+                    self.assertEqual((tmp/"recovery-output").read_bytes(), EXPECTED)
+                    print(native.stderr.decode(errors="replace"), end="")
                     self.checked([compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
                                   generated, '-o', binary])
                     plain = subprocess.run([binary], cwd=tmp, capture_output=True, timeout=30)

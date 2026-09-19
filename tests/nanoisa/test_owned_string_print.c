@@ -1,4 +1,4 @@
-/* I keep immutable string views separate from owned record leaves. */
+/* I keep immutable string roots exact across printing and retained fields. */
 #define OWNED_RESULT_ALLOC_TEST
 #include "test_owned_value_results.c"
 #include "disassembler.h"
@@ -137,7 +137,8 @@ static void refusals(void) {
     CHECK(nvm_v2_layouts_decode(m->layout_data,m->layout_size,&rows)==NVM_V2_OK);
     rows.items[0].fields[0].type_tag=TAG_STRING;
     CHECK(nvm_retain_layouts(m,&rows)==NVM_V2_OK);nvm_v2_layouts_free(&rows);
-    bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);
+    /* STRING metadata is valid; unchanged INT packing and borrowed use still refuse. */
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK&&needs);
     CHECK(!nvm_verify_owned_module(m).ok);nvm_module_free(m);
 
     m=string_fixture(false);bool changed=false;
@@ -151,7 +152,8 @@ static void refusals(void) {
             }
         vm_decoded_function_free(&decoded);
     }
-    CHECK(changed&&!nvm_verify_owned_module(m).ok);nvm_module_free(m);
+    /* I now admit exact value-graph STRING discard; fresh field fixtures execute it. */
+    CHECK(changed&&nvm_verify_owned_module(m).ok);nvm_module_free(m);
 
     m=string_fixture(false);changed=false;
     for(uint32_t f=0;f<m->function_count&&!changed;f++) {
