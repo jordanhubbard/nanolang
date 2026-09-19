@@ -2,6 +2,7 @@
 #include "../nanoisa/affine_state.h"
 #include "../nanoisa/mixed_samples_internal.h"
 #include "../nanoisa/owned_array_authority.h"
+#include "../nanoisa/owned_array_admission.h"
 #include "owned_array_runtime_private.h"
 /*
  * NanoVM - Bytecode execution engine
@@ -208,6 +209,7 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
 static bool vm_module_ownership_required(const NvmModule *module, bool *required) {
     if (required) *required=false;
     if (!module || !required || nvm_service_bindings_present(module)) return false;
+    if(nvm_owned_array_route(module)!=NVM_OWNER_ARRAY_NOT_SELECTED){*required=true;return true;}
     if(nvm_mixed_samples_candidate(module)){*required=true;return true;}
     if (!module->ownership_data && !module->ownership_size) return true;
     bool needs=false;
@@ -218,6 +220,13 @@ static bool vm_module_ownership_required(const NvmModule *module, bool *required
 
 static bool vm_module_ownership_supported(const NvmModule *module, bool standalone) {
     if (nvm_service_bindings_present(module)) return false;
+    if(nvm_owned_array_route(module)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+        if(!standalone)return false;
+        NvmOwnedArrayPlan *plan=NULL;
+        NvmOwnerAuthorityResult result=nvm_owned_array_admit(module,&plan);
+        nvm_owned_array_plan_free(plan);
+        return result.status==NVM_OWNER_AUTH_PREPARED;
+    }
     if(nvm_mixed_samples_candidate(module)) {
         if(!standalone)return false;
         NvmMixedSamplesPlan *plan=NULL;
@@ -309,8 +318,41 @@ static bool vm_mixed_invocation_prepare(VmState *vm,VmOwnedInvocationProof *out,
 fail:nvm_mixed_samples_plan_free(plan);return false;
 }
 
+static bool vm_owner_array_invocation_prepare(VmState *vm,VmOwnedInvocationProof *out) {
+    if(!out)return false;
+    *out=(VmOwnedInvocationProof){0};
+    if(!vm || !vm->module || vm->module!=vm->root_module || vm->stack_size ||
+       vm->frame_count || vm->activation_floor || vm->references.active ||
+       vm->callee_references.active || vm->linked_module_count || vm->callbacks ||
+       vm->opcode_trace || !vm_owned_constants_ready(vm))return false;
+    for(unsigned f=0;f<NVM_OWNED_MAX_FUNCTIONS-2;f++)if(vm->value_references[f].active)return false;
+    NvmOwnedArrayPlan *plan=NULL;NvmOwnerAuthorityResult checked=nvm_owned_array_admit(vm->module,&plan);
+    if(checked.status!=NVM_OWNER_AUTH_PREPARED) {
+        out->refusal=checked.status==NVM_OWNER_AUTH_MEMORY?VM_ERR_MEMORY:VM_ERR_TYPE_ERROR;
+        out->reason=checked.message;return false;
+    }
+    VmOwnedInvocationProof prepared={0};prepared.module=vm->module;prepared.owner_arrays=true;
+    prepared.function_count=vm->module->function_count;
+    for(uint32_t f=0;f<prepared.function_count;f++) {
+        NvmOwnerSignature from;if(!nvm_owned_array_plan_signature(plan,f,&from))goto fail;
+        NvmMixedSignature *to=&prepared.signatures[f];
+        to->parameter_count=from.parameter_count;to->local_count=from.local_count;
+        to->max_stack=from.max_stack;to->result_fields=from.result_fields;
+        to->result=(NvmMixedDeclaration){from.result.tag,from.result.mode,from.result.global_layout,
+            from.result.owner?NVM_MIXED_VALUE_OWNER:NVM_MIXED_VALUE_SCALAR};
+        for(uint16_t n=0;n<from.parameter_count;n++) {
+            NvmOwnerDeclaration d=from.parameters[n];
+            to->parameters[n]=(NvmMixedDeclaration){d.tag,d.mode,d.global_layout,
+                d.owner?NVM_MIXED_VALUE_OWNER:NVM_MIXED_VALUE_SCALAR};
+        }
+    }
+    nvm_owned_array_plan_free(plan);*out=prepared;return true;
+fail:nvm_owned_array_plan_free(plan);return false;
+}
+
 static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
     proof->module=NULL;proof->mixed=false;proof->owner_arrays=false;proof->refusal=VM_OK;proof->reason=NULL;
+    if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED)return vm_owner_array_invocation_prepare(vm,proof);
     if(vm && nvm_mixed_samples_candidate(vm->module))return vm_mixed_invocation_prepare(vm,proof,false);
     bool required=false;
     if (!vm_owned_runtime_ready(vm,&required)) return false;
@@ -1317,7 +1359,6 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
  * external operation (I/O, FFI, halt) or completes / errors.
  * ======================================================================== */
 
-#ifdef NANO_OWNED_ARRAY_PRIVATE_RUNTIME
 /* I check the actual next retain before the unchanged shared handler commits
  * it. A fused field load retains the field, not its containing shell. */
 static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
@@ -1360,10 +1401,11 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
     }
     return VM_OK;
 }
-#endif
 
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof) {
     VmOwnedInvocationProof resumed;
+    if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED && !vm_owned_proof_matches(vm,proof))
+        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a synchronous owner ARRAY root invocation before execution.");
     if(vm && nvm_mixed_samples_candidate(vm->module) && !vm_owned_proof_matches(vm,proof)) {
         if(!vm_mixed_invocation_prepare(vm,&resumed,true))
             return trap_error(vm,resumed.refusal?resumed.refusal:VM_ERR_TYPE_ERROR,"%s",
@@ -1374,7 +1416,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     bool required=false;
     if (admitted && proof->owner_arrays) {
         required=true;
-        if(!vm_owned_constants_ready(vm))return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete private owner ARRAY constants.");
+        if(!vm_owned_constants_ready(vm))return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete owner ARRAY constants.");
     } else if (!vm_owned_runtime_ready(vm,&required))
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (!admitted && !vm_ownership_supported(vm))
@@ -1714,12 +1756,10 @@ vm_dispatch_top:
                                   "I could not reserve instruction output space.");
         }
 
-#ifdef NANO_OWNED_ARRAY_PRIVATE_RUNTIME
         if(admitted && proof->owner_arrays) {
             VmResult checked=vm_owned_array_preflight(vm,frame,decoded);
-            if(checked!=VM_OK)return trap_error(vm,checked,"I could not satisfy a private owner ARRAY operand or retain obligation.");
+            if(checked!=VM_OK)return trap_error(vm,checked,"I could not satisfy an owner ARRAY operand or retain obligation.");
         }
-#endif
 
         /* Private superinstructions run before the portable opcode switch.
          * They are an internal fusion of already-verified steps, so they
@@ -4782,7 +4822,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
 
 static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue *args,
                                          uint16_t arg_count, VmOwnedInvocationProof *proof) {
-    if ((nvm_uses_owned_transfers(vm->module) || nvm_mixed_samples_candidate(vm->module)) && fn_idx!=0)
+    if ((nvm_uses_owned_transfers(vm->module) || nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_mixed_samples_candidate(vm->module)) && fn_idx!=0)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse host entry into a borrowed helper");
     if (!vm_owned_proof_matches(vm,proof) && !vm_ownership_admit(vm,proof))
         return vm_error(vm,proof->refusal?proof->refusal:VM_ERR_TYPE_ERROR,"%s",
@@ -4869,13 +4909,15 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
     if (!vm_ownership_admit(vm,&proof))
         return vm_error(vm,proof.refusal?proof.refusal:VM_ERR_TYPE_ERROR,"%s",
                         proof.reason?proof.reason:VM_OWNERSHIP_REQUIRED);
+    if(proof.owner_arrays && callable.tag!=TAG_FUNCTION)
+        return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a direct root function for owner ARRAY invocation.");
     if (vm->references.active)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a callable in my standalone reference activation");
     if (!vm_callable_target(vm, callable, &target, &function_index))
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "I need a callable with a live module identity.");
     if (vm_stack_address(vm, out_result))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "I need result storage outside my movable stack.");
-    if ((nvm_uses_owned_transfers(target) || nvm_mixed_samples_candidate(target)) && function_index!=0)
+    if ((nvm_uses_owned_transfers(target) || nvm_owned_array_route(target)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_mixed_samples_candidate(target)) && function_index!=0)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse callable entry into a borrowed helper");
     const NvmFunctionEntry *fn = &target->functions[function_index];
     if (fn->arity != arg_count || fn->local_count < arg_count ||
@@ -4947,7 +4989,7 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
                    uint16_t arg_count, NanoValue *out_result) {
     if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
-    if ((nvm_uses_owned_transfers(vm->module) || nvm_mixed_samples_candidate(vm->module)) && fn_idx!=0)
+    if ((nvm_uses_owned_transfers(vm->module) || nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_mixed_samples_candidate(vm->module)) && fn_idx!=0)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I refuse invocation entry into a borrowed helper");
     VmOwnedInvocationProof proof={0};
     if (!vm_ownership_admit(vm,&proof))
