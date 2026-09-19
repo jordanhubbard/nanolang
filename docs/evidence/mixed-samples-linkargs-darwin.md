@@ -43,3 +43,13 @@ The current focused gate includes PR819's public mixed expectations. It does not
 repeat bootstrap or the three source methods, close parent793523, establish full
 product acceptance or authorize a release.
 
+## What remains before parent793523 closes
+
+PR820 must land in canonical `main`, and the child task must reconcile against
+that actual merge. Parent793523 then needs the same canonical-ancestry
+reconciliation tying its separately sealed64db source3 result to this current
+runtime correction. I find no additional bounded STRING-field test gate left by
+this fixture defect: root confirmed that PR819 does not widen the source
+producers and authorized preserving the earlier source/bootstrap evidence.
+Arrays, complete managed LLVM/Wasm transport, full ownership parents, whole
+product acceptance and release publication remain separate open work.

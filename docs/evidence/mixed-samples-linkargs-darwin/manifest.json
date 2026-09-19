@@ -92,5 +92,17 @@
     "source_methods_repeated": false,
     "parent_complete": false,
     "release_authorized": false
-  }
+  },
+  "remaining_before_parent_closure": [
+    "Merge PR820 into canonical main.",
+    "Reconcile task_61a21d598620c6ba3a676624e01de9fc against the actual merge.",
+    "Reconcile parent task_793523b9e4c04e389f9d63652758991a with canonical ancestry linking the separate 64db source3 result and current runtime correction."
+  ],
+  "separate_open_scope": [
+    "STRING or FLOAT arrays in owned records",
+    "complete managed LLVM/Wasm owned transport",
+    "full ownership parents",
+    "whole product acceptance",
+    "release publication"
+  ]
 }
