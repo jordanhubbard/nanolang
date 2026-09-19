@@ -11874,3 +11874,14 @@ fixture plus all six unchanged owner-array groups. I preserve full PREFIX/shadow
 ordered consuming helper/constructor observations, aliases/growth/length/return,
 lexical/declared identity, exact refusal phases and prepared-root failure cleanup.
 Only Python syntax and whitespace are checked; fixture review precedes execution.
+
+- [ ] Before completing mutationbba622, I correct permitted declared `array_push`
+  identity across C checking/shadow attachment, interpretation and paired native
+  emission/inference (`task_286bcd3cbf28b8ad009677ed6b9f8c73`). My
+  [bounded contract](DECLARED_ARRAY_PUSH_IDENTITY.md) preserves reserved set/length,
+  lexical precedence, ordinary builtin controls and every unchanged mutation
+  PREFIX/shadow. Frozen961a Linux/Darwin first terminals each passed three methods
+  and initializer/scope controls, then failed the declared-push fourth method:
+  registry ARRAY displaced declared INT. I retain both logs and do not replay
+  failed binaries. Production review precedes fresh stages and the full twelve
+  methods; mutation/parent430220/product/release remain open.
