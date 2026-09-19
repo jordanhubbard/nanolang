@@ -1,0 +1,24 @@
+{
+  "scope": "Read-only source/header/filesystem audit; no driver loading, API/device queries or GPU operations",
+  "base": "d8caf70ff4a06c2586003e797a629561075c4e4e",
+  "host": "sparky",
+  "sources": {
+    "modules/gpu/module.json": "fd61950d0eb2d9c56e10b48ed7e9c504286d98cb3f5d7b55c309254c723ba1ce",
+    "modules/gpu/cuda_runtime.c": "8a3952360094f3cf84fa018e348efef05381d70cdc774b87cbad519dffb1294e",
+    "modules/gpu/opencl_runtime.c": "395b8f4d74af29a5aeb227dc9eee920fe8faa2e42162c5517e62d254e3250cbe",
+    "schema/nsi/modules/gpu.nsi.json": "c1d3a92ffeb27309862e48ad6983c23d58b4a55a2f9e21aa87c9ed9d1d65538a",
+    "src/nsi_runtime.c": "1b6fe2bd1d692e0e203f447e90be32f2e858e27db8d78e680962ccbf8d1f5dea",
+    "src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+    "src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5"
+  },
+  "installed_cuda_header": {
+    "path": "/usr/local/cuda-13.0/include/cuda.h",
+    "sha256": "64025f81a9d6d2b10e9e11654f3523e5b046d01b883f0b9ca474e463274b80d4"
+  },
+  "observed_files": [
+    "/dev/nvidia0",
+    "/usr/lib/aarch64-linux-gnu/libcuda.so.595.84",
+    "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0"
+  ],
+  "hardware_qualified": false
+}
