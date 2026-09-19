@@ -11618,7 +11618,7 @@ I prepare430220's private runtime harness after08be review and independent sourc
 
 - [x] I qualify430220's bounded private VM/native runtime and its narrow array-growth accounting prerequisite at431aeeaf2: all18 frozen phases pass with six4739-check VM executions and native seven-case O0/O2 controls across GCC ordinary/GCC sanitizer/Clang18 sanitizer. My [scope and retained terminals](evidence/private-owned-array-runtime.md) distinguish instrumented units, unchanged1754 sources/161 existing tools and added File adjacency object. The completed fixture-correction rows above refer to this final seal; their original terminal descriptions remain historical. Public activation, source/mutation acceptance and parent430220 remain open.
 - [ ] I align and qualify public owner-ARRAY runtime activation before dependent source admission, preserving required-service/linked/closed/LLVM/Wasm refusals (parent430220; runtime lane).
-- [ ] I lower exact FLOAT-array owner fields in both source producers (`task_18731b55c66846f9826290148c967ca5`, parent430220) under my [paired source contract](NANOISA_OWNED_FLOAT_ARRAY_SOURCE.md): distinct owner/ordinary categories, original03/01 metadata, ordered constructor roots, complete unpack/projections and exact origin/call facts. I retain the unchanged Bundle/PREFIX and every selected shadow, fresh Linux/Darwin Cseed/Stage1/Stage2/NanoVirt plus canonical equality/VM/native gates, mandatory helper shadows and output-preserving negatives. No source production or pending execution precedes reviewed qualified public runtime activation.
+- [x] I lower exact FLOAT-array owner fields in both source producers (`task_18731b55c66846f9826290148c967ca5`, parent430220) under my [paired source contract](NANOISA_OWNED_FLOAT_ARRAY_SOURCE.md): distinct owner/ordinary categories, original03/01 metadata, ordered constructor roots, complete unpack/projections and exact origin/call facts. I retain the unchanged Bundle/PREFIX and every selected shadow, fresh Linux/Darwin Cseed/Stage1/Stage2/NanoVirt plus canonical equality/VM/native gates, mandatory helper shadows and output-preserving negatives. No source production or pending execution precedes reviewed qualified public runtime activation.
 
 I record18731's static source audit at5f988ed79. Existing declaration, constructor,
 hidden-unpack, exact-array guards and final authority dispatch all need paired
@@ -11822,7 +11822,7 @@ I qualify the Forth payload-length correction at `a3b6ef729` with full-source sh
 
 I complete the bounded File-priority/tool-attribution integration at frozen273b with eight fresh direct-fixture phases, all passing and164 inventoried tools unchanged around every phase. My [corrected integrated seal](evidence/owned-array-public-frozen.json) archives prepared tools/driver and preserves the prior successful-but-misattributed Make phases. Activation task01e144 still awaits actual canonical merge; full parents remain open.
 
-- [ ] I correct owner-array optional refusal phase in task_d27a23d5dc36354ab2504ab0210c295f.
+- [x] I correct owner-array optional refusal phase in task_d27a23d5dc36354ab2504ab0210c295f.
   Frozen c9fb bootstrap/setup passed271.579s/26.523s; first four source methods
   passed, then optional-local raw emitter returned NASM where my harness expected
   refusal (five methods365.579s, first terminal retained). No failed module ran.
@@ -11849,3 +11849,14 @@ Bundle/PREFIX shadows remain. I retain65 report hashes/428 artifacts and unchang
 source18731, fixture childd27a, mutation and full parents remain open.
 
 I retain the separate1fa canonical842/843 integration: fresh normal preparation and existing complete File opcode/refusal controls pass on Linux/Darwin, with no private production/fixture changes. My final preparation manifest seals89 text reports and12 equal source/tool pairs; the original c31 qualification remains separately pinned. The private transfer/body design is still preimplementation, and546cf/full File parents remain open.
+
+I complete the bounded paired owner-array source qualification at frozen1c4e on
+Linux and Darwin: fresh bootstraps272.544s/342.563s, corrected six-method
+PASS408.316s/438.494s with every original Bundle/PREFIX shadow, VM/native leak
+checks, exact canonical parity, optional/runtime/type/output controls and old
+profiles. My [final seal](evidence/owned-array-source-final.md) retains75 reports
+and401 artifacts per platform,2268 unchanged sources and13 producers per host.
+The source18731 and fixtured27a checkboxes record completed bounded acceptance;
+actual merge-ledger reconciliation is pending. Mutationbba622, parent430220/4be,
+product and release remain open. Ready integration adds only canonical private
+File query code after qualification, preserving both frozen trees and public paths.
