@@ -1124,6 +1124,8 @@ shadow c_name_for_qualified_function {
 fn map_builtin_func_name(func_name: string) -> string {
     if (== func_name "float_from_bits") { return "nl_float_from_bits" }
     if (== func_name "float_to_bits") { return "nl_float_to_bits" }
+    if (== func_name "cast_int") { return "nl_cast_int" }
+    if (== func_name "cast_bool") { return "nl_cast_bool" }
     /* Math builtins that need nl_ prefix */
     if (== func_name "abs") { return "nl_abs" } else { (print "") }
     if (== func_name "min") { return "nl_min" } else { (print "") }
@@ -1242,6 +1244,8 @@ fn map_builtin_func_name(func_name: string) -> string {
 shadow map_builtin_func_name {
     assert (== (map_builtin_func_name "float_from_bits") "nl_float_from_bits")
     assert (== (map_builtin_func_name "float_to_bits") "nl_float_to_bits")
+    assert (== (map_builtin_func_name "cast_int") "nl_cast_int")
+    assert (== (map_builtin_func_name "cast_bool") "nl_cast_bool")
     assert (== (map_builtin_func_name "abs") "nl_abs")
     assert (== (map_builtin_func_name "sqrt") "nl_sqrt")
     assert (== (map_builtin_func_name "str_length") "strlen")
@@ -1523,6 +1527,7 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
     let t0: LexerToken = (list_LexerToken_get parser.tokens start_pos)
 
     if (== t0.token_type LexerTokenType.TOKEN_TYPE_INT) { return TypeCParseResult { ok: true, c_type: "int64_t", next_pos: (+ start_pos 1) } } else { (print "") }
+    if (== t0.token_type LexerTokenType.TOKEN_TYPE_U8) { return TypeCParseResult { ok: true, c_type: "uint8_t", next_pos: (+ start_pos 1) } } else { (print "") }
     if (== t0.token_type LexerTokenType.TOKEN_TYPE_FLOAT) { return TypeCParseResult { ok: true, c_type: "double", next_pos: (+ start_pos 1) } } else { (print "") }
     if (== t0.token_type LexerTokenType.TOKEN_TYPE_BOOL) { return TypeCParseResult { ok: true, c_type: "bool", next_pos: (+ start_pos 1) } } else { (print "") }
     if (== t0.token_type LexerTokenType.TOKEN_TYPE_STRING) { return TypeCParseResult { ok: true, c_type: "const char*", next_pos: (+ start_pos 1) } } else { (print "") }
@@ -2988,11 +2993,12 @@ fn type_is_struct(t: string) -> bool {
     }
     if (or (== t "")
            (or (== t "int")
-               (or (== t "float")
-                   (or (== t "string")
-                       (or (== t "bool")
-                           (or (== t "array")
-                               (or (== t "unknown") (== t "void")))))))) {
+               (or (== t "u8")
+                   (or (== t "float")
+                       (or (== t "string")
+                           (or (== t "bool")
+                               (or (== t "array")
+                                   (or (== t "unknown") (== t "void"))))))))) {
         return false
     } else {
         return true
@@ -3022,6 +3028,7 @@ shadow box_struct_expr {
 shadow type_is_struct {
     assert (type_is_struct "Point")
     assert (not (type_is_struct "int"))
+    assert (not (type_is_struct "u8"))
     assert (not (type_is_struct "Mix_Music"))
 }
 
@@ -3152,6 +3159,9 @@ fn type_to_c(nano_type: string) -> string {
     if (== nano_type "int") {
         return "int64_t"
     } else {
+    if (== nano_type "u8") {
+        return "uint8_t"
+    } else {
     if (== nano_type "int64_t") {
         return "int64_t"
     } else {
@@ -3222,10 +3232,12 @@ fn type_to_c(nano_type: string) -> string {
         }
     }
     }
+    }
 }
 
 shadow type_to_c {
     assert (== (type_to_c "int") "int64_t")
+    assert (== (type_to_c "u8") "uint8_t")
     assert (== (type_to_c "bool") "bool")
     assert (== (type_to_c "MyStruct") "nl_MyStruct")
     assert (== (type_to_c "Result<int,string>") "nl_Result_int_string")
@@ -3991,7 +4003,9 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "double nl_cast_float(int64_t x) { return (double)x; }\n")
     set sb (cg_append sb "double nl_cast_float_from_float(double x) { return x; }\n")
     set sb (cg_append sb "int64_t nl_cast_int(double x) { if (!(x >= -0x1p63 && x < 0x1p63)) { fputs(\"I cannot convert this float to int: I require a finite value in [-2^63, 2^63).\\n\", stderr); exit(EXIT_FAILURE); } return (int64_t)x; }\n")
-    set sb (cg_append sb "int64_t nl_cast_int_from_int(int64_t x) { return x; }\n\n")
+    set sb (cg_append sb "int64_t nl_cast_int_from_int(int64_t x) { return x; }\n")
+    set sb (cg_append sb "bool nl_cast_bool(int64_t x) { return x != 0; }\n")
+    set sb (cg_append sb "bool nl_cast_bool_from_float(double x) { return x != 0.0; }\n\n")
     
     /* String operations */
     set sb (cg_append sb "/* String operations */\n")
@@ -4370,6 +4384,8 @@ fn gen_c_runtime() -> string {
 
 shadow gen_c_runtime {
     let runtime: string = (gen_c_runtime)
+    assert (str_contains runtime "bool nl_cast_bool(int64_t x) { return x != 0; }")
+    assert (str_contains runtime "bool nl_cast_bool_from_float(double x) { return x != 0.0; }")
     assert (str_contains runtime "#include \"runtime/binary64_parse.h\"")
     assert (str_contains runtime "return nl_binary64_prefix(s);")
     assert (str_contains runtime "#include \"runtime/string_search.h\"")
@@ -6189,6 +6205,20 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     let mut c_func_name: string = func_name
                     let mut extern_builtin_map: string = (map_builtin_func_name func_name)
                     if (and (or (== func_name "reduce") (== func_name "array_fold")) (not (legacy_reduce_builtin parser func_id env))) { set extern_builtin_map "" }
+                    if (and (== func_name "cast_int") (> call.arg_count 0)) {
+                        let cast_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                        let cast_arg_type: string = (infer_expr_type parser cast_arg.node_id cast_arg.node_type env)
+                        if (or (== cast_arg_type "int") (or (== cast_arg_type "u8") (== cast_arg_type "bool"))) {
+                            set extern_builtin_map "nl_cast_int_from_int"
+                        } else { (print "") }
+                    } else { (print "") }
+                    if (and (== func_name "cast_bool") (> call.arg_count 0)) {
+                        let bool_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                        let bool_arg_type: string = (infer_expr_type parser bool_arg.node_id bool_arg.node_type env)
+                        if (== bool_arg_type "float") {
+                            set extern_builtin_map "nl_cast_bool_from_float"
+                        } else { (print "") }
+                    } else { (print "") }
                     if (!= extern_builtin_map "") {
                         set c_func_name extern_builtin_map
                     } else {

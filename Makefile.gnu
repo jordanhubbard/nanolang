@@ -4567,6 +4567,11 @@ test-selfhost-range-bounds: bootstrap
 	python3 -m unittest -v tests.test_selfhost_range_bounds
 test-units: test-selfhost-range-bounds
 
+.PHONY: test-selfhost-native-u8
+test-selfhost-native-u8: bootstrap
+	python3 -m unittest -v tests.test_selfhost_native_u8
+test-units: test-selfhost-native-u8
+
 .PHONY: test-exclusive-borrows
 test-units: test-exclusive-borrows
 test-exclusive-borrows: bootstrap nano_virt
