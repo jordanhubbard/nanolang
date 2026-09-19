@@ -78,8 +78,8 @@ class MutationBuiltinIdentity(unittest.TestCase):
     def test_unbound_mutation(self):
         source = self.work/'unbound.nano'
         source.write_text('''fn main()->int {
- let values:array<float>=[1.0]
- let alias:array<float>=(array_push values 2.5)
+ let values:array<float> =[1.0]
+ let alias:array<float> =(array_push values 2.5)
  (array_set alias 0 3.5)
  assert (== (array_length values) 2)
  assert (== (at values 0) 3.5)
