@@ -1,0 +1,155 @@
+{
+  "schema": "nanolang.darwin_focused_qualification.v1",
+  "task": "task_61a21d598620c6ba3a676624e01de9fc",
+  "parent": "task_793523b9e4c04e389f9d63652758991a",
+  "pull_request": 820,
+  "qualified_source": "9578eec074da017afed3cb2916cd6e168a5db9f3",
+  "qualified_tree": "c3e86afe4c449cc2f1d06697e314dad189e4982d",
+  "base": "d0de3d23a730c66531f2ed2c5d972215302ebe19",
+  "canonical_integration": {
+    "main": "0955dca62e168c212e1c03c844651e2040286995",
+    "merge": "57824ba7dfd703dbe7b0003bc1a1a40b11e70dbc",
+    "qualified_source_is_ancestor": true,
+    "rerun": false,
+    "reason": "PR821 changes mixed preparation only for service-bound modules; this fixture supplies no service bindings and PR821 separately qualifies the combined boundary.",
+    "evidence_relabeled": false
+  },
+  "current_main_integration": {
+    "main": "118cc44711b1cb1b49a1503d948c4e29c428b9a7",
+    "merge": "9ac3b0461162d8516d2ecdf02ab0fddfd00dd107",
+    "merge_tree_before_documentation": "8b39519b8f7ee7f653919bbdfcf87d9ce45c7f0b",
+    "required_service_changes_preserved": true,
+    "fixture_delta_files": [
+      "Makefile.gnu",
+      "tests/test_mixed_samples.py"
+    ],
+    "comparison": "SHA-256 of diff file markers and changed lines after removing diff headers, hunk locations and unchanged context",
+    "qualified_delta_sha256": "879bc4d474eb517e440d3563adc15fce6f6f67eba1d9f5a5b58d2ab645396e7b",
+    "integrated_delta_sha256": "879bc4d474eb517e440d3563adc15fce6f6f67eba1d9f5a5b58d2ab645396e7b",
+    "exact_delta_equal": true,
+    "code_rerun": false,
+    "evidence_relabeled": false
+  },
+  "status": "pass",
+  "phases": [
+    {
+      "name": "mixed-query-runtime",
+      "command": "ASAN_OPTIONS=detect_leaks=1 make -f Makefile.gnu -j8 CC=/opt/homebrew/opt/llvm/bin/clang test-mixed-samples test-mixed-samples-runtime test-mixed-samples-runtime-alloc test-mixed-samples-admission",
+      "status": 0,
+      "seconds": 22.68,
+      "query_checks": 112482,
+      "runtime_lifecycle_checks": 2006,
+      "heap_checks": 13358,
+      "heap_budgets": 488,
+      "heap_failures": 440,
+      "admission_checks": 127,
+      "resolved_ldflags": "-lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib",
+      "log_sha256": "6b199f7cce8240444c00b0784e3664ab16a574b731e8ea3e0e470461ca35129d"
+    },
+    {
+      "name": "standalone-default",
+      "boundary": "MIXED_SAMPLES_LDFLAGS absent; LIBRARY_PATH names the existing Homebrew OpenSSL directory",
+      "status": 0,
+      "seconds": 1.14,
+      "query_checks": 112482,
+      "default_ldflags": "-lm -lcrypto",
+      "log_sha256": "cf40b7946baac96339938c7d3dccc0e47ffed42733159d55eff76f9ce12fd638"
+    }
+  ],
+  "maps": [
+    {
+      "path": "source.sha256",
+      "entries": 5464,
+      "sha256": "e1ab93b9514ca5ca55f81d392a3df5944c95991593ac4cf70dc7b81f4d65a556",
+      "before_after_equal": true
+    },
+    {
+      "path": "affected-sources.sha256",
+      "entries": 10,
+      "sha256": "9990ce6f4400cd4fe8d5565a568e09a975b60015caeb7cc03a29379681942673",
+      "before_after_equal": true
+    },
+    {
+      "path": "objects.sha256",
+      "entries": 148,
+      "sha256": "dcfe8e3d90b1ac3ebeebc605be2339a2db2d7fe932ad209e94bea044f26efcf0",
+      "kind": "after-run regular build-directory entries",
+      "contents": {
+        "dependency_files": 144,
+        "fixture_executables": 3,
+        "stamp_files": 1,
+        "object_files": 0
+      },
+      "symlinked_object_paths_included": false,
+      "before_after_equal": null,
+      "object_input_coverage_claimed": false
+    },
+    {
+      "path": "link-objects.sha256",
+      "entries": 26,
+      "sha256": "63400cfd1a86aceed30c8611bcf03c8a7d98e511d5e6d0bc5ae158fb00a3a50b",
+      "kind": "symlink-resolved mixed-query link object inputs",
+      "object_files": 26,
+      "independently_verified": true
+    },
+    {
+      "path": "selected-build.sha256",
+      "entries": 5,
+      "sha256": "772594dfe2aeef2c73eb66986c3f7b4dbdfbeefe6e8d5f843c4779a65bb6dbec"
+    },
+    {
+      "path": "tools.sha256",
+      "entries": 6,
+      "sha256": "a1d4cbb385756eb21d77b4cabb146e058b8d8359b0970c23475f9224800e8e97",
+      "before_after_equal": true
+    },
+    {
+      "path": "logs.sha256",
+      "entries": 6,
+      "sha256": "24136bbe2149abce5fa4ea54c4c5215974f9ef664864afe6e4bb2508e8a9aa02"
+    }
+  ],
+  "prior_source_acceptance": {
+    "source": "64db8f922e7a24e5e4b86794f66fe3d1f0c076b9",
+    "source_methods": 3,
+    "source_seconds": 278.10,
+    "source_status": "pass",
+    "runtime_status": "failed",
+    "runtime_first_failure": "test-mixed-samples could not locate -lcrypto",
+    "source_log_sha256": "c99f8a89d9f59da3234b1c7d151901b0a9c0b68da33efdc8d4e3470d339023db",
+    "runtime_log_sha256": "517723e65a66929307c4ab7c465e8ed989f01cc1a5fba140a43cbe041cc70908",
+    "report_sha256": "1c637c1796236b1594ca625bbb0ce2db2932e61ab3a2c6cbca9d8a372314cc51",
+    "relabeled": false
+  },
+  "claims": {
+    "production_changed": false,
+    "assertions_changed": false,
+    "sanitizer_policy_changed": false,
+    "bootstrap_repeated": false,
+    "source_methods_repeated": false,
+    "all_runtime_link_objects_inventoried": false,
+    "build_directory_before_after_equal_claimed": false,
+    "parent_complete": false,
+    "release_authorized": false
+  },
+  "evidence_precision_correction": {
+    "original_report_unchanged": true,
+    "original_report_sha256": "08b0fefc9f73316176a4016e7bcddf418043c24faf603cb3a563e093f86cfc92",
+    "incorrect_original_label": "built_object_count",
+    "correct_label": "after-run regular build-directory entry count",
+    "retroactive_object_identity_claimed": false,
+    "new_runtime_object_inventory_created": false
+  },
+  "remaining_before_parent_closure": [
+    "Merge PR820 into canonical main.",
+    "Reconcile task_61a21d598620c6ba3a676624e01de9fc against the actual merge.",
+    "Reconcile parent task_793523b9e4c04e389f9d63652758991a with canonical ancestry linking the separate 64db source3 result and current runtime correction."
+  ],
+  "separate_open_scope": [
+    "STRING or FLOAT arrays in owned records",
+    "complete managed LLVM/Wasm owned transport",
+    "full ownership parents",
+    "whole product acceptance",
+    "release publication"
+  ]
+}
