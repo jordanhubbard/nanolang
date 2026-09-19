@@ -1,0 +1,5 @@
+{
+  "CC": "gcc",
+  "NANO_FILE_BODY_CC": "gcc",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+}
