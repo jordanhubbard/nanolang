@@ -164,7 +164,7 @@ static void nested_owner_composition(void) {
     NvmModule *m=build("PUSH_I64 7\nOWN_PACK 0\nOWN_PACK 4\nOWN_STORE_LOCAL 0\n"
         "OWN_UNPACK_LOCAL 0\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nRET\n",locals,2,NULL,false);
     finished(composition(m,NVM_MIXED_SHAPE_PROVED));nvm_module_free(m);
-    m=build("ARR_NEW 3\nAGG_PACK 0 1 0 1\nOWN_PACK 5\nPOP\nPUSH_I64 0\nRET\n",NULL,0,NULL,false);
+    m=build_with_ordinary_owner("ARR_NEW 3\nAGG_PACK 0 1 0 1\nOWN_PACK 5\nPOP\nPUSH_I64 0\nRET\n",NULL,0,NULL,false,true);
     composition(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
 }
 static void ordinary_joins_and_calls(void) {
