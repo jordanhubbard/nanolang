@@ -101,3 +101,54 @@ fusion controls and native O0/O2. Instrumented units and ordinary linked provide
 remain distinct. Existing mutation/private corpus adjacency is bounded by actual
 shared-fixture changes, not automatically replayed. I preserve first terminals
 and stop on source/tool drift. No existing source gate is interrupted or broadened.
+
+## My complete fixture and helper mapping before execution
+
+My new fixture includes the unchanged qualified runtime corpus with its configurable
+main name; no existing fixture or production file changes. Ten fresh modules share
+four functions and the existing five-layout descriptor builder:
+
+| Function | Signature / locals | Exact role |
+| --- | --- | --- |
+|0|()->INT; Bundle,array|Public root calls factory/relay, retains field alias, invokes consuming mutation helper, then normal reads or boundary operation|
+|1|()->Bundle; array|Construct four exact bit-pattern values, read each before pack, create Handle7+ARRAY+STRING Bundle|
+|2|(Bundle)->Bundle; Bundle|Move its exact owner argument to its result|
+|3|(Bundle)->INT; Bundle,array,Handle|Reverse unpack, release STRING, consume Handle, SET index0 to negative quiet NaN, append five exact patterns crossing capacity, read all nine values|
+
+The emitter's existing helper signature is
+`static int nown_function_N(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result,NmsRuntime *managed)`.
+The harness checks exact generated signatures for N1/2/3. The internal native
+probe initializes a fresh NmsRuntime, calls1 to publish Bundle, retains the
+ARRAY alias, calls2 consuming the original owner, then calls3 consuming the relay
+result. It checks cleared argument carriers and exact owner layout/category,
+observes unchanged bits before/after relay and changed/grown bits after consumption,
+releases result/alias and requires zero managed objects/bytes and tracked allocation
+balance. It is separately labeled from normal nvm_owned_entry runs of every module.
+
+Normal public root has27 VM observations: four factory reads, four alias reads,
+one previous-value read inside valid ARR_SET, nine helper reads and nine surviving
+alias reads. Boundary roots have14 observations before the invalid operation:
+four factory reads, the SET previous-value read and nine helper reads. The wrapper
+checks the same array pointer, exact function, decoded next instruction PC, index,
+FLOAT tag and uint64 bits for every observation, then returns the untouched value.
+Thus extra/missing/reordered observations fail rather than weaken the oracle.
+The three signed indices -1/INT64_MIN/INT64_MAX each have missing-GET/POP,
+missing-GET/typed-comparison and failed-SET variants. Valid index0 and last-element
+reads are in every helper's nine-value scan. Public API result conventions, exact
+`7\n9\n` success and `7\n` failure output, original root/byte cleanup and repeated
+fresh-VM same-process execution remain required.
+
+Native missing raw GET reports VOID and succeeds when popped; its optional typed
+comparison fails status3. The packed ARRAY SET helper currently reports NMS_STATE
+for out-of-range indices, mapped to status3, while VM reports OUT_OF_BOUNDS. The
+internal probe checks that exact established helper status and unchanged aliases;
+it does not replace it with generic NMS_BOUNDS. Pattern operands are patched using
+isa_decode/isa_encode and memcpy from uint64 before fresh complete admission.
+No NaN decimal formatter or FLOAT equality supplies the representation oracle.
+
+The Python gate builds true switch/computed-goto with explicit macro assertions,
+compares emitted C bytes across dispatch configurations and compiles every native
+module at O0/O2. The observer macro renames only heap.c's vm_array_get definition;
+VM calls bind the forwarding fixture symbol. Fixture strict flags remain unchanged.
+This checkpoint has only Python AST parsing and whitespace validation; no C compile,
+module execution or generated native run precedes review.
