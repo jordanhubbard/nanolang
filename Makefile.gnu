@@ -5413,3 +5413,13 @@ test-file-code: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	./obj/test_file_code_linked
 test-file-code-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	FILE_CODE_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_CODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_code
+
+.PHONY: test-file-body test-file-body-sanitizers
+test-units: test-file-body
+test-file-body: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DFLOW_INSTRUMENT tests/nanoisa/test_file_body.c $(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_body_instrumented
+	./obj/test_file_body_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_file_body.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_body_linked
+	./obj/test_file_body_linked
+test-file-body-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_BODY_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_BODY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_body
