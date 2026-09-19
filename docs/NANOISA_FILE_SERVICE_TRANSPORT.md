@@ -227,8 +227,10 @@ I retain owned `service_data/service_size` in `NvmModule` and borrowed bytes in
 imports against the immutable catalog, and allocates only before its final
 publication. An identical valid payload is a no-op. The bridges validate this
 family before their existing allocation paths and copy or borrow it under the
-existing lifetime rule. Whole-module bridge failures retain their established
-cleared-output convention; the private attach operation is failure-atomic.
+existing lifetime rule. The bridge to `NvmModule` leaves a null output on failure. The bridge from
+`NvmModule` clears its destination first but may then leave cleanup-safe borrowed
+payload fields when a later validation fails; I do not promise a wholly zero or
+unchanged destination. The private attach operation is failure-atomic.
 
 My container derives FFI bit1 and service bit9, emits section14 last, checks
 exact payload/flag agreement at read and validates every catalog import before
@@ -257,3 +259,13 @@ NanoISA link closure and generated native wrapper list, with affected header
 build dependencies. Root owns the separate missing mixed-proof wrapper object
 correction; I must preserve it during integration. I have not run a build or
 fixture at this source checkpoint. Public service execution remains refused.
+
+### My prequalification source-closure correction
+
+Independent review of the parallel mixed-proof wrapper fix identified the
+module manifest as a second source-link closure. My first combined checkpoint
+c7e65df4f added the service codec/query/catalog to Make and wrapper objects but
+omitted their source entries from `modules/nanoisa/module.json`. I record this
+static prequalification finding under6833 before correcting that manifest. No
+service checkpoint build or source fixture has executed. I retain c7e65df4f as
+the reviewed prior checkpoint and require review of the additive manifest delta.
