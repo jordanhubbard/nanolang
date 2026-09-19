@@ -11950,3 +11950,9 @@ prerequisites pass, not a narrowed Bundle replacement.
   The first overlay launch stops pre-build because the failed make left its
   untracked test binary. I preserve it and permit only its exact path/hash in
   the corrected runner; no source change or failed binary replay is involved.
+
+  The corrected evaluator overlay fails result7 with4099 (1.250s). My old match
+  implementation retains only the last wildcard, skipping the earlier guarded
+  emit and running fallback mark. I depend on separately reviewed PR855 lexical
+  match ordering, retain the exact assertion, and do not duplicate its repair.
+  Dependent source gates remain unrun until qualified integration.

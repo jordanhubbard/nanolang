@@ -276,3 +276,15 @@ f2afa578e828691d6563445d27f717285526f2536fed3dd6d7de2eb4d79aa47f) and retain the
 pre-build traceback separately. The corrected runner permits only that exact
 known path/hash on Linux, records it, and still rejects every other dirty path.
 A separate fresh evidence directory avoids overwriting the preparation terminal.
+
+My corrected complete evaluator overlay reaches execution and fails the original
+result7 assertion with4099 (1.250s), after the new initializer and six earlier
+controls pass again. This is the independently tracked PR855 match-ordering
+prerequisite, not permission to weaken the assertion. Static eval.c5304-5311
+stores each wildcard index and continues; the final unconditional fallback
+replaces the first guarded wildcard. Its mark sets trace4; send/exercise return99,
+yielding4099 without evaluating the earlier emit guard. I retain this terminal
+separately from the original E035 refusal and the preparation guard failure.
+I make no duplicate match production repair. Qualified PR855 integration must
+precede a fresh complete evaluator gate and dependent identity/mutation/pattern
+gates. My reviewed declared-push initializer production remains unchanged.
