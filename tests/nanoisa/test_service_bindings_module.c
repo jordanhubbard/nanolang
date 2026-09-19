@@ -14,6 +14,8 @@
 #include "../../src/nanovm/vm_ffi.h"
 #include "../../src/runtime/ffi_loader.h"
 
+int g_argc;
+char **g_argv;
 static unsigned checks;
 #define CHECK(x) do { checks++;assert(x); } while(0)
 #ifdef SERVICE_ALLOC_TEST
@@ -144,6 +146,7 @@ static void allocation(const NlFilePlan *plan) {
 }
 #endif
 int main(int argc,char **argv) {
+    g_argc=argc;g_argv=argv;
     CHECK(argc==2);NlNsi *doc=nl_nsi_load_path(argv[1]);CHECK(doc);NlFilePlan *plan=NULL;
     CHECK(nl_file_plan_build(doc,&plan)==NL_FILE_PLAN_OK);nl_nsi_free(doc);
     roundtrip(plan,false);roundtrip(plan,true);
