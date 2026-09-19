@@ -1,6 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 
-#include "service_bindings_module.h"
+#include "../../src/nanoisa/service_bindings_module.h"
 #include "nanoisa.h"
 
 #include "../../src/nanoisa/assembler.h"
