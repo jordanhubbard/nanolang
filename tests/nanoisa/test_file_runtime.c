@@ -105,7 +105,7 @@ static NvmFileRuntimeReport finish_bad(NvmFileRuntime **c,NvmFileRuntimeStatus s
  CHECK(again.status==r.status && again.cleanup.cleanup_failures==r.cleanup.cleanup_failures && !*c && closed==closes);
  CHECK(!memcmp(&out,&before,sizeof out));empty_host();return r;
 }
-static void lifecycle(void){
+static void carrier_lifecycle(void){
  for(unsigned mode=0;mode<2;mode++)for(unsigned perm=0;perm<2;perm++){
   NvmFileNominalBindings b;NvmFileRuntime *c=context(&b,(NvmFileRuntimeMode)mode,perm!=0,false,true);
   ROK(nvm_file_runtime_site(c,0,0));file(c,b,1);ROK(nvm_file_runtime_move(c,1,2));CHECK(!view(c,1).initialized);
@@ -291,7 +291,7 @@ static void allocation_controls(void){
 #endif
 int main(void){
  FILE *sentinel=tmpfile();CHECK(sentinel);int sentinel_fd=fileno(sentinel);CHECK(sentinel_fd>=0);
- lifecycle();passive();invalid_and_partial();invalid_passive();scalar_and_limits();initializer();public_refusal();
+ carrier_lifecycle();passive();invalid_and_partial();invalid_passive();scalar_and_limits();initializer();public_refusal();
 #ifdef HOSTED_INSTRUMENT
  faults();allocation_controls();CHECK(!tracked_live && !tracked_bytes);
 #endif
