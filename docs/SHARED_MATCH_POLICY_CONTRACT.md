@@ -257,3 +257,22 @@ terminal backstop. I retain the existing C-seed totality matrix and interpreter
 suite. This slice does not widen the self-hosted parser, self-hosted checker,
 public C profile or NanoCore subset, and it does not close either shared parent
 or the release gate.
+
+## My root-reviewed qualification supplement
+
+Before executing PR855 checkpoint `d0fbd9b1`, I add integer early-wildcard
+and repeated-conditional-wildcard controls to the existing interpreter fixture.
+A marked scrutinee and marked guards/bodies distinguish first-success selection,
+false-guard fallthrough, skipped effects and exactly one scrutinee evaluation.
+I retain every existing union, binding-restoration and totality assertion.
+My forked terminal-backstop fixture drains stderr through EOF with EINTR handling
+instead of assuming one read returns a complete diagnostic.
+
+I also retain the independently reviewed handler-order fixture correction
+`70c12fd68`: an unconditional fallback calls mark after its conditional wildcard.
+Both branches remain forbidden by the existing nonlocal-return result assertion.
+The previous fixture-only correction reached the old interpreter ordering defect
+and produced4099 instead of7; that terminal stays attributed to the pre855
+interpreter. This supplement changes no production and waives no failing gate.
+I review the complete fixture delta before fresh evaluator/totality qualification,
+retain first terminals and source/tool identities, and keep all-route parents open.
