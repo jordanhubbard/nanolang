@@ -1,0 +1,9 @@
+{
+  "commit": "03b8c39e196623d37f3656f0d954bc9205b131d7",
+  "path": "docs/evidence/product-acceptance-cd72dab3.md",
+  "sha256": "4a1c6f90bdd10e364ec884aa8622961877938f7ddc5f1095352f5d440d66b19f",
+  "product_pin": "cd72dab32f03f0817cffcf1527e75e8a3482f534",
+  "examples_compiled": 244,
+  "full_quick_status": 2,
+  "next_failure": "check-stdlib-docs"
+}

@@ -332,7 +332,7 @@ relabel those supplemental snapshots as before-bootstrap evidence.
 Linux final private-provider integration remains separately qualified. These
 bounded source and runtime checks do not close parent4be, owner ARRAY430220,
 the separate embedded-runtime Darwin fixture taska522 or full product/release
-acceptance. e64/c935/68db await canonical merge reconciliation.
+acceptance. PR828 merged at `6a993be5511297cb2cf6793d3a8aae0b6a75f8e2`; e64/c935/68db are reconciled complete from canonical ancestry.
 
 My final canonical authority-provider integration at
 `29ab099b5bec7eb3c2082fc4c9c504e2226d1da4` includes private query PR830 without
