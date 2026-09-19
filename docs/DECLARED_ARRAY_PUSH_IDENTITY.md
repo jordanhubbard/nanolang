@@ -257,3 +257,14 @@ no source identity/mutation/pattern gate has started. Diagnostic child
 `task_6ba90e4583d504291f90cf3f11bd2cc9` first records the case and initialization
 phase, without changing sources/assertions or replaying the failed binary.
 Any demonstrated correction remains subject to review before qualification.
+
+My fresh parse/typecheck-only diagnostic isolates zero-based body13 and reports
+E035: I require an unconditional wildcard in an integer match. No evaluator
+execution occurs; the exact source, new binary, compiler log and unchanged
+provider inventory are retained at `/tmp/nanolang-eval-order-typecheck-9f7`.
+My fixture correction adds `_ => (mark)` after the guarded wildcard. The handler
+must still return7 nonlocally before either branch runs; any mark sets trace4
+and breaks the unchanged exact result7 assertion. I retain all seventeen bodies
+and every assertion, preserve totality, and change no production. The corrected
+complete evaluator suite is rebuilt as a new binary against qualified9f7
+providers; the original failed binary and log remain untouched.

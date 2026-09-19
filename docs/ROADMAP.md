@@ -11940,3 +11940,9 @@ prerequisites pass, not a narrowed Bundle replacement.
   terminal and add diagnostic-only phase/body reporting with unchanged cases
   and assertions before a reviewed fresh diagnostic build; no root cause or
   relationship to declared push is inferred from this result alone.
+
+  My fresh nonexecuting case13 diagnostic confirms E035 for its guarded-only
+  integer match. I add one unconditional fallback that calls mark; executing it
+  changes trace and fails the unchanged result7 assertion. This restores fixture
+  validity under my existing totality policy without weakening handler ordering.
+  A fresh complete evaluator test binary must pass before dependent source gates.
