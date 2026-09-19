@@ -74,7 +74,13 @@ class SourceOwnedFloatArrays(support.SourceMixedSamples):
 fn make(value: int) -> Handle { return Handle { fd: value } }
 shadow make { assert (== (close (make 11)) 11) }
 fn forward(bundle: Bundle) -> Bundle { return bundle }
-shadow forward { assert true }
+shadow forward {
+    let returned: Bundle = (forward Bundle { file: Handle { fd: 13 }, samples: [3.5] })
+    assert (== returned.file.fd 13)
+    let Bundle { samples, file } = returned
+    assert (== (at samples 0) 3.5)
+    assert (== (close file) 13)
+}
 fn main() -> int {
     let empty: Bundle = Bundle { samples: [], file: (make 3) }
     let Bundle { file, samples } = empty
@@ -141,6 +147,7 @@ shadow main { assert (== (main) 0) }
                        'test_unsafe_pattern_keeps_outer_shadow'):
             original = OwnedRecordPatterns(method)
             getattr(original, method)()
+        self.test_owned_string_unchanged_affine_example()
         source = (support.support.FIXTURES / 'source_borrow_shared.nano').read_text()
         self.graph_positive('unchanged-borrow', source)
 

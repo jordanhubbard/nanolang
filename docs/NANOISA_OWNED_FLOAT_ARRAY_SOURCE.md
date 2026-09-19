@@ -253,3 +253,16 @@ built tools, bootstrapped, run these source tests or executed a new module. Publ
 activation qualification remains pending, including its separately recorded
 absent/VOID parameter-sidecar correction. I will freeze a fresh integrated tree
 with its exact qualified providers before any of these source gates.
+
+My static fixture review strengthens forward's new shadow: it invokes the
+forwarding helper, observes the returned child field, unpacks the returned Bundle,
+checks its array value and consumes its Handle. The old-profile method explicitly
+invokes the previously qualified unchanged affine-example STRING graph, including
+its exact stdout and complete shadow stdout assertions; STRING coverage is not
+inferred from a test name.
+
+On Darwin my inherited native pair runner selects `CC` directly. After producer
+setup, I must freeze `CC=/opt/homebrew/opt/llvm/bin/clang`, capture the resolved
+compiler hash and SDK selection, and retain `detect_leaks=1:halt_on_error=1`.
+`NANO_NATIVE_TEST_CC` alone does not select this runner's compiler. I have not
+executed this prepared harness or changed any source production.
