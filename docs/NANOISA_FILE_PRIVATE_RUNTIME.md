@@ -310,3 +310,45 @@ new sizeof and the same checked total; no earlier ABI/storage acceptance is
 silently reused. A native generated function's temporary C scalars may not hold
 an owning File/OpenResult outside a counted root. These access/layout adapters
 are explicitly absent from the first carrier checkpoint.
+
+## I prepare the first carrier fixture gate
+
+I keep this gate explicit (`test-file-runtime` and
+`test-file-runtime-sanitizers`); it does not enter `test-units` before review.
+`tests/test_file_runtime.py` rebuilds all thirteen allocating hosted-plan
+providers, the three private NSI cores, and the carrier with the selected
+compiler. My instrumented fixture includes the exact carrier source to inspect
+actual arena sizes, and replaces allocation calls across the complete plan/core
+chain. My linked fixture compiles the carrier and cores as separate translation
+units. Both execute manual API calls, never a File opcode dispatcher.
+
+I intercept `tmpfile`, `fclose`, reads, writes and positioning only in the
+instrumented File service translation unit. The open counter increments before
+an injected failure. My close hook really closes, then optionally reports a
+chosen error; I do not claim it models every failing libc close. Separately,
+both fixtures rebuild `vm_ffi.c` with allocation-free init/open/fork attempt
+sentinels which refuse any attempted operation. I verify the sentinels count
+calls and require zero increments across public File refusals. This is an
+observation of these direct entry points, not a claim about every installed CLI.
+Existing full opcode/wrapper refusals remain adjacent gates.
+
+I require Linux ordinary GCC plus strict GCC/Clang ASan/UBSan/LSan, and Darwin
+ordinary Apple Clang plus explicit Homebrew Clang sanitizer selection after
+its disk-capacity hold is cleared. Every command retains output, status and its
+actual compiler/source identity; a first terminal stops dependent phases.
+I retain both instrumented and linked binaries. Then I run unchanged hosted,
+body/flow, private File-values and opcode/wrapper neighbors affected by shared
+getters. No bootstrap is claimed from the carrier test. Public provider manifests
+have no carrier dependency yet; matched dispatch will require a separate
+reviewed closure change and qualification.
+
+I assert full preparation allocation-prefix and transient-failure cleanup,
+three core-acquisition allocation failures, exact accounted sizes, successful
+input-byte destruction, passive nominal construction/projection and Result
+arms, real byte255/write/rewind/read/EOF, nested aliases sharing an origin,
+origin-end refusal, partial OpenResult roots, failed transfer preservation,
+initializer-before-entry and suppression after cleanup error, busy nested
+finish/destroy refusal, clean-only scalar publication, first and secondary
+cleanup errors, and no attempted host acquisition before readiness.
+I retain the earlier hosted test unchanged except for an optional main-name
+macro used to share its checked module builders and allocation tracker.
