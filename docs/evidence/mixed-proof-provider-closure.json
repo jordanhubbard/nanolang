@@ -1,0 +1,100 @@
+{
+  "production_pin": "64db8f922e7a24e5e4b86794f66fe3d1f0c076b9",
+  "first_linux_pin": "27a8464ca5b8ec4c64bae9516aac652bdf75b98b",
+  "reports": {
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/bootstrap.json": "7f400479cb55cc48a016908b311a95575b13ea72ff1b76eba1b788ab934f1e7f",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/bootstrap.log": "296d419c69b8d881640ee13240cce2d9d42f42e94832066a8261e0ede0138ff1",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/built-tools.json": "d2ec8ee7aae3eb44bd95ec24b881c1118340ffb398314bd06eb259d8c93cb55f",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/result.json": "d6c0d634a36710c4eb349024e3e9b7a9b9c599dfb517eedfbeff8c15d0cdec48",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/sources-after.json": "23cb8ac2ff5aa753249a27ef5ee0f9b1a1d3ec7008bb6a56ca35998787e56abb",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/sources-before.json": "23cb8ac2ff5aa753249a27ef5ee0f9b1a1d3ec7008bb6a56ca35998787e56abb",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/tools-after.json": "5d260b0cda2fa818f300c64ef426492cc12339bbf41b9a7e9a7cbaa8f9f5dbb2",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/tools-before.json": "5d260b0cda2fa818f300c64ef426492cc12339bbf41b9a7e9a7cbaa8f9f5dbb2",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/wrapper.json": "64ca87f7e1f500a47515cd05782f27f29cc2b7e6f63a92b24839e40cb081e30d",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/wrapper.log": "9a7ec03d2c4de55c370437f52d32285bb99774d7ab243041bcb7457ade50b53f",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/bootstrap.json": "87e0b38ef07dc73948b7b2a82d9a68733104d279d0d3b642a6b299944882c672",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/bootstrap.log": "8c8b875fb774f9e7168a324b2b386d30e13654caf30a80bae57f951564e77e6b",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/built-tools.json": "6b3a5d3aaf21e2cd96e9101d6e921b16e56ae541da3d7a1d5e77205dec11961c",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/result.json": "5ac5ed63a3781570c4fdf477343a079a133a34d94f2dd040732c21ff1134a233",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/sources-after.json": "b794cc6f8f6cb971ec7bf3f88e32c9fbda246c368f5a065be1d03c9c1e583274",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/sources-before.json": "b794cc6f8f6cb971ec7bf3f88e32c9fbda246c368f5a065be1d03c9c1e583274",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/tools-after.json": "5d260b0cda2fa818f300c64ef426492cc12339bbf41b9a7e9a7cbaa8f9f5dbb2",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/tools-before.json": "5d260b0cda2fa818f300c64ef426492cc12339bbf41b9a7e9a7cbaa8f9f5dbb2",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/wrapper.json": "5ab86854d91f5e6527c5a35fac3312e7a7b3029939e77220a0538cdbc78ef4f5",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/wrapper.log": "6456401515e82a5c59fbf3a1fd351b1271525cb5aaf7ef6814d5b6877c3ec593"
+  },
+  "source_count": 5326,
+  "result": {
+    "pin": "64db8f922e7a24e5e4b86794f66fe3d1f0c076b9",
+    "steps": [
+      {
+        "name": "wrapper",
+        "command": [
+          "make",
+          "-j4",
+          "test-wrapper-gen"
+        ],
+        "status": 0,
+        "seconds": 13.048,
+        "log_sha256": "6456401515e82a5c59fbf3a1fd351b1271525cb5aaf7ef6814d5b6877c3ec593"
+      },
+      {
+        "name": "bootstrap",
+        "command": [
+          "make",
+          "bootstrap"
+        ],
+        "status": 0,
+        "seconds": 247.11,
+        "log_sha256": "8c8b875fb774f9e7168a324b2b386d30e13654caf30a80bae57f951564e77e6b"
+      }
+    ],
+    "terminal": 0,
+    "source_equal": true,
+    "tool_equal": true,
+    "head_equal": true
+  },
+  "scope": "I qualify provider closure on Linux and Darwin; separate STRING acceptance and full release gates remain pending.",
+  "darwin": {
+    "production_pin": "64db8f922e7a24e5e4b86794f66fe3d1f0c076b9",
+    "checkout": "/private/tmp/nanolang-string-793-fullclosure.KYscC8",
+    "evidence_dir": "/private/tmp/nanolang-string-793-fullclosure-evidence.Fx2wr5",
+    "wrapper": {
+      "status": "pass",
+      "seconds": 7.53,
+      "c_checks": 5,
+      "python_checks": 7
+    },
+    "bootstrap": {
+      "status": "pass",
+      "seconds": 301.32
+    },
+    "source_count": 5326,
+    "source_maps_equal": true,
+    "current_source_hashes_independently_verified": 5326,
+    "current_selected_tools_independently_verified": 12,
+    "current_actual_tools_independently_verified": 6,
+    "actual_tool_maps_equal": true,
+    "actual_bootstrap_compiler": "Apple clang21.0.0 via /usr/bin/cc",
+    "sdk": "27.0",
+    "homebrew_sanitizer_compiler": "23.1.1, subsequent source gates only",
+    "copied_reports": {
+      "/tmp/nanolang-wrapper-closure-darwin/27a-report.json": "b472eff9082d8ae18e81bafce81862deaa06d8cbdfb1562e17b7c46c46340b2e",
+      "/tmp/nanolang-wrapper-closure-darwin/bootstrap.log": "dae8c41a49c806a60971f6501da69b0f49a725f7cfbcc47dfcdaa7009c3c1984",
+      "/tmp/nanolang-wrapper-closure-darwin/build.frozen.sha256": "d2d6a84eb49d782ca572c17f9bdd356c894c418781ce4d8ade5debe616555bed",
+      "/tmp/nanolang-wrapper-closure-darwin/inventory.frozen.log": "97f45c4837b89e74a4ac9f28f40ea88fadba69a565a31eac07a746e6b16bc6a5",
+      "/tmp/nanolang-wrapper-closure-darwin/inventory.initial.log": "f71477312c3398be410bb40e5740d1177441d9540f5971186625be059156a62e",
+      "/tmp/nanolang-wrapper-closure-darwin/selected-tools.frozen.sha256": "6d360ac89c75674a46f927d0074ea32860b9c1e633e0e2ead62ae3925b9e8f25",
+      "/tmp/nanolang-wrapper-closure-darwin/source.frozen.sha256": "3e2ad9df37652c50153c0c9915974aca05d5e1851e0ee76d9bba4b14571a6ce5",
+      "/tmp/nanolang-wrapper-closure-darwin/source.initial.sha256": "3e2ad9df37652c50153c0c9915974aca05d5e1851e0ee76d9bba4b14571a6ce5",
+      "/tmp/nanolang-wrapper-closure-darwin/wrapper.log": "e06d9deff694b5d7a45d2b4d58375520d755d393fc04d432d1c62e9e0fd1394e"
+    },
+    "first_wrapper_only_attempt": {
+      "pin": "27a8464ca5b8ec4c64bae9516aac652bdf75b98b",
+      "wrapper_seconds": 8.01,
+      "bootstrap_failure_seconds": 104.51,
+      "report_sha256": "b472eff9082d8ae18e81bafce81862deaa06d8cbdfb1562e17b7c46c46340b2e"
+    },
+    "limitation": "I qualify wrapper and bootstrap provider closure. Later STRING prerequisites and source/runtime gates remain separate."
+  }
+}
