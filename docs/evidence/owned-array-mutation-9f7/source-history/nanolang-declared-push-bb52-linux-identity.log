@@ -1,0 +1,27 @@
+I retain declared push artifacts in /tmp/nanolang-declared-push-trnjzu7a
+test_declared_array_return_element_facts (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_array_return_element_facts) ... 
+  test_declared_array_return_element_facts (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_array_return_element_facts) (case='declared-array', compiler='nanoc_c') ... FAIL
+
+======================================================================
+FAIL: test_declared_array_return_element_facts (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_array_return_element_facts) (case='declared-array', compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-declared-array-push-precedence/tests/test_declared_array_push_identity.py", line 34, in positive
+    self.command([ROOT / 'bin' / compiler, source, '-o', binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-declared-array-push-precedence/tests/test_declared_array_push_identity.py", line 23, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /tmp/nanoc_2139061_declared-array-nanoc_c.c:1783:18: error: redefinition of ‘nl_array_push’
+ 1783 | static DynArray* nl_array_push(DynArray* values, double value) {
+      |                  ^~~~~~~~~~~~~
+/tmp/nanoc_2139061_declared-array-nanoc_c.c:1270:18: note: previous definition of ‘nl_array_push’ with type ‘DynArray *(DynArray *, double)’
+ 1270 | static DynArray* nl_array_push(DynArray* arr, double val) {
+      |                  ^~~~~~~~~~~~~
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.297s
+
+FAILED (failures=1)

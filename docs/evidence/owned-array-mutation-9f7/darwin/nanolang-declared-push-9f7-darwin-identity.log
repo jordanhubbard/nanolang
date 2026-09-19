@@ -1,0 +1,13 @@
+I retain declared push artifacts in /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-declared-push-doefpwib
+test_declared_array_return_element_facts (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_array_return_element_facts) ... ok
+test_declared_scalar_order_and_initializer (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_scalar_order_and_initializer) ... ok
+test_lexical_signature_and_restoration (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_lexical_signature_and_restoration) ... ok
+test_refusals_preserve_publication (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_refusals_preserve_publication) ... ok
+test_runtime_function_value_bindings (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_runtime_function_value_bindings) ... ok
+test_unbound_push_alias_and_empty (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_unbound_push_alias_and_empty) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 128.158s
+
+OK
+{"pin": "9f7ead937f983e6441f113488534835a046b2781", "phase": "identity", "success": true, "testsRun": 6, "errors": 0, "failures": 0, "seconds": 128.96311374998186, "sources_unchanged": true, "head_unchanged": true}

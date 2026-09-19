@@ -1,0 +1,27 @@
+I retain declared push artifacts in /tmp/nanolang-declared-push-pwf3by57
+test_declared_array_return_element_facts (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_array_return_element_facts) ... FAIL
+
+======================================================================
+FAIL: test_declared_array_return_element_facts (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_array_return_element_facts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-declared-push-canonical-identity/tests/test_declared_array_push_identity.py", line 68, in test_declared_array_return_element_facts
+            self.positive('declared-array', '''fn array_push(values: array<int>, value: float) -> array<float> {
+            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     assert (== (at values 0) 9) return [value]
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/home/jkh/Src/nanolang-declared-push-canonical-identity/tests/test_declared_array_push_identity.py", line 45, in positive
+    self.assertEqual(dumps[0], dumps[1])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: '.string "array_push"\n.string "main"\n.string "/tm[856 chars]\n\n' != '.string "main"\n.string "array_push"\n.string "nan[628 chars]\n\n'
+Diff is 1395 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 7.896s
+
+FAILED (failures=1)

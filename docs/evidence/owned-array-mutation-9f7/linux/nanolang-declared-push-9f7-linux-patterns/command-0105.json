@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nanoc_stage1",
+    "/tmp/nano-owned-pattern-t8x5wz5r/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-t8x5wz5r/program"
+  ],
+  "status": 1,
+  "stdout": "NSType checking failed\nDiagnostics:\n  [E0036] I cannot verify ownership: resource remains live at scope exit: file (/tmp/nano-owned-pattern-t8x5wz5r/case.nano:5:33)\n",
+  "stderr": ""
+}

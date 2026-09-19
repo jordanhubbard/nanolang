@@ -1,0 +1,12 @@
+{
+  "nanoc_stage1": {
+    "source": "/home/jkh/Src/nanolang-declared-push-canonical-identity/bin/nanoc_stage1",
+    "target": "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nanoc_stage1",
+    "sha256": "66fa6d5268de37c1f3b2dca417a128568cdf6d6adc82f4cd88ff0f3ff5b59ed5"
+  },
+  "nanoc_stage2": {
+    "source": "/home/jkh/Src/nanolang-declared-push-canonical-identity/bin/nanoc_stage2",
+    "target": "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nanoc_stage2",
+    "sha256": "fae7cbf741781432dc8de0a5c43e8d5e4c8ce7321e6fde071e8b80b18b2a7e59"
+  }
+}

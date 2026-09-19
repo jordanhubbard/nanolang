@@ -1,0 +1,8 @@
+{
+  "args": [
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-ify0nx_q/program"
+  ],
+  "status": 0,
+  "stdout": "Testing resource tracking infrastructure\nFile closed\nResource tracking test passed!\n",
+  "stderr": ""
+}

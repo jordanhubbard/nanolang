@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-declared-push-9f7-darwin-build/setup.mk",
+    "CC=/usr/bin/clang",
+    "stage1",
+    "owned-array-source-setup"
+  ],
+  "status": 0,
+  "seconds": 146.00072245800402
+}

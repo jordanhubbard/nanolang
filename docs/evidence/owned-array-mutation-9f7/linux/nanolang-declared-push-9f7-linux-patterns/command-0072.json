@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nanoc_c",
+    "/tmp/nano-owned-pattern-46aafj62/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-46aafj62/program"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}
