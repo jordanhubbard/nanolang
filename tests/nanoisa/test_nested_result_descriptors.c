@@ -37,6 +37,12 @@ int main(void) {
     m=dag(33,2,false,false);inspect(m,false,false,2);nvm_module_free(m);
     m=dag(2,256,false,false);inspect(m,true,false,256);nvm_module_free(m);
     m=dag(2,257,false,false);inspect(m,false,false,257);nvm_module_free(m);
+    /* I preserve STRING result leaves and unchanged query outputs on allocation refusal. */
+    m=dag(3,2,false,false);NvmV2Layouts strings={0};
+    CHECK(nvm_v2_layouts_decode(m->layout_data,m->layout_size,&strings)==NVM_V2_OK);
+    strings.items[0].fields[0].type_tag=TAG_STRING;
+    CHECK(nvm_retain_layouts(m,&strings)==NVM_V2_OK);nvm_v2_layouts_free(&strings);
+    inspect(m,true,false,2);inspect(m,false,true,2);nvm_module_free(m);
     m=dag(3,2,true,false);inspect(m,false,false,2);nvm_module_free(m);
     m=dag(3,2,false,true);inspect(m,false,false,2);nvm_module_free(m);
     const uint8_t tags[]={TAG_VOID,TAG_INT,TAG_BOOL,TAG_U8,TAG_STRUCT};

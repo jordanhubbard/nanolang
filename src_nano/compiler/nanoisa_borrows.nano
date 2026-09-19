@@ -57,15 +57,29 @@ fn nb_tag(name: string) -> int {
     return 0
 }
 shadow nb_tag { assert (== (nb_tag "int") 1) assert (== (nb_tag "bool") 4) assert (== (nb_tag "string") 0) }
-# I admit float locals without widening fields or helper signatures.
+# I keep retained fields separate from numeric and reference scalar tags.
+fn nb_field_tag(name: string) -> int {
+    if (== name "string") { return 5 }
+    return (nb_tag name)
+}
+shadow nb_field_tag {
+    assert (== (nb_field_tag "string") 5)
+    assert (== (nb_field_tag "int") 1)
+    assert (== (nb_field_tag "bool") 4)
+    assert (== (nb_field_tag "float") 0)
+    assert (== (nb_field_tag "array<string>") 0)
+    assert (== (nb_tag "string") 0)
+}
+# I admit FLOAT locals without admitting FLOAT fields or signatures.
 fn nb_local_tag(name: string) -> int {
     if (== name "float") { return 3 }
-    return (nb_tag name)
+    return (nb_field_tag name)
 }
 shadow nb_local_tag {
     assert (== (nb_local_tag "float") 3)
     assert (== (nb_descriptor (nb_local_tag "float") 0 4294967295) "03000000ffffffff")
     assert (== (nb_local_tag "bool") 4)
+    assert (== (nb_local_tag "string") 5)
     assert (== (nb_tag "float") 0)
     assert (== (nb_local_tag "array<float>") 0)
 }
@@ -348,7 +362,7 @@ fn nb_unpack(parser: Parser, local: int) -> int {
     let mut i: int = 0
     while (and (== nb_error "") (< i record.field_count)) {
         let child: int = (nb_record parser (at record.field_types i))
-        let mut tag: int = (nb_tag (at record.field_types i))
+        let mut tag: int = (nb_field_tag (at record.field_types i))
         let mut layout: int = 4294967295
         if (>= child 0) { set tag 8 set layout child }
         let slot: int = (nb_slot "" tag layout 0 false)
@@ -468,6 +482,11 @@ shadow nb_same_owners {
     set nb_error "" let _: int = (nb_reset_locals)
 }
 fn nb_binary(op: int, tag: int) -> string {
+    if (== tag 5) {
+        if (== op LexerTokenType.TOKEN_EQ) { return "EQ" }
+        if (== op LexerTokenType.TOKEN_NE) { return "NE" }
+        return ""
+    }
     if (== tag 3) {
         if (== op LexerTokenType.TOKEN_PLUS) { return "F64_ADD" }
         if (== op LexerTokenType.TOKEN_MINUS) { return "F64_SUB" }
@@ -504,6 +523,10 @@ fn nb_binary(op: int, tag: int) -> string {
 }
 shadow nb_binary {
     assert (== (nb_binary LexerTokenType.TOKEN_PLUS 1) "ADD")
+    assert (== (nb_binary LexerTokenType.TOKEN_EQ 5) "EQ")
+    assert (== (nb_binary LexerTokenType.TOKEN_NE 5) "NE")
+    assert (== (nb_binary LexerTokenType.TOKEN_PLUS 5) "")
+    assert (== (nb_binary LexerTokenType.TOKEN_LT 5) "")
     assert (== (nb_binary LexerTokenType.TOKEN_PLUS 4) "")
     assert (== (nb_binary LexerTokenType.TOKEN_EQ 4) "EQ")
     assert (== (nb_binary LexerTokenType.TOKEN_LE 3) "F64_LE")
@@ -555,7 +578,11 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         let index: int = (nb_layout_field parser place.layout field.field_name)
         if (< index 0) { return 0 }
         let record: ASTStruct = (parser_get_struct_def parser place.layout)
-        let tag: int = (nb_tag (at record.field_types index))
+        let tag: int = (nb_field_tag (at record.field_types index))
+        if (and (== tag 5) (and nb_value_graph (and (== place.path "") (== (at nb_modes place.root) 0)))) {
+            let _: int = (nb_op1 "LOAD_LOCAL" place.root)
+            let _: int = (nb_op1 "AGG_GET" index) return 5
+        }
         if (or (== tag 0) (not (nb_leaf parser place.layout))) { return (nb_fail "a scalar field of a leaf resource record") }
         let mut reference: int = 0
         if (== (at nb_modes place.root) 0) {
@@ -578,6 +605,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         let left: int = (nb_expr parser op.left op.left_type)
         let right: int = (nb_expr parser op.right op.right_type)
         if (!= left right) { return (nb_fail "matching scalar operands") }
+        if (and (== left 5) (not nb_value_graph)) { return (nb_fail "STRING operators only in a value-call graph") }
         let opcode: string = (nb_binary op.op left)
         if (== opcode "") { return (nb_fail "a supported scalar operator") }
         let _: int = (nb_emit opcode)
@@ -721,7 +749,7 @@ fn nb_owner(parser: Parser, id: int, kind: int, layout: int) -> int {
                 set field_layout child
             } else {
                 set tag (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i))
-                if (!= tag (nb_tag (at record.field_types index))) { return (nb_fail "exact scalar field types") }
+                if (!= tag (nb_field_tag (at record.field_types index))) { return (nb_fail "exact scalar field types") }
             }
             if (!= nb_error "") { return 0 }
             let slot: int = (nb_slot "" tag field_layout 0 false)
@@ -786,7 +814,7 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
         return 0
     }
     let tag: int = (nb_expr parser binding.value binding.value_type)
-    if (or (and (!= binding.var_type "") (!= (nb_local_tag binding.var_type) tag)) (and (!= tag 1) (and (!= tag 4) (!= tag 3)))) { return (nb_fail "int/bool/float scalar local types") }
+    if (or (and (!= binding.var_type "") (!= (nb_local_tag binding.var_type) tag)) (and (!= tag 1) (and (!= tag 4) (and (!= tag 3) (not (and nb_value_graph (== tag 5))))))) { return (nb_fail "int/bool/float locals or value-graph STRING locals") }
     if (!= nb_error "") { return 0 }
     let slot: int = (nb_slot binding.name tag 4294967295 0 binding.is_mut)
     let _: int = (nb_op1 "STORE_LOCAL" slot)
@@ -1376,7 +1404,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         let mut owned: bool = record.is_resource
         let mut field: int = 0
         while (< field record.field_count) {
-            let mut tag: int = (nb_tag (at record.field_types field))
+            let mut tag: int = (nb_field_tag (at record.field_types field))
             let mut child: int = 4294967295
             if (== tag 0) {
                 set child (nb_record parser (at record.field_types field))
