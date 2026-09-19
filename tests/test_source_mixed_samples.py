@@ -44,6 +44,9 @@ class SourceMixedSamples(support.SourceBorrowEmission):
         self.assertIn('ARR_GET',normal)
         self.assertNotIn('OWN_PACK 1',normal)
         self.assertIn('OWN_PACK 0',shadow)
+        self.assertIn('OWN_UNPACK_LOCAL',shadow)
+        self.assertNotIn('REGION_BEGIN',shadow)
+        self.assertNotIn('REF_GET',shadow)
         # I execute the original test method unchanged, including all four drivers.
         original=OwnedRecordPatterns('test_ordinary_inferred_field_and_alias')
         original.test_ordinary_inferred_field_and_alias()
@@ -56,6 +59,11 @@ class SourceMixedSamples(support.SourceBorrowEmission):
         empty=self.original().replace('    let values = record.values',
             '    let empty: Samples = Samples { values: [] }\n    let values = record.values')
         self.graph_positive('context-empty',empty,b'',b'')
+        reordered=self.original().replace('Handle { fd: int }','Handle { fd: int, active: bool }') \
+            .replace('let Handle { fd } = owned return fd',
+                     'let Handle { active, fd } = owned assert active return fd') \
+            .replace('Handle { fd: 7 }','Handle { active: true, fd: 7 }')
+        self.graph_positive('reordered-leaf-pattern',reordered,b'',b'')
         ordered=PREFIX+'''struct Samples { first: int, values: array<float>, last: int }
 fn main() -> int {
     let record: Samples = Samples { last: (close Handle { fd: 9 }), values: [1.5], first: (close Handle { fd: 7 }) }
@@ -86,6 +94,9 @@ shadow main { assert (== (main) 0) }
     def test_exact_type_nominal_and_profile_refusals(self):
         base=self.original()
         cases={
+            'pattern-duplicate':base.replace('let Handle { fd }', 'let Handle { fd, fd }'),
+            'pattern-missing':base.replace('let Handle { fd }', 'let Handle {}'),
+            'consumed-parent':base.replace('= owned return fd', '= owned return owned.fd'),
             'wrong-element':base.replace('[1.5, 2.5]','[1, 2]'),
             'missing':base.replace('Samples { values: [1.5, 2.5] }','Samples {}'),
             'duplicate':base.replace('Samples { values: [1.5, 2.5] }','Samples { values: [1.5], values: [2.5] }'),
