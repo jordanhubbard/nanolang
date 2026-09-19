@@ -284,6 +284,7 @@ class AffineContractBoundaries(unittest.TestCase):
             diagnostic = observation["diagnostic"]
             if accepted:
                 self.assertEqual(observation["returncode"], 0, diagnostic)
+                self.assertIsNotNone(observation["output_after"])
                 self.assertNotEqual(observation["output_after"], PRIOR_OUTPUT)
             else:
                 self.assertGreater(observation["returncode"], 0, diagnostic)
