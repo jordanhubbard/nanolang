@@ -229,7 +229,7 @@ invocation identity, slot and monotone generation; they expose no host token.
 Moving a File/OpenResult or taking Ok advances only the language generation, so
 old copied handles become stale while the adapter token stays unchanged. Empty
 source/destination handles are explicit; self/overlapping transfer is refused
-unchanged. Slots at exhausted generation retire after cleanup. OpenResult.Error
+unchanged. Slots at exhausted value generation or borrow epoch retire after cleanup. OpenResult.Error
 uses the same bounded affine result slot until extraction/drop, without a File.
 The other Result payloads are returned by value and require no owner slot.
 
