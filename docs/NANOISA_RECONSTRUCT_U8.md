@@ -80,6 +80,14 @@ claim self-hosted native-C `u8` support from those gates. The invalid no-space
 tail of the first focused run is retained as environment evidence, not counted
 as a language failure or a test result.
 
+The next focused invocation also exposed three fixture prerequisites before a
+complete result: I had not built the declared `nvm2c` target, one negative
+source reused my reserved `byte` alias as a function name, and the literal-tag
+control asked the self-hosted emitter to resolve `cast_bool` without a source
+declaration. I correct those fixture boundaries only. Explicit byte-to-boolean
+conversion remains exercised by the reconstructed Nano source, while the
+checked-source control stays limited to contextual literal tags.
+
 This extension does not admit a `u8` entry result: my executable entry remains
 an arity-zero `int` function. It does not change NanoISA, NanoVM, `nvm2c`, LLVM
 or Wasm semantics. Full high-level reconstruction and the v5.1.0 release gates
