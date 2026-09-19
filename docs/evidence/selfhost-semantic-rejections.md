@@ -56,12 +56,21 @@ a17ab2f02ae02eb87c68a923848533f3d55bb9a587c369ce1ac26aaf3f436d72  before.log
 7d039f6fa72ee305e39ec569e2b6619371bd1da91603e6355e0408b6eb05eda0  source.after
 ```
 
-The identical before/after inventories cover every implementation and test
-file at qualification time, plus the roadmap/evidence version then under test,
-the exact Stage 2 compiler, the resolved Apple Clang executable and Python.
-This hash appendix is a later documentation-only change. The Stage 2 compiler
-SHA-256 was
+The historical `source.before` and `source.after` each contain `status=0` and
+exactly five hashes: `Makefile.gnu`, `docs/ROADMAP.md`, this evidence document,
+`tests/selfhost/expect_rejection.py`, and
+`tests/selfhost/run_selfhost_tests.sh`. They do not inventory
+`tests/test_selfhost_rejection_gate.py`, the original negative `.nano`
+fixtures, or every implementation and test file.
+
+The separate `before.log` and `after.log` identify the clean checkout as commit
+`c68739ca58412e067d2c8da48e3543bad65157b4`, tree
+`d6a0c7bd0e995d1f84a94e2fb97cb909d43b6c89`, with `status=0`; they also
+record the unit-test file and selected host tools. Only `after.log`, written
+after bootstrap, records the Stage 2 compiler SHA-256
 `982c54d8866efd3e007efb601be281af66cf106205dc7917397dfcda83372f61`.
+I keep these identities separate and do not expand the historical inventory
+after the fact. This hash appendix is a later documentation-only change.
 The five retained diagnostic logs have these SHA-256 values:
 
 ```text
@@ -126,3 +135,35 @@ c4643c3ab751f20f3282fb61dab4d4f7c1036cbb55f3b014995f4a2cb612b894  status
 
 This correction does not relabel the earlier bootstrap or self-host suite
 evidence, and it does not authorize a release.
+
+### Caller-focused inventory refresh
+
+I reran only the caller-focused gate in a fresh detached checkout at the same
+production commit `72f7268a189b4f1cc77ef9fd9636f06ca76c8a15`. The before
+and after inventories contain 28 tracked inputs: `Makefile.gnu`, the helper,
+the shell caller, the unit-test module, and every tracked file under
+`tests/selfhost`. They also contain the selected path, resolved path and binary
+hash for the gate's `python3`, `sh`, `perl`, `basename`, `mktemp`, `mkdir`,
+`cat`, `rm`, and `env`, plus `git`, `make`, and `shasum` used to identify,
+invoke and inventory that gate.
+
+The checkout stayed clean at tree
+`06832671fbb2c4b1943cbb61e3afff9aba878afc`. After removing only the UTC
+timestamp line, the before and after inventories are byte-identical with
+SHA-256
+`7377e7dce5b1007e3e62da14d11c45456d8869fba554fb9e8689e3333d0685b3`.
+Static checks passed, all nine unit methods passed in 4.582 seconds, and the
+Make target passed the same nine methods. The retained evidence is under
+`/private/tmp/nanolang-pr806-caller-precision.1720UW/evidence/`:
+
+```text
+e93101acc0a145e93dc8ed0231f9aaafe3e151737b4dc25535d56e90426b93a2  before.txt
+688bdebb0244f11d6468378f1ca006a41078556ea9361110260edc689da8fe4d  after.txt
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  static.log
+d9c4e8ea8abf634f9a5d93386487360cfb1079a82442c1983297cb58feba6607  unit.log
+f0ce57d0dde3593e79763efe71aae8aa49e9549634d7999f79e37c7b959aff98  make-target.log
+9e6e34a03c21e4b41551c8e869b3557907ea0c4e4db4cc4051e10f5a6002263b  status
+```
+
+This focused refresh does not expand or relabel the historical bootstrap and
+self-host-suite evidence.
