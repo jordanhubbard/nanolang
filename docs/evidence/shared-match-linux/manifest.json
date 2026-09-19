@@ -287,6 +287,11 @@
       "path": "docs/evidence/shared-match-linux/final/totality.log",
       "sha256": "c1f2234225a28cc688b4afffd50dee29f020dbe9649f824e1b9b6c968be4f295",
       "bytes": 1508
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/independent-audit.json",
+      "sha256": "bc33de36437f621329b21270f1c33161077d5c4eaf16a3c1f20e3bdd3d7dc800",
+      "bytes": 7184
     }
   ]
 }
