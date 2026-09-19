@@ -43,6 +43,12 @@ struct NlCapTable {
     int audit_seq;
 };
 
+bool nl_cap_private_storage_bound(size_t *out) {
+    if (!out) return false;
+    *out = sizeof(NlCapTable);
+    return true;
+}
+
 static void bounded_copy(char *dest, size_t dest_size, const char *src) {
     size_t n;
     if (!dest || dest_size == 0) {

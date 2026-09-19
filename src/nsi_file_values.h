@@ -7,6 +7,9 @@
  * not claim thread safety or detect concurrent entry with an ordinary flag.
  * Context/output memory must not overlap. No pointer use follows destruction. */
 typedef struct NlFileValues NlFileValues;
+/* I report values plus service storage without allocating. Failure preserves *out. */
+bool nl_file_values_storage_bound(size_t *out);
+
 #define NL_FILE_VALUE_SLOTS 64u
 
 typedef enum {
@@ -64,6 +67,8 @@ NlFileValueStatus nl_file_value_drop(NlFileValues *, NlFileValue *);
  * first supplied execution status and cleanup report. Later finish calls do not
  * replace it. Nonzero cleanup_failures forbids clean overall publication even
  * when execution is OK. Destroy returns the report before freeing C storage. */
+/* Nonterminal read-only cleanup snapshot; failure preserves output. */
+bool nl_file_values_report(const NlFileValues *, NlFileValuesFinish *out);
 NlFileValuesFinish nl_file_values_finish(NlFileValues *, NlFileValueStatus first_execution_error);
 NlFileValuesFinish nl_file_values_destroy(NlFileValues *, NlFileValueStatus first_execution_error);
 #endif

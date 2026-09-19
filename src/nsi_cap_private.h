@@ -2,12 +2,16 @@
 #define NL_NSI_CAP_PRIVATE_H
 
 #include "nsi_cap.h"
+#include <stdbool.h>
 
 /* I serve only contexts that privately own the entire table. Existing public
  * users keep their current lifetime policy. No external restart/revoke/borrow
  * operation may race these single-threaded private commits. */
 #define NL_CAP_PRIVATE_SLOTS 64u
 #define NL_CAP_PRIVATE_ERR_GENERATION 8
+
+/* I report the entire table's storage without allocating. Failure preserves *out. */
+bool nl_cap_private_storage_bound(size_t *out);
 
 int nl_cap_private_mint(NlCapTable *table, const char *type_id,
                        const char *service_id, uint32_t rights, NlCap *out);

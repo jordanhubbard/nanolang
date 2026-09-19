@@ -266,3 +266,47 @@ selection, paired NSI source declarations/producers, complete mandatory shadows,
 installed routes, loops, indirect calls and richer borrowed calls remain concrete
 required parent work. I do not close File72556/6931, hosted6fc, d03c or the release
 because a private carrier and two private targets pass.
+
+## My first carrier checkpoint ownership table
+
+I implement carrier primitives before an instruction dispatcher. Their caller
+must later enforce the checked CFG, frame layout, local declaration placement
+and each call's no-duplicate-borrow argument rule. These primitives do not claim
+to discharge those obligations. Nested formal aliases can refer to one originating
+borrow; they never own its epoch. The matched call adapter must distinguish valid
+forwarding from duplicate arguments in one call.
+
+| Allocation/root | Acquisition and owner | Release/publication |
+| --- | --- | --- |
+| Hosted plan | Fresh serialized prepare; context owns it after construction | Every partial failure frees it; final context destruction frees it. |
+| Context | Exact sizeof, including cached nominal facts and result staging | Published only after all arenas and maps succeed. |
+| Value arena | Actual carrier sizeof times selected VM/native derived slots | Each owner is moved into an empty counted slot; cleanup attempts every live root. |
+| Reference arena | Actual reference sizeof times reported reference bound | Formal aliases clear first, then original epochs end. |
+| Region/frame arenas | uint64 region IDs and concrete frame bookkeeping extents | Fixed allocations; no growing/unaccounted staging storage. |
+| File-values/service/capability storage | Owning-TU nonallocating checked queries, nested bound counted once | Created at begin after all arenas; terminal destroy follows individual root cleanup. |
+| Service output | Empty arena root reserved before the core call | No allocation follows host acquisition; accepted close invalidates input even on Error. |
+| Host scalar output | Context's passive result staging | Published only after successful entry and clean terminal cleanup. |
+
+Before implementing initializer completion I need a read-only private snapshot
+of the existing File-values cleanup report. Otherwise a handled close Error in
+the initializer could be noticed only at terminal finish, after entry had begun.
+The snapshot copies existing status/counts without finishing or changing the
+context; initializer completion refuses pending cleanup failure before selecting
+entry. This preserves one context across both roots and first/secondary errors.
+
+Qualification will count attempted host acquisition/library loading, not merely
+successful opens or unchanged loader state. The inherited fclose fault hook
+really closes and then injects a reporting error; I retain that exact modeled
+scope instead of claiming arbitrary libc close failures were reproduced.
+
+The first context already owns its single frame arena. Later adapters receive
+checked frame-index accessors to this arena; they must not allocate another
+frame/argument/result arena after begin. Locals, operand survivors and every
+pending argument/return are indices in the existing value arena. The VM adapter
+must demonstrate its suffix overlap calculation and the native adapter its
+whole-frame recurrence against the retained bounds before either is qualified.
+If the concrete frame bookkeeping changes, runtime creation uses its actual
+new sizeof and the same checked total; no earlier ABI/storage acceptance is
+silently reused. A native generated function's temporary C scalars may not hold
+an owning File/OpenResult outside a counted root. These access/layout adapters
+are explicitly absent from the first carrier checkpoint.
