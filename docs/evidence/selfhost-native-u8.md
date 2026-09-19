@@ -1,7 +1,8 @@
 # Self-hosted native `u8`
 
-I qualified the bounded scalar native-C repair at source commit
-`cfc6f3b93c4812deca1a0244b933ea19599f0d9a` on Darwin arm64.
+I qualified the bounded scalar native-C repair at production commit
+`cfc6f3b93c4812deca1a0244b933ea19599f0d9a` and focused test commit
+`728a38eb3a6c82bd474e6326fe0c82e1ca66583d` on Darwin arm64.
 
 ## Preserved failures
 
@@ -64,20 +65,22 @@ NANOLANG_U8_SANITIZER_LEAKS=1 \
 python3 -m unittest -v tests.test_selfhost_native_u8
 ```
 
-All three methods passed in 10.401 seconds:
+All four methods passed in 9.839 seconds:
 
 - C-seed, Stage 1, and Stage 2 compiled and ran the exact scalar fixture;
 - each compiler rejected the deliberately failing shadow without replacing
   prior output;
+- each compiler rejected an out-of-range `u8` literal without replacing prior
+  output;
 - Homebrew Clang 23.1.1 compiled and ran the integer, `u8`, and fractional
   float conversion controls under ASan, UBSan, and LSan.
 
 The full log is retained at
-`/private/tmp/nanolang-u8-current-main-evidence/focused.log`, SHA-256
-`b00f1c1d2c78a5193b994c72a5f3495f8d2e1d1af7c6a0f1be6cc475219a93bb`.
-The seven tracked inputs and four selected compiler artifacts were identical
+`/private/tmp/nanolang-u8-current-main-final/focused.log`, SHA-256
+`76596fa6a13df2bd4f674bba0a82b9f954e8dade358b581ce236a4276acc0269`.
+The eight tracked inputs and four selected compiler artifacts were identical
 before and after the focused run. The retained evidence manifest has SHA-256
-`9e6c16ee18ef91d99a984d47329e1cd4f97146cf8e4e2771a9a5f406d9ae1ea1`.
+`eaffcf7ea113c7ba290a357775262cec4c79eddc57d8acfb3d12434a066ba901`.
 
 This closes only the scalar self-hosted native-C spelling and conversion gap.
 I do not infer array support, canonical NanoISA acceptance, full product
