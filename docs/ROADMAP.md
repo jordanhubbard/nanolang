@@ -540,7 +540,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
   - [x] I verify scope reuse, metadata preservation, imported names and function-variable shadowing, then compare unchanged-source full shadow timing at the default deadline and publish the [measured boundary](evidence/interpreter-symbol-index.md). All 826 shadows complete in 2.392 seconds on the same source whose baseline reaches the default deadline; fresh bootstrap and imported callback checks pass.
 
 
-- [ ] **Paired call-scoped resource borrows.** I implement the existing
+- [x] **Paired call-scoped resource borrows.** I implement the existing
       `&T` / `&mut T` contract with retained annotation identity and explicit
       borrowed call arguments. I first preserve syntax and metadata, then
       enforce shared/exclusive access and call-argument overlap, then prove
@@ -549,7 +549,10 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       borrows before publication; I do not pass exclusive mutation by value.
       My positive/negative matrix and fresh bootstrap precede closure. This
       is a prerequisite to verified NanoISA ownership facts, not that IR gate.
-      MAC `task_71821d84befc46e198795122c1112a27`.
+      Canonical PR #773 reconciles the original clauses against merged shared
+      and exclusive borrow tests across my C seed, Stage 1 and Stage 2. The
+      NanoISA reference IR and full affine matrix remain open. MAC
+      `task_71821d84befc46e198795122c1112a27`.
       - [x] I retain shared/exclusive named-parameter annotations in both
         parsers and explicitly reject them before unsupported lowering. My
         parser-copy, paired refusal/retention and ordinary ownership controls
@@ -634,11 +637,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         bootstrap and instrumented checks before integration.
       Selected-variant ownership transfer remains a subsequent open obligation.
 
-- [ ] **Classify fixed nested resource union payloads.** I reject unsupported
+- [x] **Classify fixed nested resource union payloads.** I reject unsupported
       ownership in `Owners.Some { values: array<Handle> }` as consistently as
       `Box<Handle>` after preserving complete payload metadata. My C seed
       previously accepted an `abandon(Owners)` declaration. My paired
-      rejection and ordinary controls now pass; I still reject collection ownership. MAC
+      rejection and ordinary controls now pass; I still reject collection
+      ownership. Canonical PR #418 passes fresh bootstrap, paired frontend,
+      adjacent and instrumented classification gates. MAC
       `task_e1ce4d21563d4fb3bbb998e30fc9652f`.
       - [x] After merged payload metadata PR411, I classify nested fixed array
         payloads using declaration identity and a least fixed point, preserving
@@ -906,9 +911,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       strings, typed null calls, bool-array record mutation, direct NanoCore
       transport, the Darwin export-buffer fixture, shadow-deadline measurement,
       nested empty-array append context and self-hosted nested generic/global
-      initialization. Their broader reconstruction, compiler-product and
-      release parents remain open. The remaining active rows still require the
-      same evidence check. MAC
+      initialization. I also reconcile the completed paired call-scoped borrow
+      contract against PR #773 and fixed nested resource-union classification
+      against PR #418; their NanoISA-reference and selected-transfer parents
+      remain open. All broader reconstruction, compiler-product and release
+      parents remain open. The remaining active rows still require the same
+      evidence check. MAC
       `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
