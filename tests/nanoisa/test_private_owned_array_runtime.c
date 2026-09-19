@@ -122,6 +122,7 @@ static void clean(VmState *vm,size_t objects,size_t bytes) {
     }
     vm_gc_collect_cycles(&vm->heap);
     CHECK(no_extra_roots(vm,objects,true));CHECK(vm->heap.stats.num_objects==objects);
+    fprintf(stderr,"private post-GC allocated=%llu freed=%llu live=%llu baseline=%zu\n",(unsigned long long)vm->heap.stats.allocated,(unsigned long long)vm->heap.stats.freed,(unsigned long long)(vm->heap.stats.allocated-vm->heap.stats.freed),bytes);
     CHECK(vm->heap.stats.allocated-vm->heap.stats.freed==bytes);
 }
 static void check_output(FILE *output) {
@@ -136,6 +137,41 @@ static void invoke(VmState *vm,VmResult wanted,size_t objects,size_t bytes,bool 
     else {CHECK(status==wanted);CHECK(result.tag==TAG_INT && result.as.i64==(wanted==VM_OK?0:-91));}
     check_output(output);CHECK(!fclose(output));vm->output=NULL;clean(vm,objects,bytes);
 }
+static void growth_accounting(void) {
+    for(unsigned boxed=0;boxed<2;boxed++) {
+        VmHeap heap;vm_heap_init(&heap);
+        VmString *string=boxed?vm_string_new(&heap,"growth",6):NULL;
+        CHECK(!boxed || string);
+        NanoValue value=boxed?val_string(string):val_float(1.5);
+        VmArray *array=vm_array_new(&heap,boxed?TAG_STRING:TAG_FLOAT,8);CHECK(array);
+        CHECK(array->unboxed==!boxed);
+        for(unsigned n=0;n<8;n++)CHECK(vm_array_push(&heap,array,value));
+        uint64_t allocated=heap.stats.allocated,freed=heap.stats.freed,calls=heap.stats.allocation_calls;
+        void *storage=boxed?(void *)array->elements:array->packed;
+        heap_attempts=heap_hits=0;heap_fail=1;
+        CHECK(!vm_array_push(&heap,array,value));heap_fail=0;
+        CHECK(heap_hits==1 && heap_attempts==1);
+        CHECK(array->capacity==8 && array->length==8);
+        CHECK((boxed?(void *)array->elements:array->packed)==storage);
+        CHECK(heap.stats.allocated==allocated && heap.stats.freed==freed && heap.stats.allocation_calls==calls);
+        for(unsigned n=0;n<8;n++) {
+            NanoValue got=vm_array_get(array,n);
+            CHECK(got.tag==value.tag);
+            CHECK(boxed?got.as.string==string:got.as.f64==1.5);
+        }
+        CHECK(!boxed || string->header.ref_count==9);
+        CHECK(vm_array_push(&heap,array,value));
+        CHECK(array->capacity==16 && array->length==9);
+        size_t delta=8*(boxed?sizeof(NanoValue):sizeof(double));
+        CHECK(heap.stats.allocated==allocated+delta && heap.stats.freed==freed && heap.stats.allocation_calls==calls);
+        CHECK(!boxed || string->header.ref_count==10);
+        fprintf(stderr,"private growth boxed=%u delta=%zu failed_attempts=%u\n",boxed,delta,heap_hits);
+        vm_release(&heap,val_array(array));if(string)vm_release(&heap,val_string(string));
+        vm_gc_collect_cycles(&heap);
+        CHECK(!heap.stats.num_objects && heap.stats.allocated==heap.stats.freed);
+        vm_heap_destroy(&heap);
+    }
+}
 static void retain_boundary(void) {
     Function f={"PUSH_STR value\nPOP\nPUSH_I64 0\nRET\n",0,0,T(TAG_INT),{{0}}};
     NvmModule *m=build(&f,1);VmState vm;vm_init(&vm,m);CHECK(vm.last_error==VM_OK);
@@ -149,6 +185,7 @@ static void retain_boundary(void) {
     vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);nvm_module_free(m);
 }
 int main(int argc,char **argv) {
+    growth_accounting();heap_attempts=heap_hits=heap_fail=0;
     CHECK(argc==2);
     for(unsigned which=0;which<7;which++) {
         fprintf(stderr,"private owner ARRAY case=%u\n",which);
