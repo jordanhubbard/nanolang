@@ -407,7 +407,7 @@ NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA
 NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 
 # My retained service ABI and immutable catalog participate in incremental builds.
-$(NANOISA_OBJECTS): $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
+$(NANOISA_OBJECTS): $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
 $(OBJ_DIR)/nsi_file_plan.o: $(SRC_DIR)/nsi.h $(SRC_DIR)/nsi_cap.h
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
@@ -5403,3 +5403,13 @@ test-owned-array-public-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_O
 .PHONY: test-file-opcodes
 test-file-opcodes: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nanovirt/wrapper_gen.o nvm2llvm nvm2hl nvm2c
 	FILE_OPCODE_OBJECTS="$(OBJ_DIR)/nanovirt/wrapper_gen.o $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_OPCODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_opcodes
+
+.PHONY: test-file-code test-file-code-sanitizers
+test-units: test-file-code
+test-file-code: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DFLOW_INSTRUMENT tests/nanoisa/test_file_code.c $(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_code_instrumented
+	./obj/test_file_code_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_file_code.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_code_linked
+	./obj/test_file_code_linked
+test-file-code-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_CODE_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_CODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_code

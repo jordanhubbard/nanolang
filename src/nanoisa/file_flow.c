@@ -601,3 +601,5 @@ NvmFileFlowStatus nvm_file_flow_call(NvmFileFlowState *s,uint32_t site,uint32_t 
     if(f->result_count)s->stack[s->stack_count++]=initial_value(f->result,true,owner);
     commit_obligation(s,obligation,slot);return NVM_FILE_FLOW_OK;
 }
+
+#include "file_code.inc"

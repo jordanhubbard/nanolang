@@ -429,7 +429,7 @@ fn exec_builtin(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: 
     # ." string literal
     if (str_starts_with token dotquote) {
         let tlen: int = (str_length token)
-        if (>= tlen 4) { (print (str_substring token 2 (- tlen 1))) } else { (print "") }
+        if (>= tlen 4) { (print (str_substring token 2 (- tlen 3))) } else { (print "") }
         return 0
     } else { (print "") }
 
@@ -1909,6 +1909,10 @@ shadow exec_builtin {
     (s_push stk dsp 3)
     let r: int = (exec_builtin stk rst dsp wnm wbd wim "+")
     assert (== r 0)
+    assert (== (s_depth dsp) 1)
+    assert (== (s_peek stk dsp) 8)
+    let literal: int = (exec_builtin stk rst dsp wnm wbd wim ".\"x\"")
+    assert (== literal 0)
     assert (== (s_depth dsp) 1)
     assert (== (s_peek stk dsp) 8)
 }
