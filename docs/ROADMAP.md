@@ -11937,3 +11937,5 @@ and the default-profile MAC completed state. All16 committed report hashes in
 [my literal-output seal](evidence/forth-string-output/report-sha256.json) match.
 The pending-merge statement above records the earlier qualification checkpoint;
 full Forth conformance and release acceptance remain open.
+
+- [ ] I implement [checked private File frame/call transfers](NANOISA_FILE_RUNTIME_FRAMES.md), task_bb3381ff39934b379067adaad2785ced, under82ff after reviewed carrier PR858: first review the shared arena layout/API and preallocation accounting; then implement checked current-frame access, argument staging, formal aliases and RET publication; then review and qualify fresh overlap/ownership/failure/initializer controls. I allocate no second frame arena or infer mode from equal counts. This grants no dispatcher/public/source authority; matched VM/native handlers and full parent obligations remain subsequent reviewed work.
