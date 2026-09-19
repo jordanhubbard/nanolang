@@ -5076,7 +5076,37 @@ fn parse_block(p: Parser) -> Parser {
 }
 
 shadow parse_block_recursive {
-    assert (== 1 1)
+    let mut source: string = "fn probe() -> int { "
+    let mut i: int = 0
+    while (< i 520) {
+        set source (str_concat source "assert true ")
+        set i (+ i 1)
+    }
+    set source (str_concat source "return 0 }")
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string source "long-block.nano" diagnostics)
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "long-block.nano")
+    assert (not (parser_has_error parsed))
+    let function: ASTFunction = (parser_get_function parsed 0)
+    let block: ASTBlock = (parser_get_block parsed function.body)
+    assert (== (list_ASTStmtRef_length block.statements) 521)
+    assert (== (list_ASTStmtRef_get block.statements 0).node_type ParseNodeType.PNODE_ASSERT)
+    assert (== (list_ASTStmtRef_get block.statements 520).node_type ParseNodeType.PNODE_RETURN)
+
+    let shaped_tokens: List<LexerToken> = (tokenize_string "fn shaped(pair: Pair) -> int { let Pair { left, right } = pair let (first, second) = pair return left }" "shaped-block.nano" (list_CompilerDiagnostic_new))
+    let shaped: Parser = (parse_program shaped_tokens (list_LexerToken_length shaped_tokens) "shaped-block.nano")
+    assert (not (parser_has_error shaped))
+    let shaped_function: ASTFunction = (parser_get_function shaped 0)
+    let shaped_block: ASTBlock = (parser_get_block shaped shaped_function.body)
+    assert (== (list_ASTStmtRef_length shaped_block.statements) 7)
+    assert (== (parser_get_let shaped (list_ASTStmtRef_get shaped_block.statements 1).node_id).name "left")
+    assert (== (parser_get_let shaped (list_ASTStmtRef_get shaped_block.statements 2).node_id).name "right")
+    assert (== (parser_get_let shaped (list_ASTStmtRef_get shaped_block.statements 4).node_id).name "first")
+    assert (== (parser_get_let shaped (list_ASTStmtRef_get shaped_block.statements 5).node_id).name "second")
+
+    let incomplete_tokens: List<LexerToken> = (tokenize_string "fn incomplete() -> int { assert true" "incomplete-block.nano" (list_CompilerDiagnostic_new))
+    let incomplete: Parser = (parse_program incomplete_tokens (list_LexerToken_length incomplete_tokens) "incomplete-block.nano")
+    assert (parser_has_error incomplete)
 }
 
 shadow parse_block {
@@ -5176,7 +5206,7 @@ shadow parser_store_unsafe_block {
     assert (== 1 1)
 }
 
-/* Parse unsafe block recursively */
+/* Parse unsafe block statements without statement-count recursion. */
 fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
     let mut cursor: Parser = p
     while true {
@@ -5205,7 +5235,30 @@ fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: 
     return cursor
 }
 shadow parse_unsafe_block_recursive {
-    assert (== 1 1)
+    let mut source: string = "fn probe() -> int { unsafe { "
+    let mut i: int = 0
+    while (< i 520) {
+        set source (str_concat source "assert true ")
+        set i (+ i 1)
+    }
+    set source (str_concat source "} return 0 }")
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string source "long-unsafe-block.nano" diagnostics)
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "long-unsafe-block.nano")
+    assert (not (parser_has_error parsed))
+    let function: ASTFunction = (parser_get_function parsed 0)
+    let outer: ASTBlock = (parser_get_block parsed function.body)
+    assert (== (list_ASTStmtRef_length outer.statements) 2)
+    let unsafe_ref: ASTStmtRef = (list_ASTStmtRef_get outer.statements 0)
+    assert (== unsafe_ref.node_type ParseNodeType.PNODE_UNSAFE_BLOCK)
+    let unsafe_block: ASTUnsafeBlock = (parser_get_unsafe_block parsed unsafe_ref.node_id)
+    assert (== (list_ASTStmtRef_length unsafe_block.statements) 520)
+    assert (== (list_ASTStmtRef_get unsafe_block.statements 0).node_type ParseNodeType.PNODE_ASSERT)
+    assert (== (list_ASTStmtRef_get unsafe_block.statements 519).node_type ParseNodeType.PNODE_ASSERT)
+
+    let incomplete_tokens: List<LexerToken> = (tokenize_string "fn incomplete() -> int { unsafe { assert true" "incomplete-unsafe.nano" (list_CompilerDiagnostic_new))
+    let incomplete: Parser = (parse_program incomplete_tokens (list_LexerToken_length incomplete_tokens) "incomplete-unsafe.nano")
+    assert (parser_has_error incomplete)
 }
 
 /* Parse unsafe block: unsafe { statements } */
