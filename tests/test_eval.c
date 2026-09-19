@@ -17,9 +17,12 @@
 #include "../src/interpreter_ffi.h"
 #include "../src/runtime/ffi_loader.h"
 #include "../src/runtime/dyn_array.h"
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -1765,6 +1768,147 @@ void test_eval_complex_match_with_guards(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_match_wildcards_follow_lexical_order(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "union Choice { Some { number: int }, None {} }\n"
+        "let mut match_trace: int = 0\n"
+        "fn mark_match_guard(id: int, answer: bool) -> bool {\n"
+        "  set match_trace (+ (* match_trace 10) id)\n"
+        "  return answer\n"
+        "}\n"
+        "shadow mark_match_guard { set match_trace 0 assert (mark_match_guard 1 true) set match_trace 0 }\n"
+        "fn select_match(value: Choice, first: bool, named: bool) -> int {\n"
+        "  return match value {\n"
+        "    _ if (mark_match_guard 1 first) => { set match_trace (+ (* match_trace 10) 7) 100 }\n"
+        "    Some(payload) if (mark_match_guard 2 named) => { set match_trace (+ (* match_trace 10) 8) payload.number }\n"
+        "    Some | None if (mark_match_guard 3 true) => { set match_trace (+ (* match_trace 10) 9) -1 }\n"
+        "    _ => -2\n"
+        "  }\n"
+        "}\n"
+        "shadow select_match {\n"
+        "  let some: Choice = Choice.Some { number: 23 }\n"
+        "  let none: Choice = Choice.None {}\n"
+        "  set match_trace 0\n"
+        "  assert (== (select_match some true true) 100)\n"
+        "  assert (== match_trace 17)\n"
+        "  set match_trace 0\n"
+        "  assert (== (select_match some false true) 23)\n"
+        "  assert (== match_trace 128)\n"
+        "  set match_trace 0\n"
+        "  assert (== (select_match none false true) -1)\n"
+        "  assert (== match_trace 139)\n"
+        "}\n"
+        "fn mark_match_input(value: int) -> int {\n"
+        "  set match_trace (+ (* match_trace 10) 9) return value\n"
+        "}\n"
+        "shadow mark_match_input { set match_trace 0 assert (== (mark_match_input 7) 7) assert (== match_trace 9) set match_trace 0 }\n"
+        "fn select_integer_match(first: bool, second: bool) -> int {\n"
+        "  return match (mark_match_input 7) {\n"
+        "    _ if (mark_match_guard 1 first) => { set match_trace (+ (* match_trace 10) 7) 100 }\n"
+        "    _ if (mark_match_guard 2 second) => { set match_trace (+ (* match_trace 10) 8) 200 }\n"
+        "    7 => { set match_trace (+ (* match_trace 10) 9) 300 }\n"
+        "    _ => -1\n"
+        "  }\n"
+        "}\n"
+        "shadow select_integer_match {\n"
+        "  set match_trace 0 assert (== (select_integer_match true true) 100) assert (== match_trace 917)\n"
+        "  set match_trace 0 assert (== (select_integer_match true false) 100) assert (== match_trace 917)\n"
+        "  set match_trace 0 assert (== (select_integer_match false true) 200) assert (== match_trace 9128)\n"
+        "  set match_trace 0 assert (== (select_integer_match false false) 300) assert (== match_trace 9129)\n"
+        "}\n"
+        "fn restore_outer_binding(value: Choice) -> int {\n"
+        "  let payload: int = 41\n"
+        "  return match value {\n"
+        "    Some(payload) if false => payload.number\n"
+        "    _ => payload\n"
+        "  }\n"
+        "}\n"
+        "shadow restore_outer_binding {\n"
+        "  assert (== (restore_outer_binding Choice.Some { number: 9 }) 41)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert true }\n"
+    );
+    ASSERT(ok);
+    bool shadows_ok = run_shadow_tests(ctx.program, ctx.env, false);
+    ASSERT(shadows_ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_match_miss_is_terminal(void) {
+    int errors[2];
+    ASSERT(pipe(errors) == 0);
+    fflush(NULL);
+    pid_t child = fork();
+    ASSERT(child >= 0);
+    if (child == 0) {
+        close(errors[0]);
+        ASSERT(dup2(errors[1], STDERR_FILENO) >= 0);
+        close(errors[1]);
+        const char *source =
+            "union Choice { Some { number: int }, None {} }\n"
+            "fn unchecked_miss() -> int {\n"
+            "  let value: Choice = Choice.None {}\n"
+            "  let selected: int = match value { Some(payload) => payload.number }\n"
+            "  return selected\n"
+            "}\n";
+        int token_count = 0;
+        Token *tokens = tokenize(source, &token_count);
+        ASTNode *program = tokens ? parse_program(tokens, token_count) : NULL;
+        Environment *env = program ? create_environment() : NULL;
+        if (!tokens || !program || !env || !run_program(program, env)) _exit(90);
+        /* I bypass checking only for this deliberately incomplete AST. The
+         * checker normally registers functions; run_program does not. */
+        ASTNode *definition = NULL;
+        for (int i = 0; i < program->as.program.count; ++i) {
+            ASTNode *item = program->as.program.items[i];
+            if (item->type == AST_FUNCTION &&
+                strcmp(item->as.function.name, "unchecked_miss") == 0)
+                definition = item;
+        }
+        if (!definition || definition->as.function.param_count != 0 ||
+            definition->as.function.return_type != TYPE_INT) _exit(90);
+        Function function = {0};
+        function.name = definition->as.function.name;
+        function.return_type = TYPE_INT;
+        function.body = definition->as.function.body;
+        env_define_function(env, function);
+        (void)call_function("unchecked_miss", NULL, 0, env);
+        _exit(91);
+    }
+
+    close(errors[1]);
+    char message[512], chunk[256];
+    size_t used = 0;
+    bool read_ok = true, truncated = false;
+    for (;;) {
+        ssize_t length = read(errors[0], chunk, sizeof(chunk));
+        if (length < 0 && errno == EINTR) continue;
+        if (length < 0) { read_ok = false; break; }
+        if (!length) break;
+        size_t available = sizeof(message) - 1 - used;
+        size_t count = (size_t)length < available ? (size_t)length : available;
+        memcpy(message + used, chunk, count);
+        used += count;
+        if (count != (size_t)length) truncated = true;
+    }
+    close(errors[0]);
+    message[used] = '\0';
+    int status = 0;
+    pid_t waited;
+    do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
+    ASSERT(waited == child);
+    ASSERT(read_ok);
+    ASSERT(!truncated);
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_FAILURE)
+        fprintf(stderr, "I observed unchecked-match child status %d and stderr: %s\n", status, message);
+    ASSERT(WIFEXITED(status));
+    ASSERT(WEXITSTATUS(status) == EXIT_FAILURE);
+    ASSERT(strstr(message,
+        "I cannot continue: a checked match reached no successful arm.") != NULL);
+}
+
 void test_eval_union_with_data(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -2037,16 +2181,17 @@ void test_eval_reduce_pure_arithmetic_int(void) {
         "fn add_ints(acc: int, x: int) -> int { return (+ acc x) }\n"
         "fn main() -> int {\n"
         "    let arr: array<int> = [1, 2, 3, 4, 5]\n"
-        "    let total: int = (reduce arr add_ints 0)\n"
+        "    let total: int = (reduce arr 0 add_ints)\n"
         "    return total\n"
         "}\n"
         "shadow main {\n"
         "    let arr: array<int> = [1, 2, 3, 4, 5]\n"
-        "    let total: int = (reduce arr add_ints 0)\n"
+        "    let total: int = (reduce arr 0 add_ints)\n"
         "    assert (== total 15)\n"
         "}\n"
     );
     ASSERT(ok);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
     run_ctx_free(&ctx);
 }
 
@@ -2946,6 +3091,8 @@ int main(void) {
     TEST(eval_string_array);
     TEST(eval_float_array);
     TEST(eval_complex_match_with_guards);
+    TEST(eval_match_wildcards_follow_lexical_order);
+    TEST(eval_match_miss_is_terminal);
     TEST(eval_union_with_data);
     TEST(eval_multiple_function_calls);
     TEST(eval_let_reassignment);

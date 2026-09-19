@@ -11156,7 +11156,9 @@ I qualify both legacy formatting children with fresh Linux/Darwin bootstrap and 
 
 - [ ] I define and align early/multiple wildcard ordering (`task_477bdd430a1442e7bc19cbacdbac0bde`, required7a99/shared-source prerequisite). My [static audit](PUBLIC_C_GUARDED_MATCH_CONTRACT.md#my-specification-and-source-audit) distinguishes interpreter specific-first/last-wildcard behavior from source-order NanoVirt/legacy emission; inspected guides do not settle that ordering. My [shared preimplementation policy](SHARED_MATCH_POLICY_CONTRACT.md) selects lexical first-success order, permits multiple conditional wildcards, rejects arms after an unconditional wildcard and requires all-route acceptance rather than a majority-backend assumption.
 
-  - [ ] I publish the approved match rule in my normative specification, machine-readable specification, control-flow guide and canonical guidance before changing checker behavior. I include migration examples for early unconditional wildcards, incomplete statement/value matches and non-BOOL guards, and distinguish the intended rule from routes that still issue capability refusals.
+  - [x] I publish the approved match rule in my normative specification, machine-readable specification, control-flow guide and canonical guidance before changing checker behavior. I include migration examples for early unconditional wildcards, incomplete statement/value matches and non-BOOL guards, and distinguish the intended rule from routes that still issue capability refusals. Reviewed PR790 merged as `9c52fdae`; this documentation gate does not claim runtime alignment.
+  - [ ] I align my C-seed interpreter with lexical first-success match selection and a terminal impossible-miss invariant (`task_477bdd430a1442e7bc19cbacdbac0bde`, `task_70c5a56802e44142af0f19da2469f654`). I reject the first arm after an unconditional wildcard, evaluate conditional wildcards in their source position, retain one scrutinee evaluation and arm-local scope, and terminate rather than return `void` when malformed unchecked input reaches no arm. Fresh checker refusals, interpreter effects/order controls and a forked low-level backstop test precede completion. Self-hosted, public C and all-route alignment remain open.
+    - [ ] I register the existing `E035 NON-EXHAUSTIVE MATCH` and new `E036 UNREACHABLE MATCH ARM` in my stable diagnostic catalog before qualifying the new refusal. The catalog must not lag the checked errors that callers consume.
   - [x] I give my self-hosted parser an exact guarded-match capability refusal until its schema can retain guards losslessly. I preserve the guard token location and route the specific parser diagnostic through the ordinary phase result instead of rewriting the arm or reporting only an unexpected token. I qualify integer, wildcard and named-payload guarded arms at the exact `if`, retain ordinary unguarded controls, and preserve the existing non-match phase diagnostic fallback. This checked refusal does not claim guarded-match or totality support. My [bounded evidence](evidence/selfhost-match-guard-refusal.md) retains the first installed-route mismatch and qualifies the corrected modular and installed paths.
     - [x] I route that specific refusal through my installed self-hosted compiler too (`task_9e3ccdb98a98b654dbf22e7f2af634cb`). Fresh checkpoint `5f7d521e` passes bootstrap and the modular phase shadows, but my first Stage 1 source control still reports `unexpected token 'if'` at the correct location. I retain that first outcome and qualify corrected checkpoint `0d13778a` through fresh bootstrap, both installed stages, all three guarded arm forms, unguarded controls and the unchanged generic fallback in [my bounded evidence](evidence/selfhost-match-guard-refusal.md).
   - [x] I preserve match guards through every accepting analysis and clone path before changing dispatch. I include effect and CPS walks, BOOL type inference, PGO cloning/substitution and source lookup, with guard-only effects/references and clone-integrity regressions. My [bounded evidence](evidence/shared-match-short-paths.md) passes the focused and adjacent suites; I do not let a correct emitter hide a guard erased earlier in the pipeline.
@@ -12038,3 +12040,27 @@ and the default-profile MAC completed state. All16 committed report hashes in
 [my literal-output seal](evidence/forth-string-output/report-sha256.json) match.
 The pending-merge statement above records the earlier qualification checkpoint;
 full Forth conformance and release acceptance remain open.
+- [ ] I qualify the bounded C-seed match-ordering slice in PR855 with repeated
+  conditional wildcards, integer early-wildcard order and complete stderr capture
+  (`task_477bdd430a1442e7bc19cbacdbac0bde`, `task_70c5a56802e44142af0f19da2469f654`).
+  I retain the reviewed exhaustive handler-order correction from task6ba90 and
+  its original E035/4099 terminals. No production change or parent closure follows
+  from preparing these additional controls.
+
+- [ ] I register the unchecked match-backstop fixture function before its named
+  call (`task_3f1a7d4857974ba399007aabc5239b0b`). My first855 supplement passes88
+  evaluator controls then fails the child-exit assertion; run_program deliberately
+  skips function registration. I retain that terminal and require explicit
+  fixture-only registration, unchanged backstop assertions and fresh qualification.
+
+- [ ] I repair the stale integer-reduce evaluator fixture argument order
+  (`task_d4427bf731b14e899228b1443922a066`). The fresh diagnostic confirms E001
+  for function-before-initializer. I retain the result15 shadow and execute it
+  after correcting the two calls, without relaxing my checked reduce contract.
+
+- [ ] I correct the match-gate runner working directory for its retained relative
+  native FFI fixture library (qualification prerequisite under taskd4427).
+  I preserve the12b61 library-open terminal and select the hash-verified provider
+  checkout only for evaluator execution; assertions and production remain intact.
+
+- [x] I qualify the corrected C-seed match fixtures on Linux at `7a21096f8`: all 122 evaluator cases and eight totality tests pass with unchanged source, 155 providers, and six tool identities. I retain every first terminal in [my sealed evidence](evidence/shared-match-linux/README.md). Integration, fresh bootstrap, Darwin acceptance, and the shared parent tasks remain open.

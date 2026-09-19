@@ -1386,13 +1386,27 @@ static void check_match_totality(ASTNode *matched, Environment *env,
                                  const char *union_base_name,
                                  MatchDomain domain) {
     bool has_unconditional_wildcard = false;
+    int unconditional_wildcard = -1;
     for (int i = 0; i < matched->as.match_expr.arm_count; ++i) {
         ASTNode *guard = matched->as.match_expr.guard_exprs
             ? matched->as.match_expr.guard_exprs[i] : NULL;
+        if (unconditional_wildcard >= 0) {
+            ASTNode *arm = matched->as.match_expr.arm_bodies[i];
+            emit_context_error(
+                "E036 UNREACHABLE MATCH ARM",
+                arm ? arm->line : matched->line,
+                arm ? arm->column : matched->column,
+                1,
+                "I cannot reach a match arm after an unconditional wildcard.",
+                "Remove this arm or give the earlier wildcard a non-literal guard."
+            );
+            if (active_statement_checker) active_statement_checker->has_error = true;
+            return;
+        }
         if (strcmp(matched->as.match_expr.pattern_variants[i], "_") == 0 &&
             match_guard_is_unconditional(guard)) {
             has_unconditional_wildcard = true;
-            break;
+            unconditional_wildcard = i;
         }
     }
 

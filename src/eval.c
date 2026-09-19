@@ -156,6 +156,50 @@ char *nl_unescape_string(const char *raw) {
 static Value eval_expression(ASTNode *expr, Environment *env);
 static Value eval_statement(ASTNode *stmt, Environment *env);
 
+static bool eval_match_or_pattern(const char *pattern, const char *variant) {
+    if (!pattern || !variant || strncmp(pattern, "OR:", 3) != 0) return false;
+    const char *part = pattern + 3;
+    size_t variant_length = strlen(variant);
+    while (*part) {
+        const char *end = strchr(part, ':');
+        size_t part_length = end ? (size_t)(end - part) : strlen(part);
+        if (part_length == variant_length &&
+            strncmp(part, variant, part_length) == 0) return true;
+        if (!end) break;
+        part = end + 1;
+    }
+    return false;
+}
+
+static bool eval_match_pattern(const Value *value, const char *pattern) {
+    if (!value || !pattern) return false;
+    if (strcmp(pattern, "_") == 0) return true;
+    if (value->type == VAL_UNION) {
+        UnionValue *union_value = value->as.union_val;
+        if (!union_value || !union_value->variant_name) return false;
+        return eval_match_or_pattern(pattern, union_value->variant_name) ||
+               strcmp(pattern, union_value->variant_name) == 0;
+    }
+    if (strncmp(pattern, "INT:", 4) == 0) {
+        long long expected = strtoll(pattern + 4, NULL, 10);
+        if (value->type == VAL_INT) return value->as.int_val == expected;
+        if (value->type == VAL_FLOAT) return (long long)value->as.float_val == expected;
+        return false;
+    }
+    if (value->type == VAL_BOOL)
+        return strcmp(pattern, value->as.bool_val ? "true" : "false") == 0;
+    if (value->type == VAL_STRING && value->as.string_val)
+        return strcmp(pattern, value->as.string_val) == 0;
+    return false;
+}
+
+static Value eval_match_invariant_failure(const char *reason) {
+    fprintf(stderr, "I cannot continue: %s.\n", reason);
+    fflush(stderr);
+    exit(EXIT_FAILURE);
+    return create_void();
+}
+
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
 static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
     int first = env->symbol_count;
@@ -5298,183 +5342,72 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * Also supports integer literal patterns: match n { 0 => "zero", 1 => "one", _ => "many" }
              */
             Value match_val = eval_expression(expr->as.match_expr.expr, env);
-            if (match_val.is_return) return match_val;
+            if (match_val.is_return || match_val.is_break || match_val.is_continue)
+                return match_val;
+            if (match_val.type == VAL_UNION && !match_val.as.union_val)
+                return eval_match_invariant_failure("a union match received no value");
 
-            /* Integer/primitive literal pattern matching */
-            if (match_val.type != VAL_UNION) {
-                int wildcard_arm = -1;
-                for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
-                    const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
-
-                    if (strcmp(pattern_variant, "_") == 0) {
-                        wildcard_arm = i;
-                        continue;
-                    }
-
-                    bool arm_matches = false;
-                    /* INT:<number> patterns */
-                    if (strncmp(pattern_variant, "INT:", 4) == 0) {
-                        long long pat_val = strtoll(pattern_variant + 4, NULL, 10);
-                        if (match_val.type == VAL_INT) {
-                            arm_matches = (match_val.as.int_val == pat_val);
-                        } else if (match_val.type == VAL_FLOAT) {
-                            arm_matches = ((long long)match_val.as.float_val == pat_val);
-                        }
-                    } else if (match_val.type == VAL_BOOL) {
-                        arm_matches = (strcmp(pattern_variant, match_val.as.bool_val ? "true" : "false") == 0);
-                    } else if (match_val.type == VAL_STRING && match_val.as.string_val) {
-                        arm_matches = (strcmp(pattern_variant, match_val.as.string_val) == 0);
-                    }
-
-                    if (arm_matches) {
-                        /* Check guard if present */
-                        int saved_symbol_count = env->symbol_count;
-                        if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
-                            Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
-                            if (guard_val.is_return) {
-                                env->symbol_count = saved_symbol_count;
-                                return guard_val;
-                            }
-                            if (!guard_val.as.bool_val) {
-                                env->symbol_count = saved_symbol_count;
-                                continue;  /* Guard failed, try next arm */
-                            }
-                        }
-                        Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-                        env->symbol_count = saved_symbol_count;
-                        return result;
-                    }
-                }
-
-                if (wildcard_arm >= 0) {
-                    int saved_symbol_count = env->symbol_count;
-                    /* Check guard on wildcard arm if present */
-                    if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
-                        Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
-                        if (guard_val.is_return) {
-                            env->symbol_count = saved_symbol_count;
-                            return guard_val;
-                        }
-                        if (!guard_val.as.bool_val) {
-                            env->symbol_count = saved_symbol_count;
-                            fprintf(stderr, "Error: No matching arm in match expression (guard failed)\n");
-                            return create_void();
-                        }
-                    }
-                    Value result = eval_expression(expr->as.match_expr.arm_bodies[wildcard_arm], env);
-                    env->symbol_count = saved_symbol_count;
-                    return result;
-                }
-
-                fprintf(stderr, "Error: No matching arm in match expression\n");
-                return create_void();
-            }
-
-            UnionValue *uval = match_val.as.union_val;
-
-            /* Find matching arm by comparing variant names; _ is wildcard catch-all */
-            int wildcard_arm = -1;
+            /* Every pattern, including a wildcard, participates in source order. */
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
+                if (!eval_match_pattern(&match_val, pattern_variant)) continue;
 
-                if (strcmp(pattern_variant, "_") == 0) {
-                    wildcard_arm = i;
-                    continue;  /* try specific arms first */
-                }
-
-                /* Check or-pattern: OR:A:B means match if variant is A or B */
-                bool or_matches = false;
-                if (strncmp(pattern_variant, "OR:", 3) == 0) {
-                    char or_copy[512];
-                    strncpy(or_copy, pattern_variant + 3, sizeof(or_copy) - 1);
-                    or_copy[sizeof(or_copy) - 1] = '\0';
-                    char *tok_or = strtok(or_copy, ":");
-                    while (tok_or) {
-                        if (strcmp(uval->variant_name, tok_or) == 0) { or_matches = true; break; }
-                        tok_or = strtok(NULL, ":");
-                    }
-                }
-
-                if (or_matches || strcmp(uval->variant_name, pattern_variant) == 0) {
-                    /* This arm's pattern matches — now check guard */
+                int saved_symbol_count = env->symbol_count;
+                if (match_val.type == VAL_UNION && strcmp(pattern_variant, "_") != 0) {
+                    UnionValue *union_value = match_val.as.union_val;
                     const char *binding = expr->as.match_expr.pattern_bindings[i];
-
-                    /* Save environment state for scope */
-                    int saved_symbol_count = env->symbol_count;
-
-                    /* Bind the pattern variable to a struct value representing the variant's fields
-                     * This allows field access like binding.field_name in the match arm body
-                     */
                     /* I discard underscore payloads without hiding an outer name. */
                     if (binding && strcmp(binding, "_") != 0) {
-                        Value binding_val;
-                        if (uval->field_count > 0) {
-                            char **field_names_copy = malloc(sizeof(char*) * uval->field_count);
-                            Value *field_values_copy = malloc(sizeof(Value) * uval->field_count);
-
-                            for (int j = 0; j < uval->field_count; j++) {
-                                field_names_copy[j] = uval->field_names[j];
-                                field_values_copy[j] = uval->field_values[j];
+                        Value binding_value;
+                        if (union_value->field_count > 0) {
+                            char **field_names = malloc(sizeof(char *) * (size_t)union_value->field_count);
+                            Value *field_values = malloc(sizeof(Value) * (size_t)union_value->field_count);
+                            if (!field_names || !field_values) {
+                                free(field_names);
+                                free(field_values);
+                                return eval_match_invariant_failure(
+                                    "I could not allocate a match payload binding");
                             }
-
-                            binding_val = create_struct(uval->union_name,
-                                                       field_names_copy,
-                                                       field_values_copy,
-                                                       uval->field_count);
+                            for (int field = 0; field < union_value->field_count; ++field) {
+                                field_names[field] = union_value->field_names[field];
+                                field_values[field] = union_value->field_values[field];
+                            }
+                            binding_value = create_struct(
+                                union_value->union_name, field_names, field_values,
+                                union_value->field_count);
                         } else {
-                            binding_val = create_void();
+                            binding_value = create_void();
                         }
-                        env_define_var(env, binding, TYPE_STRUCT, false, binding_val);
-                    }
-
-                    /* Check guard expression if present */
-                    if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
-                        Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
-                        if (guard_val.is_return) {
-                            env->symbol_count = saved_symbol_count;
-                            return guard_val;
-                        }
-                        if (!guard_val.as.bool_val) {
-                            /* Guard failed — restore scope and try next arm */
-                            env->symbol_count = saved_symbol_count;
-                            continue;
-                        }
-                    }
-
-                    /* Evaluate arm body */
-                    Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-
-                    /* Restore environment */
-                    env->symbol_count = saved_symbol_count;
-
-                    return result;
-                }
-            }
-
-            /* No specific arm matched — fall through to wildcard if present */
-            if (wildcard_arm >= 0) {
-                int saved_symbol_count = env->symbol_count;
-                /* Check guard on wildcard arm if present */
-                if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
-                    Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
-                    if (guard_val.is_return) {
-                        env->symbol_count = saved_symbol_count;
-                        return guard_val;
-                    }
-                    if (!guard_val.as.bool_val) {
-                        env->symbol_count = saved_symbol_count;
-                        fprintf(stderr, "Error: No matching arm for variant '%s' (guard failed)\n", uval->variant_name);
-                        return create_void();
+                        env_define_var(env, binding, TYPE_STRUCT, false, binding_value);
                     }
                 }
-                Value result = eval_expression(expr->as.match_expr.arm_bodies[wildcard_arm], env);
+
+                ASTNode *guard = expr->as.match_expr.guard_exprs
+                    ? expr->as.match_expr.guard_exprs[i] : NULL;
+                if (guard) {
+                    Value guard_value = eval_expression(guard, env);
+                    if (guard_value.is_return || guard_value.is_break || guard_value.is_continue) {
+                        env->symbol_count = saved_symbol_count;
+                        return guard_value;
+                    }
+                    if (guard_value.type != VAL_BOOL) {
+                        env->symbol_count = saved_symbol_count;
+                        return eval_match_invariant_failure(
+                            "a checked match guard did not produce bool");
+                    }
+                    if (!guard_value.as.bool_val) {
+                        env->symbol_count = saved_symbol_count;
+                        continue;
+                    }
+                }
+
+                Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
                 env->symbol_count = saved_symbol_count;
                 return result;
             }
 
-            /* No matching arm found - this should be caught by typechecker */
-            fprintf(stderr, "Error: No matching arm for variant '%s'\n", uval->variant_name);
-            return create_void();
+            return eval_match_invariant_failure(
+                "a checked match reached no successful arm");
         }
 
         case AST_BLOCK: {

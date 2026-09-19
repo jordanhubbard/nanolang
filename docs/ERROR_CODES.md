@@ -19,6 +19,8 @@ message text may evolve.
 | **E008** | SYNTAX ERROR | The typechecker received an AST shape it can't make sense of (usually a parser-side issue surfacing here). |
 | **E009** | PRIVATE ACCESS | Code in module B references a `priv` (private) symbol from module A. |
 | **E010** | MISSING RETURN | A non-void function has a control-flow path that does not return a value. |
+| **E035** | NON-EXHAUSTIVE MATCH | A match does not prove unconditional coverage of its checked integer or union domain. |
+| **E036** | UNREACHABLE MATCH ARM | An arm follows an unconditional wildcard and can never be selected. |
 
 ## Example diagnostic
 
