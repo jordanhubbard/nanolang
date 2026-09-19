@@ -33,7 +33,7 @@ Normal Darwin compilation selects the actual Xcode Clang path and SDKROOT; sanit
 
 Fresh C-seed/provider closure is separately timed after the query gates. The provider build already builds required C-seed objects; its later C-seed target may be incremental. I make no Stage1/Stage2 bootstrap or fixed-point claim. Ordinary module/wrapper execution does not execute File service handlers.
 
-My seal contains 67 reports, 2,691 archived phase entries, 623 distinct retained artifact files and eight equal before/after inventory pairs. Both platform source maps are exactly equal. Initial redundant archive packaging was stopped; a completed distinct-artifact archive supplied the same indexed files, all rehashed locally. Packaging did not modify or repeat qualification.
+My seal contains 69 reports, 2,691 archived phase entries, 623 distinct retained artifact files and eight equal before/after inventory pairs. Both platform source maps are exactly equal. Initial redundant archive packaging was stopped; a completed distinct-artifact archive supplied the same indexed files, all rehashed locally. Packaging did not modify or repeat qualification.
 
 [My sealed report manifest](file-hosted-plan/report-sha256.json) covers commands, results, logs, complete source/tool inventories, artifact indexes and current verification. The content-addressed archive remains at `/tmp/nanolang-file-hosted-plan-artifacts`. Source and tool identities, rather than elapsed times, define these acceptance pins.
 
@@ -43,3 +43,14 @@ adds the canonical owned-array bit target. Source/modules and all hosted
 production/fixtures remain byte-identical to the qualified pin. I preserve the
 original qualified and sealed trees and do not relabel this additive integration
 as a new bootstrap or repeat unchanged gates.
+
+I subsequently integrate canonical850 `8ddba93` separately. Its independent
+reconstruction script and fixtures change; all source/modules and hosted
+fixtures remain exactly equal to9ab. The Make delta selects that independent
+reconstruction test. I do not repeat unaffected hosted gates.
+
+GitGuardian check105870307952 flags three inherited SHA256 inventory values
+in `owned-array-bits-first.json` at merge1775 lines126/144/145. I recompute each
+against the retained LexerToken/token/helper object named at that exact line.
+All three match. My sealed classification exposes locations and results, not
+values; I neither suppress the scanner nor claim its failed check is green.

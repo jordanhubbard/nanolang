@@ -1,0 +1,7 @@
+{
+  "main": "8ddba93",
+  "merge": "ba8b7fb5659f532a3712212ba8317355cf10ba5f",
+  "qualified": "9ab0fcc9f",
+  "source_modules_and_hosted_fixtures_identical": true,
+  "scope": "Canonical850 changes independent reconstruction tooling, fixtures, Make recipe and documentation; no hosted provider input changes. No repeated hosted gates."
+}

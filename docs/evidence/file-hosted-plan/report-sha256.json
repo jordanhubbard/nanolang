@@ -30,6 +30,7 @@
   "darwin-provider-closure/wrapper-run-artifacts.json": "96f3eb0a8a30e75bc40e90fb2359744fbcf1edc3540151a666c7ca4ae898b1c4",
   "darwin-provider-closure/wrapper-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "darwin-provider-closure/wrapper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "gitguardian-classification.json": "ed749d3a310cb0d000680271a7faca9168372dec40a949e02b514d2d74490c8c",
   "inventory-pairs.json": "1e2ef0848f1566c3e53f7b45b4734fad1308a8335d6c53c7c4b4afcbb4e4a1a6",
   "linux-current-verification.json": "01781ef99f84cc1f376e50de4dde486401c5bdc9153e6311c965b75d78516383",
   "linux-hosted/adjacent-artifacts.json": "8cc7a77c7e2e2a9e4880eaed428814511b896c185e9af9920b41392ccbbd208f",
@@ -65,5 +66,6 @@
   "linux-provider-closure/wrapper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "nanolang-file-hosted-closure.py": "5c2b7fbfc448e7d0855105dc6b1da07475bf5094b6d50e8429c88f4a42aebedf",
   "nanolang-file-hosted-driver.py": "f00af4a6b2245eae97770a5c4964cab9114402f57fa4cb040f6980e6127b400c",
-  "ready-integration.json": "889ff7558d361739634743444bb435df681790ebb2dd66e0c22cefa6679da070"
+  "ready-integration.json": "889ff7558d361739634743444bb435df681790ebb2dd66e0c22cefa6679da070",
+  "reconstruction-integration.json": "3415a0ccd23b2292372a98b04cc7fbb0faa536dc62fe433371675a88860931b8"
 }
