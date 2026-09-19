@@ -95,3 +95,79 @@ Clang23.1.1 is available at `/opt/homebrew/opt/llvm/bin/clang`, SHA-256
 I did not select it, rerun the failed gate, weaken leak checking or run affine
 frontend parity or owned-record patterns in this attempt. A fresh corrected
 attempt requires reviewed explicit compiler selection and new artifacts.
+
+## I inspect the complete selector precedence before correction
+
+I inspect the test paths without executing another fixture:
+
+1. `CheckedOwnerSelection` binds `SourceBorrowEmission.execute_pair` directly.
+   It does not run `SourceBorrowEmission.setUpClass`, so no emitter or shadow
+   tool setup participates in this method.
+2. `execute_pair` verifies and executes the module with the frozen
+   `bin/nano_vm`, translates it with frozen `bin/nvm2c`, then chooses the native
+   compiler with exactly `os.environ.get("CC", "cc")`.
+3. An absolute command-scoped `CC=/opt/homebrew/opt/llvm/bin/clang` therefore
+   wins without a Make variable, project setting or `PATH` lookup. There is no
+   later compiler selector in this call path.
+4. Native execution copies the complete process environment and replaces only
+   `ASAN_OPTIONS` with the existing
+   `detect_leaks=1:halt_on_error=1`. The corrected selection does not disable or
+   narrow ASan, UBSan, LSan, `-Wall`, `-Wextra` or `-Werror`.
+5. The Homebrew installation contains both its Darwin ASan and LSan runtime
+   libraries. I rely on the exact Clang23.1.1 binary and hash recorded above;
+   I do not install or change any host tool.
+6. The later `AffineFrontendParity` and `OwnedRecordPatterns` modules invoke
+   only the frozen NanoLang compilers, NanoVirt, NanoVM and their produced
+   binaries. They contain no host-compiler selector. The `CC` override will be
+   scoped only to the affected checked-owner command.
+
+The first attempt printed and sealed all three driver hashes, but
+`CheckedOwnerSelection.tearDownClass` unconditionally cleans its
+`TemporaryDirectory`. No retained `nano-checked-selection-*` directory exists,
+so I cannot honestly reuse those driver bytes. The corrected method must build
+fresh drivers and I require their printed hashes to equal, in producer order:
+
+```text
+3b0461984a3fca2f8a47bdb6b8d20bcaa6accfee66dff54319cf8f1abedbb337
+91b64c860362c4e6069486db5168054a2bdd8edcb46450abe951b568d0f4cb14
+1433157eb2c8916de42c37e86efbb4ea31e2886abfb72569c4de7c4b745553cf
+```
+
+I reserve a new detached exact603 checkout and evidence layout for review:
+
+```text
+/private/tmp/nanolang-parser-lsan-gate-603785c9
+/private/tmp/nanolang-parser-lsan-evidence-603785c9
+/private/tmp/nanolang-parser-lsan-tmp-603785c9
+```
+
+I will copy the eight hash-qualified compiler/runtime executables from the
+preserved preceding checkout, freeze their hashes and the6,431 tracked sources,
+then run exactly this affected method first:
+
+```text
+set -o pipefail
+env CC=/opt/homebrew/opt/llvm/bin/clang \
+    TMPDIR=/private/tmp/nanolang-parser-lsan-tmp-603785c9 \
+    /usr/bin/time -p python3 -m unittest -f -v \
+    tests.test_checked_owner_selection.CheckedOwnerSelection.test_exact_lexical_dependencies_and_selected_suffix \
+    2>&1 | tee /private/tmp/nanolang-parser-lsan-evidence-603785c9/checked-owner-selection-corrected.log
+```
+
+If it passes and all three driver hashes match, I will remove the command-scoped
+`CC` override and run the two previously unrun modules separately, stopping at
+the first terminal:
+
+```text
+set -o pipefail
+/usr/bin/time -p python3 -m unittest -f -v tests.test_affine_frontend_parity \
+    2>&1 | tee /private/tmp/nanolang-parser-lsan-evidence-603785c9/affine-frontend-parity.log
+
+set -o pipefail
+/usr/bin/time -p python3 -m unittest -f -v tests.test_owned_record_patterns \
+    2>&1 | tee /private/tmp/nanolang-parser-lsan-evidence-603785c9/owned-record-patterns.log
+```
+
+I do not repeat bootstrap, the36-source matrix, callable controls, union
+controls or any historical failed artifact. This is a documentation-only
+correction checkpoint; no corrected fixture has run yet.
