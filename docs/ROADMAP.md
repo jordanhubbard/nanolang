@@ -8262,6 +8262,18 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I ship a windowed SDL editor (`examples/emacs/nano_emacs.nano`) that uses
   `modules/ui_widgets` and the line buffer in `examples/lib/source_editor.nano`,
   with Emacs-shaped panes, a minibuffer, and C-x / M-x keys.
+- [ ] **5.1 / SDL text-input editing.** I make the text-input widget edit a
+      caller-owned `array<u8>` rather than writing through an immutable string
+      with an invented capacity. I mirror ordered `SDL_TEXTINPUT`, Backspace,
+      Return and keypad-Enter events from my shared SDL event drain so quit and
+      generic key polling cannot steal them. Focus starts and stops SDL text
+      input for the active buffer. I append only complete valid UTF-8 events
+      within the declared byte limit, remove one complete UTF-8 code point on
+      Backspace, report Enter without changing the buffer, and render only a
+      validated temporary C string. I update the NanoLang declaration and UI
+      example, preserve invalid-input/no-draw behavior, and test event ordering,
+      focus changes, capacity, UTF-8 editing and the array ABI. MAC
+      `task_eecbc1d010a5420e3da4af5d3ead04cf`.
 - [x] I evaluate NanoLang in that editor through a persistent tree-walker
   session (`modules/nano_eval`) with host primitives `ed_message`, `ed_insert`,
   `ed_buffer_string`, `ed_point`, `ed_goto_char`, `ed_find_file`,
