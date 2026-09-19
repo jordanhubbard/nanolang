@@ -127,3 +127,26 @@ shadows and a source function-value control retaining the actual declared push.
 I do not rename the program's source function, remove the builtin helper, or
 weaken the unchanged mutation/source suite. Complete diff review precedes fresh
 bootstrap and gates on both platforms.
+
+## My ordinary canonical identity correction
+
+I record `task_3615e58e593058d66ea4cdd2915df4d9` before code. Frozen925c Linux bootstrap
+275.394s/setup27.429s pass. Its first declared array-return identity case passes
+all three native compilers/executions and C canonical verification/execution,
+then Stage1 canonical lowering refuses the exact float array element type
+(Ran1/8.193s). Stage2 canonical and remaining groups are unrun. The initial
+message naming nano_virt was corrected from the retained subtest header; the
+first failing producer is nanoc_stage1. No refused artifact executes.
+
+My ordinary `nisa_expr_type` uses push receiver inference before declared result
+lookup, and `nisa_emit_call` selects ARR_PUSH by spelling. I guard only these push
+builtin paths with an exact resolved nonextern declaration predicate using
+`nisa_call_index` and its source-owner mapping. The selected declaration retains
+its full result and parameter context through existing CALL emission; builtin
+push keeps receiver/empty-literal specialization. Local/global indirect calls
+remain refused; extern behavior and unrelated builtins remain unchanged.
+`[value]` return lowering already carries `nisa_return_type` and exact element
+checks to ARR_LITERAL3; I do not change it or invent inferred ARRAY fallback.
+Mandatory shadows cover declaration/builtin/owner resolution and resulting
+CALL-versus-ARR_PUSH/type behavior. Full review precedes fresh qualification;
+the five identity and twelve mutation/source groups remain unchanged.

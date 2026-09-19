@@ -11907,3 +11907,11 @@ prerequisites pass, not a narrowed Bundle replacement.
   availability and unchanged source fixtures. My naming contract requires paired
   definition/prototype/call/function-value agreement, meaningful controls and
   complete review before fresh qualification. Darwin source gates remain unrun.
+
+- [ ] I retain exact declared push identity in ordinary canonical type/emission
+  (`task_3615e58e593058d66ea4cdd2915df4d9`, dependency of286b/bba622). Frozen925c firstcase
+  passes all native routes and Ccanonical, then Stage1canonical refuses because
+  receiver inference precedes declared result lookup; ARR_PUSH emission has the
+  same spelling-only issue. I preserve that terminal and add only exact resolved
+  nonextern push guards with mandatory identity/type/opcode shadows. Existing
+  return context, indirect refusals and builtin behavior stay unchanged.
