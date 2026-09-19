@@ -914,9 +914,12 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       initialization. I also reconcile the completed paired call-scoped borrow
       contract against PR #773 and fixed nested resource-union classification
       against PR #418; their NanoISA-reference and selected-transfer parents
-      remain open. All broader reconstruction, compiler-product and release
-      parents remain open. The remaining active rows still require the same
-      evidence check. MAC
+      remain open. A fourth canonical-ancestry audit reconciles one-execution
+      MAC commands (PR #291), nested-array shadows (PR #298), original-source
+      diagnostic provenance (PR #277), and exact forward ordinary managed-record
+      DAG execution (PR #796). Their broader managed-runtime, authority,
+      reconstruction, compiler-product and release parents remain open. The
+      remaining active rows still require the same evidence check. MAC
       `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
@@ -4428,12 +4431,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       acceptance methods cover direct and returned record values. PRs #415,
       #444 and #449 complete the repair. MAC
       `task_967a32569524e07e3c97742cf23234e9`.
-- [ ] **Follow-up — MAC commands execute once.** My standard-library command
-      wrapper captures stdout with one execution, then executes the same
-      command again to obtain its status. I replace this with one execution
-      and test a counted side effect, output, failure status, and offline use.
-      Release tests use an offline fixture so shadows cannot mutate a live
-      task ledger. MAC `task_5f807ded474a473ca5776018c32c636f`.
+- [x] **Follow-up — MAC commands execute once.** My standard-library command
+      wrapper now captures output and status from one execution. Canonical PR
+      #291 passes counted-side-effect, output, failure-status and offline-use
+      controls. Release tests use an offline fixture so shadows cannot mutate a
+      live task ledger. MAC `task_5f807ded474a473ca5776018c32c636f`.
 
 - [x] **5.0 / C-seed nested-array indexing.** I preserve recursive array
       type metadata while parsing and registering locals and parameters, then
@@ -4935,11 +4937,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       `docs/evidence/main-reconciliation-pr297.md`.
       MAC `task_4d134cb7dd9c401c9aa8926cddbdeef3`.
 
-- [ ] **Nested-array shadow evaluation.** I support nested dynamic arrays
-      in the C evaluator so native nested-array regression programs can also
-      execute their full behavior inside shadows. The current evaluator
-      rejects those arrays with `Unsupported array element type`.
-      MAC `task_23e8d93323aa4af392384aa096189509`.
+- [x] **Nested-array shadow evaluation.** I support nested dynamic arrays in
+      the C evaluator so native nested-array regression programs also execute
+      their full behavior inside shadows. Canonical PR #298 preserves primitive
+      and record-array behavior while passing direct, local and record-field
+      nested-array shadow controls. I retain the original `Unsupported array
+      element type` refusal as resolved history. MAC
+      `task_23e8d93323aa4af392384aa096189509`.
 
 - [x] **Local hook migration.** I preserve and disable retired Beads shim
       hooks in this checkout so commits no longer invoke the removed ledger.
@@ -7802,12 +7806,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       above; I do not claim a green quick or release gate (2026-09-12).
       Generic-list generation remains separate under the broader item below.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
-- [ ] **5.0 self-hosted diagnostics — original source provenance.** My
+- [x] **5.0 self-hosted diagnostics — original source provenance.** My
       flattened import stream uses merged line numbers, now labelled with
-      the root input path rather than a temporary filename. I retain original
-      paths and positions through merging/tokenization and translate lexer,
-      parser and type diagnostics, including machine-readable output. I test
-      root and nested imports, removed declarations and escaped path bytes.
+      the original input path rather than a temporary filename. Canonical PR
+      #277 retains paths and positions through merging/tokenization and
+      translates lexer, parser and type diagnostics, including machine-readable
+      output. Root and nested imports, removed declarations and escaped path
+      bytes pass their focused gates.
       MAC `task_3c235c2533a5499093804b26da53801b`.
 - [ ] **5.0 audit defect — compiler build isolation.** Concurrent C-seed
       compilations shared `obj/nano_modules/transpiler.o.c`; one compilation
@@ -10510,8 +10515,8 @@ Other translators:
   - [x] I independently review and qualify private record module adapters, target ABI/package and acquisition/rollback/cleanup before admission ([evidence](evidence/managed-record-adapters.md)): corrected d36cc2ef passes2 focused native/Wasm adapter methods,6 adjacent private/package methods and63 existing generated managed methods. Shared selection/lowering task55677 remains open.
   - [x] I connect shared record selection and matched LLVM/Wasm lowering, qualifying actual constructors/aliases/calls/globals/reentry/error cleanup and preserving old profiles ([evidence](evidence/managed-record-execution.md)). Integrated55 methods and final forward refusal pass; existing63 generated methods pass on the unchanged runtime. Canonical PR789 at96f29b4d reconciles bounded task55677 and its CAST_STRING correction; aggregate488/managed51da/authority15f stay open.
   - [ ] I connect one shared checked record selection to matching generated lowering and prepared safe points, then require actual VM/native/Wasm alias, mutation, allocation-failure, persistent-global and bounded-live churn acceptance plus affected regression/link gates.
-- [ ] I extend checked managed record execution to exact all-record forward ordinary DAGs (`task_1fefd3f1f1c14798ad43e7e2daaa66b7`; [preimplementation contract](NANOISA_MANAGED_FORWARD_RECORDS.md)). I add bounded allocation-free descriptor graph preflight, require explicit ORDINARY authority, preserve nominal indices and reuse qualified indexed field origins/counting/runtime. Resource/owned-reference, array-field, mixed-kind and UNKNOWN forward admission remain refused; actual VM/nativeLLVM/Wasm lifecycle gates precede completion. Parents15f/488/51da remain open.
-  - [x] I qualify reviewed df4589b9 with descriptor allocation/atomicity/cap controls and actual VM/nativeLLVM/import-freeWasm execution ([evidence](evidence/managed-forward-records.md)). Corrected23 and adjacent46 methods pass; integrated23 pass with2150 equal current identities. Canonical task reconciliation remains pending; broader parents remain open.
+- [x] I extend checked managed record execution to exact all-record forward ordinary DAGs (`task_1fefd3f1f1c14798ad43e7e2daaa66b7`; [preimplementation contract](NANOISA_MANAGED_FORWARD_RECORDS.md)). I add bounded allocation-free descriptor graph preflight, require explicit ORDINARY authority, preserve nominal indices and reuse qualified indexed field origins/counting/runtime. Resource/owned-reference, array-field, mixed-kind and UNKNOWN forward admission remain refused; actual VM/nativeLLVM/Wasm lifecycle gates precede completion. Canonical PR #796 completes this bounded slice; parents15f/488/51da remain open.
+  - [x] I qualify reviewed df4589b9 with descriptor allocation/atomicity/cap controls and actual VM/nativeLLVM/import-freeWasm execution ([evidence](evidence/managed-forward-records.md)). Corrected23 and adjacent46 methods pass; integrated23 pass with2150 equal current identities. Canonical task reconciliation is complete through PR #796; broader parents remain open.
   - [x] I align the prior-order ordinary-authority fixture with merged789 admission (`task_da9963f7ed9a41f8bf6c67a1bb4fe47d`). First14c37b83 passes22/23 methods with2146 unchanged identities; only the obsolete prior-order LLVM/Wasm refusal fails. I preserve that result and qualify positive execution while retaining adjacent authority/owned refusals.
 
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
