@@ -11366,3 +11366,5 @@ I record the approved 03338b2fc fixture migration under runtime child78c9 before
 I retain the second9c4 accounting terminal at5ab080edb: the strict check measures a zero-ref STRUCT with a still-referenced ARRAY child before collection. I require reviewed closed-graph internal-edge accounting and exact allocation coverage to distinguish deferred child references from live external roots; no production defect or passing runtime gate is claimed.
 
 I extend0b47 with the separately preserved7937fc15b native terminal: all nine generated programs fail strict compilation at the same one-line cleanup footer; no native execution occurs. My VM1274 and private112482/339 checks remain passing evidence. I separate emitted cleanup statements without semantics changes and use fail-fast qualification before a reviewed fresh gate.
+
+- [ ] I correct the new repeated-site loop fixture's opcode (`task_8f91de6457894ca98eac69ecf44b1ebe`): c9e4289f1 uses generic ADD outside my documented closed transfer inventory. I preserve its1.768second checked refusal before execution and use existing exact I64_ADD, with no production/profile expansion.
