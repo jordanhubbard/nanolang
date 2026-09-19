@@ -5280,3 +5280,9 @@ test-mixed-samples-runtime-alloc: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_
 	$(CC) $(CFLAGS) -Dmalloc=mixed_heap_malloc -Dcalloc=mixed_heap_calloc -Drealloc=mixed_heap_realloc -c src/nanovm/heap.c -o obj/test_mixed_samples_heap.o
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime_alloc tests/nanoisa/test_mixed_samples_runtime_alloc.c obj/test_mixed_samples_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_mixed_samples_runtime_alloc
+
+.PHONY: test-mixed-samples-admission
+test-mixed-samples-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=mixed_admit_malloc -Dcalloc=mixed_admit_calloc -c src/nanoisa/verifier.c -o obj/test_mixed_samples_verifier.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_admission tests/nanoisa/test_mixed_samples_admission.c obj/test_mixed_samples_verifier.o $(NANOVM_OBJECTS) $(filter-out obj/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_mixed_samples_admission
