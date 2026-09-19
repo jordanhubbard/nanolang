@@ -1,0 +1,20 @@
+{
+  "source": "3aa4b92dc0e5bef45c84229bc9b55c5c69f97f95",
+  "runner_sha256": "7449e20fb9cc7ad0d6f44865ad5031d9c6aa82cdbce4cc4eeb5625b079f88943",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 265.282,
+      "sha256": "9903514fddc1de20238a17348366f06fd4a78d8fa04c503a8aa565555b1bc9f4"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

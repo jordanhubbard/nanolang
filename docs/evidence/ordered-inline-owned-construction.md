@@ -20,3 +20,15 @@ All 1,721 inventoried source/test/build inputs remain unchanged through each run
 No gate failed in this frozen qualification. The preexecution unfinished-staging finding is recorded separately in the contract; I did not execute its pre-fix path. Existing negative inline-child source variants still refuse because they leave original named children unconsumed, and remain in the unchanged source suite. I do not relabel them as proof that every inline literal is unsupported.
 
 These results are Linux scoped. Nested-result803 and float-local804 composition requires separate fresh source integration qualification. Managed STRING/array fields, the original Bundle acceptance, full ownership and product release remain open. I close only this child after reviewed canonical integration.
+
+## I qualify the combined source producers
+
+I freeze `3aa4b92dc0e5bef45c84229bc9b55c5c69f97f95` with canonical nested-result803 and float-local/unsafe804 in a separate clean checkout. My fresh bootstrap passes in265.282s; setup passes in26.031s. GCC and Clang each pass all10 selected methods in198.111s and196.348s; my nine runtime targets pass in29.179s. Every phase terminates with status0.
+
+My retained test driver selects the three inline controls, four float/unsafe source controls, two nested-result source controls and the unchanged original unsafe-pattern test. Each compiler run retains six producer identities before/after, including both selfhost emitters and all three selected-shadow drivers. My integrated source inventory includes modules and stdlib; all inventoried inputs, fixed tools and generated producers remain unchanged. Setup intentionally creates tools. The nine runtime targets add owned-binary64 and nested-owned-results to the seven original targets. The earlier49-method regression remains evidence at aa124; I do not claim a combined49-method rerun.
+
+I preserve the original qualified checkout and its tools. After its terminal gates, an integration merge briefly advanced that checkout; I restored its exact committed head and independently rechecked all original1,721 input and19 fixed-tool hashes before executing the combined work in the separate checkout. I did not rebuild or execute altered tools in the original checkout.
+
+GitGuardian check105799806126 reports12 high-entropy findings at integration commit a8fa9da1. Its full check text supplies locations despite zero annotations. All12 are inherited float-evidence JSON SHA256 values for three runtime object kinds. Independent read-only recomputation against their preserved object files matches every value; the sealed classification records each location and object path. These are artifact digests, not credentials. I do not disable the scanner or blanket-ignore files; the hosted check remains reported as failure. Local qualification does not claim hosted CI success.
+
+This combined acceptance closes only the scalar inline-construction prerequisite after canonical merge. Managed fields, mixed ordinary/owned runtime composition and full product acceptance remain separate.
