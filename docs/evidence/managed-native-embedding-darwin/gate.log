@@ -1,0 +1,8 @@
+test_exact_bytes_and_hashes (test_managed_native_embedding.ManagedNativeEmbedding.test_exact_bytes_and_hashes) ... ok
+test_isolated_regeneration_and_refusals (test_managed_native_embedding.ManagedNativeEmbedding.test_isolated_regeneration_and_refusals) ... ok
+test_strict_standalone_c_and_existing_helpers (test_managed_native_embedding.ManagedNativeEmbedding.test_strict_standalone_c_and_existing_helpers) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.991s
+
+OK

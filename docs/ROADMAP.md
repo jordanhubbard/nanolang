@@ -11357,7 +11357,7 @@ I reconcile these completed child checkboxes from actual canonical merges and th
 
 PR807 also qualifies the combined nested/float/inline source changes: fresh bootstrap, ten targeted source controls under each of GCC and Clang, and nine runtime targets. Its twelve hosted secret-scan findings were independently matched to SHA-256 object-file digests; I preserve the hosted failure and exact classification instead of claiming green CI. Individual full source-suite results stay attributed to their recorded pins.
 
-My bounded Samples execution/source qualifies through PR819/828, including the recorded Linux/Darwin source scopes. Retained STRING child793523 is reconciled through PR813/820. Owner ARRAY430220, complete ownership/managed profiles, separate embedding Darwin fixturea522, fresh whole-product/fixed-point gates and release publication remain open. These child completions do not authorize a tag.
+My bounded Samples execution/source qualifies through PR819/828, including the recorded Linux/Darwin source scopes. Retained STRING child793523 is reconciled through PR813/820. Standalone embedding fixturea522 now has separate Darwin qualification below. Owner ARRAY430220, complete ownership/managed profiles, fresh whole-product/fixed-point gates and release publication remain open. These child completions do not authorize a tag.
 
 I prepare793523's paired source checkpoint only after the sealed join controls, in a new tree integrating canonical807 and currentmainbfdde227. Separate INT/BOOL/STRING field summaries drive constructor staging, metadata and destructive unpack; exact STRING locals/EQ/NE/direct retained observations are value-graph-only. Numeric tags, borrowed scalar-leaf summaries, FLOAT field/signature and standalone STRING-result refusals remain unchanged. New mandatory Nano shadows cover field/local classification and exact equality versus refused concatenation/order. Production review precedes fresh bootstrap/source fixtures; earlier runtime trees/tools remain sealed.
 
@@ -11376,9 +11376,9 @@ I reconcile only private composition1bf5 from actual canonical PR812 merge b7040
 - [x] I qualify closed Samples ordinary managed values alongside owners in VM/native execution (`task_78c9ce49bf93416da6d426b05a14929b`, parent4be). My [runtime preimplementation contract](NANOISA_MIXED_SAMPLES_RUNTIME.md) requires a fresh complete conjunction, original descriptor/state identities, checked FLOAT-or-VOID operands, ordinary roots and exact native carrier cleanup. I preserve qualified STRING/reference paths and linked/LLVM/Wasm refusals; source admission subsequently qualifies in PR828, while owner-shell ARRAY430220 remains separate. PR819 runtime qualification and canonical reconciliation are complete.
 I integrate793523 with canonical9821e390 in isolatedc54af77e, preserving the earlier qualified source tree/tools and byte-identical producers. GCC13.412seconds and Clang15.987seconds frozen runtime gates pass, including new112,454-check private mixed Samples composition plus STRING, nested, reference and binary64 controls. My [integration seal](evidence/owned-string-fields-integrated.json) retains all six passing phases and unchanged source/tool maps. Static first-proof rejection preserves private composed STRING-owner exclusion; no separately executed composed-STRING control is claimed. Darwin source acceptance keeps793523 open after this bounded Linux implementation.
 
-- [x] I embed the qualified managed runtime as exact standalone generated C (`task_24c910eb904a4154bf252bc8dd3cdabb`, parent78c9). My [embedding contract](NANOISA_MIXED_SAMPLES_RUNTIME.md#my-standalone-native-runtime-embedding-prerequisite) preserves source bytes except two checked local includes, hashes/regeneration dependencies and existing parser guards. The embedding itself grants no bytecode or backend admission. PR819 seals Linux strict C11/link/lifetime qualification; separate Darwin fixturea522 remains open.
+- [x] I embed the qualified managed runtime as exact standalone generated C (`task_24c910eb904a4154bf252bc8dd3cdabb`, parent78c9). My [embedding contract](NANOISA_MIXED_SAMPLES_RUNTIME.md#my-standalone-native-runtime-embedding-prerequisite) preserves source bytes except two checked local includes, hashes/regeneration dependencies and existing parser guards. The embedding itself grants no bytecode or backend admission. PR819 seals Linux strict C11/link/lifetime qualification; separate Darwin fixturea522 is measured below.
 
-- [ ] I exercise every embedded arithmetic provider in my standalone C harness (`task_a522629205b440f28204162fba9d3960`, parent24c910). First207ebfe3 passes byte/hash/regeneration and GCC O0/O2, while Clang O0/O2 rejects unused sub/mul/div helpers because the fixture exercises only add. I retain `/tmp/nanolang-managed-native-embedding-207ebfe3`; corrected Linux fe321533 passes exact arithmetic assertions without changing production or strict warning flags. This child remains open for its separate Darwin otool inspection branch.
+- [x] I exercise every embedded arithmetic provider in my standalone C harness (`task_a522629205b440f28204162fba9d3960`, parent24c910). First207ebfe3 passes byte/hash/regeneration and GCC O0/O2, while Clang O0/O2 rejects unused sub/mul/div helpers because the fixture exercises only add. I retain `/tmp/nanolang-managed-native-embedding-207ebfe3`; corrected Linux fe321533 passes exact arithmetic assertions without changing production or strict warning flags. My unchanged fixture now passes its separate Darwin otool inspection branch; ledger reconciliation awaits this evidence merge.
 
 My corrected embedding fixturefe321533 passes all three methods and four GCC/Clang O0/O2 standalone routes in1.622seconds on Linux. Root static review separately found unconditional readelf would fail Darwin test discovery; I record that under fixture childa522 before replacing only its dependency-inspection command with platform-specific otool/readelf. The compiled C/lifecycle checks remain unchanged; exact Darwin inspection is not yet measured.
 
@@ -11572,7 +11572,7 @@ I prepare430220's private authority query controls after db8f32f74 review. I exp
 I qualify430220's first complete private authority query at frozen8371c7083: setup and all16 phases pass, including1,403 checks each under GCC normal and GCC/Clang18 sanitizers. Fault sweeps attribute exactly five structural INVALID failures at prefixes563–567 and564 directly classified MEMORY failures; original bytes/outputs, cleanup and recovery remain checked. All1,742sources and157tools/objects stay unchanged. My [sealed authority evidence](evidence/owned-array-authority-query.md) preserves69reports/176artifacts and instrumentation limits. Existing runtime adjacency retains its previously admitted profiles; new owner ARRAY execution, typed optional-FLOAT consumers, activation and paired source acceptance remain open.
 
 
-- [x] I reconcile evidence-backed completed source and affine-example milestones (`task_d8aaac99749349a3910a32214eb49531`). My documentation checks are complete; actual-merge ledger reconciliation for this documentation task remains pending. I verify actual canonical ancestry and live MAC state, update only bounded current checkboxes/wording, retain historical first terminals, and keep full ownership, owner ARRAY, separate embedding Darwin, product and release acceptance open. No broad execution gate is repeated.
+- [x] I reconcile evidence-backed completed source and affine-example milestones (`task_d8aaac99749349a3910a32214eb49531`). My documentation checks are complete; I reconcile this task through actual PR831 merge5f988ed79dd1f343fd9dca3d9b40c928264e668c. I verify actual canonical ancestry and live MAC state, update only bounded current checkboxes/wording, retain historical first terminals, and keep full ownership, owner ARRAY, separate embedding Darwin, product and release acceptance open. No broad execution gate is repeated.
 
 I reconcile only e64/c935/68db through actual PR828 merge `6a993be5511297cb2cf6793d3a8aae0b6a75f8e2`. Their prior pending-merge statements above describe historical qualification checkpoints. My [reconciliation evidence](evidence/source-ledger-reconciliation.md) records the completed live task states and independently retained platform seals. c435 was already completed from PR761 plus cd72 installed-example acceptance; I correct its stale current roadmap wording without closing full product acceptance.
 - [x] I complete430220's private authority-query slice through canonical PR830 merge9d254504a69a9badbd39ab06bf7827687817b51e, preserving reviewed productiondb8f32f74 and the [sealed16-phase qualification](evidence/owned-array-authority-query.md). This marks only query authority, not runtime or source admission.
@@ -11605,3 +11605,77 @@ I prepare430220's private runtime harness after08be review and independent sourc
 - [x] I correct430220's private runtime fixture cleanup observation/phase-diagnostic gap. Frozen10416bba3 stops at case0's immediate object-baseline assertion; its log does not distinguish public-refusal cleanup from first private invocation cleanup. I preserve that [terminal and identities](evidence/private-owned-array-runtime-baseline-first.json). Static heap.c inspection shows buffered zero-reference aggregates await collection. I require an independent bounded graph/reference audit before GC, exact module STRING root counts, empty stacks/frames/reference activations, zero external owner/ARRAY roots, then exact object/byte baseline after collection. I retain negative controls proving the audit detects an extra live root and add explicit API/phase/count diagnostics. No production attribution, failed artifact replay or broad leak tolerance follows.
 
 - [x] I qualify430220's bounded private VM/native runtime and its narrow array-growth accounting prerequisite at431aeeaf2: all18 frozen phases pass with six4739-check VM executions and native seven-case O0/O2 controls across GCC ordinary/GCC sanitizer/Clang18 sanitizer. My [scope and retained terminals](evidence/private-owned-array-runtime.md) distinguish instrumented units, unchanged1754 sources/161 existing tools and added File adjacency object. The completed fixture-correction rows above refer to this final seal; their original terminal descriptions remain historical. Public activation, source/mutation acceptance and parent430220 remain open.
+- [ ] I align and qualify public owner-ARRAY runtime activation before dependent source admission, preserving required-service/linked/closed/LLVM/Wasm refusals (parent430220; runtime lane).
+- [ ] I lower exact FLOAT-array owner fields in both source producers (`task_18731b55c66846f9826290148c967ca5`, parent430220) under my [paired source contract](NANOISA_OWNED_FLOAT_ARRAY_SOURCE.md): distinct owner/ordinary categories, original03/01 metadata, ordered constructor roots, complete unpack/projections and exact origin/call facts. I retain the unchanged Bundle/PREFIX and every selected shadow, fresh Linux/Darwin Cseed/Stage1/Stage2/NanoVirt plus canonical equality/VM/native gates, mandatory helper shadows and output-preserving negatives. No source production or pending execution precedes reviewed qualified public runtime activation.
+
+I record18731's static source audit at5f988ed79. Existing declaration, constructor,
+hidden-unpack, exact-array guards and final authority dispatch all need paired
+changes; removing only the declaration refusal is insufficient. Runtime lane's
+private08be51c90 remains unqualified at this checkpoint and exposes no public
+activation. Optional FLOAT comparisons retain unsatisfied live tag obligations;
+exact FLOAT stores/arithmetic remain refused. Samples/STRING and owner-free
+routes stay distinct; combining ordinary managed-record operations with owner
+ARRAY needs separate complete authority rather than reusing a profile flag.
+
+- [ ] I establish checked lexical/declaration identity for mutation builtin typing (`task_13d1c53953674d279a849306c9eee26d`) before the owner-ARRAY mutation extension. Static5f988 selfhost array_push inference and generic array_set result precede ordinary symbol lookup; I audit exact owner/name resolution and qualify narrowly reviewed guards if needed, preserving C's reserved array_set declaration policy and typed/phase/output assertions. No counterexample is executed at this contract checkpoint.
+- [ ] I complete parent430220's explicit paired source mutation extension (`task_bba6228369c04b6c900f628d501e5553`) after13d1,18731 and qualified public runtime activation: exact `array_set(array<float>,int,float)->void` and `array_push(array<float>,float)->same array<float>`, ordered once-only arguments, shared aliases across owner pack/unpack/calls/results and precise failure cleanup. My [mutation source contract](NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md) specifies binding/result semantics, optional-value refusals, all original PREFIX/shadows, mutation/growth/alias cases, Linux/Darwin paired producers and artifact preservation. I add no production or public activation here.
+
+I qualifya522's remaining standalone Darwin embedding boundary at canonical
+`5f988ed79dd1f343fd9dca3d9b40c928264e668c` without production or fixture edits.
+All three existing methods pass in4.991s using explicit Homebrew GCC16.2 and
+Clang23.1, strict C11 O0/O2 and the selected Xcode SDK. Each fresh executable
+passes the existing alias/root-before-disposal and arithmetic assertions;
+`otool -L` reports only libSystem for all four. My [sealed Darwin evidence](evidence/managed-native-embedding-darwin.md)
+retains28 reports/artifacts and equal before/after hashes for all eight selected
+source inputs and11 tool/SDK/runner paths. The source snapshot is intentionally
+bounded to this fixture, not a compiler bootstrap or whole-product qualification.
+Earlier unmeasured statements remain historical; actual-merge ledger closure
+for a522 remains pending. Parent4be, owned ARRAY430220 and full product/release
+acceptance remain open.
+
+I prepare13d1's independent checker correction after the approved mutation
+contract. Direct push inference now requires no resolved binding; direct and
+qualified array_set/array_push builtin result selection yields to exact symbols.
+Existing symbol checking and C reserved declarations stay unchanged. Meaningful
+mandatory shadows cover unbound result types, declared/lexical precedence,
+restoration, arity diagnostics and qualified identity. This production awaits
+review before fresh bootstrap/qualification; owner-ARRAY source/runtime
+activation remains held.
+
+I retain13d1's first frozen66a4686e1 bootstrap terminal: Stage0 passes, then
+Stage1 refuses two new mandatory-shadow expressions at4966/4985 with an extra
+closing parenthesis. Status2 after20.035s; all source and host-tool identities
+remain unchanged in `/tmp/nanolang-mutation-identity-66a-bootstrap`. I record this
+shadow syntax defect before correcting the two delimiters in a fresh tree.
+Checker guard production is unchanged; no bootstrap or source acceptance is
+claimed from this terminal. Corrected qualification awaits review.
+
+I retain13d1's corrected82ce bootstrap PASS269.511s and first focused54ea
+terminal separately. Three methods pass:36 full-source checker-driver cases,
+16 typed output-preserving refusals and C's reserved-set declaration policy.
+The unbound fixture fails parsing in all three producers because two
+`array<float>=` spellings form GE tokens. No rejected output is executed.
+I record this test spelling defect before inserting spaces in those two lines;
+compiler guards remain unchanged. The97.103s terminal and equal source/host-tool
+maps remain in `/tmp/nanolang-mutation-identity-54ea-focused`. I rerun only the
+affected unbound control plus previously unrun adjacency after correction;
+I do not repeat the unchanged successful bootstrap or checker-driver matrix.
+
+I preserve13d1's first evidence-packaging terminal separately: an invented
+minimum of41 retained files failed before archive/manifest publication. Actual
+retained artifacts total38 across five directories; successful fixture statuses
+are unchanged. I preserve the partial report copy and failed runner, then require
+the five directories and exact38-file inventory before publishing the corrected
+seal. I do not repeat passing execution. My MAC description update remains
+pending because the existing hub credential lacks task-update scope.
+
+I seal13d1's bounded Linux checker qualification without closing its MAC task:
+corrected bootstrap PASS269.511s;42 full-source checker cases across three
+qualified drivers;16 typed output-preserving refusals; retained C reserved-set
+policy; corrected unbound mutation execution through all three producers; and
+seven conversion/reduce adjacency methods. My [evidence](evidence/mutation-builtin-identity.md)
+retains both source/fixture first terminals, the packaging terminal,73 reports,
+38 artifacts,2253 final source inputs and actual tool identities. No source
+owner-ARRAY admission or general emitter binding claim follows. MAC update
+scope remains unavailable; actual-merge reconciliation is pending. Source18731,
+mutation bba622 and all full ownership/product/release parents remain open.

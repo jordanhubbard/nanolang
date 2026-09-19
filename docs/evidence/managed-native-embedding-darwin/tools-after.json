@@ -1,0 +1,46 @@
+{
+  "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/SDKSettings.json": {
+    "resolved_path": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/SDKSettings.json",
+    "sha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb"
+  },
+  "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd": {
+    "resolved_path": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.B.tbd",
+    "sha256": "01089e97e7372fdda64ef480f2c99d483daf0c7fc99298a137425ee3230588ab"
+  },
+  "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as": {
+    "resolved_path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/as",
+    "sha256": "06770364632b454317238e79d670c094e27301c7322c3a488323bd42e4d0bcbc"
+  },
+  "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld": {
+    "resolved_path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld",
+    "sha256": "374d9f0713bce2c8a9e1e82bde51615d5433516a10d99b63107eb6ee70542e4c"
+  },
+  "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/otool": {
+    "resolved_path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/llvm-otool",
+    "sha256": "8353ad3c42743a93e9ca7d0d4e9d3df22305252d169c42c543ee22eeb8c33809"
+  },
+  "/opt/homebrew/Cellar/gcc/16.2.0/bin/../libexec/gcc/aarch64-apple-darwin25/16/cc1": {
+    "resolved_path": "/opt/homebrew/Cellar/gcc/16.2.0/libexec/gcc/aarch64-apple-darwin25/16/cc1",
+    "sha256": "a119d96c0522435f043ebd3f2e0387d45543f8a1ac834bf5d28e9b8490018f4c"
+  },
+  "/opt/homebrew/bin/gcc-16": {
+    "resolved_path": "/opt/homebrew/Cellar/gcc/16.2.0/bin/gcc-16",
+    "sha256": "3f088afcf8c0e60aacb6a8a11d1e2d987cf3eddd8bfcd7d7fa3ded93b1a7b49e"
+  },
+  "/opt/homebrew/bin/python3": {
+    "resolved_path": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "/opt/homebrew/opt/llvm/bin/clang": {
+    "resolved_path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "/private/tmp/nanolang-embedding-darwin-5f988/runner.py": {
+    "resolved_path": "/private/tmp/nanolang-embedding-darwin-5f988/runner.py",
+    "sha256": "570be1c50f1a62b7df899140ff3acf80beccb7952ed91a0241cc33be59892e88"
+  },
+  "/usr/bin/xcrun": {
+    "resolved_path": "/usr/bin/xcrun",
+    "sha256": "178e19cfe796ce33815195c42d34562c20ec4d5131534fb7e6a55b91f14371d5"
+  }
+}
