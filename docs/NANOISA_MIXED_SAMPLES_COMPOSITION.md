@@ -254,3 +254,12 @@ policy. These records identify typed FLOAT-or-VOID checks and generic value
 comparison semantics; they do not claim to enumerate ordinary division-by-zero,
 allocation or other existing runtime failure conditions. My first checkpoint has
 not been compiled or executed; I hold fixtures and gates for independent review.
+
+## My measured private checkpoint
+
+After root and independent review, query qualification passed at56653e66,
+fixture-only805ff5c4 and integratedb8cc31f7. My
+[sealed evidence](evidence/mixed-samples-composition.md) preserves the exact
+production/fixture/tool pins and allocation boundaries. The earlier statement
+that the first checkpoint had not been compiled records its review state; these
+later private C query checks do not grant runtime or source admission.

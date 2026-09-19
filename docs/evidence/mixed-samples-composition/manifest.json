@@ -24,5 +24,18 @@
   "focused/sources-after.json": "546b30f62104b6c715a5ad82d833f243c59f00db715b415340cf0436f858b2fe",
   "focused/sources-before.json": "546b30f62104b6c715a5ad82d833f243c59f00db715b415340cf0436f858b2fe",
   "focused/tools-after.json": "a1b3449fa0ce6ffccf9ea69fd26a1ef2376a73517968a7d205606ff9b7fb3d99",
-  "focused/tools-before.json": "a1b3449fa0ce6ffccf9ea69fd26a1ef2376a73517968a7d205606ff9b7fb3d99"
+  "focused/tools-before.json": "a1b3449fa0ce6ffccf9ea69fd26a1ef2376a73517968a7d205606ff9b7fb3d99",
+  "integrated/clang.json": "a713b41f8109c5b9e804e20cc31b332ef8c58312cc68bb2921435ed9f0e62842",
+  "integrated/clang.log": "911e0709511e8798060d5e63688e6ef69a167ee8dff8266feb893834ffcadc2a",
+  "integrated/gcc.json": "3d4327995b3cf6a1a0c6ac66f71ef28733282dcdf79f36bbc9b1a7c1b807ecf9",
+  "integrated/gcc.log": "d2c5d13a4ceea1950412d72361a82e6f04cf428a39c9dc2ab86ec4bcd7056d8e",
+  "integrated/integration.json": "35756170ff4f9101002de7a27448f1014deba7eafe7b7129a264f39d0267e523",
+  "integrated/objects-after-build.json": "94560b0306a76d9e6c1f85f100863f9f992f60720e456fc3691436f6daaa4f40",
+  "integrated/objects-after.json": "94560b0306a76d9e6c1f85f100863f9f992f60720e456fc3691436f6daaa4f40",
+  "integrated/results.json": "73f83be1dad38ee6cc6825c6e38a9a6b4a3c32edd8c7cd27ec8d5ec3c1cfe08f",
+  "integrated/runner.py": "fce628a683f4666c2bc2dae0660c4c30ef2e8acdfaf4205dc7992cda5c247a25",
+  "integrated/sources-after.json": "701b51a3b503016c8a62f7b7735cbeed5c6577aef8db4dcd711ca0e6a780eeb7",
+  "integrated/sources-before.json": "701b51a3b503016c8a62f7b7735cbeed5c6577aef8db4dcd711ca0e6a780eeb7",
+  "integrated/tools-after.json": "a1b3449fa0ce6ffccf9ea69fd26a1ef2376a73517968a7d205606ff9b7fb3d99",
+  "integrated/tools-before.json": "a1b3449fa0ce6ffccf9ea69fd26a1ef2376a73517968a7d205606ff9b7fb3d99"
 }

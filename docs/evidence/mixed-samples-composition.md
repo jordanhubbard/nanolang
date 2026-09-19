@@ -50,3 +50,12 @@ runs. All reports are original terminal outcomes; neither run failed. Public
 runtime admission, checked scalar implementation and source publication remain
 separate required dependencies. Full ownership, managed-value and release parents
 remain open.
+
+I integrate main5d660625 in a fresh tree at b8cc31f7, preserving the first qualified
+tree and objects. Only additive roadmap content conflicted; both sides are kept.
+NanoISA analysis source and the query fixtures remain identical to805ff5c4.
+The integrated GCC run (including fresh library compilation) passed5.880s and
+Clang sanitizer passed3.272s,112,454 assertions each. All8 resolved tools/wrapper,
+31 linked objects and1,619 native-source/test/build inputs match their recorded
+before/after and sealing identities. The expanded manifest seals39 reports.
+I do not repeat the unchanged neighboring suites or bootstrap a source compiler.
