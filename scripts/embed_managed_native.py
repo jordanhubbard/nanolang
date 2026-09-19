@@ -12,7 +12,7 @@ REMOVED = (b'#include "managed_strings.h"\n', b'#include "binary64_parse.h"\n')
 
 
 def literal(data: bytes) -> str:
-    """I encode bytes, independent of compiler source/execution character sets."""
+    """I preserve bytes on my supported ASCII-compatible C toolchains."""
     escapes = {10: r'\n', 13: r'\r', 9: r'\t', 34: r'\"', 92: r'\\'}
     return '"' + ''.join(escapes.get(byte, chr(byte) if 32 <= byte < 127
                                    else f'\\{byte:03o}') for byte in data) + '"\n'
