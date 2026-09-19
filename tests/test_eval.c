@@ -2139,16 +2139,17 @@ void test_eval_reduce_pure_arithmetic_int(void) {
         "fn add_ints(acc: int, x: int) -> int { return (+ acc x) }\n"
         "fn main() -> int {\n"
         "    let arr: array<int> = [1, 2, 3, 4, 5]\n"
-        "    let total: int = (reduce arr add_ints 0)\n"
+        "    let total: int = (reduce arr 0 add_ints)\n"
         "    return total\n"
         "}\n"
         "shadow main {\n"
         "    let arr: array<int> = [1, 2, 3, 4, 5]\n"
-        "    let total: int = (reduce arr add_ints 0)\n"
+        "    let total: int = (reduce arr 0 add_ints)\n"
         "    assert (== total 15)\n"
         "}\n"
     );
     ASSERT(ok);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
     run_ctx_free(&ctx);
 }
 
