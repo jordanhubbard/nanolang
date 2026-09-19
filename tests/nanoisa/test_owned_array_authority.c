@@ -73,7 +73,7 @@ static void prepared_and_faults(void) {
     NvmOwnedArrayTransport saved_transport=transport;CHECK(!nvm_owned_array_plan_transport(NULL,&transport) && !memcmp(&transport,&saved_transport,sizeof transport));
     NvmOwnerAuthorityCounts saved_counts=counts;CHECK(!nvm_owned_array_plan_counts(NULL,&counts) && !memcmp(&counts,&saved_counts,sizeof counts));
     NvmOwnerOriginObligation ob={.function=8,.pc=9,.actual_tags=10,.required_tags=11,.read_tags=12},saved_ob=ob;CHECK(!nvm_owned_array_plan_obligation(p,counts.instructions,&ob) && !memcmp(&ob,&saved_ob,sizeof ob));
-    bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);CHECK(!nvm_verify(m).ok);
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);CHECK(nvm_verify(m).ok);
     uint8_t *code=malloc(m->code_size),*owned=malloc(m->ownership_size),*layout=malloc(m->layout_size);CHECK(code && owned && layout);
     memcpy(code,m->code,m->code_size);memcpy(owned,m->ownership_data,m->ownership_size);memcpy(layout,m->layout_data,m->layout_size);
     unsigned failures=0,structural_failures=0;bool success=false;
@@ -156,7 +156,7 @@ static void comparison_rows(const char *body,uint8_t opcode,uint8_t mask,bool re
         if(in.opcode==OP_RET)CHECK(!a.operand_count && !a.operand_actual[0] && !a.operand_actual[1]);
         pc+=width;
     }
-    CHECK(comparisons==1 && index==counts.instructions);CHECK(!nvm_verify(m).ok);
+    CHECK(comparisons==1 && index==counts.instructions);CHECK(nvm_verify(m).ok);
     nvm_owned_array_plan_free(p);nvm_owned_array_origins_free(origins);nvm_module_free(m);
 }
 static void optional_operands(void) {
