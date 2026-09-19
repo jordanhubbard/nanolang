@@ -9,6 +9,9 @@
 /* Private native adapter only: no source, NanoISA import or NSI dispatch uses
  * this interface. Context creation/use is serialized by the caller. */
 typedef struct NlFileService NlFileService;
+/* I report service plus capability storage without allocating. Failure preserves *out. */
+bool nl_file_service_storage_bound(size_t *out);
+
 typedef struct {
     uint64_t context_id;
     NlCap cap;

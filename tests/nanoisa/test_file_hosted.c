@@ -215,7 +215,10 @@ static void allocation_prefixes(void){
  printf("I retain %u precise MEMORY and %u ambiguous UNRESOLVED allocation prefixes\n",memory,unresolved);
 #endif
 }
-int main(void){exact_startup_and_bounds();initializer_controls();startup_supplement();wire_controls();allocation_prefixes();
+#ifndef FILE_HOSTED_MAIN
+#define FILE_HOSTED_MAIN main
+#endif
+int FILE_HOSTED_MAIN(void){exact_startup_and_bounds();initializer_controls();startup_supplement();wire_controls();allocation_prefixes();
 #ifdef HOSTED_INSTRUMENT
  CHECK(!tracked_live && !tracked_bytes);
 #endif

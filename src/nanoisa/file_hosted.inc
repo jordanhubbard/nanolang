@@ -269,3 +269,10 @@ bool nvm_file_hosted_instruction(const NvmFileHostedPlan *p,uint32_t f,uint16_t 
                                 NvmFileCodeInstruction *instruction,NvmFileBodyInstruction *fact) {
     return p && nvm_file_body_instruction(p->body,f,i,instruction,fact);
 }
+
+bool nvm_file_hosted_type(const NvmFileHostedPlan *p,uint32_t ordinal,NvmFileNominalLayout *out) {
+    return p && nvm_file_nominal_type(p->body->plan->declarations->nominal,ordinal,out);
+}
+bool nvm_file_hosted_import(const NvmFileHostedPlan *p,uint32_t index,uint32_t *out) {
+    return p && nvm_file_nominal_import(p->body->plan->declarations->nominal,index,out);
+}

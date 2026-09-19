@@ -21,6 +21,14 @@ struct NlFileValues {
     NlFileValuesFinish report;
     FvSlot slots[NL_FILE_VALUE_SLOTS];
 };
+bool nl_file_values_storage_bound(size_t *out) {
+    size_t service;
+    if (!out || !nl_file_service_storage_bound(&service) ||
+        service > SIZE_MAX - sizeof(NlFileValues)) return false;
+    *out = sizeof(NlFileValues) + service;
+    return true;
+}
+
 /* External serialization includes this counter and the adapter's counter. */
 static uint64_t fv_identity;
 static NlFileResult fv_result(NlFileStatus status) {
@@ -201,6 +209,10 @@ NlFileValueStatus nl_file_value_drop(NlFileValues *s,NlFileValue *v) {
     if(slot->kind==FV_OPEN_ERROR)fv_clear(slot);
     else {NlFileResult r;status=fv_close_slot(s,slot,&r);if(status!=NL_FILE_VALUE_OK)return status;}
     *v=(NlFileValue){0};return NL_FILE_VALUE_OK;
+}
+bool nl_file_values_report(const NlFileValues *s, NlFileValuesFinish *out) {
+    if(!s || !out)return false;
+    *out=s->report;return true;
 }
 NlFileValuesFinish nl_file_values_finish(NlFileValues *s,NlFileValueStatus error) {
     if(!s)return (NlFileValuesFinish){.execution=NL_FILE_VALUE_ARGUMENT};

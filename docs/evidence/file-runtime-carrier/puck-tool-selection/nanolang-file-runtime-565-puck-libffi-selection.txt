@@ -1,0 +1,1 @@
+-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi -lffi
