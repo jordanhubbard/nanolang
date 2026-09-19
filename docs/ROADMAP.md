@@ -11536,3 +11536,11 @@ or execute generated native C. I retain both first terminals, explicitly set
 the service compiler and empty extra flags, and run only fresh service fixtures
 against the exact prepared object/link environment. I do not rerun passing
 source, mixed runtime or owned checks or suppress leak detection.
+
+My complete68db compiler-selector audit also limits the first successful Darwin
+mixed runtime result: the fixture reads `CC`, and its existing Apple-specific
+policy sets `detect_leaks=0`. That pass establishes Apple ASan/UBSan and explicit
+root/allocation assertions, not Homebrew LSan. I retain it separately and require
+one fresh direct-Python mixed native twelve-case configuration with explicit
+Homebrew CC/LSan, without repeating heap/admission, owned, bootstrap or source
+gates. This closes a missing sanitizer configuration, not a product correction.
