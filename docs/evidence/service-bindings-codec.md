@@ -57,3 +57,11 @@ to the reviewed d314 checkpoint. The roadmap merge is automatic. Socket adds its
 own independently qualified sources/tests/docs; I do not claim the old inventory
 covers those new files or that Makefile.gnu remains byte-identical. No new codec
 execution is justified by this additive integration, and no gate is rerun.
+
+Before merge, root review ofcaa5372dd identifies unrelated Makefile comment
+separator shortening caused by broad conflict-marker string removal. I retain
+that checkpoint and retract its additive-only Makefile claim until corrected.
+Codec production/tests remain unchanged; this is integration comment churn, not
+an observed runtime defect. I restore the complete qualified d314 Makefile and
+insert only canonical Socket's exact target block, then inspect the full diff.
+No execution is repeated for restoring comments.
