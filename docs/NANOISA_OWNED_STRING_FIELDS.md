@@ -298,3 +298,24 @@ only one arm initializes the local before a joined load. The refused module
 never executes. I preserve all production and the original sealed runtime
 tree/tools; a separate tree qualifies only these additional controls with GCC
 and Clang. Source admission waits for this evidence.
+
+## My paired source implementation boundary
+
+After the separate initialization-join gate passes, I integrate canonical
+inline807 (`d7454376`) in a new source tree. I keep both runtime qualification
+trees and binaries unchanged. I introduce a separate exact field-tag helper
+for INT/BOOL/STRING, leaving numeric scalar, leaf-reference and result-signature
+tag helpers unchanged. Constructor staging, metadata fields and destructive
+unpack use that field helper; STRING locals are value-graph-only. STRING
+operators remain EQ/NE only. I keep FLOAT local/operand support separate from
+still-refused FLOAT fields and signatures.
+
+A direct STRING field observation on an unborrowed named local emits a retained
+LOAD_LOCAL/AGG_GET pair. I do not turn that observation into a borrowed STRING
+place. Nested path observation requiring borrowed authority remains checked
+refusal; destructive nested unpack already provides named child locals.
+Reference writes and standalone STRING returns stay refused. Complete source
+and shadow selection, constructor source order/declaration pack order, exact
+nominal arguments/results and existing output publication remain unchanged.
+I send the paired production checkpoint for review before fresh bootstrap or
+source fixture execution.
