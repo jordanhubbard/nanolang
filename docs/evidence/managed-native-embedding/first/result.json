@@ -1,0 +1,27 @@
+{
+  "pin": "207ebfe3dd055a731b811056fe07bdcb0d22a2f6",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.test_managed_native_embedding",
+    "-v"
+  ],
+  "status": 1,
+  "seconds": 1.1198517550365068,
+  "tools": {
+    "gcc": "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "clang": "/usr/local/bin/clang-23",
+    "python3": "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14",
+    "readelf": "/usr/bin/aarch64-linux-gnu-readelf",
+    "ld": "/usr/bin/aarch64-linux-gnu-ld.bfd",
+    "as": "/usr/bin/aarch64-linux-gnu-as",
+    "clang-wrapper": "/tmp/nanolang-projection-clang",
+    "cc1": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1",
+    "collect2": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2"
+  },
+  "environment": {
+    "NMS_EMBED_EVIDENCE": "/tmp/nanolang-managed-native-embedding-207ebfe3/programs",
+    "NMS_EMBED_CLANG": "/tmp/nanolang-projection-clang"
+  }
+}

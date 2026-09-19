@@ -1,0 +1,10 @@
+{
+  "admission": {
+    "command": [
+      "make",
+      "test-mixed-samples-admission"
+    ],
+    "status": 0,
+    "seconds": 0.8159079450415447
+  }
+}

@@ -63,7 +63,7 @@ static void positive_and_faults(void) {
     Type locals[]={{TAG_STRUCT,1},SCALAR(TAG_ARRAY)};
     NvmModule *m=build(body,locals,2,helper,false);
     bool needs=false;NvmV2Result old=nvm_ownership_contracts_validate(m,&needs);CHECK(old!=NVM_V2_OK);
-    CHECK(!nvm_verify(m).ok);
+    CHECK(nvm_verify(m).ok);
     NvmMixedFloatProof *p=expect(m,NVM_MIXED_SHAPE_PROVED);
     CHECK(p->origin_count==2 && p->fields[0].tags==(1u<<TAG_ARRAY));
     CHECK(p->fields[0].origins==1 && p->view->classes[1]==NVM_MIXED_PENDING_ARRAY_PROOF);
@@ -86,7 +86,7 @@ static void positive_and_faults(void) {
         CHECK(!memcmp(code,m->code,m->code_size) && !memcmp(owned,m->ownership_data,m->ownership_size));
     }
     CHECK(failures>20 && successes>0);
-    CHECK(nvm_ownership_contracts_validate(m,&needs)==old && !nvm_verify(m).ok);
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==old && nvm_verify(m).ok);
     free(code);free(owned);nvm_module_free(m);
 }
 static void loop_unions(void) {

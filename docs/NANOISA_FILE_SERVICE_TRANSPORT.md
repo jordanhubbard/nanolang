@@ -318,3 +318,14 @@ this negative control to unassigned bit10. Exact service cross-section refusal
 controls stay intact. I also inspect adjacent unknown section/import fixtures
 before a fresh corrected gate. This is a fixture boundary update, not a product
 refusal to be hidden or a new bootstrap claim.
+
+### My combined mixed-runtime integration boundary
+
+After sealing independent qualification, I integrate canonical d0de3d23 in a
+fresh tree. I preserve both source families and add no service execution.
+Service claims must refuse before mixed candidate selection, private preparation
+and delegated common structure, including direct APIs. The bridges retain their
+structural service path and cannot acquire a mixed execution certificate. I
+keep source/global/compact identities unchanged. I record these integration
+obligations before resolving competing selectors, then submit the complete
+production delta before any combined qualification.

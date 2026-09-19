@@ -367,8 +367,8 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
  * Structural validation
  * ======================================================================== */
 
-static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
-                                        bool *owned_admitted) {
+static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted, bool mixed_composed) {
     if (owned_admitted) *owned_admitted=false;
     bool admitted=false;
     if (!mod) return fail("module is NULL");
@@ -429,7 +429,7 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
     }
 
     bool needs_ownership = false;
-    if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
+    if (!mixed_composed && nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
         return fail("I found invalid ownership declarations");
     if (needs_ownership && !affine_only) {
         for (uint32_t i=0;i<mod->function_count;i++) {
@@ -492,6 +492,14 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
     return ok_result();
 }
 
+/* All existing public routes keep the original ownership validation. The only
+ * true delegation caller is private preparation after fresh complete composition. */
+static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted) {
+    return verify_structure_checked(mod,affine_only,owned_admitted,false);
+}
+#include "mixed_samples_prepare.inc"
+
 /* ========================================================================
  * Bytecode instruction validation (per-function)
  * ======================================================================== */
@@ -500,6 +508,12 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
                                            uint16_t *out_max_stack) {
+    if(nvm_service_bindings_present(mod))
+        return fail("I refuse service contracts before mixed execution selection");
+    if(nvm_mixed_samples_candidate(mod)) {
+        if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
+        return verify_mixed_samples(mod,fn_idx,out_max_stack);
+    }
     bool owned_admitted=false;
     NvmVerifyResult structure = verify_structure(mod, false, &owned_admitted);
     if (!structure.ok) return structure;
@@ -1020,6 +1034,9 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
  * ======================================================================== */
 
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
+    if(nvm_service_bindings_present(mod))
+        return fail("I refuse service contracts before mixed execution selection");
+    if(nvm_mixed_samples_candidate(mod))return verify_mixed_samples(mod,0,NULL);
     /* I reuse only this invocation's completed full owned-module proof. */
     bool owned_admitted=false;
     NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
@@ -1043,7 +1060,15 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
     for (uint32_t i=0; i<linked_count; i++)
         if (nvm_service_bindings_present(linked_modules[i]))
             return fail("I refuse linked service contracts before reviewed dispatch admission");
+    if(nvm_service_bindings_present(mod))
+        return fail("I refuse service contracts before mixed execution selection");
+    if(nvm_mixed_samples_candidate(mod)) {
+        if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
+        return verify_mixed_samples(mod,0,NULL);
+    }
     if (linked_count) {
+        for(uint32_t i=0;i<linked_count;i++)if(nvm_mixed_samples_candidate(linked_modules[i]))
+            return fail("I refuse a mixed module in a linked graph");
         bool needs = false;
         if (mod && ((nvm_ownership_contracts_validate(mod, &needs)==NVM_V2_OK && needs) || nvm_uses_owned_transfers(mod)))
             return fail("I refuse linked ownership execution contracts");
@@ -1098,6 +1123,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         return fail("I do not recognize verifier profile %d", (int)profile);
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
+    if(nvm_mixed_samples_candidate(m))return fail("I keep mixed ownership outside closed backend profiles");
     const bool record_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS &&
         (m->struct_count || m->layout_size || m->ownership_size);
     if (m->import_count || m->module_ref_count || m->union_count || m->passive_size ||
