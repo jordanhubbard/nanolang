@@ -10,7 +10,7 @@ checkpoint. Public activation and paired source acceptance remain separate.
 ## I preserve facts and attach exact operand obligations
 
 The original Bundle/PREFIX source compares `(at samples 0)` with FLOAT1.5.
-C `borrow_codegen.inc:nb` numeric comparison and Nano `nb_binary` choose F64_EQ;
+C `borrow_codegen.inc` numeric comparison and Nano `nb_binary` choose F64_EQ;
 my current `oq_scalar` and `la_scalar` transfers require exact FLOAT, whereas
 ARR_GET correctly produces FLOAT|VOID. I do not replace that union with FLOAT,
 invent an absent value or change array bounds semantics.
