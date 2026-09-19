@@ -1816,6 +1816,22 @@ void test_eval_match_miss_is_terminal(void) {
         ASTNode *program = tokens ? parse_program(tokens, token_count) : NULL;
         Environment *env = program ? create_environment() : NULL;
         if (!tokens || !program || !env || !run_program(program, env)) _exit(90);
+        /* I bypass checking only for this deliberately incomplete AST. The
+         * checker normally registers functions; run_program does not. */
+        ASTNode *definition = NULL;
+        for (int i = 0; i < program->as.program.count; ++i) {
+            ASTNode *item = program->as.program.items[i];
+            if (item->type == AST_FUNCTION &&
+                strcmp(item->as.function.name, "unchecked_miss") == 0)
+                definition = item;
+        }
+        if (!definition || definition->as.function.param_count != 0 ||
+            definition->as.function.return_type != TYPE_INT) _exit(90);
+        Function function = {0};
+        function.name = definition->as.function.name;
+        function.return_type = TYPE_INT;
+        function.body = definition->as.function.body;
+        env_define_function(env, function);
         (void)call_function("unchecked_miss", NULL, 0, env);
         _exit(91);
     }
@@ -1843,6 +1859,8 @@ void test_eval_match_miss_is_terminal(void) {
     ASSERT(waited == child);
     ASSERT(read_ok);
     ASSERT(!truncated);
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_FAILURE)
+        fprintf(stderr, "I observed unchecked-match child status %d and stderr: %s\n", status, message);
     ASSERT(WIFEXITED(status));
     ASSERT(WEXITSTATUS(status) == EXIT_FAILURE);
     ASSERT(strstr(message,
