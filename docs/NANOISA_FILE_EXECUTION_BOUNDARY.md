@@ -216,3 +216,39 @@ partition the source, or mistake an integer extern wrapper for ownership proof.
 I preserve all first terminals before corrections and check actual cleanup,
 sentinel isolation and output preservation. No private query/carrier checkpoint
 closes the full6931/d03c/ed702 source/execution obligations.
+
+### My private API details before implementation
+
+For checkpoint1 I choose a fully serialized C API precondition, including context
+creation and use alongside the underlying private adapter. I add no unsynchronized
+busy flag and make no thread-safe or concurrent-entry refusal claim. Later public
+entry synchronization remains a separately reviewed requirement.
+
+An opaque `NlFileValues` invocation owns64 slots. Checked value handles carry an
+invocation identity, slot and monotone generation; they expose no host token.
+Moving a File/OpenResult or taking Ok advances only the language generation, so
+old copied handles become stale while the adapter token stays unchanged. Empty
+source/destination handles are explicit; self/overlapping transfer is refused
+unchanged. Slots at exhausted generation retire after cleanup. OpenResult.Error
+uses the same bounded affine result slot until extraction/drop, without a File.
+The other Result payloads are returned by value and require no owner slot.
+
+Borrow handles additionally carry a monotone call epoch. Finish invalidates any
+remaining borrow during terminal cleanup; it does not race a running call under
+this serialized contract. Checked operation failures preserve owner/output state.
+Successful service Error publication is distinct from execution-status refusal.
+Result storage is embedded in the preallocated slots: no fallible allocation
+occurs after host acquisition in this checkpoint, and underlying adapter mint
+failure retains its qualified rollback behavior. Capacity exhaustion before a
+Result slot is available is a checked execution limit, not a fabricated Error.
+
+Explicit close returns its exact scalar CloseResult. Any close/rollback cleanup
+failure is also retained in the invocation finish report, preventing a later
+caller from silently publishing a clean overall completion. Read/write/rewind
+Errors retain their File and do not themselves become cleanup errors. Finish
+accepts the first pending execution status from its caller, retains the first
+cleanup event plus the first later event and a checked count, cleans slots before
+service disposal/destruction, and caches its terminal report for idempotence.
+All output pointers must be valid and disjoint from context storage; differently
+typed result/handle output objects must not overlap. No use after context
+storage destruction is supported.
