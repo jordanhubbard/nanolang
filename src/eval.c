@@ -3624,7 +3624,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) return builtin_reduce(args, env);
     
     /* Dynamic array operations (GC-managed) */
-    if (strcmp(name, "array_push") == 0) return builtin_array_push(args);
+    if (strcmp(name, "array_push") == 0 && (!named_func || !named_func->body))
+        return builtin_array_push(args);
     if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args);
     if (strcmp(name, "array_remove_at") == 0) return builtin_array_remove_at(args);
     if (strcmp(name, "array_sort") == 0) return builtin_array_sort(args);

@@ -11890,3 +11890,12 @@ I refine task286b before code: native Nano direct identifier calls currently emi
 C arguments without snapshots. I bound the correction to declared/bound push,
 including callee capture and signature-directed ordered arguments; unrelated
 direct calls stay outside this checkpoint. Root reviewed this clarification.
+
+I prepare task286b's complete C lookup/checker/interpreter/native and Nano native
+push-only correction plus meaningful helper shadows and a separate identity
+fixture. Native name mapping and result-element inference use selected signatures;
+callee/argument snapshots apply only to declared/bound push. I have not run new
+programs or bootstrap. The complete production/fixture checkpoint awaits review,
+with both961a failures and the full mutation suite preserved. The next product
+acceptance remains the entire unchanged owned-record-pattern suite after these
+prerequisites pass, not a narrowed Bundle replacement.

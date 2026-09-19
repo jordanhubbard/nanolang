@@ -78,3 +78,29 @@ all builtin names, imported declaration ambiguity, or unrelated legacy effects.
 5. I retain old961a first outcomes separately and seal the corrected source/tools,
    artifacts and terminal statuses. Mutation, full owner ARRAY and product/release
    parents stay open until their own acceptance and actual merge reconciliation.
+
+## My prepared production checkpoint
+
+I now retain the exact same-module body before registry lookup, share a push-only
+lexical/declaration predicate for C inference and lowering, and bypass interpreter
+builtin dispatch when the selected function has a body. Native C name mapping
+also preserves the selected declaration rather than returning the registry C name.
+My push-only lexical checker path reuses checked function signatures and refuses
+non-function bindings; it does not repair generic calls under other names.
+
+My Nano native predicate checks membership in `env.names`, including empty type
+entries, and the resolved declaration identity. Bound/declared push captures its
+callee and arguments once in order, with existing declared/function-value argument
+types; lexical result inference uses the selected signature. Both new helpers have
+mandatory shadows. I retain ordinary unbound push emission and all other builtin
+branches. Prepared source controls exercise native C and both selfhost stages,
+canonical scalar/array routes, exact declaration return-element facts, lexical
+restoration, meaningful shadows, refusals and prior-output preservation. Indirect
+native controls do not claim new canonical indirect-call admission.
+
+Only static inspection, Python fixture parsing and whitespace checks have run.
+Production/fixture review precedes fresh bootstrap or program execution. Both
+frozen961a terminal logs and trees remain untouched. After identity/mutation
+acceptance, my next product prerequisite is the entire unchanged twelve-method
+`tests/test_owned_record_patterns.py` corpus, with all four compilers and PREFIX
+shadows; I do not start that run before these dependencies qualify.
