@@ -2674,7 +2674,7 @@ void test_eval_handler_return_expression_order(void) {
         "let packet = Packet.Data { x: (emit), y: (mark) } return 99",
         "let x = match (emit) { 7 => (mark), _ => 0 } return 99",
         "let x = match 7 { 7 if (== (emit) 7) => (mark), _ => 0 } return 99",
-        "let x = match 8 { _ if (== (emit) 7) => (mark) } return 99",
+        "let x = match 8 { _ if (== (emit) 7) => (mark), _ => (mark) } return 99",
         "let p = Packet.Data { x: 1, y: 2 } let x = match p { Data(d) if (== (emit) 7) => (mark), _ => 0 } return 99",
         "for i in (range (emit) (mark)) { set trace 8 } return 99",
         "assert (== (emit) 99) return 99",
