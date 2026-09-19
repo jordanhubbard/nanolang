@@ -200,3 +200,97 @@ representation, not floating equality as a bit-preservation proof.
    This child remains open until its own paired platform acceptance lands.
    Parent430220 retains all runtime/public/managed obligations; full ownership,
    full product/fixed-point acceptance and release remain independently open.
+
+## I select the exact scalar opcodes of the new profile
+
+Before completing source18731 production, I record the static interface mismatch:
+my existing specialized producers emit generic integer/Boolean operations and
+range-test/increment instructions, while owned_array_origins.inc admits exact
+I64/BOOL operations (and only generic EQ/NE comparisons). No rejected module was
+executed to establish this; the source and query opcode tables are explicit.
+
+Only inside the distinct owner-ARRAY profile, I select I64_ADD/SUB/MUL/DIV_S/REM_S,
+I64_NEG and signed I64 ordering comparisons for exact INT source operands;
+BOOL_AND/OR/NOT for exact BOOL operands; and existing generic EQ/NE for INT/BOOL
+equality. FLOAT operations keep their existing F64 instructions and complete
+FLOAT|VOID obligations. Range comparisons and increments use I64_LT_S/I64_ADD.
+I do not change non-owner-ARRAY opcode selection or admit new runtime instructions.
+
+The exact INT handlers retain the existing integer contract: add/subtract/multiply
+wrap modulo2^64, zero division/remainder returns zero, minimum/-1 division wraps
+to minimum, minimum%-1 is zero, and minimum negation wraps to minimum. I verify
+these source operand boundaries with meaningful mandatory mapping shadows and
+later paired source controls, including range/while Boolean conditions. Source
+annotations cannot discharge unknown/optional values in the final authority.
+
+BOOL ordering has no admitted typed instruction in this profile and remains a
+checked refusal. STRING comparisons and STRING printing remain refused only in
+this new profile; existing STRING-only source acceptance stays unchanged. No
+BOOL-to-INT conversion, generic dispatch fallback, new INT-print surface or
+broader scalar policy follows. The original Bundle/PREFIX/shadows remain required.
+
+## I prepare my source fixtures without claiming activation
+
+After independent paired production review through99fdb4804, I prepare
+`tests/test_source_owned_float_arrays.py` as six explicitly selected methods.
+I obtain the original Bundle source from its unchanged test AST, retain PREFIX
+and every shadow, and execute that original method through all four drivers
+only after the activation dependency qualifies. My reused graph harness compares
+canonical dumps, retained names and stripped metadata, every raw emitter and the
+complete selected-shadow modules before VM/native comparisons.
+
+I prepare integer minimum/wrap/zero-divisor and Boolean/range controls, contextual
+empty fields, nested factory/forward calls with prepared array roots, observations
+and aliases across complete reversed unpack and owner consumption. Optional
+FLOAT comparisons cover left/right/both operands; out-of-bounds shadow refusals
+preserve prior publication and independently verified raw modules exercise checked
+runtime failure. Exact FLOAT local/arithmetic/negation and lexical at/not controls
+remain refusals. Original Samples, STRING, scalar-owner and borrowed profiles are
+adjacent controls. Mutation/length remains the separate bba622 checkpoint.
+
+I have parsed only the Python fixture syntax and checked whitespace. I have not
+built tools, bootstrapped, run these source tests or executed a new module. Public
+activation qualification remains pending, including its separately recorded
+absent/VOID parameter-sidecar correction. I will freeze a fresh integrated tree
+with its exact qualified providers before any of these source gates.
+
+My static fixture review strengthens forward's new shadow: it invokes the
+forwarding helper, observes the returned child field, unpacks the returned Bundle,
+checks its array value and consumes its Handle. The old-profile method explicitly
+invokes the previously qualified unchanged affine-example STRING graph, including
+its exact stdout and complete shadow stdout assertions; STRING coverage is not
+inferred from a test name.
+
+On Darwin my inherited native pair runner selects `CC` directly. After producer
+setup, I must freeze `CC=/opt/homebrew/opt/llvm/bin/clang`, capture the resolved
+compiler hash and SDK selection, and retain `detect_leaks=1:halt_on_error=1`.
+`NANO_NATIVE_TEST_CC` alone does not select this runner's compiler. I have not
+executed this prepared harness or changed any source production.
+
+## I retain the first source terminal and correct the refusal phase
+
+At frozen c9fb07ed5, fresh bootstrap and tool/probe setup pass271.579s/26.523s.
+The unchanged original Bundle/PREFIX, integer boundaries, prepared roots/returns
+and optional left/right/both runtime checks all pass. The fifth method stops at
+raw nanoisa_emit successfully writing optional-local NASM, which my fixture
+incorrectly expected to refuse during lowering. No failed artifact executes.
+The sixth adjacency method is unrun. Source2265/tool7/post-setup input799 maps
+remain equal across this gate; first terminal is retained separately.
+
+Task_d27a23d5dc36354ab2504ab0210c295f records the test repair before edits.
+The raw CLI writes nonempty assembly without invoking final authority unless
+--emit-nvm is selected. For optional-local/add/negate I instead retain fresh raw
+assembly, require its successful lowering, and require the ordinary assembler to
+refuse without replacing a previous NVM. This does not accept annotation as
+FLOAT authority, widen production, execute a refused artifact, or change public
+compiler and other raw-lowering refusal expectations. After review I rerun only
+the affected fifth method and previously unrun sixth against unchanged producers.
+
+The affected b9ecc run reaches the required optional-local/add/negate final
+assembly refusals and bound-at refusals, then stops at bound-not/nano_virt.
+Both lexers reserve `not` as TOKEN_NOT, so `let not: int` is not a legal binding
+under the existing grammar. I preserve this second terminal and the exact source,
+requiring a parser refusal with previous output untouched rather than pretending
+that it reaches a later lexical check. The passing integer method already checks
+unbound BOOL_NOT semantics. This correction grants no syntax or builtin fallback;
+the sixth old-profile method is still unrun.

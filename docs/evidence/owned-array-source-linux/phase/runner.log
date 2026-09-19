@@ -1,0 +1,18 @@
+test_exact_type_lexical_and_shadow_refusals (corrected_owned_array_source.SourceOwnedFloatArrays.test_exact_type_lexical_and_shadow_refusals) ... 
+  test_exact_type_lexical_and_shadow_refusals (corrected_owned_array_source.SourceOwnedFloatArrays.test_exact_type_lexical_and_shadow_refusals) (case='bound-not', compiler='nano_virt') ... FAIL
+
+======================================================================
+FAIL: test_exact_type_lexical_and_shadow_refusals (corrected_owned_array_source.SourceOwnedFloatArrays.test_exact_type_lexical_and_shadow_refusals) (case='bound-not', compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-owned-array-source-refusal-phase/tests/test_source_owned_float_arrays.py", line 42, in refused
+    self.assertNotRegex(result.stdout + result.stderr,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        r'(?i)parse (?:error|failed)|unexpected token')
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex matched: 'Unexpected token' matches '(?i)parse (?:error|failed)|unexpected token' in 'Error at line 10, column 5: Expected variable name\nError at line 10, column 12: Unexpected token in expression: COLON (type=14)\nError at line 10, column 14: Unexpected token in expression: TYPE_INT (type=50)\nError at line 10, column 18: Unexpected token in expression: ASSIGN (type=17)\nerror: parser failed\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.233s
+
+FAILED (failures=1)
