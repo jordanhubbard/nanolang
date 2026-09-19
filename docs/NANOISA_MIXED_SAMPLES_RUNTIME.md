@@ -320,3 +320,30 @@ refuse pending mixed modules. I have not compiled or executed this production
 checkpoint. The earlier embedding measurements qualify only its frozen standalone
 runtime fixture. I request complete source review before activation and newly
 admitted execution.
+
+## My explicit activation design
+
+I select the mixed candidate before old ownership validation using an allocation-
+free bounded scan for retained RESOURCE flags together with ARRAY field transport.
+The scan grants no validity: the complete fresh conjunction must still accept every
+row, instruction and scalar obligation. A failed selected mixed candidate never
+falls through to an old backend; qualified STRING without ARRAY remains on its
+old path. Malformed noncandidates retain old rejection. The executable wrapper
+additionally requires INT/BOOL/U8 entry0 and excludes initializer functions.
+
+General, function, max-stack and zero-link verification all use that same fresh
+standalone conjunction; nonzero-link graphs reject any mixed candidate. Closed
+backend policy checks explicitly refuse mixed candidates after general verification.
+The old owned-only and descriptive authority APIs remain unchanged. Conversion
+uses explicit mixed validation before transporting existing bytes, with existing
+converter error-enum/status conventions; no new wire authority is introduced.
+
+VM classification recognizes a mixed candidate as requiring ownership semantics,
+then admission freshly prepares the exact invocation signature/maps. Readiness
+still checks instantiated constants on every entry. Direct core establishes its
+own fresh proof on each public call, including an internal-frame continuation,
+while preserving normal ASSERT traps; terminal errors or a false ASSERT drain
+actual mixed roots and frames. The direct core's Boolean trap payload remains the
+caller's trap value. Synchronous public loops reuse only their same invocation
+proof and keep the earlier callback/target/trace restrictions. No proof persists
+in VmState. Native selection calls only the reviewed complete mixed emitter.
