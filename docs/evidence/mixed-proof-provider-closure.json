@@ -1,0 +1,58 @@
+{
+  "production_pin": "64db8f922e7a24e5e4b86794f66fe3d1f0c076b9",
+  "first_linux_pin": "27a8464ca5b8ec4c64bae9516aac652bdf75b98b",
+  "reports": {
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/bootstrap.json": "7f400479cb55cc48a016908b311a95575b13ea72ff1b76eba1b788ab934f1e7f",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/bootstrap.log": "296d419c69b8d881640ee13240cce2d9d42f42e94832066a8261e0ede0138ff1",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/built-tools.json": "d2ec8ee7aae3eb44bd95ec24b881c1118340ffb398314bd06eb259d8c93cb55f",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/result.json": "d6c0d634a36710c4eb349024e3e9b7a9b9c599dfb517eedfbeff8c15d0cdec48",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/sources-after.json": "23cb8ac2ff5aa753249a27ef5ee0f9b1a1d3ec7008bb6a56ca35998787e56abb",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/sources-before.json": "23cb8ac2ff5aa753249a27ef5ee0f9b1a1d3ec7008bb6a56ca35998787e56abb",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/tools-after.json": "5d260b0cda2fa818f300c64ef426492cc12339bbf41b9a7e9a7cbaa8f9f5dbb2",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/tools-before.json": "5d260b0cda2fa818f300c64ef426492cc12339bbf41b9a7e9a7cbaa8f9f5dbb2",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/wrapper.json": "64ca87f7e1f500a47515cd05782f27f29cc2b7e6f63a92b24839e40cb081e30d",
+    "/tmp/nanolang-wrapper-mixed-proof-27a8464ca/wrapper.log": "9a7ec03d2c4de55c370437f52d32285bb99774d7ab243041bcb7457ade50b53f",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/bootstrap.json": "87e0b38ef07dc73948b7b2a82d9a68733104d279d0d3b642a6b299944882c672",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/bootstrap.log": "8c8b875fb774f9e7168a324b2b386d30e13654caf30a80bae57f951564e77e6b",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/built-tools.json": "6b3a5d3aaf21e2cd96e9101d6e921b16e56ae541da3d7a1d5e77205dec11961c",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/result.json": "5ac5ed63a3781570c4fdf477343a079a133a34d94f2dd040732c21ff1134a233",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/sources-after.json": "b794cc6f8f6cb971ec7bf3f88e32c9fbda246c368f5a065be1d03c9c1e583274",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/sources-before.json": "b794cc6f8f6cb971ec7bf3f88e32c9fbda246c368f5a065be1d03c9c1e583274",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/tools-after.json": "5d260b0cda2fa818f300c64ef426492cc12339bbf41b9a7e9a7cbaa8f9f5dbb2",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/tools-before.json": "5d260b0cda2fa818f300c64ef426492cc12339bbf41b9a7e9a7cbaa8f9f5dbb2",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/wrapper.json": "5ab86854d91f5e6527c5a35fac3312e7a7b3029939e77220a0538cdbc78ef4f5",
+    "/tmp/nanolang-mixed-proof-closure-64db8f922/wrapper.log": "6456401515e82a5c59fbf3a1fd351b1271525cb5aaf7ef6814d5b6877c3ec593"
+  },
+  "source_count": 5326,
+  "result": {
+    "pin": "64db8f922e7a24e5e4b86794f66fe3d1f0c076b9",
+    "steps": [
+      {
+        "name": "wrapper",
+        "command": [
+          "make",
+          "-j4",
+          "test-wrapper-gen"
+        ],
+        "status": 0,
+        "seconds": 13.048,
+        "log_sha256": "6456401515e82a5c59fbf3a1fd351b1271525cb5aaf7ef6814d5b6877c3ec593"
+      },
+      {
+        "name": "bootstrap",
+        "command": [
+          "make",
+          "bootstrap"
+        ],
+        "status": 0,
+        "seconds": 247.11,
+        "log_sha256": "8c8b875fb774f9e7168a324b2b386d30e13654caf30a80bae57f951564e77e6b"
+      }
+    ],
+    "terminal": 0,
+    "source_equal": true,
+    "tool_equal": true,
+    "head_equal": true
+  },
+  "scope": "I qualify provider closure only. Darwin bootstrap and STRING acceptance remain separate pending gates."
+}
