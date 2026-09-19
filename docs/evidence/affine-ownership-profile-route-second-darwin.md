@@ -95,3 +95,25 @@ the deeper callable/union public-C gates, checked-owner selection, aggregate
 affine gates or an installed-product gate. I made no production correction.
 Those gates remain ordered after static diagnosis, reviewed correction and a
 fresh complete route matrix.
+
+## My later static attribution
+
+After sealing the outcome above, I inspected source and the operating system's
+retained crash report without executing or minimizing the failed binary.
+macOS retained `nanoc_stage1-2026-09-18-213056.ips`, 10,898 bytes, SHA-256
+`d0f5a4746eaf8d3423af39a36e973fcb1e9b9e1ca96fcfbf61473396e4cd9597`.
+Its process launch and capture timestamps match this route observation. It
+reports `Thread stack size exceeded due to excessive recursion` at the stack
+guard. The main-thread trace contains303 recursive
+`parser__parse_block_recursive` frames before `___chkstk_darwin` faults while
+the parser enters the next unsafe-call expression.
+
+The exact source contains514 sequential statements in one function block.
+`src_nano/parser.nano` recursively calls `parse_block_recursive` after each
+successful statement, retaining the by-value `Parser` frame until the closing
+brace. Its unsafe-block twin has the same latent linear-recursion structure.
+This static evidence identifies statement-list recursion as the bounded cause;
+it does not implicate ownership-state array growth. My
+[preimplementation correction contract](../SELFHOST_BLOCK_PARSER_STACK_SAFETY.md)
+preserves this first-terminal report and requires review before production or
+new execution.
