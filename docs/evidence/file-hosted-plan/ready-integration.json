@@ -1,0 +1,38 @@
+{
+  "integrated_main": "c4529256252e6cb45e63c9eb967101821de297b1",
+  "make_delta": "Only additive canonical test-owned-array-bits-boundaries target; hosted recipes unchanged.",
+  "merge": "1775cc782",
+  "production_and_hosted_fixture_identity": {
+    "src/nanoisa/file_flow.c": {
+      "qualified_equal": true,
+      "sha256": "43a7f037f6e728837b6da2cc5ef6e94f80fc5c0cada8aff2091ea57a751dc071"
+    },
+    "src/nanoisa/file_hosted.h": {
+      "qualified_equal": true,
+      "sha256": "4e00c9b1b5b9d24b867b0686df5f53f650c0001276878f105343f714ecd54aa3"
+    },
+    "src/nanoisa/file_hosted.inc": {
+      "qualified_equal": true,
+      "sha256": "0913f7bdef7884ba902b4c1e7b88dd3a91e62c1126d5fd5c3a845595d9486901"
+    },
+    "tests/nanoisa/file_hosted_alloc.h": {
+      "qualified_equal": true,
+      "sha256": "c7a6c30614a51f779c325fcd731dcb9d5795caa141da2d80cc458c09fbd734f0"
+    },
+    "tests/nanoisa/test_file_body.c": {
+      "qualified_equal": true,
+      "sha256": "668a4d8b7402457ee6fa9a78c8b6ac23c28d7318aede542dab99b60be4cb5316"
+    },
+    "tests/nanoisa/test_file_hosted.c": {
+      "qualified_equal": true,
+      "sha256": "4b991b3e42bc815f480345e50f18b6b65c9fd52b5e5a66784789494b225fea8b"
+    },
+    "tests/test_file_hosted.py": {
+      "qualified_equal": true,
+      "sha256": "d98d484cf319cd9356fe1f379bb5bff830984b4663ce9e41578622ec346e2d2f"
+    }
+  },
+  "qualified": "9ab0fcc9f",
+  "scope": "No repeated gates: upstream adds only independent fixtures and documentation.",
+  "source_module_diff_empty": true
+}

@@ -605,3 +605,5 @@ NvmFileFlowStatus nvm_file_flow_call(NvmFileFlowState *s,uint32_t site,uint32_t 
 #include "file_code.inc"
 
 #include "file_body.inc"
+
+#include "file_hosted.inc"
