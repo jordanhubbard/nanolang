@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/private/tmp/nanolang-forth-string-evidence-a3b6/forth",
+    "/private/tmp/nanolang-forth-string-evidence-a3b6/strings.fth"
+  ],
+  "returncode": 0,
+  "seconds": 0.30737395799999945,
+  "exact_stdout": true
+}
