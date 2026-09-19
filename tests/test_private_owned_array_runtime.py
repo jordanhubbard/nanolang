@@ -52,13 +52,16 @@ int main(void){
 '''
 
 class PrivateOwnedArrayRuntime(unittest.TestCase):
-    def command(self, args):
+    def command(self, args, success=True):
         p = subprocess.run(list(map(str, args)), cwd=ROOT, capture_output=True, text=True, timeout=180)
         stem = self.work / f'{self.serial:03d}'
         self.serial += 1
         stem.with_suffix('.json').write_text(json.dumps(list(map(str, args))))
         stem.with_suffix('.log').write_text(p.stdout + p.stderr)
-        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        if success:
+            self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        else:
+            self.assertNotEqual(p.returncode, 0, p.stdout + p.stderr)
         return p
 
     def test_private_vm_native(self):
@@ -69,19 +72,28 @@ class PrivateOwnedArrayRuntime(unittest.TestCase):
             self.work.mkdir(exist_ok=False, parents=True)
         cc = shlex.split(os.environ.get('CC', 'cc'))
         flags = shlex.split(os.environ.get('PRIVATE_OWNER_ARRAY_CFLAGS', ''))
-        common = [*cc, *flags, '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-D_GNU_SOURCE', '-Isrc', '-Isrc/nanoisa', '-DNANO_OWNED_ARRAY_PRIVATE_RUNTIME']
+        public = os.environ.get('NANO_OWNER_ARRAY_PUBLIC_TEST') == '1'
+        common = [*cc, *flags, '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-D_GNU_SOURCE', '-Isrc', '-Isrc/nanoisa', '-DNANO_OWNER_ARRAY_PUBLIC_TEST' if public else '-DNANO_OWNED_ARRAY_PRIVATE_RUNTIME']
         # Normal canonical objects must not export private entrypoints.
         for obj, symbol in [('obj/nanovm/vm.o', 'vm_execute_owned_array_private'), ('obj/nanoisa/nvm2c.o', 'nvm2c_emit_owned_array_private')]:
             self.assertNotIn(symbol, self.command(['nm', '-g', obj]).stdout)
         providers = shlex.split(os.environ['PRIVATE_OWNER_ARRAY_OBJECTS'])
         libraries = shlex.split(os.environ['PRIVATE_OWNER_ARRAY_LDFLAGS'])
-        for threaded in (False, True):
+        switch_only = os.environ.get("PRIVATE_OWNER_ARRAY_SWITCH_ONLY") == "1"
+        for threaded in ((False,) if switch_only else (False, True)):
             phase = self.work / ('threaded' if threaded else 'switch')
             phase.mkdir()
             objects = []
             for name, source in [('vm', 'src/nanovm/vm.c'), ('nvm2c', 'src/nanoisa/nvm2c.c'), ('heap', 'src/nanovm/heap.c')]:
                 obj = phase / (name + '.o')
-                extra = ['-DNANO_COMPUTED_GOTO'] if threaded and name == 'vm' else []
+                extra = (['-DNANO_COMPUTED_GOTO'] if threaded else ['-DNANO_NO_COMPUTED_GOTO']) if name == 'vm' else []
+                if name == 'vm':
+                    macros = self.command([*common, *extra, '-dM', '-E', source]).stdout
+                    if threaded:
+                        self.assertIn('#define NANO_COMPUTED_GOTO 1', macros)
+                    else:
+                        self.assertIn('#define NANO_NO_COMPUTED_GOTO 1', macros)
+                        self.assertNotIn('#define NANO_COMPUTED_GOTO ', macros)
                 if name == 'heap':
                     extra += ['-Dmalloc=private_array_malloc', '-Dcalloc=private_array_calloc', '-Drealloc=private_array_realloc']
                 self.command([*common, *extra, '-c', source, '-o', obj])
@@ -95,6 +107,20 @@ class PrivateOwnedArrayRuntime(unittest.TestCase):
                 for _, index, _ in rows:
                     self.assertEqual((phase/f'case{index}.c').read_bytes(), (self.work/'switch'/f'case{index}.c').read_bytes())
                 continue
+            if switch_only:
+                continue
+            if public:
+                emitted = phase / 'public-cli.c'
+                self.command(['bin/nvm2c', phase/'public.nvm', '-o', emitted])
+                binary_cli = phase/'public-cli'
+                self.command([*cc, *flags, '-std=c11', '-Wall', '-Wextra', '-Werror', '-O2', emitted, '-o', binary_cli])
+                self.assertEqual(self.command([binary_cli]).stdout, '7\n')
+                for tool, args in [('nvm2llvm', []), ('nvm2wasm', []), ('nvm2hl', ['--language', 'c']), ('nvm2hl', ['--language', 'nano'])]:
+                    destination = phase/(tool + ('-' + args[-1] if args else '') + '.preserved')
+                    destination.write_bytes(b'unchanged-output\n')
+                    source = phase/'public.nvm'
+                    self.command(['bin/'+tool, *args, source, '-o', destination], success=False)
+                    self.assertEqual(destination.read_bytes(), b'unchanged-output\n')
             for _, index, status in rows:
                 harness = phase / f'native{index}.c'
                 harness.write_text(NATIVE.replace('GENERATED', f'case{index}.c').replace('WANTED', status).replace('VALUE', '0' if status == '0' else '-91'))

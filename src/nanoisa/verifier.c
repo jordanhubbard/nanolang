@@ -499,8 +499,10 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
     return verify_structure_checked(mod,affine_only,owned_admitted,false);
 }
 #include "mixed_samples_prepare.inc"
-/* I expose only a private complete owner ARRAY query, not a routing branch. */
+/* The private complete query remains descriptive; the separate public
+ * wrapper below owns candidate routing and executable admission policy. */
 #include "owned_array_prepare.inc"
+#include "owned_array_admit.inc"
 
 /* ========================================================================
  * Bytecode instruction validation (per-function)
@@ -512,6 +514,10 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
                                            uint16_t *out_max_stack) {
     if(nvm_service_bindings_present(mod))
         return fail("I refuse service contracts before mixed execution selection");
+    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+        if(linked_count)return fail("I refuse linked owner ARRAY execution contracts");
+        return verify_owned_arrays(mod,fn_idx,out_max_stack);
+    }
     if(nvm_mixed_samples_candidate(mod)) {
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,fn_idx,out_max_stack);
@@ -1038,6 +1044,7 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
     if(nvm_service_bindings_present(mod))
         return fail("I refuse service contracts before mixed execution selection");
+    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
     if(nvm_mixed_samples_candidate(mod))return verify_mixed_samples(mod,0,NULL);
     /* I reuse only this invocation's completed full owned-module proof. */
     bool owned_admitted=false;
@@ -1064,6 +1071,13 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
             return fail("I refuse linked service contracts before reviewed dispatch admission");
     if(nvm_service_bindings_present(mod))
         return fail("I refuse service contracts before mixed execution selection");
+    for(uint32_t i=0;i<linked_count;i++)
+        if(nvm_owned_array_route(linked_modules[i])!=NVM_OWNER_ARRAY_NOT_SELECTED)
+            return fail("I refuse an owner ARRAY candidate or invalid descriptor in a linked graph");
+    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+        if(linked_count)return fail("I refuse linked owner ARRAY execution contracts");
+        return verify_owned_arrays(mod,0,NULL);
+    }
     if(nvm_mixed_samples_candidate(mod)) {
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,0,NULL);
@@ -1125,6 +1139,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         return fail("I do not recognize verifier profile %d", (int)profile);
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
+    if(nvm_owned_array_route(m)!=NVM_OWNER_ARRAY_NOT_SELECTED)return fail("I keep owner ARRAY candidates outside closed backend profiles");
     if(nvm_mixed_samples_candidate(m))return fail("I keep mixed ownership outside closed backend profiles");
     const bool record_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS &&
         (m->struct_count || m->layout_size || m->ownership_size);

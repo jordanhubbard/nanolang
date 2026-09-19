@@ -165,6 +165,11 @@ static bool plan_extent(size_t count,size_t *bytes) {
     if(count>(SIZE_MAX-sizeof(NvmFileNominalPlan))/sizeof(NvmFileNominalLayout))return false;
     *bytes=sizeof(NvmFileNominalPlan)+count*sizeof(NvmFileNominalLayout);return true;
 }
+bool nvm_file_nominal_storage_bound(uint32_t layouts,size_t *out) {
+    size_t bytes;
+    if(!out || layouts>NVM_FILE_NOMINAL_MAX_LAYOUTS || !plan_extent(layouts,&bytes))return false;
+    *out=bytes;return true;
+}
 NvmFileNominalStatus nvm_file_nominal_plan(const NvmModule *m,NvmFileNominalPlan **out) {
     if(!m || !out)return NVM_FILE_NOMINAL_INVALID;
     NvmFileNominalBindings bindings;
