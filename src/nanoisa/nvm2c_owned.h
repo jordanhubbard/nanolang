@@ -2,15 +2,23 @@
  * operations and constant-index temporaries. I emit no bytecode interpreter. */
 #include "mixed_samples_internal.h"
 #include "managed_native_source.h"
+#include "owned_array_authority.h"
+#include "owned_array_runtime_private.h"
 static bool owned_emission_local(const NvmAffineState *state,const NvmMixedSamplesPlan *mixed,
-                                  uint32_t function,uint16_t local,NvmAffineType *out) {
+                                  const NvmOwnedArrayPlan *owner_arrays,uint32_t function,uint16_t local,NvmAffineType *out) {
+    if(owner_arrays) {
+        NvmOwnerDeclaration d;
+        if(!nvm_owned_array_plan_local(owner_arrays,function,local,&d) || !d.owner)return false;
+        *out=(NvmAffineType){d.tag,d.global_layout};return true;
+    }
     if(!mixed)return nvm_affine_local_type(state,local,out);
     NvmMixedDeclaration d;
     if(!nvm_mixed_samples_local(mixed,function,local,&d) || d.category!=NVM_MIXED_VALUE_OWNER)return false;
     *out=(NvmAffineType){d.tag,d.global_layout};return true;
 }
 static char *emit_owned_function(const NvmModule *mod,uint32_t function,
-                                  const NvmMixedSamplesPlan *mixed,char *err,size_t err_len) {
+                                  const NvmMixedSamplesPlan *mixed,const NvmOwnedArrayPlan *owner_arrays,char *err,size_t err_len) {
+    const bool shared=mixed || owner_arrays;
     Nvm2cBuf b={0}; b.err=err; b.err_len=err_len;
     VmDecodedFunction code={0}; char decode_error[VM_DECODE_ERROR_SIZE];
     NvmAffineState *state=NULL; NvmV2Layouts layouts={0};
@@ -18,12 +26,18 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
     const NvmFunctionEntry *fn=&mod->functions[function];
     if (!vm_decode_function(mod,function,&code,decode_error) ||
         nvm_v2_layouts_decode(mod->layout_data,mod->layout_size,&layouts)!=NVM_V2_OK ||
-        (!mixed && !(state=nvm_affine_state_create(mod,function,fn->local_count)))) goto fail;
+        (!shared && !(state=nvm_affine_state_create(mod,function,fn->local_count)))) goto fail;
     NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t parameter_count=0;
-    bool value_graph=mixed || nvm_affine_value_call_graph(mod);
+    bool value_graph=shared || nvm_affine_value_call_graph(mod);
     bool consuming=function && value_graph;
     NvmAffineType result_type;uint16_t result_fields=0;
-    if(mixed) {
+    if(owner_arrays) {
+        NvmOwnerSignature signature;
+        if(!nvm_owned_array_plan_signature(owner_arrays,function,&signature))goto fail;
+        result_type=(NvmAffineType){signature.result.tag,signature.result.global_layout};
+        result_fields=signature.result_fields;parameter_count=signature.parameter_count;
+        for(uint16_t n=0;n<parameter_count;n++)parameters[n]=(NvmAffineType){signature.parameters[n].tag,signature.parameters[n].global_layout};
+    } else if(mixed) {
         NvmMixedSignature signature;
         if(!nvm_mixed_samples_signature(mixed,function,&signature))goto fail;
         result_type=(NvmAffineType){signature.result.tag,signature.result.global_layout};
@@ -47,11 +61,11 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         if (op==OP_OWN_PACK) {pop=layouts.items[in->operands[0].u32].field_count;push=1;}
         if (op==OP_OWN_UNPACK_LOCAL) {
             NvmAffineType type;
-            if (!owned_emission_local(state,mixed,function,in->operands[0].u16,&type)) goto fail;
+            if (!owned_emission_local(state,mixed,owner_arrays,function,in->operands[0].u16,&type)) goto fail;
             pop=0;push=layouts.items[type.layout].field_count;
         }
         if(mixed && op==OP_AGG_PACK){pop=in->operands[3].u16;push=1;}
-        if(mixed && op==OP_ARR_LITERAL){pop=in->operands[1].u16;push=1;}
+        if(shared && op==OP_ARR_LITERAL){pop=in->operands[1].u16;push=1;}
         if (op==OP_CALL) {pop=mod->functions[in->operands[0].u32].arity;push=mod->functions[in->operands[0].u32].result_count;}
         if (op==OP_RET) continue;
         if (pop<0 || push<0 || depth[i]<pop || depth[i]-pop+push>(int)NVM_AFFINE_MAX_STACK) goto fail;
@@ -71,7 +85,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
     }
     bool float_arithmetic=module_has_opcode(mod,OP_F64_ADD) || module_has_opcode(mod,OP_F64_SUB) ||
         module_has_opcode(mod,OP_F64_MUL) || module_has_opcode(mod,OP_F64_DIV);
-    if(!function && mixed)nvm2c_puts(&b,nms_native_source);
+    if(!function && shared)nvm2c_puts(&b,nms_native_source);
     if (!function && float_arithmetic) nvm2c_puts(&b,nl_binary64_arithmetic_source);
     if (!function) nvm2c_puts(&b,
         "/* I transfer unique owners; field observations retain only their shell. */\n"
@@ -81,7 +95,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         "typedef struct nown_record nown_record;\n"
         "typedef struct { size_t refs,length; unsigned char bytes[]; } nown_string;\n"
         );
-    if(!function && mixed)nvm2c_puts(&b,
+    if(!function && shared)nvm2c_puts(&b,
         "typedef struct { int64_t scalar; nown_record *record; nown_string *string; double floating; uint8_t tag,category; NmsRuntime *managed; NmsHandle handle; } nown_value;\n");
     else if(!function)nvm2c_puts(&b,
         "typedef struct { int64_t scalar; nown_record *record; nown_string *string; double floating; uint8_t tag; } nown_value;\n");
@@ -95,7 +109,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         " for(unsigned i=0;i<ref->depth;i++) record=record->fields[ref->fields[i]].record;\n"
         " return record;\n}\n"
         "static void nown_release(nown_value v) {\n");
-    if(!function && mixed)nvm2c_puts(&b,
+    if(!function && shared)nvm2c_puts(&b,
         " if(v.category==2){(void)nms_release(v.managed,v.handle);return;}\n");
     if(!function)nvm2c_puts(&b,
         " if (v.string && --v.string->refs==0) NOWN_FREE(v.string);\n"
@@ -103,7 +117,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         "  for(size_t i=0;i<v.record->count;i++) nown_release(v.record->fields[i]);\n"
         "  NOWN_FREE(v.record);\n }\n}\n"
         "static int nown_retain(nown_value v) {\n");
-    if(!function && mixed)nvm2c_puts(&b,
+    if(!function && shared)nvm2c_puts(&b,
         " if(v.category==2)return nms_retain(v.managed,v.handle)==NMS_OK;\n");
     if(!function)nvm2c_puts(&b,
         " if((v.string && v.string->refs==SIZE_MAX) || (v.record && v.record->refs==SIZE_MAX)) return 0;\n"
@@ -116,7 +130,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         " if(a==b) return 1;\n if(!a || !b) return 0;\n"
         " return a->length==b->length && !memcmp(a->bytes,b->bytes,a->length);\n}\n"
         "/* I return status separately so allocation failure still cleans every root. */\n");
-    if(!function && mixed) {
+    if(!function && shared) {
         nvm2c_puts(&b,
             "static int64_t nown_i64_bits(uint64_t bits){return bits<=INT64_MAX?(int64_t)bits:-1-(int64_t)(UINT64_MAX-bits);}\n"
             "static int nown_status(NmsStatus s){return s==NMS_OK?0:s==NMS_MEMORY?1:s==NMS_ASSERT?2:s==NMS_BOUNDS?4:3;}\n"
@@ -130,6 +144,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             " else if(v.tag==3)memcpy(&result.floating,&v.payload,8);\n"
             " else if(v.tag<=4)result.scalar=v.payload<=INT64_MAX?(int64_t)v.payload:-1-(int64_t)(UINT64_MAX-v.payload);\n"
             " else return 0;\n *out=result;return 1;\n}\n");
+        if(mixed) {
         const NvmMixedSamplesProof *proof=nvm_mixed_samples_obligations(mixed);
         nvm2c_printf(&b,"static const NmsRecordDescriptor nown_descriptors[%u]={",proof->managed_count);
         for(uint32_t i=0;i<proof->managed_count;i++) {
@@ -137,18 +152,19 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_printf(&b,"%s{%u,%u}",i?",":"",global,layouts.items[global].field_count);
         }
         nvm2c_puts(&b,"};\n");
+        }
     }
     if (!function) {
         if (value_graph) for (uint32_t f=1;f<mod->function_count;f++)
-            nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result%s);\n",f,mixed?",NmsRuntime *managed":"");
+            nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result%s);\n",f,shared?",NmsRuntime *managed":"");
         for (uint32_t f=1;f<mod->function_count;f++) {
-            char *helper=emit_owned_function(mod,f,mixed,err,err_len);
+            char *helper=emit_owned_function(mod,f,mixed,owner_arrays,err,err_len);
             if(!helper) goto fail;
             nvm2c_puts(&b,helper);free(helper);
         }
     }
     if (consuming)
-        nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result%s) {\n",function,mixed?",NmsRuntime *managed":"");
+        nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result%s) {\n",function,shared?",NmsRuntime *managed":"");
     else nvm2c_puts(&b,function?
         "static int nown_helper(nown_value *origin,const nown_reference *borrowed,uint64_t caller_generation,uint64_t generation,int64_t *result) {\n":
         "int nvm_owned_entry(int64_t *result) {\n");
@@ -156,9 +172,11 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         " nown_value t[256]={{0}}, l[256]={{0}}, a={0}, c={0}, pending={0};\n"
         " nown_reference refs[256]={{0}}; unsigned region=0;\n"
         " int status=0; (void)result; (void)a; (void)c; (void)nown_retain; (void)nown_string_new; (void)nown_string_equal; (void)refs; (void)region; (void)nown_referent;\n");
-    if(mixed) {
+    if(shared) {
         nvm2c_puts(&b," (void)nown_to_managed;(void)nown_from_managed;(void)nown_status;(void)nown_i64_bits;\n");
-        if(!function) {
+        if(!function && owner_arrays) {
+            nvm2c_puts(&b," NmsRuntime managed_storage; NmsRuntime *managed=&managed_storage; nms_init(managed,NULL,0);\n status=nown_status(nms_bind_records(managed,NULL,0));if(status)goto cleanup;\n status=nown_status(nms_begin(managed));if(status)goto cleanup;\n");
+        } else if(!function) {
             const NvmMixedSamplesProof *proof=nvm_mixed_samples_obligations(mixed);
             nvm2c_printf(&b," NmsRuntime managed_storage; NmsRuntime *managed=&managed_storage; nms_init(managed,NULL,0);\n status=nown_status(nms_bind_records(managed,nown_descriptors,%u));if(status)goto cleanup;\n status=nown_status(nms_begin(managed));if(status)goto cleanup;\n",proof->managed_count);
         } else {
@@ -193,7 +211,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         const VmDecodedInstruction *d=&code.instructions[i];
         const DecodedInstruction *in=&d->instruction;uint8_t op=in->opcode;int n=depth[i];
         unsigned local=in->operands[0].u16;
-        if(!mixed && (op==OP_PUSH_VOID || op==OP_ROT3 ||
+        if(!shared && (op==OP_PUSH_VOID || op==OP_ROT3 ||
            (op>=OP_I64_ADD && op<=OP_I64_NEG) || (op>=OP_I64_EQ && op<=OP_I64_GE_S) ||
            op==OP_BOOL_AND || op==OP_BOOL_OR || op==OP_BOOL_NOT))goto fail;
         nvm2c_printf(&b,"L%u:;\n",d->byte_offset);
@@ -206,7 +224,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
                 sequence,target,first,function?"next_generation":"&next_generation",sequence);
             if (mod->functions[target].result_count) nvm2c_printf(&b,"&t[%d]",first);
             else nvm2c_puts(&b,"NULL");
-            if(mixed)nvm2c_puts(&b,",managed");
+            if(shared)nvm2c_puts(&b,",managed");
             nvm2c_puts(&b,"); if(status)goto cleanup;\n");
             break;
         }
@@ -238,7 +256,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         case OP_NOP: break;
         case OP_PUSH_VOID:nvm2c_printf(&b," t[%d]=(nown_value){0};\n",n);break;
         case OP_PUSH_I64:
-            nvm2c_printf(&b,mixed?" t[%d]=(nown_value){.scalar=nown_i64_bits(UINT64_C(%llu)),.tag=%u};\n":
+            nvm2c_printf(&b,shared?" t[%d]=(nown_value){.scalar=nown_i64_bits(UINT64_C(%llu)),.tag=%u};\n":
                 " t[%d]=(nown_value){.scalar=(int64_t)UINT64_C(%llu),.tag=%u};\n",n,(unsigned long long)(uint64_t)in->operands[0].i64,TAG_INT);break;
         case OP_PUSH_U8: case OP_PUSH_BOOL:
             nvm2c_printf(&b," t[%d]=(nown_value){.scalar=%u,.tag=%u};\n",n,in->operands[0].u8,op==OP_PUSH_U8?TAG_U8:TAG_BOOL);break;
@@ -269,11 +287,11 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_printf(&b," a.record=NOWN_ALLOC(1,sizeof(nown_record)+%u*sizeof(nown_value));\n if(!a.record){status=1;goto cleanup;} a.record->refs=1; a.record->count=%u; a.record->layout=%u;\n",count,count,in->operands[0].u32);
             for (unsigned f=0;f<count;f++)
                 nvm2c_printf(&b," a.record->fields[%u]=t[%d]; t[%d]=(nown_value){0};\n",f,n-(int)count+(int)f,n-(int)count+(int)f);
-            if(mixed)nvm2c_puts(&b," a.category=1;\n");
+            if(shared)nvm2c_puts(&b," a.category=1;\n");
             nvm2c_printf(&b," a.tag=%u; t[%d]=a; a=(nown_value){0};\n",TAG_STRUCT,n-(int)count);break;
         }
         case OP_OWN_UNPACK_LOCAL: {
-            NvmAffineType type;if(!owned_emission_local(state,mixed,function,local,&type)) goto fail;
+            NvmAffineType type;if(!owned_emission_local(state,mixed,owner_arrays,function,local,&type)) goto fail;
             unsigned count=layouts.items[type.layout].field_count;
             nvm2c_printf(&b," a=l[%u]; l[%u]=(nown_value){0};\n",local,local);
             for (unsigned f=0;f<count;f++)
@@ -293,7 +311,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_printf(&b," t[%d]=(nown_value){.tag=%u,.category=2,.managed=managed,.handle=handle};}\n",base,TAG_STRUCT);break;
         }
         case OP_ARR_NEW:case OP_ARR_LITERAL: {
-            if(!mixed)goto fail;
+            if(!shared)goto fail;
             unsigned count=op==OP_ARR_LITERAL?in->operands[1].u16:0;int base=n-(int)count;
             nvm2c_puts(&b," {NmsHandle handle=0;\n");
             if(op==OP_ARR_NEW)nvm2c_puts(&b," status=nown_status(nms_vm_array_create(managed,3,&handle));\n");
@@ -307,7 +325,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_printf(&b," t[%d]=(nown_value){.tag=%u,.category=2,.managed=managed,.handle=handle};}\n",base,TAG_ARRAY);break;
         }
         case OP_ARR_PUSH:case OP_ARR_SET:case OP_ARR_GET:case OP_ARR_LEN: {
-            if(!mixed)goto fail;
+            if(!shared)goto fail;
             int base=n-(op==OP_ARR_SET?3:op==OP_ARR_LEN?1:2);
             nvm2c_printf(&b," if(t[%d].category!=2 || t[%d].tag!=%u || t[%d].managed!=managed){status=3;goto cleanup;}\n",base,base,TAG_ARRAY,base);
             if(op==OP_ARR_GET || op==OP_ARR_SET)nvm2c_printf(&b," if(t[%d].tag!=%u || t[%d].category){status=3;goto cleanup;}\n",base+1,TAG_INT,base+1);
@@ -325,34 +343,34 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             break;
         }
         case OP_AGG_GET: case OP_STRUCT_GET:
-            if(mixed)nvm2c_printf(&b," if(t[%d].category==2){NmsValue value={0}; status=nown_status(nms_record_get(managed,t[%d].handle,%u,&value));if(status)goto cleanup; if(!nown_from_managed(managed,value,&a)){(void)nms_value_release(managed,value);status=3;goto cleanup;} nown_release(t[%d]);t[%d]=a;a=(nown_value){0};}else {\n",n-1,n-1,local,n-1,n-1);
+            if(shared)nvm2c_printf(&b," if(t[%d].category==2){NmsValue value={0}; status=nown_status(nms_record_get(managed,t[%d].handle,%u,&value));if(status)goto cleanup; if(!nown_from_managed(managed,value,&a)){(void)nms_value_release(managed,value);status=3;goto cleanup;} nown_release(t[%d]);t[%d]=a;a=(nown_value){0};}else {\n",n-1,n-1,local,n-1,n-1);
             nvm2c_printf(&b," if(!nown_retain(t[%d].record->fields[%u])){status=1;goto cleanup;} a=t[%d]; t[%d]=a.record->fields[%u]; nown_release(a); a=(nown_value){0};\n",n-1,local,n-1,n-1,local);
-            if(mixed)nvm2c_puts(&b," }\n");
+            if(shared)nvm2c_puts(&b," }\n");
             break;
         case OP_DUP:nvm2c_printf(&b," if(!nown_retain(t[%d])){status=1;goto cleanup;} t[%d]=t[%d];\n",n-1,n,n-1);break;
         case OP_POP:nvm2c_printf(&b," nown_release(t[%d]); t[%d]=(nown_value){0};\n",n-1,n-1);break;
         case OP_ROT3:nvm2c_printf(&b," a=t[%d];t[%d]=t[%d];t[%d]=t[%d];t[%d]=a;a=(nown_value){0};\n",n-1,n-1,n-2,n-2,n-3,n-3);break;
         case OP_SWAP:nvm2c_printf(&b," a=t[%d]; t[%d]=t[%d]; t[%d]=a; a=(nown_value){0};\n",n-1,n-1,n-2,n-2);break;
         case OP_I64_NEG: case OP_NEG:
-            if(mixed)nvm2c_printf(&b," t[%d].scalar=nown_i64_bits(UINT64_C(0)-(uint64_t)t[%d].scalar);\n",n-1,n-1);
+            if(shared)nvm2c_printf(&b," t[%d].scalar=nown_i64_bits(UINT64_C(0)-(uint64_t)t[%d].scalar);\n",n-1,n-1);
             else nvm2c_printf(&b," t[%d].scalar=(int64_t)(UINT64_C(0)-(uint64_t)t[%d].scalar);\n",n-1,n-1);
             break;
         case OP_BOOL_NOT: case OP_NOT:nvm2c_printf(&b," t[%d].scalar=!t[%d].scalar;\n",n-1,n-1);break;
         case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_ADD: case OP_SUB: case OP_MUL:
-            nvm2c_printf(&b,mixed?" t[%d].scalar=nown_i64_bits((uint64_t)t[%d].scalar %s (uint64_t)t[%d].scalar); t[%d]=(nown_value){0};\n":
+            nvm2c_printf(&b,shared?" t[%d].scalar=nown_i64_bits((uint64_t)t[%d].scalar %s (uint64_t)t[%d].scalar); t[%d]=(nown_value){0};\n":
                 " t[%d].scalar=(int64_t)((uint64_t)t[%d].scalar %s (uint64_t)t[%d].scalar); t[%d]=(nown_value){0};\n",n-2,n-2,(op==OP_ADD || op==OP_I64_ADD)?"+":(op==OP_SUB || op==OP_I64_SUB)?"-":"*",n-1,n-1);break;
         case OP_I64_DIV_S: case OP_I64_REM_S: case OP_DIV: case OP_MOD:
             nvm2c_printf(&b," a=t[%d]; c=t[%d]; t[%d].scalar=!c.scalar?0:(a.scalar==INT64_MIN && c.scalar==-1)?%s:a.scalar %s c.scalar; t[%d]=(nown_value){0}; a=c=(nown_value){0};\n",n-2,n-1,n-2,(op==OP_DIV || op==OP_I64_DIV_S)?"INT64_MIN":"0",(op==OP_DIV || op==OP_I64_DIV_S)?"/":"%",n-1);break;
         case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV: {
-            if(mixed)nvm2c_printf(&b," if(t[%d].tag!=%u || t[%d].tag!=%u){status=3;goto cleanup;}\n",n-2,TAG_FLOAT,n-1,TAG_FLOAT);
+            if(shared)nvm2c_printf(&b," if(t[%d].tag!=%u || t[%d].tag!=%u){status=3;goto cleanup;}\n",n-2,TAG_FLOAT,n-1,TAG_FLOAT);
             const char *operation=op==OP_F64_ADD?"add":op==OP_F64_SUB?"sub":op==OP_F64_MUL?"mul":"div";
             nvm2c_printf(&b," t[%d]=(nown_value){.floating=nano_rt_f64_%s(t[%d].floating,t[%d].floating),.tag=%u}; t[%d]=(nown_value){0};\n",n-2,operation,n-2,n-1,TAG_FLOAT,n-1);break;
         }
         case OP_F64_NEG:
-            if(mixed)nvm2c_printf(&b," if(t[%d].tag!=%u){status=3;goto cleanup;}\n",n-1,TAG_FLOAT);
+            if(shared)nvm2c_printf(&b," if(t[%d].tag!=%u){status=3;goto cleanup;}\n",n-1,TAG_FLOAT);
             nvm2c_printf(&b," t[%d].floating=-t[%d].floating;\n",n-1,n-1);break;
         case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE: {
-            if(mixed)nvm2c_printf(&b," if(t[%d].tag!=%u || t[%d].tag!=%u){status=3;goto cleanup;}\n",n-2,TAG_FLOAT,n-1,TAG_FLOAT);
+            if(shared)nvm2c_printf(&b," if(t[%d].tag!=%u || t[%d].tag!=%u){status=3;goto cleanup;}\n",n-2,TAG_FLOAT,n-1,TAG_FLOAT);
             const char *operation=op==OP_F64_EQ?"==":op==OP_F64_NE?"!=":op==OP_F64_LT?"<":op==OP_F64_LE?"<=":op==OP_F64_GT?">":">=";
             nvm2c_printf(&b," t[%d]=(nown_value){.scalar=(t[%d].floating %s t[%d].floating),.tag=%u}; t[%d]=(nown_value){0};\n",n-2,n-2,operation,n-1,TAG_BOOL,n-1);break;
         }
@@ -361,7 +379,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             if(op>=OP_I64_EQ && op<=OP_I64_GE_S)op=(uint8_t)(OP_EQ+(op-OP_I64_EQ));
             const char *operation=op==OP_EQ?"==":op==OP_NE?"!=":op==OP_LT?"<":op==OP_LE?"<=":op==OP_GT?">":">=";
             nvm2c_puts(&b," { int comparison; ");
-            if(mixed && (op==OP_EQ || op==OP_NE))nvm2c_printf(&b," if(t[%d].tag!=t[%d].tag)comparison=%u;else if(t[%d].tag==0)comparison=%u;else ",n-2,n-1,op==OP_NE,n-2,op==OP_EQ);
+            if(shared && (op==OP_EQ || op==OP_NE))nvm2c_printf(&b," if(t[%d].tag!=t[%d].tag)comparison=%u;else if(t[%d].tag==0)comparison=%u;else ",n-2,n-1,op==OP_NE,n-2,op==OP_EQ);
             if(op==OP_EQ || op==OP_NE)
                 nvm2c_printf(&b," if(t[%d].tag==%u) comparison=%snown_string_equal(t[%d].string,t[%d].string); else ",n-2,TAG_STRING,op==OP_NE?"!":"",n-2,n-1);
             nvm2c_printf(&b," if(t[%d].tag==%u) {\n",n-2,TAG_FLOAT);
@@ -380,11 +398,12 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_printf(&b," a=t[%d]; t[%d]=(nown_value){0}; if(!a.scalar){status=2;goto cleanup;} a=(nown_value){0};\n",n-1,n-1);break;
         case OP_PRINT: case OP_PRINTLN:
             if(!value_graph) goto fail;
-            nvm2c_printf(&b," (void)fwrite(t[%d].string->bytes,1,t[%d].string->length,stdout);",n-1,n-1);
+            if(owner_arrays)nvm2c_printf(&b," if(t[%d].tag!=%u || t[%d].category){status=3;goto cleanup;} (void)fprintf(stdout,\"%%lld\",(long long)t[%d].scalar);",n-1,TAG_INT,n-1,n-1);
+            else nvm2c_printf(&b," (void)fwrite(t[%d].string->bytes,1,t[%d].string->length,stdout);",n-1,n-1);
             if(op==OP_PRINTLN) nvm2c_puts(&b," (void)fputc('\\n',stdout);");
             nvm2c_printf(&b," nown_release(t[%d]); t[%d]=(nown_value){0};\n",n-1,n-1);break;
         case OP_RET:
-            if(mixed && result_type.tag!=TAG_VOID)nvm2c_printf(&b," if(t[0].tag!=%u || t[0].category!=%u){status=3;goto cleanup;}\n",result_type.tag,result_type.tag==TAG_STRUCT?1u:0u);
+            if(shared && result_type.tag!=TAG_VOID)nvm2c_printf(&b," if(t[0].tag!=%u || t[0].category!=%u){status=3;goto cleanup;}\n",result_type.tag,result_type.tag==TAG_STRUCT?1u:0u);
             if(result_type.tag==TAG_STRUCT)
                 nvm2c_printf(&b," if(!t[0].record || t[0].record->layout!=%u || t[0].record->count!=%u){status=3;goto cleanup;}\n",result_type.layout,result_fields);
             if(result_type.tag!=TAG_VOID) nvm2c_puts(&b," pending=t[0]; t[0]=(nown_value){0};\n");
@@ -394,8 +413,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         nvm2c_printf(&b," goto L%u;\n",d->next_byte_offset);
     }
     nvm2c_puts(&b,"cleanup:;\n for(size_t i=0;i<256;i++){nown_release(t[i]);nown_release(l[i]);}\n");
-    if(mixed)nvm2c_puts(&b," nown_release(a);nown_release(c);a=c=(nown_value){0};\n");
-    if(mixed && !function)nvm2c_puts(&b," if(managed->live_objects || managed->live_bytes)status=3;\n if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0);\n if(nms_dispose(managed)!=NMS_OK)status=3;\n");
+    if(shared)nvm2c_puts(&b," nown_release(a);nown_release(c);a=c=(nown_value){0};\n");
+    if(shared && !function)nvm2c_puts(&b," if(managed->live_objects || managed->live_bytes)status=3;\n if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0);\n if(nms_dispose(managed)!=NMS_OK)status=3;\n");
     if(result_type.tag!=TAG_VOID) nvm2c_puts(&b,consuming?
         " if(!status){*result=pending; pending=(nown_value){0};}\n":
         " if(!status){*result=pending.scalar; pending=(nown_value){0};}\n");
@@ -410,7 +429,7 @@ fail:
 }
 
 static char *emit_owned_module(const NvmModule *mod,char *err,size_t err_len) {
-    return emit_owned_function(mod,0,NULL,err,err_len);
+    return emit_owned_function(mod,0,NULL,NULL,err,err_len);
 }
 
 /* I select only a fresh complete mixed runtime conjunction. */
@@ -425,6 +444,29 @@ static char *emit_mixed_samples_module(const NvmModule *mod,char *err,size_t err
         if(err && err_len)snprintf(err,err_len,"I require a scalar mixed entry result");
         return NULL;
     }
-    char *source=emit_owned_function(mod,0,plan,err,err_len);
+    char *source=emit_owned_function(mod,0,plan,NULL,err,err_len);
     nvm_mixed_samples_plan_free(plan);return source;
 }
+
+#ifdef NANO_OWNED_ARRAY_PRIVATE_RUNTIME
+bool nvm2c_emit_owned_array_private(const NvmModule *mod,char **out,char *err,size_t err_len) {
+    if(!out)return false;
+    NvmOwnedArrayPlan *plan=NULL;
+    NvmOwnerAuthorityResult checked=nvm_prepare_owned_array_authority(mod,&plan);
+    if(checked.status!=NVM_OWNER_AUTH_PREPARED) {
+        if(err && err_len)snprintf(err,err_len,"%s",checked.message);
+        return false;
+    }
+    NvmOwnerSignature entry;
+    if(!nvm_owned_array_plan_signature(plan,0,&entry) || entry.parameter_count ||
+       (entry.result.tag!=TAG_INT && entry.result.tag!=TAG_BOOL && entry.result.tag!=TAG_U8)) {
+        nvm_owned_array_plan_free(plan);
+        if(err && err_len)snprintf(err,err_len,"I require a scalar private owner ARRAY entry.");
+        return false;
+    }
+    char *source=emit_owned_function(mod,0,NULL,plan,err,err_len);
+    nvm_owned_array_plan_free(plan);
+    if(!source)return false;
+    *out=source;return true;
+}
+#endif

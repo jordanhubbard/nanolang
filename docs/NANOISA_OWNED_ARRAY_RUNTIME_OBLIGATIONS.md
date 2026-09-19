@@ -177,3 +177,36 @@ needed to qualify the repaired invariant. ARRAY elements in this profile are
 scalar FLOAT and create no managed child retains. Public/general retention is
 not covered by this private check. Native NmsHandle and nown retain checks retain
 their existing bounded behavior.
+
+### My first private runtime production checkpoint
+
+I expose `vm_execute_owned_array_private(VmState *, NanoValue *)` and
+`nvm2c_emit_owned_array_private(const NvmModule *, char **, char *, size_t)` only
+when compiling with `NANO_OWNED_ARRAY_PRIVATE_RUNTIME`. Each freshly prepares
+complete authority internally; no plan argument or global activation switch is
+accepted. VM success publishes one scalar result and native success publishes
+allocated complete C text. Failure leaves the caller result slot untouched.
+Normal objects export neither adapter, and public routing is unchanged.
+
+The VM keeps a distinct internal `owner_arrays` invocation flag. Its signature
+rows reuse the existing descriptive category struct, but its plan is never a
+mixed Samples plan. Entry requires idle stacks/frames, standalone root identity,
+ready constants and no references/callbacks/tracing. The synchronous INT print
+trap retains this immutable private invocation; extern/yield admission is absent
+from its query whitelist. Calls/results use exact copied signatures; generic
+AGG_PACK remains absent. Before an optional comparison it checks both operand
+tags while they remain stack roots. Retain preflight includes fused field loads.
+Failure returns through the existing scoped frame/root drain, and the private
+adapter drains any unexpected result before freeing its plan.
+
+Native emission takes distinct optional mixed and owner-array plan pointers;
+normal callers pass no owner-array plan. The shared carrier flag selects only
+common managed mechanics. Exact owner-array local/signature getters bypass the
+old scalar-only state constructor, without creating a forged mixed proof. Zero
+ordinary records bind NULL/0; owner nominal rows never become NmsRecordDescriptor
+entries. Native INT output uses decimal integer rendering; old STRING print
+emission for existing owned profiles remains unchanged. All six FLOAT comparisons
+check both actual tags before payload access. Existing allocation-before-move,
+retain-before-projection, pending result and helper cleanup protocols now carry
+ARRAY and STRING values through nested owner fields. This checkpoint has not
+been compiled or executed; the complete source diff awaits review.
