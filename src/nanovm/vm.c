@@ -1,4 +1,5 @@
 #include "../nanoisa/affine_state.h"
+#include "../nanoisa/mixed_samples_internal.h"
 /*
  * NanoVM - Bytecode execution engine
  *
@@ -229,7 +230,14 @@ static bool vm_ownership_supported(const VmState *vm) {
 
 /* I keep this proof only on one synchronous public invocation's C stack.
  * The admitted standalone module is immutable while that invocation executes. */
-typedef struct { const NvmModule *module; } VmOwnedInvocationProof;
+typedef struct {
+    const NvmModule *module;
+    bool mixed;
+    uint32_t function_count, record_count;
+    NvmMixedSignature signatures[8];
+    NvmMixedRecordIdentity records[NVM_RECORD_PLAN_MAX_LAYOUTS];
+    bool ordinary_records[NVM_RECORD_PLAN_MAX_LAYOUTS];
+} VmOwnedInvocationProof;
 
 static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationProof *proof) {
     return proof && proof->module && vm && vm->module==proof->module &&
@@ -259,8 +267,31 @@ static bool vm_owned_runtime_ready(const VmState *vm, bool *required) {
     return !*required || vm_owned_constants_ready(vm);
 }
 
+/* I prepare fresh immutable facts for one C-stack invocation. This checkpoint
+ * deliberately does not select the path from any public admission API yet. */
+static bool vm_mixed_invocation_prepare(VmState *vm,VmOwnedInvocationProof *out) {
+    if(!vm || !out || !vm->module || vm->module!=vm->root_module ||
+       vm->linked_module_count || vm->callbacks || vm->opcode_trace ||
+       vm->references.active || !vm_owned_constants_ready(vm))return false;
+    NvmMixedSamplesPlan *plan=NULL;
+    if(nvm_mixed_samples_prepare(vm->module,&plan).status!=NVM_MIXED_SHAPE_PROVED)return false;
+    VmOwnedInvocationProof prepared={0};
+    prepared.module=vm->module;prepared.mixed=true;prepared.function_count=vm->module->function_count;
+    for(uint32_t f=0;f<prepared.function_count;f++)
+        if(!nvm_mixed_samples_signature(plan,f,&prepared.signatures[f]))goto fail;
+    if(prepared.signatures[0].result.tag!=TAG_INT && prepared.signatures[0].result.tag!=TAG_BOOL &&
+       prepared.signatures[0].result.tag!=TAG_U8)goto fail;
+    const NvmMixedSamplesProof *facts=nvm_mixed_samples_obligations(plan);
+    prepared.record_count=facts->shape->view->record_count;
+    for(uint32_t i=0;i<prepared.record_count;i++)
+        prepared.ordinary_records[i]=nvm_mixed_samples_record(plan,i,&prepared.records[i]);
+    nvm_mixed_samples_plan_free(plan);*out=prepared;return true;
+fail:nvm_mixed_samples_plan_free(plan);return false;
+}
+
 static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
-    proof->module=NULL;
+    (void)vm_mixed_invocation_prepare; /* Pending complete public selector review. */
+    proof->module=NULL;proof->mixed=false;
     bool required=false;
     if (!vm_owned_runtime_ready(vm,&required)) return false;
     if (vm && vm->module && vm->module==vm->root_module &&
@@ -1274,6 +1305,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     if (!admitted && !vm_ownership_supported(vm))
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     const bool owned_execution = admitted || required;
+    const bool mixed_execution = admitted && proof->mixed;
     if (owned_execution) {
         if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
             vm->frames[0].fn_idx!=0)
@@ -2644,11 +2676,21 @@ dynamic_div:
                 if (!callee_idx || !next_reference_context || next_reference_context->active ||
                     vm->reference_generation==UINT64_MAX)
                     return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked bounded owned value activation");
-                NvmAffineState *contract=nvm_affine_state_create(vm->module,callee_idx,callee->local_count);
-                if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I could not allocate consuming parameter facts");
                 NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
-                bool valid=nvm_affine_value_parameters(contract,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
-                nvm_affine_state_free(contract);
+                bool valid=false;
+                if(mixed_execution) {
+                    if(callee_idx>=proof->function_count)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked mixed callee");
+                    const NvmMixedSignature *signature=&proof->signatures[callee_idx];
+                    count=signature->parameter_count;
+                    for(uint16_t p=0;p<count;p++)parameters[p]=(NvmAffineType){signature->parameters[p].tag,signature->parameters[p].global_layout};
+                    valid=true;
+                } else {
+                    NvmAffineState *contract=nvm_affine_state_create(vm->module,callee_idx,callee->local_count);
+                    if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I could not allocate consuming parameter facts");
+                    valid=nvm_affine_value_parameters(contract,parameters,NVM_AFFINE_MAX_PARAMETERS,&count);
+                    nvm_affine_state_free(contract);
+                }
                 if (!valid || count!=callee->arity)
                     return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a complete consuming parameter contract");
                 for (uint16_t p=0;p<count;p++) {
@@ -2968,11 +3010,21 @@ vm_return_values: ;
                 if (returning->result_tag==TAG_STRUCT) {
                     /* I validate while the pending owner is still a stack root.
                      * Scalar/void count and tag checks need no extra facts. */
-                    NvmAffineState *contract=nvm_affine_state_create(vm->module,frame->fn_idx,returning->local_count);
-                    if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned return facts");
                     NvmAffineType type;uint16_t fields=0;
-                    bool valid=nvm_affine_value_result(contract,&type,&fields);
-                    nvm_affine_state_free(contract);
+                    bool valid=false;
+                    if(mixed_execution) {
+                        if(frame->fn_idx>=proof->function_count)
+                            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked mixed result");
+                        const NvmMixedSignature *signature=&proof->signatures[frame->fn_idx];
+                        type=(NvmAffineType){signature->result.tag,signature->result.global_layout};
+                        fields=signature->result_fields;
+                        valid=signature->result.category==NVM_MIXED_VALUE_OWNER;
+                    } else {
+                        NvmAffineState *contract=nvm_affine_state_create(vm->module,frame->fn_idx,returning->local_count);
+                        if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned return facts");
+                        valid=nvm_affine_value_result(contract,&type,&fields);
+                        nvm_affine_state_free(contract);
+                    }
                     if (!valid || type.tag!=TAG_STRUCT || !results[0].as.sval ||
                         results[0].as.sval->def_idx!=type.layout || results[0].as.sval->field_count!=fields)
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact declared owned result");
@@ -3826,6 +3878,12 @@ vm_return_values: ;
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "AGG_PACK needs %u values", count);
             if (kind == AGG_RECORD) {
+                if(mixed_execution) {
+                    if(layout>=proof->record_count || !proof->ordinary_records[layout] ||
+                       proof->records[layout].field_count!=count)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact ordinary mixed record identity");
+                    layout=proof->records[layout].global_layout;
+                }
                 VmStruct *record = vm_struct_new(&vm->heap, layout, count);
                 if (!record) return trap_error(vm, VM_ERR_MEMORY,
                                                "AGG_PACK record allocation failed");

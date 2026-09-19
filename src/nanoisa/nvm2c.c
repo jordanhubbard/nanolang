@@ -5906,6 +5906,7 @@ static int prune_unemittable_callers(Nvm2cBuf *b, const NvmModule *mod) {
 #include "nvm2c_owned.h"
 
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
+    (void)emit_mixed_samples_module; /* I keep pending mixed lowering unselected. */
     if (err && err_len) err[0] = '\0';
     if (!mod) {
         if (err && err_len) snprintf(err, err_len, "module is null");

@@ -279,3 +279,44 @@ calls nvm_retained_layouts_valid, whose false result conflates malformed input w
 allocation failure. My preparation currently returns INVALID in that path; I do
 not claim every injected allocation failure returns MEMORY. Output atomicity and
 cleanup remain required independently of that inherited status distinction.
+
+## My unselected VM/native checkpoint
+
+I now prepare mixed VM invocation signatures and ordinary source/global maps on
+one private C stack. The temporary opaque plan is freed before publication; no
+allocation lives across a public return. Existing public admission still never
+selects this preparation. The core's mixed branches use copied checked signatures
+for positional CALL and owned RET checks and map ordinary AGG_PACK source ordinals
+to original global nominal indices. Frame reservation, owner transfer, generation
+and terminal cleanup remain in the existing common paths. Existing managed VM
+handlers retain aliases, and typed F64 handlers already check tags before storage
+access. Public mixed readiness/verification/transport activation remains a later
+reviewed delta; these unselected branches grant no execution permission.
+
+My native emitter accepts an optional internal mixed plan while preserving the
+old NULL-plan owned/STRING route. The new route emits the qualified exact Nms
+source, binds a static certified descriptor table before begin, shares the context
+through helpers and distinguishes ordinary handles from owner records. It emits
+all private composition opcodes, including typed integer/Boolean operations and
+ROT3, without adding those cases to the old NULL-plan acceptance. Array construction
+uses VM-policy runtime APIs; aliases retain, record construction retains children,
+projection returns a retained root and replaced carriers release only after the
+new value is safe. Prepared argument checks precede all transfers; scalar/owner
+result checks precede publication. Entry results remain INT/BOOL/U8.
+
+Typed F64 guards check every operand, including possible VOID, before reading
+floating storage. Generic equality handles mismatched tags and VOID before scalar
+payload access; existing NaN ordering versus typed predicate semantics stay
+explicit. Mixed integer wrapping uses unsigned arithmetic and a defined bit-to-
+signed conversion. Cleanup drains frame/scratch roots, checks managed counters
+before finish/dispose and publishes the scalar entry result only after successful
+cleanup. Descriptor storage is static and outlives disposal. Qualified STRING
+cells stay in their existing separate profile; ordinary handles use only Nms
+release, never STRING or affine allocators.
+
+I keep `emit_mixed_samples_module` and mixed invocation preparation unselected;
+existing public verifiers, converters, VM admission and nvm2c selection still
+refuse pending mixed modules. I have not compiled or executed this production
+checkpoint. The earlier embedding measurements qualify only its frozen standalone
+runtime fixture. I request complete source review before activation and newly
+admitted execution.
