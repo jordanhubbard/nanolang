@@ -1,0 +1,10 @@
+{
+  "excluded_groups": [
+    "optional-local",
+    "optional-add",
+    "optional-negate",
+    "bound-at"
+  ],
+  "source": "/tmp/nanolang-owner-array-source-b9ecc-remaining.log",
+  "new_pass_claim": false
+}

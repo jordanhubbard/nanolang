@@ -1,0 +1,18 @@
+{
+  "expected.bin": "6d86a58e9c2cc34f6e486d82fd8dbeff3de8ffaaa2abb0a5a43e824364eb8f71",
+  "inputs.json": "8bffaed56173de00d36066f67bc71566b56cfdf6a4025707349ea6d2a4e98732",
+  "compile.json": "8630eb6e4fde87514c41d36d49e3f836cce89f92c708cabb6becdf826b3fdb7d",
+  "compile.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "strings.fth": "9ab765368736fcf884dad4fa65a6bd5c465cad0f6bf27a43dedee7e1ad26c335",
+  "compile.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "strings.json": "a2241886ad5bf5b67dc335aa6c16f607024762ea36eb5d0bd0488e903ba356e1",
+  "strings.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "strings.stdout": "6d86a58e9c2cc34f6e486d82fd8dbeff3de8ffaaa2abb0a5a43e824364eb8f71",
+  "darwin/inputs.json": "a2a3d4012f75a0c4ffbf062fc29b1668700359d76f39b2919c85440ca1191389",
+  "darwin/compile.json": "915b5b794d48f0c35c4f79d1963ebb7aab7668208248c42e8a3e9ad88aee803d",
+  "darwin/compile.stderr": "f5740fbc8e056bc040197677d270297c04ed7432d634dc6bef6b54e53415f04b",
+  "darwin/compile.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "darwin/strings.json": "abdb226954b93ef4c5ec976ccaff94ebb2130d86db30d2994377bc4dcc74ba4c",
+  "darwin/strings.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "darwin/strings.stdout": "6d86a58e9c2cc34f6e486d82fd8dbeff3de8ffaaa2abb0a5a43e824364eb8f71"
+}

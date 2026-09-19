@@ -1,0 +1,62 @@
+{
+  "platform": "linux",
+  "pin": "1c4e29067aa21ee843e00997d42851877f7082fe",
+  "source_tree": "/home/jkh/Src/nanolang-owned-array-source-final",
+  "bootstrap": {
+    "pin": "1c4e29067aa21ee843e00997d42851877f7082fe",
+    "steps": [
+      {
+        "name": "bootstrap",
+        "command": [
+          "make",
+          "-j2",
+          "-f",
+          "Makefile.gnu",
+          "CC=/usr/bin/gcc",
+          "bootstrap"
+        ],
+        "status": 0,
+        "seconds": 272.54425408598036
+      },
+      {
+        "name": "setup",
+        "command": [
+          "make",
+          "-j2",
+          "-f",
+          "Makefile.gnu",
+          "-f",
+          "/tmp/nanolang-owner-array-source-1c4e-bootstrap/setup.mk",
+          "CC=/usr/bin/gcc",
+          "owned-array-source-setup"
+        ],
+        "status": 0,
+        "seconds": 27.07633887202246
+      }
+    ],
+    "sources_unchanged": true,
+    "head_unchanged": true
+  },
+  "gates": {
+    "pin": "1c4e29067aa21ee843e00997d42851877f7082fe",
+    "seconds": 408.700952676998,
+    "testsRun": 6,
+    "errors": 0,
+    "failures": 0,
+    "success": true
+  },
+  "sources": 2268,
+  "post_setup_inputs": 799,
+  "producers": 13,
+  "tools": 7,
+  "native_compiler": {
+    "path": "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+  },
+  "archive": {
+    "path": "/tmp/nanolang-owner-array-source-final-linux-artifacts.tar.gz",
+    "sha256": "31d2a4cc4e44f5dc233be444845862cca6fd1bd33a7ddda718abe3bdb3f24457"
+  },
+  "artifact_files": 401
+}
