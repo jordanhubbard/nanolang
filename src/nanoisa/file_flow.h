@@ -12,6 +12,8 @@
 #define NVM_FILE_FLOW_STACK 256u
 #define NVM_FILE_FLOW_REFERENCES 256u
 #define NVM_FILE_FLOW_OWNERS 256u
+#define NVM_FILE_FLOW_OBLIGATIONS 256u
+#define NVM_FILE_FLOW_NO_REFERENCE UINT16_MAX
 #define NVM_FILE_FLOW_BYTES (16u * 1024u * 1024u)
 typedef enum {
     NVM_FILE_FLOW_OK, NVM_FILE_FLOW_INVALID, NVM_FILE_FLOW_UNRESOLVED,
@@ -47,7 +49,30 @@ typedef struct {
 typedef struct {
     uint16_t stack, regions, owners, references;
     uint64_t cleanup_obligations;
+    uint16_t obligations;
+    bool reachable;
 } NvmFileFlowCounts;
+
+/* Pending requirements, not discharged runtime permissions. A logical site is
+ * not an instruction PC until a separately checked decoder establishes it. */
+typedef enum { NVM_FILE_FLOW_SERVICE, NVM_FILE_FLOW_CALL } NvmFileFlowObligationKind;
+typedef enum { NVM_FILE_FLOW_INPUT_NONE, NVM_FILE_FLOW_INPUT_PRESERVED,
+               NVM_FILE_FLOW_INPUT_CONSUMED } NvmFileFlowInputState;
+enum {
+    NVM_FILE_FLOW_CHECK_BINDING=1u, NVM_FILE_FLOW_CHECK_INVOCATION=2u,
+    NVM_FILE_FLOW_CHECK_LIVENESS=4u, NVM_FILE_FLOW_CHECK_RIGHTS=8u,
+    NVM_FILE_FLOW_CHECK_BORROW=16u, NVM_FILE_FLOW_CHECK_BYTE=32u,
+    NVM_FILE_FLOW_CHECK_CALLEE=64u, NVM_FILE_FLOW_CHECK_CLEANUP=128u,
+    NVM_FILE_FLOW_CHECK_RESULT=256u
+};
+typedef struct {
+    NvmFileFlowObligationKind kind;
+    uint32_t site, target, checks, required_rights, acquired_rights;
+    uint16_t parameters, owned_inputs, borrowed_inputs;
+    uint8_t result_count;
+    NvmFileFlowDeclaration result;
+    NvmFileFlowInputState outcomes[2]; /* Service Ok/Error input disposition. */
+} NvmFileFlowObligation;
 
 /* I copy exact validated metadata; input arrays/bytes must remain immutable
  * during this call. Failures preserve *out. Successful objects borrow nothing
@@ -65,6 +90,12 @@ bool nvm_file_flow_local(const NvmFileFlowState *, uint16_t, NvmFileFlowValue *)
 bool nvm_file_flow_stack(const NvmFileFlowState *, uint16_t, NvmFileFlowValue *);
 bool nvm_file_flow_reference(const NvmFileFlowState *, uint16_t, NvmFileFlowReference *);
 bool nvm_file_flow_counts(const NvmFileFlowState *, NvmFileFlowCounts *);
+bool nvm_file_flow_obligation(const NvmFileFlowState *, uint16_t, NvmFileFlowObligation *);
+NvmFileFlowStatus nvm_file_flow_clone(const NvmFileFlowState *, NvmFileFlowState **out);
+/* Outputs must be distinct; both remain untouched on any failure. */
+NvmFileFlowStatus nvm_file_flow_refine(const NvmFileFlowState *, uint16_t local,
+                                     NvmFileFlowState **ok, NvmFileFlowState **error);
+NvmFileFlowStatus nvm_file_flow_join(NvmFileFlowState *, const NvmFileFlowState *, bool *changed);
 
 /* Every failed transition preserves state. Scalars are exact INT/BOOL/VOID.
  * Generic loads/stores/dup/drop cannot copy, overwrite or lose an owner. */
@@ -73,6 +104,21 @@ NvmFileFlowStatus nvm_file_flow_load(NvmFileFlowState *, uint16_t);
 NvmFileFlowStatus nvm_file_flow_store(NvmFileFlowState *, uint16_t);
 NvmFileFlowStatus nvm_file_flow_dup(NvmFileFlowState *);
 NvmFileFlowStatus nvm_file_flow_pop(NvmFileFlowState *);
+NvmFileFlowStatus nvm_file_flow_clear_copy(NvmFileFlowState *, uint16_t);
+/* Exact FileError/ReadByte/scalar-Result constructors only. Record variant is0;
+ * each selected scalar-Result arm consumes one exact payload, including VOID. */
+NvmFileFlowStatus nvm_file_flow_construct(NvmFileFlowState *, uint32_t catalog, uint16_t variant);
+NvmFileFlowStatus nvm_file_flow_field(NvmFileFlowState *, uint16_t field);
+NvmFileFlowStatus nvm_file_flow_take_result(NvmFileFlowState *, uint16_t local, NvmFileFlowArm);
+/* Exclusive services take a reference slot (and write's INT on stack). Temp
+ * takes no values; close consumes File from stack. Other modes require NO_REFERENCE. */
+NvmFileFlowStatus nvm_file_flow_service(NvmFileFlowState *, uint32_t site, uint32_t import,
+                                      uint16_t reference);
+/* Exact per-parameter reference vector: mode2 uses a live exclusive slot;
+ * mode0 uses NO_REFERENCE and takes a value from the ordered stack suffix.
+ * Success records a pending callee-body/cleanup obligation, not a body proof. */
+NvmFileFlowStatus nvm_file_flow_call(NvmFileFlowState *, uint32_t site, uint32_t function,
+                                   const uint16_t *references, uint16_t count);
 NvmFileFlowStatus nvm_file_flow_move(NvmFileFlowState *, uint16_t from, uint16_t to);
 NvmFileFlowStatus nvm_file_flow_take(NvmFileFlowState *, uint16_t);
 NvmFileFlowStatus nvm_file_flow_put(NvmFileFlowState *, uint16_t);

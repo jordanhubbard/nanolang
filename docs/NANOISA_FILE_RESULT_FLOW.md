@@ -235,3 +235,24 @@ identical live owner/reference placement and compatible initialized value facts.
 It may widen only Result arms and union pending obligations. A different owner
 identity or cleanup obligation count refuses conservatively; this is not a full
 CFG fixed-point algorithm or an execution certificate.
+
+## My second production checkpoint
+
+I add service transfers using the copied nominal import map and immutable catalog.
+Close removes its File input for both outcomes; exclusive operations keep their
+reference and File input. Write records its checked-byte requirement without
+claiming a value-domain proof. Temp introduces only a symbolic affine OpenResult.
+No transition invokes a service or grants host rights.
+
+Internal calls consume the exact ordered value suffix and validate each exclusive
+reference against the callee declaration. Duplicate exclusive roots refuse. The
+returned symbolic fact carries a pending exact-callee/body/cleanup requirement;
+I do not infer a checked body or permit direct recursion. Indirect cycles and
+all-callee coverage remain obligations for the later decoder/CFG checkpoint.
+
+Clone/refine allocate owned states, while service/call/join commits allocate
+nothing. All capacity, identity and obligation conflicts are checked before any
+state mutation. The enlarged fixed state remains bounded by my existing state
+byte budget. This checkpoint changes no public selector, CODE decoder, wire
+format or execution provider. I hold fixture preparation and execution until the
+complete production diff receives independent review.
