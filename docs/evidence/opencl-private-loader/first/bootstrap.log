@@ -1,0 +1,35 @@
++ autoreconf -vi -Wall
+autoreconf: export WARNINGS=all
+autoreconf: Entering directory '.'
+autoreconf: configure.ac: not using Gettext
+autoreconf: running: aclocal -I m4
+autoreconf: configure.ac: tracing
+autoreconf: configure.ac: creating directory build-aux
+autoreconf: running: libtoolize --force --copy
+libtoolize: putting auxiliary files in AC_CONFIG_AUX_DIR, 'build-aux'.
+libtoolize: copying file 'build-aux/ltmain.sh'
+libtoolize: putting macros in AC_CONFIG_MACRO_DIRS, 'm4'.
+libtoolize: copying file 'm4/libtool.m4'
+libtoolize: copying file 'm4/ltoptions.m4'
+libtoolize: copying file 'm4/ltsugar.m4'
+libtoolize: copying file 'm4/ltversion.m4'
+libtoolize: copying file 'm4/lt~obsolete.m4'
+autoreconf: configure.ac: not using Intltool
+autoreconf: configure.ac: not using Gtkdoc
+autoreconf: running: aclocal -I m4
+autoreconf: running: autoconf
+configure.ac:34: warning: The macro `AC_PROG_CC_C89' is obsolete.
+configure.ac:34: You should run autoupdate.
+./lib/autoconf/c.m4:1652: AC_PROG_CC_C89 is expanded from...
+configure.ac:34: the top level
+autoreconf: running: autoheader
+autoreconf: running: automake --add-missing --copy --no-force
+configure.ac:23: installing 'build-aux/ar-lib'
+configure.ac:23: installing 'build-aux/compile'
+configure.ac:14: installing 'build-aux/config.guess'
+configure.ac:14: installing 'build-aux/config.sub'
+configure.ac:20: installing 'build-aux/install-sh'
+configure.ac:20: installing 'build-aux/missing'
+Makefile.am: installing 'build-aux/depcomp'
+autoreconf: Leaving directory '.'
++ set +x

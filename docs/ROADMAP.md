@@ -12051,6 +12051,17 @@ and the default-profile MAC completed state. All16 committed report hashes in
 [my literal-output seal](evidence/forth-string-output/report-sha256.json) match.
 The pending-merge statement above records the earlier qualification checkpoint;
 full Forth conformance and release acceptance remain open.
+
+- [x] I investigate the retained OpenCL unload-time leak under `task_315caf01b3764a3eb655d825c9203e24` by [capturing same-process module maps before the unchanged loader close](OPENCL_UNLOAD_MAPPING_DIAGNOSTIC.md). I preserve the original failure and require one fresh diagnostic build/run with unchanged sanitizers and GPU assertions before drawing an allocation-module conclusion.
+
+I capture and attribute the same-process OpenCL unload diagnostic at `4b71cc2ab`: the unchanged GPU assertions pass, the 75-byte/three-allocation LSan failure persists, and all seven unknown frames map to the installed OpenCL loader. [My evidence](evidence/opencl-unload-attribution.md) identifies the module only; task315caf, ownership diagnosis and sanitizer acceptance remain open.
+
+- [x] I qualify released OpenCL loader teardown under task315caf using the [isolated private-loader matrix](OPENCL_PRIVATE_LOADER_QUALIFICATION.md), preserving my installed2.3.2 failure and actual GPU assertions. I require fresh ordinary/sanitizer results and exact selected-library evidence before claiming an environment-specific remedy.
+
+- [x] I supply the private OpenCL generator missing-YAML prerequisite under task315caf after retaining2397 bootstrap/configure success and Make failure before GPU execution. I build matching Psych privately, qualify YAML encode/decode, and require a fresh loader build without changing the existing Ruby installation.
+
+I retain the [private OpenCL2.3.5 qualification](evidence/opencl-private-loader.md): unchanged actualGPU fixtures pass GCC13/Clang18 ordinary and ASan/UBSan/LSan with real loader close. The installed2.3.2 failures remain retained; the remedy is scoped to the exact private loader environment, with publicGPU/platform/release parents open.
+
 - [x] I qualify the bounded C-seed match-ordering slice in PR855 with repeated
   conditional wildcards, integer early-wildcard order and complete stderr capture
   (`task_477bdd430a1442e7bc19cbacdbac0bde`, `task_70c5a56802e44142af0f19da2469f654`).

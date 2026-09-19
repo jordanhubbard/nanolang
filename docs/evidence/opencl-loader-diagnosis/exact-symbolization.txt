@@ -1,0 +1,10 @@
+_initClIcd_real
+/build/ocl-icd-GBGA6Z/ocl-icd-2.3.2/ocl_icd_loader.c:318
+_initClIcd_real
+/build/ocl-icd-GBGA6Z/ocl-icd-2.3.2/ocl_icd_loader.c:866
+_malloc_clGetPlatformInfo.isra.0
+/build/ocl-icd-GBGA6Z/ocl-icd-2.3.2/ocl_icd_loader.c:338
+_initClIcd_real
+/build/ocl-icd-GBGA6Z/ocl-icd-2.3.2/ocl_icd_loader.c:564
+clGetPlatformIDs_hid
+/build/ocl-icd-GBGA6Z/ocl-icd-2.3.2/ocl_icd_loader.c:970

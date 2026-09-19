@@ -1,0 +1,11 @@
+{
+  "bin/cllayerinfo": "ab8c3609f27d9779b9ad37e1734fbe9bf309009ed0ddbe56104ea6c1f73a8a21",
+  "include/ocl_icd.h": "be6460494d5ef5d09658b6c16a00327aa13633f267055d3d5687cb334c3182d5",
+  "lib/libOpenCL.la": "9b313d61407bd8a0dd9dfd0d64a77cee43afbc727acbd146bee6ff815ce88882",
+  "lib/libOpenCL.so": "3be764c5ce91bd61543d1d9f6e248a0e290f15ba0ec4e64fe739144b52cb016c",
+  "lib/libOpenCL.so.1": "3be764c5ce91bd61543d1d9f6e248a0e290f15ba0ec4e64fe739144b52cb016c",
+  "lib/libOpenCL.so.1.0.0": "3be764c5ce91bd61543d1d9f6e248a0e290f15ba0ec4e64fe739144b52cb016c",
+  "lib/pkgconfig/OpenCL.pc": "c7ac52b4da003398a04571dbb09546f0432ca632d685f623a0c0f5f157c7a349",
+  "lib/pkgconfig/ocl-icd.pc": "a9d07e17138f035c5e9b545e5dd713d9222832bd445f2f846383b596f2392c20",
+  "share/doc/ocl-icd/examples/ocl_icd_bindings.c": "a2c7bb33da4fefd722f2fa40877267988fc935fcef8f56387e957efd115e6429"
+}

@@ -1,0 +1,26 @@
+{
+  "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14": {
+    "realpath": "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14",
+    "sha256": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8"
+  },
+  "/usr/bin/aarch64-linux-gnu-gcc-13": {
+    "realpath": "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+  },
+  "/usr/bin/as": {
+    "realpath": "/usr/bin/aarch64-linux-gnu-as",
+    "sha256": "1ffda50efb6d91b6b05ef933aced099595c36577594c0296c91161f2d13db374"
+  },
+  "/usr/bin/ld": {
+    "realpath": "/usr/bin/aarch64-linux-gnu-ld.bfd",
+    "sha256": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c"
+  },
+  "/usr/bin/ldd": {
+    "realpath": "/usr/bin/ldd",
+    "sha256": "2d9c1643ea67548e601baa6f6f4f4478cdd93afc5247a10ea94ae88a6e78d788"
+  },
+  "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1": {
+    "realpath": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1",
+    "sha256": "64edfe466dd55c4216c006e9fa237af012e4974281dd4d11640aacfc3b3693af"
+  }
+}

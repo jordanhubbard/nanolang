@@ -1,0 +1,96 @@
+/usr/bin/make  install-recursive
+make[1]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream'
+Making install in .
+make[2]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream'
+make[3]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream'
+ /usr/bin/mkdir -p '/tmp/nanolang-opencl-private-7f0/install/lib'
+ /bin/bash ./libtool   --mode=install /usr/bin/install -c   libOpenCL.la '/tmp/nanolang-opencl-private-7f0/install/lib'
+libtool: install: /usr/bin/install -c .libs/libOpenCL.so.1.0.0 /tmp/nanolang-opencl-private-7f0/install/lib/libOpenCL.so.1.0.0
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib && { ln -s -f libOpenCL.so.1.0.0 libOpenCL.so.1 || { rm -f libOpenCL.so.1 && ln -s libOpenCL.so.1.0.0 libOpenCL.so.1; }; })
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib && { ln -s -f libOpenCL.so.1.0.0 libOpenCL.so || { rm -f libOpenCL.so && ln -s libOpenCL.so.1.0.0 libOpenCL.so; }; })
+libtool: install: /usr/bin/install -c .libs/libOpenCL.lai /tmp/nanolang-opencl-private-7f0/install/lib/libOpenCL.la
+libtool: finish: PATH="/tmp/nanolang-opencl-loader-tools/usr/bin:/home/jkh/Src/RubyOS/build/host-ruby/bin:/usr/bin:/bin:/sbin" ldconfig -n /tmp/nanolang-opencl-private-7f0/install/lib
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /tmp/nanolang-opencl-private-7f0/install/lib
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the '-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the 'LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the 'LD_RUN_PATH' environment variable
+     during linking
+   - use the '-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to '/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+ /usr/bin/mkdir -p '/tmp/nanolang-opencl-private-7f0/install/bin'
+  /bin/bash ./libtool   --mode=install /usr/bin/install -c cllayerinfo '/tmp/nanolang-opencl-private-7f0/install/bin'
+libtool: install: /usr/bin/install -c cllayerinfo /tmp/nanolang-opencl-private-7f0/install/bin/cllayerinfo
+ /usr/bin/mkdir -p '/tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd'
+ /bin/bash ./libtool   --mode=install /usr/bin/install -c   libdummycl.la libdummycl2.la libdummycl-noext.la libdummylayer.la '/tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd'
+libtool: install: /usr/bin/install -c .libs/libdummycl.so.0.0.0 /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd/libdummycl.so.0.0.0
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd && { ln -s -f libdummycl.so.0.0.0 libdummycl.so.0 || { rm -f libdummycl.so.0 && ln -s libdummycl.so.0.0.0 libdummycl.so.0; }; })
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd && { ln -s -f libdummycl.so.0.0.0 libdummycl.so || { rm -f libdummycl.so && ln -s libdummycl.so.0.0.0 libdummycl.so; }; })
+libtool: install: /usr/bin/install -c .libs/libdummycl.lai /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd/libdummycl.la
+libtool: install: /usr/bin/install -c .libs/libdummycl2.so.0.0.0 /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd/libdummycl2.so.0.0.0
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd && { ln -s -f libdummycl2.so.0.0.0 libdummycl2.so.0 || { rm -f libdummycl2.so.0 && ln -s libdummycl2.so.0.0.0 libdummycl2.so.0; }; })
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd && { ln -s -f libdummycl2.so.0.0.0 libdummycl2.so || { rm -f libdummycl2.so && ln -s libdummycl2.so.0.0.0 libdummycl2.so; }; })
+libtool: install: /usr/bin/install -c .libs/libdummycl2.lai /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd/libdummycl2.la
+libtool: install: /usr/bin/install -c .libs/libdummycl-noext.so.0.0.0 /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd/libdummycl-noext.so.0.0.0
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd && { ln -s -f libdummycl-noext.so.0.0.0 libdummycl-noext.so.0 || { rm -f libdummycl-noext.so.0 && ln -s libdummycl-noext.so.0.0.0 libdummycl-noext.so.0; }; })
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd && { ln -s -f libdummycl-noext.so.0.0.0 libdummycl-noext.so || { rm -f libdummycl-noext.so && ln -s libdummycl-noext.so.0.0.0 libdummycl-noext.so; }; })
+libtool: install: /usr/bin/install -c .libs/libdummycl-noext.lai /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd/libdummycl-noext.la
+libtool: install: /usr/bin/install -c .libs/libdummylayer.so.0.0.0 /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd/libdummylayer.so.0.0.0
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd && { ln -s -f libdummylayer.so.0.0.0 libdummylayer.so.0 || { rm -f libdummylayer.so.0 && ln -s libdummylayer.so.0.0.0 libdummylayer.so.0; }; })
+libtool: install: (cd /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd && { ln -s -f libdummylayer.so.0.0.0 libdummylayer.so || { rm -f libdummylayer.so && ln -s libdummylayer.so.0.0.0 libdummylayer.so; }; })
+libtool: install: /usr/bin/install -c .libs/libdummylayer.lai /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd/libdummylayer.la
+libtool: finish: PATH="/tmp/nanolang-opencl-loader-tools/usr/bin:/home/jkh/Src/RubyOS/build/host-ruby/bin:/usr/bin:/bin:/sbin" ldconfig -n /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the '-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the 'LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the 'LD_RUN_PATH' environment variable
+     during linking
+   - use the '-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to '/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+/usr/bin/make  install-exec-hook
+make[4]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream'
+rm -f -r /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd
+make[4]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream'
+ /usr/bin/mkdir -p '/tmp/nanolang-opencl-private-7f0/install/include'
+ /usr/bin/install -c -m 644 ocl_icd.h '/tmp/nanolang-opencl-private-7f0/install/include'
+ /usr/bin/mkdir -p '/tmp/nanolang-opencl-private-7f0/install/lib/pkgconfig'
+ /usr/bin/install -c -m 644 OpenCL.pc ocl-icd.pc '/tmp/nanolang-opencl-private-7f0/install/lib/pkgconfig'
+ /usr/bin/mkdir -p '/tmp/nanolang-opencl-private-7f0/install/share/doc/ocl-icd/examples'
+ /usr/bin/install -c -m 644 ocl_icd_bindings.c '/tmp/nanolang-opencl-private-7f0/install/share/doc/ocl-icd/examples'
+make[3]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream'
+make[2]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream'
+Making install in doc
+make[2]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream/doc'
+make[3]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream/doc'
+make[3]: Nothing to be done for 'install-exec-am'.
+make[3]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream/doc'
+make[2]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream/doc'
+Making install in tests
+make[2]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream/tests'
+make[3]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream/tests'
+make[3]: Nothing to be done for 'install-exec-am'.
+make[3]: Nothing to be done for 'install-data-am'.
+make[3]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream/tests'
+make[2]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream/tests'
+make[1]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream'

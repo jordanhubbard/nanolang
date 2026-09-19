@@ -1,0 +1,113 @@
+{
+  "sha": "3e1155f0796cb9ac0fe309664d98e4b0ed2c3300",
+  "node_id": "C_kwDOAsZ6J9oAKDNlMTE1NWYwNzk2Y2I5YWMwZmUzMDk2NjRkOThlNGIwZWQyYzMzMDA",
+  "commit": {
+    "author": {
+      "name": "Brice Videau",
+      "email": "bvideau@anl.gov",
+      "date": "2026-06-02T18:18:23Z"
+    },
+    "committer": {
+      "name": "Brice Videau",
+      "email": "bvideau@anl.gov",
+      "date": "2026-06-02T18:18:23Z"
+    },
+    "message": "Drafted new release.",
+    "tree": {
+      "sha": "b0ad88b576beeda74693761f46d4d59e72679188",
+      "url": "https://api.github.com/repos/OCL-dev/ocl-icd/git/trees/b0ad88b576beeda74693761f46d4d59e72679188"
+    },
+    "url": "https://api.github.com/repos/OCL-dev/ocl-icd/git/commits/3e1155f0796cb9ac0fe309664d98e4b0ed2c3300",
+    "comment_count": 0,
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "url": "https://api.github.com/repos/OCL-dev/ocl-icd/commits/3e1155f0796cb9ac0fe309664d98e4b0ed2c3300",
+  "html_url": "https://github.com/OCL-dev/ocl-icd/commit/3e1155f0796cb9ac0fe309664d98e4b0ed2c3300",
+  "comments_url": "https://api.github.com/repos/OCL-dev/ocl-icd/commits/3e1155f0796cb9ac0fe309664d98e4b0ed2c3300/comments",
+  "author": {
+    "login": "Kerilk",
+    "id": 1815142,
+    "node_id": "MDQ6VXNlcjE4MTUxNDI=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1815142?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/Kerilk",
+    "html_url": "https://github.com/Kerilk",
+    "followers_url": "https://api.github.com/users/Kerilk/followers",
+    "following_url": "https://api.github.com/users/Kerilk/following{/other_user}",
+    "gists_url": "https://api.github.com/users/Kerilk/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/Kerilk/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/Kerilk/subscriptions",
+    "organizations_url": "https://api.github.com/users/Kerilk/orgs",
+    "repos_url": "https://api.github.com/users/Kerilk/repos",
+    "events_url": "https://api.github.com/users/Kerilk/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/Kerilk/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "Kerilk",
+    "id": 1815142,
+    "node_id": "MDQ6VXNlcjE4MTUxNDI=",
+    "avatar_url": "https://avatars.githubusercontent.com/u/1815142?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/Kerilk",
+    "html_url": "https://github.com/Kerilk",
+    "followers_url": "https://api.github.com/users/Kerilk/followers",
+    "following_url": "https://api.github.com/users/Kerilk/following{/other_user}",
+    "gists_url": "https://api.github.com/users/Kerilk/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/Kerilk/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/Kerilk/subscriptions",
+    "organizations_url": "https://api.github.com/users/Kerilk/orgs",
+    "repos_url": "https://api.github.com/users/Kerilk/repos",
+    "events_url": "https://api.github.com/users/Kerilk/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/Kerilk/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "e8a316ff380aaa36f12c8ae86b90a9dcb0098925",
+      "url": "https://api.github.com/repos/OCL-dev/ocl-icd/commits/e8a316ff380aaa36f12c8ae86b90a9dcb0098925",
+      "html_url": "https://github.com/OCL-dev/ocl-icd/commit/e8a316ff380aaa36f12c8ae86b90a9dcb0098925"
+    }
+  ],
+  "stats": {
+    "total": 9,
+    "additions": 8,
+    "deletions": 1
+  },
+  "files": [
+    {
+      "sha": "9b58cb0652050f7a889d5bfb30560182021cf263",
+      "filename": "NEWS",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "blob_url": "https://github.com/OCL-dev/ocl-icd/blob/3e1155f0796cb9ac0fe309664d98e4b0ed2c3300/NEWS",
+      "raw_url": "https://github.com/OCL-dev/ocl-icd/raw/3e1155f0796cb9ac0fe309664d98e4b0ed2c3300/NEWS",
+      "contents_url": "https://api.github.com/repos/OCL-dev/ocl-icd/contents/NEWS?ref=3e1155f0796cb9ac0fe309664d98e4b0ed2c3300",
+      "patch": "@@ -1,3 +1,10 @@\n+Version 2.3.5\n+=============\n+Brice Videau (3):\n+      Updated for OpenCL 3.1\n+      Loader deinitialization\n+      Add support for OCL_ICD_FILENAMES\n+\n Version 2.3.4\n =============\n Brice Videau (1):"
+    },
+    {
+      "sha": "9f41c4ecdec52af32c1eb69c9b81465082830d61",
+      "filename": "configure.ac",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/OCL-dev/ocl-icd/blob/3e1155f0796cb9ac0fe309664d98e4b0ed2c3300/configure.ac",
+      "raw_url": "https://github.com/OCL-dev/ocl-icd/raw/3e1155f0796cb9ac0fe309664d98e4b0ed2c3300/configure.ac",
+      "contents_url": "https://api.github.com/repos/OCL-dev/ocl-icd/contents/configure.ac?ref=3e1155f0796cb9ac0fe309664d98e4b0ed2c3300",
+      "patch": "@@ -6,7 +6,7 @@\n \n \n AC_PREREQ([2.67])\n-AC_INIT([OpenCL ICD Loader], [2.3.4], [ocl-icd-devel@lists.forge.imag.fr], [ocl-icd])\n+AC_INIT([OpenCL ICD Loader], [2.3.5], [ocl-icd-devel@lists.forge.imag.fr], [ocl-icd])\n AC_CONFIG_SRCDIR([ocl_icd_loader.c])\n AC_CONFIG_AUX_DIR([build-aux])\n AC_CONFIG_HEADERS([config.h])"
+    }
+  ]
+}

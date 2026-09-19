@@ -1,0 +1,22 @@
+{
+  "name": "gcc-sanitizer-build",
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "tests/test_opencl_identity_real.c",
+    "-ldl",
+    "-o",
+    "/tmp/nanolang-opencl-private-7f0/gcc-sanitizer"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+  "exit_code": 0,
+  "seconds": 0.31443879700964317,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}

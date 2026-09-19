@@ -1,0 +1,4 @@
+	linux-vdso.so.1 (0x0000fc8f93abc000)
+	libyaml-0.so.2 => /tmp/nanolang-opencl-private-7f0/yaml/usr/lib/aarch64-linux-gnu/libyaml-0.so.2 (0x0000fc8f93a10000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000fc8f93830000)
+	/lib/ld-linux-aarch64.so.1 (0x0000fc8f93a80000)

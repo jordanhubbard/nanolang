@@ -1,0 +1,50 @@
+{
+  "inventory_counts": {
+    "source": 7278,
+    "tools": 6,
+    "libraries": 13
+  },
+  "binary_verified": {
+    "path": "/tmp/nanolang-opencl-unload-4b71/real-mapped",
+    "sha256": "6d836c35e88b0d3caed3f287c77d5b333b292ed2dabc5b9d2465e6c88d4a7925"
+  },
+  "markers": 1,
+  "frames": [
+    {
+      "frame": "#1 0xf8878bb1b24c  (<unknown module>)",
+      "file_offset": "0xb24c",
+      "permissions": "r-xp"
+    },
+    {
+      "frame": "#2 0xf8878bb1c1b4  (<unknown module>)",
+      "file_offset": "0xc1b4",
+      "permissions": "r-xp"
+    },
+    {
+      "frame": "#1 0xf8878bb1b0ac  (<unknown module>)",
+      "file_offset": "0xb0ac",
+      "permissions": "r-xp"
+    },
+    {
+      "frame": "#2 0xf8878bb1c1b4  (<unknown module>)",
+      "file_offset": "0xc1b4",
+      "permissions": "r-xp"
+    },
+    {
+      "frame": "#1 0xf8878bb1a8cc  (<unknown module>)",
+      "file_offset": "0xa8cc",
+      "permissions": "r-xp"
+    },
+    {
+      "frame": "#2 0xf8878bb1b50c  (<unknown module>)",
+      "file_offset": "0xb50c",
+      "permissions": "r-xp"
+    },
+    {
+      "frame": "#3 0xf8878bb1c1b4  (<unknown module>)",
+      "file_offset": "0xc1b4",
+      "permissions": "r-xp"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,20 @@
+{
+  "OCL_ICD_FORCE_LEGACY_TERMINATION": null,
+  "OCL_ICD_DISABLE_DYNAMIC_LIBRARY_UNLOADING": null,
+  "OCL_ICD_VENDORS": null,
+  "OCL_ICD_FILENAMES": null,
+  "OPENCL_VENDOR_PATH": null,
+  "OPENCL_LAYERS": null,
+  "OPENCL_LAYER_PATH": null,
+  "OCL_ICD_LAYERS": null,
+  "OCL_ICD_DEBUG": null,
+  "LD_PRELOAD": null,
+  "PATH": "/tmp/nanolang-opencl-loader-tools/usr/bin:/home/jkh/Src/RubyOS/build/host-ruby/bin:/usr/bin:/bin",
+  "_lt_pkgdatadir": "/tmp/nanolang-opencl-private-7f0/libtool-data",
+  "ACLOCAL_PATH": "/tmp/nanolang-opencl-loader-tools/usr/share/aclocal",
+  "CC": "/usr/bin/aarch64-linux-gnu-gcc-13",
+  "CFLAGS": "-O2 -g",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}
