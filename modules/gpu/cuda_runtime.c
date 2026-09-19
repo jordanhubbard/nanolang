@@ -172,13 +172,13 @@ static CUmodule get_or_load_module(const char *ptx_file) {
     FILE *f = fopen(ptx_file, "rb");
     if (!f) {
         snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
-                 "I cannot open GPU source: %.400s", ptx_file);
+                 "I cannot open GPU source: %.200s", ptx_file);
         return NULL;
     }
     if (fseek(f, 0, SEEK_END) != 0) {
         fclose(f);
         snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
-                 "I cannot seek GPU source: %.400s", ptx_file);
+                 "I cannot seek GPU source: %.200s", ptx_file);
         return NULL;
     }
     long sz = ftell(f);
@@ -186,7 +186,7 @@ static CUmodule get_or_load_module(const char *ptx_file) {
         fseek(f, 0, SEEK_SET) != 0) {
         fclose(f);
         snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
-                 "I cannot size or rewind GPU source: %.400s", ptx_file);
+                 "I cannot size or rewind GPU source: %.200s", ptx_file);
         return NULL;
     }
     char *ptx = malloc((size_t)sz + 1);
@@ -202,7 +202,7 @@ static CUmodule get_or_load_module(const char *ptx_file) {
     if (count != (size_t)sz || read_error || close_error != 0) {
         free(ptx);
         snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
-                 "I cannot completely read and close GPU source: %.400s", ptx_file);
+                 "I cannot completely read and close GPU source: %.200s", ptx_file);
         return NULL;
     }
     ptx[(size_t)sz] = '\0';
