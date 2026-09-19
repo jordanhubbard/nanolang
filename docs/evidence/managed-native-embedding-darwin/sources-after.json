@@ -1,0 +1,10 @@
+{
+  "scripts/embed_managed_native.py": "c480cef07e7b76fa4ae12bed27c886b3c0118ce8b0172359e4ec3b0922cf4186",
+  "src/binary64_arithmetic_source.h": "a10c6f741cdd4806ca57bf4a2abc676bc1d3869e4ec894c642cdb7768e95ba4c",
+  "src/nanoisa/binary64_parse.h": "bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5",
+  "src/nanoisa/binary64_parse_source.h": "2ca32a258bf8e831a4a645320c213a034de4ea2c75403e4c4cfb1492fb26021f",
+  "src/nanoisa/managed_native_source.h": "49e3ae2fe8ff5e0f9766d89339c6f1bea19ff3235f96ecadf6927e98d93b016a",
+  "src/nanoisa/managed_strings.c": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+  "src/nanoisa/managed_strings.h": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+  "tests/test_managed_native_embedding.py": "b23b9bb7d295ff302012c7ec70778b0d56da845257288ceced59e404c07a3c6e"
+}
