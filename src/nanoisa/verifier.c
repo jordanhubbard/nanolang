@@ -499,6 +499,8 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
     return verify_structure_checked(mod,affine_only,owned_admitted,false);
 }
 #include "mixed_samples_prepare.inc"
+/* I expose only a private complete owner ARRAY query, not a routing branch. */
+#include "owned_array_prepare.inc"
 
 /* ========================================================================
  * Bytecode instruction validation (per-function)

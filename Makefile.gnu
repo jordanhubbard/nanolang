@@ -5359,3 +5359,8 @@ test-owned-array-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 test-units: test-owned-array-origins
 test-owned-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	OWNED_ARRAY_ORIGIN_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_origins
+
+.PHONY: test-owned-array-authority
+test-units: test-owned-array-authority
+test-owned-array-authority: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	OWNED_ARRAY_AUTHORITY_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_authority
