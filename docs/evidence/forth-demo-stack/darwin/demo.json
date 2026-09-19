@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/private/tmp/nanolang-forth-demo-evidence-b0e9/forth",
+    "--demo"
+  ],
+  "returncode": 0,
+  "seconds": 0.30603583299999926,
+  "empty_stack_terminal": true
+}

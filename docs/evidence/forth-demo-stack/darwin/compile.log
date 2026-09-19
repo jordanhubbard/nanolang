@@ -1,0 +1,3 @@
+ld: warning: ignoring duplicate libraries: '-lreadline'
+ld: warning: ignoring duplicate libraries: '-lreadline'
+ld: warning: ignoring duplicate libraries: '-lreadline'
