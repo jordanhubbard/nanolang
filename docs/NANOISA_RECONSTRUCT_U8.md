@@ -105,3 +105,20 @@ This extension does not admit a `u8` entry result: my executable entry remains
 an arity-zero `int` function. It does not change NanoISA, NanoVM, `nvm2c`, LLVM
 or Wasm semantics. Full high-level reconstruction and the v5.1.0 release gates
 remain open.
+
+## Direct parameter metadata correction
+
+My final self-review found that execution did not prove the direct parameter
+metadata. At PR859 head `7ab0afc0`, a fresh identical
+`identity(value: u8) -> u8` probe produces `.parameters 0 u8` through NanoVirt
+but `.parameters 1 void` through Stage 1 and Stage 2. Their result tags remain
+`u8` and the program executes, so the existing focused matrix could miss this
+metadata loss.
+
+I record this as `task_affeba0b68cd8ad7e2c3756c672c934a` before changing
+code. I correct only the self-hosted parameter tag serialization and its exact
+byte type guard. I require the three producer dumps to contain a byte
+parameter tag, followed by verification, VM and translated-native execution.
+The first source and dump hashes remain in my evidence report. This does not
+widen indirect calls, aggregates, generic byte operations or native-C source
+generation.
