@@ -295,3 +295,12 @@ I do not shorten the path fixture or remove provider objects. Source review
 precedes fresh Linux/Darwin wrapper controls and the remaining adjacent gates.
 My passing service transport gates and original bootstrap claims retain their
 own source pins; this prerequisite does not add service execution authority.
+
+At 775b, my wrapper controls pass on Linux (3.848s) and Darwin (10.349s),
+including the new long alias. Darwin then passes verifier profiles but stops
+before the owned-array descriptor fixture executes: its link command cannot
+find `crypto`. That fixture uses its own command rather than Make's LDFLAGS.
+I preserve this setup terminal (7.435s) under21469 before a fresh remaining-only
+gate with explicit `LIBRARY_PATH=/opt/homebrew/opt/openssl@3/lib`, captured
+compiler/library identities and unchanged assertions. I do not repeat passing
+wrapper or transport gates for this environment correction.
