@@ -184,3 +184,66 @@ selected close/main shadows, including inline Handle construction, reverse
 binding order, FLOAT read1.5 and close7. Linux/Darwin and adjacent existing source
 families remain the full-source acceptance requirement. None of the earlier
 private checkpoints closes430220 or the managed/affine/product parents.
+
+## My first authority-query API and independent numerical bounds
+
+I propose `nvm_prepare_owned_array_authority(const NvmModule *,
+NvmOwnedArrayPlan **)`, `nvm_owned_array_plan_free`, and output-atomic indexed
+getters for counts, per-function signature/max-stack, exact original local
+declarations, original global/source layout facts and retained transport.
+`NvmOwnedArrayPlan` is opaque and owns its lifetime/origin results, declarations
+and copied layout/ownership bytes. Getters never return mutable state. Borrowed
+transport bytes remain valid until plan destruction; other getters copy complete
+rows after validating all indices. Null/failed inputs leave all outputs intact.
+Statuses are PREPARED, UNRESOLVED, INVALID, LIMIT and MEMORY with function/PC and
+static first-person diagnostic. PREPARED asserts only the complete private
+analysis; it is not executable permission. No module mutation or cached-proof
+input is accepted.
+
+The independent lifetime pass has at most8 functions,8 parameters,256 locals,
+256 operand slots and4,096 decoded instructions. I budget at most4,096 persisted
+instruction frames plus8 seeds and one temporary transfer frame; persisted
+local/stack value storage totals at most1,048,576 cells. Seeds and transfer
+scratch together add at most4,608 cells, explicitly separate from that persisted
+budget. Each frame's owner liveness bitmap has at most256 entries and references
+remain empty. Shared per-function Facts retain original descriptors once, with
+at most8 decoded layout tables and8 local-declaration tables. Each decoded table
+retains the existing256-layout/65,536-field limit. Owner/result depth stays32 and
+any executable owner row has at most256 direct fields.
+
+I cap dequeued independent transfer visits at262,144 and charge owner/value
+join, transfer field and exit scans against a separate4,194,304-cell work budget.
+All count/products are checked before allocation. Limit exhaustion refuses;
+there is no truncated proof. This budget is additional to the independently
+bounded origin query. Exported scalar/location obligations retain at most4,096
+rows; each is copied from the freshly checked query and validated against the
+independent decoded location, rather than asserted from a guessed opcode.
+
+The exact structural call graph is private prepare in verifier.c → fresh
+independent lifetime/origin query in affine_state.c → private returned facts →
+`verify_structure_checked(module,true,NULL,true)` and `nvm_metadata_valid` →
+opaque prepared plan. That static helper's ownership-delegation branch skips
+only the old ownership validator and, with affine_only=true, never calls owned
+or public verification. It still checks retained structure/passive/callback
+transport and normal common metadata. I call no public `nvm_verify*`, candidate
+or prepare/admit function from the new analysis; no verifier→candidate→prepare
+recursion is possible. The trusted delegation bool remains inside verifier.c,
+with no external API argument or imported state constructor.
+
+## My source-opcode audit identifies a later required extension
+
+The unchanged Bundle/PREFIX assertion compares `(at samples 0)` with FLOAT1.5.
+Current C specialized numeric comparison at
+`src/nanovirt/borrow_codegen.inc:266` and Nano `nb_binary` at
+`src_nano/compiler/nanoisa_borrows.nano:495` select F64_EQ for FLOAT operands.
+The origin query deliberately preserves ARR_GET's FLOAT|VOID alternatives and
+currently rejects a nonexact FLOAT operand at that typed consumer. Existing
+mixed composition instead records an operand-specific checked FLOAT obligation.
+These static facts identify a required operand-obligation extension before
+paired Bundle activation; they are not an observed new source run or permission
+to erase VOID. I keep this first authority checkpoint on the existing origin
+whitelist. A separate reviewed precode extension must state the exact runtime
+check and paired producer coverage, including the selected main/close shadows.
+Likewise PRINT/PRINTLN failure-prefix controls remain planned until their origin
+and scalar transfer contract is reviewed. Neither extension is silently folded
+into this query's implementation or public activation.
