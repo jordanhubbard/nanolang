@@ -34,16 +34,35 @@ class DeclaredArrayPushIdentity(unittest.TestCase):
                 self.command([ROOT / 'bin' / compiler, source, '-o', binary])
                 self.command([binary])
         if canonical:
-            dumps = []
+            modules = []
             for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
                 with self.subTest(case=label, compiler=compiler, route='canonical'):
                     output = self.work / (label + '-' + compiler + '.nvm')
                     self.command([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output])
                     self.command([ROOT / 'bin/nano_vm', '--verify-only', output])
                     self.command([ROOT / 'bin/nano_vm', output])
-                    dumps.append(self.command([ROOT / 'bin/nanoisa', 'dump', output]).stdout)
-            self.assertEqual(dumps[0], dumps[1])
-            self.assertEqual(dumps[0], dumps[2])
+                    dump = self.command([ROOT / 'bin/nanoisa', 'dump', output]).stdout
+                    original = output.read_bytes()
+                    repeated = output.with_suffix('.repeat.nvm')
+                    self.command([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', repeated])
+                    self.assertEqual(original, repeated.read_bytes())
+                    modules.append(original)
+                    if label.startswith('declared-'):
+                        functions = [line.split()[1] for line in dump.splitlines()
+                                     if line.startswith('.function ')]
+                        self.assertEqual(functions.count('array_push'), 1)
+                        self.assertIn('CALL ' + str(functions.index('array_push')) + '\n', dump)
+                        self.assertNotIn('ARR_PUSH', dump)
+                        result = 'array' if label == 'declared-array' else 'int'
+                        self.assertIn('.function array_push 2 2 0 ' + result + ' 1', dump)
+                        if label == 'declared-array':
+                            self.assertIn('ARR_LITERAL 3 1', dump)
+                            self.assertIn('F64_EQ', dump)
+                    if label == 'builtin':
+                        self.assertIn('ARR_PUSH', dump)
+                        self.assertNotIn('.function array_push ', dump)
+            # I compare selfhost generations raw; Cseed is a distinct lowering.
+            self.assertEqual(modules[1], modules[2])
 
     def test_declared_scalar_order_and_initializer(self):
         self.positive('declared-order', '''fn first(state: array<int>) -> int {
