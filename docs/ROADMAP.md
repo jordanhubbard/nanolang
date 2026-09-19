@@ -11907,3 +11907,11 @@ prerequisites pass, not a narrowed Bundle replacement.
   availability and unchanged source fixtures. My naming contract requires paired
   definition/prototype/call/function-value agreement, meaningful controls and
   complete review before fresh qualification. Darwin source gates remain unrun.
+
+- [ ] I await the completed checkout transfer/fetch and verify exact clean HEAD
+  before launching Darwin push qualification (`task_6cd6a0d6ecc44c5f5beba3c8f5c867ab`). My
+  first925c runner failed HEAD lookup before make because fetch was still active;
+  I preserve that log and empty evidence directory. Fetch then completed normally.
+  I correct only external launch ordering/evidence destinations, retaining925c
+  source and explicit tools. Linux bootstrap remains independent; no compiler
+  result or product defect follows from this preparation failure.
