@@ -38,6 +38,51 @@ CUDA13 `cuCtxCreate` spelling to an older function-pointer signature.
 My audit JSON records those file hashes; implementation must verify its actual
 ABI declarations against these pinned inputs rather than assume symbol names.
 
+## My exact dynamic ABI
+
+I bind only the following spellings with these Linux LP64 C function-pointer
+signatures. Every return is `CUresult`, an ABI-compatible int-sized status;
+`CUDA_SUCCESS` is0. I use `CUdevice` as `int`, `CUdeviceptr` as
+`unsigned long long` (the LP64 header typedef, not a platform-dependent guess),
+`CUcontext` as `struct CUctx_st *`, and `CUuuid` as `struct { char bytes[16]; }`.
+I check the required storage sizes at compile time. No Windows calling convention
+or32-bit ABI is admitted. A no-driver platform stub does not call these symbols.
+
+| Exact symbol | Function-pointer signature |
+| --- | --- |
+| cuInit | CUresult (*)(unsigned int) |
+| cuDriverGetVersion | CUresult (*)(int *) |
+| cuDeviceGetCount | CUresult (*)(int *) |
+| cuDeviceGet | CUresult (*)(CUdevice *, int) |
+| cuDeviceGetName | CUresult (*)(char *, int, CUdevice) |
+| cuDeviceGetUuid_v2 | CUresult (*)(CUuuid *, CUdevice) |
+| cuCtxCreate_v2 | CUresult (*)(CUcontext *, unsigned int, CUdevice) |
+| cuCtxPushCurrent_v2 | CUresult (*)(CUcontext) |
+| cuCtxPopCurrent_v2 | CUresult (*)(CUcontext *) |
+| cuCtxGetCurrent | CUresult (*)(CUcontext *) |
+| cuCtxSynchronize | CUresult (*)(void) |
+| cuCtxDestroy_v2 | CUresult (*)(CUcontext) |
+| cuMemAlloc_v2 | CUresult (*)(CUdeviceptr *, size_t) |
+| cuMemFree_v2 | CUresult (*)(CUdeviceptr) |
+| cuMemcpyHtoD_v2 | CUresult (*)(CUdeviceptr, const void *, size_t) |
+| cuMemcpyDtoH_v2 | CUresult (*)(void *, CUdeviceptr, size_t) |
+
+I require every symbol, including UUID v2; I do not silently substitute old UUID,
+PTDS, primary-context, unversioned memory or four-argument context-create APIs.
+I use flags0 for initialization/context creation. I retain numeric driver error
+codes without requiring an optional error-string entrypoint. Linux loading uses
+`libcuda.so.1` with local eager symbol resolution; a missing required symbol
+refuses before context creation. I record the resolved library and driver version
+for actual qualification.
+
+My context-reclamation claim is specifically the installed CUDA13 header's
+`cuCtxDestroy` contract at6278-6302, which includes ordinary `cuMemAlloc` storage
+and explicitly excludes async/pool/virtual-memory allocations. I admit only
+`cuMemAlloc_v2`. My audit JSON pins the whole header and that exact excerpt's
+SHA256 and line range. A successful destroy supports that documented cleanup
+claim; failure does not. This is a vendor contract, not independent proof that a
+failed device/driver reclaimed storage.
+
 ## My bounded backend and identity
 
 I first implement only a private C CUDA Driver API adapter, proposed
@@ -101,6 +146,64 @@ first cleanup error independently. Context creation follows the same staging:
 all required symbols, device identity, table allocation and host context setup
 must complete before the caller receives it. Failure cleans each acquired host
 resource once and records any unproved context release.
+
+## My bounded terminal ownership
+
+I reserve one of eight adapter-wide lifetime records before loading a driver or
+creating a CUDA context. All adapter calls, including calls across contexts, are
+serialized in this first profile; concurrent callers are refused by the stated
+API precondition, not claimed thread-safe. Each record owns its exact loader
+reference, raw CUDA context identity once obtained, creation/restoration state,
+first errors, and at most64 allocation identity/size/release-status entries.
+These records are static adapter storage, not fields that disappear with a
+caller-visible wrapper. The bound includes unpublished, active, disposed and
+quarantined contexts; normal fully confirmed cleanup returns a record to the
+free pool. Slot exhaustion refuses before loading or driver operations. My
+maximum active device allocation through the adapter is therefore512MiB.
+
+The first unconfirmed cleanup or context-restoration outcome sets a permanent
+adapter-wide terminal acquisition latch. Further create/allocate calls refuse
+before driver work, including on existing contexts. There is no public reset or
+retry escape. Existing owners may be retired through cleanup, and a healthy
+independent context may still read existing contents for recovery; a faulted
+context permits only its bounded disposal path. Thus repeated failed creations
+cannot add unlimited untracked driver references or contexts.
+
+If creation fails after acquiring a raw context and destruction cannot be
+confirmed, its already-reserved lifetime record becomes quarantine. No context
+is published, but the raw identity, loader reference and outcome accounting
+remain owned by that record. A returned creation status exposes its bounded
+record identifier and uncertainty counters, not the raw context. Failure before
+context acquisition releases the loader only when there is no outstanding raw
+resource. A driver API success with missing identity is a checked driver-contract
+failure, triggers the latch, and cannot create a usable wrapper.
+
+On disposal, I retire every live token, attempt each eligible device free once,
+and attempt context destruction once with the explicit raw context. I retain
+per-buffer outcomes even when a free failed. If destruction succeeds, no later
+operation targets that context or its allocations. I release its loader
+reference only after the context and restoration obligations are confirmed.
+If destruction is unknown, I move the remaining identity/accounting into its
+reserved quarantine record before freeing caller-visible adapter storage. The
+record then survives ordinary destroy; wrapper destruction never forgets an
+unconfirmed context or unloads its driver code.
+
+Quarantine is process-lifetime, bounded by eight records and their fixed registry
+capacity. I make no automatic atexit CUDA retry, retry-on-next-create, raw-handle
+recovery API or in-process reclamation claim for quarantined driver resources.
+A diagnostics snapshot reports active/quarantined records, retained loader
+references, release/context/restoration uncertainty and the terminal latch.
+Reports remain available after a wrapper is destroyed. A confirmed context
+release can coexist with unknown restoration; its retained record explains
+that distinction and does not invent an outstanding context. I do not claim
+process termination proves driver recovery.
+
+Fault qualification distinguishes calls whose underlying release really
+succeeded before an injected error from pre-call failures. Any harness-owned
+cleanup uses its captured fixture handles outside the adapter and is reported
+separately; it never clears production quarantine/latch or turns uncertainty
+into an adapter success. Each destructive fault phase runs in an isolated test
+process so a terminal latch is exercised rather than bypassed in later controls.
 
 ## My operation outcomes
 
