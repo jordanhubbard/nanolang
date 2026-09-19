@@ -52,3 +52,12 @@ fixture. Ordinary Make binaries and all sanitizer binaries are retained. No
 source bootstrap, public binding, NanoISA service import, VM/native service-call
 admission, pathname/endpoint connect, WebSocket, GPU or full d03c/ed702 completion
 is claimed. Those remain required work in their own contracts and ledger rows.
+
+I integrate canonical PR814 (`3f91cd7e`) in a separate tree after sealing
+`d2c03977e`. My twelve implementation/header/fixture inputs remain byte-identical
+to the qualified seal. The thirteenth input, Makefile.gnu, gains only the
+independent File-plan targets; my Socket recipes remain byte-identical. I
+preserve both roadmap additions and canonical File completion status. I perform
+no repeated execution for this additive integration; the JSON integration
+record distinguishes its current Makefile hash from the qualified input.
+My original Linux and Darwin trees, tools, logs and artifacts remain preserved.
