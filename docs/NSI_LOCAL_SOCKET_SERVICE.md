@@ -166,3 +166,10 @@ before host I/O; it otherwise leaves the output byte untouched on non-success.
 Output storage must be a valid caller-owned C object; overwriting an unrelated
 live token is not implicit disposal. The private registry is opaque. No raw
 caller buffer or pointer is retained after an operation.
+
+My first production checkpoint keeps unknown-close state on the context after
+individual tokens retire. Later disposal/destruction reports that uncertainty
+instead of treating the now-empty registry as proof of complete host closure.
+The unchanged private capability implementation remains the authority provider;
+no NSI dispatcher, producer, verifier, native emitter or GPU file changes here.
+Production remains unexecuted until independent review.
