@@ -58,3 +58,26 @@ actual linked/sanitizer fixtures and each provider/module/wrapper phase. My
 before/after pairs:6763 source files per scope,9 Linux tools and10 Darwin tools.
 The frozen Linux tree is `/home/jkh/Src/nanolang-file-code-preparation-qualified`;
 Darwin retains `/tmp/nanolang-file-code-c31` on `jordanh@CXWWHGGJX0.local`.
+
+## My separate canonical owner-array integration
+
+I merge actual canonical PR842/843 at8953110f4 into the separate ready tree and
+freeze1fa1727ed. Only additive roadmap conflicts need manual resolution; the
+reviewed private production and preparation fixture bytes remain identical toc31.
+The tested normal recipe is now a test-units prerequisite, while sanitizers remain
+explicit. No verifier/VM/native/converter changes are introduced by this query.
+
+Fresh integrated normal preparation passes5.569s on Linux and3.596s on Darwin.
+The existing File encoding/refusal target then passes10.986s/8.987s, including
+both1374-check methods, six public CLI refusals and module/blob wrapper mismatch
+controls against the merged public owner-array routes. I retain these four phases
+separately and do not repeat or relabel the original unchanged sanitizer matrix.
+
+The final report manifest seals89 text reports, preserving the original65.
+The [integration artifact index](file-code-preparation/integrated-artifact-index.json)
+adds488 entries/371 unique files. Four additional exact before/after pairs retain
+6868 unchanged source files on each platform and actual9/10 tool identities.
+Original artifact/index reports are unchanged. The integrated Linux source root is
+`/home/jkh/Src/nanolang-file-code-preparation-integrated`; Darwin retains
+`/tmp/nanolang-file-code-1fa`, with its synthetic snapshot commit recorded separately.
+Neither pin is a full source bootstrap or hosted File acceptance claim.

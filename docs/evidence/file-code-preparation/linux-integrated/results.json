@@ -1,0 +1,22 @@
+[
+  {
+    "command": [
+      "make",
+      "-j4",
+      "test-file-code"
+    ],
+    "phase": "normal",
+    "seconds": 5.569,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "-j4",
+      "test-file-opcodes"
+    ],
+    "phase": "file-refusal",
+    "seconds": 10.986,
+    "status": 0
+  }
+]
