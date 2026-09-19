@@ -58,11 +58,8 @@ class CheckedOwnerSelection(unittest.TestCase):
         return output
 
     def test_original_declaration_probes_keep_whole_source_checks(self):
-        cases = []
-        original = boundaries.AffineContractBoundaries()
-        original.check_case = lambda name, declaration, accepted: cases.append((name, declaration, accepted))
-        for method in sorted(name for name in dir(original) if name.startswith('test_')):
-            getattr(original, method)()
+        cases = boundaries.collect_affine_contract_cases()
+        self.assertEqual(len(cases), boundaries.EXPECTED_CASE_COUNT)
         self.assertEqual(sum(accepted for _, _, accepted in cases), 14)
         for name, declaration, accepted in cases:
             text = PREFIX + declaration + '\nfn main() -> int { return 0 }\n'

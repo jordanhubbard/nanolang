@@ -4,9 +4,28 @@ import os
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests/nanoisa/fixtures'
+
+
+def native_test_compiler():
+    return os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC', 'cc')
+
+
+class NativeTestCompilerSelection(unittest.TestCase):
+    def test_native_override_does_not_replace_driver_environment(self):
+        with mock.patch.dict(os.environ, {'CC': 'driver-cc'}, clear=True):
+            self.assertEqual(native_test_compiler(), 'driver-cc')
+        with mock.patch.dict(os.environ, {
+            'CC': 'driver-cc',
+            'NANO_NATIVE_TEST_CC': 'native-cc',
+        }, clear=True):
+            self.assertEqual(native_test_compiler(), 'native-cc')
+            self.assertEqual(os.environ['CC'], 'driver-cc')
+        with mock.patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(native_test_compiler(), 'cc')
 
 
 class SourceBorrowEmission(unittest.TestCase):
@@ -47,7 +66,7 @@ class SourceBorrowEmission(unittest.TestCase):
             self.assertEqual(vm.stdout, expected_output)
         source, native = self.work / 'native.c', self.work / 'native'
         self.command(ROOT / 'bin/nvm2c', module, '-o', source)
-        self.command(os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
+        self.command(native_test_compiler(), '-std=c11', '-Wall', '-Wextra', '-Werror',
                      '-fsanitize=address,undefined', '-fno-omit-frame-pointer', source, '-o', native)
         result = subprocess.run([native], cwd=ROOT, capture_output=True, timeout=30,
                                 env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
