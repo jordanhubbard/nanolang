@@ -48,14 +48,14 @@ transport/wrapper source and fixtures are unchanged from their reviewed pins.
 I claim no new bootstrap at acc254,775b or0d057: f5e07 bootstrap remains a distinct
 source pin, and later gates freshly rebuild the affected C providers/tools.
 
-My [report seal](file-nominal-retention/report-sha256.json) verifies182 reports.
-[Per-phase artifacts](file-nominal-retention/artifact-store.json) map878 entries
-to485 unique content-addressed files at
+My [report seal](file-nominal-retention/report-sha256.json) verifies236 reports.
+[Per-phase artifacts](file-nominal-retention/artifact-store.json) map998 entries
+to549 unique content-addressed files at
 `/tmp/nanolang-file-nominal-retention-artifacts`. Each runner saves actual binaries
 before later relinks, command/environment/log hashes, object inventories and
-source/tool before/after maps. All nine attempts preserve those source/tool maps.
+source/tool before/after maps. All twelve attempts preserve those source/tool maps.
 Original and corrected trees have2,252 mapped inputs per platform; final
-integration has2,258. Current checks verify all mapped sources and final binaries
+integration at0d057 has2,258; final05d/9752 phases have2,259. Current checks verify all mapped sources and final binaries
 in each retained tree. Linux records nine actual tool files; Darwin also records
 actual Apple Clang, SDK settings and, where selected, the resolved libcrypto.
 I do not equate the Apple `/usr/bin/cc` dispatcher with the selected compiler.
@@ -74,3 +74,9 @@ nano_virt and all eight wrapper controls pass on Linux (setup5.536s, tests4.146s
 and Darwin (setup3.236s, tests10.636s). I do not claim a new Stage1/2 bootstrap or
 source-producer acceptance at05d; canonical828 retains its original evidence.
 These two phases extend the seal without replacing earlier records.
+
+I integrate canonical832 at9752b8ace with its unchanged private origin/authority
+implementation. Service claims still refuse before origin analysis; the new
+operand-obligation fields have no serialized wire representation. Fresh Linux
+tools pass5.597s and linked nominal-module plus origin/authority controls pass
+10.958s. I do not repeat unchanged Darwin, wrapper or bootstrap gates.

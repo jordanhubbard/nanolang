@@ -585,5 +585,53 @@
     "source_equal": true,
     "tools_equal": true,
     "tracked_clean": true
+  },
+  {
+    "reports": "nanolang-file-nominal-integrated-9752-linux",
+    "pin": "9752b8ace9aa1a7b633297640edd43f855b6ecbb",
+    "platform": "linux",
+    "bootstrap_reference": "f5e07e5bea043265cfc15176fb1804227c363901",
+    "steps": [
+      {
+        "name": "setup",
+        "command": [
+          "make",
+          "-j8",
+          "nano_virt",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2hl"
+        ],
+        "env": {
+          "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+        },
+        "status": 0,
+        "seconds": 5.597,
+        "log_sha256": "819efa264663c8af44077a9d57a279c18bc7c48f63c45e970602c729b091b782"
+      },
+      {
+        "name": "integrated",
+        "command": [
+          "make",
+          "test-file-nominal-module",
+          "test-owned-array-origins",
+          "test-owned-array-authority"
+        ],
+        "env": {
+          "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+          "NANO_SERVICE_MODULE_TEST_CC": "/bin/gcc",
+          "OWNED_ARRAY_AUTHORITY_ARTIFACTS": "/tmp/nanolang-file-nominal-integrated-9752-linux/authority-fixture",
+          "OWNED_ARRAY_ORIGIN_ARTIFACTS": "/tmp/nanolang-file-nominal-integrated-9752-linux/origin-fixture"
+        },
+        "status": 0,
+        "seconds": 10.958,
+        "log_sha256": "4736afb624748bf9d4f6b380ee6b9e00296735be83c10c049b607b3f5afb6951"
+      }
+    ],
+    "terminal": 0,
+    "source_equal": true,
+    "tools_equal": true,
+    "tracked_clean": true
   }
 ]

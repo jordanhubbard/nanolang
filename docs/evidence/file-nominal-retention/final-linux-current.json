@@ -1,0 +1,20 @@
+[
+  {
+    "tree": "/home/jkh/Src/nanolang-file-nominal-final",
+    "reports": "/tmp/nanolang-file-nominal-final-05d971-linux",
+    "current": {
+      "source-after.json": 2259,
+      "tools-after.json": 9,
+      "bins-final.json": 2
+    }
+  },
+  {
+    "tree": "/home/jkh/Src/nanolang-file-nominal-integrated",
+    "reports": "/tmp/nanolang-file-nominal-integrated-9752-linux",
+    "current": {
+      "source-after.json": 2259,
+      "tools-after.json": 9,
+      "bins-final.json": 7
+    }
+  }
+]
