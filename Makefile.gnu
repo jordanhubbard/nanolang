@@ -5433,3 +5433,6 @@ test-file-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_FILE_HOSTED_CC="$(CC)" NANO_FILE_HOSTED_CFLAGS="$(CFLAGS)" NANO_FILE_HOSTED_SANITIZERS=0 FILE_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_hosted
 test-file-hosted-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	FILE_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_hosted
+.PHONY: test-owned-array-bits-boundaries
+test-owned-array-bits-boundaries: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_owned_array_bits_boundaries
