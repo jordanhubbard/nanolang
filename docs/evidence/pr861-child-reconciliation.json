@@ -1,0 +1,59 @@
+{
+  "pull_request": 861,
+  "actual_merge": "59ffceccf422047c91395e1cf5d08e62e5a1d64c",
+  "reviewed_head": "ae8383ce9fde35de459a930d6270b60f28420cb9",
+  "qualified_pin": "916424260d93f3f41ae4c630ea57b5dbadbde9ae",
+  "ancestry_verified": true,
+  "state_source": "default-profile MAC actual-merge helper followed by task show; root supplied completed3f1a/d442 records independently read",
+  "children": {
+    "task_0ff247470372fbf16059e2403df75be0": {
+      "state": "completed",
+      "title": "Retain Darwin mutation setup terminal and recover owned artifact capacity"
+    },
+    "task_1b9beb8884f241d34478c3275178f43b": {
+      "state": "completed",
+      "title": "I apply the canonical generation comparison contract to push identity tests"
+    },
+    "task_286bcd3cbf28b8ad009677ed6b9f8c73": {
+      "state": "completed",
+      "title": "I preserve declared array_push identity across my C and native routes"
+    },
+    "task_3615e58e593058d66ea4cdd2915df4d9": {
+      "state": "completed",
+      "title": "I preserve declared push identity in ordinary canonical lowering"
+    },
+    "task_6ba90e4583d504291f90cf3f11bd2cc9": {
+      "state": "completed",
+      "title": "Localize existing evaluator handler-order initialization refusal"
+    },
+    "task_6cd6a0d6ecc44c5f5beba3c8f5c867ab": {
+      "state": "completed",
+      "title": "I await checkout completion before Darwin push qualification"
+    },
+    "task_a9c5d7f9b908eab1d423f1265f665129": {
+      "state": "completed",
+      "title": "Retain evaluator acceptance without assuming make preserves its binary"
+    },
+    "task_aabb6d691adff0b1f98a3aae572b16ce": {
+      "state": "completed",
+      "title": "Preserve declared push identity through evaluator function-value initialization"
+    },
+    "task_bba6228369c04b6c900f628d501e5553": {
+      "state": "completed",
+      "title": "I lower checked FLOAT-array mutation through owned source aliases"
+    },
+    "task_c6d34913ce079519f958caaeef7817fb": {
+      "state": "completed",
+      "title": "I separate declared push C names from my retained builtin helper"
+    },
+    "task_3f1a7d4857974ba399007aabc5239b0b": {
+      "state": "completed",
+      "title": "Register unchecked-match fixture function before invocation"
+    },
+    "task_d4427bf731b14e899228b1443922a066": {
+      "state": "completed",
+      "title": "Repair stale integer reduce fixture argument order"
+    }
+  },
+  "scope": "Only measured child acceptance. Historical first terminals retained; no full430220/4be/477/70c/product/release closure."
+}
