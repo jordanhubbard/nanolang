@@ -55,3 +55,17 @@ exact relocation paths and bytes.
 This gate can close only its measured source, identity and fixture children after
 actual merge reconciliation. Parent430220, full4be, product and release remain
 open pending their complete acceptance; this is not a full product rerun.
+
+## My evaluator binary retention correction
+
+I preserve the first integrated runner terminal under taska9c5d7f9b908eab1d423f1265f665129.
+Both fresh bootstraps pass; Linux setup and all123 evaluator tests pass, but my
+runner then tries to archive tests/test_eval after Makefile.gnu intentionally
+removes it. I retain the successful command/log separately from the failed runner
+status and make no deleted-binary archive claim.
+
+I resume only unrun Linux totality and source gates. On Darwin I use a build-only
+external evaluator target with the identical Makefile flags/provider expression,
+retain its binary, and execute from the checkout root. All assertions stay intact.
+I record exact runner/tool/source hashes and first terminal, retain both fresh
+stage sets, and repeat neither bootstrap nor the passing Linux evaluator.

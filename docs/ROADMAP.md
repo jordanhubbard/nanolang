@@ -12079,3 +12079,5 @@ full Forth conformance and release acceptance remain open.
   full evaluator/totality plus six identity, twelve mutation/source and twelve
   unchanged owned-pattern methods on both hosts. Review precedes execution;
   existing task children and broader parents remain open until actual acceptance.
+
+- [ ] I correct only integrated evaluator archive orchestration (task_a9c5d7f9b908eab1d423f1265f665129): make removes its passing binary. I preserve Linux123 PASS and the runner failure separately, resume unrun gates, and retain a build-only external evaluator binary on Darwin under my amended integration contract.
