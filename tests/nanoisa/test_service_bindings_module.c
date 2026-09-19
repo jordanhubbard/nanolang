@@ -12,6 +12,7 @@
 #include "nanoisa.h"
 #include "../../src/nsi.h"
 #include "../../src/nanovm/vm_ffi.h"
+#include "../../src/runtime/ffi_loader.h"
 
 static unsigned checks;
 #define CHECK(x) do { checks++;assert(x); } while(0)
@@ -58,13 +59,15 @@ static void consumers(NvmModule *m) {
     CHECK(vm_invoke(&vm,0,NULL,0,&output)!=VM_OK);CHECK(output.tag==TAG_INT && output.as.i64==123);
     CHECK(vm_call_function(&vm,0,NULL,0)!=VM_OK);CHECK(vm_execute(&vm)!=VM_OK);
     CHECK(vm_core_execute(&vm).type==TRAP_ERROR);CHECK(vm.stack_size==0 && vm.frame_count==0);
+    CHECK(vm_invoke_callable(&vm,val_function(0),NULL,0,&output)!=VM_OK);
+    bool loader_before=ffi_loader_is_initialized();
     CHECK(!vm_ffi_load_import(m,0));
     CHECK(!vm_ffi_call(m,0,NULL,0,&output,&vm.heap,error,sizeof error));
     CHECK(!vm_ffi_call_vm(&vm,m,0,NULL,0,&output,error,sizeof error));
     CHECK(!vm_ffi_cop_start(&vm,m));
     CHECK(!vm_ffi_call_cop(&vm,m,0,NULL,0,&output,&vm.heap,error,sizeof error));
     CHECK(!vm_ffi_call_cop_batch(&vm,m,NULL,0,&output,&vm.heap,error,sizeof error));
-    CHECK(output.tag==TAG_INT && output.as.i64==123);CHECK(vm.cop_pid<=0);vm_destroy(&vm);
+    CHECK(output.tag==TAG_INT && output.as.i64==123);CHECK(vm.cop_pid<=0);CHECK(ffi_loader_is_initialized()==loader_before);vm_destroy(&vm);
 }
 static void invalid_wire(uint8_t *wire,size_t bytes) {
     NvmV2Header h;CHECK(nvm_v2_read_header(wire,bytes,&h)==NVM_V2_OK);
@@ -84,6 +87,8 @@ static void roundtrip(const NlFilePlan *plan,bool reverse) {
     CHECK(v2.service_data==m->service_data);size_t bytes=0;CHECK(nvm_v2_module_serialize(&v2,NULL,0,&bytes)==NVM_V2_OK);
     uint8_t *wire=malloc(bytes),*mut=malloc(bytes);CHECK(wire && mut);
     CHECK(nvm_v2_module_serialize(&v2,wire,bytes,&bytes)==NVM_V2_OK);
+    const char *path=getenv("SERVICE_MODULE_WIRE");
+    if(path){FILE *file=fopen(path,"wb");CHECK(file);CHECK(fwrite(wire,1,bytes,file)==bytes);CHECK(fclose(file)==0);}
     NvmV2Header header;CHECK(nvm_v2_read_header(wire,bytes,&header)==NVM_V2_OK);
     CHECK((header.feature_bits&(NVM_V2_FEATURE_FFI|NVM_V2_FEATURE_SERVICE_BINDINGS))==(NVM_V2_FEATURE_FFI|NVM_V2_FEATURE_SERVICE_BINDINGS));
     NvmV2SectionEntry service={0},im={0};
