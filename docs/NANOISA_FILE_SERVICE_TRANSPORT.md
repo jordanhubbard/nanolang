@@ -329,3 +329,11 @@ structural service path and cannot acquire a mixed execution certificate. I
 keep source/global/compact identities unchanged. I record these integration
 obligations before resolving competing selectors, then submit the complete
 production delta before any combined qualification.
+
+At the first combined bb657a9e4 gate, my two unchanged service methods pass.
+The new mixed boundary method completes its assertions, then LSan reports384
+leaked bytes allocated by nvm_module_new for its empty import table. The fixture
+substitutes a borrowed claim and restores NULL although zero import count does
+not mean a NULL capacity table. I preserve /tmp/nanolang-service-module-integrated-bb657
+and its fixture artifacts before saving/restoring the original table pointer.
+This is fixture ownership repair; production and leak detection stay unchanged.
