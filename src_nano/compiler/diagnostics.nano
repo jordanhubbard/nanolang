@@ -105,8 +105,8 @@ pub fn diag_typecheck_error(code: string, message: string, location: CompilerSou
     return (diag_error CompilerPhase.PHASE_TYPECHECK code message location)
 }
 
-pub fn diag_transpiler_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
-    return (diag_error CompilerPhase.PHASE_TRANSPILER code message location)
+pub fn diag_lowering_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_error CompilerPhase.PHASE_LOWERING code message location)
 }
 
 shadow diag_parser_error {
@@ -223,7 +223,7 @@ shadow diag_error_simple {
 }
 
 shadow diag_warning_simple {
-    let diag: CompilerDiagnostic = (diag_warning_simple CompilerPhase.PHASE_TRANSPILER "W002" "Warning")
+    let diag: CompilerDiagnostic = (diag_warning_simple CompilerPhase.PHASE_LOWERING "W002" "Warning")
     assert (== diag.severity DiagnosticSeverity.DIAG_WARNING)
 }
 
@@ -250,10 +250,10 @@ shadow diag_typecheck_error {
     assert (== diag.phase CompilerPhase.PHASE_TYPECHECK)
 }
 
-shadow diag_transpiler_error {
+shadow diag_lowering_error {
     let loc: CompilerSourceLocation = (diag_location "input.nano" 20 8)
-    let diag: CompilerDiagnostic = (diag_transpiler_error "TR001" "Transpiler error" loc)
-    assert (== diag.phase CompilerPhase.PHASE_TRANSPILER)
+    let diag: CompilerDiagnostic = (diag_lowering_error "TR001" "I could not lower this input" loc)
+    assert (== diag.phase CompilerPhase.PHASE_LOWERING)
 }
 
 shadow diag_list_count {

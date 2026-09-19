@@ -369,6 +369,24 @@ static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
 static const char VM_OWNERSHIP_REQUIRED[] =
     "I require reference lifetime and ownership instruction verification before execution";
 
+static void vm_recompute_ordinary_execution(VmState *vm) {
+    if (!vm || !vm->verified || !vm->root_module) {
+        if (vm) vm->ordinary_execution = false;
+        return;
+    }
+    bool required = false;
+    bool ordinary = vm_module_ownership_required(vm->root_module, &required)
+        && !required;
+    for (uint32_t i = 0; ordinary && i < vm->linked_module_count; i++) {
+        required = false;
+        if (!vm->linked_modules[i]
+                || !vm_module_ownership_required(vm->linked_modules[i], &required)
+                || required)
+            ordinary = false;
+    }
+    vm->ordinary_execution = ordinary;
+}
+
 static void vm_recompute_verified(VmState *vm) {
     if (!vm) return;
     bool proven = vm->root_module != NULL
@@ -381,6 +399,7 @@ static void vm_recompute_verified(VmState *vm) {
             proven = false;
     }
     vm->verified = proven;
+    vm_recompute_ordinary_execution(vm);
 }
 static void vm_module_constants_free(VmState *vm, VmModuleConstants *constants) {
     if (!constants) return;
@@ -412,7 +431,8 @@ static bool vm_module_constants_build(VmState *vm, const NvmModule *module,
     return true;
 }
 
-void vm_init(VmState *vm, const NvmModule *module) {
+static void vm_init_common(VmState *vm, const NvmModule *module,
+                           bool verification_complete) {
     memset(vm, 0, sizeof(*vm));
     vm->owner_thread = pthread_self();
     vm->module = module;
@@ -459,8 +479,22 @@ void vm_init(VmState *vm, const NvmModule *module) {
         vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
     }
     /* Record whether the root module is verified so the hot path can pick
-     * the unchecked private handlers where the proof permits it. */
-    vm_recompute_verified(vm);
+     * the unchecked private handlers where the proof permits it. The CLI may
+     * carry the exact proof it just completed into this immutable instance. */
+    if (verification_complete) {
+        vm->verified = true;
+        vm_recompute_ordinary_execution(vm);
+    } else {
+        vm_recompute_verified(vm);
+    }
+}
+
+void vm_init(VmState *vm, const NvmModule *module) {
+    vm_init_common(vm, module, false);
+}
+
+void vm_init_after_verify(VmState *vm, const NvmModule *module) {
+    vm_init_common(vm, module, true);
 }
 
 void vm_destroy(VmState *vm) {
@@ -747,6 +781,7 @@ void vm_invalidate_module(VmState *vm, const NvmModule *module) {
     }
     /* An invalidated module is no longer proven; drop to the checked path. */
     vm->verified = false;
+    vm->ordinary_execution = false;
 }
 
 bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
@@ -1404,23 +1439,29 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
 
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof) {
     VmOwnedInvocationProof resumed;
-    if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED && !vm_owned_proof_matches(vm,proof))
+    const bool ordinary_execution = vm && vm->ordinary_execution;
+    if(!ordinary_execution && vm &&
+       nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED &&
+       !vm_owned_proof_matches(vm,proof))
         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a synchronous owner ARRAY root invocation before execution.");
-    if(vm && nvm_mixed_samples_candidate(vm->module) && !vm_owned_proof_matches(vm,proof)) {
+    if(!ordinary_execution && vm && nvm_mixed_samples_candidate(vm->module) &&
+       !vm_owned_proof_matches(vm,proof)) {
         if(!vm_mixed_invocation_prepare(vm,&resumed,true))
             return trap_error(vm,resumed.refusal?resumed.refusal:VM_ERR_TYPE_ERROR,"%s",
                               resumed.reason?resumed.reason:VM_OWNERSHIP_REQUIRED);
         proof=&resumed;
     }
-    bool admitted=vm_owned_proof_matches(vm,proof);
+    bool admitted=!ordinary_execution && vm_owned_proof_matches(vm,proof);
     bool required=false;
-    if (admitted && proof->owner_arrays) {
-        required=true;
-        if(!vm_owned_constants_ready(vm))return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete owner ARRAY constants.");
-    } else if (!vm_owned_runtime_ready(vm,&required))
-        return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
-    if (!admitted && !vm_ownership_supported(vm))
-        return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+    if (!ordinary_execution) {
+        if (admitted && proof->owner_arrays) {
+            required=true;
+            if(!vm_owned_constants_ready(vm))return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete owner ARRAY constants.");
+        } else if (!vm_owned_runtime_ready(vm,&required))
+            return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+        if (!admitted && !vm_ownership_supported(vm))
+            return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+    }
     const bool owned_execution = admitted || required;
     const bool mixed_execution = admitted && (proof->mixed || proof->owner_arrays);
     if (owned_execution) {

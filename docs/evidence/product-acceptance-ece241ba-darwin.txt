@@ -1,0 +1,57 @@
+Darwin product acceptance evidence
+
+MAC task: task_1cd2cc44801b4dc662ac2f8f1e577ab5
+Source branch: origin/feat/nanoisa-only-product
+Source commit: ece241ba56c34ae6e47639cd7d618f43f20ba25d
+Git tree: 8cde5134e5ed593d2d0c403fb7d54ca94778a707
+Compiler-source manifest SHA-256 (git ls-tree for Makefile.gnu, src, src_nano, modules):
+0eabea5f6501fddbc7c4f44217170dd5913e3253a9b8bec6131bd552a6a544e6
+
+Worktree: /tmp/nanolang-product-ece241ba-darwin.bgX6Zd
+Worktree status after gate: detached exact source, no tracked or untracked changes
+Command: make -j8 test-quick
+Started: 2026-09-18T08:30:07Z
+Elapsed: 1411.45 seconds
+Exit status: 2
+
+First failure:
+make[2]: *** [test-forth-core] Alarm clock: 14
+make[1]: *** [test-forth-wordsets] Error 2
+make: *** [test-quick] Error 2
+
+The target's configured 600-second TIMEOUT_CMD alarm fired while
+tests/forth/test_forth_core_load was interpreting
+tests/forth/vendor/gerryjackson/src/core.fr. It had loaded prelimtest.fth
+(233 lines) and tester.fr (66 lines), printed the core.fr banner, then slept
+at 0% CPU until its own alarm. The run was not manually interrupted and no
+historical failed artifact was executed.
+
+Full log:
+/tmp/nanolang-product-ece241ba-darwin-1cd2cc44-test-quick.log
+SHA-256: 1434f1b26833a347bcc83757ebcc983732eeed5b722dea6e47b7ea84f532ddee
+Size: 143868 bytes, 1176 lines
+
+Built compiler/runtime SHA-256:
+bin/nanoc_c       477051cd91f8bd3a08b26a02df78046703be236810a0aee4f8d5047c4651e0b6
+bin/nanoc_stage1  4a33890165ae3d887e42718c49874a5d1de2041719f3f741eb95c757ae65cd29
+bin/nanoc_stage2  de9f3e68e47b70acfcf4e6c9e5ba5228e2cf596f4325b72854c1e46d53865442
+bin/nanoc         de9f3e68e47b70acfcf4e6c9e5ba5228e2cf596f4325b72854c1e46d53865442 (symlink to nanoc_stage2)
+bin/nano_virt     67a925ae1bfa83dbeb8fc0f09643f20eb3f1c9b2af18b15a751f68a512c5fd71
+bin/nano_vm       dc5c8d8cabd0b756905ac70663636d582876fe077fb4278316edd05e7af4a46b
+bin/nvm2c         74fc3a719bc8d0b9c3580bde093c9e8c5c827f4bbff3e5858cc9d63e34339208
+
+Platform/toolchain:
+arm64 macOS 26.6.2 build 25G83; Darwin 25.6.0
+Apple clang 21.0.0 (clang-2100.3.34.2)
+GNU Make 3.81
+SDK: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+
+Passed before the first failure included fresh bootstrap, Stage1/Stage2 and
+installed product hello/independence checks, 17/17 core examples, 244/244
+eligible NanoVM examples, module introspection, dependency checks, callback
+and audio checks, generic affine suites (33 and 25 tests), Forth wrapper/label
+checks, Nano Scheme 37/37, Nano Shell 21/21, Nano Logic 11/11, and frontend
+matrix 16/16.
+
+Publication remained held. No tag, publication, source edit, or release claim
+was made.

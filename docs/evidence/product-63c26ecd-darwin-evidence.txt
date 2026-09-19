@@ -1,0 +1,67 @@
+Darwin product acceptance at exact 63c26ecd
+
+MAC task: task_be358431750ac6535ad53e0add49474b
+Worker: agent_cli_nanolang_product_darwin
+Source: 63c26ecd2723f8c480eaba4b25ebdf797f4764bd
+Tree: d74aa25d117cc9dbe06ec51c04e5cef588185563
+Compiler-source manifest SHA-256 (recursive git ls-tree for Makefile.gnu,
+src, src_nano and modules):
+8189c454e0b8ece802f056a4e73ba9dac28a80a303bbc7e37434258e378c12c6
+Makefile.gnu SHA-256:
+7a230f1d8f507e2502b439cf7c8cb97ba1e5695d8d72f0c33e96c54196c95454
+Corrected Forth harness blob:
+8fc2ee9f0376d356769c4fe86da7e3f4f3bba2bc
+Corrected Forth harness SHA-256:
+fdcdbdd90b05140a903c0febaf0636465679f5a09ee110d3c02b4ff92bd249bc
+
+Checkout: /tmp/nanolang-product-63c26ecd-darwin.rLyBGW
+Checkout status after gate: clean detached HEAD
+Remote product branch contained the exact tested commit before execution.
+Command: make -j8 test-quick
+Input boundary: allocated PTY (stdin_tty=yes)
+Timeout overrides: none
+Started: 2026-09-18T10:47:19Z
+Finished: 2026-09-18T11:03:10Z
+Elapsed: 950.79 seconds
+Exit status: 0
+First failure: none
+
+The complete gate passed fresh bootstrap and all three explicit self-hosted
+component entry checks, 17/17 runnable core examples, 244 eligible NanoVM
+examples and their four exclusion controls, module introspection, installed
+compiler independence, the Jackson Core and optional word-set evidence, 280
+Forth example cases, PTY REPL liveness, and the Forth IDE build/smoke boundary.
+The corrected Core ACCEPT case observed deterministic EOF and printed
+RECEIVED: "". The configured budgets were unchanged.
+
+The configured native Stage 1 and Stage 2 binaries differed, and both passed
+their smoke checks. The gate itself records that canonical NanoISA equality is
+a separate acceptance criterion. Separate VM/native fixed-point qualification
+is outside this Darwin platform report.
+
+Full log:
+/tmp/nanolang-product-63c26ecd-darwin-test-quick.log
+SHA-256: 621a1c7a273aadca5e9f9c2748bea5430b25a2104f6c6e6d4ad1af8a227053c3
+Size: 192590 bytes, 2650 lines
+
+Final built binary SHA-256:
+bin/nanoc_c       36e30ad1d6713c8c0e8adf67515f949821c5b24e8ce8b2f12e99aa893e7678c9
+bin/nanoc_stage1  259be6adb7e85789daa96ce687f953a21663834846623930ca8cbb4c6fb95230
+bin/nanoc_stage2  1f29ed64e47fcc506e2cb79f204ed2f0f59af5d9aec83e89dc9aacaf3e617941
+bin/nanoc         1f29ed64e47fcc506e2cb79f204ed2f0f59af5d9aec83e89dc9aacaf3e617941
+bin/nano_virt     e1bc7a54fbaef5d8956221b63874c376161e37f74aea9525d5ddf765d2647741
+bin/nano_vm       78b7e5921e4dbbf34d498085ec1e2c4898714c4cd2ca34d5e08f16afac385886
+bin/nvm2c         6c3700c444107bd9da761b44d2b47aafcbd4fc975aeae8a90b069c4547180d69
+bin/forth         7e6109d35cb62be49485086e4f365ee49c60b485ac6a03861e005e83ea91fc7c
+bin/sdl_forth_ide 60f682a7f168e72c63982faaefb13ad9358221481512ecd16a7ebc6a8e747861
+
+Platform and toolchain:
+arm64 macOS 26.6.2 build 25G83; Darwin 25.6.0
+Apple clang 21.0.0 (clang-2100.3.34.2)
+GNU Make 3.81
+SDK 27.0 at /Applications/Xcode.app/Contents/Developer/Platforms/
+MacOSX.platform/Developer/SDKs/MacOSX.sdk
+
+This qualifies the exact 63c26ecd Darwin product gate only. It does not replace
+Linux evidence, prove VM/native fixed points, close the full release roadmap,
+or authorize a tag or publication. The release hold remains.

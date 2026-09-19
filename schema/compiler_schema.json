@@ -179,7 +179,7 @@
         "PHASE_LEXER",
         "PHASE_PARSER",
         "PHASE_TYPECHECK",
-        "PHASE_TRANSPILER",
+        "PHASE_LOWERING",
         "PHASE_RUNTIME"
       ]
     }

@@ -3618,7 +3618,7 @@ bootstrap1:
 	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
 
 
-$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu
+$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu | nano_vm nvm2c nvm2c-runtime
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
@@ -4636,11 +4636,22 @@ test-canonical-vm-shadows: bootstrap nano_vm
 	python3 -m unittest tests.test_canonical_vm_shadows
 test-units: test-canonical-vm-shadows
 
+.PHONY: test-nanoisa-only-product
+test-nanoisa-only-product: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_nanoisa_only_product
+
 .PHONY: test-bootstrap-native-guard
 test-bootstrap-native-guard:
 	python3 -m unittest -v tests.test_bootstrap_native_guard
 test-units: test-bootstrap-native-guard
 
+.PHONY: test-canonical-module-facts
+test-canonical-module-facts: bootstrap nano_vm nvm2c nvm2c-runtime
+	NANOC=$(CURDIR)/bin/nanoc_stage2 python3 -m unittest -v tests.test_canonical_module_facts
+
+.PHONY: test-default-nanoisa-product
+test-default-nanoisa-product: bootstrap nano_vm nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_default_nanoisa_product
 .PHONY: test-reference-places
 test-units: test-reference-places
 test-reference-places:

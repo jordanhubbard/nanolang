@@ -8879,10 +8879,10 @@ pub fn transpile_phase(parser: Parser, output_path: string, file_name: string) -
     # Check if parser has errors before proceeding
     let had_err: bool = (or (parser_has_error parser) (!= (transpile_last_error) ""))
     if (!= (transpile_last_error) "") {
-        (Diagnostics.diag_list_add diagnostics (Diagnostics.diag_transpiler_error "TR0002" (transpile_last_error) (Diagnostics.diag_location file_name 0 0)))
+        (Diagnostics.diag_list_add diagnostics (Diagnostics.diag_lowering_error "TR0002" (transpile_last_error) (Diagnostics.diag_location file_name 0 0)))
     } else {
         if had_err {
-            let diag: CompilerDiagnostic = (Diagnostics.diag_transpiler_error "TR0001" "Cannot transpile: parser has errors" (Diagnostics.diag_location file_name 0 0))
+            let diag: CompilerDiagnostic = (Diagnostics.diag_lowering_error "TR0001" "Cannot transpile: parser has errors" (Diagnostics.diag_location file_name 0 0))
             (Diagnostics.diag_list_add diagnostics diag)
         }
     }
