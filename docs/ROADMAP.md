@@ -11923,3 +11923,11 @@ prerequisites pass, not a narrowed Bundle replacement.
   unsupported Cseed text-equality assertion; explicit CALL/result-element controls
   and all original twelve owner-profile exact comparisons remain. No normalized
   metadata-equivalence or fullcompilerfixedpoint completion is claimed.
+
+- [ ] I preserve declared push through interpreted function-value initializers
+  (`task_aabb6d691adff0b1f98a3aae572b16ce`, prerequisite of286b/bba622). I retain
+  both0c54/7e76 first terminals and successful earlier groups. I distinguish only
+  retained non-global located VOID checker rows from actual bindings for an
+  exact same-module nonextern declared push, keeping metadata and alias lifetime
+  unchanged. I review the bounded C correction and meaningful controls before
+  fresh affected/unrun gates; parent mutation/product acceptance stays open.

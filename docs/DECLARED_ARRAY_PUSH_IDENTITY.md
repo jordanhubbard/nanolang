@@ -187,3 +187,49 @@ The complete compiler-bytecode fixedpoint remains a separate hard release gate;
 these small programs do not complete it. Production/stages remain frozen0c54;
 reviewed fixture-only runs use fresh artifact directories and explicit fixture
 hashes without rebuilding unchanged compiler sources.
+
+## My interpreted function-value initializer boundary
+
+I record `task_aabb6d691adff0b1f98a3aae572b16ce` before repair. Corrected7e76
+fixture runs against unchanged0c54 producers pass their first two groups and
+original lexical native program on both hosts, then the added function-value
+program fails my C seed's mandatory main shadow: `Undefined function 'selected'`.
+Linux retains Ran3/24.523s; Darwin retains Ran3/45.187s. Remaining identity groups
+and all twelve mutation groups are unrun at this pin.
+
+My checker creates local `VAL_VOID` placeholders with definition locations
+(typechecker.c5199) and retains function-local rows for native type metadata
+(8078). My evaluator's identifier lookup reads the latest row without separating
+these facts from runtime values (eval.c4837). The later nested local named
+`array_push` therefore masks its declaration during the earlier initializer
+`let selected = array_push`. The initializer returns VOID; the alias call then
+has no function value to capture at eval.c2941. This is an initializer defect,
+not evidence that the alias dispatcher selected the builtin.
+
+I scope the correction to the exact unqualified `array_push` identifier when
+`env_get_function` positively resolves its same-module nonextern body. For that
+case I inspect matching symbols newest first, skipping only non-global VOID
+rows with positive definition locations. My checker assigns those locations;
+my evaluator's actual local and parameter rows retain definition location zero
+(env.c418), including an actual VOID value. Globals and every actual runtime
+value retain precedence. If no such binding remains, my existing function-value
+construction uses the resolved declaration. I neither delete checker rows nor
+change the shared symbol index or source-visibility lookup, which deliberately
+prefers located metadata over runtime rows for native lowering.
+
+My initializer still runs before its new binding is appended. Alias invocation
+still snapshots its function name, resolves the existing declaration, and uses
+existing parameter/result copies and cleanup. I do not change function-value
+storage ownership, generic builtin lookup, reserved names, extern/module
+resolution, or canonical indirect-call admission. Builtin-only scopes retain
+the old path. Meaningful controls retain the failing program and ordinary
+function values, add an actual local/formal override with a distinguishable
+result, and retain the unbound builtin and output-preservation groups.
+
+I require review of the complete production/fixture delta before execution.
+Only C evaluator production changes are planned; I rebuild affected C providers
+in fresh trees and preserve frozen0c54 producers. Reuse of unchanged selfhost
+stages requires exact source/binary evidence and an approved gate plan. The
+first two passed groups remain attributed to the old pin; affected and unrun
+identity groups precede the unchanged twelve mutation groups and then the
+entire unchanged owned-record-pattern suite.
