@@ -53,6 +53,12 @@ new checker shadow used `byte` as a local name, but `byte` is my reserved alias
 for `u8`. I retain that parser terminal and rename only the shadow local to
 `octet` before repeating the bootstrap.
 
+The next bootstrap stopped at a static checker diagnostic before producing
+Stage 1: my self-hosted `NSType` model represents `u8` as the exact named type
+`u8`, not as a `TypeKind.TYPE_U8` enum member. I retain that terminal and make
+the contextual hint test the existing exact type spelling. I do not extend the
+checker type enum as part of this repair.
+
 This extension does not admit a `u8` entry result: my executable entry remains
 an arity-zero `int` function. It does not change NanoISA, NanoVM, `nvm2c`, LLVM
 or Wasm semantics. Full high-level reconstruction and the v5.1.0 release gates
