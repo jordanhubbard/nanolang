@@ -1,4 +1,5 @@
 """I qualify admitted mixed programs and preserve roots on native failure."""
+from contextlib import nullcontext
 import os
 from pathlib import Path
 import subprocess
@@ -16,7 +17,9 @@ class MixedSamplesRuntime(unittest.TestCase):
 
     def test_vm_native_lifecycle_and_allocations(self):
         compiler = os.environ.get('CC', 'cc')
-        with tempfile.TemporaryDirectory(prefix='nano-mixed-runtime-') as directory:
+        retained = os.environ.get('NANO_MIXED_RUNTIME_DIR')
+        context = nullcontext(retained) if retained else tempfile.TemporaryDirectory(prefix='nano-mixed-runtime-')
+        with context as directory:
             work = Path(directory)
             result = self.checked([ROOT/'obj/test_mixed_samples_runtime', work])
             print(result.stdout, end='')
