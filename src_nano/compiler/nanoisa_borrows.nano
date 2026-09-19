@@ -420,7 +420,8 @@ fn nb_project_binding(parser: Parser, binding: ASTLet) -> bool {
     let parent: int = (nb_local (parser_get_identifier parser field.object).name)
     if (< parent 0) { return false }
     if (or (at nb_live parent) (!= (at nb_tags parent) 8)) { return false }
-    if (nb_leaf parser (at nb_layouts parent)) { return false }
+    if (nb_ordinary_local parent) { return false }
+    if (and (not nb_mixed) (nb_leaf parser (at nb_layouts parent))) { return false }
     let index: int = (nb_layout_field parser (at nb_layouts parent) field.field_name)
     let mut source: int = -1
     let mut i: int = 0
@@ -923,7 +924,7 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
                 }
                 set i (+ i 1)
             }
-            if (nb_leaf parser layout) { (array_set nb_disposal_pending slot true) }
+            if (and (not nb_mixed) (nb_leaf parser layout)) { (array_set nb_disposal_pending slot true) }
             else { let _: int = (nb_unpack parser slot) }
         }
         return 0
@@ -1763,6 +1764,9 @@ shadow nb_mixed_fixture {
     assert (str_contains text "AGG_PACK 0 1 0 1")
     assert (str_contains text "ARR_GET")
     assert (str_contains text "OWN_PACK 0")
+    assert (str_contains text "OWN_UNPACK_LOCAL")
+    assert (not (str_contains text "REGION_BEGIN"))
+    assert (not (str_contains text "REF_GET"))
     assert (not (str_contains text "OWN_PACK 1"))
     assert (at nb_ordinary_layouts 1)
     # I restore the preexisting reference fixture's global emitter state.

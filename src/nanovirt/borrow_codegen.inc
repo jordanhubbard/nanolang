@@ -596,7 +596,9 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                n->as.let.value->as.field_access.object->type==AST_IDENTIFIER) {
                 ASTNode *field=n->as.let.value;
                 int parent=borrow_local(b,field->as.field_access.object->as.identifier);
-                if(parent>=0 && !b->live[parent] && b->tags[parent]==TAG_STRUCT && !borrow_leaf(b,b->layouts[parent])) {
+                if(parent>=0 && !b->live[parent] && b->tags[parent]==TAG_STRUCT &&
+                   !borrow_ordinary_local(b,(unsigned)parent) &&
+                   (b->mixed || !borrow_leaf(b,b->layouts[parent]))) {
                     int index=borrow_layout_field(b,b->layouts[parent],field->as.field_access.field_name,n),source=-1;
                     for(unsigned j=0;j<b->count;j++)if(b->projection_parent[j]==parent && b->projection_field[j]==index)source=(int)j;
                     if(source<0 || !b->live[source]){borrow_error(b,n,"an unconsumed exact destructured field");break;}
@@ -632,7 +634,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                         seen[field]=true;
                     }
                     if(!cg->had_error) {
-                        if(borrow_leaf(b,(unsigned)layout))b->disposal_pending[slot]=true;
+                        if(!b->mixed && borrow_leaf(b,(unsigned)layout))b->disposal_pending[slot]=true;
                         else borrow_unpack(b,(unsigned)slot);
                     }
                 }
