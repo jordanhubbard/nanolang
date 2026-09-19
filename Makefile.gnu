@@ -5230,3 +5230,9 @@ test-owned-string-fields: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_fields_alloc tests/nanoisa/test_owned_string_fields_alloc.c obj/test_owned_string_fields_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_owned_string_fields_alloc
 	python3 -m unittest -v tests.test_owned_string_fields
+
+.PHONY: test-owned-string-joins
+test-units: test-owned-string-joins
+test-owned-string-joins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_joins tests/nanoisa/test_owned_string_joins.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_string_joins
