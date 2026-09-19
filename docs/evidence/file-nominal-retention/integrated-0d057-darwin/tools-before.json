@@ -1,0 +1,14 @@
+{
+  "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634",
+  "/usr/bin/make": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+  "/usr/bin/gcc": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+  "/usr/bin/cc": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+  "/usr/bin/as": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+  "/usr/bin/ld": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/llvm-as": "19edae83fe1a132e9ba1ada2391a1d46b5ee351e9a6da00cbb1601100189ce01",
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/opt": "b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b",
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/llc": "4fd8ad1455079339d7b80472270ca2741a3fb220073c8c0375fd6e21ce0312c3",
+  "/opt/homebrew/Cellar/openssl@3/3.6.4/lib/libcrypto.3.dylib": "bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c",
+  "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9"
+}

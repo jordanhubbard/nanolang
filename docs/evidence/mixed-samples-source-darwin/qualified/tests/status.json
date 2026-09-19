@@ -1,0 +1,26 @@
+{
+  "steps": [
+    {
+      "name": "focused-homebrew-clang",
+      "CC": "/opt/homebrew/opt/llvm/bin/clang",
+      "status": 0,
+      "testsRun": 4,
+      "seconds": 102.96,
+      "post_setup_existing_inputs_unchanged": true,
+      "added_inputs": {}
+    },
+    {
+      "name": "old-source-profiles",
+      "CC": "/opt/homebrew/opt/llvm/bin/clang",
+      "status": 0,
+      "testsRun": 58,
+      "seconds": 660.013,
+      "post_setup_existing_inputs_unchanged": true,
+      "added_inputs": {}
+    }
+  ],
+  "setup_seconds": 319.195,
+  "work": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-source-borrows-c5k0wwht",
+  "producer_identity_unchanged": true,
+  "status": 0
+}

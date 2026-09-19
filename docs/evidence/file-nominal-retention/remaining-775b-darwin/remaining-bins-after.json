@@ -1,0 +1,6 @@
+{
+  "bin/nvm2llvm": "cc7ededb175ae42f807cd6d5116a0a161944695248d52b5fa7411b027672d872",
+  "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+  "bin/nano_virt": "c115c46e68d4ae1d36e2ff472f2af87830df844b971f55d6decd86f561096eb6",
+  "bin/nanoisa": "6c3548afcf09a520374cbb81b8b490d44c3a251418e85a9cec0c0edb8085e5c9"
+}

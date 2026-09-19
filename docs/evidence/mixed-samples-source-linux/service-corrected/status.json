@@ -1,0 +1,18 @@
+{
+  "pin": "70c511dad439f77eba15fe0bdc189e90ff9c9486",
+  "steps": [
+    {
+      "name": "service",
+      "command": [
+        "make",
+        "-j2",
+        "test-service-module"
+      ],
+      "status": 0,
+      "seconds": 3.673
+    }
+  ],
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "sources_unchanged": true,
+  "clean": true
+}

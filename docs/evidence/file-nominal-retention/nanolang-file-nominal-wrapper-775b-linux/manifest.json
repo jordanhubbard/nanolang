@@ -1,0 +1,53 @@
+{
+  "pin": "775b0240828d07e124078765c7a09dc83f230069",
+  "platform": "linux",
+  "bootstrap_reference": "f5e07e5bea043265cfc15176fb1804227c363901",
+  "steps": [
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j8",
+        "nano_virt"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 5.344,
+      "log_sha256": "c78bd524d9d271f27f322e27e09ae6b7470584be8b8fc8a39451180e678acb7c"
+    },
+    {
+      "name": "wrapper",
+      "command": [
+        "make",
+        "test-wrapper-gen"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 3.848,
+      "log_sha256": "e859ccaf7e2262cc4cc50dd9adca156a2650cee4e9d0ad893b6dfe9dec7ab859"
+    },
+    {
+      "name": "remaining",
+      "command": [
+        "make",
+        "test-verifier-profiles",
+        "test-owned-array-layouts",
+        "test-owned-array-origins"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 2.845,
+      "log_sha256": "fac535c9f9454d852c7ceb86c3bb915805a46be7d3d632400998aeb1b71b6f44"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

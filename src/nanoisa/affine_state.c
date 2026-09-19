@@ -584,3 +584,6 @@ bool nvm_affine_parameter_type(const NvmAffineState *s,NvmAffineType *type,
 
 /* I keep mixed checked facts construction private; this query grants no execution. */
 #include "mixed_samples.inc"
+
+/* I compose private owner ARRAY lifetimes without changing shared admission. */
+#include "owned_array_authority.inc"

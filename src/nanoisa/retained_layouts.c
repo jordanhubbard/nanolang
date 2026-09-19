@@ -295,3 +295,6 @@ fail:
 
 /* I expose pending owner-array descriptions only, never admission. */
 #include "owned_array_layouts.inc"
+
+/* I keep symbolic owner ARRAY origins private and origin-only. */
+#include "owned_array_origins.inc"

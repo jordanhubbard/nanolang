@@ -1,0 +1,30 @@
+{
+  "pin": "70c511dad439f77eba15fe0bdc189e90ff9c9486",
+  "steps": [
+    {
+      "name": "mixed-runtime",
+      "command": [
+        "make",
+        "-j2",
+        "test-mixed-samples-runtime",
+        "test-mixed-samples-runtime-alloc",
+        "test-mixed-samples-admission"
+      ],
+      "status": 0,
+      "seconds": 25.782
+    },
+    {
+      "name": "owned-regressions",
+      "command": [
+        "make",
+        "-j2",
+        "test-owned-value-graphs",
+        "test-owned-value-results"
+      ],
+      "status": 2,
+      "seconds": 14.02
+    }
+  ],
+  "sources_unchanged": true,
+  "clean": true
+}
