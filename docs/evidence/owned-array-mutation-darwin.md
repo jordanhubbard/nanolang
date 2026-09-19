@@ -39,3 +39,10 @@ I retain all artifacts on puck under
 /private/tmp/nanolang-owner-array-mutation-d5da-evidence and preserve the Linux
 qualified trees. Taskd5da awaits canonical review/merge; this runtime supplement
 does not complete paired source mutation or parent430220.
+
+I integrate canonical private File body848 after qualification in a separate ready
+tree. My [ready comparison](owned-array-mutation-darwin-ready.json) preserves the
+original seal/input map: eleven non-Make inputs stay identical; canonical Make
+adds File-body targets. New private File query code is independently qualified.
+I do not rebuild the frozen providers or claim the old gate exercised that new
+File body. The puck92ee qualified tree remains untouched.
