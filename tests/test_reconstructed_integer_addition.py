@@ -102,7 +102,6 @@ RET
 
     def test_remaining_arithmetic_and_type_refusals_preserve_output(self):
         cases = ('PUSH_I64 1\nCAST_FLOAT',
-                 'PUSH_I64 1\nPUSH_I64 2\nADD',
                  'PUSH_BOOL 1\nI64_NEG',
                  'PUSH_BOOL 1\nPUSH_I64 2\nI64_ADD')
         for body in cases:

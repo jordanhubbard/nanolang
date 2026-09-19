@@ -1,0 +1,36 @@
+{
+  "check": 105870307952,
+  "findings": [
+    {
+      "commit": "1775cc7828ccfa40341e2e5daedffdc6e44e07b9",
+      "path": "docs/evidence/owned-array-bits-first.json",
+      "link": "https://github.com/jordanhubbard/nanolang/commit/1775cc7828ccfa40341e2e5daedffdc6e44e07b9#diff-cc92b81ab2dafa669ad4a26b4040245ecc42d2cd53023436985fcd40b9343cb4R126",
+      "line": 126,
+      "key": "/tmp/nanolang-owned-array-bits-linux/gates/prepared-tools/obj/runtime/list_LexerToken.o",
+      "classification": "SHA256 of retained compiled object",
+      "actual_recomputed_equal": true,
+      "hosted_check_remains_failed": true
+    },
+    {
+      "commit": "1775cc7828ccfa40341e2e5daedffdc6e44e07b9",
+      "path": "docs/evidence/owned-array-bits-first.json",
+      "link": "https://github.com/jordanhubbard/nanolang/commit/1775cc7828ccfa40341e2e5daedffdc6e44e07b9#diff-cc92b81ab2dafa669ad4a26b4040245ecc42d2cd53023436985fcd40b9343cb4R144",
+      "line": 144,
+      "key": "/tmp/nanolang-owned-array-bits-linux/gates/prepared-tools/obj/runtime/list_token.o",
+      "classification": "SHA256 of retained compiled object",
+      "actual_recomputed_equal": true,
+      "hosted_check_remains_failed": true
+    },
+    {
+      "commit": "1775cc7828ccfa40341e2e5daedffdc6e44e07b9",
+      "path": "docs/evidence/owned-array-bits-first.json",
+      "link": "https://github.com/jordanhubbard/nanolang/commit/1775cc7828ccfa40341e2e5daedffdc6e44e07b9#diff-cc92b81ab2dafa669ad4a26b4040245ecc42d2cd53023436985fcd40b9343cb4R145",
+      "line": 145,
+      "key": "/tmp/nanolang-owned-array-bits-linux/gates/prepared-tools/obj/runtime/token_helpers.o",
+      "classification": "SHA256 of retained compiled object",
+      "actual_recomputed_equal": true,
+      "hosted_check_remains_failed": true
+    }
+  ],
+  "scope": "Only the three exact locations were classified. No scanner suppression."
+}

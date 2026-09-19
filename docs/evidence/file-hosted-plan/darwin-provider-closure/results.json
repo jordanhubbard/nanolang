@@ -1,0 +1,50 @@
+[
+  {
+    "command": [
+      "make",
+      "-j4",
+      "bin/nanoc_c"
+    ],
+    "phase": "compiler",
+    "seconds": 0.632,
+    "status": 0
+  },
+  {
+    "command": [
+      "bin/nanoc_c",
+      "modules/nanoisa/mvp.nano",
+      "-o",
+      "/tmp/nanolang-file-hosted-9ab-darwin-closure/module-mvp"
+    ],
+    "phase": "module",
+    "seconds": 8.373,
+    "status": 0
+  },
+  {
+    "command": [
+      "/tmp/nanolang-file-hosted-9ab-darwin-closure/module-mvp"
+    ],
+    "phase": "module-run",
+    "seconds": 0.261,
+    "status": 0
+  },
+  {
+    "command": [
+      "bin/nano_virt",
+      "tests/test_minimal.nano",
+      "-o",
+      "/tmp/nanolang-file-hosted-9ab-darwin-closure/wrapper"
+    ],
+    "phase": "wrapper",
+    "seconds": 0.412,
+    "status": 0
+  },
+  {
+    "command": [
+      "/tmp/nanolang-file-hosted-9ab-darwin-closure/wrapper"
+    ],
+    "phase": "wrapper-run",
+    "seconds": 0.278,
+    "status": 0
+  }
+]

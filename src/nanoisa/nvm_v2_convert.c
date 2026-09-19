@@ -416,8 +416,18 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     }
 
     if (m->code_size) {
-        if (m->code_size > UINT32_MAX) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
-        nvm_append_code(mod, m->code, (uint32_t)m->code_size);
+        if (!m->code || m->code_size > UINT32_MAX) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
+        uint32_t size = (uint32_t)m->code_size;
+        /* I publish CODE only after exact storage and copying succeed. The
+         * append helper's zero offset cannot distinguish failure here. */
+        if (size > mod->code_capacity) {
+            uint8_t *code = realloc(mod->code, size);
+            if (!code) { nvm_module_free(mod); return NVM_V2_ERR_TRUNCATED; }
+            mod->code = code;
+            mod->code_capacity = size;
+        }
+        memcpy(mod->code, m->code, size);
+        mod->code_size = size;
     }
 
     for (uint32_t i = 0; i < m->functions.count; i++) {
