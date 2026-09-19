@@ -62,3 +62,19 @@ bootstrap, enabled source STRING fields, qualified Darwin, or completed the
 original Bundle source acceptance. Those next stages remain required, including
 canonical inline construction and complete selected shadows. Runtime success
 alone closes neither this child nor any ownership/managed/release parent.
+
+## My additional initialization-join qualification
+
+Root review identified that my original fixture branches before STRING locals
+are created. I preserve that full seal and tree. A separate tree at frozen
+`80c8830b` adds direct query tests for all four initialization combinations,
+two valid modules executing each initialized branch, and two one-arm missing
+initialization modules that are refused without execution. Query failure leaves
+tag/mode output sentinels unchanged; repeated meets are idempotent.
+
+My [additional seal](owned-string-initialization-joins.json) records GCC and
+Clang runs, each passing377 checks across four VM APIs and both native branch
+cases at strict C11/O2 with ASan/UBSan/Linux leak detection. Frozen execution
+phases take0.427 and0.440seconds; the outer runner exits0 with source and
+binary/object maps unchanged. Preparation is separately measured. No
+production changes, source admission or Darwin claim follows from these tests.
