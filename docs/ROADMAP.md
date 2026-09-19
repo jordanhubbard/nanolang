@@ -9233,6 +9233,11 @@ Ownership and proposal closure:
   - [x] I qualify actual Linux/Darwin byte I/O, transfer/close/reuse, stale/duplicate isolation and deterministic allocation/host-error cleanup with retained source/tool evidence.
   - [x] I include both unchanged private fixtures in normal `test-units` through `CC/CFLAGS/LDFLAGS`, retaining a separate explicit strict sanitizer target. I qualify only the new normal target with Linux GCC and actual Darwin Apple Clang; my frozen4aad sanitizer evidence remains unchanged.
   - [ ] I independently review and integrate this private child; I then contract public NSI/paired source/VM/AOT integration separately without closing d03c.
+- [ ] I connect generated NSI File ownership and Result descriptors to a verified service-call boundary (`task_6931ec89b210421e9827fecdbb459dbb`, child d03c, related ed702) after private PR811. My [source-only contract](NSI_FILE_OWNERSHIP_BOUNDARY.md) records actual generator/import/affine Result refusals; integer extern wrappers are not acceptance.
+  - [ ] I review then implement the non-admitting exact five-method descriptor/query and atomic generator plan; preserve existing selectors.
+  - [ ] I separately review schema and NanoISA transport bytes/index remapping, paired producers and serializer/linker/translator preservation or explicit refusal.
+  - [ ] I qualify opaque File provenance plus affine Result transfer/cleanup privately, preserving first errors and real host lifetime.
+  - [ ] I review matching verifier/VM/native service dispatch before public admission, then qualify paired generated bindings, all shadows and one pinned VM/AOT real-file corpus on Linux/Darwin. Full d03c/ed702 and remaining service families stay open.
 - [ ] I migrate real file, socket, GPU, and capability/service handles only
       after that contract and IR are enforceable
       (`task_d03c232dc067e75cbc2fb2b7fb84ee46`).
