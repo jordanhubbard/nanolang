@@ -50,3 +50,26 @@ The three carry/borrow methods also passed with both additional compilers:
 - Homebrew Clang 23.1.1 with `ASAN_OPTIONS=detect_leaks=1`: 3/3 in 102.069s; `/private/tmp/nanolang-carry-current-clang23.log`, SHA-256 `adb3f361865b62ded68d6ad1341637397a87cdf7d8d53d370713abc8ed7b7340`.
 
 These gates cover endpoint and noncanonical carry bits, both result positions, pure loop use, call/local snapshots, exact tag/arity refusal, canonical assembly roundtrip, VM execution, strict sanitized reconstructed C and all three freshly built NanoLang compiler paths. They qualify this bounded reconstruction child. They do not qualify full product PR522, the active owner-ARRAY source lane, the full reconstruction parent or release publication.
+
+## My canonical integration
+
+While these gates ran, canonical main advanced from `41e955996422fe3ea353d95ac609c8b675a7abc1` to `a52d990d7a0883ec5692be0f03872e0aaa1d54d9`. I merged that exact main into this branch at `ea3a519d87b557fad3dc7b0b67e2e219081dd194`. The reconstruction production and three affected test files retained the hashes listed above. Current main changed compiler, VM, Makefile and roadmap inputs, so I removed all build products and performed a new integrated qualification instead of relabeling the earlier results.
+
+The clean integrated build passed in 345.95s. Stage 1, Stage 2, installed hello and installed C-seed-independence smokes passed; native Stage 1 and Stage 2 remained intentionally non-identical and are not claimed as a fixed point. The complete raw log is `/private/tmp/nanolang-carry-integrated-bootstrap.log`, SHA-256 `b9fcd697abbaa6643c97dea95bb0401ded22494a1999c3f409bb6d3a5f046500`.
+
+The integrated carry methods passed 3/3 in 68.229s. The raw log is `/private/tmp/nanolang-carry-integrated-focused.log`, SHA-256 `25244d38172eb4e674a726c0ab39913844a1e6f3f93f0c7d082ee468177ff761`. The complete integrated scalar reconstruction suite passed 55/55 in 598.708s. Its raw log is `/private/tmp/nanolang-carry-integrated-scalar.log`, SHA-256 `2d4643a394300bf741730e4741dc54af2839f4fdf538e70e60ff4d534384ac94`.
+
+My integrated tool hashes were:
+
+```text
+c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4  bin/nvm2hl
+bc101a657d6847706c0539f902d3bca80c443011d40ad56692af6b6e5e1bd005  bin/nanoisa
+0d3ebf1353d43d81f48ee8cdf47df8fa374478b5be186ce595a7715cda8f9359  bin/nano_vm
+e2a95f05c6a419be92ab10d7bdc19ae27d40c1a1c2251c569d152524bb6a8aca  bin/nvm2c
+8b3b7f76e2e27e56f6c0f5f04a643c1d189156fb7b70746ee4435bf0dfaa44a0  bin/nanoc_c
+57fce0bd00e680de223cf1ccd1064e134ae4f22181a1c22276a8383e37502372  bin/nanoc_stage1
+6ee473316831478acf8fc0a16978a57c3b0e6592863a25aac256ed2fda4f4ee5  bin/nanoc_stage2
+6ee473316831478acf8fc0a16978a57c3b0e6592863a25aac256ed2fda4f4ee5  bin/nanoc
+```
+
+This integrated rerun includes the now-merged owner-ARRAY runtime/source work, but it remains a scalar reconstruction qualification rather than a full product or release gate.
