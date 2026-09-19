@@ -84,3 +84,45 @@ I do not relabel the earlier bootstrap as a bootstrap of this rebased head.
 This gate strengthens the self-hosted shell suite. It does not broaden accepted
 language behavior, prove the compiler, establish a fixed point, or authorize a
 release.
+
+## Caller artifact preservation correction
+
+Independent review of PR806 at `5bc573ebf3e6a2c580f1b5af68e14947ee633c50`
+found that the shell caller removed each fixed negative output immediately
+before invoking the checked helper. A later suite invocation could therefore
+erase an unexpected artifact from the prior run and bypass the helper's
+pre-existing-output refusal.
+
+I now create one fresh negative directory for each shell-suite invocation and
+one case directory beneath it. I remove no negative output during setup or
+cleanup. Diagnostic logs and unexpected artifacts remain together in that run
+directory; only positive test binaries keep their existing cleanup behavior.
+
+The new caller-level regression drives the complete shell script with an
+isolated fake compiler. Before the correction it failed because the old fixed
+artifact had been deleted. At production checkpoint
+`72f7268a189b4f1cc77ef9fd9636f06ca76c8a15`, it proves that the old fixed
+artifact and a newly published rejected artifact both retain their exact bytes,
+the diagnostic remains in the case log, and the suite rejects the publication.
+
+I qualified that exact checkpoint without a compiler bootstrap:
+
+- `git diff --check`, `/bin/sh -n` and Python bytecode compilation passed;
+- all nine `tests.test_selfhost_rejection_gate` methods passed in 1.933 seconds;
+- `make test-selfhost-rejection-gate` passed the same nine methods;
+- the before/after source and selected-tool inventories are identical.
+
+The retained logs are under
+`/private/tmp/nanolang-pr806-caller-final.Ei9naW/`:
+
+```text
+48cfe2db73a9ced85f9bfa34d97a5f3fe0d7ea18aaebef744c37144eefb1236d  before.txt
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  static.log
+4422a972c89c7ce19baabdfe6348d10d84f8c6b5791aa964e69d0271e036ba2e  unit.log
+d84db7fae1e53d33fbf36f5215902f3b0b9d571f55f28f97430f0be520cc4687  make-target.log
+48cfe2db73a9ced85f9bfa34d97a5f3fe0d7ea18aaebef744c37144eefb1236d  after.txt
+c4643c3ab751f20f3282fb61dab4d4f7c1036cbb55f3b014995f4a2cb612b894  status
+```
+
+This correction does not relabel the earlier bootstrap or self-host suite
+evidence, and it does not authorize a release.
