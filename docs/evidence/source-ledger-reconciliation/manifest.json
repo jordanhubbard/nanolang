@@ -1,0 +1,12 @@
+{
+  "actual_merge": "6a993be5511297cb2cf6793d3a8aae0b6a75f8e2",
+  "reports": {
+    "actual-merge-reconciliation.log": "c04af7b27785c5250e8c17067e7a5c92cafe4255ba2faedc371abdf3a1ab805b",
+    "task-states.json": "33f008b02a3117552515fe00fbaa22c20a165ff679cb1fd1e88fcdd23dd5fc33",
+    "check.log": "60f3d4149b91dcddd0d278d840cd198c6f3255cd732eb34e718d2138b9e6dc4a",
+    "product-evidence-reference.json": "c285f8fb91b4ce4493e798dc5ed715148e638d32f3a110cce5940222b3e7a0c2",
+    "check.py": "1b6d579b1a5ae624d797fd58e4ec14bb4e71e6c18c49e9772e63f9679064654c",
+    "actual-merge-helper.py": "5e5b432f9b744d025167f76a6ce4da4c0a803b8772554b106719da15e38e32f9"
+  },
+  "scope": "Docs and bounded task reconciliation only; no broad execution"
+}
