@@ -223,3 +223,25 @@ not the full service catalog library. Its standalone pool-allocation fixture now
 links the ISA provider explicitly; module manifests already include ISA. A separate
 existing `forth_see` manifest gap is recorded on the roadmap before any repair.
 The current checkpoint changes no Forth manifest or service execution path.
+
+## My wrapper-publication prerequisite
+
+During static fixture preparation after06120, I found that both wrapper APIs
+enter `build_wrapper` without checking the supplied module or serialized blob
+before staging and linking. I record task89b8 before correction. This is an
+unsupported publication path, not demonstrated host service execution: generated
+runtime loaders and execution guards remain independent. I ran no such wrapper.
+
+I require a guard before path/object discovery or output staging. For the normal
+API I check the supplied module's pending service/File claim. For both APIs I
+load the actual embedded bytes through my existing version-aware loader, refuse
+load failure or a pending service/File claim, and free the temporary module on
+every outcome. A clean supplied module cannot hide a claimed blob; a clean blob
+cannot hide a claimed supplied module. Daemon generation has only the blob. I do
+not introduce a new parser, relax the retired-v1 boundary, or grant execution
+from successful decoding. Existing ordinary wrappers must retain their outcomes.
+
+My fixtures require preserved destination contents and absence of staging for
+normal/daemon rejection, including malformed bytes and each mismatched clean/
+claimed representation. Any early allocation failure refuses before publication.
+I qualify this correction only after independent source review.

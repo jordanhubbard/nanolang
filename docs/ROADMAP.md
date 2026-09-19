@@ -11701,3 +11701,5 @@ verified after the default-profile operator reconciliation. The reviewed guard
 head18593 and [sealed checker evidence](evidence/mutation-builtin-identity.md)
 remain the acceptance boundary; this does not close either owner-ARRAY source
 checkpoint or mutation/runtime/full parents.
+
+- [ ] I close the preexecution wrapper-publication gap (`task_89b8ea5404104dc0a82290265a4aa6ef`, dependency of File encoding546cf): both wrapper APIs currently reach staging/linking without checking supplied module or embedded blob authority. I found this by static fixture preparation; I executed no unsupported wrapper or service handler. Before qualification I require reviewed early refusal of File/service claims in both representations, including daemon blob-only input, preserved destination/no staging, and unchanged ordinary wrapper controls. Runtime service refusal remains separate and intact.
