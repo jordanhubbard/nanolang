@@ -211,3 +211,10 @@ runtime obligations. Existing public verifier/native refusal remains asserted.
 My normal suite selects CC/CFLAGS/LDFLAGS; the separate sanitizer target retains
 strict warnings, ASan/UBSan and leak checking. This checkpoint records prepared
 assertions, not passing gates.
+
+Before execution, I supplement startup coverage with a valid BOOL entry, a
+parameter-bearing entry refusal, independent zero-argument VOID and owner
+entry refusals, and selected zero-argument scalar/owner initializer refusals.
+A valid initializer with 20 temporary scalar operands needs 23 slots while
+entry needs 14: I assert the startup bound is 23, not their sum. These controls
+leave the original fixtures and assertions intact.

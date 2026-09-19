@@ -94,6 +94,54 @@ static void initializer_controls(void){
  m=bodymodule(&b,false);const char name[]="__init__\0hidden";m->functions[3].name_idx=nvm_add_string(m,name,sizeof name-1);bytes=serialize(m,&size);expect_hosted(bytes,size,NVM_FILE_FLOW_INVALID);free(bytes);nvm_module_free(m);
  m=bodymodule(&b,false);m->header.flags&=~NVM_FLAG_HAS_MAIN;bytes=serialize(m,&size);expect_hosted(bytes,size,NVM_FILE_FLOW_INVALID);free(bytes);nvm_module_free(m);
 }
+static size_t ownership_function_offset(const NvmModule *m,unsigned f){
+ size_t at=24;for(unsigned i=0;i<f;i++)at+=12+8*m->functions[i].local_count;return at;
+}
+static void startup_supplement(void){
+ NvmFileNominalBindings b;size_t size;uint8_t *bytes;Body c={0};
+ NvmModule *m=bodymodule(&b,false);
+ m->functions[0].result_tag=TAG_BOOL;desc(m->ownership_data+28,TAG_BOOL,0,NVM_V2_NO_INDEX);
+ op(&c,OP_PUSH_BOOL);op(&c,1);op(&c,OP_RET);setbody(m,0,c);
+ bytes=serialize(m,&size);NvmFileHostedPlan *p=NULL;OK(nvm_file_hosted_prepare(bytes,size,&p));
+ NvmFileHostedFunction entry;CHECK(nvm_file_hosted_function(p,0,&entry));
+ CHECK(entry.code.declaration.result.tag==TAG_BOOL && entry.operand_peak==1);
+ nvm_file_hosted_free(p);free(bytes);nvm_module_free(m);
+ /* A valid borrowed helper body is not a valid hosted entry signature. */
+ m=bodymodule(&b,false);m->header.entry_point=3;bytes=serialize(m,&size);
+ expect_hosted(bytes,size,NVM_FILE_FLOW_UNRESOLVED);free(bytes);nvm_module_free(m);
+ /* Independently reject a zero-argument VOID entry. */
+ m=bodymodule(&b,false);make_initializer(m,3);m->functions[3].name_idx=string(m,"void_entry");m->header.entry_point=3;
+ bytes=serialize(m,&size);expect_hosted(bytes,size,NVM_FILE_FLOW_UNRESOLVED);free(bytes);nvm_module_free(m);
+ /* Selected initializers must not publish even an ignored scalar result. */
+ m=bodymodule(&b,false);make_initializer(m,3);size_t at=ownership_function_offset(m,3);
+ m->functions[3].result_count=1;m->functions[3].result_tag=TAG_INT;
+ desc(m->ownership_data+at+4,TAG_INT,0,NVM_V2_NO_INDEX);c=(Body){0};retint(&c);setbody(m,3,c);
+ bytes=serialize(m,&size);expect_hosted(bytes,size,NVM_FILE_FLOW_UNRESOLVED);free(bytes);nvm_module_free(m);
+ /* This owner-returning initializer has no parameters: the result itself is
+  * the refusal, not the borrowed/owning parameter rule. Its body is logical. */
+ m=bodymodule(&b,false);make_initializer(m,3);at=ownership_function_offset(m,3);
+ m->functions[3].result_count=1;m->functions[3].result_tag=TAG_UNION;
+ desc(m->ownership_data+at+4,TAG_UNION,0,b.layouts[3]);
+ c=(Body){0};service(&c,b,0,UINT16_MAX);op(&c,OP_RET);setbody(m,3,c);
+ bytes=serialize(m,&size);expect_hosted(bytes,size,NVM_FILE_FLOW_UNRESOLVED);free(bytes);
+ m->functions[3].name_idx=string(m,"owner_entry");m->header.entry_point=3;
+ bytes=serialize(m,&size);expect_hosted(bytes,size,NVM_FILE_FLOW_UNRESOLVED);free(bytes);nvm_module_free(m);
+ /* Entry and initializer execute sequentially. The initializer's larger
+  * frame must dominate, without summing the two invocation requirements. */
+ m=bodymodule(&b,false);make_initializer(m,3);c=(Body){0};
+ for(unsigned i=0;i<20;i++)integer(&c);
+ for(unsigned i=0;i<20;i++)op(&c,OP_POP);
+ op(&c,OP_RET);setbody(m,3,c);bytes=serialize(m,&size);p=NULL;
+ OK(nvm_file_hosted_prepare(bytes,size,&p));NvmFileHostedStartup startup;NvmFileHostedFunction init;
+ CHECK(nvm_file_hosted_startup(p,&startup) && startup.entry==0 && startup.initializer==3);
+ CHECK(nvm_file_hosted_function(p,0,&entry) && nvm_file_hosted_function(p,3,&init));
+ CHECK(entry.vm_value_slots==14 && entry.native_value_slots==14);
+ CHECK(init.operand_peak==20 && init.locals==2 && init.staging_slots==1);
+ CHECK(init.vm_value_slots==23 && init.native_value_slots==23);
+ CHECK(startup.vm_value_slots==23 && startup.native_value_slots==23 && startup.frames==1);
+ CHECK(startup.reference_slots==256 && startup.region_slots==256);
+ nvm_file_hosted_free(p);free(bytes);nvm_module_free(m);
+}
 static void wire_controls(void){
  NvmFileNominalBindings b;NvmModule *m=bodymodule(&b,false);Body c={0};integer(&c);integer(&c);op(&c,OP_ADD);op(&c,OP_RET);setbody(m,0,c);size_t size;uint8_t *bytes=serialize(m,&size);
  NvmV2SectionEntry f=section(bytes,size,NVM_V2_SECTION_FUNCTIONS);uint8_t *depth=bytes+f.offset+4+28;
@@ -167,7 +215,7 @@ static void allocation_prefixes(void){
  printf("I retain %u precise MEMORY and %u ambiguous UNRESOLVED allocation prefixes\n",memory,unresolved);
 #endif
 }
-int main(void){exact_startup_and_bounds();initializer_controls();wire_controls();allocation_prefixes();
+int main(void){exact_startup_and_bounds();initializer_controls();startup_supplement();wire_controls();allocation_prefixes();
 #ifdef HOSTED_INSTRUMENT
  CHECK(!tracked_live && !tracked_bytes);
 #endif
