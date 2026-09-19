@@ -1409,6 +1409,19 @@ test-units: test-nsi-file
 test-nsi-file-sanitizers:
 	python3 -m unittest -v tests.test_nsi_file
 
+.PHONY: test-nsi-file-values test-nsi-file-values-sanitizers
+test-nsi-file-values:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_values.c -o $(OBJ_DIR)/test_nsi_file_values_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_values_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_values_linked.c src/nsi_file_values.c src/nsi_file.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_file_values_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_values_linked
+
+test-units: test-nsi-file-values
+
+test-nsi-file-values-sanitizers:
+	python3 -m unittest -f -v tests.test_nsi_file_values
+
 .PHONY: test-nsi-file-plan test-nsi-file-plan-sanitizers
 test-nsi-file-plan:
 	@mkdir -p $(OBJ_DIR)
