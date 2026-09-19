@@ -2309,6 +2309,34 @@ shadow parse_cond_clauses {
     assert (== 1 1)
 }
 
+/* I refuse guarded arms until my self-hosted AST can retain each guard. */
+fn parser_expect_match_arrow(p: Parser) -> Parser {
+    if (parser_is_at_end p) { return (parser_with_error p true) }
+    let tok: LexerToken = (parser_current p)
+    if (== tok.token_type (token_if)) {
+        let diag: CompilerDiagnostic = (Diagnostics.diag_parser_error
+            "P0001"
+            "I do not yet accept guarded match arms in my self-hosted parser"
+            (Diagnostics.diag_location p.file_name tok.line tok.column))
+        (Diagnostics.diag_list_add p.diagnostics diag)
+        return (parser_with_error p true)
+    }
+    return (parser_expect p (token_arrow))
+}
+
+shadow parser_expect_match_arrow {
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string "if true" "guard.nano" diagnostics)
+    let p: Parser = (parser_new tokens (list_LexerToken_length tokens) "guard.nano")
+    let rejected: Parser = (parser_expect_match_arrow p)
+    assert (parser_has_error rejected)
+    assert (== (list_CompilerDiagnostic_length rejected.diagnostics) 1)
+    let diag: CompilerDiagnostic = (list_CompilerDiagnostic_get rejected.diagnostics 0)
+    assert (== diag.message "I do not yet accept guarded match arms in my self-hosted parser")
+    assert (== diag.location.line 1)
+    assert (== diag.location.column 1)
+}
+
 /* Parse match expression: match expr { pattern => body, ... } */
 fn parse_match(p: Parser) -> Parser {
     let tok: LexerToken = (parser_current p)
@@ -2351,7 +2379,7 @@ fn parse_match(p: Parser) -> Parser {
                             /* Integer literal arm: 42 => { body }  — no binding parens */
                             if (== tcur.token_type (token_number)) {
                                 let int_pattern: string = (str_concat "INT:" variant_name)
-                                let p1e: Parser = (parser_expect p1a (token_arrow))
+                                let p1e: Parser = (parser_expect_match_arrow p1a)
                                 if (parser_has_error p1e) { return p1e } else {
                                     if (parser_is_at_end p1e) {
                                         return (parser_with_error p1e true)
@@ -2400,7 +2428,7 @@ fn parse_match(p: Parser) -> Parser {
                                 }
                             /* Wildcard arm: _ => { body }  — no binding parens */
                             } else if (== variant_name "_") {
-                                let p1e: Parser = (parser_expect p1a (token_arrow))
+                                let p1e: Parser = (parser_expect_match_arrow p1a)
                                 if (parser_has_error p1e) { return p1e } else {
                                     if (parser_is_at_end p1e) {
                                         return (parser_with_error p1e true)
@@ -2460,7 +2488,7 @@ fn parse_match(p: Parser) -> Parser {
                                             let p1c: Parser = (parser_advance p1b)
                                             let p1d: Parser = (parser_expect p1c (token_rparen))
                                             if (parser_has_error p1d) { return p1d } else {
-                                                let p1e: Parser = (parser_expect p1d (token_arrow))
+                                                let p1e: Parser = (parser_expect_match_arrow p1d)
                                                 if (parser_has_error p1e) { return p1e } else {
                                                     /* Arm body: block (preferred) or expression */
                                                     if (parser_is_at_end p1e) {
@@ -9078,10 +9106,10 @@ pub fn parse_phase_run(lex_output: LexPhaseOutput, file_name: string) -> ParsePh
     /* Check if parser encountered errors */
     let had_error: bool = (parser_has_error parser_state)
     
-    /* Create diagnostics list */
-    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    /* Preserve a specific parser refusal when the parser recorded one. */
+    let diagnostics: List<CompilerDiagnostic> = parser_state.diagnostics
     
-    if had_error {
+    if (and had_error (== (list_CompilerDiagnostic_length diagnostics) 0)) {
         # Try to find location of error (at current position)
         let mut line: int = 0
         let mut col: int = 0
@@ -9128,4 +9156,114 @@ shadow parse_phase_run {
     
     let parse_out: ParsePhaseOutput = (parse_phase_run lex_out "test.nano")
     assert (not parse_out.had_error)
+    assert (== (list_CompilerDiagnostic_length parse_out.diagnostics) 0)
+
+    /* I keep ordinary integer and wildcard arms parseable. */
+    let scalar_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let scalar_source: string = "fn choose(value: int) -> int { return match value { 1 => 1 _ => 0 } }"
+    let scalar_tokens: List<LexerToken> = (tokenize_string scalar_source "scalar.nano" scalar_diags)
+    let scalar_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: scalar_tokens,
+        token_count: (list_LexerToken_length scalar_tokens),
+        had_error: false,
+        diagnostics: scalar_diags
+    }
+    let scalar_out: ParsePhaseOutput = (parse_phase_run scalar_lex "scalar.nano")
+    assert (not scalar_out.had_error)
+    assert (== (list_CompilerDiagnostic_length scalar_out.diagnostics) 0)
+
+    /* I keep ordinary named payload arms parseable. */
+    let named_control_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let named_control_source: string = "union Choice { Some { value: int }, None {} } fn choose(value: Choice) -> int { return match value { Some(payload) => payload.value None(empty) => 0 } }"
+    let named_control_tokens: List<LexerToken> = (tokenize_string named_control_source "named-control.nano" named_control_diags)
+    let named_control_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: named_control_tokens,
+        token_count: (list_LexerToken_length named_control_tokens),
+        had_error: false,
+        diagnostics: named_control_diags
+    }
+    let named_control_out: ParsePhaseOutput = (parse_phase_run named_control_lex "named-control.nano")
+    assert (not named_control_out.had_error)
+    assert (== (list_CompilerDiagnostic_length named_control_out.diagnostics) 0)
+
+    /* I preserve my existing generic phase diagnostic for a non-match error. */
+    let broken_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let broken_tokens: List<LexerToken> = (tokenize_string "fn broken(" "broken.nano" broken_diags)
+    let broken_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: broken_tokens,
+        token_count: (list_LexerToken_length broken_tokens),
+        had_error: false,
+        diagnostics: broken_diags
+    }
+    let broken_out: ParsePhaseOutput = (parse_phase_run broken_lex "broken.nano")
+    assert broken_out.had_error
+    assert (== (list_CompilerDiagnostic_length broken_out.diagnostics) 1)
+    let broken_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get broken_out.diagnostics 0)
+    assert (== broken_diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== broken_diag.code "P0001")
+    assert (== broken_diag.message "Syntax error: Unexpected token")
+    assert (== broken_diag.location.file "broken.nano")
+
+    /* I refuse an integer guard at its exact if token. */
+    let int_guard_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let int_guard_source: string = "fn choose(value: int) -> int { return match value { 1 if true => 1 _ => 0 } }"
+    let int_guard_tokens: List<LexerToken> = (tokenize_string int_guard_source "int-guard.nano" int_guard_diags)
+    let int_guard_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: int_guard_tokens,
+        token_count: (list_LexerToken_length int_guard_tokens),
+        had_error: false,
+        diagnostics: int_guard_diags
+    }
+    let int_guard_out: ParsePhaseOutput = (parse_phase_run int_guard_lex "int-guard.nano")
+    assert int_guard_out.had_error
+    assert (== (list_CompilerDiagnostic_length int_guard_out.diagnostics) 1)
+    let int_guard_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get int_guard_out.diagnostics 0)
+    assert (== int_guard_diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== int_guard_diag.code "P0001")
+    assert (== int_guard_diag.message "I do not yet accept guarded match arms in my self-hosted parser")
+    assert (== int_guard_diag.location.file "int-guard.nano")
+    assert (== int_guard_diag.location.line 1)
+    assert (== int_guard_diag.location.column 55)
+
+    /* I refuse a wildcard guard at its exact if token. */
+    let wildcard_guard_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let wildcard_guard_source: string = "fn choose(value: int) -> int { return match value { _ if true => 1 } }"
+    let wildcard_guard_tokens: List<LexerToken> = (tokenize_string wildcard_guard_source "wildcard-guard.nano" wildcard_guard_diags)
+    let wildcard_guard_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: wildcard_guard_tokens,
+        token_count: (list_LexerToken_length wildcard_guard_tokens),
+        had_error: false,
+        diagnostics: wildcard_guard_diags
+    }
+    let wildcard_guard_out: ParsePhaseOutput = (parse_phase_run wildcard_guard_lex "wildcard-guard.nano")
+    assert wildcard_guard_out.had_error
+    assert (== (list_CompilerDiagnostic_length wildcard_guard_out.diagnostics) 1)
+    let wildcard_guard_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get wildcard_guard_out.diagnostics 0)
+    assert (== wildcard_guard_diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== wildcard_guard_diag.code "P0001")
+    assert (== wildcard_guard_diag.message "I do not yet accept guarded match arms in my self-hosted parser")
+    assert (== wildcard_guard_diag.location.file "wildcard-guard.nano")
+    assert (== wildcard_guard_diag.location.line 1)
+    assert (== wildcard_guard_diag.location.column 55)
+
+    /* I refuse a named payload guard at its exact if token. */
+    let named_guard_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let named_guard_source: string = "union Choice { Some { value: int }, None {} } fn choose(value: Choice) -> int { return match value { Some(payload) if true => payload.value None(empty) => 0 } }"
+    let named_guard_tokens: List<LexerToken> = (tokenize_string named_guard_source "named-guard.nano" named_guard_diags)
+    let named_guard_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: named_guard_tokens,
+        token_count: (list_LexerToken_length named_guard_tokens),
+        had_error: false,
+        diagnostics: named_guard_diags
+    }
+    let named_guard_out: ParsePhaseOutput = (parse_phase_run named_guard_lex "named-guard.nano")
+    assert named_guard_out.had_error
+    assert (== (list_CompilerDiagnostic_length named_guard_out.diagnostics) 1)
+    let named_guard_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get named_guard_out.diagnostics 0)
+    assert (== named_guard_diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== named_guard_diag.code "P0001")
+    assert (== named_guard_diag.message "I do not yet accept guarded match arms in my self-hosted parser")
+    assert (== named_guard_diag.location.file "named-guard.nano")
+    assert (== named_guard_diag.location.line 1)
+    assert (== named_guard_diag.location.column 116)
 }
