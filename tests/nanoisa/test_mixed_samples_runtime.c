@@ -8,7 +8,14 @@
 int g_argc=0;char **g_argv=NULL;
 static const char *consume=".function close 1 1 0 int 1\nOWN_UNPACK_LOCAL 0\nRET\n.end\n.parameters 1 struct\n";
 static uint8_t *runtime_row(NvmModule *m,unsigned function) {
-    uint8_t *row=m->ownership_data+16;
+    CHECK(m && m->ownership_data && m->ownership_size>=12);
+    uint32_t layouts=(uint32_t)m->ownership_data[4] |
+        ((uint32_t)m->ownership_data[5]<<8) |
+        ((uint32_t)m->ownership_data[6]<<16) |
+        ((uint32_t)m->ownership_data[7]<<24);
+    uint64_t start=((uint64_t)8+layouts+3)&~UINT64_C(3);
+    CHECK(start+4<=m->ownership_size);
+    uint8_t *row=m->ownership_data+start+4;
     for(unsigned f=0;f<function;f++)row+=4+8*(m->functions[f].local_count+1);
     return row;
 }
