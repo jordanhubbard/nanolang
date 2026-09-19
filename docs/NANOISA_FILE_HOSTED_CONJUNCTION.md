@@ -157,3 +157,27 @@ Reentry and disposal controls cover both acquired and no-acquisition outcomes.
    remain concrete required File parent work. This bounded acyclic hosted slice
    does not silently defer or close those clauses. Socket/GPU are separate handle
    families; this exact File catalog does not authorize either.
+
+## My first implementation accounting details
+
+I preflight every section's count/row and nested field extents before invoking
+allocating readers. I retain prior-only nested indices, already required by
+nominal-v2 validation, so no forward-graph decoder scratch is entered. My64MiB
+bound conservatively sums simultaneously possible phases: copied envelope,
+decoded rows/fields, retained-layout decoder replay, bridge initial/grown
+capacities with old+new replacement peaks, string/tag payload copies, retained
+layout/ownership/service bytes, nominal-v2 temporary pointer/function/layout
+views and its exact nominal allocation, and the full existing16MiB body budget.
+The whole reader's internal validation bridge and my later owned bridge are
+sequential; neither is omitted from that common peak bound. Missing or malformed
+extents fail before allocation. Legacy TRUNCATED ambiguity stays UNRESOLVED.
+
+Derived storage is an upper bound in abstract value/reference/region/frame slots,
+not an existing File runtime carrier byte ABI. A VM-style suffix calculation
+subtracts consumed ordinary operand arguments while retaining caller locals and
+staged arguments/result; a native-style calculation retains the full caller
+frame during the callee. Each frame reserves one result and its largest direct
+call's argument staging. Reference and region arrays conservatively retain the
+existing256-slot per-frame limit. Wire zero depth remains undeclared, and actual
+runtime carrier sizes, heap payload extents and error cleanup remain pending
+before any public allocation or service dispatch can consume these facts.
