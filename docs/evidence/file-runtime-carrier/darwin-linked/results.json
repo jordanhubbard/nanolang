@@ -1,0 +1,42 @@
+[
+  {
+    "phase": "sanitizer",
+    "seconds": 5.987,
+    "status": 0
+  },
+  {
+    "phase": "hosted",
+    "seconds": 9.602,
+    "status": 0
+  },
+  {
+    "phase": "body",
+    "seconds": 3.429,
+    "status": 0
+  },
+  {
+    "phase": "flow",
+    "seconds": 3.262,
+    "status": 0
+  },
+  {
+    "phase": "values",
+    "seconds": 1.727,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.387,
+    "status": 0
+  },
+  {
+    "phase": "wrapper-provider",
+    "seconds": 0.242,
+    "status": 0
+  },
+  {
+    "phase": "wrapper",
+    "seconds": 6.113,
+    "status": 0
+  }
+]

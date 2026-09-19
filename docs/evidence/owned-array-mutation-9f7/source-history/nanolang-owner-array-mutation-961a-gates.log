@@ -1,0 +1,40 @@
+test_shared_mutation_growth_append_result_and_empty (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_shared_mutation_growth_append_result_and_empty) ... ok
+test_nested_receiver_before_consuming_index (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_nested_receiver_before_consuming_index) ... ok
+test_constructor_order_and_returned_aliases (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_constructor_order_and_returned_aliases) ... ok
+test_builtin_identity_initializer_and_declared_function (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_builtin_identity_initializer_and_declared_function) ... FAIL
+I retain mixed source fixtures at /tmp/nano-source-borrows-5x_1p_ob
+
+======================================================================
+FAIL: test_builtin_identity_initializer_and_declared_function (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_builtin_identity_initializer_and_declared_function)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-owned-array-mutation-source/tests/test_source_owned_float_array_mutation.py", line 125, in test_builtin_identity_initializer_and_declared_function
+    normal, _ = self.graph_positive('mutation-declared-push', declared, b'', b'')
+                ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-owned-array-mutation-source/tests/test_source_borrow_emission.py", line 1167, in graph_positive
+    self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-owned-array-mutation-source/tests/test_source_borrow_emission.py", line 58, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-owned-array-mutation-source/bin/nano_virt'), PosixPath('/tmp/nano-source-borrows-5x_1p_ob/graph-mutation-declared-push.nano'), '--emit-nvm', '-o', PosixPath('/tmp/nano-source-borrows-5x_1p_ob/nano_virt-graph.nvm')): 1
+
+-- E001 TYPE MISMATCH --- /tmp/nano-source-borrows-5x_1p_ob/graph-mutation-declared-push.nano
+Return type mismatch: got int, expected array.
+
+5| fn array_push(owner: Handle, expected: int) -> int { let Handle { fd } = owner assert (== fd expected) return fd }
+                                                                                                          ^
+Hint: Ensure the returned value matches the function's declared return type.
+-- E001 TYPE MISMATCH --- /tmp/nano-source-borrows-5x_1p_ob/graph-mutation-declared-push.nano
+Equality requires both operands to be the same type (got array and int).
+
+9|     assert (== (array_push Handle { fd: 13 } 13) 13)
+              ^
+Hint: Convert operands to the same type before checking equality.
+Warning at line 11, column 5: Unused variable 'values'
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 330.031s
+
+FAILED (failures=1)

@@ -1,0 +1,1 @@
+proof804-setup: $(NANOISA_OBJECTS) $(NANOISA_UTF8)

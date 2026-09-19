@@ -1,0 +1,14 @@
+{
+  "pin": "70c511dad439f77eba15fe0bdc189e90ff9c9486",
+  "command": [
+    "/opt/homebrew/bin/python3",
+    "/private/tmp/nanolang-mixed-source-darwin-tests.py",
+    "/private/tmp/nanolang-mixed-source-darwin-qualified-70c511dad/tests"
+  ],
+  "status": 0,
+  "seconds": 1083.972,
+  "sources_unchanged": true,
+  "inputs_unchanged": false,
+  "head_unchanged": true,
+  "clean": true
+}

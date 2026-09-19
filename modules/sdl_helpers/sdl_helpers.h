@@ -69,6 +69,9 @@ void nl_sdl_start_text_input(void);
 /* Stop SDL text input mode - disables SDL_TEXTINPUT events */
 void nl_sdl_stop_text_input(void);
 
+/* C-module bridge: consume one ordered mirrored text-edit event. */
+int nl_sdl_take_text_input_event(SDL_Event *out);
+
 /* Poll for text input - returns typed character(s) or empty string */
 const char* nl_sdl_poll_text_input(void);
 

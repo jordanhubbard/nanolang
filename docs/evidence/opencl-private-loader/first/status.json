@@ -1,0 +1,45 @@
+{
+  "head": "2397da09e550c4e15380860928991a80ceb5b2c9",
+  "success": false,
+  "error": "RuntimeError('make first terminal 2')",
+  "sources_unchanged": true,
+  "tools_unchanged": true,
+  "system_libraries_unchanged": true,
+  "head_unchanged": true,
+  "rows": [
+    {
+      "name": "bootstrap",
+      "argv": [
+        "./bootstrap"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-2397/upstream",
+      "exit_code": 0,
+      "seconds": 3.122209891967941,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "configure",
+      "argv": [
+        "./configure",
+        "--prefix=/tmp/nanolang-opencl-private-2397/install",
+        "--enable-official-khronos-headers",
+        "--disable-update-database"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-2397/upstream",
+      "exit_code": 0,
+      "seconds": 2.368041087000165,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/usr/bin/make",
+        "-j2"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-2397/upstream",
+      "exit_code": 2,
+      "seconds": 0.06393895600922406,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    }
+  ]
+}

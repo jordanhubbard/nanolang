@@ -1,0 +1,1 @@
+/home/jkh/Src/nanolang-service-module-integrated-qualified/bin/nvm2llvm /tmp/nano-service-module-shpmfuo5/linked.nvm -o /tmp/nano-service-module-shpmfuo5/llvm-preserved

@@ -1,0 +1,2 @@
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -std=c11 -Wall -Wextra -Werror tests/nanoisa/test_service_bindings.c src/nanoisa/service_bindings.c -o obj/test_service_bindings -lm -lcrypto -lffi  -rdynamic
+PASS 586 raw service codec checks; no module or service admission

@@ -1,0 +1,11 @@
+{
+  "name": "psych-make",
+  "argv": [
+    "/usr/bin/make",
+    "-j2"
+  ],
+  "cwd": "/tmp/nanolang-opencl-private-7f0/psych",
+  "exit_code": 0,
+  "seconds": 0.41711479803780094,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}

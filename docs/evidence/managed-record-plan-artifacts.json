@@ -1,0 +1,16 @@
+{
+  "source_head": "24bda38967bd5c379b9f8f58f518ba80b13327e0",
+  "platform": "Linux aarch64",
+  "files": {
+    "src/nanoisa/managed_record_plan.h": "d9d3afad0dc2f3be9c086ce3330a8ba4e597099453f92232cff51bb61e44ebe6",
+    "src/nanoisa/retained_layouts.c": "a23116b28863f18572ccd0511dd66d61dfa2ea204a89e1fc105873797f9897a6",
+    "tests/nanoisa/test_managed_record_plan.c": "358533342b32e07e67c96caf535b13fda97a03b7bb2f5461adcd8327fb07c321",
+    "tests/test_managed_record_plan.py": "dbc032bca9bc35239b2b12f5347ed19aeb020aa4412e0f082601db6f5194fb81",
+    "bin/nano_vm": "e9e6ec8e985ec815b32427a1e4944e9c83958c71007c72ab283d5587e4c22dc7",
+    "bin/nvm2llvm": "fc372a4b858d9d80c4d64514397e2b1d5ae9ab2fde57603aa7b49d8541379176",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "/tmp/nanolang-managed-record-plan-focused.log": "baef02d4c55a47f0d33d3280ffd37fee4b0a60014ba3643ae333d9c58769e106",
+    "/tmp/nanolang-managed-record-plan-adjacent.log": "f294b4cdb67bc622debbe6fa5958662174e3a39afb3e9eeb8a06c8c5f9e280b4",
+    "/tmp/nanolang-managed-record-plan-final.log": "68dded8eb315dd7ce8c96931ebd54c9050d22bed22854e8d37952660753b9b75"
+  }
+}

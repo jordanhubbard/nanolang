@@ -1,0 +1,38 @@
+{
+  "pin": "05d971e6122e2e2ae4b23fa9156646d8ed02ff89",
+  "platform": "linux",
+  "bootstrap_reference": "f5e07e5bea043265cfc15176fb1804227c363901",
+  "steps": [
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j8",
+        "nano_virt"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 5.536,
+      "log_sha256": "1715c37ab2f5f5361dc65a47904a8c674c13989e5e524eaa195feea8945ea6c8"
+    },
+    {
+      "name": "wrapper",
+      "command": [
+        "make",
+        "test-wrapper-gen"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 4.146,
+      "log_sha256": "efc90ab74958bfd23eed561ed70ec04045576ed3a2fd62b79de68e96c79eaebc"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

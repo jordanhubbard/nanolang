@@ -1,0 +1,8 @@
+I retain private codec artifacts at /tmp/nano-service-codec-i8ma2w5i
+test_raw_codec (tests.test_service_bindings.ServiceBindings.test_raw_codec) ... PASS 586 raw service codec checks; no module or service admission
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.230s
+
+OK

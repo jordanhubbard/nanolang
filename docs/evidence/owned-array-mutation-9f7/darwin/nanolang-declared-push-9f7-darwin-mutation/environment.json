@@ -1,0 +1,10 @@
+{
+  "CC": "/usr/bin/clang",
+  "NANO_VM": "/private/tmp/nanolang-declared-push-9f7ead937/bin/nano_vm",
+  "NANO_NVM2C": "/private/tmp/nanolang-declared-push-9f7ead937/bin/nvm2c",
+  "NANO_AOT_RUNTIME": "/private/tmp/nanolang-declared-push-9f7ead937/bin/nano_aot_runtime.o",
+  "NANO_MODULE_PATH": "/private/tmp/nanolang-declared-push-9f7ead937/modules",
+  "NANO_BUILD_CACHE": "/private/tmp/nanolang-declared-push-9f7ead937/obj/module_cache",
+  "PYTHONPATH": "/private/tmp/nanolang-declared-push-9f7ead937",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+}

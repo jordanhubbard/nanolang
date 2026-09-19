@@ -1,0 +1,25 @@
+[
+  {
+    "group": "linux-wrapper",
+    "unchanged_existing": 160,
+    "added": [
+      "nanovm/vmd_client.o",
+      "nanovm/vmd_protocol.o"
+    ],
+    "changed_existing": []
+  },
+  {
+    "group": "darwin-linked",
+    "unchanged_existing": 159,
+    "added": [
+      "nanovm/vmd_client.o",
+      "nanovm/vmd_protocol.o"
+    ],
+    "changed_existing": []
+  },
+  {
+    "comparison": "puck565 providers reused at be65 before linked-only gate",
+    "equal": true,
+    "providers": 159
+  }
+]

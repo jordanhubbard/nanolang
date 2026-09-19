@@ -1,0 +1,56 @@
+[
+  {
+    "command": [
+      "make",
+      "-j4",
+      "test-file-body"
+    ],
+    "phase": "normal",
+    "seconds": 6.266,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "test-file-body-sanitizers"
+    ],
+    "phase": "sanitizers",
+    "seconds": 4.58,
+    "status": 0
+  },
+  {
+    "command": [
+      "env",
+      "NANO_FILE_BODY_CC=clang",
+      "NANO_FILE_BODY_CFLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "make",
+      "test-file-body-sanitizers"
+    ],
+    "phase": "clang",
+    "seconds": 4.398,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "test-file-code",
+      "test-file-flow",
+      "test-file-nominal",
+      "test-service-bindings",
+      "test-nanoisa"
+    ],
+    "phase": "adjacent",
+    "seconds": 6.316,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "-j4",
+      "nano_virt"
+    ],
+    "phase": "provider",
+    "seconds": 7.661,
+    "status": 0
+  }
+]

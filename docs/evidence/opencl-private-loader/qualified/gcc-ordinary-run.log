@@ -1,0 +1,8 @@
+DEVICE type=4 GPU=true
+DEVICE name=NVIDIA GB10
+DEVICE vendor=NVIDIA Corporation
+DEVICE driver=595.84
+DEVICE version=OpenCL 3.0 CUDA
+PLATFORM name=NVIDIA CUDA
+LIBRARY query=/tmp/nanolang-opencl-private-7f0/install/lib/libOpenCL.so.1
+I passed actual OpenCL GPU: 48 buffers, 24 kernels, 384 exact integer observations; fixture cache/context cleanup explicit.

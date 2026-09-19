@@ -1,0 +1,18 @@
+{
+  "source": "b5644cce28524090f15b51d1920c2882a553a8d3",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_signed_nan_format",
+    "tests.test_managed_binary64_format"
+  ],
+  "status": 0,
+  "timed_out": false,
+  "seconds": 7.592,
+  "unchanged": true,
+  "runtime_package_compiler": "clang-18 / opt-18",
+  "native_flags": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+}

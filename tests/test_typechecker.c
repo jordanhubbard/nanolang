@@ -936,6 +936,80 @@ void test_tc_handler_parameter_metadata(void) {
         "fn main() -> int { let ignored = handle { 0 } with { callback f -> { let x: string = (f true) } } return 0 }"));
 }
 
+/* I check identities without executing callbacks outside their runtime profile. */
+void test_tc_reduce_exact_identities(void) {
+    const char *kinds[] = {"int", "float", "bool", "string", "array<int>", "Point", "Box<int>", "Choice"};
+    for (size_t i = 0; i < sizeof kinds / sizeof kinds[0]; ++i) {
+        char source[2048];
+        snprintf(source, sizeof source,
+            "struct Point { value:int } union Box<T> { Value { value:T } } enum Choice { One, Two } "
+            "fn fold(a:%s,b:%s)->%s{return a} "
+            "fn apply(xs:array<%s>,initial:%s)->%s{return (reduce xs initial fold)}",
+            kinds[i], kinds[i], kinds[i], kinds[i], kinds[i], kinds[i]);
+        printf(" [%s]", kinds[i]); fflush(stdout);
+        ASSERT(tc_module_passes(source));
+    }
+    ASSERT(tc_module_passes("enum Choice { One, Two } "
+        "fn fold(a:Choice,b:Choice)->Choice{return a} "
+        "fn apply(initial:Choice)->Choice{return (reduce [Choice.One,Choice.Two] initial fold)}"));
+    ASSERT(tc_module_passes("fn fold(a:int,b:int)->int{return (+ a b)} "
+        "fn main()->int{let xs:array<int> = [] return (reduce xs 9 fold)}"));
+    ASSERT(tc_module_passes("fn fold(a:int,b:int)->int{return a} "
+        "fn choose()->fn(int,int)->int{return fold} "
+        "fn main()->int{let local:fn(int,int)->int=fold "
+        "let x:int=(reduce [1] 0 local) return (reduce [1] x (choose))}"));
+    ASSERT(tc_module_passes("fn fold(a:float,b:float)->float{return a} "
+        "fn apply(xs:array<int>,f:fn(int,int)->int)->int{"
+        "let fold:fn(int,int)->int=f return (reduce xs 0 fold)}"));
+    ASSERT(tc_module_passes("fn fold(a:array<int>,b:array<int>)->array<int>{return a} "
+        "fn main()->int{let x:array<int> = (reduce [[1],[2]] [0] fold) return 0}"));
+}
+
+void test_tc_reduce_global_callback_identity(void) {
+    const char *source = "fn selected(a:float,b:float)->float{return (+ a b)} "
+        "fn difference(a:float,b:float)->float{return (- a b)} "
+        "let mut selected:fn(float,float)->float=difference "
+        "fn initial()->float{set selected difference return 10.0} "
+        "fn apply()->float{return (reduce [3.0] (initial) selected)} "
+        "fn main()->int{let result:float=(apply) return 0}";
+    ASSERT(tc_passes(source));
+    ASSERT(tc_module_passes(source));
+    ASSERT(!tc_module_passes("fn selected(a:int,b:int)->int{return a} "
+        "fn floating(a:float,b:float)->float{return a} "
+        "let selected:fn(float,float)->float=floating "
+        "fn apply()->int{return (reduce [1] 0 selected)}"));
+}
+
+void test_tc_reduce_exact_refusals(void) {
+    const char *cases[] = {
+        "fn main()->int{return (reduce [1] 0)}",
+        "fn fold(a:int,b:int)->int{return a} fn main()->int{return (reduce [1] 0 fold 4)}",
+        "fn fold(a:int,b:int)->int{return a} fn main()->int{return (reduce 1 0 fold)}",
+        "fn main()->int{return (reduce [1] 0 2)}",
+        "fn fold(a:int,b:int)->int{return a} fn main()->int{let x=(reduce [1] [] fold) return 0}",
+        "fn fold(a:int)->int{return a} fn main()->int{return (reduce [1] 0 fold)}",
+        "fn fold(a:int,b:float)->int{return a} fn main()->int{let x=(reduce [1.0] 0.0 fold) return 0}",
+        "fn fold(a:float,b:float)->int{return 0} fn main()->int{let x=(reduce [1.0] 0.0 fold) return 0}",
+        "fn fold(a:int,b:float)->int{return a} fn main()->int{return (reduce [1] 0 fold)}",
+        "fn fold(a:int,b:int)->void{} fn main()->int{let x=(reduce [1] 0 fold) return 0}",
+        "fn fold(a:int,b:int)->int{return a} fn main()->int{let fold:int=4 return (reduce [1] 0 fold)}",
+        "fn fold(a:int,b:int)->int{return a} fn apply(f:fn(float,float)->float)->int{"
+        "let fold:fn(float,float)->float=f let x=(reduce [1] 0 fold) return 0}",
+        "enum Choice { One, Two } fn fold(a:int,b:int)->int{return a} "
+        "fn apply(xs:array<Choice>)->int{return (reduce xs 0 fold)}",
+        "struct A { x:int } struct B { x:int } fn fold(a:A,b:A)->A{return a} "
+        "fn apply(xs:array<B>,initial:A)->A{return (reduce xs initial fold)}",
+        "union Box<T> { Value { value:T } } fn fold(a:Box<int>,b:Box<int>)->Box<int>{return a} "
+        "fn apply(xs:array<Box<bool>>,initial:Box<int>)->Box<int>{return (reduce xs initial fold)}",
+        "fn fold(a:array<int>,b:array<int>)->array<int>{return a} "
+        "fn main()->int{let x=(reduce [[true]] [0] fold) return 0}",
+    };
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        printf(" [%zu]", i); fflush(stdout);
+        ASSERT(!tc_module_passes(cases[i]));
+    }
+}
+
 int main(void) {
     TEST(tc_handler_parameter_metadata);
     TEST(tc_perform_signatures);
@@ -1012,6 +1086,9 @@ int main(void) {
     TEST(tc_returned_function_signature);
     TEST(tc_function_variable_alias_signature);
     TEST(tc_map_result_signature);
+    TEST(tc_reduce_exact_identities);
+    TEST(tc_reduce_exact_refusals);
+    TEST(tc_reduce_global_callback_identity);
     TEST(tc_err_returned_function_argument_type);
     TEST(tc_err_returned_function_arity);
 

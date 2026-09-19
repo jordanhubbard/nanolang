@@ -1,0 +1,58 @@
+{
+  "pin": "47f9254ef36c2658ffd7efc32f4b33f33497563b",
+  "bootstrap_reference": "c34c7324f48522656c27f9cdd84489634634bd81",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "steps": [
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "-j8",
+        "test-service-module"
+      ],
+      "env": {
+        "NANO_SERVICE_MODULE_TEST_CC": "/bin/gcc"
+      },
+      "status": 0,
+      "seconds": 7.273,
+      "log_sha256": "97705b1aa408c23c0e09a8d4338c2099a9a76f632d77940f49619e00671f8617"
+    },
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-service-module"
+      ],
+      "env": {
+        "NANO_SERVICE_MODULE_TEST_CC": "/usr/local/bin/clang",
+        "NANO_SERVICE_MODULE_TEST_CFLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 3.462,
+      "log_sha256": "d6dafc490d60999f881b5e77c3c5f9f0db4134dc5da30abd799aeb6622ab299f"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-service-bindings",
+        "test-nsi-file-plan",
+        "test-nvm-format-v2",
+        "test-nvm-v2-imports",
+        "test-nvm-v2-module",
+        "test-nvm-v2-convert",
+        "test-nvm-v2-endtoend",
+        "test-wrapper-gen",
+        "test-verifier-profiles"
+      ],
+      "env": {},
+      "status": 2,
+      "seconds": 2.065,
+      "log_sha256": "ddc38a17d8ca288e9a70106da64e2ef6a4dfe2da49ff6d6f9c99ba833c2e9726"
+    }
+  ],
+  "terminal": 2,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

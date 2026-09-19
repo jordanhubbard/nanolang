@@ -1,0 +1,9 @@
+test_exact_results_and_preserved_inputs (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_exact_results_and_preserved_inputs) ... ok
+test_exact_tag_and_missing_operand_refusals (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_exact_tag_and_missing_operand_refusals) ... ok
+test_refusals_preserve_outputs (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_refusals_preserve_outputs) ... ok
+test_rounding_snapshots_calls_branches_and_loop (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_rounding_snapshots_calls_branches_and_loop) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 59.031s
+
+OK

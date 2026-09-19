@@ -1,0 +1,13 @@
+{
+  "source_head": "51a6f326656bfc07445e5ec01d28c23792055b83",
+  "sha256": {
+    "src/nanovm/vm.c": "84430eca3c64303171667fe4e30c8f294491b974f7ea77908af096ff98fa9e68",
+    "tests/nanovm/test_heap_allocation_failure.c": "677b0388668c173f9f8b7c84579262a0ff537338b63824df45ee3b1c822bad33",
+    "/tmp/nanolang-struct-new-full-vm.log": "42fb7906b880a616df9a21d15ea6f6ae6201a71bd7c387694d9a4216dc7e602a",
+    "/tmp/nanolang-struct-new-full-vm-corrected.log": "9b3f9ad655e941daaabc22cc0b2e562a16f27810418337ee23900690c8233933",
+    "/tmp/nanolang-struct-new-sanitized.log": "34e6e6f0ce10b20b5683908b20f0973bfd10e8393cecbc8aa8189f79bc0f1e99",
+    "/tmp/nanolang-struct-new-final-vm.log": "4072893048bd311e7d6531f53913fb00eb0a19cba8ac83393ee5a52780c553a6",
+    "/tmp/nanolang-struct-new-final-sanitized.log": "f745e2d995e25c49cb16718fee9a0767b3c76c64eea25d0ef586ca48a49302b9",
+    "/tmp/nanolang-struct-new-final-switch.log": "031ea750e93b034e7f7a5d7f11e8aa1114819a928ef0d9d2b5a9f4804066faf5"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "bin/nvm2c": "f96c4510811e8762be70fdef0f12bebc15f6408155b0dedab5ad6c58081865ed",
+  "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+  "bin/nanoc": "cca04847eb6c0f1020bb452df0ed1acc0a40c0d02187e4d70ea88343240f59e3",
+  "bin/nanoc_stage1": "3b6167f0b01e7f51855bea5ff73b5beeb7b28147b655d19207b4d8c8e75ae9a9",
+  "bin/nanoisa": "2c4eb877fe9c29f8258f49b5103e0fe86e24ecdd33a01f3d32caf28e8f01d516",
+  "bin/nano_vm": "55599db21ec29e83dce55969724b9796d589fafe0c2f1a5f51a78fc2468ca123",
+  "bin/nano_virt": "67d7d1dd46c92be04ed4d5c6ff466c9b1c0a5f164ddc0b98fd404546032449b1",
+  "bin/nanoc_stage2": "cca04847eb6c0f1020bb452df0ed1acc0a40c0d02187e4d70ea88343240f59e3",
+  "bin/nanoc_c": "f2f3402759df835b92471c04c8436fb1a1aeff0048a8d62aaa1a050c479f6adc",
+  "bin/nano_as_capture.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+  "bin/nvm2llvm": "29c8cc9cd54518458527015157a27ae46149bd86577a0f7fde67c252be9f3162",
+  "bin/nano": "22ded40c619c00e496a912b2987cfb1f3e58b0d3d52f9c09b101b3b897ba1957"
+}

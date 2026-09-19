@@ -34,6 +34,9 @@ static const char *g_profile_path = NULL;
 /* Iterations of the loaded module per process. Benchmarks use this to push
  * process startup below the execution time they are trying to measure. */
 static uint32_t g_repeat = 1;
+/* The parent loads and verifies a shadow module before starting the execution
+ * supervisor. The forked child receives the immutable mapping by copy. */
+static NvmModule *g_shadow_module = NULL;
 
 static uint8_t *read_file(const char *path, uint32_t *out_size) {
     FILE *f = fopen(path, "rb");
@@ -72,24 +75,30 @@ static uint8_t *read_file(const char *path, uint32_t *out_size) {
     return data;
 }
 
-static int run_standalone(const char *path, bool verify_only) {
+static NvmModule *load_verified_module(const char *path,
+                                       bool standalone_execution) {
     NanoisaErr err;
     NvmModule *module = nanoisa_load_file(path, &err);
     if (!module) {
         fprintf(stderr, "Error: Failed to load '%s': %s\n",
                 path, err.message);
-        return 1;
+        return NULL;
     }
-
-    /* Verify bytecode safety before execution */
-    NvmVerifyResult vr = nvm_verify(module);
-    if (!vr.ok) {
+    NvmVerifyResult verified = standalone_execution
+        ? nvm_verify_linked(module, NULL, 0) : nvm_verify(module);
+    if (!verified.ok) {
         fprintf(stderr, "Error: Bytecode verification failed for '%s': %s\n",
-                path, vr.error_msg);
+                path, verified.error_msg);
         nvm_module_free(module);
-        return 1;
+        return NULL;
     }
+    return module;
+}
 
+static int run_standalone(const char *path, bool verify_only) {
+    NvmModule *module = g_shadow_module ? g_shadow_module
+        : load_verified_module(path, !verify_only);
+    if (!module) return 1;
     if (verify_only) {
         nvm_module_free(module);
         return 0;
@@ -147,7 +156,7 @@ static int run_standalone(const char *path, bool verify_only) {
     VmResult result = VM_OK;
     for (uint32_t iteration = 1; iteration < g_repeat; iteration++) {
         VmState warm;
-        vm_init(&warm, module);
+        vm_init_after_verify(&warm, module);
         if (g_isolate_ffi) warm.isolate_ffi = true;
         VmResult r = vm_execute(&warm);
         vm_destroy(&warm);
@@ -159,7 +168,7 @@ static int run_standalone(const char *path, bool verify_only) {
     }
 
     VmState vm;
-    vm_init(&vm, module);
+    vm_init_after_verify(&vm, module);
     vm_profile_enable(&vm, g_profile_path != NULL);
 
     /* Enable co-process FFI isolation if requested.
@@ -341,8 +350,16 @@ int main(int argc, char *argv[]) {
     }
 
     if (check_shadows) {
+        /* Verification is a prerequisite, not part of my execution budget.
+         * I still refuse before forking and execute every verified shadow in
+         * the supervised child with the unchanged deadline. */
+        g_shadow_module = load_verified_module(nvm_path, true);
+        if (!g_shadow_module) return 1;
         shadow_module_path = nvm_path;
-        return nl_run_shadow_entry(run_shadow_module, 10);
+        int shadow_status = nl_run_shadow_entry(run_shadow_module, 10);
+        nvm_module_free(g_shadow_module);
+        g_shadow_module = NULL;
+        return shadow_status;
     } else if (daemon_mode) {
         return run_daemon(nvm_path);
     } else {

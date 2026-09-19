@@ -6,7 +6,12 @@
  * The operand stack exists only while translating.
  */
 
+#include "service_bindings_module.h"
+#include "owned_array_admission.h"
 #include "nvm2c.h"
+#include "../binary64_bits.h"
+#include "../binary64_format.h"
+#include "../binary64_arithmetic_source.h"
 #include "binary64_parse_source.h"
 #include "isa.h"
 #include "utf8.h"
@@ -169,6 +174,24 @@ static int optional_scalar_tags(uint16_t tags) {
            !(tags & ~((1u << (TAG_BOOL + 1)) - 1));
 }
 
+static int exact_scalar_tags(uint16_t tags) {
+    return tags == (1u << TAG_INT) || tags == (1u << TAG_BOOL) ||
+           tags == (1u << TAG_FLOAT) || tags == (1u << TAG_STRING);
+}
+
+static uint8_t exact_boolean_kind(uint16_t tags) {
+    return tags == (1u << TAG_BOOL) ? NVM2C_VK_BOOL :
+           NVM2C_VK_UNK;
+}
+
+static uint8_t scalar_array_kind(uint16_t tags) {
+    return tags == (1u << TAG_INT) ? NVM2C_VK_ARR :
+           tags == (1u << TAG_BOOL) ? NVM2C_VK_BARR :
+           tags == (1u << TAG_FLOAT) ? NVM2C_VK_FARR :
+           tags == (1u << TAG_STRING) ? NVM2C_VK_SARR :
+           NVM2C_VK_UNK;
+}
+
 typedef struct {
     char *data;
     size_t len;
@@ -179,6 +202,7 @@ typedef struct {
     size_t sim_stack_capacity;
     size_t record_width;
     int has_maps;
+    int has_float_arithmetic;
     int has_string_arrays;
     int has_integer_arrays;
     int has_record_array_allocations;
@@ -487,7 +511,7 @@ static void emit_c_string_lit(Nvm2cBuf *b, const char *s, uint32_t len) {
     nvm2c_puts(b, "\"");
     for (i = 0; i < len; i++) {
         unsigned char c = (unsigned char)s[i];
-        if (c == '\\' || c == '"') {
+        if (c == '\\' || c == '"' || c == '?') {
             nvm2c_printf(b, "\\%c", (char)c);
         } else if (c == '\n') {
             nvm2c_puts(b, "\\n");
@@ -513,6 +537,7 @@ typedef struct {
     uint8_t *rec_k;
     NvmShapeId shape;
     uint16_t scalar_tags;
+    uint16_t array_scalar_tags;
 } Nvm2cSimSlot;
 
 typedef struct {
@@ -779,6 +804,12 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
         return 0;
     }
     if (!slot.shape) slot.shape = shape_variable(b, b->shape_current);
+    if (!slot.array_scalar_tags) {
+        slot.array_scalar_tags = slot.kind == NVM2C_VK_ARR ? 1u << TAG_INT :
+            slot.kind == NVM2C_VK_BARR ? 1u << TAG_BOOL :
+            slot.kind == NVM2C_VK_FARR ? 1u << TAG_FLOAT :
+            slot.kind == NVM2C_VK_SARR ? 1u << TAG_STRING : NVM2C_SCALAR_UNKNOWN;
+    }
     if (b->shape_opcode == OP_AGG_GET ||
         (b->shape_opcode == OP_LOAD_LOCAL &&
          (slot.kind == NVM2C_VK_STR || slot.kind == NVM2C_VK_INT || slot.kind == NVM2C_VK_BOOL || slot.kind == NVM2C_VK_FLOAT))) {
@@ -897,8 +928,11 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             for (int i = 0; i < sp; ++i) {
                 if (plan && plan->tags[i]) {
                     uint16_t tags = plan->tags[i] | stack[i].scalar_tags;
-                    if (!optional_scalar_tags(tags) && !boxed_carrier_tags(tags)) {
-                        nvm2c_fail(b, "I require proved finite payload provenance at a boxed join");
+                    if (!optional_scalar_tags(tags) && !boxed_carrier_tags(tags) &&
+                        !exact_scalar_tags(tags)) {
+                        nvm2c_fail(b, "I require proved finite payload provenance at a boxed join "
+                                      "in function %u after offset %zu (slot %d, tags 0x%x)",
+                                   idx, b->classify_offset, i, tags);
                         return 0;
                     }
                     join->slots[i].kind = NVM2C_VK_VALUE;
@@ -936,15 +970,29 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         return 0;
     }
     for (int i = 0; i < sp; i++) {
+        uint16_t array_tags = join->slots[i].array_scalar_tags | stack[i].array_scalar_tags;
         uint16_t tags = join->slots[i].scalar_tags | stack[i].scalar_tags;
         if ((boxed_carrier_tags(join->slots[i].scalar_tags) || boxed_carrier_tags(stack[i].scalar_tags)) &&
             !boxed_carrier_tags(tags)) {
             nvm2c_fail(b, "I cannot join proved finite storage with unproved payload provenance");
             return 0;
         }
-        int scalar_join = optional_scalar_tags(tags) || boxed_carrier_tags(tags);
+        int exact_storage_join =
+            (join->slots[i].kind == NVM2C_VK_VALUE &&
+             variant_scalar_kind(stack[i].kind) &&
+             join->slots[i].scalar_tags == scalar_kind_tags(stack[i].kind)) ||
+            (stack[i].kind == NVM2C_VK_VALUE &&
+             variant_scalar_kind(join->slots[i].kind) &&
+             stack[i].scalar_tags == scalar_kind_tags(join->slots[i].kind));
+        int planned_exact_storage = plan && plan->tags[i] == tags &&
+            exact_scalar_tags(tags) &&
+            (join->slots[i].kind == NVM2C_VK_VALUE || stack[i].kind == NVM2C_VK_VALUE);
+        int scalar_join = optional_scalar_tags(tags) || boxed_carrier_tags(tags) ||
+                          exact_storage_join || planned_exact_storage;
         if (plan && plan->tags[i] && !scalar_join) {
-            nvm2c_fail(b, "I require proved finite payload provenance at a boxed join");
+            nvm2c_fail(b, "I require proved finite payload provenance at a boxed join "
+                          "in function %u after offset %zu (slot %d, tags 0x%x)",
+                       idx, b->classify_offset, i, tags);
             return 0;
         }
         if (scalar_join) {
@@ -1003,9 +1051,11 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         int origin = join->slots[i].origin == stack[i].origin ? stack[i].origin : -1;
         if (join->slots[i].kind == NVM2C_VK_UNK) {
             join->slots[i] = stack[i];
+            join->slots[i].array_scalar_tags = array_tags;
             join->slots[i].origin = origin;
             continue;
         }
+        join->slots[i].array_scalar_tags = array_tags;
         join->slots[i].origin = origin;
         if (stack[i].kind == NVM2C_VK_UNK) continue;
         if (join->slots[i].kind != stack[i].kind && !string_join && !scalar_join) {
@@ -1261,21 +1311,44 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 loaded.shape = shape_variable(b, &b->shape_globals[slot]);
                 loaded.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
                 if (!loaded.rec_k || !sim_push_slot(b, idx, stk, &sp, loaded)) return 0;
-            } else if (!sim_push(b, idx, stk, &sp,
-                                 facts->discover_globals ? NVM2C_VK_UNK : NVM2C_VK_VALUE, -1)) return 0;
+            } else if (facts->discover_globals) {
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_UNK, -1)) return 0;
+            } else {
+                Nvm2cSimSlot loaded = {0};
+                loaded.kind = NVM2C_VK_VALUE;
+                loaded.origin = -1;
+                loaded.shape = shape_variable(b, &b->shape_globals[slot]);
+                uint16_t tags = scalar_kind_tags(facts->global_kinds[slot]);
+                if (facts->global_stored[slot] == NVM2C_GLOBAL_EXACT_CANDIDATE &&
+                    tags != NVM2C_SCALAR_UNKNOWN)
+                    loaded.scalar_tags = tags;
+                if (facts->global_stored[slot] == NVM2C_GLOBAL_EXACT_CANDIDATE) {
+                    loaded.array_scalar_tags = facts->global_kinds[slot] == NVM2C_VK_ARR ? 1u << TAG_INT :
+                        facts->global_kinds[slot] == NVM2C_VK_BARR ? 1u << TAG_BOOL :
+                        facts->global_kinds[slot] == NVM2C_VK_FARR ? 1u << TAG_FLOAT :
+                        facts->global_kinds[slot] == NVM2C_VK_SARR ? 1u << TAG_STRING :
+                        NVM2C_SCALAR_UNKNOWN;
+                }
+                if (!sim_push_slot(b, idx, stk, &sp, loaded)) return 0;
+            }
             break;
         }
         case OP_STORE_GLOBAL: {
             Nvm2cSimSlot value;
             uint32_t slot = ins.operands[0].u32;
             if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
-            uint8_t stored = value.kind == NVM2C_VK_VALUE
+            uint8_t stored_kind = value.kind;
+            if (stored_kind == NVM2C_VK_VALUE)
+                stored_kind = exact_boolean_kind(value.scalar_tags);
+            if (stored_kind == NVM2C_VK_UNK)
+                stored_kind = scalar_array_kind(value.array_scalar_tags);
+            uint8_t stored = value.kind == NVM2C_VK_VALUE && stored_kind == NVM2C_VK_UNK
                 ? NVM2C_GLOBAL_DYNAMIC : NVM2C_GLOBAL_EXACT_CANDIDATE;
             if (facts->global_stored[slot] < stored) {
                 facts->global_stored[slot] = stored;
                 facts->changed = 1;
             }
-            if (!merge_global_kind(b, facts, slot, value.kind)) return 0;
+            if (!merge_global_kind(b, facts, slot, stored_kind)) return 0;
             if (value.kind == NVM2C_VK_RARR) {
                 if (!merge_global_fields(b, facts, slot, value.rec_k)) return 0;
                 NvmShapeId global = shape_variable(b, &b->shape_globals[slot]);
@@ -1334,8 +1407,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
             size_t local_at = (size_t)idx * b->local_width + slot;
-            uint16_t tags = b->local_scalar_tags[local_at] |
-                (v.kind == NVM2C_VK_UNK ? 0 : v.scalar_tags);
+            uint16_t previous_tags = b->local_scalar_tags[local_at];
+            uint16_t incoming_tags = v.kind == NVM2C_VK_UNK ? 0 : v.scalar_tags;
+            uint16_t tags = !b->tagged_locals[local_at] &&
+                previous_tags == (1u << TAG_VOID) &&
+                incoming_tags == (1u << TAG_BOOL)
+                ? incoming_tags : previous_tags | incoming_tags;
             if (v.kind != NVM2C_VK_UNK &&
                 (boxed_carrier_tags(b->local_scalar_tags[local_at]) || boxed_carrier_tags(v.scalar_tags)) &&
                 !boxed_carrier_tags(tags)) {
@@ -1405,6 +1482,20 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         && local_kind[slot] != NVM2C_VK_BOOL) {
                 local_kind[slot] = NVM2C_VK_INT;
             }
+            break;
+        }
+        case OP_F64_FROM_BITS: case OP_F64_TO_BITS: {
+            Nvm2cSimSlot value;
+            if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+            uint8_t expected = ins.opcode == OP_F64_FROM_BITS ? NVM2C_VK_INT : NVM2C_VK_FLOAT;
+            if (value.kind == NVM2C_VK_UNK) {
+                mark_origin(local_kind, nloc, value.origin, expected);
+                if (!shape_field_kind(b, value.shape, expected)) return 0;
+            } else if (value.kind != expected && value.kind != NVM2C_VK_VALUE) {
+                nvm2c_fail(b, "I require the exact input kind for binary64 bit transport"); return 0;
+            }
+            if (!sim_push(b, idx, stk, &sp,
+                          expected == NVM2C_VK_INT ? NVM2C_VK_FLOAT : NVM2C_VK_INT, -1)) return 0;
             break;
         }
         case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
@@ -1779,6 +1870,18 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             (void)ix;
             if (arr.kind == NVM2C_VK_VALUE) {
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                /* A dynamically stored array remains boxed, but a resolved
+                 * scalar element shape still proves the finite payload of a
+                 * successful read.  I retain TAG_VOID because bounds failure
+                 * is represented by the same carrier. */
+                uint16_t tags = arr.array_scalar_tags;
+                if (!exact_scalar_tags(tags) && arr.shape &&
+                    nvm_shape_kind(&b->shapes, arr.shape) == NVM_SHAPE_ARRAY) {
+                    uint8_t element = resolved_shape_kind(b, shape_child(b, arr.shape, 0));
+                    tags = scalar_kind_tags(element);
+                }
+                if (exact_scalar_tags(tags))
+                    stk[sp - 1].scalar_tags = tags | (1u << TAG_VOID);
                 break;
             }
             if (!shape_type(b, arr.shape, NVM_SHAPE_ARRAY)) return 0;
@@ -1830,7 +1933,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             if (arr.kind == NVM2C_VK_VALUE) {
-                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                Nvm2cSimSlot pushed = arr;
+                uint16_t value_tags = val.scalar_tags;
+                if (!exact_scalar_tags(arr.array_scalar_tags) ||
+                    value_tags != arr.array_scalar_tags)
+                    pushed.array_scalar_tags = NVM2C_SCALAR_UNKNOWN;
+                pushed.kind = NVM2C_VK_VALUE;
+                pushed.origin = -1;
+                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
                 break;
             }
             if (ins.opcode == OP_ARR_PUSH && arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC) {
@@ -3626,6 +3736,16 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_F64_FROM_BITS: case OP_F64_TO_BITS: {
+            int from = ins.opcode == OP_F64_FROM_BITS;
+            int value = stack_pop_expect(b, &st, from ? NVM2C_VK_INT : NVM2C_VK_FLOAT, "binary64 bit transport");
+            if (b->failed) goto done;
+            char expression[80];
+            snprintf(expression, sizeof expression, "nl_float_%s_bits(%s[%d])", from ? "from" : "to", from ? "t" : "f", value);
+            if (from) stack_push_float(b, &st, expression);
+            else stack_push_temp(b, &st, expression);
+            break;
+        }
         case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
         case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE:
         case OP_F64_GT: case OP_F64_GE: case OP_F64_NEG: {
@@ -3636,8 +3756,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             char expression[128];
             if (ins.opcode == OP_F64_NEG)
                 snprintf(expression, sizeof expression, "-f[%d]", rhs);
-            else if (ins.opcode == OP_F64_DIV)
-                snprintf(expression, sizeof expression, "(f[%d] == 0.0 ? 0.0 : f[%d] / f[%d])", rhs, lhs, rhs);
+            else if (ins.opcode == OP_F64_ADD || ins.opcode == OP_F64_SUB ||
+                     ins.opcode == OP_F64_MUL || ins.opcode == OP_F64_DIV)
+                snprintf(expression, sizeof expression, "nano_rt_f64_%s(f[%d], f[%d])",
+                         ins.opcode == OP_F64_ADD ? "add" : ins.opcode == OP_F64_SUB ? "sub" :
+                         ins.opcode == OP_F64_MUL ? "mul" : "div", lhs, rhs);
             else {
                 const char *op = ins.opcode == OP_F64_ADD ? "+" : ins.opcode == OP_F64_SUB ? "-" :
                     ins.opcode == OP_F64_MUL ? "*" : ins.opcode == OP_F64_EQ ? "==" :
@@ -3681,11 +3804,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char left[48], right[48], expression[192];
                 snprintf(left, sizeof left, lk == NVM2C_VK_FLOAT ? "f[%d]" : "(double)t[%d]", lhs);
                 snprintf(right, sizeof right, rk == NVM2C_VK_FLOAT ? "f[%d]" : "(double)t[%d]", rhs);
-                if (ins.opcode == OP_DIV)
-                    snprintf(expression, sizeof expression, "(%s == 0.0 ? 0.0 : %s / %s)", right, left, right);
-                else
-                    snprintf(expression, sizeof expression, "%s %s %s", left,
-                        ins.opcode == OP_ADD ? "+" : ins.opcode == OP_SUB ? "-" : "*", right);
+                snprintf(expression, sizeof expression, "nano_rt_f64_%s(%s, %s)",
+                    ins.opcode == OP_ADD ? "add" : ins.opcode == OP_SUB ? "sub" :
+                    ins.opcode == OP_MUL ? "mul" : "div", left, right);
                 stack_push_float(b, &st, expression);
                 break;
             }
@@ -5165,7 +5286,7 @@ static void emit_nstr_from_i64(Nvm2cBuf *b) {
 static void emit_nstr_from_f64(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nstr_from_f64(double value) {\n"
-        "    char tmp[64]; int n = snprintf(tmp, sizeof tmp, \"%g\", value);\n"
+        "    char tmp[64]; int n = nano_rt_f64_format(tmp, sizeof tmp, value);\n"
         "    if (n < 0 || (size_t)n >= sizeof tmp) NVM2C_ABORT();\n"
         "    char *text = nstr_allocate((size_t)n);\n"
         "    memcpy(text, tmp, (size_t)n + 1); return text;\n}\n");
@@ -5882,6 +6003,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (err && err_len) snprintf(err, err_len, "module is null");
         return NULL;
     }
+    if (nvm_service_execution_pending(mod)) {
+        if (err && err_len) snprintf(err, err_len,
+            "I require reviewed service lifetime and dispatch admission before translation");
+        return NULL;
+    }
+    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return emit_owned_array_module(mod,err,err_len);
+    if(nvm_mixed_samples_candidate(mod))return emit_mixed_samples_module(mod,err,err_len);
     bool needs_ownership = false;
     if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK || needs_ownership ||
         nvm_uses_owned_transfers(mod)) {
@@ -6462,9 +6590,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_print || need_cast) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
+        if (module_has_opcode(mod, OP_F64_FROM_BITS) || module_has_opcode(mod, OP_F64_TO_BITS))
+            nvm2c_puts(&b, NL_BINARY64_BITS_SOURCE);
+        if (need_print || need_cast) nvm2c_puts(&b, NL_BINARY64_FORMAT_SOURCE);
         if (need_print) nvm2c_puts(&b,
             "static inline void nf64_print(double value) {\n"
-            "    if (value >= -1e15 && value <= 1e15 && value == (int64_t)value) printf(\"%.1f\", value);\n"
+            "    const char *special = nano_rt_f64_nonfinite(value);\n"
+            "    if (special) fputs(special, stdout);\n"
+            "    else if (value >= -1e15 && value <= 1e15 && value == (int64_t)value) printf(\"%.1f\", value);\n"
             "    else printf(\"%g\", value);\n}\n");
         if (need_concat || need_cast || need_substr || need_trim || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
@@ -6485,6 +6618,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             b.has_maps = 1;
             emit_nagg_accounting(&b);
         }
+        b.has_float_arithmetic = b.has_maps ||
+            module_has_opcode(mod, OP_F64_ADD) || module_has_opcode(mod, OP_F64_SUB) ||
+            module_has_opcode(mod, OP_F64_MUL) || module_has_opcode(mod, OP_F64_DIV) ||
+            module_has_opcode(mod, OP_ADD) || module_has_opcode(mod, OP_SUB) ||
+            module_has_opcode(mod, OP_MUL) || module_has_opcode(mod, OP_DIV);
+        if (b.has_float_arithmetic) nvm2c_puts(&b, nl_binary64_arithmetic_source);
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT)) {
             nvm2c_puts(&b, nbp_parser_source);
             nvm2c_puts(&b,
@@ -6536,10 +6675,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    }\n"
                 "    double x = a.kind == 3 ? nvalue_require_float(a) : (double)a.integer;\n"
                 "    double y = b.kind == 3 ? nvalue_require_float(b) : (double)b.integer;\n"
-                "    if (op == '+') return nvalue_from_float(x + y);\n"
-                "    if (op == '-') return nvalue_from_float(x - y);\n"
-                "    if (op == '*') return nvalue_from_float(x * y);\n"
-                "    if (op == '/') return nvalue_from_float(y == 0.0 ? 0.0 : x / y);\n"
+                "    if (op == '+') return nvalue_from_float(nano_rt_f64_add(x, y));\n"
+                "    if (op == '-') return nvalue_from_float(nano_rt_f64_sub(x, y));\n"
+                "    if (op == '*') return nvalue_from_float(nano_rt_f64_mul(x, y));\n"
+                "    if (op == '/') return nvalue_from_float(nano_rt_f64_div(x, y));\n"
                 "    NVM2C_ABORT();\n}\n"
                 "static inline int64_t nvalue_require_int(nmap_value value) {\n"
                 "    if (value.kind != 1) NVM2C_ABORT();\n    return value.integer;\n}\n"
@@ -6716,6 +6855,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
+        if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN) ||
+            module_has_opcode(mod, OP_CAST_STRING))
+            nvm2c_puts(&b, "    (void)nano_rt_f64_format; (void)nano_rt_f64_print;\n");
+        if (b.has_float_arithmetic) nvm2c_puts(&b,
+            "    (void)nano_rt_f64_add; (void)nano_rt_f64_sub; (void)nano_rt_f64_mul; (void)nano_rt_f64_div;\n");
+        if (module_has_opcode(mod, OP_F64_FROM_BITS) || module_has_opcode(mod, OP_F64_TO_BITS))
+            nvm2c_puts(&b, "    (void)nl_float_from_bits; (void)nl_float_to_bits;\n");
         if (module_has_opcode(mod, OP_I64_ADD_CARRY) || module_has_opcode(mod, OP_I64_SUB_BORROW) ||
             module_has_opcode(mod, OP_I64_MUL_WIDE_S) || module_has_opcode(mod, OP_I64_MUL_WIDE_U))
             nvm2c_puts(&b, "    (void)ni64_pair_compute;\n");

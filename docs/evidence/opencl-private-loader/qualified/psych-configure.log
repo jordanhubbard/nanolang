@@ -1,0 +1,4 @@
+checking for pkg-config for yaml-0.1... not found
+checking for yaml.h... yes
+checking for yaml_get_version() in -lyaml... yes
+creating Makefile

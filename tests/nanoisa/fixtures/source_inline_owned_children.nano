@@ -1,0 +1,26 @@
+resource struct Leaf { value: int }
+struct Pair { left: Leaf, right: Leaf }
+struct Outer { pair: Pair, enabled: bool }
+fn mark(value: int, text: string) -> int { (print text) return value }
+shadow mark { assert true }
+fn factory(value: int) -> Leaf { (print "F") return Leaf { value: value } }
+shadow factory { assert true }
+fn take(owner: Outer) -> int {
+    let Outer { enabled, pair } = owner
+    let Pair { right, left } = pair
+    let Leaf { value } = right
+    let right_value: int = value
+    let Leaf { value } = left
+    assert enabled
+    return (+ (* value 10) right_value)
+}
+shadow take { assert true }
+fn main() -> int {
+    let named: Leaf = Leaf { value: (mark 9 "N") }
+    let outer: Outer = Outer { enabled: true, pair: Pair { right: (factory 7), left: Leaf { value: (mark 3 "L") } } }
+    assert (== (take outer) 37)
+    let other: Leaf = Leaf { value: 4 }
+    assert (== (take Outer { pair: Pair { left: named, right: other }, enabled: true }) 94)
+    return 0
+}
+shadow main { assert (== (main) 0) }

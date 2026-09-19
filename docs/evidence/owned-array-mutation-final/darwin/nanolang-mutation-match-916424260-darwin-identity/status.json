@@ -1,0 +1,11 @@
+{
+  "pin": "916424260d93f3f41ae4c630ea57b5dbadbde9ae",
+  "phase": "identity",
+  "success": true,
+  "testsRun": 6,
+  "errors": 0,
+  "failures": 0,
+  "seconds": 69.06279391597491,
+  "sources_unchanged": true,
+  "head_unchanged": true
+}

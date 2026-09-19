@@ -1,0 +1,6 @@
+test_fresh_three_stage_parser_and_nominal_boundaries (tests.test_selfhost_extern_records.ExternRecords.test_fresh_three_stage_parser_and_nominal_boundaries) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 47.647s
+
+OK

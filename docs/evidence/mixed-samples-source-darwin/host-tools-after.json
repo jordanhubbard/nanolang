@@ -1,0 +1,41 @@
+{
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "tools": {
+    "/usr/bin/clang": {
+      "resolved": "/usr/bin/clang",
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    "/usr/bin/make": {
+      "resolved": "/usr/bin/make",
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    "/usr/bin/ld": {
+      "resolved": "/usr/bin/ld",
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    "/usr/bin/ar": {
+      "resolved": "/usr/bin/ar",
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    "/opt/homebrew/bin/python3": {
+      "resolved": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+      "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+    },
+    "/opt/homebrew/opt/llvm/bin/clang": {
+      "resolved": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+      "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+    },
+    "/opt/homebrew/opt/llvm/bin/opt": {
+      "resolved": "/opt/homebrew/Cellar/llvm/23.1.1/bin/opt",
+      "sha256": "b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b"
+    },
+    "/opt/homebrew/Cellar/llvm/23.1.1/etc/clang/arm64-apple-darwin25.cfg": {
+      "resolved": "/opt/homebrew/etc/clang/arm64-apple-darwin25.cfg",
+      "sha256": "ac7ed4621b841f2103cf6162dff770b79b202dffe60b37ac6bb5406c5ea0d925"
+    },
+    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/SDKSettings.json": {
+      "resolved": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/SDKSettings.json",
+      "sha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb"
+    }
+  }
+}

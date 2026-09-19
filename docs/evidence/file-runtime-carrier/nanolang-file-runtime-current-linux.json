@@ -1,0 +1,32 @@
+[
+  {
+    "root": "/home/jkh/Src/nanolang-file-runtime-qualified",
+    "report": "/tmp/nanolang-file-runtime-534-linux",
+    "source_inventory": "normal-source-after.json",
+    "tool_inventory": "normal-tools-after.json",
+    "sources": 7282,
+    "tools": 8,
+    "source_mismatches": [],
+    "tool_mismatches": []
+  },
+  {
+    "root": "/home/jkh/Src/nanolang-file-runtime-corrected",
+    "report": "/tmp/nanolang-file-runtime-565-linux",
+    "source_inventory": "wrapper-source-after.json",
+    "tool_inventory": "wrapper-tools-after.json",
+    "sources": 7282,
+    "tools": 9,
+    "source_mismatches": [],
+    "tool_mismatches": []
+  },
+  {
+    "root": "/home/jkh/Src/nanolang-file-runtime-corrected",
+    "report": "/tmp/nanolang-file-runtime-565-linux-wrapper",
+    "source_inventory": "wrapper-source-after.json",
+    "tool_inventory": "wrapper-tools-after.json",
+    "sources": 7282,
+    "tools": 9,
+    "source_mismatches": [],
+    "tool_mismatches": []
+  }
+]

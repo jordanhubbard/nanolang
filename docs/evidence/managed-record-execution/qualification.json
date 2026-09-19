@@ -1,0 +1,109 @@
+{
+  "final_source": "53dae604c7b7eef8fdf20abf61608959a4610a9f",
+  "integrated_source": "e90062e93f5ef2536b06755ec8219dd84be3b735",
+  "runtime_production": "0ee471f2",
+  "current_inputs": {
+    "bin/nvm2llvm": "3923de50622749ef5f368f6c0e7fe7707f9b0627347212205a970e70863134b1",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "bin/nanoisa": "775637aa0855411e7af636e06ab9879d6ab76299cf93a82c32161190ba777a9b",
+    "bin/nano_vm": "0a4a7390cf647d31a37d9638f55b10610d274cbf3dc511acf4b46e0bc31dbe5d",
+    "obj/nanoisa/managed_runtime_ir.h": "8ee4a7320f46ca7c14ef9d07a37b1fb0ba835a65b1d8b13ffabac4389ac3eda5",
+    "obj/nanoisa/managed_runtime_ir.json": "3ce954dd94fb777b510daa1b8bf92003277db673d3f8ff14ac3f7ff38d8714a6",
+    "obj/test_verifier_profiles": "c100fab96e56d61bcecd18b208d8544dda3de8c1e37fb39902f253ac7820d2e0",
+    "obj/managed_record_reentry": "df13c5ee4524e97ea95c20afefdb75a38d4d7b2d7e61e70166db15c213feae4b",
+    "src/nanoisa/managed_array_shapes.c": "69a75168e471589ad68d1d43905dc3156d7a2fc00d68910e5071017057e3e3ac",
+    "src/nanoisa/managed_record_shapes.h": "b5920e095fbc468450a0d390b6c1cfe0ab9ef8665a9662639bea323472e686c8",
+    "src/nanoisa/verifier.c": "27a4f46945019c4e6376eeaa00bae036cd40eace08f6135b29b3212efe773140",
+    "src/nanoisa/nvm2llvm.c": "4b4614e227f9aa3f51be8ffb5bc37500af5474647f872ec36d6500e595993e9a",
+    "src/nanoisa/nvm2llvm_managed.inc": "6b5c8f676c56f634b38ca2b53c4a5bfd69b908ceb577a081c034680f831663ad",
+    "tests/test_llvm_managed_records.py": "82e203a38c6e407d225daa7a1e8f9d9e35b9c31543c9f118462a6f1fffa983a5",
+    "tests/nanoisa/test_managed_heap_selector.c": "23ce35b7ec61747e23ba01e509527c14a4d492cb1d527d099529a29e1e7b1344",
+    "tests/nanoisa/managed_record_reentry.c": "17cea913abaf6bd0b55b46979dcf7fc7d5bfdf2ac7a197dde01f2ae26c88c2d4",
+    "tests/test_managed_record_shapes.py": "a4e161a186c8445c4193486e1a4448f6db53350ff0d0e3fb93fba8fb51a6b571",
+    "Makefile.gnu": "71ff0afe60f6f7a86d9d3ddf2fee6191db541264cef99f9401b40a6791dee537"
+  },
+  "full_current_inventory": "forward-refusal/after.json",
+  "groups": {
+    "first-format-failure": {
+      "head": "adfcc9650612dd0f3ee5a1e2613e3a28c7f2777d",
+      "tests": [
+        "tests.test_llvm_managed_records"
+      ],
+      "status": 1,
+      "seconds": 14.764705498993862
+    },
+    "corrected-focused": {
+      "head": "d3761cd6c9082a81920209d1cae69a1a09ebbfe6",
+      "tests": [
+        "tests.test_llvm_managed_records"
+      ],
+      "status": 0,
+      "seconds": 20.162687369040214
+    },
+    "adjacent-setup-failure": {
+      "head": "d3761cd6c9082a81920209d1cae69a1a09ebbfe6",
+      "tests": [
+        "tests.test_managed_record_shapes",
+        "tests.test_managed_array_shapes",
+        "tests.test_managed_graph_origins",
+        "tests.test_managed_record_plan",
+        "tests.test_verifier_profiles",
+        "tests.test_managed_records",
+        "tests.test_managed_record_adapters",
+        "tests.test_managed_graph_safepoints",
+        "tests.test_managed_runtime_package"
+      ],
+      "status": 1,
+      "seconds": 23.5109239469748
+    },
+    "generated-regressions": {
+      "head": "d3761cd6c9082a81920209d1cae69a1a09ebbfe6",
+      "tests": [
+        "tests.test_llvm_managed_strings",
+        "tests.test_llvm_managed_decimal",
+        "tests.test_llvm_managed_format",
+        "tests.test_llvm_managed_predicates",
+        "tests.test_llvm_managed_trim",
+        "tests.test_llvm_managed_character",
+        "tests.test_llvm_managed_case",
+        "tests.test_llvm_managed_primitive_format",
+        "tests.test_llvm_managed_replace",
+        "tests.test_llvm_managed_split",
+        "tests.test_llvm_managed_mutable_arrays",
+        "tests.test_llvm_managed_array_copies",
+        "tests.test_llvm_managed_graphs"
+      ],
+      "status": 0,
+      "seconds": 94.14883987099165
+    },
+    "integrated": {
+      "head": "e90062e93f5ef2536b06755ec8219dd84be3b735",
+      "tests": [
+        "tests.test_llvm_managed_records",
+        "tests.test_managed_record_plan",
+        "tests.test_verifier_profiles",
+        "tests.test_managed_record_shapes",
+        "tests.test_managed_array_shapes",
+        "tests.test_managed_graph_origins"
+      ],
+      "status": 0,
+      "seconds": 30.02393755200319
+    },
+    "forward-refusal": {
+      "head": "53dae604c7b7eef8fdf20abf61608959a4610a9f",
+      "tests": [
+        "tests.test_llvm_managed_records.ManagedRecords.test_unknown_wrong_nominal_and_mixed_edges_preserve_output"
+      ],
+      "status": 0,
+      "seconds": 0.34652941703097895
+    }
+  },
+  "artifact_directories": {
+    "first-format-failure": "/tmp/nanolang-record-execution-adfcc-focused",
+    "corrected-focused": "/tmp/nanolang-record-execution-corrected-focused",
+    "adjacent-setup-failure": "/tmp/nanolang-record-execution-corrected-analysis",
+    "generated-regressions": "/tmp/nanolang-record-execution-corrected-generated",
+    "integrated": "/tmp/nanolang-record-execution-integrated-focused",
+    "forward-refusal": "/tmp/nanolang-record-execution-forward-refusal"
+  }
+}

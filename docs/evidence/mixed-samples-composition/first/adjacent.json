@@ -1,0 +1,17 @@
+{
+  "name": "adjacent",
+  "command": [
+    "make",
+    "-j2",
+    "test-mixed-float-proof",
+    "test-mixed-layout-view",
+    "test-affine-state",
+    "test-affine-bytecode",
+    "test-verifier"
+  ],
+  "environment": {
+    "CC": "cc"
+  },
+  "status": 0,
+  "seconds": 2.5206241270061582
+}

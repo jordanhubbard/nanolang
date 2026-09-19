@@ -1,0 +1,21 @@
+# I refuse unqualified public C for-loop lowering
+
+I execute task_e0cdaf25cbfe4a11b053a4fd408ab0e0 after supported-type782 under original6ade's portable-lowering-or-checked-refusal requirement. This amended contract precedes production. My initial static finding was an iterator metadata leak: AST_FOR added its INT binding before pushing the body scope, then popped only the body scope. That observation did not establish that the emitted integer-count fallback was a valid source-language loop.
+
+## I distinguish normative iteration from my old fallback
+
+[SPECIFICATION section5.4](SPECIFICATION.md#54-for-loop) describes for iteration with `(range 0 10)`. My current parser retains that expression as AST_CALL. The interpreter at eval.c5797 recognizes exactly the two-argument range call, evaluates both INT bounds once, then iterates; its other paths handle array/list values. NanoVirt's AST_FOR lowering obtains an iterable value and uses ARR_LEN. Shared checker acceptance alone does not establish that a bare integer is an iterable.
+
+My public C special branch instead expects the removed TOKEN_RANGE prefix AST; its fallback emits zero-to-expression counted loops. Neither establishes ordinary bare-count source semantics. Canonical range calls already receive the retained-declaration refusal in this profile, while arrays and lists are separately outside its supported representations. I therefore choose explicit AST_FOR refusal for this bounded target instead of preserving an unqualified numeric loop or inventing a new iterator ABI. Canonical range syntax remains valid in its established producers; I do not alter the shared checker, parser, interpreter, NanoVirt or source specification.
+
+## I refuse before changing bindings or publishing output
+
+I add a direct profile diagnostic for AST_FOR at every reached declaration/statement/expression boundary and remove the dead prefix-range and numeric-count emitter branch. Refusal occurs before adding iterator metadata or emitting loop text, so it also removes the identified scope leak. My header and context inventory explicitly state that this public C profile does not lower for loops. I retain established WHILE/block scopes, real return/break/continue behavior, function-body expression lifting and its existing unsupported header refusals. I make no full portable-for or new source admission claim.
+
+I send production for review before fresh execution. Ordinary canonical `(range 0 3)` and bare-count `3` programs must reach the public C diagnostic and preserve existing output; their refusal phase is reported explicitly. I do not execute either rejected output or an old fallback artifact. API controls require both path and FILE output preservation, unchanged compiler binding/error-boundary state at the refusal point, and later valid same-process emission. Valid WHILE/block programs retain outer STRING and INT observations, nested shadow restoration and actual break/continue execution under strict GCC/Clang C99/C11 O0/O2 ASan/UBSan. Existing57 adjacent methods and seven ordinary C programs remain regression controls; the new profile is not a source-wide FOR restriction.
+
+I freeze full source/harness/tool identities, preserve first terminal outcomes and integrate canonical782 before final qualification. Original6ade remains open until its actual clause-to-evidence inventory is reviewed and merged. Broader range/iteration and shared language-policy obligations remain independent of this checked-refusal boundary.
+
+## I correct only a fixture's block-statement spelling
+
+My first frozen26a5 focused gates pass2/3 under each compiler: API bindings/output/recovery and canonical-range/bare-count backend refusal pass. The WHILE positive uses two standalone brace statements, which the parser refuses at the first LBRACE before C emission or execution. I preserve both first logs and unchanged50 file/three compiler identities. The adjacent57 methods pass GCC35.628s and Clang50.566s; seven existing C programs pass. Before changing the fixture, I record replacing only those braces with `if true { ... }`, a supported statement introducing the same lexical block. Expected output, loop exits and shadow observations stay unchanged. No production or source grammar changes are part of this correction; I freeze the corrected harness before fresh focused qualification.

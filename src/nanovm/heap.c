@@ -3,6 +3,7 @@
  */
 
 #include "heap.h"
+#include "../binary64_format.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -436,7 +437,7 @@ VmString *vm_string_from_int(VmHeap *heap, int64_t v) {
 
 VmString *vm_string_from_float(VmHeap *heap, double v) {
     char buf[64];
-    int len = snprintf(buf, sizeof(buf), "%g", v);
+    int len = nano_rt_f64_format(buf, sizeof(buf), v);
     if (len < 0 || (size_t)len >= sizeof(buf)) return NULL;
     return vm_string_new(heap, buf, (uint32_t)len);
 }
@@ -534,7 +535,7 @@ VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity
 
 /* Returns true on success, false if the array could not grow (overflow or
  * OOM). Callers MUST NOT write past a->length when this returns false. */
-static bool array_grow(VmArray *a) {
+static bool array_grow(VmHeap *heap, VmArray *a) {
     uint32_t new_cap = a->capacity ? a->capacity * 2 : 4;
     size_t esz = a->unboxed ? vm_array_elem_size(a->elem_type) : sizeof(NanoValue);
     /* capacity*2 wraps to 0 for a 2^31-element array; reject rather than
@@ -551,6 +552,7 @@ static bool array_grow(VmArray *a) {
         if (!new_elems) return false;
         a->elements = new_elems;
     }
+    heap->stats.allocated += (size_t)(new_cap - a->capacity) * esz;
     a->capacity = new_cap;
     return true;
 }
@@ -570,7 +572,7 @@ void vm_array_swap_scalar_storage(VmArray *a, VmArray *b) {
 bool vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
     if (!a) return false;
     if (a->length >= a->capacity) {
-        if (!array_grow(a)) return false;
+        if (!array_grow(heap, a)) return false;
     }
     if (a->unboxed) {
         packed_store(a, a->length, v);

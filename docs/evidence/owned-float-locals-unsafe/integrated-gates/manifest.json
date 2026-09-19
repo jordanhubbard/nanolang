@@ -1,0 +1,79 @@
+{
+  "source": "3e889b25d3513c291c2c0d951e98e9419dd11403",
+  "steps": [
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j2",
+        "-f",
+        "Makefile.gnu",
+        "-f",
+        "/tmp/nanolang-owned-float-locals-setup.mk",
+        "transitive-wrapper-setup"
+      ],
+      "status": 0,
+      "seconds": 26.772,
+      "log_sha256": "04578bea06a81e917552b2a013c9897a16440bbee841f29ee05a85e92a1ef9ae",
+      "tools_unchanged": false
+    },
+    {
+      "name": "focused-gcc",
+      "command": [
+        "python3",
+        "/tmp/nanolang-float-corrected-unittest.py",
+        "/tmp/nanolang-owned-float-locals-ready-gates/focused-gcc-producers.json",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_original_pattern",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_control_flow",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_in_borrowed_control_flow",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_refusals_preserve_publication",
+        "tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow"
+      ],
+      "status": 0,
+      "seconds": 191.566,
+      "log_sha256": "8074b1c3676b91c18d76ec0647ceb2c3111310c9904da8b1933c773ac778ae62",
+      "tools_unchanged": true,
+      "CC": "/usr/bin/gcc",
+      "compiler_sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+    },
+    {
+      "name": "focused-clang",
+      "command": [
+        "python3",
+        "/tmp/nanolang-float-corrected-unittest.py",
+        "/tmp/nanolang-owned-float-locals-ready-gates/focused-clang-producers.json",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_original_pattern",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_control_flow",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_in_borrowed_control_flow",
+        "tests.test_source_borrow_emission.SourceBorrowEmission.test_float_local_unsafe_refusals_preserve_publication",
+        "tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow"
+      ],
+      "status": 0,
+      "seconds": 184.014,
+      "log_sha256": "a87696939b6cc401637dca35f821fb986e63e0b6eb54b22b54d7cc83f01f8813",
+      "tools_unchanged": true,
+      "CC": "/tmp/nanolang-projection-clang",
+      "compiler_sha256": "e226ead12d4aecc2c631016f0652e810393d70af711b3214834587b2138e1df8"
+    },
+    {
+      "name": "runtime",
+      "command": [
+        "make",
+        "test-owned-binary64",
+        "test-owned-value-graphs",
+        "test-owned-value-results",
+        "test-consuming-calls",
+        "test-multiple-consuming-calls",
+        "test-owned-assertions"
+      ],
+      "status": 0,
+      "seconds": 49.774,
+      "log_sha256": "ca39e79c940ea8bd5506ebdda5d9a33974caa82a2aab3c9a93c694d4ef35076a",
+      "tools_unchanged": true
+    }
+  ],
+  "driver_status": 0,
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

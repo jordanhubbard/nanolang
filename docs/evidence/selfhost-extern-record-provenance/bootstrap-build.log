@@ -1,0 +1,40 @@
+mkdir -p obj/build_bootstrap
+mkdir -p obj
+mkdir -p obj/nanoisa
+mkdir -p obj/nanovirt
+mkdir -p obj/nanovm
+mkdir -p bin
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/main.c -o obj/nanovirt/main.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_protocol.c -o obj/nanovm/vmd_protocol.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_client.c -o obj/nanovm/vmd_client.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/main.c -o obj/nanovm/main.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/dump_main.c -o obj/nanoisa/dump_main.o
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c src/nanoisa/nvm2c_main.c -o obj/nanoisa/nvm2c_main.o
+python3 scripts/embed_managed_runtime.py --clang "clang" --opt "opt" --header obj/nanoisa/managed_runtime_ir.h --manifest obj/nanoisa/managed_runtime_ir.json
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c src/nanoisa/nvm2llvm_main.c -o obj/nanoisa/nvm2llvm_main.o
+[schema] Generating compiler schema artifacts...
+[schema] Using Python version (bootstrap)...
+mkdir -p obj/runtime
+mkdir -p obj/eval
+cc -std=c99 -O2 -Wall -Wextra -Werror -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -ldl
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-extern-record-provenance/scripts/embed_managed_runtime.py", line 88, in <module>
+    main()
+    ~~~~^^
+  File "/home/jkh/Src/nanolang-extern-record-provenance/scripts/embed_managed_runtime.py", line 79, in main
+    header, manifest, _ = generate(shlex.split(args.clang), shlex.split(args.opt))
+                          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-extern-record-provenance/scripts/embed_managed_runtime.py", line 42, in generate
+    invoke(clang + flags + [SOURCE, '-o', str(output)])
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-extern-record-provenance/scripts/embed_managed_runtime.py", line 23, in invoke
+    raise RuntimeError('I could not build or verify runtime IR: '+
+                       shlex.join(args)+'\n'+result.stdout+result.stderr)
+RuntimeError: I could not build or verify runtime IR: clang -std=c11 -O2 -ffreestanding -fno-builtin -fno-ident -Wall -Wextra -Werror -S -emit-llvm src/nanoisa/managed_module.c -o /tmp/nano-runtime-ir-c2skkyie/native.ll
+clang: error: future releases of the clang compiler will prefer GCC installations containing libstdc++ include directories; '/usr/lib/gcc/aarch64-linux-gnu/13' would be chosen over '/usr/lib/gcc/aarch64-linux-gnu/14' [-Werror,-Wgcc-install-dir-libstdcxx]
+
+make: *** [Makefile.gnu:4679: managed-runtime-package] Error 1
+make: *** Waiting for unfinished jobs....

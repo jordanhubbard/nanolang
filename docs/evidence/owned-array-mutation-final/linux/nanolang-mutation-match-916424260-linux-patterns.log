@@ -1,0 +1,18 @@
+test_empty_resource_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_empty_resource_pattern) ... ok
+test_existing_resource_examples (tests.test_owned_record_patterns.OwnedRecordPatterns.test_existing_resource_examples) ... ok
+test_initializer_evaluated_once (tests.test_owned_record_patterns.OwnedRecordPatterns.test_initializer_evaluated_once) ... ok
+test_invalid_patterns (tests.test_owned_record_patterns.OwnedRecordPatterns.test_invalid_patterns) ... ok
+test_nested_transfer_and_unsafe_scope (tests.test_owned_record_patterns.OwnedRecordPatterns.test_nested_transfer_and_unsafe_scope) ... ok
+test_ordinary_array_field_keeps_element_type (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_array_field_keeps_element_type) ... ok
+test_ordinary_inferred_field_and_alias (tests.test_owned_record_patterns.OwnedRecordPatterns.test_ordinary_inferred_field_and_alias) ... ok
+test_partial_move_is_not_destruction (tests.test_owned_record_patterns.OwnedRecordPatterns.test_partial_move_is_not_destruction) ... ok
+test_scalar_terminal_operation (tests.test_owned_record_patterns.OwnedRecordPatterns.test_scalar_terminal_operation) ... ok
+test_source_unavailable_after_pattern (tests.test_owned_record_patterns.OwnedRecordPatterns.test_source_unavailable_after_pattern) ... ok
+test_transferred_field_must_be_resolved (tests.test_owned_record_patterns.OwnedRecordPatterns.test_transferred_field_must_be_resolved) ... ok
+test_unsafe_pattern_keeps_outer_shadow (tests.test_owned_record_patterns.OwnedRecordPatterns.test_unsafe_pattern_keeps_outer_shadow) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 79.126s
+
+OK
+{"pin": "916424260d93f3f41ae4c630ea57b5dbadbde9ae", "phase": "patterns", "success": true, "testsRun": 12, "errors": 0, "failures": 0, "seconds": 79.70612662698841, "sources_unchanged": true, "head_unchanged": true}

@@ -39,6 +39,7 @@ static bool resource(const Facts *f, Slot slot) {
 }
 static bool supported(Slot slot) {
     return scalar(slot.tag) ||
+           (slot.tag == TAG_STRING && slot.layout == NVM_V2_NO_INDEX) ||
            (slot.tag == TAG_STRUCT && slot.layout != NVM_V2_NO_INDEX);
 }
 static bool same(Slot a, Slot b) {
@@ -147,7 +148,7 @@ static bool state_equal(const NvmAffineState *a, const NvmAffineState *b, bool m
         a->invocation!=b->invocation || a->origin_count!=b->origin_count) return false;
     for (uint16_t i=0;i<a->facts->count;i++) {
         Slot slot=a->facts->locals[i];
-        if (meet_scalars && !slot.mode && scalar(slot.tag)) continue;
+        if (meet_scalars && !slot.mode && (scalar(slot.tag) || slot.tag==TAG_STRING)) continue;
         if (a->live[i]!=b->live[i]) return false;
     }
     for (uint16_t i=0;i<a->origin_count;i++)
@@ -177,7 +178,7 @@ bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
     if (!state_equal(destination,incoming,true)) return false;
     for (uint16_t i=0;i<destination->facts->count;i++) {
         Slot slot=destination->facts->locals[i];
-        if (!slot.mode && scalar(slot.tag) && destination->live[i] && !incoming->live[i]) {
+        if (!slot.mode && (scalar(slot.tag) || slot.tag==TAG_STRING) && destination->live[i] && !incoming->live[i]) {
             destination->live[i]=false;*changed=true;
         }
     }
@@ -197,7 +198,9 @@ static bool resolve(const NvmAffineState *s,uint16_t local,const uint16_t *path,
         NvmV2LayoutField field=layout->fields[path[i]];
         slot=(Slot){field.type_tag,0,field.nested_idx};
     }
-    *out=slot; return scalar(slot.tag) || slot.layout!=NVM_V2_NO_INDEX;
+    *out=slot; return scalar(slot.tag) ||
+        (slot.tag==TAG_STRING && slot.layout==NVM_V2_NO_INDEX) ||
+        slot.layout!=NVM_V2_NO_INDEX;
 }
 bool nvm_affine_owner_access(const NvmAffineState *s,uint16_t local,
                               const uint16_t *path,uint16_t count,bool write) {
@@ -218,6 +221,11 @@ static bool destination(const NvmAffineState *s,uint16_t local) {
 bool nvm_affine_scalar_define(NvmAffineState *s,uint16_t local) {
     if (!destination(s,local) || !scalar(s->facts->locals[local].tag)) return false;
     s->live[local]=true; return true;
+}
+bool nvm_affine_string_define(NvmAffineState *s,uint16_t local) {
+    if (!destination(s,local) || s->facts->locals[local].tag!=TAG_STRING ||
+        s->facts->locals[local].layout!=NVM_V2_NO_INDEX) return false;
+    s->live[local]=true;return true;
 }
 bool nvm_affine_move(NvmAffineState *s,uint16_t from,uint16_t to) {
     if (from==to || !destination(s,to) || !nvm_affine_owner_access(s,from,NULL,0,true) ||
@@ -354,6 +362,17 @@ bool nvm_affine_scalar_field(const NvmAffineState *s,uint16_t local,
     if (!allowed) return false;
     *tag=layout->fields[field].type_tag; return true;
 }
+bool nvm_affine_string_field(const NvmAffineState *s,uint16_t local,
+                              uint16_t field,uint8_t *tag) {
+    if (!s || local>=s->facts->count || !s->live[local] || !tag) return false;
+    Slot root=s->facts->locals[local];
+    if (root.mode || root.layout==NVM_V2_NO_INDEX) return false;
+    const NvmV2Layout *layout=&s->facts->layouts.items[root.layout];
+    if (field>=layout->field_count || layout->fields[field].type_tag!=TAG_STRING ||
+        layout->fields[field].nested_idx!=NVM_V2_NO_INDEX ||
+        !nvm_affine_owner_access(s,local,&field,1,false)) return false;
+    *tag=TAG_STRING;return true;
+}
 bool nvm_affine_can_exit_scalar(const NvmAffineState *s,uint8_t tag) {
     if (!s || s->region || (tag!=TAG_VOID && !scalar(tag)) ||
         s->facts->result.tag!=tag) return false;
@@ -459,6 +478,98 @@ bool nvm_affine_parameter_at(const NvmAffineState *s,uint16_t parameter,
     *type=(NvmAffineType){param.tag,param.layout};*mode=(NvmReferenceMode)param.mode;
     return true;
 }
+/* I expand each reachable prior-index layout once. A larger parent index
+ * propagates its maximum depth before I visit the child, including shared DAGs. */
+static bool nested_result_tree(const Facts *facts,uint32_t root) {
+    uint8_t *depth=calloc((size_t)root+1,sizeof(*depth));
+    if (!depth) return false;
+    depth[root]=1;
+    for (uint32_t next=root+1;next>0;) {
+        uint32_t index=--next;
+        if (!depth[index]) continue;
+        const NvmV2Layout *layout=&facts->layouts.items[index];
+        if ((facts->flags[index]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))!=
+                (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE) ||
+            layout->kind!=NVM_V2_LAYOUT_STRUCT ||
+            layout->field_count>NVM_AFFINE_MAX_RESULT_FIELDS) goto refused;
+        for (uint16_t f=0;f<layout->field_count;f++) {
+            const NvmV2LayoutField *field=&layout->fields[f];
+            if (field->type_tag==TAG_STRUCT) {
+                uint32_t child=field->nested_idx;
+                if (child>=index || depth[index]>=NVM_AFFINE_MAX_RESULT_DEPTH)
+                    goto refused;
+                uint8_t child_depth=(uint8_t)(depth[index]+1);
+                if (depth[child]<child_depth) depth[child]=child_depth;
+            } else if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL &&
+                        field->type_tag!=TAG_U8 && field->type_tag!=TAG_STRING) || field->nested_idx!=NVM_V2_NO_INDEX)
+                goto refused;
+        }
+    }
+    free(depth);return true;
+refused:
+    free(depth);return false;
+}
+bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
+                              uint16_t *field_count) {
+    if (!s || !type || !field_count) return false;
+    Slot result=s->facts->result;
+    const NvmFunctionEntry *fn=&s->facts->module->functions[s->facts->function];
+    if (result.mode || fn->result_tag!=result.tag ||
+        fn->result_count!=(result.tag==TAG_VOID?0:1)) return false;
+    uint16_t fields=0;
+    if (result.tag==TAG_STRUCT) {
+        if (result.layout>=s->facts->layouts.count ||
+            (s->facts->flags[result.layout]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))!=
+                (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE)) return false;
+        const NvmV2Layout *layout=&s->facts->layouts.items[result.layout];
+        if (layout->kind!=NVM_V2_LAYOUT_STRUCT) return false;
+        bool nested=false;
+        for (uint16_t i=0;i<layout->field_count;i++) {
+            const NvmV2LayoutField *field=&layout->fields[i];
+            if (field->type_tag==TAG_STRUCT) nested=true;
+            else if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8 && field->type_tag!=TAG_STRING) ||
+                     field->nested_idx!=NVM_V2_NO_INDEX) return false;
+        }
+        /* I preserve the allocation-free scalar-leaf query. */
+        if (nested && !nested_result_tree(s->facts,result.layout)) return false;
+        fields=layout->field_count;
+    } else if ((result.tag!=TAG_VOID && result.tag!=TAG_INT &&
+                result.tag!=TAG_BOOL && result.tag!=TAG_U8) ||
+               result.layout!=NVM_V2_NO_INDEX) return false;
+    *type=(NvmAffineType){result.tag,result.layout};*field_count=fields;
+    return true;
+}
+
+bool nvm_affine_value_parameters(const NvmAffineState *s,NvmAffineType *types,
+                                  uint16_t capacity,uint16_t *count) {
+    if (!s || !types || !count || s->facts->params>NVM_AFFINE_MAX_PARAMETERS ||
+        s->facts->params>capacity || s->facts->params>s->facts->count) return false;
+    for (uint16_t p=0;p<s->facts->params;p++) {
+        Slot parameter=s->facts->locals[p];
+        if (parameter.mode) return false;
+        if (parameter.tag==TAG_STRUCT) {
+            if (!resource(s->facts,parameter) ||
+                !(s->facts->flags[parameter.layout]&NVM_LAYOUT_COMPLETE)) return false;
+        } else if (parameter.tag==TAG_STRING) {
+            if (parameter.layout!=NVM_V2_NO_INDEX) return false;
+        } else if (parameter.tag!=TAG_INT && parameter.tag!=TAG_BOOL && parameter.tag!=TAG_U8)
+            return false;
+    }
+    for (uint16_t p=0;p<s->facts->params;p++)
+        types[p]=(NvmAffineType){s->facts->locals[p].tag,s->facts->locals[p].layout};
+    *count=s->facts->params;
+    return true;
+}
+bool nvm_affine_consuming_parameters(const NvmAffineState *s,NvmAffineType *types,
+                                      uint16_t capacity,uint16_t *count) {
+    NvmAffineType checked[NVM_AFFINE_MAX_PARAMETERS];uint16_t length=0;
+    if (!types || !count || !nvm_affine_value_parameters(s,checked,NVM_AFFINE_MAX_PARAMETERS,&length) ||
+        length>capacity) return false;
+    bool owned=false;
+    for (uint16_t p=0;p<length;p++) if (checked[p].tag==TAG_STRUCT) owned=true;
+    if (!owned) return false;
+    memcpy(types,checked,length*sizeof(*types));*count=length;return true;
+}
 bool nvm_affine_owned_parameter_type(const NvmAffineState *s,NvmAffineType *type) {
     if (!s || !type || s->facts->params!=1 || !s->facts->count ||
         s->facts->locals[0].mode || !resource(s->facts,s->facts->locals[0]) ||
@@ -470,3 +581,9 @@ bool nvm_affine_parameter_type(const NvmAffineState *s,NvmAffineType *type,
                                  NvmReferenceMode *mode) {
     return s && s->facts->params==1 && nvm_affine_parameter_at(s,0,type,mode);
 }
+
+/* I keep mixed checked facts construction private; this query grants no execution. */
+#include "mixed_samples.inc"
+
+/* I compose private owner ARRAY lifetimes without changing shared admission. */
+#include "owned_array_authority.inc"

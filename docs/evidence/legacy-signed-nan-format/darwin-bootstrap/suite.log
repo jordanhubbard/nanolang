@@ -1,0 +1,63 @@
+test_exact_bits_and_captured_scalar_output (__main__.LegacySignedNan.test_exact_bits_and_captured_scalar_output) ... I retain legacy format artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-legacy-nan-nud62rnc
+ERROR
+test_generated_provider_identity (__main__.LegacySignedNan.test_generated_provider_identity) ... I retain legacy format artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-legacy-nan-wfwvsha7
+ok
+test_interpreter_array_and_generic_format (__main__.LegacySignedNan.test_interpreter_array_and_generic_format) ... I retain legacy format artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-legacy-nan-y3jbfek2
+ERROR
+
+======================================================================
+ERROR: test_exact_bits_and_captured_scalar_output (__main__.LegacySignedNan.test_exact_bits_and_captured_scalar_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-legacy-format-darwin-y0v1sloq/source/tests/test_legacy_signed_nan_format.py", line 51, in test_exact_bits_and_captured_scalar_output
+    self.assertEqual(self.command(ROOT/'bin/nano',path).stdout,expected)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-legacy-format-darwin-y0v1sloq/source/tests/test_legacy_signed_nan_format.py", line 44, in command
+    result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-legacy-format-darwin-y0v1sloq/source/bin/nano'
+
+======================================================================
+ERROR: test_interpreter_array_and_generic_format (__main__.LegacySignedNan.test_interpreter_array_and_generic_format)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-legacy-format-darwin-y0v1sloq/source/tests/test_legacy_signed_nan_format.py", line 86, in test_interpreter_array_and_generic_format
+    self.assertEqual(self.command(ROOT/'bin/nano',path).stdout,expected)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-legacy-format-darwin-y0v1sloq/source/tests/test_legacy_signed_nan_format.py", line 44, in command
+    result=subprocess.run(args,cwd=ROOT,capture_output=True,text=True,timeout=240)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-legacy-format-darwin-y0v1sloq/source/bin/nano'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.088s
+
+FAILED (errors=2)

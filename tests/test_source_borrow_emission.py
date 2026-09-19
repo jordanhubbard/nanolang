@@ -4,9 +4,28 @@ import os
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests/nanoisa/fixtures'
+
+
+def native_test_compiler():
+    return os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC', 'cc')
+
+
+class NativeTestCompilerSelection(unittest.TestCase):
+    def test_native_override_does_not_replace_driver_environment(self):
+        with mock.patch.dict(os.environ, {'CC': 'driver-cc'}, clear=True):
+            self.assertEqual(native_test_compiler(), 'driver-cc')
+        with mock.patch.dict(os.environ, {
+            'CC': 'driver-cc',
+            'NANO_NATIVE_TEST_CC': 'native-cc',
+        }, clear=True):
+            self.assertEqual(native_test_compiler(), 'native-cc')
+            self.assertEqual(os.environ['CC'], 'driver-cc')
+        with mock.patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(native_test_compiler(), 'cc')
 
 
 class SourceBorrowEmission(unittest.TestCase):
@@ -39,18 +58,23 @@ class SourceBorrowEmission(unittest.TestCase):
             raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
         return result
 
-    def execute_pair(self, module, expected=0):
+    def execute_pair(self, module, expected=0, expected_output=None):
         self.command(ROOT / 'bin/nano_vm', '--verify-only', module)
-        vm = self.command(ROOT / 'bin/nano_vm', module, expected=expected)
+        vm = subprocess.run([ROOT / 'bin/nano_vm', module], cwd=ROOT, capture_output=True, timeout=180)
+        self.assertEqual(vm.returncode, expected, vm.stdout + vm.stderr)
+        if expected_output is not None:
+            self.assertEqual(vm.stdout, expected_output)
         source, native = self.work / 'native.c', self.work / 'native'
         self.command(ROOT / 'bin/nvm2c', module, '-o', source)
-        self.command(os.environ.get('CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
+        self.command(native_test_compiler(), '-std=c11', '-Wall', '-Wextra', '-Werror',
                      '-fsanitize=address,undefined', '-fno-omit-frame-pointer', source, '-o', native)
-        result = subprocess.run([native], cwd=ROOT, capture_output=True, text=True, timeout=30,
+        result = subprocess.run([native], cwd=ROOT, capture_output=True, timeout=30,
                                 env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
         # My standalone wrapper maps internal assertion status 2 to exit status 1.
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
-        self.assertNotIn('Sanitizer', result.stderr)
+        self.assertNotIn(b'Sanitizer', result.stderr)
+        if expected_output is not None:
+            self.assertEqual(result.stdout, expected_output)
         if expected == 0:
             self.assertEqual(vm.stdout, result.stdout)
 
@@ -79,7 +103,7 @@ class SourceBorrowEmission(unittest.TestCase):
                 self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
                 self.execute_pair(module)
 
-    def names_and_strip(self, module):
+    def names_and_strip(self, module, expected_output=None):
         # My existing codec probe checks every PC boundary, metadata and exact
         # wire preservation through two canonical text cycles.
         records = self.command(ROOT / 'obj/test_local_bindings', module).stdout.splitlines()
@@ -92,8 +116,8 @@ class SourceBorrowEmission(unittest.TestCase):
         self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', stripped)
         self.assertEqual([line for line in self.command(ROOT / 'bin/nanoisa', 'dump', stripped).stdout.splitlines() if line],
                          [line for line in stripped_text.splitlines() if line])
-        self.execute_pair(module)
-        self.execute_pair(stripped)
+        self.execute_pair(module, expected_output=expected_output)
+        self.execute_pair(stripped, expected_output=expected_output)
         return [tuple(line.split()) for line in records]
 
     def test_borrowed_names_and_stripped_execution(self):
@@ -640,7 +664,7 @@ shadow main { assert true }
     def test_control_flow_refusals_preserve_publication(self):
         text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
         cases = {
-            'branch_float': text.replace('set total (+ total 2)', 'let value: float = 2.0'),
+            'branch_mixed_float': text.replace('set total (+ total 2)', 'let value: float = (+ 2.0 1)'),
             'loop_string': text.replace('set j 0', 'let value: string = "unsupported"'),
             'branch_owner': text.replace('set total (+ total 2)', 'let moved: Pair = root'),
             'branch_destructure': text.replace('set total (+ total 2)', 'let Pair { left, right } = root'),
@@ -956,9 +980,11 @@ shadow main { assert true }
                                     cwd=ROOT, capture_output=True, text=True, timeout=30)
             self.assertNotEqual(failed.returncode, 0)
             self.execute_pair(module, expected=1)
-            # My owned profile requires an actual transfer in entry.
-            refused = self.command(tool, source, 2, 'raw', expected=1)
-            self.assertIn('owned transfer', refused.stdout)
+            # My empty selected suffix has a proved owner-free scalar entry.
+            assembly.write_text(self.command(tool, source, 2, 'raw').stdout)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.command(ROOT / 'bin/nano_vm', '--check-shadows', module)
+            self.execute_pair(module)
 
     def test_false_borrowed_helper_cleans_actual_caller_owners(self):
         source = self.work / 'helper-assertion.nano'
@@ -1022,6 +1048,11 @@ shadow main { assert true }
                     output.write_bytes(b'previous verified publication')
                     result = subprocess.run([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output],
                                             cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    if label == 'scalar-only selected shadows' and compiler != 'nano_virt':
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertNotEqual(output.read_bytes(), b'previous verified publication')
+                        self.execute_pair(output)
+                        continue
                     self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                     self.assertGreater(result.returncode, 0, 'I require an ordinary reported refusal')
                     self.assertEqual(output.read_bytes(), b'previous verified publication')
@@ -1094,18 +1125,22 @@ shadow main { assert true }
             'moved': base.replace('return 0', 'assert (== (take item) 7) return 0'),
             'nominal': base.replace('let item: Leaf = Leaf {', 'let item: Other = Other {'),
             'unconsumed': base.replace('let Leaf { value, active } = owner return value', 'return owner.value'),
+            'mixed': base.replace('take(owner: Leaf)', 'take(owner: Leaf, view: &Leaf)')
+                .replace('assert (== (take item) 7)', 'let view: Leaf = Leaf { value: 1, active: true } assert (== (take item &view) 7) let Leaf { value, active } = view'),
+            'projected': base.replace('fn take', 'resource struct Pair { left: Leaf, right: Leaf }\nfn take', 1)
+                .replace('assert (== (take item) 7)', 'let second: Leaf = Leaf { value: 1, active: true } let pair: Pair = Pair { left: item, right: second } assert (== (take pair.left) 7)'),
+        }
+        positives = {
             'constructed': base.replace('let item: Leaf = Leaf { value: 7, active: true } assert (== (take item) 7)',
                                        'assert (== (take Leaf { value: 7, active: true }) 7)'),
             'deeper': base.replace('let Leaf { value, active } = owner return value', 'return (other owner)')
                 + 'fn other(owner: Leaf) -> int { let Leaf { value, active } = owner return value } shadow other { assert true }\n',
-            'mixed': base.replace('take(owner: Leaf)', 'take(owner: Leaf, view: &Leaf)')
-                .replace('assert (== (take item) 7)', 'let view: Leaf = Leaf { value: 1, active: true } assert (== (take item &view) 7) let Leaf { value, active } = view'),
             'two_owned': base.replace('take(owner: Leaf)', 'take(owner: Leaf, second: Leaf)')
                 .replace('let Leaf { value, active } = owner', 'let Leaf { value, active } = second let Leaf { value, active } = owner')
                 .replace('assert (== (take item) 7)', 'let second: Leaf = Leaf { value: 1, active: true } assert (== (take item second) 7)'),
-            'projected': base.replace('fn take', 'resource struct Pair { left: Leaf, right: Leaf }\nfn take', 1)
-                .replace('assert (== (take item) 7)', 'let second: Leaf = Leaf { value: 1, active: true } let pair: Pair = Pair { left: item, right: second } assert (== (take pair.left) 7)'),
         }
+        for name, text in positives.items():
+            self.graph_positive('former-' + name, text)
         for name, text in cases.items():
             source = self.work / ('consume-refusal-' + name + '.nano')
             source.write_text(text)
@@ -1122,6 +1157,602 @@ shadow main { assert true }
                     self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
                     self.assertRegex(result.stdout + result.stderr,
                                      r'(?i)owner|resource|consum|nominal|borrow|helper|parameter|live|type mismatch|expected|named')
+
+    def graph_positive(self, name, text, expected_output=None, expected_shadow_output=None):
+        source = self.work / ('graph-' + name + '.nano')
+        source.write_text(text)
+        baseline = None
+        for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+            module = self.work / (compiler + '-graph.nvm')
+            self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+            actual = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+            if baseline is None:
+                baseline = actual
+            self.assertEqual(actual, baseline)
+            self.names_and_strip(module, expected_output=expected_output)
+        for emitter in self.emitters:
+            assembly, module = self.work / 'graph.nasm', self.work / 'graph.nvm'
+            self.command(emitter, source, '-o', assembly)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.assertEqual(self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout, baseline)
+            self.execute_pair(module, expected_output=expected_output)
+        shadow_dump = None
+        for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+            args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+            assembly, module = self.work / 'graph-shadow.nasm', self.work / 'graph-shadow.nvm'
+            assembly.write_text(self.command(tool, *args).stdout)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            actual = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+            if shadow_dump is None:
+                shadow_dump = actual
+            self.assertEqual(actual, shadow_dump)
+            self.execute_pair(module, expected_output=expected_shadow_output)
+        return baseline, shadow_dump
+
+    def test_owned_value_graph_results_and_shadow_main(self):
+        text = (FIXTURES / 'source_owned_value_graph.nano').read_text()
+        baseline, shadow = self.graph_positive('factories', text)
+        self.assertIn('.function make_handle 0', baseline)
+        self.assertIn('struct 1', baseline)
+        self.assertIn('void 0', baseline)
+        self.assertIn('.function main 0', shadow)
+        self.assertIn('.function __nanoisa_shadow_entry 0', shadow)
+        for choice in ('true', 'false'):
+            changed = text.replace('return h', 'if ' + choice + ' { return h } else { (consume h) return (make_handle) }')
+            self.graph_positive('return-' + choice, changed)
+        # I retain every shadow, including a failure in an ordinary main call.
+        source = self.work / 'graph-failed-shadow.nano'
+        source.write_text(text.replace('assert (== (main) 0)', 'assert (== (main) 1)'))
+        for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+            output = self.work / 'graph-prior.nvm'
+            output.write_bytes(b'previous verified publication')
+            result = subprocess.run([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output],
+                                    cwd=ROOT, capture_output=True, text=True, timeout=180)
+            self.assertGreater(result.returncode, 0, result.stderr)
+            self.assertRegex(result.stdout + result.stderr, r'(?i)shadow|assert')
+            self.assertEqual(output.read_bytes(), b'previous verified publication')
+
+    def test_owned_value_graph_eight_frames(self):
+        text = 'resource struct Leaf { value: int }\n'
+        for index in range(1, 6):
+            target = 'factory' if index == 5 else 'relay' + str(index + 1)
+            text += f'fn relay{index}() -> Leaf {{ return ({target}) }} shadow relay{index} {{ assert true }}\n'
+        text += 'fn factory() -> Leaf { return Leaf { value: 42 } } shadow factory { assert true }\n'
+        text += 'fn main() -> int { let owner: Leaf = (relay1) let Leaf { value } = owner assert (== value 42) return 0 } shadow main { assert (== (main) 0) }\n'
+        _, shadow = self.graph_positive('eight-frames', text)
+        self.assertEqual(shadow.count('.function '), 8)
+
+    def test_owned_value_graph_eight_positional_arguments(self):
+        for swapped in (False, True):
+            left, right = ('Right', 'Left') if swapped else ('Left', 'Right')
+            text = 'resource struct Left { value: int } resource struct Right { value: int }\n'
+            text += f'fn consume(a: int, one: {left}, yes: bool, two: {right}, b: int, three: {left}, no: bool, four: {right}) -> void {{ '
+            text += 'assert (== a 7) assert yes assert (== b 9) assert (not no) '
+            for typ, name, expected in ((left, 'one', 1), (right, 'two', 2), (left, 'three', 3), (right, 'four', 4)):
+                text += f'let {typ} {{ value }} = {name} assert (== value {expected}) '
+            text += '} shadow consume { assert true }\nfn main() -> int { '
+            for typ, name, value in ((left, 'one', 1), (right, 'two', 2), (left, 'three', 3), (right, 'four', 4)):
+                text += f'let {name}: {typ} = {typ} {{ value: {value} }} '
+            text += '(consume (+ one.value 6) one true two 9 three false four) return 0 } shadow main { assert (== (main) 0) }\n'
+            baseline, _ = self.graph_positive('eight-args-' + str(swapped), text)
+            self.assertIn('.parameters 1 int struct bool struct int struct bool struct', baseline)
+
+    def test_owned_value_graph_refusals_preserve_output(self):
+        base = (FIXTURES / 'source_owned_value_graph.nano').read_text()
+        cases = {
+            'late_observation': base.replace('(forward 7 h true)', '(forward h.value h (== h.value 42))'),
+            'duplicate_move': base.replace('yes: bool', 'other: Handle').replace('assert yes', '(consume other)').replace('(forward 7 h true)', '(forward 7 h h)'),
+            'discard_result': base.replace('let k: Handle = (forward 7 h true)\n    (consume k)', '(forward 7 h true)'),
+            'wrong_return_nominal': base.replace('resource struct Handle', 'resource struct Other { value: int }\nresource struct Handle', 1).replace('return Handle { value: 42 }', 'return Other { value: 42 }'),
+            'unconsumed': base.replace('return h', 'return Handle { value: 42 }'),
+            'constructed_actual': base.replace('(forward 7 h true)', '(forward 7 Handle { value: 42 } true)'),
+            'missing_result': base.replace('return h', 'let Handle { value } = h'),
+            'scalar_result': base.replace('return h', 'let Handle { value } = h return value'),
+            'cycle': base.replace('return Handle { value: 42 }', 'return (make_handle)'),
+            'function_shadow': base.replace('(consume k)\n    return 0', 'let consume: int = 1 (consume k)\n    return 0'),
+            'too_many_functions': base + ''.join(f'fn extra{i}() -> int {{ return 1 }} shadow extra{i} {{ assert true }}\n' for i in range(5)),
+        }
+        for name, text in cases.items():
+            source = self.work / ('graph-refused-' + name + '.nano')
+            source.write_text(text)
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler):
+                    output = self.work / 'graph-refused.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|consum|nominal|result|return|live|type|expected|named|function|graph|shadow|call|exact constructor')
+
+    def test_owned_local_routing_and_shadow_only_admission(self):
+        local = 'resource struct Leaf { value: int }\nfn main() -> int { let owner: Leaf = Leaf { value: 3 } let Leaf { value } = owner assert (== value 3) return 0 }\nshadow main { let owner: Leaf = Leaf { value: 7 } let Leaf { value } = owner assert (== value 7) }\n'
+        baseline, _ = self.graph_positive('local-only', local)
+        self.assertIn('OWN_PACK', baseline)
+        self.assertIn('.ownership', baseline)
+        shadow_only = local.replace('let owner: Leaf = Leaf { value: 3 } let Leaf { value } = owner assert (== value 3) ', '')
+        source = self.work / 'shadow-only-owner.nano'
+        source.write_text(shadow_only)
+        shadow_dump = None
+        for tool in [ROOT / 'obj/borrow_shadow_names', *self.shadow_tools]:
+            args = (source,) if tool.name == 'borrow_shadow_names' else (source, 0, 'raw')
+            assembly, module = self.work / 'only-shadow.nasm', self.work / 'only-shadow.nvm'
+            assembly.write_text(self.command(tool, *args).stdout)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            actual = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+            self.assertIn('OWN_PACK', actual)
+            if shadow_dump is None:
+                shadow_dump = actual
+            self.assertEqual(actual, shadow_dump)
+            self.execute_pair(module)
+        for label, text in [('no-transfer', shadow_only), ('global', local + '\nlet global_owner: Leaf = Leaf { value: 2 }\n')]:
+            source.write_text(text)
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=label, compiler=compiler):
+                    output = self.work / 'routing-preserved.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    if label == 'no-transfer' and compiler.name in ('nanoc_stage1', 'nanoc_stage2'):
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertNotEqual(output.read_bytes(), b'previous verified publication')
+                        self.execute_pair(output)
+                        failed_source = self.work / 'failed-owned-shadow.nano'
+                        self.assertIn('assert (== value 7)', text)
+                        failed_source.write_text(text.replace('assert (== value 7)', 'assert false'))
+                        output.write_bytes(b'previous verified publication')
+                        failed = subprocess.run([compiler, failed_source, '--emit-nvm', '-o', output],
+                                                cwd=ROOT, capture_output=True, text=True, timeout=180)
+                        self.assertGreater(failed.returncode, 0, failed.stdout + failed.stderr)
+                        self.assertIn('shadow', (failed.stdout + failed.stderr).lower())
+                        self.assertEqual(output.read_bytes(), b'previous verified publication')
+                        continue
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|owned|global|transfer')
+
+    def test_inline_owner_wrappers_refuse_without_ordinary_fallback(self):
+        cases = {
+            'tuple': 'let wrapped: (int, Leaf) = (2, Leaf { value: 1 })',
+            'array': 'let wrapped: array<Leaf> = [Leaf { value: 1 }]',
+            'field': 'let wrapped: int = Leaf { value: 1 }.value',
+            'call': 'let wrapped: int = (unknown Leaf { value: 1 })',
+            'set': 'let mut wrapped: int = 0 set wrapped Leaf { value: 1 }',
+        }
+        for name, body in cases.items():
+            source = self.work / ('inline-owner-' + name + '.nano')
+            source.write_text('resource struct Leaf { value: int }\nfn main() -> int { ' + body + ' return 0 } shadow main { assert true }\n')
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler):
+                    output = self.work / 'inline-prior.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|scalar|exact|call|type|borrow|live|field')
+                    if compiler in self.emitters:
+                        self.assertIn('source borrow profile', result.stdout + result.stderr)
+
+    def test_owned_value_graph_multiple_nested_owners(self):
+        baseline, _ = self.graph_positive('nested-values', (FIXTURES / 'source_owned_value_nested.nano').read_text())
+        self.assertIn('.parameters 1 struct struct int', baseline)
+        self.assertGreaterEqual(baseline.count('OWN_UNPACK_LOCAL'), 3)
+
+
+    def test_owned_string_unchanged_affine_example(self):
+        text = (ROOT / 'examples/language/nl_affine_resource_demo.nano').read_text()
+        baseline, shadows = self.graph_positive(
+            'affine-demo-unchanged', text,
+            b'audit.log\nresource closed\n',
+            b'audit.log\nresource closed\nresource closed\naudit.log\nresource closed\n')
+        self.assertIn('string', baseline)
+        self.assertIn('PRINTLN', shadows)
+
+    def owned_string_fixture(self):
+        return r'''resource struct Leaf { value: int }
+fn write(text: string, owner: Leaf, tail: string, number: int, yes: bool) -> void {
+    (print text)
+    (println tail)
+    let Leaf { value } = owner
+    assert (== value number)
+    assert yes
+}
+shadow write { assert true }
+fn forward(text: string, owner: Leaf) -> void {
+    (write text owner "" 7 true)
+}
+shadow forward { assert true }
+fn main() -> int {
+    let owner: Leaf = Leaf { value: 7 }
+    (forward "A\tB\rC\n\"\'\\0\q café" owner)
+    (print "")
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+
+    def test_owned_string_exact_bytes_and_forwarding(self):
+        text = self.owned_string_fixture().replace(' café', ' \x01\x7f café')
+        expected = b'A\tB\rC\n"\'\\0\\q \x01\x7f caf\xc3\xa9\n'
+        # My raw source contains an escaped backslash before zero; it never
+        # is a decoded NUL. Unknown escapes retain their backslash.
+        self.graph_positive('string-bytes', text, expected, expected)
+
+    def test_owned_string_refusals_preserve_publication(self):
+        base = self.owned_string_fixture()
+        cases = {
+            'nul': base.replace('A\\tB', 'A\\0B'),
+            'field': base.replace('value: int', 'value: string').replace('value: 7', 'value: "seven"'),
+            'operation': base.replace('(print text)', '(print (str_concat text "!"))'),
+            'argument': base.replace('owner "" 7 true', 'owner 1 7 true'),
+            'result': base.replace('-> void {\n    (print text)', '-> string {\n    (print text)').replace('assert yes\n}', 'assert yes return text\n}'),
+            'print_binding': base.replace('(print "")', 'let print: int = 2 (print "")'),
+            'false_shadow': base.replace('shadow write { assert true }', 'shadow write { assert false }'),
+        }
+        for name, text in cases.items():
+            source = self.work / ('string-refused-' + name + '.nano')
+            source.write_text(text)
+            compilers = [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')]
+            if name != 'false_shadow':
+                compilers += self.emitters
+            for compiler in compilers:
+                with self.subTest(case=name, compiler=compiler.name):
+                    output = self.work / 'string-refused.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)string|scalar|field|type|argument|shadow|assert|source borrow|call|builtin')
+
+    def test_owned_string_output_precedes_assertion_cleanup(self):
+        text = self.owned_string_fixture().replace('assert yes', 'assert false')
+        source = self.work / 'string-assert.nano'
+        source.write_text(text)
+        for emitter in self.emitters:
+            assembly, module = self.work / 'string-assert.nasm', self.work / 'string-assert.nvm'
+            self.command(emitter, source, '-o', assembly)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.execute_pair(module, expected=1,
+                              expected_output=b'A\tB\rC\n"\'\\0\\q caf\xc3\xa9\n')
+
+
+    def temporary_owner_fixture(self):
+        return r'''resource struct Leaf { value: int }
+fn scalar(value: int, text: string) -> int { (print text) return value }
+shadow scalar { assert true }
+fn make(value: int, text: string) -> Leaf { (print text) return Leaf { value: value } }
+shadow make { assert true }
+fn forward(owner: Leaf) -> Leaf { return owner }
+shadow forward { assert true }
+fn take(first: Leaf, second: Leaf, last: int) -> int {
+    let Leaf { value } = first
+    let left: int = value
+    let Leaf { value } = second
+    assert (== last 3)
+    return (+ left value)
+}
+shadow take { assert true }
+fn main() -> int {
+    for index in (range 0 3) {
+        assert (== (take Leaf { value: (scalar 1 "A") } (forward (make 2 "B")) (scalar 3 "C")) 3)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+
+    def test_float_local_unsafe_original_pattern(self):
+        from tests.test_owned_record_patterns import OwnedRecordPatterns, PREFIX
+        cases = []
+        def capture(source, accepted, stdout=None, diagnostic=None, prefix=PREFIX):
+            self.assertTrue(accepted)
+            cases.append(prefix + source)
+        original = OwnedRecordPatterns()
+        original.check_case = capture
+        original.test_unsafe_pattern_keeps_outer_shadow()
+        self.assertEqual(len(cases), 1)
+        self.graph_positive('float-unsafe-original', cases[0])
+
+    def test_float_local_unsafe_control_flow(self):
+        from tests.test_owned_record_patterns import PREFIX
+        text = PREFIX + """fn worker(owned: Handle, stop: bool) -> int {
+    let mut value: float = 1.5
+    let copy: float = value
+    while false { unsafe { set value 99.0 } }
+    let mut index: int = 0
+    while (< index 3) {
+        unsafe {
+            set index (+ index 1)
+            if stop { break }
+            set value (+ value 1.0)
+            continue
+        }
+    }
+    assert (== copy 1.5)
+    if stop { assert (== value 1.5) } else { assert (== value 4.5) }
+    unsafe {
+        let value: float = (- 2.5)
+        assert (< value 0.0)
+        let mut inf: float = 10000000000.0
+        set inf (* inf inf)
+        set inf (* inf inf)
+        set inf (* inf inf)
+        set inf (* inf inf)
+        set inf (* inf inf)
+        let nan: float = (- inf inf)
+        assert (!= nan nan)
+        assert (not (<= nan 1.0))
+        assert (not (>= nan 1.0))
+        return (close owned)
+    }
+}
+shadow worker { assert (== (worker Handle { fd: 7 } true) 7) }
+fn main() -> int {
+    assert (== (worker Handle { fd: 8 } false) 8)
+    assert (== (worker Handle { fd: 9 } true) 9)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+"""
+        self.graph_positive('float-unsafe-control', text)
+
+    def test_float_local_in_borrowed_control_flow(self):
+        text = (FIXTURES / 'source_borrow_control_flow.nano').read_text()
+        text = text.replace('set total (+ total 2)',
+                            'let value: float = 2.0 assert (== value 2.0) set total (+ total 2)')
+        self.graph_positive('float-borrowed-branch', text)
+
+    def test_float_local_unsafe_refusals_preserve_publication(self):
+        from tests.test_owned_record_patterns import PREFIX
+        base = PREFIX + """fn main() -> int {
+    let value: float = 2.5
+    unsafe { assert (== (close Handle { fd: 42 }) 42) }
+    assert (== value 2.5)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+"""
+        cases = {
+            'false-shadow': base.replace('shadow main { assert (== (main) 0) }', 'shadow main { assert false }'),
+            'mixed-tag': base.replace('(== value 2.5)', '(== (+ value 1) 3.5)'),
+            'escaped-name': base.replace('unsafe { assert', 'unsafe { let inner: float = 1.5 assert').replace('(== value 2.5)', '(== inner 1.5)'),
+        }
+        for label, text in cases.items():
+            source = self.work / (label + '.nano')
+            source.write_text(text)
+            for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                with self.subTest(case=label, compiler=compiler):
+                    output = self.work / 'float-refused.nvm'
+                    output.write_bytes(b'previous verified publication')
+                    result = subprocess.run([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output],
+                                            cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    if label == 'false-shadow':
+                        self.assertIn('shadow', (result.stdout + result.stderr).lower())
+
+    def test_temporary_owners_restore_original_pattern_sources(self):
+        from tests.test_owned_record_patterns import OwnedRecordPatterns, PREFIX
+        cases = []
+        def capture(source, accepted, stdout=None, diagnostic=None, prefix=PREFIX):
+            self.assertTrue(accepted)
+            cases.append((prefix + source, stdout))
+        original = OwnedRecordPatterns()
+        original.check_case = capture
+        original.test_scalar_terminal_operation()
+        original.test_empty_resource_pattern()
+        original.test_initializer_evaluated_once()
+        cases.append(((ROOT / 'tests/test_resource_tracking.nano').read_text(), None))
+        for index, (text, output) in enumerate(cases):
+            with self.subTest(original_case=index):
+                self.graph_positive('original-pattern-' + str(index), text,
+                                    None if output is None else output.encode())
+
+    def test_temporary_owner_actuals_preserve_order_and_roots(self):
+        baseline, shadows = self.graph_positive(
+            'temporary-actuals', self.temporary_owner_fixture(), b'ABCABCABC', b'ABCABCABC')
+        self.assertIn('OWN_PACK', baseline)
+        self.assertIn('.function forward', shadows)
+
+    def test_temporary_owner_factory_failure_cleans_prepared_arguments(self):
+        text = self.temporary_owner_fixture().replace(
+            '(print text) return Leaf', '(print text) assert false return Leaf')
+        source = self.work / 'temporary-factory-failure.nano'
+        source.write_text(text)
+        for emitter in self.emitters:
+            assembly, module = self.work / 'temporary-failure.nasm', self.work / 'temporary-failure.nvm'
+            self.command(emitter, source, '-o', assembly)
+            self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
+            self.execute_pair(module, expected=1, expected_output=b'AB')
+
+    def test_temporary_owner_actual_refusals_preserve_output(self):
+        base = self.temporary_owner_fixture()
+        cases = {
+            'constructor_nominal': base.replace('fn scalar', 'resource struct Other { value: int }\nfn scalar', 1)
+                .replace('take Leaf { value:', 'take Other { value:'),
+            'factory_nominal': base.replace('fn scalar', 'resource struct Other { value: int }\nfn scalar', 1)
+                .replace('-> Leaf { (print text) return Leaf', '-> Other { (print text) return Other'),
+            'missing_field': base.replace('Leaf { value: (scalar 1 "A") }', 'Leaf {}'),
+            'duplicate_field': base.replace('Leaf { value: (scalar 1 "A") }', 'Leaf { value: 1, value: 2 }'),
+        }
+        for name, text in cases.items():
+            source = self.work / ('temporary-refused-' + name + '.nano')
+            source.write_text(text)
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler.name):
+                    output = self.work / 'temporary-refused.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|resource|nominal|field|type|expected|duplicate|exact owned call result')
+                    if name == 'factory_nominal' and compiler in self.emitters:
+                        self.assertIn('exact nominal owned call result', result.stdout + result.stderr)
+                        self.assertNotIn('exact positional scalar argument', result.stdout + result.stderr)
+
+    def test_transitive_wrappers_restore_unchanged_affine_integration(self):
+        text = (ROOT / 'tests/test_affine_integration.nano').read_text()
+        baseline, shadows = self.graph_positive('transitive-original', text, b'File closed\n' * 5)
+        self.assertIn('Connection', baseline)
+        self.assertIn('OWN_PACK', baseline)
+        self.assertIn('OWN_UNPACK_LOCAL', shadows)
+
+    def transitive_wrapper_fixture(self):
+        return '''resource struct Leaf { value: int }
+struct Inner { leaf: Leaf, yes: bool }
+struct Outer { inner: Inner, extra: int }
+fn scalar(value: int, text: string) -> int { (print text) return value }
+shadow scalar { assert true }
+fn take(owner: Outer) -> int {
+    let Outer { inner, extra } = owner
+    let Inner { leaf, yes } = inner
+    let Leaf { value } = leaf
+    assert yes
+    return (+ value extra)
+}
+shadow take { assert true }
+fn main() -> int {
+    for index in (range 0 1) {
+        let leaf: Leaf = Leaf { value: (scalar 7 "A") }
+        let inner: Inner = Inner { leaf: leaf, yes: true }
+        let owner: Outer = Outer { inner: inner, extra: (scalar 9 "B") }
+        assert (== (take owner) 16)
+        let second_leaf: Leaf = Leaf { value: (scalar 7 "A") }
+        let second_inner: Inner = Inner { leaf: second_leaf, yes: true }
+        assert (== (take Outer { inner: second_inner, extra: (scalar 9 "B") }) 16)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+
+    def test_transitive_wrapper_arguments_preserve_once_order_and_children(self):
+        baseline, shadows = self.graph_positive('transitive-arguments', self.transitive_wrapper_fixture(), b'ABAB', b'ABAB')
+        self.assertIn('.ownership', baseline)
+        self.assertIn('.parameters 2 struct', baseline)
+        self.assertGreaterEqual(shadows.count('OWN_UNPACK_LOCAL'), 3)
+
+    def test_transitive_wrapper_refusals_preserve_output(self):
+        base = self.transitive_wrapper_fixture()
+        cases = {
+            'wrong_nominal': base.replace('struct Outer', 'struct Other { leaf: Leaf, yes: bool }\nstruct Outer', 1)
+                .replace('let inner: Inner = Inner', 'let inner: Other = Other'),
+            'inline_child': base.replace('leaf: leaf, yes:', 'leaf: Leaf { value: 7 }, yes:', 1),
+            'missing_field': base.replace(', extra: (scalar 9 "B")', ''),
+            'duplicate_field': base.replace('yes: true', 'yes: true, yes: false'),
+            'managed_string_order': base.replace('extra: int', 'extra: string').replace('extra: (scalar 9 "B")', 'extra: "B"')
+                .replace('return (+ value extra)', 'assert (< extra "Z") return value'),
+            'managed_array': base.replace('extra: int', 'extra: array<float>').replace('extra: (scalar 9 "B")', 'extra: [1.5]')
+                .replace('return (+ value extra)', 'return value'),
+            'forward_child': base.replace('resource struct Leaf { value: int }\nstruct Inner { leaf: Leaf, yes: bool }',
+                'struct Inner { leaf: Leaf, yes: bool }\nresource struct Leaf { value: int }'),
+        }
+        for name, text in cases.items():
+            source = self.work / ('transitive-refused-' + name + '.nano')
+            source.write_text(text)
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler.name):
+                    output = self.work / 'transitive-refused.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    diagnostic = r'(?i)owner|resource|nominal|field|type|expected|duplicate|exact|earlier'
+                    if name == 'managed_string_order':
+                        diagnostic += r'|I require a supported scalar operator in my source borrow profile'
+                    self.assertRegex(result.stdout + result.stderr, diagnostic)
+
+
+    def nested_owner_result_source(self):
+        return '''resource struct Leaf { value: int }
+struct Inner { leaf: Leaf, yes: bool }
+struct Outer { inner: Inner, extra: int }
+fn scalar(value: int, text: string) -> int { (print text) return value }
+shadow scalar { assert true }
+fn make(flag: bool) -> Outer {
+    let leaf: Leaf = Leaf { value: (scalar 7 "A") }
+    let inner: Inner = Inner { leaf: leaf, yes: true }
+    let owner: Outer = Outer { inner: inner, extra: (scalar 9 "B") }
+    if flag { return owner } else { return owner }
+}
+shadow make { assert true }
+fn relay(owner: Outer) -> Outer { return owner }
+shadow relay { assert true }
+fn take(owner: Outer) -> int {
+    let Outer { inner, extra } = owner
+    let Inner { leaf, yes } = inner
+    let Leaf { value } = leaf
+    assert yes
+    return (+ value extra)
+}
+shadow take { assert true }
+fn main() -> int {
+    for index in (range 0 2) {
+        let owner: Outer = (relay (make (== index 0)))
+        assert (== (take owner) 16)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+
+    def test_nested_owner_results_preserve_exact_transfer_and_order(self):
+        baseline, shadows = self.graph_positive('nested-owner-results', self.nested_owner_result_source(), b'ABAB', b'ABAB')
+        self.assertIn('.parameters 3 struct', baseline)
+        self.assertIn('struct 1', baseline)
+        self.assertGreaterEqual(shadows.count('OWN_UNPACK_LOCAL'), 3)
+
+    def test_nested_owner_result_refusals_preserve_output(self):
+        base = self.nested_owner_result_source()
+        cases = {
+            'wrong_result': base.replace('if flag { return owner } else { return owner }',
+                'if flag { return 7 } else { return owner }'),
+            'same_shape_nominal': base.replace('struct Outer',
+                'struct Other { inner: Inner, extra: int }\nstruct Outer', 1)
+                .replace('let owner: Outer = Outer', 'let owner: Other = Other', 1),
+            'unconsumed_sibling': base.replace('if flag { return owner }',
+                'let sibling: Leaf = Leaf { value: 99 }\n    if flag { return owner }', 1),
+            'use_after_transfer': base.replace('assert (== (take owner) 16)',
+                'assert (== (take owner) 16)\n        assert (== (take owner) 16)'),
+        }
+        for name, text in cases.items():
+            source = self.work / ('nested-result-refused-' + name + '.nano')
+            source.write_text(text)
+            for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:
+                with self.subTest(case=name, compiler=compiler.name):
+                    output = self.work / 'nested-result-refused.output'
+                    output.write_bytes(b'previous verified publication')
+                    args = [compiler, source]
+                    if compiler not in self.emitters:
+                        args.append('--emit-nvm')
+                    result = subprocess.run([*args, '-o', output], cwd=ROOT, capture_output=True, text=True, timeout=180)
+                    self.assertGreater(result.returncode, 0, result.stderr)
+                    self.assertEqual(output.read_bytes(), b'previous verified publication')
+                    self.assertNotRegex(result.stdout + result.stderr, r'(?i)parse (?:error|failed)|unexpected token')
+                    self.assertRegex(result.stdout + result.stderr, r'(?i)owner|owned|resource|nominal|field|type|expected|exact|consum|live|move')
 
 
 if __name__ == '__main__':

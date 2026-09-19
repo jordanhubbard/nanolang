@@ -1,0 +1,9 @@
+{
+  "pin": "9f7ead937f983e6441f113488534835a046b2781",
+  "phase": "eval-corrected2",
+  "success": false,
+  "error": "RuntimeError('eval failed with 1')",
+  "seconds": 1.2502093689981848,
+  "sources_unchanged": true,
+  "head_unchanged": true
+}

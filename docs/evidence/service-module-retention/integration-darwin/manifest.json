@@ -1,0 +1,38 @@
+{
+  "pin": "2b268c386835883fa8cab71296838a2229b656c4",
+  "bootstrap_reference": "c34c7324f48522656c27f9cdd84489634634bd81",
+  "NMS_NATIVE_CLANG_FLAGS": "",
+  "steps": [
+    {
+      "name": "darwin",
+      "command": [
+        "make",
+        "-j8",
+        "test-service-module"
+      ],
+      "env": {
+        "NANO_SERVICE_MODULE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang"
+      },
+      "status": 0,
+      "seconds": 8.961,
+      "log_sha256": "aff22ae688e9d7598b41599f57c2c8aca74871042aa7b88bc7536d66de8bbaea"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-nvm-v2-module",
+        "test-nvm-v2-convert",
+        "test-verifier-profiles"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 8.561,
+      "log_sha256": "9068e14885362521d8357dd77dff8b34b63b92d96b01ad3ce6dc9528c8c5a8c9"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

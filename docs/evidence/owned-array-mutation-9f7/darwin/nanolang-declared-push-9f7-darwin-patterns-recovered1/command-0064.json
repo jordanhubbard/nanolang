@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/private/tmp/nanolang-declared-push-9f7ead937/bin/nanoc_c",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-iqsm11gp/case.nano",
+    "-o",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-iqsm11gp/program"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

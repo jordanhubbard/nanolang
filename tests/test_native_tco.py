@@ -99,6 +99,146 @@ fn main() -> int { (descend 10) return 0 }
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_array_parameter_metadata_and_deep_recursion(self):
+        source = '''
+fn rotate(n: int, left: array<int>, right: array<int>) -> int {
+    if (== n 0) {
+        return (+ (* (array_get left 0) 10) (array_get right 0))
+    }
+    return (rotate (- n 1) right left)
+}
+shadow rotate {
+    assert (== (rotate 3 [2] [7]) 72)
+}
+fn main() -> int {
+    assert (== (rotate 200000 [2] [7]) 27)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        self.assertEqual(self.compile_run(source, optimize=True), "")
+
+    def test_record_and_tuple_parameters(self):
+        self.check_both('''
+struct Pair { left: int, right: int }
+fn records(n: int, first: Pair, second: Pair) -> int {
+    if (== n 0) { return (+ (* first.left 10) second.right) }
+    return (records (- n 1) second first)
+}
+fn tuples(n: int, first: (int, int), second: (int, int)) -> int {
+    if (== n 0) { return (+ (* first.0 10) second.1) }
+    return (tuples (- n 1) second first)
+}
+shadow records {
+    assert (== (records 1 Pair { left: 2, right: 3 }
+                              Pair { left: 7, right: 8 }) 73)
+}
+shadow tuples { assert (== (tuples 1 (2, 3) (7, 8)) 73) }
+fn main() -> int {
+    assert (== (records 2 Pair { left: 2, right: 3 }
+                              Pair { left: 7, right: 8 }) 28)
+    assert (== (tuples 2 (2, 3) (7, 8)) 28)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_function_parameter_and_callable_expression(self):
+        self.check_both('''
+fn increment(value: int) -> int { return (+ value 1) }
+shadow increment { assert (== (increment 3) 4) }
+fn double(value: int) -> int { return (* value 2) }
+shadow double { assert (== (double 3) 6) }
+fn apply_tail(n: int, operation: fn(int) -> int,
+              next_operation: fn(int) -> int, value: int) -> int {
+    if (== n 0) { return value }
+    return (apply_tail (- n 1) next_operation operation (operation value))
+}
+shadow apply_tail { assert (== (apply_tail 4 increment double 1) 10) }
+fn main() -> int {
+    assert (== (apply_tail 20 increment double 1) 3070)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_parameter_shadowing_is_lexical(self):
+        self.check_both('''
+fn shadowed(n: int, value: int) -> int {
+    if (== n 0) {
+        let outer_value: int = value
+        let value: int = (+ outer_value 5)
+        if true { let n: int = (+ value 1) assert (== n (+ value 1)) }
+        return value
+    }
+    if true {
+        let outer_value: int = value
+        let value: int = (+ outer_value 100)
+        assert (> value 100)
+    }
+    return (shadowed (- n 1) (+ value 2))
+}
+shadow shadowed { assert (== (shadowed 3 1) 12) }
+fn main() -> int { assert (== (shadowed 4 2) 15) return 0 }
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_tail_return_inside_while_preserves_loop_control(self):
+        self.check_both('''
+fn through_while(n: int, total: int) -> int {
+    if (== n 0) { return total }
+    let mut i: int = 0
+    while (< i 4) {
+        set i (+ i 1)
+        if (== i 1) { continue }
+        if (== i 2) { return (through_while (- n 1) (+ total i)) }
+        break
+    }
+    return -999
+}
+shadow through_while { assert (== (through_while 4 1) 9) }
+fn main() -> int { assert (== (through_while 20 0) 40) return 0 }
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_tail_return_inside_for_preserves_loop_control(self):
+        self.check_both('''
+fn through_for(n: int, total: int) -> int {
+    if (== n 0) { return total }
+    for i in (range 0 5) {
+        if (== i 0) { continue }
+        if (== i 2) { return (through_for (- n 1) (+ total i)) }
+    }
+    return -999
+}
+shadow through_for { assert (== (through_for 4 1) 9) }
+fn main() -> int { assert (== (through_for 20 0) 40) return 0 }
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_tail_return_propagates_through_nested_loops(self):
+        self.check_both('''
+fn nested(n: int, total: int) -> int {
+    if (== n 0) { return total }
+    for outer in (range 0 3) {
+        if (== outer 0) { continue }
+        let mut inner: int = 0
+        while (< inner 3) {
+            set inner (+ inner 1)
+            if (== inner 1) { continue }
+            if (== inner 2) {
+                return (nested (- n 1) (+ total (+ outer inner)))
+            }
+        }
+        break
+    }
+    return -999
+}
+shadow nested { assert (== (nested 3 1) 10) }
+fn main() -> int { assert (== (nested 12 0) 36) return 0 }
+shadow main { assert (== (main) 0) }
+''')
+
     def test_million_tail_calls(self):
         self.assertEqual(self.compile_run((ROOT / "tests/tco_test.nano").read_text(),
                                          optimize=True),

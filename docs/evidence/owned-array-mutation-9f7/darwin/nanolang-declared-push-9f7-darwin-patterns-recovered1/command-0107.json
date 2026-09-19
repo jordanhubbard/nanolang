@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/private/tmp/nanolang-declared-push-9f7ead937/bin/nano_virt",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-98_c06o9/case.nano",
+    "-o",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-98_c06o9/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 1,
+  "stdout": "",
+  "stderr": "I cannot verify affine ownership at line 5, column 62: resource remains live at scope exit \u2014 file\nWarning at line 5, column 33: Unused variable 'file'\nWarning: Function 'bad' is missing a shadow test\nerror: type check failed\n"
+}

@@ -1,0 +1,6 @@
+test_refusals_preserve_outputs (tests.test_reconstruction_f64_arithmetic.FloatArithmetic.test_refusals_preserve_outputs) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.484s
+
+OK

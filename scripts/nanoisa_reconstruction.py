@@ -1,5 +1,6 @@
 """I recover a bounded typed region tree; both emitters consume that tree."""
 from dataclasses import dataclass, field
+from pathlib import Path
 
 
 class Refusal(ValueError):
@@ -11,22 +12,27 @@ def require(condition, message):
         raise Refusal('I ' + message)
 
 
-INT, BOOL = 1, 4
+INT, U8, FLOAT, BOOL = 1, 2, 3, 4
 COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
            'I64_LE_S': '<=', 'I64_GT_S': '>', 'I64_GE_S': '>='}
+FLOAT_ARITHMETIC = {'F64_ADD': 'add', 'F64_SUB': 'sub',
+                    'F64_MUL': 'mul', 'F64_DIV': 'div'}
+FLOAT_COMPARE = {'F64_EQ': '==', 'F64_NE': '!=', 'F64_LT': '<',
+                 'F64_LE': '<=', 'F64_GT': '>', 'F64_GE': '>='}
 UNSIGNED_COMPARE = {'I64_LT_U': 'lt_u', 'I64_LE_U': 'le_u',
                     'I64_GT_U': 'gt_u', 'I64_GE_U': 'ge_u'}
 GENERIC_COMPARE = {'EQ': '==', 'NE': '!=', 'LT': '<', 'LE': '<=', 'GT': '>', 'GE': '>='}
 BRANCH = {'JMP_TRUE', 'JMP_FALSE'}
+CARRY = {'I64_ADD_CARRY': 'add_carry', 'I64_SUB_BORROW': 'sub_borrow'}
 ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 'rem', 'NEG': 'neg',
               'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul',
               'I64_DIV_S': 'div', 'I64_REM_S': 'rem',
               'I64_DIV_U': 'div_u', 'I64_REM_U': 'rem_u',
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
-SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'LOAD_LOCAL', 'STORE_LOCAL',
+SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_U8', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
-          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE)
+          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC) | set(CARRY)
 
 
 @dataclass(frozen=True)
@@ -60,6 +66,9 @@ class Analyze:
     def __init__(self, module, index):
         self.module = module
         self.fn = module['functions'][index]
+        require(self.fn['result'] in (INT, U8, BOOL, FLOAT) and
+                all(tag in (INT, U8, BOOL, FLOAT) for tag in self.fn['params']),
+                'require exact int/u8/bool/float function signatures')
         self.index = index
         self.code = self.fn['code']
         self.positions = {i['pc']: n for n, i in enumerate(self.code)}
@@ -104,6 +113,19 @@ class Analyze:
             return
         if op == 'PUSH_I64':
             expr = Expr(INT, 'constant', arg)
+        elif op == 'PUSH_U8':
+            require(0 <= arg <= 255, 'require byte constants from 0 through 255')
+            expr = Expr(U8, 'constant', arg)
+        elif op == 'PUSH_F64':
+            bits = ins.get('f64_bits')
+            require(isinstance(bits, str) and len(bits) == 16 and
+                    all(c in '0123456789abcdefABCDEF' for c in bits),
+                    'require exactly sixteen hexadecimal binary64 operand digits')
+            expr = Expr(FLOAT, 'float_bits', int(bits, 16))
+        elif op in ('F64_FROM_BITS', 'F64_TO_BITS'):
+            from_bits = op == 'F64_FROM_BITS'
+            expr = Expr(FLOAT if from_bits else INT, 'from_bits' if from_bits else 'to_bits',
+                        None, (self.pop(stack, INT if from_bits else FLOAT),))
         elif op == 'PUSH_BOOL':
             require(arg in (0, 1), 'require canonical boolean constants')
             expr = Expr(BOOL, 'constant', bool(arg))
@@ -141,6 +163,20 @@ class Analyze:
             top, middle, bottom = self.pop(stack), self.pop(stack), self.pop(stack)
             stack.extend((top, bottom, middle))
             return
+        elif op in CARRY:
+            carry = self.pop(stack, INT)
+            right = self.pop(stack, INT)
+            left = self.pop(stack, INT)
+            for part in ('low', 'high'):
+                value = Expr(INT, 'arithmetic', CARRY[op] + '_' + part,
+                             (left, right, carry))
+                if pure:
+                    stack.append(value)
+                else:
+                    temporary = Expr(INT, 'temporary', f'{ins["pc"]}_{part}')
+                    statements.append(('let', temporary, value))
+                    stack.append(temporary)
+            return
         elif op in ('I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'):
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             for word, helper in (('low', 'mul'), ('high', 'mul_high_s' if op.endswith('_S') else 'mul_high_u')):
@@ -174,16 +210,29 @@ class Analyze:
                     left = Expr(INT, 'bool_int', None, (left,))
                     right = Expr(INT, 'bool_int', None, (right,))
                 expr = Expr(BOOL, 'binary', GENERIC_COMPARE[op], (left, right))
+        elif op in FLOAT_ARITHMETIC:
+            right, left = self.pop(stack, FLOAT), self.pop(stack, FLOAT)
+            expr = Expr(FLOAT, 'float_arithmetic', FLOAT_ARITHMETIC[op], (left, right))
+        elif op == 'F64_NEG':
+            expr = Expr(FLOAT, 'float_neg', None, (self.pop(stack, FLOAT),))
+        elif op in FLOAT_COMPARE:
+            right, left = self.pop(stack, FLOAT), self.pop(stack, FLOAT)
+            expr = Expr(BOOL, 'binary', FLOAT_COMPARE[op], (left, right))
         elif op in COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             expr = Expr(BOOL, 'binary', COMPARE[op], (left, right))
-        elif op in ('CAST_BOOL', 'NOT'):
-            value = self.truth(self.pop(stack))
-            expr = value if op == 'CAST_BOOL' else Expr(BOOL, 'not', None, (value,))
+        elif op == 'CAST_BOOL':
+            value = self.pop(stack)
+            if value.tag == U8:
+                value = Expr(INT, 'u8_int', None, (value,))
+            expr = self.truth(value)
+        elif op == 'NOT':
+            expr = Expr(BOOL, 'not', None, (self.truth(self.pop(stack)),))
         elif op == 'CAST_INT':
             value = self.pop(stack)
-            require(value.tag in (INT, BOOL), 'require exact int/bool cast operands')
-            expr = value if value.tag == INT else Expr(INT, 'bool_int', None, (value,))
+            require(value.tag in (INT, U8, BOOL), 'require exact int/u8/bool cast operands')
+            expr = (value if value.tag == INT else
+                    Expr(INT, 'u8_int' if value.tag == U8 else 'bool_int', None, (value,)))
         elif op in ('AND', 'OR'):
             right, left = self.truth(self.pop(stack)), self.truth(self.pop(stack))
             expr = Expr(BOOL, 'binary', 'and' if op == 'AND' else 'or', (left, right))
@@ -322,12 +371,21 @@ class Emit:
         return f'nlr_l{slot}' + ('_' + suffix if suffix else '')
 
     def type(self, tag):
-        return ('int64_t' if tag == INT else 'bool') if self.language == 'c' else ('int' if tag == INT else 'bool')
+        require(tag in (INT, U8, BOOL, FLOAT), 'require an explicit scalar source type')
+        return ({INT: 'int64_t', U8: 'uint8_t', BOOL: 'bool', FLOAT: 'double'} if self.language == 'c' else
+                {INT: 'int', U8: 'u8', BOOL: 'bool', FLOAT: 'float'})[tag]
 
     def expression(self, expr):
+        if expr.kind == 'float_bits':
+            if self.language == 'c':
+                return f'nlr_f64_from_bits(UINT64_C(0x{expr.value:016x}))'
+            signed = expr.value if expr.value < (1 << 63) else expr.value - (1 << 64)
+            return '(float_from_bits ' + self.expression(Expr(INT, 'constant', signed)) + ')'
         if expr.kind == 'constant':
             if expr.tag == BOOL:
                 return 'true' if expr.value else 'false'
+            if expr.tag == U8 and self.language == 'c':
+                return f'UINT8_C({expr.value})'
             if self.language == 'c':
                 return 'INT64_MIN' if expr.value == -(1 << 63) else f'INT64_C({expr.value})'
             return '(- -9223372036854775807 1)' if expr.value == -(1 << 63) else str(expr.value)
@@ -336,6 +394,17 @@ class Emit:
         if expr.kind == 'temporary':
             return f'nlr_t{expr.value}'
         args = [self.expression(a) for a in expr.args]
+        if expr.kind == 'float_arithmetic':
+            if self.language == 'c':
+                return 'nano_rt_f64_' + expr.value + '(' + ', '.join(args) + ')'
+            operator = {'add': '+', 'sub': '-', 'mul': '*', 'div': '/'}[expr.value]
+            return '(' + ' '.join([operator] + args) + ')'
+        if expr.kind == 'float_neg':
+            return '(-' + args[0] + ')' if self.language == 'c' else '(- ' + args[0] + ')'
+        if expr.kind in ('from_bits', 'to_bits'):
+            if self.language == 'c':
+                return ('nlr_f64_from_bits((uint64_t)' if expr.kind == 'from_bits' else 'nlr_f64_to_bits(') + args[0] + ')'
+            return ('(float_from_bits ' if expr.kind == 'from_bits' else '(float_to_bits ') + args[0] + ')'
         if expr.kind in ('arithmetic', 'unsigned_compare'):
             name = 'nlr_i64_' + expr.value
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
@@ -344,6 +413,8 @@ class Emit:
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
         if expr.kind == 'bool_int':
             return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(nlr_bool_int ' + args[0] + ')'
+        if expr.kind == 'u8_int':
+            return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(cast_int ' + args[0] + ')'
         if expr.kind == 'not':
             return '(!' + args[0] + ')' if self.language == 'c' else '(not ' + args[0] + ')'
         op = expr.value
@@ -396,12 +467,15 @@ class Emit:
                 self.line(self.signature(index) + ';')
         else:
             self.line('# I reconstruct executable scalar regions; original shadows are not retained.')
+        self.float_helpers()
         self.arithmetic_helpers()
         for index, function in enumerate(self.functions):
             self.function = function
             self.line(self.signature(index) + ' {')
             for slot, tag in sorted(function.locals.items()):
-                value = f'nlr_a{slot}' if slot < len(function.params) else '0' if tag == INT else 'false'
+                value = (f'nlr_a{slot}' if slot < len(function.params) else
+                         self.expression(Expr(FLOAT, 'float_bits', 0)) if tag == FLOAT else
+                         '0' if tag in (INT, U8) else 'false')
                 name = self.local(slot)
                 self.line(f'{self.type(tag)} {name} = {value};' if c else f'let mut {name}: {self.type(tag)} = {value}', 1)
                 if c:
@@ -409,9 +483,47 @@ class Emit:
             self.statements(function.body)
             self.line('}')
         self.line('int main(void) {' if c else 'fn main() -> int {')
+        if c and self.has_float:
+            self.line('(void)nlr_f64_from_bits; (void)nlr_f64_to_bits;', 1)
+        if c and self.has_float_arithmetic:
+            self.line('(void)nano_rt_f64_add; (void)nano_rt_f64_sub; '
+                      '(void)nano_rt_f64_mul; (void)nano_rt_f64_div;', 1)
         self.line(f'return (int){self.name(entry)}();' if c else f'return ({self.name(entry)})', 1)
         self.line('}')
         return '\n'.join(self.lines) + '\n'
+
+    def float_helpers(self):
+        def uses_arithmetic(node):
+            if isinstance(node, Expr):
+                return node.kind == 'float_arithmetic' or uses_arithmetic(node.args)
+            return isinstance(node, (tuple, list)) and any(uses_arithmetic(child) for child in node)
+
+        self.has_float_arithmetic = any(uses_arithmetic(function.body) for function in self.functions)
+        if self.language == 'c' and self.has_float_arithmetic:
+            # I embed the authoritative guarded policy, retaining standalone output.
+            self.line((Path(__file__).resolve().parents[1] / 'src' /
+                       'binary64_arithmetic.h').read_text(encoding='utf-8'))
+
+        def contains(node):
+            if isinstance(node, Expr):
+                return node.tag == FLOAT or any(contains(arg) for arg in node.args)
+            return isinstance(node, (tuple, list)) and any(contains(child) for child in node)
+        self.has_float = any(function.result == FLOAT or FLOAT in function.locals.values() or
+                             contains(function.body) for function in self.functions)
+        if self.language == 'c' and self.has_float:
+            self.line('''#include <string.h>
+static double nlr_f64_from_bits(uint64_t bits) {
+    double value;
+    _Static_assert(sizeof(value) == sizeof(bits), "I require binary64 storage.");
+    memcpy(&value, &bits, sizeof(value));
+    return value;
+}
+static int64_t nlr_f64_to_bits(double value) {
+    uint64_t bits;
+    _Static_assert(sizeof(value) == sizeof(bits), "I require binary64 storage.");
+    memcpy(&bits, &value, sizeof(bits));
+    return bits <= INT64_MAX ? (int64_t)bits : -1 - (int64_t)(UINT64_MAX - bits);
+}''')
 
     def arithmetic_helpers(self):
         needed = set()
@@ -445,13 +557,29 @@ shadow nlr_bool_int {
         if 'mul_high_s' in needed:
             needed.add('mul_high_u')
         if self.language == 'c':
-            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u', 'band', 'bor', 'bxor', 'invert', 'div_u', 'rem_u', 'mul_high_s', 'mul_high_u'}:
+            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u', 'band', 'bor', 'bxor', 'invert', 'div_u', 'rem_u', 'mul_high_s', 'mul_high_u', 'add_carry_low', 'sub_borrow_low'}:
                 self.line('''static int64_t nlr_i64_bits(uint64_t bits) {
     if (bits <= (uint64_t)INT64_MAX) return (int64_t)bits;
     return -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
 }''')
             for op in sorted(needed, key=lambda op: (op == 'mul_high_s', op)):
                 args = 'int64_t a' if op in ('neg', 'invert') else 'int64_t a, int64_t b'
+                if op.startswith(('add_carry_', 'sub_borrow_')):
+                    addition = op.startswith('add_carry_')
+                    symbol = '+' if addition else '-'
+                    self.line(f'''static int64_t nlr_i64_{op}(int64_t a, int64_t b, int64_t carry) {{
+    uint64_t bit = (uint64_t)carry & UINT64_C(1);
+    uint64_t low = (uint64_t)a {symbol} (uint64_t)b;
+    uint64_t result = low {symbol} bit;''')
+                    if op.endswith('_low'):
+                        self.line('    return nlr_i64_bits(result);\n}')
+                    else:
+                        checks = ('low < (uint64_t)a || result < low' if addition else
+                                  '(uint64_t)a < (uint64_t)b || low < bit')
+                        if not addition:
+                            self.line('    (void)result;')
+                        self.line(f'    return ({checks}) ? INT64_C(1) : INT64_C(0);\n}}')
+                    continue
                 if op == 'mul_high_u':
                     self.line('static int64_t nlr_i64_mul_high_u(int64_t a, int64_t b) {')
                     for operand in ('a', 'b'):
@@ -512,6 +640,8 @@ shadow nlr_bool_int {
                               'invert': '~(uint64_t)a'}[op]
                 self.line(f'static int64_t nlr_i64_{op}({args}) {{ return nlr_i64_bits({expression}); }}')
             return
+        if any(op.startswith(('add_carry_', 'sub_borrow_')) for op in needed):
+            needed.update(('add', 'sub', 'lt_u'))
         if needed & {'div_u', 'rem_u'}:
             needed.update(('add', 'sub', 'ge_u'))
         if needed & {'band', 'bor', 'bxor'}:
@@ -851,6 +981,31 @@ shadow nlr_i64_{_operation} {{
     assert (== (nlr_i64_{_operation} low 0) 0)
     assert (== (nlr_i64_{_operation} -1 1) {-1 if _result == 'quotient' else 0})
     assert (== (nlr_i64_{_operation} 7 3) {2 if _result == 'quotient' else 1})
+}}'''
+
+
+for _operation, _arithmetic in (('add_carry', 'add'), ('sub_borrow', 'sub')):
+    for _part in ('low', 'high'):
+        _return = '    return result'
+        if _part == 'high':
+            _first = '(nlr_i64_lt_u low a)' if _operation == 'add_carry' else '(nlr_i64_lt_u a b)'
+            _second = '(nlr_i64_lt_u result low)' if _operation == 'add_carry' else '(nlr_i64_lt_u low bit)'
+            _return = f'''    let first: bool = {_first}
+    let second: bool = {_second}
+    if (or first second) {{ return 1 }}
+    return 0'''
+        _result_line = ('' if (_operation == 'sub_borrow' and _part == 'high') else
+                        f'    let result: int = (nlr_i64_{_arithmetic} low bit)\n')
+        NANO_INTEGER_HELPERS[_operation + '_' + _part] = f'''fn nlr_i64_{_operation}_{_part}(a: int, b: int, carry: int) -> int {{
+    let mut bit: int = 0
+    if (!= (% carry 2) 0) {{ set bit 1 }}
+    let low: int = (nlr_i64_{_arithmetic} a b)
+{_result_line}{_return}
+}}
+shadow nlr_i64_{_operation}_{_part} {{
+    assert (== (nlr_i64_{_operation}_{_part} -1 0 -1) {0 if _operation == 'add_carry' and _part == 'low' else 1 if _operation == 'add_carry' else -2 if _part == 'low' else 0})
+    assert (== (nlr_i64_{_operation}_{_part} 0 0 3) {1 if _part == 'low' and _operation == 'add_carry' else 0 if _operation == 'add_carry' else -1 if _part == 'low' else 1})
+    assert (== (nlr_i64_{_operation}_{_part} 0 0 -2) 0)
 }}'''
 
 

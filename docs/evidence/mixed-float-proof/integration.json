@@ -1,0 +1,14 @@
+{
+  "main": "4351b43f",
+  "tested_pin": "3f996e72",
+  "reviewed_production": "ae07f575",
+  "proof_and_fixtures_unchanged": true,
+  "changed_native_inputs": [
+    "src/nanolang.h",
+    "src/parser.c",
+    "src/transpiler_iterative_v3_twopass.c",
+    "src/typechecker.c",
+    "tests/test_cseed_match_totality.py"
+  ],
+  "source_bootstrap": false
+}

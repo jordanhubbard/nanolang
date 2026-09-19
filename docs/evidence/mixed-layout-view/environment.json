@@ -1,0 +1,6 @@
+{
+  "gcc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "clang": "clang version 23.0.0git (https://github.com/llvm/llvm-project.git 11af80c3ec82dc1800c9fa80190c75cd3d69249f)",
+  "python": "Python 3.14.5",
+  "make": "GNU Make 4.3"
+}

@@ -1,0 +1,14 @@
+{
+  "pin": "b42aac4806e3c3cb6834d5e054fc298cac7d3c06",
+  "command": [
+    "make",
+    "test-mixed-layout-view"
+  ],
+  "environment": {
+    "CC": "/tmp/nanolang-projection-clang",
+    "MIXED_CFLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+  },
+  "status": 0,
+  "seconds": 0.6654281970113516
+}

@@ -1,0 +1,87 @@
+ruby icd_generator.rb --mode database --database ./ocl_interface.yaml \
+	
+ruby icd_generator.rb --mode generate --database ./ocl_interface.yaml
+echo "timestamp" > stamp-generator-dummy
+echo "timestamp" > stamp-generator
+/usr/bin/make  all-recursive
+make[1]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream'
+Making all in .
+make[2]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream'
+/usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers  -DCLLAYERINFO -Wno-deprecated-declarations   -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g -MT cllayerinfo-cllayerinfo.o -MD -MP -MF .deps/cllayerinfo-cllayerinfo.Tpo -c -o cllayerinfo-cllayerinfo.o `test -f 'cllayerinfo.c' || echo './'`cllayerinfo.c
+/usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers  -DCLLAYERINFO -Wno-deprecated-declarations   -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g -MT cllayerinfo-ocl_icd_loader.o -MD -MP -MF .deps/cllayerinfo-ocl_icd_loader.Tpo -c -o cllayerinfo-ocl_icd_loader.o `test -f 'ocl_icd_loader.c' || echo './'`ocl_icd_loader.c
+mv -f .deps/cllayerinfo-cllayerinfo.Tpo .deps/cllayerinfo-cllayerinfo.Po
+/usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers  -DCLLAYERINFO -Wno-deprecated-declarations   -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g -MT cllayerinfo-ocl_icd_loader_gen.o -MD -MP -MF .deps/cllayerinfo-ocl_icd_loader_gen.Tpo -c -o cllayerinfo-ocl_icd_loader_gen.o `test -f 'ocl_icd_loader_gen.c' || echo './'`ocl_icd_loader_gen.c
+mv -f .deps/cllayerinfo-ocl_icd_loader.Tpo .deps/cllayerinfo-ocl_icd_loader.Po
+/usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DOCL_ICD_PRINT_EXPECTED  -Wno-deprecated-declarations  -O2 -g -MT run_dummy_icd_through_our_ICDL-run_dummy_icd.o -MD -MP -MF .deps/run_dummy_icd_through_our_ICDL-run_dummy_icd.Tpo -c -o run_dummy_icd_through_our_ICDL-run_dummy_icd.o `test -f 'run_dummy_icd.c' || echo './'`run_dummy_icd.c
+mv -f .deps/run_dummy_icd_through_our_ICDL-run_dummy_icd.Tpo .deps/run_dummy_icd_through_our_ICDL-run_dummy_icd.Po
+/usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DOCL_ICD_PRINT_EXPECTED  -Wno-deprecated-declarations  -O2 -g -MT run_dummy_icd_through_our_ICDL-run_dummy_icd_gen.o -MD -MP -MF .deps/run_dummy_icd_through_our_ICDL-run_dummy_icd_gen.Tpo -c -o run_dummy_icd_through_our_ICDL-run_dummy_icd_gen.o `test -f 'run_dummy_icd_gen.c' || echo './'`run_dummy_icd_gen.c
+mv -f .deps/run_dummy_icd_through_our_ICDL-run_dummy_icd_gen.Tpo .deps/run_dummy_icd_through_our_ICDL-run_dummy_icd_gen.Po
+/usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DOCL_ICD_PRINT_EXPECTED  -Wno-deprecated-declarations  -O2 -g -MT run_dummy_icd_through_our_ICDL-run_dummy_icd_weak_gen.o -MD -MP -MF .deps/run_dummy_icd_through_our_ICDL-run_dummy_icd_weak_gen.Tpo -c -o run_dummy_icd_through_our_ICDL-run_dummy_icd_weak_gen.o `test -f 'run_dummy_icd_weak_gen.c' || echo './'`run_dummy_icd_weak_gen.c
+mv -f .deps/run_dummy_icd_through_our_ICDL-run_dummy_icd_weak_gen.Tpo .deps/run_dummy_icd_through_our_ICDL-run_dummy_icd_weak_gen.Po
+/bin/bash ./libtool  --tag=CC   --mode=compile /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers  -Wno-deprecated-declarations   -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g -MT libOpenCL_la-ocl_icd_loader.lo -MD -MP -MF .deps/libOpenCL_la-ocl_icd_loader.Tpo -c -o libOpenCL_la-ocl_icd_loader.lo `test -f 'ocl_icd_loader.c' || echo './'`ocl_icd_loader.c
+libtool: compile:  /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I. -Wall -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -Wno-deprecated-declarations -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g -MT libOpenCL_la-ocl_icd_loader.lo -MD -MP -MF .deps/libOpenCL_la-ocl_icd_loader.Tpo -c ocl_icd_loader.c  -fPIC -DPIC -o .libs/libOpenCL_la-ocl_icd_loader.o
+mv -f .deps/libOpenCL_la-ocl_icd_loader.Tpo .deps/libOpenCL_la-ocl_icd_loader.Plo
+/bin/bash ./libtool  --tag=CC   --mode=compile /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers  -Wno-deprecated-declarations   -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g -MT libOpenCL_la-ocl_icd_loader_gen.lo -MD -MP -MF .deps/libOpenCL_la-ocl_icd_loader_gen.Tpo -c -o libOpenCL_la-ocl_icd_loader_gen.lo `test -f 'ocl_icd_loader_gen.c' || echo './'`ocl_icd_loader_gen.c
+libtool: compile:  /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I. -Wall -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -Wno-deprecated-declarations -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g -MT libOpenCL_la-ocl_icd_loader_gen.lo -MD -MP -MF .deps/libOpenCL_la-ocl_icd_loader_gen.Tpo -c ocl_icd_loader_gen.c  -fPIC -DPIC -o .libs/libOpenCL_la-ocl_icd_loader_gen.o
+mv -f .deps/cllayerinfo-ocl_icd_loader_gen.Tpo .deps/cllayerinfo-ocl_icd_loader_gen.Po
+/bin/bash ./libtool  --tag=CC   --mode=compile /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers   -O2 -g -MT libdummy_icd.lo -MD -MP -MF .deps/libdummy_icd.Tpo -c -o libdummy_icd.lo libdummy_icd.c
+libtool: compile:  /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I. -Wall -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -O2 -g -MT libdummy_icd.lo -MD -MP -MF .deps/libdummy_icd.Tpo -c libdummy_icd.c  -fPIC -DPIC -o .libs/libdummy_icd.o
+mv -f .deps/libdummy_icd.Tpo .deps/libdummy_icd.Plo
+/bin/bash ./libtool  --tag=CC   --mode=compile /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers   -O2 -g -MT libdummy_icd_gen.lo -MD -MP -MF .deps/libdummy_icd_gen.Tpo -c -o libdummy_icd_gen.lo libdummy_icd_gen.c
+libtool: compile:  /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I. -Wall -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -O2 -g -MT libdummy_icd_gen.lo -MD -MP -MF .deps/libdummy_icd_gen.Tpo -c libdummy_icd_gen.c  -fPIC -DPIC -o .libs/libdummy_icd_gen.o
+mv -f .deps/libdummy_icd_gen.Tpo .deps/libdummy_icd_gen.Plo
+/bin/bash ./libtool  --tag=CC   --mode=compile /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DICD_SUFFIX=\"2\"   -O2 -g -MT libdummycl2_la-libdummy_icd.lo -MD -MP -MF .deps/libdummycl2_la-libdummy_icd.Tpo -c -o libdummycl2_la-libdummy_icd.lo `test -f 'libdummy_icd.c' || echo './'`libdummy_icd.c
+libtool: compile:  /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I. -Wall -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DICD_SUFFIX=\"2\" -O2 -g -MT libdummycl2_la-libdummy_icd.lo -MD -MP -MF .deps/libdummycl2_la-libdummy_icd.Tpo -c libdummy_icd.c  -fPIC -DPIC -o .libs/libdummycl2_la-libdummy_icd.o
+mv -f .deps/libdummycl2_la-libdummy_icd.Tpo .deps/libdummycl2_la-libdummy_icd.Plo
+/bin/bash ./libtool  --tag=CC   --mode=compile /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DICD_SUFFIX=\"2\"   -O2 -g -MT libdummycl2_la-libdummy_icd_gen.lo -MD -MP -MF .deps/libdummycl2_la-libdummy_icd_gen.Tpo -c -o libdummycl2_la-libdummy_icd_gen.lo `test -f 'libdummy_icd_gen.c' || echo './'`libdummy_icd_gen.c
+libtool: compile:  /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I. -Wall -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DICD_SUFFIX=\"2\" -O2 -g -MT libdummycl2_la-libdummy_icd_gen.lo -MD -MP -MF .deps/libdummycl2_la-libdummy_icd_gen.Tpo -c libdummy_icd_gen.c  -fPIC -DPIC -o .libs/libdummycl2_la-libdummy_icd_gen.o
+mv -f .deps/libdummycl2_la-libdummy_icd_gen.Tpo .deps/libdummycl2_la-libdummy_icd_gen.Plo
+/bin/bash ./libtool  --tag=CC   --mode=compile /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DICD_WITHOUT_EXTENSION   -O2 -g -MT libdummycl_noext_la-libdummy_icd.lo -MD -MP -MF .deps/libdummycl_noext_la-libdummy_icd.Tpo -c -o libdummycl_noext_la-libdummy_icd.lo `test -f 'libdummy_icd.c' || echo './'`libdummy_icd.c
+libtool: compile:  /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I. -Wall -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DICD_WITHOUT_EXTENSION -O2 -g -MT libdummycl_noext_la-libdummy_icd.lo -MD -MP -MF .deps/libdummycl_noext_la-libdummy_icd.Tpo -c libdummy_icd.c  -fPIC -DPIC -o .libs/libdummycl_noext_la-libdummy_icd.o
+mv -f .deps/libdummycl_noext_la-libdummy_icd.Tpo .deps/libdummycl_noext_la-libdummy_icd.Plo
+/bin/bash ./libtool  --tag=CC   --mode=compile /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DICD_WITHOUT_EXTENSION   -O2 -g -MT libdummycl_noext_la-libdummy_icd_gen.lo -MD -MP -MF .deps/libdummycl_noext_la-libdummy_icd_gen.Tpo -c -o libdummycl_noext_la-libdummy_icd_gen.lo `test -f 'libdummy_icd_gen.c' || echo './'`libdummy_icd_gen.c
+libtool: compile:  /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I. -Wall -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -DICD_WITHOUT_EXTENSION -O2 -g -MT libdummycl_noext_la-libdummy_icd_gen.lo -MD -MP -MF .deps/libdummycl_noext_la-libdummy_icd_gen.Tpo -c libdummy_icd_gen.c  -fPIC -DPIC -o .libs/libdummycl_noext_la-libdummy_icd_gen.o
+mv -f .deps/libdummycl_noext_la-libdummy_icd_gen.Tpo .deps/libdummycl_noext_la-libdummy_icd_gen.Plo
+/bin/bash ./libtool  --tag=CC   --mode=compile /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I.  -Wall  -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers   -O2 -g -MT dummy_icd_layer_gen.lo -MD -MP -MF .deps/dummy_icd_layer_gen.Tpo -c -o dummy_icd_layer_gen.lo dummy_icd_layer_gen.c
+libtool: compile:  /usr/bin/aarch64-linux-gnu-gcc-13 -DHAVE_CONFIG_H -I. -Wall -I/tmp/nanolang-opencl-private-7f0/upstream/khronos-headers -O2 -g -MT dummy_icd_layer_gen.lo -MD -MP -MF .deps/dummy_icd_layer_gen.Tpo -c dummy_icd_layer_gen.c  -fPIC -DPIC -o .libs/dummy_icd_layer_gen.o
+mv -f .deps/dummy_icd_layer_gen.Tpo .deps/dummy_icd_layer_gen.Plo
+/bin/bash ./libtool  --tag=CC   --mode=link /usr/bin/aarch64-linux-gnu-gcc-13 -DCLLAYERINFO -Wno-deprecated-declarations   -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g    -o cllayerinfo cllayerinfo-cllayerinfo.o cllayerinfo-ocl_icd_loader.o cllayerinfo-ocl_icd_loader_gen.o  -ldl 
+libtool: link: /usr/bin/aarch64-linux-gnu-gcc-13 -DCLLAYERINFO -Wno-deprecated-declarations -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g -o cllayerinfo cllayerinfo-cllayerinfo.o cllayerinfo-ocl_icd_loader.o cllayerinfo-ocl_icd_loader_gen.o  -ldl
+/bin/bash ./libtool  --tag=CC   --mode=link /usr/bin/aarch64-linux-gnu-gcc-13  -O2 -g -module  -o libdummycl.la -rpath /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd libdummy_icd.lo libdummy_icd_gen.lo  -ldl 
+libtool: link: /usr/bin/aarch64-linux-gnu-gcc-13 -shared  -fPIC -DPIC  .libs/libdummy_icd.o .libs/libdummy_icd_gen.o   -ldl  -O2 -g   -Wl,-soname -Wl,libdummycl.so.0 -o .libs/libdummycl.so.0.0.0
+libtool: link: (cd ".libs" && rm -f "libdummycl.so.0" && ln -s "libdummycl.so.0.0.0" "libdummycl.so.0")
+libtool: link: (cd ".libs" && rm -f "libdummycl.so" && ln -s "libdummycl.so.0.0.0" "libdummycl.so")
+libtool: link: ( cd ".libs" && rm -f "libdummycl.la" && ln -s "../libdummycl.la" "libdummycl.la" )
+/bin/bash ./libtool  --tag=CC   --mode=link /usr/bin/aarch64-linux-gnu-gcc-13  -O2 -g -module  -o libdummycl2.la -rpath /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd libdummycl2_la-libdummy_icd.lo libdummycl2_la-libdummy_icd_gen.lo  -ldl 
+mv -f .deps/libOpenCL_la-ocl_icd_loader_gen.Tpo .deps/libOpenCL_la-ocl_icd_loader_gen.Plo
+/bin/bash ./libtool  --tag=CC   --mode=link /usr/bin/aarch64-linux-gnu-gcc-13  -O2 -g -module  -o libdummycl-noext.la -rpath /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd libdummycl_noext_la-libdummy_icd.lo libdummycl_noext_la-libdummy_icd_gen.lo  -ldl 
+libtool: link: /usr/bin/aarch64-linux-gnu-gcc-13 -shared  -fPIC -DPIC  .libs/libdummycl2_la-libdummy_icd.o .libs/libdummycl2_la-libdummy_icd_gen.o   -ldl  -O2 -g   -Wl,-soname -Wl,libdummycl2.so.0 -o .libs/libdummycl2.so.0.0.0
+libtool: link: (cd ".libs" && rm -f "libdummycl2.so.0" && ln -s "libdummycl2.so.0.0.0" "libdummycl2.so.0")
+libtool: link: /usr/bin/aarch64-linux-gnu-gcc-13 -shared  -fPIC -DPIC  .libs/libdummycl_noext_la-libdummy_icd.o .libs/libdummycl_noext_la-libdummy_icd_gen.o   -ldl  -O2 -g   -Wl,-soname -Wl,libdummycl-noext.so.0 -o .libs/libdummycl-noext.so.0.0.0
+libtool: link: (cd ".libs" && rm -f "libdummycl2.so" && ln -s "libdummycl2.so.0.0.0" "libdummycl2.so")
+libtool: link: ( cd ".libs" && rm -f "libdummycl2.la" && ln -s "../libdummycl2.la" "libdummycl2.la" )
+libtool: link: (cd ".libs" && rm -f "libdummycl-noext.so.0" && ln -s "libdummycl-noext.so.0.0.0" "libdummycl-noext.so.0")
+/bin/bash ./libtool  --tag=CC   --mode=link /usr/bin/aarch64-linux-gnu-gcc-13  -O2 -g -module  -o libdummylayer.la -rpath /tmp/nanolang-opencl-private-7f0/install/lib/ocl-icd dummy_icd_layer_gen.lo  -ldl 
+libtool: link: (cd ".libs" && rm -f "libdummycl-noext.so" && ln -s "libdummycl-noext.so.0.0.0" "libdummycl-noext.so")
+libtool: link: ( cd ".libs" && rm -f "libdummycl-noext.la" && ln -s "../libdummycl-noext.la" "libdummycl-noext.la" )
+/bin/bash ./libtool  --tag=CC   --mode=link /usr/bin/aarch64-linux-gnu-gcc-13 -Wno-deprecated-declarations   -DCL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES -DETC_OPENCL_VENDORS=\"/etc/OpenCL/vendors\" -DETC_OPENCL_LAYERS=\"/etc/OpenCL/layers\" -O2 -g -version-info 1:0:0  -Wl,--version-script,ocl_icd_loader_gen.map  -o libOpenCL.la -rpath /tmp/nanolang-opencl-private-7f0/install/lib libOpenCL_la-ocl_icd_loader.lo libOpenCL_la-ocl_icd_loader_gen.lo  -ldl 
+libtool: link: /usr/bin/aarch64-linux-gnu-gcc-13 -shared  -fPIC -DPIC  .libs/dummy_icd_layer_gen.o   -ldl  -O2 -g   -Wl,-soname -Wl,libdummylayer.so.0 -o .libs/libdummylayer.so.0.0.0
+libtool: link: (cd ".libs" && rm -f "libdummylayer.so.0" && ln -s "libdummylayer.so.0.0.0" "libdummylayer.so.0")
+libtool: link: (cd ".libs" && rm -f "libdummylayer.so" && ln -s "libdummylayer.so.0.0.0" "libdummylayer.so")
+libtool: link: ( cd ".libs" && rm -f "libdummylayer.la" && ln -s "../libdummylayer.la" "libdummylayer.la" )
+libtool: link: /usr/bin/aarch64-linux-gnu-gcc-13 -shared  -fPIC -DPIC  .libs/libOpenCL_la-ocl_icd_loader.o .libs/libOpenCL_la-ocl_icd_loader_gen.o   -ldl  -O2 -g -Wl,--version-script -Wl,ocl_icd_loader_gen.map   -Wl,-soname -Wl,libOpenCL.so.1 -o .libs/libOpenCL.so.1.0.0
+libtool: link: (cd ".libs" && rm -f "libOpenCL.so.1" && ln -s "libOpenCL.so.1.0.0" "libOpenCL.so.1")
+libtool: link: (cd ".libs" && rm -f "libOpenCL.so" && ln -s "libOpenCL.so.1.0.0" "libOpenCL.so")
+libtool: link: ( cd ".libs" && rm -f "libOpenCL.la" && ln -s "../libOpenCL.la" "libOpenCL.la" )
+/bin/bash ./libtool  --tag=CC   --mode=link /usr/bin/aarch64-linux-gnu-gcc-13 -Wno-deprecated-declarations  -O2 -g   -o run_dummy_icd_through_our_ICDL run_dummy_icd_through_our_ICDL-run_dummy_icd.o run_dummy_icd_through_our_ICDL-run_dummy_icd_gen.o run_dummy_icd_through_our_ICDL-run_dummy_icd_weak_gen.o libOpenCL.la -ldl 
+libtool: link: /usr/bin/aarch64-linux-gnu-gcc-13 -Wno-deprecated-declarations -O2 -g -o .libs/run_dummy_icd_through_our_ICDL run_dummy_icd_through_our_ICDL-run_dummy_icd.o run_dummy_icd_through_our_ICDL-run_dummy_icd_gen.o run_dummy_icd_through_our_ICDL-run_dummy_icd_weak_gen.o  ./.libs/libOpenCL.so -ldl -Wl,-rpath -Wl,/tmp/nanolang-opencl-private-7f0/install/lib
+make[2]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream'
+Making all in doc
+make[2]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream/doc'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream/doc'
+Making all in tests
+make[2]: Entering directory '/tmp/nanolang-opencl-private-7f0/upstream/tests'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream/tests'
+make[1]: Leaving directory '/tmp/nanolang-opencl-private-7f0/upstream'

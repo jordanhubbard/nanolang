@@ -1,0 +1,8 @@
+{
+  "args": [
+    "/tmp/nano-owned-pattern-_tzlkyqw/program"
+  ],
+  "status": 0,
+  "stdout": "File closed\nFile closed\nFile closed\nFile closed\nFile closed\n",
+  "stderr": ""
+}

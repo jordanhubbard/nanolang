@@ -97,6 +97,29 @@ class NativeScalarJoins(unittest.TestCase):
             'inner:\nJMP end\nend:\nCAST_BOOL\nBOOL_NOT\nRET\n.end\n')
         self.compare(self.program('PUSH_BOOL 0\nCALL choose\nASSERT\nPUSH_BOOL 1\nCALL choose\nASSERT\n', functions))
 
+    def test_exact_boolean_global_joins_with_short_circuit_results(self):
+        body = ('PUSH_BOOL 1\nSTORE_GLOBAL 0\n'
+                'LOAD_GLOBAL 0\nDUP\nJMP_FALSE and_join\nPOP\n'
+                'PUSH_I64 1\nPUSH_I64 1\nI64_EQ\nand_join:\nASSERT\n'
+                'PUSH_BOOL 0\nSTORE_GLOBAL 0\n'
+                'LOAD_GLOBAL 0\nDUP\nJMP_TRUE or_join\nPOP\n'
+                'PUSH_I64 1\nPUSH_I64 1\nI64_EQ\nor_join:\nASSERT\n')
+        self.compare(self.program(body))
+
+    def test_exact_boolean_array_global_joins_with_short_circuit_results(self):
+        body = ('PUSH_BOOL 0\nPUSH_BOOL 1\nARR_LITERAL 4 2\nSTORE_GLOBAL 0\n'
+                'LOAD_GLOBAL 0\nPUSH_I64 0\nARR_GET\nDUP\nJMP_FALSE and_join\nPOP\n'
+                'PUSH_I64 1\nPUSH_I64 1\nI64_EQ\nand_join:\nBOOL_NOT\nASSERT\n'
+                'LOAD_GLOBAL 0\nPUSH_I64 1\nARR_GET\nDUP\nJMP_TRUE or_join\nPOP\n'
+                'PUSH_I64 0\nPUSH_I64 1\nI64_EQ\nor_join:\nASSERT\n')
+        self.compare(self.program(body))
+
+    def test_exact_boolean_global_stored_in_definitely_initialized_local(self):
+        body = ('PUSH_BOOL 1\nSTORE_GLOBAL 0\nLOAD_GLOBAL 0\nSTORE_GLOBAL 1\n'
+                'LOAD_GLOBAL 1\nSTORE_LOCAL 0\n'
+                'LOAD_LOCAL 0\nDUP\nJMP_FALSE join\nPOP\nPUSH_BOOL 1\njoin:\nASSERT\n')
+        self.compare(self.program(body))
+
     def test_three_way_void_integer_boolean_join_stays_refused(self):
         boolean_values = [
             'PUSH_BOOL 1',

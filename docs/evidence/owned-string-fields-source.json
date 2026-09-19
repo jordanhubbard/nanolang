@@ -1,0 +1,93 @@
+{
+  "scope": "Corrected diagnostic-only source qualification; first aggregate outcome remains failed",
+  "first_evidence": "docs/evidence/owned-string-fields-source-first.json",
+  "first_evidence_sha256": "d68de3a000d67b4d050d1b2e92d7c0e5b52747b44c6a3f3fd5c367ca04be6038",
+  "manifest": {
+    "source": "ff5705373569d24f179f1b0cf650a7b9601419ed",
+    "steps": [
+      {
+        "name": "corrected-refusal",
+        "command": [
+          "python3",
+          "/tmp/nanolang-owned-string-source-unittest.py",
+          "/tmp/nanolang-owned-string-source-corrected-ff5705/corrected-refusal-producers.json",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrapper_refusals_preserve_output"
+        ],
+        "status": 0,
+        "seconds": 174.458,
+        "log_sha256": "d88f7d5b68b1a536a8032546f0ac96f88b40d249d06493e52d7339f70a57b611",
+        "tools_unchanged": true,
+        "CC": "/usr/bin/gcc",
+        "compiler_sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+      }
+    ],
+    "source_unchanged": true,
+    "unchanged_head": true,
+    "tracked_tree_clean": true
+  },
+  "reports": {
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/nanolang-transitive-wrapper-setup.mk": "d1d5a92fe011e3c31131f3b05fdcb75bc221f76c5b503584f3fcfc76fa44a987",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/nanolang-owned-string-source-unittest.py": "fe1739360ee76f10a4112bb77f8d30219350526d896b67fb4c8e4113bfd0bb9c",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/corrected-refusal-tools-before.json": "f7cda97fc04ac0533117eb2a666b703a3685d3fc9ea55763cc1fecae5fb32376",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/manifest.json": "b5216cf5b62d2efef98073423240767c500e79cbee2a07fbfc6c928912a6690e",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/nanolang-owned-string-source-corrected-gate.py": "444a93af7b1552234bfbf2d6694fe89d73dd27361ad147d7fda7793f5fcb9977",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/source-after.json": "b1368f1beaca6c84bc5bde562ee20360698f6755c87cd4244e6bc6b15d124dc2",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/status": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/corrected-refusal.log": "d88f7d5b68b1a536a8032546f0ac96f88b40d249d06493e52d7339f70a57b611",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/corrected-refusal-producers-SourceBorrowEmission.json": "a1bcad3ce6d423367adfee5f8fdb4afa150baf0d4d1e38bea5a3a85b5a1832b8",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/source-before.json": "b1368f1beaca6c84bc5bde562ee20360698f6755c87cd4244e6bc6b15d124dc2",
+    "/tmp/nanolang-owned-string-source-corrected-ff5705/corrected-refusal-tools-after.json": "f7cda97fc04ac0533117eb2a666b703a3685d3fc9ea55763cc1fecae5fb32376"
+  },
+  "source_files": {
+    "Makefile.gnu": "739a717c2f6c22e997d001b012913c26baac054461db631d0424fe721f6abcb5",
+    "src/nanoisa/affine_bytecode.c": "74070d9285ad6d5b7becc7eb141a2b96833b66f146b9d42924a63ae27a8d00f9",
+    "src/nanoisa/affine_state.c": "793f02b3d9ee1df9f9e703ff567264a57c686afc2d3864c6a363feab229637b4",
+    "src/nanoisa/affine_state.h": "afe756e576ac9b1a400dd1641c1495153a1a528e495bc759a5d78e53eee187c9",
+    "src/nanoisa/nvm2c_owned.h": "039b40ecf42f1d7c9bc59adf9c013e42a9974be3625318d051366c8920549332",
+    "src/nanoisa/ownership_contracts.c": "72a6761420471f9d778667c241845df416bc8facd725ca2451cd5f1e5c19e81b",
+    "src/nanoisa/reference_places.c": "1b2cbc43c6bf73cbc5a998119b788297f311b07e9b745f12b8c68d686c14854c",
+    "src/nanoisa/verifier.c": "c3e0ea4286fd921986243038c3439be2bf68902b22e629f76cc7c7ae1ab217e8",
+    "src/nanovirt/borrow_codegen.inc": "e7daa9ab65bec1eb9d00780f6e7a4ea13f33e430c927a2fb7096bc5278e5cfd9",
+    "src_nano/compiler/nanoisa_borrows.nano": "1b322b7132d4ac48f89799cf94e38efe1f7bb4bf6b94e78bf9fb4097508a9b5c",
+    "tests/nanoisa/test_nested_result_descriptors.c": "990498674d03a5d63c38f3f367fea4a47062eeaba7e830b00e21570512424893",
+    "tests/nanoisa/test_owned_string_fields.c": "aa4d084c61aa13dc534c47f9af768c8b12826a8390a34399611b4915e161cf9d",
+    "tests/nanoisa/test_owned_string_fields_alloc.c": "93247927e1e8a5181f4a84c26aa34b37ecb484fe14942cd8fee46c91df76f16c",
+    "tests/nanoisa/test_owned_string_joins.c": "c9840cd4b19d4ea827e709f8c4044ad45e9690f4bd4965a8dc54cb975df686c1",
+    "tests/nanoisa/test_owned_string_print.c": "4042e20455ac2fcc199b74a5914c7c526878e7c7042ccb3618f528d3aae0cae7",
+    "tests/test_owned_string_fields.py": "d49789e6b5196c3fc749d60311c26b9ef7dc26753024430a85ca22c9b9a1308f",
+    "tests/test_owned_string_joins.py": "8606ba6497f5aaa894404adee4800cc6aba8229c299328f154b8aa88bf9fd481",
+    "tests/test_owned_string_print.py": "270fdf538467cf82ec8ccb29bdf674e06bbde2a27447be4075881eca43ce122a",
+    "tests/test_source_borrow_emission.py": "c4da057f7226579675eb20f1dda9c44e33bd8cc9cea130cb043ca4544698f530",
+    "tests/test_source_owned_string_fields.py": "f55c465c9035e20d6f26663d6bd61b6bccc7ae90883c71329a9eab8865d55394"
+  },
+  "actual_tools": {
+    "bin/nvm2c": "819e5742821f45f3ddb5874a4b7599c80689e338414da4459343ea983a3a9829",
+    "bin/nanoc": "4b81112edfb403dc4c15deec67fd346b70536df4d825aefbb8570db79873b86f",
+    "bin/nanoc_stage1": "6d2087eaf9f51f761a218bb99e2aa380554e7bfe35423a4b09df2b5c0241d96c",
+    "bin/nanoisa": "6af4f4732bf8f1ca3a0076cd717c3fa54dd1bd7fb69e46c764a232767c1de27f",
+    "bin/nano_vm": "2ec76aa124099325fa4bba4849dc0fa24be90909ed57fb0ce165aee49d8ef448",
+    "bin/nanoisa_emit": "5143fe3f7e8cd59b25f7557297aae758b33bd26f972469adba3225911030c481",
+    "bin/nano_virt": "96598daf7128ab6c103ed6bd5b1f0cf292c8f6f67f790d7fa45c27d0518d65e0",
+    "bin/nanoc_stage2": "4b81112edfb403dc4c15deec67fd346b70536df4d825aefbb8570db79873b86f",
+    "bin/nanoc_c": "bece653416878440e49cf39ff292cae280429804aea2c1686559c041ebc5d7b4",
+    "bin/nano_as_capture.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "bin/nano": "3bd03cd891f864ab78c91d24d8a7e85bd538b56f7da3e6181bdb893b4e105ebb"
+  },
+  "artifacts": {
+    "/tmp/nano-source-borrows-shv1blrk/transitive-refused.output": "1c8de11e07c13f5d5815341c1845a7e7daf4b96f3d718094ffd8ce83e77b6a3c",
+    "/tmp/nano-source-borrows-shv1blrk/transitive-refused-inline_child.nano": "dc5086f1b1c296245e7ada759f268e24262369d32aa320d2deb033f8c70701f9",
+    "/tmp/nano-source-borrows-shv1blrk/transitive-refused-missing_field.nano": "8047875d53b551588e91abc3f42963ecebb76e1361a0a12b8069a62127717d8b",
+    "/tmp/nano-source-borrows-shv1blrk/nanoc_c-shadows": "655aacf19918a35d2a03ace734931cc66aa34cbe2bc1aa7f8c94330e434dc75a",
+    "/tmp/nano-source-borrows-shv1blrk/shadow_driver.nano": "21b48fd47c1e28e2f852657f9e1f533641eb25aaf0cc97d1ae71f1db5eb2d5d4",
+    "/tmp/nano-source-borrows-shv1blrk/transitive-refused-managed_array.nano": "89db34e098f6f94d472cf29d914fb00df7a3cb8dae69d5dc031b28187ac4113a",
+    "/tmp/nano-source-borrows-shv1blrk/transitive-refused-wrong_nominal.nano": "228302740c1822cdda78357a5bbfb865fb17ce2531e396d67a4d92b8e0fcd9f1",
+    "/tmp/nano-source-borrows-shv1blrk/nanoc_stage2-shadows": "931f00dcfcdd9ecd0e7dd70564cef81e60195223ae3346fdec245be0fd2be701",
+    "/tmp/nano-source-borrows-shv1blrk/nanoc_stage2-emit": "f1eb841a85a71e084e8b25030b3401117d729a23474bd43d389564278bbd6a9a",
+    "/tmp/nano-source-borrows-shv1blrk/transitive-refused-duplicate_field.nano": "964b1f76c8854e8c7d7e2bd8c3c0289478aeed7f94d2906dac3f92851cc0a23e",
+    "/tmp/nano-source-borrows-shv1blrk/transitive-refused-forward_child.nano": "e0b1393a28bb8d026719ccda5058e8abc1377790be433d38fa22116ae2428474",
+    "/tmp/nano-source-borrows-shv1blrk/nanoc_stage1-emit": "509a73eb1ad900b63bf557dd66fb25147e70c65ba88eb8baf84fd62ef7c4b6f2",
+    "/tmp/nano-source-borrows-shv1blrk/nanoc_stage1-shadows": "25e676af91820768203578108661e17569dea546f90165785cdb7f0007aa22c0",
+    "/tmp/nano-source-borrows-shv1blrk/transitive-refused-managed_string_order.nano": "eaf7b76b1841b79ad6df6612db73de527547202939f579d29188218524a0f0d4"
+  },
+  "acceptance": "Original focused3 GCC and3 Clang passed. First adjacent58 had five diagnostic-only subtest failures in one method; other57 passed. Fresh corrected affected method passes with unchanged production/tools. This is not a second full58 run."
+}

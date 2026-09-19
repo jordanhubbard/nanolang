@@ -30,6 +30,10 @@ static int buffer_vsnprintf(char *out, size_t size, const char *format, va_list 
 }
 #define malloc buffer_malloc
 #define realloc buffer_realloc
+/* I replace an SDK macro only after the ordinary wrapper call above. */
+#ifdef vsnprintf
+#undef vsnprintf
+#endif
 #define vsnprintf buffer_vsnprintf
 #include "../src/nanocore_export.c"
 #undef malloc

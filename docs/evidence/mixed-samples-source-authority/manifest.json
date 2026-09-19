@@ -1,0 +1,21 @@
+{
+  "pin": "29ab099b5bec7eb3c2082fc4c9c504e2226d1da4",
+  "reports": {
+    "status.json": "16a41e84fe378fb3041e7a672acecf42d71202e588205e316fb75bd78c59a03a",
+    "nanolang-mixed-source-final-smoke.py": "93d0a3ecf47d1fdb9056eecd85e7a29f60e48ce6dc554f2aa808ee516e6f0084",
+    "tools-before.json": "ba44355d4358cab541b40ea9a3d139ae262502bd441d147a60a1fa39f4840746",
+    "stages-before.json": "393d415673cd73256fd294607f61a92a93349d51ab2a43389f9772782dabfac8",
+    "tools-after.json": "ba44355d4358cab541b40ea9a3d139ae262502bd441d147a60a1fa39f4840746",
+    "source-smoke.log": "b3a4ed503aea2f78f718643eb63eb7708295ceb034f41670fa8a3503ab074aaa",
+    "source-after.json": "973c639ceb41dae7a6b2c026edd41f6e00366c06dd8ce406ac1135d37c4ca3e4",
+    "inputs-after.json": "2961dc205da16e1cd62c71e00042fb800e72e8a3a84e27ff820a7584604d26f1",
+    "stages-after.json": "393d415673cd73256fd294607f61a92a93349d51ab2a43389f9772782dabfac8",
+    "mixed-conjunction.log": "52b5c8a6bca5e0d740a6cbb129b2d6acf4c147b4d997120ebf400ec187840972",
+    "inputs-before.json": "0f05eca8754ff18c4c0a143f1bd4d93ff7ddd499bc829f5d1d1c6d27197e4a8d",
+    "provider-tools.log": "ebfb931fb82b7779ada1b8b645c5abd4e3ae56af3b4dcbcde50f8125fde7a1c4",
+    "source-before.json": "973c639ceb41dae7a6b2c026edd41f6e00366c06dd8ce406ac1135d37c4ca3e4",
+    "nanolang-mixed-source-authority-gates.py": "928ae5636c93a128e9736c15106b127afc22b72a9a498af54eceec388789e9df",
+    "source-artifacts.json": "834662401dd0ea23e04a9aabe32d375e3a4a343ae21cb5ed9e36101edf385a28"
+  },
+  "scope": "Linux integration after private authority830; affected provider links plus mixed composition/admission and original Samples; no bootstrap repetition"
+}

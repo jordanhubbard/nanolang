@@ -186,6 +186,8 @@ typedef enum {
 
     /* Type Casts (0x88-0x8F) */
     OP_CAST_INT    = 0x88,   /* pop value -> push as int */
+    OP_F64_FROM_BITS = 0x8D, /* exact int bits -> float */
+    OP_F64_TO_BITS = 0x8E,   /* exact float bits -> int */
     OP_CAST_FLOAT  = 0x89,   /* pop value -> push as float */
     OP_CAST_BOOL   = 0x8A,   /* pop value -> push as bool */
     OP_CAST_STRING = 0x8B,   /* pop value -> push as string */
@@ -216,6 +218,14 @@ typedef enum {
     OP_MEM_STORE16  = 0xB7,
     OP_MEM_STORE32  = 0xB8,
     OP_MEM_STORE64  = 0xB9,
+
+    /* Exact File family: decoding alone grants no execution authority. */
+    OP_FILE_SERVICE       = 0x91, /* u32 import, u16 reference (65535 if none) */
+    OP_FILE_RESULT_BRANCH = 0x92, /* u16 local, i32 Error target from opcode PC */
+    OP_FILE_RESULT_TAKE   = 0x93, /* u16 local, u8 arm (0 Ok, 1 Error) */
+    OP_FILE_DROP_LOCAL    = 0x94, /* u16 local */
+    OP_FILE_DROP_STACK    = 0x95,
+    OP_FILE_END_BORROW    = 0x96, /* u16 reference */
 
     /* Typed scalar operations (v2 migration) */
     OP_I64_ADD      = 0xC0,
@@ -405,6 +415,12 @@ uint32_t isa_operand_size(OperandType type);
 
 /* Maximum encoded instruction size (opcode + largest operand combination) */
 #define ISA_MAX_INSTRUCTION_SIZE 32
+
+/* I identify the exact family independently of nominal or execution authority. */
+bool isa_is_file_opcode(uint8_t opcode);
+/* No allocation/authority: I stop at undecodable bytes and recognize truncated
+ * File opcodes before operands. Existing structural validation remains required. */
+bool isa_code_has_file_instructions(const uint8_t *code,size_t size);
 
 /* Lookup opcode by mnemonic name. Returns -1 if not found. */
 int isa_opcode_by_name(const char *name);

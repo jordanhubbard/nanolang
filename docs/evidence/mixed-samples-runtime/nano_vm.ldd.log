@@ -1,0 +1,6 @@
+	linux-vdso.so.1 (0x0000faf6a4ecc000)
+	libm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000faf6a4360000)
+	libcrypto.so.3 => /home/linuxbrew/.linuxbrew/lib/libcrypto.so.3 (0x0000faf6a3d70000)
+	libffi.so.8 => /home/linuxbrew/.linuxbrew/lib/libffi.so.8 (0x0000faf6a3d30000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000faf6a3b70000)
+	/lib/ld-linux-aarch64.so.1 (0x0000faf6a4e80000)

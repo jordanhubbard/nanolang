@@ -19,10 +19,10 @@ class ManagedPrimitiveFormat(unittest.TestCase):
             strings+=f'.string int{i} "{value}"\n'
             body+=f'PUSH_I64 {value}\nCALL integer\nPUSH_STR int{i}\nEQ\nASSERT\n'
             body+=f'PUSH_I64 {value}\nSTR_FROM_FLOAT\nPUSH_STR zero\nEQ\nASSERT\n'
-        for i,(_,expected,literal) in enumerate(self.reference()[:64]):
+        for i,(bits,expected,literal) in enumerate(self.reference()[:64]):
             strings+=f'.string float{i} "{expected}"\n'
-            body+=f'PUSH_F64 {literal}\nCALL floating\nPUSH_STR float{i}\nEQ\nASSERT\n'
-            body+=f'PUSH_F64 {literal}\nSTR_FROM_INT\nPUSH_STR zero\nEQ\nASSERT\n'
+            body+=f'PUSH_F64 bits:{bits}\nCALL floating\nPUSH_STR float{i}\nEQ\nASSERT\n'
+            body+=f'PUSH_F64 bits:{bits}\nSTR_FROM_INT\nPUSH_STR zero\nEQ\nASSERT\n'
         for op in ('STR_FROM_INT','STR_FROM_FLOAT'):
             for value in ('PUSH_BOOL 1','PUSH_BOOL 0','PUSH_U8 255','PUSH_VOID','ENUM_VAL 0 42','PUSH_STR a'):
                 body+=f'{value}\n{op}\nPUSH_STR zero\nEQ\nASSERT\n'
@@ -44,7 +44,7 @@ class ManagedPrimitiveFormat(unittest.TestCase):
             body='PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nDUP\nSTORE_GLOBAL 0\nCALL convert\nPOP\n'
             suffix=f'.function convert 1 1 0 string 1\n.parameters convert string\nLOAD_LOCAL 0\n{op}\nRET\n.end\n'
             _,ir,wasm=self.compile(self.program(body,suffix))
-            extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
-            self.native_harness(ir,'budget=2;if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1||nms_module_live_bytes()!=3)return 1;budget=-1;for(int i=0;i<4;i++)if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+            extra='static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
+            self.native_harness(ir,'budget=2;if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1||nms_module_live_bytes()!=3)return 1;budget=-1;for(int i=0;i<4;i++)if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,allocation_control=True)
             self.node(wasm,'for(let i=0;i<4;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===1n);}check(e.nano_dispose()===0);check(e.nms_module_live_objects()===0n);')
 if __name__=='__main__':unittest.main()

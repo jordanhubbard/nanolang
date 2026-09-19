@@ -1,0 +1,10 @@
+{
+  "pin": "b8cc31f700c54612730715271bb1b58da9ca786a",
+  "main": "5d66062516e15a84052ffa971d534fc4ad3f3592",
+  "production_and_fixtures_unchanged_from": "805ff5c4261526c7b4c77750d6e30b8d26083549",
+  "tools": 8,
+  "objects": 31,
+  "sources": 1619,
+  "no_bootstrap": true,
+  "no_pending_execution": true
+}

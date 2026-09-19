@@ -1,0 +1,55 @@
+[
+  {
+    "name": "bootstrap",
+    "command": [
+      "make",
+      "-j4",
+      "bootstrap",
+      "nano_virt",
+      "nano_vm",
+      "nanoisa_dump",
+      "nvm2c",
+      "nvm2llvm",
+      "nvm2wasm",
+      "bin/nano"
+    ],
+    "status": 0,
+    "seconds": 234.21736599801807
+  },
+  {
+    "name": "transport",
+    "command": [
+      "make",
+      "-j4",
+      "test-nvm-v2-layouts",
+      "test-nvm-v2-module",
+      "test-nvm-v2-convert",
+      "test-nvm-v2-endtoend",
+      "test-ordinary-record-authority",
+      "test-ownership-contracts"
+    ],
+    "status": 0,
+    "seconds": 2.407702680968214
+  },
+  {
+    "name": "producers",
+    "command": [
+      "make",
+      "test-ordinary-record-producers"
+    ],
+    "status": 0,
+    "seconds": 192.13522325298982
+  },
+  {
+    "name": "profiles",
+    "command": [
+      "make",
+      "-j4",
+      "test-managed-record-eligibility",
+      "test-managed-array-eligibility",
+      "test-verifier-profiles"
+    ],
+    "status": 0,
+    "seconds": 5.100330921995919
+  }
+]

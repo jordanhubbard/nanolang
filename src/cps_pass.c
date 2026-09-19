@@ -145,8 +145,11 @@ static void cps_walk(ASTNode *node, CPSContext *ctx) {
 
     case AST_MATCH: {
         cps_walk(node->as.match_expr.expr, ctx);
-        for (int i = 0; i < node->as.match_expr.arm_count; i++)
+        for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+            if (node->as.match_expr.guard_exprs)
+                cps_walk(node->as.match_expr.guard_exprs[i], ctx);
             cps_walk(node->as.match_expr.arm_bodies[i], ctx);
+        }
         break;
     }
 

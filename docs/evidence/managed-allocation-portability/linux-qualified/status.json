@@ -1,0 +1,32 @@
+{
+  "source": "79485be25a55f1cb92a1bc7138c882412f0be9f1",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_llvm_managed_strings",
+    "tests.test_llvm_managed_decimal",
+    "tests.test_llvm_managed_format",
+    "tests.test_managed_binary64_format",
+    "tests.test_managed_binary64_parse",
+    "tests.test_llvm_managed_predicates",
+    "tests.test_llvm_managed_trim",
+    "tests.test_llvm_managed_character",
+    "tests.test_llvm_managed_case",
+    "tests.test_llvm_managed_primitive_format",
+    "tests.test_llvm_managed_replace",
+    "tests.test_llvm_managed_split",
+    "tests.test_llvm_managed_mutable_arrays",
+    "tests.test_llvm_managed_array_copies",
+    "tests.test_llvm_managed_graphs",
+    "tests.test_managed_records"
+  ],
+  "status": 0,
+  "timed_out": false,
+  "seconds": 103.599,
+  "unchanged": true,
+  "runtime_package_compiler": "clang-18 / opt-18",
+  "native_flags": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+}

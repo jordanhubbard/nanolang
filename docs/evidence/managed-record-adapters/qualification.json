@@ -1,0 +1,39 @@
+{
+  "after_sha256": "05969da30e86287b923371275a725d335f157e04958c0400fc3d6ef570d08418",
+  "baseline": "7ebc9e9c",
+  "before_sha256": "05969da30e86287b923371275a725d335f157e04958c0400fc3d6ef570d08418",
+  "corrected_frozen": "d36cc2ef",
+  "current_inputs": {
+    "Makefile.gnu": "54e8316d7721acd11ee81d9e1272279ac30d623fdc462cfeb4305e9940e500d0",
+    "bin/nano_vm": "ccdbe78ed9d9c6ce04be78bce5b696ee264db04a64f646ed6ae104f5682e0540",
+    "bin/nanoisa": "eb9a8e51aee67af6230933e4a8b313e5bd6d228d061bee29153ebdb059b260fc",
+    "bin/nvm2c": "c2c7b7084dbf227e8d3d4e2a6fca8b41922049d71eb43090c171c145cf3b1694",
+    "bin/nvm2llvm": "a1af995128b3daee7afd24b090f5691f726922efb592d4d757b9313c9bf5d387",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "obj/nanoisa/managed_runtime_ir.h": "8ee4a7320f46ca7c14ef9d07a37b1fb0ba835a65b1d8b13ffabac4389ac3eda5",
+    "obj/nanoisa/managed_runtime_ir.json": "3ce954dd94fb777b510daa1b8bf92003277db673d3f8ff14ac3f7ff38d8714a6",
+    "scripts/embed_managed_runtime.py": "d13165612bde43a595052f23bcdb7d7f16b4199396e242e3b30085e81f9e1ad5",
+    "src/nanoisa/binary64_parse.h": "bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5",
+    "src/nanoisa/managed_module.c": "f8e6fe2d4ce7bf53404290c0706cad61efa4bd35b362df30517dc377ee126e52",
+    "src/nanoisa/managed_strings.c": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+    "src/nanoisa/managed_strings.h": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+    "tests/nanoisa/test_managed_record_adapters.c": "5641560ad35b73c9ac9d4dcfd84661ac81e1ad023c3675d2d0b871dc247b7683",
+    "tests/test_managed_record_adapters.py": "d0391136d5400415fe2ec8b2cd8996bb29ef0fc6f15667d990b904ebd1f709de"
+  },
+  "first_fixture": "84fb2bc9",
+  "frozen_equal_count": 1645,
+  "original_fixture": {
+    "src/nanoisa/managed_module.c": "f8e6fe2d4ce7bf53404290c0706cad61efa4bd35b362df30517dc377ee126e52",
+    "tests/nanoisa/test_managed_record_adapters.c": "7f6e4aafd29dd1065fb39ee5bd26c22734687e8363f7b645216c006b4bd5842b",
+    "tests/test_managed_record_adapters.py": "d0391136d5400415fe2ec8b2cd8996bb29ef0fc6f15667d990b904ebd1f709de"
+  },
+  "production": "c872f938",
+  "statuses": {
+    "build.status": "0",
+    "corrected-focused.status": "0",
+    "focused.status": "1",
+    "generated-adjacent.status": "0",
+    "private-adjacent.status": "0"
+  },
+  "tree": "/home/jkh/Src/nanolang-managed-record-execution"
+}

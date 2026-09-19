@@ -23,3 +23,7 @@ I therefore do not repeat the obsolete blanket claim that current C seed skips e
 Broader task56a remains open for exact-source, selected-compiler execution evidence: retain a dependency-aware shadow inventory, selected/completed counts or traces for each component, final completion status and source/tool identities. Report root-only selection and explicit C-text emission separately. Any current-source refusal or failed assertion must be preserved and entered in the roadmap before a repair. Existing historical failed artifacts remain untouched.
 
 This inventory is documentation-only. I check its source hashes and lexical counts, compare the routes above with their full implementations, and run `git diff --check`. I make no new runtime claim and do not close compiler correctness or release obligations.
+
+## My later completion evidence
+
+My [canonical execution report](CANONICAL_COMPONENT_SHADOW_COMPLETION.md) supplies the remaining exact-source selected/completed evidence at product e9a5f55f. Together these reports complete the original component-execution task56a. Earlier open-status statements above describe the evidence available when this report was written; later source changes and full release acceptance remain separate.

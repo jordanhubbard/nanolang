@@ -1,0 +1,9 @@
+{
+  "head": "8dc7edb09efe4194dd837086c54f7d935b23f348",
+  "compiler": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+  "compiler_sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+  "compiler_version": "Homebrew clang version 23.1.1\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/llvm/23.1.1/bin\nConfiguration file: /opt/homebrew/Cellar/llvm/23.1.1/etc/clang/arm64-apple-darwin25.cfg\n",
+  "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "platform": "darwin",
+  "runner_sha256": "107a1a9ad0ee2455767c3a9c1ce69f639e447285aa40c41d6392e5cdd69b05db"
+}

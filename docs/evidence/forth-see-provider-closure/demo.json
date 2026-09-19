@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/tmp/nanolang-forth-provider-qualification/forth",
+    "--demo"
+  ],
+  "returncode": 0,
+  "seconds": 0.015874636999797076,
+  "starts_demo": true,
+  "completes_demo": false
+}

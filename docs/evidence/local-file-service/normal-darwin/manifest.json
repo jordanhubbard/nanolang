@@ -1,0 +1,21 @@
+{
+  "pin": "96d0f650352c30b26a8cf8c0f5118561f40e4347",
+  "steps": [
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "test-nsi-file"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 1.802,
+      "log_sha256": "351c6f110a310dd6075ef25ed96c9fd751017aa358acdbc0639848210ba4977d"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

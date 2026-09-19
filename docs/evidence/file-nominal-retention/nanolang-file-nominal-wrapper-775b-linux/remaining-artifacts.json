@@ -1,0 +1,26 @@
+{
+  "/home/jkh/Src/nanolang-file-nominal-wrapper-qualified/bin/nvm2wasm": {
+    "sha256": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "bytes": 2857
+  },
+  "/home/jkh/Src/nanolang-file-nominal-wrapper-qualified/bin/nanoisa": {
+    "sha256": "5a4658b0242b86d14ec5984fad3b982ad6cc333e9118757ef9fc4cbdcd11e688",
+    "bytes": 2343936
+  },
+  "/home/jkh/Src/nanolang-file-nominal-wrapper-qualified/bin/nano_virt": {
+    "sha256": "bb8f9773ba7a92dc441a60094a7c3feee937e7dc15134b28082fafb42cae2adf",
+    "bytes": 18203648
+  },
+  "/home/jkh/Src/nanolang-file-nominal-wrapper-qualified/bin/nano_as_capture.so": {
+    "sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "bytes": 72080
+  },
+  "/home/jkh/Src/nanolang-file-nominal-wrapper-qualified/bin/nvm2llvm": {
+    "sha256": "52079004e31f24f92981dd624ae41408937eca0ecb3f8b5b896b9022b7459603",
+    "bytes": 3625920
+  },
+  "/home/jkh/Src/nanolang-file-nominal-wrapper-qualified/obj/test_verifier_profiles": {
+    "sha256": "a091df957fae310f800957bc3cd86a7a127a275e816e6912d158324d3cbab709",
+    "bytes": 3623072
+  }
+}

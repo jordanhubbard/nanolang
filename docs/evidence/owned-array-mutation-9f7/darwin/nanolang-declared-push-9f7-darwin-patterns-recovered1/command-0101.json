@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/private/tmp/nanolang-declared-push-9f7ead937/bin/nanoc_stage1",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-p3l5ixdm/case.nano",
+    "-o",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-p3l5ixdm/program"
+  ],
+  "status": 1,
+  "stdout": "NSType checking failed\nDiagnostics:\n  [E0036] I cannot verify ownership: I cannot use a moved value (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-p3l5ixdm/case.nano:6:17)\n",
+  "stderr": ""
+}

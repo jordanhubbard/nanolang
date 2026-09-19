@@ -1,0 +1,51 @@
+started_utc=2026-09-18T13:59:55.588546+00:00
+command=python3 -m unittest -f -v tests.test_binary64_arithmetic
+PATH=/opt/homebrew/opt/llvm/bin:/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin:/opt/homebrew/bin:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/VMware Fusion.app/Contents/Public:/opt/homebrew/bin:/Users/jordanh/.codex/tmp/arg0/codex-arg0gMdlrY:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jordanh/Library/pnpm:/opt/homebrew/sbin:/Applications/Docker.app/Contents/Resources/bin:/Users/jordanh/.cargo/bin:/Users/jordanh/.local/bin:/Users/jordanh/Bin:.
+test_direct_and_exact_standalone (tests.test_binary64_arithmetic.Binary64Arithmetic.test_direct_and_exact_standalone) ... FAIL
+
+======================================================================
+FAIL: test_direct_and_exact_standalone (tests.test_binary64_arithmetic.Binary64Arithmetic.test_direct_and_exact_standalone)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/tests/test_binary64_arithmetic.py", line 37, in test_direct_and_exact_standalone
+    self.run_command(self.cc+['-std=c11','-Wall','-Wextra','-Werror','-ffp-contract=off','-fno-fast-math','-fsanitize=address,undefined','-fno-sanitize-recover=all','-I'+str(ROOT/'src')]+mode+[source,'-lm','-o',exe])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/tests/test_binary64_arithmetic.py", line 19, in run_command
+    self.assertEqual(result.returncode==0,success,result.stdout+result.stderr+str(self.work))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : ld64.lld: error: could not load TAPI file at /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libm.tbd: malformed file
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libm.tbd:4:20: error: unknown target
+                   arm64e.x1-macos, arm64e.x1-maccatalyst ]
+                   ^~~~~~~~~~~~~~~
+
+
+ld64.lld: error: could not load TAPI file at /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd: malformed file
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd:4:20: error: unknown target
+                   arm64e.x1-macos, arm64e.x1-maccatalyst ]
+                   ^~~~~~~~~~~~~~~
+
+
+ld64.lld: error: undefined symbol: __assert_rtn
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol main+0x650)
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol main+0x620)
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol check+0x138)
+>>> referenced 2 more times
+
+ld64.lld: error: undefined symbol: printf
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol main+0x5e8)
+
+ld64.lld: error: undefined symbol: fegetround
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol main+0x10)
+
+ld64.lld: error: undefined symbol: __cxa_atexit
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol l_register_call_dtors.1+0x18)
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-binary64-arithmetic-h2i5pyl1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.827s
+
+FAILED (failures=1)
+finished_utc=2026-09-18T13:59:56.479523+00:00
+elapsed_seconds=0.891003
+exit_status=1

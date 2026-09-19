@@ -22,15 +22,33 @@ roadmap. MAC `task_037b12aecc894b86ba335828fa1eb1a2`.
   ADD/CAST_INT/CAST_FLOAT anywhere in a string-bearing module. The existing
   CLOSED_SCALAR selector continues to refuse strings. Details and lifetime are
   in `NANOISA_LLVM_LITERAL_STRINGS.md`.
-- `NVM_PROFILE_CLOSED_MANAGED_STRINGS` retains those closed module rules and
+- `NVM_PROFILE_CLOSED_MANAGED_STRINGS` retains closed import/capture restrictions and
   adds matched managed string operations/conversions and string/numeric ADD.
   My split extension admits string-child arrays through STR_SPLIT, ARR_GET/LEN
   and array signatures. My bounded mutable extension adds ARR_NEW/PUSH/SET/POP
-  only after conservative whole-module element-shape analysis succeeds. Mutable
+  only after conservative whole-module element-shape analysis succeeds. My leaf
+  literal/slice extension applies that same analysis to ARR_LITERAL/SLICE, with
+  counted input ownership and fresh copy origins as specified in
+  `NANOISA_MANAGED_ARRAY_LITERAL_SLICE.md`. Mutable
   modules use prepared boxed split storage and tagged generic GET/LEN; read-only
-  modules keep their prior path. Deferred analysis transfers and unsupported
-  packed coercions/nested children refuse publication, while runtime type, bounds
-  and ownership checks remain mandatory. Other heap/import exclusions remain.
+  modules keep their prior path. My graph extension first selects that unchanged
+  leaf mode. Only leaf UNRESOLVED may fall back to conservative graph analysis;
+  allocation/limit/invalid failures stay final. Eligible boxed scalar/string/array
+  graphs use prepared allocation-free collection before allocating instructions
+  and after frame cleanup, including acquired-entry preparation-failure cleanup.
+  Counted temporary/global owners supply lifetime independently of origins.
+  `NANOISA_MANAGED_GRAPH_ADMISSION.md` defines the matched LLVM/Wasm boundary.
+  Deferred analysis transfers and unsupported packed coercions still refuse
+  publication; runtime type, bounds and ownership checks remain mandatory.
+  My ordinary-record extension requires both checked ORDINARY
+  COMPLETE acyclic descriptors and the unchanged field-origin query. Only that selected
+  mode admits STRUCT signatures and matched record constructors/GET/SET, with
+  descriptor binding, counted temporaries and prepared collection. Unknown,
+  resource and mixed record-array layouts remain refused. Exact all-record
+  forward DAGs additionally follow `NANOISA_MANAGED_FORWARD_RECORDS.md`; mixed-kind
+  forward tables retain refusal. I specify
+  this conjunction in `NANOISA_MANAGED_RECORD_EXECUTION.md`; advisory metadata
+  alone grants no admission. Other heap/import exclusions remain.
   Details are in `NANOISA_MANAGED_MUTABLE_ARRAYS.md`. Ownership and
   errors follow `NANOISA_LLVM_MANAGED_STRINGS.md`.
 - I reject unknown profile selectors. Neither a source annotation nor arbitrary

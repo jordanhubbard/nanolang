@@ -1,0 +1,8 @@
+test_signed_integer_boundary_nan_payloads (tests.test_reconstruction_f64_transport.FloatReconstruction.test_signed_integer_boundary_nan_payloads) ... ok
+test_snapshots_calls_branches_and_pure_loop (tests.test_reconstruction_f64_comparisons.FloatComparisons.test_snapshots_calls_branches_and_pure_loop) ... ok
+test_calls_snapshots_branches_and_loop (tests.test_reconstruction_f64_negation.FloatNegation.test_calls_snapshots_branches_and_loop) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 48.365s
+
+OK

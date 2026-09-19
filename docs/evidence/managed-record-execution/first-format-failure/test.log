@@ -1,0 +1,32 @@
+test_selector_atomicity (tests.test_llvm_managed_records.HeapSelector.test_selector_atomicity) ... ok
+test_allocation_pressure_acquired_failure_and_nested_begin (tests.test_llvm_managed_records.ManagedRecords.test_allocation_pressure_acquired_failure_and_nested_begin) ... ok
+test_exact_scalar_payloads_counted_constructors_and_empty_identity (tests.test_llvm_managed_records.ManagedRecords.test_exact_scalar_payloads_counted_constructors_and_empty_identity) ... ok
+test_generic_consumers_identity_casts_order_and_branches (tests.test_llvm_managed_records.ManagedRecords.test_generic_consumers_identity_casts_order_and_branches) ... FAIL
+test_global_identity_initializer_reentry_and_failure_cleanup (tests.test_llvm_managed_records.ManagedRecords.test_global_identity_initializer_reentry_and_failure_cleanup) ... ok
+test_nested_aliases_get_temporary_set_and_reordered_calls (tests.test_llvm_managed_records.ManagedRecords.test_nested_aliases_get_temporary_set_and_reordered_calls) ... ok
+test_unknown_wrong_nominal_and_mixed_edges_preserve_output (tests.test_llvm_managed_records.ManagedRecords.test_unknown_wrong_nominal_and_mixed_edges_preserve_output) ... ok
+test_weak_site_churn_and_independent_array_cycles (tests.test_llvm_managed_records.ManagedRecords.test_weak_site_churn_and_independent_array_cycles) ... ok
+
+======================================================================
+FAIL: test_generic_consumers_identity_casts_order_and_branches (tests.test_llvm_managed_records.ManagedRecords.test_generic_consumers_identity_casts_order_and_branches)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-managed-record-lowering/tests/test_llvm_managed_records.py", line 73, in test_generic_consumers_identity_casts_order_and_branches
+    self.paired(program(body,[(0,[])],[8]))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-managed-record-lowering/tests/test_llvm_managed_records.py", line 25, in paired
+    self.native_harness(ir, 'for(int i=0;i<3;i++)if(nano_try_entry()||nms_module_live_objects())return 1;return nano_dispose();')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-managed-record-lowering/tests/test_llvm_managed_strings.py", line 72, in native_harness
+    self.run_cmd([exe])
+    ~~~~~~~~~~~~^^^^^^^
+  File "/home/jkh/Src/nanolang-managed-record-lowering/tests/test_llvm_managed_strings.py", line 24, in run_cmd
+    self.assertEqual(p.returncode == 0, success, str(args)+'\n'+p.stdout+p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : [PosixPath('/tmp/nano-managed-emitted-k4ha95d4/harness')]
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 14.712s
+
+FAILED (failures=1)

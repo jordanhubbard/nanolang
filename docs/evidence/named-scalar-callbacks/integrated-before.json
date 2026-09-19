@@ -1,0 +1,29 @@
+{
+  "head": "8a751c1e49353d95db3fa14c8d0152beb016ebbf",
+  "sha256": {
+    "Makefile.gnu": "fc7eded2d72eb5593e81564ffc620f04f4de73cba2cb3dc967c9ff9351d1b3d7",
+    "src/nanovirt/codegen.c": "3a943e3296deb4f1dae9d3c508022bb02965e4284da3c18a0272f5855644b5fe",
+    "src/typechecker.c": "2a203fab1485dbb46f7c0a567c959dfd8657834b0868a1aedc9f8edf48d88cc2",
+    "tests/test_binary64_arithmetic_source.py": "7d8300657bdf32376afc1cc1238710919fd89e5f39b13e48f396b776f21d0a8e",
+    "tests/test_named_scalar_callbacks.py": "813c31c2ac55586a3eaaf708f4e002371aef1a89449db610c30868f72a4786d4",
+    "tests/test_scalar_reduce_source.py": "cf4ffd7b990c8bb66326ced2720743c5a7f5b57235c2971e184ee8422ddd9cf1",
+    "tests/test_typechecker.c": "8aae26c182ba63018265703464fa96e2a2be4efb843dab7f845db18f6b6f9674",
+    "bin/nanoc_c": "bcb1a44092d8fdf2e2b4eb1bc386b6f3fa21d89a902d13f4c7f4e47afb0e82e6",
+    "bin/nanoc_stage1": "dedc60bc3338d18f318e05d2a372ae119030c1c05885d88fcf1343b20f063e7d",
+    "bin/nanoc_stage2": "c83ab1204a026fa9df4e34c883ec44efea278a5264c69e7c869b0bf25fe43513",
+    "bin/nano": "994e2b0765bc8391c555f19820ad116f930a05a683c387bf449ccad5d9be361f",
+    "bin/nano_virt": "51beac7dee9db491a7235c0b8929868cd0df9f0cee8b10f7ff32d3cb75366ba2",
+    "bin/nano_vm": "4fe118a20254e6ac9d2b61492ea3b00e66a0f757aba3692aadc4ba649e002295",
+    "bin/nanoisa": "f67d89a983ea580659cab088ed8b3edc862c2b648dfb8ed4279c07521fc94c0c",
+    "bin/nvm2c": "aba298b2f7c5a5b8492b38573a5b25682de01cfa0e39b5ad0ab7399750006c79",
+    "bin/nvm2llvm": "82b1aade0be77428f8c0c44b9decf0538fbfb1760e039e6886eaac69f5c05877",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "src/eval.c": "e84e8178475f2e69c2c922203d636d61d32dd7516f0b49d059392f09b2011656",
+    "src/nanoisa/nvm2c.c": "245eaeb14ee84a1787bb2d5cfe9339faf63ff070e250d6817174562b928daa2b",
+    "src/nanoisa/nvm2c_owned.h": "1ae6104a8d5692bfb638a643f50d5462e929e22cdb2361661c9606486784826d",
+    "src/nanoisa/affine_bytecode.c": "aad696e07cc05490d89805842907fe365a2ba59d06601a455c39e8f2b0d0c2f6",
+    "src/nanoisa/affine_state.c": "695948e2ebc80a9d45c0f2826a171bfa09f2eac10d168124a5a9c070898ae33a",
+    "src/nanoisa/verifier.c": "e6289e4713b112eb6ec97531e0c4a6e17f227d6fc9b248d1cf0de9e6e254c406",
+    "src/nanovm/vm.c": "f300a680685b15e591a49a01f08eccbe44de7959fc16a0f4dd65fe39a068123e"
+  }
+}

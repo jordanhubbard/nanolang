@@ -1,0 +1,12 @@
+
+/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0:     file format elf64-littleaarch64
+
+
+Disassembly of section .fini:
+
+000000000000c8f8 <.fini>:
+    c8f8:	d503201f 	nop
+    c8fc:	a9bf7bfd 	stp	x29, x30, [sp, #-16]!
+    c900:	910003fd 	mov	x29, sp
+    c904:	a8c17bfd 	ldp	x29, x30, [sp], #16
+    c908:	d65f03c0 	ret

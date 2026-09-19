@@ -1,0 +1,20 @@
+{
+  "without-names.nasm": "ba9a41938999cd96e825142fbbaf6c94a785abb4768b939e76bf8d3510a6da66",
+  "nanoc_stage2-graph.nvm": "ff9f56b1d0b49dc6d32ed1ad90c5e4f0e0a79b55a7b5da29d3a03a12b6e032ac",
+  "mixed-native.c": "01ebd2af3f5e4685af3cb8c2a614c01719c6c3c9295574a6ab8e605738ed43db",
+  "graph.nasm": "95a3d6c1cf43e589b7b1af1248a590f734777fbf9b01f8db80ee5889d10af05d",
+  "without-names.nvm": "2f2030378f80c3d302fdf55688b2a4f60fc0eea4f5b943beef9fbb0d1f637328",
+  "graph-shadow.nvm": "a5c81313bdac78a91935b7953864187ceb3e820174eae8bc53179b3ce0620e6c",
+  "nanoc_c-shadows": "3a59e793a7b096fcc4d20c7173586204aa6af32b1779bb35a25cc6064ada0528",
+  "nanoc_stage1-graph.nvm": "ff9f56b1d0b49dc6d32ed1ad90c5e4f0e0a79b55a7b5da29d3a03a12b6e032ac",
+  "nano_virt-graph.nvm": "ff9f56b1d0b49dc6d32ed1ad90c5e4f0e0a79b55a7b5da29d3a03a12b6e032ac",
+  "shadow_driver.nano": "21b48fd47c1e28e2f852657f9e1f533641eb25aaf0cc97d1ae71f1db5eb2d5d4",
+  "graph-shadow.nasm": "1d328f3b98d029aca0365a832039d8d241239bdb20c4d7e6d8f0a97d1193b92e",
+  "nanoc_stage2-shadows": "8380b361d8832a565a8343bc281bb120a752b743cddaadc9cd29b11591acfaa2",
+  "mixed-native": "ac04f0a51f555cc447f206dd4a269e6839e440170ee254f61b37499979ac9eb5",
+  "nanoc_stage2-emit": "c8507a66db990222dea1017dc8d770614697ef464c966a3aa1af1e865571daf4",
+  "graph-owned-array-original.nano": "50c48c2ae2c62718d879348d7c004bc64306afb9df041da67f7e98f1a0c58c40",
+  "graph.nvm": "ff9f56b1d0b49dc6d32ed1ad90c5e4f0e0a79b55a7b5da29d3a03a12b6e032ac",
+  "nanoc_stage1-emit": "8e6695a2dfca6209fb51bf054bdbee327b41b580fe286874b89b302f871ecd55",
+  "nanoc_stage1-shadows": "68b0c8f781c0090ceee3176949f80335b3e86111e340d11bf6ce2e7d89c1c8e0"
+}

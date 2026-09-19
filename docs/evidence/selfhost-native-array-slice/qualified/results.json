@@ -1,0 +1,26 @@
+[
+  {
+    "name": "bootstrap",
+    "command": [
+      "make",
+      "-j4",
+      "bootstrap",
+      "nano_virt",
+      "nano_vm"
+    ],
+    "status": 0,
+    "seconds": 250.03645652800333
+  },
+  {
+    "name": "slice",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_selfhost_native_array_slice"
+    ],
+    "status": 0,
+    "seconds": 48.612593425030354
+  }
+]

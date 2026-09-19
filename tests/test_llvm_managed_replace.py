@@ -86,9 +86,9 @@ int main(void){return run();}
         body='PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nDUP\nSTORE_GLOBAL 0\nPUSH_STR a\nPUSH_STR double\nCALL replace\nPOP\n'
         suffix='.function replace 3 3 0 string 1\n.parameters replace string string string\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nLOAD_LOCAL 2\nSTR_REPLACE\nRET\n.end\n'
         _,ir,_=self.compile(self.program(body,suffix))
-        extra='static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
+        extra='static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
         for fail in (2,3):
-            self.native_harness(ir,f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,['-Wl,--wrap=malloc'])
+            self.native_harness(ir,f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=1)return 2;return nano_dispose();',extra,allocation_control=True)
         for bad_position in range(3):
             body='PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_GLOBAL 0\nPUSH_I64 7\nSTORE_GLOBAL 1\n'
             body+=''.join('LOAD_GLOBAL 1\n' if i==bad_position else 'LOAD_GLOBAL 0\n' for i in range(3))+'STR_REPLACE\nPOP\n'

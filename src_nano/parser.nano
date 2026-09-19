@@ -750,6 +750,9 @@ shadow token_array { assert (== (token_array) LexerTokenType.TOKEN_ARRAY) }
 fn token_type_int() -> int { return LexerTokenType.TOKEN_TYPE_INT }
 shadow token_type_int { assert (== (token_type_int) LexerTokenType.TOKEN_TYPE_INT) }
 
+fn token_type_u8() -> int { return LexerTokenType.TOKEN_TYPE_U8 }
+shadow token_type_u8 { assert (== (token_type_u8) LexerTokenType.TOKEN_TYPE_U8) }
+
 fn token_type_float() -> int { return LexerTokenType.TOKEN_TYPE_FLOAT }
 shadow token_type_float { assert (== (token_type_float) LexerTokenType.TOKEN_TYPE_FLOAT) }
 
@@ -905,16 +908,19 @@ fn is_type_start_token_type(token_type: int) -> bool {
             (or
                 (== token_type (token_type_int))
                 (or
-                    (== token_type (token_type_float))
+                    (== token_type (token_type_u8))
                     (or
-                        (== token_type (token_type_bool))
+                        (== token_type (token_type_float))
                         (or
-                            (== token_type (token_type_string))
+                            (== token_type (token_type_bool))
                             (or
-                                (== token_type (token_type_bstring))
+                                (== token_type (token_type_string))
                                 (or
-                                    (== token_type (token_type_void))
-                                    (== token_type (token_lparen))
+                                    (== token_type (token_type_bstring))
+                                    (or
+                                        (== token_type (token_type_void))
+                                        (== token_type (token_lparen))
+                                    )
                                 )
                             )
                         )
@@ -2309,6 +2315,34 @@ shadow parse_cond_clauses {
     assert (== 1 1)
 }
 
+/* I refuse guarded arms until my self-hosted AST can retain each guard. */
+fn parser_expect_match_arrow(p: Parser) -> Parser {
+    if (parser_is_at_end p) { return (parser_with_error p true) }
+    let tok: LexerToken = (parser_current p)
+    if (== tok.token_type (token_if)) {
+        let diag: CompilerDiagnostic = (Diagnostics.diag_parser_error
+            "P0001"
+            "I do not yet accept guarded match arms in my self-hosted parser"
+            (Diagnostics.diag_location p.file_name tok.line tok.column))
+        (Diagnostics.diag_list_add p.diagnostics diag)
+        return (parser_with_error p true)
+    }
+    return (parser_expect p (token_arrow))
+}
+
+shadow parser_expect_match_arrow {
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string "if true" "guard.nano" diagnostics)
+    let p: Parser = (parser_new tokens (list_LexerToken_length tokens) "guard.nano")
+    let rejected: Parser = (parser_expect_match_arrow p)
+    assert (parser_has_error rejected)
+    assert (== (list_CompilerDiagnostic_length rejected.diagnostics) 1)
+    let diag: CompilerDiagnostic = (list_CompilerDiagnostic_get rejected.diagnostics 0)
+    assert (== diag.message "I do not yet accept guarded match arms in my self-hosted parser")
+    assert (== diag.location.line 1)
+    assert (== diag.location.column 1)
+}
+
 /* Parse match expression: match expr { pattern => body, ... } */
 fn parse_match(p: Parser) -> Parser {
     let tok: LexerToken = (parser_current p)
@@ -2351,7 +2385,7 @@ fn parse_match(p: Parser) -> Parser {
                             /* Integer literal arm: 42 => { body }  — no binding parens */
                             if (== tcur.token_type (token_number)) {
                                 let int_pattern: string = (str_concat "INT:" variant_name)
-                                let p1e: Parser = (parser_expect p1a (token_arrow))
+                                let p1e: Parser = (parser_expect_match_arrow p1a)
                                 if (parser_has_error p1e) { return p1e } else {
                                     if (parser_is_at_end p1e) {
                                         return (parser_with_error p1e true)
@@ -2400,7 +2434,7 @@ fn parse_match(p: Parser) -> Parser {
                                 }
                             /* Wildcard arm: _ => { body }  — no binding parens */
                             } else if (== variant_name "_") {
-                                let p1e: Parser = (parser_expect p1a (token_arrow))
+                                let p1e: Parser = (parser_expect_match_arrow p1a)
                                 if (parser_has_error p1e) { return p1e } else {
                                     if (parser_is_at_end p1e) {
                                         return (parser_with_error p1e true)
@@ -2460,7 +2494,7 @@ fn parse_match(p: Parser) -> Parser {
                                             let p1c: Parser = (parser_advance p1b)
                                             let p1d: Parser = (parser_expect p1c (token_rparen))
                                             if (parser_has_error p1d) { return p1d } else {
-                                                let p1e: Parser = (parser_expect p1d (token_arrow))
+                                                let p1e: Parser = (parser_expect_match_arrow p1d)
                                                 if (parser_has_error p1e) { return p1e } else {
                                                     /* Arm body: block (preferred) or expression */
                                                     if (parser_is_at_end p1e) {
@@ -4973,78 +5007,62 @@ shadow parse_owned_pattern {
 }
 
 fn parse_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
-    if (parser_has_error p) { return p }
-    if (parser_starts_owned_pattern p) {
-        return (parse_block_recursive (parse_owned_pattern p stmts) stmts start_line start_column)
-    }
-    if (parser_has_error p) {
-        return p
-    } else {
-        if (parser_is_at_end p) {
-            return (parser_with_error p true)
+    let mut cursor: Parser = p
+    while true {
+        if (parser_has_error cursor) { return cursor }
+        if (parser_starts_owned_pattern cursor) {
+            set cursor (parse_owned_pattern cursor stmts)
         } else {
-            let tok: LexerToken = (parser_current p)
-            
+            if (parser_is_at_end cursor) { return (parser_with_error cursor true) }
+            let tok: LexerToken = (parser_current cursor)
+
             if (== tok.token_type (token_rbrace)) {
                 /* End of block */
-                let p1: Parser = (parser_advance p)  /* consume '}' */
-                return (parser_store_block p1 stmts start_line start_column)
-            } else {
-                /* Check for tuple destructuring: let (a, b) = ... or let mut (a, b) = ... */
-                let is_tuple_destr: bool =
-                    (or
-                        (and (== tok.token_type (token_let))
-                             (== (parser_peek p 1) (token_lparen)))
-                        (and (== tok.token_type (token_let))
-                             (and (== (parser_peek p 1) (token_mut))
-                                  (== (parser_peek p 2) (token_lparen)))))
+                let closed: Parser = (parser_advance cursor)  /* consume '}' */
+                return (parser_store_block closed stmts start_line start_column)
+            }
 
-                if is_tuple_destr {
-                    /* Consume 'let' */
-                    let p_let: Parser = (parser_advance p)
-                    /* Check for 'mut' — current token of p_let is first token after 'let' */
-                    let mut is_mut: bool = false
-                    let mut p_after_let: Parser = p_let
-                    if (not (parser_is_at_end p_let)) {
-                        let tok_after_let: LexerToken = (parser_current p_let)
-                        if (== tok_after_let.token_type (token_mut)) {
-                            set is_mut true
-                            set p_after_let (parser_advance p_let)
-                        } else {
-                            (print "")
-                        }
+            /* Check for tuple destructuring: let (a, b) = ... or let mut (a, b) = ... */
+            let is_tuple_destr: bool =
+                (or
+                    (and (== tok.token_type (token_let))
+                         (== (parser_peek cursor 1) (token_lparen)))
+                    (and (== tok.token_type (token_let))
+                         (and (== (parser_peek cursor 1) (token_mut))
+                              (== (parser_peek cursor 2) (token_lparen)))))
+
+            if is_tuple_destr {
+                /* Consume 'let' */
+                let p_let: Parser = (parser_advance cursor)
+                /* Check for 'mut' — current token of p_let is first token after 'let' */
+                let mut is_mut: bool = false
+                let mut p_after_let: Parser = p_let
+                if (not (parser_is_at_end p_let)) {
+                    let tok_after_let: LexerToken = (parser_current p_let)
+                    if (== tok_after_let.token_type (token_mut)) {
+                        set is_mut true
+                        set p_after_let (parser_advance p_let)
                     } else {
                         (print "")
                     }
-                    let p2: Parser = (parse_tuple_destructure p_after_let stmts is_mut tok.line tok.column)
-                    if (parser_has_error p2) {
-                        return p2
-                    } else {
-                        return (parse_block_recursive p2 stmts start_line start_column)
-                    }
                 } else {
+                    (print "")
+                }
+                set cursor (parse_tuple_destructure p_after_let stmts is_mut tok.line tok.column)
+            } else {
                 /* Parse statement */
-                let p2: Parser = (parse_statement p)
-                if (parser_has_error p2) {
-                    return p2
-                } else {
-                    let stmt_id: int = p2.last_expr_node_id
-                    let stmt_type: int = p2.last_expr_node_type
-
-                    /* Add statement to this block's list */
-                    let stmt: ASTStmtRef = ASTStmtRef {
-                        node_id: stmt_id,
-                        node_type: stmt_type
-                    }
-                    (list_ASTStmtRef_push stmts stmt)
-
-                    /* Continue parsing more statements */
-                    return (parse_block_recursive p2 stmts start_line start_column)
+                let next: Parser = (parse_statement cursor)
+                if (parser_has_error next) { return next }
+                let stmt: ASTStmtRef = ASTStmtRef {
+                    node_id: next.last_expr_node_id,
+                    node_type: next.last_expr_node_type
                 }
-                }
+                (list_ASTStmtRef_push stmts stmt)
+                set cursor next
             }
         }
     }
+    return cursor
 }
 
 fn parse_block(p: Parser) -> Parser {
@@ -5064,7 +5082,37 @@ fn parse_block(p: Parser) -> Parser {
 }
 
 shadow parse_block_recursive {
-    assert (== 1 1)
+    let mut source: string = "fn probe() -> int { "
+    let mut i: int = 0
+    while (< i 520) {
+        set source (str_concat source "assert true ")
+        set i (+ i 1)
+    }
+    set source (str_concat source "return 0 }")
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string source "long-block.nano" diagnostics)
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "long-block.nano")
+    assert (not (parser_has_error parsed))
+    let function: ASTFunction = (parser_get_function parsed 0)
+    let block: ASTBlock = (parser_get_block parsed function.body)
+    assert (== (list_ASTStmtRef_length block.statements) 521)
+    assert (== (list_ASTStmtRef_get block.statements 0).node_type ParseNodeType.PNODE_ASSERT)
+    assert (== (list_ASTStmtRef_get block.statements 520).node_type ParseNodeType.PNODE_RETURN)
+
+    let shaped_tokens: List<LexerToken> = (tokenize_string "fn shaped(pair: Pair) -> int { let Pair { left, right } = pair let (first, second) = pair return left }" "shaped-block.nano" (list_CompilerDiagnostic_new))
+    let shaped: Parser = (parse_program shaped_tokens (list_LexerToken_length shaped_tokens) "shaped-block.nano")
+    assert (not (parser_has_error shaped))
+    let shaped_function: ASTFunction = (parser_get_function shaped 0)
+    let shaped_block: ASTBlock = (parser_get_block shaped shaped_function.body)
+    assert (== (list_ASTStmtRef_length shaped_block.statements) 7)
+    assert (== (parser_get_let shaped (list_ASTStmtRef_get shaped_block.statements 1).node_id).name "left")
+    assert (== (parser_get_let shaped (list_ASTStmtRef_get shaped_block.statements 2).node_id).name "right")
+    assert (== (parser_get_let shaped (list_ASTStmtRef_get shaped_block.statements 4).node_id).name "first")
+    assert (== (parser_get_let shaped (list_ASTStmtRef_get shaped_block.statements 5).node_id).name "second")
+
+    let incomplete_tokens: List<LexerToken> = (tokenize_string "fn incomplete() -> int { assert true" "incomplete-block.nano" (list_CompilerDiagnostic_new))
+    let incomplete: Parser = (parse_program incomplete_tokens (list_LexerToken_length incomplete_tokens) "incomplete-block.nano")
+    assert (parser_has_error incomplete)
 }
 
 shadow parse_block {
@@ -5164,40 +5212,59 @@ shadow parser_store_unsafe_block {
     assert (== 1 1)
 }
 
-/* Parse unsafe block recursively */
+/* Parse unsafe block statements without statement-count recursion. */
 fn parse_unsafe_block_recursive(p: Parser, stmts: List<ASTStmtRef>, start_line: int, start_column: int) -> Parser {
-    if (parser_has_error p) { return p }
-    if (parser_starts_owned_pattern p) {
-        return (parse_unsafe_block_recursive (parse_owned_pattern p stmts) stmts start_line start_column)
-    }
-    if (parser_has_error p) {
-        return p
-    } else {
-        if (parser_is_at_end p) {
-            return (parser_with_error p true)
+    let mut cursor: Parser = p
+    while true {
+        if (parser_has_error cursor) { return cursor }
+        if (parser_starts_owned_pattern cursor) {
+            set cursor (parse_owned_pattern cursor stmts)
         } else {
-            let tok: LexerToken = (parser_current p)
-            
+            if (parser_is_at_end cursor) { return (parser_with_error cursor true) }
+            let tok: LexerToken = (parser_current cursor)
+
             if (== tok.token_type (token_rbrace)) {
-                let p1: Parser = (parser_advance p)
-                return (parser_store_unsafe_block p1 stmts start_line start_column)
-            } else {
-                let p2: Parser = (parse_statement p)
-                if (parser_has_error p2) {
-                    return p2
-                } else {
-                    let stmt_id: int = p2.last_expr_node_id
-                    let stmt_type: int = p2.last_expr_node_type
-                    let stmt: ASTStmtRef = ASTStmtRef { node_id: stmt_id, node_type: stmt_type }
-                    (list_ASTStmtRef_push stmts stmt)
-                    return (parse_unsafe_block_recursive p2 stmts start_line start_column)
-                }
+                let closed: Parser = (parser_advance cursor)
+                return (parser_store_unsafe_block closed stmts start_line start_column)
             }
+
+            let next: Parser = (parse_statement cursor)
+            if (parser_has_error next) { return next }
+            let stmt: ASTStmtRef = ASTStmtRef {
+                node_id: next.last_expr_node_id,
+                node_type: next.last_expr_node_type
+            }
+            (list_ASTStmtRef_push stmts stmt)
+            set cursor next
         }
     }
+    return cursor
 }
 shadow parse_unsafe_block_recursive {
-    assert (== 1 1)
+    let mut source: string = "fn probe() -> int { unsafe { "
+    let mut i: int = 0
+    while (< i 520) {
+        set source (str_concat source "assert true ")
+        set i (+ i 1)
+    }
+    set source (str_concat source "} return 0 }")
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string source "long-unsafe-block.nano" diagnostics)
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "long-unsafe-block.nano")
+    assert (not (parser_has_error parsed))
+    let function: ASTFunction = (parser_get_function parsed 0)
+    let outer: ASTBlock = (parser_get_block parsed function.body)
+    assert (== (list_ASTStmtRef_length outer.statements) 2)
+    let unsafe_ref: ASTStmtRef = (list_ASTStmtRef_get outer.statements 0)
+    assert (== unsafe_ref.node_type ParseNodeType.PNODE_UNSAFE_BLOCK)
+    let unsafe_block: ASTUnsafeBlock = (parser_get_unsafe_block parsed unsafe_ref.node_id)
+    assert (== (list_ASTStmtRef_length unsafe_block.statements) 520)
+    assert (== (list_ASTStmtRef_get unsafe_block.statements 0).node_type ParseNodeType.PNODE_ASSERT)
+    assert (== (list_ASTStmtRef_get unsafe_block.statements 519).node_type ParseNodeType.PNODE_ASSERT)
+
+    let incomplete_tokens: List<LexerToken> = (tokenize_string "fn incomplete() -> int { unsafe { assert true" "incomplete-unsafe.nano" (list_CompilerDiagnostic_new))
+    let incomplete: Parser = (parse_program incomplete_tokens (list_LexerToken_length incomplete_tokens) "incomplete-unsafe.nano")
+    assert (parser_has_error incomplete)
 }
 
 /* Parse unsafe block: unsafe { statements } */
@@ -6005,7 +6072,7 @@ shadow parser_store_function {
 /* Helper: Store struct definition node */
 
 /* Helper: Store struct node */
-fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: array<string>, field_types: array<string>, is_resource: bool, line: int, column: int) -> Parser {
+fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: array<string>, field_types: array<string>, is_resource: bool, is_extern: bool, line: int, column: int) -> Parser {
     let node: ASTStruct = ASTStruct {
         node_type: ParseNodeType.PNODE_STRUCT_DEF,
         line: line,
@@ -6015,7 +6082,8 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: a
         field_count: field_count,
         field_names: field_names,
         field_types: field_types,
-        is_resource: is_resource
+        is_resource: is_resource,
+        is_extern: is_extern
     }
     let node_id: int = p.structs_count
     (list_ASTStruct_push p.structs node)
@@ -6099,7 +6167,13 @@ fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: a
     }
 }
 shadow parser_store_struct {
-    assert (== 1 1)
+    let p: Parser = (parser_init_ast_lists)
+    let stored: Parser = (parser_store_struct p "Foreign" 1 ["fd"] ["int"] false true 3 7)
+    let record: ASTStruct = (parser_get_struct_def stored 0)
+    assert record.is_extern
+    assert (not record.is_resource)
+    assert (== record.line 3)
+    assert (== record.column 7)
 }
 
 /* Helper: Store enum definition node */
@@ -7137,7 +7211,7 @@ shadow parse_function_definition {
 }
 
 /* Helper: Parse struct fields iteratively, collecting field names and types */
-fn parse_struct_fields(p: Parser, name: string, is_resource: bool, start_line: int, start_column: int) -> Parser {
+fn parse_struct_fields(p: Parser, name: string, is_resource: bool, is_extern: bool, start_line: int, start_column: int) -> Parser {
     /* Initialize arrays for field names and types */
     let mut field_names: array<string> = []
     let mut field_types: array<string> = []
@@ -7155,7 +7229,7 @@ fn parse_struct_fields(p: Parser, name: string, is_resource: bool, start_line: i
         /* Check for end of struct */
         if (== tok.token_type (token_rbrace)) {
             let p_final: Parser = (parser_advance p_work)  /* consume '}' */
-            return (parser_store_struct p_final name field_count field_names field_types is_resource start_line start_column)
+            return (parser_store_struct p_final name field_count field_names field_types is_resource is_extern start_line start_column)
         } else { (print "") }
         
         /* Parse field name */
@@ -7202,11 +7276,18 @@ fn parse_struct_fields(p: Parser, name: string, is_resource: bool, start_line: i
 }
 
 shadow parse_struct_fields {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "extern /* retained */\nstruct Foreign { fd: int }\nstruct Local {}\nresource struct Owner { fd: int }" "foreign.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "foreign.nano")
+    assert (not (parser_has_error p))
+    assert (parser_get_struct_def p 0).is_extern
+    assert (not (parser_get_struct_def p 1).is_extern)
+    assert (not (parser_get_struct_def p 2).is_extern)
+    assert (parser_get_struct_def p 2).is_resource
+    assert (== (parser_get_struct_def p 0).line 2)
 }
 
 /* Parse struct definition: [resource] struct Name { fields } */
-fn parse_struct_definition(p: Parser) -> Parser {
+fn parse_struct_definition(p: Parser, is_extern: bool) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
@@ -7241,7 +7322,7 @@ fn parse_struct_definition(p: Parser) -> Parser {
                     if (parser_has_error p3) {
                         return p3
                     } else {
-                        return (parse_struct_fields p3 name is_resource tok.line tok.column)
+                        return (parse_struct_fields p3 name is_resource is_extern tok.line tok.column)
                     }
                 } else {
                     return (parser_with_error p1 true)
@@ -7254,7 +7335,14 @@ fn parse_struct_definition(p: Parser) -> Parser {
 }
 
 shadow parse_struct_definition {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "extern /* retained */\nstruct Foreign { fd: int }\nstruct Local {}\nresource struct Owner { fd: int }" "foreign.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "foreign.nano")
+    assert (not (parser_has_error p))
+    assert (parser_get_struct_def p 0).is_extern
+    assert (not (parser_get_struct_def p 1).is_extern)
+    assert (not (parser_get_struct_def p 2).is_extern)
+    assert (parser_get_struct_def p 2).is_resource
+    assert (== (parser_get_struct_def p 0).line 2)
 }
 
 /* Helper: Parse enum variants recursively */
@@ -7896,8 +7984,8 @@ fn parse_definition(p: Parser) -> Parser {
                     return (parse_extern_function_definition p_work)
                 } else {
                     if (== next_tok.token_type (token_struct)) {
-                        /* extern struct - treat as regular struct */
-                        return (parse_struct_definition p_after_extern)
+                        /* I retain foreign declaration identity in the AST. */
+                        return (parse_struct_definition p_after_extern true)
                     } else {
                         return (parser_with_error p_after_extern true)
                     }
@@ -7926,7 +8014,7 @@ fn parse_definition(p: Parser) -> Parser {
                 return (parse_function_definition p_work)
             } else {
                 if (or (== tok.token_type (token_struct)) (== tok.token_type LexerTokenType.TOKEN_RESOURCE)) {
-                return (parse_struct_definition p_work)
+                return (parse_struct_definition p_work false)
             } else {
                 if (== tok.token_type (token_enum)) {
                     return (parse_enum_definition p_work)
@@ -8355,7 +8443,7 @@ shadow parser_get_struct_def_count {
     set fnames (array_push fnames "x")
     let mut ftypes: array<string> = []
     set ftypes (array_push ftypes "int")
-    let p2: Parser = (parser_store_struct p "Point" 1 fnames ftypes false 1 1)
+    let p2: Parser = (parser_store_struct p "Point" 1 fnames ftypes false false 1 1)
     assert (== (parser_get_struct_def_count p2) 1)
 }
 
@@ -8370,7 +8458,7 @@ shadow parser_get_struct_def {
     set fnames (array_push fnames "x")
     let mut ftypes: array<string> = []
     set ftypes (array_push ftypes "int")
-    let p2: Parser = (parser_store_struct p "Point" 1 fnames ftypes false 1 1)
+    let p2: Parser = (parser_store_struct p "Point" 1 fnames ftypes false false 1 1)
     let s: ASTStruct = (parser_get_struct_def p2 0)
     assert (== s.name "Point")
 }
@@ -9057,10 +9145,10 @@ pub fn parse_phase_run(lex_output: LexPhaseOutput, file_name: string) -> ParsePh
     /* Check if parser encountered errors */
     let had_error: bool = (parser_has_error parser_state)
     
-    /* Create diagnostics list */
-    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    /* Preserve a specific parser refusal when the parser recorded one. */
+    let diagnostics: List<CompilerDiagnostic> = parser_state.diagnostics
     
-    if had_error {
+    if (and had_error (== (list_CompilerDiagnostic_length diagnostics) 0)) {
         # Try to find location of error (at current position)
         let mut line: int = 0
         let mut col: int = 0
@@ -9107,4 +9195,114 @@ shadow parse_phase_run {
     
     let parse_out: ParsePhaseOutput = (parse_phase_run lex_out "test.nano")
     assert (not parse_out.had_error)
+    assert (== (list_CompilerDiagnostic_length parse_out.diagnostics) 0)
+
+    /* I keep ordinary integer and wildcard arms parseable. */
+    let scalar_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let scalar_source: string = "fn choose(value: int) -> int { return match value { 1 => 1 _ => 0 } }"
+    let scalar_tokens: List<LexerToken> = (tokenize_string scalar_source "scalar.nano" scalar_diags)
+    let scalar_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: scalar_tokens,
+        token_count: (list_LexerToken_length scalar_tokens),
+        had_error: false,
+        diagnostics: scalar_diags
+    }
+    let scalar_out: ParsePhaseOutput = (parse_phase_run scalar_lex "scalar.nano")
+    assert (not scalar_out.had_error)
+    assert (== (list_CompilerDiagnostic_length scalar_out.diagnostics) 0)
+
+    /* I keep ordinary named payload arms parseable. */
+    let named_control_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let named_control_source: string = "union Choice { Some { value: int }, None {} } fn choose(value: Choice) -> int { return match value { Some(payload) => payload.value None(empty) => 0 } }"
+    let named_control_tokens: List<LexerToken> = (tokenize_string named_control_source "named-control.nano" named_control_diags)
+    let named_control_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: named_control_tokens,
+        token_count: (list_LexerToken_length named_control_tokens),
+        had_error: false,
+        diagnostics: named_control_diags
+    }
+    let named_control_out: ParsePhaseOutput = (parse_phase_run named_control_lex "named-control.nano")
+    assert (not named_control_out.had_error)
+    assert (== (list_CompilerDiagnostic_length named_control_out.diagnostics) 0)
+
+    /* I preserve my existing generic phase diagnostic for a non-match error. */
+    let broken_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let broken_tokens: List<LexerToken> = (tokenize_string "fn broken(" "broken.nano" broken_diags)
+    let broken_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: broken_tokens,
+        token_count: (list_LexerToken_length broken_tokens),
+        had_error: false,
+        diagnostics: broken_diags
+    }
+    let broken_out: ParsePhaseOutput = (parse_phase_run broken_lex "broken.nano")
+    assert broken_out.had_error
+    assert (== (list_CompilerDiagnostic_length broken_out.diagnostics) 1)
+    let broken_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get broken_out.diagnostics 0)
+    assert (== broken_diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== broken_diag.code "P0001")
+    assert (== broken_diag.message "Syntax error: Unexpected token")
+    assert (== broken_diag.location.file "broken.nano")
+
+    /* I refuse an integer guard at its exact if token. */
+    let int_guard_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let int_guard_source: string = "fn choose(value: int) -> int { return match value { 1 if true => 1 _ => 0 } }"
+    let int_guard_tokens: List<LexerToken> = (tokenize_string int_guard_source "int-guard.nano" int_guard_diags)
+    let int_guard_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: int_guard_tokens,
+        token_count: (list_LexerToken_length int_guard_tokens),
+        had_error: false,
+        diagnostics: int_guard_diags
+    }
+    let int_guard_out: ParsePhaseOutput = (parse_phase_run int_guard_lex "int-guard.nano")
+    assert int_guard_out.had_error
+    assert (== (list_CompilerDiagnostic_length int_guard_out.diagnostics) 1)
+    let int_guard_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get int_guard_out.diagnostics 0)
+    assert (== int_guard_diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== int_guard_diag.code "P0001")
+    assert (== int_guard_diag.message "I do not yet accept guarded match arms in my self-hosted parser")
+    assert (== int_guard_diag.location.file "int-guard.nano")
+    assert (== int_guard_diag.location.line 1)
+    assert (== int_guard_diag.location.column 55)
+
+    /* I refuse a wildcard guard at its exact if token. */
+    let wildcard_guard_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let wildcard_guard_source: string = "fn choose(value: int) -> int { return match value { _ if true => 1 } }"
+    let wildcard_guard_tokens: List<LexerToken> = (tokenize_string wildcard_guard_source "wildcard-guard.nano" wildcard_guard_diags)
+    let wildcard_guard_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: wildcard_guard_tokens,
+        token_count: (list_LexerToken_length wildcard_guard_tokens),
+        had_error: false,
+        diagnostics: wildcard_guard_diags
+    }
+    let wildcard_guard_out: ParsePhaseOutput = (parse_phase_run wildcard_guard_lex "wildcard-guard.nano")
+    assert wildcard_guard_out.had_error
+    assert (== (list_CompilerDiagnostic_length wildcard_guard_out.diagnostics) 1)
+    let wildcard_guard_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get wildcard_guard_out.diagnostics 0)
+    assert (== wildcard_guard_diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== wildcard_guard_diag.code "P0001")
+    assert (== wildcard_guard_diag.message "I do not yet accept guarded match arms in my self-hosted parser")
+    assert (== wildcard_guard_diag.location.file "wildcard-guard.nano")
+    assert (== wildcard_guard_diag.location.line 1)
+    assert (== wildcard_guard_diag.location.column 55)
+
+    /* I refuse a named payload guard at its exact if token. */
+    let named_guard_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let named_guard_source: string = "union Choice { Some { value: int }, None {} } fn choose(value: Choice) -> int { return match value { Some(payload) if true => payload.value None(empty) => 0 } }"
+    let named_guard_tokens: List<LexerToken> = (tokenize_string named_guard_source "named-guard.nano" named_guard_diags)
+    let named_guard_lex: LexPhaseOutput = LexPhaseOutput {
+        tokens: named_guard_tokens,
+        token_count: (list_LexerToken_length named_guard_tokens),
+        had_error: false,
+        diagnostics: named_guard_diags
+    }
+    let named_guard_out: ParsePhaseOutput = (parse_phase_run named_guard_lex "named-guard.nano")
+    assert named_guard_out.had_error
+    assert (== (list_CompilerDiagnostic_length named_guard_out.diagnostics) 1)
+    let named_guard_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get named_guard_out.diagnostics 0)
+    assert (== named_guard_diag.phase CompilerPhase.PHASE_PARSER)
+    assert (== named_guard_diag.code "P0001")
+    assert (== named_guard_diag.message "I do not yet accept guarded match arms in my self-hosted parser")
+    assert (== named_guard_diag.location.file "named-guard.nano")
+    assert (== named_guard_diag.location.line 1)
+    assert (== named_guard_diag.location.column 116)
 }

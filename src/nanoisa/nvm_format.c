@@ -141,6 +141,7 @@ void nvm_module_free(NvmModule *mod) {
     free(mod->passive_data);
     free(mod->layout_data);
     free(mod->ownership_data);
+    free(mod->service_data);
     free(mod->metadata);
     free(mod->module_refs);    free(mod->call_descriptors);
     free(mod);
@@ -636,8 +637,18 @@ uint32_t nvm_add_module_ref(NvmModule *mod, uint32_t module_name_idx) {
     return idx;
 }
 
+bool nvm_file_instructions_present(const NvmModule *m) {
+    if(!m || !m->functions || !m->code)return false;
+    for(uint32_t i=0;i<m->function_count;i++) {
+        const NvmFunctionEntry *f=&m->functions[i];
+        if(f->code_offset>m->code_size || f->code_length>m->code_size-f->code_offset)continue;
+        if(isa_code_has_file_instructions(m->code+f->code_offset,f->code_length))return true;
+    }
+    return false;
+}
+
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
-    if (mod->metadata_count || mod->callback_contract_count || mod->passive_size || mod->layout_size || mod->ownership_size) {
+    if (nvm_file_instructions_present(mod) || mod->service_data || mod->service_size || mod->metadata_count || mod->callback_contract_count || mod->passive_size || mod->layout_size || mod->ownership_size) {
         if (out_size) *out_size = 0;
         return NULL;
     }

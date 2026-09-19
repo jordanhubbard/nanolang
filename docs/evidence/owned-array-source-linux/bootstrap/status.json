@@ -1,0 +1,35 @@
+{
+  "pin": "c9fb07ed55329f59e6b67ef0bf3f9dc756d6aa88",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "-f",
+        "Makefile.gnu",
+        "CC=/usr/bin/gcc",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 271.5786423999816
+    },
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j2",
+        "-f",
+        "Makefile.gnu",
+        "-f",
+        "/tmp/nanolang-owner-array-source-c9fb-bootstrap/setup.mk",
+        "CC=/usr/bin/gcc",
+        "owned-array-source-setup"
+      ],
+      "status": 0,
+      "seconds": 26.522672194987535
+    }
+  ],
+  "sources_unchanged": true,
+  "head_unchanged": true
+}

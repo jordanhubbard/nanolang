@@ -1,0 +1,32 @@
+{
+  "phases": [
+    {
+      "phase": "tools",
+      "command": [
+        "make",
+        "-j2",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c"
+      ],
+      "timeout": 600,
+      "status": 0,
+      "elapsed_seconds": 0.5152991420472972
+    },
+    {
+      "phase": "focused",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_mutation_builtin_identity"
+      ],
+      "timeout": 3600,
+      "status": 1,
+      "elapsed_seconds": 97.10293232800905
+    }
+  ],
+  "sources_unchanged": true,
+  "host_tools_unchanged": true
+}

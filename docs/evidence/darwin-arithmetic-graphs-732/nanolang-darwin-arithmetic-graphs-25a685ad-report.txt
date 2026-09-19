@@ -1,0 +1,60 @@
+Bounded Darwin arithmetic and array-graph qualification report
+
+Task: task_209f1e88044b4e29886228dc7357188d
+Outcome: INCOMPLETE — stopped during ordered prerequisite inventory
+Source: 25a685adfb4f9bf32c68c9e6de04eb0298673c45
+Tree: 93b51b7b9cafe70a8dc7acd936462de1744b77c9
+Checkout: /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad.Ch16d3
+Checkout state: detached HEAD, clean before and after inventory
+
+Authorized scope
+- Build nano_vm, nvm2c, nvm2wasm and nanoisa_dump only after prerequisites pass.
+- Run 2 helper, 4 backend and 8 graph unittest methods with -f -v and 900-second outer bounds.
+- Preserve all inner deadlines, assertions, sanitizers, memory bounds and LTO.
+
+Terminal prerequisite finding
+The required wasmtime executable is absent from PATH and the checked standard
+installation locations. Homebrew reports it is not installed. The Python
+wasmtime module is also absent. tests/test_binary64_arithmetic_backends.py:92
+invokes "wasmtime run --invoke nano_entry" directly. A skipped or unavailable
+target cannot be reported as qualified, so I stopped before the build phase.
+I installed nothing, selected no substitute, removed no LTO mode, built no
+requested binary and ran no test method.
+
+Inventory phase
+Started: 2026-09-18T13:40:24Z
+Finished: 2026-09-18T13:40:28Z
+Elapsed: 4.158538 seconds
+First missing dependency: wasmtime executable
+
+Platform/tool identities
+- Darwin 25.6.0, arm64; macOS 26.6.2 build 25G83; Apple M4 Pro
+- /usr/bin/cc and /usr/bin/clang: Apple clang 21.0.0 (clang-2100.3.34.2)
+- Linker: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld, ld-27037.1, LLVM LTO 21.0.0
+- SDK: macOS 27.0 at /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+- Python: /usr/local/bin/python3, Python 3.14.6
+- Node: /opt/homebrew/bin/node, v26.8.2
+- Wasmtime executable: missing
+- Python wasmtime module: missing
+- Make: /usr/bin/make, GNU Make 3.81
+
+Requested binary state before/after
+- bin/nano_vm: absent / absent
+- bin/nvm2c: absent / absent
+- bin/nvm2wasm: absent / absent
+- bin/nanoisa_dump: absent / absent
+
+Retained raw evidence
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-prerequisites.log
+  SHA256 372d75f24699306fd4723e5486afb9156f69d6b7720976080420763307d12df6
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-missing-dependency.log
+  SHA256 7391e0ac3a549639785b583ad16e7cfe1f6b9d5d7cec4b2c90cb94428ba31dd0
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-source-manifest-before.txt
+  SHA256 36f91a7b6d67f314b1fe994d11d43fca929dd677794494e64e64a317fa9baca5
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-source-manifest-after.txt
+  SHA256 36f91a7b6d67f314b1fe994d11d43fca929dd677794494e64e64a317fa9baca5
+
+The source manifests are byte-identical. Final git porcelain is empty.
+No frozen e9 or historical artifact was read, executed or modified. This is
+not a product quick run, bootstrap, release candidate or release permission.
+PR522 and publication remain held.

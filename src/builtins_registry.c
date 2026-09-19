@@ -78,6 +78,8 @@ const BuiltinEntry builtin_registry[] = {
 
     /* ── Type casting ─────────────────────────────────────────────── */
     {"cast_int",        "nl_cast_int",       1, {U,U,U,U}, I, OP_CAST_INT,    L|BUILTIN_PURE|BUILTIN_INLINE_VM},
+    {"float_from_bits", "nl_float_from_bits", 1, {I,U,U,U}, F, 0x8d, L|BUILTIN_PURE|BUILTIN_INLINE_VM},
+    {"float_to_bits",   "nl_float_to_bits",   1, {F,U,U,U}, I, 0x8e, L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"cast_float",      "nl_cast_float",     1, {U,U,U,U}, F, OP_CAST_FLOAT,  L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"cast_bool",       "nl_cast_bool",      1, {U,U,U,U}, B, OP_CAST_BOOL,   L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"cast_string",     "cast_string",       1, {U,U,U,U}, S, OP_CAST_STRING, L|BUILTIN_PURE|BUILTIN_INLINE_VM},

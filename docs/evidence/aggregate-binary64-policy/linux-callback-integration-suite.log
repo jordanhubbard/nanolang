@@ -1,0 +1,15 @@
+test_exact_arithmetic_canonical_vm_routes (tests.test_aggregate_binary64_policy.AggregateBinary64.test_exact_arithmetic_canonical_vm_routes) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-532fykoq
+ok
+test_exact_arithmetic_existing_legacy_routes (tests.test_aggregate_binary64_policy.AggregateBinary64.test_exact_arithmetic_existing_legacy_routes) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-oq4w05aa
+ok
+test_order_alias_empty_and_neighbors_canonical_vm (tests.test_aggregate_binary64_policy.AggregateBinary64.test_order_alias_empty_and_neighbors_canonical_vm) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-jr9l4d5a
+ok
+test_order_alias_empty_and_neighbors_legacy (tests.test_aggregate_binary64_policy.AggregateBinary64.test_order_alias_empty_and_neighbors_legacy) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-cuxn23t9
+ok
+test_selfhost_mixed_numeric_types_preserve_output (tests.test_aggregate_binary64_policy.AggregateBinary64.test_selfhost_mixed_numeric_types_preserve_output) ... I retain aggregate policy observations at /tmp/nano-aggregate-policy-7rpqd67i
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 16.890s
+
+OK

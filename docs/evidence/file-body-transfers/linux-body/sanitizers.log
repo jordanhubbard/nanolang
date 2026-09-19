@@ -1,0 +1,11 @@
+FILE_BODY_OBJECTS="obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o" FILE_BODY_LDFLAGS="-lm -lcrypto -lffi  -rdynamic" python3 -m unittest -f -v tests.test_file_body
+I retain File body artifacts at /tmp/nano-file-body-ve5o9e8y
+test_instrumented_body_allocation_recovery (tests.test_file_body.FileBody.test_instrumented_body_allocation_recovery) ... PASS 9507 private acyclic File body checks; no hosted stack ABI or execution authority
+ok
+test_linked_bodies_lifetimes_and_refusal (tests.test_file_body.FileBody.test_linked_bodies_lifetimes_and_refusal) ... PASS 3662 private acyclic File body checks; no hosted stack ABI or execution authority
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.502s
+
+OK

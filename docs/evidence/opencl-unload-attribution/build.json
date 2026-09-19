@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "tests/test_opencl_identity_real.c",
+    "tests/diagnostics/opencl_unload_maps.c",
+    "-Wl,--wrap=dlclose",
+    "-ldl",
+    "-o",
+    "/tmp/nanolang-opencl-unload-4b71/real-mapped"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-opencl-unload-mapping",
+  "exit_code": 0,
+  "seconds": 0.3146576469880529,
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": null
+}

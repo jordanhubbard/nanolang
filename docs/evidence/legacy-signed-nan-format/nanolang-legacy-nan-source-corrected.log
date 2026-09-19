@@ -1,0 +1,65 @@
+test_exact_bits_and_captured_scalar_output (__main__.LegacySignedNan.test_exact_bits_and_captured_scalar_output) ... I retain legacy format artifacts at /tmp/nano-legacy-nan-no0mrj7l
+
+  test_exact_bits_and_captured_scalar_output (__main__.LegacySignedNan.test_exact_bits_and_captured_scalar_output) (compiler='nanoc_stage1') ... FAIL
+  test_exact_bits_and_captured_scalar_output (__main__.LegacySignedNan.test_exact_bits_and_captured_scalar_output) (compiler='nanoc_stage2') ... FAIL
+test_generated_provider_identity (__main__.LegacySignedNan.test_generated_provider_identity) ... I retain legacy format artifacts at /tmp/nano-legacy-nan-qgvsorqr
+ok
+
+======================================================================
+FAIL: test_exact_bits_and_captured_scalar_output (__main__.LegacySignedNan.test_exact_bits_and_captured_scalar_output) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-legacy-format-qualified/tests/test_legacy_signed_nan_format.py", line 56, in test_exact_bits_and_captured_scalar_output
+    self.assertEqual(self.command(executable).stdout,expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'nan|[22 chars]inf|\n-inf|\n0.0|\n-0.0|\n1.0|\n1.79769e+308|\n4.94066e-324|\n' != 'nan|[22 chars]inf|\n-inf|\n0|\n-0|\n1|\n1.79769e+308|\n4.94066e-324|\n'
+  nan|
+  -nan|
+  nan|
+  -nan|
+  inf|
+  -inf|
+- 0.0|
+? --
++ 0|
+- -0.0|
+?  --
++ -0|
+- 1.0|
+?  --
++ 1|
+  1.79769e+308|
+  4.94066e-324|
+
+
+======================================================================
+FAIL: test_exact_bits_and_captured_scalar_output (__main__.LegacySignedNan.test_exact_bits_and_captured_scalar_output) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-legacy-format-qualified/tests/test_legacy_signed_nan_format.py", line 56, in test_exact_bits_and_captured_scalar_output
+    self.assertEqual(self.command(executable).stdout,expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'nan|[22 chars]inf|\n-inf|\n0.0|\n-0.0|\n1.0|\n1.79769e+308|\n4.94066e-324|\n' != 'nan|[22 chars]inf|\n-inf|\n0|\n-0|\n1|\n1.79769e+308|\n4.94066e-324|\n'
+  nan|
+  -nan|
+  nan|
+  -nan|
+  inf|
+  -inf|
+- 0.0|
+? --
++ 0|
+- -0.0|
+?  --
++ -0|
+- 1.0|
+?  --
++ 1|
+  1.79769e+308|
+  4.94066e-324|
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 8.014s
+
+FAILED (failures=2)

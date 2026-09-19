@@ -1,0 +1,14 @@
+{
+  "name": "gcc",
+  "command": [
+    "make",
+    "test-mixed-float-proof"
+  ],
+  "environment": {
+    "NMS_RUNTIME_CLANG": "clang",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "CC": "cc"
+  },
+  "status": 0,
+  "seconds": 0.565218030998949
+}

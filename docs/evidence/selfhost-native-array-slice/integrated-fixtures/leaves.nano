@@ -1,0 +1,15 @@
+fn main() -> int {
+let flags: array<bool> = [true, false, true]
+let bs: array<bool> = (array_slice flags 1 2)
+assert (not (at bs 0))
+assert (at bs 1)
+let words: array<string> = ["one", "two", "three"]
+let ss: array<string> = (array_slice words 1 2)
+assert (== (at ss 0) "two")
+let numbers: array<float> = [1.25, -2.5, 3.75]
+let fs: array<float> = (array_slice numbers 1 2)
+assert (== (at fs 0) -2.5)
+assert (== (at fs 1) 3.75)
+return 0
+}
+shadow main { assert (== (main) 0) }

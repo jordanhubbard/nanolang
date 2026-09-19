@@ -77,8 +77,8 @@ fn main() -> int { return 0 }
 shadow main { assert (== (main) 0) }
 ''', False, {
             'nanoc_c': 'exhaustive unguarded owned match',
-            'nanoc_stage1': "Parse error.*unexpected token 'if'",
-            'nanoc_stage2': "Parse error.*unexpected token 'if'",
+            'nanoc_stage1': 'I do not yet accept guarded match arms in my self-hosted parser',
+            'nanoc_stage2': 'I do not yet accept guarded match arms in my self-hosted parser',
         })
 
     def test_ignored_selected_payload(self):

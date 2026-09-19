@@ -1,0 +1,1 @@
+python3 scripts/nvm2hl.py --language c /tmp/nano-service-module-gbm1th8c/linked.nvm -o /tmp/nano-service-module-gbm1th8c/recover-c-preserved

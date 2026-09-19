@@ -1,0 +1,18 @@
+{
+  "head": "1ffa8bc8bbaa5e5ce2ad85a69268fea03d740460",
+  "records": [
+    {
+      "name": "direct",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_selfhost_extern_records"
+      ],
+      "status": 1,
+      "seconds": 43.2743619470275
+    }
+  ],
+  "unchanged": true
+}

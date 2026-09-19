@@ -1,0 +1,24 @@
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Input:  /home/jkh/Src/nanolang-canonical-component-shadows/src_nano/transpiler_driver.nano
+Output: /tmp/nanolang-canonical-component-shadows/transpiler.nvm
+
+[0/5] Resolving imports...
+  ✓ Merged source: 919212 bytes
+[1/5] Lexing...
+  ✓ Tokenized 131877 tokens
+[2/5] Parsing...
+  ✓ Parsed 519 functions
+[2.5/5] Processing imports...
+  ✓ Loaded 0 type symbols from imports
+[3/5] NSType checking...
+  ✓ NSType checking passed
+I cannot define a record twice in one module: Handle
+=== Code Generation ===
+Generating C code for 2 functions
+=== Code Generation ===
+Generating C code for 1 functions
+I passed my transpiler entry assertions.

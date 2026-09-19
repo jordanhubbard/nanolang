@@ -317,3 +317,20 @@ const InstructionInfo *isa_get_extended_info(uint8_t ext_opcode) {
     }
     return info;
 }
+
+bool isa_is_file_opcode(uint8_t opcode) {
+    return opcode >= OP_FILE_SERVICE && opcode <= OP_FILE_END_BORROW;
+}
+
+bool isa_code_has_file_instructions(const uint8_t *code,size_t size) {
+    if(!code)return false;
+    size_t offset=0;
+    while(offset<size) {
+        if(isa_is_file_opcode(code[offset]))return true;
+        DecodedInstruction instruction;
+        uint32_t length=isa_decode(code+offset,size-offset,&instruction);
+        if(!length || length>size-offset)return false;
+        offset+=length;
+    }
+    return false;
+}

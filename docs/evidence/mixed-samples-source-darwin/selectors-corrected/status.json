@@ -1,0 +1,34 @@
+{
+  "pin": "70c511dad439f77eba15fe0bdc189e90ff9c9486",
+  "steps": [
+    {
+      "name": "service",
+      "command": [
+        "/opt/homebrew/bin/python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_service_bindings_module"
+      ],
+      "status": 0,
+      "seconds": 5.979
+    },
+    {
+      "name": "mixed-native-lsan",
+      "command": [
+        "/opt/homebrew/bin/python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_mixed_samples_runtime"
+      ],
+      "status": 0,
+      "seconds": 23.887
+    }
+  ],
+  "sources_unchanged": true,
+  "inputs_unchanged": true,
+  "clean": true
+}

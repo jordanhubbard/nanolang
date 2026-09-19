@@ -1,0 +1,8 @@
+{
+  "args": [
+    "/tmp/nano-owned-pattern-775rt72i/program"
+  ],
+  "status": 0,
+  "stdout": "Testing resource tracking infrastructure\nFile closed\nResource tracking test passed!\n",
+  "stderr": ""
+}

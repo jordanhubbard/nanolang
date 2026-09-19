@@ -13,6 +13,7 @@
 #include "vm_dispatch.h"
 #include "../nanoisa/isa.h"
 #include "../nanoisa/nvm_format.h"
+#include "../nanoisa/ownership_contracts.h"
 #include "../runtime/callback_runtime.h"
 #include <pthread.h>
 
@@ -117,7 +118,7 @@ typedef struct {
 } VmEffectHandler;
 
 /* I keep reference descriptors outside value storage and address owners by
- * frame-relative index. I reserve exactly two contexts for a checked helper call. */
+ * frame-relative index. I retain separate contexts for every bounded owned frame. */
 typedef struct {
     uint16_t root;
     uint32_t region;
@@ -153,7 +154,11 @@ typedef struct VmState {
      * every reachable instruction, so re-checking them at dispatch time
      * is redundant. Cleared conservatively whenever a module changes or a
      * new, unverified module is linked. */
-    bool verified;    VmModuleConstants module_constants;
+    bool verified;
+    /* I skip repeated ownership-route scans only for a verified immutable
+     * graph whose complete module set needs no owned execution. */
+    bool ordinary_execution;
+    VmModuleConstants module_constants;
 
     /* Operand stack */
     NanoValue *stack;
@@ -164,6 +169,9 @@ typedef struct VmState {
     VmCallFrame frames[VM_MAX_FRAMES];
     uint32_t frame_count;
     VmReferenceActivation references, callee_references;
+    /* I preserve the borrowed entry/helper contexts and preallocate deeper
+     * value-only frames so context storage cannot fail after transfer. */
+    VmReferenceActivation value_references[NVM_OWNED_MAX_FUNCTIONS-2];
     uint64_t reference_generation;
     VmEffectHandler handlers[VM_MAX_FRAMES];
     uint32_t handler_count;
@@ -283,6 +291,11 @@ typedef struct {
 
 /* Initialize VM state for a module */
 void vm_init(VmState *vm, const NvmModule *module);
+/* I accept this faster initialization only immediately after
+ * nvm_verify_linked(module, NULL, 0) succeeds for this exact, still-immutable
+ * standalone root module. Linking or
+ * rebuilding recomputes the complete proof before execution continues. */
+void vm_init_after_verify(VmState *vm, const NvmModule *module);
 
 /* Destroy VM state (free stack, heap, etc.) */
 void vm_destroy(VmState *vm);

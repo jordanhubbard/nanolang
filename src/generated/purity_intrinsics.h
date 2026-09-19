@@ -23,6 +23,8 @@ static const char *const purity_intrinsic_names[] = {
     "fmod",
     "cast_int",
     "cast_float",
+    "float_from_bits",
+    "float_to_bits",
     "cast_bool",
     "cast_string",
     "to_string",

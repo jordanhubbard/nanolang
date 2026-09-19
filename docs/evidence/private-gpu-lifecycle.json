@@ -1,0 +1,3862 @@
+{
+  "production_pin": "7d51cfb3aac62bebb42d5998851c7545ec9a3f08",
+  "qualified_pin": "52e6bf96d3ce5eaf6e4262270f8877d57414e135",
+  "scope": "Private Linux LP64 CUDA buffer lifecycle; no public source/NSI/VM/native admission or Darwin GPU acceptance",
+  "sources": {
+    "src/nsi_gpu.c": "1a9c81bd05e44d79357b5e089f4db8eb357558983beaf4439001c22282f3d444",
+    "src/nsi_gpu.h": "d354cdc00a8194f6727c6522d433d1aa74502f87f007b897406a928fbb2c8802",
+    "src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+    "src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+    "src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5",
+    "src/nsi_file.c": "a81092fb70c9cc97c43a0ac5eda2394b311af7d9641c7deb41455af29730faad",
+    "src/nsi_file.h": "ce46023ad79a65c5fb2cf21986c878f4a9666a18d5aafb9ff5c02574da8f1a86",
+    "src/nsi_socket.c": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+    "src/nsi_socket.h": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+    "tests/test_nsi_gpu.c": "081d0d314538287b9d1bcc346be3bc5f18fe7930c8dde2d8a6b5945f49af7e72",
+    "tests/test_nsi_gpu_linked.c": "0e8bb7e49b66d1258b8d0eee9a979bdc031cfdba5d30b434de53164066fc1ad4",
+    "tests/test_nsi_gpu.py": "0b3bf87b7e20fd92eed0ce8d2c0b9bb75c1a8b116581847131e38c6056f25e52",
+    "tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+    "tests/test_nsi_file_linked.c": "0685248874ef5f42c9f7329005d350a622a624eba557d024f87bd41198a1364d",
+    "tests/test_nsi_socket.c": "eda35f5ba6261faa28a087314fe35cde6b62bbd5d496bbc3359c49f745c9ef37",
+    "tests/test_nsi_socket_linked.c": "637102c26f1a1e089a385ed1a2555cd9cb7e33a9a6e0c4a4b6377ef5f3202509",
+    "tests/test_nsi_cap.c": "7c436df72196fdfac7b83ca63996646586b62552ef6f293a7eb3b4c983fdcab5",
+    "Makefile.gnu": "418ead16c9bfb10a1d8aa3b7f4c17c7fa00fcdd5b93194fb471649b178e6ffc7"
+  },
+  "gates": {
+    "first": {
+      "manifest": {
+        "pin": "5dd73a9c53095cdb4997fe85410ca7d54ca42882",
+        "steps": [
+          {
+            "name": "gcc-normal-version",
+            "command": [
+              "/usr/bin/gcc",
+              "--version"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.002,
+            "log_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+          },
+          {
+            "name": "gcc-normal-instrumented-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-pedantic",
+              "tests/test_nsi_gpu.c",
+              "-ldl",
+              "-o",
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-normal-linked-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-pedantic",
+              "tests/test_nsi_gpu_linked.c",
+              "src/nsi_gpu.c",
+              "src/nsi_cap.c",
+              "-ldl",
+              "-o",
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-normal-linked-real-run",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "8ec437f82981df77036edbc7d4158de8ae72b2462879463a40b5d26632abe49f"
+          },
+          {
+            "name": "gcc-normal-normal",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "normal"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.866,
+            "log_sha256": "951a80c04b263820e17eeee66715dced70be9007437c3ae114b48e7cd8c8c2a2"
+          },
+          {
+            "name": "gcc-normal-contexts",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "contexts"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 2.32,
+            "log_sha256": "c208eb6e7e5b81e02e1f205456349c04cc9788b35dde16be5c0ff91cf9c94f3d"
+          },
+          {
+            "name": "gcc-normal-admit-loader",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-loader"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.002,
+            "log_sha256": "24ac667dda59bba823e488f1ba54500aa91e1977a00fba6fdd1e0f634b1ee0ad"
+          },
+          {
+            "name": "gcc-normal-admit-host0",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-host0"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.002,
+            "log_sha256": "efad6977a86dc36082162596d1b7684aa63e8f66810e62d0125d2f21840bc83c"
+          },
+          {
+            "name": "gcc-normal-admit-host1",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-host1"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.001,
+            "log_sha256": "1e0f393e3aebd26b5f83768159b83b6b153fded0d96bf5ff599785d6fff53b91"
+          },
+          {
+            "name": "gcc-normal-admit-symbol1",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol1"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.003,
+            "log_sha256": "af3b0a0ab5a7eff2ee83f55192e45c0269399e4b97c1109685a872be32f15520"
+          },
+          {
+            "name": "gcc-normal-admit-symbol2",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol2"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.003,
+            "log_sha256": "435037f7749e74829cfaff17d3ec7d92859f3735bf33cd6c9013b0e39470294c"
+          },
+          {
+            "name": "gcc-normal-admit-symbol3",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol3"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "9cf55f73cfcf9e8455c24e14ccdb67231f54f9dde29b2ad33f4610117a1e49c6"
+          },
+          {
+            "name": "gcc-normal-admit-symbol4",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol4"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.003,
+            "log_sha256": "2b9c8a56644ba20097aee1b4c70d9f038805846910c2952147b3f5fff47f840e"
+          },
+          {
+            "name": "gcc-normal-admit-symbol5",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol5"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.003,
+            "log_sha256": "48584c8270745f85dbfe31d57bf3de47e9deb9da128d39c54bfe8d063fa3bf09"
+          },
+          {
+            "name": "gcc-normal-admit-symbol6",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol6"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "bf15a30141581e50ccd5fc8aa43fada35b6a05ec5fc54f316287b5facbfce6a0"
+          },
+          {
+            "name": "gcc-normal-admit-symbol7",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol7"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "0c551acf73dccdb90107f163a7d8127d4d9fffc856b10a6f782e6718b5f196cb"
+          },
+          {
+            "name": "gcc-normal-admit-symbol8",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol8"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "e7eba8d925ac4739d91ef0c1cd1185aaa0d47669cb567cfd87150e32fc9b943f"
+          },
+          {
+            "name": "gcc-normal-admit-symbol9",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol9"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "ae7bb527df07833be18ce5a32a43502a35632b0b78a9737c41e2cef50f36c561"
+          },
+          {
+            "name": "gcc-normal-admit-symbol10",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol10"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "e99d1a6f98b5c27e0823e226ce54adc13de6849ebe032b3295ce94faea1ca47e"
+          },
+          {
+            "name": "gcc-normal-admit-symbol11",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol11"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "29b054c4b076d5f2ab1c8a88d10c3460c2e51301aca7d2edd97c70f7781dc332"
+          },
+          {
+            "name": "gcc-normal-admit-symbol12",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol12"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "147ad6c07ea43a4fb7e99fb6802d34b72c4f925394af66465b19e35defbe6650"
+          },
+          {
+            "name": "gcc-normal-admit-symbol13",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol13"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "1bc70472ac03bdc638dad2b6ec687524e3be904996b13e32c272a72a4836bab9"
+          },
+          {
+            "name": "gcc-normal-admit-symbol14",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol14"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "566291e2edf3847a7b979e119989915cfbc5b65fce1dfbdc09bf756aa9a7c60c"
+          },
+          {
+            "name": "gcc-normal-admit-symbol15",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol15"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "983bd13dacf15b7ae9a48958d66908e1708a94c80476b78c84075e3a1701a952"
+          },
+          {
+            "name": "gcc-normal-admit-symbol16",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-symbol16"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "62aec29064d547adb252e22fffb179739619fe71865330d031c9146a0ab6633e"
+          },
+          {
+            "name": "gcc-normal-admit-init",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-init"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "f5e08b5f8f7cef3fdaab1e2fceb0cb8e00605af3b770a7a27b0700e3bf67aa28"
+          },
+          {
+            "name": "gcc-normal-admit-version",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-version"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "1c8e1ab056b7e899dd014840e73e32a825beacee16c28b1ec3251008fe267d2f"
+          },
+          {
+            "name": "gcc-normal-admit-count",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-count"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "a6adfc8d632eebf50563608a2bf3621c4d8492cbc616f8d307926d7bba43c3d9"
+          },
+          {
+            "name": "gcc-normal-admit-device",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-device"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "9cd46112c2b30d4b004aff7c3c6ee00b558b65f973bc6c0007fcab256b034636"
+          },
+          {
+            "name": "gcc-normal-admit-name",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-name"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.033,
+            "log_sha256": "6f82d5f3c2232f19d23e27fadbb957e8b03ff5441330b0dc8d49341e56f170c8"
+          },
+          {
+            "name": "gcc-normal-admit-uuid",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-uuid"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "f6645b0cdf41e727a8857c8dedf77d57757f364f7d8e7c9f4e200eaf55d71ae2"
+          },
+          {
+            "name": "gcc-normal-admit-create",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-create"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.033,
+            "log_sha256": "0318a6d5050f8f1f5ffeaa08246a3ca44ad331c1545256bd29f6b2b9d6eb16b4"
+          },
+          {
+            "name": "gcc-normal-admit-current",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "admit-current"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "f2b624471f6ab053c874030b3cadad79c144a7a4752d66f83e3baaaff29ae39f"
+          },
+          {
+            "name": "gcc-normal-create-post",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "create-post"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "e92be2e1c99f0738e2f6bdb0bc679014d6edcc1baeff89696d939d89fa3c949b"
+          },
+          {
+            "name": "gcc-normal-create-popbefore",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "create-popbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "52cfeb5b72906c66f2c0e1d6826813472f40c5e716810560a96c476187ea60db"
+          },
+          {
+            "name": "gcc-normal-create-popafter",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "create-popafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.316,
+            "log_sha256": "910218a916e95aec170940c17b9ab66436ebc02abb0bda33c982456a2c4a5984"
+          },
+          {
+            "name": "gcc-normal-create-query",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "create-query"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.314,
+            "log_sha256": "a5e09039ba152ba2a41ba6eb3b7912428962b1b14e7dee1baeae4b3dade0800a"
+          },
+          {
+            "name": "gcc-normal-allocbefore",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "allocbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "b2c1254795005275604b7326e798178b1c9a4293ca813db67fedf29c59058111"
+          },
+          {
+            "name": "gcc-normal-allocafter",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "allocafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "d4827dd313f0b8235637c17d7762249cf38fffb68bce6818f14229d448689549"
+          },
+          {
+            "name": "gcc-normal-rollback",
+            "command": [
+              "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented",
+              "rollback"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 1,
+            "seconds": 0.315,
+            "log_sha256": "7288934ba523e0ed7c8f6f5111d283c5ee3fb755d05a88bb87c6b3a11dba854d"
+          }
+        ],
+        "status": 1,
+        "source_unchanged": true,
+        "tools_unchanged": true,
+        "head_unchanged": true,
+        "clean": true
+      },
+      "reports": {
+        "/tmp/nanolang-gpu-first-5dd73a9c/first-seal.json": "800e4bfe8090e1b08b1ecc7428d70d828e62ae4a825976529b00fae9a2c208a8",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-count.log": "a6adfc8d632eebf50563608a2bf3621c4d8492cbc616f8d307926d7bba43c3d9",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-create.log": "0318a6d5050f8f1f5ffeaa08246a3ca44ad331c1545256bd29f6b2b9d6eb16b4",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-current.log": "f2b624471f6ab053c874030b3cadad79c144a7a4752d66f83e3baaaff29ae39f",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-device.log": "9cd46112c2b30d4b004aff7c3c6ee00b558b65f973bc6c0007fcab256b034636",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-host0.log": "efad6977a86dc36082162596d1b7684aa63e8f66810e62d0125d2f21840bc83c",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-host1.log": "1e0f393e3aebd26b5f83768159b83b6b153fded0d96bf5ff599785d6fff53b91",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-init.log": "f5e08b5f8f7cef3fdaab1e2fceb0cb8e00605af3b770a7a27b0700e3bf67aa28",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-loader.log": "24ac667dda59bba823e488f1ba54500aa91e1977a00fba6fdd1e0f634b1ee0ad",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-name.log": "6f82d5f3c2232f19d23e27fadbb957e8b03ff5441330b0dc8d49341e56f170c8",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol1.log": "af3b0a0ab5a7eff2ee83f55192e45c0269399e4b97c1109685a872be32f15520",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol10.log": "e99d1a6f98b5c27e0823e226ce54adc13de6849ebe032b3295ce94faea1ca47e",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol11.log": "29b054c4b076d5f2ab1c8a88d10c3460c2e51301aca7d2edd97c70f7781dc332",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol12.log": "147ad6c07ea43a4fb7e99fb6802d34b72c4f925394af66465b19e35defbe6650",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol13.log": "1bc70472ac03bdc638dad2b6ec687524e3be904996b13e32c272a72a4836bab9",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol14.log": "566291e2edf3847a7b979e119989915cfbc5b65fce1dfbdc09bf756aa9a7c60c",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol15.log": "983bd13dacf15b7ae9a48958d66908e1708a94c80476b78c84075e3a1701a952",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol16.log": "62aec29064d547adb252e22fffb179739619fe71865330d031c9146a0ab6633e",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol2.log": "435037f7749e74829cfaff17d3ec7d92859f3735bf33cd6c9013b0e39470294c",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol3.log": "9cf55f73cfcf9e8455c24e14ccdb67231f54f9dde29b2ad33f4610117a1e49c6",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol4.log": "2b9c8a56644ba20097aee1b4c70d9f038805846910c2952147b3f5fff47f840e",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol5.log": "48584c8270745f85dbfe31d57bf3de47e9deb9da128d39c54bfe8d063fa3bf09",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol6.log": "bf15a30141581e50ccd5fc8aa43fada35b6a05ec5fc54f316287b5facbfce6a0",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol7.log": "0c551acf73dccdb90107f163a7d8127d4d9fffc856b10a6f782e6718b5f196cb",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol8.log": "e7eba8d925ac4739d91ef0c1cd1185aaa0d47669cb567cfd87150e32fc9b943f",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-symbol9.log": "ae7bb527df07833be18ce5a32a43502a35632b0b78a9737c41e2cef50f36c561",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-uuid.log": "f6645b0cdf41e727a8857c8dedf77d57757f364f7d8e7c9f4e200eaf55d71ae2",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-admit-version.log": "1c8e1ab056b7e899dd014840e73e32a825beacee16c28b1ec3251008fe267d2f",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-allocafter.log": "d4827dd313f0b8235637c17d7762249cf38fffb68bce6818f14229d448689549",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-allocbefore.log": "b2c1254795005275604b7326e798178b1c9a4293ca813db67fedf29c59058111",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-contexts.log": "c208eb6e7e5b81e02e1f205456349c04cc9788b35dde16be5c0ff91cf9c94f3d",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-create-popafter.log": "910218a916e95aec170940c17b9ab66436ebc02abb0bda33c982456a2c4a5984",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-create-popbefore.log": "52cfeb5b72906c66f2c0e1d6826813472f40c5e716810560a96c476187ea60db",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-create-post.log": "e92be2e1c99f0738e2f6bdb0bc679014d6edcc1baeff89696d939d89fa3c949b",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-create-query.log": "a5e09039ba152ba2a41ba6eb3b7912428962b1b14e7dee1baeae4b3dade0800a",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-linked-real-run.log": "8ec437f82981df77036edbc7d4158de8ae72b2462879463a40b5d26632abe49f",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-normal.log": "951a80c04b263820e17eeee66715dced70be9007437c3ae114b48e7cd8c8c2a2",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-rollback.log": "7288934ba523e0ed7c8f6f5111d283c5ee3fb755d05a88bb87c6b3a11dba854d",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal-version.log": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "/tmp/nanolang-gpu-first-5dd73a9c/manifest.json": "c4887dbbceeee30fd28c74c5684e36d0a7c37b94b4bfb0748036aea76066ca92",
+        "/tmp/nanolang-gpu-first-5dd73a9c/platform.json": "b6fb3ad00ef359f543de623591e5621a84b1ff32a62ad7188c109d62e863bf1b",
+        "/tmp/nanolang-gpu-first-5dd73a9c/runner.py": "91d989151bc0175bdd721c0522e9d641636d957b737a1fa41f561d338b46a8ea",
+        "/tmp/nanolang-gpu-first-5dd73a9c/source-after.json": "9f29163f3ed85216aff7207b058ad4457a1e567760be8d285147b6fafb64d8b1",
+        "/tmp/nanolang-gpu-first-5dd73a9c/source-before.json": "9f29163f3ed85216aff7207b058ad4457a1e567760be8d285147b6fafb64d8b1",
+        "/tmp/nanolang-gpu-first-5dd73a9c/tools-after.json": "affd3c5894c3d55461ea445a7d78540cc4c4b2d34afa598aad8947b89e150d50",
+        "/tmp/nanolang-gpu-first-5dd73a9c/tools-before.json": "affd3c5894c3d55461ea445a7d78540cc4c4b2d34afa598aad8947b89e150d50"
+      },
+      "artifacts": {
+        "/tmp/nanolang-gpu-first-5dd73a9c/frozen-inputs/Makefile.gnu": "418ead16c9bfb10a1d8aa3b7f4c17c7fa00fcdd5b93194fb471649b178e6ffc7",
+        "/tmp/nanolang-gpu-first-5dd73a9c/frozen-inputs/src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+        "/tmp/nanolang-gpu-first-5dd73a9c/frozen-inputs/src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+        "/tmp/nanolang-gpu-first-5dd73a9c/frozen-inputs/src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5",
+        "/tmp/nanolang-gpu-first-5dd73a9c/frozen-inputs/src/nsi_gpu.c": "1a9c81bd05e44d79357b5e089f4db8eb357558983beaf4439001c22282f3d444",
+        "/tmp/nanolang-gpu-first-5dd73a9c/frozen-inputs/src/nsi_gpu.h": "d354cdc00a8194f6727c6522d433d1aa74502f87f007b897406a928fbb2c8802",
+        "/tmp/nanolang-gpu-first-5dd73a9c/frozen-inputs/tests/test_nsi_gpu.c": "b9552576b3581bc5880e191eec501512e31ef94637090e3ec9cf5969b8a0541b",
+        "/tmp/nanolang-gpu-first-5dd73a9c/frozen-inputs/tests/test_nsi_gpu.py": "0b3bf87b7e20fd92eed0ce8d2c0b9bb75c1a8b116581847131e38c6056f25e52",
+        "/tmp/nanolang-gpu-first-5dd73a9c/frozen-inputs/tests/test_nsi_gpu_linked.c": "0e8bb7e49b66d1258b8d0eee9a979bdc031cfdba5d30b434de53164066fc1ad4",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/instrumented": "10d0f36a7d92f6e475ef22a5c0ec970f759778526f8af10c22d74e3ab8c15ade",
+        "/tmp/nanolang-gpu-first-5dd73a9c/gcc-normal/linked": "6444e9dd2deb65ff10046476ff04a51c022481480d8855be29a2d5bdf8903bea"
+      },
+      "tool_map": {
+        "/usr/bin/aarch64-linux-gnu-gcc-13": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+        "/usr/lib/llvm-18/bin/clang": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d",
+        "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8",
+        "/usr/bin/aarch64-linux-gnu-as": "1ffda50efb6d91b6b05ef933aced099595c36577594c0296c91161f2d13db374",
+        "/usr/bin/aarch64-linux-gnu-ld.bfd": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c",
+        "/usr/lib/aarch64-linux-gnu/libcuda.so.595.84": "1cca1f44ea43c0fda92871f6b2f9063fb7abae3a2843e40da7ae35b83f21e9fb",
+        "/usr/local/cuda-13.0/targets/sbsa-linux/include/cuda.h": "64025f81a9d6d2b10e9e11654f3523e5b046d01b883f0b9ca474e463274b80d4"
+      }
+    },
+    "corrected": {
+      "manifest": {
+        "pin": "52e6bf96d3ce5eaf6e4262270f8877d57414e135",
+        "steps": [
+          {
+            "name": "gcc-normal-version",
+            "command": [
+              "/usr/bin/gcc",
+              "--version"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.001,
+            "log_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+          },
+          {
+            "name": "gcc-normal-instrumented-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-pedantic",
+              "tests/test_nsi_gpu.c",
+              "-ldl",
+              "-o",
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.314,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-normal-linked-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-pedantic",
+              "tests/test_nsi_gpu_linked.c",
+              "src/nsi_gpu.c",
+              "src/nsi_cap.c",
+              "-ldl",
+              "-o",
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.265,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-normal-linked-real-run",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "8ec437f82981df77036edbc7d4158de8ae72b2462879463a40b5d26632abe49f"
+          },
+          {
+            "name": "gcc-normal-normal",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "normal"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.866,
+            "log_sha256": "951a80c04b263820e17eeee66715dced70be9007437c3ae114b48e7cd8c8c2a2"
+          },
+          {
+            "name": "gcc-normal-contexts",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "contexts"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 2.27,
+            "log_sha256": "c208eb6e7e5b81e02e1f205456349c04cc9788b35dde16be5c0ff91cf9c94f3d"
+          },
+          {
+            "name": "gcc-normal-admit-loader",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-loader"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.002,
+            "log_sha256": "24ac667dda59bba823e488f1ba54500aa91e1977a00fba6fdd1e0f634b1ee0ad"
+          },
+          {
+            "name": "gcc-normal-admit-host0",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-host0"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.002,
+            "log_sha256": "efad6977a86dc36082162596d1b7684aa63e8f66810e62d0125d2f21840bc83c"
+          },
+          {
+            "name": "gcc-normal-admit-host1",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-host1"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.002,
+            "log_sha256": "1e0f393e3aebd26b5f83768159b83b6b153fded0d96bf5ff599785d6fff53b91"
+          },
+          {
+            "name": "gcc-normal-admit-symbol1",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol1"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "af3b0a0ab5a7eff2ee83f55192e45c0269399e4b97c1109685a872be32f15520"
+          },
+          {
+            "name": "gcc-normal-admit-symbol2",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol2"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "435037f7749e74829cfaff17d3ec7d92859f3735bf33cd6c9013b0e39470294c"
+          },
+          {
+            "name": "gcc-normal-admit-symbol3",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol3"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "9cf55f73cfcf9e8455c24e14ccdb67231f54f9dde29b2ad33f4610117a1e49c6"
+          },
+          {
+            "name": "gcc-normal-admit-symbol4",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol4"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "2b9c8a56644ba20097aee1b4c70d9f038805846910c2952147b3f5fff47f840e"
+          },
+          {
+            "name": "gcc-normal-admit-symbol5",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol5"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.003,
+            "log_sha256": "48584c8270745f85dbfe31d57bf3de47e9deb9da128d39c54bfe8d063fa3bf09"
+          },
+          {
+            "name": "gcc-normal-admit-symbol6",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol6"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "bf15a30141581e50ccd5fc8aa43fada35b6a05ec5fc54f316287b5facbfce6a0"
+          },
+          {
+            "name": "gcc-normal-admit-symbol7",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol7"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "0c551acf73dccdb90107f163a7d8127d4d9fffc856b10a6f782e6718b5f196cb"
+          },
+          {
+            "name": "gcc-normal-admit-symbol8",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol8"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "e7eba8d925ac4739d91ef0c1cd1185aaa0d47669cb567cfd87150e32fc9b943f"
+          },
+          {
+            "name": "gcc-normal-admit-symbol9",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol9"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "ae7bb527df07833be18ce5a32a43502a35632b0b78a9737c41e2cef50f36c561"
+          },
+          {
+            "name": "gcc-normal-admit-symbol10",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol10"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "e99d1a6f98b5c27e0823e226ce54adc13de6849ebe032b3295ce94faea1ca47e"
+          },
+          {
+            "name": "gcc-normal-admit-symbol11",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol11"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "29b054c4b076d5f2ab1c8a88d10c3460c2e51301aca7d2edd97c70f7781dc332"
+          },
+          {
+            "name": "gcc-normal-admit-symbol12",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol12"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "147ad6c07ea43a4fb7e99fb6802d34b72c4f925394af66465b19e35defbe6650"
+          },
+          {
+            "name": "gcc-normal-admit-symbol13",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol13"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "1bc70472ac03bdc638dad2b6ec687524e3be904996b13e32c272a72a4836bab9"
+          },
+          {
+            "name": "gcc-normal-admit-symbol14",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol14"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "566291e2edf3847a7b979e119989915cfbc5b65fce1dfbdc09bf756aa9a7c60c"
+          },
+          {
+            "name": "gcc-normal-admit-symbol15",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol15"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "983bd13dacf15b7ae9a48958d66908e1708a94c80476b78c84075e3a1701a952"
+          },
+          {
+            "name": "gcc-normal-admit-symbol16",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-symbol16"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "62aec29064d547adb252e22fffb179739619fe71865330d031c9146a0ab6633e"
+          },
+          {
+            "name": "gcc-normal-admit-init",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-init"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.004,
+            "log_sha256": "f5e08b5f8f7cef3fdaab1e2fceb0cb8e00605af3b770a7a27b0700e3bf67aa28"
+          },
+          {
+            "name": "gcc-normal-admit-version",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-version"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "1c8e1ab056b7e899dd014840e73e32a825beacee16c28b1ec3251008fe267d2f"
+          },
+          {
+            "name": "gcc-normal-admit-count",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-count"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "a6adfc8d632eebf50563608a2bf3621c4d8492cbc616f8d307926d7bba43c3d9"
+          },
+          {
+            "name": "gcc-normal-admit-device",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-device"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "9cd46112c2b30d4b004aff7c3c6ee00b558b65f973bc6c0007fcab256b034636"
+          },
+          {
+            "name": "gcc-normal-admit-name",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-name"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "6f82d5f3c2232f19d23e27fadbb957e8b03ff5441330b0dc8d49341e56f170c8"
+          },
+          {
+            "name": "gcc-normal-admit-uuid",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-uuid"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "f6645b0cdf41e727a8857c8dedf77d57757f364f7d8e7c9f4e200eaf55d71ae2"
+          },
+          {
+            "name": "gcc-normal-admit-create",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-create"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "0318a6d5050f8f1f5ffeaa08246a3ca44ad331c1545256bd29f6b2b9d6eb16b4"
+          },
+          {
+            "name": "gcc-normal-admit-current",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "admit-current"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "f2b624471f6ab053c874030b3cadad79c144a7a4752d66f83e3baaaff29ae39f"
+          },
+          {
+            "name": "gcc-normal-create-post",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "create-post"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "e92be2e1c99f0738e2f6bdb0bc679014d6edcc1baeff89696d939d89fa3c949b"
+          },
+          {
+            "name": "gcc-normal-create-popbefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "create-popbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.314,
+            "log_sha256": "52cfeb5b72906c66f2c0e1d6826813472f40c5e716810560a96c476187ea60db"
+          },
+          {
+            "name": "gcc-normal-create-popafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "create-popafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.314,
+            "log_sha256": "910218a916e95aec170940c17b9ab66436ebc02abb0bda33c982456a2c4a5984"
+          },
+          {
+            "name": "gcc-normal-create-query",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "create-query"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "a5e09039ba152ba2a41ba6eb3b7912428962b1b14e7dee1baeae4b3dade0800a"
+          },
+          {
+            "name": "gcc-normal-allocbefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "allocbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.314,
+            "log_sha256": "b2c1254795005275604b7326e798178b1c9a4293ca813db67fedf29c59058111"
+          },
+          {
+            "name": "gcc-normal-allocafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "allocafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "d4827dd313f0b8235637c17d7762249cf38fffb68bce6818f14229d448689549"
+          },
+          {
+            "name": "gcc-normal-rollback",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "rollback"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.317,
+            "log_sha256": "941594b68860c739b3c2adbfb3e51b10f78e4286ffe2c06ea20b1aa0500232f3"
+          },
+          {
+            "name": "gcc-normal-pop-before",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "pop-before"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "a9b3646a5c1985ff47bca23d6940709ed58b4acdc71229c0e5787fe8cbce9613"
+          },
+          {
+            "name": "gcc-normal-pop-after",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "pop-after"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "a07ef6df6af68d5834da0bc7f08b127d656e6ac6528a4fe6ab8698c4568a38f2"
+          },
+          {
+            "name": "gcc-normal-freebefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "freebefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.364,
+            "log_sha256": "c0235419d211a7c23078a3ab65caaa820233f0bfc0a7deb30fb7a0d3eb561581"
+          },
+          {
+            "name": "gcc-normal-freeafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "freeafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "acd816394a9e68b4bbf4ea5ff400f9b6183efbd5b90ee45d95180dcc0e784d53"
+          },
+          {
+            "name": "gcc-normal-closepush",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "closepush"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "846b7e0d294eae3f3378762490529c3eb00e212cbcfd7671c0767e11e48e29d8"
+          },
+          {
+            "name": "gcc-normal-destroybefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "destroybefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "05af9ca42a56a660456fd70f6b485c04253329bb9ad9f6723dd1c1b6ace79ede"
+          },
+          {
+            "name": "gcc-normal-destroyafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "destroyafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "3ecb6a9b8dacdf2c610dd1c7bd26079c74fcbe926b658575e95d913e6047422b"
+          },
+          {
+            "name": "gcc-normal-staging",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "staging"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "daf4fb6dd97fcd0a63597c57b741fa0fc3496bbb74723de21bb9df92ed2caf3d"
+          },
+          {
+            "name": "gcc-normal-generation",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "generation"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.314,
+            "log_sha256": "df1c98751198a9997a5fe77bd44f63bd4eeb1b7bf34d772be61f9e7b81375607"
+          },
+          {
+            "name": "gcc-normal-readbefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "readbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "9fa8f51307b0c78d04863aa33693d1de9bb43c0aea26b249b13afac450ceee13"
+          },
+          {
+            "name": "gcc-normal-readafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "readafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.314,
+            "log_sha256": "fe5fe9bdbeeeacdd8edc6d948b029cee179ddcc27e9ebe50f78bae1a6396a414"
+          },
+          {
+            "name": "gcc-normal-readsync",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "readsync"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "2471433abe283ed6e15dff048c4bbeb586ac7874a1e4f1b3228ece625c4ec7fd"
+          },
+          {
+            "name": "gcc-normal-writebefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "writebefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "ecf5622dfe938a17915f2b48698248bb3058d7fa438e48b476cb6f2bcc76588f"
+          },
+          {
+            "name": "gcc-normal-writeafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "writeafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "4ae766bcbe1b4aedd671a49f9050f361f2dec257a9bd1c51c37112f785fd2ff2"
+          },
+          {
+            "name": "gcc-normal-writesync",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "writesync"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "d8baa25aebd99e7650430a8714f18421f4c00dc3aad6e92ecf6a2f36e97c5d98"
+          },
+          {
+            "name": "gcc-normal-loader-close",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented",
+              "loader-close"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "ecf689a1353f672fca38fa09057020bcf07317e3c2fed76885e0466d6c688027"
+          },
+          {
+            "name": "gcc-san-version",
+            "command": [
+              "/usr/bin/gcc",
+              "--version"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.001,
+            "log_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+          },
+          {
+            "name": "gcc-san-instrumented-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-pedantic",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_gpu.c",
+              "-ldl",
+              "-o",
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.817,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-san-linked-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-pedantic",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_gpu_linked.c",
+              "src/nsi_gpu.c",
+              "src/nsi_cap.c",
+              "-ldl",
+              "-o",
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.665,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-san-linked-real-run",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "8ec437f82981df77036edbc7d4158de8ae72b2462879463a40b5d26632abe49f"
+          },
+          {
+            "name": "gcc-san-normal",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "normal"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.966,
+            "log_sha256": "951a80c04b263820e17eeee66715dced70be9007437c3ae114b48e7cd8c8c2a2"
+          },
+          {
+            "name": "gcc-san-contexts",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "contexts"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 2.47,
+            "log_sha256": "c208eb6e7e5b81e02e1f205456349c04cc9788b35dde16be5c0ff91cf9c94f3d"
+          },
+          {
+            "name": "gcc-san-admit-loader",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-loader"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "24ac667dda59bba823e488f1ba54500aa91e1977a00fba6fdd1e0f634b1ee0ad"
+          },
+          {
+            "name": "gcc-san-admit-host0",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-host0"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "efad6977a86dc36082162596d1b7684aa63e8f66810e62d0125d2f21840bc83c"
+          },
+          {
+            "name": "gcc-san-admit-host1",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-host1"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "1e0f393e3aebd26b5f83768159b83b6b153fded0d96bf5ff599785d6fff53b91"
+          },
+          {
+            "name": "gcc-san-admit-symbol1",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol1"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "af3b0a0ab5a7eff2ee83f55192e45c0269399e4b97c1109685a872be32f15520"
+          },
+          {
+            "name": "gcc-san-admit-symbol2",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol2"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "435037f7749e74829cfaff17d3ec7d92859f3735bf33cd6c9013b0e39470294c"
+          },
+          {
+            "name": "gcc-san-admit-symbol3",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol3"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "9cf55f73cfcf9e8455c24e14ccdb67231f54f9dde29b2ad33f4610117a1e49c6"
+          },
+          {
+            "name": "gcc-san-admit-symbol4",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol4"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "2b9c8a56644ba20097aee1b4c70d9f038805846910c2952147b3f5fff47f840e"
+          },
+          {
+            "name": "gcc-san-admit-symbol5",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol5"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "48584c8270745f85dbfe31d57bf3de47e9deb9da128d39c54bfe8d063fa3bf09"
+          },
+          {
+            "name": "gcc-san-admit-symbol6",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol6"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "bf15a30141581e50ccd5fc8aa43fada35b6a05ec5fc54f316287b5facbfce6a0"
+          },
+          {
+            "name": "gcc-san-admit-symbol7",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol7"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "0c551acf73dccdb90107f163a7d8127d4d9fffc856b10a6f782e6718b5f196cb"
+          },
+          {
+            "name": "gcc-san-admit-symbol8",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol8"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "e7eba8d925ac4739d91ef0c1cd1185aaa0d47669cb567cfd87150e32fc9b943f"
+          },
+          {
+            "name": "gcc-san-admit-symbol9",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol9"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "ae7bb527df07833be18ce5a32a43502a35632b0b78a9737c41e2cef50f36c561"
+          },
+          {
+            "name": "gcc-san-admit-symbol10",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol10"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "e99d1a6f98b5c27e0823e226ce54adc13de6849ebe032b3295ce94faea1ca47e"
+          },
+          {
+            "name": "gcc-san-admit-symbol11",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol11"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.017,
+            "log_sha256": "29b054c4b076d5f2ab1c8a88d10c3460c2e51301aca7d2edd97c70f7781dc332"
+          },
+          {
+            "name": "gcc-san-admit-symbol12",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol12"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "147ad6c07ea43a4fb7e99fb6802d34b72c4f925394af66465b19e35defbe6650"
+          },
+          {
+            "name": "gcc-san-admit-symbol13",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol13"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "1bc70472ac03bdc638dad2b6ec687524e3be904996b13e32c272a72a4836bab9"
+          },
+          {
+            "name": "gcc-san-admit-symbol14",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol14"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "566291e2edf3847a7b979e119989915cfbc5b65fce1dfbdc09bf756aa9a7c60c"
+          },
+          {
+            "name": "gcc-san-admit-symbol15",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol15"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "983bd13dacf15b7ae9a48958d66908e1708a94c80476b78c84075e3a1701a952"
+          },
+          {
+            "name": "gcc-san-admit-symbol16",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-symbol16"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "62aec29064d547adb252e22fffb179739619fe71865330d031c9146a0ab6633e"
+          },
+          {
+            "name": "gcc-san-admit-init",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-init"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "f5e08b5f8f7cef3fdaab1e2fceb0cb8e00605af3b770a7a27b0700e3bf67aa28"
+          },
+          {
+            "name": "gcc-san-admit-version",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-version"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "1c8e1ab056b7e899dd014840e73e32a825beacee16c28b1ec3251008fe267d2f"
+          },
+          {
+            "name": "gcc-san-admit-count",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-count"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "a6adfc8d632eebf50563608a2bf3621c4d8492cbc616f8d307926d7bba43c3d9"
+          },
+          {
+            "name": "gcc-san-admit-device",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-device"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "9cd46112c2b30d4b004aff7c3c6ee00b558b65f973bc6c0007fcab256b034636"
+          },
+          {
+            "name": "gcc-san-admit-name",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-name"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "6f82d5f3c2232f19d23e27fadbb957e8b03ff5441330b0dc8d49341e56f170c8"
+          },
+          {
+            "name": "gcc-san-admit-uuid",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-uuid"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "f6645b0cdf41e727a8857c8dedf77d57757f364f7d8e7c9f4e200eaf55d71ae2"
+          },
+          {
+            "name": "gcc-san-admit-create",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-create"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "0318a6d5050f8f1f5ffeaa08246a3ca44ad331c1545256bd29f6b2b9d6eb16b4"
+          },
+          {
+            "name": "gcc-san-admit-current",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "admit-current"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "f2b624471f6ab053c874030b3cadad79c144a7a4752d66f83e3baaaff29ae39f"
+          },
+          {
+            "name": "gcc-san-create-post",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "create-post"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "e92be2e1c99f0738e2f6bdb0bc679014d6edcc1baeff89696d939d89fa3c949b"
+          },
+          {
+            "name": "gcc-san-create-popbefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "create-popbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "52cfeb5b72906c66f2c0e1d6826813472f40c5e716810560a96c476187ea60db"
+          },
+          {
+            "name": "gcc-san-create-popafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "create-popafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "910218a916e95aec170940c17b9ab66436ebc02abb0bda33c982456a2c4a5984"
+          },
+          {
+            "name": "gcc-san-create-query",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "create-query"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "a5e09039ba152ba2a41ba6eb3b7912428962b1b14e7dee1baeae4b3dade0800a"
+          },
+          {
+            "name": "gcc-san-allocbefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "allocbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "b2c1254795005275604b7326e798178b1c9a4293ca813db67fedf29c59058111"
+          },
+          {
+            "name": "gcc-san-allocafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "allocafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "d4827dd313f0b8235637c17d7762249cf38fffb68bce6818f14229d448689549"
+          },
+          {
+            "name": "gcc-san-rollback",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "rollback"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "941594b68860c739b3c2adbfb3e51b10f78e4286ffe2c06ea20b1aa0500232f3"
+          },
+          {
+            "name": "gcc-san-pop-before",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "pop-before"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.366,
+            "log_sha256": "a9b3646a5c1985ff47bca23d6940709ed58b4acdc71229c0e5787fe8cbce9613"
+          },
+          {
+            "name": "gcc-san-pop-after",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "pop-after"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "a07ef6df6af68d5834da0bc7f08b127d656e6ac6528a4fe6ab8698c4568a38f2"
+          },
+          {
+            "name": "gcc-san-freebefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "freebefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "c0235419d211a7c23078a3ab65caaa820233f0bfc0a7deb30fb7a0d3eb561581"
+          },
+          {
+            "name": "gcc-san-freeafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "freeafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "acd816394a9e68b4bbf4ea5ff400f9b6183efbd5b90ee45d95180dcc0e784d53"
+          },
+          {
+            "name": "gcc-san-closepush",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "closepush"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "846b7e0d294eae3f3378762490529c3eb00e212cbcfd7671c0767e11e48e29d8"
+          },
+          {
+            "name": "gcc-san-destroybefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "destroybefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "05af9ca42a56a660456fd70f6b485c04253329bb9ad9f6723dd1c1b6ace79ede"
+          },
+          {
+            "name": "gcc-san-destroyafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "destroyafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "3ecb6a9b8dacdf2c610dd1c7bd26079c74fcbe926b658575e95d913e6047422b"
+          },
+          {
+            "name": "gcc-san-staging",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "staging"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "daf4fb6dd97fcd0a63597c57b741fa0fc3496bbb74723de21bb9df92ed2caf3d"
+          },
+          {
+            "name": "gcc-san-generation",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "generation"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "df1c98751198a9997a5fe77bd44f63bd4eeb1b7bf34d772be61f9e7b81375607"
+          },
+          {
+            "name": "gcc-san-readbefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "readbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "9fa8f51307b0c78d04863aa33693d1de9bb43c0aea26b249b13afac450ceee13"
+          },
+          {
+            "name": "gcc-san-readafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "readafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.366,
+            "log_sha256": "fe5fe9bdbeeeacdd8edc6d948b029cee179ddcc27e9ebe50f78bae1a6396a414"
+          },
+          {
+            "name": "gcc-san-readsync",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "readsync"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "2471433abe283ed6e15dff048c4bbeb586ac7874a1e4f1b3228ece625c4ec7fd"
+          },
+          {
+            "name": "gcc-san-writebefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "writebefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "ecf5622dfe938a17915f2b48698248bb3058d7fa438e48b476cb6f2bcc76588f"
+          },
+          {
+            "name": "gcc-san-writeafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "writeafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "4ae766bcbe1b4aedd671a49f9050f361f2dec257a9bd1c51c37112f785fd2ff2"
+          },
+          {
+            "name": "gcc-san-writesync",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "writesync"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "d8baa25aebd99e7650430a8714f18421f4c00dc3aad6e92ecf6a2f36e97c5d98"
+          },
+          {
+            "name": "gcc-san-loader-close",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented",
+              "loader-close"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "ecf689a1353f672fca38fa09057020bcf07317e3c2fed76885e0466d6c688027"
+          },
+          {
+            "name": "clang-san-version",
+            "command": [
+              "/usr/bin/clang-18",
+              "--version"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "c0003bf916cbcae3cba03ba1cad136b6d501c1d343f380e58d5ba25cf693aafc"
+          },
+          {
+            "name": "clang-san-instrumented-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-pedantic",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_gpu.c",
+              "-ldl",
+              "-o",
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.816,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-san-linked-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-pedantic",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_gpu_linked.c",
+              "src/nsi_gpu.c",
+              "src/nsi_cap.c",
+              "-ldl",
+              "-o",
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.616,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-san-linked-real-run",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "8ec437f82981df77036edbc7d4158de8ae72b2462879463a40b5d26632abe49f"
+          },
+          {
+            "name": "clang-san-normal",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "normal"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.916,
+            "log_sha256": "951a80c04b263820e17eeee66715dced70be9007437c3ae114b48e7cd8c8c2a2"
+          },
+          {
+            "name": "clang-san-contexts",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "contexts"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 2.419,
+            "log_sha256": "c208eb6e7e5b81e02e1f205456349c04cc9788b35dde16be5c0ff91cf9c94f3d"
+          },
+          {
+            "name": "clang-san-admit-loader",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-loader"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "24ac667dda59bba823e488f1ba54500aa91e1977a00fba6fdd1e0f634b1ee0ad"
+          },
+          {
+            "name": "clang-san-admit-host0",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-host0"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "efad6977a86dc36082162596d1b7684aa63e8f66810e62d0125d2f21840bc83c"
+          },
+          {
+            "name": "clang-san-admit-host1",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-host1"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "1e0f393e3aebd26b5f83768159b83b6b153fded0d96bf5ff599785d6fff53b91"
+          },
+          {
+            "name": "clang-san-admit-symbol1",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol1"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "af3b0a0ab5a7eff2ee83f55192e45c0269399e4b97c1109685a872be32f15520"
+          },
+          {
+            "name": "clang-san-admit-symbol2",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol2"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "435037f7749e74829cfaff17d3ec7d92859f3735bf33cd6c9013b0e39470294c"
+          },
+          {
+            "name": "clang-san-admit-symbol3",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol3"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "9cf55f73cfcf9e8455c24e14ccdb67231f54f9dde29b2ad33f4610117a1e49c6"
+          },
+          {
+            "name": "clang-san-admit-symbol4",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol4"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "2b9c8a56644ba20097aee1b4c70d9f038805846910c2952147b3f5fff47f840e"
+          },
+          {
+            "name": "clang-san-admit-symbol5",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol5"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "48584c8270745f85dbfe31d57bf3de47e9deb9da128d39c54bfe8d063fa3bf09"
+          },
+          {
+            "name": "clang-san-admit-symbol6",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol6"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "bf15a30141581e50ccd5fc8aa43fada35b6a05ec5fc54f316287b5facbfce6a0"
+          },
+          {
+            "name": "clang-san-admit-symbol7",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol7"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "0c551acf73dccdb90107f163a7d8127d4d9fffc856b10a6f782e6718b5f196cb"
+          },
+          {
+            "name": "clang-san-admit-symbol8",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol8"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "e7eba8d925ac4739d91ef0c1cd1185aaa0d47669cb567cfd87150e32fc9b943f"
+          },
+          {
+            "name": "clang-san-admit-symbol9",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol9"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.015,
+            "log_sha256": "ae7bb527df07833be18ce5a32a43502a35632b0b78a9737c41e2cef50f36c561"
+          },
+          {
+            "name": "clang-san-admit-symbol10",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol10"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "e99d1a6f98b5c27e0823e226ce54adc13de6849ebe032b3295ce94faea1ca47e"
+          },
+          {
+            "name": "clang-san-admit-symbol11",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol11"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "29b054c4b076d5f2ab1c8a88d10c3460c2e51301aca7d2edd97c70f7781dc332"
+          },
+          {
+            "name": "clang-san-admit-symbol12",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol12"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "147ad6c07ea43a4fb7e99fb6802d34b72c4f925394af66465b19e35defbe6650"
+          },
+          {
+            "name": "clang-san-admit-symbol13",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol13"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "1bc70472ac03bdc638dad2b6ec687524e3be904996b13e32c272a72a4836bab9"
+          },
+          {
+            "name": "clang-san-admit-symbol14",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol14"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "566291e2edf3847a7b979e119989915cfbc5b65fce1dfbdc09bf756aa9a7c60c"
+          },
+          {
+            "name": "clang-san-admit-symbol15",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol15"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "983bd13dacf15b7ae9a48958d66908e1708a94c80476b78c84075e3a1701a952"
+          },
+          {
+            "name": "clang-san-admit-symbol16",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-symbol16"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "62aec29064d547adb252e22fffb179739619fe71865330d031c9146a0ab6633e"
+          },
+          {
+            "name": "clang-san-admit-init",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-init"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "f5e08b5f8f7cef3fdaab1e2fceb0cb8e00605af3b770a7a27b0700e3bf67aa28"
+          },
+          {
+            "name": "clang-san-admit-version",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-version"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "1c8e1ab056b7e899dd014840e73e32a825beacee16c28b1ec3251008fe267d2f"
+          },
+          {
+            "name": "clang-san-admit-count",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-count"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "a6adfc8d632eebf50563608a2bf3621c4d8492cbc616f8d307926d7bba43c3d9"
+          },
+          {
+            "name": "clang-san-admit-device",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-device"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "9cd46112c2b30d4b004aff7c3c6ee00b558b65f973bc6c0007fcab256b034636"
+          },
+          {
+            "name": "clang-san-admit-name",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-name"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "6f82d5f3c2232f19d23e27fadbb957e8b03ff5441330b0dc8d49341e56f170c8"
+          },
+          {
+            "name": "clang-san-admit-uuid",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-uuid"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "f6645b0cdf41e727a8857c8dedf77d57757f364f7d8e7c9f4e200eaf55d71ae2"
+          },
+          {
+            "name": "clang-san-admit-create",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-create"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "0318a6d5050f8f1f5ffeaa08246a3ca44ad331c1545256bd29f6b2b9d6eb16b4"
+          },
+          {
+            "name": "clang-san-admit-current",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "admit-current"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.064,
+            "log_sha256": "f2b624471f6ab053c874030b3cadad79c144a7a4752d66f83e3baaaff29ae39f"
+          },
+          {
+            "name": "clang-san-create-post",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "create-post"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "e92be2e1c99f0738e2f6bdb0bc679014d6edcc1baeff89696d939d89fa3c949b"
+          },
+          {
+            "name": "clang-san-create-popbefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "create-popbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "52cfeb5b72906c66f2c0e1d6826813472f40c5e716810560a96c476187ea60db"
+          },
+          {
+            "name": "clang-san-create-popafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "create-popafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "910218a916e95aec170940c17b9ab66436ebc02abb0bda33c982456a2c4a5984"
+          },
+          {
+            "name": "clang-san-create-query",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "create-query"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "a5e09039ba152ba2a41ba6eb3b7912428962b1b14e7dee1baeae4b3dade0800a"
+          },
+          {
+            "name": "clang-san-allocbefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "allocbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "b2c1254795005275604b7326e798178b1c9a4293ca813db67fedf29c59058111"
+          },
+          {
+            "name": "clang-san-allocafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "allocafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "d4827dd313f0b8235637c17d7762249cf38fffb68bce6818f14229d448689549"
+          },
+          {
+            "name": "clang-san-rollback",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "rollback"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "941594b68860c739b3c2adbfb3e51b10f78e4286ffe2c06ea20b1aa0500232f3"
+          },
+          {
+            "name": "clang-san-pop-before",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "pop-before"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "a9b3646a5c1985ff47bca23d6940709ed58b4acdc71229c0e5787fe8cbce9613"
+          },
+          {
+            "name": "clang-san-pop-after",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "pop-after"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "a07ef6df6af68d5834da0bc7f08b127d656e6ac6528a4fe6ab8698c4568a38f2"
+          },
+          {
+            "name": "clang-san-freebefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "freebefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "c0235419d211a7c23078a3ab65caaa820233f0bfc0a7deb30fb7a0d3eb561581"
+          },
+          {
+            "name": "clang-san-freeafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "freeafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "acd816394a9e68b4bbf4ea5ff400f9b6183efbd5b90ee45d95180dcc0e784d53"
+          },
+          {
+            "name": "clang-san-closepush",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "closepush"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "846b7e0d294eae3f3378762490529c3eb00e212cbcfd7671c0767e11e48e29d8"
+          },
+          {
+            "name": "clang-san-destroybefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "destroybefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.366,
+            "log_sha256": "05af9ca42a56a660456fd70f6b485c04253329bb9ad9f6723dd1c1b6ace79ede"
+          },
+          {
+            "name": "clang-san-destroyafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "destroyafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "3ecb6a9b8dacdf2c610dd1c7bd26079c74fcbe926b658575e95d913e6047422b"
+          },
+          {
+            "name": "clang-san-staging",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "staging"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.364,
+            "log_sha256": "daf4fb6dd97fcd0a63597c57b741fa0fc3496bbb74723de21bb9df92ed2caf3d"
+          },
+          {
+            "name": "clang-san-generation",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "generation"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.366,
+            "log_sha256": "df1c98751198a9997a5fe77bd44f63bd4eeb1b7bf34d772be61f9e7b81375607"
+          },
+          {
+            "name": "clang-san-readbefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "readbefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "9fa8f51307b0c78d04863aa33693d1de9bb43c0aea26b249b13afac450ceee13"
+          },
+          {
+            "name": "clang-san-readafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "readafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.364,
+            "log_sha256": "fe5fe9bdbeeeacdd8edc6d948b029cee179ddcc27e9ebe50f78bae1a6396a414"
+          },
+          {
+            "name": "clang-san-readsync",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "readsync"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "2471433abe283ed6e15dff048c4bbeb586ac7874a1e4f1b3228ece625c4ec7fd"
+          },
+          {
+            "name": "clang-san-writebefore",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "writebefore"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "ecf5622dfe938a17915f2b48698248bb3058d7fa438e48b476cb6f2bcc76588f"
+          },
+          {
+            "name": "clang-san-writeafter",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "writeafter"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "4ae766bcbe1b4aedd671a49f9050f361f2dec257a9bd1c51c37112f785fd2ff2"
+          },
+          {
+            "name": "clang-san-writesync",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "writesync"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "d8baa25aebd99e7650430a8714f18421f4c00dc3aad6e92ecf6a2f36e97c5d98"
+          },
+          {
+            "name": "clang-san-loader-close",
+            "command": [
+              "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented",
+              "loader-close"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "ecf689a1353f672fca38fa09057020bcf07317e3c2fed76885e0466d6c688027"
+          }
+        ],
+        "status": 0,
+        "source_unchanged": true,
+        "tools_unchanged": true,
+        "head_unchanged": true,
+        "clean": true
+      },
+      "reports": {
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-count.log": "a6adfc8d632eebf50563608a2bf3621c4d8492cbc616f8d307926d7bba43c3d9",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-create.log": "0318a6d5050f8f1f5ffeaa08246a3ca44ad331c1545256bd29f6b2b9d6eb16b4",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-current.log": "f2b624471f6ab053c874030b3cadad79c144a7a4752d66f83e3baaaff29ae39f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-device.log": "9cd46112c2b30d4b004aff7c3c6ee00b558b65f973bc6c0007fcab256b034636",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-host0.log": "efad6977a86dc36082162596d1b7684aa63e8f66810e62d0125d2f21840bc83c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-host1.log": "1e0f393e3aebd26b5f83768159b83b6b153fded0d96bf5ff599785d6fff53b91",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-init.log": "f5e08b5f8f7cef3fdaab1e2fceb0cb8e00605af3b770a7a27b0700e3bf67aa28",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-loader.log": "24ac667dda59bba823e488f1ba54500aa91e1977a00fba6fdd1e0f634b1ee0ad",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-name.log": "6f82d5f3c2232f19d23e27fadbb957e8b03ff5441330b0dc8d49341e56f170c8",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol1.log": "af3b0a0ab5a7eff2ee83f55192e45c0269399e4b97c1109685a872be32f15520",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol10.log": "e99d1a6f98b5c27e0823e226ce54adc13de6849ebe032b3295ce94faea1ca47e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol11.log": "29b054c4b076d5f2ab1c8a88d10c3460c2e51301aca7d2edd97c70f7781dc332",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol12.log": "147ad6c07ea43a4fb7e99fb6802d34b72c4f925394af66465b19e35defbe6650",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol13.log": "1bc70472ac03bdc638dad2b6ec687524e3be904996b13e32c272a72a4836bab9",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol14.log": "566291e2edf3847a7b979e119989915cfbc5b65fce1dfbdc09bf756aa9a7c60c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol15.log": "983bd13dacf15b7ae9a48958d66908e1708a94c80476b78c84075e3a1701a952",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol16.log": "62aec29064d547adb252e22fffb179739619fe71865330d031c9146a0ab6633e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol2.log": "435037f7749e74829cfaff17d3ec7d92859f3735bf33cd6c9013b0e39470294c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol3.log": "9cf55f73cfcf9e8455c24e14ccdb67231f54f9dde29b2ad33f4610117a1e49c6",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol4.log": "2b9c8a56644ba20097aee1b4c70d9f038805846910c2952147b3f5fff47f840e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol5.log": "48584c8270745f85dbfe31d57bf3de47e9deb9da128d39c54bfe8d063fa3bf09",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol6.log": "bf15a30141581e50ccd5fc8aa43fada35b6a05ec5fc54f316287b5facbfce6a0",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol7.log": "0c551acf73dccdb90107f163a7d8127d4d9fffc856b10a6f782e6718b5f196cb",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol8.log": "e7eba8d925ac4739d91ef0c1cd1185aaa0d47669cb567cfd87150e32fc9b943f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-symbol9.log": "ae7bb527df07833be18ce5a32a43502a35632b0b78a9737c41e2cef50f36c561",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-uuid.log": "f6645b0cdf41e727a8857c8dedf77d57757f364f7d8e7c9f4e200eaf55d71ae2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-admit-version.log": "1c8e1ab056b7e899dd014840e73e32a825beacee16c28b1ec3251008fe267d2f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-allocafter.log": "d4827dd313f0b8235637c17d7762249cf38fffb68bce6818f14229d448689549",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-allocbefore.log": "b2c1254795005275604b7326e798178b1c9a4293ca813db67fedf29c59058111",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-closepush.log": "846b7e0d294eae3f3378762490529c3eb00e212cbcfd7671c0767e11e48e29d8",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-contexts.log": "c208eb6e7e5b81e02e1f205456349c04cc9788b35dde16be5c0ff91cf9c94f3d",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-create-popafter.log": "910218a916e95aec170940c17b9ab66436ebc02abb0bda33c982456a2c4a5984",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-create-popbefore.log": "52cfeb5b72906c66f2c0e1d6826813472f40c5e716810560a96c476187ea60db",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-create-post.log": "e92be2e1c99f0738e2f6bdb0bc679014d6edcc1baeff89696d939d89fa3c949b",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-create-query.log": "a5e09039ba152ba2a41ba6eb3b7912428962b1b14e7dee1baeae4b3dade0800a",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-destroyafter.log": "3ecb6a9b8dacdf2c610dd1c7bd26079c74fcbe926b658575e95d913e6047422b",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-destroybefore.log": "05af9ca42a56a660456fd70f6b485c04253329bb9ad9f6723dd1c1b6ace79ede",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-freeafter.log": "acd816394a9e68b4bbf4ea5ff400f9b6183efbd5b90ee45d95180dcc0e784d53",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-freebefore.log": "c0235419d211a7c23078a3ab65caaa820233f0bfc0a7deb30fb7a0d3eb561581",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-generation.log": "df1c98751198a9997a5fe77bd44f63bd4eeb1b7bf34d772be61f9e7b81375607",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-linked-real-run.log": "8ec437f82981df77036edbc7d4158de8ae72b2462879463a40b5d26632abe49f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-loader-close.log": "ecf689a1353f672fca38fa09057020bcf07317e3c2fed76885e0466d6c688027",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-normal.log": "951a80c04b263820e17eeee66715dced70be9007437c3ae114b48e7cd8c8c2a2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-pop-after.log": "a07ef6df6af68d5834da0bc7f08b127d656e6ac6528a4fe6ab8698c4568a38f2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-pop-before.log": "a9b3646a5c1985ff47bca23d6940709ed58b4acdc71229c0e5787fe8cbce9613",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-readafter.log": "fe5fe9bdbeeeacdd8edc6d948b029cee179ddcc27e9ebe50f78bae1a6396a414",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-readbefore.log": "9fa8f51307b0c78d04863aa33693d1de9bb43c0aea26b249b13afac450ceee13",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-readsync.log": "2471433abe283ed6e15dff048c4bbeb586ac7874a1e4f1b3228ece625c4ec7fd",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-rollback.log": "941594b68860c739b3c2adbfb3e51b10f78e4286ffe2c06ea20b1aa0500232f3",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-staging.log": "daf4fb6dd97fcd0a63597c57b741fa0fc3496bbb74723de21bb9df92ed2caf3d",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-version.log": "c0003bf916cbcae3cba03ba1cad136b6d501c1d343f380e58d5ba25cf693aafc",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-writeafter.log": "4ae766bcbe1b4aedd671a49f9050f361f2dec257a9bd1c51c37112f785fd2ff2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-writebefore.log": "ecf5622dfe938a17915f2b48698248bb3058d7fa438e48b476cb6f2bcc76588f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san-writesync.log": "d8baa25aebd99e7650430a8714f18421f4c00dc3aad6e92ecf6a2f36e97c5d98",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-count.log": "a6adfc8d632eebf50563608a2bf3621c4d8492cbc616f8d307926d7bba43c3d9",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-create.log": "0318a6d5050f8f1f5ffeaa08246a3ca44ad331c1545256bd29f6b2b9d6eb16b4",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-current.log": "f2b624471f6ab053c874030b3cadad79c144a7a4752d66f83e3baaaff29ae39f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-device.log": "9cd46112c2b30d4b004aff7c3c6ee00b558b65f973bc6c0007fcab256b034636",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-host0.log": "efad6977a86dc36082162596d1b7684aa63e8f66810e62d0125d2f21840bc83c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-host1.log": "1e0f393e3aebd26b5f83768159b83b6b153fded0d96bf5ff599785d6fff53b91",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-init.log": "f5e08b5f8f7cef3fdaab1e2fceb0cb8e00605af3b770a7a27b0700e3bf67aa28",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-loader.log": "24ac667dda59bba823e488f1ba54500aa91e1977a00fba6fdd1e0f634b1ee0ad",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-name.log": "6f82d5f3c2232f19d23e27fadbb957e8b03ff5441330b0dc8d49341e56f170c8",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol1.log": "af3b0a0ab5a7eff2ee83f55192e45c0269399e4b97c1109685a872be32f15520",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol10.log": "e99d1a6f98b5c27e0823e226ce54adc13de6849ebe032b3295ce94faea1ca47e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol11.log": "29b054c4b076d5f2ab1c8a88d10c3460c2e51301aca7d2edd97c70f7781dc332",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol12.log": "147ad6c07ea43a4fb7e99fb6802d34b72c4f925394af66465b19e35defbe6650",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol13.log": "1bc70472ac03bdc638dad2b6ec687524e3be904996b13e32c272a72a4836bab9",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol14.log": "566291e2edf3847a7b979e119989915cfbc5b65fce1dfbdc09bf756aa9a7c60c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol15.log": "983bd13dacf15b7ae9a48958d66908e1708a94c80476b78c84075e3a1701a952",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol16.log": "62aec29064d547adb252e22fffb179739619fe71865330d031c9146a0ab6633e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol2.log": "435037f7749e74829cfaff17d3ec7d92859f3735bf33cd6c9013b0e39470294c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol3.log": "9cf55f73cfcf9e8455c24e14ccdb67231f54f9dde29b2ad33f4610117a1e49c6",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol4.log": "2b9c8a56644ba20097aee1b4c70d9f038805846910c2952147b3f5fff47f840e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol5.log": "48584c8270745f85dbfe31d57bf3de47e9deb9da128d39c54bfe8d063fa3bf09",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol6.log": "bf15a30141581e50ccd5fc8aa43fada35b6a05ec5fc54f316287b5facbfce6a0",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol7.log": "0c551acf73dccdb90107f163a7d8127d4d9fffc856b10a6f782e6718b5f196cb",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol8.log": "e7eba8d925ac4739d91ef0c1cd1185aaa0d47669cb567cfd87150e32fc9b943f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-symbol9.log": "ae7bb527df07833be18ce5a32a43502a35632b0b78a9737c41e2cef50f36c561",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-uuid.log": "f6645b0cdf41e727a8857c8dedf77d57757f364f7d8e7c9f4e200eaf55d71ae2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-admit-version.log": "1c8e1ab056b7e899dd014840e73e32a825beacee16c28b1ec3251008fe267d2f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-allocafter.log": "d4827dd313f0b8235637c17d7762249cf38fffb68bce6818f14229d448689549",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-allocbefore.log": "b2c1254795005275604b7326e798178b1c9a4293ca813db67fedf29c59058111",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-closepush.log": "846b7e0d294eae3f3378762490529c3eb00e212cbcfd7671c0767e11e48e29d8",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-contexts.log": "c208eb6e7e5b81e02e1f205456349c04cc9788b35dde16be5c0ff91cf9c94f3d",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-create-popafter.log": "910218a916e95aec170940c17b9ab66436ebc02abb0bda33c982456a2c4a5984",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-create-popbefore.log": "52cfeb5b72906c66f2c0e1d6826813472f40c5e716810560a96c476187ea60db",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-create-post.log": "e92be2e1c99f0738e2f6bdb0bc679014d6edcc1baeff89696d939d89fa3c949b",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-create-query.log": "a5e09039ba152ba2a41ba6eb3b7912428962b1b14e7dee1baeae4b3dade0800a",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-destroyafter.log": "3ecb6a9b8dacdf2c610dd1c7bd26079c74fcbe926b658575e95d913e6047422b",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-destroybefore.log": "05af9ca42a56a660456fd70f6b485c04253329bb9ad9f6723dd1c1b6ace79ede",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-freeafter.log": "acd816394a9e68b4bbf4ea5ff400f9b6183efbd5b90ee45d95180dcc0e784d53",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-freebefore.log": "c0235419d211a7c23078a3ab65caaa820233f0bfc0a7deb30fb7a0d3eb561581",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-generation.log": "df1c98751198a9997a5fe77bd44f63bd4eeb1b7bf34d772be61f9e7b81375607",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-linked-real-run.log": "8ec437f82981df77036edbc7d4158de8ae72b2462879463a40b5d26632abe49f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-loader-close.log": "ecf689a1353f672fca38fa09057020bcf07317e3c2fed76885e0466d6c688027",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-normal.log": "951a80c04b263820e17eeee66715dced70be9007437c3ae114b48e7cd8c8c2a2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-pop-after.log": "a07ef6df6af68d5834da0bc7f08b127d656e6ac6528a4fe6ab8698c4568a38f2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-pop-before.log": "a9b3646a5c1985ff47bca23d6940709ed58b4acdc71229c0e5787fe8cbce9613",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-readafter.log": "fe5fe9bdbeeeacdd8edc6d948b029cee179ddcc27e9ebe50f78bae1a6396a414",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-readbefore.log": "9fa8f51307b0c78d04863aa33693d1de9bb43c0aea26b249b13afac450ceee13",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-readsync.log": "2471433abe283ed6e15dff048c4bbeb586ac7874a1e4f1b3228ece625c4ec7fd",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-rollback.log": "941594b68860c739b3c2adbfb3e51b10f78e4286ffe2c06ea20b1aa0500232f3",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-staging.log": "daf4fb6dd97fcd0a63597c57b741fa0fc3496bbb74723de21bb9df92ed2caf3d",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-version.log": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-writeafter.log": "4ae766bcbe1b4aedd671a49f9050f361f2dec257a9bd1c51c37112f785fd2ff2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-writebefore.log": "ecf5622dfe938a17915f2b48698248bb3058d7fa438e48b476cb6f2bcc76588f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal-writesync.log": "d8baa25aebd99e7650430a8714f18421f4c00dc3aad6e92ecf6a2f36e97c5d98",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-count.log": "a6adfc8d632eebf50563608a2bf3621c4d8492cbc616f8d307926d7bba43c3d9",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-create.log": "0318a6d5050f8f1f5ffeaa08246a3ca44ad331c1545256bd29f6b2b9d6eb16b4",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-current.log": "f2b624471f6ab053c874030b3cadad79c144a7a4752d66f83e3baaaff29ae39f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-device.log": "9cd46112c2b30d4b004aff7c3c6ee00b558b65f973bc6c0007fcab256b034636",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-host0.log": "efad6977a86dc36082162596d1b7684aa63e8f66810e62d0125d2f21840bc83c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-host1.log": "1e0f393e3aebd26b5f83768159b83b6b153fded0d96bf5ff599785d6fff53b91",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-init.log": "f5e08b5f8f7cef3fdaab1e2fceb0cb8e00605af3b770a7a27b0700e3bf67aa28",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-loader.log": "24ac667dda59bba823e488f1ba54500aa91e1977a00fba6fdd1e0f634b1ee0ad",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-name.log": "6f82d5f3c2232f19d23e27fadbb957e8b03ff5441330b0dc8d49341e56f170c8",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol1.log": "af3b0a0ab5a7eff2ee83f55192e45c0269399e4b97c1109685a872be32f15520",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol10.log": "e99d1a6f98b5c27e0823e226ce54adc13de6849ebe032b3295ce94faea1ca47e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol11.log": "29b054c4b076d5f2ab1c8a88d10c3460c2e51301aca7d2edd97c70f7781dc332",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol12.log": "147ad6c07ea43a4fb7e99fb6802d34b72c4f925394af66465b19e35defbe6650",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol13.log": "1bc70472ac03bdc638dad2b6ec687524e3be904996b13e32c272a72a4836bab9",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol14.log": "566291e2edf3847a7b979e119989915cfbc5b65fce1dfbdc09bf756aa9a7c60c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol15.log": "983bd13dacf15b7ae9a48958d66908e1708a94c80476b78c84075e3a1701a952",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol16.log": "62aec29064d547adb252e22fffb179739619fe71865330d031c9146a0ab6633e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol2.log": "435037f7749e74829cfaff17d3ec7d92859f3735bf33cd6c9013b0e39470294c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol3.log": "9cf55f73cfcf9e8455c24e14ccdb67231f54f9dde29b2ad33f4610117a1e49c6",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol4.log": "2b9c8a56644ba20097aee1b4c70d9f038805846910c2952147b3f5fff47f840e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol5.log": "48584c8270745f85dbfe31d57bf3de47e9deb9da128d39c54bfe8d063fa3bf09",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol6.log": "bf15a30141581e50ccd5fc8aa43fada35b6a05ec5fc54f316287b5facbfce6a0",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol7.log": "0c551acf73dccdb90107f163a7d8127d4d9fffc856b10a6f782e6718b5f196cb",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol8.log": "e7eba8d925ac4739d91ef0c1cd1185aaa0d47669cb567cfd87150e32fc9b943f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-symbol9.log": "ae7bb527df07833be18ce5a32a43502a35632b0b78a9737c41e2cef50f36c561",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-uuid.log": "f6645b0cdf41e727a8857c8dedf77d57757f364f7d8e7c9f4e200eaf55d71ae2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-admit-version.log": "1c8e1ab056b7e899dd014840e73e32a825beacee16c28b1ec3251008fe267d2f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-allocafter.log": "d4827dd313f0b8235637c17d7762249cf38fffb68bce6818f14229d448689549",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-allocbefore.log": "b2c1254795005275604b7326e798178b1c9a4293ca813db67fedf29c59058111",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-closepush.log": "846b7e0d294eae3f3378762490529c3eb00e212cbcfd7671c0767e11e48e29d8",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-contexts.log": "c208eb6e7e5b81e02e1f205456349c04cc9788b35dde16be5c0ff91cf9c94f3d",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-create-popafter.log": "910218a916e95aec170940c17b9ab66436ebc02abb0bda33c982456a2c4a5984",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-create-popbefore.log": "52cfeb5b72906c66f2c0e1d6826813472f40c5e716810560a96c476187ea60db",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-create-post.log": "e92be2e1c99f0738e2f6bdb0bc679014d6edcc1baeff89696d939d89fa3c949b",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-create-query.log": "a5e09039ba152ba2a41ba6eb3b7912428962b1b14e7dee1baeae4b3dade0800a",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-destroyafter.log": "3ecb6a9b8dacdf2c610dd1c7bd26079c74fcbe926b658575e95d913e6047422b",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-destroybefore.log": "05af9ca42a56a660456fd70f6b485c04253329bb9ad9f6723dd1c1b6ace79ede",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-freeafter.log": "acd816394a9e68b4bbf4ea5ff400f9b6183efbd5b90ee45d95180dcc0e784d53",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-freebefore.log": "c0235419d211a7c23078a3ab65caaa820233f0bfc0a7deb30fb7a0d3eb561581",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-generation.log": "df1c98751198a9997a5fe77bd44f63bd4eeb1b7bf34d772be61f9e7b81375607",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-linked-real-run.log": "8ec437f82981df77036edbc7d4158de8ae72b2462879463a40b5d26632abe49f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-loader-close.log": "ecf689a1353f672fca38fa09057020bcf07317e3c2fed76885e0466d6c688027",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-normal.log": "951a80c04b263820e17eeee66715dced70be9007437c3ae114b48e7cd8c8c2a2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-pop-after.log": "a07ef6df6af68d5834da0bc7f08b127d656e6ac6528a4fe6ab8698c4568a38f2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-pop-before.log": "a9b3646a5c1985ff47bca23d6940709ed58b4acdc71229c0e5787fe8cbce9613",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-readafter.log": "fe5fe9bdbeeeacdd8edc6d948b029cee179ddcc27e9ebe50f78bae1a6396a414",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-readbefore.log": "9fa8f51307b0c78d04863aa33693d1de9bb43c0aea26b249b13afac450ceee13",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-readsync.log": "2471433abe283ed6e15dff048c4bbeb586ac7874a1e4f1b3228ece625c4ec7fd",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-rollback.log": "941594b68860c739b3c2adbfb3e51b10f78e4286ffe2c06ea20b1aa0500232f3",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-staging.log": "daf4fb6dd97fcd0a63597c57b741fa0fc3496bbb74723de21bb9df92ed2caf3d",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-version.log": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-writeafter.log": "4ae766bcbe1b4aedd671a49f9050f361f2dec257a9bd1c51c37112f785fd2ff2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-writebefore.log": "ecf5622dfe938a17915f2b48698248bb3058d7fa438e48b476cb6f2bcc76588f",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san-writesync.log": "d8baa25aebd99e7650430a8714f18421f4c00dc3aad6e92ecf6a2f36e97c5d98",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/manifest.json": "6052091d19167051b62927f5a2d6ff51ab2079cfcddabfd99e9d6f13c8ffdc7d",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/platform.json": "b6fb3ad00ef359f543de623591e5621a84b1ff32a62ad7188c109d62e863bf1b",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/runner.py": "dedf91ec271623f2e80d45595e3b79b51c4cbf0b17b7eb1bdfee9dfe5280d7a0",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/source-after.json": "297e60d583d0d707f73b143124d400426b44e6f0db9e56edd6ebc67db1261648",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/source-before.json": "297e60d583d0d707f73b143124d400426b44e6f0db9e56edd6ebc67db1261648",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/tools-after.json": "affd3c5894c3d55461ea445a7d78540cc4c4b2d34afa598aad8947b89e150d50",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/tools-before.json": "affd3c5894c3d55461ea445a7d78540cc4c4b2d34afa598aad8947b89e150d50"
+      },
+      "artifacts": {
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/instrumented": "62c510636d20d3ddf2d39ab0e8f7abb0d5de16fcb65c3f878602dc5018c6d77e",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/clang-san/linked": "178e2456ed599444b443afd11780e59fb5e84d2005d6b3c686cb9263c88cc3e9",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/Makefile.gnu": "418ead16c9bfb10a1d8aa3b7f4c17c7fa00fcdd5b93194fb471649b178e6ffc7",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/src/nsi_file.c": "a81092fb70c9cc97c43a0ac5eda2394b311af7d9641c7deb41455af29730faad",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/src/nsi_file.h": "ce46023ad79a65c5fb2cf21986c878f4a9666a18d5aafb9ff5c02574da8f1a86",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/src/nsi_gpu.c": "1a9c81bd05e44d79357b5e089f4db8eb357558983beaf4439001c22282f3d444",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/src/nsi_gpu.h": "d354cdc00a8194f6727c6522d433d1aa74502f87f007b897406a928fbb2c8802",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/src/nsi_socket.c": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/src/nsi_socket.h": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/tests/test_nsi_cap.c": "7c436df72196fdfac7b83ca63996646586b62552ef6f293a7eb3b4c983fdcab5",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/tests/test_nsi_file_linked.c": "0685248874ef5f42c9f7329005d350a622a624eba557d024f87bd41198a1364d",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/tests/test_nsi_gpu.c": "081d0d314538287b9d1bcc346be3bc5f18fe7930c8dde2d8a6b5945f49af7e72",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/tests/test_nsi_gpu.py": "0b3bf87b7e20fd92eed0ce8d2c0b9bb75c1a8b116581847131e38c6056f25e52",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/tests/test_nsi_gpu_linked.c": "0e8bb7e49b66d1258b8d0eee9a979bdc031cfdba5d30b434de53164066fc1ad4",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/tests/test_nsi_socket.c": "eda35f5ba6261faa28a087314fe35cde6b62bbd5d496bbc3359c49f745c9ef37",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/frozen-inputs/tests/test_nsi_socket_linked.c": "637102c26f1a1e089a385ed1a2555cd9cb7e33a9a6e0c4a4b6377ef5f3202509",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/instrumented": "8d88a21a907fbf400060fed8633096c41518cfec0dace9ba74f65eb42163a90c",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-normal/linked": "6444e9dd2deb65ff10046476ff04a51c022481480d8855be29a2d5bdf8903bea",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/instrumented": "6b6a67346b8c07f4a196a1c57c16cb0eeecd803d4f0c49e0ebf69552b630f567",
+        "/tmp/nanolang-gpu-corrected-52e6bf96/gcc-san/linked": "b8465ef2d9c1b0a9b46cc93a35376ff2d30f7f0e057b9e8d12c1fa35b7d365b9"
+      },
+      "tool_map": {
+        "/usr/bin/aarch64-linux-gnu-gcc-13": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+        "/usr/lib/llvm-18/bin/clang": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d",
+        "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8",
+        "/usr/bin/aarch64-linux-gnu-as": "1ffda50efb6d91b6b05ef933aced099595c36577594c0296c91161f2d13db374",
+        "/usr/bin/aarch64-linux-gnu-ld.bfd": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c",
+        "/usr/lib/aarch64-linux-gnu/libcuda.so.595.84": "1cca1f44ea43c0fda92871f6b2f9063fb7abae3a2843e40da7ae35b83f21e9fb",
+        "/usr/local/cuda-13.0/targets/sbsa-linux/include/cuda.h": "64025f81a9d6d2b10e9e11654f3523e5b046d01b883f0b9ca474e463274b80d4"
+      }
+    },
+    "adjacent": {
+      "manifest": {
+        "pin": "52e6bf96d3ce5eaf6e4262270f8877d57414e135",
+        "platform": "linux",
+        "steps": [
+          {
+            "name": "normal",
+            "command": [
+              "make",
+              "CC=/usr/bin/gcc",
+              "test-nsi-socket",
+              "test-nsi-file",
+              "test-nsi-cap"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 2.22,
+            "log_sha256": "6e3a3218b50c0c782867a50dc20c162cb9450485ab8801cfdbabc88076824110"
+          },
+          {
+            "name": "gcc-version",
+            "command": [
+              "/usr/bin/gcc",
+              "--version"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.001,
+            "log_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+          },
+          {
+            "name": "gcc-socket-instrumented-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.616,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-socket-instrumented-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "a926f6e5890863b9cec61adc35e2e08957f93594e02d05330d0dd52b74ede090"
+          },
+          {
+            "name": "gcc-socket-linked-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket_linked.c",
+              "src/nsi_socket.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.465,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-socket-linked-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792"
+          },
+          {
+            "name": "gcc-file-instrumented-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.515,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-file-instrumented-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f"
+          },
+          {
+            "name": "gcc-file-linked-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file_linked.c",
+              "src/nsi_file.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.415,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-file-linked-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7"
+          },
+          {
+            "name": "gcc-cap-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_cap.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-cap"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-cap-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-cap"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.017,
+            "log_sha256": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab"
+          },
+          {
+            "name": "clang-version",
+            "command": [
+              "/usr/bin/clang-18",
+              "--version"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "c0003bf916cbcae3cba03ba1cad136b6d501c1d343f380e58d5ba25cf693aafc"
+          },
+          {
+            "name": "clang-socket-instrumented-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.566,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-socket-instrumented-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "a926f6e5890863b9cec61adc35e2e08957f93594e02d05330d0dd52b74ede090"
+          },
+          {
+            "name": "clang-socket-linked-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket_linked.c",
+              "src/nsi_socket.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.465,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-socket-linked-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792"
+          },
+          {
+            "name": "clang-file-instrumented-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.515,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-file-instrumented-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.017,
+            "log_sha256": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f"
+          },
+          {
+            "name": "clang-file-linked-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file_linked.c",
+              "src/nsi_file.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.466,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-file-linked-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7"
+          },
+          {
+            "name": "clang-cap-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_cap.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-cap"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.365,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-cap-run",
+            "command": [
+              "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-cap"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab"
+          }
+        ],
+        "status": 0,
+        "source_unchanged": true,
+        "tools_unchanged": true,
+        "head_unchanged": true,
+        "clean": true
+      },
+      "reports": {
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-cap-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-cap-run.log": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-instrumented-run.log": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-linked-run.log": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-instrumented-run.log": "a926f6e5890863b9cec61adc35e2e08957f93594e02d05330d0dd52b74ede090",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-linked-run.log": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-version.log": "c0003bf916cbcae3cba03ba1cad136b6d501c1d343f380e58d5ba25cf693aafc",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-cap-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-cap-run.log": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-instrumented-run.log": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-linked-run.log": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-instrumented-run.log": "a926f6e5890863b9cec61adc35e2e08957f93594e02d05330d0dd52b74ede090",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-linked-run.log": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-version.log": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/manifest.json": "0168ffcb5344e88fcabb2bdfce42e2ca0d0fd934a8e2cd34fa965503aa070d58",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/normal.log": "6e3a3218b50c0c782867a50dc20c162cb9450485ab8801cfdbabc88076824110",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/runner.py": "a1e7deaa830e598585b75f3d3c064f96e740f79021e353721df6722a3dcd2188",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/source-after.json": "297e60d583d0d707f73b143124d400426b44e6f0db9e56edd6ebc67db1261648",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/source-before.json": "297e60d583d0d707f73b143124d400426b44e6f0db9e56edd6ebc67db1261648",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/tools-after.json": "37936cfe32efc2a13afa0c3dfdf92f91f64bf0d97fdecf14289e80606fe6cbb1",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/tools-before.json": "37936cfe32efc2a13afa0c3dfdf92f91f64bf0d97fdecf14289e80606fe6cbb1"
+      },
+      "artifacts": {
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/Makefile.gnu": "418ead16c9bfb10a1d8aa3b7f4c17c7fa00fcdd5b93194fb471649b178e6ffc7",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/src/nsi_file.c": "a81092fb70c9cc97c43a0ac5eda2394b311af7d9641c7deb41455af29730faad",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/src/nsi_file.h": "ce46023ad79a65c5fb2cf21986c878f4a9666a18d5aafb9ff5c02574da8f1a86",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/src/nsi_gpu.c": "1a9c81bd05e44d79357b5e089f4db8eb357558983beaf4439001c22282f3d444",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/src/nsi_gpu.h": "d354cdc00a8194f6727c6522d433d1aa74502f87f007b897406a928fbb2c8802",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/src/nsi_socket.c": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/src/nsi_socket.h": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/tests/test_nsi_cap.c": "7c436df72196fdfac7b83ca63996646586b62552ef6f293a7eb3b4c983fdcab5",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/tests/test_nsi_file_linked.c": "0685248874ef5f42c9f7329005d350a622a624eba557d024f87bd41198a1364d",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/tests/test_nsi_gpu.c": "081d0d314538287b9d1bcc346be3bc5f18fe7930c8dde2d8a6b5945f49af7e72",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/tests/test_nsi_gpu.py": "0b3bf87b7e20fd92eed0ce8d2c0b9bb75c1a8b116581847131e38c6056f25e52",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/tests/test_nsi_gpu_linked.c": "0e8bb7e49b66d1258b8d0eee9a979bdc031cfdba5d30b434de53164066fc1ad4",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/tests/test_nsi_socket.c": "eda35f5ba6261faa28a087314fe35cde6b62bbd5d496bbc3359c49f745c9ef37",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/frozen-inputs/tests/test_nsi_socket_linked.c": "637102c26f1a1e089a385ed1a2555cd9cb7e33a9a6e0c4a4b6377ef5f3202509",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/normal-artifacts/test_nsi_file_instrumented": "5d13fd16fe9366fc7ba0112deacf79488f624e988461acd80f42b8c880223762",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/normal-artifacts/test_nsi_file_linked": "9d3b224210c394db7854c2bcf7019f61ff4bb2645384cf8d056b85afb1a71b0f",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/normal-artifacts/test_nsi_socket_instrumented": "a8c7f5c583d12a92db857aff474b03757c108e0528ce0dfd2aa9e4a42f9241a6",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/normal-artifacts/test_nsi_socket_linked": "bdafc21e937ed65c910cc52e687778a902caff9c43dd9dbdd26a0fa64af0d613",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-cap": "49375572b38e51d42c84384342a0cfaa4040f8df08a1720578c755fca46d14e8",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-instrumented": "620ca8e6f9e368e6c011ffa7df0a901361d12bfe1719aebffebda1807a58dd79",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-file-linked": "741254da291d9ea1ebc656befafe935dc26ff35f9609e2c5211e40efc6451c39",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-instrumented": "5374f1b5a1e7c635def67e1bc0ebeb43055ac3b7011692bba949a913709dd7c2",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/clang-socket-linked": "9fa186c52131c43cc45453413f582c21074800621f049149c05625327a329817",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-cap": "1a07f2e879b6f6040d00cd5b1a2b878871584529246697ace481d100482699a5",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-instrumented": "9cc3ebe46ed2c244ad69f542f77a96e2538b1ce2b67090eb3908889f2915ca4b",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-file-linked": "078c6f7c0b63a35316902b4e6fa50a1039e82f5275a9a277a7d4ccb1dac6315f",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-instrumented": "764e3da9017327a46bf68c7a4bf3ee6cb705b02bdf005b7943d95376693f8101",
+        "/tmp/nanolang-gpu-adjacent-52e6bf96/gcc-socket-linked": "dcf85a0b400902d7d6d55c349847f36691a0d3bab7251adfc791612b72c616f0"
+      },
+      "tool_map": {
+        "/usr/bin/aarch64-linux-gnu-gcc-13": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+        "/usr/lib/llvm-18/bin/clang": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d",
+        "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8",
+        "/usr/bin/make": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0",
+        "/usr/bin/aarch64-linux-gnu-as": "1ffda50efb6d91b6b05ef933aced099595c36577594c0296c91161f2d13db374",
+        "/usr/bin/aarch64-linux-gnu-ld.bfd": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c"
+      }
+    }
+  },
+  "integration": {
+    "canonical_base": "5b5fce507843cddbe2f0bba215875388e81c76d3",
+    "merge_pin": "544e7a47f6d7d957e0d9bfbf099521a73832026b",
+    "qualified_evidence_pin": "0af447663",
+    "unchanged_inputs": {
+      "src/nsi_gpu.c": "1a9c81bd05e44d79357b5e089f4db8eb357558983beaf4439001c22282f3d444",
+      "src/nsi_gpu.h": "d354cdc00a8194f6727c6522d433d1aa74502f87f007b897406a928fbb2c8802",
+      "src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+      "src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+      "src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5",
+      "src/nsi_file.c": "a81092fb70c9cc97c43a0ac5eda2394b311af7d9641c7deb41455af29730faad",
+      "src/nsi_file.h": "ce46023ad79a65c5fb2cf21986c878f4a9666a18d5aafb9ff5c02574da8f1a86",
+      "src/nsi_socket.c": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+      "src/nsi_socket.h": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+      "tests/test_nsi_gpu.c": "081d0d314538287b9d1bcc346be3bc5f18fe7930c8dde2d8a6b5945f49af7e72",
+      "tests/test_nsi_gpu_linked.c": "0e8bb7e49b66d1258b8d0eee9a979bdc031cfdba5d30b434de53164066fc1ad4",
+      "tests/test_nsi_gpu.py": "0b3bf87b7e20fd92eed0ce8d2c0b9bb75c1a8b116581847131e38c6056f25e52",
+      "tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+      "tests/test_nsi_file_linked.c": "0685248874ef5f42c9f7329005d350a622a624eba557d024f87bd41198a1364d",
+      "tests/test_nsi_socket.c": "eda35f5ba6261faa28a087314fe35cde6b62bbd5d496bbc3359c49f745c9ef37",
+      "tests/test_nsi_socket_linked.c": "637102c26f1a1e089a385ed1a2555cd9cb7e33a9a6e0c4a4b6377ef5f3202509",
+      "tests/test_nsi_cap.c": "7c436df72196fdfac7b83ca63996646586b62552ef6f293a7eb3b4c983fdcab5"
+    },
+    "current_makefile_sha256": "8bd2fee99bd01b79aa5d8a46ac4819688072b5801ac858aff215776479d7e668",
+    "makefile_change": "Only additive service-bindings test targets; GPU and File/Socket/capability gate recipes unchanged.",
+    "execution": "No rerun; original qualified tree/tools preserved and all17 implementation/header/fixture inputs byte-identical."
+  }
+}

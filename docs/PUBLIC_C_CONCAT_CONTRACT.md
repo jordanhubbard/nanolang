@@ -1,0 +1,27 @@
+# My public C concatenation contract
+
+I execute task_c075a8783181411d89c63a2e6f1950b0 under open portability parent task_6ade6d62ef644390bb9645b15077c8df from main `cd1c6afde948d5727d31c83c0b6b897814fdfd9b`. Integer conversion and exact length children are reconciled through canonical PR757 before this work. I record this contract before production and send each production checkpoint for review before fresh gates.
+
+## My implementation inventory
+
+My current `src/c_backend.c` emits STRING PLUS when either operand is STRING and calls a globally named `nano_strcat` with unordered C arguments. The helper adds lengths without overflow checks, uses malloc without checking failure and never tracks its result for cleanup. My builtin registry declares `str_concat(STRING, STRING)->STRING`, but this public target has no special lowering and emits an unresolved ordinary call. `infer_expr_type` recognizes the internal helper spelling `nano_strcat` as STRING without an actual language builtin declaration. Declared user functions with that name also collide with the unprefixed helper.
+
+I implement both exact STRING PLUS and the declared `str_concat` builtin through one private lowering/helper. I preserve the existing declaration, lexical binding, checked signature and expression-callee precedence. Only an unbound builtin call receives special treatment. I remove the internal helper-name inference shortcut, while declared user functions retain their own result types. I require exactly two exact STRING operands for both paths and refuse unknown/mixed tags before publication. I do not change global checker compatibility or guess unknown results.
+
+## My evaluation and storage contract
+
+I reuse per-function/global-initializer string operand slots. Each concat reserves its distinct slot before descending into nested operands. Portable C comma assignments evaluate left once, then right once, then call the private helper. Equality and concat share the monotonically allocated slot namespace and existing function/initializer/planning resets; nested arithmetic, equality and concatenation cannot overwrite an outer operand slot. Loop conditions repeat the whole operation on each evaluation; I do not hoist side effects.
+
+I retain the existing NUL-terminated string boundary: lengths and copies stop at the first NUL. I concatenate exact visible bytes into a fresh result even for empty operands. Inputs are borrowed; I never free or adopt them. The result remains stable through later conversions, concat calls, globals, calls, returns and aliases until generated-process exit. I do not claim arbitrary length-bearing byte-string equivalence or ownership of foreign borrowed storage.
+
+I generalize the existing scalar snapshot node to C99 flexible-array storage with one checked allocation for header plus payload plus terminator. A shared allocation helper rejects size overflow before allocation, checks malloc, and registers existing cleanup at most once. Failed registration frees its unlinked node and does not mark registration successful. Successful nodes join the same list as integer/float snapshots. A scalar copy and concat helper then initialize the allocation from checked lengths; both produce a trailing NUL. Concat checks combined lengths before addition; defensive NULL input refusal precedes strlen. No failure path frees an unrelated retained alias. Controlled runtime allocation/size/registration failure exits with a first-person diagnostic, invoking already registered cleanup. This is process-lifetime retention, not tracing, early reclamation or an RSS bound.
+
+I preserve integer/float formatting and their existing diagnostics except where an explicitly documented shared string-allocation diagnostic is necessary. I keep internal pool identifiers when useful for retained controls; names do not restrict payload length. I correct the header's static/no-heap string description for the implemented literal, conversion and concat paths without treating that correction as completion of other advertised modes.
+
+## My ordinary acceptance
+
+I freeze complete production, harness, provider and tool identities before execution. Fresh GCC/Clang C99/C11 O0/O2 ASan/UBSan/LSan controls cover both spellings, empty/nonempty/long strings, nested left-to-right stateful operands, once counts, globals and initializer calls, loop conditions, retained aliases, conversions mixed with concat, equality nesting and private/old-helper name collisions. Ordinary interpreter/VM output controls use fresh source where supported, with producer/tool identity retained.
+
+Isolated generated-helper controls inject malloc and atexit failures after repair, check freeing the unlinked node and all previously retained nodes, and verify successful/idempotent cleanup. A direct checked-size helper control exercises arithmetic refusal without allocating an enormous object or reading invalid storage. I do not execute malformed artifacts or historical failures. Scoped AST API controls cover unknown/mixed/arity refusal, bound callee precedence, first diagnostic, path/stream output preservation and later valid recovery. I rerun the unchanged seven-program public C suite and adjacent scalar/conversion/equality/literal suites after integration.
+
+I keep the full parent open. GNU expression blocks, match typeof, options/capture behavior, public-target completeness and platform release gates remain required work. I do not turn a documentation limit into a release waiver.

@@ -1,0 +1,76 @@
+Corrected bounded Darwin arithmetic and array-graph qualification report
+
+Task: task_209f1e88044b4e29886228dc7357188d
+Outcome: FAILED — stopped at first phase-2 build failure
+Source: 25a685adfb4f9bf32c68c9e6de04eb0298673c45
+Tree: 93b51b7b9cafe70a8dc7acd936462de1744b77c9
+Checkout: /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected.gLIFOr
+Checkout state: detached HEAD; tracked source clean before and after
+
+Preserved first inventory
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-report.txt
+  SHA256 5e09c7a76a788ac44678fc7329f5d1313b8fb0fcd15c7496667e442289c3e888
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-prerequisites.log
+  SHA256 372d75f24699306fd4723e5486afb9156f69d6b7720976080420763307d12df6
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-missing-dependency.log
+  SHA256 7391e0ac3a549639785b583ad16e7cfe1f6b9d5d7cec4b2c90cb94428ba31dd0
+
+Authorized prerequisite correction
+- Inspected homebrew/core/wasmtime 48.0.2 before installation.
+- Formula source SHA256: 918641ef57940728a4627e409d3387eeb94cc5d34dd141961759656dfae11b50
+- Bottle SHA256: 21c95b527f0ad047e78afe4cccaefe3814ee2b70c67212ae8bcd93b14b22a253
+- brew install wasmtime: PASS, 42.997234 seconds.
+- Installed CLI: /opt/homebrew/bin/wasmtime, version 48.0.2.
+- CLI SHA256: 130b4a32cecb619d52aefedda39c6733f00ee7460bbe8748f99eac72143c980c
+- Homebrew auto-updated itself from 7.0.1 to 7.0.4; the raw log records this.
+- Dedicated venv: /private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW
+- Python venv/package install: PASS, 7.310967 seconds.
+- Python: 3.14.6; wasmtime distribution: 48.0.0.
+- No shell startup file, project source or existing venv was changed.
+
+Corrected path
+/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin:/opt/homebrew/bin followed by the inherited PATH.
+
+Phase 2 build
+Command: make -j8 nano_vm nvm2c nvm2wasm nanoisa_dump
+Outer bound: 900 seconds
+Started: 2026-09-18T13:47:19.391684+00:00
+Finished: 2026-09-18T13:47:20.213323+00:00
+Elapsed: 0.821661 seconds
+Exit: 2
+
+First failure
+scripts/embed_managed_runtime.py invoked the Make-selected command "opt" and
+received FileNotFoundError: [Errno 2] No such file or directory: 'opt'. Make
+stopped at managed-runtime-package. The requested binaries remained absent.
+No unittest method ran.
+
+Read-only post-failure inventory found Homebrew LLVM 23.1.1 and its executable
+at /opt/homebrew/opt/llvm/bin/opt, SHA256
+b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b.
+That keg-only directory was not in the explicit path. I did not change the
+path, retry the build, install LLVM or alter the harness after the failure.
+
+Retained corrected-run evidence
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected-brew-formula-inspection.log
+  SHA256 e11d87232236fca993a3a559f3d2ae55de494b8378e7f29b5128b3d331b3d6ee
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected-brew-install.log
+  SHA256 426cbc6ca0d6d64a38f75f6bc8d2124d1f532dc70f69cc679a0972eed2f86408
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected-venv-install.log
+  SHA256 be37e2d5e2562392e46005f2d7d2d5054a9c3b0b14ec26ce9036cec60472cc60
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected-prerequisites-verified.log
+  SHA256 7882f787a94844ac09b4637858354272c4077c2de2b7434c533005fc886868d8
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected-build.log
+  SHA256 e9360ce00b9ad37681555c86798138c17a80c2133b73ef444888d2d765119340
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected-build-failure-inventory.log
+  SHA256 6d4179efc7eef2c2c42e7d995ff9870d0ee83a33773fe4745883a736059ffb58
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected-source-manifest-before.txt
+  SHA256 36f91a7b6d67f314b1fe994d11d43fca929dd677794494e64e64a317fa9baca5
+- /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected-source-manifest-after.txt
+  SHA256 36f91a7b6d67f314b1fe994d11d43fca929dd677794494e64e64a317fa9baca5
+
+The tracked manifests are byte-identical and final git porcelain is empty.
+All inner assertions, LTO, sanitizers, memory bounds and target definitions
+remain unchanged. Frozen e9 artifacts were not read, executed or modified.
+This is not a product quick run, bootstrap, release candidate or release
+permission. PR522 and publication remain held.

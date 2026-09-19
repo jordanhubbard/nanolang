@@ -1,0 +1,13 @@
+{
+  "pin": "54eab7f3c424237712e5ada9818c6be7d4868548",
+  "environment": {
+    "CC": "/bin/gcc",
+    "CXX": "/bin/g++",
+    "NANO_BUILD_CACHE": "/home/jkh/Src/nanolang-mutation-builtin-corrected/obj/module_cache",
+    "NANO_VM": "/home/jkh/Src/nanolang-mutation-builtin-corrected/bin/nano_vm",
+    "NANO_NVM2C": "/home/jkh/Src/nanolang-mutation-builtin-corrected/bin/nvm2c",
+    "NANO_AOT_RUNTIME": "/home/jkh/Src/nanolang-mutation-builtin-corrected/bin/nano_aot_runtime.o",
+    "NANO_MODULE_PATH": "/home/jkh/Src/nanolang-mutation-builtin-corrected/modules",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+  }
+}

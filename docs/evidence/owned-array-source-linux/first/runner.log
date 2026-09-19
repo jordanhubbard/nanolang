@@ -1,0 +1,21 @@
+test_original_complete_prefix_and_all_routes (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_original_complete_prefix_and_all_routes) ... ok
+test_integer_boundaries_and_boolean_range (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_integer_boundaries_and_boolean_range) ... ok
+test_prepared_roots_nested_returns_alias_and_empty (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_prepared_roots_nested_returns_alias_and_empty) ... ok
+test_optional_operands_and_failure_cleanup (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_optional_operands_and_failure_cleanup) ... ok
+test_exact_type_lexical_and_shadow_refusals (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_exact_type_lexical_and_shadow_refusals) ... 
+  test_exact_type_lexical_and_shadow_refusals (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_exact_type_lexical_and_shadow_refusals) (case='optional-local', compiler='nanoisa_emit') ... FAIL
+I retain mixed source fixtures at /tmp/nano-source-borrows-k6hi2sh0
+
+======================================================================
+FAIL: test_exact_type_lexical_and_shadow_refusals (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_exact_type_lexical_and_shadow_refusals) (case='optional-local', compiler='nanoisa_emit')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-owned-array-source-integrated/tests/test_source_owned_float_arrays.py", line 36, in refused
+    self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+----------------------------------------------------------------------
+Ran 5 tests in 365.579s
+
+FAILED (failures=1)

@@ -1,0 +1,14 @@
+{
+  "name": "clang",
+  "command": [
+    "make",
+    "test-mixed-samples"
+  ],
+  "environment": {
+    "CC": "/tmp/nanolang-projection-clang",
+    "MIXED_CFLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+  },
+  "status": 0,
+  "seconds": 3.3223113999702036
+}

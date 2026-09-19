@@ -114,7 +114,7 @@ RET
 ''', 0, SHADOW)
 
     def test_excluded_tags_and_wrong_arity_preserve_output(self):
-        for producer in ('PUSH_F64 0.0', 'PUSH_U8 1', 'PUSH_VOID', 'PUSH_STR text', 'ARR_NEW 1'):
+        for producer in ('PUSH_F64 0.0', 'PUSH_VOID', 'PUSH_STR text', 'ARR_NEW 1'):
             for opcode in ('CAST_BOOL', 'CAST_INT', 'NOT', 'AND', 'OR'):
                 with self.subTest(producer=producer, opcode=opcode), tempfile.TemporaryDirectory() as temp:
                     directory = Path(temp)
@@ -126,6 +126,16 @@ RET
                         result = self.checked([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output], 1)
                         self.assertIn('I ', result.stderr)
                         self.assertEqual(output.read_text(), 'previous')
+        for opcode in ('NOT', 'AND', 'OR'):
+            with self.subTest(producer='PUSH_U8 1', opcode=opcode), tempfile.TemporaryDirectory() as temp:
+                directory = Path(temp)
+                body = 'PUSH_U8 1\n'+('PUSH_BOOL 1\n' if opcode in ('AND', 'OR') else '')+opcode+'\nCAST_INT\n'
+                module = self.assemble(directory, '.entry main\n.function main 0 0 0 int 1\n'+body+'RET\n.end\n')
+                for language in ('c', 'nano'):
+                    output = directory/('previous.'+language); output.write_text('previous')
+                    result = self.checked([ROOT/'bin/nvm2hl', '--language', language, module, '-o', output], 1)
+                    self.assertIn('I ', result.stderr)
+                    self.assertEqual(output.read_text(), 'previous')
         for body in ('CAST_BOOL', 'CAST_INT', 'NOT', 'PUSH_BOOL 1\nAND', 'PUSH_I64 1\nOR', 'PUSH_I64 1\nBOOL_NOT'):
             with self.subTest(body=body), tempfile.TemporaryDirectory() as temp:
                 directory = Path(temp); source = directory/'wrong.nasm'; output = directory/'previous.nvm'

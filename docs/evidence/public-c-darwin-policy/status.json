@@ -1,0 +1,37 @@
+{
+  "source": "a59858424169ca52ed10f099c5692dd88e6636d4",
+  "results": [
+    {
+      "name": "build",
+      "command": [
+        "make",
+        "-j8",
+        "bin/nanoc_c",
+        "bin/nano",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 4.297
+    },
+    {
+      "name": "suite",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_public_c_binary64",
+        "tests.test_public_c_nonfinite_format",
+        "tests.test_public_c_string_equality"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 37.971
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "pin": "a8c2e05338181fcae933f026fa534e29af7d8655",
+  "platform": "darwin",
+  "steps": [
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "test-nsi-file-values",
+        "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+      ],
+      "env": {},
+      "status": 2,
+      "seconds": 1.06,
+      "log_sha256": "275136ea5d3098aa3ff47ca51877054d9693795246221ed7eb0ee0507d3576e2"
+    }
+  ],
+  "terminal": 2,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

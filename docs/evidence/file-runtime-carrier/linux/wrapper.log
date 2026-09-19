@@ -1,0 +1,19 @@
+test_destination_symlink_is_replaced_not_followed (tests.test_wrapper_publication.WrapperPublication.test_destination_symlink_is_replaced_not_followed) ... 
+  test_destination_symlink_is_replaced_not_followed (tests.test_wrapper_publication.WrapperPublication.test_destination_symlink_is_replaced_not_followed) (daemon=True) ... FAIL
+
+======================================================================
+FAIL: test_destination_symlink_is_replaced_not_followed (tests.test_wrapper_publication.WrapperPublication.test_destination_symlink_is_replaced_not_followed) (daemon=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-runtime-corrected/tests/test_wrapper_publication.py", line 185, in test_destination_symlink_is_replaced_not_followed
+    self.finish(self.start(daemon))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-runtime-corrected/tests/test_wrapper_publication.py", line 48, in finish
+    self.assertEqual(process.returncode, 0, (stdout, stderr))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : (b'', b'/bin/ld: cannot find /home/jkh/Src/nanolang-file-runtime-corrected/obj/nanovm/vmd_protocol.o: No such file or directory\n/bin/ld: cannot find /home/jkh/Src/nanolang-file-runtime-corrected/obj/nanovm/vmd_client.o: No such file or directory\ncollect2: error: ld returned 1 exit status\nI could not publish the wrapper; I did not replace the destination\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.209s
+
+FAILED (failures=1)
