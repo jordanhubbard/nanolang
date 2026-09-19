@@ -158,3 +158,26 @@ metadata rejection must precede this admission route and survive transport.
    and evidence before canonical review. Source acceptance closes only this child;
    owner Bundle, broader source/managed/ownership parents, Darwin/full product
    qualification and release publication remain separately open.
+
+## My paired production checkpoint
+
+I now distinguish ordinary record rows from owners in both source producers.
+My ordinary constructors evaluate fields once into typed hidden locals, then
+pack declaration order with AGG_PACK. My exact FLOAT arrays use ARR_LITERAL 3;
+field projection and aliases retain ARRAY locals, and unshadowed `at` uses raw
+ARR_GET followed by the existing checked scalar consumers. I do not replace a
+missing element with a FLOAT default.
+
+I exclude ordinary rows from owner cleanup, resource places, ownership joins,
+owner moves and record signatures. I retain COMPLETE 01 versus owner 03 and the
+original layout indices. I refuse managed binding assignments, owner ARRAY
+fields and mixed reference signatures. My C publication path uses the fresh
+public mixed conjunction for a positive mixed candidate, retaining the old
+owned-only verifier on other routes. My selfhost output remains subject to the
+same assembler/public verification boundary.
+
+I have inspected this checkpoint and checked whitespace only. I have not built
+these producers or executed their new source/shadows. Their fresh bootstrap,
+paired equality, false-shadow/output guards and runtime qualification remain
+pending independent source review. My runtime and service guard files are
+unchanged; I will integrate canonical service retention before qualification.
