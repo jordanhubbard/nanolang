@@ -1,4 +1,5 @@
 #include "../modules/ui_widgets/ui_widgets.h"
+#include "../modules/sdl_helpers/sdl_helpers.h"
 #include <assert.h>
 #include <string.h>
 #include <float.h>
@@ -20,6 +21,35 @@ static Uint8 texture_r = 12, texture_g = 34, texture_b = 56, texture_alpha = 200
 static SDL_BlendMode texture_blend = SDL_BLENDMODE_BLEND, renderer_blend = SDL_BLENDMODE_NONE;
 static int fail_texture_query, fail_add;
 static int measured_w = 10, measured_h = 10, fail_measure, measure_calls;
+static SDL_Event edit_events[16];
+static int edit_event_count, edit_event_index, edit_event_reads;
+static int text_input_starts, text_input_stops;
+static void fake_start_text_input(void) {
+    text_input_starts++;
+    edit_event_count = edit_event_index = 0;
+}
+static void fake_stop_text_input(void) {
+    text_input_stops++;
+    edit_event_count = edit_event_index = 0;
+}
+static int fake_take_text_input_event(SDL_Event *out) {
+    edit_event_reads++;
+    if (edit_event_index >= edit_event_count) return 0;
+    *out = edit_events[edit_event_index++];
+    return 1;
+}
+static void queue_text(const char *text) {
+    SDL_Event *event = &edit_events[edit_event_count++];
+    memset(event, 0, sizeof(*event));
+    event->type = SDL_TEXTINPUT;
+    strncpy(event->text.text, text, sizeof(event->text.text) - 1);
+}
+static void queue_key(SDL_Keycode key) {
+    SDL_Event *event = &edit_events[edit_event_count++];
+    memset(event, 0, sizeof(*event));
+    event->type = SDL_KEYDOWN;
+    event->key.keysym.sym = key;
+}
 static int fake_size(TTF_Font *f, const char *s, int *w, int *h) {
     (void)f; (void)s; measure_calls++;
     if (strlen(s) > longest_measure) longest_measure = strlen(s);
@@ -103,6 +133,7 @@ static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surf
 #define TTF_RenderText_Blended fake_text
 #define TTF_RenderUTF8_Blended fake_text
 #define TTF_SizeText fake_size
+#define TTF_SizeUTF8 fake_size
 #define SDL_CreateTextureFromSurface fake_texture
 #define SDL_RenderCopy fake_copy
 #define SDL_DestroyTexture fake_destroy
@@ -117,7 +148,13 @@ static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surf
 #define SDL_SetRenderDrawBlendMode set_renderer_blend
 #define malloc fake_alloc
 #define SDL_GetTicks fake_ticks
+#define nl_sdl_start_text_input fake_start_text_input
+#define nl_sdl_stop_text_input fake_stop_text_input
+#define nl_sdl_take_text_input_event fake_take_text_input_event
 #include "../modules/ui_widgets/ui_widgets.c"
+#undef nl_sdl_take_text_input_event
+#undef nl_sdl_stop_text_input
+#undef nl_sdl_start_text_input
 #undef malloc
 
 static void invoke(DynArray *a, int64_t count, int64_t scroll) {
@@ -383,36 +420,74 @@ static void tooltips(void) {
 static void text_inputs(void) {
     SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
     TTF_Font *f = (TTF_Font *)(uintptr_t)1;
-    char unterminated[3] = {'b','a','d'};
-    int draws=draw_calls, mice=mouse_calls;
-    assert(!nl_ui_text_input(r,f,unterminated,3,0,0,100,20,1));
-    assert(!nl_ui_text_input(r,f,"input",0,0,0,100,20,1));
+    uint8_t storage[64] = {'i','n','p','u','t'};
+    DynArray input = {.length=5,.capacity=64,.elem_type=ELEM_U8,
+                      .elem_size=sizeof(uint8_t),.data=storage};
+    DynArray wrong = input;
+    int draws=draw_calls, mice=mouse_calls, reads=edit_event_reads;
+    wrong.elem_type=ELEM_INT;
+    assert(!nl_ui_text_input(r,f,&wrong,64,0,0,100,20,1));
+    assert(!nl_ui_text_input(r,f,&input,0,0,0,100,20,1));
     assert(!nl_ui_text_input(r,f,NULL,6,0,0,100,20,1));
-    assert(!nl_ui_text_input(r,f,"input",6,INT64_MAX,0,100,20,1));
-    assert(!nl_ui_text_input(r,f,"input",6,0,0,15,20,1));
-    assert(draw_calls == draws && mouse_calls == mice);
+    assert(!nl_ui_text_input(r,f,&input,64,INT64_MAX,0,100,20,1));
+    assert(!nl_ui_text_input(r,f,&input,64,0,0,15,20,1));
+    assert(draw_calls == draws && mouse_calls == mice && edit_event_reads == reads);
     expected_text="input"; provide_surface=1;
     test_surface.w=10; test_surface.h=10;
     int copies=render_copies, frees=surface_frees;
-    char input[]="input";
-    assert(!nl_ui_text_input(r,f,input,sizeof(input),0,0,100,20,1));
-    assert(render_copies == copies+1 && !strcmp(input,"input"));
+    assert(!nl_ui_text_input(r,f,&input,64,0,0,100,20,1));
+    assert(render_copies == copies+1 && input.length == 5 && text_input_starts == 1);
+
+    queue_text("\xc3\xa9");
+    queue_key(SDLK_BACKSPACE);
+    queue_text("!");
+    queue_key(SDLK_RETURN);
+    expected_text="input!";
+    assert(nl_ui_text_input(r,f,&input,64,0,0,100,20,1) == 1);
+    assert(input.length == 6 && !memcmp(input.data,"input!",6));
+
+    queue_text("ignored");
+    assert(!nl_ui_text_input(r,f,&input,6,0,0,100,20,1));
+    assert(input.length == 6 && !memcmp(input.data,"input!",6));
+
+    memcpy(storage,"A\xf0\x9f\x98\x80",5); input.length=5;
+    queue_key(SDLK_BACKSPACE); expected_text="A";
+    assert(!nl_ui_text_input(r,f,&input,64,0,0,100,20,1));
+    assert(input.length == 1 && storage[0] == 'A');
+
+    queue_text("\xc0\xaf");
+    queue_key(SDLK_KP_ENTER);
+    assert(nl_ui_text_input(r,f,&input,64,0,0,100,20,1) == 1);
+    assert(input.length == 1 && storage[0] == 'A');
+
+    uint8_t other_storage[8] = {'x'};
+    DynArray other = {.length=1,.capacity=8,.elem_type=ELEM_U8,
+                      .elem_size=sizeof(uint8_t),.data=other_storage};
+    expected_text="x";
+    assert(!nl_ui_text_input(r,f,&other,8,0,0,100,20,1));
+    assert(text_input_stops == 1 && text_input_starts == 2);
+    assert(!nl_ui_text_input(r,f,&other,8,0,0,100,20,0));
+    assert(text_input_stops == 2);
+
+    expected_text="A";
     test_surface.h=INT_MAX;
-    assert(!nl_ui_text_input(r,f,input,sizeof(input),INT_MIN,INT_MIN,100,20,0));
-    assert(render_copies == copies+1 && surface_frees == frees+2);
+    copies=render_copies; frees=surface_frees;
+    assert(!nl_ui_text_input(r,f,&input,64,INT_MIN,INT_MIN,100,20,0));
+    assert(render_copies == copies && surface_frees == frees+1);
     test_surface.w=-1;
-    assert(!nl_ui_text_input(r,f,input,sizeof(input),0,0,100,20,0));
-    assert(render_copies == copies+1 && surface_frees == frees+3);
+    copies=render_copies; frees=surface_frees;
+    assert(!nl_ui_text_input(r,f,&input,64,0,0,100,20,0));
+    assert(render_copies == copies && surface_frees == frees+1);
     provide_surface=0; measured_w=INT_MAX; measured_h=10;
     for (int i=0; i<120; i++)
-        assert(!nl_ui_text_input(r,f,input,sizeof(input),INT_MAX-100,0,100,20,1));
+        assert(!nl_ui_text_input(r,f,&input,64,INT_MAX-100,0,100,20,1));
     fail_measure=1;
     for (int i=0; i<60; i++)
-        assert(!nl_ui_text_input(r,f,input,sizeof(input),0,0,100,20,1));
+        assert(!nl_ui_text_input(r,f,&input,64,0,0,100,20,1));
     fail_measure=0;
     int measures=measure_calls;
     for (int i=0; i<60; i++)
-        assert(!nl_ui_text_input(r,NULL,input,sizeof(input),0,0,100,20,1));
+        assert(!nl_ui_text_input(r,NULL,&input,64,0,0,100,20,1));
     assert(measure_calls == measures);
     measured_w=10;
 }
