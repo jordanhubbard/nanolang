@@ -109,6 +109,29 @@ acceptance I use the explicit rewind operation; I do not depend on an implicit
 stdio direction switch. I preserve embedded zero bytes and compare lengths as
 well as bytes. There is no string conversion or host locale dependency here.
 
+## My update-stream and error boundary
+
+I track each stream's last nonempty I/O direction: neutral, read or write. Both
+write→read and read→write refuse with DIRECTION until a successful explicit
+rewind positions the stream. I do not rely on EOF or a flush to waive the
+read→write rule. A failed positioning call leaves the direction restricted;
+a successful `fseek(stream, 0, SEEK_SET)` clears the error indicator and returns
+the direction to neutral. Zero-length I/O changes neither position nor direction.
+Transfer carries the stream's direction to its new owner unchanged.
+
+I capture errno immediately after each host operation, before table retirement,
+other closes or deallocation. An acquisition/publication error keeps its primary
+status and a separate cleanup-error field if rollback close fails. Consuming close
+reports its saved host error after retirement. Disposal saves the first complete
+error result before cleaning subsequent slots. No later cleanup overwrites it.
+
+My private token also carries a process-local monotonically allocated context
+identity, distinct from the capability generation. Serialized tokens and concurrent
+context creation remain outside this native private API; I fail before context
+identity wrap. This prevents a token from a destroyed context selecting a later
+context at a reused C allocation address. I do not strengthen the existing public
+capability API's security claims or change its random-token behavior.
+
 ## My commit and cleanup order
 
 Acquisition reserves private storage, acquires the file, establishes capability
