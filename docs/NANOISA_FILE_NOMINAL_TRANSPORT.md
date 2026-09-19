@@ -210,3 +210,40 @@ refusal. Included-query interception and separately linked production both run;
 old supporting objects retain their ordinary build flags, while the new codec,
 query and catalog provider receive each selected sanitizer compiler. I add only
 selected test recipes, not production provider/converter/selector changes.
+
+### My next combined transport checkpoint
+
+I preserve private qualification856620/720cf in its own trees and integrate
+canonical829/e119 in a fresh retention tree. The only Make merge conflict is
+additive selected targets; I preserve both exact blocks. Before code I identify
+three intentional verdict changes for a fully valid service-v2 module:
+`nvm_service_bindings_validate`, the NvmV2 metadata counterpart, and both bridge /
+container roundtrips become transport positives. The existing fixture's v1 raw
+decoder still rejects120 bytes; shared ownership/authority queries, general and
+owned/mixed verification, VM/native/LLVM/Wasm and dropping consumers still
+refuse. I will replace only those three old negative assertions with positive
+retention/output/lifetime checks after combined source review; I preserve their
+first private-gate evidence and all neighboring malformed refusals.
+
+The NvmV2 metadata validator uses a bounded temporary execution-module *view*
+of constants, signatures, imports and exact encoded layouts, then invokes the
+already-qualified private query. It borrows scalar payload arrays, allocates only
+checked adapter tables/layout bytes and the independent query result, and never
+calls either bridge, public verifier or another module validator. Every allocation
+is released before return. This prevents converter/query recursion. Full wire
+feature/section consistency remains the existing container validation obligation.
+
+An explicit service-v2 branch in conversion_ownership uses complete private
+validation, preserves ownership bytes unchanged and records required ownership;
+it does not route to mixed admission or the shared ordinary authority validator.
+Service-v1 and all non-service paths preserve their old verdicts. From-Nvm skips
+max-stack inference for every required service module and retains undeclared0;
+metadata-only transport does not certify an executable stack bound.
+
+I update all source/object/provider lists required by service validation's new
+codec/query dependencies, including Make, module manifest and generated wrapper
+link closure. Private test recipes filter the newly provided objects when they
+compile those same sources directly; assertions are migrated only after source
+review. No host grant, source generation, per-arm refinement or execution selector
+is added. The new attach API stages exact v2 bytes, validates all candidate facts,
+preserves every module field on failure and retains identical reattachment.
