@@ -26,7 +26,7 @@ static void observe(NmsRuntime *r,NmsHandle array,unsigned count,int mutated){
 /* I label this separately from the public entry below: these are actual emitted
  * helpers in the fully admitted module, with their existing private signature. */
 static void carrier_probe(void){
-    NmsRuntime managed;nms_init(&managed,NULL,0);assert(managed.active);uint64_t generation=0;
+    NmsRuntime managed;nms_init(&managed,NULL,0);assert(nms_bind_records(&managed,NULL,0)==NMS_OK);assert(nms_begin(&managed)==NMS_OK && managed.active);uint64_t generation=0;
     nown_value owner={0},argument={0},relayed={0},result={0};
     assert(nown_function_1(&argument,&generation,++generation,&owner,&managed)==0);
     assert(!argument.tag && owner.tag==8 && owner.category==1 && owner.record && owner.record->layout==1 && owner.record->count==3);
@@ -36,7 +36,7 @@ static void carrier_probe(void){
     assert(nown_function_3(&relayed,&generation,++generation,&result,&managed)==0 && !relayed.tag && result.tag==1 && result.scalar==0);observe(&managed,alias.handle,9,1);nown_release(result);
     const uint64_t indices[]={UINT64_MAX,UINT64_C(0x8000000000000000),INT64_MAX};
     for(unsigned i=0;i<3;i++){NmsValue v={99,99};assert(nms_value_array_get(&managed,alias.handle,indices[i],&v)==NMS_OK && !v.tag && !v.payload);assert(nms_value_array_set(&managed,alias.handle,indices[i],(NmsValue){patterns[0],3})==NMS_STATE);observe(&managed,alias.handle,9,1);}
-    nown_release(alias);assert(!managed.live_objects && !managed.live_bytes);assert(nms_dispose(&managed)==NMS_OK);assert(!live);
+    nown_release(alias);assert(!managed.live_objects && !managed.live_bytes);assert(nms_finish(&managed,NMS_OK,0)==0 && !managed.active);assert(nms_dispose(&managed)==NMS_OK);assert(!live);
     fprintf(stderr,"I retain native internal carrier bit observations separately from public entry.\n");
 }
 static void public_run(void){
