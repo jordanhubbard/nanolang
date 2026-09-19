@@ -44,6 +44,7 @@ static bool mc_stop(MCAnalysis *a,NvmMixedShapeStatus status,uint32_t f,uint32_t
 static MCValue mc_tag(uint8_t tag) { MCValue v={0};v.tags=MC_BIT(tag);return v; }
 static MCValue mc_owner(uint32_t layout) { MCValue v=mc_tag(TAG_STRUCT);v.kind=1;v.nominal=layout;return v; }
 static bool mc_exact(MCValue v,uint8_t tag) { return !v.kind && !v.origins && v.tags==MC_BIT(tag); }
+static bool mc_field(const MCAnalysis *a,MCValue v,uint8_t tag,uint32_t layout);
 static bool mc_plain(MCValue v) {
     const uint16_t tags=MC_FLOAT_VOID|MC_BIT(TAG_INT)|MC_BIT(TAG_BOOL)|MC_BIT(TAG_U8);
     return !v.kind && !v.origins && v.tags && !(v.tags&~tags);
@@ -60,13 +61,28 @@ static bool mc_owned_layout(const MCAnalysis *a,uint32_t layout) {
     }
     return true;
 }
+static bool mc_ordinary_layout(const MCAnalysis *a,uint32_t layout) {
+    const NvmMixedLayoutView *v=a->proof->shape->view;
+    return layout<v->layouts.count && v->classes[layout]==NVM_MIXED_ORDINARY_STRUCTURAL;
+}
+static MCValue mc_declared_value(const MCAnalysis *a,Slot slot) {
+    if(slot.tag!=TAG_STRUCT)return mc_tag(slot.tag);
+    if(mc_owned_layout(a,slot.layout))return mc_owner(slot.layout);
+    MCValue value=mc_tag(TAG_STRUCT);
+    if(!mc_ordinary_layout(a,slot.layout))return value;
+    for(uint32_t n=0;n<a->proof->shape->origin_count;n++) {
+        const NvmMixedFloatOrigin *origin=&a->proof->shape->origins[n];
+        if(origin->tag==TAG_STRUCT && origin->global_layout==slot.layout)value.origins|=UINT64_C(1)<<n;
+    }
+    return value;
+}
 static bool mc_owned_local(const MCAnalysis *a,const NvmAffineState *s,uint16_t local) {
     return local<s->facts->count && !s->facts->locals[local].mode &&
         s->facts->locals[local].tag==TAG_STRUCT && mc_owned_layout(a,s->facts->locals[local].layout);
 }
 static bool mc_signature(const MCAnalysis *a,Slot slot,bool result) {
     if(slot.mode)return false;
-    if(slot.tag==TAG_STRUCT)return mc_owned_layout(a,slot.layout);
+    if(slot.tag==TAG_STRUCT)return mc_owned_layout(a,slot.layout) || mc_ordinary_layout(a,slot.layout);
     return slot.layout==NVM_V2_NO_INDEX && (slot.tag==TAG_INT || slot.tag==TAG_BOOL ||
         slot.tag==TAG_U8 || (result && slot.tag==TAG_VOID));
 }
@@ -281,8 +297,11 @@ static bool mc_field(const MCAnalysis *a,MCValue v,uint8_t tag,uint32_t layout) 
 }
 static bool mc_type(const MCAnalysis *a,MCValue v,Slot type) {
     if(type.mode)return false;
-    if(type.tag==TAG_STRUCT)return mc_owned_layout(a,type.layout) && v.kind==1 &&
-        v.tags==MC_BIT(TAG_STRUCT) && !v.origins && v.nominal==type.layout;
+    if(type.tag==TAG_STRUCT) {
+        if(mc_owned_layout(a,type.layout))return v.kind==1 && v.tags==MC_BIT(TAG_STRUCT) &&
+            !v.origins && v.nominal==type.layout;
+        return mc_ordinary_layout(a,type.layout) && mc_field(a,v,TAG_STRUCT,type.layout);
+    }
     return mc_exact(v,type.tag) && type.layout==NVM_V2_NO_INDEX;
 }
 static bool mc_observed(const MCFrame *f,uint16_t locals,uint16_t root) {
@@ -448,7 +467,7 @@ static bool mc_transfer(MCAnalysis *a,uint32_t index,MCFrame *frame) {
         const NvmAffineState *callee=a->functions[in->operands[0].u32].seed;
         for(uint16_t n=0;n<callee->facts->params;n++)if(!mc_type(a,stack[base+n],callee->facts->locals[n]))
             return mc_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require exact positional call values before owner transfer.");
-        Slot returned=callee->facts->result;result=returned.tag==TAG_STRUCT?mc_owner(returned.layout):mc_tag(returned.tag);break;
+        Slot returned=callee->facts->result;result=mc_declared_value(a,returned);break;
     }
     case OP_JMP_TRUE:case OP_JMP_FALSE:case OP_ASSERT:
         if(!mc_exact(stack[base],TAG_BOOL))return mc_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require an exact Boolean control operand.");
@@ -482,7 +501,7 @@ NvmMixedShapeResult nvm_analyze_mixed_samples(const NvmModule *module,NvmMixedSa
         uint16_t locals=module->functions[f].local_count;MCValue values[MC_SLOTS*2]={0};
         MCFrame seed={a->functions[f].seed,values,0};
         for(uint16_t n=0;n<locals;n++)values[n]=mc_tag(TAG_VOID);
-        for(uint16_t n=0;n<module->functions[f].arity;n++)if(!mc_owned_local(a,seed.owners,n))values[n]=mc_tag(seed.owners->facts->locals[n].tag);
+        for(uint16_t n=0;n<module->functions[f].arity;n++)if(!mc_owned_local(a,seed.owners,n))values[n]=mc_declared_value(a,seed.owners->facts->locals[n]);
         if(!mc_join(a,a->functions[f].start,&seed))goto done;
     }
     while(a->pending) {
