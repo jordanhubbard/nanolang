@@ -260,6 +260,9 @@
   "linux/wrapper-tools-after.json": "0680765b02bb8d55676e82024fc57b8c96de6ffdd7cce58bac28449551ec5ba9",
   "linux/wrapper-tools-before.json": "0680765b02bb8d55676e82024fc57b8c96de6ffdd7cce58bac28449551ec5ba9",
   "linux/wrapper.log": "e22b3f5741705895f3b08c7d68242d1699bbe1570eaa3012ec6a9c6f466cd67f",
+  "nanolang-file-carrier-independent-audit.json": "7faaefb29e8b7a91d682543f2fd6ab0db210a1b683e7f353d556ce9bb0f4ed6c",
+  "nanolang-file-carrier-independent-current-darwin.json": "63ed1d4f0ba4cf66f86afc3cbd656e8f08e788233fc84bf3bc286b4a4c8ca82b",
+  "nanolang-file-carrier-independent-current-linux.json": "5e56b28088cf1dc3324cbbae8bec18d6b74e1e9bf71f611a21b21db2a5e78551",
   "nanolang-file-runtime-current-darwin-spec.json": "24f809e9e5ecfaeb31ec5f154cce1007b7a6035f51c84efce2fc4dcc87712a2a",
   "nanolang-file-runtime-current-darwin.json": "63ed1d4f0ba4cf66f86afc3cbd656e8f08e788233fc84bf3bc286b4a4c8ca82b",
   "nanolang-file-runtime-current-linux-spec.json": "e438950837a06ca1e629517d4360d0b3bdc0fa1e66e5036e80dd5ad153481f72",
@@ -271,5 +274,6 @@
   "provider-preservation.json": "efaf70693567032f9baa49b9af4915d47c8df4eff2596ffb16b33f1288f8adfd",
   "puck-tool-selection/nanolang-file-runtime-565-puck-libffi-selection.txt": "e129c1d77862c1ea0e3e0e7c143736164657fc5c94e6d45f517e7f69f52d8e51",
   "puck-tool-selection/nanolang-file-runtime-565-puck-pkg-config-version.txt": "7bb9bbd2e2162e7c4db854f8740421fd7f8e6a2113a09dc1ef4711aec644536a",
-  "qualification-summary.json": "5e9861f091641d0893529439ea2c3d2bf2576bf01571dcc92f9ab8c590d92bbe"
+  "qualification-summary.json": "5e9861f091641d0893529439ea2c3d2bf2576bf01571dcc92f9ab8c590d92bbe",
+  "ready-integration.json": "d7ec9bc849987dfad439a3de0561d5565181ceaacfe332ffcd2b04ca7cf37410"
 }

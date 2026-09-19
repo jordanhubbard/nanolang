@@ -134,3 +134,10 @@ prepared providers and changes only the documented fixture summary and ledger.
 The per-phase before/after inventories and separately labeled current checks
 are distinct evidence. I make no new Stage1/2 bootstrap, public File execution
 or release-readiness claim.
+
+I attach the independent273-report/artifact/current-input audit and its Linux
+and puck refreshes. My final manifest contains277 reports after those three
+audits and the ready-integration record. Ready `bf2d16248` integrates canonical
+856 (`179626d39`) in a separate tree; its only upstream change is ROADMAP.
+I preserve both additive ledger rows, verify exact `a02d5ab19` production and
+`be65d0368` fixture/Make identities, and repeat no unchanged gate.

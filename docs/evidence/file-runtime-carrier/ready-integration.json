@@ -1,0 +1,20 @@
+{
+  "canonical": "179626d392349c26d7bd1eb165f29d7bd2c32c7b",
+  "fixtures_and_make_equal": "be65d0368",
+  "no_repeated_gates": "Only canonical documentation changed; original qualification pins retained",
+  "production_current_sha256": {
+    "src/nanoisa/file_hosted.h": "45f1c219d5395b69e613c8890b8ddbd0b490a2b4db08ecb9e489eb4c390819b0",
+    "src/nanoisa/file_hosted.inc": "9942e7e0fba50418202ca88b45ba43f1bd8ae1024335d3da6f7bfbfd1b32c65e",
+    "src/nanoisa/file_runtime.c": "4d42c3fbca7d6bbaf0249e8323f76647d0e77d8cb3ab728649831ed6c051f5db",
+    "src/nanoisa/file_runtime.h": "8c500c063e4c0439981c9090cd04d42d72c268a4d8b7378abe256cc5bcc70b78",
+    "src/nsi_cap.c": "a94dfd27cce4a112d018d541c32ca5cc41927efb0dd7b622b84ef2e787abc353",
+    "src/nsi_cap_private.h": "63d678efc51176823a3c9ddfabddabd9ba5b25232d9e451e77d442f1a25a8fc5",
+    "src/nsi_file.c": "87b11bff744dc0cda8b8d6341917543df106717e0d4e7b3163d189dc8c0a88de",
+    "src/nsi_file.h": "4b76d8e23f366ee5311ffcc2bc38f183a71df5d3318459cb76292898e706613f",
+    "src/nsi_file_values.c": "5c2610e5711aa566f0234be3cb89dadfdefee7388bfb40a292def6d09ff1b528",
+    "src/nsi_file_values.h": "e9859db60cfa1fa352e96244cc3fc6dd026f7eabe7a0972b67a49f6e32fd3bf1"
+  },
+  "ready_integration": "bf2d16248",
+  "reviewed_production": "a02d5ab19",
+  "upstream_delta": "ROADMAP only; additive conflict resolution preserves both rows"
+}
