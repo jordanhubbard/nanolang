@@ -23,6 +23,7 @@ UNSIGNED_COMPARE = {'I64_LT_U': 'lt_u', 'I64_LE_U': 'le_u',
                     'I64_GT_U': 'gt_u', 'I64_GE_U': 'ge_u'}
 GENERIC_COMPARE = {'EQ': '==', 'NE': '!=', 'LT': '<', 'LE': '<=', 'GT': '>', 'GE': '>='}
 BRANCH = {'JMP_TRUE', 'JMP_FALSE'}
+CARRY = {'I64_ADD_CARRY': 'add_carry', 'I64_SUB_BORROW': 'sub_borrow'}
 ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 'rem', 'NEG': 'neg',
               'I64_ADD': 'add', 'I64_SUB': 'sub', 'I64_NEG': 'neg', 'I64_MUL': 'mul',
               'I64_DIV_S': 'div', 'I64_REM_S': 'rem',
@@ -31,7 +32,7 @@ ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 're
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
-          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC)
+          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC) | set(CARRY)
 
 
 @dataclass(frozen=True)
@@ -158,6 +159,20 @@ class Analyze:
         elif op == 'ROT3':
             top, middle, bottom = self.pop(stack), self.pop(stack), self.pop(stack)
             stack.extend((top, bottom, middle))
+            return
+        elif op in CARRY:
+            carry = self.pop(stack, INT)
+            right = self.pop(stack, INT)
+            left = self.pop(stack, INT)
+            for part in ('low', 'high'):
+                value = Expr(INT, 'arithmetic', CARRY[op] + '_' + part,
+                             (left, right, carry))
+                if pure:
+                    stack.append(value)
+                else:
+                    temporary = Expr(INT, 'temporary', f'{ins["pc"]}_{part}')
+                    statements.append(('let', temporary, value))
+                    stack.append(temporary)
             return
         elif op in ('I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'):
             right, left = self.pop(stack, INT), self.pop(stack, INT)
@@ -530,13 +545,29 @@ shadow nlr_bool_int {
         if 'mul_high_s' in needed:
             needed.add('mul_high_u')
         if self.language == 'c':
-            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u', 'band', 'bor', 'bxor', 'invert', 'div_u', 'rem_u', 'mul_high_s', 'mul_high_u'}:
+            if needed & {'add', 'sub', 'mul', 'neg', 'shl', 'shr_s', 'shr_u', 'band', 'bor', 'bxor', 'invert', 'div_u', 'rem_u', 'mul_high_s', 'mul_high_u', 'add_carry_low', 'sub_borrow_low'}:
                 self.line('''static int64_t nlr_i64_bits(uint64_t bits) {
     if (bits <= (uint64_t)INT64_MAX) return (int64_t)bits;
     return -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
 }''')
             for op in sorted(needed, key=lambda op: (op == 'mul_high_s', op)):
                 args = 'int64_t a' if op in ('neg', 'invert') else 'int64_t a, int64_t b'
+                if op.startswith(('add_carry_', 'sub_borrow_')):
+                    addition = op.startswith('add_carry_')
+                    symbol = '+' if addition else '-'
+                    self.line(f'''static int64_t nlr_i64_{op}(int64_t a, int64_t b, int64_t carry) {{
+    uint64_t bit = (uint64_t)carry & UINT64_C(1);
+    uint64_t low = (uint64_t)a {symbol} (uint64_t)b;
+    uint64_t result = low {symbol} bit;''')
+                    if op.endswith('_low'):
+                        self.line('    return nlr_i64_bits(result);\n}')
+                    else:
+                        checks = ('low < (uint64_t)a || result < low' if addition else
+                                  '(uint64_t)a < (uint64_t)b || low < bit')
+                        if not addition:
+                            self.line('    (void)result;')
+                        self.line(f'    return ({checks}) ? INT64_C(1) : INT64_C(0);\n}}')
+                    continue
                 if op == 'mul_high_u':
                     self.line('static int64_t nlr_i64_mul_high_u(int64_t a, int64_t b) {')
                     for operand in ('a', 'b'):
@@ -597,6 +628,8 @@ shadow nlr_bool_int {
                               'invert': '~(uint64_t)a'}[op]
                 self.line(f'static int64_t nlr_i64_{op}({args}) {{ return nlr_i64_bits({expression}); }}')
             return
+        if any(op.startswith(('add_carry_', 'sub_borrow_')) for op in needed):
+            needed.update(('add', 'sub', 'lt_u'))
         if needed & {'div_u', 'rem_u'}:
             needed.update(('add', 'sub', 'ge_u'))
         if needed & {'band', 'bor', 'bxor'}:
@@ -936,6 +969,31 @@ shadow nlr_i64_{_operation} {{
     assert (== (nlr_i64_{_operation} low 0) 0)
     assert (== (nlr_i64_{_operation} -1 1) {-1 if _result == 'quotient' else 0})
     assert (== (nlr_i64_{_operation} 7 3) {2 if _result == 'quotient' else 1})
+}}'''
+
+
+for _operation, _arithmetic in (('add_carry', 'add'), ('sub_borrow', 'sub')):
+    for _part in ('low', 'high'):
+        _return = '    return result'
+        if _part == 'high':
+            _first = '(nlr_i64_lt_u low a)' if _operation == 'add_carry' else '(nlr_i64_lt_u a b)'
+            _second = '(nlr_i64_lt_u result low)' if _operation == 'add_carry' else '(nlr_i64_lt_u low bit)'
+            _return = f'''    let first: bool = {_first}
+    let second: bool = {_second}
+    if (or first second) {{ return 1 }}
+    return 0'''
+        _result_line = ('' if (_operation == 'sub_borrow' and _part == 'high') else
+                        f'    let result: int = (nlr_i64_{_arithmetic} low bit)\n')
+        NANO_INTEGER_HELPERS[_operation + '_' + _part] = f'''fn nlr_i64_{_operation}_{_part}(a: int, b: int, carry: int) -> int {{
+    let mut bit: int = 0
+    if (!= (% carry 2) 0) {{ set bit 1 }}
+    let low: int = (nlr_i64_{_arithmetic} a b)
+{_result_line}{_return}
+}}
+shadow nlr_i64_{_operation}_{_part} {{
+    assert (== (nlr_i64_{_operation}_{_part} -1 0 -1) {0 if _operation == 'add_carry' and _part == 'low' else 1 if _operation == 'add_carry' else -2 if _part == 'low' else 0})
+    assert (== (nlr_i64_{_operation}_{_part} 0 0 3) {1 if _part == 'low' and _operation == 'add_carry' else 0 if _operation == 'add_carry' else -1 if _part == 'low' else 1})
+    assert (== (nlr_i64_{_operation}_{_part} 0 0 -2) 0)
 }}'''
 
 
