@@ -32,6 +32,7 @@
   "darwin-first/source-before.json": "adefddf7e33d66a85509ea8edba715d2ac776af1963bb33644179344af5ba147",
   "darwin-first/tools-after.json": "fa012ed2a93369d5867835f4b7d386d65d098e532b85b0671fe0a7ddb426bc13",
   "darwin-first/tools-before.json": "fa012ed2a93369d5867835f4b7d386d65d098e532b85b0671fe0a7ddb426bc13",
+  "integration.json": "377515123e0b9e952df74d5ec0c1e1173e3785abe1b50bdd04f4f98ac3a586a1",
   "linux/adjacent-actual-artifacts.json": "a6c6229f63828f1f91965a20115f122e1b5d484308b6cdab5a978fbd5e76d9fb",
   "linux/adjacent-artifacts.json": "d068525d712cd6e64c22bc86ff597ac53acca044802e91dfa8ebced5b5ddfe9b",
   "linux/adjacent.log": "aa7a58d6a5974a961a490907d6d264b9a5174b9c1d81398d607efa35fdacce6f",

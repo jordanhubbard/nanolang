@@ -44,7 +44,7 @@ idempotent finalization. An OpenResult.Error is still an affine value until
 extracted or dropped. Finish revokes remaining borrows under explicit serialized
 API preconditions; I make no concurrent-entry protection claim.
 
-I seal67 reports in [report-sha256.json](file-value-lifetimes/report-sha256.json).
+I seal68 reports in [report-sha256.json](file-value-lifetimes/report-sha256.json).
 Each of the three runs retains2,232 source/build/test hashes and equal before/after
 maps. Successful Linux and corrected Darwin maps also match their current frozen
 checkouts. Six actual Linux tools and eight Darwin tools are equal before/after;
@@ -64,3 +64,10 @@ separately. The local archive is `/tmp/nanolang-file-value-lifetime-artifact-sto
 These private C gates establish no service opcode, public File/Result authority,
 VM/native execution grant, source binding, shadow selection, public escape or
 bootstrap acceptance. Those remain later reviewed checkpoints.
+
+I integrate canonical013abd0 in a separate ready tree at6b36be4a6. The12 relevant
+production/header/fixture files remain byte-identical to the qualified source.
+The Makefile delta from my seal only carries the qualified mixed-sample linker
+flags from PR820; my File recipes are unchanged. Other incoming changes are the
+separate GPU and documentation work. I do not relabel the frozen2,232-entry maps
+as final integrated source maps or claim a new bootstrap/test run.
