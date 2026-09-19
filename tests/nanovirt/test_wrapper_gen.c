@@ -22,7 +22,7 @@ const char *get_project_root(void) { return g_project_root; }
 #include "../../src/nanovirt/wrapper_gen.h"
 #include "../../src/nanoisa/nvm_format.h"
 #include "../../src/nanoisa/assembler.h"
-#include "../../src/nanoisa/nvm_v2_convert.h"
+#include "../../src/nanoisa/nvm_format_v2.h"
 
 static int g_pass = 0, g_fail = 0;
 #define TEST(name) static void test_##name(void)
