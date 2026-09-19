@@ -144,3 +144,34 @@ shell/inline-field allocation emitted for OWN_PACK. I verify the generated
 sequence statically and assert the count/size supplied to the observer. I retain
 separate allocator accounting and exact output prefix/recovery checks; no
 production hook or emitted source rewrite follows.
+
+## My first complete fixture checkpoint
+
+I prepare two fresh graphs using the existing five-layout builder, with no new
+layout or production changes. The call graph has root locals ARRAY, Handle, INT,
+INT and an eight-local consuming helper. Its stack before CALL is four locals,
+the append-result ARRAY receiver and one moved Handle. The callee preflight needs
+13 slots while the real capacity is eight. The helper prints its consumed7 and
+returns index0; the caller sets3.5, observes it through the original alias and
+prints length1. Normal output is `1\n7\n1\n`; the targeted preflight failure must
+retain exactly `1\n` and no helper activation.
+
+The pack graph prepares Handle7 and STRING first, then stages Handle, append-result
+ARRAY, and retained STRING for the existing three-field Bundle layout. The array
+length marker is1. The exact OWN_PACK next-PC identifies heap shell and three-field
+buffer failures; both leave the complete staged values for normal failure cleanup.
+Normal reverse unpack consumes the child and observes the same alias, producing
+`1\n7\n1\n`. Native's first NOWN_ALLOC after that marker must have one item of
+`sizeof(nown_record)+3*sizeof(nown_value)`; its injected refusal produces only
+`1\n`, status1 and an unchanged result sentinel. VM memory status and per-entry
+result conventions remain exact.
+
+I qualify four synchronous public APIs and both fusion settings with fresh VMs,
+separate true-switch/computed-goto compilation, native O0/O2 and recovery after
+each targeted fault. The static VM preflight observer records exact stack types,
+size and frame count; no pending module executes before full public admission.
+Existing growth failure/accounting controls remain the separately qualified
+primitive/whole-runtime evidence and an adjacent unchanged target; this checkpoint
+does not relabel them as new allocation sites. The only shared-fixture change is
+a configurable name for its existing main so the new fixture can reuse exact
+root/byte accounting without executing or altering the original corpus.
