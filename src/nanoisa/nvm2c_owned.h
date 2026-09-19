@@ -327,7 +327,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         case OP_AGG_GET: case OP_STRUCT_GET:
             if(mixed)nvm2c_printf(&b," if(t[%d].category==2){NmsValue value={0}; status=nown_status(nms_record_get(managed,t[%d].handle,%u,&value));if(status)goto cleanup; if(!nown_from_managed(managed,value,&a)){(void)nms_value_release(managed,value);status=3;goto cleanup;} nown_release(t[%d]);t[%d]=a;a=(nown_value){0};}else {\n",n-1,n-1,local,n-1,n-1);
             nvm2c_printf(&b," if(!nown_retain(t[%d].record->fields[%u])){status=1;goto cleanup;} a=t[%d]; t[%d]=a.record->fields[%u]; nown_release(a); a=(nown_value){0};\n",n-1,local,n-1,n-1,local);
-            if(mixed)nvm2c_puts(&b," }\n");break;
+            if(mixed)nvm2c_puts(&b," }\n");
+            break;
         case OP_DUP:nvm2c_printf(&b," if(!nown_retain(t[%d])){status=1;goto cleanup;} t[%d]=t[%d];\n",n-1,n,n-1);break;
         case OP_POP:nvm2c_printf(&b," nown_release(t[%d]); t[%d]=(nown_value){0};\n",n-1,n-1);break;
         case OP_ROT3:nvm2c_printf(&b," a=t[%d];t[%d]=t[%d];t[%d]=t[%d];t[%d]=a;a=(nown_value){0};\n",n-1,n-1,n-2,n-2,n-3,n-3);break;
