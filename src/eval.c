@@ -4837,6 +4837,26 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         case AST_IDENTIFIER: {
             /* First check if it's a variable */
             Symbol *sym = env_get_var(env, expr->as.identifier);
+            if (strcmp(expr->as.identifier, "array_push") == 0) {
+                Function *declared = env_get_function(env, expr->as.identifier);
+                if (declared && !declared->is_extern && declared->body &&
+                    ((!env->current_module && !declared->module_name) ||
+                     (env->current_module && declared->module_name &&
+                      strcmp(env->current_module, declared->module_name) == 0))) {
+                    /* I retain checker facts without reading them as runtime bindings.
+                     * Evaluated locals/parameters have def_line == 0, even for VOID. */
+                    sym = NULL;
+                    for (int i = env->symbol_count - 1; i >= 0; i--) {
+                        Symbol *candidate = &env->symbols[i];
+                        if (!candidate->name ||
+                            strcmp(candidate->name, expr->as.identifier) != 0) continue;
+                        if (!candidate->is_global && candidate->def_line > 0 &&
+                            candidate->value.type == VAL_VOID) continue;
+                        sym = candidate;
+                        break;
+                    }
+                }
+            }
             if (sym) {
                 /* Trace variable read */
 #ifdef TRACING_ENABLED

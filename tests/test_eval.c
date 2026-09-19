@@ -123,6 +123,48 @@ static void run_ctx_free(RunCtx *ctx) {
  * Basic evaluation tests
  * ============================================================================ */
 
+/* I distinguish runtime values from retained checker rows without source widening. */
+void test_eval_declared_push_initializer_bindings(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "fn array_push(a: int, b: int) -> int { return (+ a b) }\n"
+        "shadow array_push { assert (== (array_push 2 3) 5) }\n"
+        "fn capture() -> fn(int, int) -> int { return array_push }\n"
+        "fn main() -> int { return 0 }\n"));
+    env_define_var(ctx.env, "array_push", TYPE_FUNCTION, false, create_void());
+    Symbol *binding = env_get_var(ctx.env, "array_push");
+    ASSERT(binding != NULL);
+    binding->def_line = 99; /* I model my retained non-global checker placeholder. */
+    Value result = call_function("capture", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_FUNCTION);
+    ASSERT(strcmp(result.as.function_val.function_name, "array_push") == 0);
+    free((char *)result.as.function_val.function_name);
+    free_function_signature(result.as.function_val.signature);
+
+    binding = env_get_var(ctx.env, "array_push");
+    binding->is_global = true;
+    result = call_function("capture", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_VOID); /* A located global is never skipped. */
+    binding = env_get_var(ctx.env, "array_push");
+    binding->value = create_int(37);
+    result = call_function("capture", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 37);
+
+    env_define_var(ctx.env, "array_push", TYPE_FUNCTION, false, create_void());
+    binding = env_get_var(ctx.env, "array_push");
+    ASSERT_EQ(binding->def_line, 0);
+    ASSERT(!binding->is_global);
+    result = call_function("capture", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_VOID); /* Actual local VOID masks the declaration/global. */
+    binding = env_get_var(ctx.env, "array_push");
+    binding->value = create_int(41);
+    result = call_function("capture", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 41);
+    run_ctx_free(&ctx);
+}
+
 void test_eval_integer_arithmetic(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -2815,6 +2857,7 @@ static void test_eval_file_write_failures(void) {
 }
 
 int main(void) {
+    TEST(eval_declared_push_initializer_bindings);
     TEST(eval_file_write_failures);
     TEST(eval_handler_return_async_calls);
     TEST(eval_handler_return_higher_order);

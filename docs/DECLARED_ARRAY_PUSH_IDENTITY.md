@@ -233,3 +233,15 @@ stages requires exact source/binary evidence and an approved gate plan. The
 first two passed groups remain attributed to the old pin; affected and unrun
 identity groups precede the unchanged twelve mutation groups and then the
 entire unchanged owned-record-pattern suite.
+
+My production checkpoint changes only the AST_IDENTIFIER declared-push branch
+in eval.c (twenty lines). The original failing function-value source remains
+unchanged. A sixth identity method observes ordinary function values, distinct
+local/formal overrides and declaration restoration through mandatory shadows.
+The low-level evaluator control models a located checker VOID row, then global
+VOID/INT and actual local VOID/INT values, verifying that only the checker row
+permits declaration fallback. These injected values test lookup boundaries;
+they do not claim source admission for mismatched return types. My gate runner
+must now require all six identity methods, not the previous five, before the
+unchanged twelve mutation methods. The existing evaluator suite retains its
+other assertions. No execution has occurred at this checkpoint.

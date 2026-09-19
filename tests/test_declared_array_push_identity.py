@@ -117,6 +117,36 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''', canonical=False)
 
+    def test_runtime_function_value_bindings(self):
+        self.positive('runtime-function-values', '''fn array_push(left: int, right: int) -> int { return (+ left right) }
+shadow array_push { assert (== (array_push 4 5) 9) }
+fn difference(left: int, right: int) -> int { return (- left right) }
+shadow difference { assert (== (difference 4 5) (- 0 1)) }
+fn invoke(array_push: fn(int, int) -> int) -> int {
+ if true {
+  let selected: fn(int, int) -> int = array_push
+  assert (== (selected 4 5) (- 0 1))
+ }
+ return (array_push 8 3)
+}
+shadow invoke { assert (== (invoke difference) 5) }
+fn main() -> int {
+ let ordinary: fn(int, int) -> int = difference
+ assert (== (ordinary 4 5) (- 0 1))
+ assert (== (invoke difference) 5)
+ if true {
+  let array_push: fn(int, int) -> int = difference
+  if true {
+   let selected: fn(int, int) -> int = array_push
+   assert (== (selected 4 5) (- 0 1))
+  }
+  assert (== (array_push 8 3) 5)
+ }
+ assert (== (array_push 4 5) 9) return 0
+}
+shadow main { assert (== (main) 0) }
+''', canonical=False)
+
     def test_unbound_push_alias_and_empty(self):
         self.positive('builtin', '''fn main() -> int {
  let values: array<float> = []
