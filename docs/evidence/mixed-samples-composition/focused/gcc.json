@@ -1,0 +1,13 @@
+{
+  "name": "gcc",
+  "command": [
+    "make",
+    "-j2",
+    "test-mixed-samples"
+  ],
+  "environment": {
+    "CC": "cc"
+  },
+  "status": 0,
+  "seconds": 0.8659729109494947
+}

@@ -1,0 +1,49 @@
+{
+  "pin": "56653e664526e1e65b6369dbdee02c7f91bd96e3",
+  "results": [
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "-j2",
+        "test-mixed-samples"
+      ],
+      "environment": {
+        "CC": "cc"
+      },
+      "status": 0,
+      "seconds": 5.680787016986869
+    },
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-mixed-samples"
+      ],
+      "environment": {
+        "CC": "/tmp/nanolang-projection-clang",
+        "MIXED_CFLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all",
+        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+      },
+      "status": 0,
+      "seconds": 3.2730622499948367
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "-j2",
+        "test-mixed-float-proof",
+        "test-mixed-layout-view",
+        "test-affine-state",
+        "test-affine-bytecode",
+        "test-verifier"
+      ],
+      "environment": {
+        "CC": "cc"
+      },
+      "status": 0,
+      "seconds": 2.5206241270061582
+    }
+  ]
+}
