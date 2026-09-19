@@ -240,3 +240,57 @@ qualified maps. I use the current-checkout reproducible driver identities,
 retain both prior hashes and the disproved hypothesis, and proceed only with
 the two previously unrun affine modules. I do not repeat any already qualified
 bootstrap, matrix, callable or union gate.
+
+## Ordered follow-up stops at the known owner-ARRAY boundary
+
+The first previously unrun module,
+`tests.test_affine_frontend_parity`, passes its one method in0.47 seconds. Its
+log SHA-256 is
+`3ef14f0bd71278183613c0cb2dc4c5240dbd4e3dadfb55620bf668515981c77b`.
+
+The final module runs six methods before fail-fast stops it in55.68 seconds.
+Five pass. The existing positive
+`test_ordinary_array_field_keeps_element_type` passes C seed, Stage1 and Stage2,
+then NanoVirt returns1 with the precise checked refusal:
+
+```text
+I could not compile shadows at line 4: I require owner records without managed array fields in my source borrow profile
+```
+
+The log SHA-256 is
+`bb096ff28876ec22b9121df601eb1ac2db08ca969c1ae384f5b13d552a5c1c0e`.
+I stop there. This is the deliberately retained source boundary for public
+owner-ARRAY activation under `task_01e144c13aad46faa8d05d6384270649`
+and parent `task_430220ce190946518d404088533531b6`, not a parser-stack or
+native-selector regression. I do not duplicate that active work, weaken the
+positive or execute a rejected artifact.
+
+The frozen checkout remains at test-harness head
+`48cdfd63746080ca9bc783019a6c6a9d364faa9e`, whose production ancestry is the
+qualified parser pin `603785c9c295cf2c780fea9633aa6d86f37744f4`. All6,433
+tracked-source hashes are equal before and after; both map files hash to
+`22fe72381c407e6cc01a09de9b0e1575949f17d9005d22554dad2a1835a52663`.
+The eight copied compiler/runtime executable maps remain equal at
+`3d57832789909dfb464f3b77b2c76cf62deb926336dcddc22e318e98e93e4a5b`.
+The pre-recorded Homebrew Clang/Python map remains equal at
+`cecae552845f9d8f959d7282097b681527baf2d20cab7b703e30238fd6d618c1`.
+
+I inventoried the actual Apple driver compiler after the terminal: the
+`/usr/bin/cc` dispatcher hashes to
+`b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9`;
+`xcrun --find clang` resolves Apple Clang21.0.0 at
+`/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang`,
+hash
+`1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9`,
+with SDK27.0. This identity was not hashed in the fresh before map, so I report
+it as after-only rather than claiming retroactive equality. The preceding
+qualified setup report already records the same resolved compiler path and
+version.
+
+The retained evidence root is
+`/private/tmp/nanolang-parser-lsan-evidence-603785c9`. Its18-entry manifest
+hashes to
+`8159d9f0302d11dbee95263bb8594e56846438b74db1d97782d13b0c5a1e7bb2`.
+This result completes the requested bounded execution through its first
+remaining product dependency. It does not close the owner-ARRAY parent,
+installed product acceptance or the release publication hold.
