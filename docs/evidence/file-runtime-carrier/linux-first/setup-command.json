@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-file-runtime-534-linux/providers.mk",
+    "-j4",
+    "carrier-providers",
+    "nvm2c",
+    "nvm2llvm",
+    "nvm2hl",
+    "nano_virt"
+  ],
+  "selectors": {
+    "CC": "/bin/gcc",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}

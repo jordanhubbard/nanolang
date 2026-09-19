@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "CC=/bin/gcc",
+    "obj/nanovm/vmd_protocol.o",
+    "obj/nanovm/vmd_client.o"
+  ],
+  "selectors": {
+    "CC": "/bin/gcc",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}

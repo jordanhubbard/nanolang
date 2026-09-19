@@ -1,0 +1,32 @@
+[
+  {
+    "root": "/tmp/nanolang-file-runtime-565",
+    "report": "/tmp/nanolang-file-runtime-565-darwin",
+    "source_inventory": "normal-source-after.json",
+    "tool_inventory": "normal-tools-after.json",
+    "sources": 7282,
+    "tools": 10,
+    "source_mismatches": [],
+    "tool_mismatches": []
+  },
+  {
+    "root": "/tmp/nanolang-file-runtime-565",
+    "report": "/tmp/nanolang-file-runtime-565-darwin-corrected",
+    "source_inventory": "sanitizer-source-after.json",
+    "tool_inventory": "sanitizer-tools-after.json",
+    "sources": 7282,
+    "tools": 14,
+    "source_mismatches": [],
+    "tool_mismatches": []
+  },
+  {
+    "root": "/tmp/nanolang-file-runtime-be65",
+    "report": "/tmp/nanolang-file-runtime-be65-darwin",
+    "source_inventory": "wrapper-source-after.json",
+    "tool_inventory": "wrapper-tools-after.json",
+    "sources": 7282,
+    "tools": 14,
+    "source_mismatches": [],
+    "tool_mismatches": []
+  }
+]
