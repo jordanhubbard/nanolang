@@ -31,8 +31,9 @@ and zero tracked live allocations.
 | Clang 18 ASan/UBSan | 32.735 s | 5.402 s |
 
 The public runtime sanitizer scope includes VM, translator, heap and fixture
-translation units plus complete generated native C. Linked provider objects and
-standalone CLI tools remain ordinary GCC builds. Authority sanitizer controls
+translation units plus complete generated native C. The earlier Make-driven runs rebuild some ordinary CLI/provider artifacts under
+the phase compiler; endpoint equality alone did not establish phasewise immutability.
+I retain those commands and correct their attribution below. Authority sanitizer controls
 instrument retained layouts, layout decoder, cursor, affine state, verifier and
 fixture translation units; other linked providers remain ordinary. I do not claim
 that every linked object is instrumented.
@@ -69,3 +70,43 @@ parameter-tag refusal, unchanged outputs/input headers and later recovery. All
 runtime seal retains its frozen authority fixture; this supplement changes only
 that query fixture and seals all 12 current inputs. I do not repeat unchanged
 public execution or native gates for this fixture-only addition.
+
+
+## My corrected integrated tool boundary
+
+I integrate canonical File841 and docs843 at frozen273b59d18. My first integrated
+eight phases pass, but Make rebuilds four CLI/provider artifacts under the selected
+fixture compiler. I retain [that attribution failure](owned-array-public-integration-tool-first.json)
+and the terminal tools. Equal endpoints in the original c510 run also masked
+intermediate rebuild/restoration; they establish endpoint equality only. I do not
+recreate overwritten intermediate executables or discard their successful checks.
+
+My corrected [integrated seal](owned-array-public-frozen.json) runs the existing
+fixtures directly after one GCC setup. Make dry output supplies the exact target
+environments and object lists. All 164 inventoried providers, CLIs and compiler
+executables match before and after each of eight phases and at final verification;
+all 1,764 source files remain unchanged. This is not an inventory of every
+transitive system tool. An external 900-second TERM/10-second KILL bound completes
+with status0. The prepared tools and exact driver are archived in the seal.
+
+| Integrated phase | Seconds |
+| --- | ---: |
+| GCC public runtime | 11.635 |
+| GCC ASan/UBSan public runtime | 39.884 |
+| Clang18 ASan/UBSan public runtime | 31.291 |
+| GCC authority | 1.221 |
+| GCC ASan/UBSan authority | 16.949 |
+| Clang18 ASan/UBSan authority | 5.444 |
+| GCC File linked and scoped-instrumented consumers | 3.033 |
+| Clang18 File linked and scoped-instrumented consumers | 3.062 |
+
+Each of six dispatch runs passes 18,849 checks, including bare File operations in
+an owner root and an otherwise uncalled helper. No File handler executes; public
+entry/refusal and service priority remain checked. Each authority configuration
+passes 5,061 checks. File controls preserve nominal private transport and refuse
+pending execution/translation while ordinary immediate bytes remain ordinary.
+File fixture instrumentation covers ISA, module format, service bindings,
+disassembly, VM decode and wrapper generation; other linked providers remain
+ordinary. No unchanged broad adjacency or source bootstrap is relabeled as an
+integrated run. The original complete corpus and later query supplement remain
+separately scoped evidence.
