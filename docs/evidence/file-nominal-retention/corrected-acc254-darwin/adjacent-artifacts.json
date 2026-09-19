@@ -1,0 +1,54 @@
+{
+  "/tmp/nanolang-file-nominal-corrected-acc254/bin/nvm2llvm": {
+    "sha256": "f53e0ad38296225da222a49cc170cd3ec62a31bb78568af754f8dd7359c77841",
+    "bytes": 1973640
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/bin/nano_virt": {
+    "sha256": "adfa690d1f1fd9bb6fb1afa6283ee4b3cb5b74eda421923db27bb5c95af29317",
+    "bytes": 10863416
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/bin/nvm2hl": {
+    "sha256": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+    "bytes": 2158
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/bin/nvm2c": {
+    "sha256": "b94da49c6174d05c3c61542ef32a8536e1ea75c6839321dc122e40be27257cbe",
+    "bytes": 667304
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/bin/nanoisa_hl_facts": {
+    "sha256": "80daead1d917052944ea6e95a50eae7ddd3e5793d26882da404e98228adf1358",
+    "bytes": 667552
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/bin/nano_vm": {
+    "sha256": "e3379a7561d4801ffd4c84e9333cf544c18c3554a86a9cca9d63f5d6185fbfb6",
+    "bytes": 10740872
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/obj/test_nsi_file_plan_linked": {
+    "sha256": "477f1d235068d61e6133c0f8a0860cc6640b2042306aa7436bcda776bf4b636c",
+    "bytes": 108424
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/obj/test_file_nominal_instrumented": {
+    "sha256": "b16fc18d4d1ca8e61b2d60da6ead00004b3c578d0c275bfd5ce83595e5e37944",
+    "bytes": 707200
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/obj/test_nvm_callbacks": {
+    "sha256": "7c0fb3d07faeac9b154063fd1ace87104b48e173acaa93449da38993a5ae704b",
+    "bytes": 690080
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/obj/test_file_nominal_linked": {
+    "sha256": "efe86980ed89d471caf0c7d4b2caf60c7e52a3ce78163277d62edbf8eb37fce6",
+    "bytes": 690632
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/obj/test_service_bindings": {
+    "sha256": "1d2f2d08bae84ebdb12e23394f970aeb5ab3295b93aab120d48f7cbc7b9a2075",
+    "bytes": 37704
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/obj/test_nsi_file_plan_instrumented": {
+    "sha256": "24cb0e10324466092b5201a1d129bd5da563b074e7858e5c4d33ff64ee2b8fe5",
+    "bytes": 108256
+  },
+  "/tmp/nanolang-file-nominal-corrected-acc254/obj/test_nvm_pool_alloc": {
+    "sha256": "ba3bf09f414a8ec87c94e0f0587b3e798ab8bb5ba86ca7f895142f1e214644ce",
+    "bytes": 58432
+  }
+}

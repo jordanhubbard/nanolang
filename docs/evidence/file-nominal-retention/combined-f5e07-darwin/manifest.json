@@ -1,0 +1,44 @@
+{
+  "pin": "f5e07e5bea043265cfc15176fb1804227c363901",
+  "platform": "darwin",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j8",
+        "bootstrap"
+      ],
+      "env": {
+        "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+      },
+      "status": 0,
+      "seconds": 355.073,
+      "log_sha256": "84e2121204bcf80645972f951036a98e6157fa4c42c3e9ee6cc1aa09daa2bd7a"
+    },
+    {
+      "name": "darwin",
+      "command": [
+        "make",
+        "test-file-nominal-module",
+        "test-file-nominal",
+        "test-file-nominal-sanitizers",
+        "test-service-module"
+      ],
+      "env": {
+        "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk",
+        "NANO_SERVICE_MODULE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "NANO_FILE_NOMINAL_CC": "/opt/homebrew/opt/llvm/bin/clang"
+      },
+      "status": 2,
+      "seconds": 9.294,
+      "log_sha256": "871d6b30e805b55fb4bcf246a124e6483e952c8c6527717721a79832f2739d43"
+    }
+  ],
+  "terminal": 2,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

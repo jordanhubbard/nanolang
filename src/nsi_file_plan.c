@@ -125,3 +125,7 @@ const char *nl_file_catalog_interface(void) { return IFACE; }
 const NlFilePlanMethod *nl_file_catalog_method(size_t i) {
     return i<COUNT(methods) ? &methods[i] : NULL;
 }
+
+const NlFilePlanType *nl_file_catalog_type(size_t i) {
+    return i<COUNT(types) ? &types[i] : NULL;
+}

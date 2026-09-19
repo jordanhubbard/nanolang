@@ -1,0 +1,42 @@
+{
+  "pin": "f5e07e5bea043265cfc15176fb1804227c363901",
+  "platform": "linux",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j8",
+        "bootstrap"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 251.959,
+      "log_sha256": "8026a4dfb89999f30ea62296464c55911ecc2cf2e7daeca990c2c71f71a1fd42"
+    },
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "test-file-nominal-module",
+        "test-file-nominal",
+        "test-file-nominal-sanitizers",
+        "test-service-module"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "NANO_SERVICE_MODULE_TEST_CC": "/bin/gcc",
+        "NANO_FILE_NOMINAL_CC": "/bin/gcc"
+      },
+      "status": 2,
+      "seconds": 5.492,
+      "log_sha256": "6d61b99ce72eedf1ba607104f9ae251e847cd360589b2b2e45dbefc1b71bbc5a"
+    }
+  ],
+  "terminal": 2,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}
