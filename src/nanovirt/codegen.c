@@ -3633,8 +3633,10 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         if (slot >= 0) {
             Symbol *binding = env_get_var_visible_at(cg->env, node->as.set.name,
                                                      node->line, node->column);
-            compile_expected_tag(cg, node->as.set.value,
-                                 binding && binding->type == TYPE_U8 ? TAG_U8 : TAG_COUNT);
+            if (binding && binding->type == TYPE_U8)
+                compile_expected_tag(cg, node->as.set.value, TAG_U8);
+            else
+                compile_stored_expr(cg, node->as.set.value);
             emit_op(cg, OP_STORE_LOCAL, (int)slot);
         } else {
             int16_t gslot = global_find(cg, node->as.set.name);
