@@ -66,18 +66,62 @@ static void runtime_artifacts(NvmModule *m,const char *dir,unsigned index) {
 static VmResult runtime_api(VmState *vm,unsigned api,NanoValue *out) {
     return api==0?vm_invoke(vm,0,NULL,0,out):api==1?vm_execute(vm):api==2?vm_call_function(vm,0,NULL,0):vm_invoke_callable(vm,val_function(0),NULL,0,out);
 }
+/* I count only the finite fixture graph; a buffer entry is not an owning edge. */
+static bool runtime_root_graph(VmHeap *heap,size_t baseline,bool report) {
+    enum { CAP=256 };
+    VmHeapHeader *nodes[CAP];uint32_t incoming[CAP]={0};unsigned count=0;
+    for(uint32_t n=0;n<heap->cycle_count;n++) {
+        VmHeapHeader *h=heap->cycle_buf[n];if(!h)return false;
+        unsigned at=0;while(at<count && nodes[at]!=h)at++;
+        if(at==count){if(count==CAP)return false;nodes[count++]=h;}
+    }
+    for(unsigned n=0;n<count;n++) {
+        VmHeapHeader *h=nodes[n];
+        if(h->obj_type==TAG_ARRAY) {
+            VmArray *array=(VmArray *)h;
+            if(array->elem_type!=TAG_FLOAT || !array->unboxed || array->elements)
+                return false;
+        } else if(h->obj_type==TAG_STRUCT) {
+            VmStruct *record=(VmStruct *)h;
+            if(record->field_names || (record->field_count && !record->fields))return false;
+            for(uint32_t f=0;f<record->field_count;f++) {
+                NanoValue value=record->fields[f];
+                if(value.tag==TAG_ARRAY || value.tag==TAG_STRUCT) {
+                    VmHeapHeader *child=value.as.obj;if(!child || child->obj_type!=value.tag)return false;
+                    unsigned at=0;while(at<count && nodes[at]!=child)at++;
+                    if(at==count){if(count==CAP)return false;nodes[count++]=child;}
+                    if(incoming[at]==UINT32_MAX)return false;
+                    incoming[at]++;
+                } else if(value.tag!=TAG_VOID && value.tag!=TAG_INT &&
+                          value.tag!=TAG_BOOL && value.tag!=TAG_U8 && value.tag!=TAG_FLOAT)
+                    return false;
+            }
+        } else return false;
+    }
+    if(report)fprintf(stderr,"mixed graph allocated=%zu baseline=%zu nodes=%u buffered=%u\n",
+        (size_t)heap->stats.num_objects,baseline,count,heap->cycle_count);
+    if(baseline>SIZE_MAX-count || heap->stats.num_objects!=baseline+count)return false;
+    bool no_external=true;
+    for(unsigned n=0;n<count;n++) {
+        if(report)fprintf(stderr,"mixed graph node=%u kind=%u refs=%u incoming=%u\n",n,
+            (unsigned)nodes[n]->obj_type,(unsigned)nodes[n]->ref_count,incoming[n]);
+        if(nodes[n]->ref_count!=incoming[n])no_external=false;
+    }
+    return no_external;
+}
 static void runtime_clean(VmState *vm,size_t baseline) {
     CHECK(!vm->stack_size && !vm->frame_count);
     CHECK(!vm->references.active && !vm->callee_references.active);
     for(unsigned f=0;f<NVM_OWNED_MAX_FUNCTIONS-2;f++)CHECK(!vm->value_references[f].active);
-    fprintf(stderr,"mixed cleanup allocated=%zu baseline=%zu buffered=%u\n",
-            (size_t)vm->heap.stats.num_objects,baseline,vm->heap.cycle_count);
-    for(uint32_t n=0;n<vm->heap.cycle_count;n++) {
-        VmHeapHeader *header=vm->heap.cycle_buf[n];
-        CHECK(header);
-        fprintf(stderr,"mixed buffered index=%u kind=%u refs=%u\n",n,
-                (unsigned)header->obj_type,(unsigned)header->ref_count);
-        CHECK(header->ref_count==0);
+    CHECK(runtime_root_graph(&vm->heap,baseline,true));
+    if(vm->heap.cycle_count) {
+        VmHeapHeader *h=vm->heap.cycle_buf[0];
+        NanoValue retained={0};retained.tag=h->obj_type;retained.as.obj=h;
+        CHECK(h->ref_count<UINT32_MAX);
+        vm_retain(&vm->heap,retained);
+        CHECK(!runtime_root_graph(&vm->heap,baseline,false));
+        vm_release(&vm->heap,retained);
+        CHECK(runtime_root_graph(&vm->heap,baseline,false));
     }
     vm_gc_collect_cycles(&vm->heap);
     CHECK(vm->heap.stats.num_objects==baseline);
