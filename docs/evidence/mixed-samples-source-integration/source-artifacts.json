@@ -1,0 +1,70 @@
+{
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/graph-original-samples.nano": {
+    "sha256": "4c40804970eabf7bde89f744546f6f82679ffecf53c4a16884510717cf467836",
+    "bytes": 417
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/graph-shadow.nasm": {
+    "sha256": "b0d9e07295af2451bc298ed1c02c6d00722174f277630f788bbbf88eb5c32c14",
+    "bytes": 1416
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/graph-shadow.nvm": {
+    "sha256": "7f5d85554facc8a6474730bed1792c16c8c98c76dc559b0467699c95f9d20cd4",
+    "bytes": 1108
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/graph.nasm": {
+    "sha256": "6294ee74911d3798d15a58980a95be2f2e38f57d9d9af908db5ea12836ff046a",
+    "bytes": 1131
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/graph.nvm": {
+    "sha256": "860f9f88d9eadc4e5ce0624b836539aec938185bae7f8ae9b1eccb0288578840",
+    "bytes": 960
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/mixed-native": {
+    "sha256": "891f53f8f16e12799625416b27bfee983de3522d5de076222557e1125de4d177",
+    "bytes": 587544
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/mixed-native.c": {
+    "sha256": "a4d232ccbf4c9397e66e81b127a111bb72ff5f296e369066f7c9ea494d763e07",
+    "bytes": 96107
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/nano_virt-graph.nvm": {
+    "sha256": "860f9f88d9eadc4e5ce0624b836539aec938185bae7f8ae9b1eccb0288578840",
+    "bytes": 960
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/nanoc_c-shadows": {
+    "sha256": "1f85a8664e8a65fa9b86d76e17d9925677b20d1bdd1602d827cd606fcacf730b",
+    "bytes": 12948152
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/nanoc_stage1-emit": {
+    "sha256": "70cb60bb8b455f85bec675d74672d52a00ef11b485ed30dc6876f57c632775af",
+    "bytes": 10645576
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/nanoc_stage1-graph.nvm": {
+    "sha256": "860f9f88d9eadc4e5ce0624b836539aec938185bae7f8ae9b1eccb0288578840",
+    "bytes": 960
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/nanoc_stage1-shadows": {
+    "sha256": "5547353211900da6a9fc7f1951e5da20c18eeb8f944312cca8a5b60276b2464d",
+    "bytes": 9432496
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/nanoc_stage2-emit": {
+    "sha256": "fc68ad5dffee06feae0a888b90673ce442e7bdb2ca246833c78117f8529a0aac",
+    "bytes": 10645576
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/nanoc_stage2-graph.nvm": {
+    "sha256": "860f9f88d9eadc4e5ce0624b836539aec938185bae7f8ae9b1eccb0288578840",
+    "bytes": 960
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/nanoc_stage2-shadows": {
+    "sha256": "0a4433820a7c59ee994cf983a81a2015b3c4916f698538ced3c0e33573835e2e",
+    "bytes": 9432496
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/without-names.nasm": {
+    "sha256": "4183b1dfea7c2b5dbf53e9cade87bd2de08da400357be1fce44d75d03c33d13e",
+    "bytes": 1454
+  },
+  "/tmp/nano-mixed-source-final-smoke-mu588mbr/without-names.nvm": {
+    "sha256": "bbabcdf5f09c66275f120b7a49a39e7adbbcf85c1c734c9c2b4fb4fcc5dabec0",
+    "bytes": 920
+  }
+}

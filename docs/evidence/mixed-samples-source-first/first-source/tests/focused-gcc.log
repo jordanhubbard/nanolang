@@ -1,0 +1,23 @@
+test_original_all_shadows_routes_and_equal_metadata (tests.test_source_mixed_samples.SourceMixedSamples.test_original_all_shadows_routes_and_equal_metadata) ... FAIL
+
+======================================================================
+FAIL: test_original_all_shadows_routes_and_equal_metadata (tests.test_source_mixed_samples.SourceMixedSamples.test_original_all_shadows_routes_and_equal_metadata)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-source-integrated/tests/test_source_mixed_samples.py", line 41, in test_original_all_shadows_routes_and_equal_metadata
+    normal,shadow=self.graph_positive('original-samples',text,b'',b'')
+                  ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-source-integrated/tests/test_source_borrow_emission.py", line 1148, in graph_positive
+    self.command(ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mixed-samples-source-integrated/tests/test_source_borrow_emission.py", line 39, in command
+    raise AssertionError(f'{args}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: (PosixPath('/home/jkh/Src/nanolang-mixed-samples-source-integrated/bin/nano_virt'), PosixPath('/tmp/nano-source-borrows-jt14frq6/graph-original-samples.nano'), '--emit-nvm', '-o', PosixPath('/tmp/nano-source-borrows-jt14frq6/nano_virt-graph.nvm')): 1
+
+I could not compile shadows at line 0: I require I refuse mixed admission (status 1) at function 1 offset 6: I have no closed transfer for this opcode. in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=1)

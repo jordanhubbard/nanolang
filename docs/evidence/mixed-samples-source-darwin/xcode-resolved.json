@@ -1,0 +1,19 @@
+{
+  "captured_at": "2026-09-19T04:14:28.528331+00:00",
+  "phase": "after bootstrap, during source regression; additional resolved Xcode inputs, not a before-bootstrap claim",
+  "developer_dir": "/Applications/Xcode.app/Contents/Developer",
+  "tools": {
+    "clang": {
+      "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "sha256": "1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9"
+    },
+    "ld": {
+      "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld",
+      "sha256": "374d9f0713bce2c8a9e1e82bde51615d5433516a10d99b63107eb6ee70542e4c"
+    },
+    "ar": {
+      "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar",
+      "sha256": "85d15bd3999895f659e8a483b17ea9ab44b924c8e0b3026abfe359f2de02cbd7"
+    }
+  }
+}

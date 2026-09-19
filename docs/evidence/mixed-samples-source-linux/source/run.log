@@ -1,0 +1,6 @@
+START focused-gcc
+END {'name': 'focused-gcc', 'CC': '/usr/bin/gcc', 'status': 0, 'testsRun': 4, 'seconds': 129.169, 'post_setup_existing_inputs_unchanged': True, 'added_inputs': {}}
+START focused-clang
+END {'name': 'focused-clang', 'CC': '/tmp/nanolang-projection-clang', 'status': 0, 'testsRun': 4, 'seconds': 84.309, 'post_setup_existing_inputs_unchanged': True, 'added_inputs': {}}
+START old-source-profiles
+END {'name': 'old-source-profiles', 'CC': '/usr/bin/gcc', 'status': 0, 'testsRun': 58, 'seconds': 265.019, 'post_setup_existing_inputs_unchanged': True, 'added_inputs': {}}

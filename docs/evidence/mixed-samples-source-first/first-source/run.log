@@ -1,0 +1,2 @@
+START focused-gcc
+END {'name': 'focused-gcc', 'CC': '/usr/bin/gcc', 'status': 1, 'testsRun': 1, 'seconds': 0.005}

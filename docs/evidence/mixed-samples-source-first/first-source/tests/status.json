@@ -1,0 +1,15 @@
+{
+  "steps": [
+    {
+      "name": "focused-gcc",
+      "CC": "/usr/bin/gcc",
+      "status": 1,
+      "testsRun": 1,
+      "seconds": 0.005
+    }
+  ],
+  "setup_seconds": 176.131,
+  "work": "/tmp/nano-source-borrows-jt14frq6",
+  "producer_identity_unchanged": true,
+  "status": 1
+}
