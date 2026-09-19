@@ -1,0 +1,43 @@
+[
+  {
+    "command": [
+      "make",
+      "-j4",
+      "test-file-code"
+    ],
+    "phase": "normal",
+    "seconds": 4.02,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "test-file-code-sanitizers"
+    ],
+    "phase": "sanitizers",
+    "seconds": 4.676,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "test-file-flow",
+      "test-file-nominal",
+      "test-service-bindings",
+      "test-nanoisa"
+    ],
+    "phase": "adjacent",
+    "seconds": 8.007,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "-j4",
+      "nano_virt"
+    ],
+    "phase": "provider",
+    "seconds": 4.201,
+    "status": 0
+  }
+]
