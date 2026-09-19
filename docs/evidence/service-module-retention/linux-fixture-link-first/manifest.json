@@ -1,0 +1,25 @@
+{
+  "pin": "e8b847d8f72626fda55c98c184658b7e3ed3b56d",
+  "bootstrap_reference": "c34c7324f48522656c27f9cdd84489634634bd81",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "steps": [
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "-j8",
+        "test-service-module"
+      ],
+      "env": {
+        "NANO_SERVICE_MODULE_TEST_CC": "/bin/gcc"
+      },
+      "status": 2,
+      "seconds": 6.677,
+      "log_sha256": "52d4f70fe67f9c03e1c4619e0b3697bb99b25b196718b8e44fa8095238e3378e"
+    }
+  ],
+  "terminal": 2,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

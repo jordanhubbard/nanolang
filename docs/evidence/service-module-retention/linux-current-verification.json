@@ -1,0 +1,84 @@
+{
+  "linux-bootstrap-first": {
+    "bootstrap-generated-tools.json": {
+      "count": 5,
+      "mismatches": []
+    },
+    "tools-after.json": {
+      "count": 9,
+      "mismatches": []
+    },
+    "source-after.json": {
+      "count": 2211,
+      "mismatches": []
+    },
+    "gcc-generated-tools.json": {
+      "count": 5,
+      "mismatches": []
+    }
+  },
+  "linux-fixture-include-first": {
+    "tools-after.json": {
+      "count": 9,
+      "mismatches": []
+    },
+    "source-after.json": {
+      "count": 2211,
+      "mismatches": []
+    },
+    "gcc-generated-tools.json": {
+      "count": 4,
+      "mismatches": []
+    }
+  },
+  "linux-fixture-link-first": {
+    "tools-after.json": {
+      "count": 9,
+      "mismatches": []
+    },
+    "source-after.json": {
+      "count": 2211,
+      "mismatches": []
+    },
+    "gcc-generated-tools.json": {
+      "count": 4,
+      "mismatches": []
+    }
+  },
+  "linux-focused": {
+    "clang-generated-tools.json": {
+      "count": 4,
+      "mismatches": []
+    },
+    "tools-after.json": {
+      "count": 9,
+      "mismatches": []
+    },
+    "source-after.json": {
+      "count": 2211,
+      "mismatches": []
+    },
+    "adjacent-generated-tools.json": {
+      "count": 4,
+      "mismatches": []
+    },
+    "gcc-generated-tools.json": {
+      "count": 4,
+      "mismatches": []
+    }
+  },
+  "linux-adjacent": {
+    "tools-after.json": {
+      "count": 9,
+      "mismatches": []
+    },
+    "source-after.json": {
+      "count": 2211,
+      "mismatches": []
+    },
+    "adjacent-generated-tools.json": {
+      "count": 5,
+      "mismatches": []
+    }
+  }
+}
