@@ -8,6 +8,7 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+#include "service_bindings_module.h"
 #include "verifier.h"
 #include "managed_array_shapes.h"
 #include "managed_record_shapes.h"
@@ -371,6 +372,8 @@ static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affin
     if (owned_admitted) *owned_admitted=false;
     bool admitted=false;
     if (!mod) return fail("module is NULL");
+    if (nvm_service_bindings_present(mod))
+        return fail("I require reviewed service lifetime and dispatch admission before execution");
     if (!mod->code && mod->code_size > 0)
         return fail("code pointer is NULL but code_size=%u", mod->code_size);
 
@@ -505,6 +508,8 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
                                            uint16_t *out_max_stack) {
+    if(nvm_service_bindings_present(mod))
+        return fail("I refuse service contracts before mixed execution selection");
     if(nvm_mixed_samples_candidate(mod)) {
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,fn_idx,out_max_stack);
@@ -1029,6 +1034,8 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
  * ======================================================================== */
 
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
+    if(nvm_service_bindings_present(mod))
+        return fail("I refuse service contracts before mixed execution selection");
     if(nvm_mixed_samples_candidate(mod))return verify_mixed_samples(mod,0,NULL);
     /* I reuse only this invocation's completed full owned-module proof. */
     bool owned_admitted=false;
@@ -1050,6 +1057,11 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
     if (linked_count > 0 && !linked_modules)
         return fail("linked_count %u but linked_modules table is NULL", linked_count);
 
+    for (uint32_t i=0; i<linked_count; i++)
+        if (nvm_service_bindings_present(linked_modules[i]))
+            return fail("I refuse linked service contracts before reviewed dispatch admission");
+    if(nvm_service_bindings_present(mod))
+        return fail("I refuse service contracts before mixed execution selection");
     if(nvm_mixed_samples_candidate(mod)) {
         if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
         return verify_mixed_samples(mod,0,NULL);

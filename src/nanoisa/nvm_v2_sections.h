@@ -277,10 +277,11 @@ NvmV2Result nvm_v2_globals_encode(const NvmV2Globals *g,
 typedef enum {
     NVM_V2_IMPORT_FFI       = 0,
     NVM_V2_IMPORT_COPROCESS = 1,
-    NVM_V2_IMPORT_ARTIFACT  = 2
+    NVM_V2_IMPORT_ARTIFACT  = 2,
+    NVM_V2_IMPORT_SERVICE   = 3
 } NvmV2ImportKind;
 
-#define NVM_V2_IMPORT_KIND_MAX NVM_V2_IMPORT_ARTIFACT
+#define NVM_V2_IMPORT_KIND_MAX NVM_V2_IMPORT_SERVICE
 
 /* A weak link may resolve to nothing. Encoded and validated now; nothing
  * consumes it until the 4.4 capability work. */
@@ -391,6 +392,8 @@ typedef struct {
     uint32_t        ownership_size;
     const uint8_t  *passive_data;   /* aliases source module or decoded buffer */
     uint32_t        passive_size;
+    const uint8_t  *service_data;   /* required catalog bytes, borrowed */
+    uint32_t        service_size;
     bool            has_debug;     /* DEBUG present, even if empty */
 
     /* Signature tag arrays alias the buffer when a module is decoded, so

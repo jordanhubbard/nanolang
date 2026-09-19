@@ -1,0 +1,1 @@
+python3 scripts/nvm2wasm.py /tmp/nano-service-module-8clacz9y/linked.nvm -o /tmp/nano-service-module-8clacz9y/wasm-preserved

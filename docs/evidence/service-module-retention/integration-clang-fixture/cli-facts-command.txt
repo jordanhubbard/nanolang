@@ -1,0 +1,1 @@
+/home/jkh/Src/nanolang-service-module-integrated-corrected/bin/nanoisa_hl_facts /tmp/nano-service-module-8clacz9y/linked.nvm

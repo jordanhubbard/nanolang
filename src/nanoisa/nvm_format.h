@@ -161,7 +161,8 @@ bool nvm_callback_shape_valid(const uint8_t *tags, uint16_t count, uint8_t resul
 typedef enum {
     NVM_IMPORT_FFI = 0,
     NVM_IMPORT_COPROCESS = 1,
-    NVM_IMPORT_ARTIFACT = 2
+    NVM_IMPORT_ARTIFACT = 2,
+    NVM_IMPORT_SERVICE = 3
 } NvmImportKind;
 
 typedef struct {
@@ -244,6 +245,10 @@ typedef struct {
     /* Owned canonical v2 LAYOUTS bytes; indices and names remain exact. */
     uint8_t *layout_data;
     uint32_t layout_size;
+
+    /* Owned required service catalog bytes; never generic FFI authority. */
+    uint8_t *service_data;
+    uint32_t service_size;
 
     /* Owned canonical passive-eligibility payload; absent means no claim. */
     uint8_t *passive_data;

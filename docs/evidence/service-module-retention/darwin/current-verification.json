@@ -1,0 +1,20 @@
+{
+  "source-after.json": {
+    "count": 2211,
+    "mismatches": []
+  },
+  "tools-after.json": {
+    "count": 10,
+    "mismatches": []
+  },
+  "darwin-generated-tools.json": {
+    "count": 4,
+    "mismatches": [
+      "bin/nvm2llvm"
+    ]
+  },
+  "adjacent-generated-tools.json": {
+    "count": 7,
+    "mismatches": []
+  }
+}

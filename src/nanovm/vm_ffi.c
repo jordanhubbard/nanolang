@@ -8,6 +8,7 @@
 
 /* usleep(), kill(), fork(), pipe(), exec*() need _GNU_SOURCE */
 
+#include "../nanoisa/service_bindings_module.h"
 #include "vm_ffi.h"
 #include "vm_ffi_arrays.h"
 #include "module_builder.h"
@@ -41,6 +42,7 @@ void vm_ffi_shutdown(void) {
 }
 
 bool vm_ffi_load_import(const NvmModule *module, uint32_t import_idx) {
+    if (nvm_service_bindings_present(module)) return false;
     if (!module || import_idx >= module->import_count) return false;
     const NvmImportEntry *imp = &module->imports[import_idx];
     const char *name = nvm_get_string(module, imp->module_name_idx);
@@ -607,6 +609,7 @@ static ffi_type *callback_native_type(uint8_t tag) {
 bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
                     NanoValue *args, int arg_count, NanoValue *result,
                     char *error_msg, size_t error_msg_size) {
+    if (nvm_service_bindings_present(module)) return false;
     if (!vm || !pthread_equal(vm->owner_thread, pthread_self())) return false;
     if (!module || !result) {
         snprintf(error_msg, error_msg_size, "I require a module and result storage for native dispatch");
@@ -792,6 +795,7 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *args, int arg_count,
                  NanoValue *result, VmHeap *heap,
                  char *error_msg, size_t error_msg_size) {
+    if (nvm_service_bindings_present(module)) return false;
     if (callback_contract_pending(module, import_idx, error_msg, error_msg_size)) return false;
     if (!ffi_loader_is_initialized()) vm_ffi_init();
 
@@ -1075,6 +1079,7 @@ ffi_array_failure:
  * ======================================================================== */
 
 bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
+    if (nvm_service_bindings_present(module)) return false;
     if (vm->cop_pid > 0) return true;
 
     /* Create the shared-memory mailbox — inherited across fork() */
@@ -1236,6 +1241,7 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                      NanoValue *args, int arg_count,
                      NanoValue *result, VmHeap *heap,
                      char *error_msg, size_t error_msg_size) {
+    if (nvm_service_bindings_present(module)) return false;
     if (arg_count < 0 || arg_count > NANO_MAX_FFI_ARGS || (!args && arg_count) || !result) {
         snprintf(error_msg, error_msg_size, "I require a valid isolated argument count and result");
         return false;
@@ -1407,6 +1413,7 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
                            const CopBatchCall *calls, int count,
                            NanoValue *results, VmHeap *heap,
                            char *error_msg, size_t error_msg_size) {
+    if (nvm_service_bindings_present(module)) return false;
     if (count < 0) {
         snprintf(error_msg, error_msg_size, "COP: negative batch count");
         return false;
