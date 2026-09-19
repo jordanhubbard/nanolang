@@ -210,9 +210,9 @@ I64/BOOL operations (and only generic EQ/NE comparisons). No rejected module was
 executed to establish this; the source and query opcode tables are explicit.
 
 Only inside the distinct owner-ARRAY profile, I select I64_ADD/SUB/MUL/DIV_S/REM_S,
-I64_NEG and the six signed integer comparison instructions for exact INT source
-operands; BOOL_AND/OR/NOT for exact BOOL operands; and existing generic EQ/NE for
-BOOL equality. FLOAT operations keep their existing F64 instructions and complete
+I64_NEG and signed I64 ordering comparisons for exact INT source operands;
+BOOL_AND/OR/NOT for exact BOOL operands; and existing generic EQ/NE for INT/BOOL
+equality. FLOAT operations keep their existing F64 instructions and complete
 FLOAT|VOID obligations. Range comparisons and increments use I64_LT_S/I64_ADD.
 I do not change non-owner-ARRAY opcode selection or admit new runtime instructions.
 

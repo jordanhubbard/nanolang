@@ -11702,3 +11702,15 @@ requires owner-ARRAY-only exact INT/BOOL selection, unchanged integer boundary
 semantics, existing F64 obligations and typed range compare/increment. Existing
 profiles remain unchanged; unsupported BOOL ordering and STRING operations in
 the new profile remain checked refusals. I claim no runtime defect or execution.
+
+I prepare source18731's paired production checkpoint against reviewed activation
+API16c1655fc, without building or executing it. The two producers retain a
+separate owner-ARRAY fact, exact field/local descriptors, ordered hidden roots,
+full direct patterns, root-backed nested observations, and owner-array-only
+I64/BOOL instruction selection; generic INT/BOOL EQ/NE remains unchanged. C
+publication checks service presence first, then the public verifier and explicit
+SELECTED/fresh complete admit. New mandatory shadows cover category separation,
+observations, opcode mapping and complete original-style close/main shadows.
+This branch depends on the activation header/provider reaching the qualified
+integration base. The current static checkpoint is not executable acceptance;
+full production review and qualified activation precede bootstrap/source gates.
