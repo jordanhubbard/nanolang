@@ -51,3 +51,45 @@ under /tmp/nanolang-code-publication-linux and, on puck,
 
 Taskd34 awaits actual canonical review/merge. I grant no hosted File execution,
 new profile admission or parent/release completion through this converter repair.
+
+
+## I check the combined private hosted query
+
+I integrate canonical853 (1e64676e1) into ready b84f95c70 and qualify fresh
+separate trees. My eleven non-Make selected inputs remain identical to36711;
+canonical File header dependencies and test targets are additive. I preserve the
+original qualified36711 and private hosted9ab trees and reports.
+
+| Combined phase | Linux seconds | puck seconds |
+| --- | ---: | ---: |
+| Hosted ordinary |4.425|3.955|
+| Hosted sanitizer |14.248|9.133|
+| Nonexecuting conversion |0.415|0.587|
+| C-seed module compile/run |7.831/0.004|6.738/0.283|
+| Native wrapper compile/run |0.214/0.004|0.488/0.329|
+
+All seven phases per host pass after fresh provider/C-seed/NanoVirt setup. Each
+hosted configuration reports597901 instrumented and2518 linked checks:435
+transient refusals, zero complete recovered plans,55 precise MEMORY and380
+ambiguous UNRESOLVED allocation prefixes. This is the unchanged hosted fixture
+with corrected shared CODE publication, not a weakened recovery expectation.
+Conversion again reports28856 nonexecuting checks. Module and wrapper smoke
+execute their ordinary programs; no File handler or representation-failure CODE
+executes. I do not repeat a self-host bootstrap for this converter-local change.
+
+My [combined Linux seal](nvm-v2-code-publication-combined-linux.json) records392
+files,7274 tracked sources and159 prepared providers/CLIs/tools. My
+[combined puck seal](nvm-v2-code-publication-combined-darwin.json) records453
+files,7274 sources and217 prepared providers/CLIs/compiler/configuration/sanitizer
+files. Both have19 selected inputs. Every phase checks the exact prepared file
+set before and after; module cache outputs are new artifacts, not prepared
+providers. Actual module/wrapper outputs and hosted temporary artifacts are
+retained. Sources match before setup, before gates and after. Linux uses GCC
+ordinary and Clang18 sanitizer; puck uses Apple ordinary and Homebrew LLVM
+sanitizer. Hosted fixtures rebuild the thirteen allocating provider units with
+sanitizers and allocation interposition where selected; remaining linked units
+are ordinary. Leak detection stays enabled. Each phase has its own600-second
+TERM/KILL bound. The Linux outer1800-second bound also returns0.
+
+These combined reports are separate from my first seals. I retain all original
+acceptance, and taskd34 still awaits actual canonical merge.

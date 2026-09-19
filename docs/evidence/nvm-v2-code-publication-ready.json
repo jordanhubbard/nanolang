@@ -1,10 +1,10 @@
 {
-  "canonical": "8ddba93efe2a888e21c9ab484f60fabea51d02be",
-  "integration": "5b953b98b67d48101ebadc10f26e5a5b15f27bc1",
+  "canonical": "1e64676e16761936facc0c63da825257124a8184",
+  "integration": "b84f95c7012519fa3083dd80176a17511d1c3da7",
   "inputs": {
     "Makefile.gnu": {
       "qualified": "4e8cf81e160299104f02b7776370dcdc49876bd3a1d77c97c7a08fc3038e5a2c",
-      "ready": "dd772ff9b54d7a3c5f7dab465f40f89bd3c9999369961f56d9e2677ba5fb5f98",
+      "ready": "d073b8f36fcdb75f81b6540cdef4353d646afce5afd4daa4d4f1892907e7163d",
       "equal": false
     },
     "src/nanoisa/nvm_v2_convert.c": {
@@ -63,5 +63,7 @@
       "equal": true
     }
   },
-  "scope": "I integrate canonical reconstructed carry850 after qualification. All eleven non-Make selected inputs are identical; Make changes only canonical reconstruction test membership. Qualified Linux and Darwin trees are pinned36711 with their prepared providers; no unrelated runtime rerun follows."
+  "scope": "I integrate canonical private hosted query853 after reconstruction850. All eleven non-Make selected inputs remain identical to36711. Additive File provider dependencies/targets are canonical. Separate combined Linux and puck trees qualify hosted ordinary/sanitizer, conversion, module and wrapper closure; original qualified trees remain intact.",
+  "prior_integration": "5b953b98b67d48101ebadc10f26e5a5b15f27bc1",
+  "prior_canonical": "8ddba93efe2a888e21c9ab484f60fabea51d02be"
 }
