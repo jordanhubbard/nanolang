@@ -24,7 +24,7 @@ static bool runtime_emit(const NvmModule *m,char **out,char *error,size_t size) 
     char *source=nvm2c_emit(m,error,size);if(!source)return false;*out=source;return true;
 }
 static bool runtime_failure_value(NanoValue value) {
-    return public_api==0?value.tag==TAG_VOID:value.tag==TAG_INT && value.as.i64==-91;
+    return (public_api==0 || public_api==3)?value.tag==TAG_VOID:value.tag==TAG_INT && value.as.i64==-91;
 }
 #else
 #define runtime_entry vm_execute_owned_array_private
