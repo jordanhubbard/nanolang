@@ -11642,3 +11642,11 @@ compiler guards remain unchanged. The97.103s terminal and equal source/host-tool
 maps remain in `/tmp/nanolang-mutation-identity-54ea-focused`. I rerun only the
 affected unbound control plus previously unrun adjacency after correction;
 I do not repeat the unchanged successful bootstrap or checker-driver matrix.
+
+I preserve13d1's first evidence-packaging terminal separately: an invented
+minimum of41 retained files failed before archive/manifest publication. Actual
+retained artifacts total38 across five directories; successful fixture statuses
+are unchanged. I preserve the partial report copy and failed runner, then require
+the five directories and exact38-file inventory before publishing the corrected
+seal. I do not repeat passing execution. My MAC description update remains
+pending because the existing hub credential lacks task-update scope.
