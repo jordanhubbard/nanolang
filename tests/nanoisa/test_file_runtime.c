@@ -22,7 +22,8 @@ int g_argc;char **g_argv;
 #define NS NVM_FILE_RUNTIME_NO_SLOT
 static unsigned open_attempts,opened,closed,io_attempts,loader_attempts,fork_attempts;
 static FILE *streams[128];
-static bool deny_open,deny_seek;
+static bool deny_open,deny_seek,model_read_error,model_write_error;
+static FILE *modeled_error_stream;
 static int close_error[4];static unsigned close_index;
 static NvmFileRuntime *reenter;
 static unsigned reentries;
@@ -48,8 +49,17 @@ int file_runtime_fclose(FILE *f){
  /* I really close the stream, then model failure reporting. */
  if(injected){errno=injected;return EOF;}errno=saved;return rc;
 }
-size_t file_runtime_fread(void *p,size_t n,size_t count,FILE *f){io_attempts++;nested_entry();return fread(p,n,count,f);}
-size_t file_runtime_fwrite(const void *p,size_t n,size_t count,FILE *f){io_attempts++;nested_entry();return fwrite(p,n,count,f);}
+size_t file_runtime_fread(void *p,size_t n,size_t count,FILE *f){
+ io_attempts++;nested_entry();size_t done=fread(p,n,count,f);
+ if(model_read_error){CHECK(n==1 && count==1 && done==1);modeled_error_stream=f;errno=EIO;}
+ return done;
+}
+size_t file_runtime_fwrite(const void *p,size_t n,size_t count,FILE *f){
+ io_attempts++;nested_entry();size_t done=fwrite(p,n,count,f);
+ if(model_write_error){CHECK(n==1 && count==1 && done==1);modeled_error_stream=f;errno=ENOSPC;}
+ return done;
+}
+int file_runtime_ferror(FILE *f){return f==modeled_error_stream?1:ferror(f);}
 int file_runtime_fseek(FILE *f,long off,int whence){io_attempts++;nested_entry();if(deny_seek){errno=ESPIPE;return -1;}return fseek(f,off,whence);}
 bool file_runtime_loader_init(bool verbose){(void)verbose;loader_attempts++;return false;}
 bool file_runtime_loader_open(const char *name,const char *path){(void)name;(void)path;loader_attempts++;return false;}
@@ -218,6 +228,36 @@ static void public_refusal(void){
  CHECK(loader_attempts==loads+2 && fork_attempts==forks+1);
 }
 #ifdef HOSTED_INSTRUMENT
+static void progress_error_payload(NvmFileRuntime *c,NvmFileNominalBindings b,uint32_t result,int error){
+ arm(c,result,NVM_FILE_FLOW_ARM_ERROR);NvmFileRuntimeView v=view(c,result);
+ const int64_t expected[]={NL_FILE_IO,error,0,1,0,0,0};
+ CHECK(v.fields==7);for(unsigned i=0;i<7;i++)CHECK(v.values[i]==expected[i]);
+ ROK(nvm_file_runtime_take(c,result,NVM_FILE_FLOW_ARM_ERROR,4));v=view(c,4);
+ CHECK(v.type.global_index==b.layouts[1] && v.type.catalog_ordinal==1 && v.fields==7 && !v.owning);
+ for(unsigned i=0;i<7;i++)CHECK(v.values[i]==expected[i]);ROK(nvm_file_runtime_drop(c,4));
+ CHECK(view(c,1).initialized && view(c,1).owning && view(c,1).type.global_index==b.layouts[0]);
+}
+static void modeled_progress_errors(void){
+ /* I perform the complete one-byte request, then model an error report with
+  * progress. This does not claim an actual short transfer or device failure. */
+ for(unsigned mode=0;mode<2;mode++){
+  NvmFileNominalBindings b;NvmFileRuntime *c=context(&b,(NvmFileRuntimeMode)mode,mode!=0,false,true);
+  file(c,b,1);ROK(nvm_file_runtime_region_begin(c));ROK(nvm_file_runtime_borrow(c,1,0));
+  scalar(c,2,173);model_write_error=true;
+  ROK(nvm_file_runtime_service(c,b.imports[1],0,2,3));model_write_error=false;modeled_error_stream=NULL;
+  CHECK(!view(c,2).initialized);progress_error_payload(c,b,3,ENOSPC);
+  ROK(nvm_file_runtime_service(c,b.imports[2],0,NS,3));arm(c,3,NVM_FILE_FLOW_ARM_OK);ROK(nvm_file_runtime_drop(c,3));
+  model_read_error=true;ROK(nvm_file_runtime_service(c,b.imports[3],0,NS,3));model_read_error=false;modeled_error_stream=NULL;
+  progress_error_payload(c,b,3,EIO);
+  ROK(nvm_file_runtime_service(c,b.imports[2],0,NS,3));arm(c,3,NVM_FILE_FLOW_ARM_OK);ROK(nvm_file_runtime_drop(c,3));
+  scalar(c,2,251);ROK(nvm_file_runtime_service(c,b.imports[1],0,2,3));arm(c,3,NVM_FILE_FLOW_ARM_OK);ROK(nvm_file_runtime_drop(c,3));
+  ROK(nvm_file_runtime_service(c,b.imports[2],0,NS,3));ROK(nvm_file_runtime_drop(c,3));
+  ROK(nvm_file_runtime_service(c,b.imports[3],0,NS,3));ROK(nvm_file_runtime_take(c,3,NVM_FILE_FLOW_ARM_OK,4));
+  CHECK(view(c,4).values[0]==251 && !view(c,4).values[1]);ROK(nvm_file_runtime_drop(c,4));
+  ROK(nvm_file_runtime_end_reference(c,0));ROK(nvm_file_runtime_region_end(c));
+  ROK(nvm_file_runtime_service(c,b.imports[4],NS,1,3));arm(c,3,NVM_FILE_FLOW_ARM_OK);ROK(nvm_file_runtime_drop(c,3));finish_ok(&c,251);
+ }
+}
 static void faults(void){
  NvmFileNominalBindings b;NvmFileRuntime *c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);
  deny_open=true;unsigned before=open_attempts,success=opened;ROK(nvm_file_runtime_service(c,b.imports[0],NS,NS,0));deny_open=false;
@@ -293,7 +333,7 @@ int main(void){
  FILE *sentinel=tmpfile();CHECK(sentinel);int sentinel_fd=fileno(sentinel);CHECK(sentinel_fd>=0);
  carrier_lifecycle();passive();invalid_and_partial();invalid_passive();scalar_and_limits();initializer();public_refusal();
 #ifdef HOSTED_INSTRUMENT
- faults();allocation_controls();CHECK(!tracked_live && !tracked_bytes);
+ modeled_progress_errors();faults();allocation_controls();CHECK(!tracked_live && !tracked_bytes);
 #endif
  empty_host();CHECK(fcntl(sentinel_fd,F_GETFD)>=0);CHECK(fclose(sentinel)==0);printf("PASS %u manual private File carrier checks; %u acquisition attempts, %u real opens, %u real closes; no File CODE/frame dispatch\n",checks,open_attempts,opened,closed);return 0;
 }

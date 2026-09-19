@@ -352,3 +352,14 @@ finish/destroy refusal, clean-only scalar publication, first and secondary
 cleanup errors, and no attempted host acquisition before readiness.
 I retain the earlier hosted test unchanged except for an optional main-name
 macro used to share its checked module builders and allocation tracker.
+
+I supplement the instrumented carrier gate with real one-byte reads/writes
+followed by modeled `ferror` and saved `errno`. I assert all seven Error fields
+(status, host errno, cleanup errno, bytes, EOF, consumed, cleanup failure),
+the exact FileError identity after taking the Result, and retained-owner reuse
+after rewind in both arena modes. This is progress-plus-error reporting, not
+a claim that a real device failed or a one-byte request transferred short.
+The linked mode's zero service counters are not host-attempt observations;
+real FD closure observations belong to the instrumented mode. My direct
+`fr_add` limit/overflow controls are unit arithmetic checks, not an actual
+64MiB-refusing serialized runtime creation.
