@@ -50,7 +50,7 @@ synthetic Git snapshot metadata for schema drift checks; its source hashes equal
 the canonical c31 source snapshot. The synthetic commit is separately recorded
 and is not canonical ancestry. No Stage1/2 bootstrap or release gate is claimed.
 
-My [manifest](file-code-preparation/report-sha256.json) seals69 reports. The
+My [manifest](file-code-preparation/report-sha256.json) seals65 text reports. The
 [artifact index](file-code-preparation/artifact-index.json) retains2263 entries
 and350 unique files under `/tmp/nanolang-file-code-preparation-artifacts`, including
 actual linked/sanitizer fixtures and each provider/module/wrapper phase. My
