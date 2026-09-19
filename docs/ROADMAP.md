@@ -11366,10 +11366,10 @@ I integrate private composition1bf5 with main5d660625 atb8cc31f7, preserving pri
 
 I reconcile only private composition1bf5 from actual canonical PR812 merge b7040dcdf061b58700aef7ffbb7315217b415c6a. Its final39-report seals and private query results remain recorded above; the earlier pending-closure statements describe their qualification checkpoints. The report still grants no executable authority.
 
-- [ ] I qualify closed Samples ordinary managed values alongside owners in VM/native execution (`task_78c9ce49bf93416da6d426b05a14929b`, parent4be). My [runtime preimplementation contract](NANOISA_MIXED_SAMPLES_RUNTIME.md) requires a fresh complete conjunction, original descriptor/state identities, checked FLOAT-or-VOID operands, ordinary roots and exact native carrier cleanup. I preserve qualified STRING/reference paths and linked/LLVM/Wasm refusals; source admission and owner-shell ARRAY430220 remain separate. I hold production and fixtures for review.
+- [x] I qualify closed Samples ordinary managed values alongside owners in VM/native execution (`task_78c9ce49bf93416da6d426b05a14929b`, parent4be). My [runtime preimplementation contract](NANOISA_MIXED_SAMPLES_RUNTIME.md) requires a fresh complete conjunction, original descriptor/state identities, checked FLOAT-or-VOID operands, ordinary roots and exact native carrier cleanup. I preserve qualified STRING/reference paths and linked/LLVM/Wasm refusals; source admission and owner-shell ARRAY430220 remain separate. I hold production and fixtures for review.
 I integrate793523 with canonical9821e390 in isolatedc54af77e, preserving the earlier qualified source tree/tools and byte-identical producers. GCC13.412seconds and Clang15.987seconds frozen runtime gates pass, including new112,454-check private mixed Samples composition plus STRING, nested, reference and binary64 controls. My [integration seal](evidence/owned-string-fields-integrated.json) retains all six passing phases and unchanged source/tool maps. Static first-proof rejection preserves private composed STRING-owner exclusion; no separately executed composed-STRING control is claimed. Darwin source acceptance keeps793523 open after this bounded Linux implementation.
 
-- [ ] I embed the qualified managed runtime as exact standalone generated C (`task_24c910eb904a4154bf252bc8dd3cdabb`, parent78c9). My [embedding contract](NANOISA_MIXED_SAMPLES_RUNTIME.md#my-standalone-native-runtime-embedding-prerequisite) preserves source bytes except two checked local includes, hashes/regeneration dependencies and existing parser guards. No bytecode or backend admission follows; strict C11/link/lifetime qualification remains after source review.
+- [x] I embed the qualified managed runtime as exact standalone generated C (`task_24c910eb904a4154bf252bc8dd3cdabb`, parent78c9). My [embedding contract](NANOISA_MIXED_SAMPLES_RUNTIME.md#my-standalone-native-runtime-embedding-prerequisite) preserves source bytes except two checked local includes, hashes/regeneration dependencies and existing parser guards. No bytecode or backend admission follows; strict C11/link/lifetime qualification remains after source review.
 
 - [ ] I exercise every embedded arithmetic provider in my standalone C harness (`task_a522629205b440f28204162fba9d3960`, parent24c910). First207ebfe3 passes byte/hash/regeneration and GCC O0/O2, while Clang O0/O2 rejects unused sub/mul/div helpers because the fixture exercises only add. I retain `/tmp/nanolang-managed-native-embedding-207ebfe3` and add exact arithmetic assertions without changing production or strict warning flags; a corrected frozen qualification remains required.
 
@@ -11377,15 +11377,15 @@ My corrected embedding fixturefe321533 passes all three methods and four GCC/Cla
 
 I record the approved 03338b2fc fixture migration under runtime child78c9 before editing tests: only complete Samples general/function/max-stack/zero-link expectations become positive; private runtime_admitted=false and owned-only/closed/linked/unsupported refusals remain. Fresh VM/native lifecycle and allocation qualification is pending; source producers remain held.
 
-- [ ] I correct mixed native emission's misleading indentation (`task_0b47e5c21f5a48589809f4065006d7eb`) before runtime qualification. My frozen1e98283f0 build exited2 after6.981seconds at nvm2c_owned.h330; no query or module ran. I preserve the first terminal and inventories, separate the unconditional break without semantic change, and require review before the corrected gate.
+- [x] I correct mixed native emission's misleading indentation (`task_0b47e5c21f5a48589809f4065006d7eb`) before runtime qualification. My frozen1e98283f0 build exited2 after6.981seconds at nvm2c_owned.h330; no query or module ran. I preserve the first terminal and inventories, separate the unconditional break without semantic change, and require review before the corrected gate.
 
-- [ ] I distinguish buffered zero-reference VM allocations from retained mixed roots (`task_9c4df6ddf6534a338a81ae36ceb27ee8`). My frozen d6aad596d build and112482/339 query checks pass, but the first runtime heap-count assertion stops qualification. I preserve the terminal, inspect buffer refcounts before any collection, and require exact baseline before destruction; no product leak or fixture correction is claimed until measured.
+- [x] I distinguish buffered zero-reference VM allocations from retained mixed roots (`task_9c4df6ddf6534a338a81ae36ceb27ee8`). My frozen d6aad596d build and112482/339 query checks pass, but the first runtime heap-count assertion stops qualification. I preserve the terminal, inspect buffer refcounts before any collection, and require exact baseline before destruction; no product leak or fixture correction is claimed until measured.
 
 I retain the second9c4 accounting terminal at5ab080edb: the strict check measures a zero-ref STRUCT with a still-referenced ARRAY child before collection. I require reviewed closed-graph internal-edge accounting and exact allocation coverage to distinguish deferred child references from live external roots; no production defect or passing runtime gate is claimed.
 
 I extend0b47 with the separately preserved7937fc15b native terminal: all nine generated programs fail strict compilation at the same one-line cleanup footer; no native execution occurs. My VM1274 and private112482/339 checks remain passing evidence. I separate emitted cleanup statements without semantics changes and use fail-fast qualification before a reviewed fresh gate.
 
-- [ ] I correct the new repeated-site loop fixture's opcode (`task_8f91de6457894ca98eac69ecf44b1ebe`): c9e4289f1 uses generic ADD outside my documented closed transfer inventory. I preserve its1.768second checked refusal before execution and use existing exact I64_ADD, with no production/profile expansion.
+- [x] I correct the new repeated-site loop fixture's opcode (`task_8f91de6457894ca98eac69ecf44b1ebe`): c9e4289f1 uses generic ADD outside my documented closed transfer inventory. I preserve its1.768second checked refusal before execution and use existing exact I64_ADD, with no production/profile expansion.
 
 My runtime child78c9 has a [bounded Linux seal](evidence/mixed-samples-runtime.md):
 corrected12-case GCC/Clang native sanitizer/allocation gates, VM2006, heap13358,
@@ -11425,4 +11425,19 @@ adjacency pass; my [integration seal](evidence/mixed-samples-runtime-integration
 retains source/tool/object identities. Service-required refusal is not yet
 canonical and must remain ahead of mixed admission when separately integrated.
 
-- [ ] I correct integration evidence packaging (`task_6f81cf41f8854642bf8a5ed18666d748`). At81d1c1f58 my seal wrongly requires whole object-map equality, while allocation fixtures add exactly two new hook objects. Existing sources/tools/objects remain identical and all gates pass; I preserve partial81d evidence, correct the prose and require subset equality plus explicit added-object hashes before publishing a complete manifest. No execution is repeated.
+- [x] I correct integration evidence packaging (`task_6f81cf41f8854642bf8a5ed18666d748`). At81d1c1f58 my seal wrongly requires whole object-map equality, while allocation fixtures add exactly two new hook objects. Existing sources/tools/objects remain identical and all gates pass; I preserve partial81d evidence, correct the prose and require subset equality plus explicit added-object hashes before publishing a complete manifest. No execution is repeated.
+
+I reconcile only runtime78c9, embedding24c910, formatting0b47, root-accounting9c4,
+loop-fixture8f91 and packaging6f81 from actual PR819 canonical merge
+d0de3d23a730c66531f2ed2c5d972215302ebe19 through the ancestry/evidence helper.
+Their Linux/runtime acceptances are sealed; earlier pending statements remain
+historical. Fixturea522 stays open for its explicitly unmeasured Darwin otool
+branch. Parent4be, source admission, owner ARRAY430220 and full release stay open.
+
+- [ ] I lower exact ordinary Samples/flat FLOAT-array locals alongside owners in
+  both source producers (`task_e64a2673b2b344b487746458d4d1e6ac`, parent4be), after
+  runtime819. My [paired source contract](NANOISA_MIXED_SAMPLES_SOURCE.md) keeps
+  the unchanged full PREFIX, all selected shadows, original nominal identities,
+  separate owner/ordinary facts, fresh complete runtime admission and all four
+  C-seed/Stage1/Stage2/NanoVirt routes. This is contract-only pending review; no
+  source producer or owner ARRAY-field widening has been implemented.
