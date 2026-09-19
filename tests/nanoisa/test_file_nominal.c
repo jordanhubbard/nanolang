@@ -111,8 +111,8 @@ static void query(bool permutation){
  CHECK(!nvm_file_nominal_source(plan,NVM_V2_LAYOUT_STRUCT,99,&row));uint32_t index=99;CHECK(!nvm_file_nominal_import(plan,5,&index) && index==99);
  CHECK(!nvm_file_nominal_layout(NULL,0,&row));CHECK(!nvm_file_nominal_layout(plan,0,NULL));CHECK(nvm_file_nominal_layout_count(NULL)==0);
  bool needs=true;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);NvmLayoutAuthority authority=NVM_LAYOUT_AUTHORITY_UNKNOWN;CHECK(nvm_ownership_layout_authority(m,b.layouts[0],&authority)!=NVM_V2_OK && authority==NVM_LAYOUT_AUTHORITY_UNKNOWN);
- CHECK(!nvm_verify(m).ok);char error[256];CHECK(nvm2c_emit(m,error,sizeof error)==NULL);CHECK(nvm_service_bindings_validate(m)!=NVM_V2_OK);
- NvmV2Module bridge={0};CHECK(nvm_v2_from_nvm_module(m,&bridge)!=NVM_V2_OK);nvm_v2_module_free(&bridge);
+ CHECK(!nvm_verify(m).ok);char error[256];CHECK(nvm2c_emit(m,error,sizeof error)==NULL);CHECK(nvm_service_bindings_validate(m)==NVM_V2_OK);
+ NvmV2Module bridge={0};CHECK(nvm_v2_from_nvm_module(m,&bridge)==NVM_V2_OK);CHECK(bridge.service_data==m->service_data && bridge.ownership_data==m->ownership_data);CHECK(nvm_v2_service_bindings_validate(&bridge)==NVM_V2_OK);NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&bridge,&copy)==NVM_V2_OK && copy && copy->service_data!=m->service_data && copy->ownership_data!=m->ownership_data);CHECK(copy->ownership_size==m->ownership_size && !memcmp(copy->ownership_data,m->ownership_data,m->ownership_size));nvm_module_free(copy);nvm_v2_module_free(&bridge);
  uint8_t *service=m->service_data;uint32_t service_size=m->service_size;m->service_data=NULL;m->service_size=0;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);m->service_data=service;m->service_size=service_size;
  for(uint32_t i=0;i<m->ownership_size;i++){m->ownership_data[i]^=0x80;reject(m);m->ownership_data[i]^=0x80;}
  for(uint32_t i=0;i<m->layout_size;i++){m->layout_data[i]^=0x80;reject(m);m->layout_data[i]^=0x80;}

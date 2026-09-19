@@ -247,3 +247,13 @@ compile those same sources directly; assertions are migrated only after source
 review. No host grant, source generation, per-arm refinement or execution selector
 is added. The new attach API stages exact v2 bytes, validates all candidate facts,
 preserves every module field on failure and retains identical reattachment.
+
+My combined fixture freeze migrates only version-aware metadata/bridge negatives
+into positive exact-byte/map and borrowed/deep-copy lifetime controls. The new
+module fixture covers direct NvmV2 table faults, required bits1/7/8/9, service /
+ownership section corruption, attach idempotence/conflict/atomicity, all selected
+consumer/CLI output refusals and unchanged loader state. Allocation prefixes
+cover new adapter and private query plus retained-layout helpers and both bridge
+directions, with recovery and sanitizer cleanup. I run old v1 transport and mixed
+boundary controls separately. The inherited private fixture/gates remain sealed
+in their original tree. No valid service program is executed by these controls.
