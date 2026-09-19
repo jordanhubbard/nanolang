@@ -36,11 +36,12 @@ static int oa_fprintf(FILE *out,const char *format,...){va_list a;va_start(a,for
 static void run(size_t fault){
  oa_output=tmpfile();assert(oa_output);oa_printed=0;oa_attempts=oa_hits=0;oa_fail=fault;
  int64_t value=-91;int status=nvm_owned_entry(&value);oa_fail=0;
+ fprintf(stderr,"private native observed fault=%zu allocations=%zu hits=%zu status=%d value=%lld live=%zu\n",fault,oa_attempts,oa_hits,status,(long long)value,oa_live);
  assert(!oa_live);assert(!fflush(oa_output));long bytes=ftell(oa_output);rewind(oa_output);
  if(oa_printed){assert(bytes==2);assert(fgetc(oa_output)=='7' && fgetc(oa_output)=='\n');}else assert(bytes==0);
  assert(!fclose(oa_output));oa_output=NULL;
- if(oa_hits){assert(oa_hits==1 && status==1 && value==-91);}else{assert(status==WANTED && value==VALUE && oa_printed);}
  fprintf(stderr,"private native fault=%zu allocations=%zu hits=%zu status=%d prefix=%ld live=%zu\n",fault,oa_attempts,oa_hits,status,bytes,oa_live);
+ if(oa_hits){assert(oa_hits==1 && status==1 && value==-91);}else{assert(status==WANTED && value==VALUE && oa_printed);}
 }
 int main(void){
  nown_string *s=nown_string_new((const unsigned char *)"held",4);assert(s);s->refs=SIZE_MAX;

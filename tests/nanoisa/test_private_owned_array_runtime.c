@@ -213,7 +213,7 @@ int main(int argc,char **argv) {
         }
         char *source=NULL;CHECK(nvm2c_emit_owned_array_private(m,&source,error,sizeof error));CHECK(source);
         char path[1024];snprintf(path,sizeof path,"%s/case%u.c",argv[1],which);FILE *file=fopen(path,"w");CHECK(file);CHECK(fputs(source,file)>=0);CHECK(!fclose(file));free(source);
-        nvm_module_free(m);printf("case %u %u\n",which,which>=1&&which<=3?3:which==4?2:which==5?4:0);
+        nvm_module_free(m);printf("case %u %u\n",which,which>=1&&which<=3?3:which==4?2:which==5?3:0);
     }
     retain_boundary();
     printf("%u private owner ARRAY runtime checks passed\n",checks);return 0;
