@@ -30,6 +30,8 @@ class AffineContractBoundaries(unittest.TestCase):
         positives = sum(accepted for _, _, accepted in cases)
         if positives != EXPECTED_POSITIVE_COUNT:
             raise AssertionError(f"expected {EXPECTED_POSITIVE_COUNT} affine positives, found {positives}")
+        if len(PUBLIC_C_PROFILE_REFUSALS) != 2:
+            raise AssertionError("expected exactly two public C profile refusals")
         if set(PUBLIC_C_PROFILE_REFUSALS) != {name for name, _, accepted in cases if accepted and name in PUBLIC_C_PROFILE_REFUSALS}:
             raise AssertionError("public C profile refusals must name existing semantic positives")
 
