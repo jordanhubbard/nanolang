@@ -373,6 +373,27 @@ void test_pgo_print_report_null(void) {
  * tco_pass tests
  * ============================================================================ */
 
+static void assert_tco_refusal_unchanged(ASTNode *prog, const char *name) {
+    ASSERT_NOT_NULL(prog);
+    ASTNode *function = find_program_function(prog, name);
+    ASSERT_NOT_NULL(function);
+    ASTNode *body = function->as.function.body;
+    ASSERT(body && body->type == AST_BLOCK && body->as.block.count > 0);
+    ASTNode **statements = body->as.block.statements;
+    ASTNode *tail = statements[body->as.block.count - 1];
+    ASSERT(tail && tail->type == AST_RETURN && tail->as.return_stmt.value &&
+           tail->as.return_stmt.value->type == AST_CALL);
+    char *tail_name = tail->as.return_stmt.value->as.call.name;
+    ASSERT_NOT_NULL(tail_name);
+
+    ASSERT_EQ(tco_pass_run(prog, false), 0);
+    ASSERT(function->as.function.body == body);
+    ASSERT(body->as.block.statements == statements);
+    ASSERT(statements[body->as.block.count - 1] == tail);
+    ASSERT(tail->as.return_stmt.value->as.call.name == tail_name);
+    ASSERT(strcmp(tail_name, name) == 0);
+}
+
 void test_tco_empty_program(void) {
     ASTNode *prog = parse_nano("fn main() -> int { return 0 }");
     ASSERT_NOT_NULL(prog);
@@ -523,6 +544,77 @@ void test_tco_refuses_resource_parameter_without_mutation(void) {
     ASSERT(statements[body->as.block.count - 1] == tail);
     ASSERT(tail->as.return_stmt.value->as.call.name == tail_name);
     ASSERT(strcmp(tail_name, "step") == 0);
+    free_ast(prog);
+}
+
+void test_tco_refuses_par_block_without_mutation(void) {
+    ASTNode *prog = parse_nano(
+        "fn step(n: int) -> int {\n"
+        "    if (== n 0) { return 0 }\n"
+        "    par { let n: int = (+ n 1) }\n"
+        "    return (step (- n 1))\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    assert_tco_refusal_unchanged(prog, "step");
+    free_ast(prog);
+}
+
+void test_tco_refuses_nested_resource_record_without_mutation(void) {
+    ASTNode *prog = parse_nano(
+        "resource struct Handle { fd: int }\n"
+        "struct Bundle { owner: Handle, count: int }\n"
+        "fn step(n: int, bundle: Bundle) -> int {\n"
+        "    if (== n 0) { return bundle.count }\n"
+        "    return (step (- n 1) bundle)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    assert_tco_refusal_unchanged(prog, "step");
+    free_ast(prog);
+}
+
+void test_tco_refuses_nested_array_without_mutation(void) {
+    ASTNode *prog = parse_nano(
+        "fn step(n: int, values: array<array<int>>) -> int {\n"
+        "    if (== n 0) { return 0 }\n"
+        "    return (step (- n 1) values)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    assert_tco_refusal_unchanged(prog, "step");
+    free_ast(prog);
+}
+
+void test_tco_refuses_incomplete_aggregate_metadata_without_mutation(void) {
+    ASTNode *prog = parse_nano(
+        "fn step(n: int, values: array<int>) -> int {\n"
+        "    if (== n 0) { return 0 }\n"
+        "    return (step (- n 1) values)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    ASTNode *function = find_program_function(prog, "step");
+    ASSERT_NOT_NULL(function);
+    TypeInfo *saved = function->as.function.params[1].type_info;
+    ASSERT_NOT_NULL(saved);
+    function->as.function.params[1].type_info = NULL;
+    assert_tco_refusal_unchanged(prog, "step");
+    function->as.function.params[1].type_info = saved;
+    free_ast(prog);
+}
+
+void test_tco_refuses_non_scalar_tuple_without_mutation(void) {
+    ASTNode *prog = parse_nano(
+        "struct Pair { left: int, right: int }\n"
+        "fn step(n: int, pair: (int, Pair)) -> int {\n"
+        "    if (== n 0) { return 0 }\n"
+        "    return (step (- n 1) pair)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    assert_tco_refusal_unchanged(prog, "step");
     free_ast(prog);
 }
 
@@ -864,6 +956,11 @@ int main(void) {
     TEST(tco_same_name_initializer_uses_outer_parameter);
     TEST(tco_refusal_leaves_function_ast_unmodified);
     TEST(tco_refuses_resource_parameter_without_mutation);
+    TEST(tco_refuses_par_block_without_mutation);
+    TEST(tco_refuses_nested_resource_record_without_mutation);
+    TEST(tco_refuses_nested_array_without_mutation);
+    TEST(tco_refuses_incomplete_aggregate_metadata_without_mutation);
+    TEST(tco_refuses_non_scalar_tuple_without_mutation);
 
     printf("\n=== TCO Pure Pass Tests ===\n");
     TEST(tco_pure_empty_program);

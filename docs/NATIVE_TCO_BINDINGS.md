@@ -38,11 +38,19 @@ new aggregate ABI or reinterpret ownership. If a checked construct cannot be
 lowered with its existing representation, preflight must leave the whole
 function unchanged before mutating any node.
 
-This stage admits ordinary non-resource records and scalar-element arrays. I
-refuse explicit resource records, unions, opaque values, borrowed parameters and
-arrays whose immediate element can carry one of those values. Nested ownership
-needs complete checked ownership metadata; spelling-based guesses do not admit
-it.
+This stage admits arrays only when both the direct element annotation and its
+recursive `TypeInfo` name the same scalar kind. It admits tuples only with a
+complete, nonempty scalar element list. It admits a record only when its exact
+local definition is ordinary, non-extern and every field is a direct scalar.
+Here scalar means `int`, `u8`, `float`, `bool`, `string` or an enum. Function
+values retain their checked callable signature, but I do not inspect a function
+pointer as owned aggregate storage.
+
+I refuse missing aggregate metadata, nested arrays or tuples, composite record
+fields, resource or imported/unresolved records, unions, opaque values, borrowed
+parameters and binary strings. These conservative refusals are not claims that
+the native representations are impossible. I need a complete ownership proof
+before widening this boundary; spelling-based guesses do not admit it.
 
 ## Nested control flow
 
@@ -55,11 +63,17 @@ loop. Ordinary source `break` and `continue` retain their original nearest-loop
 meaning. A path that falls through the original function still leaves the
 generated loop once.
 
+I also refuse a function containing `par` or `flow` before mutation. Their
+checked semantics publish a group of names after initializer evaluation, and
+`flow` adds a dependency order. Sequential lexical traversal is not an honest
+substitute for either rule.
+
 ## Acceptance
 
 I require optimized and unoptimized native output parity for:
 
-- scalar-element array, non-resource record, tuple and function-valued
+- metadata-complete scalar-element array, flat scalar-field record, scalar
+  tuple and function-valued
   parameters;
 - left-to-right aggregate argument updates and returned typed values;
 - indirect callable expressions that read a parameter;

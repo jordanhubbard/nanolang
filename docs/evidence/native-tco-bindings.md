@@ -1,23 +1,52 @@
 # Native TCO binding evidence
 
 I qualified the remaining native self-tail-call binding work from canonical
-`2fc5496613104707dd153c14c4777d62bc3e318f`. The reviewed production and test
-checkpoint is `7f6dc47c` on `fix/native-tco-bindings`; the contract checkpoint is
-`1f4f7fe6`.
+`2fc5496613104707dd153c14c4777d62bc3e318f`. The first production and test
+checkpoint was `7f6dc47c` on `fix/native-tco-bindings`; the contract checkpoint
+was `1f4f7fe6`. Independent review of the later pushed head found two admission
+defects, so that head was not merged. I preserve the first evidence below and
+record the corrected boundary separately rather than relabeling it.
 
 ## What I admit
 
-I retain complete hidden binding metadata for scalar-element arrays,
-non-resource records, tuples and function-valued parameters. I evaluate next
+I retain complete hidden binding metadata for metadata-complete scalar-element
+arrays, flat scalar-field records, scalar tuples and function-valued parameters. I evaluate next
 arguments once from left to right before publishing any parameter, resolve
 parameter references lexically, and propagate a tail iteration out through
 original nested loops. Calls through a function-valued parameter remain
 indirect callable expressions.
 
-I refuse explicit resource records, unions, opaque or borrowed parameters, and
-arrays whose immediate element can carry one of those values. Unsupported AST
-forms leave the function tree unchanged. This evidence does not establish a new
-aggregate ownership ABI.
+I refuse missing aggregate metadata, composite record fields, nested arrays or
+tuples, unresolved/resource/extern records, unions, opaque or borrowed
+parameters, binary strings and `par`/`flow` blocks. Unsupported AST forms leave
+the function tree unchanged. This evidence does not establish a new aggregate
+ownership ABI.
+
+## Independent review correction
+
+Review of `88a16642194009d38fab01af73709709767d41e4` found that my `AST_PAR_BLOCK`
+traversal evaluated initializer expressions but never published the resulting
+bindings. A later reference could therefore be renamed to an outer TCO
+parameter, and a flow dependency could be misread. The same review found that
+the aggregate preflight admitted tuples without inspecting their metadata,
+arrays with unknown or composite immediate elements, and records without a
+transitive ownership proof.
+
+I recorded those defects before correction at `d4ec2ada`. The corrected pass
+refuses every `AST_PAR_BLOCK` before mutation and narrows aggregate admission to
+the exact boundary above. Five new pass units preserve the original function
+body, statement vector and tail-call spelling while refusing a `par` block, a
+nested resource-bearing record, a nested array, missing array metadata and a
+tuple containing a record.
+
+The corrected strict C pass unit binary passes every optimization test. Log
+SHA-256:
+`37635d1dca701ec4b49bc7641ed1aae70beb134868582379571aa60132e80671`.
+The unchanged 14 executable optimized/unoptimized native cases pass in 32.731
+seconds. Log SHA-256:
+`dd9ae9ac445c20eb7c0febf409f119d7466f0d20f44c64cac921abefa559ba80`.
+This correction still requires independent review of its exact pushed head
+before merge.
 
 ## Retained terminals
 
@@ -71,10 +100,10 @@ I kept each first terminal and corrected only the demonstrated boundary:
 
 ## Frozen identities
 
-At the production checkpoint:
+At the corrected production checkpoint before its final commit:
 
 - `src/tco_pass.c`:
-  `7e91cd0d52d3e003f9596b51aa3bbaf2382343865c55675e09cb73e1827be14b`
+  `7c18305bb1e53172654cfd5cf30cfe2726efe3e78440a7991d33fbcb50b82b2b`
 - `src/tco_pass.h`:
   `fe6c2b50f9f676aa2d53b43b3967577e4ce4d678452275ba5b605a70f889a208`
 - `src/eval.c`:
@@ -82,11 +111,11 @@ At the production checkpoint:
 - `tests/test_native_tco.py`:
   `2430919fc46da56842521785f6cff569a819e92455ff426469bc211ceb607691`
 - `tests/test_opt_passes.c`:
-  `24639452a03d67006fcabe79ca88bba9d7fb9f86454926bf17a21cbf554bc2f9`
+  `f2ab401e96be808662c872e8d98765b23a2ee3953c7024d065b98279db810190`
 - Apple Clang 21.0.0 actual executable:
   `1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9`
-- final `bin/nanoc_c`:
-  `d0fec3d79c87077d648ebe26bb00cde67ac8dbd95f25bfb46c32a6fc0f0ba09c`
+- corrected `bin/nanoc_c`:
+  `5124eb0c7d1a6b34a090f4f3f9d7832cfaf9b0fe49bdff45b5681a057cc12483`
 
 Host: Darwin 25.6.0 arm64; Python 3.14.6. This is bounded native TCO
 evidence, not product PR522 acceptance or release permission.

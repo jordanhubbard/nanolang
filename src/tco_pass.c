@@ -238,13 +238,10 @@ static bool visit(TCO *ctx, ASTNode *node) {
             return ok;
         }
     case AST_PAR_BLOCK:
-        /* Parallel bindings do not have sequential lexical publication. */
-        for (int i = 0; i < node->as.par_block.count; i++) {
-            ASTNode *binding = node->as.par_block.bindings[i];
-            if (!binding || binding->type != AST_LET ||
-                !visit(ctx, binding->as.let.value)) return false;
-        }
-        return true;
+        /* A checked par block publishes all names after evaluating its
+         * initializers, while flow also has a dependency order. I do not model
+         * either publication rule in this lexical pass yet. */
+        return false;
     default: return false;
     }
 }
@@ -367,40 +364,71 @@ static bool rewrite(TCO *ctx, ASTNode *node, bool mutate, int loop_depth) {
     return false;
 }
 
-static bool resource_struct(TCO *ctx, const char *name) {
-    if (!ctx->program || ctx->program->type != AST_PROGRAM || !name) return false;
+static ASTNode *struct_definition(TCO *ctx, const char *name) {
+    if (!ctx->program || ctx->program->type != AST_PROGRAM || !name) return NULL;
     for (int i = 0; i < ctx->program->as.program.count; ++i) {
         ASTNode *item = ctx->program->as.program.items[i];
-        if (!item || item->type != AST_STRUCT_DEF || !item->as.struct_def.is_resource)
-            continue;
+        if (!item || item->type != AST_STRUCT_DEF) continue;
         if ((item->as.struct_def.name && !strcmp(item->as.struct_def.name, name)) ||
             (item->as.struct_def.original_name &&
-             !strcmp(item->as.struct_def.original_name, name))) return true;
+             !strcmp(item->as.struct_def.original_name, name))) return item;
     }
-    return false;
+    return NULL;
 }
 
-static bool supported_parameter(TCO *ctx, const Parameter *parameter_info) {
-    switch (parameter_info->type) {
+static bool scalar_parameter_type(Type type) {
+    switch (type) {
     case TYPE_INT: case TYPE_U8: case TYPE_FLOAT: case TYPE_BOOL:
-    case TYPE_STRING: case TYPE_BSTRING: case TYPE_ARRAY: case TYPE_STRUCT:
-    case TYPE_ENUM: case TYPE_FUNCTION: case TYPE_TUPLE:
-        break;
+    case TYPE_STRING: case TYPE_ENUM:
+        return true;
     default:
         return false;
     }
-    if (parameter_info->type == TYPE_STRUCT &&
-        resource_struct(ctx, parameter_info->struct_type_name)) return false;
-    /* I have no ownership environment here. Until complete nested aggregate
-     * ownership facts are attached to the parameter, I refuse containers whose
-     * immediate element can carry an affine/opaque value. */
-    if (parameter_info->type == TYPE_ARRAY &&
-        (parameter_info->element_type == TYPE_STRUCT ||
-         parameter_info->element_type == TYPE_UNION ||
-         parameter_info->element_type == TYPE_OPAQUE ||
-         parameter_info->element_type == TYPE_BORROW_SHARED ||
-         parameter_info->element_type == TYPE_BORROW_MUT)) return false;
+}
+
+static bool flat_scalar_struct(TCO *ctx, const char *name) {
+    ASTNode *definition = struct_definition(ctx, name);
+    if (!definition || definition->as.struct_def.is_resource ||
+        definition->as.struct_def.is_extern ||
+        definition->as.struct_def.field_count <= 0) return false;
+    for (int i = 0; i < definition->as.struct_def.field_count; ++i) {
+        Type field = definition->as.struct_def.field_types[i];
+        if (!scalar_parameter_type(field)) return false;
+        if (definition->as.struct_def.field_type_info &&
+            definition->as.struct_def.field_type_info[i] &&
+            definition->as.struct_def.field_type_info[i]->base_type != field)
+            return false;
+    }
     return true;
+}
+
+static bool scalar_tuple(const TypeInfo *info) {
+    if (!info || info->base_type != TYPE_TUPLE ||
+        info->tuple_element_count <= 0 || !info->tuple_types) return false;
+    for (int i = 0; i < info->tuple_element_count; ++i)
+        if (!scalar_parameter_type(info->tuple_types[i])) return false;
+    return true;
+}
+
+static bool supported_parameter(TCO *ctx, const Parameter *parameter_info) {
+    if (scalar_parameter_type(parameter_info->type)) return true;
+    switch (parameter_info->type) {
+    case TYPE_ARRAY:
+        return scalar_parameter_type(parameter_info->element_type) &&
+            parameter_info->type_info &&
+            parameter_info->type_info->base_type == TYPE_ARRAY &&
+            parameter_info->type_info->element_type &&
+            parameter_info->type_info->element_type->base_type ==
+                parameter_info->element_type;
+    case TYPE_STRUCT:
+        return flat_scalar_struct(ctx, parameter_info->struct_type_name);
+    case TYPE_TUPLE:
+        return scalar_tuple(parameter_info->type_info);
+    case TYPE_FUNCTION:
+        return parameter_info->fn_sig != NULL;
+    default:
+        return false;
+    }
 }
 
 static bool transform(ASTNode *program, ASTNode *function, bool verbose) {
