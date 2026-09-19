@@ -1415,6 +1415,17 @@ test-units: test-nsi-file-plan
 test-nsi-file-plan-sanitizers:
 	python3 -m unittest -v tests.test_nsi_file_plan
 
+.PHONY: test-service-bindings test-service-bindings-sanitizers
+test-service-bindings:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror tests/nanoisa/test_service_bindings.c src/nanoisa/service_bindings.c -o $(OBJ_DIR)/test_service_bindings $(LDFLAGS)
+	@$(OBJ_DIR)/test_service_bindings
+
+test-units: test-service-bindings
+
+test-service-bindings-sanitizers:
+	python3 -m unittest -v tests.test_service_bindings
+
 .PHONY: test-nsi-socket
 test-nsi-socket:
 	@mkdir -p $(OBJ_DIR)

@@ -1,0 +1,26 @@
+{
+  "gcc": {
+    "path": "/tmp/nano-service-codec-oj0wkonl",
+    "files": {
+      "codec": "68512008d91c131a9d40db20c9b5cf4ec73cf0ad2634ed47336a03b6b87a7388",
+      "codec-run.log": "4a27340cd10daaae79bd9299b0143022b9695661ccd8e26f9db6652d3a6da2a6",
+      "codec-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "clang": {
+    "path": "/tmp/nano-service-codec-i8ma2w5i",
+    "files": {
+      "codec": "d1931a73610294f14b8f93c7c5ebe3c06ebbc5e4730d0f4fbb7f66a18f89cf8c",
+      "codec-run.log": "4a27340cd10daaae79bd9299b0143022b9695661ccd8e26f9db6652d3a6da2a6",
+      "codec-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "darwin": {
+    "path": "/tmp/nanolang-service-codec-darwin-artifacts",
+    "files": {
+      "codec": "451ccb7a5405687092994fe03f4af4198ea3479f4bd9b9134ac823a3d3fbeea6",
+      "codec-run.log": "4a27340cd10daaae79bd9299b0143022b9695661ccd8e26f9db6652d3a6da2a6",
+      "codec-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}
