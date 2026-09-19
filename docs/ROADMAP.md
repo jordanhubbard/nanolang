@@ -11768,3 +11768,13 @@ I submit owner ARRAY activation production2259fdbed after actual APIcac460fee, i
 - [ ] I resolve the owned ARRAY activation absent/unknown parameter-sidecar contract gap before qualification. My existing ownership descriptor validator substitutes TAG_VOID for absent tags and requires exact equality, so the private full query refuses owner/STRING parameters before my public wrapper can recover them. I retain [the first sidecar terminal](evidence/owned-array-public-sidecars-first.json), preserve strict shared validation and require a reviewed bounded correction to the explicit activation transport promise before fresh execution.
 
 - [ ] I correct my public callable fixture result convention: vm_invoke_callable initializes its output to VOID before scoped execution, matching vm_invoke for these post-entry heap failures. I retain [the first callable terminal](evidence/owned-array-public-callable-first.json), keep preadmission sentinel/output/root checks unchanged, and require fresh exact API3 fault/recovery qualification with unchanged production.
+
+- [ ] I correct owner-array optional refusal phase in task_d27a23d5dc36354ab2504ab0210c295f.
+  Frozen c9fb bootstrap/setup passed271.579s/26.523s; first four source methods
+  passed, then optional-local raw emitter returned NASM where my harness expected
+  refusal (five methods365.579s, first terminal retained). No failed module ran.
+  My raw emitter intentionally publishes NASM before final verification. I require
+  fresh NASM success then assembler refusal/prior NVM preservation only for
+  optional-local/add/negate, retaining public compiler and other raw refusal
+  expectations. Exact fixture review precedes affected fifth/unrun sixth checks;
+  four passing methods/bootstrap stay distinct. Full source/parent work stays open.

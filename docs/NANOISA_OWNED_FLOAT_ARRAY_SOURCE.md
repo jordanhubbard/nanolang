@@ -266,3 +266,22 @@ setup, I must freeze `CC=/opt/homebrew/opt/llvm/bin/clang`, capture the resolved
 compiler hash and SDK selection, and retain `detect_leaks=1:halt_on_error=1`.
 `NANO_NATIVE_TEST_CC` alone does not select this runner's compiler. I have not
 executed this prepared harness or changed any source production.
+
+## I retain the first source terminal and correct the refusal phase
+
+At frozen c9fb07ed5, fresh bootstrap and tool/probe setup pass271.579s/26.523s.
+The unchanged original Bundle/PREFIX, integer boundaries, prepared roots/returns
+and optional left/right/both runtime checks all pass. The fifth method stops at
+raw nanoisa_emit successfully writing optional-local NASM, which my fixture
+incorrectly expected to refuse during lowering. No failed artifact executes.
+The sixth adjacency method is unrun. Source2265/tool7/post-setup input799 maps
+remain equal across this gate; first terminal is retained separately.
+
+Task_d27a23d5dc36354ab2504ab0210c295f records the test repair before edits.
+The raw CLI writes nonempty assembly without invoking final authority unless
+--emit-nvm is selected. For optional-local/add/negate I instead retain fresh raw
+assembly, require its successful lowering, and require the ordinary assembler to
+refuse without replacing a previous NVM. This does not accept annotation as
+FLOAT authority, widen production, execute a refused artifact, or change public
+compiler and other raw-lowering refusal expectations. After review I rerun only
+the affected fifth method and previously unrun sixth against unchanged producers.

@@ -31,6 +31,10 @@ class SourceOwnedFloatArrays(support.SourceMixedSamples):
                 args = [compiler, source, '-o', output]
                 if compiler not in self.emitters:
                     args.append('--emit-nvm')
+                if compiler in self.emitters and name in ('optional-local', 'optional-add', 'optional-negate'):
+                    assembly = self.work / (name + '-' + compiler.name + '.nasm')
+                    self.command(compiler, source, '-o', assembly)
+                    args = [ROOT / 'bin/nanoisa', 'asm', assembly, '-o', output]
                 result = subprocess.run(args, cwd=ROOT, capture_output=True,
                                         text=True, timeout=180)
                 self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
