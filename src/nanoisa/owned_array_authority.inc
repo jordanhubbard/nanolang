@@ -14,6 +14,8 @@ typedef struct {
     DecodedInstruction in;
     uint32_t function, pc, next, target;
     LAFrame *frame;
+    uint16_t operand_actual[2], operand_required[2];
+    uint8_t operand_count, runtime_checks;
     bool queued;
 } LAInstruction;
 typedef struct { uint32_t start, end; NvmAffineState *seed; } LAFunction;
@@ -132,6 +134,12 @@ static bool la_facts(LAAnalysis *a,uint32_t f) {
     }
     return true;
 }
+static bool la_optional_comparison(uint8_t op) {
+    switch(op) {
+    case OP_F64_EQ:case OP_F64_NE:case OP_F64_LT:case OP_F64_LE:case OP_F64_GT:case OP_F64_GE:return true;
+    default:return false;
+    }
+}
 static int la_scalar(uint8_t op,uint16_t *required) {
     *required=0;
     switch(op) {
@@ -157,7 +165,8 @@ static bool la_supported(uint8_t op) {
     case OP_LOAD_LOCAL:case OP_STORE_LOCAL:case OP_OWN_MOVE_LOCAL:case OP_OWN_STORE_LOCAL:
     case OP_OWN_PACK:case OP_OWN_UNPACK_LOCAL:case OP_AGG_GET:
     case OP_ARR_NEW:case OP_ARR_LITERAL:case OP_ARR_PUSH:case OP_ARR_SET:case OP_ARR_GET:case OP_ARR_LEN:
-    case OP_JMP:case OP_JMP_TRUE:case OP_JMP_FALSE:case OP_CALL:case OP_RET:case OP_ASSERT:return true;
+    case OP_JMP:case OP_JMP_TRUE:case OP_JMP_FALSE:case OP_CALL:case OP_RET:case OP_ASSERT:
+    case OP_PRINT:case OP_PRINTLN:return true;
     default:return false;
     }
 }
@@ -172,7 +181,7 @@ static bool la_decode(LAAnalysis *a) {
             uint32_t width=isa_decode(a->module->code+fn->code_offset+pc,fn->code_length-pc,&i->in);
             if(!width || !la_supported(i->in.opcode))return la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,f,pc,"I require an explicit independent instruction transfer.");
             NvmOwnerOriginObligation *row=&a->proof->obligations[a->count];
-            if(!nvm_owned_array_origin_obligation(a->proof->origins,a->count,row) || row->function!=f || row->pc!=pc)
+            if(!nvm_owned_array_origin_obligation(a->proof->origins,a->count,row) || row->function!=f || row->pc!=pc || row->opcode!=i->in.opcode)
                 return la_stop(a,NVM_OWNER_AUTH_INVALID,f,pc,"I require identical independent and origin instruction locations.");
             a->count++;pc+=width;i->next=a->count;i->target=UINT32_MAX;
         }
@@ -270,10 +279,20 @@ static bool la_transfer(LAAnalysis *a,uint32_t index,LAFrame *frame) {
     int produced=la_scalar(op,&required);
     if(produced>=0) {
         result=la_tag((uint8_t)produced);
+        if(pops>2)return la_stop(a,NVM_OWNER_AUTH_INVALID,f,i->pc,"I require bounded independent scalar operand rows.");
+        i->operand_count=(uint8_t)pops;
         for(uint16_t n=base;n<frame->depth;n++) {
             LAValue v=stack[n];
-            if(v.kind || v.unknown || !v.tags || (v.tags&~LA_SCALARS) || (required && v.tags!=required))
-                return la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,f,i->pc,"I require independently exact modeled scalar operands.");
+            if(v.kind || v.unknown || !v.tags || (v.tags&~LA_SCALARS))
+                return la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,f,i->pc,"I require independently modeled scalar operands.");
+            uint16_t operand=(uint16_t)(n-base);
+            i->operand_actual[operand]|=v.tags;i->operand_required[operand]=required;
+            if(required && v.tags!=required) {
+                if(!la_optional_comparison(op) || !(v.tags&LA_BIT(TAG_FLOAT)) ||
+                   (v.tags&~(LA_BIT(TAG_FLOAT)|LA_BIT(TAG_VOID))))
+                    return la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,f,i->pc,"I require independently exact operands or a checked optional FLOAT comparison.");
+                i->runtime_checks|=(uint8_t)(1u<<operand);
+            }
         }
     } else switch(op) {
     case OP_NOP:case OP_JMP:break;
@@ -364,7 +383,14 @@ static bool la_transfer(LAAnalysis *a,uint32_t index,LAFrame *frame) {
             return la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,f,i->pc,"I require exact independently transferred call arguments.");
         result=called->result.tag==TAG_STRUCT?la_owner(called->result.layout):la_tag(called->result.tag);break;
     }
+    case OP_PRINT:case OP_PRINTLN:
+        i->operand_count=1;i->operand_actual[0]|=stack[base].tags;
+        i->operand_required[0]=LA_BIT(TAG_INT);
+        if(!la_exact(stack[base],TAG_INT))return la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,f,i->pc,"I require independently exact INT output operands.");
+        break;
     case OP_JMP_TRUE:case OP_JMP_FALSE:case OP_ASSERT:
+        i->operand_count=1;i->operand_actual[0]|=stack[base].tags;
+        i->operand_required[0]=LA_BIT(TAG_BOOL);
         if(!la_exact(stack[base],TAG_BOOL))return la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,f,i->pc,"I require exact BOOL control operands.");
         break;
     default:return la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,f,i->pc,"I require an explicit independent lifetime transfer.");
@@ -428,6 +454,15 @@ NvmOwnerAuthorityResult nvm_analyze_owned_array_lifetimes(const NvmModule *m,Nvm
     }
     for(uint32_t n=0;n<a->count;n++)if(!a->instructions[n].frame) {
         la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,a->instructions[n].function,a->instructions[n].pc,"I require independent state for every declared instruction.");goto done;
+    }
+    for(uint32_t n=0;n<a->count;n++) {
+        LAInstruction *i=&a->instructions[n];const NvmOwnerOriginObligation *row=&p->obligations[n];
+        if(!la_work(a,2))goto done;
+        if(row->operand_count!=i->operand_count || row->runtime_checks!=i->runtime_checks ||
+           row->operand_actual[0]!=i->operand_actual[0] || row->operand_actual[1]!=i->operand_actual[1] ||
+           row->operand_required[0]!=i->operand_required[0] || row->operand_required[1]!=i->operand_required[1]) {
+            la_stop(a,NVM_OWNER_AUTH_UNRESOLVED,i->function,i->pc,"I require independently matching per-operand obligations.");goto done;
+        }
     }
     p->counts=(NvmOwnerAuthorityCounts){m->function_count,a->count,a->cells,a->visits,a->work};
     a->error=(NvmOwnerAuthorityResult){NVM_OWNER_AUTH_PREPARED,0,0,"I checked origin, lifetime and scalar transfers; common structure and runtime admission remain separate."};
