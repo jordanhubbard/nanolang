@@ -46,6 +46,9 @@ class U8Reconstruction(unittest.TestCase):
                     self.checked([compiler, output, '--emit-nvm', '-o', recovered])
                     self.checked([ROOT/'bin/nano_vm', '--verify-only', recovered])
                     self.checked([ROOT/'bin/nano_vm', recovered], expected)
+                    if self.inspect_sources:
+                        dump = self.checked([ROOT/'bin/nanoisa', 'dump', recovered]).stdout
+                        self.assertRegex(dump, r'(?m)^\.parameters \d+ u8$')
                     c_source = directory/(producer+'.c'); native = directory/(producer+'-native')
                     self.checked([ROOT/'bin/nvm2c', recovered, '-o', c_source])
                     self.checked(shlex.split(os.environ.get('CC', 'cc'))+['-std=c11', '-O1', '-Wall', '-Wextra',
@@ -190,6 +193,7 @@ shadow main { assert (== (main) 0) }
                     dump = self.checked([ROOT/'bin/nanoisa', 'dump', module]).stdout
                     for value in (0, 1, 127, 128, 254, 255):
                         self.assertIn(f'PUSH_U8 {value}', dump)
+                    self.assertRegex(dump, r'(?m)^\.parameters \d+ u8$')
                     self.checked([ROOT/'bin/nano_vm', '--verify-only', module])
                     self.checked([ROOT/'bin/nano_vm', module])
                     c_source = directory/(producer+'.c'); executable = directory/(producer+'-native')

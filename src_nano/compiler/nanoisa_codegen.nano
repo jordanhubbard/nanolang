@@ -4854,8 +4854,16 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         } else {
             (print "")
         }
+        let mut exact_parameters: bool = nisa_has_par
+        let mut exact_parameter: int = 0
+        while (< exact_parameter func.param_count) {
+            if (== (parser_get_let parser (+ func.param_start exact_parameter)).var_type "u8") {
+                set exact_parameters true
+            }
+            set exact_parameter (+ exact_parameter 1)
+        }
         let mut parameters: string = ""
-        if nisa_has_par {
+        if exact_parameters {
             set parameters (+ ".parameters " func.name)
             let mut guards: string = ""
             let mut parameter: int = 0
@@ -4864,6 +4872,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
                 set parameters (+ parameters (+ " " (nisa_result_tag parser t)))
                 let mut tag: int = 0
                 if (== t "int") { set tag 1 }
+                if (== t "u8") { set tag 2 }
                 if (== t "float") { set tag 3 }
                 if (== t "bool") { set tag 4 }
                 if (== t "string") { set tag 5 }
@@ -4901,7 +4910,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         if nisa_has_par { set nisa_ordinary_ok false }
         set nisa_ordinary_functions (+ nisa_ordinary_functions (nisa_ordinary_contract parser func.return_type func.param_count nisa_types))
         set nisa_ordinary_count (+ nisa_ordinary_count 1)
-        if (and (not nisa_has_par) (> func.param_count 0)) {
+        if (and (not exact_parameters) (> func.param_count 0)) {
             set nisa_ordinary_parameters (+ nisa_ordinary_parameters (+ ".parameters " func.name))
             let mut param: int = 0
             while (< param func.param_count) {
@@ -4927,6 +4936,12 @@ shadow nisa_emit_function {
     assert (str_contains text "I64_ADD")
     assert (str_contains text "LOAD_LOCAL 0")
     assert (str_contains text "LOAD_LOCAL 1")
+    let byte_source: string = "fn widen(value: u8) -> int { return (cast_int value) }"
+    let byte_tokens: List<LexerToken> = (tokenize_string byte_source "byte-parameter.nano" diags)
+    let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte-parameter.nano")
+    let byte_text: string = (nisa_emit_function byte_parser (parser_get_function byte_parser 0))
+    assert (str_contains byte_text ".parameters widen u8")
+    assert (str_contains byte_text "TYPE_CHECK 2")
     let src2: string = (+ "f" "n greeting() -> string { return \"hi\" } shadow greeting { assert true }")
     let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
     let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
