@@ -96,3 +96,5 @@ c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4  bin/nvm2hl
 ```
 
 This gate qualifies the bounded carry/borrow integration through canonical File-body main. It does not qualify the separately active owner-ARRAY mutation source work, full reconstruction, PR522 or release publication.
+
+After that frozen gate, canonical main advanced to `c4529256252e6cb45e63c9eb967101821de297b1` through the separately qualified owner-ARRAY bit-boundary and bounded OpenCL work. I merged that exact commit without a conflict at `e9ed9f1ecd7e71fcb79e13b5d6741c85291bb245`. It changes only additive Make, roadmap, documentation and new owner-ARRAY fixtures relative to my tested `ec8f5b7a` parent. My reconstruction production and four affected fixture hashes remain byte-identical, canonical File-body Make lines retain SHA-256 `59f232b171483dabd8ac76bc37fd45f1e4ea992829cf2bb478660912c013768f`, and my only Make delta from `c4529256` remains the carry fixture in `test-scalar-reconstruction`. I therefore retain the exact `ea8d5aaa` execution pin rather than relabeling it or repeating unrelated gates.
