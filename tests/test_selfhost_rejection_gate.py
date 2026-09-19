@@ -1,9 +1,12 @@
 """I distinguish semantic compiler refusals from infrastructure failures."""
 
 from pathlib import Path
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
 import unittest
 
 
@@ -114,6 +117,70 @@ class SelfhostRejectionGateTests(unittest.TestCase):
         self.assertFalse(log)
         self.assertTrue(exists)
         self.assertEqual(content, b"prior artifact")
+
+    def test_shell_caller_preserves_prior_and_new_rejected_artifacts(self):
+        with tempfile.TemporaryDirectory(prefix="nano-selfhost-caller-") as directory:
+            work = Path(directory)
+            selfhost = work / "tests/selfhost"
+            binary = work / "bin"
+            selfhost.mkdir(parents=True)
+            binary.mkdir()
+            shutil.copy2(ROOT / "tests/selfhost/run_selfhost_tests.sh",
+                         selfhost / "run_selfhost_tests.sh")
+            shutil.copy2(GATE, selfhost / "expect_rejection.py")
+            for suite in ("test_selfhost_import_paths.py", "test_selfhost_cli.py"):
+                (work / "tests" / suite).write_text("raise SystemExit(0)\n")
+
+            compiler = binary / "fake_nanoc"
+            compiler.write_text(textwrap.dedent("""\
+                #!/usr/bin/env python3
+                from pathlib import Path
+                import sys
+
+                source = Path(sys.argv[1]).name
+                output = Path(sys.argv[sys.argv.index("-o") + 1])
+                diagnostics = {
+                    "test_requires_bool.nano": "[E0001] assert condition must be bool",
+                    "test_function_arg_type_errors.nano": "[E0010] Argument 1 to 'add': expected int, got string",
+                    "test_returned_function_arg_type_error.nano": "[E0010] Argument 1 to the function expression: expected int, got string",
+                    "test_returned_function_arity_error.nano": "[E0010] The function expression expects 1 argument(s), but I see 2.",
+                    "test_opaque_nonzero_argument.nano": "[E0010] Argument 1 to 'is_null': expected SDL_Window, got int",
+                }
+                if source in diagnostics:
+                    if source == "test_requires_bool.nano":
+                        output.parent.mkdir(parents=True, exist_ok=True)
+                        output.write_text("new rejected artifact")
+                    print(diagnostics[source])
+                    raise SystemExit(1)
+                program = "#!/bin/sh\\n"
+                if source == "test_returned_function_calls.nano":
+                    program += "printf 'callee\\nargument\\n'\\n"
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_text(program)
+                output.chmod(0o755)
+            """))
+            compiler.chmod(0o755)
+
+            prior = binary / "selfhost_test_requires_bool"
+            prior.write_text("prior rejected artifact")
+            result = subprocess.run(
+                ["/bin/sh", "tests/selfhost/run_selfhost_tests.sh"],
+                cwd=work,
+                env={**os.environ, "NANOLANG_SELFHOST_COMPILER": str(compiler)},
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("not the required semantic rejection", result.stdout)
+            self.assertEqual(prior.read_text(), "prior rejected artifact")
+            runs = list((work / ".test_output/selfhost").glob("negative.*"))
+            self.assertEqual(len(runs), 1)
+            rejected = runs[0] / "test_requires_bool/program"
+            self.assertEqual(rejected.read_text(), "new rejected artifact")
+            self.assertIn("assert condition must be bool",
+                          (runs[0] / "test_requires_bool/compile.log").read_text())
 
 
 if __name__ == "__main__":

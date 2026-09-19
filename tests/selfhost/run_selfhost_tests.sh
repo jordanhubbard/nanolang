@@ -92,9 +92,14 @@ argument" ]; then
     fi
 done
 
+NEGATIVE_RUN_DIR=$(mktemp -d "$LOG_DIR/negative.XXXXXX")
+
 for test in $NEGATIVE_TESTS; do
     TEST_PATH="$TESTS_DIR/$test"
-    TEST_BIN="bin/selfhost_$(basename $test .nano)"
+    TEST_NAME=$(basename "$test" .nano)
+    TEST_CASE_DIR="$NEGATIVE_RUN_DIR/$TEST_NAME"
+    mkdir "$TEST_CASE_DIR"
+    TEST_BIN="$TEST_CASE_DIR/program"
 
     printf "Testing %-30s ... " "$test"
 
@@ -121,8 +126,7 @@ for test in $NEGATIVE_TESTS; do
             ;;
     esac
 
-    COMPILE_LOG="$LOG_DIR/$(basename "$test" .nano).compile.log"
-    rm -f "$TEST_BIN"
+    COMPILE_LOG="$TEST_CASE_DIR/compile.log"
     if python3 "$TESTS_DIR/expect_rejection.py" \
         --timeout 60 --log "$COMPILE_LOG" --output "$TEST_BIN" \
         --require "$EXPECTED_DIAGNOSTIC" -- \
@@ -154,13 +158,14 @@ echo "========================================"
 # Cleanup intermediate test binaries
 echo ""
 echo "Cleaning up test binaries..."
-for test in $TESTS $NEGATIVE_TESTS; do
+for test in $TESTS; do
     TEST_BIN="bin/selfhost_$(basename $test .nano)"
     if [ -f "$TEST_BIN" ]; then
         rm -f "$TEST_BIN"
     fi
 done
-echo "✓ Removed selfhost_test_* binaries"
+echo "✓ Removed positive selfhost test binaries"
+echo "✓ Retained negative logs and unexpected artifacts in $NEGATIVE_RUN_DIR"
 
 if [ $FAILED -eq 0 ]; then
     echo ""

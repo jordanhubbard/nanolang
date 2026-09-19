@@ -2960,6 +2960,18 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         infrastructure failures with injected regressions. MAC
         `task_4f84d7b8485a467da3909f79e2417233`. Evidence:
         `docs/evidence/selfhost-semantic-rejections.md`.
+      - [x] I preserve prior failed artifacts at the shell caller boundary
+        (`task_ac3fa27024ac41d186bb1536133875ed`). Static review of PR806
+        found that its unconditional removal of the fixed negative output path
+        bypasses the new helper's pre-existing-artifact check. I retain prior
+        output/logs using fresh per-run paths or explicit refusal, and require
+        a caller-level regression before clearing the scoped review hold. I use
+        fresh per-run and per-case negative paths, remove no negative output,
+        and retain the old fixed artifact plus a newly published rejected
+        artifact in the caller regression. Shell/Python checks and all nine
+        focused methods pass at production checkpoint `72f7268a`; the original
+        PR806 qualification remains pinned separately in
+        `docs/evidence/selfhost-semantic-rejections.md`.
       - [x] I make dispatch-equivalence coverage explicit: unexpected compile
         failures and zero comparisons fail, expected exclusions are reported,
         and compilation/VM executions have deadlines and retained diagnostics.
