@@ -8,6 +8,10 @@ merge PR522, or authorize a release.
 
 - Product integration base: `67e3e211eab405959c11e6deaf424f6151d3214a`
 - Qualified production/test commit: `3534d3afc3f28bc4575a7633a01fc89aff3ea173`
+- Integrated PR869 production/test commit: `723c96830008377ad4ff8a62ef374c68e81d3cdb`
+- Both commits have stable patch ID
+  `9ffd58456444adcc37e982aaa4d0d0ce1da58d8b`; the commit hash changed only
+  when I applied the qualified patch after PR869's evidence-first commits.
 - Tree: `48ac3e6a48927486e3a90ad463938989f24b718c`
 - PR861 merge `59ffceccf422047c91395e1cf5d08e62e5a1d64c` is an ancestor.
 - Clean gate tree: `/tmp/nanolang-pr869-final-gate.ZZVNzr/repo`
