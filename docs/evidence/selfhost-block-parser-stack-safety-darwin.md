@@ -93,3 +93,48 @@ missing prerequisite as `task_bd8e2d91943ae17059d289e13ebc34fe`. A corrected
 qualification must prepare and freeze `bin/nano` before beginning this ordered
 follow-up. I do not treat this setup terminal as a parser or union semantic
 failure.
+
+## I inventory the corrected setup before building it
+
+I statically inspected every unreached gate before preparing another checkout.
+The two remaining union-result methods use:
+
+- qualified `bin/nanoc_c` for public-C emission;
+- `bin/nano` for the ordinary interpreter route;
+- `bin/nano_virt` and `bin/nano_vm` for bytecode emission, verification and
+  execution; and
+- the selected host C compiler for four strict generated-C variants.
+
+The checked-owner-selection class uses:
+
+- qualified `bin/nanoc_c`, `bin/nanoc_stage1` and `bin/nanoc_stage2` to build
+  three test-only selection drivers and exercise both explicit compiler routes;
+- `bin/nanoisa` for assembly;
+- `bin/nano_vm` for verification and execution; and
+- `bin/nvm2c` plus the selected host C compiler for strict native execution.
+
+The remaining aggregate affine modules use the same three qualified compilers,
+plus `bin/nano_virt` and `bin/nano_vm`. `tests.test_affine_frontend_parity`
+checks the three native compiler routes. `tests.test_owned_record_patterns`
+adds NanoVirt/VM execution. The already passing
+`tests.test_affine_contract_boundaries` module is the third component of
+`tests/test_affine_selfhost.sh`; I do not repeat it in the corrected run.
+
+The corrected build set is exactly:
+
+```text
+bin/nano
+bin/nano_virt
+bin/nano_vm
+bin/nanoisa
+bin/nvm2c
+```
+
+I will create a fresh detached checkout at exact `603785c9`, copy only the
+three qualified compiler binaries from the retained passing checkout, verify
+their hashes before and after the build and gate sequence, and create the
+`bin/nanoc` link to the copied Stage2 compiler. All five remaining executables
+are built from the fresh checkout. I freeze the tracked-source map, actual
+Apple Clang, Python and built executable hashes before running the two
+remaining union methods, checked-owner selection, affine frontend parity and
+owned-record patterns in that order. I stop and seal the first new terminal.
