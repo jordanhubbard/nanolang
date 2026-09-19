@@ -20,7 +20,7 @@
 int g_argc;char **g_argv;
 #define ROK(x) CHECK((x)==NVM_FILE_RUNTIME_OK)
 #define NS NVM_FILE_RUNTIME_NO_SLOT
-static unsigned open_attempts,opened,closed,io_attempts,loader_attempts,fork_attempts;
+static unsigned open_attempts,carrier_opened,closed,io_attempts,loader_attempts,fork_attempts;
 static FILE *streams[128];
 static bool deny_open,deny_seek,model_read_error,model_write_error;
 static FILE *modeled_error_stream;
@@ -40,7 +40,7 @@ static void nested_entry(void){
 FILE *file_runtime_tmpfile(void){
  open_attempts++;nested_entry();if(deny_open){errno=EACCES;return NULL;}
  FILE *f=tmpfile();if(!f)return NULL;
- unsigned i=0;while(i<128 && streams[i])i++;CHECK(i<128);streams[i]=f;opened++;return f;
+ unsigned i=0;while(i<128 && streams[i])i++;CHECK(i<128);streams[i]=f;carrier_opened++;return f;
 }
 int file_runtime_fclose(FILE *f){
  nested_entry();unsigned i=0;while(i<128 && streams[i]!=f)i++;CHECK(i<128);streams[i]=NULL;closed++;
@@ -64,7 +64,7 @@ int file_runtime_fseek(FILE *f,long off,int whence){io_attempts++;nested_entry()
 bool file_runtime_loader_init(bool verbose){(void)verbose;loader_attempts++;return false;}
 bool file_runtime_loader_open(const char *name,const char *path){(void)name;(void)path;loader_attempts++;return false;}
 pid_t file_runtime_fork(void){fork_attempts++;errno=EACCES;return -1;}
-static void empty_host(void){CHECK(opened==closed);for(unsigned i=0;i<128;i++)CHECK(!streams[i]);}
+static void empty_host(void){CHECK(carrier_opened==closed);for(unsigned i=0;i<128;i++)CHECK(!streams[i]);}
 static NvmFileRuntimeView view(NvmFileRuntime *c,uint32_t slot){NvmFileRuntimeView v;CHECK(nvm_file_runtime_view(c,slot,&v));return v;}
 static void scalar(NvmFileRuntime *c,uint32_t slot,int64_t v){ROK(nvm_file_runtime_scalar(c,slot,TAG_INT,v));}
 static void arm(NvmFileRuntime *c,uint32_t slot,NvmFileFlowArm expected){NvmFileFlowArm a=NVM_FILE_FLOW_ARM_UNKNOWN;ROK(nvm_file_runtime_result_arm(c,slot,&a));CHECK(a==expected);}
@@ -261,8 +261,8 @@ static void modeled_progress_errors(void){
 }
 static void faults(void){
  NvmFileNominalBindings b;NvmFileRuntime *c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);
- deny_open=true;unsigned before=open_attempts,success=opened;ROK(nvm_file_runtime_service(c,b.imports[0],NS,NS,0));deny_open=false;
- CHECK(open_attempts==before+1 && opened==success);arm(c,0,NVM_FILE_FLOW_ARM_ERROR);
+ deny_open=true;unsigned before=open_attempts,success=carrier_opened;ROK(nvm_file_runtime_service(c,b.imports[0],NS,NS,0));deny_open=false;
+ CHECK(open_attempts==before+1 && carrier_opened==success);arm(c,0,NVM_FILE_FLOW_ARM_ERROR);
  ROK(nvm_file_runtime_move(c,0,1));ROK(nvm_file_runtime_take(c,1,NVM_FILE_FLOW_ARM_ERROR,0));
  CHECK(view(c,0).values[0]==NL_FILE_IO && view(c,0).values[1]==EACCES);ROK(nvm_file_runtime_drop(c,0));finish_ok(&c,0);
  c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);reenter=c;file(c,b,1);ROK(nvm_file_runtime_region_begin(c));ROK(nvm_file_runtime_borrow(c,1,0));
@@ -336,5 +336,5 @@ int main(void){
 #ifdef HOSTED_INSTRUMENT
  modeled_progress_errors();faults();allocation_controls();CHECK(!tracked_live && !tracked_bytes);
 #endif
- empty_host();CHECK(fcntl(sentinel_fd,F_GETFD)>=0);CHECK(fclose(sentinel)==0);printf("PASS %u manual private File carrier checks; %u acquisition attempts, %u real opens, %u real closes; no File CODE/frame dispatch\n",checks,open_attempts,opened,closed);return 0;
+ empty_host();CHECK(fcntl(sentinel_fd,F_GETFD)>=0);CHECK(fclose(sentinel)==0);printf("PASS %u manual private File carrier checks; %u acquisition attempts, %u real opens, %u real closes; no File CODE/frame dispatch\n",checks,open_attempts,carrier_opened,closed);return 0;
 }
