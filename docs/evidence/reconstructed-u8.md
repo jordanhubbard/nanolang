@@ -1,0 +1,91 @@
+# Exact `u8` scalar reconstruction evidence
+
+I qualified this bounded change from production commit
+`b70eefdb87c070cca753f9f78cd631ad35c06312`, based on canonical commit
+`1e64676e16761936facc0c63da825257124a8184`. The checkout was clean after I
+committed the implementation. I did not treat this work as a release gate or
+as support for self-hosted native-C byte lowering.
+
+## Qualified boundary
+
+I reconstruct `PUSH_U8`, exact byte locals, direct byte parameters and
+results, and explicit `CAST_INT` and `CAST_BOOL`. I preserve the values 0, 1,
+127, 128, 254 and 255 through NanoVM, reconstructed C, reconstructed Nano,
+three canonical source producers and translated native execution. I retain
+prior output for a byte entry result, out-of-range and nonliteral contextual
+source values, generic byte logic and generic byte comparison.
+
+My self-hosted native-C compiler still needs the separately recorded
+`task_633a3abf5a1040e6863a525ed5cc80b5`; Stage 1 and Stage 2 native-C output is
+not part of this acceptance. Generic byte arithmetic, comparison, logic,
+globals, imports, aggregates and ownership also remain outside this change.
+
+## Final gates
+
+| Gate | Result |
+| --- | --- |
+| `make -f Makefile.gnu -j8 bootstrap` | PASS; Stage 1, Stage 2, installed hello and C-seed independence passed. Native Stage 1 and Stage 2 binaries differed, as the gate reports; I make no fixed-point claim. |
+| `python3 -m unittest -v tests.test_reconstructed_u8` | PASS, 5 methods in 7.797 seconds. |
+| The same command with Homebrew LLVM 23 and `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1` | PASS, 5 methods in 14.747 seconds with ASan, UBSan and LSan enabled for generated native programs. |
+| The two adjacent truthiness/comparison refusal methods | PASS, 2 methods in 8.702 seconds. |
+| `make -f Makefile.gnu -j8 test-scalar-reconstruction` | PASS, all 60 methods in 696.203 seconds. |
+| `git diff --check` | PASS before the production commit. |
+
+The final retained logs are:
+
+| Log | SHA-256 |
+| --- | --- |
+| `/private/tmp/nanolang-u8-bootstrap-corrected5.log` | `fbdc6a4ccaeb0a949f0148840f642494f6cf5cda6e2c149d68bdc1cf222bf0f1` |
+| `/private/tmp/nanolang-u8-focused-final.log` | `a1147da4b84221e5341dedbc78c3300c3acbf69e84ff4f12e16a3bc5884ec131` |
+| `/private/tmp/nanolang-u8-focused-homebrew-lsan.log` | `0787600acadd71deeae37ebcbff2ee8ab89fb0eb6d68d04dde3adbe1f5e85a95` |
+| `/private/tmp/nanolang-u8-adjacent-final.log` | `b80b33449b0f43633d040d422c6cf079ee9a6e52d1e94165541dfece55e6d0fe` |
+| `/private/tmp/nanolang-u8-scalar-reconstruction.log` | `b4f7d1e5fadd36c6e8f0dc9a97859fb18549ddf431c44d122ae3c06c1b70879f` |
+
+## Preserved terminals
+
+I retained each first failure before its correction:
+
+- `016aa15199f9b8e8ef26797548ec7c50e06c744e69b4d60153b573968cd0a16e`
+  records the reserved `byte` shadow-local name.
+- `9383e07e540f7f10678742298633d47a8e1dbe47e4d068a7c68f6e681666c62f`
+  records the invalid assumption that self-hosted `NSType` had a `TYPE_U8`
+  enum member.
+- `65cb024e24ac4fc324fdb67fc682ff69264a15c2e14cc81161819ffd93a0eccf`
+  records the first focused invocation whose tail was invalidated by a full
+  host data volume. I count no short-write tail result as language evidence.
+- `8ab2c9b2e920025f740824c7cc4ec9499b074360bd510792d2efc90d70317125`
+  records missing `nvm2c`, the reserved negative-fixture name and the
+  undeclared conversion call in a literal-only source control.
+- `007b0e5bf5ffb1a2f6ef648ea8e131fc3a82ec14d33987285d4964fa2cdd0bd8`
+  records the self-hosted `cast_int(u8)` whitelist refusal.
+- `e22f0eca9d77ec505c8e6994ad8b5944635216c8e5b991f96855e3bbdfa9287b`
+  records the self-hosted direct `u8` result refusal.
+- `b26bd463644a62b3bd3cb4fa7672428b3dc495601473124f3f6b97685197f2a7`
+  records the endpoint assertion against a correctly removed unreachable
+  function. The corrected fixture makes that function reachable.
+
+## Selected tool identities
+
+The SDK-aware normal compiler was Apple Clang 21.0.0 at
+`/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang`,
+SHA-256 `1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9`.
+`/usr/bin/cc` is the Apple dispatcher, SHA-256
+`b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9`.
+The required leak-sanitized native gate used Homebrew Clang 23.1.1 at
+`/opt/homebrew/opt/llvm/bin/clang`, SHA-256
+`570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888`.
+
+After the complete scalar gate, selected binaries had these SHA-256 values:
+
+- `bin/nanoc_c`: `ccfdad221c17a8e3c9a0d6cad84832f26d9b03f9b1c5309d57b38b702eca9ede`
+- `bin/nanoc_stage1`: `4e05901d238d5024442ac03ddfa525b5b405b53ec9e34f57db1db63d55e111a7`
+- `bin/nanoc_stage2`: `06231967649f8408e4f02726bdc3f49cb010e017dbaf10fdd179ba066ae1faaa`
+- `bin/nano_virt`: `ba4980b53e35d5581244f557c6b306ad50972fb511d1aaaabd6406e4433261a9`
+- `bin/nano_vm`: `38d2f0b822439bb2fcb33cfe84e5ac88cb33d6369ad8dd04f1eaaa3190abdf3c`
+- `bin/nvm2hl`: `c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4`
+- `bin/nvm2c`: `42c396e47d5b7bc63dc90316b4b0c80599c0df3951272c306a71f5ce15a93b66`
+- `bin/nanoisa`: `d13069d5aacdb99d445b7064618faf35f246dfcee461ecf76ceb9d10098208df`
+
+The complete scalar target rebuilt some selected C tools before running its
+methods. I therefore report these hashes as final selected identities, not as
+a claim that every binary remained byte-identical across every earlier gate.
