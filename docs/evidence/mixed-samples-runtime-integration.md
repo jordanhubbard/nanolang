@@ -16,8 +16,16 @@ O0/O2 sanitizer/allocation assertions remain intact. I do not claim a new compil
 bootstrap, repeated fullnative gate, new Clang result or Darwin qualification.
 Their earlier measured scopes remain in the original seal.
 
-All tracked sources agree before/build/after; actual built tools and linked object
-inventories agree before execution and after all gates. No source producer changes,
+All tracked sources agree before/build/after, and actual built tools agree before
+execution and after all gates. Every object present after tool preparation remains
+present with identical bytes; the allocation fixtures add exactly two separately
+hashed hook objects. I do not claim whole object-map equality. No source producer changes,
 owner managed-field admission or full-parent closure follows. The later service
 transport integration must preserve service refusal ahead of mixed admission and
 qualify combined metadata retention; I coordinated this boundary with its owner.
+
+I preserve the partial packaging checkpoint81d1c1f58: its whole-object-map
+assertion stopped manifest generation, while the shell committed the reports and
+an overbroad equality sentence. Task6f81 records the correction before edits.
+The corrected manifest requires subset equality and names both added objects;
+no passing execution was repeated or relabeled.
