@@ -11679,3 +11679,5 @@ retains both source/fixture first terminals, the packaging terminal,73 reports,
 owner-ARRAY admission or general emitter binding claim follows. MAC update
 scope remains unavailable; actual-merge reconciliation is pending. Source18731,
 mutation bba622 and all full ownership/product/release parents remain open.
+
+- [ ] I activate exact owned ARRAY authority at public boundaries (`task_01e144c13aad46faa8d05d6384270649`) after private runtime PR836: my [preimplementation contract](NANOISA_OWNED_ARRAY_PUBLIC_ACTIVATION.md) splits broad Samples routing before selection, requires fresh complete authority at verifier/VM/native/conversion entries, preserves service priority and exact maps/max-stack, and forbids selected-failure fallback. Nonzero links, references, caller-built continuations and closed backends remain refused. I review production before execution; paired source/mutation and parent430220 remain required.
