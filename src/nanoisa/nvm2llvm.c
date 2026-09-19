@@ -745,7 +745,7 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     if (!strcmp(entry, "nano_try_entry") || !strcmp(entry, "nano_dispose") || !strncmp(entry, "nano_runtime_", 13))
         return refuse(error, size, "I reserve managed runtime entry names");
     if (!m || !out) return refuse(error, size, "I require a module and output stream");
-    if (nvm_service_bindings_present(m))
+    if (nvm_service_execution_pending(m))
         return refuse(error, size, "I require reviewed service lifetime and dispatch admission before translation");
     NvmVerifyResult verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_LITERAL_STRINGS);
     bool managed = !verified.ok;

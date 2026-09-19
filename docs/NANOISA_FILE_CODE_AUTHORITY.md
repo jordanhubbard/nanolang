@@ -217,3 +217,9 @@ currently adds signed32 offsets directly; I record that static arithmetic findin
 before widening target arithmetic for this checkpoint. I execute no pre-fix
 boundary fixture. Raw `isa_decode` retains its existing partial-output-on-truncation
 contract; staged immutable query outputs are a separate later API guarantee.
+
+I keep the legacy serializer's new instruction scan in the format/ISA providers,
+not the full service catalog library. Its standalone pool-allocation fixture now
+links the ISA provider explicitly; module manifests already include ISA. A separate
+existing `forth_see` manifest gap is recorded on the roadmap before any repair.
+The current checkpoint changes no Forth manifest or service execution path.

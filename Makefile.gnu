@@ -1680,7 +1680,7 @@ test-nvm-v2-convert: $(NANOISA_OBJECTS) $(NANOISA_UTF8) test-nvm-pool-alloc
 
 .PHONY: test-nvm-pool-alloc
 test-nvm-pool-alloc: | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nvm_pool_alloc tests/nanoisa/test_nvm_pool_alloc.c $(LDFLAGS)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nvm_pool_alloc tests/nanoisa/test_nvm_pool_alloc.c $(NANOISA_DIR)/isa.c $(LDFLAGS)
 	@./obj/test_nvm_pool_alloc
 
 .PHONY: test-nvm-v2-endtoend
