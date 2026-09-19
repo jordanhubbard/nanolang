@@ -106,9 +106,10 @@ I inspect the test paths without executing another fixture:
 2. `execute_pair` verifies and executes the module with the frozen
    `bin/nano_vm`, translates it with frozen `bin/nvm2c`, then chooses the native
    compiler with exactly `os.environ.get("CC", "cc")`.
-3. An absolute command-scoped `CC=/opt/homebrew/opt/llvm/bin/clang` therefore
-   wins without a Make variable, project setting or `PATH` lookup. There is no
-   later compiler selector in this call path.
+3. An absolute `CC=/opt/homebrew/opt/llvm/bin/clang` would select the native
+   compiler, but it would also be inherited by the three NanoLang compiler
+   subprocesses that build the test drivers. I therefore do not use a global
+   `CC` override when driver-byte identity matters.
 4. Native execution copies the complete process environment and replaces only
    `ASAN_OPTIONS` with the existing
    `detect_leaks=1:halt_on_error=1`. The corrected selection does not disable or
@@ -141,13 +142,21 @@ I reserve a new detached exact603 checkout and evidence layout for review:
 /private/tmp/nanolang-parser-lsan-tmp-603785c9
 ```
 
+Before execution I will add a test-only `NANO_NATIVE_TEST_CC` override at the
+single `execute_pair` compile call. Its precedence is
+`NANO_NATIVE_TEST_CC`, then the existing `CC`, then `cc`. No producer, Make
+rule or production compiler reads the new test-only variable. The corrected
+command explicitly removes `CC`, so the three driver producers retain their
+original environment while native generated-C compilation selects Homebrew
+Clang23.
+
 I will copy the eight hash-qualified compiler/runtime executables from the
 preserved preceding checkout, freeze their hashes and the6,431 tracked sources,
 then run exactly this affected method first:
 
 ```text
 set -o pipefail
-env CC=/opt/homebrew/opt/llvm/bin/clang \
+env -u CC NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang \
     TMPDIR=/private/tmp/nanolang-parser-lsan-tmp-603785c9 \
     /usr/bin/time -p python3 -m unittest -f -v \
     tests.test_checked_owner_selection.CheckedOwnerSelection.test_exact_lexical_dependencies_and_selected_suffix \
@@ -169,5 +178,6 @@ set -o pipefail
 ```
 
 I do not repeat bootstrap, the36-source matrix, callable controls, union
-controls or any historical failed artifact. This is a documentation-only
-correction checkpoint; no corrected fixture has run yet.
+controls or any historical failed artifact. This updated checkpoint records
+the inherited-driver-environment finding before the test-only selector change;
+no corrected fixture has run yet.
