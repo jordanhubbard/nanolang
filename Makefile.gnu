@@ -5426,3 +5426,10 @@ test-file-body-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 .PHONY: test-owned-array-mutation-runtime
 test-owned-array-mutation-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_owned_array_mutation_runtime
+
+.PHONY: test-file-hosted test-file-hosted-sanitizers
+test-units: test-file-hosted
+test-file-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_HOSTED_CC="$(CC)" NANO_FILE_HOSTED_CFLAGS="$(CFLAGS)" NANO_FILE_HOSTED_SANITIZERS=0 FILE_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_hosted
+test-file-hosted-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_hosted

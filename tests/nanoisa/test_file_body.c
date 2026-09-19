@@ -138,7 +138,10 @@ static void allocation_recovery(void){
  nvm_file_flow_state_free(s);nvm_file_flow_declarations_free(d);nvm_module_free(m);CHECK(!live);
 #endif
 }
-int main(void){complete_bodies();wrong_bodies();joins_and_cleanup();known_result_and_projection();scalar_and_capacity();allocation_recovery();
+#ifndef FILE_BODY_MAIN
+#define FILE_BODY_MAIN main
+#endif
+int FILE_BODY_MAIN(void){complete_bodies();wrong_bodies();joins_and_cleanup();known_result_and_projection();scalar_and_capacity();allocation_recovery();
 #ifdef FLOW_INSTRUMENT
  CHECK(!live);
 #endif
