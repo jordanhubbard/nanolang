@@ -145,3 +145,33 @@ and only checked concrete FLOAT sites there. Thus PROVED asserts conditional
 well-formed summaries for all bodies plus closed concrete origin obligations
 for the selected entry, not unconditional concrete origins for every helper.
 It grants no affine, complete scalar or runtime permission.
+
+## My first production whitelist is explicit
+
+I accept PUSH_I64/F64/U8/BOOL/VOID/STR; I64_ADD/SUB/MUL/DIV_S/REM_S/NEG;
+F64_ADD/SUB/MUL/DIV/NEG; I64_EQ/NE/LT_S/LE_S/GT_S/GE_S and
+F64_EQ/NE/LT/LE/GT/GE; BOOL_AND/OR/NOT; generic EQ/NE over nonmanaged scalar
+alternatives; NOP/DUP/POP/SWAP/ROT3; LOAD_LOCAL/STORE_LOCAL;
+OWN_MOVE_LOCAL/OWN_STORE_LOCAL/OWN_PACK/OWN_UNPACK_LOCAL; owner-only AGG_GET;
+ARR_NEW/LITERAL/PUSH/SET/GET/LEN; JMP/JMP_TRUE/JMP_FALSE/CALL/RET/ASSERT.
+Typed numeric and control operands must be exact. Generic ordering, STRING
+comparison/arithmetic/conversion, ordinary AGG_PACK/projection, slices, copies,
+references, FFI and every unlisted opcode refuse. STRING transport consists of
+literal, stack/local, exact signature, owner pack/projection/unpack/call/return
+paths only; this private query does not grant new executable STRING signatures.
+
+I store immutable ARRAY-only field vectors in one65,536-cell pool. Each owner
+construction, formal seed, substituted call result and changed join charges new
+cells; nested child projections share immutable subranges. The pool includes
+intermediate vectors retained through fixed points. Exported helper input/result
+rows are bounded eight-by256 each. Scratch state is at most512 values; each
+substitution visits at most256 formal bits and bounded actual leaf paths. No
+runtime objects or mutable alias identities are manufactured by this storage.
+
+I additionally cap charged field-transfer work at262,144 units, separately from
+dequeued instruction visits: vector materialization, changed-join scans,
+requirement scans, projection path scans and256-bit substitution scans consume
+that budget. Formal paths use exact declared parameter offsets into immutable
+ARRAY vectors, avoiding a repeated linear path-name search for every symbol.
+Exhaustion refuses without partial output. This conservative additional bound
+may reject a module that fits the storage limits; it does not grant partial proof.
