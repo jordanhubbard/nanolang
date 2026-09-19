@@ -257,3 +257,19 @@ cover new adapter and private query plus retained-layout helpers and both bridge
 directions, with recovery and sanitizer cleanup. I run old v1 transport and mixed
 boundary controls separately. The inherited private fixture/gates remain sealed
 in their original tree. No valid service program is executed by these controls.
+
+### My first combined terminal and exact reader prerequisite
+
+At frozen f5e07, Linux bootstrap passes251.959s, then the first combined GCC
+gate stops5.492s at valid container deserialize, before allocation-prefix
+controls. Static inspection finds the service-section reader still requires
+exact56 bytes; the approved nominal writer emits120. I record `task_9664cf4ef91f101b7b2c1aed8e817a03` before
+correction. I preserve the original source, wire, fixture executable and reports
+without replay; the independent first Darwin run remains frozen too.
+
+I will accept only exact56 or120 bytes at section framing, then retain complete
+version/catalog/layout/ownership and feature consistency validation. Unknown
+versions, cross-version lengths and malformed required sections still refuse.
+The source delta receives review before fresh reader and dependent fixture
+qualification. The prior successful bootstrap remains pinned to f5e07; a later
+reader-only correction does not acquire a new bootstrap claim.
