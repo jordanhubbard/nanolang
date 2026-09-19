@@ -334,6 +334,9 @@ void nvm_strip_debug_info(NvmModule *mod);
 
 /* Serialize module to a byte buffer. Caller must free returned buffer.
  * Sets *out_size to the total size. Returns NULL on error. */
+/* Descriptive instruction scan only; no CODE validation or service authority. */
+bool nvm_file_instructions_present(const NvmModule *mod);
+
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size);
 
 /* Deserialize a byte buffer into a module. Returns NULL on error. */

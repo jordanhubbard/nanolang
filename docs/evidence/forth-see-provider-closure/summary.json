@@ -1,0 +1,13 @@
+{
+  "production": "094b846ba",
+  "darwin_source_files": 6652,
+  "darwin_sources_unchanged": true,
+  "darwin_archive_matches_commit": true,
+  "darwin_source_map_sha256": "f90fe2bbb2fdf8be7cd5fdfca8912070ef19637f623a3e17b2e077638dd83c13",
+  "linux_provider_compiler_inputs": 38,
+  "linux_tool_identities_captured": "after execution; no pre-run compiler identity claim",
+  "artifacts": {
+    "forth": "6f11e360b4c42284eaac1173982a362ca7138ccbdf9dafa9ffe882e9c8d4ba04",
+    "see.fth": "e6a09eea16a98fac834a54f9989389d1f5d8e904111134cce9a72d72b2ce73aa"
+  }
+}

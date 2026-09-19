@@ -1,0 +1,442 @@
+{
+  "/tmp/nano-service-module-a3pneeju/allocation": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/d180672500e40910da610aa5466004a76128aa21269fac05b5dc65fa16acd029",
+    "sha256": "d180672500e40910da610aa5466004a76128aa21269fac05b5dc65fa16acd029"
+  },
+  "/tmp/nano-service-module-a3pneeju/allocation-build-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/b8f03b3afa4c9eb82f8b68872dda45749816ec36af669c10605b40374a53949f",
+    "sha256": "b8f03b3afa4c9eb82f8b68872dda45749816ec36af669c10605b40374a53949f"
+  },
+  "/tmp/nano-service-module-a3pneeju/allocation-build.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-a3pneeju/allocation-run-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/a994089af34522879b6ba9121e69b50a4e0a2b0fc60190cad55951b153569701",
+    "sha256": "a994089af34522879b6ba9121e69b50a4e0a2b0fc60190cad55951b153569701"
+  },
+  "/tmp/nano-service-module-a3pneeju/allocation-run.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/f53a546736bd84eae29d16d24481b634102f282cddd50853f2a1dfc319b57ebd",
+    "sha256": "f53a546736bd84eae29d16d24481b634102f282cddd50853f2a1dfc319b57ebd"
+  },
+  "/tmp/nano-service-module-a3pneeju/allocation.nvm": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e5bdaaed1a05e704c032acc01ee723dd0c3b58b6085d9b3f7fefa9792f32c668",
+    "sha256": "e5bdaaed1a05e704c032acc01ee723dd0c3b58b6085d9b3f7fefa9792f32c668"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-facts-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c08fa9cb2412890cd65e884f7f28e4ffe4a79f44f1c065f077dedef536353370",
+    "sha256": "c08fa9cb2412890cd65e884f7f28e4ffe4a79f44f1c065f077dedef536353370"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-facts.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/3cc014e6160d1c6c97d54ffd69182dc2c0f72b464df3bd4bd42e057814a60d81",
+    "sha256": "3cc014e6160d1c6c97d54ffd69182dc2c0f72b464df3bd4bd42e057814a60d81"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-llvm-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/587393b9d945ce2702f213b4b976dc15cf2186ac47ef1ad8aaa54b4df1a326e6",
+    "sha256": "587393b9d945ce2702f213b4b976dc15cf2186ac47ef1ad8aaa54b4df1a326e6"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-llvm.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/1f39b4339817a58b0160d1f457dc278fb4034908edd4a6bdfc4da4d58073c554",
+    "sha256": "1f39b4339817a58b0160d1f457dc278fb4034908edd4a6bdfc4da4d58073c554"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-native-c-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/86a40924c22fe2a80d22d02fe0448778f465e862bb0ab1c2c85a5966fb387ab0",
+    "sha256": "86a40924c22fe2a80d22d02fe0448778f465e862bb0ab1c2c85a5966fb387ab0"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-native-c.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/4ce758d3df52dadfe07a247003b457f6a6cd88d910de7211106f68d2cd86dbf1",
+    "sha256": "4ce758d3df52dadfe07a247003b457f6a6cd88d910de7211106f68d2cd86dbf1"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-recover-c-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/f41dca14e77886cedaf73f1afaca7c76d27687e4adf6d087d193ad16e9590f25",
+    "sha256": "f41dca14e77886cedaf73f1afaca7c76d27687e4adf6d087d193ad16e9590f25"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-recover-c.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-recover-nano-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/3827d830740c5deded90e13a2fa49bc16591fac6f26aacab63c31d8d47d4fad8",
+    "sha256": "3827d830740c5deded90e13a2fa49bc16591fac6f26aacab63c31d8d47d4fad8"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-recover-nano.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-wasm-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/6382e976c4547a39df516c3fb25a771bcc5f54f1c397d42bc69a0756678201ab",
+    "sha256": "6382e976c4547a39df516c3fb25a771bcc5f54f1c397d42bc69a0756678201ab"
+  },
+  "/tmp/nano-service-module-a3pneeju/cli-wasm.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/0205a1a6dce336a5a507ea2b7b154eb25883c5b7638d7f69820214715731e6c1",
+    "sha256": "0205a1a6dce336a5a507ea2b7b154eb25883c5b7638d7f69820214715731e6c1"
+  },
+  "/tmp/nano-service-module-a3pneeju/facts-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-a3pneeju/linked": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/5d5cb5df8d1f11c8d4e97e4cd58d4ca2271db928e5005cf5720c42533dab34d5",
+    "sha256": "5d5cb5df8d1f11c8d4e97e4cd58d4ca2271db928e5005cf5720c42533dab34d5"
+  },
+  "/tmp/nano-service-module-a3pneeju/linked-build-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e2a4c636d882415d99e914699d865cf16d67ce9f32d84b894d17d9ba23a2fa55",
+    "sha256": "e2a4c636d882415d99e914699d865cf16d67ce9f32d84b894d17d9ba23a2fa55"
+  },
+  "/tmp/nano-service-module-a3pneeju/linked-build.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-a3pneeju/linked-run-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/6f0b5491e29d47b6a4f332135e68db664cc4818463d371af3403e3718bf1081c",
+    "sha256": "6f0b5491e29d47b6a4f332135e68db664cc4818463d371af3403e3718bf1081c"
+  },
+  "/tmp/nano-service-module-a3pneeju/linked-run.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/2efa29d5f3a96029fdc498fbb1041fcb967353b9b151b7302ef262c62f903816",
+    "sha256": "2efa29d5f3a96029fdc498fbb1041fcb967353b9b151b7302ef262c62f903816"
+  },
+  "/tmp/nano-service-module-a3pneeju/linked.nvm": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e5bdaaed1a05e704c032acc01ee723dd0c3b58b6085d9b3f7fefa9792f32c668",
+    "sha256": "e5bdaaed1a05e704c032acc01ee723dd0c3b58b6085d9b3f7fefa9792f32c668"
+  },
+  "/tmp/nano-service-module-a3pneeju/llvm-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-a3pneeju/mixed-boundary": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/57cc337407673aec01a02db5fdd034dc9cc756de0ed417e12d9ee3bd70dac721",
+    "sha256": "57cc337407673aec01a02db5fdd034dc9cc756de0ed417e12d9ee3bd70dac721"
+  },
+  "/tmp/nano-service-module-a3pneeju/mixed-build-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/826e48a293cd6abacea65c8d00fce7117e9aa95c5a380a2678feadb5dfbca7cb",
+    "sha256": "826e48a293cd6abacea65c8d00fce7117e9aa95c5a380a2678feadb5dfbca7cb"
+  },
+  "/tmp/nano-service-module-a3pneeju/mixed-build.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-a3pneeju/mixed-run-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/bb8a2a8b2e4a5f7106a43dbafd188ef69af2bbef753dd20ea36500f8a9a8d0ea",
+    "sha256": "bb8a2a8b2e4a5f7106a43dbafd188ef69af2bbef753dd20ea36500f8a9a8d0ea"
+  },
+  "/tmp/nano-service-module-a3pneeju/mixed-run.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/69112eba73b40c44d87b02b6ec11a78fb5a5b16ab289e2680f6a35df9fccf2a4",
+    "sha256": "69112eba73b40c44d87b02b6ec11a78fb5a5b16ab289e2680f6a35df9fccf2a4"
+  },
+  "/tmp/nano-service-module-a3pneeju/native-c-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-a3pneeju/nvm_format-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/cff76f104f360f04d1b5eba8520660a0ef21422bdb6b43ca6c9765cde9eeb3b3",
+    "sha256": "cff76f104f360f04d1b5eba8520660a0ef21422bdb6b43ca6c9765cde9eeb3b3"
+  },
+  "/tmp/nano-service-module-a3pneeju/nvm_format-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-a3pneeju/nvm_format-instrumented.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/9f089152074f459c19a1e8d8916d9a654e945a03140d9276803b4b9858f92665",
+    "sha256": "9f089152074f459c19a1e8d8916d9a654e945a03140d9276803b4b9858f92665"
+  },
+  "/tmp/nano-service-module-a3pneeju/nvm_v2_convert-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/998585cf91b9e9a35472932c01502b7ee43b915763197235f883c7745913fa95",
+    "sha256": "998585cf91b9e9a35472932c01502b7ee43b915763197235f883c7745913fa95"
+  },
+  "/tmp/nano-service-module-a3pneeju/nvm_v2_convert-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-a3pneeju/nvm_v2_convert-instrumented.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/865c9ac70ea59cafe17f9d3a9d42610b2976dbb2f38bf4d5295e3f0f25091ba8",
+    "sha256": "865c9ac70ea59cafe17f9d3a9d42610b2976dbb2f38bf4d5295e3f0f25091ba8"
+  },
+  "/tmp/nano-service-module-a3pneeju/recover-c-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-a3pneeju/recover-nano-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-a3pneeju/service_bindings_module-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/3f69d9e7f0ad4b53237f68f325d13c665f08a71c1f94be2be7e1bdb59e334661",
+    "sha256": "3f69d9e7f0ad4b53237f68f325d13c665f08a71c1f94be2be7e1bdb59e334661"
+  },
+  "/tmp/nano-service-module-a3pneeju/service_bindings_module-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-a3pneeju/service_bindings_module-instrumented.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/9750466d2aefb34ce3fb27417cdc1d405f10d726a5fdfae14254b98771e68a99",
+    "sha256": "9750466d2aefb34ce3fb27417cdc1d405f10d726a5fdfae14254b98771e68a99"
+  },
+  "/tmp/nano-service-module-a3pneeju/wasm-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/6025e00f2f968249554c0f4dc86da3af109a51081a15d32cfbd944ec64e2f509",
+    "sha256": "6025e00f2f968249554c0f4dc86da3af109a51081a15d32cfbd944ec64e2f509"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-build-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/ae5032435969278f672314da83a79143af6312ab7c99569f1d71af289a784b04",
+    "sha256": "ae5032435969278f672314da83a79143af6312ab7c99569f1d71af289a784b04"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-build.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-nvm_format-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/24e5639a05aa5dad8100669ace89aabdcd18828621e5f9b5cbb7b53ee45b5c01",
+    "sha256": "24e5639a05aa5dad8100669ace89aabdcd18828621e5f9b5cbb7b53ee45b5c01"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-nvm_format-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-nvm_format.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/9f089152074f459c19a1e8d8916d9a654e945a03140d9276803b4b9858f92665",
+    "sha256": "9f089152074f459c19a1e8d8916d9a654e945a03140d9276803b4b9858f92665"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-nvm_v2_convert-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/bad65d2a71d4c31599eaf57b5aa37a9d27a3846fe72ee7a55baec7a4f5b98538",
+    "sha256": "bad65d2a71d4c31599eaf57b5aa37a9d27a3846fe72ee7a55baec7a4f5b98538"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-nvm_v2_convert-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-nvm_v2_convert.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/865c9ac70ea59cafe17f9d3a9d42610b2976dbb2f38bf4d5295e3f0f25091ba8",
+    "sha256": "865c9ac70ea59cafe17f9d3a9d42610b2976dbb2f38bf4d5295e3f0f25091ba8"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-nvm_v2_layouts-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/9f865ea0a8b739623df54bb4482dbefe63ef78e8f5701e26f3cd857b7ead66be",
+    "sha256": "9f865ea0a8b739623df54bb4482dbefe63ef78e8f5701e26f3cd857b7ead66be"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-nvm_v2_layouts-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-nvm_v2_layouts.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/a88aedcbc8ddad420c9935f684b7c1d9a95ee3590334d2621cd581defe3c1720",
+    "sha256": "a88aedcbc8ddad420c9935f684b7c1d9a95ee3590334d2621cd581defe3c1720"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-retained_layouts-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/a7eab7f4d93a3a274e68c903cef6bfa3ba08203b559475de1f31c012fdafe50d",
+    "sha256": "a7eab7f4d93a3a274e68c903cef6bfa3ba08203b559475de1f31c012fdafe50d"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-retained_layouts-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-retained_layouts.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e0d76de019c7c5430adf3b2dca82d099298c8490ddb4b20889e9671cb22ad804",
+    "sha256": "e0d76de019c7c5430adf3b2dca82d099298c8490ddb4b20889e9671cb22ad804"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-run-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/b0eb415759ba9b77078c11716765715d6d1cd6c8f74642c42a66d58e6ff46daf",
+    "sha256": "b0eb415759ba9b77078c11716765715d6d1cd6c8f74642c42a66d58e6ff46daf"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-run.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e647e1dc5300c3de49dc53743e6e4a0d314d5090284229360350f4daf417061f",
+    "sha256": "e647e1dc5300c3de49dc53743e6e4a0d314d5090284229360350f4daf417061f"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-service_bindings_module-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/4db00abe9fe287c438c92028f342bc1e89a49663467d02a109fb57d511dcbba9",
+    "sha256": "4db00abe9fe287c438c92028f342bc1e89a49663467d02a109fb57d511dcbba9"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-service_bindings_module-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-service_bindings_module.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/9750466d2aefb34ce3fb27417cdc1d405f10d726a5fdfae14254b98771e68a99",
+    "sha256": "9750466d2aefb34ce3fb27417cdc1d405f10d726a5fdfae14254b98771e68a99"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-service_file_nominal_plan-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c29ab65e6503dbed181eaaab52d4c9fe34a8d2dc8906d48b18bb3abc84820844",
+    "sha256": "c29ab65e6503dbed181eaaab52d4c9fe34a8d2dc8906d48b18bb3abc84820844"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-service_file_nominal_plan-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation-service_file_nominal_plan.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/27354b3bb1ae24c85ff822ba5f090640b8fc1e1ece256eb1d5d7508c54174481",
+    "sha256": "27354b3bb1ae24c85ff822ba5f090640b8fc1e1ece256eb1d5d7508c54174481"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-allocation.nvm": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/8ff0431bcdf1d0140d16975a5d5b79d4f956868c96926de08573d8153e92ba26",
+    "sha256": "8ff0431bcdf1d0140d16975a5d5b79d4f956868c96926de08573d8153e92ba26"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-facts-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c04f7ea8f6771cb16f6e4db448582460ff9bb5ff50c3502f95b7c8b5d1e1f370",
+    "sha256": "c04f7ea8f6771cb16f6e4db448582460ff9bb5ff50c3502f95b7c8b5d1e1f370"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-facts.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/3cc014e6160d1c6c97d54ffd69182dc2c0f72b464df3bd4bd42e057814a60d81",
+    "sha256": "3cc014e6160d1c6c97d54ffd69182dc2c0f72b464df3bd4bd42e057814a60d81"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-llvm-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/b01f8712cf1343b0df25def44242bb7db090a745e85cb4cebd4f1d71c8504d5c",
+    "sha256": "b01f8712cf1343b0df25def44242bb7db090a745e85cb4cebd4f1d71c8504d5c"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-llvm.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/1f39b4339817a58b0160d1f457dc278fb4034908edd4a6bdfc4da4d58073c554",
+    "sha256": "1f39b4339817a58b0160d1f457dc278fb4034908edd4a6bdfc4da4d58073c554"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-native-c-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/33f9920dbf822acc5b35211c59caac2885c3ba004809fe02c65f89688370fc3c",
+    "sha256": "33f9920dbf822acc5b35211c59caac2885c3ba004809fe02c65f89688370fc3c"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-native-c.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/392c635f19a8cf2b1daacab8a47dfd6dc952d19acfa431574e568dbeb842655d",
+    "sha256": "392c635f19a8cf2b1daacab8a47dfd6dc952d19acfa431574e568dbeb842655d"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-recover-c-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/a9cd2c6125820a626f60a11a149e1519f33281a1f5fa5b57dc56526de999000d",
+    "sha256": "a9cd2c6125820a626f60a11a149e1519f33281a1f5fa5b57dc56526de999000d"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-recover-c.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-recover-nano-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/aff37197eaf6d8c1f3d632bf00aa9613ef582945d098a2dc4ae3892f152df36d",
+    "sha256": "aff37197eaf6d8c1f3d632bf00aa9613ef582945d098a2dc4ae3892f152df36d"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-recover-nano.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-wasm-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/aca774a1772222eed93282fd355d47be751a21bc60aa4747c317ba505e1b70e8",
+    "sha256": "aca774a1772222eed93282fd355d47be751a21bc60aa4747c317ba505e1b70e8"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-cli-wasm.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/0205a1a6dce336a5a507ea2b7b154eb25883c5b7638d7f69820214715731e6c1",
+    "sha256": "0205a1a6dce336a5a507ea2b7b154eb25883c5b7638d7f69820214715731e6c1"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-facts-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/134584bc7886a1649a791f03eb990190b1fc0b97102a37b1f65efdf5c6568e86",
+    "sha256": "134584bc7886a1649a791f03eb990190b1fc0b97102a37b1f65efdf5c6568e86"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-build-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c790cfc3cf352df4d36922473b7581addf870931b02501af997a280ca3062057",
+    "sha256": "c790cfc3cf352df4d36922473b7581addf870931b02501af997a280ca3062057"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-build.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-nvm_format-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/0c895db20bb293907ec5f5d6a395ad13a472ce43353dbeaf922fa15a779007e1",
+    "sha256": "0c895db20bb293907ec5f5d6a395ad13a472ce43353dbeaf922fa15a779007e1"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-nvm_format-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-nvm_format.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/bf089ffb0e8d92d83a03b947504d952d5e53ae4d5cb9583a75ce6de33dbfeaa0",
+    "sha256": "bf089ffb0e8d92d83a03b947504d952d5e53ae4d5cb9583a75ce6de33dbfeaa0"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-nvm_v2_convert-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/cebea4243d7ffe0c1937ab4d0924774bbaf301360910d66c39d81695bab8d85b",
+    "sha256": "cebea4243d7ffe0c1937ab4d0924774bbaf301360910d66c39d81695bab8d85b"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-nvm_v2_convert-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-nvm_v2_convert.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/3620e1cd4829dc5fbadaffb08d7ee69bb4d06e0abec471822e618759446e9fa0",
+    "sha256": "3620e1cd4829dc5fbadaffb08d7ee69bb4d06e0abec471822e618759446e9fa0"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-nvm_v2_layouts-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/55f6113bb5c74e161f5b366a6035c1b0a148950e74317ba5d0363890955fab4d",
+    "sha256": "55f6113bb5c74e161f5b366a6035c1b0a148950e74317ba5d0363890955fab4d"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-nvm_v2_layouts-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-nvm_v2_layouts.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/61962fa72cbb205127cd0b9a31b922f33c4f82affbcd65d46059dc5b7bad6ee4",
+    "sha256": "61962fa72cbb205127cd0b9a31b922f33c4f82affbcd65d46059dc5b7bad6ee4"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-retained_layouts-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/ec4b4e70440fa3e5a5271a874aa3fcc778cec38f07f6db7386ca4adfe9d3319b",
+    "sha256": "ec4b4e70440fa3e5a5271a874aa3fcc778cec38f07f6db7386ca4adfe9d3319b"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-retained_layouts-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-retained_layouts.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/48dd34ecae54ac1165ad962d402b363b9e50a5b3f49ef0cb2927ea1c459b1e01",
+    "sha256": "48dd34ecae54ac1165ad962d402b363b9e50a5b3f49ef0cb2927ea1c459b1e01"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-run-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/81aecd3dc214f7db9fb0c0a1af796edf4cc64a50a3fa04179f35afd3fbe7bb9c",
+    "sha256": "81aecd3dc214f7db9fb0c0a1af796edf4cc64a50a3fa04179f35afd3fbe7bb9c"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-run.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/b07fd21df613bee863cb2cab168b0de3e0684342724c8116bfe80d0a4024853c",
+    "sha256": "b07fd21df613bee863cb2cab168b0de3e0684342724c8116bfe80d0a4024853c"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-service_bindings_module-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/1550a6b5dc710da9ca6250d5be81c3b26824358a612f5c433a26784958f934d1",
+    "sha256": "1550a6b5dc710da9ca6250d5be81c3b26824358a612f5c433a26784958f934d1"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-service_bindings_module-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-service_bindings_module.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/66ba18b4d3204afe4c82db1d0a345f746e562758da95de306b406fb7d16b4d38",
+    "sha256": "66ba18b4d3204afe4c82db1d0a345f746e562758da95de306b406fb7d16b4d38"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-service_file_nominal_plan-compile-command.txt": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/3ebb67de1326b92f820452867bde9875c412d6ad032151ab8dc5f7ba73a74975",
+    "sha256": "3ebb67de1326b92f820452867bde9875c412d6ad032151ab8dc5f7ba73a74975"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-service_file_nominal_plan-compile.log": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked-service_file_nominal_plan.o": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/7cae25a4ebd9b2bfb8a8d5f47e6ee331be6f6861f7c70ac026863b9189432290",
+    "sha256": "7cae25a4ebd9b2bfb8a8d5f47e6ee331be6f6861f7c70ac026863b9189432290"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-linked.nvm": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/8ff0431bcdf1d0140d16975a5d5b79d4f956868c96926de08573d8153e92ba26",
+    "sha256": "8ff0431bcdf1d0140d16975a5d5b79d4f956868c96926de08573d8153e92ba26"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-llvm-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-native-c-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-recover-c-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-recover-nano-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  },
+  "/tmp/nano-service-module-k_tfvk6l/nominal-wasm-preserved": {
+    "artifact": "/tmp/nanolang-file-opcodes-ff5-linux/retained-fixture-artifacts/c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669"
+  }
+}

@@ -208,7 +208,54 @@ static void integer_output(void) {
     }
 }
 
+static void public_parameter_bounds(void) {
+    NvmModule *m=authority_fixture();unsigned char sentinel;
+    uint32_t functions=m->function_count;NvmFunctionEntry *entries=m->functions;
+    uint32_t size=m->ownership_size;uint8_t *bytes=malloc(size);CHECK(bytes);memcpy(bytes,m->ownership_data,size);
+    /* Five flags occupy bytes8..12; the aligned function-count word is16. */
+    CHECK(size>20 && bytes[16]==functions && bytes[17]==0 && bytes[18]==0 && bytes[19]==0);
+    for(unsigned which=0;which<7;which++) {
+        NvmOwnedArrayPlan *plan=(void *)&sentinel;NvmOwnerAuthorityStatus wanted=NVM_OWNER_AUTH_INVALID;
+        uint16_t arity=entries[0].arity,locals=entries[0].local_count;
+        if(which==0)m->functions=NULL;
+        if(which==1){m->function_count=9;m->ownership_data[16]=9;wanted=NVM_OWNER_AUTH_LIMIT;}
+        if(which==2){entries[0].arity=9;wanted=NVM_OWNER_AUTH_LIMIT;}
+        if(which==3){entries[0].local_count=257;wanted=NVM_OWNER_AUTH_LIMIT;}
+        if(which==4)m->ownership_size=20; /* No function descriptor header. */
+        if(which==5)m->ownership_size=25; /* Header plus incomplete result descriptor. */
+        if(which==6)m->ownership_data[25]=1; /* Nonparameter mode: full query must reject. */
+        NvmModule before=*m;NvmFunctionEntry saved_entry=entries[0];
+        NvmOwnerAuthorityResult result=nvm_owned_array_admit(m,&plan);
+        fprintf(stderr,"public parameter boundary=%u status=%u\n",which,(unsigned)result.status);
+        CHECK(result.status==wanted && plan==(void *)&sentinel);
+        CHECK(!memcmp(&before,m,sizeof before) && !memcmp(&saved_entry,&entries[0],sizeof saved_entry));
+        m->functions=entries;m->function_count=functions;m->ownership_size=size;
+        entries[0].arity=arity;entries[0].local_count=locals;memcpy(m->ownership_data,bytes,size);
+        plan=NULL;CHECK(nvm_owned_array_admit(m,&plan).status==NVM_OWNER_AUTH_PREPARED);nvm_owned_array_plan_free(plan);
+    }
+    /* Retain an exact parameter descriptor but reject an unsupported tag before
+     * the wrapper can substitute it into the temporary view. */
+    NvmV2Cursor cursor;uint32_t word;const uint8_t *flags;
+    nvm_v2_cursor_init(&cursor,m->ownership_data,size);
+    CHECK(nvm_v2_u32(&cursor,&word)==NVM_V2_OK && nvm_v2_u32(&cursor,&word)==NVM_V2_OK);
+    CHECK(nvm_v2_take(&cursor,word,&flags)==NVM_V2_OK && nvm_v2_align4(&cursor)==NVM_V2_OK && nvm_v2_u32(&cursor,&word)==NVM_V2_OK);
+    uint32_t parameter=0;
+    for(uint32_t f=0;f<functions;f++) {
+        uint16_t locals,params;const uint8_t *row;
+        CHECK(nvm_v2_u16(&cursor,&locals)==NVM_V2_OK && nvm_v2_u16(&cursor,&params)==NVM_V2_OK);
+        for(uint32_t n=0;n<=(uint32_t)locals;n++) {
+            CHECK(nvm_v2_take(&cursor,8,&row)==NVM_V2_OK);
+            if(!parameter && params && n==1)parameter=(uint32_t)(row-m->ownership_data);
+        }
+    }
+    CHECK(parameter);m->ownership_data[parameter]=TAG_FLOAT;
+    NvmOwnedArrayPlan *plan=(void *)&sentinel;
+    CHECK(nvm_owned_array_admit(m,&plan).status==NVM_OWNER_AUTH_UNRESOLVED && plan==(void *)&sentinel);
+    CHECK(m->ownership_data[parameter]==TAG_FLOAT);memcpy(m->ownership_data,bytes,size);
+    CHECK(nvm_owned_array_admit(m,&plan).status==NVM_OWNER_AUTH_PREPARED);nvm_owned_array_plan_free(plan);
+    CHECK(!memcmp(bytes,m->ownership_data,size));free(bytes);nvm_module_free(m);
+}
 int main(void) {
-    prepared_and_faults();independent_exits();joins_and_refusals();optional_operands();integer_output();
+    public_parameter_bounds();prepared_and_faults();independent_exits();joins_and_refusals();optional_operands();integer_output();
     printf("%u private owner ARRAY authority checks passed; no pending module execution\n",checks);return 0;
 }

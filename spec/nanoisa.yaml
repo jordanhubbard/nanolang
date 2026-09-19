@@ -51,6 +51,13 @@ legacy_opcodes:
   - {name: POP, code: 0x08, operands: [], pops: 1, pushes: 0}
   - {name: SWAP, code: 0x09, operands: [], pops: 2, pushes: 2}
   - {name: ROT3, code: 0x0a, operands: [], pops: 3, pushes: 3}
+  # I decode this exact File family without granting execution authority.
+  - {name: FILE_SERVICE, code: 0x91, operands: [U32, U16], pops: -1, pushes: 1}
+  - {name: FILE_RESULT_BRANCH, code: 0x92, operands: [U16, I32], pops: 0, pushes: 0}
+  - {name: FILE_RESULT_TAKE, code: 0x93, operands: [U16, U8], pops: 0, pushes: 1}
+  - {name: FILE_DROP_LOCAL, code: 0x94, operands: [U16], pops: 0, pushes: 0}
+  - {name: FILE_DROP_STACK, code: 0x95, operands: [], pops: 1, pushes: 0}
+  - {name: FILE_END_BORROW, code: 0x96, operands: [U16], pops: 0, pushes: 0}
   - {name: OWN_MOVE_LOCAL, code: 0x0b, operands: [U16], pops: 0, pushes: 1}
   - {name: OWN_STORE_LOCAL, code: 0x0c, operands: [U16], pops: 1, pushes: 0}
   - {name: OWN_PACK, code: 0x0d, operands: [U32], pops: -1, pushes: 1}

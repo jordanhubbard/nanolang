@@ -1,0 +1,15 @@
+[
+  {
+    "command": [
+      "make",
+      "test-nanoisa",
+      "test-disasm-roundtrip",
+      "test-nvm-v2-convert",
+      "test-service-module",
+      "test-file-nominal-module"
+    ],
+    "phase": "adjacent",
+    "seconds": 11.874,
+    "status": 2
+  }
+]

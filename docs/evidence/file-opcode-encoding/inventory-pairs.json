@@ -1,0 +1,98 @@
+[
+  {
+    "count": 6655,
+    "equal": true,
+    "kind": "source",
+    "scope": "linux-first-setup"
+  },
+  {
+    "count": 8,
+    "equal": true,
+    "kind": "tools",
+    "scope": "linux-first-setup"
+  },
+  {
+    "count": 6655,
+    "equal": true,
+    "kind": "source",
+    "scope": "linux-focused"
+  },
+  {
+    "count": 8,
+    "equal": true,
+    "kind": "tools",
+    "scope": "linux-focused"
+  },
+  {
+    "count": 6655,
+    "equal": true,
+    "kind": "source",
+    "scope": "linux-first-adjacency"
+  },
+  {
+    "count": 8,
+    "equal": true,
+    "kind": "tools",
+    "scope": "linux-first-adjacency"
+  },
+  {
+    "count": 6655,
+    "equal": true,
+    "kind": "source",
+    "scope": "linux-second-adjacency"
+  },
+  {
+    "count": 8,
+    "equal": true,
+    "kind": "tools",
+    "scope": "linux-second-adjacency"
+  },
+  {
+    "count": 6655,
+    "equal": true,
+    "kind": "source",
+    "scope": "linux-final-adjacency"
+  },
+  {
+    "count": 9,
+    "equal": true,
+    "kind": "tools",
+    "scope": "linux-final-adjacency"
+  },
+  {
+    "count": 6655,
+    "equal": true,
+    "kind": "source",
+    "scope": "darwin-focused-first-adjacency"
+  },
+  {
+    "count": 8,
+    "equal": true,
+    "kind": "tools",
+    "scope": "darwin-focused-first-adjacency"
+  },
+  {
+    "count": 6655,
+    "equal": true,
+    "kind": "source",
+    "scope": "darwin-first-checkout"
+  },
+  {
+    "count": 10,
+    "equal": true,
+    "kind": "tools",
+    "scope": "darwin-first-checkout"
+  },
+  {
+    "count": 6655,
+    "equal": true,
+    "kind": "source",
+    "scope": "darwin-final-adjacency"
+  },
+  {
+    "count": 10,
+    "equal": true,
+    "kind": "tools",
+    "scope": "darwin-final-adjacency"
+  }
+]

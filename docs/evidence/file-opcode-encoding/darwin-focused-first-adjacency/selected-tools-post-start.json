@@ -1,0 +1,18 @@
+{
+  "scope": "captured after driver start; not an initial before-phase inventory",
+  "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "tools": {
+    "selected_make_compiler": {
+      "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "sha256": "1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9"
+    },
+    "selected_fixture_compiler": {
+      "path": "/opt/homebrew/opt/llvm/bin/clang",
+      "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+    },
+    "libcrypto": {
+      "path": "/opt/homebrew/opt/openssl@3/lib/libcrypto.dylib",
+      "sha256": "bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c"
+    }
+  }
+}
