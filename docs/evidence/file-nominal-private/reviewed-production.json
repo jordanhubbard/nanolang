@@ -1,0 +1,10 @@
+{
+  "pin": "8215045a9",
+  "current": {
+    "src/nanoisa/service_file_nominal.c": "d24a0c9008505977bee4fa8e7402d048e9993fd69ae7284bfc2c5aef180bf32d",
+    "src/nanoisa/service_file_nominal.h": "8cedc2ad3273e0b606354075234edefa0bf3ae65768966e270d9f5df623a6aa5",
+    "src/nanoisa/service_file_nominal_plan.c": "4bfd1de4086ba74d3263b89ada3a2c2e6b2cd57933b597412c9d36b3476513fb",
+    "src/nsi_file_catalog.h": "95ab2277fc3dd7993f1130617591a4cc06bde8e2158de6f023dc47c1c2006a35",
+    "src/nsi_file_plan.c": "d6305ef4f0a6c26868c4ab32a077d1481d57ab535232cea3ebadf3680d15717f"
+  }
+}
