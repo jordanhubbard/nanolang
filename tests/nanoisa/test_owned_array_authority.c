@@ -1,0 +1,121 @@
+/* I reuse unchanged ordinary module builders, not execution paths. */
+#define main origin_fixture_main
+#include "test_owned_array_origins.c"
+#undef main
+#include "owned_array_authority.h"
+#include "verifier.h"
+static NvmOwnedArrayPlan *authority(NvmModule *m,NvmOwnerAuthorityStatus wanted) {
+    unsigned char sentinel;NvmOwnedArrayPlan *p=(void *)&sentinel;
+    NvmOwnerAuthorityResult r=nvm_prepare_owned_array_authority(m,&p);
+    if(r.status!=wanted)fprintf(stderr,"authority wanted%d got%d f%u pc%u: %s\n",wanted,r.status,r.function,r.pc,r.message);
+    CHECK(r.status==wanted);
+    if(wanted==NVM_OWNER_AUTH_PREPARED){CHECK(p!=(void *)&sentinel);return p;}
+    CHECK(p==(void *)&sentinel);return NULL;
+}
+static void origin_only_refusal(const char *body,const Type *locals,unsigned count) {
+    Function f={body,0,(uint16_t)count,T(TAG_INT),{{0}}};
+    for(unsigned n=0;n<count;n++)f.locals[n]=locals[n];
+    NvmModule *m=build(&f,1);NvmOwnedArrayOrigins *o=expect(m,NVM_OWNER_ORIGIN_PROVED);nvm_owned_array_origins_free(o);
+    authority(m,NVM_OWNER_AUTH_UNRESOLVED);nvm_module_free(m);
+}
+static NvmModule *authority_fixture(void) {
+    Function f[]={
+        {"CALL 1\nOWN_STORE_LOCAL 0\nLOAD_LOCAL 0\nAGG_GET 0\nAGG_GET 1\nARR_LEN\nPOP\n"
+         "OWN_MOVE_LOCAL 0\nCALL 3\nPOP\nPUSH_I64 0\nRET\n",0,1,T(TAG_INT),{OWNER(2)}},
+        {"PUSH_I64 7\nOWN_PACK 0\nARR_NEW 3\nPUSH_STR value\nOWN_PACK 1\n"
+         "PUSH_I64 8\nOWN_PACK 0\nARR_NEW 3\nPUSH_STR value\nOWN_PACK 1\nOWN_PACK 2\nCALL 2\nRET\n",0,0,OWNER(2),{{0}}},
+        {"OWN_MOVE_LOCAL 0\nRET\n",1,1,OWNER(2),{OWNER(2)}},
+        {"OWN_UNPACK_LOCAL 0\nOWN_STORE_LOCAL 1\nOWN_STORE_LOCAL 2\n"
+         "OWN_UNPACK_LOCAL 1\nPOP\nPOP\nOWN_STORE_LOCAL 3\nOWN_UNPACK_LOCAL 3\nPOP\n"
+         "OWN_UNPACK_LOCAL 2\nPOP\nPOP\nOWN_STORE_LOCAL 3\nOWN_UNPACK_LOCAL 3\nRET\n",1,4,T(TAG_INT),{OWNER(2),OWNER(1),OWNER(1),OWNER(0)}},
+        {"OWN_MOVE_LOCAL 0\nRET\n",1,1,OWNER(3),{OWNER(3)}}
+    };
+    return build(f,5);
+}
+static void prepared_and_faults(void) {
+    NvmModule *m=authority_fixture();NvmOwnedArrayPlan *p=authority(m,NVM_OWNER_AUTH_PREPARED);
+    NvmOwnerAuthorityCounts counts;CHECK(nvm_owned_array_plan_counts(p,&counts));
+    CHECK(counts.functions==5 && counts.instructions>30 && counts.persisted_cells>0 && counts.visits>0 && counts.work>0);
+    NvmOwnerSignature s;CHECK(nvm_owned_array_plan_signature(p,0,&s));
+    CHECK(s.max_stack==1 && s.local_count==1 && !s.parameter_count && s.result.tag==TAG_INT && !s.result.owner);
+    CHECK(nvm_owned_array_plan_signature(p,1,&s));CHECK(s.max_stack==4 && s.result.owner && s.result.global_layout==2 && s.result_fields==2);
+    CHECK(nvm_owned_array_plan_signature(p,2,&s));CHECK(s.parameter_count==1 && s.parameters[0].owner && s.parameters[0].global_layout==2 && s.result.owner);
+    NvmOwnerDeclaration local;CHECK(nvm_owned_array_plan_local(p,3,2,&local));CHECK(local.owner && local.tag==TAG_STRUCT && local.global_layout==1 && !local.mode);
+    NvmOwnedArrayLayoutFact row;CHECK(nvm_owned_array_plan_layout(p,2,&row));CHECK(row.flags==3 && row.source_record==2 && row.managed_record==NVM_V2_NO_INDEX && row.has_array && row.has_string);
+    uint32_t global=99;CHECK(nvm_owned_array_plan_source(p,3,&global) && global==3);
+    NvmOwnedArrayTransport transport;CHECK(nvm_owned_array_plan_transport(p,&transport));
+    CHECK(transport.layouts!=m->layout_data && transport.ownership!=m->ownership_data);
+    CHECK(transport.layout_size==m->layout_size && transport.ownership_size==m->ownership_size);
+    CHECK(!memcmp(transport.layouts,m->layout_data,m->layout_size) && !memcmp(transport.ownership,m->ownership_data,m->ownership_size));
+    uint32_t index=0;
+    for(uint32_t f=0;f<m->function_count;f++)for(uint32_t pc=0;pc<m->functions[f].code_length;) {
+        DecodedInstruction in;uint32_t width=isa_decode(m->code+m->functions[f].code_offset+pc,m->functions[f].code_length-pc,&in);CHECK(width);
+        NvmOwnerOriginObligation ob;CHECK(nvm_owned_array_plan_obligation(p,index++,&ob) && ob.function==f && ob.pc==pc);pc+=width;
+    }
+    CHECK(index==counts.instructions);
+    NvmOwnerSignature saved_s=s;CHECK(!nvm_owned_array_plan_signature(p,5,&s) && !memcmp(&s,&saved_s,sizeof s));
+    NvmOwnerDeclaration saved_local=local;CHECK(!nvm_owned_array_plan_local(p,3,4,&local) && !memcmp(&local,&saved_local,sizeof local));
+    NvmOwnedArrayLayoutFact saved_row=row;CHECK(!nvm_owned_array_plan_layout(p,5,&row) && !memcmp(&row,&saved_row,sizeof row));
+    global=99;CHECK(!nvm_owned_array_plan_source(p,5,&global) && global==99);
+    NvmOwnedArrayTransport saved_transport=transport;CHECK(!nvm_owned_array_plan_transport(NULL,&transport) && !memcmp(&transport,&saved_transport,sizeof transport));
+    NvmOwnerAuthorityCounts saved_counts=counts;CHECK(!nvm_owned_array_plan_counts(NULL,&counts) && !memcmp(&counts,&saved_counts,sizeof counts));
+    NvmOwnerOriginObligation ob={8,9,10,11,12},saved_ob=ob;CHECK(!nvm_owned_array_plan_obligation(p,counts.instructions,&ob) && !memcmp(&ob,&saved_ob,sizeof ob));
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);CHECK(!nvm_verify(m).ok);
+    uint8_t *code=malloc(m->code_size),*owned=malloc(m->ownership_size),*layout=malloc(m->layout_size);CHECK(code && owned && layout);
+    memcpy(code,m->code,m->code_size);memcpy(owned,m->ownership_data,m->ownership_size);memcpy(layout,m->layout_data,m->layout_size);
+    unsigned failures=0;bool success=false;
+    for(long limit=0;limit<1024;limit++) {
+        unsigned char sentinel;NvmOwnedArrayPlan *next=(void *)&sentinel;
+        budget=limit;NvmOwnerAuthorityResult r=nvm_prepare_owned_array_authority(m,&next);budget=-1;
+        if(r.status==NVM_OWNER_AUTH_MEMORY){CHECK(next==(void *)&sentinel);failures++;}
+        else {if(r.status!=NVM_OWNER_AUTH_PREPARED)fprintf(stderr,"fault%ld status%d %s\n",limit,r.status,r.message);CHECK(r.status==NVM_OWNER_AUTH_PREPARED);nvm_owned_array_plan_free(next);success=true;}
+        CHECK(!memcmp(code,m->code,m->code_size) && !memcmp(owned,m->ownership_data,m->ownership_size) && !memcmp(layout,m->layout_data,m->layout_size));
+        if(success)break;
+    }
+    CHECK(failures>100 && success);printf("I preserve private plan outputs through %u allocation failures.\n",failures);
+    nvm_module_free(m);CHECK(nvm_owned_array_plan_signature(p,4,&s) && s.result.owner && s.result.global_layout==3);
+    CHECK(!memcmp(transport.layouts,layout,transport.layout_size) && !memcmp(transport.ownership,owned,transport.ownership_size));
+    nvm_owned_array_plan_free(p);free(code);free(owned);free(layout);
+}
+static void independent_exits(void) {
+    Type pair[]={OWNER(3)};
+    origin_only_refusal("ARR_NEW 3\nDUP\nOWN_PACK 3\nOWN_STORE_LOCAL 0\nPUSH_I64 0\nRET\n",pair,1);
+    origin_only_refusal("OWN_PACK 4\nOWN_STORE_LOCAL 0\nPUSH_I64 0\nRET\n",(Type[]){OWNER(4)},1);
+    Function f[]={
+        {"PUSH_I64 0\nRET\n",0,0,T(TAG_INT),{{0}}},
+        {"PUSH_I64 0\nRET\n",1,1,T(TAG_INT),{OWNER(3)}}
+    };
+    NvmModule *m=build(f,2);NvmOwnedArrayOrigins *o=expect(m,NVM_OWNER_ORIGIN_PROVED);nvm_owned_array_origins_free(o);
+    authority(m,NVM_OWNER_AUTH_UNRESOLVED);nvm_module_free(m);
+    f[1].body="OWN_UNPACK_LOCAL 0\nPOP\nPOP\nPUSH_I64 0\nRET\n";
+    m=build(f,2);NvmOwnedArrayPlan *p=authority(m,NVM_OWNER_AUTH_PREPARED);nvm_owned_array_plan_free(p);nvm_module_free(m);
+}
+static void joins_and_refusals(void) {
+    struct {const char *body;bool accepted;} cases[]={
+        {"PUSH_BOOL 1\nJMP_FALSE other\nARR_NEW 3\nSTORE_LOCAL 0\nPUSH_STR value\nSTORE_LOCAL 1\nJMP done\n"
+         "other:\nARR_NEW 3\nSTORE_LOCAL 0\nPUSH_STR value\nSTORE_LOCAL 1\ndone:\nLOAD_LOCAL 0\nARR_LEN\nPOP\nLOAD_LOCAL 1\nPOP\nPUSH_I64 0\nRET\n",true},
+        {"PUSH_BOOL 1\nJMP_FALSE done\nARR_NEW 3\nSTORE_LOCAL 0\ndone:\nLOAD_LOCAL 0\nPOP\nPUSH_I64 0\nRET\n",false},
+        {"PUSH_BOOL 1\nJMP_FALSE done\nPUSH_STR value\nSTORE_LOCAL 1\ndone:\nLOAD_LOCAL 1\nPOP\nPUSH_I64 0\nRET\n",false},
+        {"ARR_NEW 3\nDUP\nOWN_PACK 3\nOWN_STORE_LOCAL 2\nARR_NEW 3\nDUP\nOWN_PACK 3\nOWN_STORE_LOCAL 2\nPUSH_I64 0\nRET\n",false},
+        {"ARR_NEW 3\nDUP\nOWN_PACK 3\nOWN_STORE_LOCAL 2\nLOAD_LOCAL 2\nOWN_MOVE_LOCAL 2\nPUSH_I64 0\nRET\n",false},
+        {"PUSH_BOOL 1\nJMP_FALSE done\nARR_NEW 3\nDUP\nOWN_PACK 3\nOWN_STORE_LOCAL 2\ndone:\nPUSH_I64 0\nRET\n",false},
+        {"ARR_NEW 3\nDUP\nOWN_PACK 3\nOWN_STORE_LOCAL 2\nLOAD_LOCAL 2\nAGG_GET 0\nSTORE_LOCAL 0\n"
+         "OWN_UNPACK_LOCAL 2\nPOP\nPOP\nLOAD_LOCAL 0\nPUSH_F64 3.0\nARR_PUSH\nPOP\nPUSH_I64 0\nRET\n",true},
+        {"ARR_NEW 3\nPUSH_I64 0\nARR_GET\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",false},
+        {"PUSH_BOOL 1\nJMP_FALSE other\nOWN_PACK 4\nJMP done\nother:\nOWN_PACK 4\ndone:\nOWN_STORE_LOCAL 3\n"
+         "OWN_UNPACK_LOCAL 3\nPUSH_I64 0\nRET\n",true}
+    };
+    for(unsigned n=0;n<sizeof cases/sizeof cases[0];n++) {
+        Function f={cases[n].body,0,4,T(TAG_INT),{T(TAG_ARRAY),T(TAG_STRING),OWNER(3),OWNER(4)}};
+        NvmModule *m=build(&f,1);NvmOwnedArrayPlan *p=authority(m,cases[n].accepted?NVM_OWNER_AUTH_PREPARED:NVM_OWNER_AUTH_UNRESOLVED);
+        nvm_owned_array_plan_free(p);nvm_module_free(m);
+    }
+    NvmModule *m=authority_fixture();m->service_size=1;authority(m,NVM_OWNER_AUTH_UNRESOLVED);m->service_size=0;nvm_module_free(m);
+    unsigned char sentinel;NvmOwnedArrayPlan *p=(void *)&sentinel;
+    CHECK(nvm_prepare_owned_array_authority(NULL,&p).status==NVM_OWNER_AUTH_INVALID && p==(void *)&sentinel);
+    CHECK(nvm_prepare_owned_array_authority(NULL,NULL).status==NVM_OWNER_AUTH_INVALID);nvm_owned_array_plan_free(NULL);
+}
+int main(void) {
+    prepared_and_faults();independent_exits();joins_and_refusals();
+    printf("%u private owner ARRAY authority checks passed; no pending module execution\n",checks);return 0;
+}
