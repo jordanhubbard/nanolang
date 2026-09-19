@@ -84,3 +84,47 @@ Focused controls will retain actual caller-owned STRING/ARRAY roots and snapshot
 Static fixture audit finds only two authority-query assertions and the seven-case private runtime main still require general verification refusal for these newly admitted complete modules. I migrate those exact positives to public verification success while keeping the old shared scalar ownership validator refusal. The runtime fixture will require normal native emission and compare it with the private emitter's output; its former host-root refusal becomes an actual helper-entry refusal with unchanged output/root checks. All unsupported authority cases and private-symbol absence checks remain.
 
 A public test mode reuses the same finite seven-case builder and independent cleanup graph, invoking normal `vm_invoke`, `vm_execute`, `vm_call_function` and direct-root `vm_invoke_callable`. It records the existing `vm_invoke` post-admission VOID failure result separately from pre-admission unchanged outputs and the other APIs' result conventions. Both dispatch forms have explicit macro evidence. Additional controls cover fresh revalidation, converter tags/depths, route envelopes, service/link/helper/closure/closed-backend refusal and exact direct-core state preservation. No fixture has run at this migration checkpoint.
+
+### Checked parameter preparation before public authority
+
+I retain my absent/VOID sidecar promise after the frozen964c fixture exposed my
+shared exact descriptor validator's refusal. I do not relax that validator or
+change the private query. My public admission wrapper instead prepares a bounded
+shallow module view with owned temporary parameter rows before invoking fresh
+complete authority.
+
+I first retain service priority and exact candidate selection. I read the
+ownership table with my checked cursor: supported version, bounded layout flags,
+alignment, exact function count, each declared local/parameter count equal to the
+function header, and every eight-byte descriptor within bounds. I cap functions
+at eight, parameters at eight per function, and locals at 256, matching authority.
+I copy only parameter tags from these declarations into the temporary rows. Each
+parameter tag must be a modeled exact non-VOID signature tag; known supplied tags
+must match it, and only absent rows or TAG_VOID placeholders can be completed.
+I do not infer nominal layout, modes, origin, lifetime or scalar permission from
+this pass. My unchanged complete authority on the prepared view must validate
+all of those facts, including exact descriptors, reserved bytes, trailing path
+data and every function body. A successful cursor pass alone grants nothing.
+
+I use fixed bounded temporary storage for eight row pointers and 64 parameter
+tags, initialized before constructing the view. I reject larger counts before
+indexing. The view copies the NvmModule header by value and changes only its
+parameter-row pointer. Caller-owned module bytes, row pointers and tags remain
+unchanged. I retain the original module's code, constants, maps and declarations;
+I neither move nor free them. The unchanged private preparation copies the facts
+owned by the returned plan, so no returned plan may retain a pointer into this
+stack view. I audit that lifetime before implementation. No new allocation is
+needed for sidecar preparation; existing authority allocation failures preserve
+*out and free partial facts as before.
+
+After complete authority succeeds, my existing hosted-entry and signature checks
+still apply. Public transport writes the exact plan tags. Direct private queries
+continue to report their existing refusal on missing required sidecars. Other
+profiles and shared descriptor validation remain unchanged.
+
+I qualify whole-table absence, individual missing rows, VOID placeholders, known
+mismatches, excessive counts, invalid descriptor tags and truncated declarations.
+I require unchanged caller bytes/pointers and output on refusal, plan independence
+after input destruction, later valid recovery and existing allocation-prefix
+controls. I retain the original terminal and run fresh fixtures only after this
+production correction is independently reviewed.
