@@ -165,3 +165,15 @@ for handles and no retry that loses an unknown cleanup outcome.
    across verifier/converter/VM APIs/native and explicit LLVM/Wasm/service/link
    refusals. Unchanged Bundle/PREFIX plus all selected shadows and paired Linux/
    Darwin source acceptance remain required later. I do not close430220 here.
+
+### I pin the private retain preflight
+
+Static implementation audit finds that general `vm_retain` increments a32-bit
+counter without checked status. I leave that shared API unchanged and preflight
+only this private invocation's retaining instructions: PUSH_STR, LOAD_LOCAL,
+DUP and AGG_GET. A fused LOAD_LOCAL_FIELD checks the actual projected value it
+retains. A count at UINT32_MAX refuses before publication; no attempted wrap is
+needed to qualify the repaired invariant. ARRAY elements in this profile are
+scalar FLOAT and create no managed child retains. Public/general retention is
+not covered by this private check. Native NmsHandle and nown retain checks retain
+their existing bounded behavior.
