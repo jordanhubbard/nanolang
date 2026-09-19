@@ -1,0 +1,11 @@
+{
+  "name": "make",
+  "argv": [
+    "/usr/bin/make",
+    "-j2"
+  ],
+  "cwd": "/tmp/nanolang-opencl-private-2397/upstream",
+  "exit_code": 2,
+  "seconds": 0.06393895600922406,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "gcc-ordinary-run",
+  "argv": [
+    "/tmp/nanolang-opencl-private-7f0/gcc-ordinary"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+  "exit_code": 0,
+  "seconds": 0.3648262789938599,
+  "LD_LIBRARY_PATH": "/tmp/nanolang-opencl-private-7f0/install/lib"
+}

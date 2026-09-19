@@ -1,0 +1,10 @@
+{
+  "name": "bootstrap",
+  "argv": [
+    "./bootstrap"
+  ],
+  "cwd": "/tmp/nanolang-opencl-private-7f0/upstream",
+  "exit_code": 0,
+  "seconds": 2.920936406007968,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}

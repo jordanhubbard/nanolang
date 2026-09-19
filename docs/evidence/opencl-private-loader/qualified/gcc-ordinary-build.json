@@ -1,0 +1,20 @@
+{
+  "name": "gcc-ordinary-build",
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "tests/test_opencl_identity_real.c",
+    "-ldl",
+    "-o",
+    "/tmp/nanolang-opencl-private-7f0/gcc-ordinary"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+  "exit_code": 0,
+  "seconds": 0.16426601895364001,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}
