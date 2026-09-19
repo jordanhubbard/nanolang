@@ -178,3 +178,29 @@ valid after the input module is destroyed.
 I do not close72556/6931, d03c, ed702 or the full release from this private state
 checkpoint. Existing non-service profiles retain their current behavior; every
 service module remains rejected by public consumers throughout this work.
+
+## My first declaration/state production checkpoint
+
+I prepare `file_flow.c/.h` only for the first reviewed logical-state layer. The
+constructor checks and copies all exact function/local declarations through the
+qualified nominal plan, then creates initialized formal and uninitialized local
+facts. It neither inspects CODE nor detects a global operation hidden in CODE;
+there is no global operation API and the later decoder must enforce that boundary.
+Borrowed formals occupy immutable caller-owned reference slots, with no owned
+local token. Local regions revoke only their own references. A read-only exit
+query requires one exact stack result (or no result), no remaining owned locals,
+and balanced local regions/references; it never consumes a borrowed formal.
+
+The declarations object has balanced private references so state lifetime does
+not depend on the caller retaining its reference or the input module. States use
+fixed bounded storage; all transfers after creation are allocation-free. Generic
+copy operations cannot create owner identities. Only bounded owned formals
+introduce identities in this checkpoint, and explicit drops count pending cleanup
+obligations without calling the host. Service creation/refinement/calls/joins are
+not implemented yet and cannot be simulated by supplying arbitrary value facts.
+
+I add an exact private nominal storage-size query, sharing the existing allocator
+extent calculation, to account conservatively for the full plan before allocating
+a declarations object. I do not duplicate the opaque header size. Make, module
+manifest and wrapper object list retain the new provider together. The first
+production checkpoint is held for review before fixture preparation or execution.
