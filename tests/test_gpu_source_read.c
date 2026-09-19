@@ -78,7 +78,8 @@ static cl_program create_program(cl_context ctx, cl_uint n, const char **sources
 }
 static cl_int build_program(cl_program program, cl_uint n, const cl_device_id *devices,
                             const char *options, void (*notify)(cl_program, void*), void *data) {
-    assert(program == &cookie && n == 1 && devices && !options && !notify && !data);
+    assert(program == &cookie && n == 1 && devices && options && !notify && !data);
+    assert(!strcmp(options, "-cl-std=CL1.2 -cl-unsafe-math-optimizations"));
     return CL_SUCCESS;
 }
 static cl_kernel create_kernel(cl_program program, const char *name, cl_int *err) {

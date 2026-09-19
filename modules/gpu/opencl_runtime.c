@@ -505,7 +505,7 @@ static cl_kernel ocl_get_kernel(const char *cl_path, const char *kernel_name) {
                                             log_sz, log, NULL);
                 log[log_sz] = '\0';
                 snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
-                         "clBuildProgram failed:\n%.200s", log);
+                         "clBuildProgram failed:\n%.400s", log);
                 free(log);
             }
         } else {
