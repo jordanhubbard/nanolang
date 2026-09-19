@@ -3026,7 +3026,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
             with leak detection disabled. My evidence is in
             `docs/evidence/native-effects-linux.md`. MAC
             `task_36491565f7db6038fb0b1591f6164c36`.
-          - [ ] I route interpreter handler returns to the lexical function's
+          - [x] I route interpreter handler returns to the lexical function's
             active call, preserving the destination through intervening helper
             calls and cleanup. I test final-expression resumption separately,
             expression ordering, string results and repeated handler unwinding.
@@ -3045,9 +3045,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
             allocate exactly 200 private handles and release them all; evaluator
             and scheduler gates pass. The handwritten `coro_spawn`, `coro_done`
             and `coro_result` special paths are not registered by the frontend;
-            they are not evidence of a working owned-task API. Their argument
-            propagation belongs with the task-lifecycle implementation below.
-            General propagation and foreign callback boundaries remain open.
+            they are not evidence of a working owned-task API, and their
+            argument propagation remains with the task-lifecycle implementation
+            below. Native and VM execution remain separate roadmap obligations;
+            native code refuses a nonlocal handler return across a foreign
+            callback boundary while allowing ordinary handler resumption. On
+            current Darwin main, 123 evaluator tests and 35 effect-system tests
+            pass. My retained evidence is in
+            `docs/evidence/interpreter-handler-returns.md`.
             MAC `task_67e5e620d75a413b99753c7cdbde1f48`.
           - [x] I preserve declared handler parameter metadata for nominal
             field access, typed array reads and function signatures. I test
