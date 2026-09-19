@@ -1,0 +1,54 @@
+{
+  "pin": "ac8458007657e9604163699a98fb3f58d186953e",
+  "platform": "darwin",
+  "steps": [
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "test-nsi-file-values",
+        "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+      ],
+      "env": {
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+      },
+      "status": 0,
+      "seconds": 10.074,
+      "log_sha256": "64b9cc60958068cfe436bed0292a5c8856270f6a22f2f37d94d50d501180c397"
+    },
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-nsi-file-values-sanitizers"
+      ],
+      "env": {
+        "NANO_FILE_VALUES_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+      },
+      "status": 0,
+      "seconds": 3.946,
+      "log_sha256": "521558a141510199e3a6fdba30c110ae2a1ac6ec36565841273b344f79819137"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-nsi-file",
+        "test-nsi-cap",
+        "test-nsi-file-plan",
+        "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+      ],
+      "env": {
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+      },
+      "status": 0,
+      "seconds": 3.391,
+      "log_sha256": "45a9d449ea361bcdfb85f3d99a9f17e04d73a4caa29a1cfe52289fd3a8f0e558"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}
