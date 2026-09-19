@@ -11583,3 +11583,15 @@ I prepare430220's reviewed3898 query qualification: I migrate only the prior aut
 - [x] I correct430220's optional-operand branch fixture scheduling assumption. Frozenfaa07406f passes setup9.414s and compiles the new query fixture, then stops on `counts.visits > counts.instructions` in the branch control. Its two predecessors reach the queued join before transfer, so a branch alone does not guarantee a revisit. I preserve the [first terminal seal](evidence/owned-array-operand-first.json), all1,743source/157tool equalities and the original fixture. I will delay the optional predecessor with explicit NOPs so the exact path is processed first, retaining the revisit assertion and final operand-mask checks. This is a fixture scheduling correction; no production defect or later control acceptance is inferred from this terminal.
 
 I qualify430220's operand query extension at frozene235ff26d after reviewed one-line fixture correction: all16 phases pass, including3,812 checks each in GCC normal/GCCsan/Clang18san. Branch and loop revisits retain exact final masks, independent authority agrees, and prior strict noncomparison/output refusals remain. All1,743sources/157tools stay unchanged. My [corrected seal](evidence/owned-array-operand-query.md) links the original failed run rather than erasing it. Query production3898 is unchanged; actual optional-tag execution checks and private runtime remain the next reviewed checkpoint, with public activation still separate.
+
+- [ ] I align and qualify public owner-ARRAY runtime activation before dependent source admission, preserving required-service/linked/closed/LLVM/Wasm refusals (parent430220; runtime lane).
+- [ ] I lower exact FLOAT-array owner fields in both source producers (`task_18731b55c66846f9826290148c967ca5`, parent430220) under my [paired source contract](NANOISA_OWNED_FLOAT_ARRAY_SOURCE.md): distinct owner/ordinary categories, original03/01 metadata, ordered constructor roots, complete unpack/projections and exact origin/call facts. I retain the unchanged Bundle/PREFIX and every selected shadow, fresh Linux/Darwin Cseed/Stage1/Stage2/NanoVirt plus canonical equality/VM/native gates, mandatory helper shadows and output-preserving negatives. No source production or pending execution precedes reviewed qualified public runtime activation.
+
+I record18731's static source audit at5f988ed79. Existing declaration, constructor,
+hidden-unpack, exact-array guards and final authority dispatch all need paired
+changes; removing only the declaration refusal is insufficient. Runtime lane's
+private08be51c90 remains unqualified at this checkpoint and exposes no public
+activation. Optional FLOAT comparisons retain unsatisfied live tag obligations;
+exact FLOAT stores/arithmetic remain refused. Samples/STRING and owner-free
+routes stay distinct; combining ordinary managed-record operations with owner
+ARRAY needs separate complete authority rather than reusing a profile flag.
