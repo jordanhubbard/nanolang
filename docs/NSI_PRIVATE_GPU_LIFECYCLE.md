@@ -151,7 +151,7 @@ resource once and records any unproved context release.
 
 I reserve one of eight adapter-wide lifetime records before loading a driver or
 creating a CUDA context. All adapter calls, including calls across contexts, are
-serialized in this first profile; concurrent callers are refused by the stated
+serialized in this first profile; concurrent callers are outside my stated
 API precondition, not claimed thread-safe. Each record owns its exact loader
 reference, raw CUDA context identity once obtained, creation/restoration state,
 first errors, and at most64 allocation identity/size/release-status entries.
