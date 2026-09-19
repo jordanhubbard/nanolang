@@ -11916,3 +11916,8 @@ I reconcile only the original bounded87ca identity acceptance after reviewing it
   (`task_d4427bf731b14e899228b1443922a066`). The fresh diagnostic confirms E001
   for function-before-initializer. I retain the result15 shadow and execute it
   after correcting the two calls, without relaxing my checked reduce contract.
+
+- [ ] I correct the match-gate runner working directory for its retained relative
+  native FFI fixture library (qualification prerequisite under taskd4427).
+  I preserve the12b61 library-open terminal and select the hash-verified provider
+  checkout only for evaluator execution; assertions and production remain intact.

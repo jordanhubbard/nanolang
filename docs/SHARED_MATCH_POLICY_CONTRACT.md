@@ -309,3 +309,16 @@ Before another gate I swap only those fixture arguments to `(reduce arr 0 add_in
 and run the existing result15 shadow in this test. I retain all source assertions,
 the diagnosed rejected source, both earlier gate terminals and unchanged compiler
 providers. No production or type-rule change follows.
+
+## My retained provider-relative fixture path
+
+The fresh12b61 fixture now passes the corrected reduce shadow and subsequent
+controls, then ffi_loader_open cannot open its relative
+`obj/test_interpreter_ffi_native.so`. My reused provider lives in the original
+provider checkout; the newly compiled test ran in the fixture-only checkout.
+The library itself remains present and hash-identical in the provider inventory.
+I retain this runner terminal separately. Before another fresh binary I set
+only the evaluator process working directory to that original provider checkout,
+record both checkout pins and paths, and leave compiler, fixtures and assertions
+unchanged. Compilation and Python fixture discovery still use the corrected
+source checkout. This corrects an input-path omission, not a product failure.
