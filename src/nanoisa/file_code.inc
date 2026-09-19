@@ -50,7 +50,9 @@ static NvmFileFlowStatus file_code_preflight(const NvmModule *m,uint32_t *instru
     for(uint32_t f=0;f<m->function_count;f++) {
         const NvmFunctionEntry *fn=&m->functions[f];
         if(!fn->code_length || fn->code_offset>m->code_size ||
-           fn->code_length>m->code_size-fn->code_offset || fn->arity>fn->local_count)
+           fn->code_length>m->code_size-fn->code_offset || fn->arity>fn->local_count ||
+           fn->name_idx>=m->string_count || fn->result_tag>=TAG_COUNT ||
+           (fn->result_count==0)!=(fn->result_tag==TAG_VOID))
             return NVM_FILE_FLOW_INVALID;
         if(fn->local_count>NVM_FILE_FLOW_LOCALS)return NVM_FILE_FLOW_LIMIT;
         locals+=fn->local_count;
@@ -69,7 +71,7 @@ static NvmFileFlowStatus file_code_preflight(const NvmModule *m,uint32_t *instru
             pc+=width;
         }
     }
-    if(covered!=m->code_size)return NVM_FILE_FLOW_INVALID;
+    if(covered!=m->code_size)return NVM_FILE_FLOW_UNRESOLVED;
     size_t bytes=0,nominal_bound=0;
     if(!nvm_file_nominal_storage_bound(NVM_FILE_NOMINAL_MAX_LAYOUTS,&nominal_bound) ||
        !file_code_budget(&bytes,1,sizeof(NvmFileFlowDeclarations)) ||
