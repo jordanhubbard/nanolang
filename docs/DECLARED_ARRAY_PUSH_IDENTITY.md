@@ -30,9 +30,10 @@ No failed output is executed. I make this correction in a separate tree.
   element inference. The earlier user-function check is for an identifier value,
   not this direct-call branch. A lookup-only correction cannot fix native calls.
 - `src_nano/transpiler.nano` resolves the identifier with `mb_resolve` but its
-  push special case still uses only the resulting spelling. Its ordinary call
-  path already has ordered argument capture. I must select that path for an
-  exact declared or lexically bound function, without treating an empty type
+  push special case still uses only the resulting spelling. Its non-identifier call
+  path captures arguments in order, but its direct identifier call path does not.
+  I add ordered snapshots only for declared or lexically bound array_push calls,
+  retaining resolved signature argument types, without treating an empty type
   string as proof that a lexical binding is absent.
 - My specialized C/Nano ownership producers already test declared/local identity
   before push lowering. My selfhost checker has the qualified and lexical guard

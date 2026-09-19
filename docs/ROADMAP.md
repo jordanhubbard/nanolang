@@ -11885,3 +11885,8 @@ Only Python syntax and whitespace are checked; fixture review precedes execution
   registry ARRAY displaced declared INT. I retain both logs and do not replay
   failed binaries. Production review precedes fresh stages and the full twelve
   methods; mutation/parent430220/product/release remain open.
+
+I refine task286b before code: native Nano direct identifier calls currently emit
+C arguments without snapshots. I bound the correction to declared/bound push,
+including callee capture and signature-directed ordered arguments; unrelated
+direct calls stay outside this checkpoint. Root reviewed this clarification.
