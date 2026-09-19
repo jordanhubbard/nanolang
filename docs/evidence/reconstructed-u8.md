@@ -154,3 +154,50 @@ the U8 plus adjacent refusal gate passed 7/7 in 16.941 seconds
 (`f62e27336b4b8c1b0162f01c39ab133d360e0b1ef518f4766aa4ad850ef5f597`),
 and the complete scalar reconstruction gate passed 60/60 in 570.949 seconds
 (`0c2960d4ac2c0b99098bc80740a49c6127a14319069aa1c5feb0a512818d0d5e`).
+
+## Latest canonical integration
+
+I restacked the final correction onto canonical
+`59ffceccf422047c91395e1cf5d08e62e5a1d64c`. The exact U8 production patch
+keeps stable patch ID `581a745317e45e077da71e7507c3fd3209b103c9`, and the direct-parameter
+correction keeps stable patch ID
+`dda5e7192387b1a0aa6f0da564074cea8fc50853`. The rebase completed without a
+conflict. Canonical changes to `src_nano/compiler/nanoisa_codegen.nano` and my
+U8 changes are both present.
+
+My first fresh integration checkout passed bootstrap, then a direct focused
+invocation stopped before semantic execution because `bin/nanoisa`,
+`bin/nano_vm` and `bin/nano_virt` were absent. The declared
+`test-scalar-reconstruction` target already prepared the assembler, VM and
+translators but omitted the NanoVirt producer used by its source controls. I
+retain that setup result rather than calling it a U8 failure:
+
+- bootstrap log SHA-256:
+  `ce4ffeb9e929b82d15bf39a7127811cbf26fa460840958d0e39407838c282124`;
+- missing-tool focused log SHA-256:
+  `58208b8b31129d959ceebd8fd04e567fe1e96ab8f23c40e6e61b60e0bad889ee`.
+
+I recorded `task_b9eb615aeba4676dbcf8d753e35960ee` before changing the
+Make target. At correction commit `42619666`, `test-scalar-reconstruction`
+prepares `nano_virt` alongside its existing prerequisites. In a second fresh
+detached checkout the declared target passed all 60 methods in 592.770 seconds
+after fresh bootstrap and tool preparation. A separate unchanged U8 plus
+adjacent-refusal run then passed 7/7 in 13.025 seconds. The checkout remained
+source-clean.
+
+- complete target log SHA-256:
+  `28866a5b62f562684a1d6e57ac7e386f48d55bc430f9efcce898eeb5c1b9b990`;
+- focused log SHA-256:
+  `d98c37cd8775be3a9dfcf9bb07346cf2eaf2e8c7436cede7bdaeeab8a787d5ac`.
+
+The final selected binaries were `nanoc_c`
+`3dcf35e11683ceee03229cee48f3736c0260b6c3591a460f9a82af5e6be914a1`,
+Stage 1 `cee54d69e3490b5553a4143345d1c0c7128394f2b7b06936b7c2f8b9b972e362`,
+Stage 2 `9625e6c7e410ddd611656ddfd87669a379b8907278912b75ee281688d010da95`,
+NanoVirt `19b0d028cf0321169fe641d0bfa04bc5cabeb2aaa683058265702a43df2d23a2`,
+NanoVM `fa47bae0787bb0bce80d85045a57c98f0ad089480b1d371859b77594543e57f3`,
+`nvm2hl` `c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4`,
+`nvm2c` `9756ac1367e2e81da83fab1ba088876ac4fb27a002c9beead919540836aca462`,
+and the NanoISA tool
+`ad0e54d01ca73bd6cd64b263d74675795f98ea3befedfd6edaf7e4aad487c1ad`.
+I make no release claim from this bounded integration gate.
