@@ -1,0 +1,61 @@
+{
+  "pin": "a8c2e05338181fcae933f026fa534e29af7d8655",
+  "platform": "linux",
+  "steps": [
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "test-nsi-file-values"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 1.344,
+      "log_sha256": "f8f453d8ee044d680972f5e2291d8a834b86eea210236d0a92de512e0e2efb90"
+    },
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "test-nsi-file-values-sanitizers"
+      ],
+      "env": {
+        "NANO_FILE_VALUES_CC": "/bin/gcc"
+      },
+      "status": 0,
+      "seconds": 1.605,
+      "log_sha256": "ca6a2f62716afffd7aff2d4524e07e6c678ab40609d697d18efb70a5168ec778"
+    },
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-nsi-file-values-sanitizers"
+      ],
+      "env": {
+        "NANO_FILE_VALUES_CC": "/usr/local/bin/clang",
+        "NANO_FILE_VALUES_CFLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 1.426,
+      "log_sha256": "7d280809f8e5ac3ef61857785ca6ef6c8a9a99fd9454df6cf8ee9658ec671647"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-nsi-file",
+        "test-nsi-cap",
+        "test-nsi-file-plan"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 2.905,
+      "log_sha256": "aa7a58d6a5974a961a490907d6d264b9a5174b9c1d81398d607efa35fdacce6f"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}
