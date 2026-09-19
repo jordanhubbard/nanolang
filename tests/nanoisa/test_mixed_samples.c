@@ -43,11 +43,17 @@ static const char *samples_body=
     "PUSH_F64 1.5\nPUSH_F64 2.5\nARR_LITERAL 3 2\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 0\n"
     "LOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nSTORE_LOCAL 2\n"
     "LOAD_LOCAL 2\nPUSH_I64 1\nARR_GET\nPUSH_F64 2.5\nF64_EQ\nASSERT\nPUSH_I64 0\nRET\n";
+static void public_refusals(NvmModule *m) {
+    uint16_t maximum=123;
+    CHECK(!nvm_verify(m).ok && !nvm_verify_owned_module(m).ok);
+    CHECK(!nvm_verify_function(m,0).ok && !nvm_verify_function_max_stack(m,0,&maximum).ok);
+    CHECK(!nvm_verify_linked(m,NULL,0).ok);
+}
 static void samples_and_allocations(void) {
     puts("I check complete mixed shape, independent consumption and allocation failures.");fflush(stdout);
     Type locals[]={{TAG_STRUCT,1},SCALAR(TAG_ARRAY),SCALAR(TAG_ARRAY)};
     NvmModule *m=build(samples_body,locals,3,close_helper,false);
-    bool needs=false;NvmV2Result old=nvm_ownership_contracts_validate(m,&needs);CHECK(old!=NVM_V2_OK);CHECK(!nvm_verify(m).ok);
+    bool needs=false;NvmV2Result old=nvm_ownership_contracts_validate(m,&needs);CHECK(old!=NVM_V2_OK);public_refusals(m);
     NvmMixedSamplesProof *p=composition(m,NVM_MIXED_SHAPE_PROVED);
     CHECK(p->checked_functions==2 && p->checked_instructions>25 && p->visits>=p->checked_instructions);
     CHECK(p->max_stack[0]>=2 && p->max_stack[1]==1);
@@ -80,7 +86,7 @@ static void samples_and_allocations(void) {
     CHECK(successes==2 && refusals>50 && first_success>0);
     CHECK(failed[ALLOC_FACTS]>20 && failed[ALLOC_LAYOUT]>0 && failed[ALLOC_SHAPE]>0 && failed[ALLOC_VIEW]>0);
     printf("I swept all query allocation budgets through first success%ld; Facts/frame%u, layout-decode%u, shape%u, view%u failures.\n",first_success,failed[ALLOC_FACTS],failed[ALLOC_LAYOUT],failed[ALLOC_SHAPE],failed[ALLOC_VIEW]);
-    CHECK(nvm_ownership_contracts_validate(m,&needs)==old && !nvm_verify(m).ok);
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==old);public_refusals(m);
     free(code);free(owned);free(layouts);nvm_module_free(m);
 }
 static void scalar_obligations(void) {
@@ -162,8 +168,36 @@ static void ordinary_joins_and_calls(void) {
     NvmMixedSamplesProof *p=composition(m,NVM_MIXED_SHAPE_PROVED);CHECK(p->checked_functions==3);nvm_module_free(m);CHECK(p->shape->origins[0].function==1);finished(p);
     m=build("ARR_NEW 3\nAGG_PACK 0 2 0 1\nAGG_PACK 0 3 0 1\nPOP\nPUSH_I64 0\nRET\n",NULL,0,NULL,false);composition(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
 }
+static void synthetic_shadow_and_repeated_site(void) {
+    puts("I retain both selected shadows in one synthetic entry graph and repeated-site alternatives.");fflush(stdout);
+    const char *main_body=strstr(samples_body,"PUSH_F64 1.5");CHECK(main_body);
+    char helpers[2500];snprintf(helpers,sizeof helpers,"%s.function original_main 0 3 0 int 1\n%s.end\n",close_helper,main_body);
+    NvmModule *m=build("PUSH_I64 7\nOWN_PACK 0\nCALL 1\nPUSH_I64 7\nEQ\nASSERT\nCALL 2\nPUSH_I64 0\nEQ\nASSERT\nPUSH_I64 0\nRET\n",NULL,0,helpers,false);
+    Type locals[]={{TAG_STRUCT,1},SCALAR(TAG_ARRAY),SCALAR(TAG_ARRAY)};
+    uint8_t *row=m->ownership_data+16;
+    for(uint32_t f=0;f<2;f++)row+=4+8*(m->functions[f].local_count+1);
+    row+=12;
+    for(unsigned n=0;n<3;n++){row[0]=locals[n].tag;word(row+4,locals[n].layout);row+=8;}
+    public_refusals(m);NvmMixedSamplesProof *p=composition(m,NVM_MIXED_SHAPE_PROVED);
+    CHECK(p->checked_functions==3 && p->shape->origins[0].function==2 && p->managed_count==1);
+    unsigned checked=0;for(uint32_t n=0;n<p->check_count;n++)if(p->checks[n].policy==NVM_MIXED_CHECK_FLOAT){CHECK(p->checks[n].function==2);checked++;}
+    CHECK(checked==1);finished(p);public_refusals(m);nvm_module_free(m);
+    Type loop_locals[]={SCALAR(TAG_ARRAY),SCALAR(TAG_ARRAY),SCALAR(TAG_BOOL),{TAG_STRUCT,1}};
+    for(unsigned order=0;order<2;order++) {
+        char body[1800];snprintf(body,sizeof body,
+            "ARR_NEW 3\nSTORE_LOCAL 0\nPUSH_F64 2.5\nARR_LITERAL 3 1\nSTORE_LOCAL 1\n"
+            "PUSH_BOOL 1\nSTORE_LOCAL 2\nloop:\nLOAD_LOCAL 2\nJMP_FALSE second\nLOAD_LOCAL %u\nJMP pack\n"
+            "second:\nLOAD_LOCAL %u\npack:\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 3\n"
+            "PUSH_BOOL 0\nSTORE_LOCAL 2\nLOAD_LOCAL 2\nJMP_TRUE loop\n"
+            "LOAD_LOCAL 3\nAGG_GET 0\nPUSH_I64 0\nARR_GET\nPUSH_F64 2.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",order,1-order);
+        m=build(body,loop_locals,4,NULL,false);p=composition(m,NVM_MIXED_SHAPE_PROVED);
+        CHECK(p->shape->origin_count==3 && p->shape->fields[0].origins==3 && p->managed_count==1);
+        CHECK(p->check_count==1 && p->checks[0].actual_tags==((1u<<TAG_FLOAT)|(1u<<TAG_VOID)));
+        finished(p);nvm_module_free(m);
+    }
+}
 int main(void) {
-    samples_and_allocations();scalar_obligations();independent_owner_checks();ordinary_joins_and_calls();
+    synthetic_shadow_and_repeated_site();samples_and_allocations();scalar_obligations();independent_owner_checks();ordinary_joins_and_calls();
     CHECK(!tracking && !live_allocations);
     printf("%u mixed Samples composition checks passed; no pending module execution\n",checks);return 0;
 }
