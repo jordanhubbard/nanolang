@@ -3541,7 +3541,7 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           Both VM strategies complete the million-step check; bytecode and
           ordinary native compilation pass the bounded shadows. Native execution
           without TCO crashes, and native --tco fails all six shadows.
-        - [ ] I repair native TCO parameter binding, simultaneous argument
+        - [x] I repair native TCO parameter binding, simultaneous argument
           evaluation, exit semantics and typed results. I retain the corrected
           million-step fixture and require successful native execution.
           MAC `task_ab36fda5e6846c45beaf42b3ba819c13`.
@@ -3552,18 +3552,18 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
             results, generated-name collisions, void fallthrough and one million
             optimized calls. The gate is part of `test-opt-passes`; its C unit
             tests also pass. Unoptimized shallow programs remain the comparison.
-          - [ ] I extend binding-aware lowering and acceptance to aggregate
+          - [x] I extend binding-aware lowering and acceptance to aggregate
             parameters, callable expressions, loops and parameter-shadowing
             bindings under my [remaining TCO contract](NATIVE_TCO_BINDINGS.md).
-            My preflight currently leaves these functions unchanged. Scalar
-            test success is not a complete proper-tail-call guarantee.
-            - [ ] I preserve complete parameter annotations on hidden state and
+            The former scalar-only preflight left these functions unchanged;
+            scalar test success alone was not a proper-tail-call guarantee.
+            - [x] I preserve complete parameter annotations on hidden state and
               argument temporaries, and I rename only references that resolve
               to the original parameter rather than a nearer lexical binding.
-            - [ ] I route tail returns out of nested loops to the generated
+            - [x] I route tail returns out of nested loops to the generated
               outer TCO loop without changing ordinary `break`, `continue`,
               fallthrough or left-to-right argument evaluation.
-            - [ ] I qualify scalar-element arrays, non-resource records, tuples
+            - [x] I qualify scalar-element arrays, non-resource records, tuples
               and callable parameters;
               callable expressions; `while` and `for`; nested-loop propagation;
               and same-name lexical bindings against unoptimized execution.
@@ -3590,19 +3590,21 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
               block statement and fails before optimization. I retain that
               parser terminal and express the same nested lexical scopes with
               ordinary conditional blocks rather than changing my grammar.
-            - [ ] I preserve the outer binding in a same-name native C
-              initializer before publishing the new local
-              (`task_19e8c98dcc774e21975f763648e91adb`). The TCO gate keeps a
-              direct AST binding-identity control and uses an executable
-              two-step local until this separate backend repair lands; I do not
-              weaken the checked source rule or claim that backend gap closed.
               The first loop fixture also attempts `set` on an immutable local;
               I retain that checker terminal and declare only the exercised
               counters mutable before continuing the unchanged control-flow
-              assertions.
-              The first resource-refusal unit uses reserved `handle` as a
-              parameter name and fails in parsing; I retain that fixture
-              terminal and rename only the parameter to `owner`.
+              assertions. The first resource-refusal unit uses reserved
+              `handle` as a parameter name and fails in parsing; I retain that
+              fixture terminal and rename only the parameter to `owner`. My
+              [sealed Darwin evidence](evidence/native-tco-bindings.md)
+              records the fresh bootstrap, 14 executable methods, strict C
+              units, retained first failures and exact admitted boundary.
+        - [ ] I preserve the outer binding in a same-name native C initializer
+          before publishing the new local
+          (`task_19e8c98dcc774e21975f763648e91adb`). The TCO gate keeps a direct
+          AST binding-identity control and uses an executable two-step local
+          until this separate backend repair lands; I do not weaken the checked
+          source rule or claim that backend gap closed.
       - [x] I repair verifier-corpus coverage. Every root `tests/*.nano` source
         must compile and pass `--verify-only`; failures, signals, missing
         artifacts and empty coverage fail the gate. Compilation and verification
