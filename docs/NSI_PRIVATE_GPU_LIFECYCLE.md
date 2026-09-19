@@ -268,3 +268,22 @@ physical device memory correctness.
    paired source/VM/native integration, real other-platform GPU acceptance,
    kernel/service submission and task87ca remain separate required obligations
    under d03c/ed702. This contract creates no executable admission by itself.
+
+## My private production checkpoint before execution
+
+I add only `src/nsi_gpu.c/.h`. My API publishes opaque service/token storage,
+copied device facts, by-value outcomes and a raw-handle-free diagnostics snapshot.
+My16-symbol loader is Linux LP64 only; other platforms return unavailable before
+driver calls. Eight static lifetime records precede loader/context acquisition.
+They retain quarantined context/library/allocation outcomes after wrapper failure
+or destruction; no reset/retry interface exists. Driver free errors consume the
+accepted token, while explicit one-attempt context destruction remains distinct.
+
+I bracket each driver memory operation with checked current/push/pop identities,
+stage read output until copy/sync/restoration all succeed, and poison failed-write
+contents. I preserve the existing capability implementation and all public
+module/schema/producer/VM/native paths. Numeric negative adapter error codes
+`-1` (host/driver contract) and `-2` (loader release) remain distinct from returned
+CUDA status values. The header documents caller serialization across all contexts.
+I have prepared no fixture, compiled no adapter and executed no driver operation;
+I request complete independent production review before those next checkpoints.
