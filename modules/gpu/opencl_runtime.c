@@ -206,6 +206,7 @@ typedef size_t   cl_size_t;
 #define CL_MEM_READ_WRITE        (1<<0)
 #define CL_QUEUE_PROFILING_ENABLE (1<<3)
 #define CL_PROGRAM_BUILD_LOG     0x1183
+#define CL_KERNEL_NUM_ARGS       0x1191
 
 /* Function pointer types */
 typedef cl_int (*pfn_clGetPlatformIDs)(cl_uint, cl_platform_id*, cl_uint*);
@@ -227,6 +228,7 @@ typedef cl_int (*pfn_clBuildProgram)(cl_program, cl_uint, const cl_device_id*, c
     void (*)(cl_program, void*), void*);
 typedef cl_int (*pfn_clGetProgramBuildInfo)(cl_program, cl_device_id, cl_uint, size_t, void*, size_t*);
 typedef cl_kernel (*pfn_clCreateKernel)(cl_program, const char*, cl_int*);
+typedef cl_int (*pfn_clGetKernelInfo)(cl_kernel, cl_uint, size_t, void*, size_t*);
 typedef cl_int (*pfn_clSetKernelArg)(cl_kernel, cl_uint, size_t, const void*);
 typedef cl_int (*pfn_clEnqueueNDRangeKernel)(cl_command_queue, cl_kernel, cl_uint,
     const size_t*, const size_t*, const size_t*, cl_uint, const void*, void*);
@@ -266,6 +268,7 @@ static struct {
     pfn_clBuildProgram             clBuildProgram;
     pfn_clGetProgramBuildInfo      clGetProgramBuildInfo;
     pfn_clCreateKernel             clCreateKernel;
+    pfn_clGetKernelInfo            clGetKernelInfo;
     pfn_clSetKernelArg             clSetKernelArg;
     pfn_clEnqueueNDRangeKernel     clEnqueueNDRangeKernel;
     pfn_clFinish                   clFinish;
@@ -305,6 +308,7 @@ static bool ocl_load(void) {
     LOAD_OCL(clBuildProgram);
     LOAD_OCL(clGetProgramBuildInfo);
     LOAD_OCL(clCreateKernel);
+    LOAD_OCL(clGetKernelInfo);
     LOAD_OCL(clSetKernelArg);
     LOAD_OCL(clEnqueueNDRangeKernel);
     LOAD_OCL(clFinish);
@@ -484,6 +488,20 @@ static void ptx_to_cl_path(const char *ptx, char *out, size_t out_sz) {
 /* Set up to 5 kernel args; buf args use cl_mem, scalars use long */
 static bool ocl_set_args(cl_kernel kern, int argc, int64_t *argv) {
     if (argc < 0 || argc > 5 || (argc && !argv)) return false;
+    cl_uint actual_argc = 0;
+    size_t actual_size = 0;
+    cl_int query_error = g_ocl.clGetKernelInfo(kern, CL_KERNEL_NUM_ARGS,
+                                              sizeof(actual_argc), &actual_argc,
+                                              &actual_size);
+    if (query_error != CL_SUCCESS) {
+        ocl_set_error(query_error, "clGetKernelInfo");
+        return false;
+    }
+    if (actual_size != sizeof(actual_argc) || actual_argc != (cl_uint)argc) {
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I require the complete OpenCL kernel argument list");
+        return false;
+    }
     for (int i = 0; i < argc; ++i) {
         if (ocl_reserved_token(argv[i]) && !ocl_find_alloc(argv[i])) {
             snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
