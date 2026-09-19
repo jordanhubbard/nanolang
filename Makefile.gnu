@@ -3051,7 +3051,7 @@ test-make-header-dependencies:
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
 
 .PHONY: test-affine-selfhost
-test-affine-selfhost: bootstrap nano_virt nano_vm
+test-affine-selfhost: bootstrap nano_virt nano_vm $(OBJ_DIR)/test_affine_c_frontend
 	@bash tests/test_affine_selfhost.sh
 	@python3 -m unittest tests.test_affine_module_identity tests.test_affine_generic_identity
 
@@ -3059,8 +3059,11 @@ test-affine-selfhost: bootstrap nano_virt nano_vm
 test-affine-module-identity: bootstrap
 	@python3 -m unittest tests.test_affine_module_identity
 
+$(OBJ_DIR)/test_affine_c_frontend: tests/test_affine_c_frontend.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 .PHONY: test-affine-contract-boundaries
-test-affine-contract-boundaries: bootstrap
+test-affine-contract-boundaries: bootstrap $(OBJ_DIR)/test_affine_c_frontend
 	@python3 -m unittest tests.test_affine_contract_boundaries
 
 .PHONY: test-pt2-audio

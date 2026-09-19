@@ -5,36 +5,102 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+FRONTEND = ROOT / "obj" / "test_affine_c_frontend"
 PREFIX = """resource struct FileHandle { fd: int }
 extern fn consume_handle(owned: FileHandle) -> void
 """
 OWNERSHIP = r"(?i)(ownership|resource.{0,80}(scope|leak|live|consum)|moved value|after.{0,30}(mov|consum))"
+PUBLIC_C_PROFILE_REFUSALS = {
+    "indirect_result_owner": "I do not provide first-class callable values or indirect calls in this C profile.",
+    "union_return": "I require scalar C union result payloads.",
+}
+EXPECTED_CASE_COUNT = 36
+EXPECTED_POSITIVE_COUNT = 14
 
 
 class AffineContractBoundaries(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cases = collect_affine_contract_cases()
+        names = [name for name, _, _ in cases]
+        if len(cases) != EXPECTED_CASE_COUNT:
+            raise AssertionError(f"expected {EXPECTED_CASE_COUNT} affine cases, found {len(cases)}")
+        if len(set(names)) != len(names):
+            raise AssertionError("affine case names must be unique")
+        positives = sum(accepted for _, _, accepted in cases)
+        if positives != EXPECTED_POSITIVE_COUNT:
+            raise AssertionError(f"expected {EXPECTED_POSITIVE_COUNT} affine positives, found {positives}")
+        if set(PUBLIC_C_PROFILE_REFUSALS) != {name for name, _, accepted in cases if accepted and name in PUBLIC_C_PROFILE_REFUSALS}:
+            raise AssertionError("public C profile refusals must name existing semantic positives")
+
+    def run_frontend(self, name, source, accepted):
+        result = subprocess.run(
+            [str(FRONTEND), str(source)], cwd=ROOT,
+            capture_output=True, text=True, timeout=120,
+        )
+        diagnostic = result.stdout + result.stderr
+        if accepted:
+            self.assertEqual(result.returncode, 0, diagnostic)
+            self.assertIn("AFFINE_C_FRONTEND_ACCEPTED", diagnostic)
+            self.assertNotIn("AFFINE_C_FRONTEND_REFUSED", diagnostic)
+        else:
+            self.assertEqual(result.returncode, 1, diagnostic)
+            self.assertIn("AFFINE_C_FRONTEND_REFUSED:typecheck", diagnostic)
+            self.assertRegex(diagnostic, OWNERSHIP)
+        self.assertNotIn("AFFINE_C_FRONTEND_FAILED:", diagnostic, name)
+
+    def run_public_c(self, name, source, output, accepted):
+        output.write_bytes(b"prior artifact")
+        result = subprocess.run(
+            [str(ROOT / "bin" / "nanoc_c"), str(source), "--target", "c", "-o", str(output)],
+            cwd=ROOT, capture_output=True, text=True, timeout=120,
+        )
+        diagnostic = result.stdout + result.stderr
+        refusal = PUBLIC_C_PROFILE_REFUSALS.get(name)
+        if refusal is not None:
+            self.assertTrue(accepted, f"{name} must remain a semantic positive")
+            self.assertGreater(result.returncode, 0, diagnostic)
+            self.assertIn(refusal, diagnostic)
+            self.assertEqual(output.read_bytes(), b"prior artifact")
+        elif accepted:
+            self.assertEqual(result.returncode, 0, diagnostic)
+            self.assertNotEqual(output.read_bytes(), b"prior artifact")
+        else:
+            self.assertGreater(result.returncode, 0, diagnostic)
+            self.assertRegex(diagnostic, OWNERSHIP)
+            self.assertEqual(output.read_bytes(), b"prior artifact")
+
+    def run_selfhost_c(self, name, compiler, source, output, accepted):
+        output.write_bytes(b"prior artifact")
+        result = subprocess.run(
+            [str(ROOT / "bin" / compiler), str(source), "--target", "c", "-o", str(output)],
+            cwd=ROOT, capture_output=True, text=True, timeout=120,
+        )
+        diagnostic = result.stdout + result.stderr
+        if accepted:
+            self.assertEqual(result.returncode, 0, diagnostic)
+            self.assertNotEqual(output.read_bytes(), b"prior artifact")
+        else:
+            self.assertGreater(result.returncode, 0, diagnostic)
+            self.assertRegex(diagnostic, OWNERSHIP)
+            self.assertEqual(output.read_bytes(), b"prior artifact")
+
     def check_case(self, name, declaration, accepted):
-        for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
-            with self.subTest(case=name, compiler=compiler), tempfile.TemporaryDirectory(
-                prefix="nano-affine-contract-"
-            ) as directory:
-                source = Path(directory) / "case.nano"
-                output = Path(directory) / "case.c"
-                # These are declaration/typecheck probes, not shadow execution
-                # or a claim that the foreign operation has been implemented.
-                source.write_text(PREFIX + declaration + "\nfn main() -> int { return 0 }\n")
-                output.write_bytes(b"prior artifact")
-                result = subprocess.run(
-                    [str(ROOT / "bin" / compiler), str(source), "--target", "c", "-o", str(output)],
-                    cwd=ROOT, capture_output=True, text=True, timeout=120,
-                )
-                diagnostic = result.stdout + result.stderr
-                if accepted:
-                    self.assertEqual(result.returncode, 0, diagnostic)
-                    self.assertNotEqual(output.read_bytes(), b"prior artifact")
-                else:
-                    self.assertGreater(result.returncode, 0, diagnostic)
-                    self.assertRegex(diagnostic, OWNERSHIP)
-                    self.assertEqual(output.read_bytes(), b"prior artifact")
+        with tempfile.TemporaryDirectory(prefix="nano-affine-contract-") as directory:
+            source = Path(directory) / "case.nano"
+            source_bytes = (PREFIX + declaration + "\nfn main() -> int { return 0 }\n").encode()
+            source.write_bytes(source_bytes)
+            self.assertEqual(source.read_bytes(), source_bytes)
+
+            with self.subTest(case=name, authority="c_frontend"):
+                self.run_frontend(name, source, accepted)
+            with self.subTest(case=name, authority="public_c"):
+                self.run_public_c(name, source, Path(directory) / "public.c", accepted)
+            for compiler in ("nanoc_stage1", "nanoc_stage2"):
+                with self.subTest(case=name, authority="selfhost_c", compiler=compiler):
+                    self.run_selfhost_c(
+                        name, compiler, source, Path(directory) / f"{compiler}.c", accepted
+                    )
 
     def test_return_owned_parameter(self):
         self.check_case("return_parameter", "fn probe(file: FileHandle) -> FileHandle { return file }", True)
@@ -180,6 +246,20 @@ extern fn unsupported(items: array<Box>) -> void
         unsafe { (consume_handle file) }
     }
 }""", False)
+
+
+def collect_affine_contract_cases():
+    cases = []
+    original = AffineContractBoundaries()
+    original.check_case = lambda name, declaration, accepted: cases.append(
+        (name, declaration, accepted)
+    )
+    methods = sorted(
+        name for name in vars(AffineContractBoundaries) if name.startswith("test_")
+    )
+    for method in methods:
+        getattr(original, method)()
+    return cases
 
 
 if __name__ == "__main__":
