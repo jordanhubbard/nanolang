@@ -412,10 +412,10 @@ static char *emit_owned_module(const NvmModule *mod,char *err,size_t err_len) {
     return emit_owned_function(mod,0,NULL,err,err_len);
 }
 
-/* I keep the new backend private/unselected until the complete VM/native gate. */
+/* I select only a fresh complete mixed runtime conjunction. */
 static char *emit_mixed_samples_module(const NvmModule *mod,char *err,size_t err_len) {
     NvmMixedSamplesPlan *plan=NULL;
-    NvmMixedShapeResult result=nvm_mixed_samples_prepare(mod,&plan);
+    NvmMixedShapeResult result=nvm_mixed_samples_admit(mod,&plan);
     if(result.status!=NVM_MIXED_SHAPE_PROVED){if(err && err_len)snprintf(err,err_len,"%s",result.message);return NULL;}
     NvmMixedSignature entry;
     if(!nvm_mixed_samples_signature(plan,0,&entry) ||

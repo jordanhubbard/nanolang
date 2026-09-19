@@ -140,3 +140,65 @@ bool nvm_mixed_samples_transport(const NvmMixedSamplesPlan *p,NvmMixedTransport 
 const NvmMixedSamplesProof *nvm_mixed_samples_obligations(const NvmMixedSamplesPlan *p) {
     return p?p->proof:NULL;
 }
+
+/* I inspect only bounded transport bytes, without allocating or claiming their
+ * validity. The full descriptor reader and independent analyses remain mandatory. */
+bool nvm_mixed_samples_candidate(const NvmModule *module) {
+    if(!module || !module->ownership_data || !module->layout_data)return false;
+    NvmV2Cursor c;uint32_t version,count,layout_count;const uint8_t *flags;
+    nvm_v2_cursor_init(&c,module->ownership_data,module->ownership_size);
+    if(nvm_v2_u32(&c,&version)!=NVM_V2_OK ||
+       (version!=NVM_OWNERSHIP_VERSION && version!=NVM_OWNERSHIP_PATH_VERSION) ||
+       nvm_v2_u32(&c,&count)!=NVM_V2_OK || count>NVM_RECORD_PLAN_MAX_LAYOUTS ||
+       nvm_v2_take(&c,count,&flags)!=NVM_V2_OK)return false;
+    bool resource=false;for(uint32_t n=0;n<count;n++)resource|=(flags[n]&NVM_LAYOUT_RESOURCE)!=0;
+    if(!resource)return false;
+    nvm_v2_cursor_init(&c,module->layout_data,module->layout_size);
+    if(nvm_v2_u32(&c,&layout_count)!=NVM_V2_OK || layout_count!=count)return false;
+    uint32_t total=0;
+    for(uint32_t n=0;n<count;n++) {
+        uint8_t kind,reserved;uint16_t fields;uint32_t name;const uint8_t *bytes;
+        if(nvm_v2_u8(&c,&kind)!=NVM_V2_OK || nvm_v2_u8(&c,&reserved)!=NVM_V2_OK ||
+           nvm_v2_u16(&c,&fields)!=NVM_V2_OK || nvm_v2_u32(&c,&name)!=NVM_V2_OK ||
+           fields>NVM_RECORD_PLAN_MAX_FIELDS-total)return false;
+        total+=fields;
+        for(uint16_t f=0;f<fields;f++) {
+            if(nvm_v2_take(&c,12,&bytes)!=NVM_V2_OK)return false;
+            if(bytes[0]==TAG_ARRAY)return true;
+        }
+    }
+    return false;
+}
+NvmMixedShapeResult nvm_mixed_samples_admit(const NvmModule *module,NvmMixedSamplesPlan **out) {
+    if(!out)return mp_result(NVM_MIXED_SHAPE_INVALID,"I require an output for mixed admission.");
+    if(!nvm_mixed_samples_candidate(module))
+        return mp_result(NVM_MIXED_SHAPE_UNRESOLVED,"I require the explicit mixed Samples candidate.");
+    NvmMixedSamplesPlan *plan=NULL;
+    NvmMixedShapeResult result=nvm_mixed_samples_prepare(module,&plan);
+    if(result.status!=NVM_MIXED_SHAPE_PROVED)return result;
+    uint8_t entry=plan->functions[0].result.tag;
+    bool supported=entry==TAG_INT || entry==TAG_BOOL || entry==TAG_U8;
+    for(uint32_t f=0;f<module->function_count;f++) {
+        const char *name=nvm_get_string(module,module->functions[f].name_idx);
+        if(name && !strcmp(name,"__init__"))supported=false;
+    }
+    if(!supported) {
+        nvm_mixed_samples_plan_free(plan);
+        return mp_result(NVM_MIXED_SHAPE_UNRESOLVED,"I require a scalar mixed entry without initializer functions.");
+    }
+    *out=plan;
+    return mp_result(NVM_MIXED_SHAPE_PROVED,"I admit my closed mixed runtime with exact scalar checks and owner obligations.");
+}
+static NvmVerifyResult verify_mixed_samples(const NvmModule *module,uint32_t function,
+                                           uint16_t *out_max_stack) {
+    NvmMixedSamplesPlan *plan=NULL;
+    NvmMixedShapeResult result=nvm_mixed_samples_admit(module,&plan);
+    if(result.status!=NVM_MIXED_SHAPE_PROVED)
+        return fail("I refuse mixed admission (status %u) at function %u offset %u: %s",
+                    (unsigned)result.status,result.function,result.pc,result.message);
+    if(function>=plan->function_count){nvm_mixed_samples_plan_free(plan);return fail("I require an existing mixed function index");}
+    uint16_t max_stack=plan->functions[function].max_stack;
+    nvm_mixed_samples_plan_free(plan);
+    if(out_max_stack)*out_max_stack=max_stack;
+    return ok_result();
+}

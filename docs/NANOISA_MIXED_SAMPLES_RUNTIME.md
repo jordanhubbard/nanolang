@@ -347,3 +347,33 @@ actual mixed roots and frames. The direct core's Boolean trap payload remains th
 caller's trap value. Synchronous public loops reuse only their same invocation
 proof and keep the earlier callback/target/trace restrictions. No proof persists
 in VmState. Native selection calls only the reviewed complete mixed emitter.
+
+## My activation checkpoint before execution
+
+I connect the bounded allocation-free candidate scan, fresh executable wrapper,
+public general/function/max-stack/zero-link checks, converter transport, VM
+invocation/direct core and native selection. Every selected candidate failure
+returns directly; old validators and NULL-plan profiles keep their old paths.
+Closed profiles and any nonzero linked graph explicitly refuse mixed candidates.
+The converter copies eight bounded maximum-depth results from its own completed
+admission before freeing the plan, avoiding a fresh whole analysis for every
+function. The old converter output/error conventions remain; query outputs stay
+atomic. Its existing error enum maps MEMORY to TRUNCATED and other mixed failures
+to INDEX_RANGE. General verifier diagnostics retain the mixed status number;
+VM entry preserves explicit MEMORY versus TYPE failure, including the previously
+recorded shared-validator INVALID limitation.
+
+Direct core establishes fresh immutable facts for each public continuation; only
+its normal synchronous owning wrapper reuses the same C-stack proof across true
+ASSERT. It keeps raw ASSERT trap semantics, cleans actual roots on terminal error
+or false ASSERT, and preserves the Boolean trap payload for the caller. Runtime
+CALL and RET still perform live count/tag/nominal/frame/generation checks before
+transfer/publication. Public host calls cannot enter a mixed helper directly,
+even if retained owner declarations happen to have no owner opcode in that graph.
+
+No source emitter has changed. Existing private-query fixtures that intentionally
+asserted general public refusal for the now-completed exact Samples subset will
+need a separately reviewed expectation migration; owned-only/closed/linked and
+unsupported STRING/mixed-owner-array controls remain refusals. I have not built
+or executed this activation checkpoint or any newly admitted module. I request
+source review before fixture preparation and qualification.
