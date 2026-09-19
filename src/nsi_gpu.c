@@ -242,8 +242,15 @@ static void gpu_rollback_buffer(GpuLifetime *life,GpuBuffer *entry,NlGpuResult *
         gpu_skip_free(life,entry,GPU_HOST_CONTRACT);return;
     }
     GpuBracket bracket;
-    if(gpu_begin(life,&bracket,r)){gpu_free_once(life,entry,r);gpu_end(life,&bracket,r);}
-    else gpu_skip_free(life,entry,r->driver_error);
+    /* The allocation already owns the primary error. I separately retain the
+     * cleanup bracket's cause before merging its first/secondary diagnostics. */
+    NlGpuResult cleanup=gpu_result(NL_GPU_OK);
+    if(gpu_begin(life,&bracket,&cleanup)){gpu_free_once(life,entry,r);gpu_end(life,&bracket,r);}
+    else {
+        gpu_error(r,cleanup.driver_error);
+        if(cleanup.cleanup_failed)gpu_error(r,cleanup.cleanup_error);
+        gpu_skip_free(life,entry,cleanup.driver_error);
+    }
 }
 
 NlGpuResult nl_gpu_service_create(int ordinal,NlGpuService **out) {
