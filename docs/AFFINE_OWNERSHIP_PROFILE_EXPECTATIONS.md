@@ -9,11 +9,14 @@ or resource-union C ABI.
 
 My [resource-prefix amendment](AFFINE_OWNERSHIP_PROFILE_RESOURCE_PREFIX_AMENDMENT.md)
 supersedes only this document's exact-corpus public-C expectation. Fresh
-qualification at254fa51e established that every source reaches the shared
-`resource struct FileHandle` refusal before either deeper callable or union
-result diagnostic. Those deeper public-C contracts remain independent tests;
-they are not expected diagnostics for these exact36 sources. My C frontend,
-self-hosted explicit-C and canonical executable expectations remain unchanged.
+qualification at254fa51e measured that the first `both_arms` semantic positive
+reaches the shared `resource struct FileHandle` refusal. Static source-order
+and backend-precedence review establishes that the same refusal is the first
+public-C backend guard for all14 semantic positives. The22 semantic negatives
+stop in my frontend and do not reach that backend guard. The deeper public-C
+contracts remain independent tests; they are not expected diagnostics for
+these exact36 sources. My C frontend, self-hosted explicit-C and canonical
+executable expectations remain unchanged.
 
 ## My observed conflation
 
