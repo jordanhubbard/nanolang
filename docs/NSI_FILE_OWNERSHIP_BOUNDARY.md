@@ -107,12 +107,12 @@ The following is a signature/ownership table, not proposed new source syntax.
 | Exact suffix under filesystem | Inputs | Success | Error | Rights |
 | --- | --- | --- | --- | --- |
 | `#temp` | none | `OpenResult.Ok(File)` | `OpenResult.Error(FileError)` | Creates READ/WRITE/TRANSFER owner |
-| `#write_byte` | exclusive call borrow File, copied U8 | `WriteResult.Ok(progress:int)` | `WriteResult.Error(FileError)` | WRITE |
+| `#write_byte` | exclusive call borrow File, copied int with byte domain0..255 | `WriteResult.Ok(progress:int)` | `WriteResult.Error(FileError)` | WRITE |
 | `#rewind` | exclusive call borrow File | `PositionResult.Ok(unit)` | `PositionResult.Error(FileError)` | READ |
 | `#read_byte` | exclusive call borrow File | `ReadResult.Ok(ReadByte)` | `ReadResult.Error(FileError)` | READ |
 | `#close` | consumed File | `CloseResult.Ok(unit)` | `CloseResult.Error(FileError)` | Current owner, no additional right |
 
-`ReadByte` is `{value:U8, eof:bool}`: EOF has zero progress and canonical value0;
+`ReadByte` is `{value:int, eof:bool}`: EOF has zero progress and canonical value0;
 a successful byte has progress1 and eof=false. `FileError` has exact ordered
 fields `{status:int, host_errno:int, cleanup_errno:int, bytes:int, eof:bool,
 consumed:bool, cleanup_failed:bool}`. Unit has no payload. Status refers to the
@@ -223,3 +223,32 @@ No contract alone qualifies a generated binding. I keep File path acquisition,
 Socket/GPU adapters, capability integration, representative standard library,
 full d03c, ed702 and 5.1 release acceptance open. I retain existing task owners
 and the separate mixed-array/STRING work without duplicating their source edits.
+
+## My pre-code catalog correction and exact v0 spelling
+
+Before production I find that `src/nsi.c:is_core_type` has no U8 core type.
+I therefore use ordinary `nsi:core/int` and an explicit catalog byte-domain
+precondition, never a claimed U8 wire/source tag. `write_byte` rejects values
+outside0..255 before narrowing or host access, retains its borrowed File and
+returns Argument error. Read values are int0..255, with int0 at EOF. Later
+transport must preserve this domain rule as part of the binding contract.
+
+My finite document has exactly the five methods in table order, eight types
+in order File, FileError, ReadByte, OpenResult, WriteResult, PositionResult,
+ReadResult, CloseResult; one `filesystem#io` error named io/version1; and one
+`cap:nanolang/filesystem.temp` capability named temp. Type/member IDs use the
+full interface prefix with `#Type` and `#Type.field`/`#Result.Ok`/`.Error`.
+Each method parameter ID is `#method.name`; names are file, value and result.
+Method parameter order is input file, input value if present, then return result.
+All methods are non-idempotent. Every parameter is required and nonstreaming.
+Inputs File are in/borrow/call/mutable except close's in/transfer/callee/immutable;
+write value is in/copy/call/immutable. OpenResult is return/transfer/resource/
+immutable; other results are return/copy/caller/immutable. Variant cases are
+ordered Ok, Error; unit success omits the optional case type rather than spelling
+an ordinary integer unit payload. I match this canonical order exactly in this
+bounded plan; I do not impose it on the general NSI parser.
+
+The private plan allocation owns only its plan object. Read-only views refer to
+immutable process-lifetime catalog strings/arrays, never to input document
+storage. The input can be freed immediately after success; freeing the plan does
+not free catalog storage. No arbitrary externally supplied catalog is accepted.
