@@ -206,3 +206,16 @@ My [frozen raw-codec evidence](evidence/service-bindings-codec.md) retains the
 first passing Linux/Darwin controls atf438 and reviewed productionfa708. Module
 features, import kinds and executable readers are unchanged. Later checkpoints
 remain open and need their own complete consumer-refusal review.
+
+## My combined retention checkpoint
+
+I begin steps2–3 from canonical353bbbe44, with the raw codec and private Socket
+checkpoint merged. I add module storage, required wire recognition and all
+consumer refusals together. I reuse the immutable File plan catalog through
+private read-only accessors; no caller-selected catalog enters validation.
+My service payload may be inspected or roundtripped, but every executing or
+dropping consumer must refuse it before publication or host dispatch, including
+direct in-memory entry. I preserve existing whole-module failure conventions.
+I send this complete source checkpoint for review before builds or fixtures.
+The parallel mixed-profile work must retain the common service refusal before
+its delegated structure checks; combined qualification remains a separate gate.
