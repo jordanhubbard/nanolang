@@ -245,3 +245,15 @@ they do not claim source admission for mismatched return types. My gate runner
 must now require all six identity methods, not the previous five, before the
 unchanged twelve mutation methods. The existing evaluator suite retains its
 other assertions. No execution has occurred at this checkpoint.
+
+## My first evaluator gate terminal
+
+Fresh9f7 Linux C providers pass52.500s with source/head unchanged. My new
+low-level initializer control and six existing file-write/handler controls pass.
+The existing `eval_handler_return_expression_order` then refuses initialization
+at test_eval.c2694 (make2/3.101s). Its helper suppresses checker diagnostics and
+its loop does not report the case index. I retain the entire log and binary;
+no source identity/mutation/pattern gate has started. Diagnostic child
+`task_6ba90e4583d504291f90cf3f11bd2cc9` first records the case and initialization
+phase, without changing sources/assertions or replaying the failed binary.
+Any demonstrated correction remains subject to review before qualification.

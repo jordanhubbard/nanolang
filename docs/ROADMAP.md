@@ -11931,3 +11931,12 @@ prerequisites pass, not a narrowed Bundle replacement.
   exact same-module nonextern declared push, keeping metadata and alias lifetime
   unchanged. I review the bounded C correction and meaningful controls before
   fresh affected/unrun gates; parent mutation/product acceptance stays open.
+
+- [ ] I localize my existing evaluator handler-order initialization refusal
+  (`task_6ba90e4583d504291f90cf3f11bd2cc9`). At frozen9f7 my Linux C setup passes
+  52.500s and the new initializer boundary plus six existing evaluator controls
+  pass, then `eval_handler_return_expression_order` fails run_ctx_init at2694
+  (make2/3.101s). No identity/mutation/pattern gates have run. I preserve that
+  terminal and add diagnostic-only phase/body reporting with unchanged cases
+  and assertions before a reviewed fresh diagnostic build; no root cause or
+  relationship to declared push is inferred from this result alone.
