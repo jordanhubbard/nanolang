@@ -8,6 +8,7 @@
 #include "../../src/nanovm/owned_array_runtime_private.h"
 #include "nvm2c.h"
 #include "verifier.h"
+int g_argc=0;char **g_argv=NULL;
 static unsigned heap_attempts,heap_fail,heap_hits;
 void *private_array_malloc(size_t n){if(n && ++heap_attempts==heap_fail){heap_hits++;return NULL;}return malloc(n);}
 void *private_array_calloc(size_t n,size_t s){if(n && s && ++heap_attempts==heap_fail){heap_hits++;return NULL;}return calloc(n,s);}
