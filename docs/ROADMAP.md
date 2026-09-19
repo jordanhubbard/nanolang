@@ -11873,3 +11873,5 @@ The source18731 and fixtured27a checkboxes record completed bounded acceptance;
 actual merge-ledger reconciliation is pending. Mutationbba622, parent430220/4be,
 product and release remain open. Ready integration adds only canonical private
 File query code after qualification, preserving both frozen trees and public paths.
+
+I integrate canonical846/847 separately at e756 with unchanged File production/fixtures, additive Make targets and retained roadmap history. Fresh provider/Cseed/NanoISA module/ordinary wrapper closure passes on Linux and Darwin. The final [private body seal](evidence/file-body-transfers.md) contains104 reports,4,157 archived entries/665 unique files and12 equal inventory pairs, with integrated7,135-file maps on both hosts. Original a9aae query/sanitizer acceptance stays separately pinned; public File authority and full parents remain open pending subsequent reviewed hosted/runtime/source stages.

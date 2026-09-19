@@ -74,3 +74,33 @@ I preserve the exact scopes:
 My recorded synthetic Darwin Git head identifies the qualification snapshot,
 not a canonical repository commit. No production or fixture changes occur
 between these selected phases.
+
+## My separate canonical integration
+
+I preserve the original a9aae query acceptance while merging canonical846/847
+into a separate ready tree at `e756e9d4b`. All File production and fixture bytes
+remain identical. The Makefile delta is only the additive three-line mutation
+target; ROADMAP retains both histories. Source846 changes the C-seed owner-array
+emitter, so I freshly qualify affected provider closure on both platforms.
+
+| Integrated phase | Linux seconds | Darwin seconds |
+| --- | ---: | ---: |
+| Fresh nano_virt provider | 10.187 | 5.458 |
+| Fresh C-seed | 0.733 | 0.890 |
+| NanoISA module compile / run | 8.498 / 0.002 | 8.899 / 0.287 |
+| Ordinary wrapper compile / run | 0.162 / 0.003 | 0.582 / 0.303 |
+
+All first terminals pass. I do not repeat or relabel the unchanged private query
+or sanitizer matrix. These integrated maps include all7,135 source files on
+both platforms, exactly equal across hosts and unchanged before/after/current;
+actual9 Linux and10 Darwin tools remain unchanged. The Darwin synthetic snapshot
+explicitly includes ignored archive paths, avoiding the original19-path inventory
+limitation without altering the original evidence.
+
+The final manifest seals104 reports and12 equal inventory pairs. My two artifact
+indices together retain4,157 phase entries and665 unique content-addressed files.
+Integrated Linux lives at `/home/jkh/Src/nanolang-file-body-integrated`, reports
+`/tmp/nanolang-file-body-e756-linux`; Darwin lives at `/tmp/nanolang-file-body-e756`,
+reports `/tmp/nanolang-file-body-e756-darwin`, on the same authorized host.
+The local remote copy is `/tmp/nanolang-file-body-remote-e756`.
+No final-head bootstrap or File host execution is claimed.

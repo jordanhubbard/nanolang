@@ -1,0 +1,26 @@
+[
+  {
+    "count": 7135,
+    "equal": true,
+    "kind": "source",
+    "scope": "integrated-linux-provider"
+  },
+  {
+    "count": 9,
+    "equal": true,
+    "kind": "tools",
+    "scope": "integrated-linux-provider"
+  },
+  {
+    "count": 7135,
+    "equal": true,
+    "kind": "source",
+    "scope": "integrated-darwin-provider"
+  },
+  {
+    "count": 10,
+    "equal": true,
+    "kind": "tools",
+    "scope": "integrated-darwin-provider"
+  }
+]
