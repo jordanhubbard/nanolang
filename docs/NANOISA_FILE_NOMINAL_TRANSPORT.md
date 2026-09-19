@@ -173,3 +173,28 @@ remain tasks72556/6931, not acceptance requirements silently declared complete h
    normal selected targets; retain first terminals. Run applicable module/provider
    closure gates if integration changes their sources. Report precise pins and
    do not turn descriptive roundtrip success into an execution claim.
+
+### My first private implementation checkpoint
+
+I keep the v1 codec and every converter/validator/selector untouched. Separate
+`service_file_nominal.c` implements the fixed raw v2 value;
+`service_file_nominal_plan.c` scans canonical prior-only layouts and ownership
+v1 completely without allocating, then allocates one checked flexible map.
+The preflight mirrors the applicable existing structural decoder rules, adds
+exact stored-length catalog IDs and rejects trailing bytes. No decoded-layout
+allocation error can be confused with malformed input on this private path.
+
+Each function descriptor count is bounded by remaining bytes before local
+iteration and compared to actual function arity/local/result declarations;
+parameters require actual declared tags. Indexed descriptors must identify one
+of the eight mapped layouts with its exact tag. Unmapped or bare nominal facts
+remain UNKNOWN only through NO_INDEX and never acquire a runtime category.
+Extra layout rows still have flag0. This first map owns no function-flow facts.
+Plan getters publish only on success and preserve the caller's output on bounds
+failure. Plan construction assumes input arrays remain valid and immutable
+during the call; the published map is independent of them afterward.
+
+I expose the immutable catalog type accessor used by the existing NlFilePlan;
+I do not duplicate the eight type/member definitions. No fixture, build, host
+operation or generated source execution accompanies this source checkpoint.
+Provider-list/module integration remains in the later reviewed checkpoint.
