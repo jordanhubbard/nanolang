@@ -48,6 +48,11 @@ their existing exact argument and return checks. Fresh C-seed, Stage 1 and
 Stage 2 source controls must observe the byte tag; a checked out-of-range
 literal must retain prior output.
 
+My first fresh bootstrap of this prerequisite stopped before compilation: the
+new checker shadow used `byte` as a local name, but `byte` is my reserved alias
+for `u8`. I retain that parser terminal and rename only the shadow local to
+`octet` before repeating the bootstrap.
+
 This extension does not admit a `u8` entry result: my executable entry remains
 an arity-zero `int` function. It does not change NanoISA, NanoVM, `nvm2c`, LLVM
 or Wasm semantics. Full high-level reconstruction and the v5.1.0 release gates
