@@ -181,3 +181,34 @@ I do not repeat bootstrap, the36-source matrix, callable controls, union
 controls or any historical failed artifact. This updated checkpoint records
 the inherited-driver-environment finding before the test-only selector change;
 no corrected fixture has run yet.
+
+## First selector-separated terminal does not reproduce driver identity
+
+The first selector-separated method passed its complete semantic and native
+LeakSanitizer checks in237.92 seconds. Its log SHA-256 is
+`c1f5af4978fbac3e197f2b56f21208889c543de7eaf08352e7d182e07151e71f`.
+That passing status is not yet qualifying evidence because the freshly linked
+drivers were:
+
+| Driver producer | SHA-256 | Prior sealed identity |
+|---|---|---|
+| C seed | `3b0461984a3fca2f8a47bdb6b8d20bcaa6accfee66dff54319cf8f1abedbb337` | equal |
+| Stage1 | `7e9be553e24080e4c81191f6505b568de3671eb33220ab316def3d4152d34895` | different |
+| Stage2 | `c21f93b2b8770017ba8e03d3e4a5fb86ac6c1111d21efc663e043ad4d00ea8ba` | different |
+
+The eight copied compiler/runtime executable hashes remained the reviewed
+ones. Static environment comparison finds one driver-build difference: the
+failed Apple run inherited the host
+`TMPDIR=/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/`, while my first
+selector-separated command replaced it with
+`/private/tmp/nanolang-parser-lsan-tmp-603785c9`. The self-hosted native
+publication route creates compiler and linker intermediates under `TMPDIR`;
+therefore I do not infer a semantic regression or pretend the new bytes equal
+the old ones.
+
+I preserve this terminal and correct only the runner environment: the next
+attempt keeps `CC` unset, inherits the original host `TMPDIR` for all driver
+construction, and retains `NANO_NATIVE_TEST_CC` solely for generated-native
+fixture compilation. I require the three original driver hashes before I run
+the previously unrun affine modules. I do not repeat any already qualified
+bootstrap, matrix, callable or union gate.
