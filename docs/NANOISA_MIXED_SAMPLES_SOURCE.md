@@ -265,3 +265,14 @@ the unchanged service gate passes in 3.673 seconds: three methods containing
 This seal is Linux evidence only. I retain the original checked source refusal
 and setup-cache limits. Darwin same-pin qualification, canonical source merge,
 parent4be, owner ARRAY430220 and full product/release acceptance remain open.
+
+My bounded Linux integration at `6a492a7aab1184e22a0fd15935293738ec7a58dd`
+adds canonical private owner-array descriptors and private File values, preserving
+both producer files and all `.nano` sources. I rebuild affected C tools,
+including the C producer, in 19.716 seconds. Mixed descriptor/proof/composition,
+admission and VM/native runtime gates pass in 35.005 seconds; service gates pass
+in 3.672 seconds; the unchanged original Samples/PREFIX shadow/parity method
+passes in 28.186 seconds. Source and retained Stage1/Stage2/raw emitter hashes
+remain identical. My [integration seal](evidence/mixed-samples-source-integration/manifest.json)
+keeps this bounded check distinct from the full frozen70c qualification.
+I do not repeat bootstrap for these private C-only additions.

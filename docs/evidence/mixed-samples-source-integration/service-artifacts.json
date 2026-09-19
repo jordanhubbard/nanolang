@@ -1,0 +1,178 @@
+{
+  "/tmp/nano-service-module-l44ox3nm/allocation": {
+    "sha256": "d07554686cf5b1b369539b42bf06fe568bea4b202a6f164f88daecbe6d86d434",
+    "bytes": 19555688
+  },
+  "/tmp/nano-service-module-l44ox3nm/allocation-build-command.txt": {
+    "sha256": "decd65cf46f4e2b56d06c35502f4cb7b39271c97cded7a6ea51706ada6773433",
+    "bytes": 3880
+  },
+  "/tmp/nano-service-module-l44ox3nm/allocation-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-l44ox3nm/allocation-run-command.txt": {
+    "sha256": "8d4e7e0a6178849207add4e755032568507120c8e56998c72ee995fa8cf60d2d",
+    "bytes": 79
+  },
+  "/tmp/nano-service-module-l44ox3nm/allocation-run.log": {
+    "sha256": "f53a546736bd84eae29d16d24481b634102f282cddd50853f2a1dfc319b57ebd",
+    "bytes": 37
+  },
+  "/tmp/nano-service-module-l44ox3nm/allocation.nvm": {
+    "sha256": "e5bdaaed1a05e704c032acc01ee723dd0c3b58b6085d9b3f7fefa9792f32c668",
+    "bytes": 780
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-facts-command.txt": {
+    "sha256": "19a606ab368dee70bc6aec6f9c5941ba430f09f598e408c6cf43ea4f81de79a0",
+    "bytes": 108
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-facts.log": {
+    "sha256": "3cc014e6160d1c6c97d54ffd69182dc2c0f72b464df3bd4bd42e057814a60d81",
+    "bytes": 78
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-llvm-command.txt": {
+    "sha256": "26cbe835b2b3c977e274298942b11ad6916fa47a0ee415844f3087e8614d892a",
+    "bytes": 152
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-llvm.log": {
+    "sha256": "1f39b4339817a58b0160d1f457dc278fb4034908edd4a6bdfc4da4d58073c554",
+    "bytes": 108
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-native-c-command.txt": {
+    "sha256": "e21eae225cb2403ef063b8f35cdd9a2b725a234835dee84990240e90d967af54",
+    "bytes": 153
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-native-c.log": {
+    "sha256": "b033cf053fbd9341c82cb5f93f85b9fa44ca4fb472e6a60eb8791bee4b5a0a77",
+    "bytes": 145
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-recover-c-command.txt": {
+    "sha256": "b81bea7e6de3758067008a715206e8369e6f2771021dfa4c51eda572c3b5d613",
+    "bytes": 141
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-recover-c.log": {
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "bytes": 117
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-recover-nano-command.txt": {
+    "sha256": "9133a6ba24725f5c738d82fd857344e7fe2c8f62603a72fddea2fab1362c92b0",
+    "bytes": 147
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-recover-nano.log": {
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "bytes": 117
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-wasm-command.txt": {
+    "sha256": "8358cd9694b60f1f485511feb93f510dfee7c49f4e3ab2ebb5d41874b98a7aaa",
+    "bytes": 125
+  },
+  "/tmp/nano-service-module-l44ox3nm/cli-wasm.log": {
+    "sha256": "0205a1a6dce336a5a507ea2b7b154eb25883c5b7638d7f69820214715731e6c1",
+    "bytes": 179
+  },
+  "/tmp/nano-service-module-l44ox3nm/facts-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-l44ox3nm/linked": {
+    "sha256": "1febb815673d0e74120eb42e9f5d804ef4e0e2945d2546e24aeedd6520bc889c",
+    "bytes": 18907616
+  },
+  "/tmp/nano-service-module-l44ox3nm/linked-build-command.txt": {
+    "sha256": "ac5ffff5419826b222949ba9c505a1422ef335f631189f0c0b1f2e6c7bb085fc",
+    "bytes": 3750
+  },
+  "/tmp/nano-service-module-l44ox3nm/linked-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-l44ox3nm/linked-run-command.txt": {
+    "sha256": "c3743eba755adc424b7dabe07ca9622e81913c23c000c38f122f836f3c5e2b6e",
+    "bytes": 75
+  },
+  "/tmp/nano-service-module-l44ox3nm/linked-run.log": {
+    "sha256": "2efa29d5f3a96029fdc498fbb1041fcb967353b9b151b7302ef262c62f903816",
+    "bytes": 37
+  },
+  "/tmp/nano-service-module-l44ox3nm/linked.nvm": {
+    "sha256": "e5bdaaed1a05e704c032acc01ee723dd0c3b58b6085d9b3f7fefa9792f32c668",
+    "bytes": 780
+  },
+  "/tmp/nano-service-module-l44ox3nm/llvm-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-l44ox3nm/mixed-boundary": {
+    "sha256": "d3e30d5922c8a519a0f7dde330cfac657cf1f7474a763e48c0a798be0849387c",
+    "bytes": 19006768
+  },
+  "/tmp/nano-service-module-l44ox3nm/mixed-build-command.txt": {
+    "sha256": "617370741ea41f469fc3ed08b5a8303de072525cf72abea4cf4fc14ebd532dbe",
+    "bytes": 3759
+  },
+  "/tmp/nano-service-module-l44ox3nm/mixed-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-l44ox3nm/mixed-run-command.txt": {
+    "sha256": "55b1f23eb1b60a32fc46b0074ee73f5dbbf4a137b549a520defaa147afbb97a8",
+    "bytes": 49
+  },
+  "/tmp/nano-service-module-l44ox3nm/mixed-run.log": {
+    "sha256": "69112eba73b40c44d87b02b6ec11a78fb5a5b16ab289e2680f6a35df9fccf2a4",
+    "bytes": 845
+  },
+  "/tmp/nano-service-module-l44ox3nm/native-c-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-l44ox3nm/nvm_format-compile-command.txt": {
+    "sha256": "4ce6da23f0568194b31f635922403d5d6945e3a94be446627bcf7135fb4a6528",
+    "bytes": 375
+  },
+  "/tmp/nano-service-module-l44ox3nm/nvm_format-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-l44ox3nm/nvm_format-instrumented.o": {
+    "sha256": "29dcc70f2e4ae0694a32d70b722d7152e8b58fbeae20b9304adc6af734939901",
+    "bytes": 589472
+  },
+  "/tmp/nano-service-module-l44ox3nm/nvm_v2_convert-compile-command.txt": {
+    "sha256": "940424184ce9d45828cf20ad13b9a5c9808ee26ae30df8ed2f241a96cc653def",
+    "bytes": 383
+  },
+  "/tmp/nano-service-module-l44ox3nm/nvm_v2_convert-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-l44ox3nm/nvm_v2_convert-instrumented.o": {
+    "sha256": "ba9e6e8f3e80ef48b0243938b01b3de085351238d513f5360823ed03424e9e3b",
+    "bytes": 397824
+  },
+  "/tmp/nano-service-module-l44ox3nm/recover-c-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-l44ox3nm/recover-nano-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-l44ox3nm/service_bindings_module-compile-command.txt": {
+    "sha256": "0612c0aba9a612bd209cc30bb3b496fc10650d85b87993745a9c16152b216345",
+    "bytes": 401
+  },
+  "/tmp/nano-service-module-l44ox3nm/service_bindings_module-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-l44ox3nm/service_bindings_module-instrumented.o": {
+    "sha256": "0c327cfe99d49cefc87421440c90710ae7e23e4cb785c8890ef67a02d6da63a9",
+    "bytes": 124624
+  },
+  "/tmp/nano-service-module-l44ox3nm/wasm-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  }
+}
