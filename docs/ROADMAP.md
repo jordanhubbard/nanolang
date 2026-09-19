@@ -3403,6 +3403,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           This nested-scalar slice now passes 24 boundary-specific rejections
           and native positive values. Nominal/generic execution and unknown
           compatibility remain open; I do not close the parent item.
+          - [ ] I align `bytes_from_string` and `file_read_bytes` with the same
+            parsed `u8` element identity used by `array<u8>` annotations. My
+            Stage 2 compiler currently reports the former as `array<int>` and
+            rejects the typed SDL text buffer that C-seed accepts. I require
+            self-host shadows plus unchanged cross-stage positive and wrong-type
+            rejection controls. This bounded prerequisite does not close the
+            recursive/nominal parent. MAC
+            `task_6c1cf53690f12d367af533ffdbe09947`.
         - [x] I preserve each remaining array level when emitting nested
           indexing, rather than selecting an integer read for an inner array.
           I require native shadows and runtime values at multiple depths.
