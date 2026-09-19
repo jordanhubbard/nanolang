@@ -35,6 +35,38 @@ unchanged. Generation preflights the entire plan before output publication.
 I compare full identifiers, reject duplicates and generated-name collisions, and
 never infer method authority from a spelling prefix or sanitized name alone.
 
+My checkpoint1 input is the existing parsed `const NlNsi *` plus an internally
+compiled, immutable local-file binding catalog. The catalog is private trusted
+adapter data, not an additional caller-supplied JSON object or an externally
+loadable authority file. The query takes the NlNsi document and an output-plan
+pointer; it selects that one catalog internally. It never accepts arbitrary
+caller-created ownership postconditions. Catalog records contain the method
+identity, ABI version, required rights and per-alternative owner relations listed
+below. They supply facts absent from the current schema without claiming those
+facts were serialized by NSI v0.
+
+I express document types through existing v0 resource/record/variant members and
+method parameters only. The exact document must match the catalog's interface,
+five methods, parameter names/order/type IDs/modes/lifetimes/mutability, nominal
+Result cases and payload member identities/order. I reject missing, extra,
+duplicate or mismatched members rather than ignoring them. In particular the
+v0 document uses its existing variant `cases` to describe result shape, while
+the catalog separately describes selected-payload ownership. All new ownership
+keys remain rejected by the unchanged parser. No schema extension, parser
+relaxation or executable generation is part of checkpoint1.
+
+The generator plan is an owned in-memory description with exact validated
+names, signatures and catalog relations. Its initial printable output is an
+explicitly non-executable contract report, not a `.nano` binding with demo bodies
+or a `.nvm` payload. I do not publish a callable declaration before the later
+transport and matched runtime contracts exist. The later generated binding stage
+uses this same checked plan after those prerequisites qualify. Tests may build
+current-schema NlNsi fixtures or load current-schema documents; that does not
+make the private catalog a new wire schema. Other generators retain their
+existing API; any future public dispatch selecting this service-binding mode
+must refuse unsupported generators rather than falling back to demonstration
+output. I do not change their existing v0 modes in checkpoint1.
+
 The version-one logical contract contains exactly:
 
 - Interface ID `nsi:nanolang/filesystem`, resource ID
@@ -127,8 +159,23 @@ field operations. Non-resource Results use their exact declared scalar payloads.
 This requires separately reviewed variant descriptors, flow and runtime cleanup;
 I do not relax the old complete-STRUCT rule or import refusal in isolation.
 
-The runtime invocation owns the file-service context. Values and pending results
-retain its lifetime until their cleanup completes. Each File shell has a unique
+My first public executable entry has a scalar result and no incoming service
+owner. File and any Result capable of containing File may move through internal
+helpers, but cannot escape that invocation: no public owner return, persistent
+global, closure capture, callback, asynchronous work or serialized owner output.
+The verifier checks that boundary for every public entry/export, not just the
+function named main. A raw module requesting an escaping signature is refused
+before execution/output publication. Internal helper return temporaries remain
+owned roots until their caller consumes or cleans them. This boundary permits
+my representative match/move/helper example without introducing a context handle
+ABI. A later public owned-result API requires a separately reviewed lifetime
+owner that survives VM/invocation disposal; it is not admitted here.
+
+The runtime invocation owns the file-service context. Values and pending internal
+results keep it alive until their cleanup completes. Only a scalar public result
+may be published after all File roots and context disposal are complete; cleanup
+failure follows the established execution-status channel. I cannot report a
+successful owned output and then dispose its backing context. Each File shell has a unique
 live/consumed state and context-qualified token. Normal close invalidates the
 shell before releasing it. Unhandled error, failed result allocation, VM trap,
 AOT error, and abandoned Result must close each still-live shell once; cleanup
