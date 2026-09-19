@@ -11417,3 +11417,10 @@ After root approves7d51 GPU production and exact skip-cause correction, I prepar
 I retain privateGPU first frozen5dd73 gate terminal1 at /tmp/nanolang-gpu-first-5dd73a9c:39 prior steps pass (strict GCC builds, actual linked GB10 driver13020, normal301checks/163alloc-free/noexternalcleanup, eightcontext bounds and loader/acquisition cases), rollback assertion then fails. Source/tool/head maps remain unchanged. Static fixture audit counts current queries in allocation as prior1/current-after-push2/restored3; requested rollback-begin is4. The fixture injected702 at3, so it exercised restoration failure instead of the asserted skipped rollback-begin outcome. Exact dynamic field values were not printed; I do not infer them beyond the retained assertion. I archive inputs/logs/artifacts before proposing the one-ordinal harness correction; production remains unchanged and no failed artifact is replayed.
 
 I qualify GPU3c92 corrected52e6 on actual Linux GB10 DriverAPI13020:168GPU steps pass across GCC13normal/GCC13ASanUBSanLSan/Clang18ASanUBSanLSan (40.405s command sum), plus23unchanged File/Socket/capability adjacency (7.110s). The first5dd gate remains39passes then a fixture-target assertion failure. My [sealed evidence](evidence/private-gpu-lifecycle.md) distinguishes the corrected701/702 skip cause, every bounded quarantine and fixture-owned context recovery from adapter cleanup. Actualother-platformGPU/publicbindings/fullparents and87ca remain open; independent evidence review and canonical merge remain pending.
+
+I integrate mixed runtime819 with canonical88e7dc746 in fresh45d9e4e41, preserving
+the qualified tree and all mixed production bytes. Fresh tools, complete12-case
+GCC/runtime/heap/admission/private query gates and raw service-codec sanitizer
+adjacency pass; my [integration seal](evidence/mixed-samples-runtime-integration.md)
+retains source/tool/object identities. Service-required refusal is not yet
+canonical and must remain ahead of mixed admission when separately integrated.
