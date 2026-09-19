@@ -216,3 +216,46 @@ build while the Darwin data volume was under an explicit storage hold. The
 existing fresh qualification remains pinned to its recorded source and tools;
 this rebase establishes patch identity and mergeability, not a relabeled test
 run.
+
+## Independent void-assignment correction
+
+Independent review of PR859 at `3b4b8eda906f61d4d137b283f315fe2d1ba360bb`
+found that my byte-aware local-assignment route had replaced
+`compile_stored_expr` for every non-byte local. A call returning `void` then
+reached `STORE_LOCAL` without the required materialized `PUSH_VOID`. The
+unchanged `tests/test_void_bindings.py` case `set second (record 3)` exercises
+that supported stack contract. I recorded
+`task_407b272f45ce81f85d675cec59c4d131` before correcting production code.
+
+At production commit `9fa4ece0b5e2ad08bf0a3768b447377e67b086a5`,
+only an exact `TYPE_U8` local uses `compile_expected_tag(..., TAG_U8)`; every
+other local assignment again uses `compile_stored_expr`. Global, upvalue and
+field assignment routes are unchanged. I rebuilt NanoVirt in place and ran:
+
+```text
+python3 -m unittest -v \
+  tests.test_void_bindings \
+  tests.test_reconstructed_u8 \
+  tests.test_reconstructed_truthiness
+```
+
+All 11 methods passed in 48.700 seconds, including the previously affected
+void binding, exact byte transport and the adjacent truthiness/refusal
+controls. Independent re-review approved the correction with no remaining
+scoped blocker.
+
+- NanoVirt rebuild log SHA-256:
+  `8d935bd5c932d345fb289da34397e700d336eb4c45fbc5ba28721b97dc2ba400`.
+- Focused 11-method log SHA-256:
+  `92533fa0e8cd1d91ed1c0e9f0e3361dd30648b8770461abd36a196ef190306b5`.
+- Corrected `src/nanovirt/codegen.c` SHA-256:
+  `e90010639415a72e8eca53b05d8eac7021654ffc36357abfcd2572fb69cfc7c5`.
+- Selected corrected `bin/nano_virt` SHA-256:
+  `6bf589435dd9659491d8f3cac04b812bb972387be0b52d7ab7624daa03143854`.
+
+The rebuild used the current restacked checkout and its already prepared
+objects. I do not relabel it as a fresh bootstrap or repeat the complete
+60-method gate. The earlier fresh qualification remains pinned to
+`59ffceccf422047c91395e1cf5d08e62e5a1d64c`; this correction adds the exact
+regression and focused compatibility evidence required by review. PR522 and
+release publication remain held.
