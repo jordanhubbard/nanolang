@@ -1,0 +1,806 @@
+{
+  "source_pin": "d8144114b302dbee7c177cf63125cdde1256a46e",
+  "production_pin": "724076809d050362555e62c1b175ff7ce17b29f9",
+  "scope": "Private real local Socket lifecycle only; public NSI/source/import/VM/AOT and network/WebSocket/GPU obligations remain open",
+  "linux_host": {
+    "system": "Linux",
+    "node": "sparky",
+    "release": "6.17.0-1032-nvidia",
+    "version": "#32-Ubuntu SMP PREEMPT_DYNAMIC Wed Aug 19 17:40:46 UTC 2026",
+    "machine": "aarch64",
+    "processor": "aarch64"
+  },
+  "sources": {
+    "src/nsi_socket.c": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+    "src/nsi_socket.h": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+    "src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+    "src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+    "src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5",
+    "src/nsi_file.c": "a81092fb70c9cc97c43a0ac5eda2394b311af7d9641c7deb41455af29730faad",
+    "src/nsi_file.h": "ce46023ad79a65c5fb2cf21986c878f4a9666a18d5aafb9ff5c02574da8f1a86",
+    "tests/test_nsi_socket.c": "eda35f5ba6261faa28a087314fe35cde6b62bbd5d496bbc3359c49f745c9ef37",
+    "tests/test_nsi_socket_linked.c": "637102c26f1a1e089a385ed1a2555cd9cb7e33a9a6e0c4a4b6377ef5f3202509",
+    "tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+    "tests/test_nsi_file_linked.c": "0685248874ef5f42c9f7329005d350a622a624eba557d024f87bd41198a1364d",
+    "tests/test_nsi_cap.c": "7c436df72196fdfac7b83ca63996646586b62552ef6f293a7eb3b4c983fdcab5",
+    "Makefile.gnu": "a360ac03b43a22590a049857a6b6a901f875ffa6a6505fd963f1e333026b800d"
+  },
+  "platforms": {
+    "linux": {
+      "manifest": {
+        "pin": "d8144114b302dbee7c177cf63125cdde1256a46e",
+        "platform": "linux",
+        "steps": [
+          {
+            "name": "normal",
+            "command": [
+              "make",
+              "CC=/usr/bin/gcc",
+              "test-nsi-socket",
+              "test-nsi-file",
+              "test-nsi-cap"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 2.27,
+            "log_sha256": "6e3a3218b50c0c782867a50dc20c162cb9450485ab8801cfdbabc88076824110"
+          },
+          {
+            "name": "gcc-version",
+            "command": [
+              "/usr/bin/gcc",
+              "--version"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.001,
+            "log_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+          },
+          {
+            "name": "gcc-socket-instrumented-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/gcc-socket-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.615,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-socket-instrumented-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/gcc-socket-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "a926f6e5890863b9cec61adc35e2e08957f93594e02d05330d0dd52b74ede090"
+          },
+          {
+            "name": "gcc-socket-linked-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket_linked.c",
+              "src/nsi_socket.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/gcc-socket-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.468,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-socket-linked-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/gcc-socket-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792"
+          },
+          {
+            "name": "gcc-file-instrumented-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/gcc-file-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.515,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-file-instrumented-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/gcc-file-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f"
+          },
+          {
+            "name": "gcc-file-linked-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file_linked.c",
+              "src/nsi_file.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/gcc-file-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.415,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-file-linked-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/gcc-file-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7"
+          },
+          {
+            "name": "gcc-cap-build",
+            "command": [
+              "/usr/bin/gcc",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_cap.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/gcc-cap"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.314,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "gcc-cap-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/gcc-cap"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab"
+          },
+          {
+            "name": "clang-version",
+            "command": [
+              "/usr/bin/clang-18",
+              "--version"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.032,
+            "log_sha256": "c0003bf916cbcae3cba03ba1cad136b6d501c1d343f380e58d5ba25cf693aafc"
+          },
+          {
+            "name": "clang-socket-instrumented-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/clang-socket-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.515,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-socket-instrumented-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/clang-socket-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "a926f6e5890863b9cec61adc35e2e08957f93594e02d05330d0dd52b74ede090"
+          },
+          {
+            "name": "clang-socket-linked-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket_linked.c",
+              "src/nsi_socket.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/clang-socket-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.415,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-socket-linked-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/clang-socket-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792"
+          },
+          {
+            "name": "clang-file-instrumented-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/clang-file-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.465,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-file-instrumented-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/clang-file-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f"
+          },
+          {
+            "name": "clang-file-linked-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file_linked.c",
+              "src/nsi_file.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/clang-file-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.415,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-file-linked-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/clang-file-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.016,
+            "log_sha256": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7"
+          },
+          {
+            "name": "clang-cap-build",
+            "command": [
+              "/usr/bin/clang-18",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_cap.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-socket-linux-d8144114/clang-cap"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.315,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "clang-cap-run",
+            "command": [
+              "/tmp/nanolang-socket-linux-d8144114/clang-cap"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.008,
+            "log_sha256": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab"
+          }
+        ],
+        "status": 0,
+        "source_unchanged": true,
+        "tools_unchanged": true,
+        "head_unchanged": true,
+        "clean": true
+      },
+      "reports": {
+        "/tmp/nanolang-socket-linux-d8144114/clang-file-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/clang-file-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/clang-socket-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/clang-cap-run.log": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab",
+        "/tmp/nanolang-socket-linux-d8144114/manifest.json": "278ce4e4244cd368f782638cd76002d610f4ea2714de2fa26139fe75e5b9af70",
+        "/tmp/nanolang-socket-linux-d8144114/clang-socket-instrumented-run.log": "a926f6e5890863b9cec61adc35e2e08957f93594e02d05330d0dd52b74ede090",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-cap-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/tools-before.json": "37936cfe32efc2a13afa0c3dfdf92f91f64bf0d97fdecf14289e80606fe6cbb1",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-socket-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/tools-after.json": "37936cfe32efc2a13afa0c3dfdf92f91f64bf0d97fdecf14289e80606fe6cbb1",
+        "/tmp/nanolang-socket-linux-d8144114/clang-socket-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-socket-linked-run.log": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-version.log": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "/tmp/nanolang-socket-linux-d8144114/clang-file-instrumented-run.log": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f",
+        "/tmp/nanolang-socket-linux-d8144114/source-after.json": "8c3176efa924c0a9a7c908eb70eeb4d58f76322347055480c87c4ba7d2893034",
+        "/tmp/nanolang-socket-linux-d8144114/normal.log": "6e3a3218b50c0c782867a50dc20c162cb9450485ab8801cfdbabc88076824110",
+        "/tmp/nanolang-socket-linux-d8144114/runner.py": "bd65b99d587b10a8413facd79d1d885b34185fa9bdc02699f1a5ebe2ab36c8f7",
+        "/tmp/nanolang-socket-linux-d8144114/clang-version.log": "c0003bf916cbcae3cba03ba1cad136b6d501c1d343f380e58d5ba25cf693aafc",
+        "/tmp/nanolang-socket-linux-d8144114/clang-cap-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-file-linked-run.log": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-file-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-file-instrumented-run.log": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f",
+        "/tmp/nanolang-socket-linux-d8144114/source-before.json": "8c3176efa924c0a9a7c908eb70eeb4d58f76322347055480c87c4ba7d2893034",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-socket-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/clang-file-linked-run.log": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-file-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-cap-run.log": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-socket-instrumented-run.log": "a926f6e5890863b9cec61adc35e2e08957f93594e02d05330d0dd52b74ede090",
+        "/tmp/nanolang-socket-linux-d8144114/clang-socket-linked-run.log": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792"
+      },
+      "artifacts": {
+        "/tmp/nanolang-socket-linux-d8144114/gcc-socket-linked": "5a0c61bff006964639a0b2f0c9f1e4ddc0d6a79e0f1de0f6c0cd067eabe72895",
+        "/tmp/nanolang-socket-linux-d8144114/clang-file-instrumented": "49a13e83de0f5da3fb17c395d6cc749bae72f90f1dad4355a831f9cb83150244",
+        "/tmp/nanolang-socket-linux-d8144114/clang-socket-instrumented": "9488f8ac11eac4b2e02c9e13e1859ab30f0fe85e8d068065fb2413c8765ee5a1",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-file-instrumented": "4c3dc3523a7abe6f7ac2fe341fb35f85db5236a6a7968f21a5917812b7a53359",
+        "/tmp/nanolang-socket-linux-d8144114/clang-socket-linked": "6cab563fc3b28be77ed3f7d95b0fa8fc56ff7f7456c19eb900db437cbde27bf0",
+        "/tmp/nanolang-socket-linux-d8144114/clang-file-linked": "b05988b65762dbfed9ab382e7cd38a83a31c10dd4ce621f5aebe4bd202b8bcda",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-file-linked": "9c45e2d73d6d742fad763ed0efdc6848ae5f1c3642c694d5ac1ba31f3b8c8ffc",
+        "/tmp/nanolang-socket-linux-d8144114/clang-cap": "cc5cd0bef744f764cc7aa10d48c900f71da4e809def2a856faa653aa6c573536",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-socket-instrumented": "40ef62abe04c1570fb385996c88be0f133ea423f316eeb8d702151358208046f",
+        "/tmp/nanolang-socket-linux-d8144114/gcc-cap": "77fe2d8fb394c79bc940aba8829f160723a96d2a8a327c0487202872db7e5d01",
+        "/tmp/nanolang-socket-linux-d8144114/normal-artifacts/test_nsi_socket_linked": "7daf298cf34626ce71dcd7863f11faf77481eac9917bc64f0cf56923b09d1910",
+        "/tmp/nanolang-socket-linux-d8144114/normal-artifacts/test_nsi_socket_instrumented": "4d76c00781713cd785c58f49110dca82f5b9a8822119dcb0842b0aacb9d85b1b",
+        "/tmp/nanolang-socket-linux-d8144114/normal-artifacts/test_nsi_file_linked": "d6612b268a826556dbdb11890924faa7ea2920d3d671e1b52f21cbee6f97cca4",
+        "/tmp/nanolang-socket-linux-d8144114/normal-artifacts/test_nsi_file_instrumented": "e053e69fcc436c77ad04632ab341c37f9ff8cace02f3ef9c9f063c93fbfc98e2"
+      },
+      "source_count": 2132,
+      "compiler_tools": {
+        "/usr/bin/aarch64-linux-gnu-gcc-13": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+        "/usr/lib/llvm-18/bin/clang": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d",
+        "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8",
+        "/usr/bin/make": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0",
+        "/usr/bin/aarch64-linux-gnu-as": "1ffda50efb6d91b6b05ef933aced099595c36577594c0296c91161f2d13db374",
+        "/usr/bin/aarch64-linux-gnu-ld.bfd": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c"
+      }
+    },
+    "darwin": {
+      "manifest": {
+        "pin": "d8144114b302dbee7c177cf63125cdde1256a46e",
+        "platform": "darwin",
+        "steps": [
+          {
+            "name": "normal",
+            "command": [
+              "make",
+              "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+              "test-nsi-socket",
+              "test-nsi-file",
+              "test-nsi-cap"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 2.65,
+            "log_sha256": "5af268c58bfa05ab3f459b544f52eb897314852fddfd3e6eee2ec2b67c30809e"
+          },
+          {
+            "name": "llvm23-version",
+            "command": [
+              "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+              "--version"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 1.507,
+            "log_sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+          },
+          {
+            "name": "llvm23-socket-instrumented-build",
+            "command": [
+              "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket.c",
+              "-o",
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-socket-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 1.012,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "llvm23-socket-instrumented-run",
+            "command": [
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-socket-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.704,
+            "log_sha256": "68525d4d399ba465eaa5a7dc18dc9e23115b1b2ccaded93e42b1fa2467b5bc45"
+          },
+          {
+            "name": "llvm23-socket-linked-build",
+            "command": [
+              "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_socket_linked.c",
+              "src/nsi_socket.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-socket-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.336,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "llvm23-socket-linked-run",
+            "command": [
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-socket-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.429,
+            "log_sha256": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792"
+          },
+          {
+            "name": "llvm23-file-instrumented-build",
+            "command": [
+              "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file.c",
+              "-o",
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-file-instrumented"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.333,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "llvm23-file-instrumented-run",
+            "command": [
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-file-instrumented"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.488,
+            "log_sha256": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f"
+          },
+          {
+            "name": "llvm23-file-linked-build",
+            "command": [
+              "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_file_linked.c",
+              "src/nsi_file.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-file-linked"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.333,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "llvm23-file-linked-run",
+            "command": [
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-file-linked"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.49,
+            "log_sha256": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7"
+          },
+          {
+            "name": "llvm23-cap-build",
+            "command": [
+              "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+              "-std=c11",
+              "-D_DEFAULT_SOURCE",
+              "-Isrc",
+              "-O1",
+              "-g",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "tests/test_nsi_cap.c",
+              "src/nsi_cap.c",
+              "-o",
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-cap"
+            ],
+            "env": {},
+            "status": 0,
+            "seconds": 0.283,
+            "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "name": "llvm23-cap-run",
+            "command": [
+              "/tmp/nanolang-socket-darwin-d8144114/llvm23-cap"
+            ],
+            "env": {
+              "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+            },
+            "status": 0,
+            "seconds": 0.435,
+            "log_sha256": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab"
+          }
+        ],
+        "status": 0,
+        "source_unchanged": true,
+        "tools_unchanged": true,
+        "head_unchanged": true,
+        "clean": true
+      },
+      "reports": {
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-instrumented-run.log": "4ac7cb8e16566c83bdd6bb3f35be10010b6c9b89235024d3fe1f6ef9ed9a263f",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-linked-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-cap-run.log": "abc4925a7e2257bb188db499d36d500d00ee6d71a355bb9b6c817f0881f0a5ab",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/platform-before.txt": "3d7e1708ac27fdbe8ba6295c36bd3fa6fefd53e3d7640dab2f0355681145ce95",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/manifest.json": "b1047c8162c1d551d5f75720a3ab9990ff3591584b8c56a53508fa2598efb9e6",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/tools-before.json": "e2820803b6cfcb75800b986a62e0166751d641e03d5fd85e7fa4d966776c99b7",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/tools-after.json": "e2820803b6cfcb75800b986a62e0166751d641e03d5fd85e7fa4d966776c99b7",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-cap-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/source-after.json": "8c3176efa924c0a9a7c908eb70eeb4d58f76322347055480c87c4ba7d2893034",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/normal.log": "5af268c58bfa05ab3f459b544f52eb897314852fddfd3e6eee2ec2b67c30809e",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/runner.py": "bd65b99d587b10a8413facd79d1d885b34185fa9bdc02699f1a5ebe2ab36c8f7",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-version.log": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-linked-run.log": "cf2557e16309c3eeeb160e4fac2b7305700cda92c684d7038adbee253552f792",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-linked-run.log": "4c7724ffb3a7c3167727619325f79cb1d94049834e8613b1de6e32c1d337dfa7",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/source-before.json": "8c3176efa924c0a9a7c908eb70eeb4d58f76322347055480c87c4ba7d2893034",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-instrumented-run.log": "68525d4d399ba465eaa5a7dc18dc9e23115b1b2ccaded93e42b1fa2467b5bc45",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-instrumented-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "artifacts": {
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-instrumented": "c5b286aae5250e7f8feb5d49e9a1c0334bed8e8e3c6da33d5ae3d29870aef0ba",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-cap": "f24916df90a1a50e2bc9853f79b5224111cd7a518a159ab1e0469cb8546df103",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-linked": "87e5e527ce2f5861ea2b375a2c83865e285fe942ae9304ca7470f9ec407d5a0a",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-instrumented": "7ae4ca5e85570de8c119cf6fe3b5ae9adb494eaaf76943f7b5197b6007a93537",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-linked": "d3cc9d033588191bd211a2617a80b37df50b15b0d612902b5f0aa8c4ef4675e7",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/normal-artifacts/test_nsi_socket_linked": "4eec9690a2a20443ded7a48da57ab7f29905358306151897cb60ac5340655893",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/normal-artifacts/test_nsi_socket_instrumented": "ee8fa33f8fcad7b4f0c58549480af79dd38cae5a7ecc63c792618797b909df0a",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/normal-artifacts/test_nsi_file_linked": "7bcf581557f123cccb3efd4128cce54cc143434cf0cf8405b4e917b8b8b18227",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/normal-artifacts/test_nsi_file_instrumented": "0e1d309138421df3858d45887076d2201197e091b574d6db9b7bfc31f2da9783",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-instrumented.dSYM/Contents/Info.plist": "3a50e8ae4752c79de94c5ec6d2709356d4c6100dd5c59097e0f1059b55fb2312",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-instrumented.dSYM/Contents/Resources/DWARF/llvm23-file-instrumented": "14694b88a6e83972962fa425ab481cdd46b7ebfe042f0aa461a55ec62692ae4e",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-instrumented.dSYM/Contents/Resources/Relocations/aarch64/llvm23-file-instrumented.yml": "3a4eaae5d831d0c4aa3158bfb5bd170619740064de4634dd3f356d96fe9d48b8",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-instrumented.dSYM/Contents/Info.plist": "f81534d1bab321b1ff621cc379d5d858ff2afd2d99135fff7533d3cc6824b771",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-instrumented.dSYM/Contents/Resources/DWARF/llvm23-socket-instrumented": "4f43fdd1be6357daeeb98e8dff9dbdf5e14dbb49310e2368c4ae76927e18640c",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-instrumented.dSYM/Contents/Resources/Relocations/aarch64/llvm23-socket-instrumented.yml": "a95b7c48184baeac205a60b52f02815f070c9698e6891eb138fe9ea79737cb90",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-linked.dSYM/Contents/Info.plist": "f961cf567e0ceba5e40983ae67a669f5818889fd4abfe24c238b362cce6b41cf",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-linked.dSYM/Contents/Resources/DWARF/llvm23-socket-linked": "2895849f98c088675464b029d9051fee80cb855c2c2fd9f09e5d1aa47a074b4c",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-socket-linked.dSYM/Contents/Resources/Relocations/aarch64/llvm23-socket-linked.yml": "a6a1cb8a8cca35cf3c5b755fc1a86695488540027803d6e99dfde344d0b6f881",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-linked.dSYM/Contents/Info.plist": "55d7ba039797fd536111344c613e7b618f2132e85ebccf779f7c9bfd3076eac5",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-linked.dSYM/Contents/Resources/DWARF/llvm23-file-linked": "f94d4d404ce356f1195e84fc46d9f99247a3143986772df14c81c15342e29c00",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-file-linked.dSYM/Contents/Resources/Relocations/aarch64/llvm23-file-linked.yml": "330cfbbaf50d531b622e240c5f1b2b5a8848d5ae1fe39ad42f46d9282af205c0",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-cap.dSYM/Contents/Info.plist": "ace804d618340f886faf837b8038b3a1a182ff7e892dacf06d16e622b70cfc65",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-cap.dSYM/Contents/Resources/DWARF/llvm23-cap": "df9a2b5b16dabc8469bd1f6abc5cf76ad7b73d0131fe4945e5262b67c83473f7",
+        "/tmp/nanolang-socket-darwin-evidence-d8144114/llvm23-cap.dSYM/Contents/Resources/Relocations/aarch64/llvm23-cap.yml": "0223ac0bb706f209d943c6f0cf9e82fa8c24ccb85f0a9f5207df21dce7a20117"
+      },
+      "source_count": 2132,
+      "compiler_tools": {
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang": "be5518e9c6736cda8dfc3486ce11e8112a2e08045084260691cf41f57a653f59",
+        "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+        "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9": "8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1",
+        "/usr/bin/make": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+        "/usr/bin/as": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+        "/usr/bin/ld": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+      }
+    }
+  },
+  "cross_host_source_equal": true,
+  "integration": {
+    "base": "3f91cd7e312aa9d88da507749a6493b51ede9d00",
+    "qualified_head": "d2c03977ed5ca2ba9e9cc58588bf3af0a9691c45",
+    "unchanged_sources": {
+      "src/nsi_socket.c": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+      "src/nsi_socket.h": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+      "src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+      "src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+      "src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5",
+      "src/nsi_file.c": "a81092fb70c9cc97c43a0ac5eda2394b311af7d9641c7deb41455af29730faad",
+      "src/nsi_file.h": "ce46023ad79a65c5fb2cf21986c878f4a9666a18d5aafb9ff5c02574da8f1a86",
+      "tests/test_nsi_socket.c": "eda35f5ba6261faa28a087314fe35cde6b62bbd5d496bbc3359c49f745c9ef37",
+      "tests/test_nsi_socket_linked.c": "637102c26f1a1e089a385ed1a2555cd9cb7e33a9a6e0c4a4b6377ef5f3202509",
+      "tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+      "tests/test_nsi_file_linked.c": "0685248874ef5f42c9f7329005d350a622a624eba557d024f87bd41198a1364d",
+      "tests/test_nsi_cap.c": "7c436df72196fdfac7b83ca63996646586b62552ef6f293a7eb3b4c983fdcab5"
+    },
+    "makefile_sha256": "31dc3bf3070af894dae43af0e395d188783f58271d17a5728613f74b0f558438",
+    "makefile_change": "Additive File-plan targets only; Socket target and following contents byte-identical.",
+    "execution": "No repeated execution; qualified production, harness, capability and File dependencies unchanged."
+  }
+}
