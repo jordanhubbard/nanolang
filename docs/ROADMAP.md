@@ -11778,3 +11778,11 @@ I submit owner ARRAY activation production2259fdbed after actual APIcac460fee, i
   optional-local/add/negate, retaining public compiler and other raw refusal
   expectations. Exact fixture review precedes affected fifth/unrun sixth checks;
   four passing methods/bootstrap stay distinct. Full source/parent work stays open.
+
+I retain fixture childd27a's second terminal separately: corrected optional raw
+assembly refusals and bound-at pass, then bound-not/nano_virt reports a parser
+refusal because both lexers reserve `not` as TOKEN_NOT. My fixture incorrectly
+claimed a legal lexical binding. I keep the exact source and previous-output
+assertion but require its parser phase explicitly; positive BOOL_NOT semantics
+remain in the already passing integer method. No parser or production change is
+required. The sixth method remains unrun pending exact fixture review.

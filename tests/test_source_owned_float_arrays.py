@@ -39,8 +39,12 @@ class SourceOwnedFloatArrays(support.SourceMixedSamples):
                                         text=True, timeout=180)
                 self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
                 self.assertEqual(output.read_bytes(), b'previous verified publication')
-                self.assertNotRegex(result.stdout + result.stderr,
-                                    r'(?i)parse (?:error|failed)|unexpected token')
+                if name == 'bound-not':
+                    self.assertRegex(result.stdout + result.stderr,
+                                     r'(?i)pars|expected.*(?:name|identifier)|unexpected token')
+                else:
+                    self.assertNotRegex(result.stdout + result.stderr,
+                                        r'(?i)parse (?:error|failed)|unexpected token')
                 self.assertRegex(result.stdout + result.stderr,
                                  r'(?i)type|array|owner|require|unsupported|shadow|assert|call|builtin|field|verify')
 

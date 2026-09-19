@@ -285,3 +285,12 @@ refuse without replacing a previous NVM. This does not accept annotation as
 FLOAT authority, widen production, execute a refused artifact, or change public
 compiler and other raw-lowering refusal expectations. After review I rerun only
 the affected fifth method and previously unrun sixth against unchanged producers.
+
+The affected b9ecc run reaches the required optional-local/add/negate final
+assembly refusals and bound-at refusals, then stops at bound-not/nano_virt.
+Both lexers reserve `not` as TOKEN_NOT, so `let not: int` is not a legal binding
+under the existing grammar. I preserve this second terminal and the exact source,
+requiring a parser refusal with previous output untouched rather than pretending
+that it reaches a later lexical check. The passing integer method already checks
+unbound BOOL_NOT semantics. This correction grants no syntax or builtin fallback;
+the sixth old-profile method is still unrun.
