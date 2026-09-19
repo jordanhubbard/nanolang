@@ -1,14 +1,37 @@
-/* I execute only the explicitly reviewed private adapter. Normal selectors
- * continue to refuse these fresh modules. */
+/* I retain the qualified private corpus and explicitly select public API
+ * coverage only in the separate public fixture build. */
 #define main retained_origin_fixture_main
 #include "test_owned_array_origins.c"
 #undef main
 #include "owned_array_authority.h"
 #include "owned_array_runtime_private.h"
 #include "../../src/nanovm/owned_array_runtime_private.h"
+#include "../../src/nanovm/vm.h"
 #include "nvm2c.h"
 #include "verifier.h"
 int g_argc=0;char **g_argv=NULL;
+#ifdef NANO_OWNER_ARRAY_PUBLIC_TEST
+#include "owned_array_admission.h"
+static unsigned public_api;
+static VmResult runtime_entry(VmState *vm,NanoValue *out) {
+    if(public_api==0)return vm_invoke(vm,0,NULL,0,out);
+    if(public_api==3)return vm_invoke_callable(vm,val_function(0),NULL,0,out);
+    VmResult status=public_api==1?vm_execute(vm):vm_call_function(vm,0,NULL,0);
+    if(status==VM_OK){CHECK(vm->stack_size==1);*out=vm->stack[--vm->stack_size];}
+    return status;
+}
+static bool runtime_emit(const NvmModule *m,char **out,char *error,size_t size) {
+    char *source=nvm2c_emit(m,error,size);if(!source)return false;*out=source;return true;
+}
+static bool runtime_failure_value(NanoValue value) {
+    return (public_api==0 || public_api==3)?value.tag==TAG_VOID:value.tag==TAG_INT && value.as.i64==-91;
+}
+#else
+#define runtime_entry vm_execute_owned_array_private
+#define runtime_emit nvm2c_emit_owned_array_private
+static bool runtime_failure_value(NanoValue value) {return value.tag==TAG_INT && value.as.i64==-91;}
+#endif
+
 static unsigned heap_attempts,heap_fail,heap_hits;
 void *private_array_malloc(size_t n){if(n && ++heap_attempts==heap_fail){heap_hits++;return NULL;}return malloc(n);}
 void *private_array_calloc(size_t n,size_t s){if(n && s && ++heap_attempts==heap_fail){heap_hits++;return NULL;}return calloc(n,s);}
@@ -131,10 +154,10 @@ static void check_output(FILE *output) {
 static void invoke(VmState *vm,VmResult wanted,size_t objects,size_t bytes,bool inject) {
     FILE *output=tmpfile();CHECK(output);vm->output=output;
     fprintf(stderr,"private invoke phase=%s fault=%u baseline=%zu bytes=%zu\n",inject?"fault":"ordinary/recovery",heap_fail,objects,bytes);
-    NanoValue result=val_int(-91);VmResult status=vm_execute_owned_array_private(vm,&result);heap_fail=0;
+    NanoValue result=val_int(-91);VmResult status=runtime_entry(vm,&result);heap_fail=0;
     fprintf(stderr,"private invoke status=%d hits=%u objects=%zu bytes=%zu\n",status,heap_hits,vm->heap.stats.num_objects,vm->heap.stats.allocated-vm->heap.stats.freed);
-    if(inject && heap_hits){CHECK(heap_hits==1 && status==VM_ERR_MEMORY);CHECK(result.tag==TAG_INT && result.as.i64==-91);}
-    else {CHECK(status==wanted);CHECK(result.tag==TAG_INT && result.as.i64==(wanted==VM_OK?0:-91));}
+    if(inject && heap_hits){CHECK(heap_hits==1 && status==VM_ERR_MEMORY);CHECK(runtime_failure_value(result));}
+    else {CHECK(status==wanted);CHECK(wanted==VM_OK?(result.tag==TAG_INT && result.as.i64==0):runtime_failure_value(result));}
     check_output(output);CHECK(!fclose(output));vm->output=NULL;clean(vm,objects,bytes);
 }
 static void growth_accounting(void) {
@@ -178,29 +201,41 @@ static void retain_boundary(void) {
     unsigned index=0;while(index<m->string_count && strcmp(m->strings[index],"retained"))index++;
     CHECK(index<m->string_count);VmString *string=vm.module_constants.strings[index];
     uint32_t saved=string->header.ref_count;string->header.ref_count=UINT32_MAX;
-    NanoValue result=val_int(-91);CHECK(vm_execute_owned_array_private(&vm,&result)==VM_ERR_MEMORY);
-    CHECK(result.tag==TAG_INT && result.as.i64==-91 && string->header.ref_count==UINT32_MAX);
+    NanoValue result=val_int(-91);CHECK(runtime_entry(&vm,&result)==VM_ERR_MEMORY);
+    CHECK(runtime_failure_value(result) && string->header.ref_count==UINT32_MAX);
     CHECK(!vm.stack_size && !vm.frame_count);string->header.ref_count=saved;
-    CHECK(vm_execute_owned_array_private(&vm,&result)==VM_OK && result.as.i64==0);
+    CHECK(runtime_entry(&vm,&result)==VM_OK && result.as.i64==0);
     vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);nvm_module_free(m);
 }
+#ifdef NANO_OWNER_ARRAY_PUBLIC_TEST
+#include "test_owned_array_public_boundaries.inc"
+#endif
 int main(int argc,char **argv) {
     growth_accounting();heap_attempts=heap_hits=heap_fail=0;
     CHECK(argc==2);
+#ifdef NANO_OWNER_ARRAY_PUBLIC_TEST
+    public_boundaries(argv[1]);
+#endif
     for(unsigned which=0;which<7;which++) {
         fprintf(stderr,"private owner ARRAY case=%u\n",which);
         NvmModule *m=runtime_module(which);NvmOwnedArrayPlan *plan=NULL;
         NvmOwnerAuthorityResult q=nvm_prepare_owned_array_authority(m,&plan);
         if(q.status!=NVM_OWNER_AUTH_PREPARED)fprintf(stderr,"prepare: %s f%u pc%u\n",q.message,q.function,q.pc);
         CHECK(q.status==NVM_OWNER_AUTH_PREPARED);nvm_owned_array_plan_free(plan);
-        CHECK(!nvm_verify(m).ok);char error[256];char *normal=nvm2c_emit(m,error,sizeof error);CHECK(!normal);
+        CHECK(nvm_verify(m).ok);char error[256];char *normal=nvm2c_emit(m,error,sizeof error);CHECK(normal);
         VmResult wanted=which>=1&&which<=3?VM_ERR_TYPE_ERROR:which==4?VM_ERR_ASSERT_FAILED:which==5?VM_ERR_OUT_OF_BOUNDS:VM_OK;
+#ifdef NANO_OWNER_ARRAY_PUBLIC_TEST
+        for(public_api=0;public_api<4;public_api++)
+#endif
         for(unsigned fused=0;fused<2;fused++) {
+#ifdef NANO_OWNER_ARRAY_PUBLIC_TEST
+            fprintf(stderr,"public case=%u api=%u fused=%u\n",which,public_api,fused);
+#endif
             VmState vm;vm_init(&vm,m);CHECK(vm.last_error==VM_OK);
             VmDispatchProfile profile={.fuse_load_local_field=fused};vm_set_dispatch_profile(&vm,profile);CHECK(vm.dispatch_module_valid);
             size_t objects=vm.heap.stats.num_objects,bytes=vm.heap.stats.allocated-vm.heap.stats.freed;
-            fprintf(stderr,"private public-refusal case=%u fused=%u baseline=%zu bytes=%zu\n",which,fused,objects,bytes);
-            NanoValue untouched=val_int(-91);CHECK(vm_call_function(&vm,0,NULL,0)!=VM_OK);CHECK(untouched.as.i64==-91);clean(&vm,objects,bytes);
+            fprintf(stderr,"private helper-refusal case=%u fused=%u baseline=%zu bytes=%zu\n",which,fused,objects,bytes);
+            NanoValue untouched=val_int(-91);CHECK(vm_invoke(&vm,1,NULL,0,&untouched)!=VM_OK);CHECK(untouched.as.i64==-91);clean(&vm,objects,bytes);
             invoke(&vm,wanted,objects,bytes,false);
             bool done=false;
             for(unsigned fault=1;fault<128;fault++) {
@@ -211,10 +246,13 @@ int main(int argc,char **argv) {
             }
             CHECK(done);vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);
         }
-        char *source=NULL;CHECK(nvm2c_emit_owned_array_private(m,&source,error,sizeof error));CHECK(source);
+        char *source=NULL;CHECK(runtime_emit(m,&source,error,sizeof error));CHECK(source);CHECK(!strcmp(source,normal));free(normal);
         char path[1024];snprintf(path,sizeof path,"%s/case%u.c",argv[1],which);FILE *file=fopen(path,"w");CHECK(file);CHECK(fputs(source,file)>=0);CHECK(!fclose(file));free(source);
         nvm_module_free(m);printf("case %u %u\n",which,which>=1&&which<=3?3:which==4?2:which==5?3:0);
     }
+#ifdef NANO_OWNER_ARRAY_PUBLIC_TEST
+    public_api=0;
+#endif
     retain_boundary();
     printf("%u private owner ARRAY runtime checks passed\n",checks);return 0;
 }

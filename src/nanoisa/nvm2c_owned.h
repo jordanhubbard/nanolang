@@ -448,6 +448,16 @@ static char *emit_mixed_samples_module(const NvmModule *mod,char *err,size_t err
     nvm_mixed_samples_plan_free(plan);return source;
 }
 
+static char *emit_owned_array_module(const NvmModule *mod,char *err,size_t err_len) {
+    NvmOwnedArrayPlan *plan=NULL;NvmOwnerAuthorityResult checked=nvm_owned_array_admit(mod,&plan);
+    if(checked.status!=NVM_OWNER_AUTH_PREPARED) {
+        if(err && err_len)snprintf(err,err_len,"%s",checked.message);
+        return NULL;
+    }
+    char *source=emit_owned_function(mod,0,NULL,plan,err,err_len);
+    nvm_owned_array_plan_free(plan);return source;
+}
+
 #ifdef NANO_OWNED_ARRAY_PRIVATE_RUNTIME
 bool nvm2c_emit_owned_array_private(const NvmModule *mod,char **out,char *err,size_t err_len) {
     if(!out)return false;

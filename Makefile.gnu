@@ -3051,7 +3051,7 @@ test-make-header-dependencies:
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
 
 .PHONY: test-affine-selfhost
-test-affine-selfhost: bootstrap nano_virt nano_vm
+test-affine-selfhost: bootstrap nano_virt nano_vm $(OBJ_DIR)/test_affine_c_frontend
 	@bash tests/test_affine_selfhost.sh
 	@python3 -m unittest tests.test_affine_module_identity tests.test_affine_generic_identity
 
@@ -3059,8 +3059,11 @@ test-affine-selfhost: bootstrap nano_virt nano_vm
 test-affine-module-identity: bootstrap
 	@python3 -m unittest tests.test_affine_module_identity
 
+$(OBJ_DIR)/test_affine_c_frontend: tests/test_affine_c_frontend.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 .PHONY: test-affine-contract-boundaries
-test-affine-contract-boundaries: bootstrap
+test-affine-contract-boundaries: bootstrap $(OBJ_DIR)/test_affine_c_frontend
 	@python3 -m unittest tests.test_affine_contract_boundaries
 
 .PHONY: test-pt2-audio
@@ -5392,6 +5395,10 @@ test-file-flow-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 # I keep this pending profile outside default test-units/public execution.
 test-private-owned-array-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_private_owned_array_runtime
+.PHONY: test-owned-array-public-runtime
+# I explicitly exercise normal public adapters after complete authority admission.
+test-owned-array-public-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2c nvm2llvm nvm2wasm nvm2hl
+	NANO_OWNER_ARRAY_PUBLIC_TEST=1 PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_private_owned_array_runtime
 
 .PHONY: test-file-opcodes
 test-file-opcodes: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nanovirt/wrapper_gen.o nvm2llvm nvm2hl nvm2c
