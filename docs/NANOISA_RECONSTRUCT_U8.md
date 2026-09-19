@@ -27,6 +27,27 @@ current compilers. I retain prior output for generic comparison, arithmetic,
 logic, globals, imports, aggregates, ownership and wrong-signature refusals.
 I record exact source and selected tool identities around the focused gate.
 
+## Checked-source prerequisite
+
+My first focused reconstruction run established the existing
+`task_b5d82f5ad53745e4896eafdf6112234d` boundary before publication: the C seed
+accepts a numeric literal in an explicitly declared `u8` binding, assignment,
+parameter or result context, while the self-hosted checker retains the
+literal's unconstrained `int` type and refuses the same source. Merely hiding
+that diagnostic would be wrong. My canonical NanoISA emitter also currently
+emits every numeric literal as `PUSH_I64`, even when the checked destination is
+`u8`.
+
+I repair those two sides together. The self-hosted checker applies an exact
+`u8` contextual hint only to integer literals used by a declared byte binding,
+assignment, direct call parameter or result. The canonical emitter consumes
+that same declared context, requires the literal to be in the closed range
+0 through 255 and emits `PUSH_U8`. It does not coerce computed integers,
+negative literals, floats or unresolved expressions. Direct `u8` values keep
+their existing exact argument and return checks. Fresh C-seed, Stage 1 and
+Stage 2 source controls must observe the byte tag; a checked out-of-range
+literal must retain prior output.
+
 This extension does not admit a `u8` entry result: my executable entry remains
 an arity-zero `int` function. It does not change NanoISA, NanoVM, `nvm2c`, LLVM
 or Wasm semantics. Full high-level reconstruction and the v5.1.0 release gates
