@@ -177,3 +177,24 @@ After this child, opaque File and affine Result layouts/flow/cleanup plus matche
 VM/native service dispatch remain genuine execution prerequisites under6931.
 Socket catalog/owned pair, GPU, representative library migration and the original
 d03c/ed702 obligations stay open. I have not implemented or executed this proposal.
+
+## My raw-codec review boundary
+
+Before code I retain FEATURE_FFI bit1 for every nonempty import table, including
+this service family, alongside required bit9. Bit1 does not grant generic FFI
+dispatch; changing its existing meaning is outside this child. The raw codec
+checks five distinct numeric import indices but cannot check a module's import
+count or signatures. Exact five-entry table/permutation and all nominal identity
+checks belong to the later cross-section validator. UINT32_MAX is the reserved
+no-index sentinel and is rejected by the raw codec; other table bounds remain
+cross-sectional. Later refusal audits cover direct in-memory public APIs as well
+as file parsing. Step1 changes no known-feature mask, section reader, import kind,
+module API, runtime, or public selector.
+
+My private value contains only five import indices; version1/catalog1 and
+operation ordinals are fixed by the codec, so callers cannot mutate catalog
+semantics. Decoder and encoder stage complete fixed-size values before output.
+The encoder supports size-only query with a null byte destination and requires
+a non-null size output. Valid output objects must not overlap the size output;
+input byte/value storage may overlap its corresponding destination because the
+operation stages it first. No memory allocation or input pointer is retained.
