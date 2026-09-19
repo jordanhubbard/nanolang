@@ -276,3 +276,22 @@ and produced4099 instead of7; that terminal stays attributed to the pre855
 interpreter. This supplement changes no production and waives no failing gate.
 I review the complete fixture delta before fresh evaluator/totality qualification,
 retain first terminals and source/tool identities, and keep all-route parents open.
+
+## My unchecked-backstop fixture setup correction
+
+Task `task_3f1a7d4857974ba399007aabc5239b0b` retains first Linux supplement
+`5e063cad1`: buildPASS22.270s,88 evaluator controls pass including handler order
+and repeated wildcards, then the child-exit assertion fails. Source/tool hashes
+are unchanged;155 provider hashes also match in the labeled postfailure map.
+The original binary and full terminal remain at `/tmp/nanolang-match-855-linux-first`.
+
+Static inspection finds that run_program does not register AST_FUNCTION: its
+evaluator case is intentionally a no-op. The unchecked fixture skipped the
+checker, which normally registers its function, then attempted a named call.
+Before another execution I explicitly register the parsed zero-argument INT
+function and its body through env_define_function, without typechecking the
+deliberately incomplete match. I retain the call, following exit91 sentinel,
+required normal EXIT_FAILURE and exact invariant diagnostic. I print captured
+child status/diagnostic if assertions fail. No production changes or assertion
+removals follow. A new corrected test binary may reuse the unchanged, hashed
+providers; the original failed binary is never replayed.

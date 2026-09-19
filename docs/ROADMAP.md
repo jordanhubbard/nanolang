@@ -11905,3 +11905,9 @@ I reconcile only the original bounded87ca identity acceptance after reviewing it
   I retain the reviewed exhaustive handler-order correction from task6ba90 and
   its original E035/4099 terminals. No production change or parent closure follows
   from preparing these additional controls.
+
+- [ ] I register the unchecked match-backstop fixture function before its named
+  call (`task_3f1a7d4857974ba399007aabc5239b0b`). My first855 supplement passes88
+  evaluator controls then fails the child-exit assertion; run_program deliberately
+  skips function registration. I retain that terminal and require explicit
+  fixture-only registration, unchanged backstop assertions and fresh qualification.
