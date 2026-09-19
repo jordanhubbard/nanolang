@@ -1,0 +1,21 @@
+{
+  "pin": "96d0f650352c30b26a8cf8c0f5118561f40e4347",
+  "steps": [
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "CC=/usr/bin/gcc",
+        "test-nsi-file"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 0.882,
+      "log_sha256": "700196413e52e6bae2f1faeea49715b8dc57a89f522c8f4b86c4706b07768f54"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

@@ -35,7 +35,7 @@ Both methods retain strict C11 `-Wall -Wextra -Werror`, ASan/UBSan and leak dete
 Close-error interception closes the real stream before reporting the injected
 error. I do not infer operating-system recovery from that controlled error.
 
-I seal 37 reports in [report-sha256.json](local-file-service/report-sha256.json).
+I seal 53 reports in [report-sha256.json](local-file-service/report-sha256.json).
 Each of the three inventories has 2,180 tracked input files equal before/after
 and equal to my evidence-authoring tree. Linux has six actual fixed tools; Darwin
 first entry has five, including the actual Homebrew compiler. The first Darwin
@@ -57,3 +57,22 @@ an installed NanoLang compiler, so the conditional source-client check does not
 run. I claim no bootstrap, generated binding, paired source, VM/AOT service-call,
 Socket/GPU or full release acceptance. The private adapter remains unselected by
 existing execution entry points; later public integration needs its own contract.
+
+## My normal-suite integration
+
+After the frozen4aad sanitizer qualification, I record the integration plan at
+`70e3b8d7` and change only Makefile.gnu at `96d0f650`. My production and fixtures
+remain byte-identical to4aad. `test-nsi-file` now compiles and runs both fixtures
+with the selected `CC`, project `CFLAGS/LDFLAGS`, and explicit strict C11 flags;
+`test-units` depends on it. Separate obj output paths retain failed artifacts.
+`test-nsi-file-sanitizers` preserves the original Python qualification unchanged,
+including explicit compiler selection and ASan/UBSan/leak policy.
+
+Fresh isolated normal-target runs pass with actual Linux GCC (0.882 seconds)
+and actual Apple Clang (1.802 seconds), each with the same 2,634 instrumented
+checks and ordinary linked control. Both runs retain equal before/after 2,180
+source inputs and actual compiler/build-tool inventories. Only Makefile.gnu
+differs between the old4aad and new96d0 source inventories; old sanitizer claims
+remain pinned to4aad. I inspect the direct `test-units` prerequisite and claim
+only the selected normal target, not a new full test-units run. I do not repeat
+unchanged sanitizer or adjacent gates.
