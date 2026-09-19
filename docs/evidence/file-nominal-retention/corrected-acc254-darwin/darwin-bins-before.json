@@ -1,0 +1,8 @@
+{
+  "bin/nvm2llvm": "e00ab0d15c78ba6e63be4b6cefbfc8d7e027536e15535993fb6665f50cbd69af",
+  "bin/nano_virt": "adfa690d1f1fd9bb6fb1afa6283ee4b3cb5b74eda421923db27bb5c95af29317",
+  "bin/nvm2hl": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+  "bin/nvm2c": "b94da49c6174d05c3c61542ef32a8536e1ea75c6839321dc122e40be27257cbe",
+  "bin/nanoisa_hl_facts": "897e9c94c5efaffd3c8d67d06a7a3aac7656fcd7577c796f16c75753ad943111",
+  "bin/nano_vm": "e3379a7561d4801ffd4c84e9333cf544c18c3554a86a9cca9d63f5d6185fbfb6"
+}

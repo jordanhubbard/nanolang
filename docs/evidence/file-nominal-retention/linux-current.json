@@ -1,0 +1,30 @@
+[
+  {
+    "root": "/home/jkh/Src/nanolang-file-nominal-combined-qualified",
+    "report": "/tmp/nanolang-file-nominal-combined-f5e07-linux",
+    "source-after.json": 2252,
+    "tools-after.json": 9,
+    "bins-final.json": 9
+  },
+  {
+    "root": "/home/jkh/Src/nanolang-file-nominal-corrected-qualified",
+    "report": "/tmp/nanolang-file-nominal-corrected-acc254-linux",
+    "source-after.json": 2252,
+    "tools-after.json": 9,
+    "bins-final.json": 9
+  },
+  {
+    "root": "/home/jkh/Src/nanolang-file-nominal-wrapper-qualified",
+    "report": "/tmp/nanolang-file-nominal-wrapper-775b-linux",
+    "source-after.json": 2252,
+    "tools-after.json": 9,
+    "bins-final.json": 5
+  },
+  {
+    "root": "/home/jkh/Src/nanolang-file-nominal-ready",
+    "report": "/tmp/nanolang-file-nominal-integrated-0d057-linux",
+    "source-after.json": 2258,
+    "tools-after.json": 9,
+    "bins-final.json": 7
+  }
+]

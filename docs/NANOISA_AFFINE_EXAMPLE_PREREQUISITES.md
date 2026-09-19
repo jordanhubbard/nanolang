@@ -106,3 +106,15 @@ preflight and terminal cleanup with corrected ordinary fixtures. Existing
 single/multiple consuming and borrowed call gates remain required. The
 first production checkpoint follows the reviewed contract; its new acceptance
 gates remain pending.
+
+
+## My bounded completion
+
+I retain the preimplementation and first-failure statements above as history.
+PR761 qualifies the unchanged example through C-seed/both selfhost stages,
+original shadows, exact VM/native output and refusals. The later frozen cd72
+installed-product run compiles all244 eligible examples, including this case,
+then fails the next independent documentation gate. This satisfies my original
+step5 example boundary; c435 is reconciled complete. My
+[closure evidence](evidence/source-ledger-reconciliation.md) retains the exact
+product evidence commit. Full product, ownership and release remain open.

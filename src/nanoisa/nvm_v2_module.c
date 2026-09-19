@@ -367,7 +367,9 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
         case NVM_V2_SECTION_LINKS:      r = nvm_v2_links_decode(p, z, &out->links); break;
         case NVM_V2_SECTION_CALLBACKS:  r = nvm_v2_callbacks_decode(p, z, &out->callbacks); break;
         case NVM_V2_SECTION_SERVICE_BINDINGS:
-            if (z != NVM_SERVICE_BINDING_BYTES) { r = NVM_V2_ERR_SECTION_RANGE; break; }
+            if (z != NVM_SERVICE_BINDING_BYTES && z != NVM_FILE_NOMINAL_BYTES) {
+                r = NVM_V2_ERR_SECTION_RANGE; break;
+            }
             out->service_data = p; out->service_size = (uint32_t)z; break;
         case NVM_V2_SECTION_OWNERSHIP:
             if (!z || z > UINT32_MAX) { r = NVM_V2_ERR_SECTION_RANGE; break; }

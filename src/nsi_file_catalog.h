@@ -5,4 +5,5 @@
  * execution authority is created. I use the same facts as document checking. */
 const char *nl_file_catalog_interface(void);
 const NlFilePlanMethod *nl_file_catalog_method(size_t);
+const NlFilePlanType *nl_file_catalog_type(size_t);
 #endif

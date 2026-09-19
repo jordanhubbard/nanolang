@@ -1,0 +1,134 @@
+{
+  "/home/jkh/Src/nanolang-file-nominal-combined-qualified/bin/nvm2c": {
+    "sha256": "c5b125d1feb763e85242bdc7aebac3613ada9d8a2108a13d9c0921bf28781ce4",
+    "bytes": 2342752
+  },
+  "/home/jkh/Src/nanolang-file-nominal-combined-qualified/bin/nanoc": {
+    "sha256": "984a2831eec1df89ba650cfa11badd01527c01c81f5db9bf32d334c58609124a",
+    "bytes": 11216936
+  },
+  "/home/jkh/Src/nanolang-file-nominal-combined-qualified/bin/nanoc_stage1": {
+    "sha256": "75cc52f890ce64cd83182fd3e3fbbbabfebb9ee243c6c7a09489042d5a6153e3",
+    "bytes": 17197744
+  },
+  "/home/jkh/Src/nanolang-file-nominal-combined-qualified/bin/nanoisa_hl_facts": {
+    "sha256": "077f1f5356211ff1f63bcac3f00e547ddf3f37f3d131e2e8c09271e11049d47d",
+    "bytes": 2348888
+  },
+  "/home/jkh/Src/nanolang-file-nominal-combined-qualified/bin/nanoc_stage2": {
+    "sha256": "984a2831eec1df89ba650cfa11badd01527c01c81f5db9bf32d334c58609124a",
+    "bytes": 11216936
+  },
+  "/home/jkh/Src/nanolang-file-nominal-combined-qualified/bin/nanoc_c": {
+    "sha256": "21f19452fc2539e41b65b134c39d29983c3ffa557a20bca82031e329687899db",
+    "bytes": 18355672
+  },
+  "/home/jkh/Src/nanolang-file-nominal-combined-qualified/bin/nano_as_capture.so": {
+    "sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "bytes": 72080
+  },
+  "/home/jkh/Src/nanolang-file-nominal-combined-qualified/bin/nvm2hl": {
+    "sha256": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+    "bytes": 2158
+  },
+  "/home/jkh/Src/nanolang-file-nominal-combined-qualified/bin/nvm2llvm": {
+    "sha256": "713ed78966cb492ac1fc95aea7ee8c7653fc8645db73fec265f399bb0480fb2d",
+    "bytes": 3626040
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-service_file_nominal_plan-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-nvm_format.o": {
+    "sha256": "49e13fbda1a24787de3502d8825939bfb75c547f722f21ae5ae841fc8927e4cb",
+    "bytes": 589496
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-run-command.txt": {
+    "sha256": "9a9fe3b5ad2d9282a7d9ff2a64d75e3ec278f8ff6beccb6afb0870d1ef091459",
+    "bytes": 87
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-service_bindings_module-compile-command.txt": {
+    "sha256": "5a69c13429caf15442fb2a75f4b9b450350a57683367ab67ada8e079564b9cc5",
+    "bytes": 413
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation.nvm": {
+    "sha256": "b104dec8da20f45cf5cdfcfdf47901ddfd0bcd1a54de805fb7f3485d642550f4",
+    "bytes": 2532
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-nvm_format-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-retained_layouts-compile-command.txt": {
+    "sha256": "254e7c9183ffeb8ba32148a0dde456c247f32c52b0f59870975478b8c6b2234f",
+    "bytes": 399
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-nvm_v2_layouts.o": {
+    "sha256": "eab6f8a24475679d596ce9119f991ef84e721bc30f70f37c7bee0d30eba6f8d7",
+    "bytes": 119352
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-service_file_nominal_plan-compile-command.txt": {
+    "sha256": "8b3b7e90026239c3c1574a0eb9f2f7d87b662c912b63f7bdbca648d11cfed164",
+    "bytes": 417
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-nvm_v2_convert-compile-command.txt": {
+    "sha256": "97477d5f5f7b663151d93575d07a5dba94bb9e6efe48793c74dbea37d1a82ad3",
+    "bytes": 395
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-nvm_v2_layouts-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-retained_layouts.o": {
+    "sha256": "f7189e10d32df5465208413186ad974186b2f95816b6178c105e3f31f6058b66",
+    "bytes": 1232736
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-retained_layouts-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-service_bindings_module.o": {
+    "sha256": "298903b1a9dead5a3939bbd13a4104997311398033f63f2e5d4ce3ede66be184",
+    "bytes": 248200
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-nvm_format-compile-command.txt": {
+    "sha256": "9fc4029476a131d4a063c25bd0fe18ec6c3e80632a0e2a713192200608609614",
+    "bytes": 387
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-service_file_nominal_plan.o": {
+    "sha256": "5cb28a847d85ad23419106cd656a5d90803d5ece434f8cd1f5609a1b99bd056f",
+    "bytes": 157856
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-build-command.txt": {
+    "sha256": "6e8297b4f9ca710a165a7a0b02c9666f41ca57c4a91bcc07352debdbab4d682d",
+    "bytes": 4106
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-service_bindings_module-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-nvm_v2_convert.o": {
+    "sha256": "d4197f073ae400a58aa4e0f2d9503f0fccfa550b2ae100cb94a812b37fe8f06f",
+    "bytes": 402624
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-nvm_v2_layouts-compile-command.txt": {
+    "sha256": "2d9f4104891afc243edfa9957603d8ca2038b3c77d2b2d4bb968dbe09e32b69d",
+    "bytes": 395
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-nvm_v2_convert-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation": {
+    "sha256": "5c35d2e90bf02a218cd77d5a9afd07bc9ecdac0834c8f6ef0a52c612961816a1",
+    "bytes": 20811936
+  },
+  "/tmp/nano-service-module-a9hloqks/nominal-allocation-run.log": {
+    "sha256": "b754cc7f3056d609d7d522019d3b48d2c2fd382582e6ddf10fd7c8b97b000315",
+    "bytes": 67
+  }
+}
