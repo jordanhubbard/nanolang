@@ -182,7 +182,15 @@
 - [x] I support verified `JMP_TRUE` in native translation while preserving VM truthiness semantics (MAC `task_211f22859e164287a07a63cba74ace5b`). My bounded companion covers control-flow discovery, local initialization, taken-edge transfers and loop-root collection, with VM/native true/false branch effects and actual float-format artifacts before acceptance. My original record-local fixture exposed the classifier refusal; my [true-branch evidence](evidence/native-jump-true.md) now records four focused methods,34polarity cases,2390native checks and1092shape checks, plus both actual float-format artifacts in VM and sanitized native products.
 
 - [x] I preserve tagged native map globals, checked operations and lifetime roots (MAC `task_af839ea3c3d14ebfa3191a0322f08298`), with VM/native and sanitizer regressions. Whole-record globals remain on `task_95796f5f49564ed4a911fd05a1aac5b4`.
-- [ ] I reconcile declared raw hashmap key/value tags between VM acceptance and native rejection before changing either policy (MAC `task_b19f8bf0527d4a33911be26706629616`).
+- [x] I reconcile declared raw hashmap key/value tags between VM acceptance
+      and native rejection (MAC
+      `task_b19f8bf0527d4a33911be26706629616`). The checked VM contract now
+      enforces the exact tags recorded by `HM_NEW` before `HM_SET` mutates a
+      map, matching the retained native boundary. PR #633 is in canonical
+      `main`; the contract, refusal cleanup and focused acceptance evidence are
+      recorded in [my declared-tag report](NANOISA_MAP_DECLARED_TAGS.md) and in
+      the authoritative completed row above. Lookup/delete behavior and native
+      non-string-key admission remain separate work.
 - [x] I preserve forward projected string branches at native stack joins in the fresh compiler, with the strengthened compiler product gate (MAC `task_55002ea4e4c64f80a6ba70b7f147ebef`). I reproduced the same `check_let_statement` failure with unchanged main `b3f79449` and repaired it with checked join storage. Backward joins and the separate selfhost-emitted artifact remain below.
 - [ ] I converge tagged string storage across backward native stack edges before widening an already classified loop header (MAC `task_ea3c8acd272a49669bd6ae6aa75cdf49`). I preserve the VM-positive loop fixture and native refusal separately from the forward compiler join repair.
 - [x] I remove the false `purity_node` to `purity_call` parameter conflict by clearing reused signature-pool bytes for undeclared function/import tags (MAC `task_04376d3e430c478d968af69e26543a0f`). My rebuilt selfhost artifact preserves unknown declarations, round-trips identically, runs VM help, and passes the original native guard. Its next native reconstruction blocker remains below; I do not claim its native compiler product complete.
@@ -668,11 +676,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       context. The focused allocation target and all 12 instantiated-ownership
       methods pass. MAC: `task_a822c3af6ff10226a2dde139a8ac1d7c`.
 
-- [ ] **Restore my Darwin bootstrap within the ordinary shadow deadline.** At
-      source `1277bce2`, the first self-hosted compiler finishes under an
-      explicit bounded 300-second budget but reproducibly exceeds my default
-      10-second shadow deadline. I will diagnose the regression or justify a
-      platform budget without weakening mandatory dependency shadows. MAC:
+- [x] **Restore my Darwin bootstrap within the ordinary shadow deadline.** I
+      retain the initial `1277bce2` timeout as measured history. PR #509 indexes
+      interpreted symbol lookup without changing my ten-second deadline or
+      selected dependency shadows; the same pinned compiler workload drops
+      from the deadline to 2.392 seconds for 826 shadows. A fresh default-budget
+      bootstrap and a later full Darwin `test-quick` pass under that unchanged
+      deadline. The proposed 60-second policy did not merge. Evidence:
+      `docs/evidence/interpreter-symbol-index.md`. MAC
       `task_0ea74f24799d9c9604bdf8abc7250d3d`.
 
 - [x] **Substitute generic selected-variant patterns.** I retain concrete
@@ -872,8 +883,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       explicit. I verify the Darwin parser portability gate before closing its
       stale task and correct release-tree restoration evidence after its owner
       closes the ledger row. I have reconciled the native opaque-null duplicate
-      and the completed compiler AOT bridge below; the remaining active rows
-      still require the same evidence check. MAC
+      and the completed compiler AOT bridge below. I also reconcile the raw-map
+      declared-tag row against merged PR #633 and the Darwin shadow-deadline row
+      against merged PR #509, retaining the unmerged 60-second proposal as
+      history rather than policy. The remaining active rows still require the
+      same evidence check. MAC
       `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
