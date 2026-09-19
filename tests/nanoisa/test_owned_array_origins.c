@@ -107,7 +107,7 @@ static void positive_and_faults(void) {
     CHECK(!nvm_owned_array_origin_input(p,6,0,&path) && !memcmp(&path,&saved_path,sizeof path));
     NvmOwnerOriginSummary saved_summary=summary;CHECK(!nvm_owned_array_origin_summary(p,6,&summary) && !memcmp(&summary,&saved_summary,sizeof summary));
     NvmOwnerOriginCounts saved_counts=counts;CHECK(!nvm_owned_array_origin_counts(NULL,&counts) && !memcmp(&counts,&saved_counts,sizeof counts));
-    NvmOwnerOriginObligation row={9,9,9,9,9},saved_row=row;CHECK(!nvm_owned_array_origin_obligation(p,counts.obligations,&row) && !memcmp(&row,&saved_row,sizeof row));
+    NvmOwnerOriginObligation row={.function=9,.pc=9,.actual_tags=9,.required_tags=9,.read_tags=9},saved_row=row;CHECK(!nvm_owned_array_origin_obligation(p,counts.obligations,&row) && !memcmp(&row,&saved_row,sizeof row));
     nvm_owned_array_origins_free(p);
     uint8_t *code=malloc(m->code_size),*owned=malloc(m->ownership_size),*layouts=malloc(m->layout_size);CHECK(code && owned && layouts);
     memcpy(code,m->code,m->code_size);memcpy(owned,m->ownership_data,m->ownership_size);memcpy(layouts,m->layout_data,m->layout_size);
