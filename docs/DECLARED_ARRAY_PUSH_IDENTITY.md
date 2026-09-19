@@ -150,3 +150,13 @@ checks to ARR_LITERAL3; I do not change it or invent inferred ARRAY fallback.
 Mandatory shadows cover declaration/builtin/owner resolution and resulting
 CALL-versus-ARR_PUSH/type behavior. Full review precedes fresh qualification;
 the five identity and twelve mutation/source groups remain unchanged.
+
+My prepared canonical checkpoint adds one exact predicate plus mandatory builtin,
+declared and source-owner shadows. Declared push CALL emission queues the exact
+resolved declaration index, checks its arity, and retains existing ordered
+signature-directed argument lowering. Type inference bypasses only builtin
+receiver specialization for that declaration. Extern and indirect classifications
+stay unchanged. The source acceptance fixture is byte-for-byte925c. Darwin925c
+corrected bootstrap296.851s/setup51.843s passed with stable source/head; identity
+and mutation remain unrun there after the shared Stage1 defect was localized.
+Only static inspection and whitespace checks apply to this new checkpoint.
