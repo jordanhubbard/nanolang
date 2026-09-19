@@ -1374,7 +1374,7 @@ fn forth_demo(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: Li
 
     # begin/until
     (println "-- begin/until --")
-    let r12: int = (exec_line stack rstack dspace wnames wbodies wimm ": countdown dup begin dup . 1 - dup 0 = until drop ;")
+    let r12: int = (exec_line stack rstack dspace wnames wbodies wimm ": countdown begin dup . 1 - dup 0 = until drop ;")
     if (!= r12 0) { (println "FAIL: define countdown") return 1 } else { (print "") }
     let r13: int = (exec_line stack rstack dspace wnames wbodies wimm "3 countdown")
     if (!= r13 0) { (println "FAIL: countdown") return 1 } else { (print "") }
@@ -1432,7 +1432,8 @@ fn forth_demo(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: Li
         (println "")
         (println "=== Demo complete. Stack empty. ===")
     } else {
-        (println "WARNING: stack not empty after demo")
+        (println "I require an empty stack after my demo")
+        return 1
     }
     return 0
 }
@@ -1922,6 +1923,7 @@ shadow forth_demo {
     (create_state stk rst dsp wnm wbd wim)
     let r: int = (forth_demo stk rst dsp wnm wbd wim)
     assert (== r 0)
+    assert (== (s_depth dsp) 0)
 }
 
 shadow forth_repl {
