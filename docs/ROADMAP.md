@@ -8282,6 +8282,14 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       example, preserve invalid-input/no-draw behavior, and test event ordering,
       focus changes, capacity, UTF-8 editing and the array ABI. MAC
       `task_eecbc1d010a5420e3da4af5d3ead04cf`.
+      - [ ] I emit the C-seed byte-conversion helpers from my self-hosted C
+        runtime too. My freshly bootstrapped Stage 1 and installed Stage 2
+        accept the typed buffer, but their strict native-shadow compilation
+        currently calls undeclared `nl_bytes_from_string` and
+        `nl_string_from_bytes`. I preserve the bounded `ELEM_U8` and managed
+        result-string contracts, add exact runtime shadows, and require the
+        unchanged UI example through C-seed, Stage 1 and Stage 2. MAC
+        `task_72cc251cbf894ec5f4e7b0adf85192f3`.
 - [x] I evaluate NanoLang in that editor through a persistent tree-walker
   session (`modules/nano_eval`) with host primitives `ed_message`, `ed_insert`,
   `ed_buffer_string`, `ed_point`, `ed_goto_char`, `ed_find_file`,
