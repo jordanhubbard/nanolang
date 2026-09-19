@@ -257,3 +257,68 @@ terminal backstop. I retain the existing C-seed totality matrix and interpreter
 suite. This slice does not widen the self-hosted parser, self-hosted checker,
 public C profile or NanoCore subset, and it does not close either shared parent
 or the release gate.
+
+## My root-reviewed qualification supplement
+
+Before executing PR855 checkpoint `d0fbd9b1`, I add integer early-wildcard
+and repeated-conditional-wildcard controls to the existing interpreter fixture.
+A marked scrutinee and marked guards/bodies distinguish first-success selection,
+false-guard fallthrough, skipped effects and exactly one scrutinee evaluation.
+I retain every existing union, binding-restoration and totality assertion.
+My forked terminal-backstop fixture drains stderr through EOF with EINTR handling
+instead of assuming one read returns a complete diagnostic.
+
+I also retain the independently reviewed handler-order fixture correction
+`70c12fd68`: an unconditional fallback calls mark after its conditional wildcard.
+Both branches remain forbidden by the existing nonlocal-return result assertion.
+The previous fixture-only correction reached the old interpreter ordering defect
+and produced4099 instead of7; that terminal stays attributed to the pre855
+interpreter. This supplement changes no production and waives no failing gate.
+I review the complete fixture delta before fresh evaluator/totality qualification,
+retain first terminals and source/tool identities, and keep all-route parents open.
+
+## My unchecked-backstop fixture setup correction
+
+Task `task_3f1a7d4857974ba399007aabc5239b0b` retains first Linux supplement
+`5e063cad1`: buildPASS22.270s,88 evaluator controls pass including handler order
+and repeated wildcards, then the child-exit assertion fails. Source/tool hashes
+are unchanged;155 provider hashes also match in the labeled postfailure map.
+The original binary and full terminal remain at `/tmp/nanolang-match-855-linux-first`.
+
+Static inspection finds that run_program does not register AST_FUNCTION: its
+evaluator case is intentionally a no-op. The unchecked fixture skipped the
+checker, which normally registers its function, then attempted a named call.
+Before another execution I explicitly register the parsed zero-argument INT
+function and its body through env_define_function, without typechecking the
+deliberately incomplete match. I retain the call, following exit91 sentinel,
+required normal EXIT_FAILURE and exact invariant diagnostic. I print captured
+child status/diagnostic if assertions fail. No production changes or assertion
+removals follow. A new corrected test binary may reuse the unchanged, hashed
+providers; the original failed binary is never replayed.
+
+## My later integer-reduce fixture correction
+
+Task `task_d4427bf731b14e899228b1443922a066` retains the next independent
+evaluator terminal at `cd25b66cd`: the corrected unchecked-match backstop and
+earlier match controls pass, then eval_reduce_pure_arithmetic_int fails its
+initialization assertion. A fresh compiler diagnostic on its exact call shape
+reports E001: reduce requires array<E>, initializer A, then fn(A,E)->A.
+The two fixture calls put the function before the initializer.
+
+Before another gate I swap only those fixture arguments to `(reduce arr 0 add_ints)`
+and run the existing result15 shadow in this test. I retain all source assertions,
+the diagnosed rejected source, both earlier gate terminals and unchanged compiler
+providers. No production or type-rule change follows.
+
+## My retained provider-relative fixture path
+
+The fresh12b61 fixture now passes the corrected reduce shadow and subsequent
+controls, then ffi_loader_open cannot open its relative
+`obj/test_interpreter_ffi_native.so`. My reused provider lives in the original
+provider checkout; the newly compiled test ran in the fixture-only checkout.
+The library itself remains present and hash-identical in the provider inventory.
+I retain this runner terminal separately. Before another fresh binary I set
+only the evaluator process working directory to that original provider checkout,
+record both checkout pins and paths, and leave compiler, fixtures and assertions
+unchanged. Compilation and Python fixture discovery still use the corrected
+source checkout. This corrects an input-path omission, not a product failure.

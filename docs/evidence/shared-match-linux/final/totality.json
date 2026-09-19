@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-c",
+    "from pathlib import Path; import unittest; import tests.test_cseed_match_totality as t; t.COMPILER=Path('/home/jkh/Src/nanolang-shared-match-ordering-controls/bin/nanoc_c'); unittest.main(module=t,verbosity=2)"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-shared-match-qualified",
+  "exit_code": 0,
+  "seconds": 1.5680798380053602
+}

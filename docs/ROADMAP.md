@@ -11898,3 +11898,28 @@ I integrate canonical846/847 separately at e756 with unchanged File production/f
 
 I qualify corrected task15ae fixtures with seven Linux/Darwin phases,17305 checks per bit VM binary and4746 per unchanged adjacent binary. My [bit/index evidence](evidence/owned-array-bits-boundaries.md) preserves the first probe-setup and pre-build driver terminals, exact distinct public/internal probe boundaries and per-phase tool inventories. Canonical review/merge and pending paired source mutation remain required.
 I reconcile only the original bounded87ca identity acceptance after reviewing its four ordered contract gates and actual PR822 merge118cc447. My [closure audit](evidence/opencl-bounded-reconciliation.md) verifies235 retained reports,72 artifacts and10 inputs, required ordinary OpenCL GPU results, and completed87ca/f13e ledger state. Historical pending statements above describe their earlier checkpoints. The real GPU LSan failure315caf, platform coverage, d03c public service and release gates remain open.
+
+- [ ] I qualify the bounded C-seed match-ordering slice in PR855 with repeated
+  conditional wildcards, integer early-wildcard order and complete stderr capture
+  (`task_477bdd430a1442e7bc19cbacdbac0bde`, `task_70c5a56802e44142af0f19da2469f654`).
+  I retain the reviewed exhaustive handler-order correction from task6ba90 and
+  its original E035/4099 terminals. No production change or parent closure follows
+  from preparing these additional controls.
+
+- [ ] I register the unchecked match-backstop fixture function before its named
+  call (`task_3f1a7d4857974ba399007aabc5239b0b`). My first855 supplement passes88
+  evaluator controls then fails the child-exit assertion; run_program deliberately
+  skips function registration. I retain that terminal and require explicit
+  fixture-only registration, unchanged backstop assertions and fresh qualification.
+
+- [ ] I repair the stale integer-reduce evaluator fixture argument order
+  (`task_d4427bf731b14e899228b1443922a066`). The fresh diagnostic confirms E001
+  for function-before-initializer. I retain the result15 shadow and execute it
+  after correcting the two calls, without relaxing my checked reduce contract.
+
+- [ ] I correct the match-gate runner working directory for its retained relative
+  native FFI fixture library (qualification prerequisite under taskd4427).
+  I preserve the12b61 library-open terminal and select the hash-verified provider
+  checkout only for evaluator execution; assertions and production remain intact.
+
+- [x] I qualify the corrected C-seed match fixtures on Linux at `7a21096f8`: all 122 evaluator cases and eight totality tests pass with unchanged source, 155 providers, and six tool identities. I retain every first terminal in [my sealed evidence](evidence/shared-match-linux/README.md). Integration, fresh bootstrap, Darwin acceptance, and the shared parent tasks remain open.

@@ -1,0 +1,297 @@
+{
+  "scope": "Linux C-seed evaluator and match totality only; all first terminals retained. No current full bootstrap, Darwin, or release acceptance.",
+  "qualified_pin": "7a21096f86c3a51f83e38672484e694b90c5aa72",
+  "production_pin": "d0fbd9b1bda184d54563599f2c6f23b41e6ed66d",
+  "records": [
+    {
+      "path": "docs/evidence/shared-match-linux/first/build.json",
+      "sha256": "22e42f804d01e1869aa33df9d409724521e750899497196937c401e67a77fab3",
+      "bytes": 211
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/build.log",
+      "sha256": "ee3a850c71aeba93235be994406ee8c44849a452679f327a8e8d0e29dd6f8619",
+      "bytes": 28290
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/eval-binary.json",
+      "sha256": "dd689189852b8d0fd78684ce39bc3de5c6a03d96d8854bf0c5e3043494a5f908",
+      "bytes": 142
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/evaluator.json",
+      "sha256": "8a58b2678d994d7e4eaa51d9f72598871656cb506ae6bcd770a416adffa0f265",
+      "bytes": 124
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/evaluator.log",
+      "sha256": "4c97fbb5bc61a598733fcc64534e276b36aea66d2b7f3d2f97f2ed8fa20452f9",
+      "bytes": 3598
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/providers-before.json",
+      "sha256": "3904e1ca3ad91e80edb5121778e072574ce9daff2afe6b0db8d8a2c672def186",
+      "bytes": 15064
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/providers-postfailure.json",
+      "sha256": "3904e1ca3ad91e80edb5121778e072574ce9daff2afe6b0db8d8a2c672def186",
+      "bytes": 15064
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/runner.py",
+      "sha256": "c522ed4a4887cd111906ea568ba973e6f2c2ce5e8cae01bbc52bc56664584291",
+      "bytes": 3362
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/source-after.json",
+      "sha256": "6130d8faecb68121902d670738f4f3f93160b6ab51d5ba6d85e04df8aa86b3a9",
+      "bytes": 892258
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/source-before.json",
+      "sha256": "6130d8faecb68121902d670738f4f3f93160b6ab51d5ba6d85e04df8aa86b3a9",
+      "bytes": 892258
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/status.json",
+      "sha256": "492fd36c1c1e11f9acd69e6709a522b8b8a1bec81b7c05d89148642c6641c682",
+      "bytes": 189
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/tools-after.json",
+      "sha256": "b3c75b025b6205a3a8023bfbc15da7466753f25387a8331b57d5ccd89f07e3e4",
+      "bytes": 935
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/first/tools-before.json",
+      "sha256": "b3c75b025b6205a3a8023bfbc15da7466753f25387a8331b57d5ccd89f07e3e4",
+      "bytes": 935
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/eval-binary.json",
+      "sha256": "e19d183de5f85e2d2ee244c1428ffc9276229bc672a0ccd140a274e563914677",
+      "bytes": 146
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/evaluator.json",
+      "sha256": "5e5d89657470b69ba2e52b3618a1d529e446b365e155f8cc08cf5b3522d17797",
+      "bytes": 129
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/evaluator.log",
+      "sha256": "c016ac4febabf8718dcd44c9c46831e3ec87876e2fec3c8a1c95ca37ffa45e72",
+      "bytes": 4137
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/fixture-build.json",
+      "sha256": "b99a04503593c4b447a16a64df2a4f93ccd201481cf0ae149c06dd77046cd30e",
+      "bytes": 8803
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/fixture-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/providers-after.json",
+      "sha256": "3904e1ca3ad91e80edb5121778e072574ce9daff2afe6b0db8d8a2c672def186",
+      "bytes": 15064
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/providers-before.json",
+      "sha256": "3904e1ca3ad91e80edb5121778e072574ce9daff2afe6b0db8d8a2c672def186",
+      "bytes": 15064
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/reuse.json",
+      "sha256": "e8649f0b46b6897cbbbe502363112d6801b39cce5a5503ad6b37507cb18bdc8d",
+      "bytes": 263
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/runner.py",
+      "sha256": "c6e0e9c5d61d5c725bff8d2d24b1b75c80f85f35e5ac1fc652d3bf52f25c9a78",
+      "bytes": 3464
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/source-after.json",
+      "sha256": "130d301374ccbc09dc91219c9944fd0eb2207046294076c9af681d8ec1350f11",
+      "bytes": 892258
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/source-before.json",
+      "sha256": "130d301374ccbc09dc91219c9944fd0eb2207046294076c9af681d8ec1350f11",
+      "bytes": 892258
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/status.json",
+      "sha256": "c005d482a201d0c2a33a410a2b5873c63fa0bdd31b9c4d6c9aec5b37ddb05387",
+      "bytes": 220
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/tools-after.json",
+      "sha256": "b3c75b025b6205a3a8023bfbc15da7466753f25387a8331b57d5ccd89f07e3e4",
+      "bytes": 935
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/corrected/tools-before.json",
+      "sha256": "b3c75b025b6205a3a8023bfbc15da7466753f25387a8331b57d5ccd89f07e3e4",
+      "bytes": 935
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/eval-binary.json",
+      "sha256": "a1a3e0cfc27b22e17055ccb3f47afbdfacf945a61c4de409a65b328daceef0e1",
+      "bytes": 143
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/evaluator.json",
+      "sha256": "94a5a1f0bbf48f1da6d2c0e1772db2add94901670066814626f8860e3255debd",
+      "bytes": 125
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/evaluator.log",
+      "sha256": "d2d2493137a64462c193911613ce9687f977f371a4edbac3c207ce965ada5f9c",
+      "bytes": 4751
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/fixture-build.json",
+      "sha256": "fbb3e318f8cf8dc27b5c6bbf3de6b6b314aabc73b37d67e37120991c1b888369",
+      "bytes": 8800
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/fixture-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/providers-after.json",
+      "sha256": "3904e1ca3ad91e80edb5121778e072574ce9daff2afe6b0db8d8a2c672def186",
+      "bytes": 15064
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/providers-before.json",
+      "sha256": "3904e1ca3ad91e80edb5121778e072574ce9daff2afe6b0db8d8a2c672def186",
+      "bytes": 15064
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/reuse.json",
+      "sha256": "c1de702cb327cea9d89c3feb107da9966bf8cf03cf9fe7bfa7077470c7432f04",
+      "bytes": 263
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/runner.py",
+      "sha256": "b3b52fb2eb8eaf116c90b58b7ea423d6ac1cd28b873ae78e7dba1f3f4de6939c",
+      "bytes": 3454
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/source-after.json",
+      "sha256": "8e546ed49ace5576c34a353abd5388c6d25e8a61a6a1eca53e5f89f574ee43aa",
+      "bytes": 892258
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/source-before.json",
+      "sha256": "8e546ed49ace5576c34a353abd5388c6d25e8a61a6a1eca53e5f89f574ee43aa",
+      "bytes": 892258
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/status.json",
+      "sha256": "d3947c35cb3f85f717b24458bc3076a527cdc936e0cdb1f7ade15dc290859585",
+      "bytes": 220
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/tools-after.json",
+      "sha256": "b3c75b025b6205a3a8023bfbc15da7466753f25387a8331b57d5ccd89f07e3e4",
+      "bytes": 935
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/reduce/tools-before.json",
+      "sha256": "b3c75b025b6205a3a8023bfbc15da7466753f25387a8331b57d5ccd89f07e3e4",
+      "bytes": 935
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/eval-binary.json",
+      "sha256": "4ad0c3275aa1c47516e511e9de54670f4773f0d3858121659d460d0a3a171cb9",
+      "bytes": 142
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/evaluator.json",
+      "sha256": "193f6b9e4fdcf4885a2da62d6e6f7aea2e736a9d07e8b92f50df5f3e9287635b",
+      "bytes": 190
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/evaluator.log",
+      "sha256": "cf6aa2c1a01c54e0fca48cf7b2e71708ff7d591174623fb19d8cfa32f3416abc",
+      "bytes": 5077
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/fixture-build.json",
+      "sha256": "77560e643d90263aab5446fa5fd2f7b505503f31e132c896c5728258d32985f1",
+      "bytes": 8857
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/fixture-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/providers-after.json",
+      "sha256": "3904e1ca3ad91e80edb5121778e072574ce9daff2afe6b0db8d8a2c672def186",
+      "bytes": 15064
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/providers-before.json",
+      "sha256": "3904e1ca3ad91e80edb5121778e072574ce9daff2afe6b0db8d8a2c672def186",
+      "bytes": 15064
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/reuse.json",
+      "sha256": "94897915a762ca9bf3bcd6ae6e821dc6b2dd2a54c1f232fad89dd7fc8251b53a",
+      "bytes": 263
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/runner.py",
+      "sha256": "b65353d2e7c71183dc6ed305c92724abf193b59a916107cca2a19d9e778cdc15",
+      "bytes": 3526
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/source-after.json",
+      "sha256": "fd13f8e37831582a870180c908cff03f753d4576f895124086c981c61e345c43",
+      "bytes": 892258
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/source-before.json",
+      "sha256": "fd13f8e37831582a870180c908cff03f753d4576f895124086c981c61e345c43",
+      "bytes": 892258
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/status.json",
+      "sha256": "5711cfa863f43dd6dc0dde665344847666c8dc2056ea24d15bd20991cd241e82",
+      "bytes": 188
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/tools-after.json",
+      "sha256": "b3c75b025b6205a3a8023bfbc15da7466753f25387a8331b57d5ccd89f07e3e4",
+      "bytes": 935
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/tools-before.json",
+      "sha256": "b3c75b025b6205a3a8023bfbc15da7466753f25387a8331b57d5ccd89f07e3e4",
+      "bytes": 935
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/totality.json",
+      "sha256": "19f64b7bbb956d596a4973785147615b68979ab34b214c859c43204205310bb4",
+      "bytes": 379
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/final/totality.log",
+      "sha256": "c1f2234225a28cc688b4afffd50dee29f020dbe9649f824e1b9b6c968be4f295",
+      "bytes": 1508
+    },
+    {
+      "path": "docs/evidence/shared-match-linux/independent-audit.json",
+      "sha256": "bc33de36437f621329b21270f1c33161077d5c4eaf16a3c1f20e3bdd3d7dc800",
+      "bytes": 7184
+    }
+  ]
+}

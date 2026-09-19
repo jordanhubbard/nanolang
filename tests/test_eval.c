@@ -17,6 +17,7 @@
 #include "../src/interpreter_ffi.h"
 #include "../src/runtime/ffi_loader.h"
 #include "../src/runtime/dyn_array.h"
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1756,6 +1757,24 @@ void test_eval_match_wildcards_follow_lexical_order(void) {
         "  assert (== (select_match none false true) -1)\n"
         "  assert (== match_trace 139)\n"
         "}\n"
+        "fn mark_match_input(value: int) -> int {\n"
+        "  set match_trace (+ (* match_trace 10) 9) return value\n"
+        "}\n"
+        "shadow mark_match_input { set match_trace 0 assert (== (mark_match_input 7) 7) assert (== match_trace 9) set match_trace 0 }\n"
+        "fn select_integer_match(first: bool, second: bool) -> int {\n"
+        "  return match (mark_match_input 7) {\n"
+        "    _ if (mark_match_guard 1 first) => { set match_trace (+ (* match_trace 10) 7) 100 }\n"
+        "    _ if (mark_match_guard 2 second) => { set match_trace (+ (* match_trace 10) 8) 200 }\n"
+        "    7 => { set match_trace (+ (* match_trace 10) 9) 300 }\n"
+        "    _ => -1\n"
+        "  }\n"
+        "}\n"
+        "shadow select_integer_match {\n"
+        "  set match_trace 0 assert (== (select_integer_match true true) 100) assert (== match_trace 917)\n"
+        "  set match_trace 0 assert (== (select_integer_match true false) 100) assert (== match_trace 917)\n"
+        "  set match_trace 0 assert (== (select_integer_match false true) 200) assert (== match_trace 9128)\n"
+        "  set match_trace 0 assert (== (select_integer_match false false) 300) assert (== match_trace 9129)\n"
+        "}\n"
         "fn restore_outer_binding(value: Choice) -> int {\n"
         "  let payload: int = 41\n"
         "  return match value {\n"
@@ -1778,6 +1797,7 @@ void test_eval_match_wildcards_follow_lexical_order(void) {
 void test_eval_match_miss_is_terminal(void) {
     int errors[2];
     ASSERT(pipe(errors) == 0);
+    fflush(NULL);
     pid_t child = fork();
     ASSERT(child >= 0);
     if (child == 0) {
@@ -1796,18 +1816,51 @@ void test_eval_match_miss_is_terminal(void) {
         ASTNode *program = tokens ? parse_program(tokens, token_count) : NULL;
         Environment *env = program ? create_environment() : NULL;
         if (!tokens || !program || !env || !run_program(program, env)) _exit(90);
+        /* I bypass checking only for this deliberately incomplete AST. The
+         * checker normally registers functions; run_program does not. */
+        ASTNode *definition = NULL;
+        for (int i = 0; i < program->as.program.count; ++i) {
+            ASTNode *item = program->as.program.items[i];
+            if (item->type == AST_FUNCTION &&
+                strcmp(item->as.function.name, "unchecked_miss") == 0)
+                definition = item;
+        }
+        if (!definition || definition->as.function.param_count != 0 ||
+            definition->as.function.return_type != TYPE_INT) _exit(90);
+        Function function = {0};
+        function.name = definition->as.function.name;
+        function.return_type = TYPE_INT;
+        function.body = definition->as.function.body;
+        env_define_function(env, function);
         (void)call_function("unchecked_miss", NULL, 0, env);
         _exit(91);
     }
 
     close(errors[1]);
-    char message[512];
-    ssize_t length = read(errors[0], message, sizeof(message) - 1);
+    char message[512], chunk[256];
+    size_t used = 0;
+    bool read_ok = true, truncated = false;
+    for (;;) {
+        ssize_t length = read(errors[0], chunk, sizeof(chunk));
+        if (length < 0 && errno == EINTR) continue;
+        if (length < 0) { read_ok = false; break; }
+        if (!length) break;
+        size_t available = sizeof(message) - 1 - used;
+        size_t count = (size_t)length < available ? (size_t)length : available;
+        memcpy(message + used, chunk, count);
+        used += count;
+        if (count != (size_t)length) truncated = true;
+    }
     close(errors[0]);
-    ASSERT(length >= 0);
-    message[length] = '\0';
+    message[used] = '\0';
     int status = 0;
-    ASSERT(waitpid(child, &status, 0) == child);
+    pid_t waited;
+    do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
+    ASSERT(waited == child);
+    ASSERT(read_ok);
+    ASSERT(!truncated);
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_FAILURE)
+        fprintf(stderr, "I observed unchecked-match child status %d and stderr: %s\n", status, message);
     ASSERT(WIFEXITED(status));
     ASSERT(WEXITSTATUS(status) == EXIT_FAILURE);
     ASSERT(strstr(message,
@@ -2086,16 +2139,17 @@ void test_eval_reduce_pure_arithmetic_int(void) {
         "fn add_ints(acc: int, x: int) -> int { return (+ acc x) }\n"
         "fn main() -> int {\n"
         "    let arr: array<int> = [1, 2, 3, 4, 5]\n"
-        "    let total: int = (reduce arr add_ints 0)\n"
+        "    let total: int = (reduce arr 0 add_ints)\n"
         "    return total\n"
         "}\n"
         "shadow main {\n"
         "    let arr: array<int> = [1, 2, 3, 4, 5]\n"
-        "    let total: int = (reduce arr add_ints 0)\n"
+        "    let total: int = (reduce arr 0 add_ints)\n"
         "    assert (== total 15)\n"
         "}\n"
     );
     ASSERT(ok);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
     run_ctx_free(&ctx);
 }
 
@@ -2723,7 +2777,7 @@ void test_eval_handler_return_expression_order(void) {
         "let packet = Packet.Data { x: (emit), y: (mark) } return 99",
         "let x = match (emit) { 7 => (mark), _ => 0 } return 99",
         "let x = match 7 { 7 if (== (emit) 7) => (mark), _ => 0 } return 99",
-        "let x = match 8 { _ if (== (emit) 7) => (mark) } return 99",
+        "let x = match 8 { _ if (== (emit) 7) => (mark), _ => (mark) } return 99",
         "let p = Packet.Data { x: 1, y: 2 } let x = match p { Data(d) if (== (emit) 7) => (mark), _ => 0 } return 99",
         "for i in (range (emit) (mark)) { set trace 8 } return 99",
         "assert (== (emit) 99) return 99",
