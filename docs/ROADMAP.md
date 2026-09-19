@@ -2959,15 +2959,26 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         The rebuilt daemon now answers the readiness ping and executes all
         eight programs successfully. This is not a concurrent-client stress
         test or proof of every allocation-failure path.
-      - [ ] I isolate the co-process lifecycle gate before running it: its
-        EXIT trap currently kills ambient `nano_cop` and `nano_vmd` processes.
-        I replace process-name cleanup with owned handles and private sockets,
-        audit masked failures, and test preservation of unrelated processes.
+      - [x] I isolate the co-process lifecycle gate before running it. I replace
+        process-name cleanup with owned handles and private sockets, audit
+        masked failures, and test preservation of unrelated processes.
         MAC `task_a02a66101b184e6eaa3e61480079f300`.
-        Its claimed crash-recovery case never kills a worker, and global
-        process-name counts cannot prove per-client isolation or lazy launch.
-        I require observed owned-worker identity and an actual injected crash,
-        not merely successful repeated calls or matching ambient counts.
+        My native probe now observes the private worker identity and injects a
+        real crash; the shell gate no longer infers lifecycle state from global
+        process-name counts. Evidence:
+        `docs/evidence/cop-lifecycle-isolation.md`.
+        - [x] I add a native lifecycle probe that observes the private worker
+          PID, proves stable reuse, sends `SIGKILL`, waits without reaping,
+          observes a distinct replacement and proves owned stop/reap while an
+          unrelated child remains alive.
+        - [x] I give every daemon phase a private `NANOVMD_SOCKET`, retain only
+          child PIDs started by this invocation, and remove every `pgrep` and
+          `pkill`. Compile, execution, comparison and setup failures must remain
+          visible instead of being redirected into a later assertion.
+        - [x] I exercise the shell lifecycle with fake private tools, an
+          unrelated command whose path contains `nano_cop`, and injected
+          compile/client failures. Both normal and failed exits must preserve
+          the unrelated process and reap only recorded children.
       - [x] I require semantic rejection evidence in the self-hosted shell
         suite. Its negative-test loop currently counts any compiler failure,
         including timeout or launch failure, as a pass and discards diagnostics.
