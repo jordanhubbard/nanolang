@@ -417,5 +417,13 @@
     "actual_gpu_gcc_lsan": "failed: 75 bytes/3 allocations; task315caf open",
     "darwin": "not measured",
     "task87ca": "open pending precise acceptance audit and canonical review"
+  },
+  "integration": {
+    "main": "0955dca62e168c212e1c03c844651e2040286995",
+    "merge": "46fcbd0d2aaf4298e4e23f6bb8e6502a305126ff",
+    "qualified_head": "ea34cef0b",
+    "all_ten_inputs_identical": true,
+    "conflict_resolution": "Additive ROADMAP entries from both branches retained; no production conflict.",
+    "rerun": "none: all qualified production/fixture/header inputs byte-identical; isolated original tree/tools preserved."
   }
 }

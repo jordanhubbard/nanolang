@@ -82,3 +82,9 @@ allocation owner in315caf. I leave87ca open pending the parent's precise
 acceptance/canonical review, and leave315caf, d03c and platform/public-service
 obligations open. The reader prerequisitef13e has successful strict and sanitizer
 host evidence but still requires canonical review/merge before reconciliation.
+
+I integrate canonical0955dca62e168c212e1c03c844651e2040286995 in a separate
+worktree, preserving the original qualified tree/tools. Only the additive
+ROADMAP entries conflict; I retain both. All ten sealed production/fixture/header
+inputs are byte-identical. I do not repeat gates without a relevant source
+change, and I do not relabel the measured toolchains as rebuilt integrated tools.
