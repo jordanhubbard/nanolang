@@ -1385,6 +1385,10 @@ test-nsi-cap:
 	@./tests/test_nsi_cap
 	@rm -f tests/test_nsi_cap
 
+.PHONY: test-nsi-file
+test-nsi-file:
+	python3 -m unittest -v tests.test_nsi_file
+
 .PHONY: test-nsi-shm
 test-nsi-shm:
 	@echo "Running NSI shared-memory tests..."
