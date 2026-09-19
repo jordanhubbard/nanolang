@@ -4,7 +4,7 @@
   "inputs": {
     "Makefile.gnu": {
       "qualified": "f568170dbf19cdd06f9905015aed23ae3a964aca5379663c2f76497480b4e50f",
-      "integrated": "2ae8299d7cb988fc94170c1c5269cb656d90221db2c1254883aa11f0cfcc0572",
+      "integrated": "c555c199f8e0e739f3dca1ec35c0ea5c74fb88b0ffc5ef1efd9b167def4cf1b2",
       "equal": false
     },
     "src/nanovm/vm.c": {
@@ -63,5 +63,6 @@
       "equal": true
     }
   },
-  "scope": "I preserve every qualified production/fixture input except Makefile.gnu, where I retain both additive File-code and mutation targets. Canonical File private preparation and Forth changes do not alter my exercised owner runtime production. I do not rebuild or rerun unchanged qualified routes."
+  "scope": "I preserve every qualified production/fixture input except Makefile.gnu, where I retain both additive File-code and mutation targets. Canonical File private preparation and Forth changes do not alter my exercised owner runtime production. I do not rebuild or rerun unchanged qualified routes.",
+  "comment_correction": "I restore unrelated canonical separator bytes after static review; only the additive mutation target differs from canonical Makefile."
 }
