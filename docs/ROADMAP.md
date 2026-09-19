@@ -11650,3 +11650,14 @@ are unchanged. I preserve the partial report copy and failed runner, then requir
 the five directories and exact38-file inventory before publishing the corrected
 seal. I do not repeat passing execution. My MAC description update remains
 pending because the existing hub credential lacks task-update scope.
+
+I seal13d1's bounded Linux checker qualification without closing its MAC task:
+corrected bootstrap PASS269.511s;42 full-source checker cases across three
+qualified drivers;16 typed output-preserving refusals; retained C reserved-set
+policy; corrected unbound mutation execution through all three producers; and
+seven conversion/reduce adjacency methods. My [evidence](evidence/mutation-builtin-identity.md)
+retains both source/fixture first terminals, the packaging terminal,73 reports,
+38 artifacts,2253 final source inputs and actual tool identities. No source
+owner-ARRAY admission or general emitter binding claim follows. MAC update
+scope remains unavailable; actual-merge reconciliation is pending. Source18731,
+mutation bba622 and all full ownership/product/release parents remain open.
