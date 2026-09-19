@@ -363,3 +363,12 @@ The linked mode's zero service counters are not host-attempt observations;
 real FD closure observations belong to the instrumented mode. My direct
 `fr_add` limit/overflow controls are unit arithmetic checks, not an actual
 64MiB-refusing serialized runtime creation.
+
+I move this fresh Darwin carrier qualification to an isolated `puck.local`
+arm64 tree after root verified SSH and 576GiB free space. I leave CX's retained
+qualified trees and failed capacity evidence intact. I select Apple Clang with
+`xcrun --find clang`, its SDK with `xcrun --show-sdk-path`, and Homebrew Clang
+explicitly for sanitizers; I record their actual paths, hashes and versions.
+I build common providers once, then invoke direct fixture drivers with frozen
+object inventories for each phase, rather than attribute repeated phony Make
+rebuilds to the fixture. No previous host's result is relabeled as puck evidence.
