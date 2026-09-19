@@ -225,3 +225,29 @@ VM/native/public verifier and converter admission stay unchanged until the compl
 implementation is reviewed. Its checked transport facts precede later converter
 integration and do not themselves broaden format acceptance. I send this checkpoint
 for review before fixtures or execution.
+
+## My first production checkpoint remains non-admitting
+
+I add an opaque internal preparation plan in verifier.c. Preparation first builds
+its own complete private composition, requires both owner and instantiated FLOAT
+array origins plus a certified ordinary record, then runs the common structural
+checks. A private structural parameter delegates ownership only on this fresh
+positive path. Every existing caller passes false through the old wrapper, keeping
+its old validator, analysis and admission decisions. No VM/native dispatch or
+public converter calls the new preparation API.
+
+The plan owns exact retained layout bytes, the composition's exact ownership
+transport and copied checked function/local declarations. It preserves both
+existing ownership transport versions, including untouched path-table bytes.
+Signature queries retain mode0, original local numbers, exact scalar/owner result
+identity and resource field counts. Ordinary declarations are a distinct category;
+an unused unproved pending record remains unavailable. Declared ARRAY category
+alone never grants an initialized element fact: those obligations stay in the
+complete origin proof. Source-to-global-to-compact queries refuse owners and check
+the inverse map before publication. No owner-state constructor is exported.
+
+The plan returns only a read-only obligation report with runtime_admitted false.
+Transport snapshots are preparation for later reviewed converter integration;
+format acceptance is unchanged. Output arguments publish only after complete
+success; partial snapshots/proofs are freed on failure. I have not built or run
+this checkpoint or added fixtures. I request source review first.

@@ -366,8 +366,8 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
  * Structural validation
  * ======================================================================== */
 
-static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
-                                        bool *owned_admitted) {
+static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted, bool mixed_composed) {
     if (owned_admitted) *owned_admitted=false;
     bool admitted=false;
     if (!mod) return fail("module is NULL");
@@ -426,7 +426,7 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
     }
 
     bool needs_ownership = false;
-    if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
+    if (!mixed_composed && nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
         return fail("I found invalid ownership declarations");
     if (needs_ownership && !affine_only) {
         for (uint32_t i=0;i<mod->function_count;i++) {
@@ -488,6 +488,14 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
     if (owned_admitted) *owned_admitted=admitted;
     return ok_result();
 }
+
+/* All existing public routes keep the original ownership validation. The only
+ * true delegation caller is private preparation after fresh complete composition. */
+static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted) {
+    return verify_structure_checked(mod,affine_only,owned_admitted,false);
+}
+#include "mixed_samples_prepare.inc"
 
 /* ========================================================================
  * Bytecode instruction validation (per-function)
