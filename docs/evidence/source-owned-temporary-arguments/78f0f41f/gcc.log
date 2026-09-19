@@ -1,0 +1,9 @@
+test_temporary_owner_actual_refusals_preserve_output (tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owner_actual_refusals_preserve_output) ... ok
+test_temporary_owner_actuals_preserve_order_and_roots (tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owner_actuals_preserve_order_and_roots) ... ok
+test_temporary_owner_factory_failure_cleans_prepared_arguments (tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owner_factory_failure_cleans_prepared_arguments) ... ok
+test_temporary_owners_restore_original_pattern_sources (tests.test_source_borrow_emission.SourceBorrowEmission.test_temporary_owners_restore_original_pattern_sources) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 172.249s
+
+OK

@@ -1,0 +1,41 @@
+{
+  "head": "74a7457b2acf6cadfb7ec2c321dad86e564b799b",
+  "sha256": {
+    "src/nanoisa/nvm2c.c": "245eaeb14ee84a1787bb2d5cfe9339faf63ff070e250d6817174562b928daa2b",
+    "tests/test_native_c_trigraph_literals.py": "da1377a1b07f11bb546f8b56cd854472ab40e672d887865170b45f0cc22ba414",
+    "bin/nvm2c": "783486bf0798a0c00926b137187cf95064428df4503be549055181ce57d1cd27",
+    "bin/nanoisa": "6df745e74e54798e9bb8ed14d1c1618bf571fa22614dec6352dfdb8c0d6c56bd",
+    "bin/nano_vm": "5024859b4a8e5e58fc6be86dd371274d064144c1d873c264f2bd7775d58c71bf",
+    "src/binary64_format.h": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd"
+  },
+  "logs": {
+    "/tmp/nanolang-native-trigraph-build.log": {
+      "sha256": "b54dc0fbdd029fddf2f7c37afc561e22ca9118abd7f0084d3fa8be8b8abd889e",
+      "bytes": 238
+    },
+    "/tmp/nanolang-native-trigraph-final-build.log": {
+      "sha256": "a7e45ece0287b60f287e4aff116d2b92c43fa83827b96336bc79337ecb6ac9e6",
+      "bytes": 27462
+    },
+    "/tmp/nanolang-native-trigraph-gcc.log": {
+      "sha256": "ad6d0300eefd2079d4a2323f04a1ab25f56b1da02677b3874cc77eefc2a4102b",
+      "bytes": 484
+    },
+    "/tmp/nanolang-native-trigraph-clang.log": {
+      "sha256": "4962fd09bcdb2a75fa4c4ef8068cac9e60ba72c9e2fbb5d69e088d810703d7ad",
+      "bytes": 10093
+    },
+    "/tmp/nanolang-native-trigraph-reference-build.log": {
+      "sha256": "1b0897ace7f111a691b06d9e271fc6531958ed67460d242660a251da2da052ef",
+      "bytes": 1163
+    },
+    "/tmp/nanolang-native-trigraph-final-gcc.log": {
+      "sha256": "b37f62e8aa3ea7e068963ac750aaea5b6602b1d8076016fccf9b5a63dcc8f5f3",
+      "bytes": 661
+    },
+    "/tmp/nanolang-native-trigraph-final-clang.log": {
+      "sha256": "e22158b87a423025f3f5f42e5fb1334d5bb4bbe1077ca08c68018b8694a1f134",
+      "bytes": 661
+    }
+  }
+}

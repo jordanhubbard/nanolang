@@ -1,0 +1,21 @@
+{
+  "head": "c0a433ce7c58e6dcee9dee93614d54fd87ace367",
+  "status": 0,
+  "seconds": 6.37533240596531,
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "command": [
+    "make",
+    "-j8",
+    "CC=/usr/bin/gcc",
+    "test-nanocore"
+  ],
+  "native_test_cc": "/usr/bin/gcc",
+  "uname": [
+    "Linux",
+    "sparky",
+    "6.17.0-1032-nvidia",
+    "#32-Ubuntu SMP PREEMPT_DYNAMIC Wed Aug 19 17:40:46 UTC 2026",
+    "aarch64"
+  ]
+}

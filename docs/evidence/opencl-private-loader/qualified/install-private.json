@@ -1,0 +1,11 @@
+{
+  "name": "install-private",
+  "argv": [
+    "/usr/bin/make",
+    "install"
+  ],
+  "cwd": "/tmp/nanolang-opencl-private-7f0/upstream",
+  "exit_code": 0,
+  "seconds": 0.3145965870353393,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}

@@ -1,0 +1,32 @@
+let mut calls: int = 0
+let mut stored: float = (float_from_bits -4503599627370430)
+let frozen: int = (float_to_bits stored)
+fn make(bits: int) -> float { return (float_from_bits bits) }
+shadow make { assert (== (float_to_bits (make -4503599627370430)) -4503599627370430) }
+fn inspect(value: float) -> int { return (float_to_bits value) }
+shadow inspect { assert (== (inspect (make 1)) 1) }
+fn operand() -> int { set calls (+ calls 1) return -4503599627370430 }
+shadow operand { let before: int = calls assert (== (operand) -4503599627370430) set calls before }
+fn floating_operand() -> float { set calls (+ calls 1) return (make -4503599627370430) }
+shadow floating_operand { let before: int = calls assert (== (inspect (floating_operand)) -4503599627370430) set calls before }
+fn roundtrip(bits: int) -> int { return (inspect (make bits)) }
+shadow roundtrip { assert (== (roundtrip 9221120237041090626) 9221120237041090626) }
+fn main() -> int {
+    assert (== frozen -4503599627370430)
+    set calls 0
+    assert (== (float_to_bits (float_from_bits (operand))) -4503599627370430)
+    assert (== calls 1)
+    assert (== (float_to_bits (floating_operand)) -4503599627370430)
+    assert (== calls 2)
+    assert (== (inspect stored) -4503599627370430)
+    set stored (make 9221120237041090626)
+    assert (== (inspect stored) 9221120237041090626)
+    assert (== (roundtrip 0) 0)
+    assert (== (roundtrip 1) 1)
+    assert (== (roundtrip -9223372036854775807) -9223372036854775807)
+    assert (== (roundtrip 9218868437227405312) 9218868437227405312)
+    assert (== (roundtrip -4503599627370496) -4503599627370496)
+    assert (== (roundtrip 9218868437227405313) 9218868437227405313)
+    return 0
+}
+shadow main { let before: float = stored let count: int = calls set stored (make -4503599627370430) assert (== (main) 0) set stored before set calls count }

@@ -1,0 +1,20 @@
+started_utc=2026-09-18T14:15:15.562979+00:00
+command=python3 -m unittest -f -v tests.test_llvm_managed_graphs
+CC=/usr/bin/clang
+PATH=/opt/homebrew/opt/llvm/bin:/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin:/opt/homebrew/bin:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/VMware Fusion.app/Contents/Public:/opt/homebrew/bin:/Users/jordanh/.codex/tmp/arg0/codex-arg0gMdlrY:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jordanh/Library/pnpm:/opt/homebrew/sbin:/Applications/Docker.app/Contents/Resources/bin:/Users/jordanh/.cargo/bin:/Users/jordanh/.local/bin:/Users/jordanh/Bin:.
+test_generated_pressure_preserves_live_graph_and_disposal (tests.test_llvm_managed_graphs.ManagedGraphs.test_generated_pressure_preserves_live_graph_and_disposal) ... ok
+test_global_cycles_reentry_initializer_and_first_error (tests.test_llvm_managed_graphs.ManagedGraphs.test_global_cycles_reentry_initializer_and_first_error) ... ok
+test_initializer_and_helper_failures_collect_only_dead_roots (tests.test_llvm_managed_graphs.ManagedGraphs.test_initializer_and_helper_failures_collect_only_dead_roots) ... ok
+test_leaf_mode_stays_unprepared (tests.test_llvm_managed_graphs.ManagedGraphs.test_leaf_mode_stays_unprepared) ... ok
+test_nested_literal_slice_get_pop_and_calls (tests.test_llvm_managed_graphs.ManagedGraphs.test_nested_literal_slice_get_pop_and_calls) ... ok
+test_preparation_growth_failures_and_nested_entry (tests.test_llvm_managed_graphs.ManagedGraphs.test_preparation_growth_failures_and_nested_entry) ... ok
+test_prepared_split_nested_append_and_set (tests.test_llvm_managed_graphs.ManagedGraphs.test_prepared_split_nested_append_and_set) ... ok
+test_self_mutual_cycles_and_bounded_live_loop (tests.test_llvm_managed_graphs.ManagedGraphs.test_self_mutual_cycles_and_bounded_live_loop) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 19.676s
+
+OK
+finished_utc=2026-09-18T14:15:35.406345+00:00
+elapsed_seconds=19.843372
+exit_status=0

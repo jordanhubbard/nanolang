@@ -1,0 +1,11 @@
+I retain carrier artifacts at /tmp/nano-file-runtime-y5p_rcv4
+test_instrumented_full_chain_and_host_faults (tests.test_file_runtime.FileRuntime.test_instrumented_full_chain_and_host_faults) ... I retain 436 allocation refusals and 0 recovered complete carriers
+PASS 84504 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes; no File CODE/frame dispatch
+ok
+test_linked_manual_carrier_lifetimes (tests.test_file_runtime.FileRuntime.test_linked_manual_carrier_lifetimes) ... PASS 11933 manual private File carrier checks; 0 acquisition attempts, 0 real opens, 0 real closes; no File CODE/frame dispatch
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 20.140s
+
+OK

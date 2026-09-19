@@ -1,0 +1,4 @@
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file.c -o obj/test_nsi_file_instrumented -lm -lcrypto -lffi  -rdynamic
+PASS 2634 checks; 395 real opens and 395 real closes; 20 allocator calls; no live resources
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_linked.c src/nsi_file.c src/nsi_cap.c -o obj/test_nsi_file_linked -lm -lcrypto -lffi  -rdynamic
+PASS ordinary linked private local-file adapter

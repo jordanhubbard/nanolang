@@ -1,0 +1,34 @@
+test_c_seed_array_print (__main__.LegacySignedNan.test_c_seed_array_print) ... I retain legacy format artifacts at /tmp/nano-legacy-nan-m90yq1xm
+FAIL
+
+======================================================================
+FAIL: test_c_seed_array_print (__main__.LegacySignedNan.test_c_seed_array_print)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-legacy-format-qualified/tests/test_legacy_signed_nan_format.py", line 100, in test_c_seed_array_print
+    self.assertEqual(self.command(executable).stdout,expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '[nan[44 chars]|\n[0.0]|\n[-0.0]|\n[1.0]|\n[1.79769e+308]|\n[4.94066e-324]|\n' != '[nan[44 chars]|\n[0]|\n[-0]|\n[1]|\n[1.79769e+308]|\n[4.94066e-324]|\n'
+  [nan]|
+  [-nan]|
+  [nan]|
+  [-nan]|
+  [inf]|
+  [-inf]|
+- [0.0]|
+?  --
++ [0]|
+- [-0.0]|
+?   --
++ [-0]|
+- [1.0]|
+?   --
++ [1]|
+  [1.79769e+308]|
+  [4.94066e-324]|
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.426s
+
+FAILED (failures=1)

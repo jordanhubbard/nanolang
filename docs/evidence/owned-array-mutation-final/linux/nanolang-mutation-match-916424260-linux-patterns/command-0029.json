@@ -1,0 +1,8 @@
+{
+  "args": [
+    "/tmp/nano-owned-pattern-e7jnllzq/program"
+  ],
+  "status": 0,
+  "stdout": "audit.log\nresource closed\n",
+  "stderr": ""
+}

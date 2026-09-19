@@ -981,6 +981,9 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
         }
     }
     
+    /* I keep an allowed declaration separate from my retained builtin helper. */
+    if (strcmp(nano_name, "array_push") == 0) return "__nl_declared_array_push";
+
     /* Legacy: prefix with nl_ for global scope */
     snprintf(buffer, sizeof(buffer), "nl_%s", nano_name);
     return buffer;
@@ -4905,11 +4908,11 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     /* Forward declare imported module functions */
     generate_module_function_declarations(sb, program, env, input_file, fn_registry);
     
-    /* Emit top-level globals */
-    generate_toplevel_globals(sb, program, env);
-    
-    /* Forward declare functions from current program */
+    /* I declare callable signatures before runtime global initializers use them. */
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
+
+    /* Emit top-level globals in their original initialization order. */
+    generate_toplevel_globals(sb, program, env);
 
     /* Generate function implementations */
     effect_helpers = sb_create(); effect_serial = 0;

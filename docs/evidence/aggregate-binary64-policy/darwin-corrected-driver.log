@@ -1,0 +1,8 @@
+From github.com:jordanhubbard/nanolang
+ * branch              fix/aggregate-binary64-policy -> FETCH_HEAD
+   acb65661..13460195  fix/aggregate-binary64-policy -> origin/fix/aggregate-binary64-policy
+[detached HEAD 826c1b95] test: replace Darwin fortified macro before formatting fault hook
+ Author: Jordan Hubbard <jordanhubbard@gmail.com>
+ Date: Fri Sep 18 10:25:34 2026 -0700
+ 1 file changed, 4 insertions(+)
+{"source": "826c1b956ae70249d5f62d165071beec9bc4e8f7", "command": ["make", "-j8", "CC=/usr/bin/clang", "test-nanovm"], "exit": 0, "seconds": 6.718120667035691, "unchanged": true}

@@ -1,6 +1,6 @@
-# =====================================================================
+# =======================================================
 # Nanolang Makefile with TRUE 3-Stage Bootstrap Support
-# =====================================================================
+# =======================================================
 #
 # This Makefile supports building nanolang through multiple stages:
 #
@@ -18,9 +18,9 @@
 # Sentinel files track build progress (.stage*.built) to avoid rebuilds.
 # Use "make clean" to remove all build artifacts and start fresh.
 #
-# =====================================================================
+# =======================================================
 # IMPORTANT: This Makefile requires GNU make
-# =====================================================================
+# =======================================================
 #
 # On Linux/macOS: 'make' is GNU make (works as-is)
 # On BSD systems (FreeBSD/OpenBSD/NetBSD): use 'gmake' instead of 'make'
@@ -37,7 +37,7 @@
 #
 # If you see syntax errors, you're using BSD make. Use 'gmake' instead.
 #
-# =====================================================================
+# =======================================================
 
 #Human: we cannot easily detect bsd make because it doesn't understand $(shell), ifeq, etc.
 # The documentation at the top of this file is sufficient - BSD users will see
@@ -294,9 +294,9 @@ ffi-dispatch-check:
 $(SRC_DIR)/generated/compiler_schema.h: $(SCHEMA_STAMP)
 	@# Schema stamp ensures this file exists
 
-# =====================================================================
+# =======================================================
 # Module Index Generation
-# =====================================================================
+# =======================================================
 # Build C tool for generating module index
 GENERATE_MODULE_INDEX = bin/generate_module_index
 MODULE_INDEX = modules/index.json
@@ -327,9 +327,9 @@ modules: $(MODULE_INDEX)
 install-deps:
 	@./scripts/install-deps.sh
 
-# =====================================================================
+# =======================================================
 # Package Manager
-# =====================================================================
+# =======================================================
 
 .PHONY: pkg-install pkg-publish pkg-update pkg-init pkg-list
 
@@ -353,9 +353,9 @@ HYBRID_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/lexer_bridge.o 
 
 PREFIX ?= $(HOME)/.local
 
-# =====================================================================
+# =======================================================
 # Main Targets
-# =====================================================================
+# =======================================================
 
 .DEFAULT_GOAL := build
 
@@ -377,9 +377,9 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 	@echo ""
 	@echo "✅ VM backend built: bin/nano_virt bin/nano_vm bin/nano_cop bin/nano_vmd bin/nanoisa bin/nvm2c"
 
-# =====================================================================
+# =======================================================
 # Test Targets (Meta-Rule Pattern for Stage-Specific Testing)
-# =====================================================================
+# =======================================================
 # In a fully self-bootstrapping system, tests should use the most evolved
 # compiler by default. These targets allow testing at specific bootstrap stages:
 #
@@ -387,15 +387,15 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 # - test-stage1: Forces C reference compiler only
 # - test-stage2: Forces nanoc_stage1 (first self-compilation)
 # - test-bootstrap: Forces full bootstrap + nanoc_stage2
-# =====================================================================
+# =======================================================
 
-# =====================================================================
+# =======================================================
 # NanoISA - Virtual Machine ISA, Assembler, and Disassembler
-# =====================================================================
+# =======================================================
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
-NANOISA_SOURCES = $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
+NANOISA_SOURCES = $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/service_file_nominal.c $(NANOISA_DIR)/service_file_nominal_plan.c $(NANOISA_DIR)/service_bindings.c $(NANOISA_DIR)/service_bindings_module.c $(NANOISA_DIR)/mixed_float_proof.c $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c \
 	$(NANOISA_DIR)/frontend.c
@@ -403,15 +403,24 @@ VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
 VM_DISPATCH_OBJECT = $(OBJ_DIR)/nanovm/vm_dispatch.o
 NANOISA_FACADE_OBJECT = $(OBJ_DIR)/nanoisa/nanoisa_facade.o
 NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES)) \
-	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT)
+	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT) $(OBJ_DIR)/nsi_file_plan.o
 NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
+
+# My retained service ABI and immutable catalog participate in incremental builds.
+$(NANOISA_OBJECTS): $(NANOISA_DIR)/file_hosted.h $(NANOISA_DIR)/file_hosted.inc $(NANOISA_DIR)/file_body.h $(NANOISA_DIR)/file_body.inc $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
+$(OBJ_DIR)/nsi_file_plan.o: $(SRC_DIR)/nsi.h $(SRC_DIR)/nsi_cap.h
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
 
 $(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
+$(OBJ_DIR)/c_backend.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/string_literal_decode.h
+$(OBJ_DIR)/c_backend.o: src/binary64_format.h src/c_backend_values.inc
 $(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
-$(OBJ_DIR)/nanoisa/nvm2c.o: $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h
+$(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h $(NANOISA_DIR)/managed_native_source.h
+
+$(NANOISA_DIR)/managed_native_source.h: scripts/embed_managed_native.py $(NANOISA_DIR)/managed_strings.h $(NANOISA_DIR)/binary64_parse.h $(NANOISA_DIR)/managed_strings.c
+	python3 scripts/embed_managed_native.py
 
 $(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
 		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
@@ -525,6 +534,30 @@ nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
 	cp scripts/nvm2hl.py $(BIN_DIR)/nvm2hl
 	chmod +x $(BIN_DIR)/nvm2hl
 
+.PHONY: test-binary64-arithmetic-backends
+test-binary64-arithmetic-backends: nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_binary64_arithmetic_backends
+
+.PHONY: test-binary64-arithmetic
+test-binary64-arithmetic:
+	python3 -m unittest -v tests.test_binary64_arithmetic
+
+.PHONY: test-reconstruction-f64-arithmetic
+test-reconstruction-f64-arithmetic: nvm2hl nanoisa_dump nano_vm nvm2c bootstrap
+	NANO_HL_COMPILER_DIR=$(CURDIR)/bin python3 -m unittest -v tests.test_reconstruction_f64_arithmetic
+
+.PHONY: test-reconstruction-f64-negation
+test-reconstruction-f64-negation: nvm2hl nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_reconstruction_f64_negation
+
+.PHONY: test-reconstruction-f64-comparisons
+test-reconstruction-f64-comparisons: nvm2hl nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_reconstruction_f64_comparisons
+
+.PHONY: test-reconstruction-f64-transport
+test-reconstruction-f64-transport: nvm2hl nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_reconstruction_f64_transport
+
 test-reconstruction-binary64-facts: nvm2hl nanoisa_dump
 	python3 -m unittest -v tests.test_reconstruction_binary64_facts
 
@@ -543,8 +576,8 @@ test-units: test-canonical-f64-bits
 
 .PHONY: test-canonical-f64-bits
 .PHONY: test-reconstruction-binary64-facts
-test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm nvm2c nvm2c-runtime bootstrap
-	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons
+test-scalar-reconstruction: nvm2hl nanoisa_dump nano_virt nano_vm nvm2c nvm2c-runtime bootstrap
+	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons tests.test_reconstructed_carry_borrow tests.test_reconstructed_u8
 test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit
@@ -577,9 +610,9 @@ test-nanoisa-dump: nanoisa_dump
 	@./tests/nanoisa/test_nanoisa_dump bin/nanoisa
 	@rm -f tests/nanoisa/test_nanoisa_dump
 
-# =====================================================================
+# =======================================================
 # NanoVM - Virtual Machine Execution Engine
-# =====================================================================
+# =======================================================
 
 NANOVM_DIR = $(SRC_DIR)/nanovm
 NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/heap_cycles.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_callback.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c
@@ -595,7 +628,7 @@ $(VM_DISPATCH_OBJECT): $(NANOVM_DIR)/vm_dispatch.c $(NANOVM_DIR)/vm_dispatch.h \
 		$(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h $(NANOVM_DIR)/ffi_dispatch_generated.h | $(OBJ_DIR)/nanovm
+$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOISA_DIR)/nvm_format.h $(NANOISA_DIR)/service_bindings_module.h $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h $(NANOVM_DIR)/ffi_dispatch_generated.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/nanovm:
@@ -719,6 +752,12 @@ test-ui-array-bounds:
 	python3 -m unittest tests.test_ui_array_bounds
 
 test-units: test-ui-array-bounds
+
+.PHONY: test-sdl-text-input-events
+test-sdl-text-input-events:
+	python3 -m unittest tests.test_sdl_text_input_events
+
+test-units: test-sdl-text-input-events
 .PHONY: test-ffi-array-copyback
 test-ffi-array-copyback:
 	python3 -m unittest tests.test_ffi_array_copyback
@@ -860,6 +899,10 @@ test-daemon-gate:
 test-selfhost-returned-calls: bootstrap3
 	@python3 -m unittest tests.test_selfhost_returned_calls
 
+.PHONY: test-selfhost-rejection-gate
+test-selfhost-rejection-gate:
+	@python3 -m unittest -v tests.test_selfhost_rejection_gate
+
 .PHONY: test-selfhost-map-types
 test-selfhost-map-types: bootstrap3
 	@python3 -m unittest tests.test_selfhost_map_types
@@ -868,15 +911,32 @@ test-selfhost-map-types: bootstrap3
 test-selfhost-array-compatibility: bootstrap3
 	@python3 -m unittest tests.test_selfhost_array_compatibility
 
-test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls
+test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls test-selfhost-rejection-gate
+
+.PHONY: test-selfhost-byte-array-identity
+test-selfhost-byte-array-identity:
+	@python3 -m unittest -v tests.test_selfhost_byte_array_identity
+
+test-units: test-selfhost-byte-array-identity
 
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop
 	@echo "Running NanoVM end-to-end integration tests..."
 	@scripts/test_nanovm_integration.sh
 
-.PHONY: test-cop-lifecycle
-test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop
+.PHONY: test-cop-lifecycle test-cop-lifecycle-harness
+$(OBJ_DIR)/test_cop_lifecycle: tests/nanovm/test_cop_lifecycle.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o $@ \
+		tests/nanovm/test_cop_lifecycle.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+test-cop-lifecycle-harness:
+	@python3 -m unittest -v tests.test_cop_lifecycle_gate
+
+test-units: test-cop-lifecycle-harness
+
+test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop $(OBJ_DIR)/test_cop_lifecycle
 	@echo "Running co-process lifecycle tests..."
 	@scripts/test_cop_lifecycle.sh
 
@@ -1003,6 +1063,31 @@ $(OBJ_DIR)/eval_io_faults.o: src/eval/eval_io.c src/runtime/file_write.h tests/s
 $(OBJ_DIR)/eval_clock_test.o: src/eval.c src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h $(HEADERS) Makefile.gnu | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -Dclock_gettime=nano_test_clock_gettime -c $< -o $@
 
+.PHONY: test-binary64-bit-transport test-binary64-source-transport test-binary64-bits-eval
+test-binary64-bit-transport: nvm2hl nvm2c nvm2llvm nvm2wasm nanoisa_dump nano_vm test-binary64-bits-eval
+	python3 -m unittest -v tests.test_binary64_bit_transport tests.test_managed_binary64_bits
+
+test-binary64-source-transport: bootstrap nano_virt
+	python3 -m unittest -v tests.test_binary64_source_transport
+
+.PHONY: test-aggregate-binary64-eval
+test-aggregate-binary64-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
+	$(CC) $(CFLAGS) -o tests/test_aggregate_binary64_eval tests/test_aggregate_binary64_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_aggregate_binary64_eval
+	@rm -f tests/test_aggregate_binary64_eval
+
+# I exercise actual dynamic-array optimized scalar callbacks.
+.PHONY: test-binary64-arithmetic-eval
+test-binary64-arithmetic-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
+	$(CC) $(CFLAGS) -o tests/test_binary64_arithmetic_eval tests/test_binary64_arithmetic_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_binary64_arithmetic_eval
+	@rm -f tests/test_binary64_arithmetic_eval
+
+test-binary64-bits-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
+	$(CC) $(CFLAGS) -o tests/test_binary64_bits_eval tests/test_binary64_bits_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_binary64_bits_eval
+	@rm -f tests/test_binary64_bits_eval
+
 test-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
 	@echo "Running interpreter (eval.c) unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -1092,7 +1177,7 @@ test-reference-eval-transport:
 
 test-nanocore: test-reference-eval-transport
 
-.PHONY: test-nanocore
+.PHONY: test-nanocore test-nanocore-unit
 .PHONY: test-nanocore-export-buffer
 test-nanocore-export-buffer: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_nanocore_export_buffer tests/test_nanocore_export_buffer.c $(filter-out $(OBJ_DIR)/nanocore_export.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -1100,7 +1185,9 @@ test-nanocore-export-buffer: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 
 test-nanocore: test-nanocore-export-buffer
 
-test-nanocore: stage1
+test-nanocore: test-nanocore-unit
+
+test-nanocore-unit: stage1
 	@echo "Running nanocore_export and emit_typed_ast unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_nanocore tests/test_nanocore.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_nanocore
@@ -1332,6 +1419,66 @@ test-nsi-cap:
 	@./tests/test_nsi_cap
 	@rm -f tests/test_nsi_cap
 
+.PHONY: test-nsi-file test-nsi-file-sanitizers
+test-nsi-file:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file.c -o $(OBJ_DIR)/test_nsi_file_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_linked.c src/nsi_file.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_file_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_linked
+
+test-units: test-nsi-file
+
+test-nsi-file-sanitizers:
+	python3 -m unittest -v tests.test_nsi_file
+
+.PHONY: test-nsi-file-values test-nsi-file-values-sanitizers
+test-nsi-file-values:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_values.c -o $(OBJ_DIR)/test_nsi_file_values_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_values_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_values_linked.c src/nsi_file_values.c src/nsi_file.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_file_values_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_values_linked
+
+test-units: test-nsi-file-values
+
+test-nsi-file-values-sanitizers:
+	python3 -m unittest -f -v tests.test_nsi_file_values
+
+.PHONY: test-nsi-file-plan test-nsi-file-plan-sanitizers
+test-nsi-file-plan:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DFILE_PLAN_INSTRUMENT tests/test_nsi_file_plan.c src/nsi.c src/utf8.c src/cJSON.c -o $(OBJ_DIR)/test_nsi_file_plan_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_plan_instrumented tests/fixtures/nsi_file_plan.json
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_plan.c src/nsi_file_plan.c src/nsi.c src/utf8.c src/cJSON.c -o $(OBJ_DIR)/test_nsi_file_plan_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_plan_linked tests/fixtures/nsi_file_plan.json
+
+test-units: test-nsi-file-plan
+
+test-nsi-file-plan-sanitizers:
+	python3 -m unittest -v tests.test_nsi_file_plan
+
+.PHONY: test-service-bindings test-service-bindings-sanitizers
+test-service-bindings:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror tests/nanoisa/test_service_bindings.c src/nanoisa/service_bindings.c -o $(OBJ_DIR)/test_service_bindings $(LDFLAGS)
+	@$(OBJ_DIR)/test_service_bindings
+
+test-units: test-service-bindings
+
+test-service-bindings-sanitizers:
+	python3 -m unittest -v tests.test_service_bindings
+
+.PHONY: test-nsi-socket
+test-nsi-socket:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket.c -o $(OBJ_DIR)/test_nsi_socket_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_linked.c src/nsi_socket.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_socket_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_linked
+
+test-units: test-nsi-socket
+
 .PHONY: test-nsi-shm
 test-nsi-shm:
 	@echo "Running NSI shared-memory tests..."
@@ -1556,7 +1703,7 @@ test-nvm-v2-convert: $(NANOISA_OBJECTS) $(NANOISA_UTF8) test-nvm-pool-alloc
 
 .PHONY: test-nvm-pool-alloc
 test-nvm-pool-alloc: | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nvm_pool_alloc tests/nanoisa/test_nvm_pool_alloc.c $(LDFLAGS)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nvm_pool_alloc tests/nanoisa/test_nvm_pool_alloc.c $(NANOISA_DIR)/isa.c $(LDFLAGS)
 	@./obj/test_nvm_pool_alloc
 
 .PHONY: test-nvm-v2-endtoend
@@ -2649,6 +2796,10 @@ test-doc-md: build
 test-docs: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(USERGUIDE_CHECK_TOOL)
 
+.PHONY: test-shared-match-policy-docs
+test-shared-match-policy-docs:
+	python3 -m unittest -v tests.test_shared_match_policy_docs
+
 .PHONY: test-performance-monitoring-docs
 test-performance-monitoring-docs:
 	@chmod +x tests/test_performance_monitoring_docs.sh
@@ -2923,7 +3074,7 @@ test-make-header-dependencies:
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
 
 .PHONY: test-affine-selfhost
-test-affine-selfhost: bootstrap nano_virt nano_vm
+test-affine-selfhost: bootstrap nano_virt nano_vm $(OBJ_DIR)/test_affine_c_frontend
 	@bash tests/test_affine_selfhost.sh
 	@python3 -m unittest tests.test_affine_module_identity tests.test_affine_generic_identity
 
@@ -2931,8 +3082,11 @@ test-affine-selfhost: bootstrap nano_virt nano_vm
 test-affine-module-identity: bootstrap
 	@python3 -m unittest tests.test_affine_module_identity
 
+$(OBJ_DIR)/test_affine_c_frontend: tests/test_affine_c_frontend.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 .PHONY: test-affine-contract-boundaries
-test-affine-contract-boundaries: bootstrap
+test-affine-contract-boundaries: bootstrap $(OBJ_DIR)/test_affine_c_frontend
 	@python3 -m unittest tests.test_affine_contract_boundaries
 
 .PHONY: test-pt2-audio
@@ -3178,9 +3332,9 @@ clean:
 # Rebuild: Clean and build from scratch
 rebuild: clean build
 
-# =====================================================================
+# =======================================================
 # Stage 1: C Reference Compiler/Interpreter
-# =====================================================================
+# =======================================================
 
 .PHONY: stage1
 
@@ -3263,6 +3417,10 @@ $(LSP_SERVER): $(LSP_OBJECTS) | $(BIN_DIR)
 .PHONY: lsp
 lsp: $(LSP_SERVER)
 
+.PHONY: test-lsp-match-guard
+test-lsp-match-guard: $(LSP_SERVER)
+	@./tests/test_lsp_match_guard.sh $(LSP_SERVER)
+
 # DAP server binary: bin/nanolang-dap speaks Debug Adapter Protocol over stdio
 DAP_SERVER = $(BIN_DIR)/nanolang-dap
 DAP_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/dap_server.o
@@ -3304,9 +3462,9 @@ $(OBJ_DIR)/runtime/%.o: $(RUNTIME_DIR)/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/ru
 $(OBJ_DIR)/eval/%.o: $(SRC_DIR)/eval/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/eval
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# =====================================================================
+# =======================================================
 # Stage 2: Self-Hosted Components (compile and test with stage1)
-# =====================================================================
+# =======================================================
 
 .PHONY: stage2
 
@@ -3354,9 +3512,9 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	echo "✓ Stage 2: $$success/3 components built successfully"; \
 	touch $(SENTINEL_STAGE2)
 
-# =====================================================================
+# =======================================================
 # Stage 3: Execute bounded component entry assertions
-# =====================================================================
+# =======================================================
 
 .PHONY: stage3
 
@@ -3399,9 +3557,9 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 		exit 1; \
 	fi
 
-# =====================================================================
+# =======================================================
 # TRUE Bootstrap (GCC-style: Stage 0 → 1 → 2 → 3)
-# =====================================================================
+# =======================================================
 
 .PHONY: bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3
 
@@ -3630,9 +3788,9 @@ bootstrap-status:
 	fi
 	@echo ""
 
-# =====================================================================
+# =======================================================
 # Profiled Bootstrap (Self-Analysis)
-# =====================================================================
+# =======================================================
 # Build profiled versions of compiler components and analyze performance.
 # This creates _p suffixed binaries with profiling enabled, runs them on
 # real workloads, and outputs LLM-ready JSON for hotspot analysis.
@@ -3704,9 +3862,9 @@ bootstrap-profile-linux: bootstrap-profile
 	@echo "Running on Linux with gprofng..."
 	@echo "Platform-specific profiling complete."
 
-# =====================================================================
+# =======================================================
 # Additional Targets
-# =====================================================================
+# =======================================================
 
 # Show build status
 status:
@@ -4128,9 +4286,9 @@ $(BUILD_DIR):
 
 .PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump nvm2c nanoisa_emit test-nvm2c test-nanoisa-src-nano test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list nanoc
 
-# =====================================================================
+# =======================================================
 # AGENTFS PUBLISH
-# =====================================================================
+# =======================================================
 # Compile a .nano file to WASM and publish to AgentFS for use in agentOS
 # Usage:
 #   make publish SOURCE=src/my_agent.nano
@@ -4156,9 +4314,9 @@ endif
 
 .PHONY: publish publish-dry-run
 
-# =====================================================================
+# =======================================================
 # RELEASE AUTOMATION
-# =====================================================================
+# =======================================================
 
 # Create a new release (default: patch version bump)
 # Usage:
@@ -4432,6 +4590,11 @@ test-selfhost-range-bounds: bootstrap
 	python3 -m unittest -v tests.test_selfhost_range_bounds
 test-units: test-selfhost-range-bounds
 
+.PHONY: test-selfhost-native-u8
+test-selfhost-native-u8: bootstrap
+	python3 -m unittest -v tests.test_selfhost_native_u8
+test-units: test-selfhost-native-u8
+
 .PHONY: test-exclusive-borrows
 test-units: test-exclusive-borrows
 test-exclusive-borrows: bootstrap nano_virt
@@ -4496,6 +4659,17 @@ test-reference-places:
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_reference_places tests/nanoisa/test_reference_places.c $(NANOISA_DIR)/reference_places.c $(LDFLAGS)
 	./obj/test_reference_places
 
+.PHONY: test-shadow-identifiers
+test-units: test-shadow-identifiers
+test-shadow-identifiers: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nanoisa_dump nano_vm
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_shadow_identifiers
+
+.PHONY: test-managed-record-plan
+test-units: test-managed-record-plan
+test-managed-record-plan: nvm2wasm nanoisa_dump nano_vm
+	NRP_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_plan
+
 .PHONY: test-retained-layouts
 test-units: test-retained-layouts
 test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
@@ -4506,6 +4680,22 @@ test-retained-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
 test-calculator-host-abi: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump nvm2c-runtime
 	python3 -m unittest -v tests.test_calculator_host_abi
 test-units: test-calculator-host-abi
+.PHONY: test-named-scalar-callbacks
+test-units: test-named-scalar-callbacks
+test-named-scalar-callbacks: bootstrap $(INTERPRETER) nano_virt nano_vm nanoisa_dump nvm2c
+	python3 -m unittest -v tests.test_named_scalar_callbacks
+
+.PHONY: test-ordinary-record-producers
+test-units: test-ordinary-record-producers
+test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2wasm nvm2c
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_ordinary_record_producers
+
+.PHONY: test-ordinary-record-authority
+test-units: test-ordinary-record-authority
+test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm nvm2c
+	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
+
 .PHONY: test-ownership-contracts
 test-units: test-ownership-contracts
 test-ownership-contracts: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c
@@ -4580,13 +4770,29 @@ test-nvm2llvm: nvm2llvm nanoisa_dump nano_vm nvm2c
 .PHONY: test-managed-array-eligibility
 test-units: test-managed-array-eligibility
 test-managed-array-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
-	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_array_shapes
+	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_array_shapes tests.test_managed_graph_origins
+
+.PHONY: test-managed-record-eligibility
+test-units: test-managed-record-eligibility
+test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
+
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
 
 .PHONY: test-verifier-profiles
 test-units: test-verifier-profiles
 test-verifier-profiles: nvm2llvm nvm2wasm nanoisa_dump
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_verifier_profiles tests/nanoisa/test_verifier_profiles.c $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	python3 -m unittest -v tests.test_verifier_profiles
+
+.PHONY: test-llvm-managed-records
+test-llvm-managed-records: nvm2llvm nvm2wasm nanoisa_dump nano_vm
+	$(CC) $(CFLAGS) -o obj/managed_record_reentry tests/nanoisa/managed_record_reentry.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_llvm_managed_records
+
+.PHONY: test-llvm-managed-forward-records
+test-llvm-managed-forward-records: test-llvm-managed-records test-managed-record-plan test-ordinary-record-authority
+	python3 -m unittest -v tests.test_llvm_managed_forward_records
 
 .PHONY: test-llvm-generic-numeric
 test-llvm-generic-numeric: nvm2llvm nvm2wasm nanoisa_dump nano_vm
@@ -4615,6 +4821,10 @@ NMS_RUNTIME_OPT ?= opt
 managed-runtime-package: $(NANOISA_DIR)/binary64_parse.h scripts/embed_managed_runtime.py $(NANOISA_DIR)/managed_module.c $(NANOISA_DIR)/managed_strings.c $(NANOISA_DIR)/managed_strings.h
 	python3 scripts/embed_managed_runtime.py --clang "$(NMS_RUNTIME_CLANG)" --opt "$(NMS_RUNTIME_OPT)" --header $(OBJ_DIR)/nanoisa/managed_runtime_ir.h --manifest $(OBJ_DIR)/nanoisa/managed_runtime_ir.json
 
+.PHONY: test-managed-record-adapters
+test-managed-record-adapters:
+	python3 -m unittest -v tests.test_managed_record_adapters
+
 test-managed-runtime-package: check-binary64-parser managed-runtime-package
 	python3 -m unittest -v tests.test_managed_runtime_package
 
@@ -4633,14 +4843,27 @@ test-legacy-binary64-parse: bootstrap check-binary64-parser test-legacy-binary64
 
 .PHONY: test-llvm-managed-strings
 test-llvm-managed-strings: $(OBJ_DIR)/binary64_parser_vm nvm2c test-managed-runtime-package test-managed-string-core nvm2wasm nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character tests.test_llvm_managed_case tests.test_llvm_managed_primitive_format tests.test_llvm_managed_replace tests.test_llvm_managed_split tests.test_llvm_managed_mutable_arrays
+	python3 -m unittest -v tests.test_llvm_managed_strings tests.test_llvm_managed_decimal tests.test_llvm_managed_format tests.test_managed_binary64_format tests.test_managed_binary64_parse tests.test_llvm_managed_predicates tests.test_llvm_managed_trim tests.test_llvm_managed_character tests.test_llvm_managed_case tests.test_llvm_managed_primitive_format tests.test_llvm_managed_replace tests.test_llvm_managed_split tests.test_llvm_managed_mutable_arrays tests.test_llvm_managed_array_copies tests.test_llvm_managed_graphs
+
+.PHONY: test-managed-record-core
+test-managed-record-core:
+	python3 -m unittest -v tests.test_managed_records
+test-managed-string-core: test-managed-record-core
+
+.PHONY: test-managed-array-graph-core
+test-managed-array-graph-core: nvm2wasm nanoisa_dump nano_vm
+	python3 -m unittest -v tests.test_managed_array_graphs tests.test_managed_graph_safepoints
+
+.PHONY: test-managed-array-copy-runtime
+test-managed-array-copy-runtime:
+	python3 -m unittest -v tests.test_managed_array_copy_runtime
 
 .PHONY: test-managed-mutable-runtime
 test-managed-mutable-runtime:
 	python3 -m unittest -v tests.test_managed_mutable_runtime
 
 .PHONY: test-managed-string-array-core
-test-managed-string-array-core: test-managed-mutable-runtime
+test-managed-string-array-core: test-managed-array-graph-core test-managed-mutable-runtime test-managed-array-copy-runtime
 	python3 -m unittest -v tests.test_managed_string_arrays tests.test_managed_packed_scalars
 
 .PHONY: test-managed-string-core
@@ -4764,6 +4987,12 @@ test-units: test-source-borrow-emission
 test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump test-local-binding-metadata
 	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@python3 -m unittest -v tests.test_source_borrow_emission
+
+.PHONY: test-inline-owned-construction
+test-units: test-inline-owned-construction
+test-inline-owned-construction: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump test-local-binding-metadata
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_inline_owned_construction
 
 .PHONY: test-owned-assertions
 test-units: test-owned-assertions
@@ -5009,3 +5238,252 @@ test-consuming-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(R
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_consuming_call_preflight tests/nanoisa/test_consuming_call_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_consuming_call_preflight
 	python3 -m unittest -v tests.test_consuming_calls
+
+.PHONY: test-multiple-consuming-calls
+test-units: test-multiple-consuming-calls
+test-multiple-consuming-calls: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_calls tests/nanoisa/test_multiple_consuming_calls.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=helper_heap_malloc -Dcalloc=helper_heap_calloc -Drealloc=helper_heap_realloc -c src/nanovm/heap.c -o obj/test_multiple_consuming_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_alloc tests/nanoisa/test_multiple_consuming_alloc.c obj/test_multiple_consuming_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_multiple_consuming_alloc
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_preflight tests/nanoisa/test_multiple_consuming_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_multiple_consuming_preflight
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_multiple_consuming_refusals tests/nanoisa/test_multiple_consuming_refusals.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_multiple_consuming_calls
+
+.PHONY: test-owned-value-graphs
+test-units: test-owned-value-graphs
+test-owned-value-graphs: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_value_graphs tests/nanoisa/test_owned_value_graphs.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_value_graph_preflight tests/nanoisa/test_owned_value_graph_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_value_graph_preflight
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_invocation_proof tests/nanoisa/test_owned_invocation_proof.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_invocation_proof
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_verification_reuse tests/nanoisa/test_owned_verification_reuse.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_verification_reuse
+	python3 -m unittest -v tests.test_owned_value_graphs
+
+# I rebuild scalar dispatch when its reviewed arithmetic policy changes.
+$(OBJ_DIR)/nanovm/vm.o: src/binary64_arithmetic.h
+$(OBJ_DIR)/nanovm/vm.o: CFLAGS += -ffp-contract=off -fno-fast-math
+
+.PHONY: test-owned-result-descriptors
+test-units: test-owned-result-descriptors
+test-owned-result-descriptors: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_result_descriptors tests/nanoisa/test_owned_result_descriptors.c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	./obj/test_owned_result_descriptors
+
+.PHONY: test-nested-owned-results
+test-units: test-nested-owned-results
+test-nested-owned-results: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dcalloc=nested_query_calloc -c src/nanoisa/affine_state.c -o obj/test_nested_result_state.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nested_result_descriptors tests/nanoisa/test_nested_result_descriptors.c obj/test_nested_result_state.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)
+	./obj/test_nested_result_descriptors
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nested_owned_results tests/nanoisa/test_nested_owned_results.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_nested_result_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nested_result_alloc tests/nanoisa/test_nested_result_alloc.c obj/test_nested_result_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_nested_result_alloc
+	python3 -m unittest -v tests.test_nested_owned_results
+
+.PHONY: test-owned-value-results
+test-units: test-owned-value-results
+test-owned-value-results: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_value_results tests/nanoisa/test_owned_value_results.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_result_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_result_alloc tests/nanoisa/test_owned_result_alloc.c obj/test_owned_result_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_result_alloc
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_result_preflight tests/nanoisa/test_owned_result_preflight.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_result_preflight
+	python3 -m unittest -v tests.test_owned_value_results
+
+.PHONY: test-owned-string-print
+test-units: test-owned-string-print
+test-owned-string-print: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_print tests/nanoisa/test_owned_string_print.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_string_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_alloc tests/nanoisa/test_owned_string_alloc.c obj/test_owned_string_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_string_alloc
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_proof tests/nanoisa/test_owned_string_proof.c $(filter-out obj/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_string_proof
+	python3 -m unittest -v tests.test_owned_string_print
+
+# I retain scalar arithmetic policy dependencies in source execution/emission.
+$(OBJ_DIR)/eval.o: src/binary64_arithmetic.h
+$(OBJ_DIR)/eval.o: CFLAGS += -ffp-contract=off -fno-fast-math
+$(OBJ_DIR)/stdlib_runtime.o: src/binary64_arithmetic_source.h
+
+$(OBJ_DIR)/nanovm/heap.o $(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_format.h
+
+$(OBJ_DIR)/eval.o $(OBJ_DIR)/stdlib_runtime.o: src/binary64_format.h
+
+.PHONY: test-checked-owner-selection
+test-units: test-checked-owner-selection
+test-checked-owner-selection: bootstrap nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_checked_owner_selection.CheckedOwnerSelection
+
+.PHONY: test-selfhost-native-array-slice
+test-selfhost-native-array-slice: bootstrap nano_virt nano_vm
+	python3 -m unittest -v tests.test_selfhost_native_array_slice
+
+.PHONY: test-owned-binary64
+test-units: test-owned-binary64
+test-owned-binary64: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_binary64 tests/nanoisa/test_owned_binary64.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_binary64
+
+.PHONY: test-mixed-layout-view
+test-units: test-mixed-layout-view
+test-mixed-layout-view: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MIXED_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_layout_view
+
+.PHONY: test-mixed-float-proof
+test-units: test-mixed-float-proof
+test-mixed-float-proof: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MIXED_PROOF_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_float_proof
+
+.PHONY: test-owned-string-fields
+test-units: test-owned-string-fields
+test-owned-string-fields: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_fields tests/nanoisa/test_owned_string_fields.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=result_heap_malloc -Dcalloc=result_heap_calloc -Drealloc=result_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_string_fields_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_fields_alloc tests/nanoisa/test_owned_string_fields_alloc.c obj/test_owned_string_fields_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_string_fields_alloc
+	python3 -m unittest -v tests.test_owned_string_fields
+
+.PHONY: test-owned-string-joins
+test-units: test-owned-string-joins
+test-owned-string-joins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_string_joins tests/nanoisa/test_owned_string_joins.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_owned_string_joins
+.PHONY: test-mixed-samples
+test-units: test-mixed-samples
+test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MIXED_SAMPLES_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" MIXED_SAMPLES_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_mixed_samples
+
+.PHONY: test-service-module
+# I exercise real container/consumer objects; only the allocation-prefix variant
+# replaces three translation units with named malloc/calloc/realloc hooks.
+test-service-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o nvm2llvm nvm2hl nvm2c
+	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_service_bindings_module
+.PHONY: mixed-samples-runtime-fixture
+mixed-samples-runtime-fixture: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime tests/nanoisa/test_mixed_samples_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+.PHONY: test-mixed-samples-runtime
+test-mixed-samples-runtime: mixed-samples-runtime-fixture
+	python3 -m unittest -fv tests.test_mixed_samples_runtime
+
+.PHONY: test-mixed-samples-runtime-alloc
+test-mixed-samples-runtime-alloc: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -Dmalloc=mixed_heap_malloc -Dcalloc=mixed_heap_calloc -Drealloc=mixed_heap_realloc -c src/nanovm/heap.c -o obj/test_mixed_samples_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime_alloc tests/nanoisa/test_mixed_samples_runtime_alloc.c obj/test_mixed_samples_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_mixed_samples_runtime_alloc
+
+.PHONY: test-mixed-samples-admission
+test-mixed-samples-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=mixed_admit_malloc -Dcalloc=mixed_admit_calloc -c src/nanoisa/verifier.c -o obj/test_mixed_samples_verifier.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_admission tests/nanoisa/test_mixed_samples_admission.c obj/test_mixed_samples_verifier.o $(NANOVM_OBJECTS) $(filter-out obj/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_mixed_samples_admission
+
+test-units: test-mixed-samples-runtime test-mixed-samples-runtime-alloc test-mixed-samples-admission
+
+# I run real GPU lifecycle only through this explicit opt-in target.
+.PHONY: test-nsi-gpu-private
+test-nsi-gpu-private:
+	python3 tests/test_nsi_gpu.py --real-gpu --compiler "$(CC)" --output "$(OBJ_DIR)/private-gpu-gate"
+
+.PHONY: test-owned-array-layouts
+test-units: test-owned-array-layouts
+test-owned-array-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	OWNED_ARRAY_LAYOUT_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_layouts
+
+.PHONY: test-file-nominal test-file-nominal-sanitizers
+test-file-nominal: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DNOMINAL_INSTRUMENT tests/nanoisa/test_file_nominal.c src/nanoisa/service_file_nominal.c $(filter-out $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_nominal_instrumented
+	./obj/test_file_nominal_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_file_nominal.c src/nanoisa/service_file_nominal.c src/nanoisa/service_file_nominal_plan.c $(filter-out $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_nominal_linked
+	./obj/test_file_nominal_linked
+
+test-units: test-file-nominal
+test-file-nominal-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_NOMINAL_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_NOMINAL_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_nominal
+.PHONY: test-owned-array-origins
+test-units: test-owned-array-origins
+test-owned-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	OWNED_ARRAY_ORIGIN_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_origins
+
+.PHONY: test-file-nominal-module
+test-file-nominal-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o nvm2llvm nvm2hl nvm2c
+	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_nominal_module
+
+.PHONY: test-owned-array-authority
+test-units: test-owned-array-authority
+test-owned-array-authority: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	OWNED_ARRAY_AUTHORITY_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_authority
+
+.PHONY: test-file-flow test-file-flow-sanitizers
+test-file-flow: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DFLOW_INSTRUMENT tests/nanoisa/test_file_flow.c $(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_flow_instrumented
+	./obj/test_file_flow_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_file_flow.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_flow_linked
+	./obj/test_file_flow_linked
+test-units: test-file-flow
+test-file-flow-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_FLOW_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_FLOW_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_flow
+.PHONY: test-private-owned-array-runtime
+# I keep this pending profile outside default test-units/public execution.
+test-private-owned-array-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_private_owned_array_runtime
+.PHONY: test-owned-array-public-runtime
+# I explicitly exercise normal public adapters after complete authority admission.
+test-owned-array-public-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2c nvm2llvm nvm2wasm nvm2hl
+	NANO_OWNER_ARRAY_PUBLIC_TEST=1 PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_private_owned_array_runtime
+
+.PHONY: test-file-opcodes
+test-file-opcodes: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nanovirt/wrapper_gen.o nvm2llvm nvm2hl nvm2c
+	FILE_OPCODE_OBJECTS="$(OBJ_DIR)/nanovirt/wrapper_gen.o $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_OPCODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_opcodes
+
+.PHONY: test-file-code test-file-code-sanitizers
+test-units: test-file-code
+test-file-code: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DFLOW_INSTRUMENT tests/nanoisa/test_file_code.c $(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_code_instrumented
+	./obj/test_file_code_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_file_code.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_code_linked
+	./obj/test_file_code_linked
+test-file-code-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_CODE_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_CODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_code
+
+.PHONY: test-file-body test-file-body-sanitizers
+test-units: test-file-body
+test-file-body: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DFLOW_INSTRUMENT tests/nanoisa/test_file_body.c $(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_body_instrumented
+	./obj/test_file_body_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_file_body.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_body_linked
+	./obj/test_file_body_linked
+test-file-body-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_BODY_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_BODY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_body
+.PHONY: test-owned-array-mutation-runtime
+test-owned-array-mutation-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_owned_array_mutation_runtime
+
+.PHONY: test-file-hosted test-file-hosted-sanitizers
+test-units: test-file-hosted
+test-file-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_HOSTED_CC="$(CC)" NANO_FILE_HOSTED_CFLAGS="$(CFLAGS)" NANO_FILE_HOSTED_SANITIZERS=0 FILE_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_hosted
+test-file-hosted-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_hosted
+
+.PHONY: test-owned-array-bits-boundaries
+test-owned-array-bits-boundaries: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_owned_array_bits_boundaries
+
+.PHONY: test-nvm-v2-code-publication
+test-nvm-v2-code-publication: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	CODE_PUBLICATION_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/nvm_format.o $(OBJ_DIR)/nanoisa/nvm_v2_convert.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" CODE_PUBLICATION_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_nvm_v2_code_publication
+
+# I keep private carrier execution explicit until its full fixture review.
+.PHONY: test-file-runtime test-file-runtime-sanitizers
+test-file-runtime: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
+	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime
+test-file-runtime-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
+	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime

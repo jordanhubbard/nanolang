@@ -1,5 +1,6 @@
 #include "reference_places.h"
 #include "isa.h"
+#include <stdlib.h>
 
 static bool descriptor_valid(const NvmReferencePlace *p) {
     return p && p->invocation != 0 &&
@@ -17,20 +18,51 @@ static bool record_valid(const NvmV2Layout *layout) {
            (!layout->field_count || layout->fields);
 }
 
+/* I keep the entire borrowed root scalar-only, including siblings outside
+ * the selected path. Prior-index traversal visits each reachable layout once. */
+static bool scalar_root(const NvmV2Layouts *layouts,uint32_t root) {
+    const NvmV2Layout *root_layout=&layouts->items[root];
+    if (!record_valid(root_layout)) return false;
+    bool leaf=true;
+    for (uint16_t i=0;i<root_layout->field_count;i++) {
+        const NvmV2LayoutField *field=&root_layout->fields[i];
+        if (!scalar(field->type_tag) || field->nested_idx!=NVM_V2_NO_INDEX) {leaf=false;break;}
+    }
+    if (leaf) return true;
+    unsigned char *seen=calloc((size_t)root+1,1);
+    if (!seen) return false;
+    seen[root]=1;
+    bool valid=true;
+    for (uint32_t next=root+1;next && valid;) {
+        uint32_t index=--next;
+        if (!seen[index]) continue;
+        const NvmV2Layout *layout=&layouts->items[index];
+        if (!record_valid(layout)) {valid=false;break;}
+        for (uint16_t i=0;i<layout->field_count;i++) {
+            const NvmV2LayoutField *field=&layout->fields[i];
+            if (scalar(field->type_tag) && field->nested_idx==NVM_V2_NO_INDEX) continue;
+            if (field->type_tag!=TAG_STRUCT || field->nested_idx>=index) {valid=false;break;}
+            seen[field->nested_idx]=1;
+        }
+    }
+    free(seen);return valid;
+}
+
 bool nvm_reference_place_valid(const NvmV2Layouts *layouts,
                                uint32_t authoritative_root_layout,
                                const NvmReferencePlace *place) {
     if (!descriptor_valid(place) || !layouts || !layouts->items ||
         place->root_layout != authoritative_root_layout ||
         authoritative_root_layout >= layouts->count) return false;
+    if (!scalar_root(layouts,authoritative_root_layout)) return false;
     uint32_t current = authoritative_root_layout;
     for (uint16_t i = 0; i < place->field_count; i++) {
         const NvmV2Layout *layout = &layouts->items[current];
         if (!record_valid(layout) || place->fields[i] >= layout->field_count)
             return false;
         const NvmV2LayoutField *field = &layout->fields[place->fields[i]];
-        /* v2 layout edges are strictly backward. I retain that invariant
-         * even when this API is given producer-owned, not decoded, tables. */
+        /* I retain prior-only reference paths even when the structural
+         * codec accepts an ordinary DAG or a producer supplies the table. */
         if (field->type_tag != TAG_STRUCT || field->nested_idx >= current)
             return false;
         current = field->nested_idx;

@@ -1,0 +1,10 @@
+{
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk",
+  "CC": "/usr/bin/clang",
+  "NANO_VM": "/private/tmp/nanolang-owner-array-source-1c4e29067/bin/nano_vm",
+  "NANO_NVM2C": "/private/tmp/nanolang-owner-array-source-1c4e29067/bin/nvm2c",
+  "NANO_AOT_RUNTIME": "/private/tmp/nanolang-owner-array-source-1c4e29067/bin/nano_aot_runtime.o",
+  "NANO_MODULE_PATH": "/private/tmp/nanolang-owner-array-source-1c4e29067/modules",
+  "NANO_BUILD_CACHE": "/private/tmp/nanolang-owner-array-source-1c4e29067/obj/module_cache",
+  "PYTHONPATH": "/private/tmp/nanolang-owner-array-source-1c4e29067"
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "package": "/tmp/libyaml-dev_0.2.5-1build1_arm64.deb",
+    "sha256": "b6b355bcc1f9bf6028f5ad119e311ecfb620d06db9e3ba50eb878262587a9538",
+    "metadata": "Package: libyaml-dev\nArchitecture: arm64\nVersion: 0.2.5-1build1\nMulti-Arch: same\nPriority: extra\nSection: libdevel\nSource: libyaml\nOrigin: Ubuntu\nMaintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>\nOriginal-Maintainer: Florian Ernst <florian@debian.org>\nBugs: https://bugs.launchpad.net/ubuntu/+filebug\nInstalled-Size: 244\nDepends: libyaml-0-2 (= 0.2.5-1build1)\nSuggests: libyaml-doc\nFilename: pool/main/liby/libyaml/libyaml-dev_0.2.5-1build1_arm64.deb\nSize: 63416\nMD5sum: fbe4ab7260aa395d5c1f2e00384ea5c5\nSHA1: a14a6cda8ce5911d6627851ad2e7d38d7f85407d\nSHA256: b6b355bcc1f9bf6028f5ad119e311ecfb620d06db9e3ba50eb878262587a9538\nSHA512: bdabf958f0bc19d5fccf3a51123da21d09f0129144ca04320cf080affa695ab539018ad2f17f5fff415d8b596a2c3343049cc29f388b9f0787984ef4638f7552\nHomepage: https://github.com/yaml/libyaml\nDescription-en: Fast YAML 1.1 parser and emitter library (development)\n LibYAML is a C library for parsing and emitting data in YAML 1.1, a\n human-readable data serialization format.\n .\n This package contains development headers and static libraries.\nDescription-md5: 6a835b3e1ea55d4191038017f1855f58"
+  },
+  {
+    "package": "/tmp/libyaml-0-2_0.2.5-1build1_arm64.deb",
+    "sha256": "eb0f14172a5cedb68ccea3be266672c9059893341a82fad185f2548dd99b8371",
+    "metadata": "Package: libyaml-0-2\nArchitecture: arm64\nVersion: 0.2.5-1build1\nMulti-Arch: same\nPriority: important\nSection: libs\nSource: libyaml\nOrigin: Ubuntu\nMaintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>\nOriginal-Maintainer: Florian Ernst <florian@debian.org>\nBugs: https://bugs.launchpad.net/ubuntu/+filebug\nInstalled-Size: 147\nDepends: libc6 (>= 2.17)\nFilename: pool/main/liby/libyaml/libyaml-0-2_0.2.5-1build1_arm64.deb\nSize: 51548\nMD5sum: 6f8890810cacff79740aec3ee1520247\nSHA1: d4d41579586eb73f38c415fa7748e7ea6b8ae35e\nSHA256: eb0f14172a5cedb68ccea3be266672c9059893341a82fad185f2548dd99b8371\nSHA512: d862850e46b7bd42a8ac07c9aa788dddef866acc2839bbb8ac2cf826eb49624d2818da1713d4e12a64a827c46edf00c4caa3de4b2b6fc05a1b114d2350241429\nHomepage: https://github.com/yaml/libyaml\nDescription-en: Fast YAML 1.1 parser and emitter library\n LibYAML is a C library for parsing and emitting data in YAML 1.1, a\n human-readable data serialization format.\nDescription-md5: dc7536751a3eb6ce248dda2ad4cfcca2\nTask: cloud-minimal, minimal, server-minimal"
+  }
+]

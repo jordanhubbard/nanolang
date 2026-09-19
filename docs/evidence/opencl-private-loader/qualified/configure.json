@@ -1,0 +1,13 @@
+{
+  "name": "configure",
+  "argv": [
+    "./configure",
+    "--prefix=/tmp/nanolang-opencl-private-7f0/install",
+    "--enable-official-khronos-headers",
+    "--disable-update-database"
+  ],
+  "cwd": "/tmp/nanolang-opencl-private-7f0/upstream",
+  "exit_code": 0,
+  "seconds": 2.269395429000724,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}

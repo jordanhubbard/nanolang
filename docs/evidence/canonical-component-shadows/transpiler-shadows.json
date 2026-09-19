@@ -1,0 +1,9 @@
+{
+  "arguments": [
+    "--check-shadows",
+    "/tmp/nano_bytecode_shadows_a7IMUZ/shadows.nvm"
+  ],
+  "module_sha256": "65bbfbe3a2b6c307a25151c5abdab710224a56b6f21c5109720b395a78587bc2",
+  "vm_status": 0,
+  "seconds": 0.789
+}

@@ -1,0 +1,7 @@
+{
+  "source": "5702f39d755967a2c6decb2ab265e0f52cf0e456",
+  "status": 0,
+  "seconds": 4.503225667052902,
+  "command": "unchanged Binary64Parse.test_core_bits_and_ownership_match_reference_on_native_and_wasm",
+  "evidence": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-managed-parser-fresh-auqlit40/evidence"
+}

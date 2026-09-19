@@ -1,0 +1,7 @@
+linux-vdso.so.1 (0x0000e94451a26000)
+	libpthread.so.0 => /lib/aarch64-linux-gnu/libpthread.so.0 (0x0000e9444c710000)
+	libm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000e9444c660000)
+	libc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000e9444c4a0000)
+	/lib/ld-linux-aarch64.so.1 (0x0000e944519e0000)
+	libdl.so.2 => /lib/aarch64-linux-gnu/libdl.so.2 (0x0000e9444c470000)
+	librt.so.1 => /lib/aarch64-linux-gnu/librt.so.1 (0x0000e9444c440000)

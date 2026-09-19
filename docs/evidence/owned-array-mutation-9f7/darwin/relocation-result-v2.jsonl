@@ -1,0 +1,20 @@
+{"verified_files": 2435, "logical_bytes": 1171242255, "free_before": 1968517120}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-identity/artifacts-test_declared_array_return_element_facts", "files": 31, "logical_bytes": 26201890}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-identity/artifacts-test_declared_scalar_order_and_initializer", "files": 62, "logical_bytes": 52409982}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-identity/artifacts-test_lexical_signature_and_restoration", "files": 82, "logical_bytes": 104794325}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-identity/artifacts-test_refusals_preserve_publication", "files": 119, "logical_bytes": 104805420}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-identity/artifacts-test_runtime_function_value_bindings", "files": 129, "logical_bytes": 130998379}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-identity/artifacts-test_unbound_push_alias_and_empty", "files": 160, "logical_bytes": 157198455}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_builtin_identity_initializer_and_declared_function", "files": 22, "logical_bytes": 49547181}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_constructor_order_and_returned_aliases", "files": 20, "logical_bytes": 49581735}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_dynamic_set_bounds_and_prepared_failure_cleanup", "files": 188, "logical_bytes": 49577200}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_exact_type_lexical_and_shadow_refusals", "files": 314, "logical_bytes": 49624126}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_integer_boundaries_and_boolean_range", "files": 190, "logical_bytes": 49613176}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_mutation_refusals_and_void_results", "files": 158, "logical_bytes": 49571423}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_nested_receiver_before_consuming_index", "files": 19, "logical_bytes": 49549847}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_optional_operands_and_failure_cleanup", "files": 227, "logical_bytes": 49602509}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_original_complete_prefix_and_all_routes", "files": 189, "logical_bytes": 49575355}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_prepared_roots_nested_returns_alias_and_empty", "files": 191, "logical_bytes": 49637540}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_shared_mutation_growth_append_result_and_empty", "files": 18, "logical_bytes": 49585937}
+{"removed_directory": "nanolang-declared-push-9f7-darwin-mutation-recovered1/artifacts-test_unchanged_samples_string_scalar_and_borrow_profiles", "files": 316, "logical_bytes": 49367775}
+{"complete": true, "free_after": 3151306752}

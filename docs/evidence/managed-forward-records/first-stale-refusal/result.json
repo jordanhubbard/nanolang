@@ -1,0 +1,12 @@
+{
+  "head": "14c37b835f75e24fe444ceeb9f2aa98e0643adc3",
+  "tests": [
+    "tests.test_llvm_managed_forward_records",
+    "tests.test_managed_record_plan",
+    "tests.test_ordinary_record_authority",
+    "tests.test_managed_record_shapes",
+    "tests.test_verifier_profiles"
+  ],
+  "status": 1,
+  "seconds": 14.55103302403586
+}

@@ -1,0 +1,10 @@
+{
+  "head": "4b71cc2ab97ff5c2354017348d3c085cdea31678",
+  "scope": "Single diagnostic; original GPU assertions retained. No release or sanitizer acceptance inferred.",
+  "build_exit": 0,
+  "run_exit": 1,
+  "sources_unchanged": true,
+  "tools_unchanged": true,
+  "libraries_unchanged": true,
+  "head_unchanged": true
+}

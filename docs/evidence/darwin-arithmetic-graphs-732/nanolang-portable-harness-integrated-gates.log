@@ -1,0 +1,19 @@
+test_direct_and_exact_standalone (tests.test_binary64_arithmetic.Binary64Arithmetic.test_direct_and_exact_standalone) ... ok
+test_target_and_fastmath_guards (tests.test_binary64_arithmetic.Binary64Arithmetic.test_target_and_fastmath_guards) ... ok
+test_mixed_promotion_and_input_transport_unchanged (tests.test_binary64_arithmetic_backends.ArithmeticBackends.test_mixed_promotion_and_input_transport_unchanged) ... ok
+test_nan_typed_known_and_boxed (tests.test_binary64_arithmetic_backends.ArithmeticBackends.test_nan_typed_known_and_boxed) ... ok
+test_zero_precedence_invalid_operations_and_rounding (tests.test_binary64_arithmetic_backends.ArithmeticBackends.test_zero_precedence_invalid_operations_and_rounding) ... ok
+test_managed_scalar_cleanup (tests.test_binary64_arithmetic_backends.ManagedArithmetic.test_managed_scalar_cleanup) ... ok
+test_generated_pressure_preserves_live_graph_and_disposal (tests.test_llvm_managed_graphs.ManagedGraphs.test_generated_pressure_preserves_live_graph_and_disposal) ... ok
+test_global_cycles_reentry_initializer_and_first_error (tests.test_llvm_managed_graphs.ManagedGraphs.test_global_cycles_reentry_initializer_and_first_error) ... ok
+test_initializer_and_helper_failures_collect_only_dead_roots (tests.test_llvm_managed_graphs.ManagedGraphs.test_initializer_and_helper_failures_collect_only_dead_roots) ... ok
+test_leaf_mode_stays_unprepared (tests.test_llvm_managed_graphs.ManagedGraphs.test_leaf_mode_stays_unprepared) ... ok
+test_nested_literal_slice_get_pop_and_calls (tests.test_llvm_managed_graphs.ManagedGraphs.test_nested_literal_slice_get_pop_and_calls) ... ok
+test_preparation_growth_failures_and_nested_entry (tests.test_llvm_managed_graphs.ManagedGraphs.test_preparation_growth_failures_and_nested_entry) ... ok
+test_prepared_split_nested_append_and_set (tests.test_llvm_managed_graphs.ManagedGraphs.test_prepared_split_nested_append_and_set) ... ok
+test_self_mutual_cycles_and_bounded_live_loop (tests.test_llvm_managed_graphs.ManagedGraphs.test_self_mutual_cycles_and_bounded_live_loop) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 24.974s
+
+OK

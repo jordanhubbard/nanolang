@@ -1,0 +1,142 @@
+{
+  "frozen_source": "b075dc03ec6af62c7992c4e5d90a20ce934d10b2",
+  "main_integrated": "a2953371",
+  "current_files": {
+    "src/nanovirt/codegen.c": "dd36843d7b774d88856653922d901f0e30970fe090f3259804936ad33acaff11",
+    "src/nanovirt/borrow_codegen.inc": "207922d928987637545051f4ea12bde74b63f095907527a2c4c647be0ff118d7",
+    "src_nano/compiler/nanoisa_borrows.nano": "fb954e53c3a57823d88dab8cc19e548890431b9d1ebbef9e41cc366c048aae62",
+    "tests/test_source_borrow_emission.py": "b77f882031b0cf2637681c05e05fcbf0ceaff499c441bdbc29e5959ebdb92099",
+    "src/nanoisa/affine_state.c": "695948e2ebc80a9d45c0f2826a171bfa09f2eac10d168124a5a9c070898ae33a",
+    "src/nanoisa/affine_bytecode.c": "aad696e07cc05490d89805842907fe365a2ba59d06601a455c39e8f2b0d0c2f6",
+    "src/nanoisa/nvm2c_owned.h": "824e1e22420ed8eefdb503136916fb726a38470f25993c6f96f92772d8c99a4e",
+    "src/nanovm/vm.c": "b1c1094020ce4a777bae30dbcd652d94557c76e445779d045d73df7e92d05e45",
+    "tests/test_affine_integration.nano": "a4563f0a4cb4559e7cbbe8933506d24e6afcb229c6295fed3dd6e22efe72a77b",
+    "Makefile.gnu": "b345d1a7a0f7e285376819ae3f25d79e5e8c2b08ace8d33f810831e26d6acf3f"
+  },
+  "tools": {
+    "bin/nvm2c": "bfa0eb957b623c6e4c95b04013da6ec9bb692dc62ea8b64a444133193d9dfd65",
+    "bin/nanoc": "222ed03e53a6d0282f4b5e0f9795d0008cdda108eaf7e26409deff4dba46de7b",
+    "bin/nanoc_stage1": "68ab76edda0e593e6c5bd64813eeba0f76437158ed6dae14aa92b2c9e897d421",
+    "bin/nanoisa": "b142aa83453833942e2e5983b00ee84644361d4c1c13821b8c510c6310923c8f",
+    "bin/nano_vm": "f9650ae406c761b68d30fa679f2ca40678136ead53a89ea68a5af20887ea26ec",
+    "bin/nanoisa_emit": "1c7ba4bb2bbffa8dd017046b3db4d034b766094fe441fb4e67121214c4b13d45",
+    "bin/nano_virt": "02442cd181c1e3b70111d6952dcd37eb615f6973d82be6e9a4adbf32f5d54187",
+    "bin/nanoc_stage2": "222ed03e53a6d0282f4b5e0f9795d0008cdda108eaf7e26409deff4dba46de7b",
+    "bin/nanoc_c": "bccbbb0d96cea499082b9a6cffc4829b8430619551bff84416c26fe5eda56b6e",
+    "bin/nano_as_capture.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6"
+  },
+  "generated_producers": {
+    "/home/jkh/Src/nanolang-source-transitive-owned-wrappers/bin/nanoisa_emit": "1c7ba4bb2bbffa8dd017046b3db4d034b766094fe441fb4e67121214c4b13d45",
+    "/tmp/nano-source-borrows-nf6xj7pe/nanoc_stage1-emit": "d17a792834e529f128a51d167f239775b5afbe2a989fa87bd0d6463cb4e225ce",
+    "/tmp/nano-source-borrows-nf6xj7pe/nanoc_stage2-emit": "15c42567a14903f19a9721c0c51e5ef309173117cb5ee1d96db3976eb6fef3fe",
+    "/tmp/nano-source-borrows-nf6xj7pe/nanoc_c-shadows": "66cb9a78689c5d2348431c0233f8b8bec80bcff6dcfb4724b11e81cd074e3ab6",
+    "/tmp/nano-source-borrows-nf6xj7pe/nanoc_stage1-shadows": "2f3bd74757dc58d5fca8791a06d9e8a445e5d1736841371ffc3dc20e4b97713e",
+    "/tmp/nano-source-borrows-nf6xj7pe/nanoc_stage2-shadows": "9e32a22a63f98a12a05679cc67264bcd655eeee86e20584ade207124f9a080b7",
+    "/tmp/nano-source-borrows-6cymwbe3/nanoc_stage1-emit": "6c23531ae8eb89dc67c21157796deb91e266e4a22f65f364c652141e156a2715",
+    "/tmp/nano-source-borrows-6cymwbe3/nanoc_stage2-emit": "6c23531ae8eb89dc67c21157796deb91e266e4a22f65f364c652141e156a2715",
+    "/tmp/nano-source-borrows-6cymwbe3/nanoc_c-shadows": "1a51000879fbc58b68e2f00ef595e0b4529e8f029a9b57bf4067535bf968a8b3",
+    "/tmp/nano-source-borrows-6cymwbe3/nanoc_stage1-shadows": "b684e56610a4b8128ca9b6636125cf4628186b55df64a675770cc5ed88e001a4",
+    "/tmp/nano-source-borrows-6cymwbe3/nanoc_stage2-shadows": "b684e56610a4b8128ca9b6636125cf4628186b55df64a675770cc5ed88e001a4"
+  },
+  "reports": {
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/runtime.log": "ba2dee0aecdf1f9aed55febc46bbe92deda0b73aa22740a4b5720beaaec3f9f6",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/nanolang-transitive-wrapper-setup.mk": "d1d5a92fe011e3c31131f3b05fdcb75bc221f76c5b503584f3fcfc76fa44a987",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/nanolang-transitive-wrapper-gates-integrated.py": "7d8cd91b62cf0c988d316b8838f824c84f1672b914a0d3460d8f8e7f0d400789",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-gcc-producers.json": "314859a87c9d9eb6bc71d9365873b2be86fda48a30b079658a02946e45e1bea5",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/nanolang-transitive-wrapper-unittest.py": "cb195cd2ac510c66ffe7cc1283ba47f982e578f064c13825a5d55187fe168f2a",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-clang-producers.json": "f9b7bd8a732c81c45f3783e8530fbaff79fdc57e0a00a69746b4cbb61327621d",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-gcc-tools-before.json": "782d08abc7d185dd37b9e084cc07c187ede045d8325fddc60776082d53b74b6a",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/setup.log": "39f988c9e8a3bc3c1b6c8c4ea21cbcb7b74c3b1282fc06b9fac744edd8ace227",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/setup-tools-before.json": "b5d6f20779bdb813a5d81767f158d168bf1638c764c216603a45b83f12e063a6",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/manifest.json": "b092aee9018af860e60fc4fe68237c2fca4cf6906d7466816da461a5083e3cd4",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/setup-tools-after.json": "782d08abc7d185dd37b9e084cc07c187ede045d8325fddc60776082d53b74b6a",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-clang.log": "bb3c563359a1af47ba1441e8bab9d4211e89f13364aed880367da351cbde12a2",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/source-after.json": "991441a788fd54adbcba282d304785a02c8ede1ffe08f02b066aa35ea7c3296b",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-gcc-tools-after.json": "782d08abc7d185dd37b9e084cc07c187ede045d8325fddc60776082d53b74b6a",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/status": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-gcc.log": "8823b49375e8ba95cce68abd48edffbad326d45eb740135ce410872926474aa0",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/source-before.json": "991441a788fd54adbcba282d304785a02c8ede1ffe08f02b066aa35ea7c3296b",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-clang-tools-before.json": "782d08abc7d185dd37b9e084cc07c187ede045d8325fddc60776082d53b74b6a",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/runtime-tools-after.json": "782d08abc7d185dd37b9e084cc07c187ede045d8325fddc60776082d53b74b6a",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-clang-tools-after.json": "782d08abc7d185dd37b9e084cc07c187ede045d8325fddc60776082d53b74b6a",
+    "/tmp/nanolang-transitive-wrapper-gates-integrated/runtime-tools-before.json": "782d08abc7d185dd37b9e084cc07c187ede045d8325fddc60776082d53b74b6a"
+  },
+  "source_inventory_count": 1715,
+  "manifest": {
+    "source": "b075dc03ec6af62c7992c4e5d90a20ce934d10b2",
+    "steps": [
+      {
+        "name": "setup",
+        "command": [
+          "make",
+          "-j2",
+          "-f",
+          "Makefile.gnu",
+          "-f",
+          "/tmp/nanolang-transitive-wrapper-setup.mk",
+          "transitive-wrapper-setup"
+        ],
+        "status": 0,
+        "seconds": 245.491,
+        "log_sha256": "39f988c9e8a3bc3c1b6c8c4ea21cbcb7b74c3b1282fc06b9fac744edd8ace227",
+        "tools_unchanged": false
+      },
+      {
+        "name": "focused-gcc",
+        "command": [
+          "python3",
+          "/tmp/nanolang-transitive-wrapper-unittest.py",
+          "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-gcc-producers.json",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrappers_restore_unchanged_affine_integration",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrapper_arguments_preserve_once_order_and_children",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrapper_refusals_preserve_output"
+        ],
+        "status": 0,
+        "seconds": 176.345,
+        "log_sha256": "8823b49375e8ba95cce68abd48edffbad326d45eb740135ce410872926474aa0",
+        "tools_unchanged": true,
+        "CC": "/usr/bin/gcc",
+        "compiler_sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+      },
+      {
+        "name": "focused-clang",
+        "command": [
+          "python3",
+          "/tmp/nanolang-transitive-wrapper-unittest.py",
+          "/tmp/nanolang-transitive-wrapper-gates-integrated/focused-clang-producers.json",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrappers_restore_unchanged_affine_integration",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrapper_arguments_preserve_once_order_and_children",
+          "tests.test_source_borrow_emission.SourceBorrowEmission.test_transitive_wrapper_refusals_preserve_output"
+        ],
+        "status": 0,
+        "seconds": 174.71,
+        "log_sha256": "bb3c563359a1af47ba1441e8bab9d4211e89f13364aed880367da351cbde12a2",
+        "tools_unchanged": true,
+        "CC": "/usr/bin/clang-18",
+        "compiler_sha256": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d"
+      },
+      {
+        "name": "runtime",
+        "command": [
+          "make",
+          "test-owned-binary64",
+          "test-owned-value-graphs",
+          "test-owned-value-results",
+          "test-consuming-calls",
+          "test-multiple-consuming-calls",
+          "test-owned-assertions"
+        ],
+        "status": 0,
+        "seconds": 48.145,
+        "log_sha256": "ba2dee0aecdf1f9aed55febc46bbe92deda0b73aa22740a4b5720beaaec3f9f6",
+        "tools_unchanged": true
+      }
+    ],
+    "source_unchanged": true,
+    "unchanged_head": true,
+    "tracked_tree_clean": true
+  },
+  "production_and_harness_identical_to": "1012222a26f9259626e7f8a0de5d8ddaff003aec",
+  "historical_source_tree": "/home/jkh/Src/nanolang-transitive-wrappers-qualified-101",
+  "historical_archive_limitation": "I started integrated setup before receiving the archive instruction. Seven old bin paths were already rebuilt; I preserved nanoc, nanoc_stage2 and nano_as_capture.so only. Original identity maps, source snapshots, logs and generated producers remain retained. I do not claim original full49 with current binaries."
+}

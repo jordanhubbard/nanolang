@@ -109,6 +109,22 @@ sys.exit(subprocess.run([{shutil.which('cc')!r}] + sys.argv[1:]).returncode)
                 self.assertFalse((self.directory / "injected").exists())
                 self.assertFalse(list(odd.glob(".nano-wrapper-*")))
 
+    def test_long_quoted_object_alias_in_both_modes(self):
+        # I keep each component portable while the complete link closure grows.
+        alias = self.directory / ("objects-" + "x" * 220 + " ' ; $(touch injected)")
+        self.assertLessEqual(len(os.fsencode(alias.name)), 255)
+        alias.symlink_to(ROOT / "obj", target_is_directory=True)
+        self.env["NANO_VIRT_LIB"] = alias.name
+        for daemon in (False, True):
+            with self.subTest(daemon=daemon):
+                output = self.directory / ("long-daemon" if daemon else "long-standalone")
+                self.finish(self.start(daemon, output=output))
+                self.assertTrue(os.access(output, os.X_OK))
+                if not daemon:
+                    self.execute(output)
+                self.assertFalse((self.directory / "injected").exists())
+                self.assertFalse(list(self.directory.glob(".nano-wrapper-*")))
+
     def test_failed_compilers_preserve_existing_output(self):
         self.finish(self.start())
         old = self.output.read_bytes()

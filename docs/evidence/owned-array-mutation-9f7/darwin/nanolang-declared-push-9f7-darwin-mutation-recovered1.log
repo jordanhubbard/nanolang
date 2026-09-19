@@ -1,0 +1,19 @@
+test_shared_mutation_growth_append_result_and_empty (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_shared_mutation_growth_append_result_and_empty) ... ok
+test_nested_receiver_before_consuming_index (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_nested_receiver_before_consuming_index) ... ok
+test_constructor_order_and_returned_aliases (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_constructor_order_and_returned_aliases) ... ok
+test_builtin_identity_initializer_and_declared_function (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_builtin_identity_initializer_and_declared_function) ... ok
+test_mutation_refusals_and_void_results (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_mutation_refusals_and_void_results) ... ok
+test_dynamic_set_bounds_and_prepared_failure_cleanup (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_dynamic_set_bounds_and_prepared_failure_cleanup) ... ok
+test_original_complete_prefix_and_all_routes (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_original_complete_prefix_and_all_routes) ... ok
+test_integer_boundaries_and_boolean_range (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_integer_boundaries_and_boolean_range) ... ok
+test_prepared_roots_nested_returns_alias_and_empty (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_prepared_roots_nested_returns_alias_and_empty) ... ok
+test_optional_operands_and_failure_cleanup (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_optional_operands_and_failure_cleanup) ... ok
+test_exact_type_lexical_and_shadow_refusals (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_exact_type_lexical_and_shadow_refusals) ... ok
+test_unchanged_samples_string_scalar_and_borrow_profiles (tests.test_source_owned_float_array_mutation.SourceOwnedFloatArrayMutation.test_unchanged_samples_string_scalar_and_borrow_profiles) ... ok
+I retain mixed source fixtures at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-source-borrows-z4vucv17
+
+----------------------------------------------------------------------
+Ran 12 tests in 583.475s
+
+OK
+{"pin": "9f7ead937f983e6441f113488534835a046b2781", "phase": "mutation", "success": true, "testsRun": 12, "errors": 0, "failures": 0, "seconds": 584.6641542499419, "sources_unchanged": true, "head_unchanged": true}

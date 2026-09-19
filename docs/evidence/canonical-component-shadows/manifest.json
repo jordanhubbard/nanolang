@@ -1,0 +1,218 @@
+{
+  "head": "4cbffa9e36eb9340fc6b12238e601ffbd06d9878",
+  "production": "e9a5f55f9b82b3de8c03b3df240665865fd25e5c",
+  "source_clean_before": true,
+  "steps": [
+    {
+      "name": "bootstrap",
+      "args": [
+        "make",
+        "-j8",
+        "bootstrap"
+      ],
+      "limit": 1800,
+      "status": 0,
+      "seconds": 200.466,
+      "log": "/tmp/nanolang-canonical-component-shadows/bootstrap.log",
+      "sha256": "35f90760d4bb2e80f8ccb3e7af9d2109b2468d3502093ae098679b447062f472"
+    },
+    {
+      "name": "tools",
+      "args": [
+        "make",
+        "-j8",
+        "nano_vm",
+        "nanoisa_dump"
+      ],
+      "limit": 1800,
+      "status": 0,
+      "seconds": 0.315,
+      "log": "/tmp/nanolang-canonical-component-shadows/tools.log",
+      "sha256": "a3d8d29e7240377c1e2aa2b0d94e4e1f9910dda5969c3ac91fccc184097e6e99"
+    },
+    {
+      "name": "parser-compile",
+      "args": [
+        "/home/jkh/Src/nanolang-canonical-component-shadows/bin/nanoc_stage2",
+        "/home/jkh/Src/nanolang-canonical-component-shadows/src_nano/parser_driver.nano",
+        "--emit-nvm",
+        "--test-imports",
+        "--verbose",
+        "-o",
+        "/tmp/nanolang-canonical-component-shadows/parser.nvm"
+      ],
+      "limit": 1200,
+      "status": 0,
+      "seconds": 119.839,
+      "log": "/tmp/nanolang-canonical-component-shadows/parser-compile.log",
+      "sha256": "e84acdc05d9e07a00e4478e411cdaa0b3f08c836f197161efa9f13725e660e75"
+    },
+    {
+      "name": "parser-shadow-dump",
+      "args": [
+        "/home/jkh/Src/nanolang-canonical-component-shadows/bin/nanoisa",
+        "dump",
+        "/tmp/nanolang-canonical-component-shadows/parser-shadows.nvm"
+      ],
+      "limit": 60,
+      "status": 0,
+      "seconds": 0.114,
+      "log": "/tmp/nanolang-canonical-component-shadows/parser-shadow-dump.log",
+      "sha256": "2a5d6ffc86da24ce6fa09919e7b21c63b22980d19d917bc943bb78279eebe6d0"
+    },
+    {
+      "name": "parser-entry",
+      "args": [
+        "/home/jkh/Src/nanolang-canonical-component-shadows/bin/nano_vm",
+        "/tmp/nanolang-canonical-component-shadows/parser.nvm"
+      ],
+      "limit": 60,
+      "status": 0,
+      "seconds": 0.016,
+      "log": "/tmp/nanolang-canonical-component-shadows/parser-entry.log",
+      "sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed"
+    },
+    {
+      "name": "typecheck-compile",
+      "args": [
+        "/home/jkh/Src/nanolang-canonical-component-shadows/bin/nanoc_stage2",
+        "/home/jkh/Src/nanolang-canonical-component-shadows/src_nano/typecheck_driver.nano",
+        "--emit-nvm",
+        "--test-imports",
+        "--verbose",
+        "-o",
+        "/tmp/nanolang-canonical-component-shadows/typecheck.nvm"
+      ],
+      "limit": 1200,
+      "status": 0,
+      "seconds": 467.167,
+      "log": "/tmp/nanolang-canonical-component-shadows/typecheck-compile.log",
+      "sha256": "82a600c00baf69fcda1eb69729b2989160b099a9a8629b0cd845ce04382f5cb6"
+    },
+    {
+      "name": "typecheck-shadow-dump",
+      "args": [
+        "/home/jkh/Src/nanolang-canonical-component-shadows/bin/nanoisa",
+        "dump",
+        "/tmp/nanolang-canonical-component-shadows/typecheck-shadows.nvm"
+      ],
+      "limit": 60,
+      "status": 0,
+      "seconds": 0.316,
+      "log": "/tmp/nanolang-canonical-component-shadows/typecheck-shadow-dump.log",
+      "sha256": "16a868b20b684d8ecf04009a62838bfcfe89dcd6cec5bbd1ff5962489ffa6feb"
+    },
+    {
+      "name": "typecheck-entry",
+      "args": [
+        "/home/jkh/Src/nanolang-canonical-component-shadows/bin/nano_vm",
+        "/tmp/nanolang-canonical-component-shadows/typecheck.nvm"
+      ],
+      "limit": 60,
+      "status": 0,
+      "seconds": 0.114,
+      "log": "/tmp/nanolang-canonical-component-shadows/typecheck-entry.log",
+      "sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5"
+    },
+    {
+      "name": "transpiler-compile",
+      "args": [
+        "/home/jkh/Src/nanolang-canonical-component-shadows/bin/nanoc_stage2",
+        "/home/jkh/Src/nanolang-canonical-component-shadows/src_nano/transpiler_driver.nano",
+        "--emit-nvm",
+        "--test-imports",
+        "--verbose",
+        "-o",
+        "/tmp/nanolang-canonical-component-shadows/transpiler.nvm"
+      ],
+      "limit": 1200,
+      "status": 0,
+      "seconds": 469.682,
+      "log": "/tmp/nanolang-canonical-component-shadows/transpiler-compile.log",
+      "sha256": "850dc13970beef5f9b9ae33d666424bdcb5a485e86830d136d6c9480773e7fe2"
+    },
+    {
+      "name": "transpiler-shadow-dump",
+      "args": [
+        "/home/jkh/Src/nanolang-canonical-component-shadows/bin/nanoisa",
+        "dump",
+        "/tmp/nanolang-canonical-component-shadows/transpiler-shadows.nvm"
+      ],
+      "limit": 60,
+      "status": 0,
+      "seconds": 0.264,
+      "log": "/tmp/nanolang-canonical-component-shadows/transpiler-shadow-dump.log",
+      "sha256": "5bededc6376964025a4e594bc05d55b4c158b730a7a17974ed1de4eba3f9c975"
+    },
+    {
+      "name": "transpiler-entry",
+      "args": [
+        "/home/jkh/Src/nanolang-canonical-component-shadows/bin/nano_vm",
+        "/tmp/nanolang-canonical-component-shadows/transpiler.nvm"
+      ],
+      "limit": 60,
+      "status": 0,
+      "seconds": 0.064,
+      "log": "/tmp/nanolang-canonical-component-shadows/transpiler-entry.log",
+      "sha256": "9847e7915b73a3b369a835d776b3b2c3bf670c88a6da376b6983955b56b6fd58"
+    }
+  ],
+  "tools_before": {
+    "bin/nanoc_c": "245a2aa9f359d02b95562072edf1122951da7ef85c1c796213ee57d96a7990a9",
+    "bin/nanoc_stage1": "6baee613690b911cdf50be2006767ac92835cc0a24f3b205b6582a08a63d4af8",
+    "bin/nanoc_stage2": "82243f0fa7c8c04ce1330170e598a9c1d09acd70bb77d70ae792551a7f0477f2",
+    "bin/nano_vm": "90619afe8cf9a8d8e2a27e883d8d2b6c2ff10e2a3d063896390e835ce6afcf3f",
+    "bin/nanoisa": "bd324880f28cd3df61d1dabcd02e910910a334871e4f4c07ccd687acb2a935ef"
+  },
+  "hook_sha256": "4749c61710428afe5d9ad9c6d15abb5b706609ccb9020cd1f2365f26bcbdedfe",
+  "sources": {
+    "src_nano/parser_driver.nano": "f5b4d222d33733d52d252a0a652261bfb2599e84f5617364621158436c010ea5",
+    "src_nano/typecheck_driver.nano": "49bc5dfae3814680dee5fd484e541cbdedea944e1931bdefe53acb5608bf26d0",
+    "src_nano/transpiler_driver.nano": "bb62116e039ae2d4eb4091f4f008d789819de26d57b33d674403139ef7524163"
+  },
+  "shadow_reports": {
+    "parser": {
+      "arguments": [
+        "--check-shadows",
+        "/tmp/nano_bytecode_shadows_WseSaP/shadows.nvm"
+      ],
+      "module_sha256": "8c75419d272d4e814eb8425ff7969e7a7b2e482a28003cb187c296b9da9959d1",
+      "vm_status": 0,
+      "seconds": 0.225
+    },
+    "typecheck": {
+      "arguments": [
+        "--check-shadows",
+        "/tmp/nano_bytecode_shadows_iNiXw9/shadows.nvm"
+      ],
+      "module_sha256": "6828cb4e140773c20a858dd144ce90b6b393dba8e4f25bbb4b49c56534294e66",
+      "vm_status": 0,
+      "seconds": 0.853
+    },
+    "transpiler": {
+      "arguments": [
+        "--check-shadows",
+        "/tmp/nano_bytecode_shadows_a7IMUZ/shadows.nvm"
+      ],
+      "module_sha256": "65bbfbe3a2b6c307a25151c5abdab710224a56b6f21c5109720b395a78587bc2",
+      "vm_status": 0,
+      "seconds": 0.789
+    }
+  },
+  "outputs": {
+    "parser": "6daf75ecf271b8f3d8f0af5eecc2fa9acccaf264f6ab745ee45cb7638fd0a4ae",
+    "typecheck": "8e0b2318c75e821a196f096c2bd228a37ace160f826e5eaa29222b69aa33cfb4",
+    "transpiler": "4cf3a1e7d8a2047f825d397dd17abd72003c5674fff03aad78c929ee47968414"
+  },
+  "complete": true,
+  "head_unchanged": true,
+  "source_clean_after": true,
+  "tools_after": {
+    "bin/nanoc_c": "245a2aa9f359d02b95562072edf1122951da7ef85c1c796213ee57d96a7990a9",
+    "bin/nanoc_stage1": "6baee613690b911cdf50be2006767ac92835cc0a24f3b205b6582a08a63d4af8",
+    "bin/nanoc_stage2": "82243f0fa7c8c04ce1330170e598a9c1d09acd70bb77d70ae792551a7f0477f2",
+    "bin/nano_vm": "90619afe8cf9a8d8e2a27e883d8d2b6c2ff10e2a3d063896390e835ce6afcf3f",
+    "bin/nanoisa": "bd324880f28cd3df61d1dabcd02e910910a334871e4f4c07ccd687acb2a935ef"
+  },
+  "tools_unchanged": true
+}

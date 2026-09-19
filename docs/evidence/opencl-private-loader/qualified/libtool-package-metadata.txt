@@ -1,0 +1,31 @@
+Package: libtool
+Architecture: all
+Version: 2.4.7-7build1
+Multi-Arch: foreign
+Priority: optional
+Section: devel
+Origin: Ubuntu
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Original-Maintainer: Alastair McKinstry <mckinstry@debian.org>
+Bugs: https://bugs.launchpad.net/ubuntu/+filebug
+Installed-Size: 1213
+Depends: gcc | c-compiler, cpp, libc6-dev | libc-dev, file, autotools-dev
+Recommends: libltdl-dev
+Suggests: libtool-doc, autoconf, automaken, gfortran | fortran95-compiler, gcj-jdk
+Filename: pool/main/libt/libtool/libtool_2.4.7-7build1_all.deb
+Size: 166404
+MD5sum: d328f753bf090819e7c6896743acf027
+SHA1: 87918238aa357498b775c2373b8211e9a61da7a3
+SHA256: 9d1d707179675d38e024bb13613b1d99e0d33fa6c45e5f3bcba19340781781d3
+SHA512: 52b4057450b84c3da639026f947e44d57e561e5f631f4f92b3f2e4ac81b3963debbec2d6bcc472c61ca5b68cfc7799e08542bd515a8a94b465e93745d2c0dc86
+Homepage: https://www.gnu.org/software/libtool/
+Description-en: Generic library support script
+ This is GNU libtool, a generic library support script.  Libtool hides
+ the complexity of generating special library types (such as shared
+ libraries) behind a consistent interface.  To use libtool, add the
+ new generic library building commands to your Makefile, Makefile.in,
+ or Makefile.am.  See the documentation for details.  Libtool supports
+ building static libraries on all platforms.
+ .
+ Libtool supports generation of C, C++, Fortran and Java libraries.
+Description-md5: 40ea3da4a4ea75419ad95742898b3e52

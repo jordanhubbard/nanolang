@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-declared-push-9f7-darwin-lookup/eval-overlay.mk",
+    "CC=/usr/bin/clang",
+    "eval-overlay"
+  ],
+  "status": 0,
+  "seconds": 1.4599837079877034
+}

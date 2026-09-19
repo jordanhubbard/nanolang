@@ -1,0 +1,61 @@
+{
+  "pin": "856620f83f44c9e4426b0fa77491705b61b9c602",
+  "platform": "linux",
+  "steps": [
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "-j4",
+        "test-file-nominal"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 4.836,
+      "log_sha256": "be184e5f24f1bfba019185a2880f224dc74a783a9d353d3a8340f89953b3228e"
+    },
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "test-file-nominal-sanitizers"
+      ],
+      "env": {
+        "NANO_FILE_NOMINAL_CC": "/bin/gcc"
+      },
+      "status": 0,
+      "seconds": 1.651,
+      "log_sha256": "117b62fd5a2d11bfa689d78a3c98b3c627a308d27491ff924d78ff1a2b31eba2"
+    },
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-file-nominal-sanitizers"
+      ],
+      "env": {
+        "NANO_FILE_NOMINAL_CC": "/usr/local/bin/clang",
+        "NANO_FILE_NOMINAL_CFLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 1.509,
+      "log_sha256": "235df4ea76ac98d31490fc41a8a27296203eaa636d8b243747fd05cc4064c063"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-service-bindings",
+        "test-nsi-file-plan"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 1.999,
+      "log_sha256": "468501316b6ca3efa6c12816952488c05b4fd49ed7ef0beff3983f9235f7eabd"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

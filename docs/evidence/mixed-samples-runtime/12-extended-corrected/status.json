@@ -1,0 +1,28 @@
+{
+  "gcc": {
+    "command": [
+      "make",
+      "test-mixed-samples-runtime"
+    ],
+    "status": 0,
+    "seconds": 33.89872701797867
+  },
+  "heap-admission": {
+    "command": [
+      "make",
+      "test-mixed-samples-runtime-alloc",
+      "test-mixed-samples-admission"
+    ],
+    "status": 0,
+    "seconds": 1.3673013650113717
+  },
+  "query": {
+    "command": [
+      "make",
+      "test-mixed-samples",
+      "test-mixed-float-proof"
+    ],
+    "status": 0,
+    "seconds": 1.5674295360222459
+  }
+}

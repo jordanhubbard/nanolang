@@ -1,0 +1,518 @@
+{
+  "/home/jkh/Src/nanolang-file-nominal-corrected-qualified/bin/nvm2c": {
+    "sha256": "c6fa17e93f60ff7b34c71e6ef99b9ad5337cda903663bd61088c8fdb42003318",
+    "bytes": 2342744
+  },
+  "/home/jkh/Src/nanolang-file-nominal-corrected-qualified/bin/nanoisa_hl_facts": {
+    "sha256": "8e8d9ea61b9162d7b5e5f2d012de2ac85482458fef1c587f8e851ad8a944db1f",
+    "bytes": 2348880
+  },
+  "/home/jkh/Src/nanolang-file-nominal-corrected-qualified/bin/nano_vm": {
+    "sha256": "c609c11f3531fb4f17ba95a2954b147d906984ddec4ff9e66a5c6f9ecfb1a91d",
+    "bytes": 17599072
+  },
+  "/home/jkh/Src/nanolang-file-nominal-corrected-qualified/bin/nano_virt": {
+    "sha256": "0cc666cb414e768456d1b50ae3e62c3558622cc620153ace3e9c57b90e736e8e",
+    "bytes": 18199888
+  },
+  "/home/jkh/Src/nanolang-file-nominal-corrected-qualified/bin/nano_as_capture.so": {
+    "sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "bytes": 72080
+  },
+  "/home/jkh/Src/nanolang-file-nominal-corrected-qualified/bin/nvm2hl": {
+    "sha256": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+    "bytes": 2158
+  },
+  "/home/jkh/Src/nanolang-file-nominal-corrected-qualified/bin/nvm2llvm": {
+    "sha256": "01fc065758141b6974c2583f5521472b296e74f9cbc2b826be9ea7dd4c65d6f2",
+    "bytes": 3625928
+  },
+  "/home/jkh/Src/nanolang-file-nominal-corrected-qualified/obj/test_file_nominal_linked": {
+    "sha256": "eda8e56b6e345c66c8ff87749565e8400300351722d57eb61ad7fb21b0fe8f9c",
+    "bytes": 2379392
+  },
+  "/home/jkh/Src/nanolang-file-nominal-corrected-qualified/obj/test_file_nominal_instrumented": {
+    "sha256": "9c763d7087b7b84ea3edee5e81e2a311a4a3b931f3784d97d38e8ca8d762cae2",
+    "bytes": 2377176
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked.nvm": {
+    "sha256": "8ff0431bcdf1d0140d16975a5d5b79d4f956868c96926de08573d8153e92ba26",
+    "bytes": 2532
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-service_file_nominal_plan-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-run.log": {
+    "sha256": "b07fd21df613bee863cb2cab168b0de3e0684342724c8116bfe80d0a4024853c",
+    "bytes": 64
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-native-c-command.txt": {
+    "sha256": "c4783685c33ff5bc4723b0822302c0647a500b0a1c12409cdc8700ef5625d087",
+    "bytes": 183
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-nvm_format.o": {
+    "sha256": "1bc2516382ec712375fd7f5110582426a0a0018d319e5069ad4f60db73cd202c",
+    "bytes": 589496
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-service_file_nominal_plan-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-run-command.txt": {
+    "sha256": "49f0ada7f8cd66df613801fa7a5e00c681ccb281931a532e62b0d17bf598fb28",
+    "bytes": 87
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-facts-command.txt": {
+    "sha256": "52a0b7a37cfcc3abf4a3b967dd7015933c37576cdff03053fcb30beae8f7b0df",
+    "bytes": 130
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-run-command.txt": {
+    "sha256": "1947c17400351a6f8e7823d6c41cb854a7b685092a6101cd87e9a69fcd946d65",
+    "bytes": 83
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-service_bindings_module-compile-command.txt": {
+    "sha256": "88e005d6c2dd39c715a03195cd6ddc1ccbe7d38b8a42f07a16159b27c3a51766",
+    "bytes": 413
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation.nvm": {
+    "sha256": "8ff0431bcdf1d0140d16975a5d5b79d4f956868c96926de08573d8153e92ba26",
+    "bytes": 2532
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-nvm_format-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-recover-c.log": {
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "bytes": 117
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-service_file_nominal_plan-compile-command.txt": {
+    "sha256": "a9a66b1846104fb8d552a5360a9b3f9a9fdf6100fe18e97c9fdab4fbe8a1b522",
+    "bytes": 279
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-build-command.txt": {
+    "sha256": "54662de6169a9d77c4d2ec73de6f4e98cde79a227ff42b417936f0f8a35b8019",
+    "bytes": 4057
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-retained_layouts-compile-command.txt": {
+    "sha256": "34c6aee8bc293decc144b0cdefd2ccde7a2db910f991c526c89c07555f11f9ba",
+    "bytes": 399
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-service_bindings_module-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-nvm_v2_layouts.o": {
+    "sha256": "1733fcf70daed337284d35ea0051939ddceba9609d46e0a8ef5cdedd50b3ed7a",
+    "bytes": 118776
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-nvm_v2_convert.o": {
+    "sha256": "4efe8daf3247abff157189b4f07df16a29446aa0c26900854ddeae87d0dee64b",
+    "bytes": 401464
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-retained_layouts.o": {
+    "sha256": "a8dbfff95ded4f48d60c9b31a89d0139fb3e877d58fffe0f39f4777f8af2fa0e",
+    "bytes": 1233352
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-nvm_format.o": {
+    "sha256": "de8d5028082b4a2285780772cfccd8cb68f124d59e8ec59bcf5b24f33f570bda",
+    "bytes": 586408
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-recover-c-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-facts-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-native-c.log": {
+    "sha256": "450ef29315a995008111e2b84b3005c0773cce9f47414521729e651c37b4e849",
+    "bytes": 153
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-nvm_v2_layouts.o": {
+    "sha256": "1754a9025472f0aa7cfe8f5cae9420573fa32b78c664c9457f47d260cf68f965",
+    "bytes": 119352
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-recover-nano.log": {
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "bytes": 117
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-nvm_v2_layouts-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-service_file_nominal_plan.o": {
+    "sha256": "f8a72e7f0cedef55a7537d36483ba838eb1705449e97f549c950985b80247e86",
+    "bytes": 157016
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-native-c-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-service_file_nominal_plan-compile-command.txt": {
+    "sha256": "e69e52a156577fe24840a4c097912b5186faa6dd7c58e63a2baee54c3b84f92d",
+    "bytes": 417
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-nvm_format-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-wasm.log": {
+    "sha256": "0205a1a6dce336a5a507ea2b7b154eb25883c5b7638d7f69820214715731e6c1",
+    "bytes": 179
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-facts.log": {
+    "sha256": "3cc014e6160d1c6c97d54ffd69182dc2c0f72b464df3bd4bd42e057814a60d81",
+    "bytes": 78
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-nvm_v2_convert-compile-command.txt": {
+    "sha256": "13e4fb268753c197c860ea0b10d0237da58372d08ae2be82ac4d84ff93eab8af",
+    "bytes": 395
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-wasm-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-llvm-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-nvm_v2_layouts-compile-command.txt": {
+    "sha256": "a3f36e6641b69a0616d111a6d876f6c96369619cf77613cc1a7cc21911d5c35e",
+    "bytes": 257
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-service_bindings_module.o": {
+    "sha256": "ab8649808530fc159e9a06a928240bc713325ea43cb89dbc2c468c684479bb20",
+    "bytes": 246392
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-nvm_v2_layouts-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-retained_layouts.o": {
+    "sha256": "c5ed60c0efcd52aecee0380cebc1961d50cd853df1348de2097b82b5c140d9e3",
+    "bytes": 1232736
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-retained_layouts-compile-command.txt": {
+    "sha256": "9977fa51fb276fded74868a3772b12bb3c14755b53a046d8d0403c894879780a",
+    "bytes": 261
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-recover-nano-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-retained_layouts-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-nvm_format-compile-command.txt": {
+    "sha256": "4e3ac3f93834b40c10a7953d7bbcda4979af257c76ec76680f817397a8266bd3",
+    "bytes": 249
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-retained_layouts-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-service_bindings_module-compile-command.txt": {
+    "sha256": "ae1d8c25b43121bd71d9f72689a213a76f10cf1e7fdf338e054e2c0a187f8fa2",
+    "bytes": 275
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-service_bindings_module.o": {
+    "sha256": "aeebe4fcb0771c73393df91b7790f1f81979bd8009d4553abeecb8ad521ec9f7",
+    "bytes": 248200
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-wasm-command.txt": {
+    "sha256": "586d15b07b32bedc2d4b301c68f28e13e30742f60cf50a124eb549543b54bdc8",
+    "bytes": 141
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-recover-c-command.txt": {
+    "sha256": "df5e482eea56cdf537ce33332d77189270b156c517de1f9c7c9f2cb0a1d5a3fd",
+    "bytes": 157
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-nvm_format-compile-command.txt": {
+    "sha256": "33caaedd2af3bc5a4523086893b86e0faa1b60026f68ed15be489d9fe38a6f81",
+    "bytes": 387
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-llvm-command.txt": {
+    "sha256": "c80edad74eb55d926565ae898a9d91e23ab3c1205391ec639c5b23f53e84fc76",
+    "bytes": 182
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked": {
+    "sha256": "1cc94d3dcd2711ae198ac40e01af5f5e68703cc34586a1bda294d0fc927ed366",
+    "bytes": 20797520
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-service_file_nominal_plan.o": {
+    "sha256": "de9a097197f57379dfa18597c68eacaf15eaf1ce5e386d256e438ef38bf638e9",
+    "bytes": 157864
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-build-command.txt": {
+    "sha256": "bc3214974923f26c78521c836c2b306c3c4e1e0d8a2a002bf452b580780e797e",
+    "bytes": 4106
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-recover-nano-command.txt": {
+    "sha256": "2296e876bf99b6f57d8a9fbaceb8e8a3f28f7b047d455c86aec7f8a9d05270b9",
+    "bytes": 163
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-service_bindings_module-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-nvm_v2_convert.o": {
+    "sha256": "b957db4a994bc4aebe91cc1d6e6ecf1e7877037c17725185899bb0b58e1f9784",
+    "bytes": 402624
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-nvm_v2_convert-compile-command.txt": {
+    "sha256": "b7ed5e863751402938e390506bc52ee4385c0a66b3841d115daab86e7b951a3b",
+    "bytes": 257
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-linked-nvm_v2_convert-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-nvm_v2_layouts-compile-command.txt": {
+    "sha256": "6c806f0b0d182a6e52364f1cca8a2c442c44bcbb6b5bf5b6b427dbaa4378ac5b",
+    "bytes": 395
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-nvm_v2_convert-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation": {
+    "sha256": "e8e94baf2d2f21b5941c7bf2f2ccf899de9b896835cd9c49c80815ad04aaa08c",
+    "bytes": 20811456
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-cli-llvm.log": {
+    "sha256": "1f39b4339817a58b0160d1f457dc278fb4034908edd4a6bdfc4da4d58073c554",
+    "bytes": 108
+  },
+  "/tmp/nano-service-module-suqmfvrn/nominal-allocation-run.log": {
+    "sha256": "e647e1dc5300c3de49dc53743e6e4a0d314d5090284229360350f4daf417061f",
+    "bytes": 64
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/instrumented-build-command.txt": {
+    "sha256": "f10a259c9e55dae2ff1fff554b875e98a4b7e02b419559b4265f0332d027ba84",
+    "bytes": 1213
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/linked-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/instrumented-run.log": {
+    "sha256": "0d375ba5690e1c2adddc48dedd5ecd6c76c0e90a6ceba2b59d2fa38c13278d3f",
+    "bytes": 75
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/linked-run.log": {
+    "sha256": "37794b2d8e70de53877be64445d704166220150a47eb2e014ea9149f4e5b2e21",
+    "bytes": 75
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/linked": {
+    "sha256": "7ecbdf59729a6af13a13f362ad9ca12ae2223f22b5558f87ad07b92778c63b9f",
+    "bytes": 2734680
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/linked-run-command.txt": {
+    "sha256": "d7f1f59616c2f1ee2e22cef84680ddae811456d1e83304e2912a56ed02b670e4",
+    "bytes": 39
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/instrumented": {
+    "sha256": "bb0acc40f93356f4431503a97057c79ba02880fb5f6b34e7949211cd3f1302f2",
+    "bytes": 2732008
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/linked-build-command.txt": {
+    "sha256": "2227f12103f0f2d94768c09b7fcf2510cb86587fe4cb5942991b2027bfa7de0f",
+    "bytes": 1226
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/instrumented-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-file-nominal-cu5gi4m2/instrumented-run-command.txt": {
+    "sha256": "561a14acc12476043379e1f11d18d7b4944aaf31900d945363470fb7088c409d",
+    "bytes": 45
+  },
+  "/tmp/nano-service-module-ojaz2an_/facts-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-recover-nano-command.txt": {
+    "sha256": "37e7b47352637fce869bfd49d5aee19b1d1bad744468c541337172c100c769b6",
+    "bytes": 147
+  },
+  "/tmp/nano-service-module-ojaz2an_/nvm_v2_convert-instrumented.o": {
+    "sha256": "b957db4a994bc4aebe91cc1d6e6ecf1e7877037c17725185899bb0b58e1f9784",
+    "bytes": 402624
+  },
+  "/tmp/nano-service-module-ojaz2an_/nvm_v2_convert-compile-command.txt": {
+    "sha256": "618795c495c27d7485f6336621a429c88b94965eefe28801407b451934ef58c3",
+    "bytes": 389
+  },
+  "/tmp/nano-service-module-ojaz2an_/mixed-boundary": {
+    "sha256": "d7e7469d873df735bcf8004f84bc59b0b84fcd9b1b6a96734c105839d0fe0e48",
+    "bytes": 19125040
+  },
+  "/tmp/nano-service-module-ojaz2an_/mixed-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-ojaz2an_/service_bindings_module-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-ojaz2an_/allocation-run.log": {
+    "sha256": "f53a546736bd84eae29d16d24481b634102f282cddd50853f2a1dfc319b57ebd",
+    "bytes": 37
+  },
+  "/tmp/nano-service-module-ojaz2an_/nvm_format-instrumented.o": {
+    "sha256": "1bc2516382ec712375fd7f5110582426a0a0018d319e5069ad4f60db73cd202c",
+    "bytes": 589496
+  },
+  "/tmp/nano-service-module-ojaz2an_/service_bindings_module-instrumented.o": {
+    "sha256": "aeebe4fcb0771c73393df91b7790f1f81979bd8009d4553abeecb8ad521ec9f7",
+    "bytes": 248200
+  },
+  "/tmp/nano-service-module-ojaz2an_/recover-c-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-ojaz2an_/allocation-build-command.txt": {
+    "sha256": "9cf2ba5ed81e68f7cbdd46b21d1ba63a17f7768652bdb9315c9e6e51e9d6dcca",
+    "bytes": 3961
+  },
+  "/tmp/nano-service-module-ojaz2an_/wasm-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-ojaz2an_/mixed-run.log": {
+    "sha256": "69112eba73b40c44d87b02b6ec11a78fb5a5b16ab289e2680f6a35df9fccf2a4",
+    "bytes": 845
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-llvm-command.txt": {
+    "sha256": "321aed265cacd26b2a67e5f0e7a15574ea17a2ac3453398fcc587a5d3f223e5c",
+    "bytes": 166
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-recover-nano.log": {
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "bytes": 117
+  },
+  "/tmp/nano-service-module-ojaz2an_/linked-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-ojaz2an_/allocation.nvm": {
+    "sha256": "e5bdaaed1a05e704c032acc01ee723dd0c3b58b6085d9b3f7fefa9792f32c668",
+    "bytes": 780
+  },
+  "/tmp/nano-service-module-ojaz2an_/linked-run.log": {
+    "sha256": "2efa29d5f3a96029fdc498fbb1041fcb967353b9b151b7302ef262c62f903816",
+    "bytes": 37
+  },
+  "/tmp/nano-service-module-ojaz2an_/nvm_v2_convert-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-ojaz2an_/nvm_format-compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-wasm.log": {
+    "sha256": "0205a1a6dce336a5a507ea2b7b154eb25883c5b7638d7f69820214715731e6c1",
+    "bytes": 179
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-recover-c.log": {
+    "sha256": "78aa1ce87f2ddfca691664eff724ff7d276eddc69b5d3bf43345a9c45cad380b",
+    "bytes": 117
+  },
+  "/tmp/nano-service-module-ojaz2an_/service_bindings_module-compile-command.txt": {
+    "sha256": "117ce119d71e775f0f4a8ab1b144ce8864983cc3542cf0ef31a1ce51b2eaf55a",
+    "bytes": 407
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-llvm.log": {
+    "sha256": "1f39b4339817a58b0160d1f457dc278fb4034908edd4a6bdfc4da4d58073c554",
+    "bytes": 108
+  },
+  "/tmp/nano-service-module-ojaz2an_/mixed-run-command.txt": {
+    "sha256": "78334746cb5a880f818cfbe88c6591a3b8dc0a16e19cf3947701872081a80223",
+    "bytes": 49
+  },
+  "/tmp/nano-service-module-ojaz2an_/recover-nano-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-ojaz2an_/allocation-run-command.txt": {
+    "sha256": "fe82700455741cbaa354f9234ed97c19ee9437ef4df480d524151fb37a760754",
+    "bytes": 79
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-facts-command.txt": {
+    "sha256": "1747558a230984117eb755f5dd064697e79ec4eb605882dde540d351cf220706",
+    "bytes": 122
+  },
+  "/tmp/nano-service-module-ojaz2an_/allocation-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-wasm-command.txt": {
+    "sha256": "f023b252da0d7bc5d02ecd43053ee3e98ff44557d14636f55e49ed6d95b0fd6e",
+    "bytes": 125
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-facts.log": {
+    "sha256": "3cc014e6160d1c6c97d54ffd69182dc2c0f72b464df3bd4bd42e057814a60d81",
+    "bytes": 78
+  },
+  "/tmp/nano-service-module-ojaz2an_/linked.nvm": {
+    "sha256": "e5bdaaed1a05e704c032acc01ee723dd0c3b58b6085d9b3f7fefa9792f32c668",
+    "bytes": 780
+  },
+  "/tmp/nano-service-module-ojaz2an_/mixed-build-command.txt": {
+    "sha256": "e4ac98f2f7e0b73baa61d560cbf7da847afb5ec70617b13d04739243d30286ba",
+    "bytes": 3840
+  },
+  "/tmp/nano-service-module-ojaz2an_/linked": {
+    "sha256": "72bd4a3da9ffcb4f323b044ecebd904c8db0eab2d481295a8a8d94454ae9aea5",
+    "bytes": 19090952
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-native-c-command.txt": {
+    "sha256": "3672d113fc89836864a6dfbbc9995af10e607f003830355a1ccc1e8996818065",
+    "bytes": 167
+  },
+  "/tmp/nano-service-module-ojaz2an_/linked-run-command.txt": {
+    "sha256": "99545e78d29a935d519c9042418af4b1f1b603448b84af7eb7a7f3a5fc93075f",
+    "bytes": 75
+  },
+  "/tmp/nano-service-module-ojaz2an_/linked-build-command.txt": {
+    "sha256": "fb8bc0875fb0c7d4be9f47e54178bce7bf3fda2bfeb07f1b609d164d20914fd7",
+    "bytes": 3831
+  },
+  "/tmp/nano-service-module-ojaz2an_/nvm_format-compile-command.txt": {
+    "sha256": "d8ae898dcf03368eb7ad404c3aaaa3476fbdb7ca953315408f4134c720db3347",
+    "bytes": 381
+  },
+  "/tmp/nano-service-module-ojaz2an_/llvm-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-recover-c-command.txt": {
+    "sha256": "07057b6f8827aca542eaeae7ef8dc94445969a32ef09fb81a76198da569d90c5",
+    "bytes": 141
+  },
+  "/tmp/nano-service-module-ojaz2an_/allocation": {
+    "sha256": "84a65386fd2686eb868f93598f84ec59521f2896d627d1971e64b0f30f529cee",
+    "bytes": 19775192
+  },
+  "/tmp/nano-service-module-ojaz2an_/native-c-preserved": {
+    "sha256": "c981c8afaf6f811fcef54e8ae618fe29af129f90ba1812b91f039409720bf669",
+    "bytes": 13
+  },
+  "/tmp/nano-service-module-ojaz2an_/cli-native-c.log": {
+    "sha256": "85d1e8f4460a6018c25f1555921f57d4d879733eaf91ee7bba9f6b7b9555a2d2",
+    "bytes": 145
+  }
+}

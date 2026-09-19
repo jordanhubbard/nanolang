@@ -1,0 +1,23 @@
+captured_utc=2026-09-18T13:47:47Z
+source=25a685adfb4f9bf32c68c9e6de04eb0298673c45
+tree=93b51b7b9cafe70a8dc7acd936462de1744b77c9
+explicit_PATH=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin:/opt/homebrew/bin:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/VMware Fusion.app/Contents/Public:/opt/homebrew/bin:/Users/jordanh/.codex/tmp/arg0/codex-arg0gMdlrY:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jordanh/Library/pnpm:/opt/homebrew/sbin:/Applications/Docker.app/Contents/Resources/bin:/Users/jordanh/.cargo/bin:/Users/jordanh/.local/bin:/Users/jordanh/Bin:.
+selected_opt=MISSING
+system_opt=MISSING
+xcrun_opt=xcrun: error: sh -c '/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -find opt 2> /dev/null' failed with exit code 17664: (null) (errno=Invalid argument)
+xcrun: error: unable to find utility "opt", not a developer tool or in PATH
+brew_llvm=llvm 23.1.1
+existing_opt=/opt/homebrew/opt/llvm/bin/opt
+Homebrew LLVM version 23.1.1
+  Optimized build.
+  Default target: arm64-apple-darwin25.6.0
+b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b  /opt/homebrew/opt/llvm/bin/opt
+absent_opt=/opt/homebrew/bin/opt
+absent_opt=/usr/local/bin/opt
+absent_opt=/usr/bin/opt
+requested_binaries_after_failed_build:
+ABSENT bin/nano_vm
+ABSENT bin/nvm2c
+ABSENT bin/nvm2wasm
+ABSENT bin/nanoisa_dump
+git_status_porcelain:

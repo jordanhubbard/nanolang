@@ -1,0 +1,11 @@
+{
+  "name": "psych-dynamic-libraries",
+  "argv": [
+    "/usr/bin/ldd",
+    "/tmp/nanolang-opencl-private-7f0/psych/psych.so"
+  ],
+  "cwd": "/tmp/nanolang-opencl-private-7f0/psych",
+  "exit_code": 0,
+  "seconds": 0.007791529002133757,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}

@@ -1,0 +1,7 @@
+{
+  "reviewed_commit": "099bab27a4907d99021ee9ffcbe51c7a3c38a65d",
+  "current": {
+    "src/nsi_file_values.c": "9b7d03d6da518df820b0323fd6f86104d9a6202cc14285b9e0b5179f9f7e8e5e",
+    "src/nsi_file_values.h": "4e7d2b73ba9cac9e2fe513eb8c44e26b91f17c13c69ead44c5f16ad614ba7409"
+  }
+}

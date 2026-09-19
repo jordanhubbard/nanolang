@@ -1,0 +1,10 @@
+{
+  "name": "clang-sanitizer-run",
+  "argv": [
+    "/tmp/nanolang-opencl-private-7f0/clang-sanitizer"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+  "exit_code": 0,
+  "seconds": 0.41461529897060245,
+  "LD_LIBRARY_PATH": "/tmp/nanolang-opencl-private-7f0/install/lib"
+}

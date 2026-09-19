@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nano_virt",
+    "/tmp/nano-owned-pattern-784xxz0w/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-784xxz0w/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "audit.log\nresource closed\nresource closed\naudit.log\nresource closed\n"
+}

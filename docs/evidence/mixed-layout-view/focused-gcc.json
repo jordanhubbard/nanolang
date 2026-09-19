@@ -1,0 +1,10 @@
+{
+  "pin": "1e2df4851855a5bcc50d5703f5e8b83034d986e3",
+  "command": [
+    "make",
+    "-j2",
+    "test-mixed-layout-view"
+  ],
+  "status": 0,
+  "seconds": 4.876658675028011
+}

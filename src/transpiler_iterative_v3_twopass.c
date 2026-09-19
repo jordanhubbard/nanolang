@@ -113,6 +113,33 @@ static const char *match_union_c_name(ASTNode *match, Environment *env, char *bu
     return base;
 }
 
+static bool match_uses_checked_int_domain(ASTNode *match) {
+    if (!match || !match->as.match_expr.scrutinee_type_checked) {
+        fprintf(stderr,
+                "I require a checked match scrutinee domain before native lowering at line %d.\n",
+                match ? match->line : 0);
+        exit(1);
+    }
+
+    if (match->as.match_expr.checked_scrutinee_type == TYPE_INT) return true;
+    if (match->as.match_expr.checked_scrutinee_type == TYPE_UNION) return false;
+
+    fprintf(stderr,
+            "I require an int or known union match scrutinee before native lowering at line %d.\n",
+            match->line);
+    exit(1);
+}
+
+static const char *checked_match_union_name(ASTNode *match) {
+    const char *name = match ? match->as.match_expr.union_type_name : NULL;
+    if (name && name[0] != '\0') return name;
+
+    fprintf(stderr,
+            "I lost the checked union identity before native lowering at line %d.\n",
+            match ? match->line : 0);
+    exit(1);
+}
+
 /* ============================================================================
  * WORK ITEM TYPES - Describe what output to generate
  * ============================================================================ */
@@ -531,6 +558,16 @@ static const char *map_function_name(const char *name, Environment *env) {
         name = dot + 1;
     }
     
+    /* I retain the selected declaration instead of its registry spelling. */
+    if (strcmp(name, "array_push") == 0) {
+        Function *selected = env_get_function(env, name);
+        if (selected && selected->body && !selected->is_extern) {
+            extern const char *get_c_func_name_with_module(const char *, const char *, bool);
+            return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
+                                               selected->module_name, false);
+        }
+    }
+
     /* Check unified builtin registry */
     const char *c_name = builtin_c_name(name);
     if (c_name) {
@@ -552,6 +589,15 @@ static const char *map_function_name(const char *name, Environment *env) {
 
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    if (expr->type == AST_CALL && expr->as.call.name &&
+        strcmp(expr->as.call.name, "array_push") == 0 &&
+        !env_array_push_is_builtin(env, expr->line, expr->column)) {
+        check_expression(expr, env);
+        if (expr->as.call.checked_signature)
+            return expr->as.call.checked_signature->return_type_info;
+        Function *selected = env_get_function(env, expr->as.call.name);
+        return selected ? selected->return_type_info : NULL;
+    }
     if (expr->type == AST_FIELD_ACCESS) {
         check_expression(expr, env);
         if (expr->as.field_access.resolved_type_info) return expr->as.field_access.resolved_type_info;
@@ -577,7 +623,8 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_push") &&
-        array_expr->as.call.arg_count == 2)
+        array_expr->as.call.arg_count == 2 &&
+        env_array_push_is_builtin(env, array_expr->line, array_expr->column))
         return infer_array_element_type(array_expr->as.call.args[0], env);
 
     const TypeInfo *info = array_expr_type_info(array_expr, env);
@@ -1215,6 +1262,26 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             int arg_count = expr->as.prefix_op.arg_count;
             
             if (arg_count == 2) {
+                /* I snapshot exact scalar operands in source order, once. */
+                if ((op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR || op == TOKEN_SLASH) &&
+                    check_expression(expr->as.prefix_op.args[0], env) == TYPE_FLOAT &&
+                    check_expression(expr->as.prefix_op.args[1], env) == TYPE_FLOAT) {
+                    char left[80], right[80];
+                    unsigned suffix = 0;
+                    do {
+                        snprintf(left, sizeof left, "nano_rt_f64_left_%u", suffix);
+                        snprintf(right, sizeof right, "nano_rt_f64_right_%u", suffix++);
+                    } while (env_get_var(env, left) || env_get_var(env, right) ||
+                             env_get_function(env, left) || env_get_function(env, right));
+                    emit_formatted(list, "({ double %s = ", left);
+                    build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_formatted(list, "; double %s = ", right);
+                    build_expr(list, expr->as.prefix_op.args[1], env);
+                    emit_formatted(list, "; nano_rt_f64_%s(%s, %s); })",
+                                   op == TOKEN_PLUS ? "add" : op == TOKEN_MINUS ? "sub" :
+                                   op == TOKEN_STAR ? "mul" : "div", left, right);
+                    break;
+                }
                 /* Binary operator */
                 if (op == TOKEN_PLUS || op == TOKEN_MINUS || op == TOKEN_STAR || op == TOKEN_SLASH || op == TOKEN_PERCENT) {
                     Type t1 = check_expression(expr->as.prefix_op.args[0], env);
@@ -1325,7 +1392,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                                         (op == TOKEN_STAR) ? "*" :
                                                         (op == TOKEN_SLASH) ? "/" :
                                                         "%";
-                                    emit_formatted(list, "dyn_array_push_%s(_out, _x %s _y); ", push_suffix, op_str);
+                                    if (elem == TYPE_FLOAT && op != TOKEN_PERCENT) {
+                                        const char *helper = op == TOKEN_PLUS ? "add" : op == TOKEN_MINUS ? "sub" : op == TOKEN_STAR ? "mul" : "div";
+                                        emit_formatted(list, "dyn_array_push_float(_out, nano_rt_f64_%s(_x, _y)); ", helper);
+                                    } else emit_formatted(list, "dyn_array_push_%s(_out, _x %s _y); ", push_suffix, op_str);
                                 }
                                 emit_literal(list, "} _out; })");
                             } else {
@@ -1354,11 +1424,17 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                                 (op == TOKEN_SLASH) ? "/" :
                                                 "%";
 
-                            emit_literal(list, "({ DynArray* _a = ");
-                            build_expr(list, arr_expr, env);
-                            emit_literal(list, "; ");
-                            emit_formatted(list, "%s _s = ", c_type);
-                            build_expr(list, scalar_expr, env);
+                            if (left_is_array) {
+                                emit_literal(list, "({ DynArray* _a = ");
+                                build_expr(list, arr_expr, env);
+                                emit_formatted(list, "; %s _s = ", c_type);
+                                build_expr(list, scalar_expr, env);
+                            } else {
+                                emit_formatted(list, "({ %s _s = ", c_type);
+                                build_expr(list, scalar_expr, env);
+                                emit_literal(list, "; DynArray* _a = ");
+                                build_expr(list, arr_expr, env);
+                            }
                             emit_formatted(list, "; DynArray* _out = dyn_array_new(%s); int64_t _len = dyn_array_length(_a); ", elem_enum);
                             emit_formatted(list, "for (int64_t _i = 0; _i < _len; _i++) { %s _x = dyn_array_get_%s(_a, _i); ", c_type, get_suffix);
                             if (elem == TYPE_STRING) {
@@ -1371,6 +1447,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                 } else {
                                     emit_literal(list, "assert(false && \"string arrays only support +\"); ");
                                 }
+                            } else if (elem == TYPE_FLOAT && op != TOKEN_PERCENT) {
+                                const char *helper = op == TOKEN_PLUS ? "add" : op == TOKEN_MINUS ? "sub" : op == TOKEN_STAR ? "mul" : "div";
+                                emit_formatted(list, "dyn_array_push_float(_out, nano_rt_f64_%s(%s, %s)); ",
+                                               helper, left_is_array ? "_x" : "_s", left_is_array ? "_s" : "_x");
                             } else {
                                 if (left_is_array) {
                                     emit_formatted(list, "dyn_array_push_%s(_out, _x %s _s); ", push_suffix, op_str);
@@ -1381,17 +1461,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             emit_literal(list, "} _out; })");
                         } else {
                             /* Fallback: use runtime helper (asserts element type at runtime) */
-                            emit_literal(list, "({ DynArray* _a = ");
-                            build_expr(list, arr_expr, env);
-                            emit_literal(list, "; ");
                             if (left_is_array) {
-                                emit_formatted(list, "%s(_a, ", fn_scalar ? fn_scalar : "nl_array_add_scalar_int");
+                                emit_literal(list, "({ DynArray* _a = ");
+                                build_expr(list, arr_expr, env);
+                                emit_formatted(list, "; %s(_a, ", fn_scalar ? fn_scalar : "nl_array_add_scalar_int");
                                 build_expr(list, scalar_expr, env);
                                 emit_literal(list, "); })");
                             } else {
-                                emit_formatted(list, "%s(", fn_rscalar ? fn_rscalar : "nl_array_radd_scalar_int");
+                                emit_literal(list, "({ __auto_type _s = ");
                                 build_expr(list, scalar_expr, env);
-                                emit_literal(list, ", _a); })");
+                                emit_literal(list, "; DynArray* _a = ");
+                                build_expr(list, arr_expr, env);
+                                emit_formatted(list, "; %s(_s, _a); })", fn_rscalar ? fn_rscalar : "nl_array_radd_scalar_int");
                             }
                         }
                         break;
@@ -2347,7 +2428,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, "} _arr; })");
             }
             /* Special handling for array_push() and array_pop() - dynamic array operations */
-            else if (strcmp(func_name, "array_push") == 0 && expr->as.call.arg_count == 2) {
+            else if (strcmp(func_name, "array_push") == 0 &&
+                     env_array_push_is_builtin(env, expr->line, expr->column) &&
+                     expr->as.call.arg_count == 2) {
                 Type elem_type = infer_array_element_type(expr->as.call.args[0], env);
                 if (elem_type == TYPE_UNKNOWN)
                     elem_type = check_expression(expr->as.call.args[1], env);
@@ -3057,14 +3140,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         case AST_MATCH: {
             /* Match expression: match opt { Some(s) => s.value, None(n) => 0 } */
 
-            /* Detect int-pattern match: any non-wildcard arm starts with "INT:" */
-            int is_int_match_expr = 0;
-            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
-                if (strncmp(expr->as.match_expr.pattern_variants[i], "INT:", 4) == 0) {
-                    is_int_match_expr = 1;
-                    break;
-                }
-            }
+            /* The checker decides the exact match domain. In particular, a
+             * wildcard-only int match has no INT: arm from which to infer it. */
+            bool is_int_match_expr = match_uses_checked_int_domain(expr);
 
             /* Detect if any arm has a guard — if so, use if-else chain instead of switch */
             int has_any_guard_expr = 0;
@@ -3077,12 +3155,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
 
-            const char *union_c_name = expr->as.match_expr.union_type_name;
-            if (!union_c_name && !is_int_match_expr) {
-                emit_literal(list, "/* match: unknown union type */0");
-                break;
-            }
-            if (!union_c_name) union_c_name = "";  /* safe fallback for int-match */
+            const char *union_c_name = is_int_match_expr
+                ? "" : checked_match_union_name(expr);
 
             /* Look up union definition to check variant field counts.
              * For generic unions, union_c_name is monomorphized; use the base name for lookup. */
@@ -3517,15 +3591,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, ";\n");
             break;
         case AST_MATCH: {
-            /* Detect int-pattern match first (before union_c_name check) */
-            int is_int_match_stmt = 0;
-            for (int _pi = 0; _pi < stmt->as.match_expr.arm_count; _pi++) {
-                if (stmt->as.match_expr.pattern_variants[_pi] &&
-                    strncmp(stmt->as.match_expr.pattern_variants[_pi], "INT:", 4) == 0) {
-                    is_int_match_stmt = 1;
-                    break;
-                }
-            }
+            /* Use the checked domain rather than reconstructing it from arms.
+             * This preserves wildcard-only integer matches. */
+            bool is_int_match_stmt = match_uses_checked_int_domain(stmt);
 
             /* Detect if any arm has a guard — if so, use if-else chain instead of switch */
             int has_any_guard_stmt = 0;
@@ -3538,13 +3606,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
             }
 
-            const char *union_c_name = stmt->as.match_expr.union_type_name;
-            if (!union_c_name && !is_int_match_stmt) {
-                emit_indent_item(list, indent);
-                emit_literal(list, "/* match: unknown union type */;\n");
-                break;
-            }
-            if (!union_c_name) union_c_name = "";  /* safe fallback for int-match */
+            const char *union_c_name = is_int_match_stmt
+                ? "" : checked_match_union_name(stmt);
 
             /* For generic unions, typechecker stores the monomorphized name (e.g. Result_int_string).
              * We still need the base name (e.g. Result) to look up the union definition. */

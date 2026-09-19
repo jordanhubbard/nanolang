@@ -1,0 +1,29 @@
+started_utc=2026-09-18T13:46:14Z
+venv=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW
+command=/usr/local/bin/python3 -m venv /private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW
+command=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin/python -m pip install wasmtime
+Collecting wasmtime
+  Downloading wasmtime-48.0.0-py3-none-macosx_11_0_arm64.whl.metadata (5.1 kB)
+Downloading wasmtime-48.0.0-py3-none-macosx_11_0_arm64.whl (8.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.3/8.3 MB 10.7 MB/s  0:00:01
+Installing collected packages: wasmtime
+Successfully installed wasmtime-48.0.0
+
+[notice] A new release of pip is available: 26.1.2 -> 26.2.1
+[notice] To update, run: /private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin/python -m pip install --upgrade pip
+python=Python 3.14.6
+Name: wasmtime
+Version: 48.0.0
+Summary: A WebAssembly runtime powered by Wasmtime
+Home-page: https://github.com/bytecodealliance/wasmtime-py
+Author: 
+Author-email: The Wasmtime Project Developers <hello@bytecodealliance.org>
+License-Expression: Apache-2.0 WITH LLVM-exception
+Location: /private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/lib/python3.14/site-packages
+Requires: 
+Required-by: 
+wasmtime_distribution=48.0.0
+wasmtime_module=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/lib/python3.14/site-packages/wasmtime/__init__.py
+venv_install_command_exit=0
+finished_utc=2026-09-18T13:46:22Z
+elapsed_seconds=7.310967

@@ -1,0 +1,50 @@
+[
+  {
+    "count": 6914,
+    "equal": true,
+    "kind": "source",
+    "scope": "linux-body"
+  },
+  {
+    "count": 9,
+    "equal": true,
+    "kind": "tools",
+    "scope": "linux-body"
+  },
+  {
+    "count": 6914,
+    "equal": true,
+    "kind": "source",
+    "scope": "linux-provider-closure"
+  },
+  {
+    "count": 9,
+    "equal": true,
+    "kind": "tools",
+    "scope": "linux-provider-closure"
+  },
+  {
+    "count": 6895,
+    "equal": true,
+    "kind": "source",
+    "scope": "darwin-body"
+  },
+  {
+    "count": 10,
+    "equal": true,
+    "kind": "tools",
+    "scope": "darwin-body"
+  },
+  {
+    "count": 6895,
+    "equal": true,
+    "kind": "source",
+    "scope": "darwin-provider-closure"
+  },
+  {
+    "count": 10,
+    "equal": true,
+    "kind": "tools",
+    "scope": "darwin-provider-closure"
+  }
+]

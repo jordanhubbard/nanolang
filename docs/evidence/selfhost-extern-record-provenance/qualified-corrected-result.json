@@ -1,0 +1,27 @@
+{
+  "head": "d8460cc1ec95ac1d4957f35dc06d9c3bcd28725a",
+  "commands": [
+    {
+      "name": "direct",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_selfhost_extern_records"
+      ],
+      "status": 0,
+      "seconds": 47.68423102097586
+    },
+    {
+      "name": "ordinary",
+      "command": [
+        "make",
+        "test-ordinary-record-producers"
+      ],
+      "status": 0,
+      "seconds": 187.73609465401387
+    }
+  ],
+  "unchanged": true
+}

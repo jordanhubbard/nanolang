@@ -1,0 +1,18 @@
+fn quotient(value:float)->float { return (/ value 0.0) }
+shadow quotient { assert (== (float_to_bits (quotient 2.0)) 0) }
+fn accumulate(total:float,value:float)->float { return (+ total value) }
+shadow accumulate { assert (== (accumulate 2.0 3.0) 5.0) }
+fn main()->int {
+ let payload:int=9221120237041090602
+ let input:array<float> = [(float_from_bits payload),2.0]
+ let output:array<float> = (map input quotient)
+ assert (== (float_to_bits (at output 0)) 0)
+ assert (== (float_to_bits (at output 1)) 0)
+ assert (== (float_to_bits (reduce input 0.0 accumulate)) 9221120237041090560)
+ let reduced:float=(reduce input 0.0 accumulate)
+ assert (== (float_to_bits reduced) 9221120237041090560)
+ assert (== (float_to_bits (at input 0)) payload)
+ assert (== (float_to_bits (at input 1)) 4611686018427387904)
+ return 0
+}
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,56 @@
+I retain mutation checker artifacts in /tmp/nanolang-mutation-identity-7i1p1jr6
+test_c_reserved_set_policy (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_c_reserved_set_policy) ... ok
+test_declared_local_formal_and_initializer (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_declared_local_formal_and_initializer) ... ok
+test_declared_refusals_preserve_output (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_declared_refusals_preserve_output) ... ok
+test_unbound_mutation (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_unbound_mutation) ... 
+  test_unbound_mutation (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_unbound_mutation) (producer='nanoc_c') ... FAIL
+  test_unbound_mutation (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_unbound_mutation) (producer='nanoc_stage1') ... FAIL
+  test_unbound_mutation (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_unbound_mutation) (producer='nanoc_stage2') ... FAIL
+
+======================================================================
+FAIL: test_unbound_mutation (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_unbound_mutation) (producer='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mutation-builtin-corrected/tests/test_mutation_builtin_identity.py", line 94, in test_unbound_mutation
+    self.command([ROOT/'bin'/name, source, '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mutation-builtin-corrected/tests/test_mutation_builtin_identity.py", line 53, in command
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 2, column 24: Expected '>' after array element type
+Error at line 2, column 24: Expected '=' in let statement (got GE)
+Error at line 3, column 23: Expected '>' after array element type
+Error at line 3, column 23: Expected '=' in let statement (got GE)
+Parsing error
+
+
+======================================================================
+FAIL: test_unbound_mutation (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_unbound_mutation) (producer='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mutation-builtin-corrected/tests/test_mutation_builtin_identity.py", line 94, in test_unbound_mutation
+    self.command([ROOT/'bin'/name, source, '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mutation-builtin-corrected/tests/test_mutation_builtin_identity.py", line 53, in command
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /tmp/nanolang-mutation-identity-7i1p1jr6/unbound.nano:2, column 24: unexpected token ''
+
+
+======================================================================
+FAIL: test_unbound_mutation (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_unbound_mutation) (producer='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mutation-builtin-corrected/tests/test_mutation_builtin_identity.py", line 94, in test_unbound_mutation
+    self.command([ROOT/'bin'/name, source, '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-mutation-builtin-corrected/tests/test_mutation_builtin_identity.py", line 53, in command
+    self.assertEqual(result.returncode, expected, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /tmp/nanolang-mutation-identity-7i1p1jr6/unbound.nano:2, column 24: unexpected token ''
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 97.039s
+
+FAILED (failures=3)

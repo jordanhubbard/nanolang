@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/private/tmp/nanolang-owner-array-mutation-match-916424260/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-fxloc728/case.nano",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-fxloc728/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 1,
+  "stdout": "",
+  "stderr": "I cannot verify affine ownership at line 6, column 31: I cannot partially move a resource field \u2014 file\nWarning: Function 'bad' is missing a shadow test\nerror: type check failed\n"
+}

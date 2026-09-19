@@ -1,0 +1,39 @@
+[
+  {
+    "compiler": "/home/jkh/Src/nanolang-source-owned-temporary-arguments/bin/nanoc_c",
+    "sha256": "23ca7371270a651368f40544c465796aa62fa9d8972ee7619713d75c42e4f8a8",
+    "command": [
+      "/home/jkh/Src/nanolang-source-owned-temporary-arguments/bin/nanoc_c",
+      "/tmp/nanolang-native-slice-baseline-2lkg4g54/slice.nano",
+      "-o",
+      "/tmp/nanolang-native-slice-baseline-2lkg4g54/nanoc_c"
+    ],
+    "status": 0,
+    "seconds": 1.7222306240000762,
+    "execution_status": 0
+  },
+  {
+    "compiler": "/home/jkh/Src/nanolang-source-owned-temporary-arguments/bin/nanoc_stage1",
+    "sha256": "f3e6e0a984973307667b5ff3f2e4bd295dee04c74b7074df9b1391adb1d6ef60",
+    "command": [
+      "/home/jkh/Src/nanolang-source-owned-temporary-arguments/bin/nanoc_stage1",
+      "/tmp/nanolang-native-slice-baseline-2lkg4g54/slice.nano",
+      "-o",
+      "/tmp/nanolang-native-slice-baseline-2lkg4g54/nanoc_stage1"
+    ],
+    "status": 1,
+    "seconds": 1.6318461719783954
+  },
+  {
+    "compiler": "/home/jkh/Src/nanolang-source-owned-temporary-arguments/bin/nanoc_stage2",
+    "sha256": "15c8df69bc6fb96b87b4d18ebfad550b932b23f61faea6987afc9672e55416af",
+    "command": [
+      "/home/jkh/Src/nanolang-source-owned-temporary-arguments/bin/nanoc_stage2",
+      "/tmp/nanolang-native-slice-baseline-2lkg4g54/slice.nano",
+      "-o",
+      "/tmp/nanolang-native-slice-baseline-2lkg4g54/nanoc_stage2"
+    ],
+    "status": 1,
+    "seconds": 1.52127697103424
+  }
+]

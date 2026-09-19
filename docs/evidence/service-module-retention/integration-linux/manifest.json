@@ -1,0 +1,100 @@
+{
+  "pin": "2b268c386835883fa8cab71296838a2229b656c4",
+  "bootstrap_reference": "c34c7324f48522656c27f9cdd84489634634bd81",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "steps": [
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "-j8",
+        "test-service-module"
+      ],
+      "env": {
+        "NANO_SERVICE_MODULE_TEST_CC": "/bin/gcc"
+      },
+      "status": 0,
+      "seconds": 7.759,
+      "log_sha256": "e758552744d65f063e1cd8580ae4e40b0a854f4eb71c91853739a5505196f0c5"
+    },
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-service-module"
+      ],
+      "env": {
+        "NANO_SERVICE_MODULE_TEST_CC": "/usr/local/bin/clang",
+        "NANO_SERVICE_MODULE_TEST_CFLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 3.843,
+      "log_sha256": "02e5fe90aa6b55c4a7cdd5622ba274b83ea502f24870073a15932669340be1f7"
+    },
+    {
+      "name": "mixed-setup",
+      "command": [
+        "make",
+        "-j8",
+        "mixed-samples-runtime-fixture"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 0.676,
+      "log_sha256": "ec36b3a04adbc61ee75fa516c3b5bad59539ba5968ca47e27d9e44e583136793"
+    },
+    {
+      "name": "mixed-gcc",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-fv",
+        "tests.test_mixed_samples_runtime"
+      ],
+      "env": {
+        "CC": "/bin/gcc",
+        "NANO_MIXED_RUNTIME_DIR": "/tmp/nanolang-service-module-integrated-2b268/mixed-gcc-artifacts"
+      },
+      "status": 0,
+      "seconds": 32.697,
+      "log_sha256": "16b4ad7641ccc8696a5c2d4810f71e6d907ffd34cd23b1f055697b415406edea"
+    },
+    {
+      "name": "mixed-clang",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-fv",
+        "tests.test_mixed_samples_runtime"
+      ],
+      "env": {
+        "CC": "/tmp/nanolang-service-integration-clang",
+        "NANO_MIXED_RUNTIME_DIR": "/tmp/nanolang-service-module-integrated-2b268/mixed-clang-artifacts"
+      },
+      "status": 0,
+      "seconds": 17.842,
+      "log_sha256": "314b4e26bf9e33e9f41f467f839a92a68a4e0c93dd53d14c5708b2cc4da93012"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-mixed-samples-runtime-alloc",
+        "test-mixed-samples-admission",
+        "test-nvm-v2-convert",
+        "test-nvm-v2-module",
+        "test-verifier-profiles"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 4.03,
+      "log_sha256": "b205d67b335b4448b522de0c7e362fa454636f2b6558ec9e017f4917e1e85715"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

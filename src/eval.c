@@ -1,6 +1,10 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
+#include "string_literal_decode.h"
+#include "binary64_bits.h"
+#include "binary64_format.h"
+#include "binary64_arithmetic.h"
 #include "runtime/binary64_parse.h"
 #include "coroutine.h"
 #include "effects.h"
@@ -145,34 +149,56 @@ static bool shadow_write_json_file(const char *path, const ShadowFailure *fails,
 
 /* Process escape sequences in a raw lexer string into actual characters */
 char *nl_unescape_string(const char *raw) {
-    size_t len = strlen(raw);
-    char *buf = malloc(len + 1);
-    if (!buf) return NULL;
-    size_t out = 0;
-    for (size_t i = 0; i < len; i++) {
-        if (raw[i] == '\\' && i + 1 < len) {
-            i++;
-            switch (raw[i]) {
-                case 'n':  buf[out++] = '\n'; break;
-                case 't':  buf[out++] = '\t'; break;
-                case 'r':  buf[out++] = '\r'; break;
-                case '0':  buf[out++] = '\0'; break;
-                case '\\': buf[out++] = '\\'; break;
-                case '\'': buf[out++] = '\''; break;
-                case '"':  buf[out++] = '"';  break;
-                default:   buf[out++] = '\\'; buf[out++] = raw[i]; break;
-            }
-        } else {
-            buf[out++] = raw[i];
-        }
-    }
-    buf[out] = '\0';
-    return buf;
+    return nl_decode_string_literal(raw);
 }
 
 /* Forward declarations */
 static Value eval_expression(ASTNode *expr, Environment *env);
 static Value eval_statement(ASTNode *stmt, Environment *env);
+
+static bool eval_match_or_pattern(const char *pattern, const char *variant) {
+    if (!pattern || !variant || strncmp(pattern, "OR:", 3) != 0) return false;
+    const char *part = pattern + 3;
+    size_t variant_length = strlen(variant);
+    while (*part) {
+        const char *end = strchr(part, ':');
+        size_t part_length = end ? (size_t)(end - part) : strlen(part);
+        if (part_length == variant_length &&
+            strncmp(part, variant, part_length) == 0) return true;
+        if (!end) break;
+        part = end + 1;
+    }
+    return false;
+}
+
+static bool eval_match_pattern(const Value *value, const char *pattern) {
+    if (!value || !pattern) return false;
+    if (strcmp(pattern, "_") == 0) return true;
+    if (value->type == VAL_UNION) {
+        UnionValue *union_value = value->as.union_val;
+        if (!union_value || !union_value->variant_name) return false;
+        return eval_match_or_pattern(pattern, union_value->variant_name) ||
+               strcmp(pattern, union_value->variant_name) == 0;
+    }
+    if (strncmp(pattern, "INT:", 4) == 0) {
+        long long expected = strtoll(pattern + 4, NULL, 10);
+        if (value->type == VAL_INT) return value->as.int_val == expected;
+        if (value->type == VAL_FLOAT) return (long long)value->as.float_val == expected;
+        return false;
+    }
+    if (value->type == VAL_BOOL)
+        return strcmp(pattern, value->as.bool_val ? "true" : "false") == 0;
+    if (value->type == VAL_STRING && value->as.string_val)
+        return strcmp(pattern, value->as.string_val) == 0;
+    return false;
+}
+
+static Value eval_match_invariant_failure(const char *reason) {
+    fprintf(stderr, "I cannot continue: %s.\n", reason);
+    fflush(stderr);
+    exit(EXIT_FAILURE);
+    return create_void();
+}
 
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
 static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
@@ -250,16 +276,16 @@ static DynArray* eval_dyn_array_binop(DynArray *a, DynArray *b, TokenType op) {
         double *__restrict__ po = (double*)out->data;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_add(pa[i], pb[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_sub(pa[i], pb[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_mul(pa[i], pb[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] / pb[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_div(pa[i], pb[i]);
                 break;
             default: break;
         }
@@ -336,16 +362,16 @@ static DynArray* eval_dyn_array_scalar_right(DynArray *a, Value scalar, TokenTyp
         double s = scalar.as.float_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] + s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_add(pa[i], s);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] - s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_sub(pa[i], s);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] * s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_mul(pa[i], s);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = pa[i] / s;
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_div(pa[i], s);
                 break;
             default: break;
         }
@@ -412,16 +438,16 @@ static DynArray* eval_dyn_array_scalar_left(Value scalar, DynArray *a, TokenType
         double s = scalar.as.float_val;
         switch (op) {
             case TOKEN_PLUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s + pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_add(s, pa[i]);
                 break;
             case TOKEN_MINUS:
-                for (int64_t i = 0; i < len; i++) po[i] = s - pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_sub(s, pa[i]);
                 break;
             case TOKEN_STAR:
-                for (int64_t i = 0; i < len; i++) po[i] = s * pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_mul(s, pa[i]);
                 break;
             case TOKEN_SLASH:
-                for (int64_t i = 0; i < len; i++) po[i] = s / pa[i];
+                for (int64_t i = 0; i < len; i++) po[i] = nano_rt_f64_div(s, pa[i]);
                 break;
             default: break;
         }
@@ -456,7 +482,7 @@ static void print_value(Value val) {
             printf("%lld", (long long)val.as.int_val);
             break;
         case VAL_FLOAT:
-            printf("%g", val.as.float_val);
+            nano_rt_f64_print(stdout, val.as.float_val);
             break;
         case VAL_BOOL:
             printf("%s", val.as.bool_val ? "true" : "false");
@@ -475,7 +501,7 @@ static void print_value(Value val) {
                         printf("%lld", ((long long*)arr->data)[i]);
                         break;
                     case VAL_FLOAT:
-                        printf("%g", ((double*)arr->data)[i]);
+                        nano_rt_f64_print(stdout, ((double*)arr->data)[i]);
                         break;
                     case VAL_BOOL:
                         printf("%s", ((bool*)arr->data)[i] ? "true" : "false");
@@ -503,7 +529,7 @@ static void print_value(Value val) {
                         printf("%lld", (long long)dyn_array_get_int(arr, i));
                         break;
                     case ELEM_FLOAT:
-                        printf("%g", dyn_array_get_float(arr, i));
+                        nano_rt_f64_print(stdout, dyn_array_get_float(arr, i));
                         break;
                     case ELEM_BOOL:
                         printf("%s", dyn_array_get_bool(arr, i) ? "true" : "false");
@@ -720,7 +746,7 @@ static void eval_sb_append_dyn_array(EvalSB *sb, DynArray *arr) {
             }
             case ELEM_FLOAT: {
                 char tmp[64];
-                snprintf(tmp, sizeof(tmp), "%g", dyn_array_get_float(arr, i));
+                nano_rt_f64_format(tmp, sizeof(tmp), dyn_array_get_float(arr, i));
                 eval_sb_append_cstr(sb, tmp);
                 break;
             }
@@ -753,7 +779,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
         }
         case VAL_FLOAT: {
             char tmp[64];
-            snprintf(tmp, sizeof(tmp), "%g", val.as.float_val);
+            nano_rt_f64_format(tmp, sizeof(tmp), val.as.float_val);
             /* Ensure at least one decimal place for whole-number floats
              * so 0.0 → "0.0" rather than "0" (matches Python/JS behaviour) */
             if (strchr(tmp, '.') == NULL && strchr(tmp, 'e') == NULL
@@ -788,7 +814,7 @@ static void eval_sb_append_value(EvalSB *sb, Value val) {
                     }
                     case VAL_FLOAT: {
                         char tmp[64];
-                        snprintf(tmp, sizeof(tmp), "%g", ((double*)arr->data)[i]);
+                        nano_rt_f64_format(tmp, sizeof(tmp), ((double*)arr->data)[i]);
                         eval_sb_append_cstr(sb, tmp);
                         break;
                     }
@@ -1788,10 +1814,10 @@ static double eval_pure_expr_float2(ASTNode *expr,
                 double a = eval_pure_expr_float2(expr->as.prefix_op.args[0], p0_val, p0_name, p1_val, p1_name);
                 double b = eval_pure_expr_float2(expr->as.prefix_op.args[1], p0_val, p0_name, p1_val, p1_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:  return a + b;
-                    case TOKEN_MINUS: return a - b;
-                    case TOKEN_STAR:  return a * b;
-                    case TOKEN_SLASH: return a / b;
+                    case TOKEN_PLUS:  return nano_rt_f64_add(a, b);
+                    case TOKEN_MINUS: return nano_rt_f64_sub(a, b);
+                    case TOKEN_STAR:  return nano_rt_f64_mul(a, b);
+                    case TOKEN_SLASH: return nano_rt_f64_div(a, b);
                     default: return 0.0;
                 }
             }
@@ -1819,10 +1845,10 @@ static double eval_pure_expr_float(ASTNode *expr, double param_val, const char *
                 double a = eval_pure_expr_float(expr->as.prefix_op.args[0], param_val, param_name);
                 double b = eval_pure_expr_float(expr->as.prefix_op.args[1], param_val, param_name);
                 switch (expr->as.prefix_op.op) {
-                    case TOKEN_PLUS:  return a + b;
-                    case TOKEN_MINUS: return a - b;
-                    case TOKEN_STAR:  return a * b;
-                    case TOKEN_SLASH: return a / b;
+                    case TOKEN_PLUS:  return nano_rt_f64_add(a, b);
+                    case TOKEN_MINUS: return nano_rt_f64_sub(a, b);
+                    case TOKEN_STAR:  return nano_rt_f64_mul(a, b);
+                    case TOKEN_SLASH: return nano_rt_f64_div(a, b);
                     default: return 0.0;
                 }
             }
@@ -2546,10 +2572,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                             double y = ((double*)b->data)[i];
                             double r = 0.0;
                             switch (op) {
-                                case TOKEN_PLUS: r = x + y; break;
-                                case TOKEN_MINUS: r = x - y; break;
-                                case TOKEN_STAR: r = x * y; break;
-                                case TOKEN_SLASH: r = x / y; break;
+                                case TOKEN_PLUS: r = nano_rt_f64_add(x, y); break;
+                                case TOKEN_MINUS: r = nano_rt_f64_sub(x, y); break;
+                                case TOKEN_STAR: r = nano_rt_f64_mul(x, y); break;
+                                case TOKEN_SLASH: r = nano_rt_f64_div(x, y); break;
                                 default: break;
                             }
                             ((double*)out.as.array_val->data)[i] = r;
@@ -2610,10 +2636,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         double s = right.as.float_val;
                         double r = 0.0;
                         switch (op) {
-                            case TOKEN_PLUS: r = x + s; break;
-                            case TOKEN_MINUS: r = x - s; break;
-                            case TOKEN_STAR: r = x * s; break;
-                            case TOKEN_SLASH: r = x / s; break;
+                            case TOKEN_PLUS: r = nano_rt_f64_add(x, s); break;
+                            case TOKEN_MINUS: r = nano_rt_f64_sub(x, s); break;
+                            case TOKEN_STAR: r = nano_rt_f64_mul(x, s); break;
+                            case TOKEN_SLASH: r = nano_rt_f64_div(x, s); break;
                             default: break;
                         }
                         ((double*)out.as.array_val->data)[i] = r;
@@ -2673,10 +2699,10 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
                         double y = ((double*)a->data)[i];
                         double r = 0.0;
                         switch (op) {
-                            case TOKEN_PLUS: r = s + y; break;
-                            case TOKEN_MINUS: r = s - y; break;
-                            case TOKEN_STAR: r = s * y; break;
-                            case TOKEN_SLASH: r = s / y; break;
+                            case TOKEN_PLUS: r = nano_rt_f64_add(s, y); break;
+                            case TOKEN_MINUS: r = nano_rt_f64_sub(s, y); break;
+                            case TOKEN_STAR: r = nano_rt_f64_mul(s, y); break;
+                            case TOKEN_SLASH: r = nano_rt_f64_div(s, y); break;
                             default: break;
                         }
                         ((double*)out.as.array_val->data)[i] = r;
@@ -2735,14 +2761,12 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
         } else if (left.type == VAL_FLOAT && right.type == VAL_FLOAT) {
             double result;
             switch (op) {
-                case TOKEN_PLUS: result = left.as.float_val + right.as.float_val; break;
-                case TOKEN_MINUS: result = left.as.float_val - right.as.float_val; break;
-                case TOKEN_STAR: result = left.as.float_val * right.as.float_val; break;
+                case TOKEN_PLUS: result = nano_rt_f64_add(left.as.float_val, right.as.float_val); break;
+                case TOKEN_MINUS: result = nano_rt_f64_sub(left.as.float_val, right.as.float_val); break;
+                case TOKEN_STAR: result = nano_rt_f64_mul(left.as.float_val, right.as.float_val); break;
                 case TOKEN_SLASH:
                     /* Total float division = 0.0 by zero, matching the VM. */
-                    result = right.as.float_val == 0.0
-                             ? 0.0
-                             : left.as.float_val / right.as.float_val;
+                    result = nano_rt_f64_div(left.as.float_val, right.as.float_val);
                     break;
                 default: result = 0.0;
             }
@@ -2927,17 +2951,17 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
-        if (left.is_return) return left;
+        if (left.is_return || left.is_break || left.is_continue) return left;
 
         if (op == TOKEN_AND) {
             if (!is_truthy(left)) return create_bool(false);
             Value right = eval_expression(node->as.prefix_op.args[1], env);
-            if (right.is_return) return right;
+            if (right.is_return || right.is_break || right.is_continue) return right;
             return create_bool(is_truthy(right));
         } else { /* OR */
             if (is_truthy(left)) return create_bool(true);
             Value right = eval_expression(node->as.prefix_op.args[1], env);
-            if (right.is_return) return right;
+            if (right.is_return || right.is_break || right.is_continue) return right;
             return create_bool(is_truthy(right));
         }
     }
@@ -3247,6 +3271,15 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* Type casting functions */
     if (strcmp(name, "cast_int") == 0) return builtin_cast_int(args);
     if (strcmp(name, "cast_float") == 0) return builtin_cast_float(args);
+    if (strcmp(name, "float_from_bits") == 0 || strcmp(name, "float_to_bits") == 0) {
+        bool from = strcmp(name, "float_from_bits") == 0;
+        if (args[0].type != (from ? VAL_INT : VAL_FLOAT)) {
+            fputs("I require the exact input type for binary64 bit transport.\n", stderr);
+            exit(EXIT_FAILURE);
+        }
+        return from ? create_float(nl_float_from_bits(args[0].as.int_val))
+                    : create_int(nl_float_to_bits(args[0].as.float_val));
+    }
     if (strcmp(name, "cast_bool") == 0) return builtin_cast_bool(args);
     if (strcmp(name, "cast_string") == 0) return builtin_cast_string(args);
     if (strcmp(name, "null_opaque") == 0) return builtin_null_opaque(args);
@@ -3259,7 +3292,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
         double v = args[0].type == VAL_FLOAT ? args[0].as.float_val : (double)args[0].as.int_val;
         char buffer[64];
-        snprintf(buffer, sizeof(buffer), "%g", v);
+        nano_rt_f64_format(buffer, sizeof(buffer), v);
         if (strchr(buffer, '.') == NULL && strchr(buffer, 'e') == NULL
                 && strchr(buffer, 'n') == NULL && strchr(buffer, 'i') == NULL) {
             size_t len = strlen(buffer);
@@ -3401,7 +3434,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                     snprintf(tmp, sizeof(tmp), "%lld", (long long)args[arg_idx].as.int_val);
                     s = tmp;
                 } else if (args[arg_idx].type == VAL_FLOAT) {
-                    snprintf(tmp, sizeof(tmp), "%g", args[arg_idx].as.float_val);
+                    nano_rt_f64_format(tmp, sizeof(tmp), args[arg_idx].as.float_val);
                     s = tmp;
                 } else if (args[arg_idx].type == VAL_BOOL) {
                     s = args[arg_idx].as.bool_val ? "true" : "false";
@@ -3635,7 +3668,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     if (strcmp(name, "reduce") == 0 || strcmp(name, "array_fold") == 0) return builtin_reduce(args, env);
     
     /* Dynamic array operations (GC-managed) */
-    if (strcmp(name, "array_push") == 0) return builtin_array_push(args);
+    if (strcmp(name, "array_push") == 0 && (!named_func || !named_func->body))
+        return builtin_array_push(args);
     if (strcmp(name, "array_pop") == 0) return builtin_array_pop(args);
     if (strcmp(name, "array_remove_at") == 0) return builtin_array_remove_at(args);
     if (strcmp(name, "array_sort") == 0) return builtin_array_sort(args);
@@ -4847,6 +4881,26 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         case AST_IDENTIFIER: {
             /* First check if it's a variable */
             Symbol *sym = env_get_var(env, expr->as.identifier);
+            if (strcmp(expr->as.identifier, "array_push") == 0) {
+                Function *declared = env_get_function(env, expr->as.identifier);
+                if (declared && !declared->is_extern && declared->body &&
+                    ((!env->current_module && !declared->module_name) ||
+                     (env->current_module && declared->module_name &&
+                      strcmp(env->current_module, declared->module_name) == 0))) {
+                    /* I retain checker facts without reading them as runtime bindings.
+                     * Evaluated locals/parameters have def_line == 0, even for VOID. */
+                    sym = NULL;
+                    for (int i = env->symbol_count - 1; i >= 0; i--) {
+                        Symbol *candidate = &env->symbols[i];
+                        if (!candidate->name ||
+                            strcmp(candidate->name, expr->as.identifier) != 0) continue;
+                        if (!candidate->is_global && candidate->def_line > 0 &&
+                            candidate->value.type == VAL_VOID) continue;
+                        sym = candidate;
+                        break;
+                    }
+                }
+            }
             if (sym) {
                 /* Trace variable read */
 #ifdef TRACING_ENABLED
@@ -5288,183 +5342,72 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * Also supports integer literal patterns: match n { 0 => "zero", 1 => "one", _ => "many" }
              */
             Value match_val = eval_expression(expr->as.match_expr.expr, env);
-            if (match_val.is_return) return match_val;
+            if (match_val.is_return || match_val.is_break || match_val.is_continue)
+                return match_val;
+            if (match_val.type == VAL_UNION && !match_val.as.union_val)
+                return eval_match_invariant_failure("a union match received no value");
 
-            /* Integer/primitive literal pattern matching */
-            if (match_val.type != VAL_UNION) {
-                int wildcard_arm = -1;
-                for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
-                    const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
-
-                    if (strcmp(pattern_variant, "_") == 0) {
-                        wildcard_arm = i;
-                        continue;
-                    }
-
-                    bool arm_matches = false;
-                    /* INT:<number> patterns */
-                    if (strncmp(pattern_variant, "INT:", 4) == 0) {
-                        long long pat_val = strtoll(pattern_variant + 4, NULL, 10);
-                        if (match_val.type == VAL_INT) {
-                            arm_matches = (match_val.as.int_val == pat_val);
-                        } else if (match_val.type == VAL_FLOAT) {
-                            arm_matches = ((long long)match_val.as.float_val == pat_val);
-                        }
-                    } else if (match_val.type == VAL_BOOL) {
-                        arm_matches = (strcmp(pattern_variant, match_val.as.bool_val ? "true" : "false") == 0);
-                    } else if (match_val.type == VAL_STRING && match_val.as.string_val) {
-                        arm_matches = (strcmp(pattern_variant, match_val.as.string_val) == 0);
-                    }
-
-                    if (arm_matches) {
-                        /* Check guard if present */
-                        int saved_symbol_count = env->symbol_count;
-                        if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
-                            Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
-                            if (guard_val.is_return) {
-                                env->symbol_count = saved_symbol_count;
-                                return guard_val;
-                            }
-                            if (!guard_val.as.bool_val) {
-                                env->symbol_count = saved_symbol_count;
-                                continue;  /* Guard failed, try next arm */
-                            }
-                        }
-                        Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-                        env->symbol_count = saved_symbol_count;
-                        return result;
-                    }
-                }
-
-                if (wildcard_arm >= 0) {
-                    int saved_symbol_count = env->symbol_count;
-                    /* Check guard on wildcard arm if present */
-                    if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
-                        Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
-                        if (guard_val.is_return) {
-                            env->symbol_count = saved_symbol_count;
-                            return guard_val;
-                        }
-                        if (!guard_val.as.bool_val) {
-                            env->symbol_count = saved_symbol_count;
-                            fprintf(stderr, "Error: No matching arm in match expression (guard failed)\n");
-                            return create_void();
-                        }
-                    }
-                    Value result = eval_expression(expr->as.match_expr.arm_bodies[wildcard_arm], env);
-                    env->symbol_count = saved_symbol_count;
-                    return result;
-                }
-
-                fprintf(stderr, "Error: No matching arm in match expression\n");
-                return create_void();
-            }
-
-            UnionValue *uval = match_val.as.union_val;
-
-            /* Find matching arm by comparing variant names; _ is wildcard catch-all */
-            int wildcard_arm = -1;
+            /* Every pattern, including a wildcard, participates in source order. */
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
+                if (!eval_match_pattern(&match_val, pattern_variant)) continue;
 
-                if (strcmp(pattern_variant, "_") == 0) {
-                    wildcard_arm = i;
-                    continue;  /* try specific arms first */
-                }
-
-                /* Check or-pattern: OR:A:B means match if variant is A or B */
-                bool or_matches = false;
-                if (strncmp(pattern_variant, "OR:", 3) == 0) {
-                    char or_copy[512];
-                    strncpy(or_copy, pattern_variant + 3, sizeof(or_copy) - 1);
-                    or_copy[sizeof(or_copy) - 1] = '\0';
-                    char *tok_or = strtok(or_copy, ":");
-                    while (tok_or) {
-                        if (strcmp(uval->variant_name, tok_or) == 0) { or_matches = true; break; }
-                        tok_or = strtok(NULL, ":");
-                    }
-                }
-
-                if (or_matches || strcmp(uval->variant_name, pattern_variant) == 0) {
-                    /* This arm's pattern matches — now check guard */
+                int saved_symbol_count = env->symbol_count;
+                if (match_val.type == VAL_UNION && strcmp(pattern_variant, "_") != 0) {
+                    UnionValue *union_value = match_val.as.union_val;
                     const char *binding = expr->as.match_expr.pattern_bindings[i];
-
-                    /* Save environment state for scope */
-                    int saved_symbol_count = env->symbol_count;
-
-                    /* Bind the pattern variable to a struct value representing the variant's fields
-                     * This allows field access like binding.field_name in the match arm body
-                     */
                     /* I discard underscore payloads without hiding an outer name. */
                     if (binding && strcmp(binding, "_") != 0) {
-                        Value binding_val;
-                        if (uval->field_count > 0) {
-                            char **field_names_copy = malloc(sizeof(char*) * uval->field_count);
-                            Value *field_values_copy = malloc(sizeof(Value) * uval->field_count);
-
-                            for (int j = 0; j < uval->field_count; j++) {
-                                field_names_copy[j] = uval->field_names[j];
-                                field_values_copy[j] = uval->field_values[j];
+                        Value binding_value;
+                        if (union_value->field_count > 0) {
+                            char **field_names = malloc(sizeof(char *) * (size_t)union_value->field_count);
+                            Value *field_values = malloc(sizeof(Value) * (size_t)union_value->field_count);
+                            if (!field_names || !field_values) {
+                                free(field_names);
+                                free(field_values);
+                                return eval_match_invariant_failure(
+                                    "I could not allocate a match payload binding");
                             }
-
-                            binding_val = create_struct(uval->union_name,
-                                                       field_names_copy,
-                                                       field_values_copy,
-                                                       uval->field_count);
+                            for (int field = 0; field < union_value->field_count; ++field) {
+                                field_names[field] = union_value->field_names[field];
+                                field_values[field] = union_value->field_values[field];
+                            }
+                            binding_value = create_struct(
+                                union_value->union_name, field_names, field_values,
+                                union_value->field_count);
                         } else {
-                            binding_val = create_void();
+                            binding_value = create_void();
                         }
-                        env_define_var(env, binding, TYPE_STRUCT, false, binding_val);
-                    }
-
-                    /* Check guard expression if present */
-                    if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
-                        Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
-                        if (guard_val.is_return) {
-                            env->symbol_count = saved_symbol_count;
-                            return guard_val;
-                        }
-                        if (!guard_val.as.bool_val) {
-                            /* Guard failed — restore scope and try next arm */
-                            env->symbol_count = saved_symbol_count;
-                            continue;
-                        }
-                    }
-
-                    /* Evaluate arm body */
-                    Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-
-                    /* Restore environment */
-                    env->symbol_count = saved_symbol_count;
-
-                    return result;
-                }
-            }
-
-            /* No specific arm matched — fall through to wildcard if present */
-            if (wildcard_arm >= 0) {
-                int saved_symbol_count = env->symbol_count;
-                /* Check guard on wildcard arm if present */
-                if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
-                    Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
-                    if (guard_val.is_return) {
-                        env->symbol_count = saved_symbol_count;
-                        return guard_val;
-                    }
-                    if (!guard_val.as.bool_val) {
-                        env->symbol_count = saved_symbol_count;
-                        fprintf(stderr, "Error: No matching arm for variant '%s' (guard failed)\n", uval->variant_name);
-                        return create_void();
+                        env_define_var(env, binding, TYPE_STRUCT, false, binding_value);
                     }
                 }
-                Value result = eval_expression(expr->as.match_expr.arm_bodies[wildcard_arm], env);
+
+                ASTNode *guard = expr->as.match_expr.guard_exprs
+                    ? expr->as.match_expr.guard_exprs[i] : NULL;
+                if (guard) {
+                    Value guard_value = eval_expression(guard, env);
+                    if (guard_value.is_return || guard_value.is_break || guard_value.is_continue) {
+                        env->symbol_count = saved_symbol_count;
+                        return guard_value;
+                    }
+                    if (guard_value.type != VAL_BOOL) {
+                        env->symbol_count = saved_symbol_count;
+                        return eval_match_invariant_failure(
+                            "a checked match guard did not produce bool");
+                    }
+                    if (!guard_value.as.bool_val) {
+                        env->symbol_count = saved_symbol_count;
+                        continue;
+                    }
+                }
+
+                Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
                 env->symbol_count = saved_symbol_count;
                 return result;
             }
 
-            /* No matching arm found - this should be caught by typechecker */
-            fprintf(stderr, "Error: No matching arm for variant '%s'\n", uval->variant_name);
-            return create_void();
+            return eval_match_invariant_failure(
+                "a checked match reached no successful arm");
         }
 
         case AST_BLOCK: {
@@ -5688,6 +5631,21 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
     }
 }
 
+/* An identifier read borrows its environment value. A new binding owns its
+ * value, so function identifiers need the same explicit copy that call
+ * parameters and returned function values already receive. */
+static Value own_function_identifier(ASTNode *expression, Environment *env,
+                                     Value value) {
+    if (value.type != VAL_FUNCTION || !expression ||
+        expression->type != AST_IDENTIFIER) return value;
+    Symbol *source = env_get_var(env, expression->as.identifier);
+    if (!source || source->value.type != VAL_FUNCTION ||
+        source->value.as.function_val.function_name !=
+            value.as.function_val.function_name) return value;
+    return create_function(value.as.function_val.function_name,
+        copy_function_signature(value.as.function_val.signature));
+}
+
 /* Evaluate statement */
 static Value eval_statement(ASTNode *stmt, Environment *env) {
     if (!stmt) return create_void();
@@ -5722,6 +5680,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             if (value.is_return || value.is_break || value.is_continue) {
                 return value;
             }
+            value = own_function_identifier(stmt->as.let.value, env, value);
             env_define_var_with_type_info(env,
                                          stmt->as.let.name,
                                          stmt->as.let.var_type,
@@ -5761,6 +5720,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 fprintf(stderr, "I cannot resolve a borrowed field during evaluation\n");
                 return create_void();
             }
+            value = own_function_identifier(stmt->as.set.value, env, value);
             env_set_var(env, stmt->as.set.name, value);
             
             /* Trace variable assignment */

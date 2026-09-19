@@ -1,0 +1,7 @@
+{
+  "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+  "bin/nanoisa": "9d56c74d080a5d0d80228ed02925c3099a5ae74cd8c5070c790f81f729700b75",
+  "bin/nano_virt": "d493ad9cfaf83ac8674f069442af07e0a0ccc17866096cee5d0713aed5ba83b6",
+  "bin/nano_as_capture.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+  "bin/nvm2llvm": "0e64c7e33e7c35036d2130783a7f812dc6bc95f8c7d70363c15a2da85e720429"
+}

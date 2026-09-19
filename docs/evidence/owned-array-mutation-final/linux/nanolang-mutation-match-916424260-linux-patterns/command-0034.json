@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nanoc_stage1",
+    "/tmp/nano-owned-pattern-whcmt2i8/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-whcmt2i8/program"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "acquired\nacquired\n"
+}

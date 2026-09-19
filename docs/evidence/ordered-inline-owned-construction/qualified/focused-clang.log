@@ -1,0 +1,9 @@
+test_ordered_children_and_all_selected_shadows (tests.test_inline_owned_construction.InlineOwnedConstruction.test_ordered_children_and_all_selected_shadows) ... ok
+test_refusals_and_physical_local_budget (tests.test_inline_owned_construction.InlineOwnedConstruction.test_refusals_and_physical_local_budget) ... ok
+test_emitted_partial_construction_cleanup (tests.test_inline_owned_construction.InlineOwnedConstruction.test_emitted_partial_construction_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 178.139s
+
+OK
+I retain inline owner fixtures at /tmp/nano-source-borrows-e72j6zvs

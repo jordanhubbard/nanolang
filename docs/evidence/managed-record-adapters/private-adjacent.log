@@ -1,0 +1,11 @@
+test_private_records_native_and_wasm (tests.test_managed_records.ManagedRecords.test_private_records_native_and_wasm) ... ok
+test_separate_target_ir_linkage (tests.test_managed_records.ManagedRecords.test_separate_target_ir_linkage) ... ok
+test_prepared_collection_targets (tests.test_managed_graph_safepoints.GraphSafepoints.test_prepared_collection_targets) ... ok
+test_separate_production_target_ir_linkage (tests.test_managed_graph_safepoints.GraphSafepoints.test_separate_production_target_ir_linkage) ... ok
+test_private_module_scalar_abi_lifecycle (tests.test_managed_runtime_package.ManagedRuntimePackage.test_private_module_scalar_abi_lifecycle) ... ok
+test_reproducible_target_packages_and_real_links (tests.test_managed_runtime_package.ManagedRuntimePackage.test_reproducible_target_packages_and_real_links) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 10.602s
+
+OK

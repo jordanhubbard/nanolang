@@ -1,0 +1,1 @@
+Status1 before manifest/archive publication: assertion len(artifacts)>40 failed. Actual retained unique artifacts:27+4+2+3+2=38. Successful gate statuses unchanged; no execution repeated. Original runner and partial reports preserved.

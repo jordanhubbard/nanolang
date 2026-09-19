@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/opt/homebrew/bin/python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_managed_native_embedding.py",
+    "-v"
+  ],
+  "cwd": "/private/tmp/nanolang-embedding-darwin-5f988/source",
+  "elapsed_seconds": 5.115306416992098,
+  "status": 0,
+  "timeout_seconds": 180
+}

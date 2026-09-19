@@ -13,6 +13,7 @@
 #include "vm_dispatch.h"
 #include "../nanoisa/isa.h"
 #include "../nanoisa/nvm_format.h"
+#include "../nanoisa/ownership_contracts.h"
 #include "../runtime/callback_runtime.h"
 #include <pthread.h>
 
@@ -117,7 +118,7 @@ typedef struct {
 } VmEffectHandler;
 
 /* I keep reference descriptors outside value storage and address owners by
- * frame-relative index. I reserve exactly two contexts for a checked helper call. */
+ * frame-relative index. I retain separate contexts for every bounded owned frame. */
 typedef struct {
     uint16_t root;
     uint32_t region;
@@ -164,6 +165,9 @@ typedef struct VmState {
     VmCallFrame frames[VM_MAX_FRAMES];
     uint32_t frame_count;
     VmReferenceActivation references, callee_references;
+    /* I preserve the borrowed entry/helper contexts and preallocate deeper
+     * value-only frames so context storage cannot fail after transfer. */
+    VmReferenceActivation value_references[NVM_OWNED_MAX_FUNCTIONS-2];
     uint64_t reference_generation;
     VmEffectHandler handlers[VM_MAX_FRAMES];
     uint32_t handler_count;

@@ -1,0 +1,13 @@
+test_arms_after_unconditional_wildcard_are_refused (tests.test_cseed_match_totality.CSeedMatchTotality.test_arms_after_unconditional_wildcard_are_refused) ... ok
+test_complete_domains_execute_and_integer_scrutinees_run_once (tests.test_cseed_match_totality.CSeedMatchTotality.test_complete_domains_execute_and_integer_scrutinees_run_once) ... ok
+test_conditional_guards_do_not_establish_union_coverage (tests.test_cseed_match_totality.CSeedMatchTotality.test_conditional_guards_do_not_establish_union_coverage) ... ok
+test_guards_require_exact_bool_in_value_and_statement_positions (tests.test_cseed_match_totality.CSeedMatchTotality.test_guards_require_exact_bool_in_value_and_statement_positions) ... ok
+test_incomplete_union_value_and_statement_are_refused (tests.test_cseed_match_totality.CSeedMatchTotality.test_incomplete_union_value_and_statement_are_refused) ... ok
+test_integer_value_and_statement_require_unconditional_wildcard (tests.test_cseed_match_totality.CSeedMatchTotality.test_integer_value_and_statement_require_unconditional_wildcard) ... ok
+test_unresolved_union_identity_is_refused_before_coverage (tests.test_cseed_match_totality.CSeedMatchTotality.test_unresolved_union_identity_is_refused_before_coverage) ... ok
+test_wrong_scalar_and_mixed_pattern_domains_are_refused (tests.test_cseed_match_totality.CSeedMatchTotality.test_wrong_scalar_and_mixed_pattern_domains_are_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.581s
+
+OK

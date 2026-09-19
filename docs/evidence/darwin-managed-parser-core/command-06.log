@@ -1,0 +1,2 @@
+['node', '-e', "const fs=require('fs');const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));if(WebAssembly.Module.imports(m).length)throw Error('imports');let e=new WebAssembly.Instance(m).exports;function check(v){if(!v)throw Error('managed assertion');}\ncheck(e.run()===0);check(e.run()===0);", '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-managed-emitted-pgu31l2g/core.wasm']
+

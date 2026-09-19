@@ -1,0 +1,17 @@
+{
+  "executed_refusal_groups": [
+    "bound-not",
+    "wrong-element",
+    "untyped-empty",
+    "duplicate-owner",
+    "dead-parent",
+    "missing-pattern",
+    "false-close",
+    "false-main"
+  ],
+  "seconds": 40.97819894598797,
+  "testsRun": 2,
+  "errors": 0,
+  "failures": 0,
+  "success": true
+}

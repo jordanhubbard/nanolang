@@ -1,0 +1,49 @@
+{
+  "source": "494f21a3993fbfbb10d538e3c6080893836b1a6c",
+  "results": [
+    {
+      "name": "build",
+      "command": [
+        "make",
+        "-j8",
+        "nano_vm",
+        "nvm2c",
+        "nvm2wasm",
+        "nanoisa_dump",
+        "obj/binary64_parser_vm"
+      ],
+      "status": 0,
+      "timed_out": false,
+      "seconds": 5.18
+    },
+    {
+      "name": "suite",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_llvm_managed_strings",
+        "tests.test_llvm_managed_decimal",
+        "tests.test_llvm_managed_format",
+        "tests.test_managed_binary64_format",
+        "tests.test_managed_binary64_parse",
+        "tests.test_llvm_managed_predicates",
+        "tests.test_llvm_managed_trim",
+        "tests.test_llvm_managed_character",
+        "tests.test_llvm_managed_case",
+        "tests.test_llvm_managed_primitive_format",
+        "tests.test_llvm_managed_replace",
+        "tests.test_llvm_managed_split",
+        "tests.test_llvm_managed_mutable_arrays",
+        "tests.test_llvm_managed_array_copies",
+        "tests.test_llvm_managed_graphs",
+        "tests.test_managed_records"
+      ],
+      "status": 1,
+      "timed_out": false,
+      "seconds": 49.097
+    }
+  ]
+}

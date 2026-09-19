@@ -1,0 +1,52 @@
+{
+  "ocl-icd-libopencl1-dbgsym_2.3.2-1build1_arm64.ddeb": {
+    "sha256": "2b514fb94c66bfe647da6ff6870ad213da07a3b7608f3fe69c8b41ac6497f0f9",
+    "bytes": 76018,
+    "url": "https://ddebs.ubuntu.com/pool/universe/o/ocl-icd/ocl-icd-libopencl1-dbgsym_2.3.2-1build1_arm64.ddeb",
+    "extracted_from": null
+  },
+  "ocl-icd_2.3.2-1build1.dsc": {
+    "sha256": "faaea636fd5af7013dfa37c9323ee87a87ad50c1076741426c086796a9a158c4",
+    "bytes": 2303,
+    "url": "https://ports.ubuntu.com/ubuntu-ports/pool/main/o/ocl-icd/ocl-icd_2.3.2-1build1.dsc",
+    "extracted_from": null
+  },
+  "ocl-icd_2.3.2.orig.tar.gz": {
+    "sha256": "ec47d7dcd961ea06695b067e8b7edb82e420ddce03e0081a908c62fd0b8535c5",
+    "bytes": 108988,
+    "url": "https://ports.ubuntu.com/ubuntu-ports/pool/main/o/ocl-icd/ocl-icd_2.3.2.orig.tar.gz",
+    "extracted_from": null
+  },
+  "ocl-icd_2.3.2-1build1.debian.tar.xz": {
+    "sha256": "1752403bf41e37874a864a1d4b40a2a9416b98e76fa32dffb501bd38df8b1f89",
+    "bytes": 12196,
+    "url": "https://ports.ubuntu.com/ubuntu-ports/pool/main/o/ocl-icd/ocl-icd_2.3.2-1build1.debian.tar.xz",
+    "extracted_from": null
+  },
+  "debug/usr/lib/debug/.build-id/d2/e11dd86dc02194317b8b27a72e8ccdd08abc57.debug": {
+    "sha256": "3b2ce13d7797b9ca46ca02097c0dedb401d9651b4212a8a6aa8e283ee962fe43",
+    "bytes": 114336,
+    "url": null,
+    "extracted_from": "ocl-icd-libopencl1-dbgsym_2.3.2-1build1_arm64.ddeb"
+  },
+  "upstream-master.json": {
+    "url": "https://api.github.com/repos/OCL-dev/ocl-icd/commits/master",
+    "sha256": "9bfd3f9e83dbf9c0e3abdc346ad7c177f2e7dfcf732b2de1b2ed5df3644bb7ae",
+    "bytes": 5407
+  },
+  "upstream-v2.3.5-ref.json": {
+    "url": "https://api.github.com/repos/OCL-dev/ocl-icd/git/ref/tags/v2.3.5",
+    "sha256": "356fd3aa35bb0eeeaf11b78367942ea5d492e3021a8b5540207ad37a5d892fb0",
+    "bytes": 378
+  },
+  "upstream-3e1155.tar.gz": {
+    "url": "https://codeload.github.com/OCL-dev/ocl-icd/tar.gz/3e1155f0796cb9ac0fe309664d98e4b0ed2c3300",
+    "sha256": "c94648dbe9d2b3f72a9e2710406ac295fd729787cc4ab715bec1993bf996478a",
+    "bytes": 118104
+  },
+  "upstream-release-v2.3.5.json": {
+    "url": "https://api.github.com/repos/OCL-dev/ocl-icd/releases/tags/v2.3.5",
+    "sha256": "a391cad998daca6258a5a049acab5c283c7e32e34cdc66eb30e75f92e2d9eb4b",
+    "bytes": 2678
+  }
+}

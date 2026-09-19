@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/tmp/nanolang-projection-clang",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-pedantic",
+    "-O2",
+    "/tmp/nanolang-managed-native-embedding-fe321533/programs/standalone.c",
+    "-o",
+    "/tmp/nanolang-managed-native-embedding-fe321533/programs/clangO2"
+  ],
+  "build_status": 0,
+  "run_status": 0,
+  "source_sha256": "6f955c0d5cd8c40f4647f433bbd8ce7b01c593b658efb12531505e2dfadd62b8",
+  "executable_sha256": "59b3ec4f71b664e81326fead28e3043f2b8a01f088247fc23d85ffb320724589"
+}

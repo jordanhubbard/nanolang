@@ -1,0 +1,92 @@
+{
+  "source_pin": "33d973cdfcddc06059e2f3c6407c48ece427138c",
+  "commands": [
+    {
+      "args": [
+        "/home/jkh/Src/nanolang-managed-graph-admission/bin/nanoisa",
+        "asm",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.nasm",
+        "-o",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "/home/jkh/Src/nanolang-managed-graph-admission/bin/nano_vm",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.nvm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "/home/jkh/Src/nanolang-managed-graph-admission/bin/nvm2llvm",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.nvm",
+        "-o",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.ll"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "clang",
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "-O2",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.ll",
+        "-o",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle-native"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle-native"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "/home/jkh/Src/nanolang-managed-graph-admission/bin/nvm2wasm",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.nvm",
+        "-o",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.wasm"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.wasm"
+      ],
+      "returncode": 0,
+      "stdout": "0\n",
+      "stderr": "warning: using `--invoke` with a function that returns values is experimental and may break in the future\n"
+    }
+  ],
+  "sha256": {
+    "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.nvm": "8293547e38f3e02ff8b49667a1c7431b0409bfd10ce7a8bffa96c3ec9085a4bb",
+    "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.nasm": "c6f388a1a5cec3054e2bbd660dcca9bb00f6ac8af4a2ccbf080b5e737eeb0943",
+    "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.wasm": "b1cd5a6d4a9456f1742025cfb55e7c193761a5216a6158f59ad8a6eea9a765a4",
+    "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle.ll": "02963476e798bda90f1ea97577d2827dd42b4780132eaa04748d69d485c00d19",
+    "/tmp/nanolang-graph-admission-artifacts-33d973cd/cycle-native": "2935170c3859cbf61ab6fbdfbe7f44f40229abb3594edef5a43f7e0563d51abe",
+    "/home/jkh/Src/nanolang-managed-graph-admission/bin/nanoisa": "23368711c474cfe1f37337de8a20de2964371df47f63e84775f3034a69091183",
+    "/home/jkh/Src/nanolang-managed-graph-admission/bin/nano_vm": "eafadb68fd54d30e2be3e07a40c682cb081bc1dc2856a6a0ebfcce9f205e4a02",
+    "/home/jkh/Src/nanolang-managed-graph-admission/bin/nvm2llvm": "95d64730958a2727b102e2bab0fdb3dfc3d142ab901871b5d07600b7b70160f6",
+    "/home/jkh/Src/nanolang-managed-graph-admission/bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a"
+  }
+}

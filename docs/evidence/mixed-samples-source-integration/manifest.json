@@ -1,0 +1,24 @@
+{
+  "pin": "6a492a7aab1184e22a0fd15935293738ec7a58dd",
+  "reports": {
+    "status.json": "411021eaa5176601bfad2108527448c4503a68e34f97d268ea6a9ab39c5f09c8",
+    "nanolang-mixed-source-final-smoke.py": "93d0a3ecf47d1fdb9056eecd85e7a29f60e48ce6dc554f2aa808ee516e6f0084",
+    "tools-before.json": "ba44355d4358cab541b40ea9a3d139ae262502bd441d147a60a1fa39f4840746",
+    "stages-before.json": "393d415673cd73256fd294607f61a92a93349d51ab2a43389f9772782dabfac8",
+    "tools-after.json": "ba44355d4358cab541b40ea9a3d139ae262502bd441d147a60a1fa39f4840746",
+    "source-smoke.log": "bb37f08e14f61f8af99b88f7166e1832cda6626defd94527f38551d66a383e50",
+    "service.log": "a3ca4369ea6e8b4338da83795e7dede9dd6245c4dd4c16b41ed5650a6883670d",
+    "source-after.json": "87c1755c5a6e63100c4eb959110f797cc7422ef3afa31bdd8e87ebf47fc5b3b9",
+    "inputs-after.json": "638cbd096aca18a780177eed63647ec18455a41b90638725b0d0b5cb335e8e0b",
+    "stages-after.json": "393d415673cd73256fd294607f61a92a93349d51ab2a43389f9772782dabfac8",
+    "inputs-before.json": "ba86e34e054cb7fcc830ce556290d92e85f4332536b33d14b30f2b6d46af4ee2",
+    "tools.log": "1d6582ee2e814f53d58111593144c3f7effbf0b2018984aacdcb9bf46cd81730",
+    "source-before.json": "87c1755c5a6e63100c4eb959110f797cc7422ef3afa31bdd8e87ebf47fc5b3b9",
+    "nanolang-mixed-source-final-gates.py": "61f6f5af4be3e0fe3c35ffab0eef5b3f102b1099051057990e3aee5557e43a4b",
+    "mixed.log": "7e50551e934ec63e5355f9ee61cd0f18f352983ca1978ffb3e3d20c9517fadb6",
+    "source-artifacts.json": "cee7fa6e7e2210bcd4602035e9cb012dbbc6b31e705c284592dac23945503af6",
+    "native-artifacts.json": "d1ff5f8e1fa77d50566b2c1b3011512597e637cb09431d702f8b2c2206d31caf",
+    "service-artifacts.json": "9e8872764c6a07d4657fe8a7df55b672086bfbd34fa115ee6600ce3c9a645b1e"
+  },
+  "scope": "Linux bounded integration; qualified stage binaries retained; no repeat bootstrap; Darwin separate70c pin"
+}

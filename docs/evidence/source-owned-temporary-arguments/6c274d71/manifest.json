@@ -1,0 +1,30 @@
+{
+  "source": "6c274d71526721f565bfab77059b1f8db8436b9a",
+  "runner_sha256": "0426cd081d9bb8d0e56761bd90c151a22553e93ee94feb86832b8af841b8dd10",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 255.135,
+      "sha256": "2efbe45cf3e927d2b54107c3a01a7f447beb647fcdae37fbef1686edb8238d6c"
+    },
+    {
+      "name": "paired-source",
+      "command": [
+        "make",
+        "test-source-borrow-emission"
+      ],
+      "status": 2,
+      "seconds": 396.051,
+      "sha256": "32b6cc0993facb9c77ead99cfb3479d3ad3a24ab1b7c51aefcd723b3bf893e3c"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

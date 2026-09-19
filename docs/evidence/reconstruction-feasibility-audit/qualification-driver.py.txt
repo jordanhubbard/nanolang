@@ -1,0 +1,47 @@
+import hashlib,json,subprocess,shlex,tempfile
+from pathlib import Path
+root=Path('/home/jkh/Src/nanolang-reconstruct-f64-arithmetic')
+work=Path(tempfile.mkdtemp(prefix='nano-feasibility-current-'))
+Path('/tmp/nanolang-feasibility-current-path').write_text(str(work))
+source=work/'original.nano'
+source.write_text('''fn combine(left: float, right: float) -> float { return (+ left right) }
+shadow combine { assert (== (combine 1.0 2.0) 3.0) }
+fn main() -> int {
+    let input: float = (float_from_bits 9221120237041090602)
+    let result: float = (combine input 1.0)
+    if (!= (float_to_bits result) 9221120237041090560) { return 1 }
+    if (!= (float_to_bits input) 9221120237041090602) { return 2 }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+original=source.read_bytes();commands=[]
+def command(args,expected=0):
+ p=subprocess.run(list(map(str,args)),cwd=root,text=True,capture_output=True,timeout=180)
+ item={'argv':list(map(str,args)),'exit':p.returncode,'expected':expected}
+ commands.append(item)
+ (work/f'command-{len(commands):02}.log').write_text(shlex.join(item['argv'])+'\n'+p.stdout+p.stderr)
+ (work/'commands.json').write_text(json.dumps(commands,indent=2)+'\n')
+ if p.returncode!=expected:raise RuntimeError('I retained the first result at '+str(work))
+ return p.stdout
+hashes=lambda:{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [root/'bin'/n for n in ('nano_virt','nano_vm','nvm2hl','nanoisa_hl_facts','nanoc_c','nanoc_stage1','nanoc_stage2')]}
+before=hashes();(work/'tools-before.json').write_text(json.dumps(before,indent=2)+'\n')
+module=work/'recovery'/'module.nvm';module.parent.mkdir()
+command([root/'bin/nano_virt',source,'--emit-nvm','-o',module])
+source.unlink()
+assert sorted(p.name for p in module.parent.iterdir())==['module.nvm']
+command([root/'bin/nano_vm',module])
+for lang in ('c','nano'):
+ command([root/'bin/nvm2hl',module,'--language',lang,'-o',module.parent/('recovered.'+lang)])
+command(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',module.parent/'recovered.c','-o',work/'recovered-c'])
+command([work/'recovered-c'])
+(work/'facts.json').write_text(command([root/'bin/nanoisa_hl_facts',module]))
+(work/'dump.nasm').write_text(command([root/'bin/nanoisa','dump',module]))
+nano=module.parent/'recovered.nano'
+with nano.open('a') as f:f.write('\nshadow nlr_f0_combine { assert (== (nlr_f0_combine 1.0 2.0) 3.0) }\nshadow nlr_f1_main { assert (== (nlr_f1_main) 0) }\nshadow main { assert (== (main) 0) }\n')
+for name in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
+ command([root/'bin'/name,nano,'-o',work/name]);command([work/name])
+(work/'original-source.txt').write_bytes(original)
+after=hashes();assert before==after
+(work/'tools-after.json').write_text(json.dumps(after,indent=2)+'\n')
+print(work)

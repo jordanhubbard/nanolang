@@ -1,0 +1,1 @@
+/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 tests/test_nsi_file_values.c -o /tmp/nano-file-values-wn6d22pz/instrumented

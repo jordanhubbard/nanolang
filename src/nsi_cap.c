@@ -1,4 +1,5 @@
 #include "nsi_cap.h"
+#include "nsi_cap_private.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,6 +42,12 @@ struct NlCapTable {
     int audit_n;
     int audit_seq;
 };
+
+bool nl_cap_private_storage_bound(size_t *out) {
+    if (!out) return false;
+    *out = sizeof(NlCapTable);
+    return true;
+}
 
 static void bounded_copy(char *dest, size_t dest_size, const char *src) {
     size_t n;
@@ -379,4 +386,58 @@ int nl_cap_audit_kind(const NlCapTable *t, int i) {
 const char *nl_cap_audit_id(const NlCapTable *t, int i) {
     if (!t || i < 0 || i >= t->audit_n) return "";
     return t->audit[i].id;
+}
+
+/* I keep private reusable service slots separate from the public table policy. */
+#if NL_CAP_SLOTS != NL_CAP_PRIVATE_SLOTS
+#error "I require matching private capability slot capacity"
+#endif
+static void private_retire(NlCapTable *t, uint32_t slot) {
+    /* My callers have validated this exact live entry and marked it revoked. */
+    for (int i = 0; i < NL_CAP_FORTH; i++) {
+        if (t->forth_used[i] && t->forth_slot[i] == slot) {
+            t->forth_used[i] = 0;
+            t->forth_secret[i] = 0;
+            t->forth_slot[i] = 0;
+        }
+    }
+    memset(&t->slots[slot], 0, sizeof(t->slots[slot]));
+}
+
+int nl_cap_private_mint(NlCapTable *t, const char *type_id,
+                       const char *service_id, uint32_t rights, NlCap *out) {
+    if (!t || !out || !type_id || !type_id[0] || !service_id || !service_id[0])
+        return NL_CAP_ERR_MALFORMED;
+    if (t->next_generation == UINT32_MAX) return NL_CAP_PRIVATE_ERR_GENERATION;
+    return nl_cap_mint(t, type_id, service_id, rights,
+                       (rights & NL_CAP_TRANSFER) != 0, NULL, out);
+}
+
+int nl_cap_private_transfer(NlCapTable *t, const NlCap *src, NlCap *out) {
+    if (!t || !src || !out) return NL_CAP_ERR_MALFORMED;
+    NlCap original = *src, next;
+    NlCapSlot *s = NULL;
+    int rc = find_live(t, &original, &s);
+    if (rc != NL_CAP_OK) return rc;
+    if (!s->transferable || !(s->rights & NL_CAP_TRANSFER)) return NL_CAP_ERR_TRANSFER;
+    if (t->next_generation == UINT32_MAX) return NL_CAP_PRIVATE_ERR_GENERATION;
+    rc = mint_slot(t, s->type_id, s->service_id, s->rights, 1, s->scope, &next);
+    if (rc != NL_CAP_OK) return rc;
+    /* Storage is fixed; mint cannot relocate s and cannot choose its live slot. */
+    s->revoked = 1;
+    private_retire(t, original.slot);
+    audit(t, NL_CAP_AUDIT_TRANSFER);
+    *out = next;
+    return NL_CAP_OK;
+}
+
+int nl_cap_private_consume(NlCapTable *t, const NlCap *token) {
+    NlCapSlot *s = NULL;
+    int rc = find_live(t, token, &s);
+    if (rc != NL_CAP_OK) return rc;
+    uint32_t slot = token->slot;
+    s->revoked = 1;
+    private_retire(t, slot);
+    audit(t, NL_CAP_AUDIT_REVOKE);
+    return NL_CAP_OK;
 }

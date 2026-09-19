@@ -153,7 +153,7 @@ static bool parse_identifier(const char **p, char *out, size_t out_size) {
     skip_whitespace(p);
     size_t i = 0;
     while ((**p >= 'A' && **p <= 'Z') || (**p >= 'a' && **p <= 'z') ||
-           (**p >= '0' && **p <= '9') || **p == '_') {
+           (**p >= '0' && **p <= '9') || **p == '_' || **p == '$') {
         if (i + 1 >= out_size) return false;
         out[i++] = *(*p)++;
     }
@@ -467,7 +467,7 @@ static uint32_t encode_operand(uint8_t *buf, OperandType type, uint8_t opcode,
         char name[128];
         skip_whitespace(line_ptr);
         if (((**line_ptr >= 'A' && **line_ptr <= 'Z') ||
-             (**line_ptr >= 'a' && **line_ptr <= 'z') || **line_ptr == '_') &&
+             (**line_ptr >= 'a' && **line_ptr <= 'z') || **line_ptr == '_' || **line_ptr == '$') &&
             parse_identifier(line_ptr, name, sizeof(name))) {
             int found = find_symbol(state, symbol_kind, name);
             if (found < 0) {
@@ -537,7 +537,7 @@ static uint32_t encode_operand(uint8_t *buf, OperandType type, uint8_t opcode,
             skip_whitespace(line_ptr);
             if ((**line_ptr >= 'A' && **line_ptr <= 'Z') ||
                 (**line_ptr >= 'a' && **line_ptr <= 'z') ||
-                **line_ptr == '_') {
+                (**line_ptr == '_' || **line_ptr == '$')) {
                 /* Label reference - emit placeholder, add patch */
                 char label[128];
                 if (!parse_identifier(line_ptr, label, sizeof(label))) {
@@ -1346,7 +1346,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             const char *before_symbol = p;
             char name[128];
             skip_whitespace(&p);
-            if (((*p >= 'A' && *p <= 'Z') || (*p >= 'a' && *p <= 'z') || *p == '_') &&
+            if (((*p >= 'A' && *p <= 'Z') || (*p >= 'a' && *p <= 'z') || *p == '_' || *p == '$') &&
                 parse_identifier(&p, name, sizeof(name))) {
                 int found = find_symbol(state, SYMBOL_FUNCTION, name);
                 if (found < 0) {

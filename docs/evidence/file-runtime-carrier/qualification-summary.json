@@ -1,0 +1,339 @@
+{
+  "artifact_entries": 9248,
+  "darwin_linked_and_neighbors": "be65d0368",
+  "equal_inventory_pairs": [
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "normal",
+      "sources": 7282,
+      "tools": 8
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "setup",
+      "sources": 7282,
+      "tools": 8
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "flow",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "normal",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "clang",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "opcodes",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "values",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "wrapper",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "body",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "hosted",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "sanitizer",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "setup",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-wrapper",
+      "phase": "wrapper-provider",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-wrapper",
+      "phase": "wrapper",
+      "sources": 7282,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "darwin-first",
+      "phase": "normal",
+      "sources": 7282,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin-first",
+      "phase": "setup",
+      "sources": 7282,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin-config",
+      "phase": "normal",
+      "sources": 7282,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin-config",
+      "phase": "sanitizer",
+      "sources": 7282,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin-linked",
+      "phase": "flow",
+      "sources": 7282,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin-linked",
+      "phase": "wrapper-provider",
+      "sources": 7282,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin-linked",
+      "phase": "opcodes",
+      "sources": 7282,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin-linked",
+      "phase": "values",
+      "sources": 7282,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin-linked",
+      "phase": "wrapper",
+      "sources": 7282,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin-linked",
+      "phase": "body",
+      "sources": 7282,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin-linked",
+      "phase": "hosted",
+      "sources": 7282,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin-linked",
+      "phase": "sanitizer",
+      "sources": 7282,
+      "tools": 14
+    }
+  ],
+  "initial_linux": "5345717bd",
+  "main_qualification": "565a4fada",
+  "phases": {
+    "darwin-config": [
+      {
+        "phase": "normal",
+        "seconds": 4.775,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 10.61,
+        "status": 1
+      }
+    ],
+    "darwin-first": [
+      {
+        "phase": "setup",
+        "seconds": 4.94,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 1.249,
+        "status": 1
+      }
+    ],
+    "darwin-linked": [
+      {
+        "phase": "sanitizer",
+        "seconds": 5.987,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 9.602,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 3.429,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 3.262,
+        "status": 0
+      },
+      {
+        "phase": "values",
+        "seconds": 1.727,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.387,
+        "status": 0
+      },
+      {
+        "phase": "wrapper-provider",
+        "seconds": 0.242,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 6.113,
+        "status": 0
+      }
+    ],
+    "linux": [
+      {
+        "phase": "setup",
+        "seconds": 10.534,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 5.822,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 20.182,
+        "status": 0
+      },
+      {
+        "phase": "clang",
+        "seconds": 20.048,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 18.867,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 5.046,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 4.704,
+        "status": 0
+      },
+      {
+        "phase": "values",
+        "seconds": 1.574,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.1,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 0.275,
+        "status": 1
+      }
+    ],
+    "linux-first": [
+      {
+        "phase": "setup",
+        "seconds": 11.004,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 2.196,
+        "status": 1
+      }
+    ],
+    "linux-wrapper": [
+      {
+        "phase": "wrapper-provider",
+        "seconds": 0.193,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 3.128,
+        "status": 0
+      }
+    ]
+  },
+  "private_manual_only": true,
+  "production": "a02d5ab19",
+  "public_dispatch": false,
+  "unique_artifacts": 1209,
+  "unique_bytes": 687855034
+}

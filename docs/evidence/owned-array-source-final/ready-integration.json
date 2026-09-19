@@ -1,0 +1,17 @@
+{
+  "qualified_pin": "1c4e29067aa21ee843e00997d42851877f7082fe",
+  "ready_integration_pin": "8fa4f4a7cc26d662d1db3b029144790cb196e6f8",
+  "canonical_parent": "19b0d0ca",
+  "changed_code_paths": [
+    "Makefile.gnu",
+    "src/nanoisa/file_code.h",
+    "src/nanoisa/file_code.inc",
+    "src/nanoisa/file_flow.c",
+    "tests/nanoisa/test_file_code.c",
+    "tests/test_file_code.py"
+  ],
+  "reviewed_source_checkpoint": "99fdb4804",
+  "corrected_fixture_checkpoint": "32f2f1398",
+  "rebuild_or_new_gate_claim": false,
+  "reason": "Canonical additive private File query providers/target only; no changed producer/parser/public selection/runtime paths."
+}

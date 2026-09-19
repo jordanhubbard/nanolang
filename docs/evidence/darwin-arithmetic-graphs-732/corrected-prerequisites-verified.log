@@ -1,0 +1,41 @@
+verified_utc=2026-09-18T13:46:54Z
+checkout=/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-corrected.gLIFOr
+source=25a685adfb4f9bf32c68c9e6de04eb0298673c45
+tree=93b51b7b9cafe70a8dc7acd936462de1744b77c9
+git_status_lines=0
+explicit_PATH=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin:/opt/homebrew/bin:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/VMware Fusion.app/Contents/Public:/opt/homebrew/bin:/Users/jordanh/.codex/tmp/arg0/codex-arg0gMdlrY:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jordanh/Library/pnpm:/opt/homebrew/sbin:/Applications/Docker.app/Contents/Resources/bin:/Users/jordanh/.cargo/bin:/Users/jordanh/.local/bin:/Users/jordanh/Bin:.
+python_path=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin/python
+Python 3.14.6
+python3_path=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/bin/python3
+Python 3.14.6
+wasmtime_path=/opt/homebrew/bin/wasmtime
+wasmtime 48.0.2 (e9f1ea232 2026-09-10)
+node_path=/opt/homebrew/bin/node
+v26.8.2
+cc_path=/usr/bin/cc
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin25.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+ld_path=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+@(#)PROGRAM:ld PROJECT:ld-27037.1
+BUILD 21:17:51 Aug 25 2026
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em armv8m.main armv8.1m.main
+LTO support using: LLVM version 21.0.0 (static support for 30, runtime is 30)
+TAPI support using: Apple TAPI version 21.0.0 (tapi-2100.3.8.1)
+sdk_path=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+sdk_version=27.0
+make_path=/usr/bin/make
+GNU Make 3.81
+Copyright (C) 2006  Free Software Foundation, Inc.
+python_wasmtime_version=48.0.0
+python_wasmtime_module=/private/tmp/nanolang-darwin-wasmtime-venv.YxRmVW/lib/python3.14/site-packages/wasmtime/__init__.py
+wasmtime_cli_sha256=130b4a32cecb619d52aefedda39c6733f00ee7460bbe8748f99eac72143c980c
+venv_python_sha256=07919b0fbf82742c24420d7dcadbd459f61bc1feb638eca02b81dccab2daf4d5
+brew_prefix=/opt/homebrew/opt/wasmtime
+wasmtime 48.0.2
+requested_binaries_before_build:
+ABSENT bin/nano_vm
+ABSENT bin/nvm2c
+ABSENT bin/nvm2wasm
+ABSENT bin/nanoisa_dump

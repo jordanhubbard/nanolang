@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nanoc_stage1",
+    "/tmp/nano-owned-pattern-hsxnyie6/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-hsxnyie6/program"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "File closed\nFile closed\nTesting resource tracking infrastructure\nFile closed\nResource tracking test passed!\n"
+}

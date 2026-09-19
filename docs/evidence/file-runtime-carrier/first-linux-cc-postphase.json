@@ -1,0 +1,12 @@
+{
+  "scope": "postphase comparison, not an invented before-phase cc inventory",
+  "cc": {
+    "path": "/bin/cc",
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+  },
+  "gcc": {
+    "path": "/bin/gcc",
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+  },
+  "equal": true
+}

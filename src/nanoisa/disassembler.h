@@ -21,7 +21,9 @@ typedef enum {
 char *disasm_module(const NvmModule *mod);
 char *disasm_module_styled(const NvmModule *mod, DisasmStyle style);
 
-/* Disassemble a module to a file stream. */
+/* Disassemble a module to a file stream. Required service contracts are not
+ * representable as text yet: string APIs return NULL and stream APIs write
+ * nothing, including function-only output with that module context. */
 void disasm_module_to_file(const NvmModule *mod, FILE *out);
 void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
                                   DisasmStyle style);

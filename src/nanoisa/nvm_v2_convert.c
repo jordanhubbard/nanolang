@@ -32,6 +32,53 @@
 #include "passive.h"
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
+#include "service_bindings_module.h"
+#include "mixed_samples_internal.h"
+#include "owned_array_admission.h"
+
+/* Service v2 preserves exact private declaration bytes without admission.
+ * Mixed and owner ARRAY transport require their full checked profiles; other paths
+ * retains the old shared ownership validator. */
+static NvmV2Result conversion_ownership(const NvmModule *module,bool *needs,uint16_t *checked_depths,NvmOwnerSignature *owner_signatures) {
+    if(nvm_service_bindings_present(module)) {
+        NvmV2Result service=nvm_service_bindings_validate(module);
+        if(service!=NVM_V2_OK)return service;
+        NvmFileNominalBindings nominal;
+        if(nvm_file_nominal_decode(module->service_data,module->service_size,&nominal)==NVM_SERVICE_OK) {
+            *needs=true;return NVM_V2_OK; /* Exact private transport, never shared authority. */
+        }
+        return nvm_ownership_contracts_validate(module,needs); /* Unchanged v1. */
+    }
+    if(nvm_owned_array_route(module)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+        NvmOwnedArrayPlan *plan=NULL;NvmOwnerAuthorityResult r=nvm_owned_array_admit(module,&plan);
+        if(r.status!=NVM_OWNER_AUTH_PREPARED)
+            return r.status==NVM_OWNER_AUTH_MEMORY?NVM_V2_ERR_TRUNCATED:NVM_V2_ERR_INDEX_RANGE;
+        uint16_t depths[8]={0};
+        for(uint32_t f=0;f<module->function_count;f++) {
+            NvmOwnerSignature signature;
+            if(!nvm_owned_array_plan_signature(plan,f,&signature)){nvm_owned_array_plan_free(plan);return NVM_V2_ERR_INDEX_RANGE;}
+            depths[f]=signature.max_stack;
+            if(owner_signatures)owner_signatures[f]=signature;
+        }
+        nvm_owned_array_plan_free(plan);
+        if(checked_depths)memcpy(checked_depths,depths,sizeof depths);
+        *needs=true;return NVM_V2_OK;
+    }
+    if(!nvm_mixed_samples_candidate(module))return nvm_ownership_contracts_validate(module,needs);
+    NvmMixedSamplesPlan *plan=NULL;
+    NvmMixedShapeResult result=nvm_mixed_samples_admit(module,&plan);
+    if(result.status!=NVM_MIXED_SHAPE_PROVED)
+        return result.status==NVM_MIXED_SHAPE_MEMORY?NVM_V2_ERR_TRUNCATED:NVM_V2_ERR_INDEX_RANGE;
+    uint16_t depths[8]={0};
+    if(checked_depths)for(uint32_t f=0;f<module->function_count;f++) {
+        NvmMixedSignature signature;
+        if(!nvm_mixed_samples_signature(plan,f,&signature)){nvm_mixed_samples_plan_free(plan);return NVM_V2_ERR_INDEX_RANGE;}
+        depths[f]=signature.max_stack;
+    }
+    nvm_mixed_samples_plan_free(plan);
+    if(checked_depths)memcpy(checked_depths,depths,sizeof depths);
+    *needs=true;return NVM_V2_OK;
+}
 
 /* v1 keeps the source filename as a string-pool index outside every table. v2
  * has no such field, so it travels as a metadata pair under this key -- which
@@ -60,10 +107,17 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     if (!mod || !out) return NVM_V2_ERR_INDEX_RANGE;
     memset(out, 0, sizeof *out);
     out->isa_version = NVM_V2_ISA_VERSION;
+    NvmV2Result service = nvm_service_bindings_validate(mod);
+    if (service != NVM_V2_OK) return service;
+    out->service_data = mod->service_data;
+    out->service_size = mod->service_size;
     if (!nvm_metadata_valid(mod) || !nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod) ||
         !nvm_retained_layouts_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
     bool needs_ownership = false;
-    NvmV2Result ownership = nvm_ownership_contracts_validate(mod, &needs_ownership);
+    bool owner_array=nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED;
+    bool checked_profile=owner_array || nvm_mixed_samples_candidate(mod);
+    uint16_t checked_depths[8]={0};NvmOwnerSignature owner_signatures[8]={0};
+    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership, checked_profile?checked_depths:NULL,owner_array?owner_signatures:NULL);
     if (ownership != NVM_V2_OK) return ownership;
     out->ownership_data = mod->ownership_data;
     out->ownership_size = mod->ownership_size;
@@ -137,10 +191,13 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
         const NvmFunctionEntry *f = &mod->functions[i];
         size_t mark = pool_used;
 
-        /* I retain producer-declared tags. Interning can rewind this pool,
-         * so absent declarations must overwrite reused bytes with TAG_VOID. */
+        /* Selected owner ARRAY signatures come from fresh complete authority.
+         * Other profiles retain producer tags or explicit unknown placeholders;
+         * interning can rewind this pool, so every byte must be assigned. */
         const uint8_t *ptags = f->arity ? pool + pool_used : NULL;
-        if (f->arity && mod->function_param_types && mod->function_param_types[i])
+        if(owner_array) {
+            for(uint16_t n=0;n<f->arity;n++)pool[pool_used+n]=owner_signatures[i].parameters[n].tag;
+        } else if (f->arity && mod->function_param_types && mod->function_param_types[i])
             memcpy(pool + pool_used, mod->function_param_types[i], f->arity);
         else if (f->arity)
             memset(pool + pool_used, TAG_VOID, f->arity);
@@ -169,7 +226,8 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
          * treats 0 as nothing to check. The module still has to pass
          * nvm_verify before it runs either way. */
         uint16_t depth = 0;
-        if (nvm_verify_function_max_stack(mod, i, &depth).ok)
+        if(checked_profile)fns[i].max_stack=checked_depths[i];
+        else if (!nvm_service_bindings_present(mod) && nvm_verify_function_max_stack(mod, i, &depth).ok)
             fns[i].max_stack = depth;
     }
 
@@ -327,6 +385,8 @@ oom:
 NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     if (!m || !out) return NVM_V2_ERR_INDEX_RANGE;
     *out = NULL;
+    NvmV2Result service = nvm_v2_service_bindings_validate(m);
+    if (service != NVM_V2_OK) return service;
 
     NvmModule *mod = nvm_module_new();
     if (!mod) return NVM_V2_ERR_TRUNCATED;
@@ -356,8 +416,18 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     }
 
     if (m->code_size) {
-        if (m->code_size > UINT32_MAX) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
-        nvm_append_code(mod, m->code, (uint32_t)m->code_size);
+        if (!m->code || m->code_size > UINT32_MAX) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
+        uint32_t size = (uint32_t)m->code_size;
+        /* I publish CODE only after exact storage and copying succeed. The
+         * append helper's zero offset cannot distinguish failure here. */
+        if (size > mod->code_capacity) {
+            uint8_t *code = realloc(mod->code, size);
+            if (!code) { nvm_module_free(mod); return NVM_V2_ERR_TRUNCATED; }
+            mod->code = code;
+            mod->code_capacity = size;
+        }
+        memcpy(mod->code, m->code, size);
+        mod->code_size = size;
     }
 
     for (uint32_t i = 0; i < m->functions.count; i++) {
@@ -473,6 +543,12 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         mod->header.flags |= NVM_FLAG_NEEDS_EXTERN;
     if (m->has_debug)     mod->header.flags |= NVM_FLAG_DEBUG_INFO;
 
+    if (m->service_size) {
+        mod->service_data = malloc(m->service_size);
+        if (!mod->service_data) { nvm_module_free(mod); return NVM_V2_ERR_TRUNCATED; }
+        memcpy(mod->service_data, m->service_data, m->service_size);
+        mod->service_size = m->service_size;
+    }
     if (m->passive_size) {
         if (!m->passive_data) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
         mod->passive_data = malloc(m->passive_size);
@@ -488,8 +564,14 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         mod->ownership_size = m->ownership_size;
     }
     bool needs_ownership = false;
-    NvmV2Result ownership = nvm_ownership_contracts_validate(mod, &needs_ownership);
+    bool owner_array=nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED;
+    uint16_t owner_depths[8]={0};
+    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership,owner_array?owner_depths:NULL,NULL);
     if (ownership != NVM_V2_OK) { nvm_module_free(mod); return ownership; }
+    if(owner_array)for(uint32_t f=0;f<mod->function_count;f++) {
+        uint16_t declared=m->functions.items[f].max_stack;
+        if(declared && declared<owner_depths[f]){nvm_module_free(mod);return NVM_V2_ERR_INDEX_RANGE;}
+    }
     if (!nvm_passive_valid(mod)) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
     *out = mod;
     return NVM_V2_OK;

@@ -1,0 +1,50 @@
+captured_utc=2026-09-18T14:00:17Z
+test_work=/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-binary64-arithmetic-h2i5pyl1
+inner_logs:
+86ecaec35c9ed5b0c47656a7f2844c848d77d6c858106f09cebf0df5b9014083  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/1.log
+e76875ac1c5c996ed3311dfe5098708fcc9a746ac115dac6d59852758be8fdda  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/10.log
+cb84292bced137698327a7e792abd5c77b0070122aa4bda04a630f9ad123b064  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/11.log
+eff84ff53a6c0c30f9a698518f4f13168c4998ce57e6ca2c358fbeba017dda7d  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/2.log
+2ebe68396949fadd1ec84cfb1ced7d311d694fa17c6ce775ccd147681af1563e  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/3.log
+b1334e2287fe17b6f981b732f0a30e7e8873ab80825101c52f905b07dc46aa2b  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/4.log
+4a531f10ac2ee4e96d899121784741dac5c5cf2ccfd9684844fb7bf889c74d95  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/5.log
+59c4c39f9480e5dca1dfa579087270644b80572acd272b927c48753d3f8821e3  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/6.log
+4c83165c2313a170b57d919d08a41d1cfd56f526874c259b403b6ff86b529cb4  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/7.log
+e94e7dc7c956ac4f6ba5e11d025a91ca33e09e755ed8b48056b7da912b4e2406  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/8.log
+a1e4069ca3af1aa7b5dcdf8bee10cd782241b43f5e0d827c9b16230398f0d544  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/9.log
+last_inner_log:
+/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm-helper2-inner-logs/11.log
+cc -std=c11 -Wall -Wextra -Werror -ffp-contract=off -fno-fast-math -fsanitize=address,undefined -fno-sanitize-recover=all -I/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/src -O2 -flto -fuse-ld=lld /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/tests/test_binary64_arithmetic.c -lm -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-binary64-arithmetic-h2i5pyl1/run10
+ld64.lld: error: could not load TAPI file at /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libm.tbd: malformed file
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libm.tbd:4:20: error: unknown target
+                   arm64e.x1-macos, arm64e.x1-maccatalyst ]
+                   ^~~~~~~~~~~~~~~
+
+
+ld64.lld: error: could not load TAPI file at /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd: malformed file
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd:4:20: error: unknown target
+                   arm64e.x1-macos, arm64e.x1-maccatalyst ]
+                   ^~~~~~~~~~~~~~~
+
+
+ld64.lld: error: undefined symbol: __assert_rtn
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol main+0x650)
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol main+0x620)
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol check+0x138)
+>>> referenced 2 more times
+
+ld64.lld: error: undefined symbol: printf
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol main+0x5e8)
+
+ld64.lld: error: undefined symbol: fegetround
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol main+0x10)
+
+ld64.lld: error: undefined symbol: __cxa_atexit
+>>> referenced by /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/cc-bcf05c.o:(symbol l_register_call_dtors.1+0x18)
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+requested_binary_hashes_after_failure:
+17a340e38a7580c05a86f451b4ac54290a0ca0a0b2c4a1cc09a66c3372ec7c62  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nano_vm
+3d0b0fe22c7f147873da08d3f2abf0f26d31c4d55d915f029c3ad53886abb6af  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nvm2c
+13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nvm2wasm
+67d4b4364f27da3299a9a950eb0ceeb28cb8d662c154fea426073aa63b0dcf5e  /private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad-llvm.9w6rbW/bin/nanoisa
+tracked_status_after_failure:

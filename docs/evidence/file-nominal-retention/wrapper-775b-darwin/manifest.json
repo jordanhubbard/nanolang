@@ -1,0 +1,62 @@
+{
+  "pin": "775b0240828d07e124078765c7a09dc83f230069",
+  "platform": "darwin",
+  "bootstrap_reference": "f5e07e5bea043265cfc15176fb1804227c363901",
+  "steps": [
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j8",
+        "nano_virt"
+      ],
+      "env": {
+        "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "NANO_SERVICE_MODULE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "NANO_FILE_NOMINAL_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+      },
+      "status": 0,
+      "seconds": 3.493,
+      "log_sha256": "5328d7597b49cb82640034cb58b84aaa6ff331584729d36f70189d84eee181f8"
+    },
+    {
+      "name": "wrapper",
+      "command": [
+        "make",
+        "test-wrapper-gen"
+      ],
+      "env": {
+        "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "NANO_SERVICE_MODULE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "NANO_FILE_NOMINAL_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+      },
+      "status": 0,
+      "seconds": 10.349,
+      "log_sha256": "d47ef1dab50777b33b01385ec8236f3726783efbf63d8d6e6255cb1cab8490b5"
+    },
+    {
+      "name": "remaining",
+      "command": [
+        "make",
+        "test-verifier-profiles",
+        "test-owned-array-layouts",
+        "test-owned-array-origins"
+      ],
+      "env": {
+        "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "NANO_SERVICE_MODULE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "NANO_FILE_NOMINAL_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+      },
+      "status": 2,
+      "seconds": 7.435,
+      "log_sha256": "fd74aa1dbbd81d902e5d5bb0b78e332d09dc04e187ea57161b3d5a9b590a25f8"
+    }
+  ],
+  "terminal": 2,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

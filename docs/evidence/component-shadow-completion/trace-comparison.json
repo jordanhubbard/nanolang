@@ -1,0 +1,26 @@
+[
+  {
+    "component": "parser",
+    "component_declarations": 240,
+    "trace_entries": 315,
+    "reported_completed": 315,
+    "missing_declared_target_multiplicities": {},
+    "source_sha256": "6b9915d746d7d42510ba1c23e495e204710ead12dc0031c3c247753102ec6d6e"
+  },
+  {
+    "component": "typecheck",
+    "component_declarations": 148,
+    "trace_entries": 513,
+    "reported_completed": 513,
+    "missing_declared_target_multiplicities": {},
+    "source_sha256": "eba6a115ab04d694a71799c40eecd2634eea0b9b8d8766b7330703d49d7e9218"
+  },
+  {
+    "component": "transpiler",
+    "component_declarations": 165,
+    "trace_entries": 505,
+    "reported_completed": 505,
+    "missing_declared_target_multiplicities": {},
+    "source_sha256": "908dd98240b5d586c5b34e073ad9604d362057b98e8585fb93b226addb50af84"
+  }
+]

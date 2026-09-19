@@ -1,0 +1,12 @@
+{
+  "name": "yaml-preflight",
+  "argv": [
+    "/home/jkh/Src/RubyOS/build/host-ruby/bin/ruby",
+    "-e",
+    "require 'yaml'; data={'gate'=>[1,true,'byte']}; abort 'YAML mismatch' unless YAML.safe_load(YAML.dump(data))==data; puts RUBY_DESCRIPTION; puts Psych::VERSION; puts $LOADED_FEATURES.grep(/psych/)"
+  ],
+  "cwd": "/tmp/nanolang-opencl-private-7f0/psych",
+  "exit_code": 0,
+  "seconds": 0.06397684500552714,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}

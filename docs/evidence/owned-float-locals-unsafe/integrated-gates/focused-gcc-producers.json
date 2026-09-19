@@ -1,0 +1,12 @@
+{
+  "work": "/tmp/nano-source-borrows-gbmjdh9l",
+  "generated_producers": {
+    "/home/jkh/Src/nanolang-owned-float-locals-ready/bin/nanoisa_emit": "7011aaef85d1a5a1de9de17bbe214bd25a1da079306058a54e497c1ed16f6b5c",
+    "/tmp/nano-source-borrows-gbmjdh9l/nanoc_stage1-emit": "fe50f3d5ada18ed9fddcb4ddf2c9fae18acf58a6874e63d478e8cc3a05125c88",
+    "/tmp/nano-source-borrows-gbmjdh9l/nanoc_stage2-emit": "9792e7da7631df196337f5afb12a6f5b71c6a5cfc884100dab9fd4665daffe14",
+    "/tmp/nano-source-borrows-gbmjdh9l/nanoc_c-shadows": "0697afe04e969b70ff7284d4f277b9c0ca1312f9b08628a8bd328e3c675569e9",
+    "/tmp/nano-source-borrows-gbmjdh9l/nanoc_stage1-shadows": "a1b6607d94b04c96f7a68a92e70664fb207e972dbec616708df3e98e9e006776",
+    "/tmp/nano-source-borrows-gbmjdh9l/nanoc_stage2-shadows": "b744508565ad990192ea0a30494a7d3c6cd63f420223444f71f14615a58c143d"
+  },
+  "unchanged": true
+}

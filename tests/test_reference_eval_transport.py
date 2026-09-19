@@ -14,6 +14,7 @@ HARNESS = r'''
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <spawn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +23,25 @@ HARNESS = r'''
 void *fixture_realloc(void *pointer, size_t size) {
     return getenv("NANO_TEST_REF_REJECT_GROW") ? NULL : realloc(pointer, size);
 }
+static pid_t owned_children[2];
+static int owned_count, tracking_error;
+static void track_child(pid_t child) {
+    if (child <= 0 || owned_count >= 2) tracking_error = 1;
+    else owned_children[owned_count++] = child;
+}
+int fixture_spawnp(pid_t *child, const char *file,
+                   const posix_spawn_file_actions_t *actions,
+                   const posix_spawnattr_t *attributes,
+                   char *const arguments[], char *const environment[]) {
+    int result = posix_spawnp(child, file, actions, attributes, arguments, environment);
+    if (!result) track_child(*child);
+    return result;
+}
+pid_t fixture_fork(void) {
+    pid_t child = fork();
+    if (child > 0) track_child(child);
+    return child;
+}
 static int descriptors(void) {
     int count = 0;
     for (int fd = 0; fd < 256; ++fd) if (fcntl(fd, F_GETFD) >= 0) count++;
@@ -29,40 +49,93 @@ static int descriptors(void) {
 }
 int main(int argc, char **argv) {
     if (argc != 4) return 10;
+    int status = 0, saved_output = -1, ready[2] = {-1, -1};
+    pid_t sentinel = -1;
+    char *text = NULL, *result = NULL;
     FILE *input = fopen(argv[1], "rb");
-    if (!input || fseek(input, 0, SEEK_END)) return 11;
+    if (!input || fseek(input, 0, SEEK_END)) { status = 11; goto cleanup; }
     long size = ftell(input);
-    if (size < 0 || fseek(input, 0, SEEK_SET)) return 12;
-    char *text = malloc((size_t)size + 1);
-    if (!text || fread(text, 1, (size_t)size, input) != (size_t)size) return 13;
+    if (size < 0 || fseek(input, 0, SEEK_SET)) { status = 12; goto cleanup; }
+    text = malloc((size_t)size + 1);
+    if (!text || fread(text, 1, (size_t)size, input) != (size_t)size) { status = 13; goto cleanup; }
     text[size] = 0;
-    fclose(input);
-    int saved_output = -1;
+    fclose(input); input = NULL;
+    if (!strcmp(argv[3], "foreign-child")) {
+        if (pipe(ready)) { status = 19; goto cleanup; }
+        sentinel = fork();
+        if (sentinel < 0) { status = 19; goto cleanup; }
+        if (!sentinel) {
+            close(ready[0]);
+            char byte = 'R';
+            if (write(ready[1], &byte, 1) != 1) _exit(19);
+            close(ready[1]);
+            for (;;) pause();
+        }
+        close(ready[1]); ready[1] = -1;
+        char byte;
+        ssize_t count;
+        do { count = read(ready[0], &byte, 1); } while (count < 0 && errno == EINTR);
+        close(ready[0]); ready[0] = -1;
+        if (count != 1 || byte != 'R') { status = 19; goto cleanup; }
+    }
     if (!strcmp(argv[3], "closed")) {
         saved_output = dup(STDOUT_FILENO);
-        if (saved_output < 0 || fcntl(saved_output, F_SETFD, FD_CLOEXEC) < 0) return 14;
+        if (saved_output < 0 || fcntl(saved_output, F_SETFD, FD_CLOEXEC) < 0) { status = 14; goto cleanup; }
         close(STDIN_FILENO); close(STDOUT_FILENO); close(STDERR_FILENO);
     }
     if (!strcmp(argv[3], "ignore-pipe")) signal(SIGPIPE, SIG_IGN);
     int before = descriptors(), repeats = !strcmp(argv[3], "repeat") ? 30 : 1;
-    char *result = NULL;
     for (int i = 0; i < repeats; ++i) {
         char *next = nanocore_reference_eval(text, strcmp(argv[2], "-") ? argv[2] : NULL);
-        if (i && (!next || !result || strcmp(next, result))) return 15;
+        if (i && (!next || !result || strcmp(next, result))) { free(next); status = 15; goto cleanup; }
         free(result);
         result = next;
-        if (descriptors() != before) return 16;
-        int status;
-        if (waitpid(-1, &status, WNOHANG) != -1 || errno != ECHILD) return 17;
+        if (descriptors() != before) { status = 16; goto cleanup; }
+        if (tracking_error || (next && owned_count != 2)) { status = 20; goto cleanup; }
+        for (int child = 0; child < owned_count; ++child) {
+            int child_status;
+            pid_t reaped;
+            do { reaped = waitpid(owned_children[child], &child_status, WNOHANG); } while (reaped < 0 && errno == EINTR);
+            int wait_error = errno;
+            if (reaped > 0 || (reaped < 0 && wait_error == ECHILD)) owned_children[child] = -1;
+            if (reaped != -1 || wait_error != ECHILD) {
+                status = 17; goto cleanup;
+            }
+        }
+        owned_count = 0;
+        if (sentinel > 0) {
+            int child_status;
+            pid_t reaped;
+            do { reaped = waitpid(sentinel, &child_status, WNOHANG); } while (reaped < 0 && errno == EINTR);
+            if (reaped != 0) {
+                if (reaped > 0 || errno == ECHILD) sentinel = -1;
+                status = 21; goto cleanup;
+            }
+        }
         if (!next) break;
     }
     if (!strcmp(argv[3], "ignore-pipe")) {
         struct sigaction current;
-        if (sigaction(SIGPIPE, NULL, &current) || current.sa_handler != SIG_IGN) return 18;
+        if (sigaction(SIGPIPE, NULL, &current) || current.sa_handler != SIG_IGN) { status = 18; goto cleanup; }
+    }
+    status = result ? 0 : 3;
+cleanup:
+    if (input) fclose(input);
+    for (int fd = 0; fd < 2; ++fd) if (ready[fd] >= 0) close(ready[fd]);
+    for (int child = 0; child < owned_count; ++child) if (owned_children[child] > 0) {
+        pid_t reaped;
+        kill(owned_children[child], SIGKILL);
+        do { reaped = waitpid(owned_children[child], NULL, 0); } while (reaped < 0 && errno == EINTR);
+    }
+    if (sentinel > 0) {
+        int child_status;
+        pid_t reaped;
+        kill(sentinel, SIGTERM);
+        do { reaped = waitpid(sentinel, &child_status, 0); } while (reaped < 0 && errno == EINTR);
+        if ((reaped != sentinel || !WIFSIGNALED(child_status) || WTERMSIG(child_status) != SIGTERM) && (status == 0 || status == 3)) status = 22;
     }
     if (saved_output >= 0) { dup2(saved_output, STDOUT_FILENO); close(saved_output); }
-    int status = result ? 0 : 3;
-    if (result) fwrite(result, 1, strlen(result), stdout);
+    if (!status && result) fwrite(result, 1, strlen(result), stdout);
     free(result); free(text);
     return status;
 }
@@ -82,7 +155,9 @@ class ReferenceTransport(unittest.TestCase):
             '-fno-sanitize-recover=all','-I'+str(ROOT/'src')]
         # I replace allocation only in this test-compiled translation unit.
         object_file=cls.base/'exporter.o'
-        for command in (flags+['-Drealloc=fixture_realloc','-c',ROOT/'src/nanocore_export.c','-o',object_file],
+        for command in (flags+['-Drealloc=fixture_realloc',
+                               '-Dposix_spawnp=fixture_spawnp','-Dfork=fixture_fork',
+                               '-c',ROOT/'src/nanocore_export.c','-o',object_file],
                         flags+[source,object_file,linker,'-o',cls.binary]):
             result = subprocess.run([str(x) for x in command],capture_output=True,text=True,timeout=60)
             if result.returncode: raise RuntimeError(result.stdout+result.stderr)
@@ -151,6 +226,12 @@ class ReferenceTransport(unittest.TestCase):
         compiler=self.stub(self.base/'repeated calls','sys.stdin.read()\nsys.stdout.write("ok\\n")\n')
         self.assertEqual(self.run_eval('(EInt 42)',compiler,mode='repeat'),'ok')
         self.assertEqual(self.run_eval('(EInt 42)',compiler,mode='closed'),'ok')
+
+    def test_caller_child_survives_success_and_missing_program(self):
+        compiler=self.stub(self.base/'caller child','sys.stdin.read()\nsys.stdout.write("ok\\n")\n')
+        self.assertEqual(self.run_eval('(EInt 42)',compiler,mode='foreign-child'),'ok')
+        empty=self.base/'caller child empty path';empty.mkdir()
+        self.run_eval('(EInt 42)','-',mode='foreign-child',path=empty,success=False)
 
 if __name__ == '__main__':
     unittest.main()

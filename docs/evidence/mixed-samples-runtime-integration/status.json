@@ -1,0 +1,32 @@
+{
+  "build": {
+    "command": [
+      "make",
+      "-j2",
+      "mixed-samples-runtime-fixture"
+    ],
+    "status": 0,
+    "seconds": 17.859173135017045
+  },
+  "mixed": {
+    "command": [
+      "make",
+      "test-mixed-samples-runtime",
+      "test-mixed-samples-runtime-alloc",
+      "test-mixed-samples-admission",
+      "test-mixed-samples",
+      "test-mixed-float-proof"
+    ],
+    "status": 0,
+    "seconds": 36.75801925000269
+  },
+  "service": {
+    "command": [
+      "make",
+      "test-service-bindings",
+      "test-service-bindings-sanitizers"
+    ],
+    "status": 0,
+    "seconds": 0.4667479309719056
+  }
+}

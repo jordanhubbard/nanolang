@@ -1,0 +1,19 @@
+In file included from tests/test_emitted_array_binary64.c:2:
+/tmp/nanolang-emitted-array-gcc-first/emitted_runtime.h: In function ‘nl_format’:
+/tmp/nanolang-emitted-array-gcc-first/emitted_runtime.h:636:5: error: implicit declaration of function ‘va_start’ [-Werror=implicit-function-declaration]
+  636 |     va_start(ap, n_args);
+      |     ^~~~~~~~
+/tmp/nanolang-emitted-array-gcc-first/emitted_runtime.h:642:31: error: implicit declaration of function ‘va_arg’ [-Werror=implicit-function-declaration]
+  642 |             const char *arg = va_arg(ap, const char *);
+      |                               ^~~~~~
+/tmp/nanolang-emitted-array-gcc-first/emitted_runtime.h:642:42: error: expected expression before ‘const’
+  642 |             const char *arg = va_arg(ap, const char *);
+      |                                          ^~~~~
+/tmp/nanolang-emitted-array-gcc-first/emitted_runtime.h:650:5: error: implicit declaration of function ‘va_end’ [-Werror=implicit-function-declaration]
+  650 |     va_end(ap);
+      |     ^~~~~~
+/tmp/nanolang-emitted-array-gcc-first/emitted_runtime.h: At top level:
+/tmp/nanolang-emitted-array-gcc-first/emitted_runtime.h:250:20: error: ‘nl_str_concat’ used but never defined [-Werror]
+  250 | static const char* nl_str_concat(const char* s1, const char* s2);
+      |                    ^~~~~~~~~~~~~
+cc1: all warnings being treated as errors

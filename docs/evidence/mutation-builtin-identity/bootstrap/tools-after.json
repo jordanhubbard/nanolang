@@ -1,0 +1,34 @@
+{
+  "/bin/gcc": {
+    "resolved_path": "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+  },
+  "/bin/g++": {
+    "resolved_path": "/usr/bin/aarch64-linux-gnu-g++-13",
+    "sha256": "fc02363794280f404c6ca6f5da1c8fe469be902e9de140d35d8573bb3393f53b"
+  },
+  "/bin/make": {
+    "resolved_path": "/usr/bin/make",
+    "sha256": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0"
+  },
+  "/home/linuxbrew/.linuxbrew/bin/python3": {
+    "resolved_path": "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14",
+    "sha256": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8"
+  },
+  "/bin/git": {
+    "resolved_path": "/usr/bin/git",
+    "sha256": "aa6540695d076182256dd6e96c8b302e4d56381e3000bbfd5c71bbdfe94a4942"
+  },
+  "/bin/as": {
+    "resolved_path": "/usr/bin/aarch64-linux-gnu-as",
+    "sha256": "1ffda50efb6d91b6b05ef933aced099595c36577594c0296c91161f2d13db374"
+  },
+  "/bin/ld": {
+    "resolved_path": "/usr/bin/aarch64-linux-gnu-ld.bfd",
+    "sha256": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c"
+  },
+  "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1": {
+    "resolved_path": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1",
+    "sha256": "64edfe466dd55c4216c006e9fa237af012e4974281dd4d11640aacfc3b3693af"
+  }
+}

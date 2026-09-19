@@ -1,0 +1,69 @@
+{
+  "canonical": "1e64676e16761936facc0c63da825257124a8184",
+  "integration": "b84f95c7012519fa3083dd80176a17511d1c3da7",
+  "inputs": {
+    "Makefile.gnu": {
+      "qualified": "4e8cf81e160299104f02b7776370dcdc49876bd3a1d77c97c7a08fc3038e5a2c",
+      "ready": "d073b8f36fcdb75f81b6540cdef4353d646afce5afd4daa4d4f1892907e7163d",
+      "equal": false
+    },
+    "src/nanoisa/nvm_v2_convert.c": {
+      "qualified": "b6f68ab3d79f29de4c543c631a95527c713ef6088624abfe12313056d0665660",
+      "ready": "b6f68ab3d79f29de4c543c631a95527c713ef6088624abfe12313056d0665660",
+      "equal": true
+    },
+    "src/nanoisa/nvm_format.c": {
+      "qualified": "0da678f419f8bfbeafc2d9eb45a24b51127a987c622a9d746fba8ef69c80ffe7",
+      "ready": "0da678f419f8bfbeafc2d9eb45a24b51127a987c622a9d746fba8ef69c80ffe7",
+      "equal": true
+    },
+    "src/nanoisa/nvm_format.h": {
+      "qualified": "a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34",
+      "ready": "a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34",
+      "equal": true
+    },
+    "src/nanoisa/nvm_v2_sections.h": {
+      "qualified": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+      "ready": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+      "equal": true
+    },
+    "src/nanoisa/service_bindings_module.c": {
+      "qualified": "df384b502ffafd807ce33e58ae41ad8d0f27d7a19d0a69f0eb1b1052581d497c",
+      "ready": "df384b502ffafd807ce33e58ae41ad8d0f27d7a19d0a69f0eb1b1052581d497c",
+      "equal": true
+    },
+    "src/nanoisa/verifier.c": {
+      "qualified": "5160ad3f3a7b8a3731b79ee2a491bf34d2759f9062e4e9de9517207f9c95da5c",
+      "ready": "5160ad3f3a7b8a3731b79ee2a491bf34d2759f9062e4e9de9517207f9c95da5c",
+      "equal": true
+    },
+    "tests/nanoisa/test_nvm_v2_code_publication.c": {
+      "qualified": "1aec11cc98d62457d646c3c95523cf523154cfd4d7bffa03fb63f409525ef102",
+      "ready": "1aec11cc98d62457d646c3c95523cf523154cfd4d7bffa03fb63f409525ef102",
+      "equal": true
+    },
+    "tests/test_nvm_v2_code_publication.py": {
+      "qualified": "fd4f63d3821aa13765b6f3ed11e5752dc0efd7b032beca442c1efa3f98945370",
+      "ready": "fd4f63d3821aa13765b6f3ed11e5752dc0efd7b032beca442c1efa3f98945370",
+      "equal": true
+    },
+    "tests/nanoisa/test_nvm_v2_convert.c": {
+      "qualified": "7ed0c4daf4826cf474c33e76db9e4ccbe0382bf23ab7bee078431d24817de4ff",
+      "ready": "7ed0c4daf4826cf474c33e76db9e4ccbe0382bf23ab7bee078431d24817de4ff",
+      "equal": true
+    },
+    "tests/nanoisa/test_file_nominal.c": {
+      "qualified": "a10d85fe75575af5a8176fb0647ea87adb56b53850344b360f15b5ef49263ec6",
+      "ready": "a10d85fe75575af5a8176fb0647ea87adb56b53850344b360f15b5ef49263ec6",
+      "equal": true
+    },
+    "tests/nanoisa/test_owned_array_authority.c": {
+      "qualified": "11b0d083b6f964635e38e887eefdcfdad2c1fe4d1d28f3f2139b69ca7fe52da9",
+      "ready": "11b0d083b6f964635e38e887eefdcfdad2c1fe4d1d28f3f2139b69ca7fe52da9",
+      "equal": true
+    }
+  },
+  "scope": "I integrate canonical private hosted query853 after reconstruction850. All eleven non-Make selected inputs remain identical to36711. Additive File provider dependencies/targets are canonical. Separate combined Linux and puck trees qualify hosted ordinary/sanitizer, conversion, module and wrapper closure; original qualified trees remain intact.",
+  "prior_integration": "5b953b98b67d48101ebadc10f26e5a5b15f27bc1",
+  "prior_canonical": "8ddba93efe2a888e21c9ab484f60fabea51d02be"
+}

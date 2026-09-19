@@ -1,0 +1,23 @@
+[schema] Regenerating compiler schema artifacts...
+[schema] Compiler schema artifacts are up-to-date.
+...........F.....................
+======================================================================
+FAIL: test_every_schema_opcode_matches_enum_and_vm_dispatch (tests.test_nanoisa_schema.NanoisaSchemaTests.test_every_schema_opcode_matches_enum_and_vm_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-opcodes-qualified/tests/test_nanoisa_schema.py", line 135, in test_every_schema_opcode_matches_enum_and_vm_dispatch
+    self.assertEqual(vm_opcodes, set(expected))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the second set but not the first:
+'OP_FILE_RESULT_BRANCH'
+'OP_FILE_SERVICE'
+'OP_FILE_DROP_STACK'
+'OP_FILE_END_BORROW'
+'OP_FILE_DROP_LOCAL'
+'OP_FILE_RESULT_TAKE'
+
+----------------------------------------------------------------------
+Ran 33 tests in 1.498s
+
+FAILED (failures=1)
+make: *** [Makefile.gnu:260: schema-check] Error 1

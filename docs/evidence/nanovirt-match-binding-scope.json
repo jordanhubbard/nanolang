@@ -1,0 +1,26 @@
+{
+  "head": "83268f8bf9515b781817115d2c6ae4f6ffca7054",
+  "files": {
+    "src/nanovirt/codegen.c": "b2ac87b8e1ca5bd50c4dd13ff0c8c8c67e2765439d5df4e897be680c3a562dab",
+    "tests/test_nanovirt_match_bindings.py": "5021af98e809fc27ed9ebdea8ae56754e644cd39a5260f5ddb6725c759bb4f9a",
+    "tests/nanovirt/test_codegen.c": "05bdf17f311e7efdfc08a68adeaabb934c7bdbe9b980cf788af954d9f6fa17cd",
+    "bin/nano": "67b9e38a92e34a15e460bf64b535a2b1511c1bded7dbf920d1148b1d2d5e4b0c",
+    "bin/nano_virt": "dd540012b5a11b86ea173c6da2358c836da1f00fcd8868b866d8195158876c1e",
+    "bin/nano_vm": "15fa2387f9f7e749bfbb7ab7340728dd96e7c85bdecf38fcc97dd73a1ea0ed6f"
+  },
+  "logs": {
+    "/tmp/nanolang-match-bindings-build.log": "1edd80a31b87bb48bd04e9086f63702aaee3247ba91db8bd39457a5a1951ba8d",
+    "/tmp/nanolang-match-bindings-focused.log": "200f8000037ffff73adee8612fbce2de469f8a5dde6016acd463601738d46bb6",
+    "/tmp/nanolang-match-bindings-codegen.log": "84cdd89730abc0f223d172dab18a33a25c73961407ddeeb1ef7d8d1bf033152d",
+    "/tmp/nanolang-public-c-guarded-gcc.log": "7395704a42019c5c67aeb6f023743926319777f7d91f6234b32384f09606c573",
+    "/tmp/nanolang-public-c-guarded-clang.log": "6519584d1e15f73acf6f7e254b74e96e1f72c14270c2b305c260da8942ce48ba",
+    "/tmp/nanolang-public-c-guarded-corrected-gcc.log": "2dc4d864fe15e4606966f1bbb9f1c9578b8b4dce2db4455ca960ed4fc5c0f755",
+    "/tmp/nanolang-public-c-guarded-corrected-clang.log": "5a398ba6b09da210f273e0fa9d171bcee913ae434118baa0830c6c00450e08eb"
+  },
+  "external_gate": {
+    "tree": "/home/jkh/Src/nanolang-public-c-guarded-matches",
+    "head": "6b88ff94",
+    "producer": "/home/jkh/Src/nanolang-match-binding-scope/bin/nano_virt",
+    "scope": "Unchanged fixture assertions with explicit NANO_VIRT selector; external producer, not own-tool integration"
+  }
+}

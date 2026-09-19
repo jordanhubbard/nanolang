@@ -1,0 +1,16 @@
+{
+  "head": "d3761cd6c9082a81920209d1cae69a1a09ebbfe6",
+  "tests": [
+    "tests.test_managed_record_shapes",
+    "tests.test_managed_array_shapes",
+    "tests.test_managed_graph_origins",
+    "tests.test_managed_record_plan",
+    "tests.test_verifier_profiles",
+    "tests.test_managed_records",
+    "tests.test_managed_record_adapters",
+    "tests.test_managed_graph_safepoints",
+    "tests.test_managed_runtime_package"
+  ],
+  "status": 1,
+  "seconds": 23.5109239469748
+}

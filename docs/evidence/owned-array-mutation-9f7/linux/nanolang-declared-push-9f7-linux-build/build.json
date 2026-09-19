@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-declared-push-9f7-linux-build/setup.mk",
+    "CC=/usr/bin/gcc",
+    "stage1",
+    "owned-array-source-setup"
+  ],
+  "status": 0,
+  "seconds": 51.98679557198193
+}

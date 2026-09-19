@@ -1,0 +1,54 @@
+{
+  "/etc/OpenCL/vendors/nvidia.icd": {
+    "realpath": "/etc/OpenCL/vendors/nvidia.icd",
+    "sha256": "4ad07f8afc189894374aecb91023e6ff16bbceedf82496c04c0fdb0e2fe81e73"
+  },
+  "/lib/aarch64-linux-gnu/libc.so.6": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libc.so.6",
+    "sha256": "6e3cc56b98887cb3cc2a9fe78b6dd4610184aa27bd05d592cb287db93e82d494"
+  },
+  "/lib/aarch64-linux-gnu/libdl.so.2": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libdl.so.2",
+    "sha256": "f196e378b444da9e982e8930e1595e9ad6a723d890e0647bc60d8fcf581a93c8"
+  },
+  "/lib/aarch64-linux-gnu/libgcc_s.so.1": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1",
+    "sha256": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20"
+  },
+  "/lib/aarch64-linux-gnu/libm.so.6": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libm.so.6",
+    "sha256": "24be585ff27080ba6301d8b3e1c92a54a3832829a9efde744cad4b876a73681a"
+  },
+  "/lib/aarch64-linux-gnu/libpthread.so.0": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libpthread.so.0",
+    "sha256": "1ce5833f596169e194b95a6f288c98d80b7b907a1ded2389746cd00235b3a456"
+  },
+  "/lib/aarch64-linux-gnu/librt.so.1": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/librt.so.1",
+    "sha256": "8e38ca286d0bbb7acc9a6741ecd26c6e76924ec69eb9196ee20f70fa91350e12"
+  },
+  "/lib/aarch64-linux-gnu/libstdc++.so.6": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33",
+    "sha256": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4"
+  },
+  "/lib/ld-linux-aarch64.so.1": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+    "sha256": "49005ef8e9db9a45691ff875e6ca18dd8723c7ec5c1a863a276a1186dbf22774"
+  },
+  "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0",
+    "sha256": "45f8cb59d82a06a2e8b74212e185747a41b891d7e62cb51e48b9ea667e4fe21f"
+  },
+  "/usr/lib/aarch64-linux-gnu/libnvidia-opencl.so.1": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libnvidia-opencl.so.595.84",
+    "sha256": "8e9b55d1c7df10ac1eee3ff558c526896242f0e6133573e204e7f9e1522993e6"
+  },
+  "/usr/lib/gcc/aarch64-linux-gnu/13/libasan.so": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libasan.so.8.0.0",
+    "sha256": "de6c4e81ffe87e94b6a6977cf5ec3eb403cb26fbd1aea1c1b9637f843ec51daf"
+  },
+  "/usr/lib/gcc/aarch64-linux-gnu/13/libubsan.so": {
+    "realpath": "/usr/lib/aarch64-linux-gnu/libubsan.so.1.0.0",
+    "sha256": "71f00676e3fb2285661a71188865bb9924d7da38ebecd2b9bb0ee180b28caa60"
+  }
+}

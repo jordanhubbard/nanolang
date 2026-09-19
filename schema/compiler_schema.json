@@ -911,6 +911,10 @@
         [
           "is_resource",
           "bool"
+        ],
+        [
+          "is_extern",
+          "bool"
         ]
       ],
       "emit_c": true

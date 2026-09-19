@@ -99,9 +99,9 @@ int main(void){return run();}
         self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','run',wasm]).stdout, '0\n')
         body = 'PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nDUP\nSTORE_GLOBAL 0\nPUSH_STR empty\nSTR_SPLIT\nSTORE_GLOBAL 1\n'
         _, ir, _ = self.compile(self.program(body))
-        extra = 'static long budget=-1;extern void *__real_malloc(size_t);void *__wrap_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return __real_malloc(n);}'
+        extra = 'static long budget=-1;void *nano_test_malloc(size_t n){if(!budget)return 0;if(budget>0)--budget;return malloc(n);}'
         for fail in range(2,6):
-            self.native_harness(ir, f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=5)return 2;return nano_dispose();', extra, ['-Wl,--wrap=malloc'])
+            self.native_harness(ir, f'budget={fail};if(nano_try_entry()!=((uint64_t)3<<32)||nms_module_live_objects()!=1)return 1;budget=-1;if(nano_try_entry()||nms_module_live_objects()!=5)return 2;return nano_dispose();', extra, allocation_control=True)
 
     def test_wasm_memory_limit_cleans_partial_array_and_preserves_global(self):
         text = '.string large ' + c_bytes(b'a' * 100000) + '\n'
@@ -123,8 +123,8 @@ int main(void){return run();}
         self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nano_entry',wasm]).stdout, '0\n')
 
     def test_unsupported_mutation_refusals_preserve_output(self):
-        for op in ('ARR_NEW 7\nPOP\n', 'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nARR_NEW 1\nARR_PUSH\nPOP\n',
-                   'PUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nPUSH_I64 0\nARR_NEW 1\nARR_SET\nPOP\n'):
+        for op in ('ARR_NEW 1\nARR_NEW 7\nARR_PUSH\nPOP\n', 'ARR_NEW 1\nPUSH_STR a\nPUSH_STR empty\nSTR_SPLIT\nARR_PUSH\nPOP\n',
+                   'ARR_NEW 1\nPUSH_I64 0\nARR_NEW 1\nARR_SET\nPOP\n'):
             asm, mod, output = self.work/'refuse.nasm', self.work/'refuse.nvm', self.work/'old.ll'
             asm.write_text(self.program(op)); self.run_cmd([ROOT/'bin/nanoisa','asm',asm,'-o',mod])
             output.write_text('previous output')

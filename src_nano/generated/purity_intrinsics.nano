@@ -23,6 +23,8 @@ pub fn purity_intrinsic(name: string) -> bool {
     if (== name "fmod") { return true }
     if (== name "cast_int") { return true }
     if (== name "cast_float") { return true }
+    if (== name "float_from_bits") { return true }
+    if (== name "float_to_bits") { return true }
     if (== name "cast_bool") { return true }
     if (== name "cast_string") { return true }
     if (== name "to_string") { return true }

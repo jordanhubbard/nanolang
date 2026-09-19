@@ -1,0 +1,37 @@
+{
+  "qualified_full_pin": "24bf3225",
+  "extended_tests_pin": "88d386f76ae21b59f0fffae8820dba27b461e6cf",
+  "reviewed_production": "88d873fd",
+  "selected_frozen_entries": 1696,
+  "frozen_before_after_equal": true,
+  "local_inventory_hashes": {
+    "/tmp/nanolang-record-field-origins-qualified/before.json": "68671a33c717d1613a261328dc31f7daf2ca87d38eaff5126c138c5f68b5372e",
+    "/tmp/nanolang-record-field-origins-qualified/final-before.json": "7c54eb407cbf6268f31c3db6cf5e18959c80269cf91d6556de64b103e4d21133",
+    "/tmp/nanolang-record-field-origins-qualified/final-after.json": "7c54eb407cbf6268f31c3db6cf5e18959c80269cf91d6556de64b103e4d21133"
+  },
+  "current_inputs": {
+    "src/nanoisa/managed_array_shapes.c": "10b34591e3c6a86f42789011418c1cafa54f02102a5c6402292eb7c4af812121",
+    "src/nanoisa/managed_array_shapes.h": "2ca7c20170e31c133544830ceb604a83f130a30f812f4864282e3e2552991e47",
+    "src/nanoisa/managed_record_shapes.h": "8c8ee5d746cb79d17032ae00d0c2bc268fa630aee501b69fde2c88f6c50751ed",
+    "src/nanoisa/managed_record_plan.h": "2ac50fe96b860b731e99dcab9b666453818040d4999180d966e3eab105e8f8c1",
+    "src/nanoisa/retained_layouts.c": "96cec39cbd945ef31bbc8744ce05df685e57d61044260be354db7e0c523023c8",
+    "src/nanoisa/ownership_contracts.c": "465949814fd6fe705ccf1c16df60c4825c4d767cc364ca411c5f2a2d8c29a70c",
+    "tests/test_managed_record_shapes.py": "c1c932663a9cba75f8b23084cdf43003bd43e2793ae2536d92a3c0f838de41f1",
+    "tests/nanoisa/test_managed_record_shapes.c": "14e37ec557efb37ca9146f3ec87060e82fd53db4a0b31a2365e176ccc1077b9d",
+    "Makefile.gnu": "220fe02c2553b930572fcc979703d05e408c3d503a7de63cd39935fafad640ca",
+    "modules/nanoisa/module.json": "507f0f0db196f67c711c4f25fc561f4b51f53753d4e4907b33759a8e80ca4e3d",
+    "modules/forth_see/module.json": "5c348b29fa306b178ff99133c5c43e3cae3632c8808b376233fa5316b773f67d",
+    "examples/Makefile": "9ea583edf4c8c1435f433c162ab09099330e5b2537afd266171fbccea4e17680",
+    "src/nanovirt/wrapper_gen.c": "5737c08fba17f2f35b0a306331c61a759024d4b97713478b49cb5312ce337a74",
+    "bin/nanoisa": "864b3cae032daacc7b70b566cc2d1283d2ba70a088fbb68e9912032572bbb9b2",
+    "bin/nano_vm": "d0ce19e1fa8290199bdb6d54d930d370eff4fded08e7459e8ad7ddd7750db448",
+    "bin/nvm2llvm": "a30cd53b5147eee6f655183fe32bb6af07e963b3756071988b6d7cfa816261ad",
+    "bin/nvm2wasm": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "bin/nanoc_c": "d2939fe6b00b2bc43bce20f460266ee9263542d5655a89ae170f95b9f64e1958"
+  },
+  "first_gate_status": 2,
+  "corrected_gate_status": 2,
+  "final_adjacent_status": 0,
+  "full_managed_status": 0,
+  "extended_focused_status": 0
+}

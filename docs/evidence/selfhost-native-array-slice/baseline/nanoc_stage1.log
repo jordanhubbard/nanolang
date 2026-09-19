@@ -1,0 +1,10 @@
+/tmp/nanolang-native-slice-baseline-2lkg4g54/slice.nano: In function ‘nl_main’:
+/tmp/nanolang-native-slice-baseline-2lkg4g54/slice.nano:1:25: warning: implicit declaration of function ‘nl_array_slice’; did you mean ‘nl_str_slice’? [-Wimplicit-function-declaration]
+    1 | fn main() -> int { let values: array<int> = [10, 20, 30] let part: array<int> = (array_slice values 0 2) assert (== (array_length part) 2) assert (== (at part 1) 20) return 0 }
+      |                         ^~~~~~~~~~~~~~
+      |                         nl_str_slice
+/tmp/nanolang-native-slice-baseline-2lkg4g54/slice.nano:1:25: warning: initialization of ‘DynArray *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+/bin/ld: /tmp/ccejqv63.o: in function `nl_main':
+program.c:(.text+0x3504): undefined reference to `nl_array_slice'
+collect2: error: ld returned 1 exit status
+I could not compile native shadows

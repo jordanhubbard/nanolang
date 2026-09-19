@@ -1,0 +1,39 @@
+qualification_checkout=/private/tmp/nanolang-darwin-arithmetic-graphs-25a685ad.Ch16d3
+25a685adfb4f9bf32c68c9e6de04eb0298673c45
+93b51b7b9cafe70a8dc7acd936462de1744b77c9
+## HEAD (no branch)
+Darwin CXWWHGGJX0 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:17:26 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T6041 arm64
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+Apple M4 Pro
+cc_path=/usr/bin/cc
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin25.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+clang_path=/usr/bin/clang
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin25.6.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+ld_path=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+@(#)PROGRAM:ld PROJECT:ld-27037.1
+BUILD 21:17:51 Aug 25 2026
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em armv8m.main armv8.1m.main
+LTO support using: LLVM version 21.0.0 (static support for 30, runtime is 30)
+TAPI support using: Apple TAPI version 21.0.0 (tapi-2100.3.8.1)
+sdk_path=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+sdk_version=27.0
+python3_path=/usr/local/bin/python3
+Python 3.14.6
+node_path=/opt/homebrew/bin/node
+v26.8.2
+wasmtime_path=/usr/local/bin/bash: line 27: wasmtime: command not found
+make_path=/usr/bin/make
+GNU Make 3.81
+Copyright (C) 2006  Free Software Foundation, Inc.
+shasum_path=/usr/bin/shasum
+git_path=/usr/bin/git
+git version 2.54.0 (Apple Git-157)
+python_module_wasmtime=MISSING

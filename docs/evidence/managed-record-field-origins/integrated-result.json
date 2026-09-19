@@ -1,0 +1,14 @@
+{
+  "source_pin": "da8480e21b63300225afa5445c16fec27d420afe",
+  "command": [
+    "make",
+    "-j6",
+    "NMS_RUNTIME_CLANG=clang-18",
+    "NMS_RUNTIME_OPT=opt-18",
+    "test-managed-record-eligibility",
+    "test-managed-array-eligibility",
+    "test-verifier-profiles"
+  ],
+  "status": 0,
+  "seconds": 6.112012568977661
+}
