@@ -129,3 +129,40 @@ Only this private local lifecycle can close this child. Public network connect,
 WebSocket/service integration, full capability migration, GPU, d03c, ed702 and
 release acceptance remain open. No socket, test or production code has run under
 this contract-only checkpoint.
+
+## My reviewed-platform proposal before production
+
+For Linux and Darwin I call socketpair without relying on optional combined
+creation flags, then check F_GETFL/F_SETFL(O_NONBLOCK) and
+F_GETFD/F_SETFD(FD_CLOEXEC) on each endpoint before publishing either token.
+The context is serialized; acquisition must not race a process fork/exec. I
+make no atomic inheritance claim for this explicit configuration interval.
+Linux sends use MSG_NOSIGNAL. Darwin acquisition additionally checks
+SO_NOSIGPIPE on both endpoints and sends with flags0. I change no global signal
+handler. Unsupported platforms fail at compilation rather than quietly omit
+this policy. Each send/receive performs one syscall; EINTR and EAGAIN/EWOULDBLOCK
+are distinct non-success outcomes without retry. EOF is distinct from would-block
+and publishes canonical byte0/progress0; successful data publishes progress1.
+
+For both platforms I detach the descriptor and retire its capability before one
+close call. Result metadata counts attempted closes and calls returning success.
+Only return0 establishes successful host closure in this adapter's evidence;
+any error, including EINTR, records closure_unknown. I do not retry, probe and
+close a reused descriptor number, or claim the OS kept/released it based solely
+on that error. Language authority is consumed after accepted retirement even
+when closure is unknown. Rollback/disposal aggregate those counts, continue
+through independent live endpoints, and preserve the primary error plus the
+first secondary cleanup error. An ambiguous close is an explicit cleanup limit,
+not reported as leak-free recovery. Fault injection must identify whether it
+performed the real close before reporting a simulated error. A platform-specific
+stronger closure claim needs separate evidence; the normal real-close path must
+qualify on both supported hosts.
+
+Pair rights are copied values and the complete pair output is written once after
+both endpoints are ready. A transfer snapshots its input token and registry entry
+before any output write, so out==input is supported and failure preserves it.
+Receive rejects overlap between its output byte and the input token's storage
+before host I/O; it otherwise leaves the output byte untouched on non-success.
+Output storage must be a valid caller-owned C object; overwriting an unrelated
+live token is not implicit disposal. The private registry is opaque. No raw
+caller buffer or pointer is retained after an operation.
