@@ -210,3 +210,69 @@ I have performed a strict C11 syntax-only check and a whitespace check of this
 checkpoint. I have not built or executed a new service fixture. The earlier
 carrier qualification remains pinned to its original source; this new API still
 requires reviewed fixtures and fresh qualification before any dispatcher work.
+
+## I prepare focused manual transfer qualification
+
+My new `test_file_runtime_frames.c` first calls the complete unchanged carrier
+suite through an optional main-name macro. I retain every original assertion,
+allocation-prefix/transient control and attempted public loader/fork refusal.
+The standalone carrier fixture keeps its original main by default.
+
+I add explicit manual sequences, not an opcode-dispatch loop:
+
+- A borrowed first parameter precedes two value arguments. In VM mode installing
+  its first value local overlaps the later argument's old slot. I assert both
+  values, caller locals/live prefix and nested alias origins survive. On return
+  the caller result occupies the old callee first-local slot. I repeat the call
+  with different values and compare native disjoint placement.
+- I return File, affine OpenResult, scalar Result, INT and zero results through
+  exact prepared helper signatures, including permuted nominal maps. I check
+  nested borrowed-formal forwarding and ancestor use after return.
+- I check equal-bound mode persistence,64-frame depth, empty/out-of-range copied
+  getters, wrong/uninitialized arguments, exact local-store refusal, hidden
+  owner tails, leftover return owners, mismatched results, formal END refusal
+  and an ancestor-region floor. Repeated-origin CALL_REF remains a preparation
+  refusal before context publication or host acquisition.
+- I set an actual File-values slot and its valid handle near generation
+  exhaustion in an instrumented owning TU. I exercise both argument staging
+  moves, both local-installation moves, return staging and return publication.
+  I retain real move/destructor code, inspect each surviving physical owner root,
+  require exactly-once close and preserve the first call/RET failure plus a
+  separately modeled close-report error. I do not introduce a production hook.
+- I pass an initializer through its actual RET/frame boundary after a handled
+  close Error. The cleanup snapshot still refuses entry; clean initializers
+  reuse the arena for entry. Successful checked calls/returns run with a zero
+  allocation budget, so any allocation attempt is an assertion failure.
+
+My fixture host hooks and counters retain their earlier scope: linked mode
+uses actual separately compiled cores, while instrumented mode observes real
+File descriptors and injects error reports after actual close. I keep the
+`ferror`/partial-progress model label and do not infer arbitrary libc close
+behavior from it. The only new owning-TU fixture helper changes a valid internal
+generation pair; the old carrier remains included verbatim apart from its
+optional main-name macro.
+
+Before execution I require review of the complete fixture and Python driver.
+The new explicit normal/sanitizer Make targets prepare the same provider closure;
+I do not add an unqualified target to `test-units`. For frozen evidence I prepare
+providers once, then invoke the two new unittest methods directly with exact
+object/link lists. I retain every provider, fixture object/binary, command,
+terminal and source/tool inventory before and after each phase.
+
+My ordered gate plan is Linux ordinary GCC, GCC and Clang ASan/UBSan/LSan, then
+Darwin ordinary Apple Clang and Homebrew Clang sanitizers on isolated puck.local.
+I select compilers explicitly. Native Linux Clang alone receives the known GCC13
+installation flag. Darwin records its actual SDK, pkg-config binary, resolved
+libffi headers and OpenSSL library; wrapper providers are prepared before the
+freeze. Both modes execute the complete old carrier suite and new manual frame
+controls. I then run unchanged hosted/body/flow/value/opcode refusal and wrapper
+neighbors using the same frozen provider inventory; no phony rebuild is silently
+attributed to a prior inventory. I preserve the first terminal and stop its
+remaining dependent phases on failure. No service bytecode dispatcher, native
+emitter or public File selection is qualified by these manual sequences.
+
+I retain the prefreeze syntax-only finding: my first synthetic builder named a
+v2-only max_stack member on the in-memory function entry. Both syntax checks
+refused before execution. I removed that assignment; the service bridge supplies
+the intended derived wire bound. Corrected linked/instrumented strict C11
+syntax checks and Python parsing pass. These checks execute no fixture.
