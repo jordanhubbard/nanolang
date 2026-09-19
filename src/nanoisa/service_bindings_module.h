@@ -1,6 +1,7 @@
 #ifndef NANOISA_SERVICE_BINDINGS_MODULE_H
 #define NANOISA_SERVICE_BINDINGS_MODULE_H
 #include "service_bindings.h"
+#include "service_file_nominal.h"
 #include "nvm_v2_sections.h"
 #include "../nsi_file_plan.h"
 
@@ -17,4 +18,8 @@ NvmV2Result nvm_v2_service_bindings_validate(const NvmV2Module *);
  * Memory failure follows the existing bridge's ERR_TRUNCATED convention. */
 NvmV2Result nvm_service_bindings_attach(NvmModule *, const NlFilePlan *,
                                        const NvmServiceBindings *);
+/* Exact v2 nominal attachment remains metadata-only; all executing consumers
+ * continue refusing either service version. Same atomicity as v1 attach. */
+NvmV2Result nvm_file_nominal_attach(NvmModule *,const NlFilePlan *,
+                                   const NvmFileNominalBindings *);
 #endif

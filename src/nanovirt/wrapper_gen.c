@@ -274,7 +274,15 @@ static bool write_wrapper_c(FILE *f, const NvmModule *module,
  * Build Object List
  * ======================================================================== */
 
-static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir, bool daemon) {
+static bool append_wrapper_path(char **command, const char *path) {
+    char *quoted = module_quote_path(path);
+    if (!quoted) return false;
+    bool ok = module_append_fragment(command, quoted);
+    free(quoted);
+    return ok;
+}
+
+static bool build_obj_list(char **buf, const char *obj_dir, bool daemon) {
     /* I keep the runtime link closure here and exercise it in wrapper tests. */
     static const char *daemon_objs[] = {
         "nanovm/vmd_protocol.o", "nanovm/vmd_client.o", NULL
@@ -291,6 +299,7 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir, bool
     static const char *nanoisa_objs[] = {
         "nanoisa/isa.o", "nanoisa/local_bindings.o", "nanoisa/passive.o", "nanoisa/nvm_format.o",
         "nanoisa/affine_bytecode.o", "nanoisa/affine_state.o", "nanoisa/mixed_float_proof.o", "nanoisa/ownership_contracts.o", "nanoisa/retained_layouts.o", "nanoisa/reference_places.o",
+        "nanoisa/service_file_nominal.o", "nanoisa/service_file_nominal_plan.o",
         "nanoisa/service_bindings.o", "nanoisa/service_bindings_module.o", "nsi_file_plan.o",
         "nanoisa/nvm_format_v2.o", "nanoisa/nvm_v2_cursor.o", "nanoisa/nvm_v2_constants.o", "nanoisa/nvm_v2_signatures.o", "nanoisa/nvm_v2_layouts.o", "nanoisa/nvm_v2_functions.o", "nanoisa/nvm_v2_imports.o", "nanoisa/nvm_v2_module.o", "nanoisa/nvm_v2_convert.o",
         "nanoisa/assembler.o", "nanoisa/disassembler.o",
@@ -333,14 +342,13 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir, bool
         "runtime/module_build_dir.o", "runtime/cli.o", "runtime/regex.o", NULL
     };
 
-    buf[0] = '\0';
     const char **groups[] = { daemon ? daemon_objs : nanovm_objs,
                              daemon ? NULL : nanoisa_objs, common_objs, runtime_objs, NULL };
     for (int g = 0; groups[g]; g++) {
         for (int i = 0; groups[g][i]; i++) {
             char *path = wrapper_path(obj_dir, groups[g][i]);
             if (!path) return false;
-            bool ok = module_append_path_flag(buf, buf_size, "", path);
+            bool ok = append_wrapper_path(buf, path);
             free(path);
             if (!ok) return false;
         }
@@ -369,6 +377,7 @@ static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
     char *stage = NULL, *source = NULL, *binary = NULL, *wrapper_object = NULL;
     char *src_candidate = NULL, *modules_candidate = NULL;
     char *src = NULL, *modules = NULL;
+    char *objects = NULL, *link_command = NULL;
     FILE *f = NULL;
     if (!output_path || !*output_path || !blob || !blob_size || (!daemon && !module)) {
         fprintf(stderr, "I require a module and a nonempty wrapper output path\n");
@@ -420,8 +429,7 @@ static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
     f = NULL;
     if (!written) goto cleanup;
 
-    char objects[16384];
-    if (!build_obj_list(objects, sizeof(objects), obj_dir, daemon)) goto cleanup;
+    if (!build_obj_list(&objects, obj_dir, daemon)) goto cleanup;
     const char *cc = getenv("NANO_CC");
     if (!cc) cc = getenv("CC");
     if (!cc) cc = "cc";
@@ -443,29 +451,28 @@ static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
     struct stat wrapper_stat;
     if (lstat(wrapper_object, &wrapper_stat) != 0 || !S_ISREG(wrapper_stat.st_mode) ||
         wrapper_stat.st_size <= 0 || wrapper_stat.st_nlink != 1) goto cleanup;
-    n = snprintf(command, sizeof(command), "%s ", cc);
-    if (n < 0 || (size_t)n >= sizeof(command) ||
-        !module_append_path_flag(command, sizeof(command), "-o ", binary) ||
-        !module_append_path_flag(command, sizeof(command), "", wrapper_object)) goto cleanup;
+    if (!module_append_fragment(&link_command, cc) ||
+        !module_append_fragment(&link_command, "-o") ||
+        !append_wrapper_path(&link_command, binary) ||
+        !append_wrapper_path(&link_command, wrapper_object)) goto cleanup;
     if (!daemon) {
 #ifdef NANO_WRAPPER_CRYPTO_DIR
-        if (!module_append_path_flag(command, sizeof(command), "-L", NANO_WRAPPER_CRYPTO_DIR))
-            goto cleanup;
+        if (!module_append_fragment(&link_command, "-L") ||
+            !append_wrapper_path(&link_command, NANO_WRAPPER_CRYPTO_DIR)) goto cleanup;
 #endif
     }
-    size_t used = strlen(command);
     const char *platform = "";
 #if defined(__linux__)
     if (!daemon) platform = "-rdynamic -ldl";
 #elif defined(__FreeBSD__)
     if (!daemon) platform = "-Wl,-E";
 #endif
-    n = snprintf(command + used, sizeof(command) - used, " %s %s %s %s", objects,
-                 daemon ? "" : "-lm -pthread -lcrypto -lffi", platform,
-                 NANO_WRAPPER_INSTRUMENT_FLAGS);
-    if (n < 0 || (size_t)n >= sizeof(command) - used) goto cleanup;
-    if (verbose) printf("I compile a private wrapper: %s\n", command);
-    if (system(command) != 0) goto cleanup;
+    if (!module_append_fragment(&link_command, objects) ||
+        !module_append_fragment(&link_command, daemon ? "" : "-lm -pthread -lcrypto -lffi") ||
+        !module_append_fragment(&link_command, platform) ||
+        !module_append_fragment(&link_command, NANO_WRAPPER_INSTRUMENT_FLAGS)) goto cleanup;
+    if (verbose) printf("I compile a private wrapper: %s\n", link_command);
+    if (system(link_command) != 0) goto cleanup;
 
     struct stat st;
     if (lstat(binary, &st) != 0 || !S_ISREG(st.st_mode) || st.st_size <= 0 ||
@@ -487,6 +494,7 @@ cleanup:
     free(obj_dir); free(parent_input); free(parent); free(output);
     free(stage); free(source); free(binary); free(wrapper_object);
     free(src_candidate); free(modules_candidate); free(src); free(modules);
+    free(objects); free(link_command);
     return ok;
 }
 

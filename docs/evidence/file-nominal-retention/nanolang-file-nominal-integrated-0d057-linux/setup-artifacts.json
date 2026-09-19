@@ -1,0 +1,30 @@
+{
+  "/home/jkh/Src/nanolang-file-nominal-ready/bin/nvm2c": {
+    "sha256": "194c940fd77db4ebf271362ee393bed33c9ffdcde98f9e37cbf42abe558a61bf",
+    "bytes": 2398192
+  },
+  "/home/jkh/Src/nanolang-file-nominal-ready/bin/nanoisa_hl_facts": {
+    "sha256": "1b253037108aeabacfbedf6dd849972b64eb3ee7a64190287a3d52e3faa733e5",
+    "bytes": 2404296
+  },
+  "/home/jkh/Src/nanolang-file-nominal-ready/bin/nano_vm": {
+    "sha256": "bb6d4e41bc6f00bc38a71d7898dde43a9c0121d03cc215859537e818c3277442",
+    "bytes": 17719808
+  },
+  "/home/jkh/Src/nanolang-file-nominal-ready/bin/nano_virt": {
+    "sha256": "730f98295a98080d9985f3515570489463490325aad9db97595b8f1be76f4304",
+    "bytes": 18324616
+  },
+  "/home/jkh/Src/nanolang-file-nominal-ready/bin/nano_as_capture.so": {
+    "sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "bytes": 72080
+  },
+  "/home/jkh/Src/nanolang-file-nominal-ready/bin/nvm2hl": {
+    "sha256": "c2e67d240f1c0028957d982ac2329b8ee51714d91f63c587a8a29113a8717ea4",
+    "bytes": 2158
+  },
+  "/home/jkh/Src/nanolang-file-nominal-ready/bin/nvm2llvm": {
+    "sha256": "4547fe3d97e5cd0efb16657d4418e879996d4a7b60a70243a6894e9507f59360",
+    "bytes": 3681256
+  }
+}

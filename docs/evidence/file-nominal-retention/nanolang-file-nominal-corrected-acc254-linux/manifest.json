@@ -1,0 +1,89 @@
+{
+  "pin": "acc254bf9763f4e3eabaab336b1bfb66ee94e05c",
+  "platform": "linux",
+  "bootstrap_reference": "f5e07e5bea043265cfc15176fb1804227c363901",
+  "steps": [
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j8",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nvm2llvm",
+        "nvm2hl"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 5.747,
+      "log_sha256": "4c1cab5ba6b02f4580230e082a953369aa1d8177be96211968683550c4e6df60"
+    },
+    {
+      "name": "gcc",
+      "command": [
+        "make",
+        "test-file-nominal-module",
+        "test-file-nominal",
+        "test-file-nominal-sanitizers",
+        "test-service-module"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "NANO_SERVICE_MODULE_TEST_CC": "/bin/gcc",
+        "NANO_FILE_NOMINAL_CC": "/bin/gcc"
+      },
+      "status": 0,
+      "seconds": 14.262,
+      "log_sha256": "842ae59b063e0e5d68211dd72f36955500a26f7df44dde7cdc659c1cb7f62798"
+    },
+    {
+      "name": "clang",
+      "command": [
+        "make",
+        "test-file-nominal-module",
+        "test-file-nominal-sanitizers",
+        "test-service-module"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "NANO_SERVICE_MODULE_TEST_CC": "/usr/local/bin/clang",
+        "NANO_SERVICE_MODULE_TEST_CFLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "NANO_FILE_NOMINAL_CC": "/usr/local/bin/clang",
+        "NANO_FILE_NOMINAL_CFLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 12.761,
+      "log_sha256": "19fdae1696e8eaac7bb0437c739399018de732b38b311e5d842394d62a09b662"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-service-bindings",
+        "test-nsi-file-plan",
+        "test-nvm-format-v2",
+        "test-nvm-v2-imports",
+        "test-nvm-v2-module",
+        "test-nvm-v2-convert",
+        "test-nvm-v2-endtoend",
+        "test-wrapper-gen",
+        "test-verifier-profiles",
+        "test-owned-array-layouts",
+        "test-owned-array-origins"
+      ],
+      "env": {
+        "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 9.795,
+      "log_sha256": "faa83b670889357aa3c6742f31ea5587f735ae89250425605cd044b2c14da6db"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

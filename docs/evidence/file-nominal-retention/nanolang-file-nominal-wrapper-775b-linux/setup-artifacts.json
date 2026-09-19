@@ -1,0 +1,10 @@
+{
+  "/home/jkh/Src/nanolang-file-nominal-wrapper-qualified/bin/nano_virt": {
+    "sha256": "bb8f9773ba7a92dc441a60094a7c3feee937e7dc15134b28082fafb42cae2adf",
+    "bytes": 18203648
+  },
+  "/home/jkh/Src/nanolang-file-nominal-wrapper-qualified/bin/nano_as_capture.so": {
+    "sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "bytes": 72080
+  }
+}

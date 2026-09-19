@@ -1,0 +1,73 @@
+{
+  "pin": "acc254bf9763f4e3eabaab336b1bfb66ee94e05c",
+  "platform": "darwin",
+  "bootstrap_reference": "f5e07e5bea043265cfc15176fb1804227c363901",
+  "steps": [
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j8",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nvm2llvm",
+        "nvm2hl"
+      ],
+      "env": {
+        "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+      },
+      "status": 0,
+      "seconds": 4.078,
+      "log_sha256": "b34039a43ffa244f3e488e874cfecb50ab1ddb23829a006a18ddf474651f72b5"
+    },
+    {
+      "name": "darwin",
+      "command": [
+        "make",
+        "test-file-nominal-module",
+        "test-file-nominal",
+        "test-file-nominal-sanitizers",
+        "test-service-module"
+      ],
+      "env": {
+        "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk",
+        "NANO_SERVICE_MODULE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "NANO_FILE_NOMINAL_CC": "/opt/homebrew/opt/llvm/bin/clang"
+      },
+      "status": 0,
+      "seconds": 15.597,
+      "log_sha256": "c86c73bf26b0d3cb9ed01a324ba8345d495abbbd10ec5bb7da7c78ef9856d23a"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-service-bindings",
+        "test-nsi-file-plan",
+        "test-nvm-format-v2",
+        "test-nvm-v2-imports",
+        "test-nvm-v2-module",
+        "test-nvm-v2-convert",
+        "test-nvm-v2-endtoend",
+        "test-wrapper-gen",
+        "test-verifier-profiles",
+        "test-owned-array-layouts",
+        "test-owned-array-origins"
+      ],
+      "env": {
+        "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+      },
+      "status": 2,
+      "seconds": 15.441,
+      "log_sha256": "acf16569eee433428da6a40e6f88a0db97ea75a90a2720c7edd9eb7ffe681976"
+    }
+  ],
+  "terminal": 2,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}
