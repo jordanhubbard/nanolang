@@ -35,9 +35,10 @@ Both methods retain strict C11 `-Wall -Wextra -Werror`, ASan/UBSan and leak dete
 Close-error interception closes the real stream before reporting the injected
 error. I do not infer operating-system recovery from that controlled error.
 
-I seal 53 reports in [report-sha256.json](local-file-service/report-sha256.json).
+I seal 51 reports in [report-sha256.json](local-file-service/report-sha256.json).
 Each of the three inventories has 2,180 tracked input files equal before/after
-and equal to my evidence-authoring tree. Linux has six actual fixed tools; Darwin
+and equal to my initial evidence-authoring tree at3f83. The later normal-suite
+integration changes only Makefile.gnu in these inventories. Linux has six actual fixed tools; Darwin
 first entry has five, including the actual Homebrew compiler. The first Darwin
 adjacent default-cc entry did not separately hash the underlying Apple compiler.
 I retain that limitation and its passing log, then qualify only the affected six
