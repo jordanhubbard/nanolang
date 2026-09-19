@@ -56,8 +56,10 @@ static bool mc_owned_layout(const MCAnalysis *a,uint32_t layout) {
     if(l->kind!=NVM_V2_LAYOUT_STRUCT || l->field_count>MC_SLOTS)return false;
     for(uint16_t f=0;f<l->field_count;f++) {
         const NvmV2LayoutField *field=&l->fields[f];
-        if((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8) ||
-           field->nested_idx!=NVM_V2_NO_INDEX)return false;
+        if(field->type_tag==TAG_STRUCT) {
+            if(field->nested_idx>=layout || !mc_owned_layout(a,field->nested_idx))return false;
+        } else if((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8) ||
+                  field->nested_idx!=NVM_V2_NO_INDEX)return false;
     }
     return true;
 }
@@ -406,7 +408,8 @@ static bool mc_transfer(MCAnalysis *a,uint32_t index,MCFrame *frame) {
             return mc_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require a live unobserved RESOURCE for move or unpack.");
         if(op==OP_OWN_MOVE_LOCAL)result=mc_owner(type.layout);
         else {
-            for(uint16_t n=0;n<fields_count;n++)stack[frame->depth++]=mc_tag(fields[n].tag);
+            for(uint16_t n=0;n<fields_count;n++)stack[frame->depth++]=fields[n].tag==TAG_STRUCT?
+                mc_owner(fields[n].layout):mc_tag(fields[n].tag);
             goto successors;
         }
         break;
@@ -417,8 +420,13 @@ static bool mc_transfer(MCAnalysis *a,uint32_t index,MCFrame *frame) {
             return mc_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require an available exact RESOURCE destination.");
         break;
     case OP_OWN_PACK:
-        for(uint16_t n=0;n<fields_count;n++)if(!mc_exact(stack[base+n],fields[n].tag))
-            return mc_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require exact scalar fields before producing an owner token.");
+        for(uint16_t n=0;n<fields_count;n++) {
+            MCValue value=stack[base+n];NvmAffineType field=fields[n];
+            bool exact=field.tag==TAG_STRUCT?
+                value.kind==1 && !value.origins && value.tags==MC_BIT(TAG_STRUCT) &&
+                value.nominal==field.layout && mc_owned_layout(a,field.layout):mc_exact(value,field.tag);
+            if(!exact)return mc_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require exact scalar or nested owner fields before producing an owner token.");
+        }
         result=mc_owner(in->operands[0].u32);break;
     case OP_AGG_PACK: {
         const NvmMixedFloatOrigin *o=&a->proof->shape->origins[i->origin];

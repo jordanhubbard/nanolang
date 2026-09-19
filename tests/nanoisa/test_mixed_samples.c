@@ -158,6 +158,15 @@ static void independent_owner_checks(void) {
     m=build("PUSH_I64 0\nRET\n",NULL,0,".function leak 1 1 0 int 1\nPUSH_I64 0\nRET\n.end\n.parameters 1 struct\n",false);
     composition(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
 }
+static void nested_owner_composition(void) {
+    puts("I retain nested owner tokens and refuse ordinary children in owner records.");fflush(stdout);
+    Type locals[]={{TAG_STRUCT,4},{TAG_STRUCT,0}};
+    NvmModule *m=build("PUSH_I64 7\nOWN_PACK 0\nOWN_PACK 4\nOWN_STORE_LOCAL 0\n"
+        "OWN_UNPACK_LOCAL 0\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nRET\n",locals,2,NULL,false);
+    finished(composition(m,NVM_MIXED_SHAPE_PROVED));nvm_module_free(m);
+    m=build("ARR_NEW 3\nAGG_PACK 0 1 0 1\nOWN_PACK 5\nPOP\nPUSH_I64 0\nRET\n",NULL,0,NULL,false);
+    composition(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
+}
 static void ordinary_joins_and_calls(void) {
     puts("I check zero-iteration initialization, full receivers and lower-index callees.");fflush(stdout);
     Type array[]={SCALAR(TAG_ARRAY)};
@@ -183,7 +192,7 @@ static void synthetic_shadow_and_repeated_site(void) {
     char helpers[2500];snprintf(helpers,sizeof helpers,"%s.function original_main 0 3 0 int 1\n%s.end\n",close_helper,main_body);
     NvmModule *m=build("PUSH_I64 7\nOWN_PACK 0\nCALL 1\nPUSH_I64 7\nEQ\nASSERT\nCALL 2\nPUSH_I64 0\nEQ\nASSERT\nPUSH_I64 0\nRET\n",NULL,0,helpers,false);
     Type locals[]={{TAG_STRUCT,1},SCALAR(TAG_ARRAY),SCALAR(TAG_ARRAY)};
-    uint8_t *row=m->ownership_data+16;
+    uint8_t *row=m->ownership_data+20;
     for(uint32_t f=0;f<2;f++)row+=4+8*(m->functions[f].local_count+1);
     row+=12;
     for(unsigned n=0;n<3;n++){row[0]=locals[n].tag;word(row+4,locals[n].layout);row+=8;}
@@ -206,7 +215,7 @@ static void synthetic_shadow_and_repeated_site(void) {
     }
 }
 int main(void) {
-    synthetic_shadow_and_repeated_site();samples_and_allocations();scalar_obligations();independent_owner_checks();ordinary_joins_and_calls();
+    synthetic_shadow_and_repeated_site();samples_and_allocations();scalar_obligations();independent_owner_checks();nested_owner_composition();ordinary_joins_and_calls();
     CHECK(!tracking && !live_allocations);
     printf("%u mixed Samples composition checks passed; no pending module execution\n",checks);return 0;
 }
