@@ -198,3 +198,11 @@ The encoder supports size-only query with a null byte destination and requires
 a non-null size output. Valid output objects must not overlap the size output;
 input byte/value storage may overlap its corresponding destination because the
 operation stages it first. No memory allocation or input pointer is retained.
+
+## My first raw-codec qualification
+
+I implement and qualify only the fixed raw value/codec in `service_bindings.c/.h`.
+My [frozen raw-codec evidence](evidence/service-bindings-codec.md) retains the
+first passing Linux/Darwin controls atf438 and reviewed productionfa708. Module
+features, import kinds and executable readers are unchanged. Later checkpoints
+remain open and need their own complete consumer-refusal review.

@@ -1,0 +1,50 @@
+{
+  "pin": "f4381337c7cd2283c0d45986c859728bb64a747a",
+  "steps": [
+    {
+      "name": "darwin",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_service_bindings"
+      ],
+      "env": {
+        "NANO_SERVICE_CODEC_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang"
+      },
+      "status": 0,
+      "seconds": 1.966,
+      "log_sha256": "4e0dade5368c55d8fe56f5912e05f347b825b31d92c88c28dd389801a0cec95c"
+    },
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "test-service-bindings"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 0.78,
+      "log_sha256": "0973cd236d06db9a6dbb527e521c740593e7338397547223b40c7e3433cc799c"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-nvm-format-v2",
+        "test-nvm-v2-imports"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 6.529,
+      "log_sha256": "7620ce18199f91476575ae39a89eb88c22b3761770d45f56e347aff7f7966543"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}
