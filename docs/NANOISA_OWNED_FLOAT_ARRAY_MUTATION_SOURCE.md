@@ -234,3 +234,39 @@ read operation; the required mutation/growth acceptance does.
 The [held lowering checkpoint plan](NANOISA_OWNED_ARRAY_SOURCE_CHECKPOINT_PLAN.md)
 separates preparation, independent source review and execution after qualified
 public activation. No source or runtime production changes accompany this addendum.
+
+## I prepare the dependent paired lowering checkpoint
+
+Actual PR846 merge3660228d qualifies source18731 and fixtured27a; their live MAC
+states are COMPLETED after verified merge reconciliation. I start this mutation
+checkpoint in a fresh canonical tree, preserving both qualified1c4e trees. The
+approved runtime supplement5652 is separate and does not authorize source tests
+before this complete paired delta receives review.
+
+I select mutation/length only in the existing owner-array profile, after exact
+local and declared-function identity checks. I validate arity before evaluating
+any argument; then emit receiver, optional setter index and exact FLOAT value
+in source order. ARR_SET followed by POP returns VOID, ARR_PUSH returns ARRAY,
+and ARR_LEN returns INT. No new allocation, runtime, descriptor, optional-value,
+ordinary Samples, signature or managed-binding-assignment rule changes. I add
+meaningful arity and whole-source lowering shadows before qualification.
+
+## I freeze the source fixture proposal before execution
+
+After root review of production1de22, I prepare six mutation methods plus the
+six unchanged owner-array source groups. I retain PREFIX and every original
+shadow. Positive programs observe shared fields/outside aliases/append results,
+capacity growth, contextual-empty independence, returned owners and reverse
+unpack. A nested receiver append is observed inside a consuming INT index helper,
+proving receiver-before-helper and once-only evaluation. A constructor's first
+append changes the length observed by its later owner factory before a second
+append; declaration-order pack cannot replace source evaluation order.
+
+I check builtin-name initializers against prior scope, inner-scope restoration,
+a declared array_push owner helper (no ARR_PUSH), exact length and call-statement
+results. Negative fixtures preserve prior outputs for arity/receiver/index/value,
+optional writes at final assembly, setter VOID locals/owner field, lexical misuse,
+managed rebinding and owner field assignment. Dynamic bounds and a consuming
+index helper failure retain the prepared receiver and use verified raw modules
+for VM/native cleanup controls. False selected shadows remain publication errors.
+No fixture, new source module or bootstrap has run at this preparation checkpoint.

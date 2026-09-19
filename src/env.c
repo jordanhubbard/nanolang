@@ -696,6 +696,19 @@ Function *env_get_function(Environment *env, const char *name) {
         return NULL;
     }
 
+    /* I permit this non-reserved declaration only in its own module. */
+    if (strcmp(name, "array_push") == 0) {
+        for (int i = 0; i < env->function_count; i++) {
+            Function *function = &env->functions[i];
+            if (function->name && strcmp(function->name, name) == 0 &&
+                !function->is_extern && function->body &&
+                ((!env->current_module && !function->module_name) ||
+                 (env->current_module && function->module_name &&
+                  strcmp(env->current_module, function->module_name) == 0)))
+                return function;
+        }
+    }
+
     /* Check built-in functions via unified registry (only BUILTIN_LANG entries) */
     for (int i = 0; i < builtin_registry_count; i++) {
         if (!(builtin_registry[i].flags & BUILTIN_LANG)) continue;
@@ -744,6 +757,13 @@ Function *env_get_function(Environment *env, const char *name) {
     }
 
     return NULL;
+}
+
+/* I share push identity across inference and native lowering. */
+bool env_array_push_is_builtin(Environment *env, int line, int column) {
+    if (env_get_var_visible_at(env, "array_push", line, column)) return false;
+    Function *function = env_get_function(env, "array_push");
+    return !function || !function->body;
 }
 
 /* Value creation functions */

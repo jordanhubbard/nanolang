@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/private/tmp/nanolang-owner-array-mutation-match-916424260/bin/nanoc_stage1",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-evx2g7j6/case.nano",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-evx2g7j6/program"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "File closed\nFile closed\nTesting resource tracking infrastructure\nFile closed\nResource tracking test passed!\n"
+}

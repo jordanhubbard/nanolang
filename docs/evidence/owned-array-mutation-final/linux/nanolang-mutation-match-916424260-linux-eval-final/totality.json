@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "from pathlib import Path; import unittest; import tests.test_cseed_match_totality as t; t.COMPILER=Path('/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nanoc_c'); unittest.main(module=t,verbosity=2)"
+  ],
+  "status": 0,
+  "seconds": 1.6684114409727044
+}

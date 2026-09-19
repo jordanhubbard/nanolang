@@ -981,6 +981,9 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
         }
     }
     
+    /* I keep an allowed declaration separate from my retained builtin helper. */
+    if (strcmp(nano_name, "array_push") == 0) return "__nl_declared_array_push";
+
     /* Legacy: prefix with nl_ for global scope */
     snprintf(buffer, sizeof(buffer), "nl_%s", nano_name);
     return buffer;

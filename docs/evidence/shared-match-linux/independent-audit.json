@@ -1,0 +1,253 @@
+{
+  "first": {
+    "sources": 7190,
+    "providers": 155,
+    "tools": 6,
+    "errors": [],
+    "status": {
+      "pin": "5e063cad1b4ab755a6a0f8718000567d979c5371",
+      "success": false,
+      "error": "evaluator failed",
+      "sources_unchanged": true,
+      "tools_unchanged": true,
+      "head_unchanged": true
+    },
+    "evaluator": {
+      "argv": [
+        "/tmp/nanolang-match-855-linux-first/test_eval"
+      ],
+      "exit_code": 1,
+      "seconds": 0.03183682798407972
+    }
+  },
+  "corrected": {
+    "sources": 7190,
+    "providers": 155,
+    "tools": 6,
+    "errors": [],
+    "status": {
+      "pin": "cd25b66cd262f26c195ed2090714dda51d3c01d6",
+      "success": false,
+      "error": "evaluator failed",
+      "sources_unchanged": true,
+      "providers_unchanged": true,
+      "tools_unchanged": true,
+      "head_unchanged": true
+    },
+    "evaluator": {
+      "argv": [
+        "/tmp/nanolang-match-855-linux-corrected/test_eval"
+      ],
+      "exit_code": 1,
+      "seconds": 0.015482895018067211
+    }
+  },
+  "reduce": {
+    "sources": 7190,
+    "providers": 155,
+    "tools": 6,
+    "errors": [],
+    "status": {
+      "pin": "12b61c4eeb8b30a60efe5e7539f346345fa7b7ff",
+      "success": false,
+      "error": "evaluator failed",
+      "sources_unchanged": true,
+      "providers_unchanged": true,
+      "tools_unchanged": true,
+      "head_unchanged": true
+    },
+    "evaluator": {
+      "argv": [
+        "/tmp/nanolang-match-855-linux-reduce/test_eval"
+      ],
+      "exit_code": 1,
+      "seconds": 0.03184679098194465
+    }
+  },
+  "final": {
+    "sources": 7190,
+    "providers": 155,
+    "tools": 6,
+    "errors": [],
+    "status": {
+      "pin": "7a21096f86c3a51f83e38672484e694b90c5aa72",
+      "success": true,
+      "sources_unchanged": true,
+      "providers_unchanged": true,
+      "tools_unchanged": true,
+      "head_unchanged": true
+    },
+    "evaluator": {
+      "argv": [
+        "/tmp/nanolang-match-855-linux-final/test_eval"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-shared-match-ordering-controls",
+      "exit_code": 0,
+      "seconds": 0.03190074302256107
+    },
+    "totality": {
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "from pathlib import Path; import unittest; import tests.test_cseed_match_totality as t; t.COMPILER=Path('/home/jkh/Src/nanolang-shared-match-ordering-controls/bin/nanoc_c'); unittest.main(module=t,verbosity=2)"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-shared-match-qualified",
+      "exit_code": 0,
+      "seconds": 1.5680798380053602
+    }
+  },
+  "mutation_reports": {
+    "count": 467,
+    "errors": []
+  },
+  "linux_manifest": {
+    "keys": [
+      "scope",
+      "production_pin",
+      "phases",
+      "reports",
+      "artifacts",
+      "symlinks",
+      "archive"
+    ],
+    "report_count": 200,
+    "errors": [],
+    "phases": {
+      "nanolang-declared-push-9f7-linux-build": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "build",
+        "success": true,
+        "seconds": 52.49991380999563,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      },
+      "nanolang-declared-push-9f7-linux-eval": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "eval",
+        "success": false,
+        "error": "RuntimeError('eval failed with 2')",
+        "seconds": 3.1010712410206906,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      },
+      "nanolang-declared-push-9f7-linux-eval-corrected2": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "eval-corrected2",
+        "success": false,
+        "error": "RuntimeError('eval failed with 1')",
+        "seconds": 1.2502093689981848,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      },
+      "nanolang-declared-push-9f7-linux-identity": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "identity",
+        "success": true,
+        "testsRun": 6,
+        "errors": 0,
+        "failures": 0,
+        "seconds": 54.792637450038455,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      },
+      "nanolang-declared-push-9f7-linux-mutation": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "mutation",
+        "success": true,
+        "testsRun": 12,
+        "errors": 0,
+        "failures": 0,
+        "seconds": 600.9513137500035,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      },
+      "nanolang-declared-push-9f7-linux-patterns": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "patterns",
+        "success": true,
+        "testsRun": 12,
+        "errors": 0,
+        "failures": 0,
+        "seconds": 79.16665482299868,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      }
+    },
+    "archive": {
+      "path": "/tmp/nanolang-declared-push-9f7-linux-evidence.tar.gz",
+      "sha256": "71678b698c6092080ad9ea2d3db2ce5396deca56c69c389dcff7755d344c9665",
+      "bytes": 51208652
+    }
+  },
+  "darwin_manifest": {
+    "keys": [
+      "scope",
+      "production_pin",
+      "reports",
+      "artifacts",
+      "symlinks",
+      "phases",
+      "archive",
+      "local_verified_artifacts"
+    ],
+    "report_count": 205,
+    "errors": [],
+    "phases": {
+      "nanolang-declared-push-9f7-darwin-build": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "build",
+        "success": true,
+        "seconds": 150.92124925006647,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      },
+      "nanolang-declared-push-9f7-darwin-lookup": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "lookup",
+        "success": true,
+        "seconds": 3.7415887500392273,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      },
+      "nanolang-declared-push-9f7-darwin-identity": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "identity",
+        "success": true,
+        "testsRun": 6,
+        "errors": 0,
+        "failures": 0,
+        "seconds": 128.96311374998186,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      },
+      "nanolang-declared-push-9f7-darwin-mutation-recovered1": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "mutation",
+        "success": true,
+        "testsRun": 12,
+        "errors": 0,
+        "failures": 0,
+        "seconds": 584.6641542499419,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      },
+      "nanolang-declared-push-9f7-darwin-patterns-recovered1": {
+        "pin": "9f7ead937f983e6441f113488534835a046b2781",
+        "phase": "patterns",
+        "success": true,
+        "testsRun": 12,
+        "errors": 0,
+        "failures": 0,
+        "seconds": 149.17494608392008,
+        "sources_unchanged": true,
+        "head_unchanged": true
+      }
+    },
+    "archive": {
+      "path": "/tmp/nanolang-declared-push-9f7-darwin-evidence.tar.gz",
+      "sha256": "ae39b5efb12941f7ab91acf32c86548df80ce63fc52b73c031ae9cd74d9bc84d",
+      "bytes": 41062400,
+      "all_file_hashes_verified": true
+    }
+  }
+}

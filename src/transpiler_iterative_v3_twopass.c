@@ -558,6 +558,16 @@ static const char *map_function_name(const char *name, Environment *env) {
         name = dot + 1;
     }
     
+    /* I retain the selected declaration instead of its registry spelling. */
+    if (strcmp(name, "array_push") == 0) {
+        Function *selected = env_get_function(env, name);
+        if (selected && selected->body && !selected->is_extern) {
+            extern const char *get_c_func_name_with_module(const char *, const char *, bool);
+            return get_c_func_name_with_module(selected->alias_of ? selected->alias_of : selected->name,
+                                               selected->module_name, false);
+        }
+    }
+
     /* Check unified builtin registry */
     const char *c_name = builtin_c_name(name);
     if (c_name) {
@@ -579,6 +589,15 @@ static const char *map_function_name(const char *name, Environment *env) {
 
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    if (expr->type == AST_CALL && expr->as.call.name &&
+        strcmp(expr->as.call.name, "array_push") == 0 &&
+        !env_array_push_is_builtin(env, expr->line, expr->column)) {
+        check_expression(expr, env);
+        if (expr->as.call.checked_signature)
+            return expr->as.call.checked_signature->return_type_info;
+        Function *selected = env_get_function(env, expr->as.call.name);
+        return selected ? selected->return_type_info : NULL;
+    }
     if (expr->type == AST_FIELD_ACCESS) {
         check_expression(expr, env);
         if (expr->as.field_access.resolved_type_info) return expr->as.field_access.resolved_type_info;
@@ -604,7 +623,8 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_push") &&
-        array_expr->as.call.arg_count == 2)
+        array_expr->as.call.arg_count == 2 &&
+        env_array_push_is_builtin(env, array_expr->line, array_expr->column))
         return infer_array_element_type(array_expr->as.call.args[0], env);
 
     const TypeInfo *info = array_expr_type_info(array_expr, env);
@@ -2408,7 +2428,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_literal(list, "} _arr; })");
             }
             /* Special handling for array_push() and array_pop() - dynamic array operations */
-            else if (strcmp(func_name, "array_push") == 0 && expr->as.call.arg_count == 2) {
+            else if (strcmp(func_name, "array_push") == 0 &&
+                     env_array_push_is_builtin(env, expr->line, expr->column) &&
+                     expr->as.call.arg_count == 2) {
                 Type elem_type = infer_array_element_type(expr->as.call.args[0], env);
                 if (elem_type == TYPE_UNKNOWN)
                     elem_type = check_expression(expr->as.call.args[1], env);

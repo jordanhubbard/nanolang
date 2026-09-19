@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "CC=/usr/bin/gcc",
+    "test-eval"
+  ],
+  "status": 0,
+  "seconds": 2.6221480069798417
+}

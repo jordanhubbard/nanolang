@@ -1,0 +1,12 @@
+{
+  "nanoc_stage1": {
+    "source": "/private/tmp/nanolang-declared-push-0c5421d9b/bin/nanoc_stage1",
+    "target": "/private/tmp/nanolang-declared-push-9f7ead937/bin/nanoc_stage1",
+    "sha256": "0a06c9ab51f2f796829aeeb1cbc40e52c984c48a38089d3d123df6556fb27be5"
+  },
+  "nanoc_stage2": {
+    "source": "/private/tmp/nanolang-declared-push-0c5421d9b/bin/nanoc_stage2",
+    "target": "/private/tmp/nanolang-declared-push-9f7ead937/bin/nanoc_stage2",
+    "sha256": "43b8ce9db8937defa4b68de96fb845b11810edb19bad0565a3e39dcd655a4e8e"
+  }
+}

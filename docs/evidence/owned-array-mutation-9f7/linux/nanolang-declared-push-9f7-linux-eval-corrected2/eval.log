@@ -1,0 +1,9 @@
+  Testing eval_declared_push_initializer_bindings... ✓
+  Testing eval_file_write_failures... ✓
+  Testing eval_handler_return_async_calls... ✓
+  Testing eval_handler_return_higher_order... ✓
+  Testing eval_handler_return_partial_literal_cleanup... ✓
+  Testing eval_handler_return_recursive_activation... ✓
+  Testing eval_handler_return_nested_and_string... ✓
+  Testing eval_handler_return_expression_order...
+    FAILED: result.as.int_val == 7 at line 2697 (got 4099, expected 7)

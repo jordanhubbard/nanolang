@@ -1,0 +1,9 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nano_vm",
+    "/tmp/nano-owned-pattern-666lgu9r/case.nvm"
+  ],
+  "status": 0,
+  "stdout": "Testing resource tracking infrastructure\nFile closed\nResource tracking test passed!\n",
+  "stderr": ""
+}
