@@ -377,3 +377,9 @@ need a separately reviewed expectation migration; owned-only/closed/linked and
 unsupported STRING/mixed-owner-array controls remain refusals. I have not built
 or executed this activation checkpoint or any newly admitted module. I request
 source review before fixture preparation and qualification.
+
+## My approved public fixture migration
+
+Root and independent native review of 03338b2fce73eee15bb5827d94465fe936c78bca found no scoped blocker. Before fresh execution, I migrate only complete Samples and its complete synthetic selected-shadow graph from pending general-verifier refusal to successful general, function, maximum-stack and zero-link verification. I retain old owned-only rejection, nonzero-link and closed-profile rejection, invalid-index output preservation, and every unsupported fixture. My private proof still reports runtime_admitted=false.
+
+I next qualify actual VM/native lifecycle, shared array mutation and missing-element VOID checks, both typed FLOAT operands, consuming calls and forwarding owner results, direct-core traps/continuations, fresh-admission and runtime allocation failures. I inspect roots before context disposal rather than crediting a disposal sweep. I freeze sources, objects and actual tools before each gate, preserve the first terminal, and retain STRING/owned/reference regressions. Source production and full Samples/PREFIX source acceptance remain later work.
