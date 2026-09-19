@@ -62,9 +62,10 @@ before changing their semantics. A transfer may need one spare slot; capacity
 failure preserves its source owner. Repeated bounded-live acquisition/close must
 reuse capacity instead of exhausting a lifetime issuance quota.
 
-I release the entire registry on context disposal, attempting each still-live
-file close once, invalidating its tokens and then freeing table storage. Disposal
-returns the first close error after attempting the remaining files. A failed
+I empty the registry on context disposal, attempting each still-live file close
+once and invalidating its tokens. Disposal keeps the capability table and context
+storage so the disposed state remains queryable; destruction frees both after
+disposal. Disposal returns the first close error after attempting remaining files. A failed
 file close cannot prevent other files from being cleaned. The context has an
 explicit disposed state until its separate C storage destruction; a caller must
 not use the pointer after destruction. Nested/concurrent use is not admitted.
@@ -220,3 +221,16 @@ restore it if preparation refuses. Successful transfer has no fallible operation
 after capability commit. Disposal closes all remaining privately stored streams
 even if a later token check unexpectedly refuses, while retaining the first error.
 I have run only a diff check. No build, fixture or host file operation has run.
+
+## My qualification freeze boundary
+
+I clarify disposal versus destruction before qualification: disposal closes all
+files and prevents every later operation, retaining the empty table/context
+storage; destruction frees that storage. My tests distinguish the two phases.
+I compile production once as ordinary linked objects and separately include it
+in a private instrumented C fixture to reach exact generation/identity limits
+without billions of operations. The latter may inspect private state but grants
+no public setters or hooks. Host error wrappers perform real closes before
+reporting a requested close error. I retain strict warnings and actual allocator,
+file and sentinel accounting. Existing NSI checks in this fresh C-only checkout
+do not establish source-client compilation if no compiler binary is installed.
