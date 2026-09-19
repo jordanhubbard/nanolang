@@ -1,0 +1,20 @@
+{
+  "without-names.nasm": "ba9a41938999cd96e825142fbbaf6c94a785abb4768b939e76bf8d3510a6da66",
+  "nanoc_stage2-graph.nvm": "ff9f56b1d0b49dc6d32ed1ad90c5e4f0e0a79b55a7b5da29d3a03a12b6e032ac",
+  "mixed-native.c": "01ebd2af3f5e4685af3cb8c2a614c01719c6c3c9295574a6ab8e605738ed43db",
+  "graph.nasm": "95a3d6c1cf43e589b7b1af1248a590f734777fbf9b01f8db80ee5889d10af05d",
+  "without-names.nvm": "2f2030378f80c3d302fdf55688b2a4f60fc0eea4f5b943beef9fbb0d1f637328",
+  "graph-shadow.nvm": "a5c81313bdac78a91935b7953864187ceb3e820174eae8bc53179b3ce0620e6c",
+  "nanoc_c-shadows": "6b94113f3edd2491989fdcdcabbda84c3e13c0f74662f77e6d3ca6a0c927a567",
+  "nanoc_stage1-graph.nvm": "ff9f56b1d0b49dc6d32ed1ad90c5e4f0e0a79b55a7b5da29d3a03a12b6e032ac",
+  "nano_virt-graph.nvm": "ff9f56b1d0b49dc6d32ed1ad90c5e4f0e0a79b55a7b5da29d3a03a12b6e032ac",
+  "shadow_driver.nano": "21b48fd47c1e28e2f852657f9e1f533641eb25aaf0cc97d1ae71f1db5eb2d5d4",
+  "graph-shadow.nasm": "1d328f3b98d029aca0365a832039d8d241239bdb20c4d7e6d8f0a97d1193b92e",
+  "nanoc_stage2-shadows": "bae3479f1be0bf19c62684688683bca1c531914ff17acfa0954f218e93096b77",
+  "mixed-native": "90314d5c4ea1544fe46540fce53e106c814aa6175fa04d87b080c4ef6e9f303c",
+  "nanoc_stage2-emit": "a7f452d162aa130188719d4d7e8ad39f714359a5c82d51b0a7be75b976633462",
+  "graph-owned-array-original.nano": "50c48c2ae2c62718d879348d7c004bc64306afb9df041da67f7e98f1a0c58c40",
+  "graph.nvm": "ff9f56b1d0b49dc6d32ed1ad90c5e4f0e0a79b55a7b5da29d3a03a12b6e032ac",
+  "nanoc_stage1-emit": "e7648ed8141149fb3268f11f346d7544efa12aa7254db59888d5d92415ad4af0",
+  "nanoc_stage1-shadows": "80540319aeb7a65b91093e4a9389192baa39d4ca2f2643cf2230c11bf6f1e7eb"
+}

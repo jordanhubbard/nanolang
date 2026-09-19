@@ -1,0 +1,58 @@
+{
+  "source_pin": "c9fb07ed55329f59e6b67ef0bf3f9dc756d6aa88",
+  "fixture_pin": "32f2f1398",
+  "bootstrap_pass_seconds": 271.5786423999816,
+  "tools_setup_pass_seconds": 26.522672194987535,
+  "producer_setup_seconds": 177.67095257801702,
+  "first_terminal": {
+    "testsRun": 5,
+    "passed_methods": 4,
+    "failures": 1,
+    "seconds": 365.579,
+    "failure": "optional-local raw emitter phase expectation"
+  },
+  "second_terminal": {
+    "testsRun": 1,
+    "failures": 1,
+    "seconds": 0.233,
+    "passed_groups": [
+      "optional-local",
+      "optional-add",
+      "optional-negate",
+      "bound-at"
+    ],
+    "failure": "reserved not parser phase expectation"
+  },
+  "remaining_pass": {
+    "executed_refusal_groups": [
+      "bound-not",
+      "wrong-element",
+      "untyped-empty",
+      "duplicate-owner",
+      "dead-parent",
+      "missing-pattern",
+      "false-close",
+      "false-main"
+    ],
+    "seconds": 40.97819894598797,
+    "testsRun": 2,
+    "errors": 0,
+    "failures": 0,
+    "success": true
+  },
+  "archive": {
+    "path": "/tmp/nanolang-owner-array-source-linux-artifacts.tar.gz",
+    "sha256": "051db33537396ff81928e39ada3b941e035be9f3c8b578c9bb624f9d29d5dbe5"
+  },
+  "sources": 2265,
+  "hosttools": 7,
+  "post_setup_inputs": 799,
+  "retained_producer_tools": 13,
+  "artifact_files": 428,
+  "limits": [
+    "Linux GCC only",
+    "No Darwin claim",
+    "No final canonical parser/File integration claim",
+    "Mutation and full parents remain open"
+  ]
+}

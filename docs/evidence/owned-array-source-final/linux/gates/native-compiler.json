@@ -1,0 +1,5 @@
+{
+  "path": "/usr/bin/aarch64-linux-gnu-gcc-13",
+  "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1"
+}

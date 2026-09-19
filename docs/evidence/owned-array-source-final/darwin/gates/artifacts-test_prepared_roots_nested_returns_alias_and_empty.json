@@ -1,0 +1,22 @@
+{
+  "mixed-native.c": "ed844740dbd53508b1a4869a5c51b436247f9957548fc2dc181cb0b9b1eb1c91",
+  "graph-owned-array-original.nano": "50c48c2ae2c62718d879348d7c004bc64306afb9df041da67f7e98f1a0c58c40",
+  "nanoc_stage2-graph.nvm": "3ca3ab3f2b6ac8eebfa880b302db67ba964662ef718cec540e8ee17fb7ff84a5",
+  "without-names.nvm": "65fc84a08b584e7abdf6396cd4128056fdca9ec0af4e9176605d3ab90534846a",
+  "nanoc_c-shadows": "bac54760e89504a4e966eb9f744b2e446a6dccb5ae1898ac6dc38caacf582fd1",
+  "graph.nasm": "18786982c21af55fd20bdf94e1a9cfafe2a55d63db871ee9f202dd4082fc2303",
+  "graph-shadow.nasm": "ee0d250465afbc284df9f9c74a586ffa3cccff572667b075c1bd9d4eddfead84",
+  "mixed-native": "11e46dbedbd0c69e285793e6b725a44db17ed533ac7d79a1db0f0cde67c0b6e4",
+  "nanoc_stage2-emit": "5d93f6be0f478dda94d9642f6587f6ed544f84be02c73535f14b5da4ea638955",
+  "graph-owned-array-roots.nano": "c8a768f95a1f4682b4d38272053fc1e937d54a23b2f9f2365737bf952873ce02",
+  "without-names.nasm": "8aa659f50b70f2654c60c77c08b36f3f89c8b7f2fc44c38fffbe1c69ebb9b201",
+  "graph.nvm": "3ca3ab3f2b6ac8eebfa880b302db67ba964662ef718cec540e8ee17fb7ff84a5",
+  "nanoc_stage1-emit": "7cf5fe9eb10d42214f71a4538f5106628ac940dc4576ea338bd84fa8d51a9a73",
+  "graph-shadow.nvm": "1fcab19937f18b48b14c4d3ec302db8df83feebc99edf2f5e2b00fd6c32213ce",
+  "graph-owned-array-integers.nano": "3e3ac2301646a30c8c6e6da5404946abc4c94d085df32c1820f40d48d0aab2a7",
+  "nanoc_stage1-shadows": "6d6d31ce1f62057dad1eb15b2e91522b73a1271a6fbc2fc8dd4849df38e8311c",
+  "nano_virt-graph.nvm": "3ca3ab3f2b6ac8eebfa880b302db67ba964662ef718cec540e8ee17fb7ff84a5",
+  "nanoc_stage1-graph.nvm": "3ca3ab3f2b6ac8eebfa880b302db67ba964662ef718cec540e8ee17fb7ff84a5",
+  "shadow_driver.nano": "21b48fd47c1e28e2f852657f9e1f533641eb25aaf0cc97d1ae71f1db5eb2d5d4",
+  "nanoc_stage2-shadows": "26a7a0b52d80114cf50eaf45812e91bca2bbb9d6fc580e6a273d65c891c0be74"
+}
