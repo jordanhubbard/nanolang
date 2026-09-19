@@ -83,8 +83,28 @@ static void public_wire(NvmModule *m,const char *dir) {
     v2.functions.items[0].max_stack=depth+1;CHECK(nvm_v2_to_nvm_module(&v2,&back)==NVM_V2_OK);nvm_module_free(back);
     free(data);nvm_v2_module_free(&v2);nvm_owned_array_plan_free(plan);
 }
+static void public_pending_file(void) {
+    for(unsigned helper=0;helper<2;helper++) {
+        /* Case6 never calls helper3; pending declarations still cover it. */
+        NvmModule *m=runtime_module(6);uint32_t function=helper?3:0;
+        uint32_t offset=m->functions[function].code_offset;uint8_t saved=m->code[offset];
+        m->code[offset]=OP_FILE_DROP_STACK;
+        fprintf(stderr,"public pending File root/helper=%u\n",helper);
+        CHECK(!nvm_service_bindings_present(m) && nvm_service_execution_pending(m));
+        CHECK(nvm_owned_array_route(m)==NVM_OWNER_ARRAY_NOT_SELECTED);public_reject(m);
+        unsigned char sentinel;NvmOwnedArrayPlan *plan=(void *)&sentinel;
+        CHECK(nvm_owned_array_admit(m,&plan).status==NVM_OWNER_AUTH_UNRESOLVED && plan==(void *)&sentinel);
+        VmState vm;vm_init(&vm,m);NanoValue result=val_int(-91);
+        CHECK(vm_invoke(&vm,0,NULL,0,&result)!=VM_OK && result.tag==TAG_INT && result.as.i64==-91);
+        CHECK(vm_invoke_callable(&vm,val_function(0),NULL,0,&result)!=VM_OK && result.tag==TAG_INT && result.as.i64==-91);
+        CHECK(vm_call_function(&vm,0,NULL,0)!=VM_OK && vm_execute(&vm)!=VM_OK);
+        CHECK(vm_core_execute(&vm).type==TRAP_ERROR && !vm.stack_size && !vm.frame_count);
+        vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);
+        m->code[offset]=saved;CHECK(nvm_verify(m).ok);nvm_module_free(m);
+    }
+}
 static void public_boundaries(const char *dir) {
-    fprintf(stderr,"public boundary controls begin\n");
+    fprintf(stderr,"public boundary controls begin\n");public_pending_file();
     NvmModule *m=runtime_module(0);CHECK(nvm_owned_array_route(m)==NVM_OWNER_ARRAY_SELECTED && nvm_verify(m).ok);
     CHECK(nvm_verify_linked(m,NULL,0).ok);
     const NvmModule *links[]={m};CHECK(!nvm_verify_linked(m,links,1).ok);
