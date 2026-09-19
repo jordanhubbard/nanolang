@@ -247,3 +247,20 @@ check and paired producer coverage, including the selected main/close shadows.
 Likewise PRINT/PRINTLN failure-prefix controls remain planned until their origin
 and scalar transfer contract is reviewed. Neither extension is silently folded
 into this query's implementation or public activation.
+
+I implement the first checkpoint through new private includes in affine_state.c
+and verifier.c. Origin and independent instruction locations must agree for all
+rows, including RET. The independent pass accepts exactly the current origin
+opcode whitelist and adds no optional-FLOAT, print or STRING-result semantics.
+Ordinary ARRAY initialization stays in its value lattice while its original
+ARRAY declaration remains in Facts; the unique-owner live bitmap is not reused
+as an ordinary alias counter. Internal take/put/clone/initialization-meet/exit
+functions are reused without changing their public entry conditions.
+
+I preserve the existing value-result depth convention: at most32 record levels
+including the root. The descriptive query counts edges, so its depth32 empty
+chain can be described but exceeds this authority profile. Direct owner fields
+remain at most256. The first plan includes both original decoded descriptor
+snapshots and exact copied transport; after analysis finishes no Facts containing
+a borrowed module pointer survives in the prepared result. Public consumers
+continue their old routing and rejection behavior.
