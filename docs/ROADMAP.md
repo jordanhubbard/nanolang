@@ -11524,3 +11524,15 @@ I qualify430220's second private origin checkpoint at frozen779dcf8b9: setup and
   `make CC=/opt/homebrew/opt/llvm/bin/clang` for the affected owned gates and
   previously unrun service gate. Original assertions and leak detection remain;
   no bootstrap/source repetition or product change follows from this correction.
+
+I preserve68db's second terminal: explicit make CC makes owned adjacency pass
+in29.948seconds with Homebrew LLVM23 and `detect_leaks=1`, but the service gate
+stops in7.569seconds because its independent `NANO_SERVICE_MODULE_TEST_CC`
+defaults to `cc`. My static fixture audit finds this sole compiler selector for
+all three instrumented translation units and linked/mixed fixture executables;
+`NANO_SERVICE_MODULE_TEST_CFLAGS` is an optional additional flag selector. The
+remaining CLI controls only verify/refuse service modules; they do not compile
+or execute generated native C. I retain both first terminals, explicitly set
+the service compiler and empty extra flags, and run only fresh service fixtures
+against the exact prepared object/link environment. I do not rerun passing
+source, mixed runtime or owned checks or suppress leak detection.
