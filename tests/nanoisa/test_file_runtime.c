@@ -336,5 +336,5 @@ int main(void){
 #ifdef HOSTED_INSTRUMENT
  modeled_progress_errors();faults();allocation_controls();CHECK(!tracked_live && !tracked_bytes);
 #endif
- empty_host();CHECK(fcntl(sentinel_fd,F_GETFD)>=0);CHECK(fclose(sentinel)==0);printf("PASS %u manual private File carrier checks; %u acquisition attempts, %u real opens, %u real closes; no File CODE/frame dispatch\n",checks,open_attempts,carrier_opened,closed);return 0;
+ empty_host();CHECK(fcntl(sentinel_fd,F_GETFD)>=0);CHECK(fclose(sentinel)==0);printf("PASS %u manual private File carrier checks; %u acquisition attempts, %u real opens, %u real closes, %u I/O attempts, %u nested refusal observations; no File CODE/frame dispatch\n",checks,open_attempts,carrier_opened,closed,io_attempts,reentries);return 0;
 }
