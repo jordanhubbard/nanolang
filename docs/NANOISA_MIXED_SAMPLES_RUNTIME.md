@@ -251,3 +251,31 @@ Transport snapshots are preparation for later reviewed converter integration;
 format acceptance is unchanged. Output arguments publish only after complete
 success; partial snapshots/proofs are freed on failure. I have not built or run
 this checkpoint or added fixtures. I request source review first.
+
+## My standalone native runtime embedding prerequisite
+
+I record task_24c910eb904a4154bf252bc8dd3cdabb before embedding production.
+Current nvm2c emits standalone C; my qualified managed runtime is otherwise linked
+through its LLVM/Wasm package. I preserve standalone C by embedding the exact
+managed_strings.h, binary64_parse.h and managed_strings.c bytes, in that order,
+removing only the two named local includes from the last file. The generator
+requires each removal exactly once, refuses other local includes, records each
+input and assembled SHA256, and supports a deterministic --check. System includes
+remain intact. Generated programs perform no repository/runtime-file lookup.
+
+I keep this embedding separate from native profile selection. Its generated C
+string uses the shared parser's existing header guard to coexist with existing
+binary64 embedding. I audit helper/global symbol collisions against the eventual
+mixed generated runtime; no renamed allocator or second managed implementation is
+introduced. Build prerequisites include the generator and all three original
+sources, including the parser's transitive content. Static inspection currently
+finds only standard integer/size/limits/stdlib headers, malloc/free and internal
+numeric helpers, with no explicit libm entry. Strict C11 O0/O2 GCC/Clang linking
+must measure that boundary before I claim it. Embedding generation is not module
+execution; I hold generated-program compilation/execution for source review.
+
+I also record a shared query classification limitation: common structural checking
+calls nvm_retained_layouts_valid, whose false result conflates malformed input with
+allocation failure. My preparation currently returns INVALID in that path; I do
+not claim every injected allocation failure returns MEMORY. Output atomicity and
+cleanup remain required independently of that inherited status distinction.
