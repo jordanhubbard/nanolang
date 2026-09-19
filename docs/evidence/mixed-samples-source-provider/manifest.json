@@ -1,0 +1,20 @@
+{
+  "pin": "fbd3b5a9a494e8529d4c301098f23df670555735",
+  "reports": {
+    "nanolang-mixed-source-provider-gates.py": "06ec919079a76dfd4c190312ff15bd9e5009f92401f24b19b067e29f38849453",
+    "status.json": "42da8d07e20973c287034c1505b511cd2226f07f7b5cbc7e98bd9affcbbda878",
+    "nanolang-mixed-source-final-smoke.py": "93d0a3ecf47d1fdb9056eecd85e7a29f60e48ce6dc554f2aa808ee516e6f0084",
+    "tools-before.json": "ba44355d4358cab541b40ea9a3d139ae262502bd441d147a60a1fa39f4840746",
+    "stages-before.json": "393d415673cd73256fd294607f61a92a93349d51ab2a43389f9772782dabfac8",
+    "tools-after.json": "ba44355d4358cab541b40ea9a3d139ae262502bd441d147a60a1fa39f4840746",
+    "source-smoke.log": "515645fe1a9db32f782535b0d9d939f1cdef4d8f7474d9d3badd143224129322",
+    "source-after.json": "7d0bbce103ee6f4306a108220fde0c26e305ec6320b534a0680476708701134e",
+    "inputs-after.json": "b5139a6b2defcad8275efc442518ab0efb8270e9bf8cd10da897c3af8eb1f9e9",
+    "stages-after.json": "393d415673cd73256fd294607f61a92a93349d51ab2a43389f9772782dabfac8",
+    "inputs-before.json": "b18893860535f0151f148a8a088c9cc7a9ea976fa6a02e48f5a81cd39a6b86bd",
+    "provider-tools.log": "5629149694841422d04c6db8946d4410de7b7ec821b093e1d158b4545b06fb24",
+    "source-before.json": "7d0bbce103ee6f4306a108220fde0c26e305ec6320b534a0680476708701134e",
+    "source-artifacts.json": "7097199162f4a560654536a7c45d20e6d07b69aae47dfc27cf75abaf5f630c36"
+  },
+  "scope": "Linux provider closure after private origin query829; unchanged source/stages; original Samples all-shadow smoke only"
+}

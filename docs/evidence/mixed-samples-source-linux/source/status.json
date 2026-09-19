@@ -1,0 +1,14 @@
+{
+  "pin": "70c511dad439f77eba15fe0bdc189e90ff9c9486",
+  "command": [
+    "python3",
+    "/tmp/nanolang-mixed-source-tests-corrected-run.py",
+    "/tmp/nanolang-mixed-source-qualified-70c511dad/tests"
+  ],
+  "status": 0,
+  "seconds": 656.848,
+  "sources_unchanged": true,
+  "inputs_unchanged": false,
+  "head_unchanged": true,
+  "clean": true
+}

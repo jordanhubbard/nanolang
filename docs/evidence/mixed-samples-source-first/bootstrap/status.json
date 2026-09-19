@@ -1,0 +1,33 @@
+{
+  "source": "5ccfe04b6c0af9145a78523742e03499feb99a47",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 268.797
+    },
+    {
+      "name": "setup",
+      "command": [
+        "make",
+        "-j2",
+        "-f",
+        "Makefile.gnu",
+        "-f",
+        "/tmp/nanolang-mixed-source-bootstrap-5ccfe04b/setup.mk",
+        "transitive-wrapper-setup",
+        "bin/nano"
+      ],
+      "status": 0,
+      "seconds": 25.821
+    }
+  ],
+  "sources_unchanged": true,
+  "unchanged_head": true,
+  "clean": true
+}

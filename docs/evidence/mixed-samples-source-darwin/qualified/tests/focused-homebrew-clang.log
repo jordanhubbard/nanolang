@@ -1,0 +1,9 @@
+test_original_all_shadows_routes_and_equal_metadata (tests.test_source_mixed_samples.SourceMixedSamples.test_original_all_shadows_routes_and_equal_metadata) ... ok
+test_alias_scope_empty_and_constructor_field_order (tests.test_source_mixed_samples.SourceMixedSamples.test_alias_scope_empty_and_constructor_field_order) ... ok
+test_false_shadows_preserve_prior_publication (tests.test_source_mixed_samples.SourceMixedSamples.test_false_shadows_preserve_prior_publication) ... ok
+test_exact_type_nominal_and_profile_refusals (tests.test_source_mixed_samples.SourceMixedSamples.test_exact_type_nominal_and_profile_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 102.959s
+
+OK
