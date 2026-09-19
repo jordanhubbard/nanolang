@@ -234,7 +234,8 @@ static void progress_error_payload(NvmFileRuntime *c,NvmFileNominalBindings b,ui
  CHECK(v.fields==7);for(unsigned i=0;i<7;i++)CHECK(v.values[i]==expected[i]);
  ROK(nvm_file_runtime_take(c,result,NVM_FILE_FLOW_ARM_ERROR,4));v=view(c,4);
  CHECK(v.type.global_index==b.layouts[1] && v.type.catalog_ordinal==1 && v.fields==7 && !v.owning);
- for(unsigned i=0;i<7;i++)CHECK(v.values[i]==expected[i]);ROK(nvm_file_runtime_drop(c,4));
+ for(unsigned i=0;i<7;i++)CHECK(v.values[i]==expected[i]);
+ ROK(nvm_file_runtime_drop(c,4));
  CHECK(view(c,1).initialized && view(c,1).owning && view(c,1).type.global_index==b.layouts[0]);
 }
 static void modeled_progress_errors(void){
