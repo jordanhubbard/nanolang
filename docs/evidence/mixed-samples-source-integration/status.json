@@ -1,0 +1,56 @@
+{
+  "pin": "6a492a7aab1184e22a0fd15935293738ec7a58dd",
+  "steps": [
+    {
+      "name": "tools",
+      "command": [
+        "make",
+        "-j2",
+        "bin/nanoc_c",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nanoisa_dump",
+        "test-local-binding-metadata"
+      ],
+      "status": 0,
+      "seconds": 19.716
+    },
+    {
+      "name": "mixed",
+      "command": [
+        "make",
+        "-j2",
+        "test-mixed-layout-view",
+        "test-mixed-float-proof",
+        "test-mixed-samples",
+        "test-mixed-samples-admission",
+        "test-mixed-samples-runtime"
+      ],
+      "status": 0,
+      "seconds": 35.005
+    },
+    {
+      "name": "service",
+      "command": [
+        "make",
+        "-j2",
+        "test-service-module"
+      ],
+      "status": 0,
+      "seconds": 3.672
+    },
+    {
+      "name": "source-smoke",
+      "command": [
+        "python3",
+        "/tmp/nanolang-mixed-source-final-smoke.py"
+      ],
+      "status": 0,
+      "seconds": 28.186
+    }
+  ],
+  "sources_unchanged": true,
+  "stages_unchanged": true,
+  "clean": true
+}

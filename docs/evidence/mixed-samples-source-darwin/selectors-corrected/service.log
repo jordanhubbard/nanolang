@@ -1,0 +1,12 @@
+I retain service transport artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-i994kbru
+test_attach_and_both_bridge_allocation_prefixes (tests.test_service_bindings_module.ServiceModule.test_attach_and_both_bridge_allocation_prefixes) ... service transport: 725 checks passed
+ok
+test_linked_roundtrip_and_all_consumers (tests.test_service_bindings_module.ServiceModule.test_linked_roundtrip_and_all_consumers) ... service transport: 655 checks passed
+ok
+test_mixed_candidate_service_boundary_and_recovery (tests.test_service_bindings_module.ServiceModule.test_mixed_candidate_service_boundary_and_recovery) ... 212 mixed service selection and recovery checks passed
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.650s
+
+OK
