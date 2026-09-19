@@ -11880,6 +11880,16 @@ I integrate canonical846/847 separately at e756 with unchanged File production/f
 
 - [x] I reconcile only bounded546cf encoding/preparation/acyclic body acceptance from actual PR848 mergeab17e610 through the supported default-profile evidence helper. Full72556/6931 and hosted6fc remain open. Root approves97bb's first nonexecuting serialized-v2 hosted plan; before implementation I audit decoder/bridge allocation products, prior-only nominal layout validation, actual first-initializer selection and the loss of wire max_stack at the bridge. New runtime storage facts count abstract value/reference/frame slots and retain pending carrier/cleanup qualification; they do not assert a matched File carrier already exists.
 
-- [ ] I correct hosted6fc legacy failure classification before fixtures: static allocation-path review finds the v2 bridge reports INDEX_RANGE for failed string/metadata insertion and retained-layout allocation validation, not only TRUNCATED. I retain precise nonallocating INVALID/LIMIT and direct allocation MEMORY; allocating reader/bridge failures become conservatively UNRESOLVED until a separately precise legacy status API exists. I qualify every allocator prefix with unchanged success/output/cleanup/peak assertions; no prior failing binary is executed.
+- [x] I correct hosted6fc legacy failure classification before fixtures: static allocation-path review finds the v2 bridge reports INDEX_RANGE for failed string/metadata insertion and retained-layout allocation validation, not only TRUNCATED. I retain precise nonallocating INVALID/LIMIT and direct allocation MEMORY; allocating reader/bridge failures become conservatively UNRESOLVED until a separately precise legacy status API exists. I qualify every allocator prefix with unchanged success/output/cleanup/peak assertions; no prior failing binary is executed.
 
-- [ ] I preserve exact hosted6fc CODE identity after the legacy bridge: static fixture audit finds nvm_v2_to_nvm_module ignores nvm_append_code's failed growth result. I add a private size/content equality check before body analysis, with conservative UNRESOLVED and complete cleanup, without changing the shared converter. Full-chain allocation fixtures include single-failure recovery as well as prefix failures. I execute no pre-correction artifact; shared converter task `task_d34bb03dee3b404508faf8006b1fceef` remains outside this private checkpoint.
+- [x] I preserve exact hosted6fc CODE identity after the legacy bridge: static fixture audit finds nvm_v2_to_nvm_module ignores nvm_append_code's failed growth result. I add a private size/content equality check before body analysis, with conservative UNRESOLVED and complete cleanup, without changing the shared converter. Full-chain allocation fixtures include single-failure recovery as well as prefix failures. I execute no pre-correction artifact; shared converter task `task_d34bb03dee3b404508faf8006b1fceef` remains outside this private checkpoint.
+
+I qualify only the first private hosted6fc plan at frozen9ab0fcc9f: fresh Linux
+normal/GCC/Clang sanitizers and Darwin normal/Clang sanitizers pass, including
+full allocating-reader/bridge/state prefixes, single failures, startup signatures
+and sequential storage bounds. Unchanged body/code/flow/nominal/service/ISA
+adjacency and actual C-seed/module/wrapper closure pass on both hosts.
+My [hosted-plan evidence](evidence/file-hosted-plan.md) retains exact source/tool
+maps and phase artifacts. No File handler or public admission executes; hosted6fc
+and full72556/6931 remain open for matched runtime/source acceptance. Shared
+converter taskd34 remains separate despite private containment.
