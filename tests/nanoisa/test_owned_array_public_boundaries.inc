@@ -53,7 +53,8 @@ static void public_wire(NvmModule *m,const char *dir) {
     char path[1024];snprintf(path,sizeof path,"%s/public.nvm",dir);FILE *file=fopen(path,"wb");CHECK(file);CHECK(fwrite(data,1,size,file)==size);CHECK(!fclose(file));
     uint16_t depth=v2.functions.items[0].max_stack;CHECK(depth>1);v2.functions.items[0].max_stack=1;
     unsigned char sentinel;back=(void *)&sentinel;CHECK(nvm_v2_to_nvm_module(&v2,&back)!=NVM_V2_OK && back==NULL);
-    CHECK(nvm_v2_module_serialize(&v2,data,size,NULL)==NVM_V2_OK);snprintf(path,sizeof path,"%s/refused-depth.nvm",dir);file=fopen(path,"wb");CHECK(file);CHECK(fwrite(data,1,size,file)==size);CHECK(!fclose(file));
+    uint8_t *snapshot=malloc(size);CHECK(snapshot);memcpy(snapshot,data,size);
+    CHECK(nvm_v2_module_serialize(&v2,data,size,NULL)!=NVM_V2_OK);CHECK(!memcmp(snapshot,data,size));free(snapshot);
     v2.functions.items[0].max_stack=0;CHECK(nvm_v2_to_nvm_module(&v2,&back)==NVM_V2_OK);nvm_module_free(back);
     v2.functions.items[0].max_stack=depth+1;CHECK(nvm_v2_to_nvm_module(&v2,&back)==NVM_V2_OK);nvm_module_free(back);
     free(data);nvm_v2_module_free(&v2);nvm_owned_array_plan_free(plan);

@@ -115,10 +115,10 @@ class PrivateOwnedArrayRuntime(unittest.TestCase):
                 binary_cli = phase/'public-cli'
                 self.command([*cc, *flags, '-std=c11', '-Wall', '-Wextra', '-Werror', '-O2', emitted, '-o', binary_cli])
                 self.assertEqual(self.command([binary_cli]).stdout, '7\n')
-                for tool, args in [('nvm2c', []), ('nvm2llvm', []), ('nvm2wasm', []), ('nvm2hl', ['--language', 'c']), ('nvm2hl', ['--language', 'nano'])]:
+                for tool, args in [('nvm2llvm', []), ('nvm2wasm', []), ('nvm2hl', ['--language', 'c']), ('nvm2hl', ['--language', 'nano'])]:
                     destination = phase/(tool + ('-' + args[-1] if args else '') + '.preserved')
                     destination.write_bytes(b'unchanged-output\n')
-                    source = phase/('refused-depth.nvm' if tool == 'nvm2c' else 'public.nvm')
+                    source = phase/'public.nvm'
                     self.command(['bin/'+tool, *args, source, '-o', destination], success=False)
                     self.assertEqual(destination.read_bytes(), b'unchanged-output\n')
             for _, index, status in rows:
