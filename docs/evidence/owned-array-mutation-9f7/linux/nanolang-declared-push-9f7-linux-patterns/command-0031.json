@@ -1,0 +1,9 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nano_vm",
+    "/tmp/nano-owned-pattern-qxpj9p3p/case.nvm"
+  ],
+  "status": 0,
+  "stdout": "audit.log\nresource closed\n",
+  "stderr": ""
+}

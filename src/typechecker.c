@@ -656,7 +656,9 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
     }
     if (array->type == AST_CALL && !array->as.call.func_expr && array->as.call.name) {
         const char *name = array->as.call.name;
-        if (((!strcmp(name, "array_push") || !strcmp(name, "filter")) && array->as.call.arg_count == 2) ||
+        bool builtin_push = !strcmp(name, "array_push") &&
+            env_array_push_is_builtin(env, array->line, array->column);
+        if (((builtin_push || !strcmp(name, "filter")) && array->as.call.arg_count == 2) ||
             (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
             return array_record_name(array->as.call.args[0], env);
         if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
@@ -1168,7 +1170,8 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
         return check_expression(array_expr->as.call.args[1], env);
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_push") &&
-        array_expr->as.call.arg_count == 2)
+        array_expr->as.call.arg_count == 2 &&
+        env_array_push_is_builtin(env, array_expr->line, array_expr->column))
         return infer_array_element_type(array_expr->as.call.args[0], env);
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && strcmp(array_expr->as.call.name, "map") == 0 &&
@@ -1383,13 +1386,27 @@ static void check_match_totality(ASTNode *matched, Environment *env,
                                  const char *union_base_name,
                                  MatchDomain domain) {
     bool has_unconditional_wildcard = false;
+    int unconditional_wildcard = -1;
     for (int i = 0; i < matched->as.match_expr.arm_count; ++i) {
         ASTNode *guard = matched->as.match_expr.guard_exprs
             ? matched->as.match_expr.guard_exprs[i] : NULL;
+        if (unconditional_wildcard >= 0) {
+            ASTNode *arm = matched->as.match_expr.arm_bodies[i];
+            emit_context_error(
+                "E036 UNREACHABLE MATCH ARM",
+                arm ? arm->line : matched->line,
+                arm ? arm->column : matched->column,
+                1,
+                "I cannot reach a match arm after an unconditional wildcard.",
+                "Remove this arm or give the earlier wildcard a non-literal guard."
+            );
+            if (active_statement_checker) active_statement_checker->has_error = true;
+            return;
+        }
         if (strcmp(matched->as.match_expr.pattern_variants[i], "_") == 0 &&
             match_guard_is_unconditional(guard)) {
             has_unconditional_wildcard = true;
-            break;
+            unconditional_wildcard = i;
         }
     }
 
@@ -2330,6 +2347,22 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return from ? TYPE_FLOAT : TYPE_INT;
             }
 
+            /* I resolve this permitted builtin shadow through its lexical signature. */
+            if (strcmp(expr->as.call.name, "array_push") == 0) {
+                Symbol *binding = env_get_var_visible_at(env, "array_push", expr->line, expr->column);
+                if (binding) {
+                    binding->is_used = true;
+                    if (binding->type != TYPE_FUNCTION) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            "I require a function value for a bound array_push call.",
+                            "Call the declared function or a function-typed binding.");
+                        return TYPE_UNKNOWN;
+                    }
+                    return check_indirect_call(expr, env,
+                        binding->type_info ? binding->type_info->fn_sig : NULL);
+                }
+            }
+
             /* Regular function call */
             
             /* Special handling for map builtin - check before environment lookup */
@@ -2476,6 +2509,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
 
             if (strcmp(expr->as.call.name, "array_push") == 0 &&
+                env_array_push_is_builtin(env, expr->line, expr->column) &&
                 expr->as.call.arg_count == 2) {
                 ASTNode *receiver = expr->as.call.args[0];
                 if (receiver->type == AST_ARRAY_LITERAL &&

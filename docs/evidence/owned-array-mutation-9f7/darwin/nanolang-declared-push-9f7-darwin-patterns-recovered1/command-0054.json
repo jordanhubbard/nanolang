@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/private/tmp/nanolang-declared-push-9f7ead937/bin/nanoc_stage2",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-toml2rbd/case.nano",
+    "-o",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-toml2rbd/program"
+  ],
+  "status": 1,
+  "stdout": "Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-toml2rbd/case.nano:5, column 45: unexpected token ''\n",
+  "stderr": ""
+}

@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/private/tmp/nanolang-owner-array-mutation-match-916424260/bin/nanoc_stage2",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-kq3nvade/case.nano",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-kq3nvade/program"
+  ],
+  "status": 1,
+  "stdout": "NSType checking failed\nDiagnostics:\n  [E0036] I cannot verify ownership: I cannot partially move a resource field (/private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-kq3nvade/case.nano:6:31)\n",
+  "stderr": ""
+}

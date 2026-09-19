@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/nanolang-mutation-match-916424260-qualify.py", line 56, in <module>
+    shutil.copyfile(root/'tests/test_eval',out/'test_eval')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/shutil.py", line 313, in copyfile
+    with open(src, 'rb') as fsrc:
+         ~~~~^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-owner-array-mutation-match/tests/test_eval'
+{"pin": "916424260d93f3f41ae4c630ea57b5dbadbde9ae", "phase": "eval", "success": false, "error": "FileNotFoundError(2, 'No such file or directory')", "seconds": 3.223815214994829, "sources_unchanged": true, "head_unchanged": true}

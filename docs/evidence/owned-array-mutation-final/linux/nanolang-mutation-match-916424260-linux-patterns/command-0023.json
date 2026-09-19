@@ -1,0 +1,9 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nano_vm",
+    "/tmp/nano-owned-pattern-aipn24cf/case.nvm"
+  ],
+  "status": 0,
+  "stdout": "File closed\nFile closed\nFile closed\nFile closed\nFile closed\n",
+  "stderr": ""
+}

@@ -136,6 +136,17 @@ shadow main { assert true }
             with self.subTest(body=body):
                 self.assert_refused(body, r"(?is)E035.*unconditional wildcard")
 
+    def test_arms_after_unconditional_wildcard_are_refused(self):
+        cases = (
+            " let selected: int = match choice { _ => 1 Some(payload) => payload.number }",
+            " match choice { _ => { assert true } None(empty) => { assert true } }",
+            " let selected: int = match choice { _ if true => 1 Some(payload) => payload.number }",
+            " match choice { _ if true => { assert true } None(empty) => { assert true } }",
+        )
+        for body in cases:
+            with self.subTest(body=body):
+                self.assert_refused(body, r"(?is)E036.*unreachable match arm")
+
     def test_guards_require_exact_bool_in_value_and_statement_positions(self):
         cases = (
             " let selected: int = match 7 { 7 if 1 => 1 _ => 0 }",

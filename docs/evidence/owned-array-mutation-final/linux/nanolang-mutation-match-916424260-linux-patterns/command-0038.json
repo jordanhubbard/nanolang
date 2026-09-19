@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nano_virt",
+    "/tmp/nano-owned-pattern-ym1j_88k/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-ym1j_88k/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "acquired\nacquired\n"
+}

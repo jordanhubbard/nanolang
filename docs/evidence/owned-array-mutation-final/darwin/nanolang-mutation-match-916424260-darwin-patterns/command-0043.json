@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/private/tmp/nanolang-owner-array-mutation-match-916424260/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-z212bocu/case.nano",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-z212bocu/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 1,
+  "stdout": "",
+  "stderr": "I require every record or selected variant field exactly once in an owned pattern at line 5.\nWarning: Function 'bad' is missing a shadow test\nerror: type check failed\n"
+}

@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/private/tmp/nanolang-declared-push-9f7ead937/bin/nanoc_stage1",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-4zaoak33/case.nano",
+    "-o",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-pattern-4zaoak33/program"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "File closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\n"
+}

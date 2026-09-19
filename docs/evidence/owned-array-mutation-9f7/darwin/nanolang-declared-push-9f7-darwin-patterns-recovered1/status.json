@@ -1,0 +1,11 @@
+{
+  "pin": "9f7ead937f983e6441f113488534835a046b2781",
+  "phase": "patterns",
+  "success": true,
+  "testsRun": 12,
+  "errors": 0,
+  "failures": 0,
+  "seconds": 149.17494608392008,
+  "sources_unchanged": true,
+  "head_unchanged": true
+}
