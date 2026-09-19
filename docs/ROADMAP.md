@@ -11698,3 +11698,5 @@ verified after the default-profile operator reconciliation. The reviewed guard
 head18593 and [sealed checker evidence](evidence/mutation-builtin-identity.md)
 remain the acceptance boundary; this does not close either owner-ARRAY source
 checkpoint or mutation/runtime/full parents.
+
+- [ ] I restore the Forth SEE provider closure (`task_92d239a53307bbac2d1497a156306d2f`). Static source references require six providers absent from my module manifest: mixed_float_proof, service_bindings, service_bindings_module, service_file_nominal, service_file_nominal_plan and nsi_file_plan. I add only these existing providers, then qualify a clean module link and actual source use. No File authority or runtime semantics change follows; full Forth and release acceptance remain separate.
