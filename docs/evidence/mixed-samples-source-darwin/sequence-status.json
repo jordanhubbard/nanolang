@@ -1,0 +1,12 @@
+[
+  {
+    "phase": "qualify",
+    "status": 0,
+    "seconds": 1084.938
+  },
+  {
+    "phase": "runtime",
+    "status": 2,
+    "seconds": 40.875
+  }
+]

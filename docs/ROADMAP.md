@@ -11544,3 +11544,12 @@ root/allocation assertions, not Homebrew LSan. I retain it separately and requir
 one fresh direct-Python mixed native twelve-case configuration with explicit
 Homebrew CC/LSan, without repeating heap/admission, owned, bootstrap or source
 gates. This closes a missing sanitizer configuration, not a product correction.
+
+I seal same70c Darwin e64 source qualification: freshbootstrap456.417seconds,
+setup121.878seconds, four focused plus58 old methods PASS with Homebrew LLVM23;
+all post-setup inputs/producers remain identical. My
+[Darwin reports](evidence/mixed-samples-source-darwin/manifest.json) retain both
+68db compiler-selection terminals, the scoped Apple mixed-runtime pass,
+corrected Homebrew owned PASS29.948seconds, service PASS5.979seconds and previously
+unmeasured mixed-native LSan PASS23.887seconds. I change no assertions or product
+source. e64/c935/68db await actual canonical merge; full parents remain open.

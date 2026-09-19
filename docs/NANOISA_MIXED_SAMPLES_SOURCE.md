@@ -286,3 +286,50 @@ seconds. Sources and retained stages remain identical across this gate; source
 producers, selectors and mixed runtime are unchanged from the preceding seal.
 My [provider seal](evidence/mixed-samples-source-provider/manifest.json) preserves
 this narrow acceptance without relabeling it as a fresh bootstrap or full suite.
+
+## My same-source Darwin qualification
+
+I qualify frozen `70c511dad439f77eba15fe0bdc189e90ff9c9486` in a separate
+Darwin tree. Explicit Apple Clang/SDK bootstrap passes in 456.417 seconds;
+tool/probe setup passes in 121.878 seconds. Fresh emitter/shadow setup takes
+319.195 seconds. Homebrew LLVM23 passes the four focused methods in102.960
+seconds and all58 existing borrow/STRING methods in660.013 seconds:62 method
+executions,1083.972 seconds total. Original Samples/PREFIX and every selected
+shadow remain unchanged. Both assertion phases preserve every post-setup input,
+with no added inputs; producers and versioned sources remain identical.
+
+I preserve distinct runtime/compiler-selection outcomes under child68db:
+
+- My first mixed runtime/heap/admission gate passes in25.782 seconds with Apple
+  ASan/UBSan and explicit root/allocation assertions. Its existing Apple policy
+  disables leak detection; I do not call this a Homebrew LSan pass.
+- The following owned gate stops in14.020 seconds because make's `CC = cc`
+  overrides my environment selection and Apple rejects graph leak detection.
+  The original result fixture reports `compiler=cc detect_leaks=0`.
+- In another same-source tree, explicit command-line Homebrew CC makes owned
+  graph/results pass in29.948 seconds; the result log confirms `detect_leaks=1`.
+  The subsequent service gate stops in7.569 seconds because its independent
+  compiler selector still defaults to `cc`. I preserve that second terminal.
+- With every relevant selector explicit, fresh service fixtures pass in5.979
+  seconds: three methods with725/655/212 checks. A separate previously unmeasured
+  Homebrew mixed-native configuration passes in23.887 seconds: all twelve cases,
+  O0/O2, ASan/UBSan/LSan, allocation faults and root assertions. Prepared source,
+  tool and object inputs stay identical across both corrected direct-Python gates.
+
+I change no product source, fixture assertion, sanitizer requirement or deadline
+for these corrections. I retain new artifact directories and never rerun the
+preserved failing binaries. Bootstrap and passed source/heap/admission gates are
+not repeated. The [Darwin seal](evidence/mixed-samples-source-darwin/manifest.json)
+contains76 reports and separate successful/failed artifact inventories; its
+archive transfer hash is independently checked locally.
+
+My source runner hashes the actual Homebrew compiler before emitter setup.
+Bootstrap records its explicit `/usr/bin` invocation tools and SDK selection.
+Supplemental SDK/config/tool hashes are captured during emitter setup, and
+xcrun-resolved Xcode backend hashes during later source regression; I do not
+relabel those supplemental snapshots as before-bootstrap evidence.
+
+Linux final private-provider integration remains separately qualified. These
+bounded source and runtime checks do not close parent4be, owner ARRAY430220,
+the separate embedded-runtime Darwin fixture taska522 or full product/release
+acceptance. e64/c935/68db await canonical merge reconciliation.
