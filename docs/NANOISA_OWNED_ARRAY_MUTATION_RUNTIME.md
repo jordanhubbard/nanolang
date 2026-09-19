@@ -116,3 +116,31 @@ actual allocation site; I do not equate it with the VM stack allocator.
 4. I send evidence to the producer owner for the later paired source mutation
    matrix. I close only this bounded runtime child after reviewed canonical merge;
    source18731, bba622 and parent430220 require their own complete acceptance.
+
+## I pin the actual allocation observers before implementation
+
+My static native audit corrects one promise above: nvm2c_owned.h emits fixed
+`t[256]`/`l[256]` arrays and shares the existing NmsRuntime across consuming
+helpers. Parameter validation and transfer in that path allocate no heap carrier.
+I therefore qualify native call success/order/alias behavior and actual pack/growth
+faults; I do not invent a native call-preflight allocation failure. The VM's real
+stack realloc obligation is unchanged.
+
+For post-append packing, I prepare the child Handle and STRING field before the
+append. The returned ARRAY remains on the operand stack after a duplicated
+length observation prints its marker; loading the previously prepared STRING
+performs only a retain, then OWN_PACK constructs the Bundle. VM observers match
+current function and the decoded next instruction PC for that exact OWN_PACK,
+then distinguish heap.c's malloc(sizeof(VmStruct)) shell allocation and
+calloc(field_count,sizeof(NanoValue)) field allocation. They record exact
+arguments and independently assert the retained operand tags before returning
+NULL. They do not wrap layout-decoder allocations or synthesize an opcode error.
+
+Native's existing NOWN_ALLOC macro wraps both strings and shells. I use a
+fixture-only replacement that delegates normal allocations and fails the first
+NOWN_ALLOC after the exact append-length marker. In this fixed graph the STRING
+and Handle allocations precede that marker and the next NOWN_ALLOC is the Bundle
+shell/inline-field allocation emitted for OWN_PACK. I verify the generated
+sequence statically and assert the count/size supplied to the observer. I retain
+separate allocator accounting and exact output prefix/recovery checks; no
+production hook or emitted source rewrite follows.
