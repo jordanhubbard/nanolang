@@ -206,6 +206,8 @@ static bool oq_decode(OQAnalysis *a) {
             OQInstruction *i=&a->instructions[a->count++];i->function=f;i->pc=pc;i->depth=-1;i->origin=-1;
             uint32_t width=isa_decode(m->code+fn->code_offset+pc,fn->code_length-pc,&i->in);
             if(!width)return oq_stop(a,NVM_OWNER_ORIGIN_INVALID,f,pc,"I require complete decoded instructions.");
+            a->proof->obligations[a->count-1].function=f;
+            a->proof->obligations[a->count-1].pc=pc;
             uint8_t op=i->in.opcode;
             if(!oq_supported(op))return oq_stop(a,NVM_OWNER_ORIGIN_UNRESOLVED,f,pc,"I have no owner-origin transfer for this opcode.");
             if(op==OP_PUSH_BOOL && i->in.operands[0].u8>1)return oq_stop(a,NVM_OWNER_ORIGIN_INVALID,f,pc,"I require canonical BOOL immediates.");
@@ -390,7 +392,7 @@ static bool oq_step(OQAnalysis *a,uint32_t index) {
     if(pops<0 || pushes<0 || depth<pops)return oq_stop(a,NVM_OWNER_ORIGIN_INVALID,f,i->pc,"I require complete operand stacks.");
     if((uint32_t)(depth-pops+pushes)>OQ_SLOTS)return oq_stop(a,NVM_OWNER_ORIGIN_LIMIT,f,i->pc,"I reached my stack budget.");
     uint16_t base=(uint16_t)(depth-pops);OQValue result={0};uint16_t required;
-    NvmOwnerOriginObligation *ob=&a->proof->obligations[index];ob->function=f;ob->pc=i->pc;
+    NvmOwnerOriginObligation *ob=&a->proof->obligations[index];
     int scalar=oq_scalar(op,&required);
     if(scalar>=0) {
         result=oq_tag((uint8_t)scalar);
