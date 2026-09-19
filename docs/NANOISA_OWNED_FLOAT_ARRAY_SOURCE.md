@@ -228,3 +228,28 @@ checked refusal. STRING comparisons and STRING printing remain refused only in
 this new profile; existing STRING-only source acceptance stays unchanged. No
 BOOL-to-INT conversion, generic dispatch fallback, new INT-print surface or
 broader scalar policy follows. The original Bundle/PREFIX/shadows remain required.
+
+## I prepare my source fixtures without claiming activation
+
+After independent paired production review through99fdb4804, I prepare
+`tests/test_source_owned_float_arrays.py` as six explicitly selected methods.
+I obtain the original Bundle source from its unchanged test AST, retain PREFIX
+and every shadow, and execute that original method through all four drivers
+only after the activation dependency qualifies. My reused graph harness compares
+canonical dumps, retained names and stripped metadata, every raw emitter and the
+complete selected-shadow modules before VM/native comparisons.
+
+I prepare integer minimum/wrap/zero-divisor and Boolean/range controls, contextual
+empty fields, nested factory/forward calls with prepared array roots, observations
+and aliases across complete reversed unpack and owner consumption. Optional
+FLOAT comparisons cover left/right/both operands; out-of-bounds shadow refusals
+preserve prior publication and independently verified raw modules exercise checked
+runtime failure. Exact FLOAT local/arithmetic/negation and lexical at/not controls
+remain refusals. Original Samples, STRING, scalar-owner and borrowed profiles are
+adjacent controls. Mutation/length remains the separate bba622 checkpoint.
+
+I have parsed only the Python fixture syntax and checked whitespace. I have not
+built tools, bootstrapped, run these source tests or executed a new module. Public
+activation qualification remains pending, including its separately recorded
+absent/VOID parameter-sidecar correction. I will freeze a fresh integrated tree
+with its exact qualified providers before any of these source gates.
