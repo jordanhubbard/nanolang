@@ -88,6 +88,13 @@ declaration. I correct those fixture boundaries only. Explicit byte-to-boolean
 conversion remains exercised by the reconstructed Nano source, while the
 checked-source control stays limited to contextual literal tags.
 
+After those fixture corrections, Stage 1 and Stage 2 reached one remaining
+scoped emitter refusal: their canonical `cast_int` whitelist omitted exact
+`u8`, even though NanoVM and the C-seed producer already implement the
+unsigned widening. I add only `u8` to that explicit conversion admission. I
+do not infer support for generic byte arithmetic, comparison or logic from
+this conversion.
+
 This extension does not admit a `u8` entry result: my executable entry remains
 an arity-zero `int` function. It does not change NanoISA, NanoVM, `nvm2c`, LLVM
 or Wasm semantics. Full high-level reconstruction and the v5.1.0 release gates
