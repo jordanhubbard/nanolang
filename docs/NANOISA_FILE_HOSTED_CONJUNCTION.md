@@ -182,3 +182,32 @@ call's argument staging. Reference and region arrays conservatively retain the
 existing256-slot per-frame limit. Wire zero depth remains undeclared, and actual
 runtime carrier sizes, heap payload extents and error cleanup remain pending
 before any public allocation or service dispatch can consume these facts.
+
+## My private fixture checkpoint
+
+I contain the separately tracked legacy bridge CODE-growth failure
+(`task_d34bb03dee3b404508faf8006b1fceef`) by comparing the complete bridged CODE
+size and bytes with the decoded input before body analysis. A mismatch is
+UNRESOLVED; I do not change the shared converter in this checkpoint.
+
+I prepare both directly linked and allocator-instrumented fixtures. My Python
+harness lists each rebuilt allocating reader, bridge, nominal/ownership, and
+flow provider explicitly; remaining ISA objects retain their normal build.
+The instrumented fixture includes its inherited construction helpers under the
+same allocation hooks so fixture-owned table replacement cannot corrupt the
+allocation ledger. I model realloc with simultaneous old/new storage and test
+every failure prefix plus a single transient failure at each allocation. The
+latter may recover inside a legacy preliminary bridge, but any successful final
+plan must retain exact startup facts and function CODE lengths. I check the
+reported conservative byte bound, output preservation, immediate recovery, and
+zero leaked tracked allocations on both kinds of failure.
+
+Unreachable valid instructions enlarge the fixture CODE beyond 4096 bytes to
+exercise bridge growth. I decode these instructions; I never execute them or
+any File handler. Startup controls cover the first initializer in table order,
+ignored later names, rejected incompatible signatures, embedded NUL names,
+HAS_MAIN, wire stack bounds, exact nominal permutations, and retained pending
+runtime obligations. Existing public verifier/native refusal remains asserted.
+My normal suite selects CC/CFLAGS/LDFLAGS; the separate sanitizer target retains
+strict warnings, ASan/UBSan and leak checking. This checkpoint records prepared
+assertions, not passing gates.

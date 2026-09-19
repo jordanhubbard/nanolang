@@ -239,6 +239,12 @@ NvmFileFlowStatus nvm_file_hosted_prepare(const uint8_t *data,size_t size,NvmFil
     if(decoded!=NVM_V2_OK){status=file_hosted_codec_status(decoded);goto done;}
     decoded=nvm_v2_to_nvm_module(&wire,&module);
     if(decoded!=NVM_V2_OK){status=file_hosted_codec_status(decoded);goto done;}
+    /* The legacy bridge may lose CODE after a failed buffer growth.  I do not
+     * certify its partial publication or reinterpret that failure as INVALID. */
+    if(!module || module->code_size!=wire.code_size || !module->code ||
+       memcmp(module->code,wire.code,wire.code_size)) {
+        status=NVM_FILE_FLOW_UNRESOLVED;goto done;
+    }
     plan=calloc(1,sizeof *plan);if(!plan){status=NVM_FILE_FLOW_MEMORY;goto done;}
     plan->startup.features=header.feature_bits;plan->startup.allocation_bound=bound;
     status=nvm_file_body_analyze(module,&plan->body);if(status!=NVM_FILE_FLOW_OK)goto done;
