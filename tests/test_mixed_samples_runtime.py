@@ -3,6 +3,8 @@ from contextlib import nullcontext
 import os
 from pathlib import Path
 import subprocess
+import sys
+from tests.test_owned_string_fields import leak_detection_for
 import tempfile
 import unittest
 
@@ -17,6 +19,8 @@ class MixedSamplesRuntime(unittest.TestCase):
 
     def test_vm_native_lifecycle_and_allocations(self):
         compiler = os.environ.get('CC', 'cc')
+        identity = self.checked([compiler, '--version'])
+        leaks = leak_detection_for(identity.stdout + identity.stderr, sys.platform)
         retained = os.environ.get('NANO_MIXED_RUNTIME_DIR')
         context = nullcontext(retained) if retained else tempfile.TemporaryDirectory(prefix='nano-mixed-runtime-')
         with context as directory:
@@ -24,7 +28,7 @@ class MixedSamplesRuntime(unittest.TestCase):
             result = self.checked([ROOT/'obj/test_mixed_samples_runtime', work])
             print(result.stdout, end='')
             cases = [line.split() for line in result.stdout.splitlines() if line.startswith('case ')]
-            self.assertEqual(len(cases), 9)
+            self.assertEqual(len(cases), 12)
             for _, index, status, value in cases:
                 with self.subTest(case=index):
                     source = work/f'case{index}.c'
@@ -70,7 +74,7 @@ int main(void){
                                       optimization, '-fsanitize=address,undefined',
                                       '-fno-omit-frame-pointer', '-g', harness, '-o', binary])
                         checked = self.checked([binary], env={**os.environ,
-                            'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+                            'ASAN_OPTIONS': f'detect_leaks={leaks}:halt_on_error=1'})
                         print(f'case={index} optimization={optimization}\n{checked.stderr}', end='')
 
 if __name__ == '__main__': unittest.main()

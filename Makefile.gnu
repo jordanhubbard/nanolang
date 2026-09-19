@@ -5286,3 +5286,5 @@ test-mixed-samples-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJE
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=mixed_admit_malloc -Dcalloc=mixed_admit_calloc -c src/nanoisa/verifier.c -o obj/test_mixed_samples_verifier.o
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_admission tests/nanoisa/test_mixed_samples_admission.c obj/test_mixed_samples_verifier.o $(NANOVM_OBJECTS) $(filter-out obj/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_mixed_samples_admission
+
+test-units: test-mixed-samples-runtime test-mixed-samples-runtime-alloc test-mixed-samples-admission

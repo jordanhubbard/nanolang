@@ -26,18 +26,25 @@ static NvmModule *runtime_fixture(unsigned index) {
         "LOAD_LOCAL 1\nPUSH_I64 99\nARR_GET\nLOAD_LOCAL 1\nPUSH_I64 -1\nARR_GET\nF64_EQ\nPOP\n",
         "PUSH_BOOL 0\nASSERT\n",
         "LOAD_LOCAL 1\nPUSH_I64 99\nARR_GET\nPUSH_F64 0.0\nNE\nASSERT\n"
-        "PUSH_F64 -0.0\nPUSH_F64 0.0\nEQ\nASSERT\n"
+        "PUSH_F64 -0.0\nPUSH_F64 0.0\nEQ\nASSERT\n",
+        "PUSH_F64 nan\nPUSH_F64 nan\nNE\nASSERT\n"
+        "PUSH_F64 nan\nPUSH_F64 1.0\nLE\nASSERT\n"
+        "PUSH_F64 nan\nPUSH_F64 1.0\nF64_LE\nBOOL_NOT\nASSERT\n"
+        "PUSH_F64 nan\nPUSH_F64 -0.0\nF64_DIV\nPUSH_F64 0.0\nF64_EQ\nASSERT\n"
+        "PUSH_F64 1.5\nPUSH_F64 2.5\nF64_ADD\nPUSH_F64 4.0\nF64_EQ\nASSERT\n"
     };
-    CHECK(index<9);
+    CHECK(index<12);
     char body[4096];snprintf(body,sizeof body,
         "PUSH_F64 1.5\nARR_LITERAL 3 1\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 0\n"
         "LOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nSTORE_LOCAL 2\n"
         "PUSH_I64 7\nOWN_PACK 0\nOWN_STORE_LOCAL 3\n%s"
-        "OWN_MOVE_LOCAL 3\nCALL 1\nPUSH_I64 7\nEQ\nASSERT\nPUSH_I64 0\nRET\n",operations[index<6?index:0]);
+        "OWN_MOVE_LOCAL 3\nCALL 1\nPUSH_I64 7\nEQ\nASSERT\nPUSH_I64 0\nRET\n",operations[index==9?6:index<6?index:0]);
     Type locals[]={{TAG_STRUCT,1},SCALAR(TAG_ARRAY),SCALAR(TAG_ARRAY),{TAG_STRUCT,0}};
-    if(index==6) {
+    if(index==6 || index==10) {
         char helpers[6000];snprintf(helpers,sizeof helpers,"%s.function original_main 0 4 0 int 1\n%s.end\n",consume,body);
-        NvmModule *m=build("PUSH_I64 7\nOWN_PACK 0\nCALL 1\nPUSH_I64 7\nEQ\nASSERT\nCALL 2\nPUSH_I64 0\nEQ\nASSERT\nPUSH_I64 0\nRET\n",NULL,0,helpers,false);
+        if(index==10)strcat(helpers,".function forward_main 0 0 0 int 1\nCALL 2\nRET\n.end\n");
+        const char *entry=index==10?"PUSH_I64 7\nOWN_PACK 0\nCALL 1\nPUSH_I64 7\nEQ\nASSERT\nCALL 3\nPUSH_I64 0\nEQ\nASSERT\nPUSH_I64 0\nRET\n":"PUSH_I64 7\nOWN_PACK 0\nCALL 1\nPUSH_I64 7\nEQ\nASSERT\nCALL 2\nPUSH_I64 0\nEQ\nASSERT\nPUSH_I64 0\nRET\n";
+        NvmModule *m=build(entry,NULL,0,helpers,false);
         uint8_t *row=runtime_row(m,2)+12;
         for(unsigned n=0;n<4;n++){row[n*8]=locals[n].tag;word(row+n*8+4,locals[n].layout);}
         return m;
@@ -50,6 +57,16 @@ static NvmModule *runtime_fixture(unsigned index) {
         NvmModule *m=build(body,locals,4,helpers,false);
         word(runtime_row(m,2)+8,0);word(runtime_row(m,3)+8,0);
         return m;
+    }
+    if(index==11) {
+        const char *needle="OWN_MOVE_LOCAL 3\nCALL 1";char *at=strstr(body,needle);CHECK(at);
+        char tail[512];snprintf(tail,sizeof tail,"%s",at);
+        snprintf(at,sizeof body-(size_t)(at-body),
+            "PUSH_I64 0\nSTORE_LOCAL 4\nrepeat:\nLOAD_LOCAL 4\nPUSH_I64 2\nLT\nJMP_FALSE repeated\n"
+            "ARR_NEW 3\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 0\nLOAD_LOCAL 4\nPUSH_I64 1\nADD\nSTORE_LOCAL 4\nJMP repeat\n"
+            "repeated:\nPUSH_BOOL 0\nJMP_FALSE skipped\nARR_NEW 3\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 0\nskipped:\n%s",tail);
+        Type repeated[]={{TAG_STRUCT,1},SCALAR(TAG_ARRAY),SCALAR(TAG_ARRAY),{TAG_STRUCT,0},SCALAR(TAG_INT)};
+        return build(body,repeated,5,consume,false);
     }
     const char *helper=index==8?".function close 1 1 0 int 1\nPUSH_BOOL 0\nASSERT\nOWN_UNPACK_LOCAL 0\nRET\n.end\n.parameters 1 struct\n":consume;
     return build(body,locals,4,helper,false);
@@ -155,7 +172,7 @@ static void runtime_core(NvmModule *m,unsigned index,VmResult wanted) {
 
 int main(int argc,char **argv) {
     CHECK(argc==2);
-    for(unsigned index=0;index<9;index++) {
+    for(unsigned index=0;index<12;index++) {
         NvmModule *m=runtime_fixture(index);NvmVerifyResult verified=nvm_verify(m);
         if(!verified.ok)fprintf(stderr,"case%u: %s\n",index,verified.error_msg);
         CHECK(verified.ok);

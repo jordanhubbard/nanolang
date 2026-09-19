@@ -18,7 +18,7 @@ static void allocation_invoke(VmState *vm,unsigned api,VmResult wanted,size_t ba
 }
 int main(void) {
     (void)runtime_artifacts;(void)runtime_core;
-    for(unsigned index=0;index<9;index++) {
+    for(unsigned index=0;index<12;index++) {
         NvmModule *m=runtime_fixture(index);CHECK(nvm_verify(m).ok);
         VmResult wanted=(index==4||index==8)?VM_ERR_ASSERT_FAILED:index>=1&&index<=3?VM_ERR_TYPE_ERROR:VM_OK;
         for(unsigned api=0;api<4;api++) {
