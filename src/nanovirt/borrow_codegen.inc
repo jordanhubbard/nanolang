@@ -42,9 +42,13 @@ static void borrow_error(BorrowCG *b, ASTNode *n, const char *message) {
 static uint8_t borrow_tag(Type type) {
     return type==TYPE_INT?TAG_INT:type==TYPE_BOOL?TAG_BOOL:TAG_VOID;
 }
-/* I do not grant float fields or signatures by admitting scalar locals. */
+/* I keep retained fields separate from numeric and reference scalar tags. */
+static uint8_t borrow_field_tag(Type type) {
+    return type==TYPE_STRING?TAG_STRING:borrow_tag(type);
+}
+/* I do not grant float fields or signatures by admitting value locals. */
 static uint8_t borrow_local_tag(Type type) {
-    return type==TYPE_FLOAT?TAG_FLOAT:borrow_tag(type);
+    return type==TYPE_FLOAT?TAG_FLOAT:borrow_field_tag(type);
 }
 /* I keep parameter transport separate from resource-leaf eligibility. */
 static uint8_t borrow_parameter_tag(Type type) {
@@ -148,7 +152,7 @@ static void borrow_unpack(BorrowCG *b,unsigned local) {
     ASTNode *record=b->records[b->layouts[local]];int slots[256];
     for(int f=0;f<record->as.struct_def.field_count && !b->cg->had_error;f++) {
         int child=borrow_child(b,b->layouts[local],f);
-        slots[f]=borrow_slot(b,NULL,child>=0?TAG_STRUCT:borrow_tag(record->as.struct_def.field_types[f]),
+        slots[f]=borrow_slot(b,NULL,child>=0?TAG_STRUCT:borrow_field_tag(record->as.struct_def.field_types[f]),
                             child>=0?(uint32_t)child:NVM_V2_NO_INDEX,0,false);
         b->projection_parent[slots[f]]=(int)local;b->projection_field[slots[f]]=f;
     }
@@ -220,7 +224,10 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         if(!borrow_place(b,n->as.field_access.object,&place))return TAG_VOID;
         int field=borrow_layout_field(b,place.layout,n->as.field_access.field_name,n);
         if(field<0)return TAG_VOID;
-        uint8_t tag=borrow_tag(b->records[place.layout]->as.struct_def.field_types[field]);
+        uint8_t tag=borrow_field_tag(b->records[place.layout]->as.struct_def.field_types[field]);
+        if(tag==TAG_STRING && b->value_graph && !place.length && !b->modes[place.root]) {
+            emit_op(cg,OP_LOAD_LOCAL,place.root);emit_op(cg,OP_AGG_GET,field);return TAG_STRING;
+        }
         if(!tag || !borrow_leaf(b,place.layout)){borrow_error(b,n,"a scalar field of a leaf resource record");return TAG_VOID;}
         /* I keep temporary local observations after inherited helper formals. */
         unsigned reference=b->modes[place.root]?(unsigned)place.root:
@@ -262,6 +269,10 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
                 case TOKEN_LE:opcode=OP_F64_LE;result=TAG_BOOL;break;
                 case TOKEN_GT:opcode=OP_F64_GT;result=TAG_BOOL;break;
                 case TOKEN_GE:opcode=OP_F64_GE;result=TAG_BOOL;break;default:break;
+            }
+            if(left==TAG_STRING && b->value_graph) {
+                if(op==TOKEN_EQ){opcode=OP_EQ;result=TAG_BOOL;}
+                if(op==TOKEN_NE){opcode=OP_NE;result=TAG_BOOL;}
             }
             if(left==TAG_INT || left==TAG_BOOL) switch(op) {
                 case TOKEN_EQ:opcode=OP_EQ;result=TAG_BOOL;break;
@@ -379,7 +390,7 @@ static bool borrow_owner(BorrowCG *b,ASTNode *value,unsigned layout) {
                 tag=TAG_STRUCT;
             } else {
                 tag=borrow_expr(b,value->as.struct_literal.field_values[f]);
-                if(tag!=borrow_tag(record->as.struct_def.field_types[index])){borrow_error(b,value,"exact constructor field types");return false;}
+                if(tag!=borrow_field_tag(record->as.struct_def.field_types[index])){borrow_error(b,value,"exact constructor field types");return false;}
             }
             slots[index]=borrow_slot(b,NULL,tag,child>=0?(uint32_t)child:NVM_V2_NO_INDEX,0,false);
             if(cg->had_error)return false;
@@ -543,8 +554,8 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 }
             } else {
                 uint8_t tag=borrow_expr(b,n->as.let.value),declared=borrow_local_tag(n->as.let.var_type);
-                if((n->as.let.var_type!=TYPE_UNKNOWN && tag!=declared) || (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_FLOAT)) {
-                    borrow_error(b,n,"int/bool/float scalar local types");break;
+                if((n->as.let.var_type!=TYPE_UNKNOWN && tag!=declared) || (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_FLOAT && !(b->value_graph && tag==TAG_STRING))) {
+                    borrow_error(b,n,"int/bool/float locals or value-graph STRING locals");break;
                 }
                 int slot=borrow_slot(b,n->as.let.name,tag,NVM_V2_NO_INDEX,0,n->as.let.is_mut);
                 emit_op(cg,OP_STORE_LOCAL,slot);
@@ -764,7 +775,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
             }
             bool owned=n->as.struct_def.is_resource;
             for(int f=0;f<n->as.struct_def.field_count;f++) {
-                if(!borrow_tag(n->as.struct_def.field_types[f])) {
+                if(!borrow_field_tag(n->as.struct_def.field_types[f])) {
                     int child=n->as.struct_def.field_types[f]==TYPE_STRUCT
                         ?borrow_record(b,n->as.struct_def.field_type_names[f]):-1;
                     if(child<0 || b->depths[child]>=32)borrow_error(b,n,"earlier resource child declarations and depth at most 32");
@@ -829,7 +840,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,ModuleList *modules
         layout->fields=calloc(layout->field_count?layout->field_count:1,sizeof(*layout->fields));
         if(!layout->fields){borrow_error(b,n,"available field storage");break;}
         for(unsigned f=0;f<layout->field_count && !cg->had_error;f++) {
-            const char *name=n->as.struct_def.field_names[f];layout->fields[f].type_tag=borrow_tag(n->as.struct_def.field_types[f]);
+            const char *name=n->as.struct_def.field_names[f];layout->fields[f].type_tag=borrow_field_tag(n->as.struct_def.field_types[f]);
             int child=borrow_child(b,i,(int)f);
             if(child>=0)layout->fields[f].type_tag=TAG_STRUCT;
             layout->fields[f].nested_idx=child>=0?(uint32_t)child:NVM_V2_NO_INDEX;layout->fields[f].name_idx=nvm_add_string(cg->module,name,(uint32_t)strlen(name));
