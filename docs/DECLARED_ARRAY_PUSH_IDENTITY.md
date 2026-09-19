@@ -307,3 +307,25 @@ justified affected source gates. Reused0c54 selfhost binaries keep their origina
 bootstrap attribution and exact Nano/C-provider dependency evidence; they are
 not presented as a new bootstrap. My gate runner records the held evaluator
 dependency explicitly instead of treating its failed status as successful.
+
+## My Darwin storage-pressure terminal
+
+I record `task_0ff247470372fbf16059e2403df75be0`. Darwin identity passes all six
+methods (128.158s; runner128.963s) after fresh C providers150.921s and lookup-only
+3.742s. Mutation setup then terminates with setUpClass ERROR and three truncated
+Traceback headers; no methods or final maps/status are reported. A read-only
+filesystem check afterward shows Data100% and164MiB available. I establish
+storage pressure, not the missing exception's sole cause. I copy the partial
+log and maps off-host without altering their originals.
+
+Under root authorization I inventory only my own files. My first remediation
+selects the three old source-transfer archives bb52/925c/0c54, about205MiB total,
+only after each retained local archive and remote copy have equal SHA256.
+Qualified trees, stage binaries, active providers and reports remain intact.
+If more capacity is required, any further old owned artifact removal first
+requires an off-host archive and complete extracted-file hash comparison; I
+never remove sole evidence or another session's tree. A new evidence directory
+and explicit remaining-input maps precede any fresh Darwin mutation setup.
+Linux independently passes its unchanged mutation12 (600.513s; runner600.951s)
+and begins the full unchanged owned-pattern suite; evaluator acceptance remains
+held on PR855.

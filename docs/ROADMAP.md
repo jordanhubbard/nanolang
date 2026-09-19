@@ -11961,3 +11961,10 @@ prerequisites pass, not a narrowed Bundle replacement.
   owned-pattern methods before855 integration after root review. Results remain
   partial evidence; evaluator acceptance stays FAILED and all completion/merge
   claims stay held until integration and its full evaluator/affected gates pass.
+
+- [ ] I preserve and recover my Darwin source-gate storage boundary
+  (`task_0ff247470372fbf16059e2403df75be0`). After identity6 passes, mutation setup
+  stops with truncated traceback/no method results; subsequent df shows100%.
+  I preserve the unknown exception boundary, remove only self-owned verified
+  duplicate copies after off-host hashing, and require a fresh setup/result.
+  I leave qualified providers, other sessions and full acceptance untouched.
