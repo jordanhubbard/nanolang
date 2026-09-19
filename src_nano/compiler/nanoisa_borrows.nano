@@ -573,7 +573,7 @@ shadow nb_same_owners {
     set nb_error "" let _: int = (nb_reset_locals)
 }
 fn nb_profile_opcode(opcode: string, tag: int) -> string {
-    if (not nb_owner_arrays) { return opcode }
+    if (not (or nb_owner_arrays nb_mixed)) { return opcode }
     if (== tag 1) {
         if (== opcode "ADD") { return "I64_ADD" }
         if (== opcode "SUB") { return "I64_SUB" }
@@ -601,8 +601,13 @@ fn nb_profile_opcode(opcode: string, tag: int) -> string {
 }
 shadow nb_profile_opcode {
     let owned: bool = nb_owner_arrays
-    set nb_owner_arrays false assert (== (nb_profile_opcode "ADD" 1) "ADD")
+    let mixed: bool = nb_mixed
+    set nb_owner_arrays false set nb_mixed false assert (== (nb_profile_opcode "ADD" 1) "ADD")
     assert (== (nb_profile_opcode "EQ" 5) "EQ")
+    set nb_mixed true
+    assert (== (nb_profile_opcode "ADD" 1) "I64_ADD")
+    assert (== (nb_profile_opcode "AND" 4) "BOOL_AND")
+    set nb_mixed false
     set nb_owner_arrays true
     let ordinary: array<string> = ["ADD", "SUB", "MUL", "DIV", "MOD", "NEG", "EQ", "NE", "LT", "LE", "GT", "GE"]
     let exact: array<string> = ["I64_ADD", "I64_SUB", "I64_MUL", "I64_DIV_S", "I64_REM_S", "I64_NEG", "EQ", "NE", "I64_LT_S", "I64_LE_S", "I64_GT_S", "I64_GE_S"]
@@ -612,7 +617,7 @@ shadow nb_profile_opcode {
     assert (== (nb_profile_opcode "NOT" 4) "BOOL_NOT") assert (== (nb_profile_opcode "EQ" 4) "EQ")
     assert (== (nb_profile_opcode "LT" 4) "") assert (== (nb_profile_opcode "EQ" 5) "")
     assert (== (nb_profile_opcode "F64_EQ" 3) "F64_EQ")
-    set nb_owner_arrays owned
+    set nb_owner_arrays owned set nb_mixed mixed
 }
 fn nb_binary(op: int, tag: int) -> string {
     if (== tag 5) {
