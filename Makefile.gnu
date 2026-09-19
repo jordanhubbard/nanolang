@@ -924,8 +924,19 @@ test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop
 	@echo "Running NanoVM end-to-end integration tests..."
 	@scripts/test_nanovm_integration.sh
 
-.PHONY: test-cop-lifecycle
-test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop
+.PHONY: test-cop-lifecycle test-cop-lifecycle-harness
+$(OBJ_DIR)/test_cop_lifecycle: tests/nanovm/test_cop_lifecycle.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o $@ \
+		tests/nanovm/test_cop_lifecycle.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+test-cop-lifecycle-harness:
+	@python3 -m unittest -v tests.test_cop_lifecycle_gate
+
+test-units: test-cop-lifecycle-harness
+
+test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop $(OBJ_DIR)/test_cop_lifecycle
 	@echo "Running co-process lifecycle tests..."
 	@scripts/test_cop_lifecycle.sh
 
