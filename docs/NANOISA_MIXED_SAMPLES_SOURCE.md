@@ -2,9 +2,8 @@
 
 Task `task_e64a2673b2b344b487746458d4d1e6ac` belongs to mixed parent4be.
 My runtime dependency is actual PR819 merge
-`d0de3d23a730c66531f2ed2c5d972215302ebe19`. This checkpoint is a contract and
-static audit only. I have not changed a producer, built a new compiler, or
-executed a newly admitted source program.
+`d0de3d23a730c66531f2ed2c5d972215302ebe19`. My initial checkpoint was a contract and static audit. I record subsequent
+production, successful bootstrap and the first checked source refusal below.
 
 ## My unchanged acceptance
 
@@ -190,3 +189,44 @@ unchanged across both phases. I retain those reports separately from subsequent
 source acceptance. My focused source fixtures now include the unchanged original
 four-driver method, all selected shadows, paired dumps/names/stripped execution,
 constructor order, aliases, contextual empty fields and retained refusals.
+
+## My complete scalar-leaf pattern correction contract
+
+Child `task_c935734a6a0e44dbbdbce12fcea31a9e` records the first source gate's
+checked refusal at frozen `b92753166931a5ba75030d629b9abc762fb9c94f`.
+The fresh five emitter/shadow drivers were built in 176.131 seconds. The first
+unchanged original Samples/PREFIX publication then refused in 0.005 seconds:
+function 1, offset 6 has no closed mixed transfer. No module was published or
+executed. I retain the terminal, logs and maps in
+[evidence/mixed-samples-source-first](evidence/mixed-samples-source-first/manifest.json).
+
+My existing scalar-leaf destructive pattern lowering validates the entire
+pattern, then marks a live leaf holder pending disposal. Its subsequent synthetic
+field bindings use REGION_BEGIN / REF_GET before final owner cleanup. Those
+reference opcodes remain outside the qualified mixed value graph. My nested
+owner pattern already uses exact OWN_UNPACK_LOCAL with hidden field slots.
+
+For mixed value graphs only, after successful full, distinct, exact pattern
+validation, I will use that same explicit OWN_UNPACK_LOCAL path for scalar leaves.
+It consumes the named/destructured shell once, clears its live/pending state,
+and stores every declared field in typed hidden locals in the established stack
+order. Subsequent synthetic pattern projections bind those exact parent/field
+slots; scalar values may be loaded, but the original owner remains dead. The
+source pattern's field ordering does not reorder its initializer or evaluation.
+The 256-local bound and all nominal, field-count, duplicate/missing-field guards
+remain. Failure before complete validation never authorizes a partial unpack.
+
+I change neither general owner observations nor reference admission, implicit
+drops, owner ARRAY fields or runtime authority. Pure-owned and CALL_REF source
+paths retain their previous pending-disposal lowering. Existing nested paths
+continue to use their established unpack behavior. I require paired bytecode and
+local-name parity for the full original PREFIX, reordered leaf patterns, owner
+use after consumption refusals, invalid pattern/output guards and old profiles.
+A fresh bootstrap must include both corrected producers before acceptance.
+
+My first source-run maps distinguish compiler inputs from setup outputs:
+versioned sources/head stayed identical, the five generated producer binaries
+stayed identical after setup, but obj/nano_modules cache objects were rebuilt and
+new cache objects appeared while the emitters were compiled. I retain their
+before/after hashes; I do not claim that the complete object maps are unchanged.
+Subsequent qualification will capture a separate post-setup object/tool boundary.

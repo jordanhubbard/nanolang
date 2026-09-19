@@ -11441,3 +11441,11 @@ branch. Parent4be, source admission, owner ARRAY430220 and full release stay ope
   separate owner/ordinary facts, fresh complete runtime admission and all four
   C-seed/Stage1/Stage2/NanoVirt routes. This is contract-only pending review; no
   source producer or owner ARRAY-field widening has been implemented.
+
+- [ ] I lower complete mixed scalar-leaf resource patterns with explicit owner
+  unpack (`task_c935734a6a0e44dbbdbce12fcea31a9e`, child of e64a/4be). My first
+  unchanged Samples/PREFIX gate checked-refused the old disposal-holder reference
+  projection, without publication or execution. I preserve that terminal and
+  require paired exact eager unpack only after full pattern validation, dead
+  source-owner identity, projection/local-name parity and fresh source gates.
+  [Correction contract](NANOISA_MIXED_SAMPLES_SOURCE.md).
