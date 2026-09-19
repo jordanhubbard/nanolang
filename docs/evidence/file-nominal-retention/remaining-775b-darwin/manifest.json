@@ -1,0 +1,31 @@
+{
+  "pin": "775b0240828d07e124078765c7a09dc83f230069",
+  "platform": "darwin",
+  "bootstrap_reference": "f5e07e5bea043265cfc15176fb1804227c363901",
+  "steps": [
+    {
+      "name": "remaining",
+      "command": [
+        "make",
+        "test-owned-array-layouts",
+        "test-owned-array-origins"
+      ],
+      "env": {
+        "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+        "NANO_SERVICE_MODULE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "NANO_FILE_NOMINAL_CC": "/opt/homebrew/opt/llvm/bin/clang",
+        "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk",
+        "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+        "OWNED_ARRAY_LAYOUT_ARTIFACTS": "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture",
+        "OWNED_ARRAY_ORIGIN_ARTIFACTS": "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture"
+      },
+      "status": 0,
+      "seconds": 1.565,
+      "log_sha256": "539a8af5ad02008e06a3d5d053e88affcb5fa7d0fae50be32622599bbfc72c3f"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}

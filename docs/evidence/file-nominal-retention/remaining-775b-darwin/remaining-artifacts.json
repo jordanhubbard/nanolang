@@ -1,0 +1,134 @@
+{
+  "/tmp/nanolang-file-nominal-wrapper-775b/bin/nvm2llvm": {
+    "sha256": "cc7ededb175ae42f807cd6d5116a0a161944695248d52b5fa7411b027672d872",
+    "bytes": 1973304
+  },
+  "/tmp/nanolang-file-nominal-wrapper-775b/bin/nvm2wasm": {
+    "sha256": "13cacef893c872b6b915568dbd8605dc9f6fb0dce3a03c27c1b6d97f2455724a",
+    "bytes": 2857
+  },
+  "/tmp/nanolang-file-nominal-wrapper-775b/bin/nano_virt": {
+    "sha256": "c115c46e68d4ae1d36e2ff472f2af87830df844b971f55d6decd86f561096eb6",
+    "bytes": 10862552
+  },
+  "/tmp/nanolang-file-nominal-wrapper-775b/bin/nanoisa": {
+    "sha256": "6c3548afcf09a520374cbb81b8b490d44c3a251418e85a9cec0c0edb8085e5c9",
+    "bytes": 667096
+  },
+  "/tmp/nanolang-file-nominal-wrapper-775b/obj/test_verifier_profiles": {
+    "sha256": "1e0bb57ddc20606bd889bed9997df5c617610f35c30d057f751fbfca9f4a4230",
+    "bytes": 1973160
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/00-output.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/nvm_v2_layouts.o": {
+    "sha256": "5aebeea2c63d0cef95b86ebc8e49f8c338089a552bcf7004ccdcf69bf31d396e",
+    "bytes": 3064
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/nvm_v2_cursor.o": {
+    "sha256": "012cfe77fcf40359fd0e0665ea0642285439982ece503cbf12253b45cc9092d8",
+    "bytes": 1560
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/02-output.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/03-command.json": {
+    "sha256": "1bb187a7725fd8d15866637488a9dedd76e10ca77dc81daaf4745d2ae4889850",
+    "bytes": 1517
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/04-command.json": {
+    "sha256": "b2611726921b890b3d9b3ef8561843a905b449513ba61d867d74f7317750ddd3",
+    "bytes": 84
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/retained_layouts.o": {
+    "sha256": "c238b8aced975a0dc9d9016022f830e62989b73d9331f147b38f7289084cbc2b",
+    "bytes": 45968
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/02-command.json": {
+    "sha256": "08ba9e13f75bdd0c205d1bfafdb285c5a525ed30070688cb81154ec7ae94a957",
+    "bytes": 279
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/describe": {
+    "sha256": "860e6490a22718d2eb3a63cb9f32978e2ef198fb9d1158307745b3d039340690",
+    "bytes": 698584
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/04-output.log": {
+    "sha256": "1284bc6f209d6a9358053796b0ee721a6dae6010534c6f83433e8148c2783e30",
+    "bytes": 62
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/00-command.json": {
+    "sha256": "3c7535592ce66d4a758afa3df64733bc2012f6805131e0d8595b5ebdc037c2bc",
+    "bytes": 285
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/01-output.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/01-command.json": {
+    "sha256": "26793eb19cc27c7ac82b434ace0e850f72f110a74ea422b5b34523e8b6d12091",
+    "bytes": 281
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/layout-fixture/03-output.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/00-output.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/nvm_v2_layouts.o": {
+    "sha256": "fec14143968c01dbf4480ab234d66978a62070d7d62cf0ee560a65779d2211c2",
+    "bytes": 3064
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/nvm_v2_cursor.o": {
+    "sha256": "012cfe77fcf40359fd0e0665ea0642285439982ece503cbf12253b45cc9092d8",
+    "bytes": 1560
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/02-output.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/03-command.json": {
+    "sha256": "110b8e5f9eeb2c62884e63c1e575a9d9773f066d74b301920671f33586b608ba",
+    "bytes": 1517
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/04-command.json": {
+    "sha256": "baf63585663614cd5e19d1b6ad4bfff2ccab6186a9224b6518d257c3067b3579",
+    "bytes": 84
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/retained_layouts.o": {
+    "sha256": "a82eee80e1d15c148ec757aad863f718e0450dc0048d29a66feade95c2246fd5",
+    "bytes": 45976
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/02-command.json": {
+    "sha256": "2d49b98ec745462415cec9372d0c73d1b5c71f47af256562902b608d57a0d6f7",
+    "bytes": 281
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/describe": {
+    "sha256": "738ac5cfa15483ad07d02e7ff9fbeafa97b5a76d463a911652382d29b2fcd5db",
+    "bytes": 697352
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/04-output.log": {
+    "sha256": "eff5fecd8986ac8752b9ebf01eac0c7f50c19c9a92dccf8c83132c2a847f31af",
+    "bytes": 117
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/00-command.json": {
+    "sha256": "19291356c1dea27aca631dfdad0199adae4e22008db8900c35fc8916f6484ba8",
+    "bytes": 287
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/01-output.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/01-command.json": {
+    "sha256": "07c65eb5ee22c5f674dff2fd8442d2119dc7db7b37499f3dc6d9ed9dcbe3bd6a",
+    "bytes": 283
+  },
+  "/tmp/nanolang-file-nominal-remaining-775b-darwin/origin-fixture/03-output.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  }
+}

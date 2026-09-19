@@ -1,0 +1,7 @@
+{
+  "bin/nanoc": "984a2831eec1df89ba650cfa11badd01527c01c81f5db9bf32d334c58609124a",
+  "bin/nanoc_stage1": "75cc52f890ce64cd83182fd3e3fbbbabfebb9ee243c6c7a09489042d5a6153e3",
+  "bin/nanoc_stage2": "984a2831eec1df89ba650cfa11badd01527c01c81f5db9bf32d334c58609124a",
+  "bin/nanoc_c": "21f19452fc2539e41b65b134c39d29983c3ffa557a20bca82031e329687899db",
+  "bin/nano_as_capture.so": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6"
+}

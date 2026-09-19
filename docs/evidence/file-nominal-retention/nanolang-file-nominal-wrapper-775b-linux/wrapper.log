@@ -1,0 +1,147 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+	obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o -lm -lcrypto -lffi  -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_protocol.c -o obj/nanovm/vmd_protocol.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_client.c -o obj/nanovm/vmd_client.o
+Running wrapper_gen unit tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -Isrc/nanovirt -Isrc/nanovm -Isrc/nanoisa -o tests/nanovirt/test_wrapper_gen \
+	tests/nanovirt/test_wrapper_gen.c obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+	obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi  -rdynamic
+/bin/ld: cannot find /tmp/nanovm/value.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/heap.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/heap_cycles.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/vm.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/vm_ffi.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/vm_ffi_arrays.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/vm_builtins.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/cop_protocol.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/vm_callback.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/callback_runtime.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/vm_decode.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/vm_dispatch.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/isa.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/local_bindings.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/passive.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_format.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/affine_bytecode.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/affine_state.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/mixed_float_proof.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/ownership_contracts.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/retained_layouts.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/reference_places.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/service_file_nominal.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/service_file_nominal_plan.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/service_bindings.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/service_bindings_module.o: No such file or directory
+/bin/ld: cannot find /tmp/nsi_file_plan.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_format_v2.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_v2_cursor.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_v2_constants.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_v2_signatures.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_v2_layouts.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_v2_functions.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_v2_imports.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_v2_module.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nvm_v2_convert.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/assembler.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/disassembler.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/verifier.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/managed_array_shapes.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/verifier_types.o: No such file or directory
+/bin/ld: cannot find /tmp/nanoisa/nanoisa_facade.o: No such file or directory
+/bin/ld: cannot find /tmp/lexer.o: No such file or directory
+/bin/ld: cannot find /tmp/parser.o: No such file or directory
+/bin/ld: cannot find /tmp/typechecker.o: No such file or directory
+/bin/ld: cannot find /tmp/transpiler.o: No such file or directory
+/bin/ld: cannot find /tmp/stdlib_runtime.o: No such file or directory
+/bin/ld: cannot find /tmp/env.o: No such file or directory
+/bin/ld: cannot find /tmp/builtins_registry.o: No such file or directory
+/bin/ld: cannot find /tmp/module.o: No such file or directory
+/bin/ld: cannot find /tmp/module_metadata.o: No such file or directory
+/bin/ld: cannot find /tmp/utf8.o: No such file or directory
+/bin/ld: cannot find /tmp/cJSON.o: No such file or directory
+/bin/ld: cannot find /tmp/toon_output.o: No such file or directory
+/bin/ld: cannot find /tmp/module_builder.o: No such file or directory
+/bin/ld: cannot find /tmp/resource_tracking.o: No such file or directory
+/bin/ld: cannot find /tmp/resource_flow.o: No such file or directory
+/bin/ld: cannot find /tmp/nominal_types.o: No such file or directory
+/bin/ld: cannot find /tmp/eval.o: No such file or directory
+/bin/ld: cannot find /tmp/interpreter_ffi.o: No such file or directory
+/bin/ld: cannot find /tmp/json_diagnostics.o: No such file or directory
+/bin/ld: cannot find /tmp/reflection.o: No such file or directory
+/bin/ld: cannot find /tmp/effects.o: No such file or directory
+/bin/ld: cannot find /tmp/coroutine.o: No such file or directory
+/bin/ld: cannot find /tmp/eval/eval_hashmap.o: No such file or directory
+/bin/ld: cannot find /tmp/eval/eval_math.o: No such file or directory
+/bin/ld: cannot find /tmp/eval/eval_string.o: No such file or directory
+/bin/ld: cannot find /tmp/eval/eval_io.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_int.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_string.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_LexerToken.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_token.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_CompilerDiagnostic.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_CompilerSourceLocation.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTNumber.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTFloat.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTString.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTBool.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTIdentifier.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTBinaryOp.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTCall.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTModuleQualifiedCall.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTArrayLiteral.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTLet.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTSet.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTStmtRef.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTIf.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTWhile.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTFor.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTReturn.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTBlock.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTUnsafeBlock.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTPrint.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTAssert.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTFunction.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTShadow.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTStruct.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTStructLiteral.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTFieldAccess.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTEnum.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTUnion.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTUnionConstruct.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTMatch.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTImport.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTOpaqueType.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTTupleLiteral.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/list_ASTTupleIndex.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/token_helpers.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/gc.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/effect_runtime.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/dyn_array.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/gc_struct.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/nl_string.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/ffi_loader.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/module_build_dir.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/cli.o: No such file or directory
+/bin/ld: cannot find /tmp/runtime/regex.o: No such file or directory
+collect2: error: ld returned 1 exit status
+I could not publish the wrapper; I did not replace the destination
+/bin/ld: cannot find /tmp/nanovm/vmd_protocol.o: No such file or directory
+/bin/ld: cannot find /tmp/nanovm/vmd_client.o: No such file or directory
+collect2: error: ld returned 1 exit status
+I could not publish the wrapper; I did not replace the destination
+I could not publish the wrapper; I did not replace the destination
+
+[wrapper_gen] NanoVirt wrapper generation tests...
+
+  wrapper_generate_nonexistent_lib_path...                PASS
+  wrapper_generate_daemon_nonexistent_lib...              PASS
+  wrapper_generate_no_lib_path_no_obj...                  PASS
+  wrapper_generate_from_project_root...                   PASS
+  wrapper_generate_daemon_from_project_root...            PASS
+
+All 5 wrapper_gen tests passed.
+........
+----------------------------------------------------------------------
+Ran 8 tests in 3.020s
+
+OK
