@@ -160,12 +160,42 @@ static CUmodule cuda_get_module(const char *ptx_file) {
     for (int i = 0; i < g_cuda_mods_n; i++)
         if (strcmp(g_cuda_mods[i].path, ptx_file) == 0) return g_cuda_mods[i].mod;
     FILE *f = fopen(ptx_file, "rb");
-    if (!f) { snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
-                        "cannot open PTX file: %s", ptx_file); return NULL; }
-    fseek(f, 0, SEEK_END); long sz = ftell(f); rewind(f);
+    if (!f) {
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot open GPU source: %.400s", ptx_file);
+        return NULL;
+    }
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot seek GPU source: %.400s", ptx_file);
+        return NULL;
+    }
+    long sz = ftell(f);
+    if (sz < 0 || (uintmax_t)sz >= (uintmax_t)SIZE_MAX ||
+        fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot size or rewind GPU source: %.400s", ptx_file);
+        return NULL;
+    }
     char *src = malloc((size_t)sz + 1);
-    if (!src) { fclose(f); return NULL; }
-    fread(src, 1, (size_t)sz, f); src[sz] = '\0'; fclose(f);
+    if (!src) {
+        fclose(f);
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot allocate GPU source storage");
+        return NULL;
+    }
+    size_t count = fread(src, 1, (size_t)sz, f);
+    int read_error = ferror(f);
+    int close_error = fclose(f);
+    if (count != (size_t)sz || read_error || close_error != 0) {
+        free(src);
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot completely read and close GPU source: %.400s", ptx_file);
+        return NULL;
+    }
+    src[(size_t)sz] = '\0';
     CUmodule mod = NULL;
     CUresult r = g_cuda.cuModuleLoadData(&mod, src);
     free(src);
@@ -421,13 +451,40 @@ static cl_kernel ocl_get_kernel(const char *cl_path, const char *kernel_name) {
     FILE *f = fopen(cl_path, "r");
     if (!f) {
         snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
-                 "cannot open .cl file: %s", cl_path);
+                 "I cannot open GPU source: %.400s", cl_path);
         return NULL;
     }
-    fseek(f, 0, SEEK_END); long sz = ftell(f); rewind(f);
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I cannot seek GPU source: %.400s", cl_path);
+        return NULL;
+    }
+    long sz = ftell(f);
+    if (sz < 0 || (uintmax_t)sz >= (uintmax_t)SIZE_MAX ||
+        fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I cannot size or rewind GPU source: %.400s", cl_path);
+        return NULL;
+    }
     char *src = malloc((size_t)sz + 1);
-    if (!src) { fclose(f); return NULL; }
-    fread(src, 1, (size_t)sz, f); src[sz] = '\0'; fclose(f);
+    if (!src) {
+        fclose(f);
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I cannot allocate GPU source storage");
+        return NULL;
+    }
+    size_t count = fread(src, 1, (size_t)sz, f);
+    int read_error = ferror(f);
+    int close_error = fclose(f);
+    if (count != (size_t)sz || read_error || close_error != 0) {
+        free(src);
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I cannot completely read and close GPU source: %.400s", cl_path);
+        return NULL;
+    }
+    src[(size_t)sz] = '\0';
 
     cl_int err;
     const char *csrc = src;
