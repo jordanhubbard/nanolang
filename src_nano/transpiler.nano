@@ -1291,6 +1291,7 @@ shadow c_func_name_for_call {
 }
 
 fn c_func_name_for_definition(func_name: string) -> string {
+    if (== func_name "array_push") { return "__nl_declared_array_push" }
     if (or (str_contains func_name "::") (str_contains func_name ".")) {
         return (c_name_for_qualified_function func_name)
     } else {
@@ -1306,6 +1307,8 @@ shadow c_func_name_for_definition {
     set extern_func_names []
     assert (== (c_func_name_for_definition "my_func") "nl_my_func")
     assert (== (c_func_name_for_definition "add") "nl_add")
+    assert (== (c_func_name_for_definition "array_push") "__nl_declared_array_push")
+    assert (!= (c_func_name_for_definition "__nl_declared_array_push") "__nl_declared_array_push")
 }
 
 /* =============================================================================
@@ -2283,6 +2286,7 @@ fn generate_bound_push(parser: Parser, call: ASTCall, identifier: ASTIdentifier,
     let name: string = (mb_resolve identifier.name identifier.line env.names)
     let signature: string = (genenv_get env identifier.name)
     let mut callee: string = (c_func_name_for_call name)
+    if (and (== name "array_push") (has_function_named parser name)) { set callee (c_func_name_for_definition name) }
     if (is_extern_function parser name) { set callee name }
     let mut j: int = 0
     while (< j (array_length env.names)) {
@@ -2320,11 +2324,13 @@ shadow generate_bound_push {
     let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
     let env: GenEnv = (genenv_new "main")
     let code: string = (generate_bound_push parser call identifier env 17)
-    assert (str_contains code "__auto_type _nl_push_fn_17 = nl_array_push;")
+    assert (str_contains code "__auto_type _nl_push_fn_17 = __nl_declared_array_push;")
     assert (str_contains code "__auto_type _nl_push_arg_17_0 = 2; __auto_type _nl_push_arg_17_1 = 3;")
     assert (str_contains code "_nl_push_fn_17(_nl_push_arg_17_0, _nl_push_arg_17_1); })")
+    assert (== (generate_expression parser call.function call.function_type env "") "__nl_declared_array_push")
     let local: GenEnv = (genenv_put env "array_push" "fn(int,int)->float" false)
     assert (== (infer_expr_type parser 0 ParseNodeType.PNODE_CALL local) "float")
+    assert (== (generate_expression parser call.function call.function_type local "") "nl_array_push")
 }
 
 fn legacy_reduce_builtin(parser: Parser, identifier: ASTIdentifier, env: GenEnv) -> bool {
@@ -5364,6 +5370,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
             /* Identifier — guarded globals use NL_GUARDED_READ for thread-safe reads */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
             let resolved_name: string = (mb_resolve id.name id.line env.names)
+            if (and (== resolved_name "array_push") (and (has_function_named parser resolved_name) (not (is_extern_function parser resolved_name)))) {
+                let mut bound: bool = false
+                let mut i: int = 0
+                while (< i (array_length env.names)) {
+                    if (== (at env.names i) id.name) { set bound true }
+                    set i (+ i 1)
+                }
+                if (not bound) { return (c_func_name_for_definition resolved_name) }
+            }
+
             if (and (== (genenv_get env id.name) "") (is_extern_function parser resolved_name)) {
                 let mut foreign_name: string = resolved_name
                 let mapped: string = (map_builtin_func_name resolved_name)

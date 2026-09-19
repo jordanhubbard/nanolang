@@ -87,6 +87,16 @@ fn main() -> int {
 }
 shadow main { assert (== (main) 0) }
 ''', canonical=False)  # I do not expand canonical indirect-call admission.
+        self.positive('declared-function-value', '''fn array_push(left: int, right: int) -> int { return (+ left right) }
+shadow array_push { assert (== (array_push 4 5) 9) }
+fn main() -> int {
+ let selected: fn(int, int) -> int = array_push
+ assert (== (selected 4 5) 9)
+ if true { let array_push: fn(int, int) -> int = selected assert (== (array_push 7 8) 15) }
+ assert (== (array_push 1 2) 3) return 0
+}
+shadow main { assert (== (main) 0) }
+''', canonical=False)
 
     def test_unbound_push_alias_and_empty(self):
         self.positive('builtin', '''fn main() -> int {
