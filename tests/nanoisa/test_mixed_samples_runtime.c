@@ -22,10 +22,10 @@ static uint8_t *runtime_row(NvmModule *m,unsigned function) {
 static NvmModule *runtime_fixture(unsigned index) {
     if(index==12) {
         const char *helpers=
-            ".function ordinary 0 0 0 struct 1\nARR_NEW 3\nAGG_PACK 0 1 0 1\nRET\n.end\n"
+            ".function ordinary 0 0 0 struct 1\nPUSH_I64 5\nAGG_PACK 0 2 0 1\nRET\n.end\n"
             ".function close 1 1 0 int 1\nOWN_UNPACK_LOCAL 0\nRET\n.end\n.parameters 2 struct\n";
-        NvmModule *m=build("CALL 1\nAGG_GET 0\nPOP\nPUSH_I64 7\nOWN_PACK 0\nCALL 2\nPUSH_I64 7\nEQ\nASSERT\nPUSH_I64 0\nRET\n",NULL,0,helpers,false);
-        word(runtime_row(m,1)+8,1);
+        NvmModule *m=build("CALL 1\nAGG_GET 0\nPUSH_I64 5\nEQ\nASSERT\nPUSH_I64 7\nOWN_PACK 0\nCALL 2\nPUSH_I64 7\nEQ\nASSERT\nPUSH_I64 0\nRET\n",NULL,0,helpers,true);
+        word(runtime_row(m,1)+8,2);
         return m;
     }
     const char *operations[]={
