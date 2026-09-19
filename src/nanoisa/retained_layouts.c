@@ -292,3 +292,6 @@ fail:
 
 /* I keep this descriptive reader separate from existing admission contracts. */
 #include "mixed_layout_view.inc"
+
+/* I expose pending owner-array descriptions only, never admission. */
+#include "owned_array_layouts.inc"

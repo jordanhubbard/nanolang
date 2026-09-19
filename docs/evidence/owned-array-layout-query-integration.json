@@ -1,0 +1,24 @@
+{
+  "qualified": "a8c91ca4dfea6dc9b163fe315222f6fdbd2fe987",
+  "main": "013abd0ca3c513820d2e125b2ca26e5ba5b8c48b",
+  "integration": "9c6fd4d086e155d80805042f2b18c46f8c3f1ab0",
+  "unchanged": [
+    "src/nanoisa/owned_array_layouts.h",
+    "src/nanoisa/owned_array_layouts.inc",
+    "src/nanoisa/retained_layouts.c",
+    "src/nanoisa/mixed_layout_view.inc",
+    "src/nanoisa/service_bindings_module.c",
+    "src/nanoisa/reference_places.c",
+    "src/nanoisa/nvm_v2_layouts.c",
+    "src/nanoisa/nvm_v2_cursor.c",
+    "tests/nanoisa/test_owned_array_layouts.c",
+    "tests/test_owned_array_layouts.py",
+    "docs/NANOISA_OWNED_FLOAT_ARRAY_RUNTIME_PLAN.md"
+  ],
+  "changed": {
+    "Makefile.gnu": {
+      "qualified": "600f8e102db2e3d100dc0b56f159d382a32c1ed6536e7e0c91e104cac1440c74",
+      "integrated": "5a08c953506e51b6088a8676f0fa3b7fd95b85a623b0cc317d8d4f96e5271bcf"
+    }
+  }
+}
