@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/private/tmp/nanolang-owner-array-mutation-match-916424260/bin/nano_virt",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-3kauf1cn/case.nano",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-owned-pattern-3kauf1cn/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 1,
+  "stdout": "",
+  "stderr": "I require every field name in an owned record pattern.\nError at line 5, column 45: Unexpected token in expression: DOT (type=18)\nError at line 5, column 46: Unexpected token in expression: DOT (type=18)\nError at line 5, column 50: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 5, column 52: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 5, column 58: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 5, column 65: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 5, column 67: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nerror: parser failed\n"
+}

@@ -1,0 +1,21 @@
+I retain declared push artifacts in /tmp/nanolang-declared-push-e5_xgjiz
+test_declared_array_return_element_facts (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_array_return_element_facts) ... 
+  test_declared_array_return_element_facts (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_array_return_element_facts) (case='declared-array', compiler='nanoc_stage1', route='canonical') ... FAIL
+
+======================================================================
+FAIL: test_declared_array_return_element_facts (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_declared_array_return_element_facts) (case='declared-array', compiler='nanoc_stage1', route='canonical')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-declared-array-push-c-naming/tests/test_declared_array_push_identity.py", line 41, in positive
+    self.command([ROOT / 'bin' / compiler, source, '--emit-nvm', '-o', output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-declared-array-push-c-naming/tests/test_declared_array_push_identity.py", line 23, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require the declared float array element type
+
+
+----------------------------------------------------------------------
+Ran 1 test in 8.193s
+
+FAILED (failures=1)

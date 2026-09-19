@@ -695,6 +695,20 @@ shadow nb_float_array {
     assert (== (nb_float_array (nb_fixture) 0 ParseNodeType.PNODE_NUMBER false) 1)
     let _: int = (nb_reset_locals)
 }
+fn nb_array_builtin_arity(name: string) -> int {
+    if (== name "array_set") { return 3 }
+    if (== name "array_push") { return 2 }
+    if (== name "array_length") { return 1 }
+    return 0
+}
+shadow nb_array_builtin_arity {
+    assert (== (nb_array_builtin_arity "array_set") 3)
+    assert (== (nb_array_builtin_arity "array_push") 2)
+    assert (== (nb_array_builtin_arity "array_length") 1)
+    assert (== (nb_array_builtin_arity "at") 0)
+    assert (== (nb_array_builtin_arity "module.array_push") 0)
+    assert (== (nb_array_builtin_arity "") 0)
+}
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (!= nb_error "") { return 0 }
     if (== kind ParseNodeType.PNODE_ARRAY_LITERAL) { return (nb_float_array parser id kind false) }
@@ -786,6 +800,23 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (== kind ParseNodeType.PNODE_CALL) {
         let call: ASTCall = (parser_get_call parser id)
         if (and (== call.function_type ParseNodeType.PNODE_IDENTIFIER) (== call.borrow_mode 0)) {
+            let name: string = (parser_get_identifier parser call.function).name
+            let arity: int = (nb_array_builtin_arity name)
+            if (and nb_owner_arrays (and (> arity 0) (and (< (nb_local name) 0) (< (nb_function_index parser name) 0)))) {
+                if (!= call.arg_count arity) { return (nb_fail "the exact array builtin arity") }
+                let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                if (!= (nb_expr parser receiver.node_id receiver.node_type) 7) { return (nb_fail "an exact FLOAT array receiver") }
+                if (== arity 1) { let _: int = (nb_emit "ARR_LEN") return 1 }
+                if (== arity 3) {
+                    let index: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+                    if (!= (nb_expr parser index.node_id index.node_type) 1) { return (nb_fail "an exact integer array index") }
+                }
+                let value: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- arity 1)))
+                if (!= (nb_expr parser value.node_id value.node_type) 3) { return (nb_fail "an exact FLOAT mutation value") }
+                if (!= nb_error "") { return 0 }
+                if (== arity 3) { let _: int = (nb_emit "ARR_SET") let _: int = (nb_emit "POP") return 0 }
+                let _: int = (nb_emit "ARR_PUSH") return 7
+            }
             if (and (nb_arrays) (and (== (parser_get_identifier parser call.function).name "at") (and (< (nb_local "at") 0) (< (nb_function_index parser "at") 0)))) {
                 if (!= call.arg_count 2) { return (nb_fail "an exact FLOAT array and integer index") }
                 let values_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -1912,6 +1943,44 @@ shadow nb_owner_array_fixture {
     assert (not (str_contains text "  ADD\n")) assert (not (str_contains text "  LT\n"))
     assert (not (str_contains text "AGG_PACK"))
     assert (not (str_contains text "REGION_BEGIN")) assert (not (str_contains text "REF_GET"))
+    let _: string = (nanoisa_borrow_emit (nb_fixture) false 0)
+    assert (not nb_owner_arrays)
+}
+
+# I inspect mutation lowering without executing a pending source module.
+fn nb_owner_array_mutation_fixture(body: string) -> Parser {
+    let prefix: string = (+ "resource struct Handle { fd: int } struct Bundle { file: Handle, values: array<float> } f" (+ "n close(owner: Handle) -> int { let Handle { fd } = owner return fd } shadow close { assert (== (close Handle { fd: 7 }) 7) } f" "n main() -> int { let owned: Bundle = Bundle { values: [1.5], file: Handle { fd: 7 } } let values = owned.values "))
+    let suffix: string = " let Bundle { values, file } = owned assert (== (close file) 7) return 0 } shadow main { assert (== (main) 0) }"
+    let tokens: List<LexerToken> = (tokenize_string (+ prefix (+ body suffix)) "owner-array-mutation.nano" (list_CompilerDiagnostic_new))
+    return (parse_program tokens (list_LexerToken_length tokens) "owner-array-mutation.nano")
+}
+shadow nb_owner_array_mutation_fixture {
+    let parser: Parser = (nb_owner_array_mutation_fixture "let appended = (array_push values 2.5) (array_set appended 0 3.5) assert (== (array_length values) 2) assert (== (at values 0) 3.5) (array_set (array_push values 4.5) (close Handle { fd: 0 }) 5.5) assert (== (array_length appended) 3) (array_push values 6.5)")
+    assert (not (parser_has_error parser))
+    let text: string = (nanoisa_borrow_emit parser true 0)
+    assert (!= text "") assert nb_owner_arrays assert (not nb_mixed)
+    assert (str_contains text "ARR_PUSH\n  STORE_LOCAL")
+    assert (str_contains text "ARR_SET\n  POP")
+    assert (str_contains text "ARR_PUSH\n  POP")
+    assert (str_contains text "ARR_LEN") assert (str_contains text "ARR_GET")
+    assert (str_contains text "OWN_PACK 1") assert (str_contains text "OWN_UNPACK_LOCAL")
+    assert (not (str_contains text "REGION_BEGIN")) assert (not (str_contains text "REF_GET"))
+    let wrong_arity: Parser = (nb_owner_array_mutation_fixture "(array_set values 0)")
+    assert (not (parser_has_error wrong_arity))
+    assert (== (nanoisa_borrow_emit wrong_arity false 0) "")
+    assert (str_contains nb_error "arity")
+    let wrong_value: Parser = (nb_owner_array_mutation_fixture "(array_push values 2)")
+    assert (not (parser_has_error wrong_value))
+    assert (== (nanoisa_borrow_emit wrong_value false 0) "")
+    assert (str_contains nb_error "FLOAT mutation value")
+    let bound_name: Parser = (nb_owner_array_mutation_fixture "let array_push: int = 7 (array_push values 2.5)")
+    assert (not (parser_has_error bound_name))
+    assert (== (nanoisa_borrow_emit bound_name false 0) "")
+    assert (str_contains nb_error "unshadowed direct")
+    let bound_length: Parser = (nb_owner_array_mutation_fixture "let array_length: int = 7 assert (== (array_length values) 1)")
+    assert (not (parser_has_error bound_length))
+    assert (== (nanoisa_borrow_emit bound_length false 0) "")
+    assert (str_contains nb_error "unshadowed direct")
     let _: string = (nanoisa_borrow_emit (nb_fixture) false 0)
     assert (not nb_owner_arrays)
 }

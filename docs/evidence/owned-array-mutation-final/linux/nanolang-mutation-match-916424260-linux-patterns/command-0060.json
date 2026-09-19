@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nanoc_c",
+    "/tmp/nano-owned-pattern-bppvw1uk/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-bppvw1uk/program"
+  ],
+  "status": 1,
+  "stdout": "",
+  "stderr": "I require every record or selected variant field exactly once in an owned pattern at line 5.\n-- E024 UNDEFINED VARIABLE --- /tmp/nano-owned-pattern-bppvw1uk/case.nano\nI cannot find a variable named `__owned$67`.\n\n5| fn bad(pair: Pair) -> int { let Pair { left, left } = pair return left }\n                               ^^^^^^^^^^\nHint: Check spelling or ensure the variable is in scope.\n-- E001 TYPE MISMATCH --- /tmp/nano-owned-pattern-bppvw1uk/case.nano\nField access requires a struct value.\n\n5| fn bad(pair: Pair) -> int { let Pair { left, left } = pair return left }\n                               ^\nHint: Ensure the object before '.' is a struct type.\n-- E024 UNDEFINED VARIABLE --- /tmp/nano-owned-pattern-bppvw1uk/case.nano\nI cannot find a variable named `__owned$67`.\n\n5| fn bad(pair: Pair) -> int { let Pair { left, left } = pair return left }\n                               ^^^^^^^^^^\nHint: Check spelling or ensure the variable is in scope.\n-- E001 TYPE MISMATCH --- /tmp/nano-owned-pattern-bppvw1uk/case.nano\nField access requires a struct value.\n\n5| fn bad(pair: Pair) -> int { let Pair { left, left } = pair return left }\n                               ^\nHint: Ensure the object before '.' is a struct type.\nWarning at line 5, column 29: Unused variable 'left'\nWarning: Function 'bad' is missing a shadow test\nType checking failed\n"
+}

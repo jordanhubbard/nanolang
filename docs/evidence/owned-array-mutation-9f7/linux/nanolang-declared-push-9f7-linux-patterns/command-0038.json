@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nano_virt",
+    "/tmp/nano-owned-pattern-xmyoqxvb/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-xmyoqxvb/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "acquired\nacquired\n"
+}

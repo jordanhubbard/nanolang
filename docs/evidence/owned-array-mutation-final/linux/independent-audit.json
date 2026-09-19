@@ -1,0 +1,86 @@
+{
+  "host": "linux",
+  "archive_sha256": "1917af01fdfb43b936c6ea78510ab14550d8ca033611076c21cbce9ca2667686",
+  "archive_manifest": {
+    "path": "/tmp/nanolang-mutation-match-916424260-linux-evidence.tar.gz",
+    "bytes": 52190765,
+    "sha256": "1917af01fdfb43b936c6ea78510ab14550d8ca033611076c21cbce9ca2667686",
+    "all_file_hashes_verified": true
+  },
+  "reports": 205,
+  "artifacts": 2605,
+  "regular_members": 2810,
+  "pairs": [
+    {
+      "path": "nanolang-mutation-match-916424260-linux-bootstrap/host-tools-before.json",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-bootstrap/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-build/host-tools-before.json",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-build/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-eval/host-tools-before.json",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-eval/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-eval-final/host-tools-before.json",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-eval-final/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-identity/host-tools-before.json",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-identity/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-mutation/host-tools-before.json",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-mutation/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-patterns/host-tools-before.json",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-linux-patterns/source-before.json",
+      "count": 7808,
+      "equal": true
+    }
+  ],
+  "errors": []
+}

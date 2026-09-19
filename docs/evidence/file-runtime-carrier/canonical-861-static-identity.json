@@ -1,0 +1,32 @@
+{
+  "staged_integration": "8fc64015c +59ffcecc",
+  "production": {
+    "src/nanoisa/file_hosted.h": "45f1c219d5395b69e613c8890b8ddbd0b490a2b4db08ecb9e489eb4c390819b0",
+    "src/nanoisa/file_hosted.inc": "9942e7e0fba50418202ca88b45ba43f1bd8ae1024335d3da6f7bfbfd1b32c65e",
+    "src/nanoisa/file_runtime.c": "4d42c3fbca7d6bbaf0249e8323f76647d0e77d8cb3ab728649831ed6c051f5db",
+    "src/nanoisa/file_runtime.h": "8c500c063e4c0439981c9090cd04d42d72c268a4d8b7378abe256cc5bcc70b78",
+    "src/nsi_cap.c": "a94dfd27cce4a112d018d541c32ca5cc41927efb0dd7b622b84ef2e787abc353",
+    "src/nsi_cap_private.h": "63d678efc51176823a3c9ddfabddabd9ba5b25232d9e451e77d442f1a25a8fc5",
+    "src/nsi_file.c": "87b11bff744dc0cda8b8d6341917543df106717e0d4e7b3163d189dc8c0a88de",
+    "src/nsi_file.h": "4b76d8e23f366ee5311ffcc2bc38f183a71df5d3318459cb76292898e706613f",
+    "src/nsi_file_values.c": "5c2610e5711aa566f0234be3cb89dadfdefee7388bfb40a292def6d09ff1b528",
+    "src/nsi_file_values.h": "e9859db60cfa1fa352e96244cc3fc6dd026f7eabe7a0972b67a49f6e32fd3bf1"
+  },
+  "fixtures": {
+    "tests/nanoisa/test_file_runtime.c": "ae509585fe1d278bde0832c0bf7eba9f161e7b7249f3577b381e9c659e8a5070",
+    "tests/nanoisa/file_runtime_hooks.h": "e5dab942231ae4293b6a59e57adffcf4ae49a4e4e16dab004e19d1b525e1ea98",
+    "tests/test_file_runtime.py": "74e7cc872a48f0a318ca2e64fa9f72db759c32fd33036eea166f73695248430c"
+  },
+  "canonical_source_paths_exact": [
+    "src/env.c",
+    "src/eval.c",
+    "src/nanolang.h",
+    "src/nanovirt/borrow_codegen.inc",
+    "src/transpiler.c",
+    "src/transpiler_iterative_v3_twopass.c",
+    "src/typechecker.c",
+    "src_nano/compiler/nanoisa_borrows.nano",
+    "src_nano/compiler/nanoisa_codegen.nano",
+    "src_nano/transpiler.nano"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nano_virt",
+    "/tmp/nano-owned-pattern-kia20i8a/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-kia20i8a/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 1,
+  "stdout": "",
+  "stderr": "I cannot verify affine ownership at line 5, column 62: resource remains live at scope exit \u2014 file\nWarning at line 5, column 33: Unused variable 'file'\nWarning: Function 'bad' is missing a shadow test\nerror: type check failed\n"
+}

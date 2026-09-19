@@ -1,0 +1,22 @@
+{
+  "mixed-native.c": "c778919e9f1b4ba5e75add894e8889ccbe8148e2370ffad538055837542d7660",
+  "nanoc_stage2-graph.nvm": "0801636e7eb1bd61a0cc0688f8267e03615226317d69d5be62306c02cd6b587e",
+  "without-names.nvm": "b39c37d65cd81926710b91ff6c47911ab5dac32c5827842e0dd55ed22085c6b8",
+  "nanoc_c-shadows": "6310720f17f5af0b9860120f2c97336cf540b32fa3cf614cbb1ed45a330b29ca",
+  "graph.nasm": "8562aad23d9a1322a53b7056e5a4df8e5ca1587736c023a1b1978b46f20e31ab",
+  "graph-shadow.nasm": "492eccb7d6dce958e750ef95a9d03112d24ae15f70e04bdf92052ec4415a8065",
+  "mixed-native": "a87ac00d8d970fa9cc5522c770e04b3df121f168251b07cfb12d737392da44d8",
+  "graph-mutation-shared-growth.nano": "372bda40446d1f6c2e6dbb300d0734d3bb0b034b5bd9517f9fe0472b6e68681d",
+  "nanoc_stage2-emit": "4da642bc054e2805172aea3e05759984abd624dd119f324d9a644677e15a376f",
+  "without-names.nasm": "8ca50f6cd91fd3bf232542aa6268953f3e4927b6cd4811abb713abf2792623d2",
+  "graph.nvm": "0801636e7eb1bd61a0cc0688f8267e03615226317d69d5be62306c02cd6b587e",
+  "nanoc_stage1-emit": "316cefa6c822be94c5833dec2fa1d123fab4c111e4dddda5105f1c37ce2de489",
+  "graph-shadow.nvm": "13e4a82fc4bd49fbe39c51fcd58c312478ec3362578d35769365de7272a70a33",
+  "nanoc_stage1-shadows": "00d87a6f6f6e971dafd97fa44e16f1101a568b5de6b1e68503f897a130c1f7ad",
+  "nano_virt-graph.nvm": "0801636e7eb1bd61a0cc0688f8267e03615226317d69d5be62306c02cd6b587e",
+  "graph-mutation-constructor-order.nano": "c15db12e1d7ea1996a3ba2cafc951264ab5403885a356a7343bf3b4d642b17c2",
+  "nanoc_stage1-graph.nvm": "0801636e7eb1bd61a0cc0688f8267e03615226317d69d5be62306c02cd6b587e",
+  "shadow_driver.nano": "21b48fd47c1e28e2f852657f9e1f533641eb25aaf0cc97d1ae71f1db5eb2d5d4",
+  "nanoc_stage2-shadows": "e8afee3ce99d67113c6115ea76743f903a2e5e8a235e563527137a5ce7b6cfc5",
+  "graph-mutation-consuming-index.nano": "868c189fdb8d55111a26398262820dfffc627aef2354c633361948cdbf9acfd2"
+}

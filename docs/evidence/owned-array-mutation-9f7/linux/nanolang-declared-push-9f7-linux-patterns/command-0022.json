@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nano_virt",
+    "/tmp/nano-owned-pattern-z09l_cs5/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-z09l_cs5/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "File closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\nFile closed\n"
+}

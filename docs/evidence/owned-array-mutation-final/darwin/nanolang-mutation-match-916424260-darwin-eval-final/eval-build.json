@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-mutation-match-916424260-darwin-eval-final/eval-retained.mk",
+    "CC=/usr/bin/clang",
+    "eval-retained"
+  ],
+  "status": 0,
+  "seconds": 1.1460964169818908
+}

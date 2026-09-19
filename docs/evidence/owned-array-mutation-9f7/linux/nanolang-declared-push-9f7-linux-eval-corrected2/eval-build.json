@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-declared-push-9f7-linux-eval-corrected2/eval-overlay.mk",
+    "CC=/usr/bin/gcc",
+    "eval-overlay"
+  ],
+  "status": 0,
+  "seconds": 0.815705501998309
+}
