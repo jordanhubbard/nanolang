@@ -1,0 +1,9 @@
+{
+  "command": [
+    "make",
+    "-j4",
+    "bin/nanoc_c"
+  ],
+  "returncode": 0,
+  "seconds": 6.099852667
+}
