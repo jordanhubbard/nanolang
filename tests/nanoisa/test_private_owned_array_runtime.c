@@ -81,7 +81,7 @@ static void retain_boundary(void) {
     vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);nvm_module_free(m);
 }
 int main(int argc,char **argv) {
-    CHECK(argc==2);retain_boundary();
+    CHECK(argc==2);
     for(unsigned which=0;which<7;which++) {
         fprintf(stderr,"private owner ARRAY case=%u\n",which);
         NvmModule *m=runtime_module(which);NvmOwnedArrayPlan *plan=NULL;
@@ -109,5 +109,6 @@ int main(int argc,char **argv) {
         char path[1024];snprintf(path,sizeof path,"%s/case%u.c",argv[1],which);FILE *file=fopen(path,"w");CHECK(file);CHECK(fputs(source,file)>=0);CHECK(!fclose(file));free(source);
         nvm_module_free(m);printf("case %u %u\n",which,which>=1&&which<=3?3:which==4?2:which==5?4:0);
     }
+    retain_boundary();
     printf("%u private owner ARRAY runtime checks passed\n",checks);return 0;
 }
