@@ -1,0 +1,34 @@
+{
+  "pin": "fbd3b5a9a494e8529d4c301098f23df670555735",
+  "steps": [
+    {
+      "name": "provider-tools",
+      "command": [
+        "make",
+        "-j2",
+        "bin/nanoc_c",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nvm2llvm",
+        "nvm2hl",
+        "nanoisa_dump",
+        "test-local-binding-metadata"
+      ],
+      "status": 0,
+      "seconds": 20.567
+    },
+    {
+      "name": "source-smoke",
+      "command": [
+        "python3",
+        "/tmp/nanolang-mixed-source-final-smoke.py"
+      ],
+      "status": 0,
+      "seconds": 28.285
+    }
+  ],
+  "sources_unchanged": true,
+  "stages_unchanged": true,
+  "clean": true
+}

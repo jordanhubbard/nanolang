@@ -276,3 +276,13 @@ passes in 28.186 seconds. Source and retained Stage1/Stage2/raw emitter hashes
 remain identical. My [integration seal](evidence/mixed-samples-source-integration/manifest.json)
 keeps this bounded check distinct from the full frozen70c qualification.
 I do not repeat bootstrap for these private C-only additions.
+
+After private origin-query PR829, my final provider integration at
+`fbd3b5a9a494e8529d4c301098f23df670555735` adds only its retained-layout include,
+private query and target. Existing `isa.o` supplies its decoder/info references.
+Affected C producer, VM/native/LLVM/HL tools and metadata probe link in 20.567
+seconds. The original Samples/PREFIX/all-shadow/parity method passes in 28.285
+seconds. Sources and retained stages remain identical across this gate; source
+producers, selectors and mixed runtime are unchanged from the preceding seal.
+My [provider seal](evidence/mixed-samples-source-provider/manifest.json) preserves
+this narrow acceptance without relabeling it as a fresh bootstrap or full suite.
