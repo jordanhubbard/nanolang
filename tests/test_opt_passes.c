@@ -55,6 +55,16 @@ static ASTNode *parse_nano(const char *src) {
     return prog;
 }
 
+static ASTNode *find_program_function(ASTNode *program, const char *name) {
+    if (!program || program->type != AST_PROGRAM) return NULL;
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item && item->type == AST_FUNCTION && item->as.function.name &&
+            strcmp(item->as.function.name, name) == 0) return item;
+    }
+    return NULL;
+}
+
 /* ============================================================================
  * dce_pass tests
  * ============================================================================ */
@@ -412,6 +422,110 @@ void test_tco_verbose_flag(void) {
     free_ast(prog);
 }
 
+void test_tco_same_name_initializer_uses_outer_parameter(void) {
+    ASTNode *prog = parse_nano(
+        "fn step(n: int, value: int) -> int {\n"
+        "    if (== n 0) { return value }\n"
+        "    if true { let value: int = (+ value 1) assert (> value 0) }\n"
+        "    return (step (- n 1) (+ value 2))\n"
+        "}\n"
+        "fn main() -> int { return (step 2 0) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    ASTNode *function = find_program_function(prog, "step");
+    ASSERT_NOT_NULL(function);
+    ASSERT_EQ(tco_pass_run(prog, false), 1);
+
+    ASTNode *outer = function->as.function.body;
+    ASSERT(outer->type == AST_BLOCK && outer->as.block.count == 3);
+    ASTNode *loop = outer->as.block.statements[2];
+    ASSERT(loop && loop->type == AST_WHILE);
+    ASTNode *iteration = loop->as.while_stmt.body;
+    ASSERT(iteration && iteration->type == AST_BLOCK);
+    ASTNode *original = iteration->as.block.statements[0];
+    ASSERT(original && original->type == AST_BLOCK && original->as.block.count == 3);
+    ASTNode *scope = original->as.block.statements[1];
+    ASSERT(scope && scope->type == AST_IF);
+    ASTNode *scope_body = scope->as.if_stmt.then_branch;
+    ASSERT(scope_body && scope_body->type == AST_BLOCK && scope_body->as.block.count == 2);
+    ASTNode *binding = scope_body->as.block.statements[0];
+    ASSERT(binding && binding->type == AST_LET);
+    ASSERT(binding->as.let.value && binding->as.let.value->type == AST_PREFIX_OP);
+    ASTNode *initializer_read = binding->as.let.value->as.prefix_op.args[0];
+    ASSERT(initializer_read && initializer_read->type == AST_IDENTIFIER);
+    ASSERT(strstr(initializer_read->as.identifier, "__tco_") == initializer_read->as.identifier);
+
+    ASTNode *assertion = scope_body->as.block.statements[1];
+    ASSERT(assertion && assertion->type == AST_ASSERT);
+    ASTNode *shadow_read = assertion->as.assert.condition->as.prefix_op.args[0];
+    ASSERT(shadow_read && shadow_read->type == AST_IDENTIFIER);
+    ASSERT(strcmp(shadow_read->as.identifier, "value") == 0);
+    free_ast(prog);
+}
+
+void test_tco_refusal_leaves_function_ast_unmodified(void) {
+    ASTNode *prog = parse_nano(
+        "fn step(n: int) -> int {\n"
+        "    if (== n 0) { return 0 }\n"
+        "    return (step (- n 1))\n"
+        "}\n"
+        "fn main() -> int { return (step 2) }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    ASTNode *function = find_program_function(prog, "step");
+    ASSERT_NOT_NULL(function);
+    ASTNode *body = function->as.function.body;
+    int old_count = body->as.block.count;
+    ASTNode **statements = calloc((size_t)old_count + 1, sizeof(*statements));
+    ASSERT_NOT_NULL(statements);
+    ASTNode *unsupported = calloc(1, sizeof(*unsupported));
+    ASSERT_NOT_NULL(unsupported);
+    unsupported->type = AST_EFFECT_OP;
+    statements[0] = unsupported;
+    for (int i = 0; i < old_count; ++i) statements[i + 1] = body->as.block.statements[i];
+    free(body->as.block.statements);
+    body->as.block.statements = statements;
+    body->as.block.count = old_count + 1;
+
+    ASTNode **before_statements = body->as.block.statements;
+    ASTNode *before_first = body->as.block.statements[0];
+    ASTNode *before_tail = body->as.block.statements[body->as.block.count - 1];
+    char *before_name = before_tail->as.return_stmt.value->as.call.name;
+    ASSERT_EQ(tco_pass_run(prog, false), 0);
+    ASSERT(function->as.function.body == body);
+    ASSERT(body->as.block.statements == before_statements);
+    ASSERT(body->as.block.statements[0] == before_first);
+    ASSERT(body->as.block.statements[body->as.block.count - 1] == before_tail);
+    ASSERT(before_tail->as.return_stmt.value->as.call.name == before_name);
+    ASSERT(strcmp(before_name, "step") == 0);
+    free_ast(prog);
+}
+
+void test_tco_refuses_resource_parameter_without_mutation(void) {
+    ASTNode *prog = parse_nano(
+        "resource struct Handle { fd: int }\n"
+        "fn step(n: int, owner: Handle) -> Handle {\n"
+        "    if (== n 0) { return owner }\n"
+        "    return (step (- n 1) owner)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+    );
+    ASSERT_NOT_NULL(prog);
+    ASTNode *function = find_program_function(prog, "step");
+    ASSERT_NOT_NULL(function);
+    ASTNode *body = function->as.function.body;
+    ASTNode **statements = body->as.block.statements;
+    ASTNode *tail = statements[body->as.block.count - 1];
+    char *tail_name = tail->as.return_stmt.value->as.call.name;
+    ASSERT_EQ(tco_pass_run(prog, false), 0);
+    ASSERT(function->as.function.body == body);
+    ASSERT(body->as.block.statements == statements);
+    ASSERT(statements[body->as.block.count - 1] == tail);
+    ASSERT(tail->as.return_stmt.value->as.call.name == tail_name);
+    ASSERT(strcmp(tail_name, "step") == 0);
+    free_ast(prog);
+}
+
 /* ============================================================================
  * tco_pass_pure tests — selective auto-TCO for pure fn only
  * ============================================================================ */
@@ -747,6 +861,9 @@ int main(void) {
     TEST(tco_non_recursive_function);
     TEST(tco_tail_recursive_function);
     TEST(tco_verbose_flag);
+    TEST(tco_same_name_initializer_uses_outer_parameter);
+    TEST(tco_refusal_leaves_function_ast_unmodified);
+    TEST(tco_refuses_resource_parameter_without_mutation);
 
     printf("\n=== TCO Pure Pass Tests ===\n");
     TEST(tco_pure_empty_program);

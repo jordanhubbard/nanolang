@@ -19,6 +19,10 @@ Named direct self calls remain the only calls converted into loop iterations.
 I traverse indirect callable expressions and their arguments so captured or
 function-valued parameter references retain their checked binding, but I do not
 mistake an indirect call or a nested function return for a self-tail call.
+When the parser represents a call through a named function-valued parameter as
+an `AST_CALL` name, I convert that callee to the hidden local callable
+expression. I do not send a synthetic local name through declared-function
+lookup.
 
 ## Values and evaluation
 
@@ -33,6 +37,12 @@ The ordinary native representation remains authoritative. I do not introduce a
 new aggregate ABI or reinterpret ownership. If a checked construct cannot be
 lowered with its existing representation, preflight must leave the whole
 function unchanged before mutating any node.
+
+This stage admits ordinary non-resource records and scalar-element arrays. I
+refuse explicit resource records, unions, opaque values, borrowed parameters and
+arrays whose immediate element can carry one of those values. Nested ownership
+needs complete checked ownership metadata; spelling-based guesses do not admit
+it.
 
 ## Nested control flow
 
@@ -49,7 +59,8 @@ generated loop once.
 
 I require optimized and unoptimized native output parity for:
 
-- array, record, tuple and function-valued parameters;
+- scalar-element array, non-resource record, tuple and function-valued
+  parameters;
 - left-to-right aggregate argument updates and returned typed values;
 - indirect callable expressions that read a parameter;
 - parameter-shadowing `let` initializers and nested blocks;

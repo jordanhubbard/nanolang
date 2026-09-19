@@ -3563,9 +3563,46 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
             - [ ] I route tail returns out of nested loops to the generated
               outer TCO loop without changing ordinary `break`, `continue`,
               fallthrough or left-to-right argument evaluation.
-            - [ ] I qualify arrays, records, tuples and callable parameters;
+            - [ ] I qualify scalar-element arrays, non-resource records, tuples
+              and callable parameters;
               callable expressions; `while` and `for`; nested-loop propagation;
               and same-name lexical bindings against unoptimized execution.
+              My first aggregate/callable matrix preserves the 200,000-step
+              array case, then the optimized callable-parameter compiler emits
+              non-text stderr while the unoptimized control passes. I retain
+              that terminal. Static review finds the renamed parameter callee
+              incorrectly remains a declared-function name instead of becoming
+              a callable expression, so it enters environment lookup with a
+              synthetic local name. I correct that AST boundary before the
+              affected case runs again. The first strict rebuild then catches
+              the new constructor use before its definition; I retain that
+              compile terminal and add the explicit prototype before execution.
+              That corrected AST route still produces non-text stderr, so I
+              treat the first diagnosis as necessary but insufficient and
+              inspect the retained raw compiler output rather than weakening
+              the callable case or assuming a source diagnostic.
+              Raw capture shows shadow execution reading a freed function name:
+              the evaluator shallow-copies an identifier's owned function value
+              into a `let` or `set`, then replacement/teardown frees one alias.
+              I require identifier-to-binding function copies for both ordinary
+              bindings and generated TCO temporaries before callable acceptance.
+              The first lexical-shadow fixture then uses an unsupported bare
+              block statement and fails before optimization. I retain that
+              parser terminal and express the same nested lexical scopes with
+              ordinary conditional blocks rather than changing my grammar.
+            - [ ] I preserve the outer binding in a same-name native C
+              initializer before publishing the new local
+              (`task_19e8c98dcc774e21975f763648e91adb`). The TCO gate keeps a
+              direct AST binding-identity control and uses an executable
+              two-step local until this separate backend repair lands; I do not
+              weaken the checked source rule or claim that backend gap closed.
+              The first loop fixture also attempts `set` on an immutable local;
+              I retain that checker terminal and declare only the exercised
+              counters mutable before continuing the unchanged control-flow
+              assertions.
+              The first resource-refusal unit uses reserved `handle` as a
+              parameter name and fails in parsing; I retain that fixture
+              terminal and rename only the parameter to `owner`.
       - [x] I repair verifier-corpus coverage. Every root `tests/*.nano` source
         must compile and pass `--verify-only`; failures, signals, missing
         artifacts and empty coverage fail the gate. Compilation and verification
