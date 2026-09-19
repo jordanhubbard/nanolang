@@ -7,6 +7,7 @@
 
 #define _POSIX_C_SOURCE 200809L  /* For open_memstream() */
 
+#include "service_bindings_module.h"
 #include "disassembler.h"
 #include "isa.h"
 #include <stdlib.h>
@@ -223,6 +224,7 @@ static void format_operand(FILE *out, const DecodedInstruction *instr, int idx,
 void disasm_function_styled(const uint8_t *code, uint32_t code_size,
                             const NvmModule *mod, FILE *out,
                             DisasmStyle style) {
+    if (nvm_service_bindings_present(mod)) return;
     /* Collect jump targets for label reconstruction */
     DisasmLabel labels[MAX_DISASM_LABELS];
     uint32_t label_count = collect_jump_targets(code, code_size, labels, MAX_DISASM_LABELS);
@@ -344,6 +346,7 @@ static void disasm_write_quoted(FILE *out, const NvmModule *mod, uint32_t idx) {
 
 void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
                                   DisasmStyle style) {
+    if (nvm_service_bindings_present(mod)) return;
     /* String pool */
     for (uint32_t i = 0; i < mod->string_count; i++) {
         if (!nvm_get_string(mod, i)) continue;
@@ -496,6 +499,7 @@ void disasm_module_to_file(const NvmModule *mod, FILE *out) {
 }
 
 char *disasm_module_styled(const NvmModule *mod, DisasmStyle style) {
+    if (nvm_service_bindings_present(mod)) return NULL;
     char *buf = NULL;
     size_t buf_size = 0;
     FILE *stream = open_memstream(&buf, &buf_size);

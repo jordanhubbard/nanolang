@@ -8,6 +8,7 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+#include "service_bindings_module.h"
 #include "verifier.h"
 #include "managed_array_shapes.h"
 #include "managed_record_shapes.h"
@@ -371,6 +372,8 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
     if (owned_admitted) *owned_admitted=false;
     bool admitted=false;
     if (!mod) return fail("module is NULL");
+    if (nvm_service_bindings_present(mod))
+        return fail("I require reviewed service lifetime and dispatch admission before execution");
     if (!mod->code && mod->code_size > 0)
         return fail("code pointer is NULL but code_size=%u", mod->code_size);
 
@@ -1037,6 +1040,9 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
     if (linked_count > 0 && !linked_modules)
         return fail("linked_count %u but linked_modules table is NULL", linked_count);
 
+    for (uint32_t i=0; i<linked_count; i++)
+        if (nvm_service_bindings_present(linked_modules[i]))
+            return fail("I refuse linked service contracts before reviewed dispatch admission");
     if (linked_count) {
         bool needs = false;
         if (mod && ((nvm_ownership_contracts_validate(mod, &needs)==NVM_V2_OK && needs) || nvm_uses_owned_transfers(mod)))

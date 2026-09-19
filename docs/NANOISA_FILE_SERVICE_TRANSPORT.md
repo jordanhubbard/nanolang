@@ -219,3 +219,41 @@ direct in-memory entry. I preserve existing whole-module failure conventions.
 I send this complete source checkpoint for review before builds or fixtures.
 The parallel mixed-profile work must retain the common service refusal before
 its delegated structure checks; combined qualification remains a separate gate.
+
+### My combined consumer audit
+
+I retain owned `service_data/service_size` in `NvmModule` and borrowed bytes in
+`NvmV2Module`. The private attach query stages fixed bytes, checks all five
+imports against the immutable catalog, and allocates only before its final
+publication. An identical valid payload is a no-op. The bridges validate this
+family before their existing allocation paths and copy or borrow it under the
+existing lifetime rule. Whole-module bridge failures retain their established
+cleared-output convention; the private attach operation is failure-atomic.
+
+My container derives FFI bit1 and service bit9, emits section14 last, checks
+exact payload/flag agreement at read and validates every catalog import before
+serialization. Section codecs can describe kind3; that fact grants no callable
+ABI. Old modules add no section or bit and take their existing allocation paths.
+
+I audit these consumers at this source checkpoint:
+
+| Consumer | Required-service behavior |
+| --- | --- |
+| v2 codecs and both bridges | validate and retain exact catalog bytes/indices |
+| legacy `nvm_serialize` | refuse pointer/size claims and every non-FFI kind |
+| common verifier and public linked verifier | refuse service presence in the primary or any linked module |
+| owned and scalar/managed profiles | inherit the common structure refusal |
+| VM public invocation/core paths | module ownership classification refuses before activation; linked modules use the same classification |
+| direct VM FFI load/call/callback dispatch/COP start/call/batch | refuse before output mutation, lookup, process launch or host dispatch |
+| native C and LLVM entry points | explicit refusal before translation; Wasm uses the LLVM entry point |
+| disassembler and facade canonical/pretty text | return null, or write nothing for historical void stream APIs, including function-only output |
+| assembler | existing exact textual kind whitelist refuses service kind; no raw service directive is admitted |
+| reconstruction facts/driver | ordinary verifier refuses before JSON/output; no reconstruction schema silently drops the section |
+
+My private catalog accessors expose only immutable borrowed method/interface
+views from the same definition used by `NlFilePlan`. They allocate nothing and
+grant no dispatch. I add the codec/query/catalog objects to both the regular
+NanoISA link closure and generated native wrapper list, with affected header
+build dependencies. Root owns the separate missing mixed-proof wrapper object
+correction; I must preserve it during integration. I have not run a build or
+fixture at this source checkpoint. Public service execution remains refused.

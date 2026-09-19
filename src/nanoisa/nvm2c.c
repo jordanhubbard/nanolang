@@ -6,6 +6,7 @@
  * The operand stack exists only while translating.
  */
 
+#include "service_bindings_module.h"
 #include "nvm2c.h"
 #include "../binary64_bits.h"
 #include "../binary64_format.h"
@@ -5909,6 +5910,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (err && err_len) err[0] = '\0';
     if (!mod) {
         if (err && err_len) snprintf(err, err_len, "module is null");
+        return NULL;
+    }
+    if (nvm_service_bindings_present(mod)) {
+        if (err && err_len) snprintf(err, err_len,
+            "I require reviewed service lifetime and dispatch admission before translation");
         return NULL;
     }
     bool needs_ownership = false;

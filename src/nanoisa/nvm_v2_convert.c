@@ -32,6 +32,7 @@
 #include "passive.h"
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
+#include "service_bindings_module.h"
 
 /* v1 keeps the source filename as a string-pool index outside every table. v2
  * has no such field, so it travels as a metadata pair under this key -- which
@@ -60,6 +61,10 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     if (!mod || !out) return NVM_V2_ERR_INDEX_RANGE;
     memset(out, 0, sizeof *out);
     out->isa_version = NVM_V2_ISA_VERSION;
+    NvmV2Result service = nvm_service_bindings_validate(mod);
+    if (service != NVM_V2_OK) return service;
+    out->service_data = mod->service_data;
+    out->service_size = mod->service_size;
     if (!nvm_metadata_valid(mod) || !nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod) ||
         !nvm_retained_layouts_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
     bool needs_ownership = false;
@@ -327,6 +332,8 @@ oom:
 NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     if (!m || !out) return NVM_V2_ERR_INDEX_RANGE;
     *out = NULL;
+    NvmV2Result service = nvm_v2_service_bindings_validate(m);
+    if (service != NVM_V2_OK) return service;
 
     NvmModule *mod = nvm_module_new();
     if (!mod) return NVM_V2_ERR_TRUNCATED;
@@ -473,6 +480,12 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         mod->header.flags |= NVM_FLAG_NEEDS_EXTERN;
     if (m->has_debug)     mod->header.flags |= NVM_FLAG_DEBUG_INFO;
 
+    if (m->service_size) {
+        mod->service_data = malloc(m->service_size);
+        if (!mod->service_data) { nvm_module_free(mod); return NVM_V2_ERR_TRUNCATED; }
+        memcpy(mod->service_data, m->service_data, m->service_size);
+        mod->service_size = m->service_size;
+    }
     if (m->passive_size) {
         if (!m->passive_data) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
         mod->passive_data = malloc(m->passive_size);

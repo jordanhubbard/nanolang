@@ -1,3 +1,4 @@
+#include "../nanoisa/service_bindings_module.h"
 #include "../nanoisa/affine_state.h"
 /*
  * NanoVM - Bytecode execution engine
@@ -203,7 +204,7 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
  * this classification before it asks whether instantiated constants are ready. */
 static bool vm_module_ownership_required(const NvmModule *module, bool *required) {
     if (required) *required=false;
-    if (!module || !required) return false;
+    if (!module || !required || nvm_service_bindings_present(module)) return false;
     if (!module->ownership_data && !module->ownership_size) return true;
     bool needs=false;
     if (nvm_ownership_contracts_validate(module,&needs)!=NVM_V2_OK) return false;
