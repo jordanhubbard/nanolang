@@ -156,10 +156,13 @@ static void operation_fault(const char *arg){
     }else if(!strncmp(arg,"alloc",5) || !strcmp(arg,"rollback")){
         NlGpuToken sentinel;memset(&sentinel,0xa5,sizeof sentinel);t=sentinel;
         bool post=strcmp(arg,"allocbefore")!=0;fault(ALLOC,1,post,701);
-        if(!strcmp(arg,"rollback"))fault(CURRENT,3,false,702);
+        if(!strcmp(arg,"rollback"))fault(CURRENT,4,false,702);
         r=nl_gpu_buffer_allocate(s,257,GPU_RIGHTS,&t);CHECK(r.status==NL_GPU_DRIVER && r.driver_error==701 && !memcmp(&t,&sentinel,sizeof t));
         if(!strcmp(arg,"rollback")){
-            NlGpuAllocation x=row(s);CHECK(r.cleanup_error==702 && x.disposition==NL_GPU_RELEASE_SKIPPED && !x.release_attempted && x.skipped_error==702);
+            NlGpuAllocation x=row(s);
+            printf("rollback primary=%d cleanup=%d disposition=%d attempted=%u skipped=%d release_calls=%u\n",
+                   r.driver_error,r.cleanup_error,x.disposition,x.release_attempted,x.skipped_error,calls[RELEASE]);fflush(stdout);
+            CHECK(r.cleanup_error==702 && x.disposition==NL_GPU_RELEASE_SKIPPED && !x.release_attempted && x.skipped_error==702);
             CHECK(calls[RELEASE]==0);r=nl_gpu_service_dispose(s);x=row(s);
             CHECK(r.context_destroyed && x.context_reclaimed && x.disposition==NL_GPU_RELEASE_SKIPPED && calls[RELEASE]==0);
         }else if(post){NlGpuAllocation x=row(s);CHECK(x.disposition==NL_GPU_RELEASE_FREED && x.release_attempted && x.release_error==0 && calls[RELEASE]==1);}
