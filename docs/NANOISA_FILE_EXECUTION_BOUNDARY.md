@@ -252,3 +252,15 @@ service disposal/destruction, and caches its terminal report for idempotence.
 All output pointers must be valid and disjoint from context storage; differently
 typed result/handle output objects must not overlap. No use after context
 storage destruction is supported.
+
+### My first private qualification terminal
+
+My private lifecycle checkpoint has its own bounded child
+`task_b5a35ba1daa528b9f67209875d9b42f9`;72556/6931 still own the later
+execution/source stages. At a8c2e0533 the first Linux normal, GCC/Clang sanitizer
+and adjacent gates pass. The first Darwin normal compile stops before a fixture
+exists: the absolute Xcode compiler lacks SDKROOT and cannot find errno.h. I
+preserve /tmp/nanolang-file-values-a8c2-darwin before selecting the SDK returned
+by xcrun explicitly in a fresh corrected tree. Production, fixture assertions,
+strict warnings and sanitizers do not change. This is a recorded toolchain
+setup prerequisite, not a demonstrated core or host-lifetime defect.
