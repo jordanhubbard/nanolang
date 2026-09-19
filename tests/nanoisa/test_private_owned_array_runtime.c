@@ -6,6 +6,7 @@
 #include "owned_array_authority.h"
 #include "owned_array_runtime_private.h"
 #include "../../src/nanovm/owned_array_runtime_private.h"
+#include "../../src/nanovm/vm.h"
 #include "nvm2c.h"
 #include "verifier.h"
 int g_argc=0;char **g_argv=NULL;

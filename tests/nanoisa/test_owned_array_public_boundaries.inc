@@ -1,5 +1,6 @@
 /* I exercise checked public boundaries; refused modules never enter handlers. */
-#include "nvm_v2_module.h"
+#include "nvm_format_v2.h"
+#include "nvm_v2_sections.h"
 static void public_reject(NvmModule *m) {
     fprintf(stderr,"public checked refusal route=%u\n",(unsigned)nvm_owned_array_route(m));
     unsigned char sentinel;NvmOwnedArrayPlan *plan=(void *)&sentinel;
