@@ -198,3 +198,15 @@ I expose the immutable catalog type accessor used by the existing NlFilePlan;
 I do not duplicate the eight type/member definitions. No fixture, build, host
 operation or generated source execution accompanies this source checkpoint.
 Provider-list/module integration remains in the later reviewed checkpoint.
+
+My private query takes NvmModule, which has no serialized v2 feature-bit envelope.
+Its acceptance checks payload/import/layout/ownership facts, not required wire
+bits. The feature/section agreement matrix belongs to the later NvmV2 module
+checkpoint. Prepared controls compare explicit and permuted nominal maps,
+mutate every encoded layout/ownership byte, cover count/tag/mode identities,
+raw overlap and output preservation, sole query allocation failure/recovery,
+source destruction and old shared-authority/verifier/native-emitter/converter
+refusal. Included-query interception and separately linked production both run;
+old supporting objects retain their ordinary build flags, while the new codec,
+query and catalog provider receive each selected sanitizer compiler. I add only
+selected test recipes, not production provider/converter/selector changes.

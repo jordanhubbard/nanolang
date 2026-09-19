@@ -5354,3 +5354,14 @@ test-nsi-gpu-private:
 test-units: test-owned-array-layouts
 test-owned-array-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	OWNED_ARRAY_LAYOUT_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_layouts
+
+.PHONY: test-file-nominal test-file-nominal-sanitizers
+test-file-nominal: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DNOMINAL_INSTRUMENT tests/nanoisa/test_file_nominal.c src/nanoisa/service_file_nominal.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_nominal_instrumented
+	./obj/test_file_nominal_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_file_nominal.c src/nanoisa/service_file_nominal.c src/nanoisa/service_file_nominal_plan.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o obj/test_file_nominal_linked
+	./obj/test_file_nominal_linked
+
+test-units: test-file-nominal
+test-file-nominal-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_NOMINAL_OBJECTS="$(filter-out $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_NOMINAL_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_nominal
