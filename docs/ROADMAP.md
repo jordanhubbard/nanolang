@@ -11617,7 +11617,8 @@ exact FLOAT stores/arithmetic remain refused. Samples/STRING and owner-free
 routes stay distinct; combining ordinary managed-record operations with owner
 ARRAY needs separate complete authority rather than reusing a profile flag.
 
-- [ ] I establish checked lexical/declaration identity for mutation builtin typing (`task_13d1c53953674d279a849306c9eee26d`) before the owner-ARRAY mutation extension. Static5f988 selfhost array_push inference and generic array_set result precede ordinary symbol lookup; I audit exact owner/name resolution and qualify narrowly reviewed guards if needed, preserving C's reserved array_set declaration policy and typed/phase/output assertions. No counterexample is executed at this contract checkpoint.
+- [x] I establish checked lexical/declaration identity for mutation builtin typing (`task_13d1c53953674d279a849306c9eee26d`) before the owner-ARRAY mutation extension. Static5f988 selfhost array_push inference and generic array_set result precede ordinary symbol lookup; I audit exact owner/name resolution and qualify narrowly reviewed guards if needed, preserving C's reserved array_set declaration policy and typed/phase/output assertions. No counterexample is executed at this contract checkpoint.
+- [ ] I implement the explicit read operation required by mutation task_bba6228369c04b6c900f628d501e5553: only unbound direct `array_length(array<float>)->INT`, receiver evaluated once and `ARR_LEN`, with lexical/declaration precedence, existing C reserved-name policy, exact-origin/output-preserving refusals and alias/growth controls. This remains ordered after qualified public activation and source18731; I do not widen builtin dispatch or infer ordinary/owner-ARRAY composition. My [length addendum](NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md#i-measure-mutation-through-a-bounded-length-operation) records the requirement before source code.
 - [ ] I complete parent430220's explicit paired source mutation extension (`task_bba6228369c04b6c900f628d501e5553`) after13d1,18731 and qualified public runtime activation: exact `array_set(array<float>,int,float)->void` and `array_push(array<float>,float)->same array<float>`, ordered once-only arguments, shared aliases across owner pack/unpack/calls/results and precise failure cleanup. My [mutation source contract](NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md) specifies binding/result semantics, optional-value refusals, all original PREFIX/shadows, mutation/growth/alias cases, Linux/Darwin paired producers and artifact preservation. I add no production or public activation here.
 
 I qualifya522's remaining standalone Darwin embedding boundary at canonical
@@ -11679,3 +11680,17 @@ retains both source/fixture first terminals, the packaging terminal,73 reports,
 owner-ARRAY admission or general emitter binding claim follows. MAC update
 scope remains unavailable; actual-merge reconciliation is pending. Source18731,
 mutation bba622 and all full ownership/product/release parents remain open.
+
+I record the held [paired source checkpoint plan](NANOISA_OWNED_ARRAY_SOURCE_CHECKPOINT_PLAN.md)
+after private runtime836 and actual checker835 merge. Task13d1 is now reconciled
+COMPLETED through the supported default MAC profile; source18731, mutation bba622
+and parent430220 remain open. Public activation986e is a reviewed implementation
+dependency, not completed source execution authority. This documentation adds no
+production, new fixture execution or public admission.
+
+I reconcile only the bounded13d1 roadmap checkbox from actual PR835 merge
+`6e7e8b155d0edef5e98865073c21cbf6ba812b13` and live MAC COMPLETED state, independently
+verified after the default-profile operator reconciliation. The reviewed guard
+head18593 and [sealed checker evidence](evidence/mutation-builtin-identity.md)
+remain the acceptance boundary; this does not close either owner-ARRAY source
+checkpoint or mutation/runtime/full parents.
