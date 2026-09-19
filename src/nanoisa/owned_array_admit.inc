@@ -13,6 +13,13 @@ NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
     bool resource=false;
     for(uint32_t n=0;n<count;n++)resource|=(flags[n]&NVM_LAYOUT_RESOURCE)!=0;
     if(!resource)return NVM_OWNER_ARRAY_NOT_SELECTED;
+    for(uint32_t n=0;n<count;n++)
+        if((flags[n]&~(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE)) ||
+           ((flags[n]&NVM_LAYOUT_RESOURCE) && !(flags[n]&NVM_LAYOUT_COMPLETE)))
+            return NVM_OWNER_ARRAY_INVALID;
+    uint32_t functions;
+    if(nvm_v2_align4(&c)!=NVM_V2_OK || nvm_v2_u32(&c,&functions)!=NVM_V2_OK ||
+       functions!=m->function_count)return NVM_OWNER_ARRAY_INVALID;
     if(!m->layout_data || !m->layout_size)return NVM_OWNER_ARRAY_INVALID;
     nvm_v2_cursor_init(&c,m->layout_data,m->layout_size);
     if(nvm_v2_u32(&c,&layouts)!=NVM_V2_OK || layouts!=count)return NVM_OWNER_ARRAY_INVALID;
@@ -21,13 +28,16 @@ NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
         uint8_t kind,reserved;uint16_t fields;uint32_t name;const uint8_t *field;
         if(nvm_v2_u8(&c,&kind)!=NVM_V2_OK || nvm_v2_u8(&c,&reserved)!=NVM_V2_OK ||
            nvm_v2_u16(&c,&fields)!=NVM_V2_OK || nvm_v2_u32(&c,&name)!=NVM_V2_OK ||
-           fields>NVM_RECORD_PLAN_MAX_FIELDS-total)return NVM_OWNER_ARRAY_INVALID;
+           fields>NVM_RECORD_PLAN_MAX_FIELDS-total || reserved || kind>NVM_V2_LAYOUT_KIND_MAX)
+            return NVM_OWNER_ARRAY_INVALID;
         total+=fields;
         for(uint16_t f=0;f<fields;f++) {
-            if(nvm_v2_take(&c,12,&field)!=NVM_V2_OK)return NVM_OWNER_ARRAY_INVALID;
+            if(nvm_v2_take(&c,12,&field)!=NVM_V2_OK || field[0]>=TAG_COUNT ||
+               field[1] || field[2] || field[3])return NVM_OWNER_ARRAY_INVALID;
             if((flags[n]&NVM_LAYOUT_RESOURCE) && field[0]==TAG_ARRAY)selected=true;
         }
     }
+    if(c.pos!=c.size)return NVM_OWNER_ARRAY_INVALID;
     return selected?NVM_OWNER_ARRAY_SELECTED:NVM_OWNER_ARRAY_NOT_SELECTED;
 }
 NvmOwnerAuthorityResult nvm_owned_array_admit(const NvmModule *m,NvmOwnedArrayPlan **out) {
