@@ -57,6 +57,36 @@ class SelfhostNativeU8(unittest.TestCase):
                 self.assertIn("shadow", (result.stdout + result.stderr).lower())
                 self.assertEqual(output.read_bytes(), b"previous accepted output")
 
+    def test_out_of_range_literal_preserves_prior_output(self):
+        source = """fn main() -> int {
+    let value: u8 = 256
+    return (cast_int value)
+}
+shadow main { assert (== (main) 0) }
+"""
+        for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
+            with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(
+                prefix="nano-native-u8-range-"
+            ) as tmp:
+                path = Path(tmp) / "input.nano"
+                output = Path(tmp) / "program"
+                path.write_text(source)
+                output.write_bytes(b"previous accepted output")
+                result = subprocess.run(
+                    [COMPILERS / compiler, path, "-o", output],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                    timeout=180,
+                )
+                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                diagnostic = (result.stdout + result.stderr).lower()
+                self.assertTrue(
+                    any(word in diagnostic for word in ("u8", "range", "shadow")),
+                    diagnostic,
+                )
+                self.assertEqual(output.read_bytes(), b"previous accepted output")
+
     def test_runtime_cast_helpers_build_under_strict_sanitizers(self):
         source = r"""
 #include <stdbool.h>
