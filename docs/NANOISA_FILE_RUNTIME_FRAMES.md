@@ -167,3 +167,46 @@ must separately execute complete bodies and discharge every pending obligation
 before public selection. Loops, indirect calls, richer multi-borrow encoding,
 full source/shadows and installed File acceptance remain concrete required
 parent work; an acyclic milestone does not remove them from release scope.
+
+## I implement the first private API checkpoint
+
+I add `file_runtime_frames.h` and its owning include in `file_runtime.c`.
+I persist the selected mode and active depth in the context. Each counted frame
+holds its function, instruction, local/staging/operand bases, logical operand
+count, reference base, region floor and suspended-call flag. I retain the
+call instruction while suspended and recover the exact continuation/result
+count from my immutable hosted plan; I allocate no second continuation table.
+
+| Storage | Count and accounting | Lifetime/ownership |
+|---|---|---|
+| Context | One `sizeof(NvmFileRuntime)`, including mode and active depth | Create through destroy |
+| Frame arena | Prepared frame count times actual `sizeof(FileRuntimeFrame)`, including suspended-call flag | Allocated once; active prefix, cleared on return/root completion |
+| Value arena | Selected hosted VM/native bound times actual `sizeof(FileRuntimeValue)` | Every source, staging and installed owner remains a tracked root until moved or drained |
+| Reference arena | Prepared reference slots times actual `sizeof(FileRuntimeReference)` | One256-slot slice per depth; aliases retain ancestor origin without owning its epoch |
+| Region arena | Prepared region slots times `sizeof(uint64_t)` | One global stack; each frame saves its entry floor |
+| File core | One nested File-values/service/capability size query | Begin through terminal drain/disposal; counted once |
+| Call/return temporaries | Fixed scalar indices and copied immutable facts on the C stack | No owner handles, argument vectors, heap allocation or second root arena |
+
+I check each allocation product and sum in the existing owning create path
+before allocation, retaining the64MiB limit. Frame layout uses widened sums,
+checks the selected recursive extent, own operand end and reference slice, then
+narrows to arena indices. Every call stages all value arguments before local
+installation. No return clears its child until its result is in parent staging.
+A failed generation-limited move stops immediately with actual roots retained;
+my qualified terminal drain does not require the frame stack to describe every
+partly installed root.
+
+My local, operand and reference getters return absolute arena indices, never
+mutable owner handles. `frame_store` handles only exact decoded stores.
+`frame_next` checks the body's completed output occupancy and a decoded
+successor; it does not evaluate the instruction or choose a branch predicate.
+Call and return have separate transfer paths. Region wrappers require the exact
+current opcode and prevent ending an ancestor region or a formal alias.
+The later matched dispatchers must call these operations in their actual opcode
+semantics; private C callers can still misuse raw carrier operations, and this
+checkpoint does not advertise them as a public execution authority.
+
+I have performed a strict C11 syntax-only check and a whitespace check of this
+checkpoint. I have not built or executed a new service fixture. The earlier
+carrier qualification remains pinned to its original source; this new API still
+requires reviewed fixtures and fresh qualification before any dispatcher work.
