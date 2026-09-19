@@ -201,3 +201,19 @@ I keep historical950f and every earlier qualified artifact immutable. Completion
 of this private composition child does not close public Samples execution or any
 full ownership, managed-value or release parent. The later checkpoints require
 explicit ledger/roadmap contracts before their production edits.
+
+## My approved first implementation boundary
+
+I keep the checked facts constructor static inside affine_state.c's private
+composition include; no caller can request an unchecked public state. The private
+walker explicitly guards every reused record-fields, pack/unpack, put/take, exit
+and observation transition by original RESOURCE classification. Ordinary locals
+keep their original descriptors and a separate ordinary value state; they are
+never rewritten as VOID or passed into owner transitions.
+
+My first generic EQ/NE accepts exact matching scalar tags and the explicit
+FLOAT-or-VOID read alternatives with existing value equality semantics. Generic
+ordering requires exact matching supported non-VOID scalar tags. Mixed numeric
+tags and possible-VOID ordering remain unresolved. Neither owner tokens nor
+ordinary heap handles participate in generic comparisons. This is deliberately
+narrower than the general VM, without changing its comparison behavior.
