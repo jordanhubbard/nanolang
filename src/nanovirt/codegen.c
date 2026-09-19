@@ -825,6 +825,26 @@ static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
     if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
 }
 
+/* An integer literal acquires the byte tag only from an exact checked
+ * destination. I do not turn arbitrary integer expressions into bytes. */
+static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
+    if (tag == TAG_U8) {
+        if (node && node->type == AST_NUMBER) {
+            if (node->as.number < 0 || node->as.number > UINT8_MAX) {
+                cg_error(cg, node->line, "I require a byte literal from 0 through 255");
+                return;
+            }
+            emit_op(cg, OP_PUSH_U8, (uint8_t)node->as.number);
+            return;
+        }
+        if (check_expression(node, cg->env) != TYPE_U8) {
+            cg_error(cg, node ? node->line : 0, "I require the declared byte value type");
+            return;
+        }
+    }
+    compile_expr(cg, node);
+}
+
 /* I probe bindings without creating captures. Even an immutable callable alias
  * remains a value, not permission to select a same-spelled declaration. */
 static bool callback_value_binding(CG *cg, const char *name) {
@@ -2548,9 +2568,15 @@ static void compile_expr(CG *cg, ASTNode *node) {
             break;
         }
 
-        /* Emit arguments left-to-right */
+        /* Emit arguments left-to-right with the direct declaration's exact
+         * scalar tags. Indirect calls keep their existing value contract. */
+        int32_t declared_target = name ? fn_find(cg, name) : -1;
+        uint8_t *declared_tags = declared_target >= 0
+            ? cg->module->function_param_types[declared_target] : NULL;
         for (int i = 0; i < argc; i++) {
-            compile_expr(cg, node->as.call.args[i]);
+            compile_expected_tag(cg, node->as.call.args[i],
+                declared_tags && i < cg->module->functions[declared_target].arity
+                    ? declared_tags[i] : TAG_COUNT);
         }
 
         /* Handle module introspection inline (no FFI needed) */
@@ -2559,7 +2585,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         }
 
         /* Look up function index */
-        int32_t fn_idx = name ? fn_find(cg, name) : -1;
+        int32_t fn_idx = declared_target;
         if (fn_idx >= 0) {
             emit_op(cg, OP_CALL, (uint32_t)fn_idx);
         } else {
@@ -3384,7 +3410,9 @@ static bool compile_tail_call(CG *cg, ASTNode *node) {
     int argc = node->type == AST_CALL ? node->as.call.arg_count
         : node->as.module_qualified_call.arg_count;
     if ((uint16_t)argc != callee->arity) return false;
-    for (int i = 0; i < argc; i++) compile_expr(cg, args[i]);
+    uint8_t *tags = cg->module->function_param_types[target];
+    for (int i = 0; i < argc; i++)
+        compile_expected_tag(cg, args[i], tags ? tags[i] : TAG_COUNT);
     emit_op(cg, OP_TAIL_CALL, (uint32_t)target);
     return true;
 }
@@ -3567,7 +3595,9 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             node->as.let.element_type != TYPE_UNKNOWN) {
             node->as.let.value->as.array_literal.element_type = node->as.let.element_type;
         }
-        if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
+        if (node->as.let.var_type == TYPE_U8)
+            compile_expected_tag(cg, node->as.let.value, TAG_U8);
+        else if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
             compile_numeric_expr(cg, node->as.let.value,
                 check_expression(node->as.let.value, cg->env), node->as.let.var_type == TYPE_FLOAT);
         else compile_stored_expr(cg, node->as.let.value);
@@ -3601,7 +3631,12 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         }
         int16_t slot = local_find(cg, node->as.set.name);
         if (slot >= 0) {
-            compile_stored_expr(cg, node->as.set.value);
+            Symbol *binding = env_get_var_visible_at(cg->env, node->as.set.name,
+                                                     node->line, node->column);
+            if (binding && binding->type == TYPE_U8)
+                compile_expected_tag(cg, node->as.set.value, TAG_U8);
+            else
+                compile_stored_expr(cg, node->as.set.value);
             emit_op(cg, OP_STORE_LOCAL, (int)slot);
         } else {
             int16_t gslot = global_find(cg, node->as.set.name);
@@ -3819,7 +3854,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             break;
         }
         if (node->as.return_stmt.value) {
-            compile_expr(cg, node->as.return_stmt.value);
+            compile_expected_tag(cg, node->as.return_stmt.value,
+                cg->module->functions[cg->current_fn_idx].result_tag);
             if (cg->module->functions[cg->current_fn_idx].result_count == 0 &&
                 expr_leaves_value(cg, node->as.return_stmt.value))
                 emit_op(cg, OP_POP);
