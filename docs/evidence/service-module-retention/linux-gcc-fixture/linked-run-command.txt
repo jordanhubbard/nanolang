@@ -1,0 +1,1 @@
+/tmp/nano-service-module-gbm1th8c/linked tests/fixtures/nsi_file_plan.json

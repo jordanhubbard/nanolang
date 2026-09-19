@@ -1,0 +1,1 @@
+/tmp/nano-service-module-gbm1th8c/allocation tests/fixtures/nsi_file_plan.json

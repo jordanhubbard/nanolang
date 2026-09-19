@@ -206,3 +206,134 @@ My [frozen raw-codec evidence](evidence/service-bindings-codec.md) retains the
 first passing Linux/Darwin controls atf438 and reviewed productionfa708. Module
 features, import kinds and executable readers are unchanged. Later checkpoints
 remain open and need their own complete consumer-refusal review.
+
+## My combined retention checkpoint
+
+I begin steps2–3 from canonical353bbbe44, with the raw codec and private Socket
+checkpoint merged. I add module storage, required wire recognition and all
+consumer refusals together. I reuse the immutable File plan catalog through
+private read-only accessors; no caller-selected catalog enters validation.
+My service payload may be inspected or roundtripped, but every executing or
+dropping consumer must refuse it before publication or host dispatch, including
+direct in-memory entry. I preserve existing whole-module failure conventions.
+I send this complete source checkpoint for review before builds or fixtures.
+The parallel mixed-profile work must retain the common service refusal before
+its delegated structure checks; combined qualification remains a separate gate.
+
+### My combined consumer audit
+
+I retain owned `service_data/service_size` in `NvmModule` and borrowed bytes in
+`NvmV2Module`. The private attach query stages fixed bytes, checks all five
+imports against the immutable catalog, and allocates only before its final
+publication. An identical valid payload is a no-op. The bridges validate this
+family before their existing allocation paths and copy or borrow it under the
+existing lifetime rule. The bridge to `NvmModule` leaves a null output on failure. The bridge from
+`NvmModule` clears its destination first but may then leave cleanup-safe borrowed
+payload fields when a later validation fails; I do not promise a wholly zero or
+unchanged destination. The private attach operation is failure-atomic.
+
+My container derives FFI bit1 and service bit9, emits section14 last, checks
+exact payload/flag agreement at read and validates every catalog import before
+serialization. Section codecs can describe kind3; that fact grants no callable
+ABI. Old modules add no section or bit and take their existing allocation paths.
+
+I audit these consumers at this source checkpoint:
+
+| Consumer | Required-service behavior |
+| --- | --- |
+| v2 codecs and both bridges | validate and retain exact catalog bytes/indices |
+| legacy `nvm_serialize` | refuse pointer/size claims and every non-FFI kind |
+| common verifier and public linked verifier | refuse service presence in the primary or any linked module |
+| owned and scalar/managed profiles | inherit the common structure refusal |
+| VM public invocation/core paths | module ownership classification refuses before activation; linked modules use the same classification |
+| direct VM FFI load/call/callback dispatch/COP start/call/batch | refuse before output mutation, lookup, process launch or host dispatch |
+| native C and LLVM entry points | explicit refusal before translation; Wasm uses the LLVM entry point |
+| disassembler and facade canonical/pretty text | return null, or write nothing for historical void stream APIs, including function-only output |
+| assembler | existing exact textual kind whitelist refuses service kind; no raw service directive is admitted |
+| reconstruction facts/driver | ordinary verifier refuses before JSON/output; no reconstruction schema silently drops the section |
+
+My private catalog accessors expose only immutable borrowed method/interface
+views from the same definition used by `NlFilePlan`. They allocate nothing and
+grant no dispatch. I add the codec/query/catalog objects to both the regular
+NanoISA link closure and generated native wrapper list, with affected header
+build dependencies. Root owns the separate missing mixed-proof wrapper object
+correction; I must preserve it during integration. I have not run a build or
+fixture at this source checkpoint. Public service execution remains refused.
+
+### My prequalification source-closure correction
+
+Independent review of the parallel mixed-proof wrapper fix identified the
+module manifest as a second source-link closure. My first combined checkpoint
+c7e65df4f added the service codec/query/catalog to Make and wrapper objects but
+omitted their source entries from `modules/nanoisa/module.json`. I record this
+static prequalification finding under6833 before correcting that manifest. No
+service checkpoint build or source fixture has executed. I retain c7e65df4f as
+the reviewed prior checkpoint and require review of the additive manifest delta.
+
+My second prequalification review finds that `nanoisa.c` used an unqualified
+service-query header while its other core includes are relative to the source
+file. `module_compile_prefix` adds only manifest/include/compiler flags; this
+manifest declares no include directory. Make's `-Isrc/nanoisa` therefore cannot
+be assumed for module builds. I record the source include omission before
+matching the established `../../src/nanoisa/` path. No build was attempted.
+I also integrate reviewed mixed-proof closure64db8f922 before qualification.
+
+### My first combined qualification and next fixture checkpoint
+
+At c34c7324f my fresh clean bootstrap passes in254.286s. The next focused setup
+stops before fixture compilation/execution: runtime IR compilation lacks the
+explicit GCC13 selection used by my existing Linux Clang qualification and
+`-Werror` rejects its installation-selection warning. I preserve the complete
+first terminal under `/tmp/nanolang-service-module-c34c`; source/tool inventories
+are unchanged. I record this harness configuration omission under6833 before
+setting `NMS_NATIVE_CLANG_FLAGS` for the corrected fresh run. I do not weaken
+warnings or rerun the old failed setup artifacts.
+
+My next fixture checkpoint additionally covers actual reconstruction/LLVM/C/Wasm
+CLI output preservation and public callable-entry/FFI loader-state refusal.
+It receives fresh input maps and its own pin. The completed bootstrap remains
+at c34; unchanged production does not turn it into a bootstrap of new fixtures.
+
+At ba7d78d68 corrected runtime-IR setup succeeds, but both fixture builds stop
+on the same missing `-Isrc`: the public FFI header reaches generated schema code
+which includes `runtime/dyn_array.h`. No fixture executable was produced or run.
+I preserve `/tmp/nanolang-service-module-ba7` and its immutable artifacts, then
+add the fixture include root before a fresh checkpoint. I also make the unittest
+target fail-fast so subsequent methods do not repeat a setup failure. This is a
+fixture build correction, not a service runtime defect or a weakened assertion.
+
+At e8b847d8f strict fixture compilation succeeds; its first link then refuses the
+missing executable-owned `g_argc/g_argv` globals required by the existing shared
+CLI/evaluator objects. No fixture executable runs. I preserve
+`/tmp/nanolang-service-module-includes` before supplying those ordinary harness
+entrypoint globals, as the adjacent VM fixture executables do. Production stays
+unchanged and warnings/sanitizers/assertions remain intact.
+
+At 47f9254ef both complete focused service methods pass with GCC (7.273s) and
+Clang (3.462s), including public CLI output preservation. Adjacent qualification
+then stops on the old container fixture which calls required bit9 unknown. I
+preserve that 28-pass/1-failure outcome in /tmp/nanolang-service-module-linked.
+Bit9 is now intentionally recognized; before correction I record migration of
+this negative control to unassigned bit10. Exact service cross-section refusal
+controls stay intact. I also inspect adjacent unknown section/import fixtures
+before a fresh corrected gate. This is a fixture boundary update, not a product
+refusal to be hidden or a new bootstrap claim.
+
+### My combined mixed-runtime integration boundary
+
+After sealing independent qualification, I integrate canonical d0de3d23 in a
+fresh tree. I preserve both source families and add no service execution.
+Service claims must refuse before mixed candidate selection, private preparation
+and delegated common structure, including direct APIs. The bridges retain their
+structural service path and cannot acquire a mixed execution certificate. I
+keep source/global/compact identities unchanged. I record these integration
+obligations before resolving competing selectors, then submit the complete
+production delta before any combined qualification.
+
+At the first combined bb657a9e4 gate, my two unchanged service methods pass.
+The new mixed boundary method completes its assertions, then LSan reports384
+leaked bytes allocated by nvm_module_new for its empty import table. The fixture
+substitutes a borrowed claim and restores NULL although zero import count does
+not mean a NULL capacity table. I preserve /tmp/nanolang-service-module-integrated-bb657
+and its fixture artifacts before saving/restoring the original table pointer.
+This is fixture ownership repair; production and leak detection stay unchanged.

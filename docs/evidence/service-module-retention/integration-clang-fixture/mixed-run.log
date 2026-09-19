@@ -1,0 +1,16 @@
+212 mixed service selection and recovery checks passed
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=2 baseline=2 nodes=0 buffered=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1

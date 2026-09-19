@@ -1,0 +1,1 @@
+python3 scripts/nvm2hl.py --language nano /tmp/nano-service-module-66ru6dw7/linked.nvm -o /tmp/nano-service-module-66ru6dw7/recover-nano-preserved

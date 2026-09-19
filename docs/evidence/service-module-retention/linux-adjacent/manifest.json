@@ -1,0 +1,31 @@
+{
+  "pin": "038bf80b35ca3c757c9f5e06c2175e6c694e895d",
+  "bootstrap_reference": "c34c7324f48522656c27f9cdd84489634634bd81",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "steps": [
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "-j8",
+        "test-service-bindings",
+        "test-nsi-file-plan",
+        "test-nvm-format-v2",
+        "test-nvm-v2-imports",
+        "test-nvm-v2-module",
+        "test-nvm-v2-convert",
+        "test-nvm-v2-endtoend",
+        "test-wrapper-gen",
+        "test-verifier-profiles"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 9.189,
+      "log_sha256": "5363dd3eaeb65d6f8d3dce90368ac5bbb6ef4484d3354f35445f6d7bff5fe532"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}
