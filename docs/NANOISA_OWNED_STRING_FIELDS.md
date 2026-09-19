@@ -319,3 +319,17 @@ and shadow selection, constructor source order/declaration pack order, exact
 nominal arguments/results and existing output publication remain unchanged.
 I send the paired production checkpoint for review before fresh bootstrap or
 source fixture execution.
+
+## My source-fixture migration audit
+
+Before executing source gates, I record two obsolete negative cases in
+`test_source_borrow_emission.py`. The STRING-local case is now supported and
+moves to a positive comparison with exact printed bytes. The transitive
+`managed_string` case changes `take` to return7 but retains main's old expected16;
+that is no longer a valid raw-emitter type-refusal control. I qualify its
+supported field/argument transfer separately with expected7 and `AA` output,
+and retain a negative STRING-ordering variant instead. Unsupported arrays,
+concat, standalone STRING returns, wrong positional argument tags, borrowed
+STRING roots and false shadows remain negative. The simple old STRING-field
+negative still compares that field with an INT parameter; it remains refused.
+I preserve the complete original PREFIX/Bundle source verbatim.
