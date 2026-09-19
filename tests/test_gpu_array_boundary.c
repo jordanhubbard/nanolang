@@ -82,9 +82,11 @@ int main(void) {
 #ifdef TEST_UNIFIED_GPU
     array.data = memory;
     g_runtime = RT_OCL;
-    device = OCL_SENTINEL;
-    g_ocl_nallocs = 1;
-    g_ocl_allocs[0].fake = device;
+    device = (int64_t)(OCL_SENTINEL | UINT64_C(0x100));
+    g_ocl_allocs[0].state = OCL_LIVE;
+    g_ocl_allocs[0].generation = 1;
+    g_ocl_allocs[0].token = device;
+    g_ocl_allocs[0].bytes = sizeof memory;
     g_ocl_allocs[0].buf = (cl_mem)(uintptr_t)1;
     g_ocl.clEnqueueWriteBuffer = copy_cl_to;
     g_ocl.clEnqueueReadBuffer = copy_cl_from;

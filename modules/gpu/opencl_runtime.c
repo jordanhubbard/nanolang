@@ -10,8 +10,8 @@
  *   - CUDA path: identical to cuda_runtime.c (PTX file loaded by driver).
  *   - OpenCL path: loads .cl file (same base name as .ptx, extension swapped).
  *   - Kernel args: int64 values that match g_ocl_alloc sentinels are passed
- *     as cl_mem (buffer) args; all others as long scalars.  Sentinel pattern:
- *       0x0C1A000000000000LL | (uint8_t index)  — cannot collide with user ints.
+ *     as cl_mem (buffer) args. I reserve prefix 0x0C1A for buffer tokens;
+ *     unknown tokens in that interval refuse, and other integers are scalars.
  *   - Module/kernel cache: keyed by (file_path, kernel_name).
  *
  * No compile-time dependency on CUDA or OpenCL headers.
@@ -160,12 +160,42 @@ static CUmodule cuda_get_module(const char *ptx_file) {
     for (int i = 0; i < g_cuda_mods_n; i++)
         if (strcmp(g_cuda_mods[i].path, ptx_file) == 0) return g_cuda_mods[i].mod;
     FILE *f = fopen(ptx_file, "rb");
-    if (!f) { snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
-                        "cannot open PTX file: %s", ptx_file); return NULL; }
-    fseek(f, 0, SEEK_END); long sz = ftell(f); rewind(f);
+    if (!f) {
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot open GPU source: %.200s", ptx_file);
+        return NULL;
+    }
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot seek GPU source: %.200s", ptx_file);
+        return NULL;
+    }
+    long sz = ftell(f);
+    if (sz < 0 || (uintmax_t)sz >= (uintmax_t)SIZE_MAX ||
+        fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot size or rewind GPU source: %.200s", ptx_file);
+        return NULL;
+    }
     char *src = malloc((size_t)sz + 1);
-    if (!src) { fclose(f); return NULL; }
-    fread(src, 1, (size_t)sz, f); src[sz] = '\0'; fclose(f);
+    if (!src) {
+        fclose(f);
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot allocate GPU source storage");
+        return NULL;
+    }
+    size_t count = fread(src, 1, (size_t)sz, f);
+    int read_error = ferror(f);
+    int close_error = fclose(f);
+    if (count != (size_t)sz || read_error || close_error != 0) {
+        free(src);
+        snprintf(g_cuda.last_error_str, sizeof(g_cuda.last_error_str),
+                 "I cannot completely read and close GPU source: %.200s", ptx_file);
+        return NULL;
+    }
+    src[(size_t)sz] = '\0';
     CUmodule mod = NULL;
     CUresult r = g_cuda.cuModuleLoadData(&mod, src);
     free(src);
@@ -206,6 +236,7 @@ typedef size_t   cl_size_t;
 #define CL_MEM_READ_WRITE        (1<<0)
 #define CL_QUEUE_PROFILING_ENABLE (1<<3)
 #define CL_PROGRAM_BUILD_LOG     0x1183
+#define CL_KERNEL_NUM_ARGS       0x1191
 
 /* Function pointer types */
 typedef cl_int (*pfn_clGetPlatformIDs)(cl_uint, cl_platform_id*, cl_uint*);
@@ -227,6 +258,7 @@ typedef cl_int (*pfn_clBuildProgram)(cl_program, cl_uint, const cl_device_id*, c
     void (*)(cl_program, void*), void*);
 typedef cl_int (*pfn_clGetProgramBuildInfo)(cl_program, cl_device_id, cl_uint, size_t, void*, size_t*);
 typedef cl_kernel (*pfn_clCreateKernel)(cl_program, const char*, cl_int*);
+typedef cl_int (*pfn_clGetKernelInfo)(cl_kernel, cl_uint, size_t, void*, size_t*);
 typedef cl_int (*pfn_clSetKernelArg)(cl_kernel, cl_uint, size_t, const void*);
 typedef cl_int (*pfn_clEnqueueNDRangeKernel)(cl_command_queue, cl_kernel, cl_uint,
     const size_t*, const size_t*, const size_t*, cl_uint, const void*, void*);
@@ -266,6 +298,7 @@ static struct {
     pfn_clBuildProgram             clBuildProgram;
     pfn_clGetProgramBuildInfo      clGetProgramBuildInfo;
     pfn_clCreateKernel             clCreateKernel;
+    pfn_clGetKernelInfo            clGetKernelInfo;
     pfn_clSetKernelArg             clSetKernelArg;
     pfn_clEnqueueNDRangeKernel     clEnqueueNDRangeKernel;
     pfn_clFinish                   clFinish;
@@ -305,6 +338,7 @@ static bool ocl_load(void) {
     LOAD_OCL(clBuildProgram);
     LOAD_OCL(clGetProgramBuildInfo);
     LOAD_OCL(clCreateKernel);
+    LOAD_OCL(clGetKernelInfo);
     LOAD_OCL(clSetKernelArg);
     LOAD_OCL(clEnqueueNDRangeKernel);
     LOAD_OCL(clFinish);
@@ -344,23 +378,56 @@ ocl_fail:
     return false;
 }
 
-/* ── OpenCL alloc map ─────────────────────────────────────────────────────
- * nl_gpu_alloc with OpenCL returns a sentinel fake pointer so we can
- * distinguish buffer args from scalars in clSetKernelArg.
- * Sentinel: 0x0C1A000000000000LL | uint8_t_index
- * This pattern will never appear in real user scalar values (frame counters,
- * array sizes, etc. are small non-negative integers). */
-#define OCL_SENTINEL ((int64_t)0x0C1A000000000000LL)
+/* I retain stable slots and never wrap a published identity's generation.
+ * The integer ABI reserves prefix 0x0C1A; it cannot distinguish a scalar
+ * numerically equal to a live token from that buffer. Calls are serialized. */
+#define OCL_SENTINEL UINT64_C(0x0C1A000000000000)
+#define OCL_PREFIX_MASK UINT64_C(0xffff000000000000)
+#define OCL_GENERATION_MAX UINT64_C(0xffffffffff)
 #define MAX_OCL_ALLOCS 256
 
-static struct { int64_t fake; cl_mem buf; } g_ocl_allocs[MAX_OCL_ALLOCS];
-static int g_ocl_nallocs = 0;
+typedef enum { OCL_FREE, OCL_RESERVED, OCL_LIVE,
+               OCL_QUARANTINED, OCL_EXHAUSTED } OclAllocState;
+typedef struct {
+    OclAllocState state;
+    uint64_t generation;
+    int64_t token;
+    cl_mem buf;
+    size_t bytes;
+    bool release_attempted;
+    cl_int release_error;
+} OclAlloc;
+static OclAlloc g_ocl_allocs[MAX_OCL_ALLOCS];
 
-static cl_mem ocl_find_buf(int64_t val) {
-    if ((val & ~(int64_t)0xFF) != OCL_SENTINEL) return NULL;
-    int idx = (int)(val & 0xFF);
-    if (idx >= g_ocl_nallocs) return NULL;
-    return g_ocl_allocs[idx].buf;
+static bool ocl_reserved_token(int64_t value) {
+    return ((uint64_t)value & OCL_PREFIX_MASK) == OCL_SENTINEL;
+}
+
+static OclAlloc *ocl_find_alloc(int64_t value) {
+    if (!ocl_reserved_token(value)) return NULL;
+    OclAlloc *entry = &g_ocl_allocs[(uint64_t)value & UINT64_C(0xff)];
+    if (entry->state != OCL_LIVE || !entry->generation ||
+        entry->token != value) return NULL;
+    return entry;
+}
+
+static cl_mem ocl_find_buf(int64_t value) {
+    OclAlloc *entry = ocl_find_alloc(value);
+    return entry ? entry->buf : NULL;
+}
+
+/* I invalidate before one release attempt. Unknown outcomes keep their slot
+ * and raw object until process exit, without a retry or closure claim. */
+static cl_int ocl_release_alloc(OclAlloc *entry) {
+    entry->state = OCL_QUARANTINED;
+    entry->release_attempted = true;
+    entry->release_error = g_ocl.clReleaseMemObject(entry->buf);
+    if (entry->release_error == CL_SUCCESS) {
+        entry->buf = NULL;
+        entry->state = entry->generation == OCL_GENERATION_MAX
+                     ? OCL_EXHAUSTED : OCL_FREE;
+    }
+    return entry->release_error;
 }
 
 /* ── OpenCL kernel cache ──────────────────────────────────────────────────
@@ -384,13 +451,40 @@ static cl_kernel ocl_get_kernel(const char *cl_path, const char *kernel_name) {
     FILE *f = fopen(cl_path, "r");
     if (!f) {
         snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
-                 "cannot open .cl file: %s", cl_path);
+                 "I cannot open GPU source: %.200s", cl_path);
         return NULL;
     }
-    fseek(f, 0, SEEK_END); long sz = ftell(f); rewind(f);
+    if (fseek(f, 0, SEEK_END) != 0) {
+        fclose(f);
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I cannot seek GPU source: %.200s", cl_path);
+        return NULL;
+    }
+    long sz = ftell(f);
+    if (sz < 0 || (uintmax_t)sz >= (uintmax_t)SIZE_MAX ||
+        fseek(f, 0, SEEK_SET) != 0) {
+        fclose(f);
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I cannot size or rewind GPU source: %.200s", cl_path);
+        return NULL;
+    }
     char *src = malloc((size_t)sz + 1);
-    if (!src) { fclose(f); return NULL; }
-    fread(src, 1, (size_t)sz, f); src[sz] = '\0'; fclose(f);
+    if (!src) {
+        fclose(f);
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I cannot allocate GPU source storage");
+        return NULL;
+    }
+    size_t count = fread(src, 1, (size_t)sz, f);
+    int read_error = ferror(f);
+    int close_error = fclose(f);
+    if (count != (size_t)sz || read_error || close_error != 0) {
+        free(src);
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I cannot completely read and close GPU source: %.200s", cl_path);
+        return NULL;
+    }
+    src[(size_t)sz] = '\0';
 
     cl_int err;
     const char *csrc = src;
@@ -450,6 +544,28 @@ static void ptx_to_cl_path(const char *ptx, char *out, size_t out_sz) {
 
 /* Set up to 5 kernel args; buf args use cl_mem, scalars use long */
 static bool ocl_set_args(cl_kernel kern, int argc, int64_t *argv) {
+    if (argc < 0 || argc > 5 || (argc && !argv)) return false;
+    cl_uint actual_argc = 0;
+    size_t actual_size = 0;
+    cl_int query_error = g_ocl.clGetKernelInfo(kern, CL_KERNEL_NUM_ARGS,
+                                              sizeof(actual_argc), &actual_argc,
+                                              &actual_size);
+    if (query_error != CL_SUCCESS) {
+        ocl_set_error(query_error, "clGetKernelInfo");
+        return false;
+    }
+    if (actual_size != sizeof(actual_argc) || actual_argc != (cl_uint)argc) {
+        snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                 "I require the complete OpenCL kernel argument list");
+        return false;
+    }
+    for (int i = 0; i < argc; ++i) {
+        if (ocl_reserved_token(argv[i]) && !ocl_find_alloc(argv[i])) {
+            snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                     "I require a live OpenCL buffer token for argument %d", i);
+            return false;
+        }
+    }
     for (int i = 0; i < argc; i++) {
         cl_mem buf = ocl_find_buf(argv[i]);
         cl_int err;
@@ -561,73 +677,99 @@ void nl_gpu_sync(void) {
 }
 
 int64_t nl_gpu_alloc(int64_t bytes) {
-    if (runtime_select() == RT_NONE || bytes <= 0) return 0;
+    if (bytes <= 0 || (uint64_t)bytes > SIZE_MAX) return 0;
+    if (runtime_select() == RT_NONE) return 0;
     if (g_runtime == RT_CUDA) {
         CUdeviceptr ptr = 0;
         CUresult r = g_cuda.cuMemAlloc(&ptr, (size_t)bytes);
         if (r != CUDA_SUCCESS) { cuda_set_error(r); return 0; }
         return (int64_t)ptr;
     }
-    /* OpenCL: create cl_mem and return sentinel fake ptr */
-    if (g_ocl_nallocs >= MAX_OCL_ALLOCS) {
+    OclAlloc *entry = NULL;
+    int slot = 0;
+    for (; slot < MAX_OCL_ALLOCS; ++slot) {
+        if (g_ocl_allocs[slot].state == OCL_FREE) {
+            entry = &g_ocl_allocs[slot];
+            break;
+        }
+    }
+    if (!entry) {
         snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
-                 "nl_gpu_alloc: alloc table full (max %d)", MAX_OCL_ALLOCS);
+                 "I have no available OpenCL allocation slot");
         return 0;
     }
-    cl_int err;
-    cl_mem buf = g_ocl.clCreateBuffer(g_ocl.ctx, CL_MEM_READ_WRITE, (size_t)bytes, NULL, &err);
-    if (err != CL_SUCCESS || !buf) { ocl_set_error(err, "clCreateBuffer"); return 0; }
-    int idx = g_ocl_nallocs++;
-    int64_t fake = OCL_SENTINEL | (int64_t)(idx & 0xFF);
-    g_ocl_allocs[idx].fake = fake;
-    g_ocl_allocs[idx].buf  = buf;
-    return fake;
+    /* I reserve before entering the driver and publish only complete success. */
+    entry->state = OCL_RESERVED;
+    entry->release_attempted = false;
+    entry->release_error = CL_SUCCESS;
+    entry->bytes = (size_t)bytes;
+    cl_int err = CL_SUCCESS;
+    entry->buf = g_ocl.clCreateBuffer(g_ocl.ctx, CL_MEM_READ_WRITE,
+                                     entry->bytes, NULL, &err);
+    if (err != CL_SUCCESS || !entry->buf) {
+        if (entry->buf) {
+            cl_int cleanup = ocl_release_alloc(entry);
+            snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                     "I could not create an OpenCL buffer (error %d; release %d)",
+                     err, cleanup);
+        } else {
+            entry->state = OCL_FREE;
+            if (err == CL_SUCCESS)
+                snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                         "I received no OpenCL buffer from a successful allocation");
+            else ocl_set_error(err, "clCreateBuffer");
+        }
+        return 0;
+    }
+    ++entry->generation; /* FREE excludes exhausted and quarantined slots. */
+    entry->token = (int64_t)(OCL_SENTINEL | (entry->generation << 8) |
+                             (uint64_t)slot);
+    entry->state = OCL_LIVE;
+    return entry->token;
 }
 
 void nl_gpu_free(int64_t ptr) {
-    if (g_runtime == RT_CUDA && ptr) { g_cuda.cuMemFree((CUdeviceptr)ptr); return; }
+    if (!ptr) return;
+    if (g_runtime == RT_CUDA) { g_cuda.cuMemFree((CUdeviceptr)ptr); return; }
     if (g_runtime == RT_OCL) {
-        cl_mem buf = ocl_find_buf(ptr);
-        if (buf) {
-            g_ocl.clReleaseMemObject(buf);
-            /* Remove from alloc table */
-            for (int i = 0; i < g_ocl_nallocs; i++) {
-                if (g_ocl_allocs[i].fake == ptr) {
-                    g_ocl_allocs[i] = g_ocl_allocs[--g_ocl_nallocs];
-                    break;
-                }
-            }
+        OclAlloc *entry = ocl_find_alloc(ptr);
+        if (!entry) {
+            snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                     "I require a live OpenCL buffer token to free");
+            return;
         }
+        cl_int err = ocl_release_alloc(entry);
+        if (err != CL_SUCCESS) ocl_set_error(err, "clReleaseMemObject");
     }
 }
 
 bool nl_gpu_memcpy_to_device(int64_t dst, NLArray *src, int64_t bytes) {
-    if (bytes <= 0 || !dyn_array_has_storage(src, ELEM_INT, sizeof(int64_t), (uint64_t)bytes)) return false;
+    if (bytes <= 0 || (uint64_t)bytes > SIZE_MAX || !dyn_array_has_storage(src, ELEM_INT, sizeof(int64_t), (uint64_t)bytes)) return false;
     if (runtime_select() == RT_NONE) return false;
     if (g_runtime == RT_CUDA) {
         CUresult r = g_cuda.cuMemcpyHtoD((CUdeviceptr)dst, src->data, (size_t)bytes);
         cuda_set_error(r); return r == CUDA_SUCCESS;
     }
-    cl_mem buf = ocl_find_buf(dst);
-    if (!buf) { snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
-                          "memcpy_to_device: unknown dst 0x%llx", (unsigned long long)dst); return false; }
-    cl_int err = g_ocl.clEnqueueWriteBuffer(g_ocl.queue, buf, 1/*blocking*/, 0, (size_t)bytes,
+    OclAlloc *entry = ocl_find_alloc(dst);
+    if (!entry || (uint64_t)bytes > entry->bytes) { snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                          "memcpy_to_device: I require a live destination buffer with sufficient bytes: 0x%llx", (unsigned long long)dst); return false; }
+    cl_int err = g_ocl.clEnqueueWriteBuffer(g_ocl.queue, entry->buf, 1/*blocking*/, 0, (size_t)bytes,
                                              src->data, 0, NULL, NULL);
     if (err != CL_SUCCESS) { ocl_set_error(err, "clEnqueueWriteBuffer"); return false; }
     return true;
 }
 
 bool nl_gpu_memcpy_from_device(NLArray *dst, int64_t src, int64_t bytes) {
-    if (bytes <= 0 || !dyn_array_has_storage(dst, ELEM_INT, sizeof(int64_t), (uint64_t)bytes)) return false;
+    if (bytes <= 0 || (uint64_t)bytes > SIZE_MAX || !dyn_array_has_storage(dst, ELEM_INT, sizeof(int64_t), (uint64_t)bytes)) return false;
     if (runtime_select() == RT_NONE) return false;
     if (g_runtime == RT_CUDA) {
         CUresult r = g_cuda.cuMemcpyDtoH(dst->data, (CUdeviceptr)src, (size_t)bytes);
         cuda_set_error(r); return r == CUDA_SUCCESS;
     }
-    cl_mem buf = ocl_find_buf(src);
-    if (!buf) { snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
-                          "memcpy_from_device: unknown src 0x%llx", (unsigned long long)src); return false; }
-    cl_int err = g_ocl.clEnqueueReadBuffer(g_ocl.queue, buf, 1/*blocking*/, 0, (size_t)bytes,
+    OclAlloc *entry = ocl_find_alloc(src);
+    if (!entry || (uint64_t)bytes > entry->bytes) { snprintf(g_ocl.last_error_str, sizeof(g_ocl.last_error_str),
+                          "memcpy_from_device: I require a live source buffer with sufficient bytes: 0x%llx", (unsigned long long)src); return false; }
+    cl_int err = g_ocl.clEnqueueReadBuffer(g_ocl.queue, entry->buf, 1/*blocking*/, 0, (size_t)bytes,
                                             dst->data, 0, NULL, NULL);
     if (err != CL_SUCCESS) { ocl_set_error(err, "clEnqueueReadBuffer"); return false; }
     return true;
