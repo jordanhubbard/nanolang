@@ -6,6 +6,15 @@ I qualify [PR820](https://github.com/jordanhubbard/nanolang/pull/820) for
 `9578eec074da017afed3cb2916cd6e168a5db9f3`, based on canonical PR819 at
 `d0de3d23a730c66531f2ed2c5d972215302ebe19`.
 
+Before publication I merge canonical PR821 at
+`0955dca62e168c212e1c03c844651e2040286995` through integration commit
+`57824ba7dfd703dbe7b0003bc1a1a40b11e70dbc`. That change adds service
+providers to the shared object closure and refuses mixed preparation only when
+service bindings are present. My fixture supplies no service bindings, and
+PR821 separately qualifies the combined service/mixed boundary. I therefore
+retain the exact `9578eec` runtime evidence instead of relabeling its manifests
+as measurements of the integration commit.
+
 My Make target now passes its resolved `LDFLAGS` through the dedicated
 `MIXED_SAMPLES_LDFLAGS` environment boundary. The Python fixture splits that
 value into exact linker arguments. Direct invocation without the variable still

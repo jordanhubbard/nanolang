@@ -6,6 +6,14 @@
   "qualified_source": "9578eec074da017afed3cb2916cd6e168a5db9f3",
   "qualified_tree": "c3e86afe4c449cc2f1d06697e314dad189e4982d",
   "base": "d0de3d23a730c66531f2ed2c5d972215302ebe19",
+  "canonical_integration": {
+    "main": "0955dca62e168c212e1c03c844651e2040286995",
+    "merge": "57824ba7dfd703dbe7b0003bc1a1a40b11e70dbc",
+    "qualified_source_is_ancestor": true,
+    "rerun": false,
+    "reason": "PR821 changes mixed preparation only for service-bound modules; this fixture supplies no service bindings and PR821 separately qualifies the combined boundary.",
+    "evidence_relabeled": false
+  },
   "status": "pass",
   "phases": [
     {
