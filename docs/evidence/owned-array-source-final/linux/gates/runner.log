@@ -1,0 +1,12 @@
+test_original_complete_prefix_and_all_routes (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_original_complete_prefix_and_all_routes) ... ok
+test_integer_boundaries_and_boolean_range (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_integer_boundaries_and_boolean_range) ... ok
+test_prepared_roots_nested_returns_alias_and_empty (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_prepared_roots_nested_returns_alias_and_empty) ... ok
+test_optional_operands_and_failure_cleanup (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_optional_operands_and_failure_cleanup) ... ok
+test_exact_type_lexical_and_shadow_refusals (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_exact_type_lexical_and_shadow_refusals) ... ok
+test_unchanged_samples_string_scalar_and_borrow_profiles (tests.test_source_owned_float_arrays.SourceOwnedFloatArrays.test_unchanged_samples_string_scalar_and_borrow_profiles) ... ok
+I retain mixed source fixtures at /tmp/nano-source-borrows-f2tl0u_i
+
+----------------------------------------------------------------------
+Ran 6 tests in 408.316s
+
+OK

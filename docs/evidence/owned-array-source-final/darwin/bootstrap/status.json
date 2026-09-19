@@ -1,0 +1,35 @@
+{
+  "pin": "1c4e29067aa21ee843e00997d42851877f7082fe",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "/usr/bin/make",
+        "-j2",
+        "-f",
+        "Makefile.gnu",
+        "CC=/usr/bin/clang",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 342.5631135000149
+    },
+    {
+      "name": "setup",
+      "command": [
+        "/usr/bin/make",
+        "-j2",
+        "-f",
+        "Makefile.gnu",
+        "-f",
+        "/private/tmp/nanolang-owner-array-source-1c4e-darwin-bootstrap/setup.mk",
+        "CC=/usr/bin/clang",
+        "owned-array-source-setup"
+      ],
+      "status": 0,
+      "seconds": 81.77167950000148
+    }
+  ],
+  "sources_unchanged": true,
+  "head_unchanged": true
+}

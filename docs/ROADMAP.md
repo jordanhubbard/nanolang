@@ -11618,7 +11618,7 @@ I prepare430220's private runtime harness after08be review and independent sourc
 
 - [x] I qualify430220's bounded private VM/native runtime and its narrow array-growth accounting prerequisite at431aeeaf2: all18 frozen phases pass with six4739-check VM executions and native seven-case O0/O2 controls across GCC ordinary/GCC sanitizer/Clang18 sanitizer. My [scope and retained terminals](evidence/private-owned-array-runtime.md) distinguish instrumented units, unchanged1754 sources/161 existing tools and added File adjacency object. The completed fixture-correction rows above refer to this final seal; their original terminal descriptions remain historical. Public activation, source/mutation acceptance and parent430220 remain open.
 - [ ] I align and qualify public owner-ARRAY runtime activation before dependent source admission, preserving required-service/linked/closed/LLVM/Wasm refusals (parent430220; runtime lane).
-- [ ] I lower exact FLOAT-array owner fields in both source producers (`task_18731b55c66846f9826290148c967ca5`, parent430220) under my [paired source contract](NANOISA_OWNED_FLOAT_ARRAY_SOURCE.md): distinct owner/ordinary categories, original03/01 metadata, ordered constructor roots, complete unpack/projections and exact origin/call facts. I retain the unchanged Bundle/PREFIX and every selected shadow, fresh Linux/Darwin Cseed/Stage1/Stage2/NanoVirt plus canonical equality/VM/native gates, mandatory helper shadows and output-preserving negatives. No source production or pending execution precedes reviewed qualified public runtime activation.
+- [x] I lower exact FLOAT-array owner fields in both source producers (`task_18731b55c66846f9826290148c967ca5`, parent430220) under my [paired source contract](NANOISA_OWNED_FLOAT_ARRAY_SOURCE.md): distinct owner/ordinary categories, original03/01 metadata, ordered constructor roots, complete unpack/projections and exact origin/call facts. I retain the unchanged Bundle/PREFIX and every selected shadow, fresh Linux/Darwin Cseed/Stage1/Stage2/NanoVirt plus canonical equality/VM/native gates, mandatory helper shadows and output-preserving negatives. No source production or pending execution precedes reviewed qualified public runtime activation.
 
 I record18731's static source audit at5f988ed79. Existing declaration, constructor,
 hidden-unpack, exact-array guards and final authority dispatch all need paired
@@ -11693,7 +11693,7 @@ owner-ARRAY admission or general emitter binding claim follows. MAC update
 scope remains unavailable; actual-merge reconciliation is pending. Source18731,
 mutation bba622 and all full ownership/product/release parents remain open.
 
-- [ ] I activate exact owned ARRAY authority at public boundaries (`task_01e144c13aad46faa8d05d6384270649`) after private runtime PR836: my [preimplementation contract](NANOISA_OWNED_ARRAY_PUBLIC_ACTIVATION.md) splits broad Samples routing before selection, requires fresh complete authority at verifier/VM/native/conversion entries, preserves service priority and exact maps/max-stack, and forbids selected-failure fallback. Nonzero links, references, caller-built continuations and closed backends remain refused. I review production before execution; paired source/mutation and parent430220 remain required.
+- [x] I activate exact owned ARRAY authority at public boundaries (`task_01e144c13aad46faa8d05d6384270649`) after private runtime PR836: my [preimplementation contract](NANOISA_OWNED_ARRAY_PUBLIC_ACTIVATION.md) splits broad Samples routing before selection, requires fresh complete authority at verifier/VM/native/conversion entries, preserves service priority and exact maps/max-stack, and forbids selected-failure fallback. Nonzero links, references, caller-built continuations and closed backends remain refused. I review production before execution; paired source/mutation and parent430220 remain required.
 
 - [x] I close the new owner ARRAY public converter max-stack confirmation gap before activation: static nvm_v2_to_nvm_module drops wire max_stack while only the higher-level loader confirms nonzero declarations. I require the selected owner branch itself to compare each nonzero declared depth with fresh full authority, retaining zero-as-undeclared and existing converter publication semantics. No ordinary profile widening or global converter repair follows.
 
@@ -11714,6 +11714,58 @@ verified after the default-profile operator reconciliation. The reviewed guard
 head18593 and [sealed checker evidence](evidence/mutation-builtin-identity.md)
 remain the acceptance boundary; this does not close either owner-ARRAY source
 checkpoint or mutation/runtime/full parents.
+
+I record source18731's static opcode alignment before editing those paths: the
+new owner-ARRAY query accepts I64/BOOL exact opcodes while existing specialized
+scalar/range lowering emits generic operations. My [source contract amendment](NANOISA_OWNED_FLOAT_ARRAY_SOURCE.md#i-select-the-exact-scalar-opcodes-of-the-new-profile)
+requires owner-ARRAY-only exact INT/BOOL selection, unchanged integer boundary
+semantics, existing F64 obligations and typed range compare/increment. Existing
+profiles remain unchanged; unsupported BOOL ordering and STRING operations in
+the new profile remain checked refusals. I claim no runtime defect or execution.
+
+I prepare source18731's paired production checkpoint against reviewed activation
+API16c1655fc, without building or executing it. The two producers retain a
+separate owner-ARRAY fact, exact field/local descriptors, ordered hidden roots,
+full direct patterns, root-backed nested observations, and owner-array-only
+I64/BOOL instruction selection; generic INT/BOOL EQ/NE remains unchanged. C
+publication checks service presence first, then the public verifier and explicit
+SELECTED/fresh complete admit. New mandatory shadows cover category separation,
+observations, opcode mapping and complete original-style close/main shadows.
+This branch depends on the activation header/provider reaching the qualified
+integration base. The current static checkpoint is not executable acceptance;
+full production review and qualified activation precede bootstrap/source gates.
+
+I record independent static review of unexecuted539d: an unintended second profile
+guard was inserted inside reference-path padding and disturbed indentation. I
+remove only that duplicate and restore padding indentation, retaining the single
+post-layout category guard. No build or source execution preceded this correction;
+complete production review and qualified activation remain pending.
+
+### I prepare owner-ARRAY source qualification after static review
+
+For task_18731b55c66846f9826290148c967ca5, root reviewed paired production
+99fdb4804 and approved fixture preparation. I add six explicitly selected methods
+in `tests/test_source_owned_float_arrays.py`, retaining the unchanged original
+Bundle/PREFIX and all shadows, canonical metadata parity, integer/optional-FLOAT
+boundaries, alias/cleanup/order controls and old profiles. Python syntax and
+whitespace checks alone are complete; source/bootstrap execution remains held
+until the separately corrected public activation qualifies and its exact
+providers are integrated. No source, mutation or parent acceptance closes here.
+
+My static review of owner-ARRAY fixture0f182 strengthens the forwarding shadow
+with returned field/array checks and exact child consumption, and explicitly adds
+the qualified STRING affine-example graph to the adjacent method. Darwin native
+pair selection is recorded as explicit Homebrew CC after producer setup, with
+compiler/SDK evidence and leak detection retained. This is fixture preparation
+only; public activation qualification and all source execution remain pending.
+
+I prepare the held owner-array source integration recipe in
+`docs/NANOISA_OWNED_ARRAY_SOURCE_INTEGRATION.md`: fresh isolated qualified-runtime
+merge, exact provider/header closure, inspected GNU targets and required probes,
+separate bootstrap/setup/cache boundaries, explicit post-setup Homebrew CC/LSan,
+first-terminal preservation and fail-closed packaging. No recipe command has run;
+source18731 remains dependent on corrected public activation qualification.
+
 
 - [x] I close the preexecution wrapper-publication gap (`task_89b8ea5404104dc0a82290265a4aa6ef`, dependency of File encoding546cf): both wrapper APIs currently reach staging/linking without checking supplied module or embedded blob authority. I found this by static fixture preparation; I executed no unsupported wrapper or service handler. Before qualification I require reviewed early refusal of File/service claims in both representations, including daemon blob-only input, preserved destination/no staging, and unchanged ordinary wrapper controls. Runtime service refusal remains separate and intact.
 I submit owner ARRAY activation production2259fdbed after actual APIcac460fee, integrated with canonical File839/true-switch838. Fresh authority now precedes selected verifier/VM/native/converter paths, and selected invalid/failure paths cannot fall back. Exact parameter/depth transport, root-only direct callable entry and explicit raw-core refusal are review checkpoints. Source producers remain unchanged; all public activation execution awaits complete production review.
@@ -11770,6 +11822,11 @@ I qualify the Forth payload-length correction at `a3b6ef729` with full-source sh
 
 I complete the bounded File-priority/tool-attribution integration at frozen273b with eight fresh direct-fixture phases, all passing and164 inventoried tools unchanged around every phase. My [corrected integrated seal](evidence/owned-array-public-frozen.json) archives prepared tools/driver and preserves the prior successful-but-misattributed Make phases. Activation task01e144 still awaits actual canonical merge; full parents remain open.
 
+- [x] I reconcile public owned ARRAY activation01e144 from actual PR842 merge8953110f4 and verified default-profile MAC COMPLETED state. My canonical/runtime evidence remains qualified; source18731, mutation bba622 and parent430220 stay open.
+- [x] I qualify prepared mutation receivers and post-append owner packing across later allocation failures (`task_5652d22de64799e0d9734a9d01958917`) under mutation bba622/parent430220. My [runtime-only preimplementation contract](NANOISA_OWNED_ARRAY_MUTATION_RUNTIME.md) records the missing combinations, actual bounded VM stack growth rather than a synthetic error, precise allocation attribution, exact prior effects/root accounting/recovery and immutable tools. I do not duplicate producer edits or infer a runtime defect from missing acceptance. My frozen14fb fixture passes GCC ordinary, GCC/Clang18 scoped sanitizers and the unchanged private corpus with per-phase immutable inventoried tools; [sealed evidence](evidence/owned-array-mutation-runtime.md). Canonical review/merge remains pending; parent430220 and paired source/mutation remain open.
+
+- [x] I correct the mutation-runtime contract's native allocation-site attribution before fixtures: generated consuming helpers use fixed stack arrays and the shared runtime, so their parameter preflight does not allocate a heap carrier. My [observer addendum](NANOISA_OWNED_ARRAY_MUTATION_RUNTIME.md#i-pin-the-actual-allocation-observers-before-implementation) retains actual VM realloc and post-append pack/growth faults, native call order/alias checks and precise fixture-only allocation observers; no fictional native failure is claimed.
+
 I retain the separate1fa canonical842/843 integration: fresh normal preparation and existing complete File opcode/refusal controls pass on Linux/Darwin, with no private production/fixture changes. My final preparation manifest seals89 text reports and12 equal source/tool pairs; the original c31 qualification remains separately pinned. The private transfer/body design is still preimplementation, and546cf/full File parents remain open.
 
 I reconcile the bounded preparation milestone from actual PR845 merge `19b0d0ca6c89bebdc0294e731e14afc2262b701c`, independently reviewed against89 reports and current platform inventories. Task546cf and full72556/6931 remain open. Root approves the98a9 [private transfer design](NANOISA_FILE_CODE_TRANSFERS.md); I implement it in a separate canonical-based tree, retaining exact concurrent-state accounting and all-body checking. I send the complete production checkpoint before new fixture execution; no public execution or hosted entry authority follows.
@@ -11777,3 +11834,42 @@ I reconcile the bounded preparation milestone from actual PR845 merge `19b0d0ca6
 Root reviews77fb private body production and approves fixture preparation before execution. I retain the logical/nonhosted boundary explicitly, including unqualified declared max_stack ABI. My new fixtures analyze actual synthetic CODE, all helper bodies and service outcome paths without executing File instructions. Direct state256/257 stack controls remain distinct from the256-instruction returning-body limit; unchanged public refusal and first-terminal preservation remain required.
 
 I seal the first-attempt private File body gates in [my evidence](evidence/file-body-transfers.md): Linux normal/GCC/Clang and Darwin normal/Homebrew sanitizer fixtures pass9,507 instrumented/3,662 linked checks each; old preparation/flow/nominal/service/ISA and actual fresh Cseed module/wrapper provider closure pass. I preserve66 reports,2,291 artifact entries/354 unique files and8 equal inventory pairs. Linux before/after contains6,914 sources; Darwin's synthetic Git ignored19 non-input paths and contains6,895. I retain that limitation and a separately labeled postphase full6,914-file archive/current verification rather than fabricate prior maps. No analyzed File module executes and no hosted max_stack/public authority is qualified.
+- [x] I restore unrelated Makefile separator comment bytes shortened by an overbroad conflict-marker replacement during mutation847 integration. I retain both additive targets, refresh only the ready manifest, and preserve the historical qualification seal; task5652 tracks this integration correction.
+- [x] I correct owner-array optional refusal phase in task_d27a23d5dc36354ab2504ab0210c295f.
+  Frozen c9fb bootstrap/setup passed271.579s/26.523s; first four source methods
+  passed, then optional-local raw emitter returned NASM where my harness expected
+  refusal (five methods365.579s, first terminal retained). No failed module ran.
+  My raw emitter intentionally publishes NASM before final verification. I require
+  fresh NASM success then assembler refusal/prior NVM preservation only for
+  optional-local/add/negate, retaining public compiler and other raw refusal
+  expectations. Exact fixture review precedes affected fifth/unrun sixth checks;
+  four passing methods/bootstrap stay distinct. Full source/parent work stays open.
+
+I retain fixture childd27a's second terminal separately: corrected optional raw
+assembly refusals and bound-at pass, then bound-not/nano_virt reports a parser
+refusal because both lexers reserve `not` as TOKEN_NOT. My fixture incorrectly
+claimed a legal lexical binding. I keep the exact source and previous-output
+assertion but require its parser phase explicitly; positive BOOL_NOT semantics
+remain in the already passing integer method. No parser or production change is
+required. The sixth method remains unrun pending exact fixture review.
+
+I seal the bounded owner-array Linux source evidence at
+[evidence/owned-array-source-linux.md](evidence/owned-array-source-linux.md): fresh
+bootstrap271.579s, tools26.523s, four passing original methods, then two retained
+fixture-phase terminals and reviewed remaining2-method PASS40.480s. All original
+Bundle/PREFIX shadows remain. I retain65 report hashes/428 artifacts and unchanged
+2265 sources/799 inputs/13 saved tools. Darwin and final parser/File integration,
+source18731, fixture childd27a, mutation and full parents remain open.
+
+I retain the separate1fa canonical842/843 integration: fresh normal preparation and existing complete File opcode/refusal controls pass on Linux/Darwin, with no private production/fixture changes. My final preparation manifest seals89 text reports and12 equal source/tool pairs; the original c31 qualification remains separately pinned. The private transfer/body design is still preimplementation, and546cf/full File parents remain open.
+
+I complete the bounded paired owner-array source qualification at frozen1c4e on
+Linux and Darwin: fresh bootstraps272.544s/342.563s, corrected six-method
+PASS408.316s/438.494s with every original Bundle/PREFIX shadow, VM/native leak
+checks, exact canonical parity, optional/runtime/type/output controls and old
+profiles. My [final seal](evidence/owned-array-source-final.md) retains75 reports
+and401 artifacts per platform,2268 unchanged sources and13 producers per host.
+The source18731 and fixtured27a checkboxes record completed bounded acceptance;
+actual merge-ledger reconciliation is pending. Mutationbba622, parent430220/4be,
+product and release remain open. Ready integration adds only canonical private
+File query code after qualification, preserving both frozen trees and public paths.

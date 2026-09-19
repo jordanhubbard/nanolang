@@ -1,0 +1,9 @@
+{
+  "CC": "/usr/bin/gcc",
+  "NANO_VM": "/home/jkh/Src/nanolang-owned-array-source-final/bin/nano_vm",
+  "NANO_NVM2C": "/home/jkh/Src/nanolang-owned-array-source-final/bin/nvm2c",
+  "NANO_AOT_RUNTIME": "/home/jkh/Src/nanolang-owned-array-source-final/bin/nano_aot_runtime.o",
+  "NANO_MODULE_PATH": "/home/jkh/Src/nanolang-owned-array-source-final/modules",
+  "NANO_BUILD_CACHE": "/home/jkh/Src/nanolang-owned-array-source-final/obj/module_cache",
+  "PYTHONPATH": "/home/jkh/Src/nanolang-owned-array-source-final"
+}
