@@ -1,0 +1,10 @@
+{
+  "command": [
+    "./bin/nanoc_c",
+    "examples/language/nl_forth_interpreter.nano",
+    "-o",
+    "/private/tmp/nanolang-forth-provider-evidence-094b/forth"
+  ],
+  "returncode": 0,
+  "seconds": 12.597493417000003
+}

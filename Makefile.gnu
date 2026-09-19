@@ -1680,7 +1680,7 @@ test-nvm-v2-convert: $(NANOISA_OBJECTS) $(NANOISA_UTF8) test-nvm-pool-alloc
 
 .PHONY: test-nvm-pool-alloc
 test-nvm-pool-alloc: | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nvm_pool_alloc tests/nanoisa/test_nvm_pool_alloc.c $(LDFLAGS)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nvm_pool_alloc tests/nanoisa/test_nvm_pool_alloc.c $(NANOISA_DIR)/isa.c $(LDFLAGS)
 	@./obj/test_nvm_pool_alloc
 
 .PHONY: test-nvm-v2-endtoend
@@ -5396,3 +5396,7 @@ test-private-owned-array-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_
 # I explicitly exercise normal public adapters after complete authority admission.
 test-owned-array-public-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2c nvm2llvm nvm2wasm nvm2hl
 	NANO_OWNER_ARRAY_PUBLIC_TEST=1 PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_private_owned_array_runtime
+
+.PHONY: test-file-opcodes
+test-file-opcodes: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nanovirt/wrapper_gen.o nvm2llvm nvm2hl nvm2c
+	FILE_OPCODE_OBJECTS="$(OBJ_DIR)/nanovirt/wrapper_gen.o $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_OPCODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_opcodes

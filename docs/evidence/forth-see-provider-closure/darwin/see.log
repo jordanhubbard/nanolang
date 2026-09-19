@@ -1,0 +1,5 @@
+SEE: cannot load bin/nl_forth_interpreter_vm: Cannot open 'bin/nl_forth_interpreter_vm'
+
+: square  dup * ;
+; (interpreted word — no compiled body)
+9 

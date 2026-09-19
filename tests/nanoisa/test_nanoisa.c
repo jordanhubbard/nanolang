@@ -400,6 +400,23 @@ static void test_every_opcode_tooling_roundtrip(void) {
                       "Assembly emits schema opcode");
 
         char *listing = disasm_module(mod);
+        if (schema->opcode >= OP_FILE_SERVICE && schema->opcode <= OP_FILE_END_BORROW) {
+            ASSERT(listing == NULL, "File fragment module disassembly refuses");
+            FILE *raw = tmpfile();
+            ASSERT(raw != NULL, "Raw File listing stream opens");
+            disasm_function_styled(mod->code, mod->code_size, NULL, raw,
+                                   DISASM_STYLE_CANONICAL);
+            ASSERT(fflush(raw) == 0, "Raw File listing flushes");
+            rewind(raw);
+            char fragment[256] = {0};
+            size_t bytes = fread(fragment, 1, sizeof(fragment) - 1, raw);
+            ASSERT(bytes > 0 && !ferror(raw), "Raw File listing reads");
+            ASSERT(strstr(fragment, schema->name) != NULL,
+                   "Raw File disassembly emits schema mnemonic");
+            ASSERT(fclose(raw) == 0, "Raw File listing closes");
+            nvm_module_free(mod);
+            continue;
+        }
         ASSERT(listing != NULL, "Every schema opcode disassembles");
         ASSERT(strstr(listing, schema->name) != NULL,
                "Disassembly emits schema mnemonic");

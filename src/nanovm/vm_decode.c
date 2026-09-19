@@ -109,12 +109,15 @@ bool vm_decode_function(const NvmModule *module, uint32_t function_index,
         VmDecodedInstruction *decoded = &out->instructions[i];
         uint8_t opcode = decoded->instruction.opcode;
         if (opcode == OP_JMP || opcode == OP_JMP_TRUE
-                || opcode == OP_JMP_FALSE || opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH) {
-            int32_t relative = (opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH)
+                || opcode == OP_JMP_FALSE || opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH
+                || opcode == OP_FILE_RESULT_BRANCH) {
+            int32_t relative = (opcode == OP_MATCH_TAG || opcode == OP_HANDLER_PUSH || opcode == OP_FILE_RESULT_BRANCH)
                 ? decoded->instruction.operands[1].i32
                 : decoded->instruction.operands[0].i32;
             int64_t target = (int64_t)decoded->byte_offset + relative;
             if (target < 0 || target > UINT32_MAX
+                    || (opcode == OP_FILE_RESULT_BRANCH &&
+                        ((uint64_t)target>=entry->code_length || decoded->next_byte_offset>=entry->code_length))
                     || !vm_decoded_function_has_boundary(out, (uint32_t)target)) {
                 uint32_t bad_offset = entry->code_offset + decoded->byte_offset;
                 vm_decoded_function_free(out);
