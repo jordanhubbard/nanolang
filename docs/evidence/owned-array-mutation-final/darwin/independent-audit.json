@@ -1,0 +1,76 @@
+{
+  "host": "darwin",
+  "archive_sha256": "0ebac52c7b33ee209a6f2c0a3fab624ec1f9a2b46e22197974d7a3b09b84e783",
+  "archive_manifest": {
+    "path": "/private/tmp/nanolang-mutation-match-916424260-darwin-evidence.tar.gz",
+    "bytes": 43605219,
+    "sha256": "0ebac52c7b33ee209a6f2c0a3fab624ec1f9a2b46e22197974d7a3b09b84e783",
+    "all_file_hashes_verified": true
+  },
+  "reports": 198,
+  "artifacts": 2609,
+  "regular_members": 2807,
+  "pairs": [
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-bootstrap/host-tools-before.json",
+      "count": 9,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-bootstrap/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-build/host-tools-before.json",
+      "count": 9,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-build/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-eval-final/host-tools-before.json",
+      "count": 9,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-eval-final/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-identity/host-tools-before.json",
+      "count": 9,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-identity/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-mutation/host-tools-before.json",
+      "count": 9,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-mutation/source-before.json",
+      "count": 7808,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-patterns/host-tools-before.json",
+      "count": 9,
+      "equal": true
+    },
+    {
+      "path": "nanolang-mutation-match-916424260-darwin-patterns/source-before.json",
+      "count": 7808,
+      "equal": true
+    }
+  ],
+  "errors": []
+}

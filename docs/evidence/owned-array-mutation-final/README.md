@@ -27,3 +27,11 @@ native sanitizer controls select Homebrew LLVM with leak detection enabled.
 These are integrated source prerequisites, not a full product or release gate.
 Actual merge reconciliation remains pending. Parent430220, full4be, product and
 release stay open for their remaining acceptance.
+
+My independent audit rehashes all2,810 Linux and2,807 Darwin sealed files and
+both complete archives, verifies thirteen source/tool phase pairs, and checks
+current7,808 tracked files on each host,807/645 provider inputs and8/9 tools.
+It confirms fresh stages and the actual123+8+6+12+12 results, including the
+accurately separated Linux archive failure. The attached audit and current-input
+reports are independently hashed in reports.json. My qualified916 trees remain
+unchanged; this attachment adds no production or qualification rerun.
