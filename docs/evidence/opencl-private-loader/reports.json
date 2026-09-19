@@ -75,5 +75,6 @@
   "qualified/yaml-packages.json": "4d135a269b83098ecce0b48811eee7d6c0a3bbbed81d73dec9d164af7865ca51",
   "qualified/yaml-preflight.json": "5e8306d9c1972a56900e65994f386c771c53bf53c9a879ed360bb543ba9e18bc",
   "qualified/yaml-preflight.log": "6f544b0c1f1e028105a5d374cc8ccba0c211ab081aff6887dc060fa6c503e585",
-  "artifacts.json": "615b87290c6325dd0be7c728e35773551baeb4c3e43184ba5ed59be1610a553f"
+  "artifacts.json": "615b87290c6325dd0be7c728e35773551baeb4c3e43184ba5ed59be1610a553f",
+  "independent-audit.json": "4164d08c11b4f43d8852b93a53c6f297323bfafe780e470502c69b13e18e0982"
 }

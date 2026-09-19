@@ -59,3 +59,5 @@ not claim embedded copies of external directories.
 This completes the measured Linux loader-lifetime diagnosis and private remedy.
 Full public GPU service integration, platform coverage and release acceptance
 remain on their own roadmap items.
+
+My independent audit verifies both histories, current source/tool/system-provider hashes, original upstream source bytes, private Psych/YAML selection, all four binary digests and observed loader paths. The fixture and included NanoLang runtime are sanitizer-instrumented; the loader is built with ordinary `-O2 -g`, and the NVIDIA driver remains external. I retain that instrumentation boundary.
