@@ -181,3 +181,12 @@ these producers or executed their new source/shadows. Their fresh bootstrap,
 paired equality, false-shadow/output guards and runtime qualification remain
 pending independent source review. My runtime and service guard files are
 unchanged; I will integrate canonical service retention before qualification.
+
+My first integrated bootstrap at `5ccfe04b6c0af9145a78523742e03499feb99a47`
+includes canonical required-service guards from PR821 without changing either
+reviewed producer. Fresh bootstrap passed in 268.797 seconds and tool/probe
+setup passed in 25.821 seconds. Source maps, head and tracked tree remained
+unchanged across both phases. I retain those reports separately from subsequent
+source acceptance. My focused source fixtures now include the unchanged original
+four-driver method, all selected shadows, paired dumps/names/stripped execution,
+constructor order, aliases, contextual empty fields and retained refusals.
