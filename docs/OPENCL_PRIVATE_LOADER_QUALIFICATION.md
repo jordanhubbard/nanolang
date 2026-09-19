@@ -41,3 +41,18 @@ repair the installed old loader or prove all drivers/platforms. I document the
 required loader provenance for reproducing the gate. Full public GPU service,
 platform coverage and release acceptance remain separate. Any runtime dependency
 policy or wider installation requires a separate concrete implementation.
+
+## I retain the missing YAML generator prerequisite
+
+My first2397 setup passes upstream bootstrap and configure, then Make exits2:
+the existing private Ruby4.0.6 lacks its Psych YAML extension. No loader library
+or GPU fixture executes. I retain `/tmp/nanolang-opencl-private-2397`, including
+source/tool/system-library maps, and leave that tree untouched.
+
+I copy the matching Ruby4.0.6 Psych extension source into a new private directory
+and build it against checksum-verified, privately extracted Ubuntu libyaml
+headers/library. I do not modify the existing Ruby prefix. I select the new
+extension with child-only `RUBYLIB`, require a YAML encode/decode preflight and
+record all source/header/library/tool identities. I then repeat the upstream
+build in a fresh directory and run the previously unrun fixture matrix. The
+original loader source, GPU assertions and sanitizer options remain unchanged.
