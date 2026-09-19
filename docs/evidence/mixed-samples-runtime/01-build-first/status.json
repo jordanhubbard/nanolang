@@ -1,0 +1,11 @@
+{
+  "build": {
+    "command": [
+      "make",
+      "-j2",
+      "mixed-samples-runtime-fixture"
+    ],
+    "status": 2,
+    "seconds": 6.981270589982159
+  }
+}

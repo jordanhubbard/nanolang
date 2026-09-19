@@ -5911,6 +5911,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (err && err_len) snprintf(err, err_len, "module is null");
         return NULL;
     }
+    if(nvm_mixed_samples_candidate(mod))return emit_mixed_samples_module(mod,err,err_len);
     bool needs_ownership = false;
     if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK || needs_ownership ||
         nvm_uses_owned_transfers(mod)) {

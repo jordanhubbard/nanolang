@@ -1,0 +1,423 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+	obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+	obj/nanovm/main.o -lm -lcrypto -lffi  -rdynamic -rdynamic
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -Isrc/nanoisa -o obj/test_mixed_samples_runtime tests/nanoisa/test_mixed_samples_runtime.c obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi  -rdynamic
+python3 -m unittest -fv tests.test_mixed_samples_runtime
+test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) ... FAIL
+
+======================================================================
+FAIL: test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 28, in test_vm_native_lifecycle_and_allocations
+    result = self.checked([ROOT/'obj/test_mixed_samples_runtime', work])
+  File "/home/jkh/Src/nanolang-mixed-samples-runtime/tests/test_mixed_samples_runtime.py", line 17, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : mixed case=0 api=0 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=0 api=0 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=0 api=1 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=0 api=1 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=0 api=2 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=0 api=2 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=0 api=3 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=0 api=3 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=0 traps=6 terminal=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=1 api=0 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=1 api=0 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=1 api=1 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=1 api=1 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=1 api=2 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=1 api=2 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=1 api=3 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=1 api=3 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=1 traps=1 terminal=5
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=2 api=0 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=2 api=0 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=2 api=1 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=2 api=1 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=2 api=2 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=2 api=2 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=2 api=3 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=2 api=3 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=2 traps=1 terminal=5
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=3 api=0 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=3 api=0 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=3 api=1 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=3 api=1 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=3 api=2 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=3 api=2 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=3 api=3 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=3 api=3 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=3 traps=1 terminal=5
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=4 api=0 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=4 api=0 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=4 api=1 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=4 api=1 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=4 api=2 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=4 api=2 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=4 api=3 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=4 api=3 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=4 traps=1 terminal=3
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=5 api=0 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=5 api=0 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=5 api=1 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=5 api=1 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=5 api=2 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=5 api=2 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=5 api=3 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=5 api=3 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=5 traps=4 terminal=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=6 api=0 repeat=0
+mixed graph allocated=5 baseline=3 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=6 api=0 repeat=1
+mixed graph allocated=5 baseline=3 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=6 api=1 repeat=0
+mixed graph allocated=5 baseline=3 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=6 api=1 repeat=1
+mixed graph allocated=5 baseline=3 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=6 api=2 repeat=0
+mixed graph allocated=5 baseline=3 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=6 api=2 repeat=1
+mixed graph allocated=5 baseline=3 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=6 api=3 repeat=0
+mixed graph allocated=5 baseline=3 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=6 api=3 repeat=1
+mixed graph allocated=5 baseline=3 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=6 traps=8 terminal=0
+mixed graph allocated=5 baseline=3 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=7 api=0 repeat=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=7 api=0 repeat=1
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=7 api=1 repeat=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=7 api=1 repeat=1
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=7 api=2 repeat=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=7 api=2 repeat=1
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=7 api=3 repeat=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=7 api=3 repeat=1
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=7 traps=7 terminal=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=8 api=0 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=8 api=0 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=8 api=1 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=8 api=1 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=8 api=2 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=8 api=2 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=8 api=3 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=8 api=3 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=8 traps=5 terminal=3
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=9 api=0 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=9 api=0 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=9 api=1 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=9 api=1 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=9 api=2 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=9 api=2 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=9 api=3 repeat=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=9 api=3 repeat=1
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=9 traps=7 terminal=0
+mixed graph allocated=4 baseline=2 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=10 api=0 repeat=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=10 api=0 repeat=1
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=10 api=1 repeat=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=10 api=1 repeat=1
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=10 api=2 repeat=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=10 api=2 repeat=1
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=10 api=3 repeat=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed case=10 api=3 repeat=1
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+mixed direct core case=10 traps=8 terminal=0
+mixed graph allocated=6 baseline=4 nodes=2 buffered=2
+mixed graph node=0 kind=8 refs=0 incoming=0
+mixed graph node=1 kind=7 refs=1 incoming=1
+case11: I refuse mixed admission (status 1) at function 0 offset 251: I have no closed transfer for this opcode.
+test_mixed_samples_runtime: tests/nanoisa/test_mixed_samples_runtime.c:178: main: Assertion `verified.ok' failed.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.101s
+
+FAILED (failures=1)
+make: *** [Makefile.gnu:5276: test-mixed-samples-runtime] Error 1

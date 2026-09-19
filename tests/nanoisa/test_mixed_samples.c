@@ -43,17 +43,26 @@ static const char *samples_body=
     "PUSH_F64 1.5\nPUSH_F64 2.5\nARR_LITERAL 3 2\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 0\n"
     "LOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nSTORE_LOCAL 2\n"
     "LOAD_LOCAL 2\nPUSH_I64 1\nARR_GET\nPUSH_F64 2.5\nF64_EQ\nASSERT\nPUSH_I64 0\nRET\n";
-static void public_refusals(NvmModule *m) {
+static void complete_public_routes(NvmModule *m) {
     uint16_t maximum=123;
-    CHECK(!nvm_verify(m).ok && !nvm_verify_owned_module(m).ok);
-    CHECK(!nvm_verify_function(m,0).ok && !nvm_verify_function_max_stack(m,0,&maximum).ok);
-    CHECK(!nvm_verify_linked(m,NULL,0).ok);
+    CHECK(nvm_verify(m).ok && !nvm_verify_owned_module(m).ok);
+    CHECK(nvm_verify_function(m,0).ok && nvm_verify_function_max_stack(m,0,&maximum).ok);
+    CHECK(maximum>0 && maximum!=123);
+    CHECK(nvm_verify_linked(m,NULL,0).ok);
+    maximum=123;
+    CHECK(!nvm_verify_function_max_stack(m,m->function_count,&maximum).ok && maximum==123);
+    const NvmModule *linked[]={m};
+    CHECK(!nvm_verify_linked(m,linked,1).ok);
+    CHECK(nvm_verify_profile(m,NVM_PROFILE_GENERAL).ok);
+    CHECK(!nvm_verify_profile(m,NVM_PROFILE_CLOSED_SCALAR).ok);
+    CHECK(!nvm_verify_profile(m,NVM_PROFILE_CLOSED_LITERAL_STRINGS).ok);
+    CHECK(!nvm_verify_profile(m,NVM_PROFILE_CLOSED_MANAGED_STRINGS).ok);
 }
 static void samples_and_allocations(void) {
     puts("I check complete mixed shape, independent consumption and allocation failures.");fflush(stdout);
     Type locals[]={{TAG_STRUCT,1},SCALAR(TAG_ARRAY),SCALAR(TAG_ARRAY)};
     NvmModule *m=build(samples_body,locals,3,close_helper,false);
-    bool needs=false;NvmV2Result old=nvm_ownership_contracts_validate(m,&needs);CHECK(old!=NVM_V2_OK);public_refusals(m);
+    bool needs=false;NvmV2Result old=nvm_ownership_contracts_validate(m,&needs);CHECK(old!=NVM_V2_OK);complete_public_routes(m);
     NvmMixedSamplesProof *p=composition(m,NVM_MIXED_SHAPE_PROVED);
     CHECK(p->checked_functions==2 && p->checked_instructions>25 && p->visits>=p->checked_instructions);
     CHECK(p->max_stack[0]>=2 && p->max_stack[1]==1);
@@ -86,7 +95,7 @@ static void samples_and_allocations(void) {
     CHECK(successes==2 && refusals>50 && first_success>0);
     CHECK(failed[ALLOC_FACTS]>20 && failed[ALLOC_LAYOUT]>0 && failed[ALLOC_SHAPE]>0 && failed[ALLOC_VIEW]>0);
     printf("I swept all query allocation budgets through first success%ld; Facts/frame%u, layout-decode%u, shape%u, view%u failures.\n",first_success,failed[ALLOC_FACTS],failed[ALLOC_LAYOUT],failed[ALLOC_SHAPE],failed[ALLOC_VIEW]);
-    CHECK(nvm_ownership_contracts_validate(m,&needs)==old);public_refusals(m);
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==old);complete_public_routes(m);
     free(code);free(owned);free(layouts);nvm_module_free(m);
 }
 static void scalar_obligations(void) {
@@ -178,10 +187,10 @@ static void synthetic_shadow_and_repeated_site(void) {
     for(uint32_t f=0;f<2;f++)row+=4+8*(m->functions[f].local_count+1);
     row+=12;
     for(unsigned n=0;n<3;n++){row[0]=locals[n].tag;word(row+4,locals[n].layout);row+=8;}
-    public_refusals(m);NvmMixedSamplesProof *p=composition(m,NVM_MIXED_SHAPE_PROVED);
+    complete_public_routes(m);NvmMixedSamplesProof *p=composition(m,NVM_MIXED_SHAPE_PROVED);
     CHECK(p->checked_functions==3 && p->shape->origins[0].function==2 && p->managed_count==1);
     unsigned checked=0;for(uint32_t n=0;n<p->check_count;n++)if(p->checks[n].policy==NVM_MIXED_CHECK_FLOAT){CHECK(p->checks[n].function==2);checked++;}
-    CHECK(checked==1);finished(p);public_refusals(m);nvm_module_free(m);
+    CHECK(checked==1);finished(p);complete_public_routes(m);nvm_module_free(m);
     Type loop_locals[]={SCALAR(TAG_ARRAY),SCALAR(TAG_ARRAY),SCALAR(TAG_BOOL),{TAG_STRUCT,1}};
     for(unsigned order=0;order<2;order++) {
         char body[1800];snprintf(body,sizeof body,

@@ -413,7 +413,10 @@ $(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
 $(OBJ_DIR)/c_backend.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/string_literal_decode.h
 $(OBJ_DIR)/c_backend.o: src/binary64_format.h src/c_backend_values.inc
 $(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
-$(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h
+$(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h $(NANOISA_DIR)/managed_native_source.h
+
+$(NANOISA_DIR)/managed_native_source.h: scripts/embed_managed_native.py $(NANOISA_DIR)/managed_strings.h $(NANOISA_DIR)/binary64_parse.h $(NANOISA_DIR)/managed_strings.c
+	python3 scripts/embed_managed_native.py
 
 $(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
 		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
@@ -5297,6 +5300,28 @@ test-owned-string-joins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) 
 test-units: test-mixed-samples
 test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	MIXED_SAMPLES_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_samples
+
+.PHONY: mixed-samples-runtime-fixture
+mixed-samples-runtime-fixture: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime tests/nanoisa/test_mixed_samples_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+.PHONY: test-mixed-samples-runtime
+test-mixed-samples-runtime: mixed-samples-runtime-fixture
+	python3 -m unittest -fv tests.test_mixed_samples_runtime
+
+.PHONY: test-mixed-samples-runtime-alloc
+test-mixed-samples-runtime-alloc: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -Dmalloc=mixed_heap_malloc -Dcalloc=mixed_heap_calloc -Drealloc=mixed_heap_realloc -c src/nanovm/heap.c -o obj/test_mixed_samples_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime_alloc tests/nanoisa/test_mixed_samples_runtime_alloc.c obj/test_mixed_samples_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_mixed_samples_runtime_alloc
+
+.PHONY: test-mixed-samples-admission
+test-mixed-samples-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=mixed_admit_malloc -Dcalloc=mixed_admit_calloc -c src/nanoisa/verifier.c -o obj/test_mixed_samples_verifier.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_admission tests/nanoisa/test_mixed_samples_admission.c obj/test_mixed_samples_verifier.o $(NANOVM_OBJECTS) $(filter-out obj/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_mixed_samples_admission
+
+test-units: test-mixed-samples-runtime test-mixed-samples-runtime-alloc test-mixed-samples-admission
 
 # I run real GPU lifecycle only through this explicit opt-in target.
 .PHONY: test-nsi-gpu-private

@@ -1,0 +1,18 @@
+{
+  "command": [
+    "gcc",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-pedantic",
+    "-O2",
+    "/tmp/nanolang-managed-native-embedding-207ebfe3/programs/standalone.c",
+    "-o",
+    "/tmp/nanolang-managed-native-embedding-207ebfe3/programs/gccO2"
+  ],
+  "build_status": 0,
+  "run_status": 0,
+  "source_sha256": "b3859ce98dcaf4d84106fe370730d65e72b0a310258270521900f43fa25ea3e0",
+  "executable_sha256": "b3e3e46e92432dca06872974ef5a5207fe9f8b23dffc922e01e5ddc97cb96a1c"
+}

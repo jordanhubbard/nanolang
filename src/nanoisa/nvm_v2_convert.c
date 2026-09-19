@@ -32,6 +32,26 @@
 #include "passive.h"
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
+#include "mixed_samples_internal.h"
+
+/* Explicit mixed transport preserves original bytes only after full checked
+ * admission. I keep the old validator untouched for every other profile. */
+static NvmV2Result conversion_ownership(const NvmModule *module,bool *needs,uint16_t *mixed_depths) {
+    if(!nvm_mixed_samples_candidate(module))return nvm_ownership_contracts_validate(module,needs);
+    NvmMixedSamplesPlan *plan=NULL;
+    NvmMixedShapeResult result=nvm_mixed_samples_admit(module,&plan);
+    if(result.status!=NVM_MIXED_SHAPE_PROVED)
+        return result.status==NVM_MIXED_SHAPE_MEMORY?NVM_V2_ERR_TRUNCATED:NVM_V2_ERR_INDEX_RANGE;
+    uint16_t depths[8]={0};
+    if(mixed_depths)for(uint32_t f=0;f<module->function_count;f++) {
+        NvmMixedSignature signature;
+        if(!nvm_mixed_samples_signature(plan,f,&signature)){nvm_mixed_samples_plan_free(plan);return NVM_V2_ERR_INDEX_RANGE;}
+        depths[f]=signature.max_stack;
+    }
+    nvm_mixed_samples_plan_free(plan);
+    if(mixed_depths)memcpy(mixed_depths,depths,sizeof depths);
+    *needs=true;return NVM_V2_OK;
+}
 
 /* v1 keeps the source filename as a string-pool index outside every table. v2
  * has no such field, so it travels as a metadata pair under this key -- which
@@ -63,7 +83,8 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     if (!nvm_metadata_valid(mod) || !nvm_callback_contracts_valid(mod) || !nvm_passive_valid(mod) ||
         !nvm_retained_layouts_valid(mod)) return NVM_V2_ERR_INDEX_RANGE;
     bool needs_ownership = false;
-    NvmV2Result ownership = nvm_ownership_contracts_validate(mod, &needs_ownership);
+    bool mixed=nvm_mixed_samples_candidate(mod);uint16_t mixed_depths[8]={0};
+    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership, mixed?mixed_depths:NULL);
     if (ownership != NVM_V2_OK) return ownership;
     out->ownership_data = mod->ownership_data;
     out->ownership_size = mod->ownership_size;
@@ -169,7 +190,8 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
          * treats 0 as nothing to check. The module still has to pass
          * nvm_verify before it runs either way. */
         uint16_t depth = 0;
-        if (nvm_verify_function_max_stack(mod, i, &depth).ok)
+        if(mixed)fns[i].max_stack=mixed_depths[i];
+        else if (nvm_verify_function_max_stack(mod, i, &depth).ok)
             fns[i].max_stack = depth;
     }
 
@@ -488,7 +510,7 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         mod->ownership_size = m->ownership_size;
     }
     bool needs_ownership = false;
-    NvmV2Result ownership = nvm_ownership_contracts_validate(mod, &needs_ownership);
+    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership,NULL);
     if (ownership != NVM_V2_OK) { nvm_module_free(mod); return ownership; }
     if (!nvm_passive_valid(mod)) { nvm_module_free(mod); return NVM_V2_ERR_INDEX_RANGE; }
     *out = mod;
