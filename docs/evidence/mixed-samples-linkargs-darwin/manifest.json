@@ -56,12 +56,25 @@
     {
       "path": "objects.sha256",
       "entries": 148,
-      "sha256": "dcfe8e3d90b1ac3ebeebc605be2339a2db2d7fe932ad209e94bea044f26efcf0"
+      "sha256": "dcfe8e3d90b1ac3ebeebc605be2339a2db2d7fe932ad209e94bea044f26efcf0",
+      "kind": "after-run regular build-directory entries",
+      "contents": {
+        "dependency_files": 144,
+        "fixture_executables": 3,
+        "stamp_files": 1,
+        "object_files": 0
+      },
+      "symlinked_object_paths_included": false,
+      "before_after_equal": null,
+      "object_input_coverage_claimed": false
     },
     {
       "path": "link-objects.sha256",
       "entries": 26,
-      "sha256": "63400cfd1a86aceed30c8611bcf03c8a7d98e511d5e6d0bc5ae158fb00a3a50b"
+      "sha256": "63400cfd1a86aceed30c8611bcf03c8a7d98e511d5e6d0bc5ae158fb00a3a50b",
+      "kind": "symlink-resolved mixed-query link object inputs",
+      "object_files": 26,
+      "independently_verified": true
     },
     {
       "path": "selected-build.sha256",
@@ -98,8 +111,18 @@
     "sanitizer_policy_changed": false,
     "bootstrap_repeated": false,
     "source_methods_repeated": false,
+    "all_runtime_link_objects_inventoried": false,
+    "build_directory_before_after_equal_claimed": false,
     "parent_complete": false,
     "release_authorized": false
+  },
+  "evidence_precision_correction": {
+    "original_report_unchanged": true,
+    "original_report_sha256": "08b0fefc9f73316176a4016e7bcddf418043c24faf603cb3a563e093f86cfc92",
+    "incorrect_original_label": "built_object_count",
+    "correct_label": "after-run regular build-directory entry count",
+    "retroactive_object_identity_claimed": false,
+    "new_runtime_object_inventory_created": false
   },
   "remaining_before_parent_closure": [
     "Merge PR820 into canonical main.",

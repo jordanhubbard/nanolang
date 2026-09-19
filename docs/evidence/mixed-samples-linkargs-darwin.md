@@ -36,9 +36,26 @@ checks in1.14seconds using its unchanged `-lm -lcrypto` default.
 
 My [manifest](mixed-samples-linkargs-darwin/manifest.json) names the commands,
 counts and boundaries. I retain full hash maps for5,464 tracked sources,10
-affected inputs,148 built files,26 query link objects, five selected products
-and six actual host tools. Source, affected-input, resolved-flag and host-tool
-maps agree before and after execution.
+affected inputs,148 regular build-directory entries,26 actual query link
+objects, five selected products and six actual host tools. Source,
+affected-input, resolved-flag and host-tool maps agree before and after
+execution.
+
+## My evidence precision correction
+
+The original sealed report calls the148-entry after-run map an object count.
+That label is wrong. The unchanged map contains144 dependency `.d` files,
+three fixture executables and one stamp; it contains zero `.o` files because
+the map recorded regular build-directory entries and omitted symlinked object
+paths. I retain that report and its hash unchanged, but I make no object-input
+coverage or before/after identity claim from this map.
+
+The separate26-entry link map contains the actual symlink-resolved `.o` inputs
+used by the mixed query and was independently verified. The five selected
+product hashes cover `nano_vm`, `nvm2c` and the three mixed runtime fixture
+executables. I do not add a current runtime-object snapshot: it would describe
+a later filesystem state and could not establish retroactive before/after
+identity for this qualification.
 
 ## What I preserve
 
