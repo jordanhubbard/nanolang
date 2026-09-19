@@ -46,3 +46,14 @@ No module known-mask, section/import reader, bridge, public verifier, service
 runtime or generated-source path changes in this checkpoint. No service operation
 executes and no public owned output is admitted. The next combined module
 retention/consumer-refusal production still requires independent source review.
+
+## My additive Socket integration
+
+I preserve the frozenf438 tree and merge canonical Socket PR815 atd8caf70ff in a
+separate integration tree. The sole conflict is adjacent Makefile target blocks;
+I retain both complete recipes and both test-units prerequisites. My two codec
+production files, two fixture files and full codec recipes remain byte-identical
+to the reviewed d314 checkpoint. The roadmap merge is automatic. Socket adds its
+own independently qualified sources/tests/docs; I do not claim the old inventory
+covers those new files or that Makefile.gnu remains byte-identical. No new codec
+execution is justified by this additive integration, and no gate is rerun.
