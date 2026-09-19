@@ -11700,3 +11700,5 @@ remain the acceptance boundary; this does not close either owner-ARRAY source
 checkpoint or mutation/runtime/full parents.
 
 - [ ] I restore the Forth SEE provider closure (`task_92d239a53307bbac2d1497a156306d2f`). Static source references require six providers absent from my module manifest: mixed_float_proof, service_bindings, service_bindings_module, service_file_nominal, service_file_nominal_plan and nsi_file_plan. I add only these existing providers, then qualify a clean module link and actual source use. No File authority or runtime semantics change follows; full Forth and release acceptance remain separate.
+
+- [ ] I establish the Forth demo empty-stack terminal (`task_c56c63dd12934b08962107d5ee5e627b`). My first clean provider-repair build links and runs, but `--demo` exits zero while warning that its stack is not empty. I preserve that terminal and audit stack effects before a separate correction. This warning prevents a claim of complete Forth acceptance; it does not erase the successful provider link.
