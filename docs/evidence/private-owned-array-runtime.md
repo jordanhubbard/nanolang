@@ -6,7 +6,7 @@ My [machine seal](private-owned-array-runtime.json) hashes266 reports,462 artifa
 
 ## Observed acceptance
 
-I pass all18 phases below. Each of three compiler configurations runs switch and computed-goto VM fixtures,4739 checks per execution, each covering fused and unfused observations. Generated native programs run seven cases at O0/O2 per configuration with exact failure statuses, preserved result sentinels, visible stdout prefixes, zero allocator roots and allocation-prefix recovery.
+I pass all18 phases below. Each of three compiler configurations runs two computed-goto VM fixtures,4739 checks per execution, each covering fused and unfused observations. My original switch label did not disable automatic computed-goto selection; those runs do not qualify switch dispatch. Generated native programs run seven cases at O0/O2 per configuration with exact failure statuses, preserved result sentinels, visible stdout prefixes, zero allocator roots and allocation-prefix recovery.
 
 | Phase | Seconds | Result |
 |---|---:|---|
@@ -40,3 +40,7 @@ My narrow growth controls test both FLOAT packed storage and STRING boxed storag
 I preserve the fixture's first CLI-global link failure, first unlocalized cleanup assertion, graph-localized byte assertion and native expected-status assertion in the four linked seals. The graph terminal did not log a numeric post-GC byte discrepancy; the native terminal did not log actual status before its assertion. I do not retroactively supply those observations. Static analysis identified missing growth accounting and the existing native SET status mapping. Corrected diagnostics now precede assertions. Passing corrected gates do not reclassify earlier terminals as infrastructure or as demonstrated leaks.
 
 I keep the original historical tools, sources, logs and artifacts separately. My parent430220 still requires reviewed public activation, paired source acceptance and mutation controls.
+
+## Dispatch evidence correction
+
+Static review after PR836 merge finds vm.c automatically defines NANO_COMPUTED_GOTO under GCC/Clang unless NANO_NO_COMPUTED_GOTO. The sealed commands lacked that disable in the switch-labeled build. I preserve every original report/artifact/hash and reinterpret those six successful runs accurately as computed-goto evidence. I require separately frozen true-switch-only qualification with explicit preprocessor evidence; no original runtime failed because of this coverage gap.

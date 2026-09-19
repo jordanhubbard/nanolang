@@ -1,0 +1,31 @@
+[
+  {
+    "command": [
+      "make",
+      "-j4",
+      "nano_virt"
+    ],
+    "phase": "provider",
+    "seconds": 0.323,
+    "status": 0
+  },
+  {
+    "command": [
+      "bin/nano_virt",
+      "tests/test_minimal.nano",
+      "-o",
+      "/tmp/nanolang-file-flow-24dd-linux-wrapper/wrapper"
+    ],
+    "phase": "wrapper",
+    "seconds": 0.174,
+    "status": 0
+  },
+  {
+    "command": [
+      "/tmp/nanolang-file-flow-24dd-linux-wrapper/wrapper"
+    ],
+    "phase": "wrapper-run",
+    "seconds": 0.003,
+    "status": 0
+  }
+]

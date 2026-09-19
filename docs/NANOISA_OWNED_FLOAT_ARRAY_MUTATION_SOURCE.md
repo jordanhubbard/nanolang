@@ -15,6 +15,7 @@ parent's mutation requirement.
 | --- | --- | --- | --- |
 | `array_set(array<float>, int, float)` | receiver, index, replacement | `ARR_SET`, then `POP` | void, no operand left |
 | `array_push(array<float>, float)` | receiver, appended value | `ARR_PUSH` | the same shared array identity |
+| `array_length(array<float>)` | receiver once | `ARR_LEN` | exact INT length |
 
 My existing ordinary C canonical lowering in `src/nanovirt/codegen.c` emits
 those sequences. Selfhost `nisa_emit_set_call` and `nisa_emit_push_call` agree;
@@ -194,3 +195,42 @@ formal/initializer source cases and expected refusal phases with output
 sentinels. Unbound typed mutation controls and conversion/callback checking stay
 adjacent. This independent checker correction grants no owner-ARRAY mutation,
 source profile or public runtime admission;18731/bba622 remain held.
+
+## I measure mutation through a bounded length operation
+
+At canonical2cb8728a3, neither specialized paired producer has an ARR_LEN branch.
+I add this explicit requirement to mutation task_bba6228369c04b6c900f628d501e5553
+before implementation. Ordinary C canonical lowering already maps the one-argument
+builtin to ARR_LEN; selfhost ordinary canonical lowering does the same. Those
+existing paths do not authorize a specialized owner-ARRAY call by spelling alone.
+
+In this extension only, an unbound direct array_length takes exactly one proved
+array<float> receiver, evaluates it exactly once and emits ARR_LEN, returning INT.
+I retain receiver alias identity and current length; I do not copy, mutate or
+consume its containing owner. The instruction consumes its temporary stack root;
+other local, constructor, unpacked-field and owner-field aliases stay rooted under
+the already qualified runtime. Empty contextual arrays report zero, and length
+through every surviving alias observes later successful append growth. A nested
+receiver such as `(array_length (array_push values 2.0))` must append exactly once.
+
+Lexical/formal and exact declaration lookup precede this builtin branch. A bound
+name follows an already supported declared-call route or receives the existing
+checked refusal; it never silently becomes ARR_LEN. I preserve initializer-before-
+binding and nested scope restoration. C reserves array_length declarations; I
+retain that frontend refusal. I do not extend13d1's completed push/set checker
+claim to length or promise that all existing selfhost noncallable/qualified call
+checking is repaired. No global builtin result dispatch rewrite follows.
+
+Mandatory helper shadows and paired source controls cover exact arity, exact FLOAT
+origin, empty/nonempty length, aliases across owner pack/unpack and call/return,
+length before/after capacity growth and once-only nested receiver evaluation.
+Wrong arity, scalar/non-FLOAT/unknown receiver, bare untyped empty literal, bound
+unsupported callable and owner-as-receiver controls preserve prior output and
+must fail in the intended checked phase. Bare ARRAY parameters/results, managed
+binding reassignment, other collection builtins and ordinary-plus-owner-ARRAY
+profile composition remain excluded. Initial source18731 does not depend on this
+read operation; the required mutation/growth acceptance does.
+
+The [held lowering checkpoint plan](NANOISA_OWNED_ARRAY_SOURCE_CHECKPOINT_PLAN.md)
+separates preparation, independent source review and execution after qualified
+public activation. No source or runtime production changes accompany this addendum.
