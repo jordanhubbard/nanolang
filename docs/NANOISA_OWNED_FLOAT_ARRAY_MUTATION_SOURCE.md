@@ -234,3 +234,19 @@ read operation; the required mutation/growth acceptance does.
 The [held lowering checkpoint plan](NANOISA_OWNED_ARRAY_SOURCE_CHECKPOINT_PLAN.md)
 separates preparation, independent source review and execution after qualified
 public activation. No source or runtime production changes accompany this addendum.
+
+## I prepare the dependent paired lowering checkpoint
+
+Actual PR846 merge3660228d qualifies source18731 and fixtured27a; their live MAC
+states are COMPLETED after verified merge reconciliation. I start this mutation
+checkpoint in a fresh canonical tree, preserving both qualified1c4e trees. The
+approved runtime supplement5652 is separate and does not authorize source tests
+before this complete paired delta receives review.
+
+I select mutation/length only in the existing owner-array profile, after exact
+local and declared-function identity checks. I validate arity before evaluating
+any argument; then emit receiver, optional setter index and exact FLOAT value
+in source order. ARR_SET followed by POP returns VOID, ARR_PUSH returns ARRAY,
+and ARR_LEN returns INT. No new allocation, runtime, descriptor, optional-value,
+ordinary Samples, signature or managed-binding-assignment rule changes. I add
+meaningful arity and whole-source lowering shadows before qualification.

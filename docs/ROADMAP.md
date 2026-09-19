@@ -11860,3 +11860,11 @@ The source18731 and fixtured27a checkboxes record completed bounded acceptance;
 actual merge-ledger reconciliation is pending. Mutationbba622, parent430220/4be,
 product and release remain open. Ready integration adds only canonical private
 File query code after qualification, preserving both frozen trees and public paths.
+
+I reconcile only source18731 and fixtured27a from actual PR846 merge3660228d;
+live MAC states are COMPLETED and evidence records canonical ancestry. I now
+prepare mutationbba622's approved paired set/push/length checkpoint in a fresh
+canonical worktree, preserving qualified1c4e inputs. Exact unbound identity,
+arity-before-evaluation, ordered roots and SET+POP/VOID, PUSH/ARRAY, LEN/INT stay
+mandatory. Runtime supplement5652 is separately tracked. Complete source review
+precedes new bootstrap/execution; mutation and fullparents remain open.

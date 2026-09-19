@@ -357,6 +357,22 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         }
         borrow_error(b,n,"supported exact-tag scalar operators");return TAG_VOID;
     }
+    if(n->type==AST_CALL && b->owner_arrays && !n->as.call.func_expr && !n->as.call.borrow_mode &&
+       n->as.call.name && borrow_function_index(b,n->as.call.name)<0 && borrow_local(b,n->as.call.name)<0 &&
+       (!strcmp(n->as.call.name,"array_set") || !strcmp(n->as.call.name,"array_push") ||
+        !strcmp(n->as.call.name,"array_length"))) {
+        bool setter=!strcmp(n->as.call.name,"array_set");
+        bool length=!strcmp(n->as.call.name,"array_length");
+        int arity=setter?3:(length?1:2);
+        if(n->as.call.arg_count!=arity) {borrow_error(b,n,"the exact array builtin arity");return TAG_VOID;}
+        if(borrow_expr(b,n->as.call.args[0])!=TAG_ARRAY) {borrow_error(b,n,"an exact FLOAT array receiver");return TAG_VOID;}
+        if(length){emit_op(cg,OP_ARR_LEN);return TAG_INT;}
+        if(setter && borrow_expr(b,n->as.call.args[1])!=TAG_INT) {borrow_error(b,n,"an exact integer array index");return TAG_VOID;}
+        if(borrow_expr(b,n->as.call.args[arity-1])!=TAG_FLOAT) {borrow_error(b,n,"an exact FLOAT mutation value");return TAG_VOID;}
+        if(cg->had_error)return TAG_VOID;
+        if(setter){emit_op(cg,OP_ARR_SET);emit_op(cg,OP_POP);return TAG_VOID;}
+        emit_op(cg,OP_ARR_PUSH);return TAG_ARRAY;
+    }
     if(n->type==AST_CALL && borrow_arrays(b) && !n->as.call.func_expr && !n->as.call.borrow_mode &&
        n->as.call.name && !strcmp(n->as.call.name,"at") &&
        borrow_function_index(b,"at")<0 && borrow_local(b,"at")<0) {
