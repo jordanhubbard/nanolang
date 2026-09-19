@@ -1,0 +1,32 @@
+[
+  {
+    "command": [
+      "make",
+      "-j4",
+      "test-file-flow"
+    ],
+    "phase": "normal",
+    "seconds": 5.521,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "test-file-flow-sanitizers"
+    ],
+    "phase": "sanitizers",
+    "seconds": 3.17,
+    "status": 0
+  },
+  {
+    "command": [
+      "env",
+      "NANO_FILE_FLOW_CC=clang",
+      "make",
+      "test-file-flow-sanitizers"
+    ],
+    "phase": "clang",
+    "seconds": 0.097,
+    "status": 2
+  }
+]

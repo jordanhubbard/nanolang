@@ -1,0 +1,7 @@
+{
+  "cause": "Driver omitted provider build prerequisite in fresh checkout; preceding four phases passed.",
+  "error": "FileNotFoundError: bin/nano_virt",
+  "fixture_started": false,
+  "phase": "wrapper",
+  "status": 1
+}

@@ -1,0 +1,7 @@
+I retain fresh unbound artifacts in /tmp/nanolang-mutation-unbound-corrected-x7nbdh_l
+test_unbound_mutation (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_unbound_mutation) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 8.031s
+
+OK

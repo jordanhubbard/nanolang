@@ -1,0 +1,13 @@
+{
+  "phase": "tools",
+  "command": [
+    "make",
+    "-j2",
+    "nano_virt",
+    "nano_vm",
+    "nvm2c"
+  ],
+  "timeout": 600,
+  "status": 0,
+  "elapsed_seconds": 0.5152991420472972
+}

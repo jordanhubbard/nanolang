@@ -1,0 +1,18 @@
+{
+  "pin": "66a4686e18ec7d9153e98f8e7b1fa3c12d96af28",
+  "command": [
+    "make",
+    "-j2",
+    "bootstrap"
+  ],
+  "environment": {
+    "CC": "/bin/gcc",
+    "CXX": "/bin/g++",
+    "NANO_BUILD_CACHE": "/home/jkh/Src/nanolang-mutation-builtin-identity/obj/module_cache",
+    "NANO_VM": "/home/jkh/Src/nanolang-mutation-builtin-identity/bin/nano_vm",
+    "NANO_NVM2C": "/home/jkh/Src/nanolang-mutation-builtin-identity/bin/nvm2c",
+    "NANO_AOT_RUNTIME": "/home/jkh/Src/nanolang-mutation-builtin-identity/bin/nano_aot_runtime.o",
+    "NANO_MODULE_PATH": "/home/jkh/Src/nanolang-mutation-builtin-identity/modules"
+  },
+  "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+}

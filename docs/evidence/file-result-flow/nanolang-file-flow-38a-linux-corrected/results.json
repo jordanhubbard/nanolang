@@ -1,0 +1,31 @@
+[
+  {
+    "command": [
+      "make",
+      "test-file-flow-sanitizers"
+    ],
+    "phase": "clang",
+    "seconds": 2.81,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "test-file-nominal",
+      "test-service-bindings"
+    ],
+    "phase": "adjacent",
+    "seconds": 1.014,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "-j4",
+      "nano_virt"
+    ],
+    "phase": "provider",
+    "seconds": 7.575,
+    "status": 0
+  }
+]

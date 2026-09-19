@@ -1,0 +1,7 @@
+I retain fresh nested artifacts in /tmp/nanolang-mutation-nested-wj9cd10u
+test_nested_scope_restores_declaration (tests.test_mutation_builtin_identity.MutationBuiltinIdentity.test_nested_scope_restores_declaration) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.039s
+
+OK

@@ -41,6 +41,9 @@ typedef struct NvmFileNominalPlan NvmFileNominalPlan;
  * failure preserves *out. Shared ownership validation is not relaxed. */
 NvmFileNominalStatus nvm_file_nominal_plan(const NvmModule *,NvmFileNominalPlan **);
 void nvm_file_nominal_plan_free(NvmFileNominalPlan *);
+/* Exact sole-allocation size for bounded layout count; no metadata authority.
+ * Failure preserves output. Composed private analyses use this before allocation. */
+bool nvm_file_nominal_storage_bound(uint32_t layouts, size_t *out);
 uint32_t nvm_file_nominal_layout_count(const NvmFileNominalPlan *);
 /* Failure preserves output. UNKNOWN rows have no catalog/runtime authority. */
 bool nvm_file_nominal_layout(const NvmFileNominalPlan *,uint32_t,NvmFileNominalLayout *);
