@@ -95,6 +95,12 @@ unsigned widening. I add only `u8` to that explicit conversion admission. I
 do not infer support for generic byte arithmetic, comparison or logic from
 this conversion.
 
+The following focused run passed the byte-to-boolean loop and source refusal
+controls, then stopped at `unsupported result type u8`. The general type
+classifier already admits exact byte parameters and locals; its separate
+result-tag classifier omitted the same scalar tag. I add that exact result tag
+without admitting a byte entry result or any aggregate byte shape.
+
 This extension does not admit a `u8` entry result: my executable entry remains
 an arity-zero `int` function. It does not change NanoISA, NanoVM, `nvm2c`, LLVM
 or Wasm semantics. Full high-level reconstruction and the v5.1.0 release gates
