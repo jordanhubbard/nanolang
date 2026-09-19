@@ -11915,3 +11915,11 @@ prerequisites pass, not a narrowed Bundle replacement.
   same spelling-only issue. I preserve that terminal and add only exact resolved
   nonextern push guards with mandatory identity/type/opcode shadows. Existing
   return context, indirect refusals and builtin behavior stay unchanged.
+
+- [ ] I align the ordinary declared-push fixture with my existing canonical
+  generation comparison contract (`task_1b9beb8884f241d34478c3275178f43b`). I preserve0c54's
+  first dump assertion failure and all successful native/canonical operations.
+  Raw Stage1/Stage2 equality and per-producer deterministic bytes replace an
+  unsupported Cseed text-equality assertion; explicit CALL/result-element controls
+  and all original twelve owner-profile exact comparisons remain. No normalized
+  metadata-equivalence or fullcompilerfixedpoint completion is claimed.

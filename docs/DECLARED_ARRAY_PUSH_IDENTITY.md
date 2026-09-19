@@ -160,3 +160,30 @@ stay unchanged. The source acceptance fixture is byte-for-byte925c. Darwin925c
 corrected bootstrap296.851s/setup51.843s passed with stable source/head; identity
 and mutation remain unrun there after the shared Stage1 defect was localized.
 Only static inspection and whitespace checks apply to this new checkpoint.
+
+## My canonical comparison boundary
+
+I record fixture child `task_1b9beb8884f241d34478c3275178f43b` before correction. Frozen0c54
+Linux bootstrap275.445s/setup27.526s pass. The first identity case passes all three
+native routes and all three canonical compile/verify/execute routes, then fails
+Cseed-versus-selfhost dump equality (Ran1/7.896s). Stage1/Stage2 raw580-byte modules
+are already identical (SHA256621095cb31d0646dd575b606780eb72087187687f6721bc80736989822c26a81).
+I retain the first assertion failure separately from these successful operations.
+
+My Cseed dump retains declaration-order functions, source/debug tables and exact
+ARRAY/FLOAT parameter hints. Ordinary selfhost output uses selected entry-first
+functions, remapped CALL/entry/lexical indices, no source/debug table here and
+existing unknown VOID parameter hints. I do not normalize away these differences
+or claim cross-frontend metadata equivalence. `NANOISA_ONLY.md`63-75 explicitly
+excludes seed-versus-first-generation comparison; `test_vm_bytecode_bootstrap.py`
+requires raw Stage1/Stage2 bytes with no normalization, while
+`test_canonical_nvm_output.py` requires same-producer deterministic repeat bytes.
+
+My corrected fixture requires raw Stage1==Stage2 and each producer's repeated
+bytes equal its original, all three canonical verify/execute/shadow results and
+explicit declared CALL/no-ARR_PUSH/full result-element evidence. The original
+twelve owner-profile methods retain their stricter exact C/selfhost equality.
+The complete compiler-bytecode fixedpoint remains a separate hard release gate;
+these small programs do not complete it. Production/stages remain frozen0c54;
+reviewed fixture-only runs use fresh artifact directories and explicit fixture
+hashes without rebuilding unchanged compiler sources.
