@@ -59,3 +59,25 @@ remain stable around phases. Any fixture/setup failure is retained before a
 reviewed correction. Full fixture/source diff is independently reviewed before
 new builds or gates. This closes only shared CODE publication taskd34; private
 hosted File/runtime/source acceptance remains with its existing owner.
+
+## My corrective checkpoint and exact nonexecuting probe
+
+The production delta replaces only inverse conversion's CODE append call with
+checked exact reserve/copy. A new C fixture uses CODE-only ordinary v2 containers,
+no functions/entry or service metadata; these are representation tests, not a
+claim that arbitrary patterned bytes are executable. Sizes0/4095/4096/4097/8193
+cover empty, existing storage and growth, exact bytes including zeros and input
+lifetime independence. Existing converter neighbors retain actual function/profile
+coverage separately.
+
+The instrumented format allocator records the initial calloc(4096,1) CODE pointer.
+The converter realloc observer requires that exact pointer and request8193,
+returns NULL once, disarms immediately and checks no later allocator attempt before
+TRUNCATED/NULL return. Every instrumented allocation has a tracked pointer;
+destructor frees must match, leaving zero live blocks. A fresh same-process
+conversion succeeds with exact bytes. Missing CODE, over-u32 size and invalid
+arguments preserve their existing output rules; a bad earlier constant retains
+SECTION_TYPE before a simultaneous CODE-stage error. Input bytes and module
+fields remain unchanged. No returned module is executed and no old implementation
+is run. Only converter/format translation units receive allocator instrumentation;
+linked ordinary validators are not claimed as universally fault-instrumented.
