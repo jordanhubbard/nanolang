@@ -333,3 +333,13 @@ Linux final private-provider integration remains separately qualified. These
 bounded source and runtime checks do not close parent4be, owner ARRAY430220,
 the separate embedded-runtime Darwin fixture taska522 or full product/release
 acceptance. e64/c935/68db await canonical merge reconciliation.
+
+My final canonical authority-provider integration at
+`29ab099b5bec7eb3c2082fc4c9c504e2226d1da4` includes private query PR830 without
+changing either source producer or public routing. Its private includes add no
+conflicting preprocessor names. Affected C tools link in20.818seconds, existing
+mixed composition/admission controls pass in1.468seconds, and the original
+Samples/PREFIX/all-shadow/parity method passes in28.886seconds. Versioned source,
+retained stages and host tools remain unchanged across this bounded gate. My
+[authority integration seal](evidence/mixed-samples-source-authority/manifest.json)
+keeps it distinct from frozen70c platform qualification.
