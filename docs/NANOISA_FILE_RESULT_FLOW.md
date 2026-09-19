@@ -204,3 +204,34 @@ extent calculation, to account conservatively for the full plan before allocatin
 a declarations object. I do not duplicate the opaque header size. Make, module
 manifest and wrapper object list retain the new provider together. The first
 production checkpoint is held for review before fixture preparation or execution.
+
+## My second checkpoint API details before production
+
+I keep state operations logical and non-certifying. Service and internal-call
+operations receive an opaque logical site ID; a later decoder must bind it to a
+real checked instruction. I retain at most256 distinct pending obligations per
+state. Repeating a site must describe the same operation; joins union compatible
+site obligations without dropping either branch. Each call obligation names the
+exact callee and argument/result modes; no caller-supplied body proof is accepted.
+Rights, byte-domain, binding, liveness, result and cleanup requirements remain
+explicit pending checks. Normal state exit does not discharge them.
+
+Symbolic identities come from the shared owned declarations object, under the
+already-required serialized-use precondition. Separate entry states have distinct
+families; clones preserve a family and its current identities, while later fresh
+owners/references receive distinct checked IDs across branches. Failed operations
+do not reserve identities. This prevents independent same-shaped allocations from
+accidentally acquiring the same identity at a join. The counter is not host
+provenance, and exhaustion refuses before mutation.
+
+Both Result refinement outputs are separately owned clones, published together
+only after both allocations succeed. An incompatible known arm becomes unreachable;
+transitions on an unreachable state refuse. Scalar/owner state getters preserve
+that distinction. Take consumes the refined local; moving an affine Result to a
+new location resets its arm fact. Copyable records and scalar Results receive
+exact catalog constructor/field operations; File/OpenResult construction remains
+unavailable. Join requires one declaration object, one function/entry family,
+identical live owner/reference placement and compatible initialized value facts.
+It may widen only Result arms and union pending obligations. A different owner
+identity or cleanup obligation count refuses conservatively; this is not a full
+CFG fixed-point algorithm or an execution certificate.
