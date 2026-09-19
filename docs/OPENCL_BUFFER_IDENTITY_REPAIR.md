@@ -97,3 +97,38 @@ private nsi_gpu adapter, File transport or public capability admission.
    availability/platform coverage and remaining d03c public-service obligations
    are stated explicitly. I close only the measured bounded repair after review
    and canonical merge; absent real GPU acceptance this task stays open.
+
+## I require the cached kernel's complete argument list
+
+Review of production350c43138 finds an unmet contract obligation: my cache reuses
+kernels by path/name, while ocl_set_args checks only the supplied list. Its bound
+of five does not establish the kernel's actual argument count. Therefore my
+claim that every accepted call replaces every argument was not yet implemented.
+This is a static source finding, with no reproduction or driver operation.
+
+Before correcting production I add required dynamic symbol clGetKernelInfo:
+`cl_int (*)(cl_kernel, cl_uint, size_t, void *, size_t *)` on the currently
+qualified Linux/Darwin ABI. The selector is CL_KERNEL_NUM_ARGS (0x1191); its
+result is cl_uint. I checked the Khronos [OpenCL header](https://raw.githubusercontent.com/KhronosGroup/OpenCL-Headers/main/CL/cl.h),
+which defines cl_kernel_info as cl_uint and declares this OpenCL1.0 query.
+Windows calling-convention qualification remains separate from existing
+Linux/Darwin scope; I do not infer it from this abbreviated typedef.
+
+I load the symbol as mandatory using my existing checked loader. For every
+argument-setting call, after checking my local argc bounds but before any
+clSetKernelArg, I query the actual kernel with sizeof(cl_uint), an initialized
+result and returned-size output. Query error, wrong returned size or count
+unequal to argc refuses with a diagnostic and no argument updates or enqueue.
+I do not infer count from cache history or permit partial lists. Then I validate
+all token identities, set exactly the complete list and enqueue only on complete
+success. This preserves the serialized-call precondition and permits recovery
+from earlier partial Set failures without relying on retained driver arguments.
+
+My fresh host controls will cover symbol absence, query error/size/count refusal,
+exact count acceptance and absence of Set/enqueue calls after refusal. Ordinary
+actual GPU controls will qualify the queried signature alongside complete kernel
+argument updates. No old failed artifact or defect reproduction is required.
+The initial local header search found no installed CL/cl.h; a separate urllib
+fetch returned HTTP404, so I claim web-header inspection, not a sealed downloaded
+header or measured ABI acceptance. Production and execution remain held for
+review of this addition.
