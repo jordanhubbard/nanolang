@@ -20,6 +20,12 @@ def commands(compiler, out, sanitize=False, real=False):
     for kind, flags in [('cuda', []), ('unified', ['-DTEST_UNIFIED_GPU'])]:
         yield kind + '-build', common + flags + ['tests/test_gpu_array_boundary.c', '-ldl', '-o', str(out / kind)]
         yield kind + '-run', [str(out / kind)]
+    for kind, flags in [('cuda', []), ('unified', ['-DTEST_UNIFIED_GPU'])]:
+        binary = out / (kind + '-reader')
+        yield kind + '-reader-build', common + flags + ['tests/test_gpu_source_read.c', '-ldl', '-o', str(binary)]
+        for reader in (['cuda', 'opencl'] if flags else ['cuda']):
+            for phase in ['normal', 'empty', 'seek', 'tell', 'rewind', 'allocation', 'short', 'error', 'close']:
+                yield kind + '-reader-' + reader + '-' + phase, [str(binary), phase, reader]
     if real:
         yield 'real-build', common + ['tests/test_opencl_identity_real.c', '-ldl', '-o', str(out / 'real')]
         yield 'real-run', [str(out / 'real')]
