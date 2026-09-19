@@ -252,3 +252,19 @@ The private plan allocation owns only its plan object. Read-only views refer to
 immutable process-lifetime catalog strings/arrays, never to input document
 storage. The input can be freed immediately after success; freeing the plan does
 not free catalog storage. No arbitrary externally supplied catalog is accepted.
+
+## My first private source checkpoint
+
+`src/nsi_file_plan.c/.h` adds only the non-admitting query. I compare every
+catalog-selected document field before the single fixed-size plan allocation;
+there is no attacker-controlled allocation product. Exact count checks precede
+array indexing. Every type/member/parameter identity and order matches immutable
+catalog data, so duplicate or colliding names cannot enter a successful plan.
+Null query outputs and invalid documents fail without publishing. Allocation
+failure has a distinct status. Plan views retain no document pointer and expose
+const-qualified catalog strings and arrays. Indexed queries return NULL out of
+range; null plans report zero counts. No host file function is called, no build
+selection changes, and no existing parser/generator/codec/selector is modified.
+I defer the optional printable contract report; the query is the first separately
+reviewable production checkpoint. I have run only a diff check, no compilation,
+fixture or execution.
