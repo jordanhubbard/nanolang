@@ -33,6 +33,13 @@ Normal Darwin compilation selects the actual Xcode Clang path and SDKROOT; sanit
 
 Fresh C-seed/provider closure is separately timed after the query gates. The provider build already builds required C-seed objects; its later C-seed target may be incremental. I make no Stage1/Stage2 bootstrap or fixed-point claim. Ordinary module/wrapper execution does not execute File service handlers.
 
-My seal contains 66 reports, 2,691 archived phase entries, 623 distinct retained artifact files and eight equal before/after inventory pairs. Both platform source maps are exactly equal. Initial redundant archive packaging was stopped; a completed distinct-artifact archive supplied the same indexed files, all rehashed locally. Packaging did not modify or repeat qualification.
+My seal contains 67 reports, 2,691 archived phase entries, 623 distinct retained artifact files and eight equal before/after inventory pairs. Both platform source maps are exactly equal. Initial redundant archive packaging was stopped; a completed distinct-artifact archive supplied the same indexed files, all rehashed locally. Packaging did not modify or repeat qualification.
 
 [My sealed report manifest](file-hosted-plan/report-sha256.json) covers commands, results, logs, complete source/tool inventories, artifact indexes and current verification. The content-addressed archive remains at `/tmp/nanolang-file-hosted-plan-artifacts`. Source and tool identities, rather than elapsed times, define these acceptance pins.
+
+My separate ready tree integrates canonical852 `c4529256252e6cb45e63c9eb967101821de297b1`
+at merge `1775cc782`. Only independent fixture/document changes arrive; Make
+adds the canonical owned-array bit target. Source/modules and all hosted
+production/fixtures remain byte-identical to the qualified pin. I preserve the
+original qualified and sealed trees and do not relabel this additive integration
+as a new bootstrap or repeat unchanged gates.

@@ -64,5 +64,6 @@
   "linux-provider-closure/wrapper-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "linux-provider-closure/wrapper.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "nanolang-file-hosted-closure.py": "5c2b7fbfc448e7d0855105dc6b1da07475bf5094b6d50e8429c88f4a42aebedf",
-  "nanolang-file-hosted-driver.py": "f00af4a6b2245eae97770a5c4964cab9114402f57fa4cb040f6980e6127b400c"
+  "nanolang-file-hosted-driver.py": "f00af4a6b2245eae97770a5c4964cab9114402f57fa4cb040f6980e6127b400c",
+  "ready-integration.json": "889ff7558d361739634743444bb435df681790ebb2dd66e0c22cefa6679da070"
 }
