@@ -1,0 +1,18 @@
+
+/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0:     file format elf64-littleaarch64
+
+
+Disassembly of section .text:
+
+000000000000b090 <clSetContextDestructorCallback@@OPENCL_3.0+0x8a0>:
+    b090:	97ffe834 	bl	5160 <readdir@plt>
+    b094:	b5fffe60 	cbnz	x0, b060 <clSetContextDestructorCallback@@OPENCL_3.0+0x870>
+    b098:	aa1703e0 	mov	x0, x23
+    b09c:	97ffe859 	bl	5200 <rewinddir@plt>
+    b0a0:	34001d14 	cbz	w20, b440 <clSetContextDestructorCallback@@OPENCL_3.0+0xc50>
+    b0a4:	52800300 	mov	w0, #0x18                  	// #24
+    b0a8:	9ba07e80 	umull	x0, w20, w0
+    b0ac:	97ffe825 	bl	5140 <malloc@plt>
+    b0b0:	91174341 	add	x1, x26, #0x5d0
+    b0b4:	f9000c20 	str	x0, [x1, #24]
+    b0b8:	b4004cc0 	cbz	x0, ba50 <clSetContextDestructorCallback@@OPENCL_3.0+0x1260>
