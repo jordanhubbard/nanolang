@@ -35,9 +35,19 @@
 #include "service_bindings_module.h"
 #include "mixed_samples_internal.h"
 
-/* Explicit mixed transport preserves original bytes only after full checked
- * admission. I keep the old validator untouched for every other profile. */
+/* Service v2 preserves exact private declaration bytes without admission.
+ * Mixed transport still requires its full checked profile; every other path
+ * retains the old shared ownership validator. */
 static NvmV2Result conversion_ownership(const NvmModule *module,bool *needs,uint16_t *mixed_depths) {
+    if(nvm_service_bindings_present(module)) {
+        NvmV2Result service=nvm_service_bindings_validate(module);
+        if(service!=NVM_V2_OK)return service;
+        NvmFileNominalBindings nominal;
+        if(nvm_file_nominal_decode(module->service_data,module->service_size,&nominal)==NVM_SERVICE_OK) {
+            *needs=true;return NVM_V2_OK; /* Exact private transport, never shared authority. */
+        }
+        return nvm_ownership_contracts_validate(module,needs); /* Unchanged v1. */
+    }
     if(!nvm_mixed_samples_candidate(module))return nvm_ownership_contracts_validate(module,needs);
     NvmMixedSamplesPlan *plan=NULL;
     NvmMixedShapeResult result=nvm_mixed_samples_admit(module,&plan);
@@ -196,7 +206,7 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
          * nvm_verify before it runs either way. */
         uint16_t depth = 0;
         if(mixed)fns[i].max_stack=mixed_depths[i];
-        else if (nvm_verify_function_max_stack(mod, i, &depth).ok)
+        else if (!nvm_service_bindings_present(mod) && nvm_verify_function_max_stack(mod, i, &depth).ok)
             fns[i].max_stack = depth;
     }
 
