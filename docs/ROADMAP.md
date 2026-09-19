@@ -11930,3 +11930,7 @@ full Forth conformance and release acceptance remain open.
 - [x] I investigate the retained OpenCL unload-time leak under `task_315caf01b3764a3eb655d825c9203e24` by [capturing same-process module maps before the unchanged loader close](OPENCL_UNLOAD_MAPPING_DIAGNOSTIC.md). I preserve the original failure and require one fresh diagnostic build/run with unchanged sanitizers and GPU assertions before drawing an allocation-module conclusion.
 
 I capture and attribute the same-process OpenCL unload diagnostic at `4b71cc2ab`: the unchanged GPU assertions pass, the 75-byte/three-allocation LSan failure persists, and all seven unknown frames map to the installed OpenCL loader. [My evidence](evidence/opencl-unload-attribution.md) identifies the module only; task315caf, ownership diagnosis and sanitizer acceptance remain open.
+
+- [ ] I qualify released OpenCL loader teardown under task315caf using the [isolated private-loader matrix](OPENCL_PRIVATE_LOADER_QUALIFICATION.md), preserving my installed2.3.2 failure and actual GPU assertions. I require fresh ordinary/sanitizer results and exact selected-library evidence before claiming an environment-specific remedy.
+
+- [ ] I supply the private OpenCL generator missing-YAML prerequisite under task315caf after retaining2397 bootstrap/configure success and Make failure before GPU execution. I build matching Psych privately, qualify YAML encode/decode, and require a fresh loader build without changing the existing Ruby installation.
