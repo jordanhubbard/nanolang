@@ -11703,3 +11703,5 @@ verified after the default-profile operator reconciliation. The reviewed guard
 head18593 and [sealed checker evidence](evidence/mutation-builtin-identity.md)
 remain the acceptance boundary; this does not close either owner-ARRAY source
 checkpoint or mutation/runtime/full parents.
+
+I submit owner ARRAY activation production2259fdbed after actual APIcac460fee, integrated with canonical File839/true-switch838. Fresh authority now precedes selected verifier/VM/native/converter paths, and selected invalid/failure paths cannot fall back. Exact parameter/depth transport, root-only direct callable entry and explicit raw-core refusal are review checkpoints. Source producers remain unchanged; all public activation execution awaits complete production review.
