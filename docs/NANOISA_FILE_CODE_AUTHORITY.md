@@ -282,3 +282,21 @@ scratch against16MiB before allocating. Later cloned state peaks must separately
 use the actual state extent and remaining budget; no future flow budget is
 claimed from preparation. Every failure frees partial ownership and preserves
 caller output. No public verifier, converter, VM or backend calls this API.
+
+## My logical entry is not a hosted entry contract
+
+The private plan treats `header.entry_point` as a bounded logical root with
+scalar-only declarations. It does not require HAS_MAIN, choose an invocation
+ABI, or interpret function names as initializer dispatch. Every declared
+function remains in its decoding/cycle inventory, including names such as
+`__init__`, but no implicit host call edge is claimed.
+
+The existing VM's `vm_execute` first requires HAS_MAIN, then invokes the first
+function named `__init__` with no arguments, then invokes the entry with no
+arguments. Existing closed backend verification separately requires a zero-arg
+integer/bool entry and a zero-arg initializer. A future File public conjunction
+must explicitly validate flags, entry invocation signature, initializer identity,
+selection/order and cleanup/results against the actual module before dispatch.
+It cannot infer those facts from this private plan, or lose an initializer's
+owned result because ordinary startup ignores it. Logical helper returns and
+whole-function decoding grant neither public escape nor hosted authority.
