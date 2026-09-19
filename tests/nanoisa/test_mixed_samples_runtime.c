@@ -63,7 +63,7 @@ static NvmModule *runtime_fixture(unsigned index) {
         char tail[512];snprintf(tail,sizeof tail,"%s",at);
         snprintf(at,sizeof body-(size_t)(at-body),
             "PUSH_I64 0\nSTORE_LOCAL 4\nrepeat:\nLOAD_LOCAL 4\nPUSH_I64 2\nLT\nJMP_FALSE repeated\n"
-            "ARR_NEW 3\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 0\nLOAD_LOCAL 4\nPUSH_I64 1\nADD\nSTORE_LOCAL 4\nJMP repeat\n"
+            "ARR_NEW 3\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 0\nLOAD_LOCAL 4\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 4\nJMP repeat\n"
             "repeated:\nPUSH_BOOL 0\nJMP_FALSE skipped\nARR_NEW 3\nAGG_PACK 0 1 0 1\nSTORE_LOCAL 0\nskipped:\n%s",tail);
         Type repeated[]={{TAG_STRUCT,1},SCALAR(TAG_ARRAY),SCALAR(TAG_ARRAY),{TAG_STRUCT,0},SCALAR(TAG_INT)};
         return build(body,repeated,5,consume,false);
