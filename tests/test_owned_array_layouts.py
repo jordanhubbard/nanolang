@@ -1,5 +1,7 @@
 """I qualify private descriptions without executing pending modules."""
 import os
+import contextlib
+import json
 from pathlib import Path
 import shlex
 import subprocess
@@ -8,16 +10,34 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 
+@contextlib.contextmanager
+def workspace():
+    target = os.environ.get('OWNED_ARRAY_LAYOUT_ARTIFACTS')
+    if target:
+        path = Path(target).resolve()
+        path.mkdir(parents=True, exist_ok=False)
+        yield str(path)
+    else:
+        with tempfile.TemporaryDirectory(prefix='nano-owned-array-view-') as temporary:
+            yield temporary
+
 class OwnedArrayLayouts(unittest.TestCase):
     def command(self, args):
         result = subprocess.run(list(map(str, args)), cwd=ROOT, capture_output=True,
                                 text=True, timeout=120)
+        if hasattr(self, 'artifacts'):
+            index = self.command_index
+            self.command_index += 1
+            (self.artifacts / f'{index:02d}-command.json').write_text(json.dumps(list(map(str, args))))
+            (self.artifacts / f'{index:02d}-output.log').write_text(result.stdout + result.stderr)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
     def test_descriptions_and_failure_atomicity(self):
-        with tempfile.TemporaryDirectory(prefix='nano-owned-array-view-') as temp:
+        with workspace() as temp:
             work = Path(temp)
+            self.artifacts = work
+            self.command_index = 0
             compiler = shlex.split(os.environ.get('CC', 'cc'))
             flags = shlex.split(os.environ.get('OWNED_ARRAY_LAYOUT_CFLAGS', ''))
             common = [*compiler, *flags, '-std=c11', '-O1', '-Wall', '-Wextra',
