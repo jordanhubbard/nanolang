@@ -1,0 +1,40 @@
+{
+  "source-after.json": {
+    "count": 2226,
+    "mismatches": []
+  },
+  "tools-after.json": {
+    "count": 10,
+    "mismatches": []
+  },
+  "mixed-setup-generated-tools.json": {
+    "count": 5,
+    "archived_mismatches": [],
+    "current_differences": []
+  },
+  "mixed-gcc-generated-tools.json": {
+    "count": 5,
+    "archived_mismatches": [],
+    "current_differences": []
+  },
+  "clang-generated-tools.json": {
+    "count": 4,
+    "archived_mismatches": [],
+    "current_differences": []
+  },
+  "mixed-clang-generated-tools.json": {
+    "count": 5,
+    "archived_mismatches": [],
+    "current_differences": []
+  },
+  "adjacent-generated-tools.json": {
+    "count": 7,
+    "archived_mismatches": [],
+    "current_differences": []
+  },
+  "gcc-generated-tools.json": {
+    "count": 4,
+    "archived_mismatches": [],
+    "current_differences": []
+  }
+}

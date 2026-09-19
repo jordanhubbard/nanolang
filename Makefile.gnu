@@ -395,7 +395,7 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
-NANOISA_SOURCES = $(NANOISA_DIR)/mixed_float_proof.c $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
+NANOISA_SOURCES = $(NANOISA_DIR)/service_bindings.c $(NANOISA_DIR)/service_bindings_module.c $(NANOISA_DIR)/mixed_float_proof.c $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c \
 	$(NANOISA_DIR)/frontend.c
@@ -403,8 +403,12 @@ VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
 VM_DISPATCH_OBJECT = $(OBJ_DIR)/nanovm/vm_dispatch.o
 NANOISA_FACADE_OBJECT = $(OBJ_DIR)/nanoisa/nanoisa_facade.o
 NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES)) \
-	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT)
+	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT) $(OBJ_DIR)/nsi_file_plan.o
 NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
+
+# My retained service ABI and immutable catalog participate in incremental builds.
+$(NANOISA_OBJECTS): $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
+$(OBJ_DIR)/nsi_file_plan.o: $(SRC_DIR)/nsi.h $(SRC_DIR)/nsi_cap.h
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
@@ -413,7 +417,10 @@ $(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
 $(OBJ_DIR)/c_backend.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/string_literal_decode.h
 $(OBJ_DIR)/c_backend.o: src/binary64_format.h src/c_backend_values.inc
 $(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
-$(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h
+$(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h $(NANOISA_DIR)/managed_native_source.h
+
+$(NANOISA_DIR)/managed_native_source.h: scripts/embed_managed_native.py $(NANOISA_DIR)/managed_strings.h $(NANOISA_DIR)/binary64_parse.h $(NANOISA_DIR)/managed_strings.c
+	python3 scripts/embed_managed_native.py
 
 $(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
 		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
@@ -621,7 +628,7 @@ $(VM_DISPATCH_OBJECT): $(NANOVM_DIR)/vm_dispatch.c $(NANOVM_DIR)/vm_dispatch.h \
 		$(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h $(NANOVM_DIR)/ffi_dispatch_generated.h | $(OBJ_DIR)/nanovm
+$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOISA_DIR)/nvm_format.h $(NANOISA_DIR)/service_bindings_module.h $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h $(NANOVM_DIR)/ffi_dispatch_generated.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/nanovm:
@@ -5297,6 +5304,33 @@ test-owned-string-joins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) 
 test-units: test-mixed-samples
 test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	MIXED_SAMPLES_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_mixed_samples
+
+.PHONY: test-service-module
+# I exercise real container/consumer objects; only the allocation-prefix variant
+# replaces three translation units with named malloc/calloc/realloc hooks.
+test-service-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o nvm2llvm nvm2hl nvm2c
+	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_service_bindings_module
+.PHONY: mixed-samples-runtime-fixture
+mixed-samples-runtime-fixture: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime tests/nanoisa/test_mixed_samples_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+.PHONY: test-mixed-samples-runtime
+test-mixed-samples-runtime: mixed-samples-runtime-fixture
+	python3 -m unittest -fv tests.test_mixed_samples_runtime
+
+.PHONY: test-mixed-samples-runtime-alloc
+test-mixed-samples-runtime-alloc: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -Dmalloc=mixed_heap_malloc -Dcalloc=mixed_heap_calloc -Drealloc=mixed_heap_realloc -c src/nanovm/heap.c -o obj/test_mixed_samples_heap.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime_alloc tests/nanoisa/test_mixed_samples_runtime_alloc.c obj/test_mixed_samples_heap.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_mixed_samples_runtime_alloc
+
+.PHONY: test-mixed-samples-admission
+test-mixed-samples-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=mixed_admit_malloc -Dcalloc=mixed_admit_calloc -c src/nanoisa/verifier.c -o obj/test_mixed_samples_verifier.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_admission tests/nanoisa/test_mixed_samples_admission.c obj/test_mixed_samples_verifier.o $(NANOVM_OBJECTS) $(filter-out obj/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_mixed_samples_admission
+
+test-units: test-mixed-samples-runtime test-mixed-samples-runtime-alloc test-mixed-samples-admission
 
 # I run real GPU lifecycle only through this explicit opt-in target.
 .PHONY: test-nsi-gpu-private

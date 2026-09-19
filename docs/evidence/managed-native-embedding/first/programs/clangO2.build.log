@@ -1,0 +1,10 @@
+/tmp/nanolang-managed-native-embedding-207ebfe3/programs/standalone.c:363:22: error: unused function 'nano_rt_f64_sub' [-Werror,-Wunused-function]
+  363 | static inline double nano_rt_f64_sub(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/tmp/nanolang-managed-native-embedding-207ebfe3/programs/standalone.c:367:22: error: unused function 'nano_rt_f64_mul' [-Werror,-Wunused-function]
+  367 | static inline double nano_rt_f64_mul(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/tmp/nanolang-managed-native-embedding-207ebfe3/programs/standalone.c:371:22: error: unused function 'nano_rt_f64_div' [-Werror,-Wunused-function]
+  371 | static inline double nano_rt_f64_div(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+3 errors generated.

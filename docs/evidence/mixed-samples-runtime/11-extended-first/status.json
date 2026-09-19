@@ -1,0 +1,10 @@
+{
+  "gcc": {
+    "command": [
+      "make",
+      "test-mixed-samples-runtime"
+    ],
+    "status": 2,
+    "seconds": 1.7680481849820353
+  }
+}

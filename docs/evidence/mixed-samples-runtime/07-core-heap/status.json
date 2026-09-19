@@ -1,0 +1,27 @@
+{
+  "build": {
+    "command": [
+      "make",
+      "-j2",
+      "mixed-samples-runtime-fixture"
+    ],
+    "status": 0,
+    "seconds": 0.6154030870529823
+  },
+  "runtime": {
+    "command": [
+      "/home/jkh/Src/nanolang-mixed-samples-runtime/obj/test_mixed_samples_runtime",
+      "/tmp/nanolang-mixed-core-heap-8b9c95376/artifacts"
+    ],
+    "status": 0,
+    "seconds": 0.03184639097889885
+  },
+  "heap": {
+    "command": [
+      "make",
+      "test-mixed-samples-runtime-alloc"
+    ],
+    "status": 0,
+    "seconds": 0.6154050239711069
+  }
+}

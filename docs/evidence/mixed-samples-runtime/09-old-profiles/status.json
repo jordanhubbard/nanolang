@@ -1,0 +1,16 @@
+{
+  "regressions": {
+    "command": [
+      "make",
+      "test-owned-string-print",
+      "test-owned-string-fields",
+      "test-owned-string-joins",
+      "test-multi-caller-references",
+      "test-owned-value-graphs",
+      "test-owned-value-results",
+      "test-owned-binary64"
+    ],
+    "status": 0,
+    "seconds": 48.84118746302556
+  }
+}
