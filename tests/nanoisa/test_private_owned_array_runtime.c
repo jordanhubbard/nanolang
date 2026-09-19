@@ -210,7 +210,10 @@ static void retain_boundary(void) {
 #ifdef NANO_OWNER_ARRAY_PUBLIC_TEST
 #include "test_owned_array_public_boundaries.inc"
 #endif
-int main(int argc,char **argv) {
+#ifndef NANO_OWNER_ARRAY_RUNTIME_MAIN
+#define NANO_OWNER_ARRAY_RUNTIME_MAIN main
+#endif
+int NANO_OWNER_ARRAY_RUNTIME_MAIN(int argc,char **argv) {
     growth_accounting();heap_attempts=heap_hits=heap_fail=0;
     CHECK(argc==2);
 #ifdef NANO_OWNER_ARRAY_PUBLIC_TEST

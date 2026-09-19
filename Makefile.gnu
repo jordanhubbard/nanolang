@@ -5413,3 +5413,7 @@ test-file-code: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	./obj/test_file_code_linked
 test-file-code-sanitizers: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	FILE_CODE_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_CODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_code
+
+.PHONY: test-owned-array-mutation-runtime
+test-owned-array-mutation-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_owned_array_mutation_runtime
