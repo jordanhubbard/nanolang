@@ -73,17 +73,37 @@ static bool mf_join(MFAnalysis *a,uint32_t index,const MFValue *state,uint16_t d
     if(changed)mf_enqueue(a,index);
     return true;
 }
-static bool mf_scalar_layout(const NvmMixedLayoutView *v,uint32_t layout) {
+static bool mf_owned_layout(const NvmMixedLayoutView *v,uint32_t layout) {
     if(layout>=v->layouts.count || v->classes[layout]!=NVM_MIXED_RESOURCE)return false;
     const NvmV2Layout *l=&v->layouts.items[layout];
+    if(l->kind!=NVM_V2_LAYOUT_STRUCT || l->field_count>MF_SLOTS)return false;
     for(uint16_t i=0;i<l->field_count;i++) {
-        uint8_t tag=l->fields[i].type_tag;
-        if((tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8) || l->fields[i].nested_idx!=NVM_V2_NO_INDEX)return false;
+        const NvmV2LayoutField *field=&l->fields[i];
+        if(field->type_tag==TAG_STRUCT) {
+            if(field->nested_idx>=layout || !mf_owned_layout(v,field->nested_idx))return false;
+        } else if((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8) ||
+                  field->nested_idx!=NVM_V2_NO_INDEX)return false;
     }
     return true;
 }
+static bool mf_ordinary_layout(const NvmMixedLayoutView *v,uint32_t layout) {
+    return layout<v->layouts.count && v->classes[layout]==NVM_MIXED_ORDINARY_STRUCTURAL;
+}
+static MFValue mf_declared_value(MFAnalysis *a,MFType type) {
+    if(type.tag!=TAG_STRUCT)return mf_tag(type.tag);
+    if(mf_owned_layout(a->proof->view,type.layout))return mf_owner(type.layout);
+    MFValue value=mf_tag(TAG_STRUCT);
+    if(!mf_ordinary_layout(a->proof->view,type.layout))return value;
+    for(uint32_t n=0;n<a->proof->origin_count;n++) {
+        const NvmMixedFloatOrigin *origin=&a->proof->origins[n];
+        if(origin->tag==TAG_STRUCT && origin->global_layout==type.layout)
+            value.origins|=UINT64_C(1)<<n;
+    }
+    return value;
+}
 static bool mf_signature_type(MFAnalysis *a,MFType t) {
-    if(t.tag==TAG_STRUCT)return mf_scalar_layout(a->proof->view,t.layout);
+    if(t.tag==TAG_STRUCT)return mf_owned_layout(a->proof->view,t.layout) ||
+        mf_ordinary_layout(a->proof->view,t.layout);
     return t.layout==NVM_V2_NO_INDEX && (t.tag==TAG_VOID || t.tag==TAG_INT || t.tag==TAG_BOOL || t.tag==TAG_U8);
 }
 static bool mf_descriptors(MFAnalysis *a) {
@@ -185,7 +205,7 @@ static bool mf_preflight(MFAnalysis *a) {
             }
             if(op==OP_OWN_PACK || op==OP_OWN_UNPACK_LOCAL) {
                 uint32_t layout=op==OP_OWN_PACK?i->in.operands[0].u32:af->locals[i->in.operands[0].u16].layout;
-                if(!mf_scalar_layout(v,layout))return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,pc,"I require exact scalar-leaf owner effects.");
+                if(!mf_owned_layout(v,layout))return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,pc,"I require exact nested owner effects.");
             }
             if(op==OP_ARR_NEW || op==OP_ARR_LITERAL || op==OP_AGG_PACK) {
                 uint32_t layout=NVM_V2_NO_INDEX,source=NVM_V2_NO_INDEX,fields=0;
@@ -242,8 +262,13 @@ static bool mf_field_matches(MFAnalysis *a,MFValue v,const NvmV2LayoutField *fie
     }
     return true;
 }
-static bool mf_type_matches(MFValue v,MFType t) {
-    if(t.tag==TAG_STRUCT)return v.kind==1 && !v.unknown && !v.origins && v.tags==MF_BIT(TAG_STRUCT) && v.nominal==t.layout;
+static bool mf_type_matches(MFAnalysis *a,MFValue v,MFType t) {
+    if(t.tag==TAG_STRUCT) {
+        if(mf_owned_layout(a->proof->view,t.layout))return v.kind==1 && !v.unknown &&
+            !v.origins && v.tags==MF_BIT(TAG_STRUCT) && v.nominal==t.layout;
+        NvmV2LayoutField declared={.type_tag=TAG_STRUCT,.nested_idx=t.layout,.name_idx=NVM_V2_NO_INDEX};
+        return mf_ordinary_layout(a->proof->view,t.layout) && mf_field_matches(a,v,&declared);
+    }
     return mf_exact(v,MF_BIT(t.tag));
 }
 static void mf_field_union(MFAnalysis *a,uint32_t origin,uint16_t field,MFValue value) {
@@ -267,8 +292,8 @@ static bool mf_step(MFAnalysis *a,uint32_t index) {
     if(op==OP_CALL) {const NvmFunctionEntry *callee=&a->module->functions[in->operands[0].u32];pops=callee->arity;pushes=callee->result_count;}
     if(op==OP_RET) {
         if(depth!=fn->result_count)return mf_stop(a,NVM_MIXED_SHAPE_INVALID,f,i->pc,"I require the exact declared return count.");
-        if(a->checking && depth && !mf_type_matches(stack[0],af->result))
-            return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require exact scalar or owned return identity.");
+        if(a->checking && depth && !mf_type_matches(a,stack[0],af->result))
+            return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require exact scalar, ordinary or owned return identity.");
         return true; /* Exit consumption remains a separate affine obligation. */
     }
     if(pops<0 || pushes<0 || depth<pops)return mf_stop(a,NVM_MIXED_SHAPE_INVALID,f,i->pc,"I require complete operand stacks.");
@@ -322,27 +347,34 @@ static bool mf_step(MFAnalysis *a,uint32_t index) {
     }
     case OP_OWN_MOVE_LOCAL: {
         uint16_t local=in->operands[0].u16;result=state[local];
-        if(!mf_type_matches(result,af->locals[local]))return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require an intact exact owner move.");
+        if(!mf_type_matches(a,result,af->locals[local]))return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require an intact exact owner move.");
         if(!result.kind)return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require an owner for an owner move.");
         state[local]=mf_tag(TAG_VOID);break;
     }
     case OP_OWN_STORE_LOCAL: {
         uint16_t local=in->operands[0].u16;
-        if(state[local].kind || !mf_exact(state[local],MF_BIT(TAG_VOID)) || !mf_type_matches(stack[base],af->locals[local]) || stack[base].kind!=1)
+        if(state[local].kind || !mf_exact(state[local],MF_BIT(TAG_VOID)) || !mf_type_matches(a,stack[base],af->locals[local]) || stack[base].kind!=1)
             return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require an empty exact owner destination.");
         state[local]=stack[base];break;
     }
     case OP_OWN_PACK: {
         uint32_t layout=in->operands[0].u32;const NvmV2Layout *l=&a->proof->view->layouts.items[layout];
-        for(uint16_t n=0;n<l->field_count;n++)if(a->checking && !mf_exact(stack[base+n],MF_BIT(l->fields[n].type_tag)))
-            return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require exact scalar owner fields.");
+        for(uint16_t n=0;n<l->field_count;n++)if(a->checking) {
+            const NvmV2LayoutField *field=&l->fields[n];MFValue value=stack[base+n];
+            bool exact=field->type_tag==TAG_STRUCT?
+                value.kind==1 && !value.unknown && !value.origins && value.tags==MF_BIT(TAG_STRUCT) &&
+                value.nominal==field->nested_idx && mf_owned_layout(a->proof->view,field->nested_idx):
+                mf_exact(value,MF_BIT(field->type_tag));
+            if(!exact)return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require exact scalar or nested owner fields.");
+        }
         result=mf_owner(layout);break;
     }
     case OP_OWN_UNPACK_LOCAL: {
         uint16_t local=in->operands[0].u16;MFType t=af->locals[local];
-        if(!mf_type_matches(state[local],t))return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require an intact exact unpack source.");
+        if(!mf_type_matches(a,state[local],t))return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require an intact exact unpack source.");
         const NvmV2Layout *l=&a->proof->view->layouts.items[t.layout];state[local]=mf_tag(TAG_VOID);
-        for(uint16_t n=0;n<l->field_count;n++)stack[depth++]=mf_tag(l->fields[n].type_tag);
+        for(uint16_t n=0;n<l->field_count;n++)stack[depth++]=l->fields[n].type_tag==TAG_STRUCT?
+            mf_owner(l->fields[n].nested_idx):mf_tag(l->fields[n].type_tag);
         goto successors;
     }
     case OP_AGG_PACK: {
@@ -393,9 +425,9 @@ static bool mf_step(MFAnalysis *a,uint32_t index) {
     }
     case OP_CALL: {
         uint32_t target=in->operands[0].u32;const NvmFunctionEntry *callee=&a->module->functions[target];
-        for(uint16_t n=0;n<callee->arity;n++)if(a->checking && !mf_type_matches(stack[base+n],a->functions[target].locals[n]))
+        for(uint16_t n=0;n<callee->arity;n++)if(a->checking && !mf_type_matches(a,stack[base+n],a->functions[target].locals[n]))
             return mf_stop(a,NVM_MIXED_SHAPE_UNRESOLVED,f,i->pc,"I require every positional call identity before transfer.");
-        MFType t=a->functions[target].result;result=t.tag==TAG_STRUCT?mf_owner(t.layout):mf_tag(t.tag);break;
+        result=mf_declared_value(a,a->functions[target].result);break;
     }
     case OP_JMP_TRUE:case OP_JMP_FALSE:case OP_ASSERT:
         if(stack[base].kind || stack[base].origins || stack[base].unknown || (stack[base].tags&~MF_SCALARS))
@@ -447,7 +479,7 @@ NvmMixedShapeResult nvm_analyze_mixed_float_origins(const NvmModule *m,NvmMixedF
     for(uint32_t f=0;f<m->function_count;f++) {
         MFValue seed[MF_SLOTS*2]={0};const NvmFunctionEntry *fn=&m->functions[f];
         for(uint16_t n=0;n<fn->local_count;n++)seed[n]=mf_tag(TAG_VOID);
-        for(uint16_t n=0;n<fn->arity;n++) {MFType t=a->functions[f].locals[n];seed[n]=t.tag==TAG_STRUCT?mf_owner(t.layout):mf_tag(t.tag);}
+        for(uint16_t n=0;n<fn->arity;n++)seed[n]=mf_declared_value(a,a->functions[f].locals[n]);
         if(!mf_join(a,a->functions[f].start,seed,0))goto done;
     }
     while(a->queued) {
