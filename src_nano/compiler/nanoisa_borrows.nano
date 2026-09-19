@@ -1749,8 +1749,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         while (< i (array_length nb_paths)) {
             let path: string = (at nb_paths i)
             set ownership (+ ownership (+ (nb_hex (/ (str_length path) 4) 2) (+ "0000" path)))
-            if (and nb_owner_arrays (or nb_mixed (not nb_value_graph))) { let _: int = (nb_fail "a separate mode-zero owner ARRAY profile") return "" }
-    while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
+            while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
             set i (+ i 1)
         }
     }
