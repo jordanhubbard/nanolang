@@ -14,6 +14,22 @@
     "reason": "PR821 changes mixed preparation only for service-bound modules; this fixture supplies no service bindings and PR821 separately qualifies the combined boundary.",
     "evidence_relabeled": false
   },
+  "current_main_integration": {
+    "main": "118cc44711b1cb1b49a1503d948c4e29c428b9a7",
+    "merge": "9ac3b0461162d8516d2ecdf02ab0fddfd00dd107",
+    "merge_tree_before_documentation": "8b39519b8f7ee7f653919bbdfcf87d9ce45c7f0b",
+    "required_service_changes_preserved": true,
+    "fixture_delta_files": [
+      "Makefile.gnu",
+      "tests/test_mixed_samples.py"
+    ],
+    "comparison": "SHA-256 of diff file markers and changed lines after removing diff headers, hunk locations and unchanged context",
+    "qualified_delta_sha256": "879bc4d474eb517e440d3563adc15fce6f6f67eba1d9f5a5b58d2ab645396e7b",
+    "integrated_delta_sha256": "879bc4d474eb517e440d3563adc15fce6f6f67eba1d9f5a5b58d2ab645396e7b",
+    "exact_delta_equal": true,
+    "code_rerun": false,
+    "evidence_relabeled": false
+  },
   "status": "pass",
   "phases": [
     {

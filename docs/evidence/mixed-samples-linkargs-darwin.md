@@ -15,6 +15,17 @@ PR821 separately qualifies the combined service/mixed boundary. I therefore
 retain the exact `9578eec` runtime evidence instead of relabeling its manifests
 as measurements of the integration commit.
 
+Canonical `main` integrates this branch onto
+`118cc44711b1cb1b49a1503d948c4e29c428b9a7` through merge commit
+`9ac3b0461162d8516d2ecdf02ab0fddfd00dd107`. The required-Service target and
+early-refusal work remain unchanged. I compare the change-only lines in
+`Makefile.gnu` and `tests/test_mixed_samples.py`, excluding diff headers, hunk
+locations and unchanged context. Both the qualified `9578eec` delta and the
+current-main delta hash to
+`879bc4d474eb517e440d3563adc15fce6f6f67eba1d9f5a5b58d2ab645396e7b`.
+This proves that my two-file linker-fixture change is byte-identical after the
+merge. I do not rerun or relabel the earlier qualification.
+
 My Make target now passes its resolved `LDFLAGS` through the dedicated
 `MIXED_SAMPLES_LDFLAGS` environment boundary. The Python fixture splits that
 value into exact linker arguments. Direct invocation without the variable still
