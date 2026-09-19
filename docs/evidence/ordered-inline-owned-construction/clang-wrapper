@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/local/bin/clang --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 "$@"

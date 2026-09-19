@@ -1,0 +1,113 @@
+[
+  {
+    "incident": "37443616",
+    "file": "docs/evidence/owned-float-locals-unsafe/post803-runtime/runtime-tools-before.json",
+    "line": 90,
+    "object": "/home/jkh/Src/nanolang-owned-float-after803/obj/runtime/list_token.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true
+  },
+  {
+    "incident": "37443578",
+    "file": "docs/evidence/owned-float-locals-unsafe/integrated-gates/focused-gcc-tools-after.json",
+    "line": 85,
+    "object": "/home/jkh/Src/nanolang-owned-float-locals-ready/obj/runtime/list_LexerToken.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true
+  },
+  {
+    "incident": "37443465",
+    "file": "docs/evidence/owned-float-locals-unsafe/qualified/linked-objects-and-shadow-helper-during-setup.json",
+    "line": 75,
+    "object": "obj/runtime/list_LexerToken.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true,
+    "resolved_object": "/home/jkh/Src/nanolang-owned-float-locals-unsafe/obj/runtime/list_LexerToken.o"
+  },
+  {
+    "incident": "37443617",
+    "file": "docs/evidence/owned-float-locals-unsafe/post803-runtime/runtime-tools-after.json",
+    "line": 91,
+    "object": "/home/jkh/Src/nanolang-owned-float-after803/obj/runtime/token_helpers.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true
+  },
+  {
+    "incident": "37443466",
+    "file": "docs/evidence/owned-float-locals-unsafe/qualified/linked-objects-and-shadow-helper-during-setup.json",
+    "line": 94,
+    "object": "obj/runtime/token_helpers.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true,
+    "resolved_object": "/home/jkh/Src/nanolang-owned-float-locals-unsafe/obj/runtime/token_helpers.o"
+  },
+  {
+    "incident": "37443467",
+    "file": "docs/evidence/owned-float-locals-unsafe/corrected-gates/setup-tools-before.json",
+    "line": 96,
+    "object": "/home/jkh/Src/nanolang-owned-float-locals-corrected/obj/runtime/list_token.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true
+  },
+  {
+    "incident": "37443468",
+    "file": "docs/evidence/owned-float-locals-unsafe/corrected-gates/setup-tools-before.json",
+    "line": 78,
+    "object": "/home/jkh/Src/nanolang-owned-float-locals-corrected/obj/runtime/list_LexerToken.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true
+  },
+  {
+    "incident": "37443579",
+    "file": "docs/evidence/owned-float-locals-unsafe/integrated-gates/focused-clang-tools-after.json",
+    "line": 104,
+    "object": "/home/jkh/Src/nanolang-owned-float-locals-ready/obj/runtime/token_helpers.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true
+  },
+  {
+    "incident": "37443580",
+    "file": "docs/evidence/owned-float-locals-unsafe/integrated-gates/runtime-tools-after.json",
+    "line": 103,
+    "object": "/home/jkh/Src/nanolang-owned-float-locals-ready/obj/runtime/list_token.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true
+  },
+  {
+    "incident": "37443469",
+    "file": "docs/evidence/owned-float-locals-unsafe/qualified/linked-objects-and-shadow-helper-during-setup.json",
+    "line": 93,
+    "object": "obj/runtime/list_token.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true,
+    "resolved_object": "/home/jkh/Src/nanolang-owned-float-locals-unsafe/obj/runtime/list_token.o"
+  },
+  {
+    "incident": "37443618",
+    "file": "docs/evidence/owned-float-locals-unsafe/post803-runtime/runtime-tools-before.json",
+    "line": 72,
+    "object": "/home/jkh/Src/nanolang-owned-float-after803/obj/runtime/list_LexerToken.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true
+  },
+  {
+    "incident": "37443470",
+    "file": "docs/evidence/owned-float-locals-unsafe/corrected-gates/full-gcc-tools-after.json",
+    "line": 104,
+    "object": "/home/jkh/Src/nanolang-owned-float-locals-corrected/obj/runtime/token_helpers.o",
+    "is_sha256": true,
+    "exists": true,
+    "matches_object_bytes": true
+  }
+]

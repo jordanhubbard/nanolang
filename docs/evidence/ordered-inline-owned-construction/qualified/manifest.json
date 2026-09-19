@@ -1,0 +1,91 @@
+{
+  "pin": "aa124e640e20fa6add4720e67e6ae448df63dccd",
+  "steps": [
+    {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "--eval=inline-prepare: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump test-local-binding-metadata\n\t$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)",
+        "inline-prepare"
+      ],
+      "environment": {},
+      "status": 0,
+      "seconds": 29.921,
+      "tools_unchanged": false,
+      "log_sha256": "00f89779f0aa4a0bbb51d7da5b271e2d6bb3949095196d63ea45d80916b04065"
+    },
+    {
+      "name": "focused-gcc",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_inline_owned_construction"
+      ],
+      "environment": {
+        "CC": "gcc"
+      },
+      "status": 0,
+      "seconds": 183.882,
+      "tools_unchanged": true,
+      "log_sha256": "c593b7208c6de31b7312b13752e77f7dc323c4e5e8eb233b4f2c11123cc67e1d"
+    },
+    {
+      "name": "focused-clang",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_inline_owned_construction"
+      ],
+      "environment": {
+        "CC": "/tmp/nanolang-inline-clang"
+      },
+      "status": 0,
+      "seconds": 178.818,
+      "tools_unchanged": true,
+      "log_sha256": "e0d3fa429cd02c30edd2681a12579670acb96d795041e2b9cfb79a1ba717385e"
+    },
+    {
+      "name": "source-regression",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_source_borrow_emission"
+      ],
+      "environment": {},
+      "status": 0,
+      "seconds": 403.144,
+      "tools_unchanged": true,
+      "log_sha256": "f9898e4d310a7839a158825d1114192bf3777a7a175b977af7f9cf879ab5b3b2"
+    },
+    {
+      "name": "runtime",
+      "command": [
+        "make",
+        "-j2",
+        "test-affine-state",
+        "test-affine-bytecode",
+        "test-owned-transfers",
+        "test-owned-runtime",
+        "test-owned-value-graphs",
+        "test-owned-value-results",
+        "test-owned-assertions"
+      ],
+      "environment": {},
+      "status": 0,
+      "seconds": 26.493,
+      "tools_unchanged": true,
+      "log_sha256": "6838a9f9ff45fed3dcafe78b82fc759870eb3e205197837bd6e97a9fb5f5229b"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_tree_clean": true,
+  "terminal": 0
+}

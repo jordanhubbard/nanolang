@@ -1984,17 +1984,23 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             if (parser_has_error parser) {
                 let tok: LexerToken = (parser_current parser)
                 let parse_loc: CompilerSourceLocation = (source_location_for_line source_files source_lines tok.line tok.column)
+                let mut parse_message: string = (+ "unexpected token '" (+ tok.value "'"))
+                let mut json_parse_message: string = (+ "unexpected token " tok.value)
+                if (> (Diagnostics.diag_list_count parser.diagnostics) 0) {
+                    let parser_diag: CompilerDiagnostic = (Diagnostics.diag_list_get parser.diagnostics 0)
+                    set parse_message parser_diag.message
+                    set json_parse_message parser_diag.message
+                } else { (print "") }
                 (print "Parse error at ")
                 (print parse_loc.file)
                 (print ":")
                 (print (int_to_string parse_loc.line))
                 (print ", column ")
                 (print (int_to_string parse_loc.column))
-                (print ": unexpected token '")
-                (print tok.value)
-                (println "'")
+                (print ": ")
+                (println parse_message)
                 if (not (== llm_diags_json_path "")) {
-                    let msg: string = (+ "Parse error: unexpected token " tok.value)
+                    let msg: string = (+ "Parse error: " json_parse_message)
                     let diag: CompilerDiagnostic = (Diagnostics.diag_parser_error "P0001" msg parse_loc)
                     (Diagnostics.diag_list_add diags diag)
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
