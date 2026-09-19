@@ -273,3 +273,25 @@ versions, cross-version lengths and malformed required sections still refuse.
 The source delta receives review before fresh reader and dependent fixture
 qualification. The prior successful bootstrap remains pinned to f5e07; a later
 reader-only correction does not acquire a new bootstrap claim.
+
+### My Darwin wrapper capacity prerequisite
+
+I preserve the acc254 corrected Linux setup/GCC/Clang/adjacent passes and Darwin
+focused transport pass (15.597s). Darwin adjacency stops at the embedded case of
+`WrapperPublication.test_literal_paths_in_both_modes` (seven methods, one failure;
+15.441s outer terminal). I record `task_ab82330ce20acb79e62cf7b8572bc6cf` before
+correction. My fixed 16,384-byte object-list buffer holds 117 quoted paths; the
+Darwin default temporary prefix plus the fixture's intentional alias needs about
+16,733 bytes. This is a static capacity finding, not a replay of the failed binary.
+
+I will build the complete object list with checked dynamic storage, preserving
+every object, its order, and literal shell quoting. I will also build the link
+command with checked dynamic fragments so the same closure does not encounter
+another smaller fixed concatenation limit. The existing bounded compilation
+command, trusted compiler command-fragment convention, private staging directory,
+output checks and atomic rename remain unchanged. All allocated fragments are
+freed on success and failure; allocation failure refuses without replacing output.
+I do not shorten the path fixture or remove provider objects. Source review
+precedes fresh Linux/Darwin wrapper controls and the remaining adjacent gates.
+My passing service transport gates and original bootstrap claims retain their
+own source pins; this prerequisite does not add service execution authority.
