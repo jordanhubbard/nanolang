@@ -56,7 +56,7 @@ a17ab2f02ae02eb87c68a923848533f3d55bb9a587c369ce1ac26aaf3f436d72  before.log
 7d039f6fa72ee305e39ec569e2b6619371bd1da91603e6355e0408b6eb05eda0  source.after
 ```
 
-The historical `source.before` and `source.after` each contain `status=0` and
+The historical `source.before` and `source.after` each contain
 exactly five hashes: `Makefile.gnu`, `docs/ROADMAP.md`, this evidence document,
 `tests/selfhost/expect_rejection.py`, and
 `tests/selfhost/run_selfhost_tests.sh`. They do not inventory
@@ -145,7 +145,10 @@ the shell caller, the unit-test module, and every tracked file under
 `tests/selfhost`. They also contain the selected path, resolved path and binary
 hash for the gate's `python3`, `sh`, `perl`, `basename`, `mktemp`, `mkdir`,
 `cat`, `rm`, and `env`, plus `git`, `make`, and `shasum` used to identify,
-invoke and inventory that gate.
+invoke and inventory that gate. These are the selected entrypoints after
+symlink resolution. The Apple `git` and `make` paths remain dispatcher binaries;
+this inventory does not hash their selected Xcode implementations. The direct
+Python unit gate is independently recorded alongside the Make invocation.
 
 The checkout stayed clean at tree
 `06832671fbb2c4b1943cbb61e3afff9aba878afc`. After removing only the UTC
