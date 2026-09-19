@@ -4,6 +4,19 @@
 #undef main
 #include "owned_array_authority.h"
 #include "verifier.h"
+static bool structural_boundary, failed_structural, failed_direct;
+void *authority_test_malloc(size_t n) {
+    if(budget==0){if(structural_boundary)failed_structural=true;else failed_direct=true;}
+    return owner_origin_test_malloc(n);
+}
+void *authority_test_calloc(size_t n,size_t width) {
+    if(budget==0){if(structural_boundary)failed_structural=true;else failed_direct=true;}
+    return owner_origin_test_calloc(n,width);
+}
+bool authority_structural_layout_valid(const NvmModule *m) {
+    CHECK(!structural_boundary);structural_boundary=true;
+    bool valid=nvm_retained_layouts_valid(m);structural_boundary=false;return valid;
+}
 static NvmOwnedArrayPlan *authority(NvmModule *m,NvmOwnerAuthorityStatus wanted) {
     unsigned char sentinel;NvmOwnedArrayPlan *p=(void *)&sentinel;
     NvmOwnerAuthorityResult r=nvm_prepare_owned_array_authority(m,&p);
@@ -63,16 +76,20 @@ static void prepared_and_faults(void) {
     bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);CHECK(!nvm_verify(m).ok);
     uint8_t *code=malloc(m->code_size),*owned=malloc(m->ownership_size),*layout=malloc(m->layout_size);CHECK(code && owned && layout);
     memcpy(code,m->code,m->code_size);memcpy(owned,m->ownership_data,m->ownership_size);memcpy(layout,m->layout_data,m->layout_size);
-    unsigned failures=0;bool success=false;
+    unsigned failures=0,structural_failures=0;bool success=false;
     for(long limit=0;limit<1024;limit++) {
         unsigned char sentinel;NvmOwnedArrayPlan *next=(void *)&sentinel;
-        budget=limit;NvmOwnerAuthorityResult r=nvm_prepare_owned_array_authority(m,&next);budget=-1;
-        if(r.status==NVM_OWNER_AUTH_MEMORY){CHECK(next==(void *)&sentinel);failures++;}
+        failed_structural=failed_direct=false;budget=limit;NvmOwnerAuthorityResult r=nvm_prepare_owned_array_authority(m,&next);budget=-1;
+        if(r.status==NVM_OWNER_AUTH_MEMORY){CHECK(next==(void *)&sentinel && failed_direct && !failed_structural);failures++;}
+        else if(r.status==NVM_OWNER_AUTH_INVALID && failed_structural && !failed_direct) {
+            CHECK(next==(void *)&sentinel);structural_failures++;
+            printf("I retain structural INVALID at allocation prefix %ld, exact retained-layout boundary.\n",limit);
+        }
         else {if(r.status!=NVM_OWNER_AUTH_PREPARED)fprintf(stderr,"fault%ld status%d %s\n",limit,r.status,r.message);CHECK(r.status==NVM_OWNER_AUTH_PREPARED);nvm_owned_array_plan_free(next);success=true;}
         CHECK(!memcmp(code,m->code,m->code_size) && !memcmp(owned,m->ownership_data,m->ownership_size) && !memcmp(layout,m->layout_data,m->layout_size));
         if(success)break;
     }
-    CHECK(failures>100 && success);printf("I preserve private plan outputs through %u allocation failures.\n",failures);
+    CHECK(failures>100 && structural_failures>0 && success);printf("I preserve private plan outputs through %u MEMORY and %u attributed structural INVALID failures.\n",failures,structural_failures);
     nvm_module_free(m);CHECK(nvm_owned_array_plan_signature(p,4,&s) && s.result.owner && s.result.global_layout==3);
     CHECK(!memcmp(transport.layouts,layout,transport.layout_size) && !memcmp(transport.ownership,owned,transport.ownership_size));
     nvm_owned_array_plan_free(p);free(code);free(owned);free(layout);

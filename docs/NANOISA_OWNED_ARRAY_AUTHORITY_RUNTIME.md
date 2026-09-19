@@ -264,3 +264,16 @@ remain at most256. The first plan includes both original decoded descriptor
 snapshots and exact copied transport; after analysis finishes no Facts containing
 a borrowed module pointer survives in the prepared result. Public consumers
 continue their old routing and rejection behavior.
+
+## I preserve the shared structural diagnostic boundary
+
+The existing boolean `nvm_retained_layouts_valid` hides its decoder allocation
+failure behind false; common structural preparation therefore reports INVALID
+at that boundary. I do not claim all allocation failures return MEMORY. Every
+new directly classified allocation still must return MEMORY. My fault harness
+wraps only verifier.c's call to the retained-layout boolean reader and records
+the injected allocation's actual boundary, index and status. INVALID is accepted
+only when that exact wrapped boundary receives the injected failure; all other
+injected allocation failures require MEMORY. Both preserve output/module bytes,
+release partial allocations and allow later successful preparation. I do not
+change shared validator behavior or accept arbitrary INVALID fault results.

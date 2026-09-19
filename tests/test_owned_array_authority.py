@@ -46,8 +46,9 @@ class OwnedArrayAuthority(unittest.TestCase):
             for name in ('retained_layouts', 'nvm_v2_layouts', 'nvm_v2_cursor', 'affine_state', 'verifier'):
                 obj = work / (name + '.o')
                 objects.append(obj)
-                self.command([*common, '-Dcalloc=owner_origin_test_calloc',
-                              '-Dmalloc=owner_origin_test_malloc', '-c',
+                boundary = ['-Dnvm_retained_layouts_valid=authority_structural_layout_valid'] if name == 'verifier' else []
+                self.command([*common, *boundary, '-Dcalloc=authority_test_calloc',
+                              '-Dmalloc=authority_test_malloc', '-c',
                               'src/nanoisa/' + name + '.c', '-o', obj])
             executable = work / 'describe'
             self.command([*common, 'tests/nanoisa/test_owned_array_authority.c', *objects,
