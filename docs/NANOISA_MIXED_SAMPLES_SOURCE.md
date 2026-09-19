@@ -175,7 +175,7 @@ public mixed conjunction for a positive mixed candidate, retaining the old
 owned-only verifier on other routes. My selfhost output remains subject to the
 same assembler/public verification boundary.
 
-I have inspected this checkpoint and checked whitespace only. I have not built
+At that checkpoint I had inspected the source and checked whitespace only. I had not built
 these producers or executed their new source/shadows. Their fresh bootstrap,
 paired equality, false-shadow/output guards and runtime qualification remain
 pending independent source review. My runtime and service guard files are
@@ -230,3 +230,38 @@ stayed identical after setup, but obj/nano_modules cache objects were rebuilt an
 new cache objects appeared while the emitters were compiled. I retain their
 before/after hashes; I do not claim that the complete object maps are unchanged.
 Subsequent qualification will capture a separate post-setup object/tool boundary.
+
+
+## My corrected Linux qualification
+
+At frozen `70c511dad439f77eba15fe0bdc189e90ff9c9486`, I qualify the reviewed
+paired correction on canonical PR821 service guards plus PR820/822 integration.
+My [Linux seal](evidence/mixed-samples-source-linux/manifest.json) retains
+53 reports, exact source/tool inventories and retained artifact hashes.
+Fresh bootstrap passes in 270.113 seconds; tool setup passes in 26.522 seconds.
+Fresh emitter/shadow setup takes 177.373 seconds. Four focused methods pass with
+GCC in 129.169 seconds and again with Clang in 84.309 seconds; 58 existing
+borrow/STRING source methods pass in 265.019 seconds. These are 66 method
+executions, including the unchanged original Samples/PREFIX method and every
+selected shadow. I retain dump/name/stripped parity, constructor evaluation
+order, aliases, contextual empty fields and output-preserving typed refusals.
+
+Versioned sources and generated producer binaries stay unchanged. Emitter setup
+rebuilds compiler-cache objects, so I do not claim equality across that setup.
+All three subsequent source phases preserve every post-setup object/tool input.
+My ordinary record fields are exact FLOAT arrays and existing INT/BOOL scalars;
+this does not admit managed signatures, owner ARRAY fields or borrowed mixtures.
+
+My mixed runtime/lifecycle/allocation gate passes in 34.301 seconds: 2,006
+lifecycle checks, 13,358 heap checks across 488 budgets with 440 injected faults,
+and 127 admission checks. Existing owned graph/result gates pass in 17.810
+seconds. My first service preparation stops before assertions because Clang
+reports ambiguous GCC installation selection under strict warnings. I preserve
+that 0.215-second status2 separately. With the existing native-only
+`NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13`,
+the unchanged service gate passes in 3.673 seconds: three methods containing
+725, 655 and 212 checks. Wasm flags and product sources are unchanged.
+
+This seal is Linux evidence only. I retain the original checked source refusal
+and setup-cache limits. Darwin same-pin qualification, canonical source merge,
+parent4be, owner ARRAY430220 and full product/release acceptance remain open.

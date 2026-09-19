@@ -1,0 +1,35 @@
+{
+  "steps": [
+    {
+      "name": "focused-gcc",
+      "CC": "/usr/bin/gcc",
+      "status": 0,
+      "testsRun": 4,
+      "seconds": 129.169,
+      "post_setup_existing_inputs_unchanged": true,
+      "added_inputs": {}
+    },
+    {
+      "name": "focused-clang",
+      "CC": "/tmp/nanolang-projection-clang",
+      "status": 0,
+      "testsRun": 4,
+      "seconds": 84.309,
+      "post_setup_existing_inputs_unchanged": true,
+      "added_inputs": {}
+    },
+    {
+      "name": "old-source-profiles",
+      "CC": "/usr/bin/gcc",
+      "status": 0,
+      "testsRun": 58,
+      "seconds": 265.019,
+      "post_setup_existing_inputs_unchanged": true,
+      "added_inputs": {}
+    }
+  ],
+  "setup_seconds": 177.373,
+  "work": "/tmp/nano-source-borrows-xaj6ccfr",
+  "producer_identity_unchanged": true,
+  "status": 0
+}
