@@ -3553,9 +3553,19 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
             optimized calls. The gate is part of `test-opt-passes`; its C unit
             tests also pass. Unoptimized shallow programs remain the comparison.
           - [ ] I extend binding-aware lowering and acceptance to aggregate
-            parameters, closures, loops and parameter-shadowing bindings. My
-            preflight currently leaves these functions unchanged. Scalar test
-            success is not a complete proper-tail-call guarantee.
+            parameters, callable expressions, loops and parameter-shadowing
+            bindings under my [remaining TCO contract](NATIVE_TCO_BINDINGS.md).
+            My preflight currently leaves these functions unchanged. Scalar
+            test success is not a complete proper-tail-call guarantee.
+            - [ ] I preserve complete parameter annotations on hidden state and
+              argument temporaries, and I rename only references that resolve
+              to the original parameter rather than a nearer lexical binding.
+            - [ ] I route tail returns out of nested loops to the generated
+              outer TCO loop without changing ordinary `break`, `continue`,
+              fallthrough or left-to-right argument evaluation.
+            - [ ] I qualify arrays, records, tuples and callable parameters;
+              callable expressions; `while` and `for`; nested-loop propagation;
+              and same-name lexical bindings against unoptimized execution.
       - [x] I repair verifier-corpus coverage. Every root `tests/*.nano` source
         must compile and pass `--verify-only`; failures, signals, missing
         artifacts and empty coverage fail the gate. Compilation and verification
