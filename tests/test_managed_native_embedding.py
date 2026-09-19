@@ -60,6 +60,9 @@ int main(void) {
     assert(!runtime.active);
     assert(nms_dispose(&runtime)==NMS_OK);
     assert(nano_rt_f64_add(1.5,2.5)==4.0);
+    assert(nano_rt_f64_sub(4.0,2.5)==1.5);
+    assert(nano_rt_f64_mul(1.5,2.0)==3.0);
+    assert(nano_rt_f64_div(3.0,2.0)==1.5);
     return 0;
 }
 '''
