@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -140,12 +141,15 @@ class ManagedNativeEmbedding(unittest.TestCase):
                         result = subprocess.run([str(exe)], capture_output=True, timeout=20)
                         (directory / (name + '.run.log')).write_bytes(result.stdout + result.stderr)
                         self.assertEqual(result.returncode, 0, result.stderr.decode())
-                        dependencies = subprocess.run(['readelf', '-d', str(exe)], capture_output=True, timeout=20)
+                        dependency_command = (['otool', '-L', str(exe)] if sys.platform == 'darwin'
+                                              else ['readelf', '-d', str(exe)])
+                        dependencies = subprocess.run(dependency_command, capture_output=True, timeout=20)
                         self.assertEqual(dependencies.returncode, 0)
                         (directory / (name + '.dynamic.log')).write_bytes(dependencies.stdout)
-                        self.assertNotIn(b'libm.so', dependencies.stdout)
+                        if sys.platform != 'darwin':
+                            self.assertNotIn(b'libm.so', dependencies.stdout)
                         report = dict(command=command, build_status=built.returncode,
-                                      run_status=result.returncode,
+                                      run_status=result.returncode, dependency_command=dependency_command,
                                       source_sha256=hashlib.sha256(source).hexdigest(),
                                       executable_sha256=hashlib.sha256(exe.read_bytes()).hexdigest())
                         (directory / (name + '.json')).write_text(json.dumps(report, indent=2) + '\n')
