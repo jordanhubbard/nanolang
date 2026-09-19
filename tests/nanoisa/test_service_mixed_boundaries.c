@@ -10,6 +10,7 @@ int main(void) {
     NvmModule *m=runtime_fixture(0);
     CHECK(nvm_mixed_samples_candidate(m));CHECK(nvm_verify(m).ok);
     CHECK(!m->service_data && !m->service_size && !m->import_count);
+    NvmImportEntry *original_imports=m->imports;
     for(unsigned variant=0;variant<3;variant++) {
         uint8_t byte=0;NvmImportEntry claim={0};
         if(variant==0)m->service_data=&byte;
@@ -30,7 +31,7 @@ int main(void) {
             NanoValue result=val_int(-91);CHECK(runtime_api(&vm,api,&result)!=VM_OK);
             CHECK(result.tag==TAG_INT && result.as.i64==-91);runtime_clean(&vm,baseline);vm_destroy(&vm);
         }
-        m->service_data=NULL;m->service_size=0;m->imports=NULL;m->import_count=0;
+        m->service_data=NULL;m->service_size=0;m->imports=original_imports;m->import_count=0;
         CHECK(nvm_mixed_samples_candidate(m));CHECK(nvm_verify(m).ok);
     }
     NvmV2Module wire={0};CHECK(nvm_v2_from_nvm_module(m,&wire)==NVM_V2_OK);
