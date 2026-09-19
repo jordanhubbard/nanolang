@@ -11946,3 +11946,7 @@ prerequisites pass, not a narrowed Bundle replacement.
   changes trace and fails the unchanged result7 assertion. This restores fixture
   validity under my existing totality policy without weakening handler ordering.
   A fresh complete evaluator test binary must pass before dependent source gates.
+
+  The first overlay launch stops pre-build because the failed make left its
+  untracked test binary. I preserve it and permit only its exact path/hash in
+  the corrected runner; no source change or failed binary replay is involved.

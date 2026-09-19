@@ -268,3 +268,11 @@ and breaks the unchanged exact result7 assertion. I retain all seventeen bodies
 and every assertion, preserve totality, and change no production. The corrected
 complete evaluator suite is rebuilt as a new binary against qualified9f7
 providers; the original failed binary and log remain untouched.
+
+My first corrected-overlay launch stops before compilation at its clean-tree
+assertion: the original failed make target retained untracked `tests/test_eval`.
+I preserve this binary in place (SHA256
+f2afa578e828691d6563445d27f717285526f2536fed3dd6d7de2eb4d79aa47f) and retain the
+pre-build traceback separately. The corrected runner permits only that exact
+known path/hash on Linux, records it, and still rejects every other dirty path.
+A separate fresh evidence directory avoids overwriting the preparation terminal.
