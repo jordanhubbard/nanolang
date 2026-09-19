@@ -1,0 +1,21 @@
+{
+  "integrated_pin": "6b36be4a61fcb003397f3519c93c378ab470b5ae",
+  "main_pin": "013abd0ca3c513820d2e125b2ca26e5ba5b8c48b",
+  "qualified_pin": "a8c2e05338181fcae933f026fa534e29af7d8655",
+  "relevant_current_equal": {
+    "src/nsi_file_values.c": "9b7d03d6da518df820b0323fd6f86104d9a6202cc14285b9e0b5179f9f7e8e5e",
+    "src/nsi_file_values.h": "4e7d2b73ba9cac9e2fe513eb8c44e26b91f17c13c69ead44c5f16ad614ba7409",
+    "src/nsi_file.c": "a81092fb70c9cc97c43a0ac5eda2394b311af7d9641c7deb41455af29730faad",
+    "src/nsi_file.h": "ce46023ad79a65c5fb2cf21986c878f4a9666a18d5aafb9ff5c02574da8f1a86",
+    "src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+    "src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+    "src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5",
+    "tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+    "tests/test_nsi_file_values.c": "347d1f51ee5ba2b499d12b32b6bf3dbe66ae67a10699abc590764f91d3450cc6",
+    "tests/test_nsi_file_values_cases.h": "b0ae9d7bd92991c9fb3b24c70840d64fe2d52baefc667176cdcc4a0ba5d6f204",
+    "tests/test_nsi_file_values_linked.c": "94fbb7b47044e9cc7ecb01995e7cf973e7798076849ee4e8c4e454f2bbff8d6f",
+    "tests/test_nsi_file_values.py": "8875ed428e470a3078192cd092017d196a0ba3c96d9d0d1abace1330579946e7"
+  },
+  "make_delta": "diff --git a/Makefile.gnu b/Makefile.gnu\nindex cec9bd1c8..64391cece 100644\n--- a/Makefile.gnu\n+++ b/Makefile.gnu\n@@ -5316,7 +5316,7 @@ test-owned-string-joins: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS)\n .PHONY: test-mixed-samples\n test-units: test-mixed-samples\n test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)\n-\tMIXED_SAMPLES_LINK_OBJECTS=\"$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)\" python3 -m unittest -v tests.test_mixed_samples\n+\tMIXED_SAMPLES_LINK_OBJECTS=\"$(filter-out $(OBJ_DIR)/nanoisa/mixed_float_proof.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)\" MIXED_SAMPLES_LDFLAGS=\"$(LDFLAGS)\" python3 -m unittest -v tests.test_mixed_samples\n \n .PHONY: test-service-module\n # I exercise real container/consumer objects; only the allocation-prefix variant\n",
+  "new_execution": false
+}

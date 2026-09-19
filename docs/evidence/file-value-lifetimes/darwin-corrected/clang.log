@@ -1,0 +1,11 @@
+python3 -m unittest -f -v tests.test_nsi_file_values
+I retain File value artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-values-yne1xgtl
+test_instrumented_owner_faults_and_cleanup (tests.test_nsi_file_values.FileValues.test_instrumented_owner_faults_and_cleanup) ... PASS 1989 File value checks; 270 real opens and 270 real closes; no live resources
+ok
+test_linked_real_file_value_lifetimes (tests.test_nsi_file_values.FileValues.test_linked_real_file_value_lifetimes) ... PASS 1289 ordinary linked File value checks
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.432s
+
+OK
