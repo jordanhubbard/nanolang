@@ -9233,6 +9233,11 @@ Ownership and proposal closure:
   - [x] I qualify actual Linux/Darwin byte I/O, transfer/close/reuse, stale/duplicate isolation and deterministic allocation/host-error cleanup with retained source/tool evidence.
   - [x] I include both unchanged private fixtures in normal `test-units` through `CC/CFLAGS/LDFLAGS`, retaining a separate explicit strict sanitizer target. I qualify only the new normal target with Linux GCC and actual Darwin Apple Clang; my frozen4aad sanitizer evidence remains unchanged.
   - [ ] I independently review and integrate this private child; I then contract public NSI/paired source/VM/AOT integration separately without closing d03c.
+- [ ] I qualify a private real local Socket lifecycle (`task_372aa1e18e45e605d09f0e611495f948`, child d03c) under my [preimplementation contract](NSI_LOCAL_SOCKET_SERVICE.md). I reuse private checked capability identity, atomically acquire an actual local socket pair, preserve per-outcome owner/progress facts, and qualify byte/EOF/close/rollback/slot-reuse on Linux/Darwin before public Socket/Result/source/VM/native integration.
+  - [ ] I review the exact private API, platform configuration and close/error policy before production or resource operations.
+  - [ ] I review implementation, then qualify fresh real endpoint lifecycle, checked refusals, deterministic faults and adjacent File/capability controls with frozen evidence.
+  - [ ] I retain network connect, WebSocket, generated bindings and both-frontend verified service/Result integration as required separate d03c/ed702 checkpoints; this local pair is not their completion.
+- [ ] I repair the statically unpreserved positional OpenCL buffer identity (`task_87ca2c78f1cd1e8a56230beaaae38e6c`, under d03c) only after a separate reviewed contract. My [source audit](OPENCL_BUFFER_IDENTITY_AUDIT.md) records canonical1cbe8c6f allocation/lookup/compaction lines and invariant derivation without a reproduction, driver load or GPU operation. Stable identity, compatibility and checked retirement require ordinary lifecycle controls; real GPU acceptance remains separate from existing stub tests.
 - [ ] I migrate real file, socket, GPU, and capability/service handles only
       after that contract and IR are enforceable
       (`task_d03c232dc067e75cbc2fb2b7fb84ee46`).
