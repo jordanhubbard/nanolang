@@ -1,0 +1,25 @@
+fn byte_identity(value: u8) -> u8 {
+    return value
+}
+
+shadow byte_identity {
+    let low_value: u8 = 0
+    let high_value: u8 = 255
+    assert (== (cast_int (byte_identity low_value)) 0)
+    assert (== (cast_int (byte_identity high_value)) 255)
+    assert (not (cast_bool low_value))
+    assert (cast_bool high_value)
+    assert (cast_bool 0.5)
+    assert (not (cast_bool 0.0))
+}
+
+fn main() -> int {
+    let value: u8 = 255
+    assert (== (cast_int (byte_identity value)) 255)
+    assert (cast_bool value)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}
