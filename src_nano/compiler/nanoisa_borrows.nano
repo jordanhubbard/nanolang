@@ -957,7 +957,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         if (or (and (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) (!= call.borrow_mode 0)) { return (nb_fail "a bound direct mode-zero value call") }
         let name: string = (nb_call_name parser call)
         let target: int = (nb_call_index parser call)
-        if (or (<= target 0) (== name "")) { return (nb_fail "an unshadowed bound direct non-entry value-call target") }
+        if (or (<= target 0) (== name "")) { return (nb_fail "an unshadowed direct bound non-entry value-call target") }
         let function: ASTFunction = (parser_get_function parser (at nb_functions target))
         if (!= call.arg_count function.param_count) { return (nb_fail "the exact declared value-call arity") }
         let mut i: int = 0
