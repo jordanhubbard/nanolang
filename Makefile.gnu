@@ -5336,3 +5336,8 @@ test-units: test-mixed-samples-runtime test-mixed-samples-runtime-alloc test-mix
 .PHONY: test-nsi-gpu-private
 test-nsi-gpu-private:
 	python3 tests/test_nsi_gpu.py --real-gpu --compiler "$(CC)" --output "$(OBJ_DIR)/private-gpu-gate"
+
+.PHONY: test-owned-array-layouts
+test-units: test-owned-array-layouts
+test-owned-array-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	OWNED_ARRAY_LAYOUT_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_layouts
