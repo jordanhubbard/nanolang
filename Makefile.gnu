@@ -752,6 +752,12 @@ test-ui-array-bounds:
 	python3 -m unittest tests.test_ui_array_bounds
 
 test-units: test-ui-array-bounds
+
+.PHONY: test-sdl-text-input-events
+test-sdl-text-input-events:
+	python3 -m unittest tests.test_sdl_text_input_events
+
+test-units: test-sdl-text-input-events
 .PHONY: test-ffi-array-copyback
 test-ffi-array-copyback:
 	python3 -m unittest tests.test_ffi_array_copyback
@@ -906,6 +912,12 @@ test-selfhost-array-compatibility: bootstrap3
 	@python3 -m unittest tests.test_selfhost_array_compatibility
 
 test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls test-selfhost-rejection-gate
+
+.PHONY: test-selfhost-byte-array-identity
+test-selfhost-byte-array-identity:
+	@python3 -m unittest -v tests.test_selfhost_byte_array_identity
+
+test-units: test-selfhost-byte-array-identity
 
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop

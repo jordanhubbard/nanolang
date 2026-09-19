@@ -70,8 +70,7 @@ fn main() -> int {
     let mut color_mode: int = 0
     
     # New widgets state
-    # Ensure username is a writable heap string (ui_text_input expects a mutable buffer)
-    let mut username: string = (+ "" "Player123")
+    let mut username: array<u8> = (bytes_from_string "Player123")
     let mut input_focused: int = 0
     
     # Dropdown state
@@ -208,9 +207,11 @@ fn main() -> int {
             (nl_sdl_render_fill_rect renderer 485 250 40 20) 
         } else {}
         
-        # Text Input (read-only for now)
-        (nl_ui_label renderer font "Text Input (read-only):" 400 285 180 180 200 255) 
-        (nl_ui_text_input renderer font username 64 400 310 300 30 input_focused) 
+        # Text Input
+        (nl_ui_label renderer font "Text Input:" 400 285 180 180 200 255)
+        if (== (nl_ui_text_input renderer font username 64 400 310 300 30 input_focused) 1) {
+            (println (string_from_bytes username))
+        } else {}
         
         # === RIGHT COLUMN: Advanced Widgets ===
         (nl_ui_panel renderer 760 70 320 300 30 30 40 220) 

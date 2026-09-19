@@ -21,6 +21,10 @@ NANO_EXPORT_ARRAY_ABI(nl_sdl_update_texture);
 
 static SDL_Event nl_sdl_event_buf[NL_SDL_EVENT_BUF_CAP];
 static int nl_sdl_event_buf_len = 0;
+/* I mirror editing events so generic key/text polling cannot steal input from
+ * a focused widget. Focus transitions clear this bounded secondary queue. */
+static SDL_Event nl_sdl_text_edit_buf[NL_SDL_EVENT_BUF_CAP];
+static int nl_sdl_text_edit_buf_len = 0;
 static uint32_t nl_sdl_event_buf_last_ticks = UINT32_MAX;
 static int nl_sdl_events_drained_this_tick = 0;
 static int nl_sdl_quit_received = 0;  /* Track if quit was received this frame */
@@ -109,6 +113,15 @@ static void nl__sdl_drain_events(void) {
             nl_sdl_last_mousemotion = event;
             nl_sdl_has_mousemotion = 1;
             continue;
+        }
+
+        if ((event.type == SDL_TEXTINPUT ||
+             (event.type == SDL_KEYDOWN &&
+              (event.key.keysym.sym == SDLK_BACKSPACE ||
+               event.key.keysym.sym == SDLK_RETURN ||
+               event.key.keysym.sym == SDLK_KP_ENTER))) &&
+            nl_sdl_text_edit_buf_len < NL_SDL_EVENT_BUF_CAP) {
+            nl_sdl_text_edit_buf[nl_sdl_text_edit_buf_len++] = event;
         }
 
         if (nl_sdl_event_buf_len < NL_SDL_EVENT_BUF_CAP) {
@@ -519,12 +532,26 @@ void nl_flush_stdout(void) {
 
 /* Start SDL text input mode - enables SDL_TEXTINPUT events */
 void nl_sdl_start_text_input(void) {
+    nl_sdl_text_edit_buf_len = 0;
     SDL_StartTextInput();
 }
 
 /* Stop SDL text input mode - disables SDL_TEXTINPUT events */
 void nl_sdl_stop_text_input(void) {
     SDL_StopTextInput();
+    nl_sdl_text_edit_buf_len = 0;
+}
+
+/* I expose the mirrored stream to C widget modules without making SDL_Event a
+ * NanoLang FFI type. Events retain their original order. */
+int nl_sdl_take_text_input_event(SDL_Event *out) {
+    nl__sdl_drain_events();
+    if (nl_sdl_text_edit_buf_len == 0) return 0;
+    if (out) *out = nl_sdl_text_edit_buf[0];
+    memmove(&nl_sdl_text_edit_buf[0], &nl_sdl_text_edit_buf[1],
+            (size_t)(nl_sdl_text_edit_buf_len - 1) * sizeof(SDL_Event));
+    nl_sdl_text_edit_buf_len--;
+    return 1;
 }
 
 /* Poll for text input event - returns typed character(s) or empty string

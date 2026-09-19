@@ -3403,6 +3403,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
           This nested-scalar slice now passes 24 boundary-specific rejections
           and native positive values. Nominal/generic execution and unknown
           compatibility remain open; I do not close the parent item.
+          - [x] I align `bytes_from_string` and `file_read_bytes` with the same
+            parsed `u8` element identity used by `array<u8>` annotations. My
+            Stage 2 compiler currently reports the former as `array<int>` and
+            rejects the typed SDL text buffer that C-seed accepts. I require
+            self-host shadows plus unchanged cross-stage positive and wrong-type
+            rejection controls. This bounded prerequisite does not close the
+            recursive/nominal parent. MAC
+            `task_6c1cf53690f12d367af533ffdbe09947`. Evidence:
+            `docs/evidence/sdl-text-input-editing.md`.
         - [x] I preserve each remaining array level when emitting nested
           indexing, rather than selecting an integer read for an inner array.
           I require native shadows and runtime values at multiple depths.
@@ -8262,6 +8271,28 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 - [x] I ship a windowed SDL editor (`examples/emacs/nano_emacs.nano`) that uses
   `modules/ui_widgets` and the line buffer in `examples/lib/source_editor.nano`,
   with Emacs-shaped panes, a minibuffer, and C-x / M-x keys.
+- [x] **5.1 / SDL text-input editing.** I make the text-input widget edit a
+      caller-owned `array<u8>` rather than writing through an immutable string
+      with an invented capacity. I mirror ordered `SDL_TEXTINPUT`, Backspace,
+      Return and keypad-Enter events from my shared SDL event drain so quit and
+      generic key polling cannot steal them. Focus starts and stops SDL text
+      input for the active buffer. I append only complete valid UTF-8 events
+      within the declared byte limit, remove one complete UTF-8 code point on
+      Backspace, report Enter without changing the buffer, and render only a
+      validated temporary C string. I update the NanoLang declaration and UI
+      example, preserve invalid-input/no-draw behavior, and test event ordering,
+      focus changes, capacity, UTF-8 editing and the array ABI. MAC
+      `task_eecbc1d010a5420e3da4af5d3ead04cf`. Evidence:
+      `docs/evidence/sdl-text-input-editing.md`.
+      - [x] I emit the C-seed byte-conversion helpers from my self-hosted C
+        runtime too. My freshly bootstrapped Stage 1 and installed Stage 2
+        accept the typed buffer, but their strict native-shadow compilation
+        currently calls undeclared `nl_bytes_from_string` and
+        `nl_string_from_bytes`. I preserve the bounded `ELEM_U8` and managed
+        result-string contracts, add exact runtime shadows, and require the
+        unchanged UI example through C-seed, Stage 1 and Stage 2. MAC
+        `task_72cc251cbf894ec5f4e7b0adf85192f3`. Evidence:
+        `docs/evidence/sdl-text-input-editing.md`.
 - [x] I evaluate NanoLang in that editor through a persistent tree-walker
   session (`modules/nano_eval`) with host primitives `ed_message`, `ed_insert`,
   `ed_buffer_string`, `ed_point`, `ed_goto_char`, `ed_find_file`,

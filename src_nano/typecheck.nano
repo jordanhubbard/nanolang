@@ -3059,6 +3059,14 @@ shadow is_builtin_function {
 /* Check return type for built-in functions
  * Returns the appropriate type based on the function name
  */
+fn type_u8_array() -> NSType {
+    return (type_array_of (type_from_string "u8"))
+}
+
+shadow type_u8_array {
+    assert (== (type_to_string (type_u8_array)) "array<u8>")
+}
+
 fn check_builtin_function(fn_name: string) -> NSType {
     /* Core functions */
     if (== fn_name "print") { return (type_void) } else { (print "") }
@@ -3161,7 +3169,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
     
     /* File I/O operations */
     if (== fn_name "file_read") { return (type_string) } else { (print "") }
-    if (== fn_name "file_read_bytes") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
+    if (== fn_name "file_read_bytes") { return (type_u8_array) } else { (print "") }
     if (== fn_name "file_write") { return (type_int) } else { (print "") }
     if (== fn_name "file_append") { return (type_int) } else { (print "") }
     if (== fn_name "file_remove") { return (type_void) } else { (print "") }
@@ -3214,7 +3222,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
     if (== fn_name "bstr_free") { return (type_void) } else { (print "") }
     
     /* Bytes operations */
-    if (== fn_name "bytes_from_string") { return (type_array TypeKind.TYPE_INT "u8") } else { (print "") }
+    if (== fn_name "bytes_from_string") { return (type_u8_array) } else { (print "") }
     if (== fn_name "string_from_bytes") { return (type_string) } else { (print "") }
     
     /* Math operations (trig) */
@@ -3264,6 +3272,8 @@ shadow check_builtin_function {
     
     let t2: NSType = (check_builtin_function "array_length")
     assert (== t2.kind TypeKind.TYPE_INT)
+    assert (== (type_to_string (check_builtin_function "bytes_from_string")) "array<u8>")
+    assert (== (type_to_string (check_builtin_function "file_read_bytes")) "array<u8>")
 }
 
 /* Extract element type from list function name

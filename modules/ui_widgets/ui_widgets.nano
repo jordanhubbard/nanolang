@@ -2,6 +2,7 @@
 # Provides simple, clickable UI widgets: Buttons, Labels, Sliders, Progress Bars
 
 import "modules/sdl/sdl.nano"
+import "modules/sdl_helpers/sdl_helpers.nano"
 import "modules/sdl_ttf/sdl_ttf.nano"
 
 # Update global mouse state ONCE per frame.
@@ -167,22 +168,22 @@ extern fn nl_ui_seekable_progress_bar(_renderer: SDL_Renderer, _x: int, _y: int,
                                        _progress: float) -> float
 
 # Text input field - single line text input widget
-# Returns: 1 if Enter was pressed, 0 otherwise
-# Note: Text editing not yet implemented, shows current buffer content only
-# Handles mouse state internally
+# Returns: 1 if Enter was pressed, 0 otherwise.
+# I edit a mutable UTF-8 byte array. Use bytes_from_string/string_from_bytes at
+# immutable string boundaries. Generic SDL polling cannot steal my edit events.
 #
 # Parameters:
 #   renderer: SDL renderer
 #   font: TTF_Font for text
-#   buffer: string buffer (displayed text)
-#   buffer_size: maximum buffer size
+#   buffer: mutable array<u8> containing valid UTF-8 without NUL bytes
+#   buffer_size: maximum byte length
 #   x, y, w, h: input field rectangle
 #   is_focused: whether this input is currently focused (1 or 0)
 #
 # Usage:
-#   (nl_ui_text_input renderer font username 64 50 200 300 40 focused)
+#   (nl_ui_text_input renderer font username_bytes 64 50 200 300 40 focused)
 extern fn nl_ui_text_input(_renderer: SDL_Renderer, _font: TTF_Font,
-                            _buffer: string, _buffer_size: int,
+                            _buffer: array<u8>, _buffer_size: int,
                             _x: int, _y: int, _w: int, _h: int,
                             _is_focused: int) -> int
 
@@ -341,5 +342,4 @@ extern fn nl_ui_code_editor(_renderer: SDL_Renderer, _font: TTF_Font,
                              _code: string, _x: int, _y: int,
                              _w: int, _h: int, _scroll_offset: int,
                              _line_height: int, _cursor_row: int, _cursor_col: int) -> void
-
 

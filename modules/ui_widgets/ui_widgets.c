@@ -1,4 +1,6 @@
 #include "ui_widgets.h"
+#include "../sdl_helpers/sdl_helpers.h"
+#include "../../src/utf8.h"
 #include <string.h>
 #include <math.h>
 #include <limits.h>
@@ -36,6 +38,7 @@ static int ui_control_label_rect(SDL_Rect box, int width, int height, SDL_Rect *
 NANO_EXPORT_ARRAY_ABI(nl_ui_scrollable_list);
 NANO_EXPORT_ARRAY_ABI(nl_ui_dropdown);
 NANO_EXPORT_ARRAY_ABI(nl_ui_file_selector);
+NANO_EXPORT_ARRAY_ABI(nl_ui_text_input);
 
 /* I bound counts to the widgets' int loop indices before touching SDL. */
 static int ui_array_valid(const DynArray *a, int64_t count) {
@@ -86,53 +89,64 @@ static int checkbox_prev_mouse_down = 0;
 static int radio_current_mouse_down = 0;
 static int radio_prev_mouse_down = 0;
 
-// Global text input buffer for SDL_TextInput events
-static char g_text_input_buffer[256] = "";
-static int g_text_input_active = 0;
+/* At most one byte-array buffer owns SDL text focus. Pointer identity is only
+ * used while deciding focus transitions; I never dereference an inactive one. */
+static DynArray *g_text_input_active_buffer;
 
-// Helper: Start SDL text input mode
-static void start_text_input() {
-    if (!g_text_input_active) {
-        SDL_StartTextInput();
-        g_text_input_active = 1;
-    }
+static int ui_text_buffer_valid(const DynArray *buffer, int64_t limit) {
+    if (!buffer || limit <= 0 || limit > INT_MAX ||
+        buffer->elem_type != ELEM_U8 || buffer->elem_size != sizeof(uint8_t) ||
+        buffer->length < 0 || buffer->capacity < buffer->length ||
+        buffer->length > limit ||
+        (uint64_t)buffer->capacity > SIZE_MAX / sizeof(uint8_t) ||
+        (buffer->capacity && !buffer->data)) return 0;
+    if (!buffer->length) return 1;
+    if (memchr(buffer->data, 0, (size_t)buffer->length)) return 0;
+    return nl_utf8_validate((const char *)buffer->data,
+                            (size_t)buffer->length, NULL);
 }
 
-// Helper: Stop SDL text input mode
-static void stop_text_input() {
-    if (g_text_input_active) {
-        SDL_StopTextInput();
-        g_text_input_active = 0;
-    }
+static char *ui_text_cstr(const DynArray *buffer) {
+    size_t length = (size_t)buffer->length;
+    char *text = malloc(length + 1);
+    if (!text) return NULL;
+    if (length) memcpy(text, buffer->data, length);
+    text[length] = '\0';
+    return text;
 }
 
-// Helper: Process SDL text input events and update buffer
-// Call this from your main event loop
-// Returns: 1 if text was modified, 0 otherwise
-static int process_text_input_event(SDL_Event* event, char* buffer, size_t buffer_size) {
-    if (!buffer || buffer_size == 0) return 0;
-    
-    if (event->type == SDL_TEXTINPUT) {
-        // Add new text to buffer
-        size_t current_len = strlen(buffer);
-        size_t input_len = strlen(event->text.text);
-        
-        if (current_len + input_len < buffer_size - 1) {
-            strcat(buffer, event->text.text);
-            return 1;
-        }
-    } else if (event->type == SDL_KEYDOWN) {
-        if (event->key.keysym.sym == SDLK_BACKSPACE && strlen(buffer) > 0) {
-            // Remove last character
-            buffer[strlen(buffer) - 1] = '\0';
-            return 1;
-        } else if (event->key.keysym.sym == SDLK_RETURN || event->key.keysym.sym == SDLK_KP_ENTER) {
-            // Enter pressed
-            return 2;  // Special return value for Enter
+static void ui_text_append(DynArray *buffer, int64_t limit, const char *text) {
+    size_t length;
+    if (!text || !nl_utf8_ok_cstr(text)) return;
+    length = strlen(text);
+    if (!length || length > (size_t)(limit - buffer->length)) return;
+    for (size_t i = 0; i < length; i++)
+        dyn_array_push_u8(buffer, (uint8_t)text[i]);
+}
+
+static void ui_text_backspace(DynArray *buffer) {
+    uint8_t *bytes;
+    int64_t start;
+    if (!buffer->length) return;
+    bytes = buffer->data;
+    start = buffer->length - 1;
+    while (start > 0 && (bytes[start] & 0xC0) == 0x80) start--;
+    buffer->length = start;
+}
+
+static int ui_text_apply_events(DynArray *buffer, int64_t limit) {
+    SDL_Event event;
+    int entered = 0;
+    while (nl_sdl_take_text_input_event(&event)) {
+        if (event.type == SDL_TEXTINPUT) {
+            ui_text_append(buffer, limit, event.text.text);
+        } else if (event.type == SDL_KEYDOWN) {
+            if (event.key.keysym.sym == SDLK_BACKSPACE) ui_text_backspace(buffer);
+            else if (event.key.keysym.sym == SDLK_RETURN ||
+                     event.key.keysym.sym == SDLK_KP_ENTER) entered = 1;
         }
     }
-    
-    return 0;
+    return entered;
 }
 
 // Update mouse state - call once per frame BEFORE rendering widgets
@@ -704,19 +718,37 @@ double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y,
     return new_position;
 }
 
-// Text input field - single line text input
-// I currently return 0; editing and Enter handling remain separate work.
-// I render a bounded text buffer; event-driven editing remains separate work.
+/* I edit a caller-owned byte array. Strings are immutable values and cannot
+ * safely advertise spare writable capacity. */
 int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
-                          const char* buffer, int64_t buffer_size,
+                          DynArray* buffer, int64_t buffer_size,
                           int64_t x, int64_t y, int64_t w, int64_t h,
                           int64_t is_focused) {
-    
-    if (!renderer || !buffer || buffer_size <= 0 ||
-        (uint64_t)buffer_size > SIZE_MAX || w < 16 || h < 12 ||
+    if (!ui_text_buffer_valid(buffer, buffer_size)) {
+        if (buffer && g_text_input_active_buffer == buffer) {
+            nl_sdl_stop_text_input();
+            g_text_input_active_buffer = NULL;
+        }
+        return 0;
+    }
+    if (!renderer || w < 16 || h < 12 ||
         !ui_bar_geometry(x, y, w, h, 0)) return 0;
-    if (!memchr(buffer, 0, (size_t)buffer_size)) return 0;
     int enter_pressed = 0;
+    char *text;
+
+    if (is_focused) {
+        if (g_text_input_active_buffer != buffer) {
+            if (g_text_input_active_buffer) nl_sdl_stop_text_input();
+            g_text_input_active_buffer = buffer;
+            nl_sdl_start_text_input();
+        }
+        enter_pressed = ui_text_apply_events(buffer, buffer_size);
+    } else if (g_text_input_active_buffer == buffer) {
+        nl_sdl_stop_text_input();
+        g_text_input_active_buffer = NULL;
+    }
+    text = ui_text_cstr(buffer);
+    if (!text) return enter_pressed;
     
     // Get mouse state
     int mouse_x, mouse_y;
@@ -759,8 +791,8 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
     }
     
     // Draw text content
-    if (font && buffer && strlen(buffer) > 0) {
-        SDL_Surface* surface = TTF_RenderText_Blended(font, buffer, text_color);
+    if (font && text[0]) {
+        SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text, text_color);
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
@@ -781,10 +813,10 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
         cursor_blink_counter = (cursor_blink_counter + 1) % 60;
         if ((cursor_blink_counter / 30) % 2 == 0) {  // Blink every 30 frames
             int cursor_x = (int)x + 8;
-            if (font && buffer[0]) {
+            if (font && text[0]) {
                 // Measure text width to position cursor
                 int text_w = 0, text_h = 0;
-                if (TTF_SizeText(font, buffer, &text_w, &text_h) == 0 && text_w >= 0) {
+                if (TTF_SizeUTF8(font, text, &text_w, &text_h) == 0 && text_w >= 0) {
                     int64_t measured_x = (int64_t)cursor_x + text_w + 2;
                     int64_t right = x + w - 8;
                     cursor_x = (int)(measured_x > right ? right : measured_x);
@@ -800,6 +832,7 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
         input_prev_mouse_down = mouse_down;
     }
     
+    free(text);
     return enter_pressed;
 }
 
