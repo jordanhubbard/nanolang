@@ -87,3 +87,31 @@ output-preservation assertions. That future gate requires its own frozen integra
 setup and first-terminal record. I do not equate this supplement with that gate,
 whole-product/fixed-point acceptance, or release publication. Parent closure still
 requires reconciliation against all original criteria, not just this new fixture.
+
+## My prepared fixture checkpoint
+
+My two graphs use six locals: replacement ARRAY, retained A alias, Bundle owner,
+Handle owner, transferred ARRAY and integer loop counter. Normal output is
+`11\n12\n13\n`; explicit assertion output is `11\n12\n`. Allocation refusals
+permit only the exact already-reached prefixes: empty, `11\n`, or `11\n12\n`.
+After unpack I replace the transferred ARRAY local with a fresh empty array too,
+then prove the outside A alias survives growth while B and the empty array keep
+their distinct contents/lengths.
+
+The VM observer identifies the second ARR_LITERAL's decoded next PC. At a
+positive allocation refusal at that site it checks the old local, outside alias
+and Bundle field still point to A with FLOAT1.5 and at least three retains. Every
+API/fusion sweep must hit this replacement site, eventually reach an unhit
+outcome, and recover after every hit. Native's equivalent interval is after the
+first marker and before the second, where only B construction allocates; its
+sweep must reach a fault with that prefix. Native entry must retain the existing
+pre-disposal live-object/live-byte check, whose status3 cannot satisfy any expected
+normal, assertion2 or allocation1 outcome. Both paths keep the prior bounded
+allocation ceilings; reaching a ceiling is a failure, not permission to relabel
+partial coverage.
+
+The driver compiles both dispatch modes explicitly and proves their selected
+macros. It compares their generated C byte-for-byte, then compiles the same
+unmodified emitted code at O0/O2 under allocation-accounting wrappers. My new
+Make target supplies the existing provider closure and explicit CC. No original
+fixture is edited; only Python syntax and whitespace were checked before review.

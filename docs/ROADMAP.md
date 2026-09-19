@@ -12147,3 +12147,10 @@ Parent430220, full4be, shared-match477/70c, full product and release remain open
   routes. Existing same-array replacement and nonexecuting origin proof do not
   substitute. Full fixture review precedes execution; no source reassignment or
   production widening is inferred. The unchanged full33-method affine gate follows.
+
+I prepare task26691's complete two-graph fixture, native allocation harness and
+explicit-dispatch driver. The decoded B-allocation observer checks old local,
+alias and owner-field identity before refusal; exact output prefixes and existing
+pre-disposal accounting distinguish success, assertion and memory cleanup.
+Python syntax and whitespace checks pass. No modules, generated programs or
+qualification builds run before the full fixture checkpoint review.
