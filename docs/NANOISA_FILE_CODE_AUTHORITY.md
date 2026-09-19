@@ -245,3 +245,40 @@ My fixtures require preserved destination contents and absence of staging for
 normal/daemon rejection, including malformed bytes and each mismatched clean/
 claimed representation. Any early allocation failure refuses before publication.
 I qualify this correction only after independent source review.
+
+## My next reviewable preparation boundary
+
+After actual PR841 merge I first prepare an independently owned, non-certifying
+CODE plan. I retain the copied private declarations, copy CODE, decode all
+function extents and retain exact instructions, source-to-catalog constructor
+identities, successor indices and topological orders. I reject overlapping,
+unclaimed or empty function extents, so every CODE byte belongs to exactly one
+function. Function-table order need not equal CODE order. The public entry has
+only mode0 INT/BOOL/VOID parameters and scalar/no result; internal declarations
+retain the existing exact owner/borrow facts.
+
+I check operand-local/callee/reference/constructor/import identities even in
+unreachable instructions, and reject syntactic CFG and direct-call cycles.
+Preparation does not check stack types, owner/refinement/exit flow, branch
+reachability, or discharge any body/runtime obligation. Its successful status
+must never be consumed as an admission certificate. A dependent reviewed state
+propagation checkpoint performs those checks before private acceptance.
+
+My exact preparation inventory is NOP; PUSH_I64/BOOL/VOID; DUP/POP;
+LOAD_LOCAL/STORE_LOCAL; OWN_MOVE_LOCAL/OWN_STORE_LOCAL; REGION_BEGIN/END;
+BORROW_LOCAL_EXCLUSIVE; the six File opcodes; CALL/CALL_REF; JMP/JMP_TRUE/JMP_FALSE;
+RET; ASSERT; ADD/SUB/MUL/DIV/MOD/NEG and I64_ADD/SUB/MUL/DIV_S/REM_S/NEG;
+EQ/NE/LT/LE/GT/GE and I64_EQ/NE/LT_S/LE_S/GT_S/GE_S; AND/OR/NOT;
+AGG_PACK/UNION_CONSTRUCT; AGG_GET/UNION_FIELD; and AGG_TAG/UNION_TAG.
+Generic scalar operators will require exact scalar facts during transfer;
+constructor and projection shape facts are not inferred from their opcodes.
+Unlisted operations are UNRESOLVED, including SWAP/ROT3 and indirect calls.
+
+I implement this private plan in an include owned by the existing file_flow
+translation unit, where actual declaration/state extents and the immutable
+nominal map are available. I check the worst-case nominal allocation plus exact
+declaration, plan, CODE and instruction allocations and bounded preparation
+scratch against16MiB before allocating. Later cloned state peaks must separately
+use the actual state extent and remaining budget; no future flow budget is
+claimed from preparation. Every failure frees partial ownership and preserves
+caller output. No public verifier, converter, VM or backend calls this API.
