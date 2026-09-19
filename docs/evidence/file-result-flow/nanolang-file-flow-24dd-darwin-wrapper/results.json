@@ -1,0 +1,32 @@
+[
+  {
+    "command": [
+      "make",
+      "-j4",
+      "nano_virt",
+      "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+    ],
+    "phase": "provider",
+    "seconds": 0.753,
+    "status": 0
+  },
+  {
+    "command": [
+      "bin/nano_virt",
+      "tests/test_minimal.nano",
+      "-o",
+      "/tmp/nanolang-file-flow-24dd-darwin-wrapper/wrapper"
+    ],
+    "phase": "wrapper",
+    "seconds": 0.57,
+    "status": 0
+  },
+  {
+    "command": [
+      "/tmp/nanolang-file-flow-24dd-darwin-wrapper/wrapper"
+    ],
+    "phase": "wrapper-run",
+    "seconds": 0.284,
+    "status": 0
+  }
+]

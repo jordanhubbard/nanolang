@@ -1,0 +1,118 @@
+{
+  "artifact_entries": 4236,
+  "unique_artifacts": 664,
+  "archive": "/tmp/nanolang-file-flow-artifacts",
+  "pairs": [
+    {
+      "directory": "nanolang-file-flow-24dd-linux-wrapper",
+      "kind": "tools",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-24dd-linux-wrapper",
+      "kind": "source",
+      "count": 6521,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-24dd-darwin",
+      "kind": "tools",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-24dd-darwin",
+      "kind": "source",
+      "count": 6521,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-darwin",
+      "kind": "tools",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-darwin",
+      "kind": "source",
+      "count": 6418,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-24dd-linux",
+      "kind": "tools",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-24dd-linux",
+      "kind": "source",
+      "count": 6521,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-24dd-darwin-wrapper",
+      "kind": "tools",
+      "count": 9,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-24dd-darwin-wrapper",
+      "kind": "source",
+      "count": 6521,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-linux",
+      "kind": "tools",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-linux",
+      "kind": "source",
+      "count": 6418,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-linux-corrected",
+      "kind": "tools",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-linux-corrected",
+      "kind": "source",
+      "count": 6418,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-linux-closure",
+      "kind": "tools",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-linux-closure",
+      "kind": "source",
+      "count": 6418,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-darwin-closure",
+      "kind": "tools",
+      "count": 8,
+      "equal": true
+    },
+    {
+      "directory": "nanolang-file-flow-38a-darwin-closure",
+      "kind": "source",
+      "count": 6418,
+      "equal": true
+    }
+  ],
+  "original_pin": "38a19922a",
+  "integrated_pin": "24ddc72de",
+  "public_execution": false
+}

@@ -15,6 +15,7 @@
     "../../src/nanoisa/mixed_float_proof.c",
     "../../src/nanoisa/ownership_contracts.c",
     "../../src/nanoisa/reference_places.c",
+    "../../src/nanoisa/file_flow.c",
     "../../src/nanoisa/service_file_nominal.c",
     "../../src/nanoisa/service_file_nominal_plan.c",
     "../../src/nanoisa/service_bindings.c",
