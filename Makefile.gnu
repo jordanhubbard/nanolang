@@ -4875,6 +4875,12 @@ test-source-borrow-emission: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nano
 	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@python3 -m unittest -v tests.test_source_borrow_emission
 
+.PHONY: test-inline-owned-construction
+test-units: test-inline-owned-construction
+test-inline-owned-construction: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump test-local-binding-metadata
+	$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_inline_owned_construction
+
 .PHONY: test-owned-assertions
 test-units: test-owned-assertions
 test-owned-assertions: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c

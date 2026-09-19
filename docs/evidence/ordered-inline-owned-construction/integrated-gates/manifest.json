@@ -1,0 +1,74 @@
+{
+  "pin": "3aa4b92dc0e5bef45c84229bc9b55c5c69f97f95",
+  "steps": [
+    {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "--eval=inline-prepare: nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump test-local-binding-metadata\n\t$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)",
+        "inline-prepare"
+      ],
+      "environment": {},
+      "status": 0,
+      "seconds": 26.031,
+      "tools_unchanged": false,
+      "log_sha256": "93ef6e2cfad81a3a7e5a157ffb0e3cc409c9041b169dc282bca6bf62c32264f0"
+    },
+    {
+      "name": "focused-gcc",
+      "command": [
+        "python3",
+        "/tmp/nanolang-inline-integrated-tests.py",
+        "/tmp/nanolang-inline-owned-integrated-qualified/gcc-producers.json"
+      ],
+      "environment": {
+        "CC": "gcc"
+      },
+      "status": 0,
+      "seconds": 198.111,
+      "tools_unchanged": true,
+      "log_sha256": "fe5ac56d92af0c3ec7c7ae817d4bfb4999e0a8472f6eadc6898ee3f7cd155917"
+    },
+    {
+      "name": "focused-clang",
+      "command": [
+        "python3",
+        "/tmp/nanolang-inline-integrated-tests.py",
+        "/tmp/nanolang-inline-owned-integrated-qualified/clang-producers.json"
+      ],
+      "environment": {
+        "CC": "/tmp/nanolang-inline-clang"
+      },
+      "status": 0,
+      "seconds": 196.348,
+      "tools_unchanged": true,
+      "log_sha256": "6dc4bf62bcc3c9444ce99166a160c590831b33e539708e10db3252648d0ae3b0"
+    },
+    {
+      "name": "runtime",
+      "command": [
+        "make",
+        "-j2",
+        "test-affine-state",
+        "test-affine-bytecode",
+        "test-owned-transfers",
+        "test-owned-runtime",
+        "test-owned-value-graphs",
+        "test-owned-value-results",
+        "test-owned-assertions",
+        "test-owned-binary64",
+        "test-nested-owned-results"
+      ],
+      "environment": {},
+      "status": 0,
+      "seconds": 29.179,
+      "tools_unchanged": true,
+      "log_sha256": "0f5b44a93603815577a9c58172b7a556a017aa5e37559547f50ff170c5803e88"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_tree_clean": true,
+  "terminal": 0
+}
