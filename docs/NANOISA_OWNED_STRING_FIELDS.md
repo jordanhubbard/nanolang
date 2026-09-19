@@ -285,3 +285,16 @@ signatures/effects through `mf_scalar_layout`. Neither query gains STRING owner
 proof, verifier admission or execution. My fresh runtime refusal fixture checks
 both query failures and unchanged output pointers, alongside all three closed
 target-profile refusals. I leave their private production unchanged.
+
+## My initialization-join acceptance gap
+
+Root review of my sealed6b runtime fixtures finds that their conditional arms
+precede STRING creation; their STRING locals are otherwise linear. That does
+not qualify the new initialization meet. Before adding or executing controls,
+I record this gap: I require direct state-query checks that intersect STRING
+initialization, two fresh valid modules that initialize the same STRING local
+on both arms and execute each selected arm, and fresh checked refusal when
+only one arm initializes the local before a joined load. The refused module
+never executes. I preserve all production and the original sealed runtime
+tree/tools; a separate tree qualifies only these additional controls with GCC
+and Clang. Source admission waits for this evidence.
