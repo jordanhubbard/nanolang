@@ -3831,5 +3831,32 @@
         "/usr/bin/aarch64-linux-gnu-ld.bfd": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c"
       }
     }
+  },
+  "integration": {
+    "canonical_base": "5b5fce507843cddbe2f0bba215875388e81c76d3",
+    "merge_pin": "544e7a47f6d7d957e0d9bfbf099521a73832026b",
+    "qualified_evidence_pin": "0af447663",
+    "unchanged_inputs": {
+      "src/nsi_gpu.c": "1a9c81bd05e44d79357b5e089f4db8eb357558983beaf4439001c22282f3d444",
+      "src/nsi_gpu.h": "d354cdc00a8194f6727c6522d433d1aa74502f87f007b897406a928fbb2c8802",
+      "src/nsi_cap.c": "d0b16667532f84ce70a20e47d7eb6304079deab350aad73633cb76fb51284d04",
+      "src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+      "src/nsi_cap_private.h": "4febc6245782090dd786ca58d184670f405cd84609b3970312822281617bffe5",
+      "src/nsi_file.c": "a81092fb70c9cc97c43a0ac5eda2394b311af7d9641c7deb41455af29730faad",
+      "src/nsi_file.h": "ce46023ad79a65c5fb2cf21986c878f4a9666a18d5aafb9ff5c02574da8f1a86",
+      "src/nsi_socket.c": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+      "src/nsi_socket.h": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+      "tests/test_nsi_gpu.c": "081d0d314538287b9d1bcc346be3bc5f18fe7930c8dde2d8a6b5945f49af7e72",
+      "tests/test_nsi_gpu_linked.c": "0e8bb7e49b66d1258b8d0eee9a979bdc031cfdba5d30b434de53164066fc1ad4",
+      "tests/test_nsi_gpu.py": "0b3bf87b7e20fd92eed0ce8d2c0b9bb75c1a8b116581847131e38c6056f25e52",
+      "tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+      "tests/test_nsi_file_linked.c": "0685248874ef5f42c9f7329005d350a622a624eba557d024f87bd41198a1364d",
+      "tests/test_nsi_socket.c": "eda35f5ba6261faa28a087314fe35cde6b62bbd5d496bbc3359c49f745c9ef37",
+      "tests/test_nsi_socket_linked.c": "637102c26f1a1e089a385ed1a2555cd9cb7e33a9a6e0c4a4b6377ef5f3202509",
+      "tests/test_nsi_cap.c": "7c436df72196fdfac7b83ca63996646586b62552ef6f293a7eb3b4c983fdcab5"
+    },
+    "current_makefile_sha256": "8bd2fee99bd01b79aa5d8a46ac4819688072b5801ac858aff215776479d7e668",
+    "makefile_change": "Only additive service-bindings test targets; GPU and File/Socket/capability gate recipes unchanged.",
+    "execution": "No rerun; original qualified tree/tools preserved and all17 implementation/header/fixture inputs byte-identical."
   }
 }

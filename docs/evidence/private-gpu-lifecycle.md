@@ -76,3 +76,12 @@ tracked trees. Qualified binaries and original inputs remain in the sealed
 not measured here. Real other-platform GPU, public Device/Buffer/Result,
 representative both-frontend/VM/native integration and legacy OpenCL identity87ca
 remain required separate parent work. I close no full d03c/ed702 obligation.
+
+I integrate canonical5b5fce507 in a separate tree at544e7a47f after sealing
+0af447663. The merge is clean. All17 implementation/header/fixture inputs retain
+their qualified SHA256 values; the eighteenth input, Makefile.gnu, gains only
+independent raw service-codec test targets. My GPU and adjacent recipes remain
+unchanged. The JSON records the integrated Makefile hash separately. I perform
+no repeated execution for these unrelated additions and preserve the original
+qualified tree/tools/evidence. This integration does not qualify the new service
+transport or mixed-provider code as part of the private GPU gate.
