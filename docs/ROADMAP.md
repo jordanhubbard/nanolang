@@ -11899,3 +11899,11 @@ programs or bootstrap. The complete production/fixture checkpoint awaits review,
 with both961a failures and the full mutation suite preserved. The next product
 acceptance remains the entire unchanged owned-record-pattern suite after these
 prerequisites pass, not a narrowed Bundle replacement.
+
+- [ ] I separate accepted declared push C names from my retained builtin helper
+  (`task_c6d34913ce079519f958caaeef7817fb`, dependency of286b/bba622). My frozenbb52 first
+  identity case fails C compilation with duplicate `nl_array_push`; both fresh
+  bootstraps/tools pass independently. I retain all old outcomes, builtin helper
+  availability and unchanged source fixtures. My naming contract requires paired
+  definition/prototype/call/function-value agreement, meaningful controls and
+  complete review before fresh qualification. Darwin source gates remain unrun.

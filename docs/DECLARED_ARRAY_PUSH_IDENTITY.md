@@ -104,3 +104,26 @@ frozen961a terminal logs and trees remain untouched. After identity/mutation
 acceptance, my next product prerequisite is the entire unchanged twelve-method
 `tests/test_owned_record_patterns.py` corpus, with all four compilers and PREFIX
 shadows; I do not start that run before these dependencies qualify.
+
+## My retained naming failure and correction boundary
+
+I record naming prerequisite `task_c6d34913ce079519f958caaeef7817fb` before repair. Frozenbb52
+Linux bootstrap280.601s/tools27.079s pass, then the first identity case fails
+generated C compilation (Ran1/1.297s): `src/stdlib_runtime.c` retains a builtin
+`nl_array_push`, while my accepted same-module declaration emits the same name.
+No failed output executes. Darwin bootstrap325.180s/tools59.639s pass; its source
+gates remain unrun after this common naming defect was established. I preserve
+both bootstrap trees and the Linux first identity log/artifacts.
+
+I retain the builtin helper and every other scope's ability to use it. I name
+the unqualified nonextern declared function `__nl_declared_array_push`, outside
+my ordinary `nl_` source-name prefix. C definition/prototype/call/function-value
+references must agree. Existing valid module-qualified mangling remains intact.
+Nano definitions and prototypes share `c_func_name_for_definition`; selected
+direct push calls and unbound declaration identifier values must use that same
+identity. Lexical variables keep their existing names and signature precedence;
+extern references and builtin emission remain unchanged. I add exact emitted-name
+shadows and a source function-value control retaining the actual declared push.
+I do not rename the program's source function, remove the builtin helper, or
+weaken the unchanged mutation/source suite. Complete diff review precedes fresh
+bootstrap and gates on both platforms.
