@@ -1,6 +1,8 @@
 #include "../nanoisa/service_bindings_module.h"
 #include "../nanoisa/affine_state.h"
 #include "../nanoisa/mixed_samples_internal.h"
+#include "../nanoisa/owned_array_authority.h"
+#include "owned_array_runtime_private.h"
 /*
  * NanoVM - Bytecode execution engine
  *
@@ -242,7 +244,7 @@ static bool vm_ownership_supported(const VmState *vm) {
  * The admitted standalone module is immutable while that invocation executes. */
 typedef struct {
     const NvmModule *module;
-    bool mixed;
+    bool mixed, owner_arrays;
     VmResult refusal;
     const char *reason;
     uint32_t function_count, record_count;
@@ -308,7 +310,7 @@ fail:nvm_mixed_samples_plan_free(plan);return false;
 }
 
 static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
-    proof->module=NULL;proof->mixed=false;proof->refusal=VM_OK;proof->reason=NULL;
+    proof->module=NULL;proof->mixed=false;proof->owner_arrays=false;proof->refusal=VM_OK;proof->reason=NULL;
     if(vm && nvm_mixed_samples_candidate(vm->module))return vm_mixed_invocation_prepare(vm,proof,false);
     bool required=false;
     if (!vm_owned_runtime_ready(vm,&required)) return false;
@@ -1315,6 +1317,51 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
  * external operation (I/O, FFI, halt) or completes / errors.
  * ======================================================================== */
 
+#ifdef NANO_OWNED_ARRAY_PRIVATE_RUNTIME
+/* I check the actual next retain before the unchanged shared handler commits
+ * it. A fused field load retains the field, not its containing shell. */
+static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
+                                         const VmDispatchInstruction *decoded) {
+    const DecodedInstruction *in=&decoded->instruction;
+    NanoValue retained=val_void();
+    switch(in->opcode) {
+    case OP_PUSH_STR: {
+        uint32_t index=in->operands[0].u32;
+        if(index>=vm->module_constants.count || !vm->module_constants.strings[index])return VM_ERR_TYPE_ERROR;
+        retained=val_string(vm->module_constants.strings[index]);break;
+    }
+    case OP_LOAD_LOCAL: {
+        uint32_t index=effect_local_index(vm,frame,in->operands[0].u16);
+        if(index>=vm->stack_size)return VM_ERR_TYPE_ERROR;
+        retained=vm->stack[index];
+        if(decoded->super_op==VM_SUPER_LOAD_LOCAL_FIELD) {
+            if(retained.tag!=TAG_STRUCT || !retained.as.sval || decoded->super_operand>=retained.as.sval->field_count)return VM_ERR_TYPE_ERROR;
+            retained=retained.as.sval->fields[decoded->super_operand];
+        }
+        break;
+    }
+    case OP_DUP:retained=stack_peek(vm,0);break;
+    case OP_AGG_GET: {
+        NanoValue owner=stack_peek(vm,0);uint16_t field=in->operands[0].u16;
+        if(owner.tag!=TAG_STRUCT || !owner.as.sval || field>=owner.as.sval->field_count)return VM_ERR_TYPE_ERROR;
+        retained=owner.as.sval->fields[field];break;
+    }
+    case OP_F64_EQ:case OP_F64_NE:case OP_F64_LT:case OP_F64_LE:case OP_F64_GT:case OP_F64_GE:
+        if(stack_peek(vm,0).tag!=TAG_FLOAT || stack_peek(vm,1).tag!=TAG_FLOAT)return VM_ERR_TYPE_ERROR;
+        break;
+    case OP_PRINT:case OP_PRINTLN:
+        if(stack_peek(vm,0).tag!=TAG_INT)return VM_ERR_TYPE_ERROR;
+        break;
+    default:break;
+    }
+    if(val_is_heap_obj(retained)) {
+        if(!retained.as.obj)return VM_ERR_TYPE_ERROR;
+        if(((VmHeapHeader *)retained.as.obj)->ref_count==UINT32_MAX)return VM_ERR_MEMORY;
+    }
+    return VM_OK;
+}
+#endif
+
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof) {
     VmOwnedInvocationProof resumed;
     if(vm && nvm_mixed_samples_candidate(vm->module) && !vm_owned_proof_matches(vm,proof)) {
@@ -1325,12 +1372,15 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     }
     bool admitted=vm_owned_proof_matches(vm,proof);
     bool required=false;
-    if (!vm_owned_runtime_ready(vm,&required))
+    if (admitted && proof->owner_arrays) {
+        required=true;
+        if(!vm_owned_constants_ready(vm))return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete private owner ARRAY constants.");
+    } else if (!vm_owned_runtime_ready(vm,&required))
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     if (!admitted && !vm_ownership_supported(vm))
         return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     const bool owned_execution = admitted || required;
-    const bool mixed_execution = admitted && proof->mixed;
+    const bool mixed_execution = admitted && (proof->mixed || proof->owner_arrays);
     if (owned_execution) {
         if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
             vm->frames[0].fn_idx!=0)
@@ -1663,6 +1713,13 @@ vm_dispatch_top:
                 return trap_error(vm, VM_ERR_MEMORY,
                                   "I could not reserve instruction output space.");
         }
+
+#ifdef NANO_OWNED_ARRAY_PRIVATE_RUNTIME
+        if(admitted && proof->owner_arrays) {
+            VmResult checked=vm_owned_array_preflight(vm,frame,decoded);
+            if(checked!=VM_OK)return trap_error(vm,checked,"I could not satisfy a private owner ARRAY operand or retain obligation.");
+        }
+#endif
 
         /* Private superinstructions run before the portable opcode switch.
          * They are an internal fusion of already-verified steps, so they
@@ -4614,7 +4671,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
             return VM_OK;
 
         case TRAP_PRINT:
-            proof->module=NULL;
+            if(!proof->owner_arrays)proof->module=NULL;
             val_print(trap.data.print.value, vm_out(vm));
             if (trap.data.print.newline) fprintf(vm_out(vm), "\n");
             vm_release(&vm->heap, trap.data.print.value);
@@ -4733,7 +4790,7 @@ static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue 
     if (vm->references.active)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a call in my standalone reference activation");
     uint32_t base = vm->stack_size, frames = vm->frame_count;
-    bool owned = nvm_uses_owned_transfers(vm->module) || proof->mixed;
+    bool owned = nvm_uses_owned_transfers(vm->module) || proof->mixed || proof->owner_arrays;
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void(),proof);
@@ -4754,6 +4811,49 @@ static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue 
     }
     return result;
 }
+
+#ifdef NANO_OWNED_ARRAY_PRIVATE_RUNTIME
+VmResult vm_execute_owned_array_private(VmState *vm,NanoValue *out) {
+    if(!vm || !out || vm_stack_address(vm,out) || !vm->module || vm->module!=vm->root_module ||
+       vm->stack_size || vm->frame_count || vm->activation_floor || vm->references.active ||
+       vm->linked_module_count || vm->callbacks || vm->opcode_trace || !vm_owned_constants_ready(vm))
+        return VM_ERR_TYPE_ERROR;
+    NvmOwnedArrayPlan *plan=NULL;
+    NvmOwnerAuthorityResult checked=nvm_prepare_owned_array_authority(vm->module,&plan);
+    if(checked.status!=NVM_OWNER_AUTH_PREPARED)
+        return vm_error(vm,checked.status==NVM_OWNER_AUTH_MEMORY?VM_ERR_MEMORY:VM_ERR_TYPE_ERROR,"%s",checked.message);
+    VmOwnedInvocationProof proof={0};proof.module=vm->module;proof.owner_arrays=true;
+    proof.function_count=vm->module->function_count;
+    VmResult result=VM_ERR_TYPE_ERROR;
+    for(uint32_t f=0;f<proof.function_count;f++) {
+        NvmOwnerSignature from;if(!nvm_owned_array_plan_signature(plan,f,&from))goto done;
+        NvmMixedSignature *to=&proof.signatures[f];
+        to->parameter_count=from.parameter_count;to->local_count=from.local_count;
+        to->max_stack=from.max_stack;to->result_fields=from.result_fields;
+        to->result=(NvmMixedDeclaration){from.result.tag,from.result.mode,from.result.global_layout,
+            from.result.owner?NVM_MIXED_VALUE_OWNER:NVM_MIXED_VALUE_SCALAR};
+        for(uint16_t n=0;n<from.parameter_count;n++) {
+            NvmOwnerDeclaration d=from.parameters[n];
+            to->parameters[n]=(NvmMixedDeclaration){d.tag,d.mode,d.global_layout,
+                d.owner?NVM_MIXED_VALUE_OWNER:NVM_MIXED_VALUE_SCALAR};
+        }
+    }
+    if(proof.signatures[0].parameter_count ||
+       (proof.signatures[0].result.tag!=TAG_INT && proof.signatures[0].result.tag!=TAG_BOOL && proof.signatures[0].result.tag!=TAG_U8))goto done;
+    result=vm_call_function_scoped(vm,0,NULL,0,&proof);
+    if(result==VM_OK) {
+        if(vm->stack_size!=1 || vm->frame_count || vm->stack[0].tag!=proof.signatures[0].result.tag)
+            result=VM_ERR_TYPE_ERROR;
+        else *out=stack_pop(vm);
+    }
+    /* The scoped call drains failed frames; I also drain an unexpected result
+     * shape before returning, without publishing any caller output. */
+    while(vm->stack_size)vm_release(&vm->heap,stack_pop(vm));
+    vm_clear_reference_activations(vm);
+done:
+    nvm_owned_array_plan_free(plan);return result;
+}
+#endif
 
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
     VmOwnedInvocationProof proof={0};

@@ -1,0 +1,19 @@
+{
+  "otool": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/otool",
+  "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "selected_environment": {
+    "NMS_EMBED_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_EMBED_EVIDENCE": "/private/tmp/nanolang-embedding-darwin-5f988/evidence/artifacts",
+    "NMS_EMBED_GCC": "/opt/homebrew/bin/gcc-16",
+    "PATH": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  },
+  "source_archive_sha256": "f2fd6f47f60cf0ef8b176f5768388b3c8374c6832f74b509b40da86eb46b4ea5",
+  "source_pin": "5f988ed79dd1f343fd9dca3d9b40c928264e668c",
+  "uname": "Darwin CXWWHGGJX0 25.6.0 Darwin Kernel Version 25.6.0: Fri Jul 31 19:17:26 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T6041 arm64",
+  "versions": {
+    "/opt/homebrew/bin/gcc-16": "gcc-16 (Homebrew GCC 16.2.0) 16.2.0\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+    "/opt/homebrew/bin/python3": "Python 3.14.7",
+    "/opt/homebrew/opt/llvm/bin/clang": "Homebrew clang version 23.1.1\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/llvm/23.1.1/bin\nConfiguration file: /opt/homebrew/Cellar/llvm/23.1.1/etc/clang/arm64-apple-darwin25.cfg"
+  }
+}

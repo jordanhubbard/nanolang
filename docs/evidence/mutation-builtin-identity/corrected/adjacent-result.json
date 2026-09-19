@@ -1,0 +1,15 @@
+{
+  "phase": "adjacent",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_canonical_prefix_conversion",
+    "tests.test_scalar_reduce_source.ScalarReduce.test_bound_reduce_function_and_local",
+    "tests.test_scalar_reduce_source.ScalarReduce.test_checked_signature_refusals_preserve_output"
+  ],
+  "timeout": 600,
+  "status": 0,
+  "elapsed_seconds": 8.332216179987881
+}

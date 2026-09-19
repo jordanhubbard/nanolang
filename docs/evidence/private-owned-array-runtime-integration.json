@@ -1,0 +1,25 @@
+{
+  "qualified_head": "431aeeaf27a329c3e9e7eaaf212a441a45c18363",
+  "integration_head": "6f0976b19fdd66c27104013ae333f9d80d5055ad",
+  "canonical_main": "6e7e8b155d0edef5e98865073c21cbf6ba812b13",
+  "scope": "Only ROADMAP conflicted; both ledger sides retained. All17 sealed runtime/provider/fixture inputs byte-identical; no tests rerun. Original qualified tree detached at4a5e80a48 and tools preserved. Incoming checker/source changes have their own PR835 evidence, not qualified by this runtime seal.",
+  "unchanged_inputs": {
+    "Makefile.gnu": "43f38beb68b35de2f7a9e7c8a18222462b1aff7f7b32db14d41c6e311c7da38d",
+    "src/nanovm/vm.c": "bc4bee4142a7324cf26b9bcd968a2bf5ab85172153bd6fc89cac75b1087a0cac",
+    "src/nanovm/heap.c": "38eaa2551ddeb42deec5bdb162b3764b5f224d2f06559fcacbce5075667cb1cd",
+    "src/nanovm/heap.h": "ad518751582c23650df52c9817f234630e6d9c11d093bdd8a0f278012a5aede2",
+    "src/nanovm/heap_cycles.c": "5fe9ba89e07a0907ac9d1ed6f403b13d227a0035af06337fb2db16b836ff710f",
+    "src/nanovm/owned_array_runtime_private.h": "7e7302e704bece199bd3c7e16054c8671592c6294e4cb5238896eed00197d5cc",
+    "src/nanoisa/nvm2c_owned.h": "4d061f286e5cbc2d8815ab6338f7e2eabd9e25e8043f166a6fdec68f2a34c895",
+    "src/nanoisa/owned_array_runtime_private.h": "af684d55d843b75876c9133676080a7ace1991d4b722250658930d933fc3585f",
+    "src/nanoisa/owned_array_authority.h": "35a2b5cc5f7afdbb20065e31193795e3805d9c82409172588abc2907ab7cd1cd",
+    "src/nanoisa/owned_array_authority.inc": "42e2be0e14314d230ba0ab5e65853bd0b2a6afc4609178c800377052d2d84c7b",
+    "src/nanoisa/owned_array_prepare.inc": "341c03c2f7636aefcf6786177e167cc8d43086bf51e383428ed38105f77c50f6",
+    "src/nanoisa/owned_array_origins.inc": "dfc03815b6ecef34648514cf65f2eba33e518640667418d8d3df2e16939109a6",
+    "src/nanoisa/managed_strings.c": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+    "src/nanoisa/managed_strings.h": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+    "tests/nanoisa/test_owned_array_origins.c": "e617d20608e7fe8cadb209c910e71aa27eb2bf76787c239e748cb6c60060cf95",
+    "tests/nanoisa/test_private_owned_array_runtime.c": "148554c4428aaa9a88e1b5807f02b5a622d49f0bb71b5160f8df310dd8a5594b",
+    "tests/test_private_owned_array_runtime.py": "018873c1341598225f25458e1389c42eaaca7ba5af524c5e17ac19a670fcdcf7"
+  }
+}
