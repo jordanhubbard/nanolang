@@ -11614,3 +11614,12 @@ bounded to this fixture, not a compiler bootstrap or whole-product qualification
 Earlier unmeasured statements remain historical; actual-merge ledger closure
 for a522 remains pending. Parent4be, owned ARRAY430220 and full product/release
 acceptance remain open.
+
+I prepare13d1's independent checker correction after the approved mutation
+contract. Direct push inference now requires no resolved binding; direct and
+qualified array_set/array_push builtin result selection yields to exact symbols.
+Existing symbol checking and C reserved declarations stay unchanged. Meaningful
+mandatory shadows cover unbound result types, declared/lexical precedence,
+restoration, arity diagnostics and qualified identity. This production awaits
+review before fresh bootstrap/qualification; owner-ARRAY source/runtime
+activation remains held.

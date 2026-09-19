@@ -4512,7 +4512,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 }
             }
         } else { (print "") }
-        if (and (== fn_name "array_push") (== call_node.arg_count 2)) {
+        if (and (== fn_name "array_push") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
             let first: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
             let array_type: NSType = (check_expr_node parser first.node_id first.node_type symbols diags file_name)
             if (and (== array_type.kind TypeKind.TYPE_ARRAY) (!= array_type.element_type_kind TypeKind.TYPE_UNKNOWN)) {
@@ -4584,6 +4584,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         }
         let mut builtin_type: NSType = (check_builtin_function fn_name)
         if (and (or (== fn_name "string_to_float") (or (== fn_name "float_from_bits") (== fn_name "float_to_bits"))) (>= (env_lookup symbols fn_name) 0)) {
+            set builtin_type (type_unknown_named fn_name)
+        }
+        # I keep bound mutation names on the ordinary symbol-checking path.
+        if (and (or (== fn_name "array_set") (== fn_name "array_push")) (>= (env_lookup symbols fn_name) 0)) {
             set builtin_type (type_unknown_named fn_name)
         }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
@@ -4677,6 +4681,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         /* Allow builtin/mapped helpers for module-qualified calls (e.g., Diagnostics.*) */
         let mut builtin_type: NSType = (check_builtin_function short_name)
         if (and (== short_name "string_to_float") (>= (env_lookup symbols qualified_name) 0)) {
+            set builtin_type (type_unknown_named qualified_name)
+        }
+        if (and (or (== short_name "array_set") (== short_name "array_push")) (>= (env_lookup symbols qualified_name) 0)) {
             set builtin_type (type_unknown_named qualified_name)
         }
         if (!= builtin_type.kind TypeKind.TYPE_UNKNOWN) {
@@ -4940,6 +4947,52 @@ shadow check_expr_node {
     assert (== shadowed_member.kind TypeKind.TYPE_STRING)
     assert (== (list_CompilerDiagnostic_length enum_diags) 0)
 
+    # I distinguish unbound mutation results from declared and lexical callables.
+    (mb_reset [])
+    let mutation_names: array<string> = ["array_push", "array_set"]
+    let float_array: NSType = (type_array_of (type_float))
+    let values: Symbol = (symbol_new "values" float_array false false 0 (empty_param_types) (type_void))
+    let mut mutation_index: int = 0
+    while (< mutation_index 2) {
+        let name: string = (at mutation_names mutation_index)
+        let mut arguments: string = " values 1.5"
+        let mut parameters: array<NSType> = [float_array, (type_float)]
+        let mut callback_name: string = "fn(array<float>,float)->bool"
+        if (== mutation_index 1) {
+            set arguments " values 0 1.5"
+            set parameters [float_array, (type_int), (type_float)]
+            set callback_name "fn(array<float>,int,float)->bool"
+        }
+        let mutation_parser: Parser = (resource_test_parser (+ "fn main() -> int { return (" (+ name (+ arguments ") }")))))
+        assert (not (parser_has_error mutation_parser))
+        let mutation_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+        let unbound: NSType = (check_expr_node mutation_parser 0 ParseNodeType.PNODE_CALL [values] mutation_diags "mutation.nano")
+        if (== mutation_index 0) { assert (== (type_to_string unbound) "array<float>") }
+        else { assert (== unbound.kind TypeKind.TYPE_VOID) }
+        let declaration: Symbol = (symbol_new name (type_int) false true (array_length parameters) parameters (type_int))
+        let declared: array<Symbol> = [values, declaration]
+        assert (== (check_expr_node mutation_parser 0 ParseNodeType.PNODE_CALL declared mutation_diags "mutation.nano").kind TypeKind.TYPE_INT)
+        let callback: Symbol = (symbol_new name (type_from_string callback_name) false false 0 (empty_param_types) (type_void))
+        let lexical: array<Symbol> = [values, declaration, callback]
+        assert (== (check_expr_node mutation_parser 0 ParseNodeType.PNODE_CALL lexical mutation_diags "mutation.nano").kind TypeKind.TYPE_BOOL)
+        assert (== (check_expr_node mutation_parser 0 ParseNodeType.PNODE_CALL declared mutation_diags "mutation.nano").kind TypeKind.TYPE_INT)
+        assert (== (list_CompilerDiagnostic_length mutation_diags) 0)
+        let wrong: Symbol = (symbol_new name (type_int) false true 0 (empty_param_types) (type_int))
+        let wrong_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+        let _: NSType = (check_expr_node mutation_parser 0 ParseNodeType.PNODE_CALL [values, wrong] wrong_diags "mutation.nano")
+        assert (> (list_CompilerDiagnostic_length wrong_diags) 0)
+        let qualified_name: string = (+ "Tools." name)
+        let qualified_parser: Parser = (resource_test_parser (+ "fn main() -> int { return (" (+ qualified_name (+ arguments ") }")))))
+        assert (not (parser_has_error qualified_parser))
+        let qualified_function: ASTFunction = (parser_get_function qualified_parser 0)
+        let qualified_statement: ASTStmtRef = (list_ASTStmtRef_get (parser_get_block qualified_parser qualified_function.body).statements 0)
+        let qualified_return: ASTReturn = (parser_get_return qualified_parser qualified_statement.node_id)
+        let qualified_symbol: Symbol = (symbol_new qualified_name (type_int) false true (array_length parameters) parameters (type_int))
+        assert (== (check_expr_node qualified_parser qualified_return.value qualified_return.value_type [values, qualified_symbol] mutation_diags "mutation.nano").kind TypeKind.TYPE_INT)
+        assert (== (list_CompilerDiagnostic_length mutation_diags) 0)
+        set mutation_index (+ mutation_index 1)
+    }
+    (mb_reset [])
 }
 
 /* NSType check a return statement expression

@@ -167,3 +167,30 @@ This explicitly supplies parent430220's source mutation requirement. The parent
 still closes only after its complete runtime/public/source acceptance, including
 this extension. Full managed/ownership targets, product/fixed-point gates and
 release publication remain independently open.
+
+## My independent builtin-identity checkpoint
+
+Task13d1 now has a narrow production proposal on canonical2456abd64 plus the
+reviewed contracts. `env_lookup` searches backwards, so the last lexical/formal
+symbol is authoritative. `tc_bound_name` preserves a nonfunction lexical name
+and otherwise resolves its declaration owner. I guard the direct array_push
+result special case with absence of that resolved symbol, and suppress only
+array_set/array_push builtin result selection when an exact symbol exists.
+Qualified lookup uses its exact resolved qualified identity, matching the
+existing string_to_float guard; I do not match an unrelated short-name symbol.
+
+All bound cases continue into existing ordinary symbol checking. I do not change
+its general noncallable, qualified argument or callback rules, and do not claim
+this guard repairs unrelated limitations there. No C checker policy changes:
+array_set declarations remain reserved. The modified check_expr_node shadow
+checks both unbound mutation result types, declared INT results, a later lexical
+callable BOOL result, restoration of the outer declared result, ordinary arity
+diagnostics and exact qualified declaration results. Its synthetic Symbol rows
+exercise checker resolution; they do not claim C accepts a reserved declaration.
+
+No qualification has run at this checkpoint. After independent production
+review I will freeze fresh bootstrap tools and qualify actual declared/local/
+formal/initializer source cases and expected refusal phases with output
+sentinels. Unbound typed mutation controls and conversion/callback checking stay
+adjacent. This independent checker correction grants no owner-ARRAY mutation,
+source profile or public runtime admission;18731/bba622 remain held.
