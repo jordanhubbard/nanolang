@@ -41,3 +41,59 @@ The retained manifest has SHA-256
 `b4129a6b20f88533c0fcf8c4b49e022c03badb3fcba6042fe9f382cda70045f4`.
 This is a modular-phase success and an installed-route failure, not full match
 policy, product, or release evidence.
+
+## Corrected installed route
+
+I recovered the preserved fleet correction after its publication-contract
+failure, reviewed it against the retained first outcome, and corrected one
+additional compatibility boundary before execution. The installed compiler
+now uses the parser's first specific diagnostic when one exists. When the
+parser records no diagnostic, both the human-readable generic message and the
+machine-readable generic message retain their prior spelling; I do not add
+quotes or substitute a new location in that fallback.
+
+I qualified production-and-test checkpoint
+`0d13778aa1cd63fc6755291c2e60af68531d507c`, tree
+`e3e5a787b49ddba9202d7733d83882918f47736b`, in a fresh detached Darwin
+checkout:
+
+- `make -j8 bootstrap` passed in 332.82 seconds. Stage 1, Stage 2, both hello
+  smokes, the installed compiler smoke and the no-C-seed check passed. The
+  native stage binaries differed; I do not claim a native fixed point.
+- The two existing guarded selected-ownership methods passed in 0.083 seconds
+  across the C seed and both installed self-hosted stages.
+- Twelve direct installed-route checks passed in 11.30 seconds. Stage 1 and
+  Stage 2 each refused integer, wildcard and named-payload guards at the exact
+  `if` location, retained the specific first-person message in text and JSON,
+  and preserved the prior output artifact. Each stage compiled and executed
+  the ordinary scalar and named-payload controls. Each stage also retained the
+  existing non-match text and JSON fallback byte-for-byte.
+
+The checkout remained clean. The six tracked implementation, test, roadmap
+and evidence inputs and the resolved Apple Clang, Python and Make executables
+have identical hashes in the retained before and after inventories. The
+resolved compiler was Apple Clang 21.0.0 with SHA-256
+`1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9`.
+The built compiler hashes were:
+
+```text
+484e332b3c960456d0e52c28839a8b9d3eeaa37d2f01e89729eed325363b3d9d  bin/nanoc_c
+419f4f6fd46e299ce599cbe0eb25743ac5754a1d4a983e8ea8fbd29f9ed5a2f6  bin/nanoc_stage1
+088ab9c5ca22cd315ea3caea1413a688e77deb6c4cb40bd14f1f4c6171dbadef  bin/nanoc_stage2
+```
+
+I retain the corrected evidence under
+`/private/tmp/nanolang-pr794-corrected.IFUAM8/evidence`:
+
+```text
+8031a6ef43ba9d55d9ae0999ffb54a238fc57c1ec8c3d9292278a4b168b9b02d  bootstrap.log
+83e32c3d41328c43f7cbdbb97a652bac67c349a77d3be77684028b6a7dc8dd2e  ownership-guard-methods.log
+2fde31fd64a559da46329f5c2d833181f91bc3e1b683380488fb885d5a3db5ae  installed-guard-gate.log
+dff6b7f7669a94d98ab0fcb678b338e263d010b2cd00381d322391ca74f39517  installed-guard-results.json
+a90dcf87b61f8151dfb05e92c7ee7858aadcaa9aa3ba067b18d13709b204d616  inventory-before.log
+44954f89bcf3e0f742ee2b8ed803b5fdf7f775626389a08d7f992733b8959817  inventory-after.log
+```
+
+This closes only my checked self-hosted parser capability boundary. It does
+not implement guarded matches in that AST, align dispatch or no-success
+semantics, qualify the product branch, or authorize publication.
