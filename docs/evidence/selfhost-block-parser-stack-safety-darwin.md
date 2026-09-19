@@ -72,7 +72,15 @@ produced144 route observations, including the corrected `owner_257` Stage1 and
 Stage2 routes and the prior-output publication checks. The test log SHA-256 is
 `081064006a1401a62eb71dfa6097bef37f95d02cc737a72d3f4b45c11224f5d0`.
 The complete observation-file map SHA-256 is
+`38164fdd8662a028a1b66a03d50a1b1c4efba0a8fd42e07c7b4c0f173ec70f3f`.
+
+This value comes from the retained792-line,146760-byte
+`route-observations.sha256` file. My original93b report recorded the malformed
+63-character value
 `38164fdd8662a028a1b1c4efba0a8d17f4e60e9609e146efc661bf01f0808c6`.
+I preserve that commit as mistaken history and correct only this transcription
+under `task_1e101f25c33e3c331c7b2884b1d52b8f`; I did not rerun or relabel the
+matrix.
 
 This passing matrix establishes the bounded stack repair across the formerly
 crashing route. It does not by itself complete the ordered independent gates.
