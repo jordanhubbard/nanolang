@@ -128,3 +128,13 @@ I require unchanged caller bytes/pointers and output on refusal, plan independen
 after input destruction, later valid recovery and existing allocation-prefix
 controls. I retain the original terminal and run fresh fixtures only after this
 production correction is independently reviewed.
+
+I audited the temporary view lifetime before this checkpoint: LAAnalysis and its
+Facts borrow the view only during synchronous analysis; the done path frees all
+instruction frames and function seeds before returning. NvmOwnerLifetimeFacts
+owns copied signatures, locals and obligations plus owning origin/layout query
+objects. NvmOwnedArrayOrigins has no module pointer; its analysis does, and is
+freed before return. NvmOwnedArrayLayouts owns decoded layouts, paths and copied
+layout/ownership bytes. The public plan therefore retains no temporary sidecar
+row or stack-view address. The selected conversion branch obtains signatures
+from that plan, while unchanged non-owner conversion uses its existing validator.
