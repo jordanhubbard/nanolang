@@ -100,7 +100,9 @@ by this contract. I retain ARR_SET's checked out-of-bounds failure.
    overwrites, assertions and repeated invocations retain exact cleanup.
 4. I inject allocation failures at every newly reachable acquisition/growth/
    publication boundary. I require unchanged output sentinels, correct surviving
-   aliases, no leaked roots and successful subsequent recovery. I test signed
+   aliases, no leaked roots and successful subsequent recovery. Output sentinels
+   mean unpublished result/artifact objects; earlier visible writes or prints
+   remain observable and their exact prefixes are checked. I test signed
    and extreme indices and exact FLOAT bit behavior with native sanitizers.
 5. I review paired source lowering separately, then freeze fresh bootstrap tools
    and qualify the unchanged original Bundle/PREFIX plus all shadows through
