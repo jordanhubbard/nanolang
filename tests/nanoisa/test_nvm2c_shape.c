@@ -229,6 +229,75 @@ static void test_array_optional_conversion(void) {
     }
 }
 
+static void test_container_optional_payload_to_exact_scalar(void) {
+    const NvmShapeKind kinds[] = {
+        NVM_SHAPE_STRING, NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT
+    };
+    for (size_t i = 0; i < sizeof kinds / sizeof *kinds; ++i) {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, source, 0), optional));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0),
+                              nvm_shape_new(&g, kinds[i])));
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId exact = nvm_shape_child(&g, target, 0);
+        CHECK(nvm_shape_unify(&g, exact, nvm_shape_new(&g, kinds[i])));
+        CHECK(nvm_shape_convert(&g, source, target));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, optional) == NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_kind(&g, exact) == kinds[i]);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, source, 0), optional));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_INT)));
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, target, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        CHECK(nvm_shape_convert(&g, source, target));
+        CHECK(!nvm_shape_solve_conversions(&g));
+        CHECK(strstr(g.error, "optional container payload int to exact string") != NULL);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, source, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_OPTIONAL)));
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, target, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        CHECK(nvm_shape_convert(&g, source, target));
+        CHECK(!nvm_shape_solve_conversions(&g));
+        CHECK(strstr(g.error, "proved payload") != NULL);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId source_record = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, source, 0), source_record));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, source_record, 0), optional));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId target_record = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, target, 0), target_record));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, target_record, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        CHECK(nvm_shape_convert(&g, source, target));
+        CHECK(!nvm_shape_solve_conversions(&g));
+        CHECK(strstr(g.error, "exactly constrained") != NULL);
+        nvm_shape_destroy(&g);
+    }
+}
+
 static void test_numeric_union_payload(void) {
     for (int reverse = 0; reverse < 2; ++reverse) {
         NvmShapeGraph g = {0};
@@ -371,6 +440,7 @@ int main(void) {
 
     test_directed_conversions();
     test_array_optional_conversion();
+    test_container_optional_payload_to_exact_scalar();
     {
         NvmShapeGraph g = {0};
         NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
