@@ -11738,3 +11738,10 @@ the qualified STRING affine-example graph to the adjacent method. Darwin native
 pair selection is recorded as explicit Homebrew CC after producer setup, with
 compiler/SDK evidence and leak detection retained. This is fixture preparation
 only; public activation qualification and all source execution remain pending.
+
+I prepare the held owner-array source integration recipe in
+`docs/NANOISA_OWNED_ARRAY_SOURCE_INTEGRATION.md`: fresh isolated qualified-runtime
+merge, exact provider/header closure, inspected GNU targets and required probes,
+separate bootstrap/setup/cache boundaries, explicit post-setup Homebrew CC/LSan,
+first-terminal preservation and fail-closed packaging. No recipe command has run;
+source18731 remains dependent on corrected public activation qualification.
