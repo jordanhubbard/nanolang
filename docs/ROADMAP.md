@@ -12138,3 +12138,12 @@ the first checkout, fixture, archive and storage terminals; the truncated storag
 exception remains unknown, and Linux's deleted passing evaluator binary is not
 claimed archived. Later measured acceptance does not rewrite those outcomes.
 Parent430220, full4be, shared-match477/70c, full product and release remain open.
+
+- [ ] I qualify distinct-array local replacement while owner fields and outside
+  aliases retain the old identity (`task_26691bbc3a968ae68e97f75a848afec4`, parent430220/4be).
+  My [acceptance contract](NANOISA_OWNED_ARRAY_OVERWRITE_ACCEPTANCE.md) covers the
+  original overwrite clause with existing admitted STORE_LOCAL, independent
+  mutations, consuming unpack, normal/assertion/allocation cleanup and all VM/native
+  routes. Existing same-array replacement and nonexecuting origin proof do not
+  substitute. Full fixture review precedes execution; no source reassignment or
+  production widening is inferred. The unchanged full33-method affine gate follows.
