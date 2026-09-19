@@ -293,3 +293,11 @@ My next fixture checkpoint additionally covers actual reconstruction/LLVM/C/Wasm
 CLI output preservation and public callable-entry/FFI loader-state refusal.
 It receives fresh input maps and its own pin. The completed bootstrap remains
 at c34; unchanged production does not turn it into a bootstrap of new fixtures.
+
+At ba7d78d68 corrected runtime-IR setup succeeds, but both fixture builds stop
+on the same missing `-Isrc`: the public FFI header reaches generated schema code
+which includes `runtime/dyn_array.h`. No fixture executable was produced or run.
+I preserve `/tmp/nanolang-service-module-ba7` and its immutable artifacts, then
+add the fixture include root before a fresh checkpoint. I also make the unittest
+target fail-fast so subsequent methods do not repeat a setup failure. This is a
+fixture build correction, not a service runtime defect or a weakened assertion.
