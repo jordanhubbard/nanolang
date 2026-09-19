@@ -56,8 +56,7 @@ Those lower-layer limits remain checked refusals, not source guarantees.
 I add no array mutation builtins or generic collection syntax in this first
 source slice. The runtime's qualified mutation/alias behavior remains necessary
 for parent430220 but is not a claim that all those operations have source
-lowering. A later source mutation extension must preserve the checked language's
-actual builtin signatures/evaluation order. Bare ARRAY parameters/results,
+lowering. My separately ordered [source mutation extension](NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md), task_bba6228369c04b6c900f628d501e5553, supplies the parent's required mutation acceptance after its exact builtin-identity prerequisite; it is not an unspecified future gap. Bare ARRAY parameters/results,
 ordinary managed-record parameters/results, arrays of owners, nested arrays,
 non-FLOAT arrays, owner FLOAT leaves, generic/union owners, callbacks, imports,
 externs, globals and recursion remain outside this slice.
