@@ -1402,6 +1402,16 @@ test-units: test-nsi-file
 test-nsi-file-sanitizers:
 	python3 -m unittest -v tests.test_nsi_file
 
+.PHONY: test-nsi-socket
+test-nsi-socket:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket.c -o $(OBJ_DIR)/test_nsi_socket_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_linked.c src/nsi_socket.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_socket_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_linked
+
+test-units: test-nsi-socket
+
 .PHONY: test-nsi-shm
 test-nsi-shm:
 	@echo "Running NSI shared-memory tests..."
