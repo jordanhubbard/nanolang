@@ -11921,3 +11921,5 @@ I reconcile only the original bounded87ca identity acceptance after reviewing it
   native FFI fixture library (qualification prerequisite under taskd4427).
   I preserve the12b61 library-open terminal and select the hash-verified provider
   checkout only for evaluator execution; assertions and production remain intact.
+
+- [x] I qualify the corrected C-seed match fixtures on Linux at `7a21096f8`: all 122 evaluator cases and eight totality tests pass with unchanged source, 155 providers, and six tool identities. I retain every first terminal in [my sealed evidence](evidence/shared-match-linux/README.md). Integration, fresh bootstrap, Darwin acceptance, and the shared parent tasks remain open.

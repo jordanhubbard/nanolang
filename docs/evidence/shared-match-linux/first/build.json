@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "/tmp/nanolang-match-855-linux-first/setup.mk",
+    "CC=/usr/bin/gcc",
+    "root-match-build"
+  ],
+  "exit_code": 0,
+  "seconds": 22.270128094009124
+}
