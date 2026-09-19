@@ -11623,3 +11623,11 @@ mandatory shadows cover unbound result types, declared/lexical precedence,
 restoration, arity diagnostics and qualified identity. This production awaits
 review before fresh bootstrap/qualification; owner-ARRAY source/runtime
 activation remains held.
+
+I retain13d1's first frozen66a4686e1 bootstrap terminal: Stage0 passes, then
+Stage1 refuses two new mandatory-shadow expressions at4966/4985 with an extra
+closing parenthesis. Status2 after20.035s; all source and host-tool identities
+remain unchanged in `/tmp/nanolang-mutation-identity-66a-bootstrap`. I record this
+shadow syntax defect before correcting the two delimiters in a fresh tree.
+Checker guard production is unchanged; no bootstrap or source acceptance is
+claimed from this terminal. Corrected qualification awaits review.
