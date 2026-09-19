@@ -72,7 +72,7 @@ static void prepared_and_faults(void) {
     global=99;CHECK(!nvm_owned_array_plan_source(p,5,&global) && global==99);
     NvmOwnedArrayTransport saved_transport=transport;CHECK(!nvm_owned_array_plan_transport(NULL,&transport) && !memcmp(&transport,&saved_transport,sizeof transport));
     NvmOwnerAuthorityCounts saved_counts=counts;CHECK(!nvm_owned_array_plan_counts(NULL,&counts) && !memcmp(&counts,&saved_counts,sizeof counts));
-    NvmOwnerOriginObligation ob={8,9,10,11,12},saved_ob=ob;CHECK(!nvm_owned_array_plan_obligation(p,counts.instructions,&ob) && !memcmp(&ob,&saved_ob,sizeof ob));
+    NvmOwnerOriginObligation ob={.function=8,.pc=9,.actual_tags=10,.required_tags=11,.read_tags=12},saved_ob=ob;CHECK(!nvm_owned_array_plan_obligation(p,counts.instructions,&ob) && !memcmp(&ob,&saved_ob,sizeof ob));
     bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);CHECK(!nvm_verify(m).ok);
     uint8_t *code=malloc(m->code_size),*owned=malloc(m->ownership_size),*layout=malloc(m->layout_size);CHECK(code && owned && layout);
     memcpy(code,m->code,m->code_size);memcpy(owned,m->ownership_data,m->ownership_size);memcpy(layout,m->layout_data,m->layout_size);
@@ -118,7 +118,7 @@ static void joins_and_refusals(void) {
         {"PUSH_BOOL 1\nJMP_FALSE done\nARR_NEW 3\nDUP\nOWN_PACK 3\nOWN_STORE_LOCAL 2\ndone:\nPUSH_I64 0\nRET\n",false},
         {"ARR_NEW 3\nDUP\nOWN_PACK 3\nOWN_STORE_LOCAL 2\nLOAD_LOCAL 2\nAGG_GET 0\nSTORE_LOCAL 0\n"
          "OWN_UNPACK_LOCAL 2\nPOP\nPOP\nLOAD_LOCAL 0\nPUSH_F64 3.0\nARR_PUSH\nPOP\nPUSH_I64 0\nRET\n",true},
-        {"ARR_NEW 3\nPUSH_I64 0\nARR_GET\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",false},
+        {"ARR_NEW 3\nPUSH_I64 0\nARR_GET\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",true},
         {"PUSH_BOOL 1\nJMP_FALSE other\nOWN_PACK 4\nJMP done\nother:\nOWN_PACK 4\ndone:\nOWN_STORE_LOCAL 3\n"
          "OWN_UNPACK_LOCAL 3\nPUSH_I64 0\nRET\n",true}
     };
@@ -132,7 +132,78 @@ static void joins_and_refusals(void) {
     CHECK(nvm_prepare_owned_array_authority(NULL,&p).status==NVM_OWNER_AUTH_INVALID && p==(void *)&sentinel);
     CHECK(nvm_prepare_owned_array_authority(NULL,NULL).status==NVM_OWNER_AUTH_INVALID);nvm_owned_array_plan_free(NULL);
 }
+static void comparison_rows(const char *body,uint8_t opcode,uint8_t mask,bool revisit) {
+    Function f={body,0,0,T(TAG_INT),{{0}}};NvmModule *m=build(&f,1);
+    NvmOwnedArrayOrigins *origins=expect(m,NVM_OWNER_ORIGIN_PROVED);
+    NvmOwnedArrayPlan *p=authority(m,NVM_OWNER_AUTH_PREPARED);
+    NvmOwnerAuthorityCounts counts;CHECK(nvm_owned_array_plan_counts(p,&counts));
+    if(revisit)CHECK(counts.visits>counts.instructions);
+    unsigned comparisons=0;uint32_t index=0;
+    for(uint32_t pc=0;pc<m->functions[0].code_length;) {
+        DecodedInstruction in;uint32_t width=isa_decode(m->code+pc,m->functions[0].code_length-pc,&in);CHECK(width);
+        NvmOwnerOriginObligation o,a;CHECK(nvm_owned_array_origin_obligation(origins,index,&o));
+        CHECK(nvm_owned_array_plan_obligation(p,index++,&a));
+        CHECK(a.function==0 && a.pc==pc && a.opcode==in.opcode);
+        CHECK(a.operand_count==o.operand_count && a.runtime_checks==o.runtime_checks);
+        for(unsigned n=0;n<2;n++)CHECK(a.operand_actual[n]==o.operand_actual[n] && a.operand_required[n]==o.operand_required[n]);
+        if(in.opcode==opcode) {
+            comparisons++;CHECK(a.operand_count==2 && a.runtime_checks==mask);
+            for(unsigned n=0;n<2;n++) {
+                CHECK(a.operand_required[n]==(1u<<TAG_FLOAT));
+                CHECK(a.operand_actual[n]==((1u<<TAG_FLOAT)|((mask&(1u<<n))?(1u<<TAG_VOID):0)));
+            }
+        } else CHECK(!a.runtime_checks);
+        if(in.opcode==OP_RET)CHECK(!a.operand_count && !a.operand_actual[0] && !a.operand_actual[1]);
+        pc+=width;
+    }
+    CHECK(comparisons==1 && index==counts.instructions);CHECK(!nvm_verify(m).ok);
+    nvm_owned_array_plan_free(p);nvm_owned_array_origins_free(origins);nvm_module_free(m);
+}
+static void optional_operands(void) {
+    const char *names[]={"F64_EQ","F64_NE","F64_LT","F64_LE","F64_GT","F64_GE"};
+    uint8_t opcodes[]={OP_F64_EQ,OP_F64_NE,OP_F64_LT,OP_F64_LE,OP_F64_GT,OP_F64_GE};
+    const char *exact="PUSH_F64 1.5\n",*optional="ARR_NEW 3\nPUSH_I64 0\nARR_GET\n";
+    char body[2048];
+    for(unsigned op=0;op<6;op++)for(unsigned mask=0;mask<4;mask++) {
+        snprintf(body,sizeof body,"%s%s%s\nPOP\nPUSH_I64 0\nRET\n",mask&1?optional:exact,mask&2?optional:exact,names[op]);
+        comparison_rows(body,opcodes[op],(uint8_t)mask,false);
+    }
+    comparison_rows("PUSH_BOOL 1\nJMP_FALSE other\nPUSH_F64 1.5\nJMP join\n"
+        "other:\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nARR_NEW 3\nPUSH_I64 0\nARR_GET\njoin:\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",OP_F64_EQ,1,true);
+    comparison_rows("PUSH_F64 1.5\nagain:\nDUP\nPUSH_F64 1.5\nF64_NE\nPOP\nPUSH_BOOL 0\nJMP_FALSE done\n"
+        "POP\nARR_NEW 3\nPUSH_I64 0\nARR_GET\nJMP again\ndone:\nPOP\nPUSH_I64 0\nRET\n",OP_F64_NE,1,true);
+    const char *refused[]={
+        "PUSH_VOID\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",
+        "PUSH_I64 1\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",
+        "PUSH_STR value\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",
+        "LOAD_LOCAL 0\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",
+        "ARR_NEW 3\nPUSH_I64 0\nARR_GET\nPUSH_F64 1.5\nF64_ADD\nPOP\nPUSH_I64 0\nRET\n",
+        "ARR_NEW 3\nPUSH_I64 0\nARR_GET\nF64_NEG\nPOP\nPUSH_I64 0\nRET\n",
+        "ARR_NEW 3\nPUSH_I64 0\nARR_GET\nSTORE_LOCAL 0\nPUSH_I64 0\nRET\n",
+        "ARR_NEW 3\nPUSH_I64 0\nARR_GET\nF64_TO_BITS\nPOP\nPUSH_I64 0\nRET\n"
+    };
+    for(unsigned n=0;n<sizeof refused/sizeof refused[0];n++) {
+        Function f={refused[n],0,1,T(TAG_INT),{T(TAG_FLOAT)}};NvmModule *m=build(&f,1);
+        authority(m,NVM_OWNER_AUTH_UNRESOLVED);nvm_module_free(m);
+    }
+}
+static void integer_output(void) {
+    const char *values[]={"PUSH_I64 7\n","PUSH_BOOL 1\n","PUSH_F64 1.5\n","PUSH_STR value\n","PUSH_VOID\n","ARR_NEW 3\n","PUSH_U8 1\n"};
+    for(unsigned newline=0;newline<2;newline++)for(unsigned n=0;n<sizeof values/sizeof values[0];n++) {
+        char body[256];snprintf(body,sizeof body,"%s%s\nPUSH_I64 0\nRET\n",values[n],newline?"PRINTLN":"PRINT");
+        Function f={body,0,0,T(TAG_INT),{{0}}};NvmModule *m=build(&f,1);
+        NvmOwnedArrayPlan *p=authority(m,n?NVM_OWNER_AUTH_UNRESOLVED:NVM_OWNER_AUTH_PREPARED);
+        if(p) {
+            NvmOwnerAuthorityCounts c;CHECK(nvm_owned_array_plan_counts(p,&c));unsigned output=0;
+            for(uint32_t i=0;i<c.instructions;i++) {NvmOwnerOriginObligation o;CHECK(nvm_owned_array_plan_obligation(p,i,&o));
+                if(o.opcode==(newline?OP_PRINTLN:OP_PRINT)) {output++;CHECK(o.operand_count==1 && !o.runtime_checks && o.operand_actual[0]==(1u<<TAG_INT) && o.operand_required[0]==(1u<<TAG_INT));}}
+            CHECK(output==1);nvm_owned_array_plan_free(p);
+        }
+        nvm_module_free(m);
+    }
+}
+
 int main(void) {
-    prepared_and_faults();independent_exits();joins_and_refusals();
+    prepared_and_faults();independent_exits();joins_and_refusals();optional_operands();integer_output();
     printf("%u private owner ARRAY authority checks passed; no pending module execution\n",checks);return 0;
 }

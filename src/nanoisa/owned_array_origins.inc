@@ -156,6 +156,12 @@ static bool oq_descriptors(OQAnalysis *a) {
     return true;
 }
 /* Exact accepted arithmetic/control inventory; everything else refuses. */
+static bool oq_optional_comparison(uint8_t op) {
+    switch(op) {
+    case OP_F64_EQ:case OP_F64_NE:case OP_F64_LT:case OP_F64_LE:case OP_F64_GT:case OP_F64_GE:return true;
+    default:return false;
+    }
+}
 static int oq_scalar(uint8_t op,uint16_t *required) {
     *required=0;
     switch(op) {
@@ -181,7 +187,8 @@ static bool oq_supported(uint8_t op) {
     case OP_LOAD_LOCAL:case OP_STORE_LOCAL:case OP_OWN_MOVE_LOCAL:case OP_OWN_STORE_LOCAL:
     case OP_OWN_PACK:case OP_OWN_UNPACK_LOCAL:case OP_AGG_GET:
     case OP_ARR_NEW:case OP_ARR_LITERAL:case OP_ARR_PUSH:case OP_ARR_SET:case OP_ARR_GET:case OP_ARR_LEN:
-    case OP_JMP:case OP_JMP_TRUE:case OP_JMP_FALSE:case OP_CALL:case OP_RET:case OP_ASSERT:return true;
+    case OP_JMP:case OP_JMP_TRUE:case OP_JMP_FALSE:case OP_CALL:case OP_RET:case OP_ASSERT:
+    case OP_PRINT:case OP_PRINTLN:return true;
     default:return false;
     }
 }
@@ -206,8 +213,8 @@ static bool oq_decode(OQAnalysis *a) {
             OQInstruction *i=&a->instructions[a->count++];i->function=f;i->pc=pc;i->depth=-1;i->origin=-1;
             uint32_t width=isa_decode(m->code+fn->code_offset+pc,fn->code_length-pc,&i->in);
             if(!width)return oq_stop(a,NVM_OWNER_ORIGIN_INVALID,f,pc,"I require complete decoded instructions.");
-            a->proof->obligations[a->count-1].function=f;
-            a->proof->obligations[a->count-1].pc=pc;
+            a->proof->obligations[a->count-1]=(NvmOwnerOriginObligation){
+                .function=f,.pc=pc,.opcode=i->in.opcode};
             uint8_t op=i->in.opcode;
             if(!oq_supported(op))return oq_stop(a,NVM_OWNER_ORIGIN_UNRESOLVED,f,pc,"I have no owner-origin transfer for this opcode.");
             if(op==OP_PUSH_BOOL && i->in.operands[0].u8>1)return oq_stop(a,NVM_OWNER_ORIGIN_INVALID,f,pc,"I require canonical BOOL immediates.");
@@ -396,12 +403,21 @@ static bool oq_step(OQAnalysis *a,uint32_t index) {
     int scalar=oq_scalar(op,&required);
     if(scalar>=0) {
         result=oq_tag((uint8_t)scalar);
+        if(pops>2)return oq_stop(a,NVM_OWNER_ORIGIN_INVALID,f,i->pc,"I require bounded scalar operand rows.");
+        ob->operand_count=(uint8_t)pops;
         for(uint16_t n=base;n<depth;n++) {
             OQValue v=stack[n];
             if(v.kind || v.unknown || oq_nonempty(v.origins) || !v.tags || (v.tags&~OQ_SCALARS))
                 return oq_stop(a,NVM_OWNER_ORIGIN_UNRESOLVED,f,i->pc,"I require modeled scalar operand alternatives.");
+            uint16_t operand=(uint16_t)(n-base);
             ob->actual_tags|=v.tags;ob->required_tags|=required;
-            if(required && v.tags!=required)return oq_stop(a,NVM_OWNER_ORIGIN_UNRESOLVED,f,i->pc,"I require exact typed scalar operands.");
+            ob->operand_actual[operand]|=v.tags;ob->operand_required[operand]=required;
+            if(required && v.tags!=required) {
+                if(!oq_optional_comparison(op) || !(v.tags&OQ_BIT(TAG_FLOAT)) ||
+                   (v.tags&~(OQ_BIT(TAG_FLOAT)|OQ_BIT(TAG_VOID))))
+                    return oq_stop(a,NVM_OWNER_ORIGIN_UNRESOLVED,f,i->pc,"I require exact typed scalar operands or a checked optional FLOAT comparison.");
+                ob->runtime_checks|=(uint8_t)(1u<<operand);
+            }
         }
     } else switch(op) {
     case OP_NOP:case OP_JMP:break;
@@ -507,7 +523,15 @@ static bool oq_step(OQAnalysis *a,uint32_t index) {
         }
         break;
     }
+    case OP_PRINT:case OP_PRINTLN:
+        ob->operand_count=1;ob->operand_actual[0]|=stack[base].tags;
+        ob->operand_required[0]=OQ_BIT(TAG_INT);
+        ob->actual_tags|=stack[base].tags;ob->required_tags=OQ_BIT(TAG_INT);
+        if(!oq_exact(stack[base],OQ_BIT(TAG_INT)))return oq_stop(a,NVM_OWNER_ORIGIN_UNRESOLVED,f,i->pc,"I require exact INT output operands.");
+        break;
     case OP_JMP_TRUE:case OP_JMP_FALSE:case OP_ASSERT:
+        ob->operand_count=1;ob->operand_actual[0]|=stack[base].tags;
+        ob->operand_required[0]=OQ_BIT(TAG_BOOL);
         ob->actual_tags|=stack[base].tags;ob->required_tags=OQ_BIT(TAG_BOOL);
         if(!oq_exact(stack[base],OQ_BIT(TAG_BOOL)))return oq_stop(a,NVM_OWNER_ORIGIN_UNRESOLVED,f,i->pc,"I require exact BOOL control operands.");
         break;
