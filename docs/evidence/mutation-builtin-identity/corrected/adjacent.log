@@ -1,0 +1,14 @@
+test_declared_local_function_keeps_its_result_type (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_declared_local_function_keeps_its_result_type) ... ok
+test_qualified_declaration_keeps_its_result_type (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_qualified_declaration_keeps_its_result_type) ... ok
+test_result_context_and_single_evaluation (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_result_context_and_single_evaluation) ... ok
+test_retained_prefix_fixture (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_retained_prefix_fixture) ... ok
+test_wrong_operands_preserve_output (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_wrong_operands_preserve_output) ... ok
+test_bound_reduce_function_and_local (tests.test_scalar_reduce_source.ScalarReduce.test_bound_reduce_function_and_local) ... I retain reduce source evidence at /tmp/nano-reduce-source-v89c5r13
+ok
+test_checked_signature_refusals_preserve_output (tests.test_scalar_reduce_source.ScalarReduce.test_checked_signature_refusals_preserve_output) ... I retain reduce source evidence at /tmp/nano-reduce-source-co1fhyqg
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 8.276s
+
+OK

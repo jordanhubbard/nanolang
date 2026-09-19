@@ -1,0 +1,16 @@
+{
+  "phases": [
+    {
+      "phase": "nested",
+      "command": [
+        "python3",
+        "/tmp/nanolang-mutation-nested-only.py"
+      ],
+      "timeout": 180,
+      "status": 0,
+      "elapsed_seconds": 0.11425624700495973
+    }
+  ],
+  "sources_unchanged": true,
+  "host_tools_unchanged": true
+}

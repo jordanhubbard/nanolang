@@ -11587,6 +11587,20 @@ I prepare430220's reviewed3898 query qualification: I migrate only the prior aut
 
 I qualify430220's operand query extension at frozene235ff26d after reviewed one-line fixture correction: all16 phases pass, including3,812 checks each in GCC normal/GCCsan/Clang18san. Branch and loop revisits retain exact final masks, independent authority agrees, and prior strict noncomparison/output refusals remain. All1,743sources/157tools stay unchanged. My [corrected seal](evidence/owned-array-operand-query.md) links the original failed run rather than erasing it. Query production3898 is unchanged; actual optional-tag execution checks and private runtime remain the next reviewed checkpoint, with public activation still separate.
 
+- [ ] I align and qualify public owner-ARRAY runtime activation before dependent source admission, preserving required-service/linked/closed/LLVM/Wasm refusals (parent430220; runtime lane).
+- [ ] I lower exact FLOAT-array owner fields in both source producers (`task_18731b55c66846f9826290148c967ca5`, parent430220) under my [paired source contract](NANOISA_OWNED_FLOAT_ARRAY_SOURCE.md): distinct owner/ordinary categories, original03/01 metadata, ordered constructor roots, complete unpack/projections and exact origin/call facts. I retain the unchanged Bundle/PREFIX and every selected shadow, fresh Linux/Darwin Cseed/Stage1/Stage2/NanoVirt plus canonical equality/VM/native gates, mandatory helper shadows and output-preserving negatives. No source production or pending execution precedes reviewed qualified public runtime activation.
+
+I record18731's static source audit at5f988ed79. Existing declaration, constructor,
+hidden-unpack, exact-array guards and final authority dispatch all need paired
+changes; removing only the declaration refusal is insufficient. Runtime lane's
+private08be51c90 remains unqualified at this checkpoint and exposes no public
+activation. Optional FLOAT comparisons retain unsatisfied live tag obligations;
+exact FLOAT stores/arithmetic remain refused. Samples/STRING and owner-free
+routes stay distinct; combining ordinary managed-record operations with owner
+ARRAY needs separate complete authority rather than reusing a profile flag.
+
+- [ ] I establish checked lexical/declaration identity for mutation builtin typing (`task_13d1c53953674d279a849306c9eee26d`) before the owner-ARRAY mutation extension. Static5f988 selfhost array_push inference and generic array_set result precede ordinary symbol lookup; I audit exact owner/name resolution and qualify narrowly reviewed guards if needed, preserving C's reserved array_set declaration policy and typed/phase/output assertions. No counterexample is executed at this contract checkpoint.
+- [ ] I complete parent430220's explicit paired source mutation extension (`task_bba6228369c04b6c900f628d501e5553`) after13d1,18731 and qualified public runtime activation: exact `array_set(array<float>,int,float)->void` and `array_push(array<float>,float)->same array<float>`, ordered once-only arguments, shared aliases across owner pack/unpack/calls/results and precise failure cleanup. My [mutation source contract](NANOISA_OWNED_FLOAT_ARRAY_MUTATION_SOURCE.md) specifies binding/result semantics, optional-value refusals, all original PREFIX/shadows, mutation/growth/alias cases, Linux/Darwin paired producers and artifact preservation. I add no production or public activation here.
 
 I qualifya522's remaining standalone Darwin embedding boundary at canonical
 `5f988ed79dd1f343fd9dca3d9b40c928264e668c` without production or fixture edits.
@@ -11600,3 +11614,50 @@ bounded to this fixture, not a compiler bootstrap or whole-product qualification
 Earlier unmeasured statements remain historical; actual-merge ledger closure
 for a522 remains pending. Parent4be, owned ARRAY430220 and full product/release
 acceptance remain open.
+
+I prepare13d1's independent checker correction after the approved mutation
+contract. Direct push inference now requires no resolved binding; direct and
+qualified array_set/array_push builtin result selection yields to exact symbols.
+Existing symbol checking and C reserved declarations stay unchanged. Meaningful
+mandatory shadows cover unbound result types, declared/lexical precedence,
+restoration, arity diagnostics and qualified identity. This production awaits
+review before fresh bootstrap/qualification; owner-ARRAY source/runtime
+activation remains held.
+
+I retain13d1's first frozen66a4686e1 bootstrap terminal: Stage0 passes, then
+Stage1 refuses two new mandatory-shadow expressions at4966/4985 with an extra
+closing parenthesis. Status2 after20.035s; all source and host-tool identities
+remain unchanged in `/tmp/nanolang-mutation-identity-66a-bootstrap`. I record this
+shadow syntax defect before correcting the two delimiters in a fresh tree.
+Checker guard production is unchanged; no bootstrap or source acceptance is
+claimed from this terminal. Corrected qualification awaits review.
+
+I retain13d1's corrected82ce bootstrap PASS269.511s and first focused54ea
+terminal separately. Three methods pass:36 full-source checker-driver cases,
+16 typed output-preserving refusals and C's reserved-set declaration policy.
+The unbound fixture fails parsing in all three producers because two
+`array<float>=` spellings form GE tokens. No rejected output is executed.
+I record this test spelling defect before inserting spaces in those two lines;
+compiler guards remain unchanged. The97.103s terminal and equal source/host-tool
+maps remain in `/tmp/nanolang-mutation-identity-54ea-focused`. I rerun only the
+affected unbound control plus previously unrun adjacency after correction;
+I do not repeat the unchanged successful bootstrap or checker-driver matrix.
+
+I preserve13d1's first evidence-packaging terminal separately: an invented
+minimum of41 retained files failed before archive/manifest publication. Actual
+retained artifacts total38 across five directories; successful fixture statuses
+are unchanged. I preserve the partial report copy and failed runner, then require
+the five directories and exact38-file inventory before publishing the corrected
+seal. I do not repeat passing execution. My MAC description update remains
+pending because the existing hub credential lacks task-update scope.
+
+I seal13d1's bounded Linux checker qualification without closing its MAC task:
+corrected bootstrap PASS269.511s;42 full-source checker cases across three
+qualified drivers;16 typed output-preserving refusals; retained C reserved-set
+policy; corrected unbound mutation execution through all three producers; and
+seven conversion/reduce adjacency methods. My [evidence](evidence/mutation-builtin-identity.md)
+retains both source/fixture first terminals, the packaging terminal,73 reports,
+38 artifacts,2253 final source inputs and actual tool identities. No source
+owner-ARRAY admission or general emitter binding claim follows. MAC update
+scope remains unavailable; actual-merge reconciliation is pending. Source18731,
+mutation bba622 and all full ownership/product/release parents remain open.
