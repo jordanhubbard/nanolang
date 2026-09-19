@@ -70,7 +70,7 @@ shadow nb_field_tag {
     assert (== (nb_field_tag "array<string>") 0)
     assert (== (nb_tag "string") 0)
 }
-# I admit float locals without widening fields or helper signatures.
+# I admit FLOAT locals without admitting FLOAT fields or signatures.
 fn nb_local_tag(name: string) -> int {
     if (== name "float") { return 3 }
     return (nb_field_tag name)
