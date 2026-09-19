@@ -12,6 +12,7 @@
     "../../src/nanoisa/passive.c",
     "../../src/nanoisa/affine_bytecode.c",
     "../../src/nanoisa/affine_state.c",
+    "../../src/nanoisa/mixed_float_proof.c",
     "../../src/nanoisa/ownership_contracts.c",
     "../../src/nanoisa/reference_places.c",
     "../../src/nanoisa/service_bindings.c",
