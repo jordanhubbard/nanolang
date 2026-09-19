@@ -11514,3 +11514,13 @@ I prepare430220's second private production checkpoint after entry/conditional-s
 I prepare430220's reviewed origin query controls after exact-location correction7661a90e5. Fresh unexecuted modules cover nested/relay/factory results, conditional unreachable helpers and concrete entry flags, distinct nominal paths, every decoded obligation location including RET, immutable aliases, branch/loop origin joins, STRING transport, empty owners, allocation-prefix rollback, exact refusals and limits. I retain pending-module nonexecution and existing provider/query adjacency as the qualification boundary.
 
 I qualify430220's second private origin checkpoint at frozen779dcf8b9: setup and nine phases pass; GCCnormal/GCCsan/Clang18san each865 assertions with75 allocation-prefix failures, then owned-descriptor/retained/managed/mixed adjacency. All1,736sources and157tools/objects remain unchanged. My [sealed origin evidence](evidence/owned-array-origin-query.md) retains exact location/conditional-helper/path/substitution controls and instrumentation limits. Full authority/runtime/source acceptance remains open; no pending owner ARRAY module executes.
+
+- [ ] I select my intended Darwin sanitizer compiler at the make command line
+  (`task_68db1fb4679a4c8290e00392c26f253d`, child e64). At frozen70c, all62 source
+  methods and the mixed runtime gate pass, but owned adjacency exits2 after
+  14.020seconds: Makefile.gnu's `CC = cc` overrides my environment selection,
+  causing Apple LSan rejection. I preserve that first terminal and its tools,
+  then use a separate same-source tree/fixture directory with explicit
+  `make CC=/opt/homebrew/opt/llvm/bin/clang` for the affected owned gates and
+  previously unrun service gate. Original assertions and leak detection remain;
+  no bootstrap/source repetition or product change follows from this correction.
