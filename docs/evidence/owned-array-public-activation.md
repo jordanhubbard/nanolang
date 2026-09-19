@@ -110,3 +110,10 @@ disassembly, VM decode and wrapper generation; other linked providers remain
 ordinary. No unchanged broad adjacency or source bootstrap is relabeled as an
 integrated run. The original complete corpus and later query supplement remain
 separately scoped evidence.
+
+I then integrate canonical parser/affine-test PR827 in a separate ready tree.
+My [ready-tree comparison](owned-array-public-ready.json) verifies all 22
+qualified production/fixture inputs unchanged; only Make adds its independent
+affine frontend test target. No C runtime or modules/nanoisa source changes.
+I preserve the qualified integration tree/tools and do not rerun unchanged
+runtime gates or claim a new source bootstrap from this static integration.

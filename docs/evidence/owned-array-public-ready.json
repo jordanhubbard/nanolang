@@ -1,0 +1,32 @@
+{
+  "qualified_head": "7e6e98fdb",
+  "canonical_parser_merge": "41e955996422fe3ea353d95ac609c8b675a7abc1",
+  "integration_head": "f85ae2ba4b62808e0d515b967558c12694e3594c",
+  "scope": "I integrate the reviewed parser/affine-test canonical change in a separate ready tree. All22 production/fixture inputs except Makefile match the qualified File-integrated seal. No C runtime or modules/nanoisa source changes. Make adds the independent affine frontend fixture/target, leaving owner/authority/File recipes intact. I do not rerun unchanged runtime gates or claim fresh source bootstrap. Qualified providers remain in the isolated integration tree and prepared-tool archive.",
+  "current_inputs": {
+    "src/nanoisa/owned_array_admission.h": "81a845ba68f31ac6d2d39dda881744d83c8f1f08cf613698d18146fb26e5275e",
+    "src/nanoisa/owned_array_admit.inc": "6bd4156d432ac3cabb900bf63d3b97f88f3ba88017bb213fc59217019e463551",
+    "src/nanoisa/verifier.c": "5160ad3f3a7b8a3731b79ee2a491bf34d2759f9062e4e9de9517207f9c95da5c",
+    "src/nanoisa/nvm2c.c": "bd5e2019000da9c872d4216f3a45410b010436f55d3286c8217103e516fa62ff",
+    "src/nanoisa/nvm2c_owned.h": "713f23310c9c91e4dcee14d067f3019220df9437827fe4e25c3ee4e21e9561a8",
+    "src/nanoisa/nvm_v2_convert.c": "032361aec8b4441e752ea2276a6e18a102d43321537b23f427d25b2a6e7ede84",
+    "src/nanovm/vm.c": "cd17e3cfb2875ee199608214f8185af7c4bd167592f4d43317aded4f7eca1481",
+    "tests/nanoisa/test_private_owned_array_runtime.c": "ea7d2968591b98ff991d3fc6e665413a7b7941b2e6b6564972011f8910bd7c64",
+    "tests/nanoisa/test_owned_array_public_boundaries.inc": "e6e6caf111fbc82fe57b52a034df4869306519e469d8ad01c8e682170dc00235",
+    "tests/test_private_owned_array_runtime.py": "a3747a519bab506600ee3a51bf6e5ca3bb42ac2837832d98270d44d6ec37ab28",
+    "tests/nanoisa/test_owned_array_authority.c": "11b0d083b6f964635e38e887eefdcfdad2c1fe4d1d28f3f2139b69ca7fe52da9",
+    "Makefile.gnu": "e92fc0bec7340692e5de376982e3034bb1f8457564a45c2f78dec9f0a91205c9",
+    "src/nanoisa/service_bindings_module.c": "df384b502ffafd807ce33e58ae41ad8d0f27d7a19d0a69f0eb1b1052581d497c",
+    "src/nanoisa/service_bindings_module.h": "5a06e11b1d795e519c1ea08327338d8c885ac274c02a97c06c036c892131160e",
+    "src/nanoisa/owned_array_layouts.inc": "018a1e735fbe0917a537542d10c439266eda7a2176f28fb5b78efd412366e6ab",
+    "src/nanoisa/owned_array_origins.inc": "dd930fa29386e9f655d7ab0e1731fba3c4554c26607259ecb74d3c6f293512d2",
+    "src/nanoisa/isa.c": "4d77cf7e8f951f388218432e596f9dd7279727438f612be53b9f7fadd5b6eb59",
+    "src/nanoisa/isa.h": "0560102734e96302a71df0ee40753238fdc6fabe377b3b0ad337f324d8f3fd3a",
+    "src/nanoisa/nvm_format.c": "0da678f419f8bfbeafc2d9eb45a24b51127a987c622a9d746fba8ef69c80ffe7",
+    "src/nanovm/vm_decode.c": "f1010e77efcfddb827fb1cdf4716a3f0c9cfa68d9a18b6b25164f114d0974671",
+    "src/nanovirt/wrapper_gen.c": "a018f5736dfe382ff3fd999a74d16bf1bb716c74e4268a3a142460511e7a13de",
+    "tests/nanoisa/test_file_opcodes.c": "f0e045300f458801cf9ee6b5a0fa0e8158f05418d3fb681f6d07147026ab6cb3",
+    "tests/test_file_opcodes.py": "e81f9d0a36225da5c0a797e007b2c913adca04c57335e17e5fb469472815a7b6"
+  },
+  "make_delta": "diff --git a/Makefile.gnu b/Makefile.gnu\nindex 13105c9d2..539ace520 100644\n--- a/Makefile.gnu\n+++ b/Makefile.gnu\n@@ -3051,7 +3051,7 @@ test-make-header-dependencies:\n \t@MAKE_BIN=\"$(MAKE)\" bash tests/test_make_header_dependencies.sh\n \n .PHONY: test-affine-selfhost\n-test-affine-selfhost: bootstrap nano_virt nano_vm\n+test-affine-selfhost: bootstrap nano_virt nano_vm $(OBJ_DIR)/test_affine_c_frontend\n \t@bash tests/test_affine_selfhost.sh\n \t@python3 -m unittest tests.test_affine_module_identity tests.test_affine_generic_identity\n \n@@ -3059,8 +3059,11 @@ test-affine-selfhost: bootstrap nano_virt nano_vm\n test-affine-module-identity: bootstrap\n \t@python3 -m unittest tests.test_affine_module_identity\n \n+$(OBJ_DIR)/test_affine_c_frontend: tests/test_affine_c_frontend.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)\n+\t$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)\n+\n .PHONY: test-affine-contract-boundaries\n-test-affine-contract-boundaries: bootstrap\n+test-affine-contract-boundaries: bootstrap $(OBJ_DIR)/test_affine_c_frontend\n \t@python3 -m unittest tests.test_affine_contract_boundaries\n \n .PHONY: test-pt2-audio\n"
+}
