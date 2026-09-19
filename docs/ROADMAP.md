@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] I correct two obsolete generic-`ADD` refusal controls (`task_a74f7ac27d25ae6c8eebacc12179c9cb`). My first complete current scalar reconstruction run passes 53/55 in 603.601s; both failures expect an operation already admitted by `3c699f84` to refuse. I retain that terminal, preserve real unsupported-profile and prior-output checks, and require the corrected affected methods plus a fresh complete suite. No production widening follows.
+
 - [ ] I qualify freshly built current self-hosted tools on bounded carry/borrow endpoint functions (`task_1009525724234d9ca7df3f8284e75943`). The historical draft reached an unidentified non-C-seed exit `-11`; I preserve it without replay and use only newly generated current-main inputs. [Contract](NANOISA_RECONSTRUCT_CARRY_BORROW.md).
 
 - [ ] I reconstruct typed carry/borrow result pairs (`task_cbdce24cc6b747f6b39ceb4c87f20676`, parent `task_4bd034f6029b7458201db74e2c3aeb32`): exact three-`INT` input and low/high integer stack results, normalized input bit, portable total helpers, snapshot/loop/tag/arity acceptance and fresh current-tool parity. [Contract](NANOISA_RECONSTRUCT_CARRY_BORROW.md).

@@ -15,3 +15,5 @@ The later verifier work made all three operands exact `INT` values, so wrong-tag
 ## My current-main port
 
 The stale PR branch predates later float, generic arithmetic, comparison, stack and wide-multiply reconstruction. I add carry/borrow to those current tables without replacing any later route. My focused gate must preserve every current scalar reconstruction method, exact helper dependency closure and existing output-preserving refusals. I record exact compiler argv and fresh tool identities for any terminal result.
+
+My first complete current suite at production `008fdb8f` passes 53 of 55 methods in 603.601s. Both failures are obsolete expectations that generic `ADD` refuses, although `3c699f84` deliberately admits it. I record `task_a74f7ac27d25ae6c8eebacc12179c9cb` before correcting tests. I replace the foundation control with already unsupported `CAST_FLOAT` and remove the duplicate `ADD` entry from the arithmetic refusal list, which already contains `CAST_FLOAT` and exact wrong-tag cases. I preserve prior-output assertions and require a fresh complete suite; I make no production change for this correction.
