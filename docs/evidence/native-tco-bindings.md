@@ -45,8 +45,11 @@ SHA-256:
 The unchanged 14 executable optimized/unoptimized native cases pass in 32.731
 seconds. Log SHA-256:
 `dd9ae9ac445c20eb7c0febf409f119d7466f0d20f44c64cac921abefa559ba80`.
-This correction still requires independent review of its exact pushed head
-before merge.
+Independent read-only re-review cleared both requested changes at exact head
+`c93f1db3df90940dcfa89e14efdf4361c9f26c2f`. PR867 merged that head as
+canonical `92b75caa1c8a36ee0f5b4cfca0a1442f9f79c47d`. Actual-merge evidence
+`ev_a2ece89fe4e84d6fad899efbc225379e` reconciles the bounded MAC task. This
+does not close PR522 or authorize a release.
 
 ## Retained terminals
 
