@@ -81,8 +81,9 @@ positions are indexed by formal number; the last position holds the return
 result. Borrowed parameter positions stay empty during value staging.
 
 I immediately move each value argument to its parent staging root before
-repurposing callee-overlapped slots. Then I install it in the exact parameter
-local; nonparameter locals begin uninitialized. Scalar/passive values retain
+repurposing callee-overlapped slots. Only after ALL value arguments have reached parent staging do I install ANY
+callee local. I then install each staged value in its exact parameter local;
+nonparameter locals begin uninitialized. Scalar/passive values retain
 their copy semantics; File/OpenResult move. A formal alias or passive view
 cannot satisfy an owning declaration.
 
