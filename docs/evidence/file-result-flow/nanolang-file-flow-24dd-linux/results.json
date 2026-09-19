@@ -1,0 +1,41 @@
+[
+  {
+    "command": [
+      "make",
+      "-j4",
+      "test-file-flow"
+    ],
+    "phase": "normal",
+    "seconds": 5.251,
+    "status": 0
+  },
+  {
+    "command": [
+      "make",
+      "-j4",
+      "bin/nanoc_c"
+    ],
+    "phase": "compiler",
+    "seconds": 9.239,
+    "status": 0
+  },
+  {
+    "command": [
+      "bin/nanoc_c",
+      "modules/nanoisa/mvp.nano",
+      "-o",
+      "/tmp/nanolang-file-flow-24dd-linux/module-mvp"
+    ],
+    "phase": "module",
+    "seconds": 8.421,
+    "status": 0
+  },
+  {
+    "command": [
+      "/tmp/nanolang-file-flow-24dd-linux/module-mvp"
+    ],
+    "phase": "module-run",
+    "seconds": 0.001,
+    "status": 0
+  }
+]
