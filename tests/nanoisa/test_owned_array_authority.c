@@ -169,7 +169,7 @@ static void optional_operands(void) {
         comparison_rows(body,opcodes[op],(uint8_t)mask,false);
     }
     comparison_rows("PUSH_BOOL 1\nJMP_FALSE other\nPUSH_F64 1.5\nJMP join\n"
-        "other:\nARR_NEW 3\nPUSH_I64 0\nARR_GET\njoin:\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",OP_F64_EQ,1,true);
+        "other:\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nNOP\nARR_NEW 3\nPUSH_I64 0\nARR_GET\njoin:\nPUSH_F64 1.5\nF64_EQ\nPOP\nPUSH_I64 0\nRET\n",OP_F64_EQ,1,true);
     comparison_rows("PUSH_F64 1.5\nagain:\nDUP\nPUSH_F64 1.5\nF64_NE\nPOP\nPUSH_BOOL 0\nJMP_FALSE done\n"
         "POP\nARR_NEW 3\nPUSH_I64 0\nARR_GET\nJMP again\ndone:\nPOP\nPUSH_I64 0\nRET\n",OP_F64_NE,1,true);
     const char *refused[]={
