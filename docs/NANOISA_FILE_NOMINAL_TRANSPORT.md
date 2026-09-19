@@ -1,0 +1,175 @@
+# I retain exact File and Result identities before execution
+
+I record `task_21469c00ddb7a61dcb5ea5f4e9efd333` under72556/6931 on canonical
+`c09c80af6768ce8fc5559fdfc9ed8806ae19b059`. PR825 qualifies only my private
+File/OpenResult lifetime core; PR821 retains only service payload version1.
+This contract refines the120-byte proposal in
+[my full execution boundary](NANOISA_FILE_EXECUTION_BOUNDARY.md). It authorizes
+no production until review, and no execution admission in this checkpoint.
+
+## My audited dependencies
+
+- `service_bindings.c/.h` implements exact56-byte v1. Its C struct, numeric
+  statuses, overlap/atomicity contract and all existing v1 calls stay compatible.
+- `service_bindings_module.c` validates five import identities/category signatures,
+  not nominal layouts or per-outcome lifetimes. I extend version dispatch here,
+  without treating successful metadata validation as host authority.
+- `nvm_v2_layouts.c` already represents prior-order STRUCT/UNION fields and unit
+  `TAG_VOID` alternatives. Its all-record forward extension cannot describe a
+  forward-containing union table. I retain prior-order edges in this slice.
+- `ownership_contracts.c:check_layouts` rejects every COMPLETE UNION; `descriptor`
+  permits indexed TAG_STRUCT only. The shared single/batch authority queries
+  call this validator. I do not weaken those checks to carry OpenResult.
+- `nvm_v2_convert.c:conversion_ownership` calls the shared validator in both
+  directions unless mixed admission succeeds. Required service claims already
+  suppress mixed candidacy. A new explicit non-executing service-v2 transport
+  branch is needed; neither generic validation nor mixed admission is a bypass.
+- `nvm_v2_module.c` serialize and parse perform checked bridge conversion for
+  ownership/service sections. I audit these indirect calls alongside direct
+  in-memory attach/query/converter entry points; wire parsing alone is not enough.
+
+I preserve ownership bytes and flags exactly. I never clear RESOURCE in a
+synthetic module, reinterpret a resource union as an ordinary record, renumber
+layouts, or publish shared ordinary authority from this descriptive plan.
+
+## My version2 bytes and exact mapped layouts
+
+I use separate private v2 raw types/functions, leaving the v1 raw API intact.
+The v2 value owns five import indices and eight layout indices. Its120 bytes are:
+
+| Byte range | Contents |
+| --- | --- |
+| 0..15 | u16 version2, u16 catalog1, u32 method_count5, u32 type_count8, u32 reserved0 |
+| 16..55 | five pairs: u32 ordinal0..4 in order, u32 import index |
+| 56..119 | eight pairs: u32 ordinal0..7 in order, u32 global layout index |
+
+All integers are little-endian. Each index set is distinct and excludes
+NO_INDEX. Raw decoding checks exact length before offsets, versions, counts,
+ordinals and reserved bytes; it does not pretend to know module table bounds.
+It stages output, permits input/output overlap, retains no input memory and
+preserves outputs on failure. Encoding stages bytes before publication; size
+storage must be disjoint, as in v1. Size-only mode validates the entire value.
+Old readers reject v2 by version/length; neither v1 nor v2 becomes executable.
+
+Module validation requires exactly five SERVICE imports, their existing exact
+interface/method IDs and category signatures, no linked modules or callbacks,
+and complete retained layouts plus ownership metadata. Required bits1(FFI),
+7(retained layouts),8(ownership),9(service) remain necessary. Bit1 means imports
+exist and grants no generic FFI dispatch. Feature/section contradictions refuse.
+No known-feature assignment or import kind changes in this checkpoint.
+
+I compare retained type names to full catalog type IDs and member/case names to
+full catalog member IDs using stored lengths. These are checked interface facts,
+not trusted compiler signatures. Source presentation names may differ; a later
+publisher must emit these metadata IDs from checked declaration identity.
+The immutable catalog supplies the actual IDs, order and scalar byte-domain
+facts; I add a read-only catalog type accessor rather than duplicate that table.
+
+| Catalog ordinal | Retained kind and exact ordered fields | Ownership flag |
+| --- | --- | --- |
+| 0 File | STRUCT, zero fields | COMPLETE\|RESOURCE (3) |
+| 1 FileError | STRUCT: status/host_errno/cleanup_errno/bytes INT; eof/consumed/cleanup_failed BOOL | COMPLETE (1) |
+| 2 ReadByte | STRUCT: value INT, eof BOOL | COMPLETE (1) |
+| 3 OpenResult | UNION: Ok STRUCT→File, Error STRUCT→FileError | COMPLETE\|RESOURCE (3) |
+| 4 WriteResult | UNION: Ok INT, Error STRUCT→FileError | COMPLETE (1) |
+| 5 PositionResult | UNION: Ok VOID, Error STRUCT→FileError | COMPLETE (1) |
+| 6 ReadResult | UNION: Ok STRUCT→ReadByte, Error STRUCT→FileError | COMPLETE (1) |
+| 7 CloseResult | UNION: Ok VOID, Error STRUCT→FileError | COMPLETE (1) |
+
+Scalar/VOID fields require NO_INDEX; record fields require the exact mapped
+child, never a merely equal shape. All nested indices precede their containing
+layout. Extra unmapped layouts may remain UNKNOWN (flag0) in this first private
+transport; they must pass the existing structural decoder and prior-edge rule.
+I refuse extra COMPLETE/resource authorities in this slice instead of inventing
+composition with another executable profile. This is a bounded transport limit,
+not permission to omit source declarations later. An expanded composition would
+require its own review before public source acceptance.
+
+The query publishes catalog→global, global→catalog/NO_INDEX, and per-kind source
+ordinal↔global mappings without changing module indices. File is source STRUCT;
+Results are source UNION. Runtime categories File/OpenResult/scalar Result are
+explicit private enum facts, not COP TAG_OPAQUE, shared aggregate handles or
+integer host tokens. Empty File's descriptor describes identity only; it does
+not authorize OWN_PACK/AGG_PACK or a source literal.
+
+## My private ownership transport validator
+
+I parse ownership version1 completely on the service-v2-only path. This first
+slice refuses ownership path-version2; File projections and borrowed subplaces
+are not required to preserve these catalog bindings. Existing v1 service and
+non-service ownership path behavior is unchanged.
+
+I check layout count against the retained table, exact flags above, all padding,
+function count, each local/parameter count, function result/parameter tag
+agreement, every descriptor tag/mode/reserved/index and final byte consumption.
+I bound tables by the existing retained maximum65,536 entries and checked input
+length/products before allocation. Local/function counts use their actual wire
+widths and checked module declarations. I do not use VOID as an unknown tag.
+
+A descriptor with a mapped nominal index must have that exact layout kind's
+STRUCT/UNION tag. A File/OpenResult descriptor must name its mapped layout; a
+bare STRUCT/UNION descriptor with NO_INDEX supplies no nominal fact. Such
+unresolved descriptors can be retained only as unresolved, never assigned a
+catalog category. Scalar descriptors require NO_INDEX. Nonzero modes are legal
+only on parameters, and only exclusive mode2 on exact File in this first slice;
+all other descriptors are by value. These are syntactic identity/lifetime
+requests, not verification of moves, initialized locals, branch refinement,
+borrow exclusivity, public escape restrictions or execution safety.
+
+I retain bytes in both bridge directions only after this full private query
+succeeds. The query has no dependency on public verifier, converter or selector,
+so validation cannot recurse. A transport decision returns a descriptive plan
+or checked status, never an executable admission certificate. Shared
+`nvm_ownership_contracts_validate` and authority queries remain unchanged and
+continue rejecting these COMPLETE UNION facts. Copying ownership/layout bytes
+into a module without its service section therefore cannot gain shared authority.
+
+## My ownership, failure and consumer boundaries
+
+The private query stages an owned plan and publishes it only after all checks;
+invalid input/allocation failure preserves the caller's output. Checked size and
+map allocations roll back completely. The plan owns every dynamic map and does
+not borrow module buffers; immutable catalog views have process lifetime.
+Getters check bounds and report UNKNOWN for unmapped identity.
+
+Attach uses the already validated NlFilePlan plus exact v2 maps, stages bytes and
+validates the candidate module before replacing nothing or publishing a new
+owned payload. An identical existing attachment is idempotent; a conflicting
+one refuses. Layout/ownership bytes are caller-established facts and are never
+silently synthesized or modified by attach.
+
+`from_nvm` retains its existing borrowed service/ownership payload lifetime and
+cleanup-safe failure output, not an invented whole-output atomic-zero guarantee.
+`to_nvm` owns independent copies and publishes only a complete module (failure
+leaves NULL as today). I preserve every allocation-prefix cleanup and source
+buffer lifetime requirement. Neither conversion executes instructions to derive
+max_stack for a service module; unresolved execution facts are not fabricated.
+
+All existing required-service guards stay before general/owned/mixed verifier
+selection, VM direct and invocation entry, native/LLVM/Wasm conversion, linked
+execution, FFI/COP initialization, reconstruction and metadata-dropping writers.
+Malformed partial claims still refuse before output or dispatch. The v2 nominal
+plan does not permit host operations, code execution, generic imported calls,
+raw File construction, escaping public owners or selected-arm extraction.
+Later flow/refinement, host grant, VM/native adapters and paired source/shadows
+remain tasks72556/6931, not acceptance requirements silently declared complete here.
+
+## My ordered checkpoints and qualification
+
+1. Review this contract, then implement separate private raw v2 codec and staged
+   nominal/ownership query. Send production before preparing/executing fixtures.
+2. After that checkpoint qualifies, review the combined module version dispatch,
+   converter retention and all unchanged consumer refusals before module gates.
+3. Qualify golden raw bytes and overlap/atomicity; exact names/flags/case order,
+   unit payloads, shapes, nominal aliases, permutations and disconnected UNKNOWN
+   rows; every malformed count/length/reserved/mode/index/version; allocation
+   prefix recovery and plan independence after source destruction.
+4. Qualify in-memory↔container roundtrips preserving exact flags/bytes/maps,
+   both bridge ownership lifetimes, feature/section/import matrix, direct query
+   and public consumer refusal with sentinel outputs and no loader initialization.
+   Include stripped service/forged mapping cases and unchanged v1/ordinary/owned/
+   mixed profile controls. No service fixture executes bytecode or host File calls.
+5. Freeze fresh Linux/Darwin C tools and source inventories, strict sanitizer and
+   normal selected targets; retain first terminals. Run applicable module/provider
+   closure gates if integration changes their sources. Report precise pins and
+   do not turn descriptive roundtrip success into an execution claim.
