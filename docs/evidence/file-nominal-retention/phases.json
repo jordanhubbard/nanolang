@@ -501,5 +501,89 @@
     "source_equal": true,
     "tools_equal": true,
     "tracked_clean": true
+  },
+  {
+    "reports": "nanolang-file-nominal-final-05d971-linux",
+    "pin": "05d971e6122e2e2ae4b23fa9156646d8ed02ff89",
+    "platform": "linux",
+    "bootstrap_reference": "f5e07e5bea043265cfc15176fb1804227c363901",
+    "steps": [
+      {
+        "name": "setup",
+        "command": [
+          "make",
+          "-j8",
+          "nano_virt"
+        ],
+        "env": {
+          "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+        },
+        "status": 0,
+        "seconds": 5.536,
+        "log_sha256": "1715c37ab2f5f5361dc65a47904a8c674c13989e5e524eaa195feea8945ea6c8"
+      },
+      {
+        "name": "wrapper",
+        "command": [
+          "make",
+          "test-wrapper-gen"
+        ],
+        "env": {
+          "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+        },
+        "status": 0,
+        "seconds": 4.146,
+        "log_sha256": "efc90ab74958bfd23eed561ed70ec04045576ed3a2fd62b79de68e96c79eaebc"
+      }
+    ],
+    "terminal": 0,
+    "source_equal": true,
+    "tools_equal": true,
+    "tracked_clean": true
+  },
+  {
+    "reports": "final-05d971-darwin",
+    "pin": "05d971e6122e2e2ae4b23fa9156646d8ed02ff89",
+    "platform": "darwin",
+    "bootstrap_reference": "f5e07e5bea043265cfc15176fb1804227c363901",
+    "steps": [
+      {
+        "name": "setup",
+        "command": [
+          "make",
+          "-j8",
+          "nano_virt"
+        ],
+        "env": {
+          "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+          "NANO_SERVICE_MODULE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+          "NANO_FILE_NOMINAL_CC": "/opt/homebrew/opt/llvm/bin/clang",
+          "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+        },
+        "status": 0,
+        "seconds": 3.236,
+        "log_sha256": "bfc33bcb33c231ff655b225f77e33a72c84f87e40a3fdc3a6831a1dfbbbcaf61"
+      },
+      {
+        "name": "wrapper",
+        "command": [
+          "make",
+          "test-wrapper-gen"
+        ],
+        "env": {
+          "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+          "NANO_SERVICE_MODULE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+          "NANO_FILE_NOMINAL_CC": "/opt/homebrew/opt/llvm/bin/clang",
+          "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk"
+        },
+        "status": 0,
+        "seconds": 10.636,
+        "log_sha256": "59a4f4d2fc6c8b57548e86255dacec333db5449d07d51a9f1ed8d68ff850a825"
+      }
+    ],
+    "terminal": 0,
+    "source_equal": true,
+    "tools_equal": true,
+    "tracked_clean": true
   }
 ]

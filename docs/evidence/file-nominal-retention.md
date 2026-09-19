@@ -66,3 +66,11 @@ Darwin retained trees use SSH host `jordanh@CXWWHGGJX0.local`:
 `/tmp/nanolang-file-nominal-wrapper-775b`, and
 `/tmp/nanolang-file-nominal-integrated-0d057`.
 Exact local/remote report paths and counts are in the sealed current inventories.
+
+I integrate canonical828 at05d971e61, preserving the sealed0d057 tree. The only
+production changes are its independently qualified paired source producers;
+transport, wrapper implementation and provider lists remain identical. Fresh
+nano_virt and all eight wrapper controls pass on Linux (setup5.536s, tests4.146s)
+and Darwin (setup3.236s, tests10.636s). I do not claim a new Stage1/2 bootstrap or
+source-producer acceptance at05d; canonical828 retains its original evidence.
+These two phases extend the seal without replacing earlier records.
