@@ -11786,3 +11786,11 @@ claimed a legal lexical binding. I keep the exact source and previous-output
 assertion but require its parser phase explicitly; positive BOOL_NOT semantics
 remain in the already passing integer method. No parser or production change is
 required. The sixth method remains unrun pending exact fixture review.
+
+I seal the bounded owner-array Linux source evidence at
+[evidence/owned-array-source-linux.md](evidence/owned-array-source-linux.md): fresh
+bootstrap271.579s, tools26.523s, four passing original methods, then two retained
+fixture-phase terminals and reviewed remaining2-method PASS40.480s. All original
+Bundle/PREFIX shadows remain. I retain65 report hashes/428 artifacts and unchanged
+2265 sources/799 inputs/13 saved tools. Darwin and final parser/File integration,
+source18731, fixture childd27a, mutation and full parents remain open.
