@@ -95,7 +95,7 @@ static void scalar_obligations(void) {
             NvmMixedScalarCheck c=p->checks[n];CHECK(c.policy==NVM_MIXED_CHECK_FLOAT && c.operand<2);
             CHECK(c.actual_tags==((1u<<TAG_FLOAT)|(1u<<TAG_VOID)) && c.required_tags==(1u<<TAG_FLOAT));seen|=1u<<c.operand;
         }
-        CHECK(seen==mask && p->check_count==((mask&1)!=0)+((mask&2)!=0));finished(p);nvm_module_free(m);
+        CHECK(seen==mask && p->check_count==(unsigned)(((mask&1)!=0)+((mask&2)!=0)));finished(p);nvm_module_free(m);
     }
     for(unsigned ne=0;ne<2;ne++)for(unsigned order=0;order<2;order++) {
         char body[1000];snprintf(body,sizeof body,"%s%s%s\nPOP\nPUSH_I64 0\nRET\n",
