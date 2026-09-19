@@ -117,7 +117,14 @@
 
 - [x] I preserve mixed scalar variant fields in native storage (`task_6697993e325847d9a27c4af9e6507e65`, prerequisite6550). I retain exact scalar producer constraints, a distinct variant scalar-set carrier, per-variant tags, checked extraction and string roots; no struct/tuple/heap/unknown widening. I require unchanged generic fixtures, both variant orders, same-variant generic controls, padding/refusal and sanitizer ownership gates. [Contract](NATIVE_VARIANT_SCALAR_CARRIERS.md). PR673 is merged; the native task is completed, and my integrated generic gate passes all sixteen methods using its own translator.
 
-- [ ] I audit legacy C parentheses for nested boolean comparisons (`task_de7d1397f86940f8b759ae07eb46820f`). Pinned Cseed4a75f984 rejects valid nested sign comparison with GCC `-Werror=parentheses`; I retain `/tmp/nanolang-reconstruct-ucompare-first.log`. Current-main behavior needs separate qualification. Reconstruction uses named boolean intermediates without changing compiler policy.
+- [x] I preserve nested comparison grouping in self-hosted native C
+      (`task_de7d1397f86940f8b759ae07eb46820f`). I retain the pinned
+      `4a75f984` GCC diagnostic as history. Canonical PR #336 groups each
+      generated operand without adding a redundant outer comparison, and its
+      nested equality/relational matrices pass both self-hosted stages and
+      strict native compilation. The bounded unsigned reconstruction still
+      uses named boolean intermediates; I do not infer broader precedence
+      semantics from this repair.
 
 - [x] I reconstruct typed unsigned comparisons (`task_d4c7fd42960d4f218249555b7e268a70`, parent4bd034): exact int bit-pattern ordering with bool results, portable C/Nano helpers, calls/branches/loops and tag/output refusal. Twenty-five GCC/Clang methods pass including484 unsigned pairs; corrected tool hashes match. Initial pinned-compiler warning and negative-test expectation are retained separately. Full reconstruction remains open. [Contract](NANOISA_RECONSTRUCT_UNSIGNED_COMPARISONS.md).
 
@@ -450,7 +457,15 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
 
 - [x] I account for every currently admitted native host-string result (MAC `task_d5f899966241452a900422938fff3265`). Merged PR553 builtin/facade adoption, PR583 file_read cleanup and PR589 six path-provider companions satisfy the exact owned-buffer, borrowed-storage and bounded alias/sanitizer criteria. My [complete table inventory](evidence/native-host-result-inventory.md) records the audited source pin and measured evidence. Array/map ownership, arbitrary new artifact contracts and callback/co-process/interpreter enrollment remain separate.
 
-- [ ] I bound temporary string retention in my native AOT runtime (MAC `task_4d3105329e73454083846ad41473500d`). My [static lifetime audit](evidence/native-string-retention-audit.md) finds that concat, substring, formatting and character strings stay in `nstr_owners` until entry returns; existing map collection does not reclaim them. I keep the resource-budget-limited full native compiler acceptance open without attributing its whole RSS to this pool.
+- [x] I bound temporary string retention in my native AOT runtime (MAC
+      `task_4d3105329e73454083846ad41473500d`). My
+      [static lifetime audit](evidence/native-string-retention-audit.md)
+      established the original entry-lifetime pool. Canonical PR #523 adds
+      safe published-root reclamation and allocation-byte debt; focused
+      lifetime gates reduce the retained concat workload from 50,095,000 bytes
+      to an 84,222-byte peak. I keep the resource-budget-limited full native
+      compiler acceptance separate and do not attribute its whole RSS to this
+      pool.
   - [x] I introduce safe published-root string reclamation with allocation-byte debt, including string-only modules, caller/global/aggregate aliases, return handoff and self-tail staging.
   - [x] I test bounded normal allocation churn, escaped aliases, aggregate mutation and final cleanup under sanitizers before any new bounded full-source acceptance run.
   - [x] I inventory separate host-result allocations and record their exact ownership/adoption follow-up as `task_d5f899966241452a900422938fff3265`; borrowed artifact or environment strings must not be freed as owned storage. The distinct C-runtime array-copy ownership contract remains open as `task_93bb44374587a757753418fc28c2095d`.
@@ -886,7 +901,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and the completed compiler AOT bridge below. I also reconcile the raw-map
       declared-tag row against merged PR #633 and the Darwin shadow-deadline row
       against merged PR #509, retaining the unmerged 60-second proposal as
-      history rather than policy. The remaining active rows still require the
+      history rather than policy. A second canonical-ancestry audit reconciles
+      stale duplicate rows for nested comparison grouping, native temporary
+      strings, typed null calls, bool-array record mutation, direct NanoCore
+      transport, the Darwin export-buffer fixture, shadow-deadline measurement,
+      nested empty-array append context and self-hosted nested generic/global
+      initialization. Their broader reconstruction, compiler-product and
+      release parents remain open. The remaining active rows still require the
       same evidence check. MAC
       `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
@@ -1242,12 +1263,13 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and submit only the focused patch.
       MAC `task_c897ac40d20b43669817b766dbe1c5a3`.
 
-- [ ] **Typed null pointers in ordered native calls.** I retain the declared
+- [x] **Typed null pointers in ordered native calls.** I retain the declared
       pointer type when I snapshot a null literal argument for a native call,
       without weakening left-to-right argument evaluation or callee capture.
-      My strict macOS framework check currently rejects the integer temporary
-      passed to `glfwCreateWindow`'s pointer parameters.
-      MAC `task_64b0d006cff713ffa197dcec1d22a894`.
+      Canonical PR #438 passes the strict macOS framework check, both bootstrap
+      stages, the paired native shadow emitters and the focused call-order/null
+      controls. The broader quick gate remains separate. MAC
+      `task_64b0d006cff713ffa197dcec1d22a894`.
 
 - [x] **Isolated NanoISA facade shadows.** I replace shared temporary fixture
       names with exclusive directories, retain assembly/load/error assertions,
@@ -1295,11 +1317,11 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
       and wrong bindings in both frontends and IR facts. This remains full
       passive scope. MAC `task_20f6cb36fbf24bba987b4ea503529438`. The unchanged full calculator still refuses its declared `strlen` before raw NanoISA lowering; scalar closed-call parity does not satisfy this ABI boundary.
 
-- [ ] **Selfhost bool-array record-field mutation.** I must select the bool
-      setter for `array_set record.flags`, preserving mandatory native shadows.
-      My purity bootstrap exposed an incorrect int setter; typed local aliases
-      isolate the foundation while this repair remains open.
-      MAC `task_d32adbdff13241dc8ad9b0a889071352`.
+- [x] **Selfhost bool-array record-field mutation.** I select the bool setter
+      for `array_set record.flags`, preserving mandatory native shadows.
+      Canonical PR #398 passes a fresh three-stage bootstrap, all twelve
+      mutation cases and the adjacent compatibility methods. MAC
+      `task_d32adbdff13241dc8ad9b0a889071352`.
 
 - [x] **Self-hosted string prefix runtime.** I implement my `str_starts_with`
       native runtime contract so importing NanoISA lowering does not leave an
@@ -9423,7 +9445,13 @@ Ownership and proposal closure:
 
 Compiler product:
 - [x] I preserve exporter buffer allocation and formatting failures through checked sizing, retained allocation ownership and the existing NULL-result boundary (`task_e926ca38a5d64f299e9532ed984a2860`), while correcting the recorded strict GCC13 format diagnostic (`task_927d53891d204f2fb4e1974eb8c3edc2`). I use ordinary output comparisons and deterministic allocator-failure controls, without crash reproduction. Independent review also requires my quoted-string direct append to honor the checked growth result before writing.
-- [ ] I invoke my NanoCore reference evaluator through direct arguments and pipe transport, preserving literal expression bytes and compiler paths instead of constructing a shell command (`task_3d5bf23a0b40466aa8ba4e7c84e31e01`). I test valid quoted strings, spaced paths and long expressions with a benign evaluator; formal correspondence remains separate.
+- [x] I invoke my NanoCore reference evaluator through direct arguments and
+      pipe transport, preserving literal expression bytes and compiler paths
+      instead of constructing a shell command
+      (`task_3d5bf23a0b40466aa8ba4e7c84e31e01`). Canonical PR #638 passes
+      seven strict sanitizer methods for quoted strings, spaced paths, long
+      expressions and owned-child lifecycle. This tests transport, not formal
+      evaluator correspondence.
 - [x] I propagate both conditional clause and else-arm type errors through my C frontend diagnostic counter before publication (`task_ab4437a5560f475db4fdf49931a03bf3`). My paired negative field test reports a mismatch but NanoVirt exits zero; I preserve that failure and keep the existing type comparison unchanged. [Bounded acceptance](evidence/conditional-field-types.md).
 - [x] I retain the exact common type of conditional expression arms and their single-expression blocks during self-hosted NanoISA lowering (`task_e0a68123b4aa467fa8ed6b24161ced69`). My full product gate at e563d0e3 stops on record field `underscore_name` in retained transpiler shadows. I require equal known arm types and keep mismatched/unknown branches refused; I test both arms, nesting, records and declared-field rejection before resuming the full gate. [Bounded acceptance](evidence/conditional-field-types.md).
 - [x] I restore trial-deleted child counts for newly deferred VM cycle roots
@@ -9465,16 +9493,17 @@ Compiler product:
       and pass a fresh three-stage native bootstrap, 24 metadata C methods,
       three import methods and the foreign compiler-path regression
       (`task_402e6b8289fc4f58b79ef5559a68dce3`).
-- [ ] I make my NanoCore export-buffer fault fixture compatible with the active
+- [x] I make my NanoCore export-buffer fault fixture compatible with the active
       Darwin SDK's fortified `vsnprintf` macro without suppressing strict warnings
       (`task_43dea95525b24546b4b3e259a3148205`). I preserve the ordinary SDK call
       inside the wrapper, undefine the existing macro only before my test-local
-      redirection, and retain every allocation/format failure assertion. I qualify
-      corrected source on Darwin and Linux with strict compiler and sanitizer
-      controls; my shared-match production and reference-evaluator leak remain
-      separate. Contract: `docs/NANOCORE_EXPORT_BUFFER_DARWIN.md`. My frozen
-      strict Linux/Darwin targets and GCC/Clang sanitizer controls pass at
-      `b59c6aeb`; evidence: `docs/evidence/darwin-export-buffer-fixture.md`.
+      redirection, and retain every allocation/format failure assertion.
+      Canonical PR #797 qualifies corrected source on Darwin and Linux with
+      strict compiler and sanitizer controls; my shared-match production and
+      reference-evaluator leak remain separate. Contract:
+      `docs/NANOCORE_EXPORT_BUFFER_DARWIN.md`. My frozen strict Linux/Darwin
+      targets and GCC/Clang sanitizer controls pass at `b59c6aeb`; evidence:
+      `docs/evidence/darwin-export-buffer-fixture.md`.
 - [x] I resolve GCC 13's strict `-O1` sanitizer-build diagnostic for
       `nanocore_export.c` `sbuf_appendf` with an explicit nonnull format guard.
       I retain the original compiler diagnostic and pass the corrected strict
@@ -9549,16 +9578,19 @@ Compiler product:
       failed-shadow output preservation, source order and nested lexical scope.
       See `docs/evidence/selfhost-native-range-bounds.md` for the explicit
       shadow budget and separate unreachable-warning boundary.
-- [ ] I measure my compiler-shadow deadline after range emitter growth
-      (`task_628759a2daf743b9bf13c9a7fea2ced0`). A fresh bootstrap reached the default
-      ten-second shadow deadline without an assertion diagnostic; explicit
-      sixty-second execution advances. I retain both logs, measure the cause
-      and keep deadline tests unchanged. A timeout alone is not a correctness failure.
-- [ ] I carry contextual element types through nested empty-array appends
-      (`task_d5ed194093434b5cbfc2e3ec6bc2d37a`). After range lowering, my full compiler
-      shadow probe reaches `substitute_union_field_type` and rejects its nested
-      string appends to `[]`. I retain negative type controls and require exact
-      C-seed bytecode plus VM/native execution before rerunning the closure.
+- [x] I measure my compiler-shadow deadline after range emitter growth
+      (`task_628759a2daf743b9bf13c9a7fea2ced0`). I retain the first default
+      ten-second timeout and the explicit sixty-second diagnostic sample.
+      Canonical PR #509 preserves that deadline and every selected shadow while
+      indexed lookup completes the same 826-shadow workload in 2.392 seconds;
+      fresh bootstrap and focused scope/OOM controls pass. Timing remains
+      host-specific and does not replace later platform acceptance.
+- [x] I carry contextual element types through nested empty-array appends
+      (`task_d5ed194093434b5cbfc2e3ec6bc2d37a`). I retain the initial
+      `substitute_union_field_type` refusal. Canonical PR #506 preserves exact
+      nested scalar append bytecode and VM/native effects, including negative
+      type controls and a Stage2-built emitter. Record nominal append identity
+      remains the separate `task_439297c5a6934857a90cbec93bb7958d`.
 - [x] I preserve exact `float_to_string` formatting across interpreter, native and VM
       (`task_29976241a36244f7b0ce4ad75cb10b3f`). Both emitters and my self-hosted
       native helper retain `%g` precision and the reference decimal suffix,
@@ -9745,10 +9777,14 @@ Compiler product:
       pass. See `docs/evidence/native-generic-constructor-context.md`.
       My existing nested Result and marker controls remain in
       `tests/test_instantiated_ownership.py`.
-- [ ] I substitute nested generic payloads and initialize union globals in
-      my self-hosted native stages (`task_85a8db6e186440eaad80442bfc133dd8`).
-      The stronger constructor fixture exposes `nl_Box_T` in `Envelope<Plain>`
-      and an invalid aggregate `= 0` initializer after a fresh bootstrap.
+- [x] I substitute nested generic payloads and initialize union globals in my
+      self-hosted native stages (`task_85a8db6e186440eaad80442bfc133dd8`).
+      I retain the original `nl_Box_T` and aggregate-initializer failures.
+      Canonical PR #460 passes both self-hosted native stages for constructor
+      values, nested substitution and ordered union-global startup, plus fresh
+      bootstrap and an actual generated native `--emit-nvm` product gate.
+      Transitive specialization and direct selected projection matching remain
+      separate work.
 - [x] I apply concrete generic union constructor context before accepting
       nominal array payloads (`task_dd2be49bc494483f9bb18646a0013055`).
       I reject wrong record identities at local/global, argument, return,
