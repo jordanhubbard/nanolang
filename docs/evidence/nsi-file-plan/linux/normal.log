@@ -1,0 +1,4 @@
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DFILE_PLAN_INSTRUMENT tests/test_nsi_file_plan.c src/nsi.c src/utf8.c src/cJSON.c -o obj/test_nsi_file_plan_instrumented -lm -lcrypto -lffi  -rdynamic
+PASS 1315 checks; exact private file plan, no service execution
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_plan.c src/nsi_file_plan.c src/nsi.c src/utf8.c src/cJSON.c -o obj/test_nsi_file_plan_linked -lm -lcrypto -lffi  -rdynamic
+PASS 902 checks; exact private file plan, no service execution

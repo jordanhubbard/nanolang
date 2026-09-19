@@ -1405,6 +1405,40 @@ test-units: test-nsi-file
 test-nsi-file-sanitizers:
 	python3 -m unittest -v tests.test_nsi_file
 
+.PHONY: test-nsi-file-plan test-nsi-file-plan-sanitizers
+test-nsi-file-plan:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DFILE_PLAN_INSTRUMENT tests/test_nsi_file_plan.c src/nsi.c src/utf8.c src/cJSON.c -o $(OBJ_DIR)/test_nsi_file_plan_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_plan_instrumented tests/fixtures/nsi_file_plan.json
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_file_plan.c src/nsi_file_plan.c src/nsi.c src/utf8.c src/cJSON.c -o $(OBJ_DIR)/test_nsi_file_plan_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_file_plan_linked tests/fixtures/nsi_file_plan.json
+
+test-units: test-nsi-file-plan
+
+test-nsi-file-plan-sanitizers:
+	python3 -m unittest -v tests.test_nsi_file_plan
+
+.PHONY: test-service-bindings test-service-bindings-sanitizers
+test-service-bindings:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror tests/nanoisa/test_service_bindings.c src/nanoisa/service_bindings.c -o $(OBJ_DIR)/test_service_bindings $(LDFLAGS)
+	@$(OBJ_DIR)/test_service_bindings
+
+test-units: test-service-bindings
+
+test-service-bindings-sanitizers:
+	python3 -m unittest -v tests.test_service_bindings
+
+.PHONY: test-nsi-socket
+test-nsi-socket:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket.c -o $(OBJ_DIR)/test_nsi_socket_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_linked.c src/nsi_socket.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_socket_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_linked
+
+test-units: test-nsi-socket
+
 .PHONY: test-nsi-shm
 test-nsi-shm:
 	@echo "Running NSI shared-memory tests..."
@@ -5288,3 +5322,8 @@ test-mixed-samples-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJE
 	./obj/test_mixed_samples_admission
 
 test-units: test-mixed-samples-runtime test-mixed-samples-runtime-alloc test-mixed-samples-admission
+
+# I run real GPU lifecycle only through this explicit opt-in target.
+.PHONY: test-nsi-gpu-private
+test-nsi-gpu-private:
+	python3 tests/test_nsi_gpu.py --real-gpu --compiler "$(CC)" --output "$(OBJ_DIR)/private-gpu-gate"

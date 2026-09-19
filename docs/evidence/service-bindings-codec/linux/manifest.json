@@ -1,0 +1,68 @@
+{
+  "pin": "f4381337c7cd2283c0d45986c859728bb64a747a",
+  "steps": [
+    {
+      "name": "gcc",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_service_bindings"
+      ],
+      "env": {
+        "NANO_SERVICE_CODEC_TEST_CC": "/bin/gcc"
+      },
+      "status": 0,
+      "seconds": 0.227,
+      "log_sha256": "09f6f603858f63f602868088ee576654cb411be6b6a10da05c3e9c8531e6b36b"
+    },
+    {
+      "name": "clang",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "-f",
+        "-v",
+        "tests.test_service_bindings"
+      ],
+      "env": {
+        "NANO_SERVICE_CODEC_TEST_CC": "/usr/local/bin/clang",
+        "NANO_SERVICE_CODEC_TEST_CFLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      },
+      "status": 0,
+      "seconds": 0.282,
+      "log_sha256": "58b4a5a37e2b88550caa7a1be25e1826538266368ab774f36aad16a631e17605"
+    },
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "CC=/usr/bin/gcc",
+        "test-service-bindings"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 0.202,
+      "log_sha256": "5d6cf24c28dfb5138e5c722de5c51f82df794e66efabaaabc962d1957b894f7f"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "test-nvm-format-v2",
+        "test-nvm-v2-imports"
+      ],
+      "env": {},
+      "status": 0,
+      "seconds": 7.816,
+      "log_sha256": "5fc67f6139c562591817a8310712f13c5cee84a1bf3a1dae855cd38496024a2a"
+    }
+  ],
+  "terminal": 0,
+  "source_equal": true,
+  "tools_equal": true,
+  "tracked_clean": true
+}
