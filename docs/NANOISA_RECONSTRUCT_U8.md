@@ -59,6 +59,27 @@ Stage 1: my self-hosted `NSType` model represents `u8` as the exact named type
 the contextual hint test the existing exact type spelling. I do not extend the
 checker type enum as part of this repair.
 
+The corrected bootstrap completed both stages and installed Stage 2. Its first
+focused run then established three separate facts before the host data volume
+filled and later cases became invalid short writes:
+
+- the self-hosted canonical emitter still excludes `u8` from its supported
+  local-type whitelist;
+- the C-seed canonical emitter preserves byte literals in bindings, calls and
+  results, but a byte assignment still emitted `PUSH_I64`;
+- the self-hosted native-C route emits unknown `nl_u8` and scalar-conversion
+  helper spellings. I record that separate product gap as
+  `task_633a3abf5a1040e6863a525ed5cc80b5`; it is not required to relabel the
+  canonical NanoISA route as native-C support.
+
+I correct the two canonical emitter gaps in this task. I qualify reconstructed
+Nano source through C seed, Stage 1 and Stage 2 canonical NanoISA producers,
+then execute the same modules in NanoVM and translated strict native C. The
+C-seed native source compiler remains an additional ordinary control. I do not
+claim self-hosted native-C `u8` support from those gates. The invalid no-space
+tail of the first focused run is retained as environment evidence, not counted
+as a language failure or a test result.
+
 This extension does not admit a `u8` entry result: my executable entry remains
 an arity-zero `int` function. It does not change NanoISA, NanoVM, `nvm2c`, LLVM
 or Wasm semantics. Full high-level reconstruction and the v5.1.0 release gates
