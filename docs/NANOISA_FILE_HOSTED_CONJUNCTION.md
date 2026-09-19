@@ -170,7 +170,8 @@ layout/ownership/service bytes, nominal-v2 temporary pointer/function/layout
 views and its exact nominal allocation, and the full existing16MiB body budget.
 The whole reader's internal validation bridge and my later owned bridge are
 sequential; neither is omitted from that common peak bound. Missing or malformed
-extents fail before allocation. Legacy TRUNCATED ambiguity stays UNRESOLVED.
+extents fail before allocation. Legacy allocating-reader/bridge failure ambiguity stays UNRESOLVED, including
+INDEX_RANGE from allocation-dependent insertion/validation as well as TRUNCATED.
 
 Derived storage is an upper bound in abstract value/reference/region/frame slots,
 not an existing File runtime carrier byte ABI. A VM-style suffix calculation

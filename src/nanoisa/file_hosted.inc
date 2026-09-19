@@ -148,8 +148,10 @@ static NvmFileFlowStatus file_hosted_preflight(const uint8_t *data,size_t size,N
     *bound=total;return NVM_FILE_FLOW_OK;
 }
 static NvmFileFlowStatus file_hosted_codec_status(NvmV2Result r) {
-    /* The legacy codec/bridge use TRUNCATED for both malformed data and OOM. */
-    return r==NVM_V2_ERR_TRUNCATED?NVM_FILE_FLOW_UNRESOLVED:NVM_FILE_FLOW_INVALID;
+    /* Allocating readers/bridge also use INDEX_RANGE or SECTION_TYPE after
+     * allocation-dependent validation. No legacy failure proves a malformed
+     * input or OOM here. Precise INVALID/LIMIT belongs to nonalloc preflight. */
+    (void)r;return NVM_FILE_FLOW_UNRESOLVED;
 }
 static NvmFileFlowStatus file_hosted_start(NvmFileHostedPlan *p,const NvmV2Module *wire,const NvmModule *m) {
     NvmFileCodePlan *code=p->body->plan;
