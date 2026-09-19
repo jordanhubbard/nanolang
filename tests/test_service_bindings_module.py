@@ -80,3 +80,12 @@ class ServiceModule(unittest.TestCase):
 
     def test_attach_and_both_bridge_allocation_prefixes(self):
         self.qualify(True)
+
+    def test_mixed_candidate_service_boundary_and_recovery(self):
+        exe = self.artifacts / "mixed-boundary"
+        self.command("mixed-build", [*self.compiler, *self.flags,
+            "tests/nanoisa/test_service_mixed_boundaries.c", *self.objects,
+            *self.linkflags, "-o", str(exe)])
+        output = self.command("mixed-run", [str(exe)])
+        self.assertIn("mixed service selection and recovery checks passed", output)
+        print(output.strip(), flush=True)
