@@ -3,7 +3,7 @@
 I refine task_430220ce190946518d404088533531b6 under my existing
 [owned-array contract](NANOISA_OWNED_FLOAT_ARRAY_FIELDS.md). My audit pin is
 canonical118cc44711b1cb1b49a1503d948c4e29c428b9a7, including mixed runtime819,
-STRING runtime813 and service guard820. This is a preimplementation plan: no
+STRING runtime813 and service guard821. This is a preimplementation plan: no
 producer, shared validator, public selector, runtime or fixture is changed.
 Samples source child e64a2673 remains in qualification and precedes complete
 source acceptance; it does not prevent private descriptor planning.
@@ -146,3 +146,23 @@ roots (including scalar siblings), linked graphs and unsupported closed profiles
 remain refused. Existing nonmixed STRING-owner and mixed ordinary Samples paths
 must preserve their qualified behavior. Private planning does not narrow the
 original430220 or managed/affine/full-product parents.
+
+## My first private production checkpoint
+
+I add owned_array_layouts.h/.inc through retained_layouts.c so I reuse its exact
+allocation-free byte preflight and existing ownership transport reader without
+changing either or their callers. The new opaque query owns decoded fields,
+original layout/ownership bytes, source/global/ordinary-managed maps, per-row
+flags and pending ARRAY/STRING facts, plus bounded expanded owner leaf paths.
+Passive non-record rows keep no record/managed identity; complete ordinary rows
+with pending ARRAY leaves also keep NO_INDEX until a later proof. Empty owner
+rows remain describable. Depth and path length are independently bounded32,
+with65,536 total expanded leaf paths; ordinary nested rows remain prior-only.
+
+I reject service claims before description and preserve the existing whole-root
+reference validation. No mixed/owned verifier, selector, VM, native emitter or
+source producer calls the new query. Existing dependency-file generation tracks
+the added include/header through the modified retained-layout translation unit.
+I have inspected source and whitespace only; query fixtures and compilation await
+independent review. This checkpoint establishes neither element origins nor
+owner liveness and does not close430220.
