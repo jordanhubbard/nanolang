@@ -18,7 +18,22 @@ seconds; full `make bootstrap` passes in247.110seconds. Source, tool and HEAD
 maps remain unchanged during both gates. Bootstrap success is not a canonical
 bytecode fixed-point claim. I retain existing generated-C const warnings in the log.
 
-Darwin reports the corrected wrapper gate passing; its fresh bootstrap and full
-STRING acceptance are still running when I write this checkpoint. I keep the
-closure task open pending platform evidence and canonical landing. I add no
-runtime/source admission, and I do not publish a release from these checks.
+My corrected Darwin wrapper gate passes five C cases and seven Python checks
+in7.53seconds. Fresh SDK-aware bootstrap passes in301.32seconds with Apple
+clang21.0.0 and SDK27.0, including both compiler stages and installed/no-C-seed
+smokes. I independently hash all5326 current tracked files,12 selected built
+tools and six actual tool files through SSH against the preserved maps; the
+initial/frozen source maps and normalized actual tool hashes agree. The
+wrapper-only Darwin attempt at27a remains a preserved bootstrap failure after
+104.51seconds, despite its8.01second wrapper pass.
+
+I copy and hash those reports in the manifest. Homebrew LLVM23.1.1 is reserved
+for subsequent sanitizer source gates, not mislabeled as the bootstrap compiler.
+Darwin STRING prerequisite setup separately hit Apple Make3.81's unsupported
+`--eval`; the peer preserves that harness result and uses a supplemental Makefile.
+It does not invalidate these completed wrapper/bootstrap gates. Full STRING
+source/runtime acceptance remains task793523 work.
+
+I add no runtime/source admission and do not publish a release from these checks.
+My provider-closure implementation and platform gates are complete; canonical
+landing is recorded separately in MAC.
