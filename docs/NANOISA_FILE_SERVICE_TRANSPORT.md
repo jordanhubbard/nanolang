@@ -301,3 +301,10 @@ I preserve `/tmp/nanolang-service-module-ba7` and its immutable artifacts, then
 add the fixture include root before a fresh checkpoint. I also make the unittest
 target fail-fast so subsequent methods do not repeat a setup failure. This is a
 fixture build correction, not a service runtime defect or a weakened assertion.
+
+At e8b847d8f strict fixture compilation succeeds; its first link then refuses the
+missing executable-owned `g_argc/g_argv` globals required by the existing shared
+CLI/evaluator objects. No fixture executable runs. I preserve
+`/tmp/nanolang-service-module-includes` before supplying those ordinary harness
+entrypoint globals, as the adjacent VM fixture executables do. Production stays
+unchanged and warnings/sanitizers/assertions remain intact.
