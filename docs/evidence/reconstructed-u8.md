@@ -110,3 +110,47 @@ canonical File/CODE/Forth integrations.
   `253c1e2a8761091a029f70656dbe3e8340473da9a45914d4bebbb547329a837e`
 - `/private/tmp/nanolang-u8-integration-focused.log`:
   `cc130c992bcaaf8b87912d64c6dd03a2ace3f237888d90697a50d4120dd46aae`
+
+## Direct parameter metadata
+
+My final static review caught a defect that the executing controls did not:
+the self-hosted emitters serialized an exact `u8` direct parameter as `void`.
+At PR859 head `7ab0afc0`, the same fresh source produced these retained dumps:
+
+- NanoVirt: `.parameters 0 u8`, dump SHA-256
+  `01073092f2f8c609281f132bea8348abc1f6084f0fe3132eee07f134ebc41436`.
+- Stage 1: `.parameters 1 void`, dump SHA-256
+  `382939176dd30a30cab95645efa61bda56a4abbec243174646023553a49d845a`.
+- Stage 2: the same incorrect dump SHA-256
+  `382939176dd30a30cab95645efa61bda56a4abbec243174646023553a49d845a`.
+
+The original probe source SHA-256 was
+`529f2ff7f1a947d077e068e2f7603220a32cc318244cdbac60f25e364cdbc1c1`.
+I recorded `task_affeba0b68cd8ad7e2c3756c672c934a` and the roadmap row before
+changing production code. I now publish explicit parameter metadata when a
+function declares a byte parameter and emit its exact `TYPE_CHECK 2` guard.
+Other functions retain their prior metadata route.
+
+The first corrected ad-hoc probe log
+`cf4048a519fddd11d6056174cf700e171ccb7697fc05faddee087aec5b4f3515`
+ended nonzero only because its `main` deliberately returned 255 while the
+shell command expected zero. I preserved it and used a fresh source that
+asserts 255 internally and returns zero; I did not reinterpret the terminal.
+
+At production commit `8b11a889`, the corrected source SHA-256 is
+`05bb76c8b38e636cc952e08fb872229f1c3cf58d9ae7351228d94aae0cfd1dbc`.
+The qualified dumps retain `.parameters … u8` through every producer:
+
+- NanoVirt: `8a1ae658d6116cb74044a8e63c298a759435f4c54d8972bf7f7388dc632946b9`.
+- Stage 1 and Stage 2:
+  `094225552754744f177f68ca96fccfd9e09715c668c90904dedd3bfb78f7c1b3`.
+
+All three corrected modules verified, executed in NanoVM, translated through
+`nvm2c`, compiled under Homebrew LLVM sanitizers and executed with leak
+detection. The combined probe log SHA-256 is
+`a4ecbb14a90f31db7d9dac9f2d52b7b40984e9065a90d569838a117f356f3b5d`.
+Fresh bootstrap passed (`0f2437268f65f71bdd3d04ff4938b8cd5a8c5c279b0288058278b3d14d134d4e`),
+the U8 plus adjacent refusal gate passed 7/7 in 16.941 seconds
+(`f62e27336b4b8c1b0162f01c39ab133d360e0b1ef518f4766aa4ad850ef5f597`),
+and the complete scalar reconstruction gate passed 60/60 in 570.949 seconds
+(`0c2960d4ac2c0b99098bc80740a49c6127a14319069aa1c5feb0a512818d0d5e`).
