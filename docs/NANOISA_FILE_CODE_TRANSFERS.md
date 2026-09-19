@@ -113,3 +113,9 @@ sites; allocation prefixes including second-refinement-clone failure; limits;
 input/output lifetime; and unchanged public refusal. Actual bytecode is analyzed,
 not executed. Existing File declaration/CODE preparation/provider controls remain
 adjacent gates. Runtime, source, loops and indirect-call work stay open afterward.
+
+My logical query does not validate the hosted declared max_stack allocation ABI.
+My256-instruction function cap also means a returning body cannot build256
+operand values from an empty stack in this milestone. I test the actual256/257
+logical stack boundary directly through the qualified state API, separately
+from CODE instruction limits; I do not fabricate a reachable returning body.
