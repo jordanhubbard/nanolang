@@ -33,9 +33,33 @@ static void public_direct_core(NvmModule *m) {
     memset(&vm.references,0,sizeof vm.references);memset(&vm.callee_references,0,sizeof vm.callee_references);memset(vm.value_references,0,sizeof vm.value_references);
     vm.handler_count=vm.activation_floor=0;vm.ip=vm.current_fn=0;clean(&vm,objects,bytes);vm_destroy(&vm);CHECK(!vm.heap.stats.num_objects);
 }
+static NvmOwnedArrayPlan *public_input_integrity(NvmModule *m,bool accepted) {
+    NvmModule before=*m;uint8_t *rows[8]={0},tags[8][8]={{0}};
+    CHECK(m->function_count<=8);
+    for(uint32_t f=0;f<m->function_count;f++) {
+        CHECK(m->functions[f].arity<=8);
+        rows[f]=m->function_param_types?m->function_param_types[f]:NULL;
+        if(rows[f])memcpy(tags[f],rows[f],m->functions[f].arity);
+    }
+    uint8_t *owned=malloc(m->ownership_size),*code=malloc(m->code_size),*layouts=malloc(m->layout_size);
+    CHECK(owned && code && layouts);memcpy(owned,m->ownership_data,m->ownership_size);
+    memcpy(code,m->code,m->code_size);memcpy(layouts,m->layout_data,m->layout_size);
+    unsigned char sentinel;NvmOwnedArrayPlan *plan=(void *)&sentinel;
+    NvmOwnerAuthorityResult r=nvm_owned_array_admit(m,&plan);
+    if(r.status!=NVM_OWNER_AUTH_PREPARED)fprintf(stderr,"public preparation status=%u %s\n",(unsigned)r.status,r.message);
+    CHECK((r.status==NVM_OWNER_AUTH_PREPARED)==accepted);
+    CHECK(!memcmp(&before,m,sizeof before));
+    CHECK(!memcmp(owned,m->ownership_data,m->ownership_size) && !memcmp(code,m->code,m->code_size) && !memcmp(layouts,m->layout_data,m->layout_size));
+    for(uint32_t f=0;f<m->function_count;f++) {
+        CHECK((m->function_param_types?m->function_param_types[f]:NULL)==rows[f]);
+        if(rows[f])CHECK(!memcmp(tags[f],rows[f],m->functions[f].arity));
+    }
+    free(owned);free(code);free(layouts);
+    if(!accepted){CHECK(plan==(void *)&sentinel);return NULL;}return plan;
+}
 static void public_wire(NvmModule *m,const char *dir) {
     fprintf(stderr,"public transport sidecars=%u\n",m->function_param_types!=NULL);
-    NvmOwnedArrayPlan *plan=NULL;CHECK(nvm_owned_array_admit(m,&plan).status==NVM_OWNER_AUTH_PREPARED);
+    NvmOwnedArrayPlan *plan=public_input_integrity(m,true);
     NvmV2Module v2;CHECK(nvm_v2_from_nvm_module(m,&v2)==NVM_V2_OK);
     for(uint32_t f=0;f<m->function_count;f++) {
         NvmOwnerSignature sig;CHECK(nvm_owned_array_plan_signature(plan,f,&sig));
@@ -67,7 +91,16 @@ static void public_boundaries(const char *dir) {
     for(int p=NVM_PROFILE_CLOSED_SCALAR;p<=NVM_PROFILE_CLOSED_MANAGED_STRINGS;p++)CHECK(!nvm_verify_profile(m,(NvmVerifyProfile)p).ok);
     public_wire(m,dir);public_direct_core(m);
     uint8_t **params=m->function_param_types;m->function_param_types=NULL;public_wire(m,dir);m->function_param_types=params;
-    uint8_t old=params[3][0];params[3][0]=TAG_INT;public_reject(m);params[3][0]=old;
+    uint8_t *partial=params[3];params[3]=NULL;public_wire(m,dir);params[3]=partial;
+    uint8_t old=params[3][0];params[3][0]=TAG_VOID;public_wire(m,dir);params[3][0]=old;
+    params[3][0]=TAG_INT;public_input_integrity(m,false);public_reject(m);params[3][0]=old;
+    m->function_param_types=NULL;NvmOwnedArrayPlan *detached=public_input_integrity(m,true);m->function_param_types=params;
+    NvmModule *fresh=runtime_module(0);nvm_module_free(m);m=fresh;params=m->function_param_types;
+    NvmOwnerSignature detached_signature;CHECK(nvm_owned_array_plan_signature(detached,3,&detached_signature));
+    CHECK(detached_signature.parameter_count==1 && detached_signature.parameters[0].tag==TAG_STRING);
+    NvmOwnedArrayTransport detached_transport;CHECK(nvm_owned_array_plan_transport(detached,&detached_transport));
+    CHECK(detached_transport.ownership_size==m->ownership_size && !memcmp(detached_transport.ownership,m->ownership_data,m->ownership_size));
+    nvm_owned_array_plan_free(detached);
     unsigned offsets[]={4,5,12,13,14,15};
     for(unsigned n=0;n<sizeof offsets/sizeof offsets[0];n++) {
         fprintf(stderr,"public layout envelope offset=%u\n",offsets[n]);
