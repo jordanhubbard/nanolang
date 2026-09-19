@@ -5273,4 +5273,4 @@ mixed-samples-runtime-fixture: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJ
 
 .PHONY: test-mixed-samples-runtime
 test-mixed-samples-runtime: mixed-samples-runtime-fixture
-	python3 -m unittest -v tests.test_mixed_samples_runtime
+	python3 -m unittest -fv tests.test_mixed_samples_runtime

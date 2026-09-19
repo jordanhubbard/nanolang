@@ -395,7 +395,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
     }
     nvm2c_puts(&b,"cleanup:;\n for(size_t i=0;i<256;i++){nown_release(t[i]);nown_release(l[i]);}\n");
     if(mixed)nvm2c_puts(&b," nown_release(a);nown_release(c);a=c=(nown_value){0};\n");
-    if(mixed && !function)nvm2c_puts(&b," if(managed->live_objects || managed->live_bytes)status=3; if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0); if(nms_dispose(managed)!=NMS_OK)status=3;\n");
+    if(mixed && !function)nvm2c_puts(&b," if(managed->live_objects || managed->live_bytes)status=3;\n if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0);\n if(nms_dispose(managed)!=NMS_OK)status=3;\n");
     if(result_type.tag!=TAG_VOID) nvm2c_puts(&b,consuming?
         " if(!status){*result=pending; pending=(nown_value){0};}\n":
         " if(!status){*result=pending.scalar; pending=(nown_value){0};}\n");
