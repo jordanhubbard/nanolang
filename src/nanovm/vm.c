@@ -3171,7 +3171,7 @@ vm_return_values: ;
             }
             if (owned_execution) {
                 if (returning->result_tag==TAG_STRUCT) {
-                    /* I validate while the pending owner is still a stack root.
+                    /* I validate while the pending managed result is still a stack root.
                      * Scalar/void count and tag checks need no extra facts. */
                     NvmAffineType type;uint16_t fields=0;
                     bool valid=false;
@@ -3181,7 +3181,8 @@ vm_return_values: ;
                         const NvmMixedSignature *signature=&proof->signatures[frame->fn_idx];
                         type=(NvmAffineType){signature->result.tag,signature->result.global_layout};
                         fields=signature->result_fields;
-                        valid=signature->result.category==NVM_MIXED_VALUE_OWNER;
+                        valid=signature->result.category==NVM_MIXED_VALUE_OWNER ||
+                            signature->result.category==NVM_MIXED_VALUE_ORDINARY;
                     } else {
                         NvmAffineState *contract=nvm_affine_state_create(vm->module,frame->fn_idx,returning->local_count);
                         if (!contract) return trap_error(vm,VM_ERR_MEMORY,"I cannot load owned return facts");

@@ -63,7 +63,8 @@ static bool mp_signatures(const NvmModule *module,NvmMixedSamplesPlan *p) {
            fn->result_count!=(sig->result.tag==TAG_VOID?0:1))return false;
         sig->max_stack=p->proof->max_stack[f];
         if((uint32_t)sig->local_count+sig->max_stack>UINT16_MAX)return false;
-        if(sig->result.category==NVM_MIXED_VALUE_OWNER)
+        if(sig->result.category==NVM_MIXED_VALUE_OWNER ||
+           sig->result.category==NVM_MIXED_VALUE_ORDINARY)
             sig->result_fields=v->layouts.items[sig->result.global_layout].field_count;
         for(uint16_t n=0;n<sig->local_count;n++) {
             if(!mp_declaration(&c,p->proof,&p->locals[f][n]))return false;

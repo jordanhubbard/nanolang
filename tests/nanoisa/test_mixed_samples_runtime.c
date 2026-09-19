@@ -13,6 +13,14 @@ static uint8_t *runtime_row(NvmModule *m,unsigned function) {
     return row;
 }
 static NvmModule *runtime_fixture(unsigned index) {
+    if(index==12) {
+        const char *helpers=
+            ".function ordinary 0 0 0 struct 1\nARR_NEW 3\nAGG_PACK 0 1 0 1\nRET\n.end\n"
+            ".function close 1 1 0 int 1\nOWN_UNPACK_LOCAL 0\nRET\n.end\n.parameters 2 struct\n";
+        NvmModule *m=build("CALL 1\nAGG_GET 0\nPOP\nPUSH_I64 7\nOWN_PACK 0\nCALL 2\nPUSH_I64 7\nEQ\nASSERT\nPUSH_I64 0\nRET\n",NULL,0,helpers,false);
+        word(runtime_row(m,1)+8,1);
+        return m;
+    }
     const char *operations[]={
         "LOAD_LOCAL 1\nPUSH_F64 2.5\nARR_PUSH\nSTORE_LOCAL 2\n"
         "LOAD_LOCAL 2\nPUSH_I64 0\nPUSH_F64 9.5\nARR_SET\nPOP\n"
@@ -172,7 +180,7 @@ static void runtime_core(NvmModule *m,unsigned index,VmResult wanted) {
 
 int main(int argc,char **argv) {
     CHECK(argc==2);
-    for(unsigned index=0;index<12;index++) {
+    for(unsigned index=0;index<13;index++) {
         NvmModule *m=runtime_fixture(index);NvmVerifyResult verified=nvm_verify(m);
         if(!verified.ok)fprintf(stderr,"case%u: %s\n",index,verified.error_msg);
         CHECK(verified.ok);
