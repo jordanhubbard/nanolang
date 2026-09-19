@@ -45,8 +45,8 @@ class SourceOwnedFloatArrays(support.SourceMixedSamples):
                 else:
                     self.assertNotRegex(result.stdout + result.stderr,
                                         r'(?i)parse (?:error|failed)|unexpected token')
-                self.assertRegex(result.stdout + result.stderr,
-                                 r'(?i)type|array|owner|require|unsupported|shadow|assert|call|builtin|field|verify')
+                    self.assertRegex(result.stdout + result.stderr,
+                                     r'(?i)type|array|owner|require|unsupported|shadow|assert|call|builtin|field|verify')
 
     def test_original_complete_prefix_and_all_routes(self):
         normal, shadows = self.graph_positive('owned-array-original', self.original(), b'', b'')
