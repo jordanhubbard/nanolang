@@ -2968,6 +2968,18 @@ lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separa
         process-name counts cannot prove per-client isolation or lazy launch.
         I require observed owned-worker identity and an actual injected crash,
         not merely successful repeated calls or matching ambient counts.
+        - [ ] I add a native lifecycle probe that observes the private worker
+          PID, proves stable reuse, sends `SIGKILL`, waits without reaping,
+          observes a distinct replacement and proves owned stop/reap while an
+          unrelated child remains alive.
+        - [ ] I give every daemon phase a private `NANOVMD_SOCKET`, retain only
+          child PIDs started by this invocation, and remove every `pgrep` and
+          `pkill`. Compile, execution, comparison and setup failures must remain
+          visible instead of being redirected into a later assertion.
+        - [ ] I exercise the shell lifecycle with fake private tools, an
+          unrelated command whose path contains `nano_cop`, and injected
+          compile/client failures. Both normal and failed exits must preserve
+          the unrelated process and reap only recorded children.
       - [x] I require semantic rejection evidence in the self-hosted shell
         suite. Its negative-test loop currently counts any compiler failure,
         including timeout or launch failure, as a pass and discards diagnostics.
