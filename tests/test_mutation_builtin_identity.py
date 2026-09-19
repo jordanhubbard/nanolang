@@ -75,6 +75,16 @@ class MutationBuiltinIdentity(unittest.TestCase):
             self.check(name+'-wrong-result', declaration + f'fn main()->int{{let result:bool=({name} {args}) return 0}} shadow main{{assert true}}', 1)
             self.check(name+'-wrong-arity', declaration + f'fn main()->int{{let result:int=({name}) return 0}} shadow main{{assert true}}', 1)
 
+    def test_nested_scope_restores_declaration(self):
+        for name in ('array_push', 'array_set'):
+            params = 'a:array<float>,v:float' if name == 'array_push' else 'a:array<float>,i:int,v:float'
+            types = 'array<float>,float' if name == 'array_push' else 'array<float>,int,float'
+            args = '[1.0] 2.0' if name == 'array_push' else '[1.0] 0 2.0'
+            source = f'fn {name}({params})->int{{return 7}} shadow {name}{{assert true}}\n'
+            source += f'fn selected({params})->bool{{return true}} shadow selected{{assert true}}\n'
+            source += f'fn main()->int{{if true{{let {name}:fn({types})->bool=selected let inner:bool=({name} {args}) assert inner}} let outer:int=({name} {args}) return outer}} shadow main{{assert true}}'
+            self.check(name+'-nested-restoration', source)
+
     def test_unbound_mutation(self):
         source = self.work/'unbound.nano'
         source.write_text('''fn main()->int {
