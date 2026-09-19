@@ -4616,9 +4616,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                     while (< j call_node.arg_count) {
                         if (< j sym.param_count) {
                             let arg_ref2: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start j))
-                            let arg_raw2: NSType = (check_expr_node parser arg_ref2.node_id arg_ref2.node_type symbols diags file_name)
                             let param_t: NSType = (at sym.param_types j)
-                            let arg_t2: NSType = (check_constructor_argument parser arg_ref2.node_id arg_ref2.node_type arg_raw2 param_t symbols diags file_name)
+                            let arg_raw2: NSType = (check_expr_node parser arg_ref2.node_id arg_ref2.node_type symbols diags file_name)
+                            let arg_hint2: NSType = (apply_value_type_hint parser arg_ref2.node_id arg_ref2.node_type arg_raw2 param_t)
+                            let arg_t2: NSType = (check_constructor_argument parser arg_ref2.node_id arg_ref2.node_type arg_hint2 param_t symbols diags file_name)
                             let opaque_param: bool = (tc_is_opaque_name parser param_t.name)
                             let mut opaque_null: bool = false
                             if (and opaque_param (== arg_ref2.node_type ParseNodeType.PNODE_NUMBER)) {
@@ -4647,9 +4648,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                         while (< argument_index call_node.arg_count) {
                             if (< argument_index (array_length params)) {
                                 let argument: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start argument_index))
-                                let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
                                 let expected: NSType = (at params argument_index)
-                                let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type raw expected symbols diags file_name)
+                                let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+                                let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
+                                let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
                                 if (not (types_equal actual expected)) {
                                     let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
                                     (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name call_node.line call_node.column)))
@@ -5162,7 +5164,8 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
                 }
             }
         }
-        let mut init_type: NSType = (apply_return_type_hint init_type_raw declared_type)
+        let init_type_hint: NSType = (apply_value_type_hint parser let_node.value let_node.value_type init_type_raw declared_type)
+        let mut init_type: NSType = (apply_return_type_hint init_type_hint declared_type)
         if (and (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL) (and (== declared_type.kind TypeKind.TYPE_ARRAY) (== declared_type.element_type_kind TypeKind.TYPE_INT))) {
             let literal: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
             let mut has_enum: bool = false
@@ -5249,7 +5252,8 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
         }
     } else {
         let expr_t_raw: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
-        let expr_t: NSType = (apply_return_type_hint expr_t_raw expected_type)
+        let expr_t_hint: NSType = (apply_value_type_hint parser ret_node.value ret_node.value_type expr_t_raw expected_type)
+        let expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
         if (not (types_equal expr_t expected_type)) {
             let detail: string = (+ "Return value of " current_function)
             let msg: string = (encode_type_mismatch_message "return" (type_to_string expected_type) (type_to_string expr_t) detail)
@@ -5302,7 +5306,8 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
             return false
         } else {
             let rhs_t_raw: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
-            let rhs_t: NSType = (apply_return_type_hint rhs_t_raw sym.sym_type)
+            let rhs_t_hint: NSType = (apply_value_type_hint parser set_node.value set_node.value_type rhs_t_raw sym.sym_type)
+            let rhs_t: NSType = (apply_return_type_hint rhs_t_hint sym.sym_type)
             if (not (types_equal rhs_t sym.sym_type)) {
                 let detail: string = (+ "Assignment to " set_node.target)
                 let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string sym.sym_type) (type_to_string rhs_t) detail)
@@ -5794,6 +5799,24 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
         } else { (print "") }
     } else { (print "") }
     return expr_type
+}
+
+fn apply_value_type_hint(parser: Parser, node_id: int, node_type: int, expr_type: NSType, expected_type: NSType) -> NSType {
+    if (and (== (type_to_string expected_type) "u8") (and (== expr_type.kind TypeKind.TYPE_INT) (== node_type ParseNodeType.PNODE_NUMBER))) {
+        let literal: int = (string_to_int (parser_get_number parser node_id).value)
+        if (and (>= literal 0) (<= literal 255)) { return expected_type }
+    }
+    return expr_type
+}
+
+shadow apply_value_type_hint {
+    let parser: Parser = (resource_test_parser "fn main() -> int { let octet: u8 = 255 let too_large: u8 = 256 let computed: u8 = (+ 1 2) return 0 }")
+    let octet: ASTLet = (parser_get_let parser 0)
+    let too_large: ASTLet = (parser_get_let parser 1)
+    let computed: ASTLet = (parser_get_let parser 2)
+    assert (== (type_to_string (apply_value_type_hint parser octet.value octet.value_type (type_int) (type_from_string "u8"))) "u8")
+    assert (== (apply_value_type_hint parser too_large.value too_large.value_type (type_int) (type_from_string "u8")).kind TypeKind.TYPE_INT)
+    assert (== (apply_value_type_hint parser computed.value computed.value_type (type_int) (type_from_string "u8")).kind TypeKind.TYPE_INT)
 }
 
 shadow apply_return_type_hint {

@@ -582,6 +582,7 @@ shadow nisa_map_value_type {
 
 fn nisa_local_type_ok(t: string) -> bool {
     if (== t "float") { return true }
+    if (== t "u8") { return true }
     if (or (== t "array<bool>") (== t "array<float>")) { return true }
     if (!= (nisa_map_value_type t) "") { return true }
     if (== t "int") {
@@ -606,6 +607,7 @@ fn nisa_local_type_ok(t: string) -> bool {
 shadow nisa_local_type_ok {
     assert (nisa_local_type_ok "float")
     assert (nisa_local_type_ok "int")
+    assert (nisa_local_type_ok "u8")
     assert (nisa_local_type_ok "string")
     assert (nisa_local_type_ok "bool")
     assert (nisa_local_type_ok "array<int>")
@@ -1580,6 +1582,7 @@ shadow nisa_type_ok {
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_type_ok p "int")
+    assert (nisa_type_ok p "u8")
     assert (nisa_type_ok p "Point")
     assert (nisa_type_ok p "Tok")
     assert (nisa_type_ok p "array<string>")
@@ -2740,6 +2743,16 @@ shadow nisa_emit_tuple_literal {
 
 # I carry declared constructor context without changing the AST.
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
+    if (== expected "u8") {
+        if (== node_type ParseNodeType.PNODE_NUMBER) {
+            let literal: int = (string_to_int (parser_get_number parser node_id).value)
+            if (or (< literal 0) (> literal 255)) { return (nisa_fail "I require a byte literal from 0 through 255") }
+            return (nisa_line_imm "PUSH_U8" (int_to_string literal))
+        }
+        if (!= (nisa_expr_type parser node_id node_type) "u8") {
+            return (nisa_fail "I require the declared byte value type")
+        }
+    }
     if (and (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) (>= (nisa_union_index parser expected) 0)) {
         return (nisa_emit_union_context parser node_id expected)
     }
@@ -2807,6 +2820,13 @@ shadow nisa_emit_expected_expr {
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<int>") "  ARR_LITERAL 1 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<bool>") "  ARR_LITERAL 4 0\n")
     assert (== (nisa_emit_expected_expr parser 0 ParseNodeType.PNODE_ARRAY_LITERAL "array<float>") "  ARR_LITERAL 3 0\n")
+    let byte_tokens: List<LexerToken> = (tokenize_string "fn byte() -> u8 { return 255 }" "byte.nano" diagnostics)
+    let byte_parser: Parser = (parse_program byte_tokens (list_LexerToken_length byte_tokens) "byte.nano")
+    let byte_function: ASTFunction = (parser_get_function byte_parser 0)
+    let byte_block: ASTBlock = (parser_get_block byte_parser byte_function.body)
+    let byte_statement: ASTStmtRef = (list_ASTStmtRef_get byte_block.statements 0)
+    let byte_return: ASTReturn = (parser_get_return byte_parser byte_statement.node_id)
+    assert (== (nisa_emit_expected_expr byte_parser byte_return.value byte_return.value_type "u8") "  PUSH_U8 255\n")
     let tuple_tokens: List<LexerToken> = (tokenize_string "fn pair() -> (int,string) { return (1, \"one\") }" "tuple.nano" diagnostics)
     let tuple_parser: Parser = (parse_program tuple_tokens (list_LexerToken_length tuple_tokens) "tuple.nano")
     let tuple_function: ASTFunction = (parser_get_function tuple_parser 0)
@@ -3479,8 +3499,8 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         if (!= call.arg_count 1) { return (nisa_fail "I require one scalar argument for cast_int") }
         let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
         let kind: string = (nisa_expr_type parser argument.node_id argument.node_type)
-        if (not (or (== kind "int") (or (== kind "float") (or (== kind "bool") (== kind "string"))))) {
-            return (nisa_fail "I require int, float, bool or string for cast_int")
+        if (not (or (== kind "int") (or (== kind "u8") (or (== kind "float") (or (== kind "bool") (== kind "string")))))) {
+            return (nisa_fail "I require int, u8, float, bool or string for cast_int")
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
     }
@@ -3663,6 +3683,10 @@ shadow nisa_emit_call {
     assert (str_contains formatted "STR_CONTAINS")
     assert (str_contains formatted "JMP_TRUE")
     assert nisa_ok
+    let widened: string = (nanoisa_emit_nasm "fn widen(value: u8) -> int { return (cast_int value) } fn main() -> int { return (widen 255) }")
+    assert nisa_ok
+    assert (str_contains widened "PUSH_U8 255")
+    assert (str_contains widened "CAST_INT")
     let _2: int = (nisa_reset)
 }
 
@@ -4756,6 +4780,7 @@ shadow nisa_emit_block {
 fn nisa_result_tag(parser: Parser, t: string) -> string {
     if (nisa_union_supported parser t) { return "union" }
     if (== t "float") { return "float" }
+    if (== t "u8") { return "u8" }
     if (nisa_tuple_type_ok parser t) { return "tuple" }
     if (>= (nisa_enum_index parser t) 0) { return "int" }
     if (and (str_starts_with t "array<") (nisa_type_ok parser t)) { return "array" }
@@ -4787,6 +4812,7 @@ shadow nisa_result_tag {
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_result_tag p "void") "void")
+    assert (== (nisa_result_tag p "u8") "u8")
     assert (== (nisa_result_tag p "Tok") "struct")
     assert (== (nisa_result_tag p "Box") "struct")
     assert (== (nisa_result_tag p "List<Tok>") "array")
