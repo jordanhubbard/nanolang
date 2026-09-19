@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nano_virt",
+    "/tmp/nano-owned-pattern-32rhziac/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-32rhziac/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 1,
+  "stdout": "",
+  "stderr": "I cannot verify affine ownership at line 6, column 17: I cannot use a moved value \u2014 owned\nWarning at line 5, column 5: Unused variable 'fd'\nWarning: Function 'bad' is missing a shadow test\nerror: type check failed\n"
+}

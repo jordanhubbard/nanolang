@@ -1,0 +1,19 @@
+{
+  "command": {
+    "command": [
+      "/usr/bin/make",
+      "-j2",
+      "-f",
+      "Makefile.gnu",
+      "CC=/usr/bin/gcc",
+      "test-eval"
+    ],
+    "status": 0,
+    "seconds": 2.6221480069798417
+  },
+  "log_path": "/tmp/nanolang-mutation-match-916424260-linux-eval/eval.log",
+  "log_sha256": "aa75b8db434f7f5051cfd067e5e42cb801cd0e54533c5936627adf5124aa1a58",
+  "tests": 123,
+  "binary_retained": false,
+  "rerun": false
+}

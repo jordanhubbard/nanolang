@@ -1,0 +1,11 @@
+{
+  "pin": "916424260d93f3f41ae4c630ea57b5dbadbde9ae",
+  "phase": "mutation",
+  "success": true,
+  "testsRun": 12,
+  "errors": 0,
+  "failures": 0,
+  "seconds": 601.8174195120228,
+  "sources_unchanged": true,
+  "head_unchanged": true
+}

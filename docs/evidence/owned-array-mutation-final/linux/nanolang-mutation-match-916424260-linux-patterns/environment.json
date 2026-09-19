@@ -1,0 +1,10 @@
+{
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "CC": "/usr/bin/gcc",
+  "NANO_VM": "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nano_vm",
+  "NANO_NVM2C": "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nvm2c",
+  "NANO_AOT_RUNTIME": "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nano_aot_runtime.o",
+  "NANO_MODULE_PATH": "/home/jkh/Src/nanolang-owner-array-mutation-match/modules",
+  "NANO_BUILD_CACHE": "/home/jkh/Src/nanolang-owner-array-mutation-match/obj/module_cache",
+  "PYTHONPATH": "/home/jkh/Src/nanolang-owner-array-mutation-match"
+}

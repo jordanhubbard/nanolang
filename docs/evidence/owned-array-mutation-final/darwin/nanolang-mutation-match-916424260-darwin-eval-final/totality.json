@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "from pathlib import Path; import unittest; import tests.test_cseed_match_totality as t; t.COMPILER=Path('/private/tmp/nanolang-owner-array-mutation-match-916424260/bin/nanoc_c'); unittest.main(module=t,verbosity=2)"
+  ],
+  "status": 0,
+  "seconds": 1.4272628750186414
+}

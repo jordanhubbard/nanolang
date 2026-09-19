@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-owner-array-mutation-match/bin/nano_virt",
+    "/tmp/nano-owned-pattern-9vjzui35/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-9vjzui35/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "File closed\nFile closed\nTesting resource tracking infrastructure\nFile closed\nResource tracking test passed!\n"
+}

@@ -12081,3 +12081,13 @@ full Forth conformance and release acceptance remain open.
   existing task children and broader parents remain open until actual acceptance.
 
 - [ ] I correct only integrated evaluator archive orchestration (task_a9c5d7f9b908eab1d423f1265f665129): make removes its passing binary. I preserve Linux123 PASS and the runner failure separately, resume unrun gates, and retain a build-only external evaluator binary on Darwin under my amended integration contract.
+
+- [x] I qualify frozen916424260 with fresh Linux and puck bootstraps, complete
+  evaluator123 and totality8, all six identity methods, all twelve mutation/source
+  methods and the entire unchanged twelve-method owned-record-pattern suite on
+  both hosts. My [integrated seal](evidence/owned-array-mutation-final/README.md)
+  preserves Linux's successful evaluator followed by runner-only archive failure
+  and its corrected unrun-gate continuation; Darwin retains its evaluator binary.
+  I preserve prior partial9f7 acceptance and all first terminals. Canonical review
+  and actual merge reconciliation remain pending; mutation and broader parents
+  are not closed by this evidence checkpoint.
