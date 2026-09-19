@@ -1,0 +1,67 @@
+#include "owned_array_admission.h"
+NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
+    if(!m || nvm_service_bindings_present(m))return NVM_OWNER_ARRAY_NOT_SELECTED;
+    if(!m->ownership_data && !m->ownership_size)return NVM_OWNER_ARRAY_NOT_SELECTED;
+    if(!m->ownership_data || !m->ownership_size)
+        return NVM_OWNER_ARRAY_INVALID;
+    NvmV2Cursor c;uint32_t version,count,layouts;const uint8_t *flags;
+    nvm_v2_cursor_init(&c,m->ownership_data,m->ownership_size);
+    if(nvm_v2_u32(&c,&version)!=NVM_V2_OK ||
+       (version!=NVM_OWNERSHIP_VERSION && version!=NVM_OWNERSHIP_PATH_VERSION) ||
+       nvm_v2_u32(&c,&count)!=NVM_V2_OK || count>NVM_RECORD_PLAN_MAX_LAYOUTS ||
+       nvm_v2_take(&c,count,&flags)!=NVM_V2_OK)return NVM_OWNER_ARRAY_INVALID;
+    bool resource=false;
+    for(uint32_t n=0;n<count;n++)resource|=(flags[n]&NVM_LAYOUT_RESOURCE)!=0;
+    if(!resource)return NVM_OWNER_ARRAY_NOT_SELECTED;
+    if(!m->layout_data || !m->layout_size)return NVM_OWNER_ARRAY_INVALID;
+    nvm_v2_cursor_init(&c,m->layout_data,m->layout_size);
+    if(nvm_v2_u32(&c,&layouts)!=NVM_V2_OK || layouts!=count)return NVM_OWNER_ARRAY_INVALID;
+    uint32_t total=0;bool selected=false;
+    for(uint32_t n=0;n<count;n++) {
+        uint8_t kind,reserved;uint16_t fields;uint32_t name;const uint8_t *field;
+        if(nvm_v2_u8(&c,&kind)!=NVM_V2_OK || nvm_v2_u8(&c,&reserved)!=NVM_V2_OK ||
+           nvm_v2_u16(&c,&fields)!=NVM_V2_OK || nvm_v2_u32(&c,&name)!=NVM_V2_OK ||
+           fields>NVM_RECORD_PLAN_MAX_FIELDS-total)return NVM_OWNER_ARRAY_INVALID;
+        total+=fields;
+        for(uint16_t f=0;f<fields;f++) {
+            if(nvm_v2_take(&c,12,&field)!=NVM_V2_OK)return NVM_OWNER_ARRAY_INVALID;
+            if((flags[n]&NVM_LAYOUT_RESOURCE) && field[0]==TAG_ARRAY)selected=true;
+        }
+    }
+    return selected?NVM_OWNER_ARRAY_SELECTED:NVM_OWNER_ARRAY_NOT_SELECTED;
+}
+NvmOwnerAuthorityResult nvm_owned_array_admit(const NvmModule *m,NvmOwnedArrayPlan **out) {
+    if(!out)return (NvmOwnerAuthorityResult){NVM_OWNER_AUTH_INVALID,0,0,"I require an owner ARRAY admission output."};
+    if(nvm_service_bindings_present(m))
+        return (NvmOwnerAuthorityResult){NVM_OWNER_AUTH_UNRESOLVED,0,0,"I refuse service contracts before owner ARRAY admission."};
+    NvmOwnedArrayRoute route=nvm_owned_array_route(m);
+    if(route!=NVM_OWNER_ARRAY_SELECTED)
+        return (NvmOwnerAuthorityResult){route==NVM_OWNER_ARRAY_INVALID?NVM_OWNER_AUTH_INVALID:NVM_OWNER_AUTH_UNRESOLVED,0,0,"I require an exact owner ARRAY candidate."};
+    NvmOwnedArrayPlan *p=NULL;NvmOwnerAuthorityResult r=nvm_prepare_owned_array_authority(m,&p);
+    if(r.status!=NVM_OWNER_AUTH_PREPARED)return r;
+    NvmOwnerSignature entry;bool supported=nvm_owned_array_plan_signature(p,0,&entry) &&
+        !entry.parameter_count && (entry.result.tag==TAG_INT || entry.result.tag==TAG_BOOL || entry.result.tag==TAG_U8) &&
+        (m->header.flags&NVM_FLAG_HAS_MAIN) && m->header.entry_point==0;
+    for(uint32_t f=0;f<m->function_count;f++) {
+        const char *name=nvm_get_string(m,m->functions[f].name_idx);
+        if(name && !strcmp(name,"__init__"))supported=false;
+        NvmOwnerSignature signature;
+        if(!nvm_owned_array_plan_signature(p,f,&signature)){supported=false;continue;}
+        if(m->function_param_types && m->function_param_types[f])
+            for(uint16_t n=0;n<signature.parameter_count;n++) {
+                uint8_t declared=m->function_param_types[f][n];
+                if(declared!=TAG_VOID && declared!=signature.parameters[n].tag)supported=false;
+            }
+    }
+    if(!supported){nvm_owned_array_plan_free(p);return (NvmOwnerAuthorityResult){NVM_OWNER_AUTH_UNRESOLVED,0,0,"I require exact owner ARRAY parameter tags and a no-argument scalar entry without initializers."};}
+    *out=p;return (NvmOwnerAuthorityResult){NVM_OWNER_AUTH_PREPARED,0,0,"I admit exact owner ARRAY runtime authority."};
+}
+static NvmVerifyResult verify_owned_arrays(const NvmModule *m,uint32_t function,uint16_t *depth) {
+    NvmOwnedArrayPlan *p=NULL;NvmOwnerAuthorityResult r=nvm_owned_array_admit(m,&p);
+    if(r.status!=NVM_OWNER_AUTH_PREPARED)return fail("I refuse owner ARRAY admission (status %u) at function %u offset %u: %s",(unsigned)r.status,r.function,r.pc,r.message);
+    NvmOwnerSignature signature;bool valid=nvm_owned_array_plan_signature(p,function,&signature);
+    nvm_owned_array_plan_free(p);
+    if(!valid)return fail("I require an existing owner ARRAY function index");
+    if(depth)*depth=signature.max_stack;
+    return ok_result();
+}
