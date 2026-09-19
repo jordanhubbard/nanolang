@@ -89,3 +89,24 @@ After the complete scalar gate, selected binaries had these SHA-256 values:
 The complete scalar target rebuilt some selected C tools before running its
 methods. I therefore report these hashes as final selected identities, not as
 a claim that every binary remained byte-identical across every earlier gate.
+
+## Current-main integration
+
+I restacked the branch onto canonical `179626d392349c26d7bd1eb165f29d7bd2c32c7b`.
+The U8 production/test commit became
+`40f6c55bd0a6ef215de2ac482dffd8854b912506`; its stable patch ID
+`581a745317e45e077da71e7507c3fd3209b103c9` is identical to the qualified
+`b70eefdb` production patch. The only files touched by both histories were
+additive Makefile and roadmap changes; the rebase completed without a source
+conflict.
+
+I then rebuilt a fresh current-main C seed, Stage 1 and Stage 2. Bootstrap,
+both hello smokes and installed C-seed independence passed. The exact five U8
+methods plus the two adjacent generic-operation refusals passed 7/7 in 15.068
+seconds. I did not repeat the unchanged 60-method gate solely for unrelated
+canonical File/CODE/Forth integrations.
+
+- `/private/tmp/nanolang-u8-integration-bootstrap.log`:
+  `253c1e2a8761091a029f70656dbe3e8340473da9a45914d4bebbb547329a837e`
+- `/private/tmp/nanolang-u8-integration-focused.log`:
+  `cc130c992bcaaf8b87912d64c6dd03a2ace3f237888d90697a50d4120dd46aae`
