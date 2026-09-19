@@ -11681,6 +11681,9 @@ owner-ARRAY admission or general emitter binding claim follows. MAC update
 scope remains unavailable; actual-merge reconciliation is pending. Source18731,
 mutation bba622 and all full ownership/product/release parents remain open.
 
+- [x] I correct PR836 dispatch coverage (`task_d83c7920c9114918a9651105bca83a58`): vm.c automatically selects computed goto for GCC/Clang unless NANO_NO_COMPUTED_GOTO; my fixture switch label omitted that disable. I retain all six4739-check runs as computed-goto evidence and preserve original seals. I require explicit true-switch preprocessing/compilation evidence and unchanged836 seven-case fused/unfused/fault controls in GCC ordinary/GCC sanitizer/Clang18 sanitizer before public activation qualification. No repeated native/computed-goto gates or failed-runtime attribution follows.
+
+I qualify the dispatch correction at35a3472bc with three fresh true-switch4739-check runs, allPASS, explicit preprocessor evidence and unchanged836 production/providers. My [supplement](evidence/private-owned-array-true-switch.md) completes only this coverage gap; prior computed-goto/native evidence and parent430220 boundaries remain unchanged.
 I record the held [paired source checkpoint plan](NANOISA_OWNED_ARRAY_SOURCE_CHECKPOINT_PLAN.md)
 after private runtime836 and actual checker835 merge. Task13d1 is now reconciled
 COMPLETED through the supported default MAC profile; source18731, mutation bba622
