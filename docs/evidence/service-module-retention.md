@@ -66,3 +66,45 @@ The first unexplained failures from other tasks are outside this qualification.
 Mixed runtime integration with canonical PR819 follows in a separate tree and
 requires another source review and bounded combined gates. This report alone
 does not claim that integration.
+
+## My completed mixed-runtime integration
+
+I integrate canonical d0de3d23 at reviewed 414d5f374. Service guards run before
+mixed candidate/preparation, delegated common verification, VM and native
+selection. The bridge retains ordinary structural validation for service-bearing
+modules and never selects mixed execution. Original source/global/compact IDs
+and the mixed carrier are unchanged.
+
+My first integration fixture at bb657a9e4 passes the original two methods, then
+LSan catches its lost empty import-capacity pointer (384 bytes). I record e2152
+before correcting only the fixture's saved/restored pointer at 2b268c386. The
+first source, tools, logs and failed fixture are preserved without replay.
+
+| Frozen 2b268c386 gate | Result including setup |
+| --- | --- |
+| Linux GCC, three service methods | PASS 7.759s |
+| Linux Clang, three service methods | PASS 3.843s |
+| Linux mixed runtime fixture build | PASS 0.676s |
+| Linux GCC mixed twelve-case VM/native lifecycle and allocation controls | PASS 32.697s |
+| Linux Clang same twelve cases | PASS 17.842s |
+| Linux mixed heap/admission allocation, v2 module/bridge, old profiles | PASS 4.030s |
+| Darwin Homebrew Clang, three service methods | PASS 8.961s |
+| Darwin v2 module/bridge and old profiles | PASS 8.561s |
+
+The new third method performs 212 checks using the unchanged qualified mixed
+module constructor: an initial positive proof, three partial service claims,
+private prepare/admit sentinel preservation, public refusal, four VM API cleanup
+paths, recovery after each claim, ordinary mixed bridge roundtrip and a successful
+VM result. The twelve-case native controls retain exact owner/ordinary roots,
+scalar checks, repeated calls, O0/O2 and allocation-failure recovery.
+
+Both final targets retain 2226 equal before/after/current source identities and
+ten actual host-tool identities. Every step's generated binaries are archived
+before the next build. Darwin relinks nvm2llvm between focused and adjacent
+steps; both exact binaries now survive and match their respective maps. Its six
+final binaries and Linux's seven final binaries match current maps. My integrated
+artifact inventory adds 364 preserved files. I keep the earlier intermediate
+Darwin binary limitation explicitly historical; this new archive does not
+retroactively recover that earlier binary. Final source differs from the frozen
+qualification only by evidence/documentation unless a later integration is
+explicitly recorded here.
