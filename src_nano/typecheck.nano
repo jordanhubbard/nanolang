@@ -4963,7 +4963,7 @@ shadow check_expr_node {
             set parameters [float_array, (type_int), (type_float)]
             set callback_name "fn(array<float>,int,float)->bool"
         }
-        let mutation_parser: Parser = (resource_test_parser (+ "fn main() -> int { return (" (+ name (+ arguments ") }")))))
+        let mutation_parser: Parser = (resource_test_parser (+ "fn main() -> int { return (" (+ name (+ arguments ") }"))))
         assert (not (parser_has_error mutation_parser))
         let mutation_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
         let unbound: NSType = (check_expr_node mutation_parser 0 ParseNodeType.PNODE_CALL [values] mutation_diags "mutation.nano")
@@ -4982,7 +4982,7 @@ shadow check_expr_node {
         let _: NSType = (check_expr_node mutation_parser 0 ParseNodeType.PNODE_CALL [values, wrong] wrong_diags "mutation.nano")
         assert (> (list_CompilerDiagnostic_length wrong_diags) 0)
         let qualified_name: string = (+ "Tools." name)
-        let qualified_parser: Parser = (resource_test_parser (+ "fn main() -> int { return (" (+ qualified_name (+ arguments ") }")))))
+        let qualified_parser: Parser = (resource_test_parser (+ "fn main() -> int { return (" (+ qualified_name (+ arguments ") }"))))
         assert (not (parser_has_error qualified_parser))
         let qualified_function: ASTFunction = (parser_get_function qualified_parser 0)
         let qualified_statement: ASTStmtRef = (list_ASTStmtRef_get (parser_get_block qualified_parser qualified_function.body).statements 0)
