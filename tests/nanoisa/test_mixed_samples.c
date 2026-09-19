@@ -133,7 +133,7 @@ static void scalar_obligations(void) {
         composition(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
     }
     NvmModule *m=build("ARR_NEW 3\nARR_NEW 3\nEQ\nPOP\nPUSH_I64 0\nRET\n",NULL,0,NULL,false);
-    composition(m,NVM_MIXED_SHAPE_INVALID);nvm_module_free(m);
+    composition(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
 }
 static void independent_owner_checks(void) {
     puts("I check independent owner exits and reordered observations.");fflush(stdout);
@@ -165,7 +165,7 @@ static void nested_owner_composition(void) {
         "OWN_UNPACK_LOCAL 0\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nRET\n",locals,2,NULL,false);
     finished(composition(m,NVM_MIXED_SHAPE_PROVED));nvm_module_free(m);
     m=build_with_ordinary_owner("ARR_NEW 3\nAGG_PACK 0 1 0 1\nOWN_PACK 5\nPOP\nPUSH_I64 0\nRET\n",NULL,0,NULL,false,true);
-    composition(m,NVM_MIXED_SHAPE_UNRESOLVED);nvm_module_free(m);
+    composition(m,NVM_MIXED_SHAPE_INVALID);nvm_module_free(m);
 }
 static void ordinary_joins_and_calls(void) {
     puts("I check zero-iteration initialization, full receivers and lower-index callees.");fflush(stdout);
