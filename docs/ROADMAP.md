@@ -12485,3 +12485,13 @@ I supplement private VMe105 with frozen42838153c/current8c959 provider integrati
     output-replacement control, retain the other three refusal sentinels, and
     require review before fresh Linux/Darwin neighboring gates. The original
     failed terminal remains at `/tmp/nanolang-managed-string-971b-linux-neighbors`.
+
+  - [ ] I correct the second stale neighbor expectation under a8bc before new
+    execution:342 retains eighteen passes and the literal-string `ARR_NEW 5; POP`
+    failure at `/tmp/nanolang-managed-string-342-linux-neighbors`. My five-module
+    static audit also identifies enum CAST_STRING and string-bearing CAST_FLOAT
+    conversion refusals superseded by managed admission. I preserve all three
+    exact programs as execution/output-replacement controls and retain genuine
+    tail-call, authority, packed-element and invalid-operand refusals. The
+    [acceptance contract](MANAGED_STRING_FINAL_ACCEPTANCE.md) distinguishes the
+    measured failure from these static findings; no production change is needed.

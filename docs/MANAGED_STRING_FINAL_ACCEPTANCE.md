@@ -216,3 +216,29 @@ translators. The initializer-arity, missing type-authority and import refusals
 keep their original output-preservation checks. Independent review precedes
 fresh neighbor gates. Production and the separately qualified string phases
 remain byte-identical.
+
+## I preserve the second neighbor terminal and audit all five modules
+
+My corrected342 Linux neighbor phase retains eighteen passes and one failure
+across nineteen tests in `/tmp/nanolang-managed-string-342-linux-neighbors`.
+The literal-string fixture still expects translation refusal for the exact
+`ARR_NEW 5; POP` program; translation succeeds. Its original source and products
+remain untouched. I record this before editing under the existing a8bc child.
+
+My static sweep also finds two obsolete enum-profile refusals: the exact
+`ENUM_VAL 0 1; CAST_STRING; POP` and the original string-literal-bearing
+`PUSH_STR s; POP; ENUM_VAL 0 2; CAST_FLOAT; POP` programs. The current managed
+profile admits CAST_STRING and permits casts alongside strings; the LLVM
+handlers implement both. These are static findings, not additional measured
+failures. I preserve each full original program as an execution control through
+VM, original and optimized LLVM, native LLVM output and Wasmtime, then execute
+both translators' sentinel replacements. These managed-profile controls do not
+claim the narrower C translator accepts them. Native compiler sanitizer flags
+do not independently establish instrumentation of every emitted IR operation.
+
+I retain enum tail-call and absent layout authority refusals, all three remaining
+scalar-global refusals, typed-string assembly sentinels, generic numeric runtime
+traps and verifier packed-array write refusals. The latter reject incompatible
+element facts, not arrays as a category. I found no other equivalent blanket
+refusal in the five selected modules. Production remains unchanged. Independent
+review precedes any corrected neighbor execution.
