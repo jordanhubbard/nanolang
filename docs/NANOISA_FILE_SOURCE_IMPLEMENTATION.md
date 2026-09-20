@@ -421,3 +421,29 @@ retained binding distinction and direct backend/core refusal boundaries, then
 rerun the complete publisher corpus and all existing allocation assertions.
 This semantic correction needs complete production review before fixture edits
 and fresh ABI/compiler qualification; no old failed binary is replayed.
+
+### My zero-binding fixture supplement
+
+I preserve every original assertion. The included C parser fixture now also
+parses five service-free ordinary cases: empty zero-field, old named-zero plus
+underscore discard, omitted nonzero payload, unknown empty variant and malformed
+punctuation. I compare exact retained binder strings, run the actual checker and
+ordinary evaluator, emit both C paths and NanoISA for the accepted cases, and
+require explicit NanoCore refusal for empty binding. A separately mutated,
+previously checked payload arm forces direct C/NanoISA arity refusal without
+relying on the main typechecker; the direct C output keeps its nine-byte sentinel.
+I link and inventory the actual ordinary NanoVirt/NanoVM/NanoISA providers in
+addition to the prior common/runtime closure. Sanitizers still instrument only
+the parser fixture and selected lexer/UTF8 TUs, not these ordinary providers.
+
+My paired Nano fixture imports the actual checker and both emitters. It checks
+the same five cases, exact binding strings, complete checking diagnostics,
+NanoISA coverage and native emission error/recovery. Every imported shadow remains
+mandatory in the exact selection multiset; I add no root-only opt-out. I replace
+the real parse_match helper's old tautological shadow with a retained two-arm
+syntax check. All three actual compiler CLIs also build and run both positive
+ordinary cases (exit7), and refuse each negative without an output executable.
+These cases contain no service declaration, so unresolved-service guards cannot
+substitute for ordinary arity checks. Full publisher bytes, all five service
+shadows, seven C configurations and independent four-file generator equality
+remain required. No File service handler is executed by this checkpoint.

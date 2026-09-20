@@ -3,6 +3,9 @@
 #include "emit_typed_ast.h"
 #include "reflection.h"
 #include "type_infer.h"
+#include "c_backend.h"
+#include "nanocore_export.h"
+#include "nanovirt/codegen.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -93,8 +96,48 @@ static void allocations(void) {
     reset();p=parse(text);assert(p&&p->as.program.count==17);free_ast(p);assert(!live_count);
     reset();fail_items=true;p=parse(text);assert(!p&&hits==1&&!live_count);fail_items=false;
 }
+static ASTNode *ordinary_match(ASTNode *program) {
+    assert(program&&program->as.program.count==2);
+    ASTNode *fn=program->as.program.items[1];assert(fn->type==AST_FUNCTION);
+    ASTNode *matched=fn->as.function.body->as.block.statements[0];
+    assert(matched->type==AST_MATCH);return matched;
+}
+static void ordinary_bindings(void) {
+    const char *prefix="union Choice { None {}, Some { value: int } } fn main() -> int { match Choice.None {} { ";
+    const char *arms[]={"None() => { return 7 } Some(v) => { return v.value }",
+                        "None(n) => { return 7 } Some(_) => { return 8 }",
+                        "None() => { return 7 } Some() => { return 8 }",
+                        "Missing() => { return 7 } Some(v) => { return v.value }",
+                        "None() => { return 7 } Some(,) => { return 8 }"};
+    for(size_t i=0;i<sizeof(arms)/sizeof(*arms);++i){
+        char source[1024];assert(snprintf(source,sizeof(source),"%s%s } }",prefix,arms[i])<(int)sizeof(source));
+        reset();ASTNode*p=parse(source);
+        if(i==4){assert(!p&&!live_count);continue;}
+        ASTNode*m=ordinary_match(p);assert(!ast_has_service_declaration(p));
+        assert(!strcmp(m->as.match_expr.pattern_bindings[0],i==1?"n":""));
+        assert(!strcmp(m->as.match_expr.pattern_bindings[1],i==0||i==3?"v":i==1?"_":""));
+        Environment*env=create_environment();assert(env);env->suppress_shadow_warnings=true;
+        assert(type_check(p,env)==(i<2));
+        if(i<2){
+            Value result=call_function("main",NULL,0,env);assert(result.type==VAL_INT&&result.as.int_val==7);
+            char*native=transpile_to_c(p,env,"ordinary-zero.nano");assert(native);free(native);
+            FILE*out=tmpfile();assert(out);CBOptions options={0};assert(!c_backend_emit_fp(p,out,"ordinary-zero.nano",&options));assert(ftell(out)>0);assert(!fclose(out));
+            CodegenResult emitted=codegen_compile(p,env,NULL,"ordinary-zero.nano");assert(emitted.ok&&emitted.module);nvm_module_free(emitted.module);
+            if(i==0)assert(!nanocore_export_sexpr(m,env));
+            if(i==1){
+                /* I retain checked nominal metadata, then independently corrupt only arity. */
+                pfree(m->as.match_expr.pattern_bindings[1]);m->as.match_expr.pattern_bindings[1]=pstrdup("");assert(m->as.match_expr.pattern_bindings[1]);
+                out=tmpfile();assert(out&&fwrite("unchanged",1,9,out)==9);
+                assert(c_backend_emit_fp(p,out,"ordinary-bad-zero.nano",&options)!=0);assert(ftell(out)==9);rewind(out);char bytes[10]={0};assert(fread(bytes,1,10,out)==9&&!memcmp(bytes,"unchanged",9));assert(!fclose(out));
+                emitted=codegen_compile(p,env,NULL,"ordinary-bad-zero.nano");assert(!emitted.ok&&!emitted.module);assert(strstr(emitted.error_msg,"zero-field"));
+            }
+        }
+        free_environment(env);free_ast(p);assert(!live_count);
+    }
+    puts("ordinary-bindings:zero:named:discard:payload-refused:unknown-refused:backends-checked");
+}
 int main(int argc,char **argv) {
-    assert(argc==2);grammar();allocations();reset();
+    assert(argc==2);grammar();allocations();ordinary_bindings();reset();
     FILE*f=fopen(argv[1],"rb");assert(f);assert(!fseek(f,0,SEEK_END));long size=ftell(f);assert(size>0&&size<1048576);rewind(f);
     char*s=malloc((size_t)size+1);assert(s&&fread(s,1,(size_t)size,f)==(size_t)size);s[size]=0;assert(!fclose(f));
     ASTNode*p=parse(s);free(s);retained(p,6);Environment*env=create_environment();assert(env);

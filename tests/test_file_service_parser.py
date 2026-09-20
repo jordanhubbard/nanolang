@@ -63,7 +63,8 @@ class FileServiceParser(unittest.TestCase):
         lines=out.decode().splitlines()
         self.assertEqual(lines[-1],'publisher:1:5:retained:consumers-refused')
         rows=[line for line in lines if line.startswith('allocation:')]
-        self.assertEqual(len(lines),len(rows)+1)
+        self.assertEqual(len(lines),len(rows)+2)
+        self.assertEqual(lines[-2],'ordinary-bindings:zero:named:discard:payload-refused:unknown-refused:backends-checked')
         self.assertGreater(len(rows),100)
         self.assertEqual(len(rows)%2,0)
         total=len(rows)//2
@@ -102,6 +103,31 @@ class FileServiceParser(unittest.TestCase):
             (self.work/(name+'-selection.json')).write_text(json.dumps({'raw':[p.decode() for p in raw],'normalized':normalized,'expected':expected},indent=2)+'\n')
             self.assertCountEqual(normalized,expected)
             output,_=self.command(name+'-run',[exe]);self.assertEqual(output,b'publisher:1:5:retained\n')
+        # I exercise both actual frontends on ordinary source, without any
+        # service declaration whose guard could mask arity checking.
+        ordinary_prefix='union Choice { None {}, Some { value: int } } fn main() -> int { match Choice.None {} { '
+        ordinary_cases=[('zero','None() => { return 7 } Some(v) => { return v.value }',True),
+            ('named-discard','None(n) => { return 7 } Some(_) => { return 8 }',True),
+            ('payload-omitted','None() => { return 7 } Some() => { return 8 }',False),
+            ('unknown','Missing() => { return 7 } Some(v) => { return v.value }',False),
+            ('malformed','None() => { return 7 } Some(,) => { return 8 }',False)]
+        for label,arms,accepted in ordinary_cases:
+            ordinary=self.work/('ordinary-'+label+'.nano');ordinary.write_text(ordinary_prefix+arms+' } }\n')
+            for name in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
+                executable=self.work/('ordinary-'+label+'-'+name)
+                argv=[ROOT/'bin'/name,ordinary,'-o',executable,'--keep-c']
+                if accepted:
+                    self.command(label+'-'+name+'-build',argv,timeout=900)
+                    status=self.work/(label+'-'+name+'-run.json')
+                    script="import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=60); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode==7 else 1)"
+                    self.command(label+'-'+name+'-run',[sys.executable,'-c',script,status,executable],timeout=80)
+                    self.assertEqual(json.loads(status.read_text())['returncode'],7)
+                else:
+                    status=self.work/(label+'-'+name+'-refusal.json')
+                    script="import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=120); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode>0 else 1)"
+                    _,err=self.command(label+'-'+name+'-refusal',[sys.executable,'-c',script,status,*argv],timeout=140)
+                    self.assertFalse(executable.exists());self.assertNotIn(b'resolved File service',err)
+                    if label=='payload-omitted':self.assertIn(b'zero-field',err)
         for name in ('nanoc_c','nanoc_stage1','nanoc_stage2','nano_virt'):
             output=self.work/(name+'-forbidden-output');status=self.work/(name+'-refusal.json')
             script="import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=120); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode>0 else 1)"

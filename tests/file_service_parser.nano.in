@@ -3,6 +3,9 @@ import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
 import "src_nano/compiler/diagnostics.nano"
 import "src_nano/generated/compiler_ast.nano"
+from "src_nano/typecheck.nano" import typecheck_phase
+from "src_nano/transpiler.nano" import transpile_parser, transpile_last_error, gen_match_variant_binding
+from "src_nano/compiler/nanoisa_codegen.nano" import nisa_match_coverage
 
 fn service_parse(source: string) -> Parser {
     let tokens: List<LexerToken> = (tokenize_string source "binding.nano" (diag_list_new))
@@ -45,6 +48,46 @@ fn service_cases() -> void {
     assert (not (parser_has_error accepted))
 }
 shadow service_cases { (service_cases) }
+fn ordinary_bindings() -> void {
+    let prefix: string = "union Choice { None {}, Some { value: int } } fn main() -> int { match Choice.None {} { "
+    let arms: array<string> = ["None() => { return 7 } Some(v) => { return v.value }", "None(n) => { return 7 } Some(_) => { return 8 }", "None() => { return 7 } Some() => { return 8 }", "Missing() => { return 7 } Some(v) => { return v.value }"]
+    for i in (range 0 (array_length arms)) {
+        let p: Parser = (service_parse (+ prefix (+ (at arms i) " } }")))
+        assert (not (parser_has_error p))
+        assert (== p.services_count 0)
+        let matched: ASTMatch = (parser_get_match p 0)
+        if (== i 1) {
+            assert (== (at matched.arm_bindings 0) "n")
+            assert (== (at matched.arm_bindings 1) "_")
+        } else {
+            assert (== (at matched.arm_bindings 0) "")
+            if (== i 2) { assert (== (at matched.arm_bindings 1) "") }
+            else { assert (== (at matched.arm_bindings 1) "v") }
+        }
+        assert (== (typecheck_phase p "ordinary-zero.nano").had_error (>= i 2))
+        assert (== (nisa_match_coverage p matched (parser_get_union p 0)) (< i 2))
+        if (< i 2) {
+            let emitted: string = (transpile_parser p)
+            assert (!= emitted "")
+            assert (== (transpile_last_error) "")
+            assert (== (gen_match_variant_binding p "Choice" "None" "" "") "")
+            assert (== (transpile_last_error) "")
+            assert (== (gen_match_variant_binding p "Choice" "Some" "" "") "")
+            assert (str_contains (transpile_last_error) "zero-field")
+            let recovered: string = (transpile_parser p)
+            assert (!= recovered "")
+            assert (== (transpile_last_error) "")
+            assert (== (gen_match_variant_binding p "Choice" "Missing" "" "") "")
+            assert (str_contains (transpile_last_error) "zero-field")
+            let final: string = (transpile_parser p)
+            assert (!= final "")
+            assert (== (transpile_last_error) "")
+        }
+    }
+    let malformed: Parser = (service_parse (+ prefix "None() => { return 7 } Some(,) => { return 8 } } }"))
+    assert (parser_has_error malformed)
+}
+shadow ordinary_bindings { (ordinary_bindings) }
 fn publisher_parse() -> void {
     let p: Parser = (service_parse @PUBLISHER_SOURCE@)
     assert (not (parser_has_error p))
@@ -60,6 +103,7 @@ fn publisher_parse() -> void {
 shadow publisher_parse { (publisher_parse) }
 fn main() -> int {
     (service_cases)
+    (ordinary_bindings)
     (publisher_parse)
     (println "publisher:1:5:retained")
     return 0
