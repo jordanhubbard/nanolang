@@ -207,3 +207,43 @@ or a claim that libc's FILE memory enters the arena ceiling. No recursion or
 variable-size automatic allocation is introduced. A prebegin coverage refusal
 destroys the fresh unacquired context without publishing output and returns its
 own no-acquisition UNRESOLVED report; it cannot finish another invocation.
+
+## I prepare the actual-dispatch fixture gate
+
+I add explicit `test-file-private-vm` and sanitizer targets, not normal public
+selection or a new default provider dependency. The driver selects the same
+actual compiler/SDK/link inputs as the frame gate and rebuilds all thirteen
+allocating hosted providers, three NSI cores, carrier and private adapter. The
+instrumented mode includes exact carrier/adapter sources and interposes the
+complete existing allocation and host-I/O chain. The linked mode compiles those
+sources as separate translation units. Both retain the complete old carrier and
+frame suite through an optional main-name macro; no assertion changes.
+
+Fresh modules actually dispatch all supported opcode spellings, both boolean
+branch directions, total integer extremes, passive construction/projection/tag,
+real temp/write/rewind/read/EOF/close and both Result arms. Exact/permuted nominal
+maps, overlapping arguments/return slots, nested formal aliases, File/OpenResult
+returns and initializer-before-entry execute through the new loop. A handled
+initializer close Error suppresses an entry that would itself acquire a stream,
+verified by attempted-open count and preserved output. Old public refusal hooks
+still count attempted loader/fork entry and require none.
+
+Instrumented-only wrappers around begin/call/return/service mutate generation
+limits at the exact qualified primitive boundary. They do not replace the
+primitive: all six partial argument/return generation failures and a successful
+acquisition followed by failed scratch publication still call the real helpers,
+then assert site, preserved host output, real close counts and secondary cleanup
+errors. A zero-allocation budget installed immediately after successful begin
+requires the whole loop and terminal cleanup to make no further project allocation.
+
+Full-chain allocation prefix and transient faults require unchanged output and
+no attempted open on refusal, exact input-allocation baseline after destruction,
+and exact scalar value on any successful recovery. Copied-fact unit controls
+reject unknown masks and unsupported unreachable opcodes without pretending to
+mutate immutable public plan input; malformed serialized modules also refuse
+through the actual private API. All of these controls are prepared, not yet run.
+
+I freeze source/tools before Linux ordinary/GCC/Clang and puck ordinary/explicit
+Homebrew sanitizer phases. I run required unchanged frame/opcode/wrapper neighbors
+with fresh affected provider linkage, retaining actual phase artifacts and first
+terminals. Root and independent fixture review precede the first service run.

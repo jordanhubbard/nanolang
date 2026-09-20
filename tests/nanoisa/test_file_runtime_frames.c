@@ -316,7 +316,10 @@ static void return_refusals(void){
   CHECK(which?view(c,result).type.tag==TAG_BOOL:(view(c,result).owning&&view(c,retained).owning));finish_bad(&c,expected);
  }
 }
-int main(void){
+#ifndef FILE_FRAMES_MAIN
+#define FILE_FRAMES_MAIN main
+#endif
+int FILE_FRAMES_MAIN(void){
  CHECK(prior_file_runtime_main()==0);unsigned before=checks;
  overlap_and_aliases();owner_returns();file_and_passive_result_returns();equal_modes_depth_and_getters();frame_refusals();formal_end_and_duplicate_origin();return_refusals();initializer_frames();
 #ifdef HOSTED_INSTRUMENT
