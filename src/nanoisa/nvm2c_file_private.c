@@ -317,7 +317,8 @@ static void fn_instruction(Fne *b,uint32_t function,const NvmFileCodeInstruction
         else fn_text(b,"if(!nvm_file_runtime_view(c,src,&value))return nf_bad(c);\n"
             "if(value.owning || value.formal || value.type.category!=NVM_FILE_CATEGORY_SCALAR_RESULT)return nvm_file_runtime_fail(c,NVM_FILE_RUNTIME_TYPE);\n"
             "NF_TRY(nvm_file_runtime_result_arm(c,src,&arm));\nNF_TRY(nvm_file_runtime_drop(c,src));\n"
-            "NF_TRY(nvm_file_runtime_scalar(c,src,TAG_INT,arm==NVM_FILE_FLOW_ARM_ERROR));\n");break;
+            "NF_TRY(nvm_file_runtime_scalar(c,src,TAG_INT,arm==NVM_FILE_FLOW_ARM_ERROR));\n");
+        break;
     case OP_CALL:case OP_CALL_REF:
         if(in->successor_count!=1){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
         fn_text(b,"NF_TRY(nvm_file_runtime_frame_call(c));\nNF_TRY(nf_function_%u(c,steps));\ngoto nf_label_%u;\n",d->operands[0].u32,in->successors[0]);return;
