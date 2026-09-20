@@ -4,10 +4,10 @@ from pathlib import Path
 import shlex
 import tempfile
 import unittest
-from tests.test_file_indirect_flow import FileIndirectFlow
+from tests.test_file_cyclic import FileCyclic
 ROOT=Path(__file__).resolve().parents[1]
 class OwnershipLayoutsPrivate(unittest.TestCase):
-    command=FileIndirectFlow.command
+    command=FileCyclic.command
     @classmethod
     def setUpClass(cls):
         cls.artifacts=Path(tempfile.mkdtemp(prefix='nano-ownership-layouts-'))
