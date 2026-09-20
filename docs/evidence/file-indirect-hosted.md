@@ -113,3 +113,10 @@ My [integration seal](file-indirect-hosted-integration/summary.json) retains
 56 equal source/tool endpoint pairs, plus the complete Darwin archive identity.
 Runtime dispatch, public/source indirect calls and the full2c135 roadmap remain
 open. Independent integration review and actual merge remain pending.
+
+I then integrate actual PR912 main8341 at40aa9eeac. The [static comparison](file-indirect-hosted-passive-integration.json)
+pins exact unchanged query/fixture inputs. PR912 changes passive-node validation
+and a conditionally emitted numeric helper reference; this query does neither
+passive execution nor native emission. Its explicit passive/source refusal and
+all selected indirect plan behavior remain intact. I retain the fresh72e gates
+at their actual pin rather than repeat those unchanged query checks.
