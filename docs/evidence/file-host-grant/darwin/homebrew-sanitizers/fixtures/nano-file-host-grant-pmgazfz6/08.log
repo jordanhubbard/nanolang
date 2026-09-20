@@ -1,0 +1,4 @@
+src/nanoisa/file_host_grant.c:7:2: error: "I require C11 for my owning File host gate."
+    7 | #error "I require C11 for my owning File host gate."
+      |  ^
+1 error generated.

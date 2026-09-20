@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "file-host-grant",
+    "CC=/usr/local/bin/clang",
+    "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "OBJ_DIR=/tmp/nanolang-file-host-grant-54822-linux/clang-normal/obj",
+    "LIBFFI_CFLAGS=",
+    "LIBFFI_LIBS="
+  ],
+  "elapsed_seconds": 0.091,
+  "status": 0
+}

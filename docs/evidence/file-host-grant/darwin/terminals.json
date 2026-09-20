@@ -1,0 +1,95 @@
+[
+  {
+    "command": [
+      "/usr/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "file-host-grant",
+      "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "OBJ_DIR=/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/obj",
+      "LIBFFI_CFLAGS=",
+      "LIBFFI_LIBS="
+    ],
+    "elapsed_seconds": 0.13,
+    "label": "make",
+    "phase": "apple-normal",
+    "status": 0
+  },
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_host_grant"
+    ],
+    "elapsed_seconds": 0.759,
+    "label": "fixture",
+    "phase": "apple-normal",
+    "status": 0
+  },
+  {
+    "command": [
+      "/usr/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "file-host-grant",
+      "CC=/opt/homebrew/opt/llvm/bin/clang",
+      "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "OBJ_DIR=/private/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/obj",
+      "LIBFFI_CFLAGS=",
+      "LIBFFI_LIBS="
+    ],
+    "elapsed_seconds": 0.238,
+    "label": "make",
+    "phase": "homebrew-normal",
+    "status": 0
+  },
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_host_grant"
+    ],
+    "elapsed_seconds": 0.871,
+    "label": "fixture",
+    "phase": "homebrew-normal",
+    "status": 0
+  },
+  {
+    "command": [
+      "/usr/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "file-host-grant",
+      "CC=/opt/homebrew/opt/llvm/bin/clang",
+      "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "OBJ_DIR=/private/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/obj",
+      "LIBFFI_CFLAGS=",
+      "LIBFFI_LIBS="
+    ],
+    "elapsed_seconds": 0.139,
+    "label": "make",
+    "phase": "homebrew-sanitizers",
+    "status": 0
+  },
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_host_grant"
+    ],
+    "elapsed_seconds": 1.237,
+    "label": "fixture",
+    "phase": "homebrew-sanitizers",
+    "status": 0
+  }
+]

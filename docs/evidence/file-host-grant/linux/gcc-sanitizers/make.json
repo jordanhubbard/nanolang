@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "file-host-grant",
+    "CC=/bin/gcc",
+    "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "OBJ_DIR=/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/obj",
+    "LIBFFI_CFLAGS=",
+    "LIBFFI_LIBS="
+  ],
+  "elapsed_seconds": 0.09,
+  "status": 0
+}

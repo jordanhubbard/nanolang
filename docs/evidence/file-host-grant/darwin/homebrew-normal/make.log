@@ -1,0 +1,2 @@
+mkdir -p /private/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/obj/nanoisa
+/opt/homebrew/opt/llvm/bin/clang  -O1 -g -Wall -Wextra -Werror -std=c99 -fPIC -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk  -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -std=c11 -c src/nanoisa/file_host_grant.c -o /private/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/obj/nanoisa/file_host_grant.o
