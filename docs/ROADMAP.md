@@ -13650,3 +13650,23 @@ registered its extern LexerToken. I do not call this a specialization collision.
 
 My preimplementation boundary is in
 `docs/NANOISA_LIST_FORWARD_DECLARATIONS.md`. Both first roots remain unchanged.
+
+#### My exact evaluator root-index prerequisite
+
+I retain both cc606 make-build parser-shadow timeouts and the two pre-shadow
+diagnostic launcher failures in docs/NANOISA_EVALUATOR_SHADOW_TIMING.md. The
+separate diagnostic seal82f339a25 contains99reports/4064objects/11equal command
+pairs; I carry those same report bytes without its production observer. The
+completed 1.989-second interval spent1.634seconds in borrowed-root membership;
+the final killed shadow interval remains unattributed.
+
+- [ ] I implement task_c2e9d2f19f1b4a359e841edcceda4abd under
+  task_2deaad56f65c497f80546220aa1ca9d0: exact Environment-owned root indexing,
+  checked capacity, transactional grow/rehash, unchanged ownership and teardown.
+- [ ] I extend actual allocation-prefix/transient sweeps through initialization
+  and growth, collision/duplicate/independent-environment controls and recovery.
+- [ ] I rerun fresh full compiler preparation and the original complete shadow
+  graph/deadline, then all retained list/evaluator/full Make acceptance gates.
+
+I record the preimplementation transaction and boundaries in
+docs/NANOISA_EVALUATOR_ROOT_INDEX.md. No deadline or lifetime is shortened.

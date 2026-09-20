@@ -1,0 +1,110 @@
+{
+  "markers": 405,
+  "completed": 202,
+  "first": {
+    "phase": "begin",
+    "name": "token_literal_value_bytes",
+    "ns": 568472287366088,
+    "allocations": 2944,
+    "clone_nodes": 736,
+    "clone_ns": 59345,
+    "retirements": 0,
+    "roots": 0,
+    "lookups": 451,
+    "visits": 0,
+    "lookup_ns": 17088
+  },
+  "last": {
+    "phase": "begin",
+    "name": "parse_block_recursive",
+    "ns": 568474276025427,
+    "allocations": 1150701,
+    "clone_nodes": 1023948,
+    "clone_ns": 32577730,
+    "retirements": 9069,
+    "roots": 28284,
+    "lookups": 29106,
+    "visits": 353202393,
+    "lookup_ns": 1633767514
+  },
+  "measured_interval_ns": 1988659339,
+  "deltas": {
+    "ns": 1988659339,
+    "allocations": 1147757,
+    "clone_nodes": 1023212,
+    "clone_ns": 32518385,
+    "retirements": 9069,
+    "roots": 28284,
+    "lookups": 28655,
+    "visits": 353202393,
+    "lookup_ns": 1633750426
+  },
+  "longest_completed": [
+    {
+      "name": "parse_primary",
+      "elapsed_ns": 887461066,
+      "lookup_ns": 760855361,
+      "clone_ns": 13890697,
+      "visits": 155702058,
+      "roots": 10801
+    },
+    {
+      "name": "parenthesized_call_start",
+      "elapsed_ns": 233033902,
+      "lookup_ns": 206679543,
+      "clone_ns": 1302746,
+      "visits": 40969583,
+      "roots": 1597
+    },
+    {
+      "name": "parser_always_returns",
+      "elapsed_ns": 177615193,
+      "lookup_ns": 159202096,
+      "clone_ns": 1959368,
+      "visits": 32558302,
+      "roots": 1480
+    },
+    {
+      "name": "parse_owned_pattern",
+      "elapsed_ns": 148853788,
+      "lookup_ns": 134083639,
+      "clone_ns": 1306879,
+      "visits": 27853972,
+      "roots": 1087
+    },
+    {
+      "name": "parse_parenthesized_head",
+      "elapsed_ns": 147244618,
+      "lookup_ns": 131314388,
+      "clone_ns": 1439008,
+      "visits": 25994946,
+      "roots": 1254
+    },
+    {
+      "name": "parse_named_literal",
+      "elapsed_ns": 136929193,
+      "lookup_ns": 84698852,
+      "clone_ns": 5571457,
+      "visits": 29036773,
+      "roots": 4865
+    },
+    {
+      "name": "parser_match_arm_unconditional",
+      "elapsed_ns": 93193718,
+      "lookup_ns": 72088146,
+      "clone_ns": 2175437,
+      "visits": 17485706,
+      "roots": 1949
+    },
+    {
+      "name": "parser_starts_owned_pattern",
+      "elapsed_ns": 26592981,
+      "lookup_ns": 23899812,
+      "clone_ns": 58112,
+      "visits": 4875694,
+      "roots": 147
+    }
+  ],
+  "unmatched_last": "parse_block_recursive",
+  "limits": "Last active shadow killed without an end marker; no attribution for that remaining interval. Counter/clock overhead present; cumulative roots not memory footprint; clone timing inclusive."
+}

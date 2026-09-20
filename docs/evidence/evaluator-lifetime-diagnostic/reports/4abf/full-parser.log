@@ -1,0 +1,3 @@
+I could not retain compiler and assembler inputs for std; I will not compile live sources after capture failure
+Error: Failed to build module 'std'
+Error: Failed to compile modules

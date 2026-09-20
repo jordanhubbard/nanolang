@@ -1,0 +1,10 @@
+Error: Failed to compile module '/home/jkh/Src/nanolang-record-lists-qualified-cc606/src_nano/generated/compiler_schema.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-wpddUn/source.c:13:10: fatal error: runtime/nl_string.h: No such file or directory
+   13 | #include "runtime/nl_string.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+
+C file kept at: obj/nano_modules/.nano-module-wpddUn/source.c
+Error: Failed to compile module '/home/jkh/Src/nanolang-record-lists-qualified-cc606/src_nano/generated/compiler_schema.nano'
+Error: Failed to compile modules
