@@ -61,7 +61,10 @@ static NvmModule *union_fixture(const char *body,uint16_t params,uint16_t locals
         params,locals,tag_name(result),result!=TAG_VOID,body,parameters);
     CHECK(used>0 && (size_t)used<sizeof(source));
     AsmResult assembled;NvmModule *m=asm_assemble_unverified(source,&assembled);
-    if(!m)fprintf(stderr,"%s\n",assembled.message);CHECK(m);
+    if(!m) {
+        fprintf(stderr,"%s\n",assembled.message);
+    }
+    CHECK(m);
     uint32_t identity=nvm_add_string(m,"Choice<int,string>",18);
     uint32_t v0=nvm_add_string(m,"IntValue",8),v1=nvm_add_string(m,"TextPair",8);
     uint32_t v2=nvm_add_string(m,"Empty",5),f0=nvm_add_string(m,"value",5);
