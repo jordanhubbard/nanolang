@@ -1,0 +1,13 @@
+I retain carrier artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-frames-5jhflda4
+test_instrumented_frames_and_preserved_carrier (tests.test_file_runtime_frames.FileRuntimeFrames.test_instrumented_frames_and_preserved_carrier) ... I retain 436 allocation refusals and 0 recovered complete carriers
+PASS 84505 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch
+PASS 42381 manual private File frame transfer checks; no opcode dispatcher
+ok
+test_linked_frames_and_preserved_carrier (tests.test_file_runtime_frames.FileRuntimeFrames.test_linked_frames_and_preserved_carrier) ... PASS 11934 manual private File carrier checks; 0 acquisition attempts, 0 real opens, 0 real closes, 0 I/O attempts, 0 nested refusal observations; no File CODE/frame dispatch
+PASS 15469 manual private File frame transfer checks; no opcode dispatcher
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 13.852s
+
+OK

@@ -1,4 +1,5 @@
 #include "file_runtime.h"
+#include "file_runtime_frames.h"
 #include "nvm_v2_sections.h"
 #include "../nsi_file_catalog.h"
 #include <limits.h>
@@ -20,6 +21,7 @@ typedef struct {
 typedef struct {
     uint32_t function, instruction, locals_base, stack_base, stack_count;
     uint32_t staging_base, reference_base, region_base;
+    bool waiting;
 } FileRuntimeFrame;
 typedef enum { FR_READY, FR_ACTIVE, FR_TERMINAL } FileRuntimePhase;
 struct NvmFileRuntime {
@@ -35,6 +37,8 @@ struct NvmFileRuntime {
     NvmFileRuntimeReport report;
     NvmFileRuntimeView result;
     FileRuntimePhase phase;
+    NvmFileRuntimeMode mode;
+    uint16_t frame_count;
     bool busy, acquired, complete;
     uint32_t current_root, region_count;
     uint64_t next_region;
@@ -135,7 +139,7 @@ NvmFileRuntimeStatus nvm_file_runtime_create(const uint8_t *bytes,size_t size,Nv
     }
     NvmFileRuntime *c=calloc(1,sizeof *c);
     if(!c){nvm_file_hosted_free(plan);return NVM_FILE_RUNTIME_MEMORY;}
-    c->plan=plan;c->startup=startup;c->next_region=1;
+    c->plan=plan;c->startup=startup;c->next_region=1;c->mode=mode;
     c->storage=(NvmFileRuntimeStorage){total,(uint32_t)values,startup.reference_slots,startup.region_slots,startup.frames};
     c->values=calloc(c->storage.values,sizeof *c->values);
     c->references=calloc(c->storage.references,sizeof *c->references);
@@ -452,7 +456,7 @@ NvmFileRuntimeStatus nvm_file_runtime_complete_root(NvmFileRuntime *c,uint32_t r
     }
     if(!initializer)c->result=c->values[root].view;
     memset(c->values,0,(size_t)c->storage.values*sizeof *c->values);
-    memset(c->frames,0,(size_t)c->storage.frames*sizeof *c->frames);
+    memset(c->frames,0,(size_t)c->storage.frames*sizeof *c->frames);c->frame_count=0;
     if(initializer)c->current_root=c->startup.entry;
     else c->complete=true;
     return NVM_FILE_RUNTIME_OK;
@@ -499,7 +503,7 @@ NvmFileRuntimeReport nvm_file_runtime_finish(NvmFileRuntime *c,NvmFileRuntimeVie
             fr_error(c,NVM_FILE_RUNTIME_CLEANUP,c->report.cleanup.execution);
     } else c->report.cleanup.execution=c->report.core_status;
     memset(c->regions,0,(size_t)c->storage.regions*sizeof *c->regions);c->region_count=0;
-    c->busy=false;c->phase=FR_TERMINAL;
+    c->frame_count=0;c->busy=false;c->phase=FR_TERMINAL;
     if(c->report.status==NVM_FILE_RUNTIME_OK && out)*out=c->result;
     return c->report;
 }
@@ -511,3 +515,5 @@ NvmFileRuntimeReport nvm_file_runtime_destroy(NvmFileRuntime **address,NvmFileRu
     free(c->frames);free(c->regions);free(c->references);free(c->values);nvm_file_hosted_free(c->plan);free(c);*address=NULL;
     return report;
 }
+
+#include "file_runtime_frames.inc"
