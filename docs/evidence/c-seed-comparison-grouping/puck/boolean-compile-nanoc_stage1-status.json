@@ -1,0 +1,24 @@
+{
+  "name": "boolean-compile-nanoc_stage1",
+  "argv": [
+    "/private/tmp/nanolang-comparison-grouping-b4ddc/bin/nanoc_stage1",
+    "tests/test_boolean_precedence.nano",
+    "-o",
+    "/private/tmp/nanolang-comparison-puck/boolean-nanoc_stage1",
+    "--keep-c"
+  ],
+  "bound_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 2.3160155420000024,
+  "log": {
+    "sha256": "c276b775075f29c09ef0761e11eb94ec50973440bc4b06f569b9237640124a53",
+    "bytes": 341,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c276b775075f29c09ef0761e11eb94ec50973440bc4b06f569b9237640124a53"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

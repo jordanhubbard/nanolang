@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "head": "b4ddc1edb5a4509e5e8888fa4834b367f8f49cc7",
+  "scope": "fresh Make build/bootstrap, full array compatibility module, and existing Boolean precedence through C seed/Stage1/Stage2; deleted inner temporary products are not reconstructed"
+}
