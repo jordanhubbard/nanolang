@@ -13589,3 +13589,11 @@ budget supports persistent exhaustion but not one-shot refusal or measured
 allocator peak. I require an independently reviewed, doubly guarded testing hook
 at actual allocation/free entries, followed by a fixed-storage fixture tracker;
 I preserve both fault modes and production package hook absence.
+
+I complete the counted-runtime fixture checkpoint after root approval of
+`120eb444e` and testing-hook source `0ff7f3268`: three explicit methods cover
+copied query/catalog facts, native core/adapters and Wasm/production-package
+linkage. I retain both true fault modes, requested-byte peak accounting and
+fresh recovery, all five tags and1024 entry lifetimes. I submit this complete
+fixture before execution; public admission and generated/source consumers remain
+unimplemented under the full parent.

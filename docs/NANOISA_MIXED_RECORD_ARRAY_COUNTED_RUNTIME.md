@@ -175,3 +175,66 @@ map-capacity checks and error reporting. It resets a measurement only when the
 map is empty, keeps zero-size successful pointers as live allocations, and
 rejects unknown/double frees in its own observation. I review this source
 prerequisite before compiling it, then review the complete fixtures separately.
+
+## My fixture checkpoint
+
+I implement three discoverable Python methods: query/catalog correspondence,
+native core/adapters, and Wasm/production-package linkage. My query preflight
+retains the exact raw CODE/LAYOUTS/OWNERSHIP vectors before destroying the source
+builder, then checks copied getter facts against the target descriptors. These
+are serialized section bytes, not a publicly admitted `.nvm` artifact. Record
+ordinal0/global1 and ordinal1/global2 are equal-shaped ARRAY records;
+ordinal2/global3 contains the exact first record; global0 is an unused union.
+All five element bindings are checked independently. Separate low-level storage
+boundary descriptors do not claim additional source profile admission.
+
+My native and Wasm observable corpus uses all five tags, two distinct counted
+STRING roots, exact FLOAT bits, retained GET across receiver destruction, nested
+call/result ownership, repeated edges, copy independence and 1024 module
+entries with a persistent global. The module corpus rotates element tags and
+normal/ASSERT/BOUNDS finish; its finite-memory assertion starts after64 warmup
+entries and remains within4MiB. I retain a distinct module preparation failure
+where acquisition succeeds, BUSY preserves the first error and finish releases
+the active-entry guard before recovery.
+
+The fixed8192-entry observer records every attempted allocation request,
+successful backend allocation and free; requested live bytes/peak exclude native
+allocator metadata and Wasm block headers. Internal tracker controls cover
+zero-byte live objects, duplicate/unknown lifecycle, byte overflow, map capacity
+and exact one-shot versus persistent decisions. Seven transaction families
+cover creation, growth, slice, record creation, collection preparation,
+record/slot/prepared-workspace growth and array literal construction. Each
+measured refusal has its own fresh unrestricted recovery. Failed operations
+preserve live objects/bytes, input references/content and output sentinels;
+cleanup remains under persistent exhaustion. Testing-only saturation checks
+both SET preservation and partial constructor-retain rollback. Production IR
+contains no hook references.
+
+I use fixture-only volatile memory helper loops for compiler-generated O0 Wasm
+aggregate copies/initialization; I still require zero module imports. The
+existing production packager remains O2; I test linking its exact IR with fixture
+O0/O2 separately from direct runtime O0/O2 builds. I replace only the packager's
+command transport and temporary-directory retention in the Python harness, so
+failed tool output and produced bytes survive. Its real flags, source hashes,
+IR verification and package format remain unchanged.
+
+My execution plan selects the three new methods explicitly and retains the
+unchanged managed-record, record-adapter, managed-array-values and origin-query
+neighbors as separate phases. Existing adapter controls retain descriptor-table
+rebinding, wrong receiver/output sentinels and256/257-field checks; new core
+controls add repeated edges and retained rollback. Seven compiler/sanitizer
+configurations cover native/query methods; explicit ordinary LLVM phases on
+both hosts cover the complete Wasm/package method. I do not repeat Wasm once per
+unrelated native compiler or call that skipped acceptance. Exact prospective
+phase/tool commands remain a qualification-driver checkpoint. No build or
+fixture execution has run at this source checkpoint.
+
+Instrumentation claims are route-specific: direct observed runtime builds
+instrument the included core/module; query preflight links the selected ordinary
+query provider objects; production package IR remains the packager's ordinary
+O2 output even when its calling fixture is sanitizer-instrumented. I inventory
+each closure and do not label all package providers sanitized. My unchanged
+array neighbors are `test_managed_array_copy_runtime`,
+`test_managed_array_graphs` and `test_managed_string_arrays`; I keep the existing
+record and adapter suites as well. Explicit numbered method names put copied
+query correspondence before target execution in the default new suite.
