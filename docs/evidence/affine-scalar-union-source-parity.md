@@ -1,9 +1,16 @@
 # I preserve observable concrete scalar-union source parity
 
-I qualified production commit
+I completed the full Darwin qualification at production commit
 `ba8d75ae16eefb7378da9ace0bfd09058009da23` on canonical base
-`e59fc09b591db977e53e4fef549d7615ad34e114`. The base includes PR893 and
-PR909. My branch changes no `ARRAY_FIELDS` implementation or array-authority
+`e59fc09b591db977e53e4fef549d7615ad34e114`. I then rebased the identical
+production patch onto canonical `99f390264b7e860ffad659a3852c9b66cbd73399`;
+the current production commit is
+`bcd59ce70e2394a08778ce2cb36c428df6fd13ca` and the evidence head is
+`72ab69970bc53a34f95a8c214d39e3fa16f37cba`. The old and current production
+commits have the same stable patch ID,
+`a022392a8ee4def2ad48e30e5b330825052eb9b6`. The bases include PR893 and
+PR909; the later base also includes public cyclic File and assembler-capture
+work. My branch changes no `ARRAY_FIELDS` implementation or array-authority
 file. It emits only the existing mandatory-understanding `UNION_VARIANTS`
 kind 1 extension; kind 2 remains owned and qualified separately.
 
@@ -48,6 +55,15 @@ Homebrew LLVM 23.1.1 for generated-native ASan/UBSan/LSan execution.
   all 56 source-borrow methods in 616.729 seconds, 732.38 seconds including
   prerequisites. Leak detection remained enabled.
 
+After integrating canonical `99f390264`, I rebuilt `nanoisa_emit`, NanoVirt,
+NanoVM, nvm2c and the assembler/dumper from the current tree in 92.30 seconds.
+The unchanged two-method source-parity suite passed in 41.952 seconds. The
+current affine runtime gate again passed 546 ordinary checks, 856
+allocation-path checks and the sanitizer method in 2.05 seconds. The later
+canonical delta changes File cyclic runtime/schema and assembler capture; I do
+not relabel the earlier broad 56-method result as a complete current-main File
+qualification.
+
 ## My retained terminals
 
 I preserve the implementation terminals in `docs/ROADMAP.md`. The final
@@ -79,6 +95,9 @@ dda6c1cd78860ba7cd1fa9b58bb8663ed358261ab005cfdc49df742e29a020ee  /private/tmp/n
 144990525fae04b3475860ea920cfc548a594c57557018170db09b69c36c63a3  /private/tmp/nanolang-affine-union-source-parity-ba8d-seal/source-borrow-corrected.log
 34c42808ead2d55b61f12cd1646abd1b424c71e2d8f343134e4d3e4661d1dd78  /private/tmp/nanolang-affine-union-source-parity-ba8d-seal/local-binding-prerequisite.log
 4643eefe06bd7ec1e44257f3806b9230a95473694a27affa8719ed3e5782a737  /private/tmp/nanolang-affine-union-source-parity-ba8d-seal/source-borrow-final.log
+d2f760f616952d63a68dc79d0a23f27f2f897d700ab4ee768f3e1ebfe7f35b51  /private/tmp/nanolang-affine-union-source-parity-current-tools.log
+160d3dc2543305f64d1bb05bd8a914c12a1a0266a32cfdc57a2f5ebfceb18b95  /private/tmp/nanolang-affine-union-source-parity-current-focused.log
+a322ebc6e1ee77c496737ddca5f72cf9cb233b34e1ffd059d29c44e2157ed85a  /private/tmp/nanolang-affine-union-source-parity-current-runtime.log
 ```
 
 The frozen focused source-map SHA-256 is
