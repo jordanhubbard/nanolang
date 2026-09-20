@@ -1,0 +1,218 @@
+{
+  "observed-0.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-0.o",
+    "sha256": "22c58e40203643713040fa0d3e78ceaaddbc5cc76a8f6edaabfac5cedb2f1657",
+    "bytes": 22192,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/22c58e40203643713040fa0d3e78ceaaddbc5cc76a8f6edaabfac5cedb2f1657"
+  },
+  "observed-1.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-1.o",
+    "sha256": "3426915791478da2f63adef88c67a9ae80e9a6c79d9047a865c69cc636cb19bb",
+    "bytes": 12544,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/3426915791478da2f63adef88c67a9ae80e9a6c79d9047a865c69cc636cb19bb"
+  },
+  "observed-2.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-2.o",
+    "sha256": "c6558aada6c2bde8e8a7e6b7aeb5b8c9c8625ed775820f35e789a0facc7039f8",
+    "bytes": 205672,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/c6558aada6c2bde8e8a7e6b7aeb5b8c9c8625ed775820f35e789a0facc7039f8"
+  },
+  "observed-C": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C",
+    "sha256": "52d4be1fbf6f5e776c00f3724156adcc2bf9b64887b3803f94e2df6b1a21d42d",
+    "bytes": 308904,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/52d4be1fbf6f5e776c00f3724156adcc2bf9b64887b3803f94e2df6b1a21d42d"
+  },
+  "observed-C-files/caf\u00e9-\u20ac.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "observed-C-files/vector-0.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-C-files/vector-1.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "observed-C-files/vector-10.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-10.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-C-files/vector-11.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-11.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-C-files/vector-2.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "observed-C-files/vector-3.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "observed-C-files/vector-4.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "observed-C-files/vector-5.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "observed-C-files/vector-6.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "observed-C-files/vector-7.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-C-files/vector-8.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-C-files/vector-9.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-C-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "observed-O0": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0",
+    "sha256": "344c5676e8046b8d48cb34f7ada0855580a5ac934e15159cbe1becee172e8358",
+    "bytes": 309032,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/344c5676e8046b8d48cb34f7ada0855580a5ac934e15159cbe1becee172e8358"
+  },
+  "observed-O0-files/caf\u00e9-\u20ac.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "observed-O0-files/vector-0.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-O0-files/vector-1.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "observed-O0-files/vector-10.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-10.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-O0-files/vector-11.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-11.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-O0-files/vector-2.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "observed-O0-files/vector-3.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "observed-O0-files/vector-4.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "observed-O0-files/vector-5.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "observed-O0-files/vector-6.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "observed-O0-files/vector-7.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-O0-files/vector-8.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-O0-files/vector-9.bin": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-O0-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "target-probe.c": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/target-probe.ll",
+    "sha256": "70086ab3c2fd9100aa2d3291b87c8bb3a5cd0cd9e1cd102b40a55d849958647d",
+    "bytes": 1101,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/70086ab3c2fd9100aa2d3291b87c8bb3a5cd0cd9e1cd102b40a55d849958647d"
+  },
+  "typed-O0.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/typed-O0.o",
+    "sha256": "79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc",
+    "bytes": 1048,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc"
+  },
+  "typed-O2.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/typed-O2.o",
+    "sha256": "a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147",
+    "bytes": 1024,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147"
+  },
+  "typed-read.ll": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/typed-read.ll",
+    "sha256": "30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3",
+    "bytes": 502,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3"
+  }
+}

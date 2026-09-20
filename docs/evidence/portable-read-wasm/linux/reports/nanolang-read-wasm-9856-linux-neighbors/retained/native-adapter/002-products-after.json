@@ -1,0 +1,14 @@
+{
+  "target-probe.c": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/target-probe.ll",
+    "sha256": "70086ab3c2fd9100aa2d3291b87c8bb3a5cd0cd9e1cd102b40a55d849958647d",
+    "bytes": 1101,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/70086ab3c2fd9100aa2d3291b87c8bb3a5cd0cd9e1cd102b40a55d849958647d"
+  }
+}

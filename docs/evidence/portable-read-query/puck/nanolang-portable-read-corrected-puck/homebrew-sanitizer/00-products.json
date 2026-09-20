@@ -1,0 +1,8 @@
+{
+  "instrumented-read_query.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/instrumented-read_query.o",
+    "sha256": "960f6deda3440af83daa9cabb6cf80ec45e8c58ae6791b8019b7d7b014bf0649",
+    "bytes": 125368,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/objects/960f6deda3440af83daa9cabb6cf80ec45e8c58ae6791b8019b7d7b014bf0649"
+  }
+}

@@ -1,4 +1,5 @@
 #include "nsi_file_values.h"
+#include "nsi_file_values_internal.h"
 #include "nsi_cap_private.h"
 #if NL_FILE_VALUE_SLOTS != NL_CAP_PRIVATE_SLOTS
 #error "I require matching private File and value slot bounds"
@@ -153,6 +154,26 @@ static NlFileValueStatus fv_borrow(NlFileValues *s,const NlFileValueBorrow *b,Fv
     if(slot->kind!=FV_FILE || !slot->borrowed || !b->epoch || b->epoch!=slot->borrow_epoch)
         return NL_FILE_VALUE_STALE;
     *out=slot;return NL_FILE_VALUE_OK;
+}
+NlFileValueStatus nl_file_values_live_slots(NlFileValues *s,uint64_t *owners,uint64_t *borrowed) {
+    NlFileValueStatus status=fv_context(s);if(status!=NL_FILE_VALUE_OK)return status;
+    if(!owners || !borrowed || !fv_disjoint(owners,borrowed,sizeof *owners))return NL_FILE_VALUE_ARGUMENT;
+    uint64_t live=0,held=0;
+    for(uint32_t i=0;i<NL_FILE_VALUE_SLOTS;i++) {
+        if(s->slots[i].kind!=FV_EMPTY)live|=UINT64_C(1)<<i;
+        if(s->slots[i].borrowed)held|=UINT64_C(1)<<i;
+    }
+    *owners=live;*borrowed=held;return NL_FILE_VALUE_OK;
+}
+NlFileValueStatus nl_file_value_validate(NlFileValues *s,const NlFileValue *v,bool open_result) {
+    FvSlot *slot;NlFileValueStatus status=fv_resolve(s,v,&slot);
+    if(status!=NL_FILE_VALUE_OK)return status;
+    return (open_result?(slot->kind==FV_OPEN_OK || slot->kind==FV_OPEN_ERROR):
+                        slot->kind==FV_FILE)?NL_FILE_VALUE_OK:NL_FILE_VALUE_TYPE;
+}
+NlFileValueStatus nl_file_value_borrow_validate(NlFileValues *s,const NlFileValueBorrow *b) {
+    if(!b)return NL_FILE_VALUE_ARGUMENT;
+    FvSlot *slot;return fv_borrow(s,b,&slot);
 }
 NlFileValueStatus nl_file_value_end_borrow(NlFileValues *s,NlFileValueBorrow *b) {
     FvSlot *slot;NlFileValueStatus status=fv_borrow(s,b,&slot);

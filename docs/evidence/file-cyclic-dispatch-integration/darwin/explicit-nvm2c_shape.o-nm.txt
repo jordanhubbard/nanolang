@@ -1,0 +1,15 @@
+                 U ___memset_chk
+                 U ___snprintf_chk
+                 U _free
+                 U _memcpy
+                 U _memset
+000000000000074c T _nvm_shape_child
+0000000000000ed4 T _nvm_shape_convert
+0000000000000000 T _nvm_shape_destroy
+00000000000004f4 T _nvm_shape_kind
+0000000000000564 T _nvm_shape_lookup
+000000000000009c T _nvm_shape_new
+00000000000003b0 T _nvm_shape_root
+0000000000000fb4 T _nvm_shape_solve_conversions
+0000000000000888 T _nvm_shape_unify
+                 U _realloc

@@ -1,0 +1,8 @@
+{
+  "CC": "/usr/bin/clang",
+  "NANOLANG_GUARD_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "SDKROOT": null,
+  "NANO_BUILD_CACHE": "/private/tmp/nanolang-match-call-vm-c140/obj/module_cache",
+  "NANO_MODULE_PATH": "/private/tmp/nanolang-match-call-vm-c140/modules"
+}

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/private/tmp/nanolang-portable-read-wasm-9856/tests/nanoisa/portable_read_wasm_python.py",
+    "/private/tmp/nanolang-portable-read-wasm-9856/src/runtime/portable_read_wasmtime.py",
+    "/private/tmp/nanolang-read-wasm-9856-puck/engines/products/O0-ordinary.wasm",
+    "/private/tmp/nanolang-read-wasm-9856-puck/engines/products/vectors.json"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

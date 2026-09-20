@@ -1,0 +1,186 @@
+[
+  {
+    "phase": "sdk",
+    "argv": [
+      "/usr/bin/xcrun",
+      "--show-sdk-path"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.006044625000000001
+  },
+  {
+    "phase": "sdk-version",
+    "argv": [
+      "/usr/bin/xcrun",
+      "--show-sdk-version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.00978275
+  },
+  {
+    "phase": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0028188750000000054
+  },
+  {
+    "phase": "ordinary-version",
+    "argv": [
+      "/usr/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.020926916999999996
+  },
+  {
+    "phase": "other-version",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.021128667000000004
+  },
+  {
+    "phase": "make-version",
+    "argv": [
+      "/usr/bin/make",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.011740832999999992
+  },
+  {
+    "phase": "pkg-config-version",
+    "argv": [
+      "/opt/homebrew/bin/pkg-config",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.003026583999999999
+  },
+  {
+    "phase": "ffi-flags",
+    "argv": [
+      "/opt/homebrew/bin/pkg-config",
+      "--cflags",
+      "--libs",
+      "libffi"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.005318124999999993
+  },
+  {
+    "phase": "ffi-libdir",
+    "argv": [
+      "/opt/homebrew/bin/pkg-config",
+      "--variable=libdir",
+      "libffi"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.003093166999999994
+  },
+  {
+    "phase": "other-asan",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.03500333300000001
+  },
+  {
+    "phase": "apple-ordinary",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_source_plan"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 32.881062209
+  },
+  {
+    "phase": "homebrew-ordinary",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_source_plan"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 35.461544041
+  },
+  {
+    "phase": "homebrew-sanitizer",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_source_plan.FileSourcePlan.test_c_ownership_allocation_and_exact_budget"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 1.9267904579999993
+  }
+]

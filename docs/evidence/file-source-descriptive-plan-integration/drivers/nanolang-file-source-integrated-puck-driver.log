@@ -1,0 +1,14 @@
+sdk 0 0.013
+sdk-version 0 0.006
+host 0 0.003
+ordinary-version 0 0.15
+other-version 0 0.21
+make-version 0 0.012
+pkg-config-version 0 0.013
+ffi-flags 0 0.006
+ffi-libdir 0 0.003
+other-asan 0 0.024
+owning-apple-clang 0 0.006
+owning-apple-version 0 0.006
+fresh-cseed-providers 0 8.677
+apple-ordinary 0 32.4

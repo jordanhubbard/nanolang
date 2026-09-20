@@ -1,0 +1,110 @@
+{
+  "pin": "3df2998922ff6cf1168038ce4b05e0ad248ed021",
+  "pairs": [
+    {
+      "host": "linux",
+      "phase": "setup",
+      "sources": 20469,
+      "tools": 12,
+      "existing_providers": 0,
+      "equal": true
+    },
+    {
+      "host": "linux",
+      "phase": "configuration",
+      "sources": 20469,
+      "tools": 12,
+      "existing_providers": 154,
+      "equal": true
+    },
+    {
+      "host": "linux",
+      "phase": "discovery",
+      "sources": 20469,
+      "tools": 12,
+      "existing_providers": 154,
+      "equal": true
+    },
+    {
+      "host": "linux",
+      "phase": "ordinary",
+      "sources": 20469,
+      "tools": 12,
+      "existing_providers": 154,
+      "equal": true
+    },
+    {
+      "host": "puck",
+      "phase": "setup",
+      "sources": 20469,
+      "tools": 18,
+      "existing_providers": 0,
+      "equal": true
+    },
+    {
+      "host": "puck",
+      "phase": "configuration",
+      "sources": 20469,
+      "tools": 18,
+      "existing_providers": 154,
+      "equal": true
+    },
+    {
+      "host": "puck",
+      "phase": "discovery",
+      "sources": 20469,
+      "tools": 18,
+      "existing_providers": 154,
+      "equal": true
+    },
+    {
+      "host": "puck",
+      "phase": "ordinary",
+      "sources": 20469,
+      "tools": 18,
+      "existing_providers": 154,
+      "equal": true
+    }
+  ],
+  "references": 3393,
+  "unique_artifacts": 834,
+  "artifact_bytes": 231170733,
+  "current": [
+    {
+      "host": "linux",
+      "tree": "/home/jkh/Src/nanolang-cyclic-907-restack-3df",
+      "sources": 20469,
+      "tools": 12,
+      "providers": 154,
+      "match": true
+    },
+    {
+      "host": "puck",
+      "tree": "/tmp/nanolang-cyclic-907-restack-3df-py314",
+      "sources": 20469,
+      "tools": 18,
+      "providers": 154,
+      "match": true
+    }
+  ],
+  "traces": {
+    "linux": {
+      "vm_traces": 33,
+      "exact_modules": 23,
+      "O0": 33,
+      "O2": 33
+    },
+    "puck": {
+      "vm_traces": 33,
+      "exact_modules": 23,
+      "O0": 33,
+      "O2": 33
+    }
+  },
+  "archive": {
+    "path": "/tmp/nanolang-cyclic-907-restack-puck.tar.gz",
+    "bytes": 31098262,
+    "sha256": "8deb1f22eab324288560d25cb33f73287795e00bcf4bb5fb60fe70565416c2fc"
+  },
+  "scope": "Fresh ordinary linked cyclic VM/native O0/O2 only; unchanged original sanitizer acceptance remains at old pins."
+}

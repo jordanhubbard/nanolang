@@ -1,0 +1,14 @@
+{
+  "pin": "96495b848",
+  "reports": 892,
+  "artifacts": 1352,
+  "bytes": 315394075,
+  "references": 2783,
+  "equal_pairs": 26,
+  "exact75_shadow_producer_runs": 12,
+  "case_count": 58,
+  "puck_archives": [
+    "/tmp/nanolang-file-source-puck-evidence.tar.gz"
+  ],
+  "pass": true
+}

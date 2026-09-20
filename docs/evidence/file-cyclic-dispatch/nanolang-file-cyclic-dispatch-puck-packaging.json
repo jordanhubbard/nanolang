@@ -1,0 +1,29 @@
+{
+  "current": [
+    {
+      "pin": "9284",
+      "sources": 13985,
+      "tools": 14,
+      "providers": 173,
+      "mismatches": 0
+    },
+    {
+      "pin": "7913",
+      "sources": 13985,
+      "tools": 14,
+      "providers": 173,
+      "mismatches": 0
+    },
+    {
+      "pin": "100c",
+      "sources": 13985,
+      "tools": 14,
+      "providers": 185,
+      "mismatches": 0
+    }
+  ],
+  "artifacts": 4945,
+  "archive": "/tmp/nanolang-file-cyclic-dispatch-puck-evidence.tar.gz",
+  "sha256": "3e8554a7b2000225a237fcd792052e84bb9ae652a26215af7adc101077537b08",
+  "bytes": 299918012
+}

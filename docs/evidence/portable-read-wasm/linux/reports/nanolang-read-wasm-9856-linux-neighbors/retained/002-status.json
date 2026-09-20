@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "src/nanoisa/managed_strings.c",
+    "tests/nanoisa/managed_string_smoke.c",
+    "-o",
+    "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/products/ordinary"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

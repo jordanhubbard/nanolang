@@ -305,7 +305,7 @@ static void cyclic_allocations(void){
  for(unsigned guard=0;guard<2;guard++){
   memset(w,0,sizeof *w);w->body.plan=plan;counted.summary=(NvmFileCyclicSummary){0};
   if(guard==0)counted.summary.transfers=NVM_FILE_CYCLIC_PAIRS;else counted.summary.edges=NVM_FILE_CYCLIC_EDGES;
-  CHECK(file_cyclic_function_analyze(&counted,w,scratch,0)==NVM_FILE_FLOW_LIMIT);
+  CHECK(file_cyclic_function_analyze(&counted,w,scratch,0,NULL)==NVM_FILE_FLOW_LIMIT);
   CHECK(counted.summary.variants==1 && counted.sites[0].count==1 && !counted.sites[0].nodes[0]->processed);
   if(guard==0)CHECK(counted.summary.transfers==NVM_FILE_CYCLIC_PAIRS && !counted.summary.edges);
   else CHECK(counted.summary.edges==NVM_FILE_CYCLIC_EDGES && counted.summary.transfers==1);

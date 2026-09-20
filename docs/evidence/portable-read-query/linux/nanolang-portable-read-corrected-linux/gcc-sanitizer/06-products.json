@@ -1,0 +1,38 @@
+{
+  "instrumented": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/products/instrumented",
+    "sha256": "379fffbcd15e4e17f2d4e15cf3bc9e334daa0fbbc9223fb420413df7ab46806d",
+    "bytes": 3731632,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/objects/379fffbcd15e4e17f2d4e15cf3bc9e334daa0fbbc9223fb420413df7ab46806d"
+  },
+  "instrumented-read_decode.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/products/instrumented-read_decode.o",
+    "sha256": "37224d5582848cd31de2336bfe3355f3c03cf357ed341e550a39b06144bb3e12",
+    "bytes": 119792,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/objects/37224d5582848cd31de2336bfe3355f3c03cf357ed341e550a39b06144bb3e12"
+  },
+  "instrumented-read_query.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/products/instrumented-read_query.o",
+    "sha256": "e7fd84ba71a0695d286a13ea5c572cb4b381262d702e1ae4b87e6786a43ac34d",
+    "bytes": 252360,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/objects/e7fd84ba71a0695d286a13ea5c572cb4b381262d702e1ae4b87e6786a43ac34d"
+  },
+  "instrumented-read_stack.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/products/instrumented-read_stack.o",
+    "sha256": "7306e40c6bbc8cd1c581d0831cc378fa038690c669b4e673e8744814cb3dd69e",
+    "bytes": 839832,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/objects/7306e40c6bbc8cd1c581d0831cc378fa038690c669b4e673e8744814cb3dd69e"
+  },
+  "instrumented-read_types.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/products/instrumented-read_types.o",
+    "sha256": "139410e8d5813a1e98dac39bca9e7cdc4fc8713451c325d99ea61f940a0edbaa",
+    "bytes": 129336,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/objects/139410e8d5813a1e98dac39bca9e7cdc4fc8713451c325d99ea61f940a0edbaa"
+  },
+  "linked-read_query.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/products/linked-read_query.o",
+    "sha256": "83221ee8213f12ebe089ca78a8761fca376cfa12999eceea813c3e65e0bd7876",
+    "bytes": 252000,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/objects/83221ee8213f12ebe089ca78a8761fca376cfa12999eceea813c3e65e0bd7876"
+  }
+}

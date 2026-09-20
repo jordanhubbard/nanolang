@@ -1,0 +1,30 @@
+{
+  "platform": "linux",
+  "configs": [
+    [
+      "gcc-ordinary",
+      "/bin/gcc",
+      []
+    ],
+    [
+      "gcc-sanitizer",
+      "/bin/gcc",
+      [
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    ],
+    [
+      "clang-sanitizer",
+      "/usr/local/bin/clang",
+      [
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    ]
+  ],
+  "source_scope": "C/header/inc source tree plus exact fixtures/Make/contract",
+  "tools_scope": "named compiler, Python, Make, Git; not complete transitive system tools",
+  "sanitizers": "four query/decoder/verifier/type TUs + fixture; ordinary providers"
+}

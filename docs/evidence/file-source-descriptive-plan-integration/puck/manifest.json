@@ -1,0 +1,196 @@
+[
+  {
+    "phase": "sdk",
+    "argv": [
+      "/usr/bin/xcrun",
+      "--show-sdk-path"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.01251933304592967
+  },
+  {
+    "phase": "sdk-version",
+    "argv": [
+      "/usr/bin/xcrun",
+      "--show-sdk-version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.005787917063571513
+  },
+  {
+    "phase": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0031850830418989062
+  },
+  {
+    "phase": "ordinary-version",
+    "argv": [
+      "/usr/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.14982866600621492
+  },
+  {
+    "phase": "other-version",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.20995745796244591
+  },
+  {
+    "phase": "make-version",
+    "argv": [
+      "/usr/bin/make",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.012086874921806157
+  },
+  {
+    "phase": "pkg-config-version",
+    "argv": [
+      "/opt/homebrew/bin/pkg-config",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.012673416989855468
+  },
+  {
+    "phase": "ffi-flags",
+    "argv": [
+      "/opt/homebrew/bin/pkg-config",
+      "--cflags",
+      "--libs",
+      "libffi"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.005688999895937741
+  },
+  {
+    "phase": "ffi-libdir",
+    "argv": [
+      "/opt/homebrew/bin/pkg-config",
+      "--variable=libdir",
+      "libffi"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0026084580458700657
+  },
+  {
+    "phase": "other-asan",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.02378108398988843
+  },
+  {
+    "phase": "owning-apple-clang",
+    "argv": [
+      "/usr/bin/xcrun",
+      "--find",
+      "clang"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.005953457904979587
+  },
+  {
+    "phase": "owning-apple-version",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.006086749956011772
+  },
+  {
+    "phase": "fresh-cseed-providers",
+    "argv": [
+      "/usr/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "-j2",
+      "CC=/usr/bin/clang",
+      "bin/nanoc_c"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 8.676832417026162
+  },
+  {
+    "phase": "apple-ordinary",
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_source_plan"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 32.39960158406757
+  }
+]

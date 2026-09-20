@@ -1,0 +1,142 @@
+{
+  "reports": 285,
+  "unique_artifacts": 556,
+  "artifact_references": 2606,
+  "artifact_bytes": 397308194,
+  "pairs": [
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary-after.json",
+      "count": 519,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer-after.json",
+      "count": 519,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/verifier-cleanup-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/verifier-cleanup-after.json",
+      "count": 519,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/prepare-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/prepare-after.json",
+      "count": 482,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer-after.json",
+      "count": 519,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/generic-verifier-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/generic-verifier-after.json",
+      "count": 519,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/nanoisa-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/nanoisa-after.json",
+      "count": 519,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/inputs-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/inputs-after.json",
+      "count": 502,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/inputs-after.json",
+      "count": 502,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/inputs-before.json",
+      "after": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/inputs-after.json",
+      "count": 502,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-resume-linux/before.json",
+      "after": "/tmp/nanolang-portable-read-resume-linux/after.json",
+      "count": 520,
+      "equal": true
+    },
+    {
+      "before": "/tmp/nanolang-portable-read-resume-linux/nanoisa-before.json",
+      "after": "/tmp/nanolang-portable-read-resume-linux/nanoisa-after.json",
+      "count": 520,
+      "equal": true
+    }
+  ],
+  "current": [
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary-after.json",
+      "current_equal": true,
+      "count": 519
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/prepare-after.json",
+      "current_equal": true,
+      "count": 482
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/nanoisa-after.json",
+      "current_equal": true,
+      "count": 519
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/generic-verifier-after.json",
+      "current_equal": true,
+      "count": 519
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/verifier-cleanup-after.json",
+      "current_equal": true,
+      "count": 519
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer-after.json",
+      "current_equal": true,
+      "count": 519
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer-after.json",
+      "current_equal": true,
+      "count": 519
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/inputs-after.json",
+      "current_equal": true,
+      "count": 502
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/inputs-after.json",
+      "current_equal": true,
+      "count": 502
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/inputs-after.json",
+      "current_equal": true,
+      "count": 502
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-resume-linux/nanoisa-after.json",
+      "current_equal": true,
+      "count": 520
+    },
+    {
+      "map": "/tmp/nanolang-portable-read-resume-linux/after.json",
+      "current_equal": true,
+      "count": 520
+    }
+  ]
+}

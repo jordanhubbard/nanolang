@@ -1,0 +1,11 @@
+{
+  "CARRIER_EXTRA_TOOLS": "{\"xcrun\": \"/usr/bin/xcrun\", \"pkgconfig\": \"/opt/homebrew/bin/pkg-config\", \"libffi_header\": \"/opt/homebrew/Cellar/libffi/3.8.0/include/ffi.h\", \"libffi_target_header\": \"/opt/homebrew/Cellar/libffi/3.8.0/include/ffitarget.h\", \"owning_ld\": \"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld\"}",
+  "CARRIER_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+  "LSAN_OPTIONS": "",
+  "NANO_FILE_RUNTIME_CFLAGS": "-I/opt/homebrew/Cellar/libffi/3.8.0/include",
+  "NMS_RUNTIME_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+}

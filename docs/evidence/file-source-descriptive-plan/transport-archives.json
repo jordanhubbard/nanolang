@@ -1,0 +1,18 @@
+{
+  "/tmp/nanolang-file-source-32ade.tar": {
+    "sha256": "39160ed5b9424a02260f89bc4eb68c5309d43de86c21c30670a123240b8d450b",
+    "bytes": 881991680
+  },
+  "/tmp/nanolang-file-source-32ade-to-74c.tar": {
+    "sha256": "5480b24e1a765649f68e9f477489e0998ef962498ee45b99e1fe4bc5ce110cfc",
+    "bytes": 1259520
+  },
+  "/tmp/nanolang-file-source-32ade-to-701.tar": {
+    "sha256": "f04c49edb7ea37eb54fb8575a225afd68cc74b82074ab2744211aa8245e9616b",
+    "bytes": 1269760
+  },
+  "/tmp/nanolang-file-source-puck-evidence.tar.gz": {
+    "sha256": "fd17ffc384d58b9a570bc7caf78720ed846a4dd086edb6900f25ccb8b086ea22",
+    "bytes": 26507141
+  }
+}

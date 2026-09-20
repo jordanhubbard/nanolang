@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/linked"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-qualified",
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0
+}

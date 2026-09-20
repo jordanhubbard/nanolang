@@ -1,0 +1,22 @@
+{
+  "clang": [
+    "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23"
+  ],
+  "linker": [
+    "/opt/homebrew/Cellar/lld/23.1.1/bin/lld"
+  ],
+  "node": [
+    "/opt/homebrew/Cellar/node/26.9.0/bin/node"
+  ],
+  "python": [
+    "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14"
+  ],
+  "flags": [],
+  "environment": {
+    "PYTHONPATH": "/private/tmp/nanolang-read-wasm-4ee-puck/engines/products/private-binding",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": ""
+  }
+}

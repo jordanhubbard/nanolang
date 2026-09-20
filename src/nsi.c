@@ -1,4 +1,5 @@
 #include "nsi.h"
+#include "nsi_internal.h"
 #include "utf8.h"
 #include "cJSON.h"
 
@@ -140,9 +141,16 @@ static bool parse_named(cJSON *obj, NlNsiNamed *out) {
     if (!cJSON_IsString(id) || !cJSON_IsString(name)) return false;
     if (!id_ascii_ok(id->valuestring)) return false;
     if (!name->valuestring || !name->valuestring[0]) return false;
-    out->id = strdup(id->valuestring);
-    out->name = strdup(name->valuestring);
-    return out->id && out->name;
+    char *copy_id = strdup(id->valuestring);
+    char *copy_name = strdup(name->valuestring);
+    if (!copy_id || !copy_name) {
+        free(copy_id);
+        free(copy_name);
+        return false;
+    }
+    out->id = copy_id;
+    out->name = copy_name;
+    return true;
 }
 
 static bool parse_named_array(cJSON *arr, NlNsiNamed **out, size_t *count) {
@@ -814,7 +822,6 @@ NlNsi *nl_nsi_load_path(const char *path) {
     long size;
     char *buf;
     cJSON *json;
-    cJSON *ver;
     NlNsi *nsi;
 
     if (!path) return NULL;
@@ -846,16 +853,23 @@ NlNsi *nl_nsi_load_path(const char *path) {
         return NULL;
     }
 
+    nsi = nl_nsi_decode_object(json);
+    cJSON_Delete(json);
+    return nsi;
+}
+
+NlNsi *nl_nsi_decode_object(cJSON *json) {
+    cJSON *ver;
+    NlNsi *nsi;
+    if (!json || !cJSON_IsObject(json)) return NULL;
     nsi = calloc(1, sizeof(*nsi));
     if (!nsi) {
-        cJSON_Delete(json);
         return NULL;
     }
 
     ver = cJSON_GetObjectItemCaseSensitive(json, "nsi_version");
     if (!cJSON_IsNumber(ver) || ver->valuedouble != (double)NL_NSI_VERSION) {
         nl_nsi_free(nsi);
-        cJSON_Delete(json);
         return NULL;
     }
     nsi->version = NL_NSI_VERSION;
@@ -881,12 +895,10 @@ NlNsi *nl_nsi_load_path(const char *path) {
             !validate_prefixes(nsi) ||
             !validate_type_bounds(nsi)) {
             nl_nsi_free(nsi);
-            cJSON_Delete(json);
             return NULL;
         }
     }
 
-    cJSON_Delete(json);
     return nsi;
 }
 

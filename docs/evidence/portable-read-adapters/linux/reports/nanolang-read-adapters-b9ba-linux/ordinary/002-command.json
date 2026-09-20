@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/local/bin/clang-23",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-O0",
+    "-S",
+    "-emit-llvm",
+    "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/target-probe.c",
+    "-o",
+    "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/target-probe.ll"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-adapters-b9ba",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

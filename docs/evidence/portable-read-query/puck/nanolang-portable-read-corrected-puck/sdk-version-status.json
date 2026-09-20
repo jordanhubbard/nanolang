@@ -1,0 +1,11 @@
+{
+  "label": "sdk-version",
+  "argv": [
+    "xcrun",
+    "--show-sdk-version"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.005698916999999998
+}

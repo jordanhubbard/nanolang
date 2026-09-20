@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C",
+    "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-7b66",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

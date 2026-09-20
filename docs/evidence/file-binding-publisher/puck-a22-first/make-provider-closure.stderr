@@ -1,0 +1,6 @@
+src/nsi_file_publish.c:135:13: error: call to undeclared function 'getentropy'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  135 |         if (getentropy(random, sizeof random) != 0) {
+      |             ^
+1 error generated.
+make: *** [obj/file-binding-publisher/nsi_file_publish.o] Error 1
+make: *** Waiting for unfinished jobs....

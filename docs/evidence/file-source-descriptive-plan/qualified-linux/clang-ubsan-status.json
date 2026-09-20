@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-print-file-name=libclang_rt.ubsan_standalone.a"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.015665492042899132
+}

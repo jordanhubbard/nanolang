@@ -1,0 +1,21 @@
+test_private_c_and_typed_llvm_boundaries (tests.test_portable_read_adapters.PortableReadAdapters.test_private_c_and_typed_llvm_boundaries) ... I retain private adapter evidence at /private/tmp/nanolang-read-adapters-corrected-puck/ordinary
+FAIL
+
+======================================================================
+FAIL: test_private_c_and_typed_llvm_boundaries (tests.test_portable_read_adapters.PortableReadAdapters.test_private_c_and_typed_llvm_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-portable-read-adapters-15069/tests/test_portable_read_adapters.py", line 153, in test_private_c_and_typed_llvm_boundaries
+    self.command([*llvm, *llvm_flags, '-Werror', '-' + optimization,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-c', ir, '-o', obj])
+                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-portable-read-adapters-15069/tests/test_portable_read_adapters.py", line 101, in command
+    self.assertEqual(status['returncode'], 0, (status, log.read_text(errors='replace')))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ({'argv': ['/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23', '-Werror', '-O0', '-c', '/private/tmp/nanolang-read-adapters-corrected-puck/ordinary/products/typed-read.ll', '-o', '/private/tmp/nanolang-read-adapters-corrected-puck/ordinary/products/typed-O0.o'], 'cwd': '/private/tmp/nanolang-portable-read-adapters-15069', 'returncode': 1, 'timeout': False, 'leader_reaped': True, 'group_disappeared': True, 'signals': [], 'errors': []}, 'error: overriding the module target triple with arm64-apple-macosx26.0.0 [-Werror,-Woverride-module]\n1 error generated.\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.526s
+
+FAILED (failures=1)

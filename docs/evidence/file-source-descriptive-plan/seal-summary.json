@@ -1,0 +1,14 @@
+{
+  "artifact_objects": 1352,
+  "artifact_bytes": 315394075,
+  "retained_file_references": 2783,
+  "original_inventory_archive_references": 10016,
+  "production_pin": "701dca50f",
+  "bootstrap_pin": "32ade5b5d",
+  "inventory_pairs": 26,
+  "paired_source_runs": 12,
+  "shadows_per_paired_source_run": 75,
+  "corpus_cases": 58,
+  "linked_checks_per_C_run": 7503,
+  "instrumented_checks_per_C_run": 7518
+}

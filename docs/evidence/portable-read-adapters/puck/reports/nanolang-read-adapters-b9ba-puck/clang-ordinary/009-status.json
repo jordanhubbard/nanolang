@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/observed-C",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/observed-C-files"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-b9ba",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

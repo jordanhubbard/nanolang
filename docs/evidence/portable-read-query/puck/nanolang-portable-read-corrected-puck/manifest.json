@@ -1,0 +1,123 @@
+[
+  {
+    "label": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0032112919999999975
+  },
+  {
+    "label": "head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.011636665999999997
+  },
+  {
+    "label": "ordinary-version",
+    "argv": [
+      "/usr/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.011876375000000002
+  },
+  {
+    "label": "other-version",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.023789416000000008
+  },
+  {
+    "label": "sdk",
+    "argv": [
+      "xcrun",
+      "--show-sdk-path"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.00578504199999999
+  },
+  {
+    "label": "sdk-version",
+    "argv": [
+      "xcrun",
+      "--show-sdk-version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.005698916999999998
+  },
+  {
+    "label": "other-asan",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.023736208999999994
+  },
+  {
+    "label": "prepare",
+    "argv": [
+      "/usr/bin/make",
+      "-f",
+      "/private/tmp/nanolang-portable-read-corrected-puck/prepare.mk",
+      "-j4",
+      "CC=/usr/bin/clang",
+      "portable-prepare"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 1.794427458
+  },
+  {
+    "label": "apple-ordinary",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_portable_host_plan"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 2.130708958
+  },
+  {
+    "label": "homebrew-sanitizer",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_portable_host_plan"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 1,
+    "seconds": 3.0203169589999996
+  }
+]

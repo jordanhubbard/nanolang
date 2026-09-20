@@ -1,0 +1,179 @@
+[
+  {
+    "phase": "sdk",
+    "argv": [
+      "/usr/bin/xcrun",
+      "--show-sdk-path"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.012582625029608607
+  },
+  {
+    "phase": "sdk-version",
+    "argv": [
+      "/usr/bin/xcrun",
+      "--show-sdk-version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.005956000066362321
+  },
+  {
+    "phase": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.003238457953557372
+  },
+  {
+    "phase": "ordinary-version",
+    "argv": [
+      "/usr/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.14997837494593114
+  },
+  {
+    "phase": "other-version",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.19807625003159046
+  },
+  {
+    "phase": "make-version",
+    "argv": [
+      "/usr/bin/make",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.012029333040118217
+  },
+  {
+    "phase": "pkg-config-version",
+    "argv": [
+      "/opt/homebrew/bin/pkg-config",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.012766124913468957
+  },
+  {
+    "phase": "ffi-flags",
+    "argv": [
+      "/opt/homebrew/bin/pkg-config",
+      "--cflags",
+      "--libs",
+      "libffi"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.005790791008621454
+  },
+  {
+    "phase": "ffi-libdir",
+    "argv": [
+      "/opt/homebrew/bin/pkg-config",
+      "--variable=libdir",
+      "libffi"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0027777919312939048
+  },
+  {
+    "phase": "other-asan",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.0238392089959234
+  },
+  {
+    "phase": "owning-apple-clang",
+    "argv": [
+      "/usr/bin/xcrun",
+      "--find",
+      "clang"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.005877000046893954
+  },
+  {
+    "phase": "owning-apple-version",
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "returncode": 0,
+    "cleanup_errors": [],
+    "child_returncode": 0,
+    "group_absent": true,
+    "seconds": 0.006134041002951562
+  },
+  {
+    "phase": "make-provider-closure",
+    "argv": [
+      "/usr/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "-j2",
+      "CC=/usr/bin/clang",
+      "nsi-file-binding"
+    ],
+    "timeout": false,
+    "returncode": 2,
+    "cleanup_errors": [],
+    "child_returncode": 2,
+    "group_absent": true,
+    "seconds": 0.19270816596690565
+  }
+]

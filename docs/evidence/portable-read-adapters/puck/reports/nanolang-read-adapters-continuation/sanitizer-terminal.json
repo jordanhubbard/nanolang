@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3",
+    "/private/tmp/run-read-adapter-sanitizer-only.py",
+    "/private/tmp/nanolang-portable-read-adapters-7b66",
+    "/private/tmp/nanolang-read-adapters-7b66-sanitizer"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-7b66",
+  "timeout": false,
+  "errors": [],
+  "signals": [],
+  "returncode": 0,
+  "group_disappeared": true,
+  "seconds": 7.083
+}

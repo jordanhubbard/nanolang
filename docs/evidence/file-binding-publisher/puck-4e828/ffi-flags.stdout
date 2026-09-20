@@ -1,0 +1,1 @@
+-I/opt/homebrew/Cellar/libffi/3.8.0/include -L/opt/homebrew/Cellar/libffi/3.8.0/lib -lffi

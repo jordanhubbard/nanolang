@@ -1,0 +1,12 @@
+[
+  {
+    "phase": "ordinary",
+    "timeout": false,
+    "errors": [],
+    "signals": [],
+    "returncode": 1,
+    "leader_reaped": true,
+    "group_disappeared": true,
+    "seconds": 0.613
+  }
+]

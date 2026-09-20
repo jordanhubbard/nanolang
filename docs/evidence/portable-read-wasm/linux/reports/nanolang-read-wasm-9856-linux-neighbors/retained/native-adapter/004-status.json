@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/usr/local/bin/clang-23",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-Werror",
+    "-O2",
+    "-c",
+    "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/typed-read.ll",
+    "-o",
+    "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/typed-O2.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

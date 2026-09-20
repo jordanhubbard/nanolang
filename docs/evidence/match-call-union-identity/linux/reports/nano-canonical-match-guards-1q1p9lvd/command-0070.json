@@ -1,0 +1,1 @@
+["/bin/gcc", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "/tmp/nano-canonical-match-guards-1q1p9lvd/backstop-statement.c", "-o", "/tmp/nano-canonical-match-guards-1q1p9lvd/backstop-statement"]

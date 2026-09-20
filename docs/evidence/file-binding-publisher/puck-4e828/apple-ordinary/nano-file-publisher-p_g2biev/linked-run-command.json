@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-publisher-4e828-puck/apple-ordinary/nano-file-publisher-p_g2biev/fixture-linked",
+    "tests/fixtures/nsi_file_plan.json",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/apple-ordinary/nano-file-publisher-p_g2biev/api-linked"
+  ],
+  "cwd": "/private/tmp/nanolang-file-publisher-corrected-4e828",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

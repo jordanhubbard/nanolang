@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "-std=c11",
+    "-D_POSIX_C_SOURCE=200809L",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-DREAD_OBSERVED",
+    "-DREAD_LLVM",
+    "tests/nanoisa/test_portable_read_adapters.c",
+    "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-0.o",
+    "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-1.o",
+    "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-2.o",
+    "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/typed-O0.o",
+    "-lm",
+    "-o",
+    "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-O0"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-adapters-b9ba",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

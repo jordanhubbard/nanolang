@@ -1,0 +1,61 @@
+{
+  "rows": [
+    {
+      "pr": 906,
+      "run_id": 35498179116,
+      "job_id": 106044988865,
+      "head_sha": "6825961f726dc828907dc02fafa96c1ed4425720",
+      "job_conclusion": "failure",
+      "failure": "scripts/userguide_snippets_check.nano:201 E001 exact known union identity",
+      "log_sha256": "5e793ce219e2ba75c01fd25bb09e88028fa90958998b0947d0006f0eb3bd5d3c"
+    },
+    {
+      "pr": 907,
+      "run_id": 35498613035,
+      "job_id": 106046165537,
+      "head_sha": "92b9fd67705bb058369870975d95990bfc66f86d",
+      "job_conclusion": "failure",
+      "failure": "scripts/userguide_snippets_check.nano:201 E001 exact known union identity",
+      "log_sha256": "248fc511aff85a5239599ca10e1fe96b47695f51b800622bba35d1439be8bca6"
+    },
+    {
+      "pr": 908,
+      "run_id": 35498722005,
+      "job_id": 106046467495,
+      "head_sha": "742b1494dddad202292e787892acdb9c2e519a73",
+      "job_conclusion": "failure",
+      "failure": "scripts/userguide_snippets_check.nano:201 E001 exact known union identity",
+      "log_sha256": "71c22d39d24bede23d6a25c6f1fe9c3afe289d8f6da325257702a50da23e1f01"
+    }
+  ],
+  "classification": "same compiler rejection after all bootstrap steps pass; no local reproduction executed",
+  "files": {
+    "907-run.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "907-log.stderr": "197879a2e895e8723e5b8a291150c4236adf5d7db4dc738b16eafcfb4c46bcb8",
+    "908-direct.log": "71c22d39d24bede23d6a25c6f1fe9c3afe289d8f6da325257702a50da23e1f01",
+    "908-failure.txt": "c48e14c4b02ca77ac3f6700d6caac5240d798f7587cbddc071afb69c598cb1f0",
+    "907-failure.txt": "deae3da2f4ec84b1ab43c318fcb306b05483a6d74bbc24063a2b4ef21ca3a268",
+    "906-run.txt": "773bdc69d1def1e3649eca853b7c25a1f1f2f699fc9e414c46ae85521acce622",
+    "907-log.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "907-run.txt": "293119a28a806c8bb6df2739eb86d81f895c0bf02e77f174e05cbfb8b713de4b",
+    "908-job.txt": "3bddf4ec17307acaf32e497f842ca1b6b8fb1f0eb5886ec88d8164594558aff8",
+    "906-failure.txt": "4bc5c6c76e7f125548e00264b083d9b606883e8ed75b191f12794679ff2f2096",
+    "907-job.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "907-job.txt": "69b04f633aac3fb1f2b09f9e1336cd68abc4736f93a96771d4c2ce298bfeb175",
+    "908-run.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "908-job.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "906-run.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "906-log.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "908-direct.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "906-job.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "908-log.stderr": "4672037aba1c4cefdd38b2102b30a9f898f278975f2f154e5d9c8c93fa5afd65",
+    "908-run.txt": "f81041e4fde12e5acded35f9d6bfaad5b3567dc48556b7c96a2490a2ca7c4696",
+    "908-log.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "906-log.stderr": "d0f89549985a16a731de726a7ab7d30273dad30c459a3eb66510a03672c644a0",
+    "906-direct.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "906-direct.log": "5e793ce219e2ba75c01fd25bb09e88028fa90958998b0947d0006f0eb3bd5d3c",
+    "906-job.txt": "5d7373921aeebed5410d19da118ebd3a4e457ed41144de96132fcd1a47db4fc4",
+    "907-direct.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "907-direct.log": "248fc511aff85a5239599ca10e1fe96b47695f51b800622bba35d1439be8bca6"
+  }
+}

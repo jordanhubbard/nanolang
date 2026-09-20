@@ -1,0 +1,16 @@
+{
+  "ordinary": "/usr/bin/aarch64-linux-gnu-gcc-13",
+  "llvm": "/usr/local/bin/clang-23",
+  "python": "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14",
+  "ld": "/usr/bin/aarch64-linux-gnu-ld.bfd",
+  "ar": "/usr/bin/aarch64-linux-gnu-ar",
+  "libasan.so": "/usr/lib/aarch64-linux-gnu/libasan.so.8.0.0",
+  "libubsan.so": "/usr/lib/aarch64-linux-gnu/libubsan.so.1.0.0",
+  "cc1": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1",
+  "collect2": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2",
+  "libclang_rt.asan.so": "/usr/local/lib/clang/23/lib/aarch64-unknown-linux-gnu/libclang_rt.asan.so",
+  "libclang_rt.asan.a": "/usr/local/lib/clang/23/lib/aarch64-unknown-linux-gnu/libclang_rt.asan.a",
+  "libclang_rt.asan-preinit.a": "/usr/local/lib/clang/23/lib/aarch64-unknown-linux-gnu/libclang_rt.asan-preinit.a",
+  "libclang_rt.asan_static.a": "/usr/local/lib/clang/23/lib/aarch64-unknown-linux-gnu/libclang_rt.asan_static.a",
+  "libclang_rt.ubsan_standalone.a": "/usr/local/lib/clang/23/lib/aarch64-unknown-linux-gnu/libclang_rt.ubsan_standalone.a"
+}

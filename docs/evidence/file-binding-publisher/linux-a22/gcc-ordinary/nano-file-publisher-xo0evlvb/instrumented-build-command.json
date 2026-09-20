@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-publisher-qualified-a22/src",
+    "-DPUBLISH_INSTRUMENT",
+    "tests/test_nsi_file_publish.c",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/nsi_file_binding.o",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/nsi_file_plan.o",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/nsi.o",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/cJSON.o",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/utf8.o",
+    "-o",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/fixture-instrumented"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-publisher-qualified-a22",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -1,0 +1,554 @@
+{
+  "observed-0.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-0.o",
+    "sha256": "44487a57a6bf8537150f7c9655506b03ee646d53a9c66197fc4a2109ff992c8f",
+    "bytes": 24992,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/44487a57a6bf8537150f7c9655506b03ee646d53a9c66197fc4a2109ff992c8f"
+  },
+  "observed-1.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-1.o",
+    "sha256": "44caf8c4129c97ec523aa7743855712f087c3c1289cee82844e28c2a251c2fb5",
+    "bytes": 15096,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/44caf8c4129c97ec523aa7743855712f087c3c1289cee82844e28c2a251c2fb5"
+  },
+  "observed-2.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-2.o",
+    "sha256": "b68ad41d31df42b27dd382e3cb972961c2ae60327e6c123abe5c2151461b87ca",
+    "bytes": 436648,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/b68ad41d31df42b27dd382e3cb972961c2ae60327e6c123abe5c2151461b87ca"
+  },
+  "observed-C": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C",
+    "sha256": "ec2a3ec740d17a645eae359e22717b6f32832a0b75190804befff57b54d25618",
+    "bytes": 306728,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ec2a3ec740d17a645eae359e22717b6f32832a0b75190804befff57b54d25618"
+  },
+  "observed-C-files/caf\u00e9-\u20ac.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "observed-C-files/vector-0.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-C-files/vector-1.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "observed-C-files/vector-10.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-10.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-C-files/vector-11.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-11.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-C-files/vector-2.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "observed-C-files/vector-3.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "observed-C-files/vector-4.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "observed-C-files/vector-5.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "observed-C-files/vector-6.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "observed-C-files/vector-7.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-C-files/vector-8.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-C-files/vector-9.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "observed-C.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C.dSYM/Contents/Info.plist",
+    "sha256": "53b488c057a8f7fae07f828438097076aedaaf4d0a120b573609ef085a4644c4",
+    "bytes": 639,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/53b488c057a8f7fae07f828438097076aedaaf4d0a120b573609ef085a4644c4"
+  },
+  "observed-C.dSYM/Contents/Resources/DWARF/observed-C": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C.dSYM/Contents/Resources/DWARF/observed-C",
+    "sha256": "893c3454d65696707bf48d431dceae420b2d268a4c425261ae13474b5926da8b",
+    "bytes": 182637,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/893c3454d65696707bf48d431dceae420b2d268a4c425261ae13474b5926da8b"
+  },
+  "observed-C.dSYM/Contents/Resources/Relocations/aarch64/observed-C.yml": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-C.dSYM/Contents/Resources/Relocations/aarch64/observed-C.yml",
+    "sha256": "2403d14010e545d47431a0dfec0aeb60217ea860d1476a7f81bdb3efbb090d03",
+    "bytes": 172,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/2403d14010e545d47431a0dfec0aeb60217ea860d1476a7f81bdb3efbb090d03"
+  },
+  "observed-O0": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0",
+    "sha256": "d65d86fd73b5e8555de5403e051d995fc60a57e6253f87d6f219b42e49fbe437",
+    "bytes": 306792,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/d65d86fd73b5e8555de5403e051d995fc60a57e6253f87d6f219b42e49fbe437"
+  },
+  "observed-O0-files/caf\u00e9-\u20ac.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "observed-O0-files/vector-0.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-O0-files/vector-1.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "observed-O0-files/vector-10.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-10.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-O0-files/vector-11.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-11.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-O0-files/vector-2.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "observed-O0-files/vector-3.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "observed-O0-files/vector-4.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "observed-O0-files/vector-5.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "observed-O0-files/vector-6.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "observed-O0-files/vector-7.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-O0-files/vector-8.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-O0-files/vector-9.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "observed-O0.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0.dSYM/Contents/Info.plist",
+    "sha256": "d6849ddcf6632f1d88edc9d5b63fa14df68d7b868b587c99b2c69c4987e3a468",
+    "bytes": 640,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/d6849ddcf6632f1d88edc9d5b63fa14df68d7b868b587c99b2c69c4987e3a468"
+  },
+  "observed-O0.dSYM/Contents/Resources/DWARF/observed-O0": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0.dSYM/Contents/Resources/DWARF/observed-O0",
+    "sha256": "a2f930569553506824d4e8d0b92a134c81ac9591e4c2b7e853c3dfa3ad08c0f4",
+    "bytes": 182650,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/a2f930569553506824d4e8d0b92a134c81ac9591e4c2b7e853c3dfa3ad08c0f4"
+  },
+  "observed-O0.dSYM/Contents/Resources/Relocations/aarch64/observed-O0.yml": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O0.dSYM/Contents/Resources/Relocations/aarch64/observed-O0.yml",
+    "sha256": "bf4fd2f339c03cd949d607bfe4ff74cfbe2d55dcec0fc286f01c5efa099519bb",
+    "bytes": 173,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/bf4fd2f339c03cd949d607bfe4ff74cfbe2d55dcec0fc286f01c5efa099519bb"
+  },
+  "observed-O2": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2",
+    "sha256": "e3493cfc3a0713561a39cb1ff70831835a5dd9f23e5206fbb9d0bcb1919ad1aa",
+    "bytes": 306792,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3493cfc3a0713561a39cb1ff70831835a5dd9f23e5206fbb9d0bcb1919ad1aa"
+  },
+  "observed-O2-files/caf\u00e9-\u20ac.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "observed-O2-files/vector-0.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-O2-files/vector-1.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "observed-O2-files/vector-10.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-10.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-O2-files/vector-11.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-11.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-O2-files/vector-2.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "observed-O2-files/vector-3.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "observed-O2-files/vector-4.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "observed-O2-files/vector-5.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "observed-O2-files/vector-6.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "observed-O2-files/vector-7.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-O2-files/vector-8.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-O2-files/vector-9.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "observed-O2.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2.dSYM/Contents/Info.plist",
+    "sha256": "fd636731e02a0db229bdf706a0b0f7f2908a6bb195d508aff6340a22c34327d4",
+    "bytes": 640,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/fd636731e02a0db229bdf706a0b0f7f2908a6bb195d508aff6340a22c34327d4"
+  },
+  "observed-O2.dSYM/Contents/Resources/DWARF/observed-O2": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2.dSYM/Contents/Resources/DWARF/observed-O2",
+    "sha256": "5e17296ab92f40c99a7a3b24e74a4711b5e25ae3cb59ec7f684ccc6f18a79709",
+    "bytes": 182650,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/5e17296ab92f40c99a7a3b24e74a4711b5e25ae3cb59ec7f684ccc6f18a79709"
+  },
+  "observed-O2.dSYM/Contents/Resources/Relocations/aarch64/observed-O2.yml": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-O2.dSYM/Contents/Resources/Relocations/aarch64/observed-O2.yml",
+    "sha256": "fd775c7f59df298c38f77269ec4c566311c58098fc064e9956360455eb949026",
+    "bytes": 173,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/fd775c7f59df298c38f77269ec4c566311c58098fc064e9956360455eb949026"
+  },
+  "target-probe.c": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/target-probe.ll",
+    "sha256": "9111d0e55ac5ad3fd3cef091ba8af0f421ad765ffbe7685e3ef4b9df95073b63",
+    "bytes": 1209,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/9111d0e55ac5ad3fd3cef091ba8af0f421ad765ffbe7685e3ef4b9df95073b63"
+  },
+  "typed-O0.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/typed-O0.o",
+    "sha256": "8149c5c7ca812238c688780b5663cd41921e0029a32f04e5dd7846350cb7d9ed",
+    "bytes": 736,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/8149c5c7ca812238c688780b5663cd41921e0029a32f04e5dd7846350cb7d9ed"
+  },
+  "typed-O2.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/typed-O2.o",
+    "sha256": "b0187380709f83f015405b6580d9ed933f1cc92053bdb0bf8bc9628aee2056d8",
+    "bytes": 560,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/b0187380709f83f015405b6580d9ed933f1cc92053bdb0bf8bc9628aee2056d8"
+  },
+  "typed-read.ll": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/typed-read.ll",
+    "sha256": "a18558c75e3f457606b8cbb9aed53a8868148977883cc2c33555ceb712891a58",
+    "bytes": 501,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/a18558c75e3f457606b8cbb9aed53a8868148977883cc2c33555ceb712891a58"
+  },
+  "unhooked-0.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-0.o",
+    "sha256": "f27eb507e38b5426b75aa55bbccf557b32e55254948f46b1b0380a7d42359c66",
+    "bytes": 25016,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/f27eb507e38b5426b75aa55bbccf557b32e55254948f46b1b0380a7d42359c66"
+  },
+  "unhooked-1.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-1.o",
+    "sha256": "bbecdb9eea20d365296ec5a5c1d81d91683edf1413762fb0a4f2f3a50eeab775",
+    "bytes": 15024,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/bbecdb9eea20d365296ec5a5c1d81d91683edf1413762fb0a4f2f3a50eeab775"
+  },
+  "unhooked-2.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-2.o",
+    "sha256": "183e386ec6c787b77cbfc1939ef223ec0ff6a0252f0b315714d6be127fc3715a",
+    "bytes": 436552,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/183e386ec6c787b77cbfc1939ef223ec0ff6a0252f0b315714d6be127fc3715a"
+  },
+  "unhooked-C": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C",
+    "sha256": "8ac3d0d5423df0defb88f91b163f00f7f6e20cd9a188cdf3572e189b3170f2b9",
+    "bytes": 300824,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/8ac3d0d5423df0defb88f91b163f00f7f6e20cd9a188cdf3572e189b3170f2b9"
+  },
+  "unhooked-C-files/caf\u00e9-\u20ac.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "unhooked-C-files/vector-0.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unhooked-C-files/vector-1.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "unhooked-C-files/vector-2.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "unhooked-C-files/vector-3.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "unhooked-C-files/vector-4.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "unhooked-C-files/vector-5.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "unhooked-C-files/vector-6.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "unhooked-C-files/vector-7.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "unhooked-C-files/vector-8.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unhooked-C-files/vector-9.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "unhooked-C.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C.dSYM/Contents/Info.plist",
+    "sha256": "7d102a0ed0341d11506e9d823f54e7425c5988c25739999040fb44ea99aa3f56",
+    "bytes": 639,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/7d102a0ed0341d11506e9d823f54e7425c5988c25739999040fb44ea99aa3f56"
+  },
+  "unhooked-C.dSYM/Contents/Resources/DWARF/unhooked-C": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C.dSYM/Contents/Resources/DWARF/unhooked-C",
+    "sha256": "73fa6a05c9baaee71b5a385f95d7c63d2e79cd61d79195fe9d784c05b0cdf03e",
+    "bytes": 175872,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/73fa6a05c9baaee71b5a385f95d7c63d2e79cd61d79195fe9d784c05b0cdf03e"
+  },
+  "unhooked-C.dSYM/Contents/Resources/Relocations/aarch64/unhooked-C.yml": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-C.dSYM/Contents/Resources/Relocations/aarch64/unhooked-C.yml",
+    "sha256": "ef3d49af93a466e8f9fce8519738ca2a0e66ba803c65f5b8f485ef72c1121c97",
+    "bytes": 172,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ef3d49af93a466e8f9fce8519738ca2a0e66ba803c65f5b8f485ef72c1121c97"
+  },
+  "unhooked-O0": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0",
+    "sha256": "0ffc0efb5e83c8932977e17692a3f34ec23532626cb0c3a74aa228d1f79fe657",
+    "bytes": 300888,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/0ffc0efb5e83c8932977e17692a3f34ec23532626cb0c3a74aa228d1f79fe657"
+  },
+  "unhooked-O0-files/caf\u00e9-\u20ac.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "unhooked-O0-files/vector-0.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unhooked-O0-files/vector-1.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "unhooked-O0-files/vector-2.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "unhooked-O0-files/vector-3.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "unhooked-O0-files/vector-4.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "unhooked-O0-files/vector-5.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "unhooked-O0-files/vector-6.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "unhooked-O0-files/vector-7.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "unhooked-O0-files/vector-8.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unhooked-O0-files/vector-9.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "unhooked-O0.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0.dSYM/Contents/Info.plist",
+    "sha256": "f4ab579d34abb64a5e7bd905dc3f3249c200d078d3f5d3fc988aa8e0374a0e56",
+    "bytes": 640,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/f4ab579d34abb64a5e7bd905dc3f3249c200d078d3f5d3fc988aa8e0374a0e56"
+  },
+  "unhooked-O0.dSYM/Contents/Resources/DWARF/unhooked-O0": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0.dSYM/Contents/Resources/DWARF/unhooked-O0",
+    "sha256": "6af036b56c4c44cf8086fd1f083a8f98f1364b20849d89f55380506c30789cbb",
+    "bytes": 175885,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/6af036b56c4c44cf8086fd1f083a8f98f1364b20849d89f55380506c30789cbb"
+  },
+  "unhooked-O0.dSYM/Contents/Resources/Relocations/aarch64/unhooked-O0.yml": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0.dSYM/Contents/Resources/Relocations/aarch64/unhooked-O0.yml",
+    "sha256": "d3ff8aa22245abe48172ee379d84634fc44c720765668a52f02fcd0296ae0578",
+    "bytes": 173,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/d3ff8aa22245abe48172ee379d84634fc44c720765668a52f02fcd0296ae0578"
+  }
+}

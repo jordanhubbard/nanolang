@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/binding-linked",
+    "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q",
+    "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/expected.json",
+    "/home/jkh/Src/nanolang-file-binding-qualified-23bed/tests/fixtures/nsi_file_binding_expected.nano.txt"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-binding-qualified-23bed",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

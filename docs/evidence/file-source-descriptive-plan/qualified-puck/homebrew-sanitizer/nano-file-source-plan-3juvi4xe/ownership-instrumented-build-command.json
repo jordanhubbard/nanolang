@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-source-qualified-701",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-DSOURCE_PLAN_INSTRUMENT",
+    "tests/nanoisa/test_file_source_plan.c",
+    "/private/tmp/nanolang-file-source-701-puck/homebrew-sanitizer/nano-file-source-plan-3juvi4xe/file_source_catalog.o",
+    "/private/tmp/nanolang-file-source-701-puck/homebrew-sanitizer/nano-file-source-plan-3juvi4xe/nsi_file_plan.o",
+    "-o",
+    "/private/tmp/nanolang-file-source-701-puck/homebrew-sanitizer/nano-file-source-plan-3juvi4xe/ownership-instrumented"
+  ],
+  "cwd": "/private/tmp/nanolang-file-source-qualified-701",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

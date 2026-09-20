@@ -1,0 +1,9 @@
+{
+  "label": "verifier-cleanup-run",
+  "argv": [
+    "/tmp/nanolang-portable-read-corrected-linux/verifier-cleanup-binary"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}
