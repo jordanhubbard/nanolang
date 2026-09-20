@@ -64,13 +64,13 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             if (!owned_emission_local(state,mixed,owner_arrays,function,in->operands[0].u16,&type)) goto fail;
             pop=0;push=layouts.items[type.layout].field_count;
         }
-        if(mixed && op==OP_AGG_PACK){pop=in->operands[3].u16;push=1;}
+        if(op==OP_AGG_PACK){pop=in->operands[3].u16;push=1;}
         if(shared && op==OP_ARR_LITERAL){pop=in->operands[1].u16;push=1;}
         if (op==OP_CALL) {pop=mod->functions[in->operands[0].u32].arity;push=mod->functions[in->operands[0].u32].result_count;}
-        if (op==OP_RET) continue;
+        if (op==OP_RET || op==OP_HALT) continue;
         if (pop<0 || push<0 || depth[i]<pop || depth[i]-pop+push>(int)NVM_AFFINE_MAX_STACK) goto fail;
         uint32_t targets[2],count=0;
-        if (op==OP_JMP || op==OP_JMP_TRUE || op==OP_JMP_FALSE) {
+        if (op==OP_JMP || op==OP_JMP_TRUE || op==OP_JMP_FALSE || op==OP_MATCH_TAG) {
             const VmDecodedInstruction *target=vm_decoded_function_at(&code,d->resolved_target-fn->code_offset);
             if (!target) goto fail;
             targets[count++]=(uint32_t)(target-code.instructions);
@@ -101,7 +101,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         "typedef struct { int64_t scalar; nown_record *record; nown_string *string; double floating; uint8_t tag; } nown_value;\n");
     if(!function)nvm2c_puts(&b,
         "static inline double nown_float_bits(uint64_t bits) { double value; memcpy(&value,&bits,sizeof(value)); return value; }\n"
-        "struct nown_record { size_t refs, count; uint32_t layout; nown_value fields[]; };\n"
+        "struct nown_record { size_t refs, count; uint32_t layout, variant; nown_value fields[]; };\n"
         "typedef struct { unsigned root,region,exclusive,parent,depth,origin; uint64_t generation; uint16_t fields[32]; } nown_reference;\n"
         "static nown_record *nown_referent(nown_value *const origins[2],const uint64_t generations[2],const nown_reference *ref) {\n"
         " if(ref->origin>1 || !origins[ref->origin] || ref->generation!=generations[ref->origin])return NULL;\n"
@@ -299,6 +299,17 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_puts(&b," nown_release(a); a=(nown_value){0};\n");break;
         }
         case OP_AGG_PACK: {
+            if(in->operands[0].u8==AGG_VARIANT && !shared) {
+                NvmUnionVariantFact fact;
+                uint16_t variant=in->operands[2].u16;
+                if(nvm_ownership_union_variant(mod,in->operands[1].u32,variant,&fact)!=NVM_V2_OK ||
+                   fact.field_count!=in->operands[3].u16)goto fail;
+                unsigned count=fact.field_count;int base=n-(int)count;
+                nvm2c_printf(&b," a.record=NOWN_ALLOC(1,sizeof(nown_record)+%u*sizeof(nown_value));\n if(!a.record){status=1;goto cleanup;} a.record->refs=1; a.record->count=%u; a.record->layout=%u; a.record->variant=%u;\n",count,count,fact.layout,variant);
+                for(unsigned f=0;f<count;f++)
+                    nvm2c_printf(&b," a.record->fields[%u]=t[%d]; t[%d]=(nown_value){0};\n",f,base+(int)f,base+(int)f);
+                nvm2c_printf(&b," a.tag=%u; t[%d]=a; a=(nown_value){0};\n",TAG_UNION,base);break;
+            }
             if(!mixed || in->operands[0].u8!=AGG_RECORD)goto fail;
             NvmMixedRecordIdentity identity;
             if(!nvm_mixed_samples_record(mixed,in->operands[1].u32,&identity) || identity.field_count!=in->operands[3].u16)goto fail;
@@ -310,6 +321,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             for(unsigned f=0;f<count;f++)nvm2c_printf(&b," nown_release(t[%d]);t[%d]=(nown_value){0};\n",base+(int)f,base+(int)f);
             nvm2c_printf(&b," t[%d]=(nown_value){.tag=%u,.category=2,.managed=managed,.handle=handle};}\n",base,TAG_STRUCT);break;
         }
+        case OP_AGG_TAG:
+            nvm2c_printf(&b," if(t[%d].tag!=%u || !t[%d].record){status=3;goto cleanup;} a=t[%d]; t[%d]=(nown_value){.scalar=(int64_t)a.record->variant,.tag=%u}; nown_release(a); a=(nown_value){0};\n",n-1,TAG_UNION,n-1,n-1,n-1,TAG_INT);break;
         case OP_ARR_NEW:case OP_ARR_LITERAL: {
             if(!shared)goto fail;
             unsigned count=op==OP_ARR_LITERAL?in->operands[1].u16:0;int base=n-(int)count;
@@ -343,6 +356,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             break;
         }
         case OP_AGG_GET: case OP_STRUCT_GET:
+            if(op==OP_AGG_GET && !shared)
+                nvm2c_printf(&b," if(t[%d].tag!=%u || !t[%d].record || %u>=t[%d].record->count){status=3;goto cleanup;}\n",n-1,TAG_UNION,n-1,local,n-1);
             if(shared)nvm2c_printf(&b," if(t[%d].category==2){NmsValue value={0}; status=nown_status(nms_record_get(managed,t[%d].handle,%u,&value));if(status)goto cleanup; if(!nown_from_managed(managed,value,&a)){(void)nms_value_release(managed,value);status=3;goto cleanup;} nown_release(t[%d]);t[%d]=a;a=(nown_value){0};}else {\n",n-1,n-1,local,n-1,n-1);
             nvm2c_printf(&b," if(!nown_retain(t[%d].record->fields[%u])){status=1;goto cleanup;} a=t[%d]; t[%d]=a.record->fields[%u]; nown_release(a); a=(nown_value){0};\n",n-1,local,n-1,n-1,local);
             if(shared)nvm2c_puts(&b," }\n");
@@ -394,6 +409,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         case OP_JMP:nvm2c_printf(&b," goto L%u;\n",d->resolved_target-fn->code_offset);continue;
         case OP_JMP_TRUE: case OP_JMP_FALSE:
             nvm2c_printf(&b," a=t[%d]; t[%d]=(nown_value){0}; if(%sa.scalar) {a=(nown_value){0};goto L%u;} a=(nown_value){0};\n",n-1,n-1,op==OP_JMP_TRUE?"":"!",d->resolved_target-fn->code_offset);break;
+        case OP_MATCH_TAG:
+            nvm2c_printf(&b," if(t[%d].tag==%u && t[%d].record && t[%d].record->variant==%u) goto L%u;\n",n-1,TAG_UNION,n-1,n-1,in->operands[0].u16,d->resolved_target-fn->code_offset);break;
         case OP_ASSERT:
             nvm2c_printf(&b," a=t[%d]; t[%d]=(nown_value){0}; if(!a.scalar){status=2;goto cleanup;} a=(nown_value){0};\n",n-1,n-1);break;
         case OP_PRINT: case OP_PRINTLN:
@@ -406,8 +423,26 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             if(shared && result_type.tag!=TAG_VOID)nvm2c_printf(&b," if(t[0].tag!=%u || t[0].category!=%u){status=3;goto cleanup;}\n",result_type.tag,result_type.tag==TAG_STRUCT?1u:0u);
             if(result_type.tag==TAG_STRUCT)
                 nvm2c_printf(&b," if(!t[0].record || t[0].record->layout!=%u || t[0].record->count!=%u){status=3;goto cleanup;}\n",result_type.layout,result_fields);
+            if(result_type.tag==TAG_UNION) {
+                nvm2c_printf(&b," if(!t[0].record || t[0].record->layout!=%u || !(",result_type.layout);
+                bool first=true;
+                for(uint32_t ordinal=0;ordinal<mod->union_count;ordinal++) {
+                    for(uint16_t variant=0;;variant++) {
+                        NvmUnionVariantFact fact;
+                        if(nvm_ownership_union_variant(mod,ordinal,variant,&fact)!=NVM_V2_OK)break;
+                        if(fact.layout!=result_type.layout)continue;
+                        nvm2c_printf(&b,"%s(t[0].record->variant==%u && t[0].record->count==%u)",
+                                     first?"":" || ",variant,fact.field_count);
+                        first=false;
+                    }
+                }
+                if(first)goto fail;
+                nvm2c_puts(&b,")){status=3;goto cleanup;}\n");
+            }
             if(result_type.tag!=TAG_VOID) nvm2c_puts(&b," pending=t[0]; t[0]=(nown_value){0};\n");
             nvm2c_puts(&b," goto cleanup;\n");continue;
+        case OP_HALT:
+            nvm2c_puts(&b," status=3;goto cleanup;\n");continue;
         default:goto fail;
         }
         nvm2c_printf(&b," goto L%u;\n",d->next_byte_offset);
