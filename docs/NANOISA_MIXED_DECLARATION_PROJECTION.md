@@ -17,7 +17,7 @@ output for every non-PREPARED result. It owns no pointer into the source module.
 Free(NULL) is harmless. Getter errors leave complete output values unchanged.
 This is a shared core query, not a new wire format or proof of instruction flow.
 
-I support complete ordinary record DAG declarations, flat scalar/string ARRAY
+I support COMPLETE ordinary record DAG declarations, flat scalar/string ARRAY
 bindings and the already qualified exact scalar/string union variant slices in
 one retained layout table. Global layout indices and per-kind ordinals stay
 separate. A record ARRAY field still has TAG_ARRAY/NO_INDEX and exactly one
@@ -26,8 +26,9 @@ binding. Resource-bearing declarations, borrowed/reference descriptors, nested
 ARRAY/STRUCT element types, incomplete facts, imports, module references, service
 or passive contracts remain UNKNOWN after applicable structural validation.
 Malformed framing, reserved bits, cross-table identities, missing/duplicate
-bindings, truncated/trailing bytes and incompatible field contracts remain
-INVALID. Limits remain explicit and do not become UNKNOWN authority.
+bindings inside a present ARRAY_FIELDS body, truncated/trailing bytes and incompatible field contracts remain
+INVALID. Limits remain explicit and do not become UNKNOWN authority. An absent array
+extension with incomplete declaration facts retains UNKNOWN, as in the old query.
 
 ## My shared reader
 
@@ -36,18 +37,34 @@ extension reader and ARRAY_FIELDS validator from the ordinary-array query.
 I factor construction of its owned declaration staging from the final ordinary-
 only eligibility decision. The existing ordinary query keeps all its decisions,
 including UNKNOWN for a union. I add no second envelope cursor or permissive
-transport mode. Both extension bodies must validate before either projection
+transport mode. Qualified union layout flags are exactly zero: COMPLETE is restricted to
+STRUCT by the existing reader. A valid union sets the existing needs flag, so
+I classify eligibility by exact layout/descriptor facts; I do not clear needs
+or demand COMPLETE from a union. The old ordinary-only query keeps UNKNOWN.
+
+Both extension bodies must validate before either projection
 can be published. An ARRAY_FIELDS error cannot leave a usable union projection,
 and a UNION_VARIANTS error cannot leave a usable array projection.
 
-I reuse union_facts_read for copied variants. Its checked reader supplies the
-exact count and then populates bounded staging; it does not call the older
+A descriptor whose legacy borrowed-root validation is ambiguous may record
+UNKNOWN without aborting the new mixed staging pass after its full eight bytes
+were consumed. I continue checking independently readable later descriptors
+and extension bodies so a deterministic malformed suffix cannot hide behind
+that subset decision. Cursor/framing failure or an undecodable allocation
+failure still stops when further validation has no established input shape.
+Old public and ordinary-query early-return/status decisions stay unchanged.
+
+I reuse union_facts_read for copied variants. I extend that same checked reader
+with optional bounded count/copy outputs. Its first whole-validation pass
+counts rows; one later shared pass populates bounded staging; it does not call the older
 public union accessor, which intentionally refuses the mixed envelope. All
 allocations, fields and variant rows are charged before publication. The plan
 retains the existing 256-layout, 65536-field/binding, 4096-type, 64-type-depth,
 1048576-step and16MiB simultaneous-storage limits, with checked arithmetic.
 Variant rows are additionally capped at65536 and charged to the same work/heap
-budgets. I include transient staging in that budget. The common existing
+budgets. I charge both validation/count and copy passes, including pairwise
+name comparisons, before execution; I never parse the whole table once per
+variant. I include transient staging in that budget. The common existing
 256-variant limit per union remains. Allocation failure frees every prefix.
 Ambiguous legacy decoder/reference allocation failure retains conservative
 UNKNOWN classification unless an explicit hook establishes MEMORY.
