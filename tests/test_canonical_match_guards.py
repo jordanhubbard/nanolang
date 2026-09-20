@@ -6,6 +6,7 @@ import shlex
 import signal
 import subprocess
 import tempfile
+import time
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -82,24 +83,46 @@ class CanonicalMatchGuards(unittest.TestCase):
         print(f"I retain guard artifacts at {cls.work}", flush=True)
         cls.env = dict(os.environ, LSAN_OPTIONS="", ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
                        UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
-        cls.cc = shlex.split(os.environ.get("CC", "cc"))
+        cls.cc = shlex.split(os.environ.get("NANOLANG_GUARD_SAN_CC", os.environ.get("CC", "cc")))
 
     def command(self, args, expected=0, timeout=180):
         type(self).serial += 1
         stem = self.work / f"command-{self.serial:04d}"
         args = list(map(str, args))
         stem.with_suffix(".json").write_text(json.dumps(args))
-        try:
-            result = subprocess.run(args, cwd=ROOT, env=self.env, capture_output=True,
-                                    text=True, timeout=timeout)
-        except subprocess.TimeoutExpired as error:
-            for suffix, text in ((".stdout", error.stdout), (".stderr", error.stderr)):
-                stem.with_suffix(suffix).write_bytes(text if isinstance(text, bytes) else (text or "").encode())
-            stem.with_suffix(".status").write_text("124 timeout\n")
-            raise
-        stem.with_suffix(".stdout").write_text(result.stdout)
-        stem.with_suffix(".stderr").write_text(result.stderr)
-        stem.with_suffix(".status").write_text(str(result.returncode) + "\n")
+        started = time.monotonic()
+        timed_out = False
+        cleanup = []
+        with stem.with_suffix(".stdout").open("wb") as stdout, stem.with_suffix(".stderr").open("wb") as stderr:
+            process = subprocess.Popen(args, cwd=ROOT, env=self.env, stdout=stdout,
+                                       stderr=stderr, start_new_session=True)
+            try:
+                process.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                for sig in (signal.SIGTERM, signal.SIGKILL):
+                    try:
+                        os.killpg(process.pid, sig)
+                        cleanup.append({"signal": sig.name, "sent": True})
+                    except ProcessLookupError:
+                        cleanup.append({"signal": sig.name, "group_absent": True})
+                    except OSError as error:
+                        cleanup.append({"signal": sig.name, "error": str(error)})
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        cleanup.append({"signal": sig.name, "leader_wait_expired": True})
+        status = 124 if timed_out else process.returncode
+        stem.with_suffix(".status").write_text(str(status) + "\n")
+        terminal = {"timed_out": timed_out, "timeout_seconds": timeout,
+                    "elapsed_seconds": round(time.monotonic() - started, 6),
+                    "returncode": process.poll(), "status": status, "cleanup": cleanup,
+                    "leader_reaped": process.returncode is not None}
+        stem.with_suffix(".terminal.json").write_text(json.dumps(terminal, indent=2))
+        result = subprocess.CompletedProcess(args, status,
+            stem.with_suffix(".stdout").read_bytes().decode("utf-8", errors="replace"),
+            stem.with_suffix(".stderr").read_bytes().decode("utf-8", errors="replace"))
+        self.assertFalse(timed_out, (args, terminal, result.stdout, result.stderr))
         if expected is not None:
             self.assertEqual(result.returncode, expected, f"{args}\n{result.stdout}{result.stderr}")
         return result
