@@ -12893,3 +12893,12 @@ full b7ef/2d2 admission/emission/installed/compiler obligations remain open.
 - [ ] I correct the general VM underflow fixture's stale expectation for bare `FILE_DROP_STACK`, retain both first full-test terminals, assert service-first refusal with untouched caller/frame state, and preserve ordinary handler underflow checks (`task_c2807d311e5d46938d5193b394bb6840`; [contract](MATCH_CALL_UNION_IDENTITY.md)).
 
 - [ ] I correct the full-test driver’s separate `NANO_NATIVE_TEST_CC` selection on Darwin, retain the eight-method unsupported Apple leak-sanitizer terminal, and qualify the unchanged transport/full-test path with explicit supported Homebrew Clang and leak detection intact (`task_a1d38d93616f4c48a3b8692b30226a82`).
+
+### My synchronous ordinary-admission prerequisite
+
+I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5.1 gates. My reviewed86c758 diagnostic measured98.6604percent completed-admission time between matched markers; evidence538251ed preserves the unchanged timeout. `docs/VM_SYNCHRONOUS_ADMISSION.md` records my proposed narrow assertion-resume certificate and all mutation/reentry exclusions.
+
+- [ ] I independently review the segment lifetime, every trap/host/memory-write invalidation, and the exact private production diff before builds.
+- [ ] I review and qualify counter-based ordinary/assertion/refusal/mutation/reentry controls under both dispatch forms, preserving owned and callback paths.
+- [ ] I freshly execute the unchanged full imported emitter shadow gate with its original ten-second policy, then relevant VM/callback/service/profile adjacency; I retain failures without extending deadlines.
+- [ ] I seal evidence and obtain actual merge before reconciling this bounded task; passive and Darwin native timeout tasks remain separate.
