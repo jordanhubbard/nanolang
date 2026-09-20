@@ -468,3 +468,30 @@ NanoISA providers remain ordinary. This is a fixture/provider correction only;
 actual compiler/runtime sources and retained18334 bootstrap inputs are unchanged.
 Fresh corrected fixtures and module products still require source/product
 identity proof before reusing those exact bootstrap binaries.
+
+### My generated local keyword correction
+
+The8134 fixtures on both hosts reach the full publisher after their ordinary
+match and cleanup controls, then reject `Ok(byte)` because byte is an existing
+reserved type token. I retain the first diagnostics and do not claim either
+whole fixture passed. I rename that renderer-local binding to `octet`, updating
+the independent complete golden at the same checkpoint. The catalog's value/eof
+fields, function names, constants, success/error branches and all five shadow
+predicates are unchanged; I do not rewrite actual publication inside a test.
+
+I require fresh strict document/publisher qualification with each of the same
+seven selected compiler/sanitizer configurations, in addition to the complete
+parser corpus. The existing three-method publisher suite builds all seven
+actual Make providers, exercises API/CLI faults and exact source bytes, then
+runs the five-provider linked/instrumented strict binding and legacy neighbors.
+Its allocation/roundtrip/budget/golden assertions remain intact. Those fresh
+selected providers have their own instrumentation scope and inventories; they
+are not evidence that ordinary compiler providers were sanitizer rebuilt.
+
+The changed renderer is absent from the retained18334 compiler/NanoVirt object
+dependency files and from their selected provider source lists. My real parser,
+all src_nano compiler inputs and runtime sources remain unchanged by this
+correction. I may therefore reuse exact18334 bootstrap products after full
+source/product identity proof, while always freshly building this changed
+publisher and its fixture/module outputs. Original bootstrap and sanitizer pins
+remain distinct; no fresh-bootstrap or File service execution claim follows.
