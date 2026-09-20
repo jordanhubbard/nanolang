@@ -83,6 +83,7 @@ static void categories_and_bounds(void){
  m=target_module();uint32_t site;setbody(m,0,loop_body(true,&site));
  uint8_t tag=TAG_BOOL;CHECK(nvm_set_function_param_types(m,4,&tag,1));
  desc(function_descriptor(m,4)+12,TAG_BOOL,0,NVM_V2_NO_INDEX);
+ Body valid_candidate={0};retint(&valid_candidate);setbody(m,4,valid_candidate);
  query(m,NVM_FILE_INDIRECT_UNRESOLVED);nvm_module_free(m);
  /* A direct edge combines with an indirect edge to form recursion. */
  m=target_module();Body c={0};integer(&c);reference(&c,1);indirect(&c,1,1);op(&c,OP_RET);setbody(m,0,c);

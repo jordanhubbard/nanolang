@@ -26,7 +26,7 @@ class FileIndirectTargets(unittest.TestCase):
     def command(self, name, args):
         (self.artifacts / f"{name}-command.txt").write_text(shlex.join(args) + "\n")
         env = dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
-                   UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
+                   UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1", LSAN_OPTIONS="")
         status = {"timeout": False, "returncode": None, "leader_reaped": False,
                   "group_disappeared": None, "bound_seconds": 240, "errors": [],
                   "cleanup_signals": [], "launched": False}

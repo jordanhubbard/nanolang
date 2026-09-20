@@ -201,3 +201,9 @@ I retain command output in files and bound compiler/fixture process groups. This
 checkpoint has not compiled or run; review precedes qualification, which must
 attribute actual source, provider and tool inputs and preserve first failures.
 The larger callable flow/runtime/source contract remains open.
+
+Independent fixture review distinguishes included helper code from executed
+neighbor suites: my new main does not invoke the prior body fixture main. I
+qualify the original body, cyclic and public refusal neighbors separately. My
+late mismatched target has its own valid INT-returning body, isolating signature
+incompatibility. The runner clears inherited LSan suppression options.
