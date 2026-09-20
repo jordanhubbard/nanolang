@@ -277,3 +277,36 @@ uses the checked wrapper. A same-spelling instance with a different declaration
 identity, or an overlong generated name, refuses before publishing a new row.
 Ordinary record renaming/import compatibility still needs the retained source
 and fixture acceptance; this correction does not rename an ABI to hide a collision.
+
+### My recursive annotation correction before evaluator work
+
+Independent review of `94bbeded8` found that nested TypeInfo leaves still reached
+ownerless equality: arrays, flattened tuples/rows and concrete generic arguments
+could compare identical unresolved spellings or distinct same-spelled module
+records. I record this as an accepted-flow blocker without executing a malformed
+program. I will replace both legacy fallback calls in the owner-aware signature
+checker with one bounded recursive annotation comparison. It will check every
+existing TypeInfo field and resolve every nominal leaf under its side's owner,
+including arrays, generic arguments, tuple/row fields and nested callable
+signatures. Missing nominal declaration evidence refuses even when both pointers
+or strings are identical. Scalar enum destination conversion remains unchanged.
+
+The recursive correction now uses no ownerless equality call from the checked
+signature path. It compares every TypeInfo child, negative/count mismatches,
+flattened tuple/row leaf type and name, row openness/variable/field labels,
+quantified-variable labels, opaque registry identity and nested callable
+signature. The same non-null node pointer is still traversed and resolved; cycles
+or excessive depth refuse at the existing bounded comparison limit. Parameter
+and return tags must agree with their complete annotations, and parallel legacy
+nominal names may not contradict those annotations.
+
+I normalize only the two existing List<T> encodings and named declaration aliases
+in temporary views. Explicit element subtrees remain fully compared. Concrete
+union argument counts must match the resolved declaration, and every argument is
+recursively checked in its original owner's context. An unresolved nominal or
+uninstantiated formal leaf refuses. Quantifier/row labels are structural metadata,
+not evidence that a concrete nominal declaration exists. Legacy flattened metadata
+that cannot represent a nested callable/array annotation does not become proof by
+matching another equally incomplete shape; completing such source transport
+remains required rather than silently admitting it. No enum ABI, opcode, evaluator
+storage or test expectation changes accompany this correction.

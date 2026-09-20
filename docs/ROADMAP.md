@@ -13558,3 +13558,7 @@ My proposed macOS CI selector step passes YAML/step-order and Bash syntax valida
       callable branch owner/signature agreement, overwritten indirect argument
       check and generated-list visibility/name-collision handling before evaluator
       work or qualification; preserve scalar enum destination compatibility.
+- [ ] Close the nested callable annotation blocker found in94bbed: compare every
+      TypeInfo child and flattened tuple/row nominal field with its own declaring
+      owner, rejecting unresolved leaves and preserving complete annotation facts
+      before evaluator implementation or qualification under the list task.

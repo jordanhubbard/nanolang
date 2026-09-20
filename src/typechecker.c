@@ -442,70 +442,217 @@ static NominalIdentity nominal_annotation(Environment *env, Type type, const Typ
     return env_nominal_identity(env, name, owner, type);
 }
 
+static bool checked_signature_equal(Environment *, const FunctionSignature *, const char *,
+                                     const FunctionSignature *, const char *, unsigned);
+
+static bool annotation_text_equal(const char *a, const char *b) {
+    return (!a && !b) || (a && b && !strcmp(a, b));
+}
+
+/* I canonicalize only a local view. Every named leaf must resolve, even when
+ * both callers supplied the same pointer or identical unresolved spelling. */
+static bool checked_annotation_kind(Environment *env, const TypeInfo *info,
+                                     const char *owner, Type *kind, const char **name) {
+    if (!info || info->base_type == TYPE_UNKNOWN) return false;
+    *kind = info->base_type;
+    *name = info->generic_name;
+    Type wanted = info->base_type;
+    if (wanted == TYPE_GENERIC) {
+        if (info->generic_name && !strcmp(info->generic_name, "List")) {
+            *kind = TYPE_LIST_GENERIC;
+            return true;
+        }
+        if (info->generic_name && !strcmp(info->generic_name, "HashMap")) {
+            *kind = TYPE_HASHMAP;
+            return true;
+        }
+    }
+    bool borrowed = wanted == TYPE_BORROW_SHARED || wanted == TYPE_BORROW_MUT;
+    if (wanted == TYPE_STRUCT || wanted == TYPE_ENUM || wanted == TYPE_UNION ||
+        wanted == TYPE_GENERIC || borrowed) {
+        Type kinds[] = {TYPE_STRUCT, TYPE_ENUM, TYPE_UNION};
+        for (size_t k = 0; k < sizeof kinds / sizeof kinds[0]; ++k) {
+            if (wanted == TYPE_ENUM && kinds[k] != TYPE_ENUM) continue;
+            if ((wanted == TYPE_UNION || wanted == TYPE_GENERIC) && kinds[k] != TYPE_UNION) continue;
+            if (borrowed && kinds[k] != TYPE_STRUCT) continue;
+            NominalIdentity id = env_nominal_identity(env, info->generic_name, owner, kinds[k]);
+            if (!id.ordinal) continue;
+            int arguments = kinds[k] == TYPE_UNION ? env->unions[id.ordinal - 1].generic_param_count : 0;
+            if (arguments < 0 || info->type_param_count != arguments) return false;
+            *kind = borrowed ? wanted : kinds[k];
+            *name = env_nominal_name(env, id);
+            return true;
+        }
+        if (wanted != TYPE_STRUCT) return false;
+        OpaqueTypeDef *opaque = info->generic_name ? env_get_opaque_type(env, info->generic_name) : NULL;
+        if (!opaque || info->type_param_count) return false;
+        *kind = TYPE_OPAQUE;
+        *name = opaque->name;
+        return true;
+    }
+    if (wanted == TYPE_OPAQUE) {
+        const char *spelling = info->opaque_type_name ? info->opaque_type_name : info->generic_name;
+        OpaqueTypeDef *opaque = spelling ? env_get_opaque_type(env, spelling) : NULL;
+        if (!opaque || info->type_param_count || (info->generic_name &&
+            env_get_opaque_type(env, info->generic_name) != opaque)) return false;
+        *name = opaque->name;
+    }
+    return wanted >= TYPE_INT && wanted <= TYPE_BORROW_MUT;
+}
+
+static bool checked_annotations_equal(Environment *env, const TypeInfo *a, const char *a_owner,
+                                       const TypeInfo *b, const char *b_owner, unsigned depth) {
+    if (!a || !b) return !a && !b;
+    if (depth > 128 || a->type_param_count < 0 || b->type_param_count < 0 ||
+        a->tuple_element_count < 0 || b->tuple_element_count < 0 ||
+        a->row_field_count < 0 || b->row_field_count < 0 ||
+        a->type_var_count < 0 || b->type_var_count < 0) return false;
+    Type ak, bk;
+    const char *an, *bn;
+    if (!checked_annotation_kind(env, a, a_owner, &ak, &an) ||
+        !checked_annotation_kind(env, b, b_owner, &bk, &bn) || ak != bk) return false;
+    TypeInfo av = *a, bv = *b;
+    av.base_type = bv.base_type = ak;
+    av.generic_name = (char *)an;
+    bv.generic_name = (char *)bn;
+    if (ak == TYPE_STRUCT || ak == TYPE_ENUM || ak == TYPE_UNION ||
+        ak == TYPE_BORROW_SHARED || ak == TYPE_BORROW_MUT) {
+        Type declaration = ak == TYPE_BORROW_SHARED || ak == TYPE_BORROW_MUT ? TYPE_STRUCT : ak;
+        if (!nominal_equal(env_nominal_identity(env, a->generic_name, a_owner, declaration),
+                           env_nominal_identity(env, b->generic_name, b_owner, declaration))) return false;
+    }
+    TypeInfo alist = {0}, blist = {0};
+    TypeInfo *aparam = NULL, *bparam = NULL;
+    if (ak == TYPE_LIST_GENERIC) {
+        /* Normalize the two existing List<T> encodings without discarding the
+         * complete element annotation in the explicit one-argument form. */
+        TypeInfo ai = *a, bi = *b;
+        ai.base_type = bi.base_type = TYPE_LIST_GENERIC;
+        const char *ae = list_annotation_spelling(&ai, NULL);
+        const char *be = list_annotation_spelling(&bi, NULL);
+        NominalIdentity aid = env_nominal_identity(env, ae, a_owner, TYPE_STRUCT);
+        NominalIdentity bid = env_nominal_identity(env, be, b_owner, TYPE_STRUCT);
+        if (!nominal_equal(aid, bid)) return false;
+        if (a->type_param_count == 1 && a->generic_name && strcmp(a->generic_name, "List") &&
+            !nominal_equal(aid, env_nominal_identity(env, a->generic_name, a_owner, TYPE_STRUCT))) return false;
+        if (b->type_param_count == 1 && b->generic_name && strcmp(b->generic_name, "List") &&
+            !nominal_equal(bid, env_nominal_identity(env, b->generic_name, b_owner, TYPE_STRUCT))) return false;
+        alist = a->type_param_count == 1 ? *a->type_params[0]
+            : (TypeInfo){.base_type = TYPE_STRUCT, .generic_name = (char *)ae};
+        blist = b->type_param_count == 1 ? *b->type_params[0]
+            : (TypeInfo){.base_type = TYPE_STRUCT, .generic_name = (char *)be};
+        aparam = &alist; bparam = &blist;
+        av.generic_name = bv.generic_name = "List";
+        av.type_param_count = bv.type_param_count = 1;
+        av.type_params = &aparam; bv.type_params = &bparam;
+    }
+    if (ak == TYPE_HASHMAP) {
+        if (av.type_param_count != 2 || bv.type_param_count != 2) return false;
+        if ((an && strcmp(an, "HashMap")) || (bn && strcmp(bn, "HashMap"))) return false;
+        av.generic_name = bv.generic_name = "HashMap";
+    }
+    if (ak == TYPE_OPAQUE) {
+        av.opaque_type_name = av.generic_name;
+        bv.opaque_type_name = bv.generic_name;
+    }
+    if (av.opaque_type_name || bv.opaque_type_name) {
+        OpaqueTypeDef *left = av.opaque_type_name ? env_get_opaque_type(env, av.opaque_type_name) : NULL;
+        OpaqueTypeDef *right = bv.opaque_type_name ? env_get_opaque_type(env, bv.opaque_type_name) : NULL;
+        if (!left || !right || left != right) return false;
+    }
+    if (av.type_param_count != bv.type_param_count ||
+        av.tuple_element_count != bv.tuple_element_count || av.row_field_count != bv.row_field_count ||
+        av.type_var_count != bv.type_var_count || av.is_open_row != bv.is_open_row ||
+        !annotation_text_equal(av.generic_name, bv.generic_name) ||
+        !annotation_text_equal(av.opaque_type_name, bv.opaque_type_name) ||
+        !annotation_text_equal(av.row_var_name, bv.row_var_name)) return false;
+    if (ak == TYPE_ARRAY && (!av.element_type || !bv.element_type)) return false;
+    if (!checked_annotations_equal(env, av.element_type, a_owner, bv.element_type, b_owner, depth + 1)) return false;
+    for (int i = 0; i < av.type_param_count; ++i)
+        if (!av.type_params || !bv.type_params || !av.type_params[i] || !bv.type_params[i] ||
+            !checked_annotations_equal(env, av.type_params[i], a_owner, bv.type_params[i], b_owner, depth + 1)) return false;
+    for (int i = 0; i < av.tuple_element_count; ++i) {
+        if (!av.tuple_types || !bv.tuple_types) return false;
+        TypeInfo left = {.base_type = av.tuple_types[i],
+            .generic_name = av.tuple_type_names ? av.tuple_type_names[i] : NULL};
+        TypeInfo right = {.base_type = bv.tuple_types[i],
+            .generic_name = bv.tuple_type_names ? bv.tuple_type_names[i] : NULL};
+        if (!checked_annotations_equal(env, &left, a_owner, &right, b_owner, depth + 1)) return false;
+    }
+    for (int i = 0; i < av.row_field_count; ++i) {
+        if (!av.row_field_types || !bv.row_field_types || !av.row_field_names || !bv.row_field_names ||
+            !av.row_field_names[i] || !bv.row_field_names[i] ||
+            !annotation_text_equal(av.row_field_names[i], bv.row_field_names[i])) return false;
+        TypeInfo left = {.base_type = av.row_field_types[i],
+            .generic_name = av.row_field_type_names ? av.row_field_type_names[i] : NULL};
+        TypeInfo right = {.base_type = bv.row_field_types[i],
+            .generic_name = bv.row_field_type_names ? bv.row_field_type_names[i] : NULL};
+        if (!checked_annotations_equal(env, &left, a_owner, &right, b_owner, depth + 1)) return false;
+    }
+    for (int i = 0; i < av.type_var_count; ++i)
+        if (!av.type_var_names || !bv.type_var_names || !av.type_var_names[i] || !bv.type_var_names[i] ||
+            !annotation_text_equal(av.type_var_names[i], bv.type_var_names[i])) return false;
+    if (ak == TYPE_FUNCTION && (!av.fn_sig || !bv.fn_sig)) return false;
+    return (!av.fn_sig && !bv.fn_sig) ||
+        checked_signature_equal(env, av.fn_sig, a_owner, bv.fn_sig, b_owner, depth + 1);
+}
+
+static bool checked_signature_annotation(Environment *env, Type declared, const char *name,
+                                          const TypeInfo *view, const char *owner) {
+    Type kind;
+    const char *resolved_name;
+    if (!checked_annotation_kind(env, view, owner, &kind, &resolved_name)) return false;
+    bool compatible = declared == kind ||
+        (declared == TYPE_STRUCT && (kind == TYPE_ENUM || kind == TYPE_UNION || kind == TYPE_OPAQUE)) ||
+        (declared == TYPE_GENERIC && (kind == TYPE_UNION || kind == TYPE_LIST_GENERIC || kind == TYPE_HASHMAP));
+    if (!compatible) return false;
+    if (!name) return true;
+    if (kind == TYPE_LIST_GENERIC) {
+        TypeInfo list = *view;
+        list.base_type = TYPE_LIST_GENERIC;
+        return nominal_annotation(env, TYPE_LIST_GENERIC, &list, name, owner).ordinal != 0;
+    }
+    if (kind == TYPE_STRUCT || kind == TYPE_ENUM || kind == TYPE_UNION ||
+        kind == TYPE_BORROW_SHARED || kind == TYPE_BORROW_MUT) {
+        Type declaration = kind == TYPE_BORROW_SHARED || kind == TYPE_BORROW_MUT ? TYPE_STRUCT : kind;
+        return nominal_equal(env_nominal_identity(env, name, owner, declaration),
+                             env_nominal_identity(env, view->generic_name, owner, declaration));
+    }
+    if (kind == TYPE_OPAQUE) {
+        OpaqueTypeDef *definition = env_get_opaque_type(env, resolved_name);
+        return definition && env_get_opaque_type(env, name) == definition;
+    }
+    return annotation_text_equal(name, resolved_name);
+}
+
 static bool checked_signature_equal(Environment *env, const FunctionSignature *a, const char *a_owner,
                                      const FunctionSignature *b, const char *b_owner, unsigned depth) {
-    if (!a || !b || depth > 128 || a->param_count != b->param_count || a->param_count < 0)
-        return false;
+    if (!a || !b || depth > 128 || a->param_count < 0 || a->param_count != b->param_count) return false;
     for (int i = 0; i <= a->param_count; ++i) {
         bool result = i == a->param_count;
         if (!result && (!a->param_types || !b->param_types)) return false;
         Type at = result ? a->return_type : a->param_types[i];
         Type bt = result ? b->return_type : b->param_types[i];
+        if (at != bt) return false;
         const char *an = result ? a->return_struct_name : a->param_struct_names ? a->param_struct_names[i] : NULL;
         const char *bn = result ? b->return_struct_name : b->param_struct_names ? b->param_struct_names[i] : NULL;
-        TypeInfo *ai = result ? a->return_type_info : a->param_type_info ? a->param_type_info[i] : NULL;
-        TypeInfo *bi = result ? b->return_type_info : b->param_type_info ? b->param_type_info[i] : NULL;
-        if (at != bt) return false;
-        if (at == TYPE_LIST_GENERIC) {
-            if (!nominal_equal(nominal_annotation(env, at, ai, an, a_owner),
-                               nominal_annotation(env, bt, bi, bn, b_owner))) return false;
-        } else if (at == TYPE_FUNCTION) {
-            const FunctionSignature *as = result ? a->return_fn_sig : ai ? ai->fn_sig : NULL;
-            const FunctionSignature *bs = result ? b->return_fn_sig : bi ? bi->fn_sig : NULL;
-            if (!checked_signature_equal(env, as, a_owner, bs, b_owner, depth + 1)) return false;
-        } else if (at == TYPE_STRUCT || at == TYPE_ENUM || at == TYPE_UNION) {
-            if (!an && ai) an = ai->generic_name;
-            if (!bn && bi) bn = bi->generic_name;
-            bool resolved = false;
-            const char *resolved_name = NULL;
-            Type resolved_kind = TYPE_STRUCT;
-            Type kinds[] = {TYPE_STRUCT, TYPE_ENUM, TYPE_UNION};
-            for (size_t k = 0; k < sizeof kinds / sizeof kinds[0]; ++k) {
-                if (at != TYPE_STRUCT && at != kinds[k]) continue;
-                NominalIdentity left = env_nominal_identity(env, an, a_owner, kinds[k]);
-                NominalIdentity right = env_nominal_identity(env, bn, b_owner, kinds[k]);
-                if (!left.ordinal && !right.ordinal) continue;
-                if (!nominal_equal(left, right)) return false;
-                resolved = true;
-                resolved_name = env_nominal_name(env, left);
-                resolved_kind = kinds[k];
-                break;
-            }
-            if (!resolved && at == TYPE_STRUCT && an && bn) {
-                /* Opaque C types have an explicitly global registry, not module
-                 * nominal records. Both names must resolve to the same entry. */
-                OpaqueTypeDef *left = env_get_opaque_type(env, an);
-                OpaqueTypeDef *right = env_get_opaque_type(env, bn);
-                resolved = left && right && left == right;
-                if (resolved) resolved_name = left->name;
-            }
-            if (!resolved) return false;
-            /* Concrete union arguments and other complete annotation facts
-             * still need their existing comparison after declaration identity. */
-            TypeInfo left_info = ai ? *ai : (TypeInfo){0};
-            TypeInfo right_info = bi ? *bi : (TypeInfo){0};
-            left_info.base_type = right_info.base_type = resolved_kind;
-            left_info.generic_name = right_info.generic_name = (char *)resolved_name;
-            if (!type_infos_equal(&left_info, &right_info)) return false;
-        } else {
-            /* Preserve the preexisting exact annotation comparison for all other types. */
-            char *an_view = (char *)an, *bn_view = (char *)bn;
-            FunctionSignature left = {.param_count = 1, .param_types = &at,
-                .param_struct_names = &an_view, .param_type_info = &ai, .return_type = TYPE_VOID};
-            FunctionSignature right = {.param_count = 1, .param_types = &bt,
-                .param_struct_names = &bn_view, .param_type_info = &bi, .return_type = TYPE_VOID};
-            if (!function_signatures_equal(&left, &right)) return false;
+        const TypeInfo *ai = result ? a->return_type_info : a->param_type_info ? a->param_type_info[i] : NULL;
+        const TypeInfo *bi = result ? b->return_type_info : b->param_type_info ? b->param_type_info[i] : NULL;
+        TypeInfo av = ai ? *ai : (TypeInfo){.base_type = at, .generic_name = (char *)an};
+        TypeInfo bv = bi ? *bi : (TypeInfo){.base_type = bt, .generic_name = (char *)bn};
+        if (!av.generic_name) av.generic_name = (char *)an;
+        if (!bv.generic_name) bv.generic_name = (char *)bn;
+        if (!checked_signature_annotation(env, at, an, &av, a_owner) ||
+            !checked_signature_annotation(env, bt, bn, &bv, b_owner)) return false;
+        if (result && at == TYPE_FUNCTION) {
+            if (av.fn_sig && a->return_fn_sig &&
+                !checked_signature_equal(env, av.fn_sig, a_owner, a->return_fn_sig, a_owner, depth + 1)) return false;
+            if (bv.fn_sig && b->return_fn_sig &&
+                !checked_signature_equal(env, bv.fn_sig, b_owner, b->return_fn_sig, b_owner, depth + 1)) return false;
+            if (!av.fn_sig) av.fn_sig = a->return_fn_sig;
+            if (!bv.fn_sig) bv.fn_sig = b->return_fn_sig;
         }
+        if (!checked_annotations_equal(env, &av, a_owner, &bv, b_owner, depth + 1)) return false;
     }
     return true;
 }
