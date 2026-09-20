@@ -55,8 +55,8 @@ static void init(Input *c,uint8_t element,bool interleaved){
 static void authority(Input *c){
     c->l=c->o=0;unsigned count=2+c->interleaved;b32(c->layouts,&c->l,count);
     for(unsigned i=0;i<count;i++){
-        bool un=c->interleaved&&i==0;b8(c->layouts,&c->l,un?NVM_V2_LAYOUT_UNION:NVM_V2_LAYOUT_STRUCT);b8(c->layouts,&c->l,0);b16(c->layouts,&c->l,1);b32(c->layouts,&c->l,NO);
-        b8(c->layouts,&c->l,un?TAG_INT:TAG_ARRAY);b8(c->layouts,&c->l,0);b16(c->layouts,&c->l,0);b32(c->layouts,&c->l,NO);b32(c->layouts,&c->l,NO);
+        bool un=c->interleaved&&i==0;b8(c->layouts,&c->l,un?NVM_V2_LAYOUT_UNION:NVM_V2_LAYOUT_STRUCT);b8(c->layouts,&c->l,0);b16(c->layouts,&c->l,1);b32(c->layouts,&c->l,un?0:NO);
+        b8(c->layouts,&c->l,un?TAG_INT:TAG_ARRAY);b8(c->layouts,&c->l,0);b16(c->layouts,&c->l,0);b32(c->layouts,&c->l,NO);b32(c->layouts,&c->l,un?1:NO);
     }
     b32(c->ownership,&c->o,3);b32(c->ownership,&c->o,count);
     for(unsigned i=0;i<count;i++)b8(c->ownership,&c->o,c->interleaved&&i==0?0:NVM_LAYOUT_COMPLETE);

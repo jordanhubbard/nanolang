@@ -408,3 +408,14 @@ Every fixture change is reviewable before compilation. Planned qualification is
 seven selected Linux/Darwin compiler/sanitizer configurations plus unchanged
 ownership, union and array neighbors; public/runtime/source admission is not
 part of this checkpoint.
+
+### My first fixture terminal and exact correction
+
+At5504545ba both fresh setups and one-test discovery pass. The first linked
+positive query returns INVALID because my fixture writes NO_INDEX at LAYOUTS
+offsets8 and20, the unused union name and its scalar field name. The unchanged
+`union_facts_read` requires both names even without union execution. Under
+task_88f58fa7a28a4c16aa60149688cb49bb I replace exactly those operands with
+existing string indices0 and1. Layout sizes, variant facts, authority checks and
+all assertions remain unchanged. I retain both first terminals and use fresh
+corrected source/report trees; no original failed binary is replayed.
