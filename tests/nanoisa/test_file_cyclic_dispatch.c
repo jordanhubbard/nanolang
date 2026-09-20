@@ -1,13 +1,13 @@
 /* One exact serialized corpus drives actual private VM capture and separately
  * compiled native replay. I do not execute a pending public File module. */
-#define main retained_cyclic_carrier_main
+#define FILE_CYCLIC_RUNTIME_MAIN retained_cyclic_carrier_main
 #define file_runtime_tmpfile dispatch_base_tmpfile
 #define file_runtime_fclose dispatch_base_fclose
 #define file_runtime_fread dispatch_base_fread
 #define file_runtime_fwrite dispatch_base_fwrite
 #define file_runtime_fseek dispatch_base_fseek
 #include "test_file_cyclic_runtime.c"
-#undef main
+#undef FILE_CYCLIC_RUNTIME_MAIN
 #undef file_runtime_tmpfile
 #undef file_runtime_fclose
 #undef file_runtime_fread

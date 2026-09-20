@@ -275,7 +275,10 @@ static void allocation_failures(void){
 }
 #endif
 #define CYCLIC_CASE(name) do { printf("I begin cyclic carrier case %s\n",#name);name(); } while(0)
-int main(void){
+#ifndef FILE_CYCLIC_RUNTIME_MAIN
+#define FILE_CYCLIC_RUNTIME_MAIN main
+#endif
+int FILE_CYCLIC_RUNTIME_MAIN(void){
  CHECK(setvbuf(stdout,NULL,_IONBF,0)==0);
  printf("I begin retained acyclic carrier/frame corpus\n");CHECK(prior_file_frames_main()==0);unsigned before=checks;
  CYCLIC_CASE(invalid_options);CYCLIC_CASE(reverse_kind_guard);CYCLIC_CASE(fuel_and_lifecycle);
