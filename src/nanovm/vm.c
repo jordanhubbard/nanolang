@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
 #include <unistd.h>
@@ -30,18 +31,24 @@
 static void shadow_progress(const NvmModule *module, uint32_t function,
                             const char *event) {
     static unsigned rows;
+    static struct timespec first;
     const NvmFunctionEntry *entry = &module->functions[function];
     const char *name = nvm_get_string(module, entry->name_idx);
-    if (!name || strncmp(name, "$shadow_", 8) != 0) return;
-    if (rows == 8192 ||
-        fprintf(stderr, "[shadow-progress] %s fn=%u pc=%u name=%.64s\n",
-                event, function, entry->code_offset, name) < 0 ||
+    if (!name || (strncmp(name, "$shadow_", 8) != 0 &&
+                  strcmp(name, "parse_owned_pattern") != 0)) return;
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) _exit(92);
+    if (!rows) first = now;
+    double elapsed_ms = ((double)now.tv_sec - (double)first.tv_sec) * 1000.0
+        + ((double)now.tv_nsec - (double)first.tv_nsec) / 1000000.0;
+    if (rows == 8192 || elapsed_ms < 0 ||
+        fprintf(stderr, "[shadow-progress] elapsed_ms=%.3f %s fn=%u pc=%u name=%.64s\n",
+                elapsed_ms, event, function, entry->code_offset, name) < 0 ||
         fflush(stderr) != 0) _exit(92);
     ++rows;
 }
 #endif
 #include <stdarg.h>
-#include <time.h>
 
 #ifdef NANO_VM_TRACE_COMPILED
 #define NANO_VM_TRACE_BUILD 1

@@ -1,0 +1,30 @@
+# I isolate the original two-input shadow; I do not qualify the full shadow graph.
+import "src_nano/parser.nano"
+
+fn main() -> int { return 0 }
+
+shadow main {
+    let tokens: List<LexerToken> = (tokenize_string "let Box { item } = box" "pattern.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parser_new tokens (list_LexerToken_length tokens) "pattern.nano")
+    let statements: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    (println "[owned-pattern-probe] before first call")
+    let parsed: Parser = (parse_owned_pattern p statements)
+    (println "[owned-pattern-probe] after first call")
+    assert (not (parser_has_error parsed))
+    assert (== (list_ASTStmtRef_length statements) 2)
+    let projected: ASTLet = (parser_get_let parsed 1)
+    assert projected.is_destructure_projection
+    let qualified_tokens: List<LexerToken> = (tokenize_string "let Choice.Some { item } = payload" "pattern.nano" (list_CompilerDiagnostic_new))
+    let qualified: Parser = (parser_new qualified_tokens (list_LexerToken_length qualified_tokens) "pattern.nano")
+    assert (parser_starts_owned_pattern qualified)
+    let qualified_statements: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    (println "[owned-pattern-probe] before qualified call")
+    let result: Parser = (parse_owned_pattern qualified qualified_statements)
+    (println "[owned-pattern-probe] after qualified call")
+    assert (not (parser_has_error result))
+    let owner: ASTLet = (parser_get_let result 0)
+    assert (== owner.var_type "Choice.Some")
+    assert owner.is_destructure
+    assert (== (list_ASTStmtRef_length qualified_statements) 2)
+    assert (== (main) 0)
+}
