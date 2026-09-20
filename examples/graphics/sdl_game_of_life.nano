@@ -10,10 +10,10 @@ unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "stdlib/timing.nano" as Timing
 
 extern fn rand() -> int
 extern fn srand(seed: int) -> void
-extern fn time(t: int) -> int
 
 let WINDOW_WIDTH: int = 960
 let WINDOW_HEIGHT: int = 720
@@ -190,7 +190,7 @@ fn main() -> int {
     let renderer: SDL_Renderer = (SDL_CreateRenderer window -1 SDL_RENDERER_ACCELERATED)
     let font: TTF_Font = (nl_open_font_portable "Arial" 14)
 
-    let t: int = (time 0)
+    let t: int = (/ (Timing.get_microseconds) 1000000)
     (srand t) 
 
     let mut grid: array<int> = []

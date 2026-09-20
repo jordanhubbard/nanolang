@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-game-of-life-timing/bin/nanoc_c",
+    "examples/graphics/sdl_game_of_life.nano",
+    "-o",
+    "/tmp/nanolang-game-life-linux/game-of-life",
+    "--keep-c"
+  ],
+  "limit": 20,
+  "timeout": false,
+  "returncode": 0,
+  "seconds": 3.5217714969767258,
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
