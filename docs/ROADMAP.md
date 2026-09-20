@@ -13926,12 +13926,20 @@ proofs, their frame cap or a public verified bit. Full f36b/15f/488 remain open.
   full mixed graph requirements from the original conjunction contract.
 
 Before private mixed VM code I record concrete handler obligations found during
-source inventory. Ordinary STRUCT_NEW allocates zero fields, and ordinary
-STRUCT_LITERAL/AGG_PACK store compact identities; the new route must instantiate
-complete descriptor fields and map to global layout identities without altering
-old routes. Existing retain increments are unchecked: private DUP/load/get and
+source inventory. My origin query already restricts STRUCT_NEW to a zero-field
+descriptor because its implicit constructed count is zero; I preserve that
+boundary, rather than invent nonzero-field NEW admission. Ordinary constructors
+store compact identities; the new route must map NEW/LITERAL/AGG_PACK to global
+layout identities and preserve exact counted fields without altering old routes. Existing retain increments are unchecked: private DUP/load/get and
 boxed push/slice need overflow-safe publication and partial-copy rollback.
 The cycle collector may grow its suspect buffer or collect during release;
 private transaction boundaries require a reviewed safe-point policy and measured
 cleanup under allocation failure. These are new-route implementation prerequisites,
 not claims of an executed public failure. I retain the complete93-opcode domain.
+
+Before private mixed heap implementation I refine the reviewed collector policy:
+my copied nominal declaration DAG and every runtime record/flat-array edge check
+permit an instance-local acyclic policy for this exact query. I use a charged,
+fixed258-entry iterative release stack, with no suspect-buffer allocations or
+host recursion. Old/public heaps retain their collector; nested/cyclic fullgraph
+collector acceptance remains required, not inferred from this bounded route.

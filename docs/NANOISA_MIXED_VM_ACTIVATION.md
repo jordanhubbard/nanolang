@@ -192,3 +192,26 @@ matching explicit frame/root semantics and full differential controls. I do not
 open public admission after VM-only success, narrow the query to easy opcodes,
 or close full mixed/source parents. Whole matched consumer qualification and
 installed runtime/archive correspondence remain prerequisites for public routing.
+
+## My private acyclic heap policy
+
+For this exact first query I validate the nominal record declaration DAG again
+from the copied descriptor edges before enabling my instance-local heap policy.
+I do not infer acyclicity from the origin summary. Every constructed or updated
+record edge must match its exact declared child layout; every array edge must
+have a flat scalar/string tag. Copy and string-split paths preserve those checks.
+A heap path therefore contains at most256 distinct record layouts, followed by
+at most one leaf array and one string. Interleaved union declarations do not add
+executable heap nodes in this profile.
+
+I disable suspect buffering only for this private instance. I release its graph
+with an explicit258-entry traversal stack, retaining each parent until its child
+edges have been discharged. The stack is part of the instance's heap storage;
+release allocates nothing and does not recurse through the host C stack. This
+also avoids collection during a partially completed opcode transaction. Ordinary
+heaps retain their existing collector behavior. Nested/cyclic full graphs still
+require the separate collector and safe-point implementation in my parent scope.
+
+My eligible STRUCT_NEW remains zero-field only: the existing query compares its
+implicit constructed count0 with the exact declaration field count. I map that
+constructor's compact identity without expanding its admitted field count.
