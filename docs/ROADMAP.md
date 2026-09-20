@@ -13677,3 +13677,8 @@ consumers agree. I preserve full applicable mixed graph/source requirements.
 - [ ] I implement paired declaration-based source publication/lowering, fresh
   bootstrap and full original programs/shadows; then complete executed unions,
   nested/recursive nominal collections and all remaining full parent obligations.
+
+Before generated-plan source work I correct my proposed dynamic frame cap to
+the existing VM_MAX_FRAMES1024 contract after root review. The256 preparation
+function-count bound is distinct. My generated consumers require explicit
+bounded frame storage, not unproved host recursion or a narrower256-frame route.
