@@ -2553,11 +2553,15 @@ fn parse_match(p: Parser) -> Parser {
                                 if (parser_has_error p1b) { return p1b } else {
                                     if (parser_is_at_end p1b) { return (parser_with_error p1b true) } else {
                                         let tbind: LexerToken = (parser_current p1b)
-                                        if (!= tbind.token_type (token_identifier)) {
+                                        if (and (!= tbind.token_type (token_identifier)) (!= tbind.token_type (token_rparen))) {
                                             return (parser_with_error p1b true)
                                         } else {
-                                            let binding_name: string = tbind.value
-                                            let p1c: Parser = (parser_advance p1b)
+                                            let mut binding_name: string = ""
+                                            let mut p1c: Parser = p1b
+                                            if (== tbind.token_type (token_identifier)) {
+                                                set binding_name tbind.value
+                                                set p1c (parser_advance p1b)
+                                            }
                                             let p1d: Parser = (parser_expect p1c (token_rparen))
                                             if (parser_has_error p1d) { return p1d } else {
                                                 let pguard: Parser = (parse_match_guard p1d)

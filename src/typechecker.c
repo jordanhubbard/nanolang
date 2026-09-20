@@ -1336,10 +1336,25 @@ static MatchDomain check_match_domain(ASTNode *matched, Environment *env,
     } else if (match_type == TYPE_INT) {
         return MATCH_DOMAIN_INT;
     } else if (match_type == TYPE_UNION) {
-        if (union_base_name && env_get_union(env, union_base_name))
-            return MATCH_DOMAIN_UNION;
-        message = "I require an exact known union identity before I check match coverage.";
-        hint = "Give the scrutinee a declared union type that I can resolve here.";
+        UnionDef *definition = union_base_name ? env_get_union(env, union_base_name) : NULL;
+        if (definition) {
+            bool empty_valid = true;
+            for (int arm = 0; arm < matched->as.match_expr.arm_count; ++arm) {
+                const char *binding = matched->as.match_expr.pattern_bindings[arm];
+                if (!binding || *binding) continue;
+                bool zero = false;
+                for (int variant = 0; variant < definition->variant_count; ++variant)
+                    if (!strcmp(matched->as.match_expr.pattern_variants[arm], definition->variant_names[variant]))
+                        zero = definition->variant_field_counts[variant] == 0;
+                if (!zero) { empty_valid = false; break; }
+            }
+            if (empty_valid) return MATCH_DOMAIN_UNION;
+            message = "I require an exact zero-field variant for an empty match binding.";
+            hint = "Bind this payload by name, or explicitly discard it with underscore where permitted.";
+        } else {
+            message = "I require an exact known union identity before I check match coverage.";
+            hint = "Give the scrutinee a declared union type that I can resolve here.";
+        }
     } else {
         message = "I require a match to inspect an int or a known union.";
         hint = "Give the scrutinee an exact supported type before matching it.";
@@ -4353,7 +4368,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 const char *variant_name_i = expr->as.match_expr.pattern_variants[i];
 
                 /* Wildcard arm: _ => { body }  — no binding to add; also skip or-patterns */
-                if (strcmp(expr->as.match_expr.pattern_bindings[i], "_") != 0 &&
+                if (expr->as.match_expr.pattern_bindings[i][0] &&
+                    strcmp(expr->as.match_expr.pattern_bindings[i], "_") != 0 &&
                     strcmp(variant_name_i, "_") != 0 &&
                     strncmp(variant_name_i, "INT:", 4) != 0 &&
                     strncmp(variant_name_i, "OR:", 3) != 0) {
@@ -5790,7 +5806,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
                 /* Only add binding for non-wildcard, non-int-pattern, non-or-pattern arms */
-                if (strcmp(stmt->as.match_expr.pattern_bindings[i], "_") != 0 &&
+                if (stmt->as.match_expr.pattern_bindings[i][0] &&
+                    strcmp(stmt->as.match_expr.pattern_bindings[i], "_") != 0 &&
                     strcmp(variant_name_s, "_") != 0 &&
                     strncmp(variant_name_s, "INT:", 4) != 0 &&
                     strncmp(variant_name_s, "OR:", 3) != 0) {

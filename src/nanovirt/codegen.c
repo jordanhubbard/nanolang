@@ -2955,6 +2955,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
         for (int i = 0; i < arm_count; i++) {
             const char *variant = node->as.match_expr.pattern_variants[i];
             const char *binding = node->as.match_expr.pattern_bindings[i];
+            if (binding && !*binding) {
+                int16_t selected = ud ? union_variant_index(ud, variant) : -1;
+                if (selected < 0 || ud->variant_field_counts[selected] != 0) {
+                    cg_error(cg, node->line, "I require an exact zero-field variant for an empty match binding");
+                    break;
+                }
+            }
 
             uint32_t jf_instr, jf_off;
 

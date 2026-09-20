@@ -5356,8 +5356,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (match_val.type == VAL_UNION && strcmp(pattern_variant, "_") != 0) {
                     UnionValue *union_value = match_val.as.union_val;
                     const char *binding = expr->as.match_expr.pattern_bindings[i];
-                    /* I discard underscore payloads without hiding an outer name. */
-                    if (binding && strcmp(binding, "_") != 0) {
+                    if (binding && !*binding && union_value->field_count != 0)
+                        return eval_match_invariant_failure("I require a zero-field variant for an empty match binding");
+                    /* I create no local for () or underscore discard. */
+                    if (binding && *binding && strcmp(binding, "_") != 0) {
                         Value binding_value;
                         if (union_value->field_count > 0) {
                             char **field_names = malloc(sizeof(char *) * (size_t)union_value->field_count);

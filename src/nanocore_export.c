@@ -453,6 +453,10 @@ static bool emit_expr(SBuf *b, ASTNode *node, Environment *env) {
 
         /* ── Match expression: EMatch ── */
         case AST_MATCH:
+            /* My core match representation requires a payload binder. */
+            for (int i = 0; i < node->as.match_expr.arm_count; i++)
+                if (node->as.match_expr.pattern_bindings[i] &&
+                    !node->as.match_expr.pattern_bindings[i][0]) return false;
             for (int i = 0; i < node->as.match_expr.arm_count; i++)
                 if (node->as.match_expr.guard_exprs &&
                     node->as.match_expr.guard_exprs[i])

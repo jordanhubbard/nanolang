@@ -4122,10 +4122,14 @@ shadow check_union_construct {
 fn check_match_coverage(parser: Parser, matched: ASTMatch, actual: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> void {
     let is_int: bool = (== actual.kind TypeKind.TYPE_INT)
     let mut variants: array<string> = []
+    let mut field_counts: array<int> = []
     let mut ui: int = 0
     while (< ui (parser_get_union_count parser)) {
         let definition: ASTUnion = (parser_get_union parser ui)
-        if (== definition.name (base_type_name actual.name)) { set variants definition.variant_names }
+        if (== definition.name (base_type_name actual.name)) {
+            set variants definition.variant_names
+            set field_counts definition.variant_field_counts
+        }
         set ui (+ ui 1)
     }
     let mut covered: array<string> = []
@@ -4140,6 +4144,17 @@ fn check_match_coverage(parser: Parser, matched: ASTMatch, actual: NSType, diags
             let valid: bool = (cond (is_int (tc_str_starts_with pattern "INT:")) (else (resource_name_in variants pattern)))
             if (not valid) {
                 (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a pattern from the exact match domain" (Diagnostics.diag_location file_name matched.line matched.column)))
+            }
+        }
+        if (== (at matched.arm_bindings i) "") {
+            let mut zero: bool = false
+            let mut vi: int = 0
+            while (< vi (array_length variants)) {
+                if (== (at variants vi) pattern) { set zero (== (at field_counts vi) 0) }
+                set vi (+ vi 1)
+            }
+            if (not zero) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require an exact zero-field variant for an empty match binding" (Diagnostics.diag_location file_name matched.line matched.column)))
             }
         }
         if (parser_match_arm_unconditional parser matched i) {

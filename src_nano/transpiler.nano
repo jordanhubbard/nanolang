@@ -7340,6 +7340,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
         set ui (+ ui 1)
     }
 
+    if (and (== binding "") (not found)) {
+        if (== reduce_emission_error "") { set reduce_emission_error "I require an exact zero-field variant for an empty match binding." }
+        return ""
+    }
     if (not found) {
         /* Fallback: old struct behaviour */
         let mut parts: array<string> = []
@@ -7374,6 +7378,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
         set vi (+ vi 1)
     }
 
+    if (and (== binding "") (== variant_idx -1)) {
+        if (== reduce_emission_error "") { set reduce_emission_error "I require an exact zero-field variant for an empty match binding." }
+        return ""
+    }
     if (== variant_idx -1) {
         /* Variant not found — fallback */
         let mut parts: array<string> = []
@@ -7391,6 +7399,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
     } else { (print "") }
 
     let fcount: int = (at found_u.variant_field_counts variant_idx)
+    if (and (== binding "") (!= fcount 0)) {
+        if (== reduce_emission_error "") { set reduce_emission_error "I require an exact zero-field variant for an empty match binding." }
+        return ""
+    }
 
     if (== fcount 0) {
         /* Unit variant — no binding */

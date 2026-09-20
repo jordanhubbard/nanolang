@@ -4582,15 +4582,21 @@ static ASTNode *parse_match_expr(Stage1Parser *p) {
                 break;
             }
 
-            /* Parse binding variable */
-            if (!match(p, TOKEN_IDENTIFIER)) {
+            /* I retain () as an empty binding, distinct from (_) discard. */
+            if (!match(p, TOKEN_IDENTIFIER) && !match(p, TOKEN_RPAREN)) {
                 parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Expected binding variable in match pattern\n",
                         current_token(p)->line, current_token(p)->column);
                 free(pattern_variants[count]);
                 break;
             }
-            pattern_bindings[count] = strdup(current_token(p)->value);
-            advance(p);
+            pattern_bindings[count] = strdup(match(p, TOKEN_RPAREN) ? "" : current_token(p)->value);
+            if (!pattern_bindings[count]) {
+                parser_error(p, current_token(p)->line, current_token(p)->column,
+                             "I cannot retain this match binding.\n");
+                free(pattern_variants[count]);
+                break;
+            }
+            if (!match(p, TOKEN_RPAREN)) advance(p);
 
             /* Expect closing paren */
             if (!expect(p, TOKEN_RPAREN, "Expected ')' after binding variable")) {

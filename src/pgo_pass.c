@@ -364,7 +364,7 @@ static void substitute_params_scoped(ASTNode *node, char **params, int pcount,
                     ? node->as.match_expr.pattern_bindings[i] : NULL;
                 SubstitutionScope arm_scope = { binding, scope };
                 const SubstitutionScope *arm_scope_ptr =
-                    binding && strcmp(binding, "_") != 0 ? &arm_scope : scope;
+                    binding && *binding && strcmp(binding, "_") != 0 ? &arm_scope : scope;
                 if (node->as.match_expr.guard_exprs)
                     substitute_params_scoped(node->as.match_expr.guard_exprs[i],
                                              params, pcount, args,

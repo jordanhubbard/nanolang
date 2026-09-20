@@ -1303,6 +1303,7 @@ fn nisa_match_coverage(parser: Parser, matched: ASTMatch, definition: ASTUnion) 
     while (< i matched.arm_count) {
         let variant: int = (nisa_union_variant definition (at matched.arm_variants i))
         if (< variant 0) { return false }
+        if (and (== (at matched.arm_bindings i) "") (!= (at definition.variant_field_counts variant) 0)) { return false }
         if (parser_match_arm_unconditional parser matched i) { (array_set covered variant true) }
         set i (+ i 1)
     }

@@ -1299,7 +1299,7 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
                 HMEnv *arm_env = env;
                 const char *binding = node->as.match_expr.pattern_bindings
                     ? node->as.match_expr.pattern_bindings[i] : NULL;
-                if (binding && strcmp(binding, "_") != 0) {
+                if (binding && *binding && strcmp(binding, "_") != 0) {
                     /* I do not have exact variant payload facts in this pass.
                      * I keep the arm binding opaque instead of guessing that
                      * a direct payload expression can satisfy a bool guard. */

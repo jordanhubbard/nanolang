@@ -376,3 +376,48 @@ public File runtime ABI or pretend this is standalone relocatable source support
 The existing C/Nano driver resolves ordinary runtime sources from its selected
 project root. Full outside-tree source support/install acceptance remains the
 later parent gate; this checkpoint proves fresh in-tree ABI closure only.
+
+### My measured zero-binding match prerequisite
+
+Both fresh8baca bootstraps pass. My3936 fixture first compiles and exercises
+counted grammar, service allocation prefixes, clone lifetime and hoist cleanup,
+then aborts while parsing the unchanged complete publisher binding: CloseResult
+uses `Ok()`, but both real match parsers required an identifier. I retain both
+Linux/puck terminals and all five generated shadows. I do not repair a parser
+acceptance gap by changing or reducing my qualified publisher output.
+
+My existing ordinary union representation already has exact per-variant field
+counts; `None {}` denotes zero fields. I now retain `None()` as an owned empty
+binding string in C and the corresponding empty string in Nano's arm table.
+I leave `None(n)` accepted as before. `Some(_)` retains its existing explicit
+discard and ownership rules. Empty binding is not a wildcard or implicit payload
+discard: the paired typecheckers require a known selected variant with exactly
+zero fields. Named unknown variants and nonzero payload omissions are refused.
+This adds no schema field, token kind, catalog identity or service authority.
+
+| Consumer | My retained/checking behavior |
+| --- | --- |
+| C/Nano real parsers | I accept only identifier or immediate closing parenthesis, retain the empty/named distinction, then require the closing delimiter/arrow/body as before. |
+| C match-domain checker, both expression/statement paths | I resolve the actual union and require an exact zero-field selected variant before accepting an empty binder; I create no empty environment symbol. |
+| Nano match coverage/checking | I retain matching field counts beside exact variant names, diagnose empty/nonzero or unknown selection, and retain existing no-empty-symbol handling. |
+| C evaluator | I require actual selected union field_count zero for an empty binder, and create no local. |
+| C native and direct C/NanoISA emitters | I check exact selected declaration/count before emitting an empty binding; the native helper covers all four expression/statement branch forms. Existing refusal mechanisms remain in place. |
+| Nano native emitter and NanoISA coverage | I refuse unknown/nonzero empty selection through the existing emitter error/coverage path. NanoISA's internal empty-name slot remains its existing inaccessible local sentinel. |
+| Ownership, purity, HM scope and PGO/TCO | I introduce no empty source name. Ownership still refuses discarded resource payloads. HM remains an opaque auxiliary inference pass, not exact union admission; purity already skips empty names. |
+| NanoCore export | I refuse empty binding because my current formal match export requires a binder; I do not claim a new formal correspondence. |
+| Free/retention | The ordinary match table already owns/frees each binding string; the new C empty strdup is checked and uses the same cleanup path. Nano parser copies preserve the existing match table. |
+
+The bounded change introduces no new allocation product beyond the existing
+one binding string per named arm (now one byte for empty). Earlier unchecked
+ordinary match table/create_node allocation paths remain within my already
+recorded whole-parser OOM prerequisite; I do not extend the service-specific
+allocation acceptance claim to all expressions. The copied ASTServiceDecl and
+public unresolved-service refusals remain unchanged.
+
+Before qualification I require ordinary, service-free zero-field acceptance,
+nonzero omission refusal, named zero-field compatibility, explicit discard
+compatibility and unknown-variant refusal in both frontends. I will inspect the
+retained binding distinction and direct backend/core refusal boundaries, then
+rerun the complete publisher corpus and all existing allocation assertions.
+This semantic correction needs complete production review before fixture edits
+and fresh ABI/compiler qualification; no old failed binary is replayed.
