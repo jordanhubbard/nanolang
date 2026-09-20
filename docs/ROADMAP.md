@@ -13545,3 +13545,7 @@ My proposed macOS CI selector step passes YAML/step-order and Bash syntax valida
       evaluator and target C-enum representations without inventing a new ABI or
       weakening conversion policy; then complete full enum-list parity required
       by 5.1. Raw tag-9 transport and record-list acceptance do not close this gap.
+- [ ] Close the accepted generic-record list iteration evaluator gap and align
+      both evaluator function-return paths with reviewed record snapshot lifetime;
+      preserve exact loop-element provenance and measured C/NanoISA iteration
+      semantics under the same list task before full list parity acceptance.

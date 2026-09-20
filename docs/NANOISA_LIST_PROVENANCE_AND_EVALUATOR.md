@@ -100,9 +100,13 @@ its List_int storage and resolved element identity. The existing integer handle
 is an evaluator implementation detail, not a source INT conversion. Before any
 operation I find the entry by handle, check live state and exact identity, then
 check arity, argument kinds and bounds. I do not dereference an arbitrary integer
-as a record-list header. The List_int backing shape remains usable by the existing
-iteration path, which must also check registry membership for a generic record
-receiver. Aliases share one entry. Explicit free releases elements and vector
+as a record-list header. The List_int backing shape does not establish iteration parity: my checker
+already accepts TYPE_LIST_GENERIC iteration, but my evaluator has only explicit
+INT/STRING list branches. I must add the typed record iteration consumer, recover
+its receiver identity before installing the loop symbol, and copy each element
+through the result snapshot path. I preserve existing loop mutation semantics
+only after comparing C and NanoISA lowering; I do not assume fixed-length versus
+live-length iteration. Loop symbols must retain exact element provenance. Aliases share one entry. Explicit free releases elements and vector
 storage but retains a closed handle identity until environment teardown, avoiding
 accidental identity reuse. This does not promise safe use after free in compiled C.
 
@@ -162,3 +166,22 @@ cleanup, and environment teardown. Accepted record programs must agree across
 evaluator/C-seed/Stage1/Stage2/NanoVM/native routes; unsupported target profiles
 must continue explicit refusal. Enum-list parity and I64 enum destination behavior
 remain required subsequent checkpoints, not inferred from LexerToken acceptance.
+
+### My first consumer-audit findings
+
+I verified that ordinary field access already copies a string field with
+`create_string`; returning an arena-backed record therefore does not lend its
+owned string directly to a releasing local. Record binding and reassignment use
+`create_struct` copies, including nested records. I must not register those
+symbol-owned copies in the proposed result arena. `repl_eval_node` delegates to
+`eval_statement`; the REPL displays a result while its persistent Environment is
+live. Those facts support, but do not complete, the lifetime audit.
+
+My two function call implementations differ: `eval_call_impl` copies returned
+records (currently only direct string fields), whereas `call_function_at` copies
+only returned strings. Before claiming nested-record list result parity I must
+route both through the reviewed record snapshot ownership boundary, including
+normal returns, enclosing-handler returns and parameter truncation. The existing
+record cleanup paths are not a blanket leak-free interpreter claim. I also found
+the accepted generic-list iteration gap above; it stays in this task and cannot
+be hidden by an insert-only fixture. No old faulty path was executed.
