@@ -12636,3 +12636,5 @@ separate120-report seal keeps original46912 sanitizer results distinct; current
 ready integration through462c98 changes no production. Dependency1 awaits
 review/actual merge, while cyclic carrier/fuel/VM/native/public and source
 requirements remain open.
+
+- [ ] I correct the native read-text qualification driver's executable-helper discovery under b7ef: my first15069 Linux attempt stops before build when file-name queries return cc1/collect2 basenames. I retain the exact driver/terminal in [preflight evidence](evidence/portable-read-adapter-preflight/preflight-terminal.json), use supported program-name queries for executables only, and require a fresh source-identical matrix after review. No product failure or adapter acceptance is inferred.

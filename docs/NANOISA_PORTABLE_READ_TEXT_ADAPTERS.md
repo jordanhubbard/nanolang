@@ -281,3 +281,12 @@ observed opens. An observed fopen hook attempts active-context destruction,
 requires INVALID, then forwards to the real fopen and verifies ordinary close.
 This checks the private active guard without exposing production internals.
 Every prior assertion and production file remains unchanged; no gate has run.
+
+My first15069 Linux external preflight stopped before any fixture or build:
+`-print-file-name=cc1` returned an unresolved basename and the selected-file
+assertion failed. The original assertion did not print its loop variable;
+subsequent diagnostic queries showed both cc1 and collect2 unresolved. I retain
+the original driver and first terminal. The two-line driver correction queries
+these executable helpers with `-print-prog-name`; actual ASan/UBSan libraries
+continue to use `-print-file-name`. Source15069 and all fixtures are unchanged.
+No qualification pass is inferred from corrected source review.
