@@ -1,0 +1,19 @@
+{
+  "openssl_prefix": "/opt/homebrew/opt/openssl@3",
+  "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+  "libffi_flags": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi -lffi",
+  "files": {
+    "/opt/homebrew/opt/openssl@3/include/openssl/sha.h": {
+      "resolved": "/opt/homebrew/Cellar/openssl@3/3.6.4/include/openssl/sha.h",
+      "sha256": "7e006accd6565cc97dee672c097acc5e38482be7cd4fa1e0c316bf466425b895"
+    },
+    "/opt/homebrew/opt/openssl@3/lib/libcrypto.dylib": {
+      "resolved": "/opt/homebrew/Cellar/openssl@3/3.6.4/lib/libcrypto.3.dylib",
+      "sha256": "bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c"
+    },
+    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi/ffi.h": {
+      "resolved": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi/ffi.h",
+      "sha256": "cfc632aa9411334f99e14681008b2db105bc52b834f31b4d714d4326deac3a85"
+    }
+  }
+}

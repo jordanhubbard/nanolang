@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "CC=/usr/bin/clang",
+    "nano_virt",
+    "nano_vm",
+    "obj/test_affine_c_frontend"
+  ],
+  "status": 0,
+  "seconds": 0.5109918339999999
+}

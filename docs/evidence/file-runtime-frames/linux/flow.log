@@ -1,0 +1,10 @@
+I retain File flow artifacts at /tmp/nano-file-flow-gkcyu9w_
+test_instrumented_flow_transactions_and_allocation (tests.test_file_flow.FileFlow.test_instrumented_flow_transactions_and_allocation) ... PASS 3293 private File flow checks; no CODE, public admission or host service execution
+ok
+test_linked_flow_lifetimes_and_old_boundaries (tests.test_file_flow.FileFlow.test_linked_flow_lifetimes_and_old_boundaries) ... PASS 3164 private File flow checks; no CODE, public admission or host service execution
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.613s
+
+OK

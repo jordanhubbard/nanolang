@@ -1,0 +1,12 @@
+[
+  {
+    "root": "/tmp/nanolang-file-frames-152",
+    "report": "/tmp/nanolang-file-frames-152-darwin",
+    "source_inventory": "wrapper-source-after.json",
+    "tool_inventory": "wrapper-tools-after.json",
+    "sources": 8993,
+    "tools": 14,
+    "source_mismatches": [],
+    "tool_mismatches": []
+  }
+]

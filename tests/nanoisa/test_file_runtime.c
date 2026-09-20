@@ -330,7 +330,10 @@ static void allocation_controls(void){
  printf("I retain %u allocation refusals and %u recovered complete carriers\n",failures,recovered);
 }
 #endif
-int main(void){
+#ifndef FILE_RUNTIME_MAIN
+#define FILE_RUNTIME_MAIN main
+#endif
+int FILE_RUNTIME_MAIN(void){
  FILE *sentinel=tmpfile();CHECK(sentinel);int sentinel_fd=fileno(sentinel);CHECK(sentinel_fd>=0);
  carrier_lifecycle();passive();invalid_and_partial();invalid_passive();scalar_and_limits();initializer();public_refusal();
 #ifdef HOSTED_INSTRUMENT
