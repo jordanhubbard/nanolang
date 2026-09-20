@@ -13091,3 +13091,20 @@ full b7ef/2d2 admission/emission/installed/compiler obligations remain open.
 - [ ] I preserve the907 restack puck pre-build terminal: SSH-selected Python rejects tarfile.extractall(filter=data) before source extraction or compilation. I explicitly select installed Homebrew Python in a fresh destination and inventory the actual driver; no runtime/fixture assertion or historical tool claim changes.
 
 I retain the907 canonical restack at3df299892 after actual906/ca0c9f6a8: fresh providers and ordinary linked cyclic VM/native O0/O2 pass on Linux/puck, all33 traces match at each optimization over23 exact modules. My [supplement](evidence/file-cyclic-dispatch-restack-910/README.md) preserves the pre-build Python terminal,93 reports,834 artifacts and8 equal pairs; original sanitizer matrices retain their pins. Root review/actual merge remain pending, full parents open.
+
+### I preserve strict C++ inclusion of my installed cyclic File headers
+
+- [ ] I repair the installed-header prerequisite exposed by the first frozen
+  aff3c8956 Linux ordinary public run (`task_c8da07ba2f7547be8baf3625eace784a`).
+  Setup/discovery and the instrumented corpus pass; linked installed C++11
+  compilation fails on three C-only ISA assertions and the generated empty
+  opcode sentinel's partial initializer. I retain the99.907-second two-method
+  terminal and all artifacts before correction; Darwin's independent outcome
+  retains its own evidence. This is not a cyclic runtime failure.
+- [ ] I select the language's assertion spelling without removing any predicate,
+  and generate complete extended-opcode initializers from the canonical generator.
+  Its nonempty extended rows also omit the final two zero-valued fields; I make
+  those existing implicit zeros explicit. No schema values/opcode behavior change.
+  I review the complete diff before fresh gates, retain C99/C11/C++11/C++17
+  -Werror and all existing public/installed assertions, then seal exact outcomes.
+  Parent15a92/public acceptance and source/indirect/richer-borrow work stay open.
