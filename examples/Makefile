@@ -622,22 +622,49 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 	@echo ""
 	@echo "All example tests passed!"
 
-../modules/forth_see/.build/libforth_see.so: ../modules/forth_see/forth_see.c ../modules/forth_see/forth_see.h \
-		../modules/nanoisa/nanoisa.c ../modules/nanoisa/nanoisa.h \
-		../src/nanoisa/isa.c ../src/nanoisa/passive.c ../src/nanoisa/affine_bytecode.c ../src/nanoisa/affine_state.c ../src/nanoisa/ownership_contracts.c ../src/nanoisa/retained_layouts.c ../src/nanoisa/reference_places.c ../src/nanoisa/nvm_format.c \
-		../src/nanoisa/nvm_format_v2.c ../src/nanoisa/nvm_v2_cursor.c ../src/nanoisa/nvm_v2_constants.c ../src/nanoisa/nvm_v2_signatures.c ../src/nanoisa/nvm_v2_layouts.c ../src/nanoisa/nvm_v2_functions.c ../src/nanoisa/nvm_v2_imports.c ../src/nanoisa/nvm_v2_module.c ../src/nanoisa/nvm_v2_convert.c \
-		../src/nanoisa/local_bindings.c ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
-		../src/nanoisa/verifier.c ../src/nanoisa/managed_array_shapes.c ../src/nanoisa/verifier_types.c ../src/nanovm/vm_decode.c \
-		../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c ../src/nanovm/heap_cycles.c
+FORTH_SEE_C_SOURCES := \
+	../modules/forth_see/forth_see.c \
+	../src/nsi_file_plan.c \
+	../modules/nanoisa/nanoisa.c \
+	../src/nanoisa/isa.c \
+	../src/nanoisa/passive.c \
+	../src/nanoisa/affine_bytecode.c \
+	../src/nanoisa/affine_state.c \
+	../src/nanoisa/mixed_float_proof.c \
+	../src/nanoisa/service_bindings.c \
+	../src/nanoisa/service_bindings_module.c \
+	../src/nanoisa/service_file_nominal.c \
+	../src/nanoisa/service_file_nominal_plan.c \
+	../src/nanoisa/ownership_contracts.c \
+	../src/nanoisa/retained_layouts.c \
+	../src/nanoisa/reference_places.c \
+	../src/nanoisa/nvm_format.c \
+	../src/nanoisa/nvm_format_v2.c \
+	../src/nanoisa/nvm_v2_cursor.c \
+	../src/nanoisa/nvm_v2_constants.c \
+	../src/nanoisa/nvm_v2_signatures.c \
+	../src/nanoisa/nvm_v2_layouts.c \
+	../src/nanoisa/nvm_v2_functions.c \
+	../src/nanoisa/nvm_v2_imports.c \
+	../src/nanoisa/nvm_v2_module.c \
+	../src/nanoisa/nvm_v2_convert.c \
+	../src/nanoisa/local_bindings.c \
+	../src/nanoisa/assembler.c \
+	../src/nanoisa/disassembler.c \
+	../src/nanoisa/verifier.c \
+	../src/nanoisa/managed_array_shapes.c \
+	../src/nanoisa/verifier_types.c \
+	../src/nanovm/vm_decode.c \
+	../src/nanovm/vm_dispatch.c \
+	../src/nanovm/value.c \
+	../src/nanovm/heap.c \
+	../src/nanovm/heap_cycles.c
+
+../modules/forth_see/.build/libforth_see.so: $(FORTH_SEE_C_SOURCES) ../modules/forth_see/forth_see.h ../modules/nanoisa/nanoisa.h
 	@mkdir -p ../modules/forth_see/.build
 	$(CC) -Wall -Wextra -Werror -std=c99 -fPIC -shared \
 	    -I../modules/forth_see -I../modules/nanoisa -I../src/nanoisa -I../src \
-	    -o $@ ../modules/forth_see/forth_see.c ../modules/nanoisa/nanoisa.c \
-	    ../src/nanoisa/isa.c ../src/nanoisa/passive.c ../src/nanoisa/affine_bytecode.c ../src/nanoisa/affine_state.c ../src/nanoisa/ownership_contracts.c ../src/nanoisa/retained_layouts.c ../src/nanoisa/reference_places.c ../src/nanoisa/nvm_format.c \
-		../src/nanoisa/nvm_format_v2.c ../src/nanoisa/nvm_v2_cursor.c ../src/nanoisa/nvm_v2_constants.c ../src/nanoisa/nvm_v2_signatures.c ../src/nanoisa/nvm_v2_layouts.c ../src/nanoisa/nvm_v2_functions.c ../src/nanoisa/nvm_v2_imports.c ../src/nanoisa/nvm_v2_module.c ../src/nanoisa/nvm_v2_convert.c \
-	    ../src/nanoisa/local_bindings.c ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
-	    ../src/nanoisa/verifier.c ../src/nanoisa/managed_array_shapes.c ../src/nanoisa/verifier_types.c ../src/nanovm/vm_decode.c \
-	    ../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c ../src/nanovm/heap_cycles.c
+	    -o $@ $(FORTH_SEE_C_SOURCES)
 
 # Explicit rule: compile nl_forth_interpreter.nano → bin/nl_forth_interpreter_vm (NVM bytecode, no extension)
 # The pattern rule $(BIN_DIR)/nl_%$(BIN_EXT) won't match because target suffix (_vm) differs from source name.
