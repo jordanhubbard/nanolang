@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import shlex
+import signal
 import subprocess
 import tempfile
 import unittest
@@ -27,14 +28,18 @@ class FileHostGrant(unittest.TestCase):
 
         def run(command, expected=0):
             index = len(commands)
+            process = subprocess.Popen(command, cwd=ROOT, env=env, text=True,
+                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                       start_new_session=True)
             try:
-                result = subprocess.run(command, cwd=ROOT, env=env, text=True,
-                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                        timeout=60)
-            except subprocess.TimeoutExpired as error:
-                output = error.stdout or ""
-                if isinstance(output, bytes):
-                    output = output.decode("utf-8", errors="replace")
+                output, _ = process.communicate(timeout=60)
+                result = subprocess.CompletedProcess(command, process.returncode, output)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                output, _ = process.communicate()
                 (root / f"{index:02d}.log").write_text(output)
                 commands.append({"command": command, "status": "timeout",
                                  "timeout_seconds": 60, "log": f"{index:02d}.log"})

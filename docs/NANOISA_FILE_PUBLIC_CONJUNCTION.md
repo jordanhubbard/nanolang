@@ -305,3 +305,11 @@ unexpected terminal. It clears LSAN_OPTIONS and sets leak detection explicitly.
 There is no fixture execution or passing claim in this source checkpoint. Actual
 public missing-grant/loader counters, generated two-program namespace linking,
 handlers and installed packages remain separately reviewed later requirements.
+
+Before the first grant gate, root approves narrow timeout containment: the
+fixture runner starts each command in its own process group and kills that group
+on timeout before collecting its partial output/status. A compiler driver may
+otherwise leave its children running after subprocess.run kills only the direct
+process. This harness-only correction precedes all executions; it changes no
+production or assertion. Each ordinary/sanitizer phase builds a fresh owning
+object in a separate output directory, so changing flags never trusts timestamps.
