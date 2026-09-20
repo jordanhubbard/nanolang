@@ -26,6 +26,7 @@ __attribute__((weak)) const char *get_project_root(void) {
 typedef struct {
     char **loaded_paths;
     ASTNode **loaded_asts;  /* Corresponding ASTs for each path */
+    EnvEvaluationProvider *provider;
     int count;
     int capacity;
 } ModuleCache;
@@ -33,13 +34,21 @@ typedef struct {
 static ModuleCache *module_cache = NULL;
 
 static void init_module_cache(void) {
-    if (!module_cache) {
-        module_cache = malloc(sizeof(ModuleCache));
-        module_cache->count = 0;
-        module_cache->capacity = 16;
-        module_cache->loaded_paths = malloc(sizeof(char*) * module_cache->capacity);
-        module_cache->loaded_asts = malloc(sizeof(ASTNode*) * module_cache->capacity);
+    if (module_cache) return;
+    ModuleCache *cache = calloc(1, sizeof(*cache));
+    if (!cache) { fprintf(stderr, "I cannot allocate a module cache.\n"); exit(1); }
+    cache->capacity = 16;
+    cache->provider = env_provider_new();
+    cache->loaded_paths = malloc(sizeof(char *) * (size_t)cache->capacity);
+    cache->loaded_asts = malloc(sizeof(ASTNode *) * (size_t)cache->capacity);
+    if (!cache->provider || !cache->loaded_paths || !cache->loaded_asts) {
+        if (cache->provider) env_provider_release(cache->provider);
+        free(cache->loaded_paths);
+        free(cache->loaded_asts);
+        free(cache);
+        fprintf(stderr, "I cannot allocate a module cache provider.\n"); exit(1);
     }
+    module_cache = cache;
 }
 
 static int cached_module_index(const char *module_path) {
@@ -114,6 +123,10 @@ static void cache_module_with_ast(const char *module_path, ASTNode *ast) {
 
 void clear_module_cache(void) {
     if (module_cache) {
+        if (!env_provider_close(module_cache->provider)) {
+            fprintf(stderr, "I cannot clear a module cache with pending evaluator tasks.\n");
+            exit(1);
+        }
         for (int i = 0; i < module_cache->count; i++) {
             free(module_cache->loaded_paths[i]);
             /* Free ASTs - they were allocated during module loading and are no longer needed */
@@ -123,6 +136,7 @@ void clear_module_cache(void) {
         }
         free(module_cache->loaded_paths);
         free(module_cache->loaded_asts);
+        env_provider_release(module_cache->provider);
         free(module_cache);
         module_cache = NULL;
     }
@@ -594,6 +608,15 @@ static Function *find_module_function(Environment *env, const char *module_name,
 static ASTNode *load_module_internal(const char *module_path, Environment *env, bool use_cache, ModuleList *modules_to_track) {
     if (!module_path) return NULL;
     
+    /* Registration precedes cached or freshly parsed metadata publication. */
+    if (use_cache) {
+        init_module_cache();
+        if (!env_register_provider(env, module_cache->provider)) {
+            fprintf(stderr, "I cannot register a live module cache provider.\n");
+            return NULL;
+        }
+    }
+
     /* Check if module is already loaded (only if using cache) */
     if (use_cache) {
         if (is_module_cached(module_path)) {

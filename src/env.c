@@ -3,6 +3,7 @@
 #include "runtime/gc.h"
 #include <string.h>
 #include "env_record_lists.inc"
+#include "env_provider_leases.inc"
 
 typedef struct {
     uint64_t hash;
@@ -240,19 +241,6 @@ static void env_free_value(Value v) {
     }
 }
 
-bool env_acquire_evaluation_lease(Environment *env) {
-    if (!env || env->evaluation_leases == SIZE_MAX) return false;
-    ++env->evaluation_leases;
-    return true;
-}
-
-void env_release_evaluation_lease(Environment *env) {
-    if (!env || !env->evaluation_leases) {
-        fprintf(stderr, "I cannot release an absent evaluator lease.\n"); exit(1);
-    }
-    --env->evaluation_leases;
-}
-
 bool env_can_destroy(Environment *env) {
     return !env || !env->evaluation_leases;
 }
@@ -278,6 +266,7 @@ void free_environment(Environment *env) {
     }
     free(env->symbols);
     env_record_storage_free(env);
+    env_provider_edges_free(env);
     if (env->import_tracker) {
         free(env->import_tracker->imports);
         free(env->import_tracker);

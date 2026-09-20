@@ -97,5 +97,27 @@ checked count overflow, close then attempted enqueue, nested private cache swaps
 failed loads, and exact restoration of saved cache pointers. Startup clear must
 refuse before AST destruction when an older Environment leases that cache.
 Existing imports, private module compilation and teardown controls remain intact.
-No cancellation or destructor invokes NanoLang user code. This design needs
-review before implementation or qualification.
+No cancellation or destructor invokes NanoLang user code. My approved design now has the source checkpoint below; qualification still
+requires independent source and fixture review.
+
+## My source checkpoint
+
+I keep the provider implementation in `env_provider_leases.inc`, owned by env.c
+and its explicit Make prerequisite. Registration allocates its edge before any
+count change; acquire and release use nonallocating validation and update passes.
+My Environment teardown releases only its edges after its zero-lease preflight.
+
+I initialize all cache storage before publishing the cache pointer. The common
+loader registers its Environment before the cached return or fresh parse. Package
+loading reaches the same loader. The later cached lookup in process_imports is
+unreachable after its preceding NULL-result return and adds no independent
+metadata-publication route. My scalar/string cache inspection APIs do not retain
+AST pointers in an Environment. The public raw cached-AST getter keeps its
+existing caller-owned lifetime contract; I do not turn it into a lease implicitly.
+
+I preserve all six private cache clear/restore paths and the allocation-failure
+restore before a private cache exists. Closing one generation marks only it dead
+before freeing ASTs; saved generations and their lease counts remain untouched.
+No test, build, or intentionally invalid lifetime has been executed for this
+checkpoint. My required allocation, count, import and private-cache controls
+remain pending.

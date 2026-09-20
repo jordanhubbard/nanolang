@@ -13600,3 +13600,13 @@ compilation temporarily owns a different cache from its saved caller. I propose
 exact generation ownership in docs/NANOISA_EVALUATOR_CACHE_LEASES.md, preserving
 legitimate isolated imports/cleanup instead of a global evaluation prohibition.
 The deferred lease source remains unqualified until this boundary is implemented.
+
+I implement the approved exact cache-generation dependency in the common import
+loader, Environment lease transaction, and actual cache clear boundary under
+task_60bef9462e22d7eb1724212ad1811803. I preserve private cache restoration and
+require independent source/fixture review before execution.
+
+I record the 6a118 scheduler review's callable-copy allocation gap under
+task_f8b5ecacb7e4bcc1542712b4652308ad: the legacy signature clone exits on OOM
+inside a checked task-result clone. I require a checked recursive callable
+metadata copy and rollback before claiming recoverable task snapshot failures.

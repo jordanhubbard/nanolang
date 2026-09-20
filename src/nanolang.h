@@ -800,11 +800,14 @@ typedef struct {
     int import_capacity;
 } ImportTracker;
 
+typedef struct EnvEvaluationProvider EnvEvaluationProvider;
+
 /* Environment for variable and function storage */
 typedef struct {
     Symbol *symbols;
     int symbol_count;
     int symbol_capacity;
+    struct EnvProviderEdge *evaluation_providers;
     size_t evaluation_leases; /* Queued/active evaluator bundles prevent teardown. */
     struct EnvRecordList *record_lists; /* Evaluator-owned handles, including tombstones. */
     struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
@@ -939,6 +942,10 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
+EnvEvaluationProvider *env_provider_new(void);
+bool env_register_provider(Environment *env, EnvEvaluationProvider *provider);
+bool env_provider_close(EnvEvaluationProvider *provider);
+void env_provider_release(EnvEvaluationProvider *provider);
 bool env_acquire_evaluation_lease(Environment *env);
 void env_release_evaluation_lease(Environment *env);
 bool env_can_destroy(Environment *env);
