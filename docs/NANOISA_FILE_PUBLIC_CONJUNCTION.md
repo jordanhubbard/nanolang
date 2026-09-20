@@ -231,3 +231,47 @@ paired C-seed/Stage1/Stage2 publishers and complete selected shadows remain conc
 72556/6931 criteria. Initial acyclic public support cannot be reported as satisfying
 those full5.1 clauses. File/Socket/GPU and representative standard-library migration
 under d03c, and One-IR metadata/translator/VM-AOT acceptance under ed702, stay open.
+
+## My preparatory grant checkpoint25bb
+
+Before source changes I fix ABI1 in `src/nanoisa/file_host_grant.h`. My distinct
+`NvmFileHostStatus` values are OK=0, INVALID=1, MEMORY=2, STATE=3,
+UNRESOLVED=4 and BUSY=5. This is a grant/preparation status, not a fabricated
+runtime cleanup report. Lifecycle returns this enum. Catalog1/policy1 and ABI1
+are immutable fields owned by the opaque heap object. Revocation is idempotent
+and only changes its live flag. Destroying a NULL object through a non-NULL
+pointer is idempotent; a NULL pointer-to-pointer is INVALID. Creation publishes
+only on success and never reads the old output pointer. Live output storage must
+not alias another live grant; replacing a live pointer would lose caller ownership.
+
+A single owning `file_host_grant.c` has one statically initialized atomic_flag.
+Every lifecycle method tries it before inspecting caller pointers, so contention
+has BUSY precedence, including otherwise-invalid inputs, and never allocates or
+modifies them. Uncontended malformed arguments return INVALID. I free under the
+gate and null the caller pointer before release. A caller still owns all valid
+pointer lifetimes and must not race destruction with storage reuse or dereference;
+this gate is not a safe dereference protocol for dangling pointers.
+
+`file_host_grant_internal.h` exposes trusted-adapter-only balanced operations:
+`nvm_file_host_enter_query()` and `nvm_file_host_enter(grant, abi, catalog)` return
+OK while retaining the gate, and `nvm_file_host_leave()` releases it. Every
+non-OK entry releases any lock it acquired; BUSY never releases another entry.
+The successful calling thread must leave exactly once after full cleanup. These
+internal functions are not a caller-supplied execution certificate or callbacks,
+and a non-owner or repeated leave violates their C API precondition. Native
+memory can already call private cores; this is not an adversarial C sandbox.
+Successful grant entry checks its owning runtime identity, live state, exact ABI,
+catalog and policy. Missing grant is INVALID, revoked is STATE, incompatible
+identity/ABI/catalog/policy is UNRESOLVED. No plan or host stream is allocated.
+
+Only an explicit `file-host-grant` Make target builds this object initially;
+I do not add it to default NanoISA/module/wrapper provider lists before matched
+public integration. Its recipe uses CPPFLAGS/CFLAGS and a final `-std=c11`.
+Fixtures compile two ordinary C99 consumers against the same object, plus a
+separate instrumented build of that same source for allocation failure and
+otherwise inaccessible metadata mismatch controls. Pthread synchronization
+holds the lock deterministically for contention assertions; no timing retry is
+used to obtain BUSY. These consumers model future adapters; they are not emitted
+programs and do not qualify the later generated-name/package requirement.
+There is no service handler or host access in this component. Missing-grant
+execution refusal/loader attempt tests remain the later joint-routing obligation.
