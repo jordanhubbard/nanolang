@@ -1,0 +1,11 @@
+{
+  "label": "head",
+  "argv": [
+    "git",
+    "rev-parse",
+    "HEAD"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

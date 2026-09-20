@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/tmp/nanolang-service-admission-1f9-linux/gcc-sanitizer/products/threaded"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-service-admission-1f9",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

@@ -1,0 +1,9 @@
+{
+  "label": "callback-failures-run",
+  "argv": [
+    "/tmp/nanolang-service-admission-1f9-linux-neighbors/products/callback-failures"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

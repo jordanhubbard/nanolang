@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-service-admission-1f9-puck/apple-ordinary/products/switch"
+  ],
+  "cwd": "/private/tmp/nanolang-service-admission-1f9",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

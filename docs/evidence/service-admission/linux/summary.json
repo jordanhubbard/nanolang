@@ -1,0 +1,373 @@
+{
+  "roots": [
+    "/tmp/nanolang-service-admission-1f9-linux",
+    "/tmp/nanolang-service-admission-1f9-linux-neighbors"
+  ],
+  "artifacts": 4391,
+  "artifact_bytes": 914756253,
+  "references": 159425,
+  "pairs": [
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3766,
+      "after_count": 3766
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux/gcc-sanitizer-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux/gcc-sanitizer-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3766,
+      "after_count": 3766
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux/prepare-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux/prepare-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3622,
+      "after_count": 3622
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux/clang-sanitizer-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux/clang-sanitizer-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3766,
+      "after_count": 3766
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux/gcc-sanitizer/inputs-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux/gcc-sanitizer/inputs-after.json",
+      "equal": true,
+      "before_count": 152,
+      "after_count": 152
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary/inputs-after.json",
+      "equal": true,
+      "before_count": 152,
+      "after_count": 152
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux/clang-sanitizer/inputs-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux/clang-sanitizer/inputs-after.json",
+      "equal": true,
+      "before_count": 152,
+      "after_count": 152
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-runtime-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-runtime-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/prepare-clis-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/prepare-clis-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/ffi_callback_fixture-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/ffi_callback_fixture-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/ffi_artifact_first-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/ffi_artifact_first-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/emitter-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/emitter-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/vm-ffi-run-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/vm-ffi-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/mixed-admission-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/mixed-admission-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/vm-ffi-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/vm-ffi-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-allocation-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-allocation-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/ffi_artifact_second-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/ffi_artifact_second-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/mixed-runtime-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/mixed-runtime-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-failures-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-failures-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-failures-run-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-failures-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/owner-array-public-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/owner-array-public-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-runtime-run-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-runtime-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3777,
+      "after_count": 3777
+    }
+  ],
+  "terminals": [
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/other-asan-static-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.01569778996054083
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/prepare-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 9.49375338095706
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/other-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.01558516500517726
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 3.9222095670411363
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/ordinary-ubsan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.001265389029867947
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/gcc-sanitizer-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 11.340331580024213
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/other-ubsan-static-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015895936987362802
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/other-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015410988009534776
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/ordinary-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0013243169523775578
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/ordinary-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.001455263001844287
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/ordinary-cc1-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0013104130048304796
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/head-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.007559100980870426
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/clang-sanitizer-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 10.34121443994809
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/other-asan-preinit-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015506845084019005
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/ordinary-collect2-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0012780290562659502
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux/host-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0015423670411109924
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/emitter-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 20.259395782020874
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/ffi_artifact_second-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.03194761904887855
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/mixed-runtime-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 33.14581025601365
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/ffi_artifact_first-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.11417424608953297
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-runtime-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.4646236910484731
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/prepare-clis-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 2.9718636199831963
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/ffi_callback_fixture-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.06388378294650465
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-failures-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.16406125493813306
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/vm-ffi-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.5650079189799726
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-allocation-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.3145823150407523
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/mixed-admission-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.5174575760029256
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/vm-ffi-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.11416292295325547
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-runtime-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.2646418809890747
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/owner-array-public-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 11.540732201072387
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-linux-neighbors/callback-failures-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.009010915062390268
+    }
+  ],
+  "scope": "focused VM and exact observed service predicate plus modeled hooks; separate unchanged actual host/ownership neighbors and original emitter; statuses in terminals"
+}
