@@ -13123,3 +13123,5 @@ sealed separately; no production source changed. I verify39 source/tool pairs,
 existing provider identities and current sources/tools before sealing389 reports
 and1,456 content-addressed artifacts. Bounded independent review/actual merge and
 ff730 reconciliation remain pending; full2c135/runtime/public/source remain open.
+
+- [ ] I correct the indirect-hosted72e integration driver's Darwin neighbor selector before continuing task2c135: existing CODE/BODY/FLOW runners always enable ASan with leak detection, but my ordinary integration adapter selected AppleClang. I retain the first CODE unsupported-leak terminal and the prior setup/query/cyclic passes. I restore explicit Homebrew Clang for these unchanged neighbors, preserve every assertion and leak setting, and run the failed/unreached phases into a fresh report on the frozen source.
