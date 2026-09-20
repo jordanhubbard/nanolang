@@ -1,0 +1,183 @@
+{
+  "phases": [
+    {
+      "phase": "linux-original",
+      "host": "sparky",
+      "retained": "/tmp/nanolang-managed-string-971b-linux-original",
+      "status": {
+        "commands": 456,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 99.47971279395279,
+        "skipped": [],
+        "tests_run": 23
+      },
+      "audit_reports": 4582,
+      "audit_objects": 3852,
+      "report_manifest_sha256": "16051f632801f91d9eb0bb5364aeb5b3c1bad7c4d53eb4e4b396b3ef6765e2d5",
+      "source_pin": "971b075a28d912495f09584cb9ceb3813dd656f8",
+      "instrumentation": "Original/O2 use explicit selected-IR instrumentation; neighbor native flags do not prove full IR instrumentation."
+    },
+    {
+      "phase": "linux-O2",
+      "host": "sparky",
+      "retained": "/tmp/nanolang-managed-string-971b-linux-O2",
+      "status": {
+        "commands": 574,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 129.49451221898198,
+        "skipped": [],
+        "tests_run": 23
+      },
+      "audit_reports": 5762,
+      "audit_objects": 3907,
+      "report_manifest_sha256": "ee6f31e41a2e8b40d8e9286dca12fb429fe6cde176499642c5f8662ff7a7ad5a",
+      "source_pin": "971b075a28d912495f09584cb9ceb3813dd656f8",
+      "instrumentation": "Original/O2 use explicit selected-IR instrumentation; neighbor native flags do not prove full IR instrumentation."
+    },
+    {
+      "phase": "linux-core",
+      "host": "sparky",
+      "retained": "/tmp/nanolang-managed-string-971b-linux-core-package",
+      "status": {
+        "commands": 56,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 15.132878997013904,
+        "skipped": [],
+        "tests_run": 5
+      },
+      "audit_reports": 581,
+      "audit_objects": 3471,
+      "report_manifest_sha256": "823bdc6b03f05628f0ef1f413cb17663f16e2a64b49b6cb5e59d20c1a3bf1614",
+      "source_pin": "971b075a28d912495f09584cb9ceb3813dd656f8",
+      "instrumentation": "Original/O2 use explicit selected-IR instrumentation; neighbor native flags do not prove full IR instrumentation."
+    },
+    {
+      "phase": "linux-neighbors",
+      "host": "sparky",
+      "retained": "/tmp/nanolang-managed-string-76de-linux-neighbors",
+      "status": {
+        "commands": 1418,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 425.6999865389662,
+        "skipped": [],
+        "tests_run": 42
+      },
+      "audit_reports": 14202,
+      "audit_objects": 4468,
+      "report_manifest_sha256": "e545a31b2b5cf3f51604caf8dee1ac88dfcbf3d63085d0fa6f10044a189eb58a",
+      "source_pin": "76debee8f53c26f90816bc50e39c844042e17e28",
+      "instrumentation": "Original/O2 use explicit selected-IR instrumentation; neighbor native flags do not prove full IR instrumentation."
+    },
+    {
+      "phase": "darwin-original",
+      "host": "jordanh@CXWWHGGJX0.local",
+      "retained": "/private/tmp/nanolang-managed-string-971b-darwin-original",
+      "status": {
+        "commands": 456,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 145.46684820891824,
+        "skipped": [],
+        "tests_run": 23
+      },
+      "audit_reports": 4582,
+      "audit_objects": 3902,
+      "report_manifest_sha256": "5cf72b72986ee7a2bff1c5ca8e8573d52f6c5e1920afc2dafc00793b495b1250",
+      "source_pin": "971b075a28d912495f09584cb9ceb3813dd656f8",
+      "instrumentation": "Original/O2 use explicit selected-IR instrumentation; neighbor native flags do not prove full IR instrumentation."
+    },
+    {
+      "phase": "darwin-O2",
+      "host": "jordanh@CXWWHGGJX0.local",
+      "retained": "/private/tmp/nanolang-managed-string-971b-darwin-O2",
+      "status": {
+        "commands": 574,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 181.23441262496635,
+        "skipped": [],
+        "tests_run": 23
+      },
+      "audit_reports": 5762,
+      "audit_objects": 3957,
+      "report_manifest_sha256": "0c9c95a9e1e3b8f3c4f1c4b9bfbe41d8f816b0db8d417c12b45165e549becbf6",
+      "source_pin": "971b075a28d912495f09584cb9ceb3813dd656f8",
+      "instrumentation": "Original/O2 use explicit selected-IR instrumentation; neighbor native flags do not prove full IR instrumentation."
+    },
+    {
+      "phase": "darwin-core",
+      "host": "jordanh@CXWWHGGJX0.local",
+      "retained": "/private/tmp/nanolang-managed-string-971b-darwin-core-package",
+      "status": {
+        "commands": 56,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 21.30560099997092,
+        "skipped": [],
+        "tests_run": 5
+      },
+      "audit_reports": 581,
+      "audit_objects": 3472,
+      "report_manifest_sha256": "96a17358ade1b098782d58b8152b7dbfb00398f82ca0bbad8127e2d1a005a869",
+      "source_pin": "971b075a28d912495f09584cb9ceb3813dd656f8",
+      "instrumentation": "Original/O2 use explicit selected-IR instrumentation; neighbor native flags do not prove full IR instrumentation."
+    },
+    {
+      "phase": "puck-neighbors",
+      "host": "puck.local",
+      "retained": "/private/tmp/nanolang-managed-string-76de-puck-neighbors",
+      "status": {
+        "commands": 1418,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 340.8090452919714,
+        "skipped": [],
+        "tests_run": 42
+      },
+      "audit_reports": 14202,
+      "audit_objects": 4459,
+      "report_manifest_sha256": "96497c94221d8a99493b4d21ff503ee919680d0af30c43a3b0ee2d1ce06e8086",
+      "source_pin": "76debee8f53c26f90816bc50e39c844042e17e28",
+      "instrumentation": "Original/O2 use explicit selected-IR instrumentation; neighbor native flags do not prove full IR instrumentation."
+    }
+  ],
+  "all_passed": true,
+  "production_changed": false,
+  "full_release_ready": false
+}

@@ -10520,12 +10520,17 @@ Other translators:
       [predicate contract](NANOISA_MANAGED_STRING_PREDICATES.md) and
       [paired evidence](evidence/managed-string-predicates.md) retain
       all other full-coverage and platform obligations.
-- [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
+- [x] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
       MAC `task_51da49b39230468784da3481b893563b`; allocator, lifetime
       and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. Core, emitted
       cleanup, concat, substring and portable conversions are implemented in
-      the checked children above. Darwin managed acceptance7ba and broader
-      required target coverage remain open; old design prose is historical.
+      the checked children above. Darwin managed acceptance7ba is complete.
+      PR896 qualifies original/O2/core/package/neighbor acceptance on Linux and
+      Darwin, including failed-initializer cleanup and current integration.
+      My [original-criterion reconciliation](MANAGED_STRING_PARENT_RECONCILIATION.md)
+      closes only this bounded string parent; aggregate488, host linkage2d2 and
+      full applicable-language/release coverage remain open. Old design prose
+      is historical.
 - [ ] I establish explicit managed slot kinds and shared-table string-array
       ownership: transactional create/append, retained get/length, alias mutation,
       string-only acyclic children and complete teardown. MAC `task_83a671a98d724de2b219e75dcad39c8b`; I qualify the standalone core with native LLVM sanitizers and import-free Wasm; opcode/frame admission remains open ([evidence](evidence/managed-string-array-core.md)).
@@ -12489,6 +12494,52 @@ I preserve6fdb Darwin reuse-launcher failure before the driver: verified source 
 I seal private-native9a237 qualification in [my evidence](evidence/file-private-native.md): Linux GCC ordinary/sanitizer, corrected Clang sanitizer and Darwin Apple/Homebrew full original corpus at nativeO0/O2 pass, plus isolated no-private-VM/mismatch controls and VM/frame/opcode/wrapper neighbors. I retain the registry/Clang first failures and both Darwin orchestration prerequisites, with precise4e8/6fdb attribution and138 byte-identical generatedC comparisons. The18-pair seal covers6,199 unique artifacts; source/public/full82ff/5.1 acceptance remains separate, and bounded completion awaits independent review/actual merge.
 
 - [ ] I establish the [explicit public File host-grant conjunction](NANOISA_FILE_PUBLIC_CONJUNCTION.md) under existing6fc/72556/82ff after vm_effects' private native9a23711 acceptance: review concrete grant/gate/API and immutable-byte preparation; review joint matched VM/native service-aware routing while old grant-less guards remain; qualify host authority, startup/cleanup/output and actual installed opt-in/package paths on Linux/Darwin. No public admission precedes matched target and fixture review. The loop/indirect/multi-borrow and paired source/full-shadow requirements above remain mandatory5.1 work, not closed by this initial acyclic public route.
+
+- [x] I qualify my original managed-string lifetime and before/after LLVM optimization acceptance under `task_5792220dc3654ddcbe7e47ec0253f8ea`, parent51da. Static review finds only verification/ASan/llc in the emitted fixture; C harness -O1 does not optimize its input IR. My [preimplementation acceptance contract](MANAGED_STRING_FINAL_ACCEPTANCE.md) retains every existing semantic, lifetime, failure and publication assertion, adds an explicit test-only O2 route, and requires fresh Linux/Darwin original and optimized evidence before original-parent reconciliation. Aggregate/cycle488, host linkage2d2 and full release remain separate.
+
+  I retain independent-review acceptance findings for579222 before code: the selected optimized Wasm and default-main paths need explicit selection; original string fixtures lack a failed managed initializer; Darwin core defaults to disabled leak checking; copied fixture methods and overwritten subcase products need exact handling. The amended contract adds those original-criterion controls and strict supported-compiler qualification without widening product admission.
+
+  I prepare the retained direct runner for579222 before gates: exact original
+  and O2 emitted-module phases, strict core/package and scalar/literal/verifier
+  neighbors, explicit host tools, per-command source/provider/product maps,
+  content-addressed overwritten artifacts, retained Python CLI temporary
+  products, and bounded process-group cleanup. The runner and two reviewed
+  fixture changes require independent review before any fresh qualification.
+
+  - [x] I qualify the reviewed579222 retention correction: root found an
+    unbounded post-SIGKILL wait and excessive historical-evidence/LLVM-alias
+    rehashing in6c310 before any execution. My corrected runner bounds both
+    waits and records unconfirmed cleanup as failure; stat-keyed command maps
+    retain complete product archives while fresh phase endpoint hashes retain
+    exact input evidence. The existing fixture assertions stay unchanged.
+
+  - [x] I qualify explicit native Clang selection after the first579222 Linux
+    preparation atcd312 returned2 in0.115s before any tests: auto-selected GCC14
+    lacks the include directories identified in GCC13. I retain the first tree,
+    terminal and equal source/tool maps, and add validated native-only selection
+    flags without warning suppression or wasm32 flag changes. Corrected fresh
+    preparation and gates remain pending review.
+
+  - [x] I correct the stale scalar-global array refusal under
+    `task_a8bc9b4d35294a848c38cfe47f1e3a91`. My retained971b Linux neighbors
+    stop after four passing tests when `ARR_NEW 5; STORE_GLOBAL 0` successfully
+    translates. Mutable-array admission already qualified this operation. I
+    preserve that exact program as a positive VM/LLVM/Wasm execution and
+    output-replacement control, retain the other three refusal sentinels, and
+    require review before fresh Linux/Darwin neighboring gates. The original
+    failed terminal remains at `/tmp/nanolang-managed-string-971b-linux-neighbors`.
+
+  - [x] I correct the second stale neighbor expectation under a8bc before new
+    execution:342 retains eighteen passes and the literal-string `ARR_NEW 5; POP`
+    failure at `/tmp/nanolang-managed-string-342-linux-neighbors`. My five-module
+    static audit also identifies enum CAST_STRING and string-bearing CAST_FLOAT
+    conversion refusals superseded by managed admission. I preserve all three
+    exact programs as execution/output-replacement controls and retain genuine
+    tail-call, authority, packed-element and invalid-operand refusals. The
+    [acceptance contract](MANAGED_STRING_FINAL_ACCEPTANCE.md) distinguishes the
+    measured failure from these static findings; no production change is needed.
+
+  I seal all eight original-criterion phases in [my final string evidence](evidence/managed-string-final-acceptance.md): original23, optimized23, core/package5 and corrected neighbors42 pass on Linux and Darwin. Independent audits rehash every referenced archive object and current input, verify all command cleanup/equality records and preserve the first failed preparations/fixtures. Original/O2/core Darwin measurements are on CX; neighbors use puck with explicit tools because CX lacks retention space. No production changes or full-runtime/release claim follow. Actual canonical integration and MAC reconciliation remain required before task closure.
 
 ## I audit the matched private File runtime and retain control dependencies
 

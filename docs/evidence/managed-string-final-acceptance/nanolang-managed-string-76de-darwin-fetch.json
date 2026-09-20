@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ConnectTimeout=10",
+    "jordanh@CXWWHGGJX0.local",
+    "git -C /private/tmp/nanolang-managed-string-971b-darwin fetch origin test/managed-string-acceptance"
+  ],
+  "status": 128,
+  "stdout": "",
+  "stderr": "fatal: couldn't find remote ref test/managed-string-acceptance\n",
+  "seconds": 0.2887049870332703
+}

@@ -114,9 +114,22 @@ class ScalarGlobals(unittest.TestCase):
         self.run_cmd([ROOT/'bin/nvm2wasm',renamed,'-o',wasm])
         self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nano_entry',wasm]).stdout,'0\n')
 
-    def test_initializer_and_heap_refusals_preserve_output(self):
+    def test_admitted_array_global_executes_and_replaces_output(self):
+        module = self.compare('ARR_NEW 5\nSTORE_GLOBAL 0\n')
+        for tool in ('nvm2llvm', 'nvm2wasm'):
+            with self.subTest(tool=tool):
+                out = self.work/'previous'
+                out.write_bytes(b'previous artifact')
+                self.run_cmd([ROOT/'bin'/tool, module, '-o', out])
+                self.assertNotEqual(out.read_bytes(), b'previous artifact')
+                if tool == 'nvm2llvm':
+                    self.run_cmd(['lli', out])
+                else:
+                    result = self.run_cmd(['wasmtime', 'run', '--invoke', 'nano_entry', out])
+                    self.assertEqual(result.stdout, '0\n')
+
+    def test_initializer_and_authority_refusals_preserve_output(self):
         cases = [self.program('', '.function __init__ 1 1 0 void 0\n.parameters __init__ int\nRET\n.end\n'),
-                 self.program('ARR_NEW 5\nSTORE_GLOBAL 0\n'),
                  '.types 1 0 0\n'+self.program(''),
                  '.import "" "get_argc" int\n'+self.program('')]
         for text in cases:

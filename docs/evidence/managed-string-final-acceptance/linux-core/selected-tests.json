@@ -1,0 +1,7 @@
+[
+  "tests.test_managed_string_core.ManagedCore.test_native_core_sanitizers_and_production_mode",
+  "tests.test_managed_string_core.ManagedCore.test_production_wasm_and_verified_runtime_ir_have_no_test_hooks",
+  "tests.test_managed_string_core.ManagedCore.test_wasm_import_free_reuse_pressure_and_fresh_instances",
+  "tests.test_managed_runtime_package.ManagedRuntimePackage.test_private_module_scalar_abi_lifecycle",
+  "tests.test_managed_runtime_package.ManagedRuntimePackage.test_reproducible_target_packages_and_real_links"
+]

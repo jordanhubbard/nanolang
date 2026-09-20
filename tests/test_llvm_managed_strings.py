@@ -11,8 +11,20 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def selected_ir(test, original):
+    """I optimize the actual emitted module only when the gate selects O2."""
+    if test.emitted_optimization == 'none':
+        return original
+    selected = original.with_name(original.stem + '-O2.ll')
+    test.run_cmd(['opt', '-passes=default<O2>', '-S', original, '-o', selected])
+    test.run_cmd(['opt', '-passes=verify', '-disable-output', selected])
+    return selected
+
+
 class ManagedStrings(unittest.TestCase):
     def setUp(self):
+        self.emitted_optimization = os.environ.get('NMS_EMITTED_OPTIMIZATION', 'none')
+        self.assertIn(self.emitted_optimization, ('none', 'O2'))
         self.tmp = tempfile.TemporaryDirectory(prefix='nano-managed-emitted-')
         self.addCleanup(self.tmp.cleanup)
         self.work = Path(self.tmp.name)
@@ -40,6 +52,8 @@ class ManagedStrings(unittest.TestCase):
             self.run_cmd(['opt','-passes=verify','-disable-output',ir])
             self.assertIn('@nms_module_begin',ir.read_text())
             self.assertEqual(ir.read_text().count('call void @llvm.trap()'),1)
+        native = selected_ir(self, native)
+        wasm_ir = selected_ir(self, wasm_ir)
         self.run_cmd(['clang','--target=wasm32-unknown-unknown','-nostdlib',wasm_ir,
             '-Wl,--no-entry','-Wl,--max-memory=1048576','-Wl,--export=nano_entry',
             '-Wl,--export=nano_try_entry','-Wl,--export=nano_dispose',
@@ -98,12 +112,30 @@ class ManagedStrings(unittest.TestCase):
         module,ir,wasm=self.compile(self.program(body,suffix))
         self.native_harness(ir,'for(int i=0;i<20;i++){if(nano_try_entry()||nms_module_live_objects())return 1;}return nano_dispose();')
         self.node(wasm,"check(e.nano_try_entry()===0n);let pages=e.memory.buffer.byteLength;for(let i=0;i<20;i++){check(e.nano_try_entry()===0n);check(e.nms_module_live_objects()===0n);}check(e.memory.buffer.byteLength===pages);check(e.nano_dispose()===0);")
+        self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nano_entry',wasm]).stdout,'0\n')
         published=self.work/'published.wasm'
         self.run_cmd([ROOT/'bin/nvm2wasm',module,'-o',published])
         self.assertEqual(self.run_cmd(['wasmtime','run','--invoke','nano_entry',published]).stdout,'0\n')
         self.run_cmd([ROOT/'bin/nvm2llvm',module,'-o',self.work/'main.ll'])
-        self.run_cmd(self.clang+['-fsanitize=address,undefined',self.work/'main.ll','-o',self.work/'main'])
+        main_ir = selected_ir(self, self.work/'main.ll')
+        self.run_cmd(self.clang+['-fsanitize=address,undefined',main_ir,'-o',self.work/'main'])
         self.run_cmd([self.work/'main'])
+
+    def test_failed_initializer_cleans_locals_and_preserves_committed_global(self):
+        initializer = ('.function __init__ 0 1 0 void 0\n'
+            'PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_GLOBAL 0\n'
+            'PUSH_STR a\nPUSH_STR a\nSTR_CONCAT\nSTORE_LOCAL 0\n'
+            'PUSH_BOOL 0\nASSERT\nRET\n.end\n')
+        entry = 'PUSH_STR a\nPUSH_STR a\nSTR_CONCAT\nSTORE_GLOBAL 0\n'
+        _, ir, wasm = self.compile(self.program(entry, initializer), vm_ok=False)
+        self.native_harness(ir,
+            'if(nano_try_entry()!=((uint64_t)2<<32)||nms_module_live_objects()!=1||'
+            'nms_module_live_bytes()!=3)return 1;'
+            'if(nano_dispose()||nms_module_live_objects()||nms_module_live_bytes())return 2;return 0;')
+        self.node(wasm,
+            'check(e.nano_try_entry()===(2n<<32n));check(e.nms_module_live_objects()===1n);'
+            'check(e.nms_module_live_bytes()===3n);check(e.nano_dispose()===0);'
+            'check(e.nms_module_live_objects()===0n);check(e.nms_module_live_bytes()===0n);')
 
     def test_managed_profile_preserves_numeric_tags_and_total_boundaries(self):
         body='PUSH_STR a\nPUSH_STR empty\nSTR_CONCAT\nSTORE_LOCAL 0\n'

@@ -1,0 +1,18 @@
+{
+  "args": [
+    "git",
+    "-C",
+    "/private/tmp/nanolang-managed-string-971b-darwin",
+    "status",
+    "--porcelain=v1"
+  ],
+  "cleanup": {
+    "confirmed": true,
+    "errors": [],
+    "group_gone": true,
+    "pid": 72842,
+    "reaped": true
+  },
+  "exception": null,
+  "returncode": 0
+}
