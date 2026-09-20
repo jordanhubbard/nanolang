@@ -13436,3 +13436,20 @@ bounded ledger reconciliation, including repair349ba.
 - [x] I repair task_befc0deb04bc4a73b4ef2931ca7b604d by carrying caller preprocessing, compiler-selection, warning and linker options into my Linux assembler capture helper. I retain its PIC/shared-library requirements and guard its local feature macro against a caller definition. This helper loads into the external assembler, so default helper flags exclude driver sanitizer switches; dedicated helper flag variables permit explicit compatible instrumentation. I qualify the real Make recipe, strict Clang GCC-selection flags and the existing capture/replay corpus before landing. My parent compiler/runtime sanitizer assertions remain unchanged.
 
 I retain [four actual Make builds and capture/replay runs](evidence/assembler-capture-flags/summary.json): default GCC, strict Clang with GCC13 selected in CFLAGS, parent sanitizer flags with the external-helper boundary, and explicit helper UBSan. Each passes all10 existing corpus tests; forced-include exported constants prove CPPFLAGS and CFLAGS both reached the built helper. Independent source review passes; publication remains through the PR.
+
+## My mixed record-array consumer dependency after PR916
+
+I continue f36b/15f/488 from actual PR916 canonical7bba8c798. My declaration
+projection is complete within its measured scope; ARRAY-field origin proof and
+generated lifetime are not supplied by metadata. I record
+[the next consumer contract](NANOISA_MIXED_RECORD_ARRAY_CONSUMER.md) under
+`task_f64151e8a1c14585909bc44e801f5a4b` before implementation.
+
+- [ ] I review the exact separate query and structural-validation factoring; old public verifier/profile decisions remain unchanged, with no stripped metadata or trusted-bit bypass.
+- [ ] I implement and review copied record-field ARRAY origin constraints across all alias writes, calls/globals/joins and replacement, then qualify bounded work/storage, faults and unchanged old modes on both hosts.
+- [ ] I qualify actual counted record/array carrier lifetime and failure cleanup in native and import-free Wasm harnesses before any executable widening.
+- [ ] I review and qualify the complete shared verifier/VM/native/LLVM/Wasm admission and generated-root conjunction, then paired source publication and unchanged programs/shadows.
+- [ ] I complete required executable unions, nested/recursive/generic/imported/resource/tuple/map/callable graph successors and full product gates before parent closure. The first flat-array consumer does not narrow full5.1.
+
+This checkpoint is documentation only. I preserve File parser, peer affine source,
+service-admission work and all frozen qualification trees independently.
