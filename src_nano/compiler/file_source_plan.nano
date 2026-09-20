@@ -105,6 +105,10 @@ fn fsp_value(value: FileSourceText) -> string {
 shadow fsp_value { assert (== (fsp_value FileSourceText { data: "abc", size: 2 }) "ab") }
 fn fsp_equal(left: FileSourceText, right: FileSourceText) -> bool {
     if (!= left.size right.size) { return false }
+    # Validated full spans already end at their first NUL; equality compares bytes.
+    if (and (> left.size 0) (and (== left.size (str_length left.data)) (== right.size (str_length right.data)))) {
+        return (== left.data right.data)
+    }
     let mut i: int = 0
     while (< i left.size) {
         if (!= (char_at left.data i) (char_at right.data i)) { return false }
@@ -112,7 +116,12 @@ fn fsp_equal(left: FileSourceText, right: FileSourceText) -> bool {
     }
     return true
 }
-shadow fsp_equal { assert (fsp_equal FileSourceText { data: "abc", size: 2 } FileSourceText { data: "abd", size: 2 }) }
+shadow fsp_equal {
+    assert (fsp_equal FileSourceText { data: "same", size: 4 } FileSourceText { data: "same", size: 4 })
+    assert (not (fsp_equal FileSourceText { data: "same", size: 4 } FileSourceText { data: "sand", size: 4 }))
+    assert (fsp_equal FileSourceText { data: "abc", size: 2 } FileSourceText { data: "abd", size: 2 })
+    assert (fsp_equal FileSourceText { data: "éx", size: 1 } FileSourceText { data: "èy", size: 1 })
+}
 fn fsp_literal(value: FileSourceText, literal: string) -> bool {
     return (fsp_equal value FileSourceText { data: literal, size: (str_length literal) })
 }
