@@ -9,13 +9,100 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / 'tests/nanoisa/fixtures/affine_scalar_union_instances.nano'
 
+REFUSAL_PREFIX = '''resource struct Owner { value: int }
+union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} }
+fn main() -> int {
+    let owner: Owner = Owner { value: 9 }
+    let Owner { value } = owner
+    assert (== value 9)
+'''
+
+REFUSALS = {
+    'wrong_payload': (REFUSAL_PREFIX + '''
+    let wrong: Choice<int,string> = Choice.Left { value: "wrong" }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''', ('TYPE MISMATCH', 'concrete union field type', 'payload')),
+    'cross_instance': (REFUSAL_PREFIX + '''
+    let first: Choice<int,string> = Choice.Left { value: 17 }
+    let wrong: Choice<float,bool> = first
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''', ('TYPE MISMATCH', 'concrete union', 'identity', 'expected a value of type')),
+    'result_mismatch': (REFUSAL_PREFIX + '''
+    let choice: Choice<int,string> = Choice.Left { value: 17 }
+    let wrong: int = match choice {
+        Left(payload) => payload.value
+        Right(payload) => (== payload.value "right")
+        Empty(payload) => 0
+    }
+    return wrong
+}
+shadow main { assert (== (main) 17) }
+''', ('TYPE MISMATCH', 'matching scalar value-match result type', 'match arm')),
+    'incomplete_match': (REFUSAL_PREFIX + '''
+    let choice: Choice<int,string> = Choice.Left { value: 17 }
+    return match choice {
+        Left(payload) => payload.value
+        Right(payload) => 0
+    }
+}
+shadow main { assert (== (main) 17) }
+''', ('NON-EXHAUSTIVE MATCH', 'complete named scalar union match coverage', 'not total',
+      'unconditional coverage of every match value')),
+    'escaped_payload': (REFUSAL_PREFIX + '''
+    let choice: Choice<int,string> = Choice.Left { value: 17 }
+    match choice {
+        Left(payload) => { assert (== payload.value 17) }
+        Right(payload) => { assert (== payload.value "right") }
+        Empty(payload) => { assert true }
+    }
+    return payload.value
+}
+shadow main { assert (== (main) 17) }
+''', ('UNDEFINED', 'payload', 'scope')),
+}
+
 
 class AffineScalarUnionSource(unittest.TestCase):
-    def command(self, *args, env=None):
+    def command(self, *args, env=None, timeout=180):
         result = subprocess.run([str(arg) for arg in args], cwd=ROOT,
-                                capture_output=True, text=True, env=env, timeout=180)
+                                capture_output=True, text=True, env=env, timeout=timeout)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
+
+    def rejected(self, args, output, expected):
+        prior = b'prior-affine-union-output\n'
+        output.write_bytes(prior)
+        result = subprocess.run([str(arg) for arg in args], cwd=ROOT,
+                                capture_output=True, text=True, timeout=180)
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(output.read_bytes(), prior)
+        diagnostic = result.stdout + result.stderr
+        self.assertTrue(any(fragment.lower() in diagnostic.lower() for fragment in expected),
+                        diagnostic)
+
+    def assert_module(self, work, module, stem, expected):
+        self.command(ROOT / 'bin/nano_vm', '--verify-only', module)
+        vm = self.command(ROOT / 'bin/nano_vm', module)
+        self.assertEqual(vm.stdout, expected)
+        dumped = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
+        self.assertIn('Choice<int,string>', dumped)
+        self.assertIn('Choice<float,bool>', dumped)
+        self.assertIn('MATCH_TAG', dumped)
+        self.assertIn('AGG_GET 0', dumped)
+        native_source = work / f'{stem}.c'
+        native = work / f'{stem}.native'
+        self.command(ROOT / 'bin/nvm2c', module, '-o', native_source)
+        compiler = os.environ.get('NANO_NATIVE_TEST_CC', '/opt/homebrew/opt/llvm/bin/clang')
+        self.command(compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
+                     '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
+                     native_source, '-o', native)
+        runtime = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
+        executed = self.command(native, env=runtime)
+        self.assertEqual(executed.stdout, expected)
 
     def assert_shared_ownership_envelope(self, assembly):
         line = next(row for row in assembly.splitlines()
@@ -52,32 +139,64 @@ class AffineScalarUnionSource(unittest.TestCase):
     def test_distinct_instances_verify_and_execute_in_vm_and_native(self):
         with tempfile.TemporaryDirectory(prefix='nano-affine-union-source-') as raw:
             work = Path(raw)
-            assembly = self.command(ROOT / 'bin/nanoisa_emit', FIXTURE).stdout
-            self.assert_shared_ownership_envelope(assembly)
-            self.assertIn('.types 1 0 2', assembly)
-            self.assertIn('AGG_PACK 1 0 0 1', assembly)
-            self.assertIn('AGG_PACK 1 1 1 1', assembly)
-            self.assertIn('.parameters 2 union', assembly)
-            self.assertIn('.parameters 3 union', assembly)
-            nasm = work / 'instances.nasm'
-            module = work / 'instances.nvm'
-            native_source = work / 'instances.c'
-            native = work / 'instances'
-            nasm.write_text(assembly)
-            self.command(ROOT / 'bin/nanoisa', 'asm', nasm, '-o', module)
-            self.command(ROOT / 'bin/nano_vm', '--verify-only', module)
-            self.command(ROOT / 'bin/nano_vm', module)
-            dumped = self.command(ROOT / 'bin/nanoisa', 'dump', module).stdout
-            self.assertIn('.types 1 0 2', dumped)
-            self.assertIn('Choice<int,string>', dumped)
-            self.assertIn('Choice<float,bool>', dumped)
-            self.command(ROOT / 'bin/nvm2c', module, '-o', native_source)
-            compiler = os.environ.get('NANO_NATIVE_TEST_CC', '/opt/homebrew/opt/llvm/bin/clang')
-            self.command(compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
-                         '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
-                         native_source, '-o', native)
-            runtime = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
-            self.command(native, env=runtime)
+            expected = 'right\nsemantic-source-parity-pass\n'
+            selfhost = work / 'stage2-nanoisa-emit'
+            self.command(ROOT / 'bin/nanoc_stage2', ROOT / 'src_nano/nanoisa_emit.nano',
+                         '-o', selfhost, timeout=900)
+
+            emitters = (ROOT / 'bin/nanoisa_emit', selfhost)
+            for index, emitter in enumerate(emitters):
+                with self.subTest(route=f'raw-{index}'):
+                    nasm = work / f'raw-{index}.nasm'
+                    if index == 0:
+                        assembly = self.command(emitter, FIXTURE).stdout
+                        nasm.write_text(assembly)
+                    else:
+                        self.command(emitter, FIXTURE, '-o', nasm)
+                        assembly = nasm.read_text()
+                    self.assert_shared_ownership_envelope(assembly)
+                    self.assertIn('.types 1 0 2', assembly)
+                    self.assertIn('AGG_PACK 1 0 0 1', assembly)
+                    self.assertIn('AGG_PACK 1 1 1 1', assembly)
+                    self.assertIn('MATCH_TAG 0', assembly)
+                    self.assertIn('AGG_GET 0', assembly)
+                    self.assertIn('.parameters 2 union', assembly)
+                    self.assertIn('.parameters 3 union', assembly)
+                    module = work / f'raw-{index}.nvm'
+                    self.command(ROOT / 'bin/nanoisa', 'asm', nasm, '-o', module)
+                    self.assert_module(work, module, f'raw-{index}', expected)
+
+            for compiler_name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                with self.subTest(route=compiler_name):
+                    module = work / f'{compiler_name}.nvm'
+                    result = self.command(ROOT / 'bin' / compiler_name, FIXTURE,
+                                          '--emit-nvm', '-o', module)
+                    self.assertNotIn('E001 TYPE MISMATCH', result.stderr)
+                    self.assert_module(work, module, compiler_name, expected)
+
+    def test_refusals_preserve_prior_output_on_every_frontend(self):
+        with tempfile.TemporaryDirectory(prefix='nano-affine-union-refusal-') as raw:
+            work = Path(raw)
+            selfhost = work / 'stage2-nanoisa-emit'
+            self.command(ROOT / 'bin/nanoc_stage2', ROOT / 'src_nano/nanoisa_emit.nano',
+                         '-o', selfhost, timeout=900)
+            routes = (
+                ('raw-cseed', ROOT / 'bin/nanoisa_emit'),
+                ('raw-selfhost', selfhost),
+                ('nano-virt', ROOT / 'bin/nano_virt'),
+                ('stage1', ROOT / 'bin/nanoc_stage1'),
+                ('stage2', ROOT / 'bin/nanoc_stage2'),
+            )
+            for case, (source, expected) in REFUSALS.items():
+                source_path = work / f'{case}.nano'
+                source_path.write_text(source)
+                for route, frontend in routes:
+                    with self.subTest(case=case, route=route):
+                        output = work / f'{case}-{route}.out'
+                        args = [frontend, source_path, '-o', output]
+                        if route in ('nano-virt', 'stage1', 'stage2'):
+                            args.insert(2, '--emit-nvm')
+                        self.rejected(args, output, expected)
 
 
 if __name__ == '__main__':
