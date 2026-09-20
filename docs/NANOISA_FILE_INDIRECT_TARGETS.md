@@ -47,6 +47,12 @@ No payload bit pattern creates a callable. A join unions target bits only for
 compatible initialized FUNCTION values with equal stack shape. A missing or
 uninitialized predecessor never gains initialization from another predecessor.
 Scalar/File/category disagreement refuses; UNKNOWN is never the empty target set.
+An unseen/unreachable instruction is a distinct worklist bottom, not a reached
+state containing an uninitialized local. Joined reached states retain a
+may-uninitialized alternative; unioning target bits never clears it. I finish
+the complete fixed point before validating/reporting indirect call sites and
+constructing the candidate call graph, so a late backedge target cannot escape
+signature or recursion checking.
 
 Each function begins with its exact declared scalar/nominal parameter categories
 and uninitialized remaining locals. Both successors of a branch participate;
@@ -78,7 +84,11 @@ remaining owner transition is a later complete File-flow proof.
 
 I combine direct edges with every possible indirect candidate edge and reject
 any recursive call-graph component, including an unused function's self-edge.
-No first-target shortcut or name-based deduplication is permitted. The report
+A structurally valid but unreachable CALL_INDIRECT has no authoritative target
+fact and returns UNRESOLVED in this first query. I do not publish an empty-set
+success for it. Direct edges in unreachable instructions still participate,
+matching the existing decoder. No first-target shortcut or name-based
+deduplication is permitted. The report
 retains the original function, decoded instruction index and byte PC, complete
 candidate bitset, exact common signature and original candidate identities.
 Unsupported parameter/return callable flow returns UNRESOLVED, not a fabricated
