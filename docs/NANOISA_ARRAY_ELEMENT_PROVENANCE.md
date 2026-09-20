@@ -71,3 +71,23 @@ reapplying the template substitution. The old public-internal comparison wrapper
 uses NULL contexts and retains its existing behavior. I carry both comparison
 sides' contexts through nested callable signatures and duplicated signature
 facts. This is comparison metadata, not a new source type or runtime layout.
+
+My source checkpoint uses `src/typechecker_nominal_arrays.inc` for checked owned
+views, and the existing bounded signature snapshot implementation for checked
+TypeInfo copying. Failed views leave their output untouched and discard only
+new trees. The typechecker object explicitly depends on the new include.
+
+My array-boundary wrapper now receives the destination owner at parameters,
+fields, locals, assignment, returns and both module passes. The original union
+constructor materializer is separate from a recursive origin validator. Nested
+union templates retain a linked stack of substitution contexts; a formal switches
+to its argument's original context, never back into its own declaration template.
+The public-internal equality wrappers supply no contexts, preserving ordinary
+comparison behavior. Contextual empty arrays validate their destination facts
+before accepting zero elements.
+
+I retain inferred array trees under the AST owner and register synthesized loop
+annotation trees under the explicit checker-tree destructor. This is cumulative
+checker metadata until Environment teardown, not expression-bounded reclamation.
+I have not run this checkpoint. Fresh full build/bootstrap and all previously
+required source, allocation and lifetime gates remain pending.

@@ -969,6 +969,8 @@ NominalIdentity env_generated_list_element(Environment *env, const Function *fun
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);
+/* I transfer one independently owned annotation tree only on success. */
+bool env_own_checker_type_info(Environment *env, TypeInfo *info);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
@@ -1051,6 +1053,8 @@ bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2)
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);
+/* Like the checked signature copy, failure preserves *out. */
+bool copy_payload_type_info_checked(const TypeInfo *source, TypeInfo **out);
 void free_payload_type_info(TypeInfo *info);
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments);
 

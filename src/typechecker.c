@@ -384,6 +384,13 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
 static bool nominal_callable_view(ASTNode *expr, Environment *env, unsigned depth,
                                    FunctionSignature **signature, const char **owner);
 
+typedef struct { TypeInfo *info; const char *owner; } NominalView;
+static void nominal_view_discard(NominalView *view);
+static bool nominal_value_view(ASTNode *, Environment *, unsigned, NominalView *);
+static bool nominal_array_builtin(ASTNode *, Environment *, const char *, int);
+static bool nominal_array_requires_identity(Environment *, const TypeInfo *, const char *, unsigned);
+static bool nominal_array_matches(Environment *, const TypeInfo *, const char *, ASTNode *, unsigned);
+
 static bool nominal_callable_owner(ASTNode *expr, Environment *env, unsigned depth,
                                     const char **owner) {
     if (!expr || depth > 128) return false;
@@ -441,6 +448,42 @@ static NominalIdentity nominal_annotation(Environment *env, Type type, const Typ
     }
     return env_nominal_identity(env, name, owner, type);
 }
+
+typedef struct NominalSubstitution {
+    const UnionDef *declaration;
+    const TypeInfo *arguments;
+    const char *argument_owner;
+    const struct NominalSubstitution *argument_context;
+} NominalSubstitution;
+static bool nominal_substitute_annotation(const TypeInfo **info, const char **owner,
+                                           const NominalSubstitution **context) {
+    for (unsigned depth = 0; depth <= 128; ++depth) {
+        if (!*context || !*info || !(*info)->generic_name) return true;
+        const UnionDef *declaration = (*context)->declaration;
+        if (!declaration || declaration->generic_param_count < 0) return false;
+        bool replaced = false;
+        for (int i = 0; i < declaration->generic_param_count; ++i) {
+            if (!declaration->generic_params || !declaration->generic_params[i]) return false;
+            if (strcmp((*info)->generic_name, declaration->generic_params[i])) continue;
+            const TypeInfo *arguments = (*context)->arguments;
+            if (((*info)->base_type != TYPE_STRUCT && (*info)->base_type != TYPE_GENERIC) ||
+                (*info)->type_param_count || !arguments ||
+                arguments->type_param_count != declaration->generic_param_count ||
+                !arguments->type_params || !arguments->type_params[i]) return false;
+            *info = arguments->type_params[i];
+            *owner = (*context)->argument_owner;
+            *context = (*context)->argument_context;
+            replaced = true;
+            break;
+        }
+        if (!replaced) return true;
+    }
+    return false;
+}
+static bool checked_signature_equal_context(Environment *, const FunctionSignature *, const char *,
+    const FunctionSignature *, const char *, unsigned, const NominalSubstitution *, const NominalSubstitution *);
+static bool checked_annotations_equal_context(Environment *, const TypeInfo *, const char *,
+    const TypeInfo *, const char *, unsigned, const NominalSubstitution *, const NominalSubstitution *);
 
 static bool checked_signature_equal(Environment *, const FunctionSignature *, const char *,
                                      const FunctionSignature *, const char *, unsigned);
@@ -500,8 +543,11 @@ static bool checked_annotation_kind(Environment *env, const TypeInfo *info,
     return wanted >= TYPE_INT && wanted <= TYPE_BORROW_MUT;
 }
 
-static bool checked_annotations_equal(Environment *env, const TypeInfo *a, const char *a_owner,
-                                       const TypeInfo *b, const char *b_owner, unsigned depth) {
+static bool checked_annotations_equal_context(Environment *env, const TypeInfo *a, const char *a_owner,
+                                       const TypeInfo *b, const char *b_owner, unsigned depth,
+                                       const NominalSubstitution *a_context, const NominalSubstitution *b_context) {
+    if (!nominal_substitute_annotation(&a, &a_owner, &a_context) ||
+        !nominal_substitute_annotation(&b, &b_owner, &b_context)) return false;
     if (!a || !b) return !a && !b;
     if (depth > 128 || a->type_param_count < 0 || b->type_param_count < 0 ||
         a->tuple_element_count < 0 || b->tuple_element_count < 0 ||
@@ -530,17 +576,28 @@ static bool checked_annotations_equal(Environment *env, const TypeInfo *a, const
         ai.base_type = bi.base_type = TYPE_LIST_GENERIC;
         const char *ae = list_annotation_spelling(&ai, NULL);
         const char *be = list_annotation_spelling(&bi, NULL);
-        NominalIdentity aid = env_nominal_identity(env, ae, a_owner, TYPE_STRUCT);
-        NominalIdentity bid = env_nominal_identity(env, be, b_owner, TYPE_STRUCT);
-        if (!nominal_equal(aid, bid)) return false;
-        if (a->type_param_count == 1 && a->generic_name && strcmp(a->generic_name, "List") &&
-            !nominal_equal(aid, env_nominal_identity(env, a->generic_name, a_owner, TYPE_STRUCT))) return false;
-        if (b->type_param_count == 1 && b->generic_name && strcmp(b->generic_name, "List") &&
-            !nominal_equal(bid, env_nominal_identity(env, b->generic_name, b_owner, TYPE_STRUCT))) return false;
         alist = a->type_param_count == 1 ? *a->type_params[0]
             : (TypeInfo){.base_type = TYPE_STRUCT, .generic_name = (char *)ae};
         blist = b->type_param_count == 1 ? *b->type_params[0]
             : (TypeInfo){.base_type = TYPE_STRUCT, .generic_name = (char *)be};
+        const TypeInfo *aleaf = &alist, *bleaf = &blist;
+        const char *alo = a_owner, *blo = b_owner;
+        const NominalSubstitution *alc = a_context, *blc = b_context;
+        if (!nominal_substitute_annotation(&aleaf, &alo, &alc) ||
+            !nominal_substitute_annotation(&bleaf, &blo, &blc)) return false;
+        NominalIdentity aid = env_nominal_identity(env, aleaf->generic_name, alo, TYPE_STRUCT);
+        NominalIdentity bid = env_nominal_identity(env, bleaf->generic_name, blo, TYPE_STRUCT);
+        if (!nominal_equal(aid, bid)) return false;
+        if (a->type_param_count == 1 && a->generic_name && strcmp(a->generic_name, "List")) {
+            TypeInfo outer = {.base_type = TYPE_STRUCT, .generic_name = a->generic_name};
+            if (!checked_annotations_equal_context(env, &outer, a_owner, &alist, a_owner,
+                    depth + 1, a_context, a_context)) return false;
+        }
+        if (b->type_param_count == 1 && b->generic_name && strcmp(b->generic_name, "List")) {
+            TypeInfo outer = {.base_type = TYPE_STRUCT, .generic_name = b->generic_name};
+            if (!checked_annotations_equal_context(env, &outer, b_owner, &blist, b_owner,
+                    depth + 1, b_context, b_context)) return false;
+        }
         aparam = &alist; bparam = &blist;
         av.generic_name = bv.generic_name = "List";
         av.type_param_count = bv.type_param_count = 1;
@@ -567,17 +624,17 @@ static bool checked_annotations_equal(Environment *env, const TypeInfo *a, const
         !annotation_text_equal(av.opaque_type_name, bv.opaque_type_name) ||
         !annotation_text_equal(av.row_var_name, bv.row_var_name)) return false;
     if (ak == TYPE_ARRAY && (!av.element_type || !bv.element_type)) return false;
-    if (!checked_annotations_equal(env, av.element_type, a_owner, bv.element_type, b_owner, depth + 1)) return false;
+    if (!checked_annotations_equal_context(env, av.element_type, a_owner, bv.element_type, b_owner, depth + 1, a_context, b_context)) return false;
     for (int i = 0; i < av.type_param_count; ++i)
         if (!av.type_params || !bv.type_params || !av.type_params[i] || !bv.type_params[i] ||
-            !checked_annotations_equal(env, av.type_params[i], a_owner, bv.type_params[i], b_owner, depth + 1)) return false;
+            !checked_annotations_equal_context(env, av.type_params[i], a_owner, bv.type_params[i], b_owner, depth + 1, a_context, b_context)) return false;
     for (int i = 0; i < av.tuple_element_count; ++i) {
         if (!av.tuple_types || !bv.tuple_types) return false;
         TypeInfo left = {.base_type = av.tuple_types[i],
             .generic_name = av.tuple_type_names ? av.tuple_type_names[i] : NULL};
         TypeInfo right = {.base_type = bv.tuple_types[i],
             .generic_name = bv.tuple_type_names ? bv.tuple_type_names[i] : NULL};
-        if (!checked_annotations_equal(env, &left, a_owner, &right, b_owner, depth + 1)) return false;
+        if (!checked_annotations_equal_context(env, &left, a_owner, &right, b_owner, depth + 1, a_context, b_context)) return false;
     }
     for (int i = 0; i < av.row_field_count; ++i) {
         if (!av.row_field_types || !bv.row_field_types || !av.row_field_names || !bv.row_field_names ||
@@ -587,14 +644,19 @@ static bool checked_annotations_equal(Environment *env, const TypeInfo *a, const
             .generic_name = av.row_field_type_names ? av.row_field_type_names[i] : NULL};
         TypeInfo right = {.base_type = bv.row_field_types[i],
             .generic_name = bv.row_field_type_names ? bv.row_field_type_names[i] : NULL};
-        if (!checked_annotations_equal(env, &left, a_owner, &right, b_owner, depth + 1)) return false;
+        if (!checked_annotations_equal_context(env, &left, a_owner, &right, b_owner, depth + 1, a_context, b_context)) return false;
     }
     for (int i = 0; i < av.type_var_count; ++i)
         if (!av.type_var_names || !bv.type_var_names || !av.type_var_names[i] || !bv.type_var_names[i] ||
             !annotation_text_equal(av.type_var_names[i], bv.type_var_names[i])) return false;
     if (ak == TYPE_FUNCTION && (!av.fn_sig || !bv.fn_sig)) return false;
     return (!av.fn_sig && !bv.fn_sig) ||
-        checked_signature_equal(env, av.fn_sig, a_owner, bv.fn_sig, b_owner, depth + 1);
+        checked_signature_equal_context(env, av.fn_sig, a_owner, bv.fn_sig, b_owner, depth + 1, a_context, b_context);
+}
+
+static bool checked_annotations_equal(Environment *env, const TypeInfo *a, const char *a_owner,
+                                       const TypeInfo *b, const char *b_owner, unsigned depth) {
+    return checked_annotations_equal_context(env, a, a_owner, b, b_owner, depth, NULL, NULL);
 }
 
 static bool checked_signature_annotation(Environment *env, Type declared, const char *name,
@@ -625,15 +687,15 @@ static bool checked_signature_annotation(Environment *env, Type declared, const 
     return annotation_text_equal(name, resolved_name);
 }
 
-static bool checked_signature_equal(Environment *env, const FunctionSignature *a, const char *a_owner,
-                                     const FunctionSignature *b, const char *b_owner, unsigned depth) {
+static bool checked_signature_equal_context(Environment *env, const FunctionSignature *a, const char *a_owner,
+                                     const FunctionSignature *b, const char *b_owner, unsigned depth,
+                                     const NominalSubstitution *a_context, const NominalSubstitution *b_context) {
     if (!a || !b || depth > 128 || a->param_count < 0 || a->param_count != b->param_count) return false;
     for (int i = 0; i <= a->param_count; ++i) {
         bool result = i == a->param_count;
         if (!result && (!a->param_types || !b->param_types)) return false;
         Type at = result ? a->return_type : a->param_types[i];
         Type bt = result ? b->return_type : b->param_types[i];
-        if (at != bt) return false;
         const char *an = result ? a->return_struct_name : a->param_struct_names ? a->param_struct_names[i] : NULL;
         const char *bn = result ? b->return_struct_name : b->param_struct_names ? b->param_struct_names[i] : NULL;
         const TypeInfo *ai = result ? a->return_type_info : a->param_type_info ? a->param_type_info[i] : NULL;
@@ -642,19 +704,44 @@ static bool checked_signature_equal(Environment *env, const FunctionSignature *a
         TypeInfo bv = bi ? *bi : (TypeInfo){.base_type = bt, .generic_name = (char *)bn};
         if (!av.generic_name) av.generic_name = (char *)an;
         if (!bv.generic_name) bv.generic_name = (char *)bn;
-        if (!checked_signature_annotation(env, at, an, &av, a_owner) ||
-            !checked_signature_annotation(env, bt, bn, &bv, b_owner)) return false;
+        const TypeInfo *ap = &av, *bp = &bv;
+        const char *ao = a_owner, *bo = b_owner;
+        const NominalSubstitution *ac = a_context, *bc = b_context;
+        if (!nominal_substitute_annotation(&ap, &ao, &ac) ||
+            !nominal_substitute_annotation(&bp, &bo, &bc)) return false;
+        if (ap != &av) {
+            if (an && av.generic_name && strcmp(an, av.generic_name)) return false;
+            av = *ap; at = av.base_type; an = av.generic_name;
+        }
+        if (bp != &bv) {
+            if (bn && bv.generic_name && strcmp(bn, bv.generic_name)) return false;
+            bv = *bp; bt = bv.base_type; bn = bv.generic_name;
+        }
+        if (at != bt) return false;
+        /* A List<formal> root is validated by the recursive contextual
+         * comparison below; other duplicated outer facts use the old check. */
+        bool alist = ac && (at == TYPE_LIST_GENERIC || (at == TYPE_GENERIC && av.generic_name && !strcmp(av.generic_name, "List")));
+        bool blist = bc && (bt == TYPE_LIST_GENERIC || (bt == TYPE_GENERIC && bv.generic_name && !strcmp(bv.generic_name, "List")));
+        if ((!alist && !checked_signature_annotation(env, at, an, &av, ao)) ||
+            (!blist && !checked_signature_annotation(env, bt, bn, &bv, bo))) return false;
+        if (alist && an && !annotation_text_equal(an, list_annotation_spelling(&av, NULL))) return false;
+        if (blist && bn && !annotation_text_equal(bn, list_annotation_spelling(&bv, NULL))) return false;
         if (result && at == TYPE_FUNCTION) {
             if (av.fn_sig && a->return_fn_sig &&
-                !checked_signature_equal(env, av.fn_sig, a_owner, a->return_fn_sig, a_owner, depth + 1)) return false;
+                !checked_signature_equal_context(env, av.fn_sig, ao, a->return_fn_sig, a_owner, depth + 1, ac, a_context)) return false;
             if (bv.fn_sig && b->return_fn_sig &&
-                !checked_signature_equal(env, bv.fn_sig, b_owner, b->return_fn_sig, b_owner, depth + 1)) return false;
+                !checked_signature_equal_context(env, bv.fn_sig, bo, b->return_fn_sig, b_owner, depth + 1, bc, b_context)) return false;
             if (!av.fn_sig) av.fn_sig = a->return_fn_sig;
             if (!bv.fn_sig) bv.fn_sig = b->return_fn_sig;
         }
-        if (!checked_annotations_equal(env, &av, a_owner, &bv, b_owner, depth + 1)) return false;
+        if (!checked_annotations_equal_context(env, &av, ao, &bv, bo, depth + 1, ac, bc)) return false;
     }
     return true;
+}
+
+static bool checked_signature_equal(Environment *env, const FunctionSignature *a, const char *a_owner,
+                                     const FunctionSignature *b, const char *b_owner, unsigned depth) {
+    return checked_signature_equal_context(env, a, a_owner, b, b_owner, depth, NULL, NULL);
 }
 
 /* A representative always carries its own signature and owner together. I own
@@ -775,6 +862,14 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
         }
         return first;
     }
+    if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2)) {
+        NominalView view = {0};
+        if (!nominal_value_view(expr, env, depth + 1, &view)) return none;
+        NominalIdentity id = view.info->base_type == type
+            ? nominal_annotation(env, type, view.info, view.info->generic_name, view.owner) : none;
+        nominal_view_discard(&view);
+        return id;
+    }
     if (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL) {
         Function *fn = nominal_direct_function(expr, env);
         if (fn) return fn->return_type == type
@@ -804,6 +899,8 @@ static NominalIdentity nominal_expression(ASTNode *expr, Environment *env, Type 
     return none;
 }
 
+#include "typechecker_nominal_arrays.inc"
+
 static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type) {
     return env_nominal_name(env, nominal_expression(expr, env, type, 0));
 }
@@ -818,10 +915,86 @@ static bool check_callable_contract(Environment *env, const FunctionSignature *e
     return matches;
 }
 
+/* Only nominal array leaves need this additional identity contract. Scalar
+ * conversions and formal/enum destinations retain their existing checks. */
+static bool nominal_array_requires_identity(Environment *env, const TypeInfo *info,
+                                             const char *owner, unsigned depth) {
+    if (!info || depth > 128) return true;
+    if (info->base_type == TYPE_ARRAY)
+        return nominal_array_requires_identity(env, info->element_type, owner, depth + 1);
+    if (info->base_type != TYPE_STRUCT && info->base_type != TYPE_LIST_GENERIC &&
+        info->base_type != TYPE_FUNCTION) return false;
+    if (info->base_type != TYPE_STRUCT) return true;
+    const char *name = info->generic_name;
+    if (name && (is_type_variable_name(name) || env_get_union(env, name) || env_get_opaque_type(env, name) ||
+        env_nominal_identity(env, name, owner, TYPE_ENUM).ordinal)) return false;
+    return true;
+}
+static bool nominal_array_matches_context(Environment *env, const TypeInfo *expected,
+                                   const char *owner, ASTNode *value, unsigned depth,
+                                   const NominalSubstitution *context) {
+    if (!nominal_substitute_annotation(&expected, &owner, &context) ||
+        !expected || !value || depth > 128) return false;
+    if (value->type == AST_BLOCK && value->as.block.count)
+        return nominal_array_matches_context(env, expected, owner,
+            value->as.block.statements[value->as.block.count - 1], depth + 1, context);
+    if (value->type == AST_RETURN)
+        return nominal_array_matches_context(env, expected, owner, value->as.return_stmt.value, depth + 1, context);
+    if (value->type == AST_IF || value->type == AST_COND || value->type == AST_MATCH) {
+        int count = value->type == AST_IF ? 2 : value->type == AST_MATCH
+            ? value->as.match_expr.arm_count : value->as.cond_expr.clause_count + 1;
+        if (count <= 0) return false;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *body = value->type == AST_IF ? (i ? value->as.if_stmt.else_branch : value->as.if_stmt.then_branch)
+                : value->type == AST_MATCH ? value->as.match_expr.arm_bodies[i]
+                : i < value->as.cond_expr.clause_count ? value->as.cond_expr.values[i] : value->as.cond_expr.else_value;
+            if (!nominal_array_matches_context(env, expected, owner, body, depth + 1, context)) return false;
+        }
+        return true;
+    }
+    if (expected->base_type == TYPE_ARRAY && value->type == AST_ARRAY_LITERAL) {
+        if (!expected->element_type || value->as.array_literal.element_count < 0) return false;
+        for (int i = 0; i < value->as.array_literal.element_count; ++i)
+            if (!nominal_array_matches_context(env, expected->element_type, owner,
+                    value->as.array_literal.elements[i], depth + 1, context)) return false;
+        return true;
+    }
+    NominalView actual = {0};
+    if (!nominal_value_view(value, env, depth + 1, &actual)) return false;
+    bool same = checked_annotations_equal_context(env, expected, owner, actual.info, actual.owner, depth + 1, context, NULL);
+    nominal_view_discard(&actual);
+    return same;
+}
+static bool nominal_array_matches(Environment *env, const TypeInfo *expected,
+                                   const char *owner, ASTNode *value, unsigned depth) {
+    return nominal_array_matches_context(env, expected, owner, value, depth, NULL);
+}
+static bool nominal_array_requires_context(Environment *env, const TypeInfo *info,
+                                            const char *owner, const NominalSubstitution *context,
+                                            unsigned depth) {
+    if (!nominal_substitute_annotation(&info, &owner, &context) || !info || depth > 128) return true;
+    if (info->base_type == TYPE_ARRAY)
+        return nominal_array_requires_context(env, info->element_type, owner, context, depth + 1);
+    return nominal_array_requires_identity(env, info, owner, depth);
+}
+
+static bool check_nominal_array_contract(Environment *env, const TypeInfo *expected,
+                                         const char *owner, ASTNode *value) {
+    if (!expected || expected->base_type != TYPE_ARRAY ||
+        !nominal_array_requires_identity(env, expected, owner, 0)) return true;
+    if (checked_annotations_equal(env, expected, owner, expected, owner, 0) &&
+        nominal_array_matches(env, expected, owner, value, 0)) return true;
+    emit_context_error("E001 TYPE MISMATCH", value ? value->line : 0, value ? value->column : 0, 1,
+        "I require the declared nominal record type for this array.",
+        "Preserve every nested element declaration and its module identity.");
+    return false;
+}
+
 /* I preserve scalar enum conversion policy; this checkpoint checks records and
  * the new ordinary-record list route, not a new enum destination ABI. */
 static bool check_nominal_contract(Environment *env, Type type, const TypeInfo *info,
                                     const char *name, const char *owner, ASTNode *value) {
+    if (type == TYPE_ARRAY) return check_nominal_array_contract(env, info, owner, value);
     if (type == TYPE_FUNCTION) {
         /* Unannotated legacy builtin callbacks retain their separate checks.
          * They do not provide a nominal signature for an indirect list call. */
@@ -966,9 +1139,7 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
         }
     }
     if (expr->type == AST_CALL && expr->as.call.name) {
-        if (!expr->as.call.func_expr && expr->as.call.arg_count == 2 &&
-            (strcmp(expr->as.call.name, "at") == 0 ||
-             strcmp(expr->as.call.name, "array_get") == 0)) {
+        if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2)) {
             TypeInfo *array = try_get_expr_type_info(expr->as.call.args[0], env);
             if (array && array->base_type == TYPE_ARRAY) return array->element_type;
         }
@@ -1179,84 +1350,27 @@ static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value
     return true;
 }
 
-/* I borrow nominal element identity from the array declaration. */
+/* My borrowed spelling is the canonical registered declaration name. */
 static const char *array_record_name(ASTNode *array, Environment *env) {
-    if (!array) return NULL;
-    if (array->type == AST_ARRAY_LITERAL && array->as.array_literal.element_count > 0)
-        return get_struct_type_name(array->as.array_literal.elements[0], env);
-    TypeInfo *info = try_get_expr_type_info(array, env);
-    if (info && info->base_type == TYPE_ARRAY && info->element_type &&
-        info->element_type->base_type == TYPE_STRUCT && info->element_type->generic_name)
-        return info->element_type->generic_name;
-    if (array->type == AST_IDENTIFIER) {
-        Symbol *symbol = env_get_var_visible_at(env, array->as.identifier, array->line, array->column);
-        return symbol && symbol->type == TYPE_ARRAY && symbol->element_type == TYPE_STRUCT
-            ? symbol->struct_type_name : NULL;
-    }
-    if (array->type == AST_FIELD_ACCESS) {
-        const char *owner = get_struct_type_name(array->as.field_access.object, env);
-        StructDef *record = owner ? env_get_struct(env, owner) : NULL;
-        if (!record) return NULL;
-        for (int i = 0; i < record->field_count; i++)
-            if (!strcmp(record->field_names[i], array->as.field_access.field_name) &&
-                record->field_types[i] == TYPE_ARRAY && record->field_element_types &&
-                record->field_element_types[i] == TYPE_STRUCT && record->field_type_names)
-                return record->field_type_names[i];
-    }
-    if (array->type == AST_MODULE_QUALIFIED_CALL) {
-        const char *alias = array->as.module_qualified_call.module_alias;
-        const char *name = array->as.module_qualified_call.function_name;
-        size_t length = strlen(alias) + strlen(name) + 2;
-        char *qualified = malloc(length);
-        if (!qualified) return NULL;
-        snprintf(qualified, length, "%s.%s", alias, name);
-        Function *function = env_get_function(env, qualified);
-        free(qualified);
-        if (function && function->return_type == TYPE_ARRAY && function->return_element_type == TYPE_STRUCT)
-            return function->return_struct_type_name;
-        return NULL;
-    }
-    if (array->type == AST_CALL && !array->as.call.func_expr && array->as.call.name) {
-        const char *name = array->as.call.name;
-        bool builtin_push = !strcmp(name, "array_push") &&
-            env_array_push_is_builtin(env, array->line, array->column);
-        if (((builtin_push || !strcmp(name, "filter")) && array->as.call.arg_count == 2) ||
-            (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
-            return array_record_name(array->as.call.args[0], env);
-        if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
-            return get_struct_type_name(array->as.call.args[1], env);
-        if (!strcmp(name, "map") && array->as.call.arg_count == 2 &&
-            array->as.call.args[1]->type == AST_IDENTIFIER) {
-            ASTNode *callback = array->as.call.args[1];
-            if (!env_get_var_visible_at(env, callback->as.identifier, callback->line, callback->column)) {
-                Function *transform = env_get_function(env, callback->as.identifier);
-                if (transform && transform->return_type == TYPE_STRUCT)
-                    return transform->return_struct_type_name;
-            }
-        }
-        Function *function = env_get_function(env, array->as.call.name);
-        if (function && function->return_type == TYPE_ARRAY && function->return_element_type == TYPE_STRUCT)
-            return function->return_struct_type_name;
-    }
-    return NULL;
+    NominalView view = {0};
+    if (!nominal_value_view(array, env, 0, &view)) return NULL;
+    const TypeInfo *element = view.info && view.info->base_type == TYPE_ARRAY ? view.info->element_type : NULL;
+    NominalIdentity id = element && element->base_type == TYPE_STRUCT
+        ? nominal_annotation(env, TYPE_STRUCT, element, element->generic_name, view.owner)
+        : (NominalIdentity){TYPE_UNKNOWN, 0};
+    nominal_view_discard(&view);
+    return env_nominal_name(env, id);
 }
 
-/* I compare declarations, including their module identity, at array boundaries. */
 static bool check_record_array_contract(Environment *env, Type type, Type element,
-                                         const char *name, ASTNode *value) {
+                                         const char *name, const char *owner, ASTNode *value) {
     if (type == TYPE_LIST_GENERIC || type == TYPE_STRUCT)
-        return check_nominal_contract(env, type, NULL, name, env->current_module, value);
+        return check_nominal_contract(env, type, NULL, name, owner, value);
     if (type != TYPE_ARRAY || element != TYPE_STRUCT || !name || !value) return true;
-    StructDef *expected = env_get_struct(env, name);
-    if (!expected) return true; /* Enum and formal-generic contexts have other rules. */
-    if (value->type == AST_ARRAY_LITERAL && value->as.array_literal.element_count == 0) return true;
-    const char *actual_name = array_record_name(value, env);
-    StructDef *actual = actual_name ? env_get_struct(env, actual_name) : NULL;
-    if (actual == expected) return true;
-    emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
-        "I require the declared nominal record type for this array.",
-        "Match the array element declaration, including its module identity.");
-    return false;
+    TypeInfo leaf = {0}, array = {0};
+    leaf.base_type = TYPE_STRUCT; leaf.generic_name = (char *)name;
+    array.base_type = TYPE_ARRAY; array.element_type = &leaf;
+    return check_nominal_array_contract(env, &array, owner, value);
 }
 
 /* I retain fixed union field contracts without resolving formal parameters here. */
@@ -1271,7 +1385,7 @@ static void check_union_record_array_contract(Environment *env, UnionDef *def,
         for (int j = 0; element->generic_name && j < def->generic_param_count; ++j)
             if (!strcmp(element->generic_name, def->generic_params[j])) return;
         check_record_array_contract(env, TYPE_ARRAY, element->base_type,
-                                    element->generic_name, value);
+                                    element->generic_name, def->module_name, value);
         return;
     }
 }
@@ -1317,7 +1431,80 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
 }
 
 /* I resolve payload annotations and retain owned constructor context. */
-static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,
+/* I validate original templates before the legacy constructor-context visitor
+ * materializes copied annotations. Context links point only into this call stack. */
+static bool nominal_union_array_origins(Environment *env, const TypeInfo *expected,
+    const char *owner, const NominalSubstitution *context, ASTNode *value, unsigned depth) {
+    if (!expected || !value) return true;
+    if (depth > 128 || !nominal_substitute_annotation(&expected, &owner, &context)) return false;
+    if (value->type == AST_BLOCK && value->as.block.count)
+        return nominal_union_array_origins(env, expected, owner, context,
+            value->as.block.statements[value->as.block.count - 1], depth + 1);
+    if (value->type == AST_RETURN)
+        return nominal_union_array_origins(env, expected, owner, context, value->as.return_stmt.value, depth + 1);
+    if (value->type == AST_IF || value->type == AST_COND || value->type == AST_MATCH) {
+        int count = value->type == AST_IF ? 2 : value->type == AST_MATCH
+            ? value->as.match_expr.arm_count : value->as.cond_expr.clause_count + 1;
+        if (count <= 0) return false;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *body = value->type == AST_IF ? (i ? value->as.if_stmt.else_branch : value->as.if_stmt.then_branch)
+                : value->type == AST_MATCH ? value->as.match_expr.arm_bodies[i]
+                : i < value->as.cond_expr.clause_count ? value->as.cond_expr.values[i] : value->as.cond_expr.else_value;
+            if (!nominal_union_array_origins(env, expected, owner, context, body, depth + 1)) return false;
+        }
+        return true;
+    }
+    if (expected->base_type == TYPE_ARRAY) {
+        if (nominal_array_requires_context(env, expected, owner, context, depth) &&
+            (!checked_annotations_equal_context(env, expected, owner, expected, owner, depth, context, context) ||
+             !nominal_array_matches_context(env, expected, owner, value, depth, context))) return false;
+        if (value->type == AST_ARRAY_LITERAL) {
+            if (!expected->element_type) return false;
+            for (int i = 0; i < value->as.array_literal.element_count; ++i)
+                if (!nominal_union_array_origins(env, expected->element_type, owner, context,
+                        value->as.array_literal.elements[i], depth + 1)) return false;
+        }
+        return true;
+    }
+    NominalIdentity identity = env_nominal_identity(env, expected->generic_name, owner, TYPE_UNION);
+    if (!identity.ordinal) return true; /* Scalar/record consumers have their own contracts. */
+    UnionDef *definition = &env->unions[identity.ordinal - 1];
+    const char *variant = NULL;
+    char **names = NULL;
+    ASTNode **values = NULL;
+    int count = 0;
+    if (value->type == AST_UNION_CONSTRUCT) {
+        if (env_get_union(env, value->as.union_construct.union_name) != definition) return true;
+        variant = value->as.union_construct.variant_name;
+        names = value->as.union_construct.field_names;
+        values = value->as.union_construct.field_values;
+        count = value->as.union_construct.field_count;
+    } else if (value->type == AST_STRUCT_LITERAL && value->as.struct_literal.struct_name) {
+        const char *spelling = value->as.struct_literal.struct_name;
+        size_t length = strlen(definition->name);
+        if (strncmp(spelling, definition->name, length) || spelling[length] != '.') return true;
+        variant = spelling + length + 1;
+        names = value->as.struct_literal.field_names;
+        values = value->as.struct_literal.field_values;
+        count = value->as.struct_literal.field_count;
+    } else return true;
+    int arm = env_get_union_variant_index(env, definition->name, variant);
+    if (arm < 0) return true; /* Existing constructor checks report the invalid variant. */
+    NominalSubstitution substitution = {definition, expected, owner, context};
+    for (int i = 0; i < count; ++i)
+        for (int field = 0; field < definition->variant_field_counts[arm]; ++field) {
+            if (strcmp(names[i], definition->variant_field_names[arm][field])) continue;
+            const TypeInfo *template = definition->variant_field_type_info && definition->variant_field_type_info[arm]
+                ? definition->variant_field_type_info[arm][field] : NULL;
+            if (!nominal_union_array_origins(env, template, definition->module_name,
+                    &substitution, values[i], depth + 1)) return false;
+            break;
+        }
+    return true;
+}
+
+static void apply_concrete_union_arrays(Environment *env, const TypeInfo *expected,
+                                       const char *expected_owner,
                                         ASTNode *value, unsigned depth) {
     if (!expected || !value) return;
     register_native_union_context(env, expected, 0);
@@ -1327,28 +1514,28 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         return;
     }
     if (value->type == AST_IF) {
-        check_concrete_union_arrays(env, expected, value->as.if_stmt.then_branch, depth + 1);
-        check_concrete_union_arrays(env, expected, value->as.if_stmt.else_branch, depth + 1);
+        apply_concrete_union_arrays(env, expected, expected_owner, value->as.if_stmt.then_branch, depth + 1);
+        apply_concrete_union_arrays(env, expected, expected_owner, value->as.if_stmt.else_branch, depth + 1);
         return;
     }
     if (value->type == AST_COND) {
         for (int i = 0; i < value->as.cond_expr.clause_count; ++i)
-            check_concrete_union_arrays(env, expected, value->as.cond_expr.values[i], depth + 1);
-        check_concrete_union_arrays(env, expected, value->as.cond_expr.else_value, depth + 1);
+            apply_concrete_union_arrays(env, expected, expected_owner, value->as.cond_expr.values[i], depth + 1);
+        apply_concrete_union_arrays(env, expected, expected_owner, value->as.cond_expr.else_value, depth + 1);
         return;
     }
     if (value->type == AST_MATCH) {
         for (int i = 0; i < value->as.match_expr.arm_count; ++i)
-            check_concrete_union_arrays(env, expected, value->as.match_expr.arm_bodies[i], depth + 1);
+            apply_concrete_union_arrays(env, expected, expected_owner, value->as.match_expr.arm_bodies[i], depth + 1);
         return;
     }
     if (value->type == AST_BLOCK) {
         if (value->as.block.count)
-            check_concrete_union_arrays(env, expected, value->as.block.statements[value->as.block.count - 1], depth + 1);
+            apply_concrete_union_arrays(env, expected, expected_owner, value->as.block.statements[value->as.block.count - 1], depth + 1);
         return;
     }
     if (value->type == AST_RETURN) {
-        check_concrete_union_arrays(env, expected, value->as.return_stmt.value, depth + 1);
+        apply_concrete_union_arrays(env, expected, expected_owner, value->as.return_stmt.value, depth + 1);
         return;
     }
     if (expected->base_type == TYPE_HASHMAP && value->type == AST_CALL &&
@@ -1389,27 +1576,10 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         return;
     }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
-        const TypeInfo *element = expected->element_type;
-        if (element->base_type == TYPE_STRUCT)
-            check_record_array_contract(env, TYPE_ARRAY, TYPE_STRUCT, element->generic_name, value);
-        else if (value->type == AST_ARRAY_LITERAL) {
+        if (value->type == AST_ARRAY_LITERAL)
             for (int i = 0; i < value->as.array_literal.element_count; ++i)
-                check_concrete_union_arrays(env, element, value->as.array_literal.elements[i], depth + 1);
-        } else if (element->base_type == TYPE_ARRAY) {
-            const TypeInfo *wanted = expected;
-            const TypeInfo *actual = try_get_expr_type_info(value, env);
-            while (wanted && wanted->base_type == TYPE_ARRAY) {
-                wanted = wanted->element_type;
-                actual = actual && actual->base_type == TYPE_ARRAY ? actual->element_type : NULL;
-            }
-            StructDef *record = wanted && wanted->base_type == TYPE_STRUCT && wanted->generic_name
-                ? env_get_struct(env, wanted->generic_name) : NULL;
-            if (record && (!actual || actual->base_type != TYPE_STRUCT || !actual->generic_name ||
-                           env_get_struct(env, actual->generic_name) != record))
-                emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
-                    "I require the declared nominal record type for this array.",
-                    "Match the nested array element declaration, including its module identity.");
-        }
+                apply_concrete_union_arrays(env, expected->element_type, expected_owner,
+                    value->as.array_literal.elements[i], depth + 1);
         return;
     }
     if (!expected->generic_name) return;
@@ -1481,11 +1651,22 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         for (int field = 0; field < def->variant_field_counts[arm]; ++field) {
             if (strcmp(names[i], def->variant_field_names[arm][field])) continue;
             TypeInfo *payload = resolve_union_payload_type_info(def, arm, field, expected);
-            check_concrete_union_arrays(env, payload, values[i], depth + 1);
+            apply_concrete_union_arrays(env, payload, expected_owner, values[i], depth + 1);
             free_payload_type_info(payload);
             break;
         }
     }
+}
+
+static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,
+    const char *owner, ASTNode *value, unsigned depth) {
+    if (!nominal_union_array_origins(env, expected, owner, NULL, value, depth)) {
+        emit_context_error("E001 TYPE MISMATCH", value ? value->line : 0, value ? value->column : 0, 1,
+            "I require each array leaf's original declaration owner.",
+            "Preserve fixed definition leaves and concrete argument identities.");
+        return;
+    }
+    apply_concrete_union_arrays(env, expected, owner, value, depth);
 }
 
 /* Helper: Get the struct type name from an expression (returns NULL if not a struct) */
@@ -1547,8 +1728,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
         }
         
         case AST_CALL: {
-            if (!expr->as.call.func_expr && expr->as.call.name && expr->as.call.arg_count == 2 &&
-                (!strcmp(expr->as.call.name, "at") || !strcmp(expr->as.call.name, "array_get")))
+            if (nominal_array_builtin(expr, env, "at", 2) || nominal_array_builtin(expr, env, "array_get", 2))
                 return array_record_name(expr->as.call.args[0], env);
             /* Check if return_struct_type_name was set by type checker (for generic list get) */
             if (expr->as.call.return_struct_type_name) {
@@ -1728,18 +1908,11 @@ Type filter_predicate_element_type(ASTNode *callback, Environment *env) {
 
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
-    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
-        array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_new") &&
-        array_expr->as.call.arg_count == 2)
+    if (nominal_array_builtin(array_expr, env, "array_new", 2))
         return check_expression(array_expr->as.call.args[1], env);
-    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
-        array_expr->as.call.name && !strcmp(array_expr->as.call.name, "array_push") &&
-        array_expr->as.call.arg_count == 2 &&
-        env_array_push_is_builtin(env, array_expr->line, array_expr->column))
+    if (nominal_array_builtin(array_expr, env, "array_push", 2))
         return infer_array_element_type(array_expr->as.call.args[0], env);
-    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
-        array_expr->as.call.name && strcmp(array_expr->as.call.name, "map") == 0 &&
-        array_expr->as.call.arg_count == 2) {
+    if (nominal_array_builtin(array_expr, env, "map", 2)) {
         int arity;
         Type argument;
         return map_callback_type(array_expr->as.call.args[1], env, &arity, &argument);
@@ -2363,10 +2536,11 @@ static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignatu
     for (int i = 0; i < call->as.call.arg_count; i++) {
         ASTNode *argument = call->as.call.args[i];
         TypeInfo *expected = sig->param_type_info ? sig->param_type_info[i] : NULL;
-        check_concrete_union_arrays(env, expected, argument, 0);
+        check_concrete_union_arrays(env, expected, signature_owner, argument, 0);
         bool matches = indirect_argument_matches(argument, env, expected,
                                                   sig->param_types[i], 0);
-        if (sig->param_types[i] == TYPE_LIST_GENERIC || sig->param_types[i] == TYPE_STRUCT)
+        if (sig->param_types[i] == TYPE_LIST_GENERIC || sig->param_types[i] == TYPE_STRUCT ||
+            sig->param_types[i] == TYPE_ARRAY)
             matches = matches && owner_known && check_nominal_contract(env, sig->param_types[i], expected,
                 sig->param_struct_names ? sig->param_struct_names[i] : NULL, signature_owner, argument);
         if (sig->param_types[i] == TYPE_FUNCTION)
@@ -3843,7 +4017,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         
                         /* Regular argument type checking */
-                        check_concrete_union_arrays(env, func->params[i].type_info, arg, 0);
+                        check_concrete_union_arrays(env, func->params[i].type_info, env_function_signature_owner(env, func), arg, 0);
                         Type arg_type = check_expression(arg, env);
                         if (arg->type == AST_ARRAY_LITERAL &&
                             arg->as.array_literal.element_count == 0 &&
@@ -3912,7 +4086,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         
                         if (func->params[i].type == TYPE_ARRAY) check_record_array_contract(env, func->params[i].type,
-                            func->params[i].element_type, func->params[i].struct_type_name, arg);
+                            func->params[i].element_type, func->params[i].struct_type_name, env_function_signature_owner(env, func), arg);
                         if (!is_opaque_param && !is_opaque_arg && !types_match(arg_type, func->params[i].type)) {
                             char message[256];
                             snprintf(message, sizeof(message),
@@ -4220,7 +4394,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 const char *next_record = elem_type == TYPE_STRUCT
                     ? get_struct_type_name(expr->as.array_literal.elements[i], env) : NULL;
                 if (first_type == TYPE_STRUCT && elem_type == TYPE_STRUCT &&
-                    (!first_record || !next_record || strcmp(first_record, next_record))) {
+                    (!first_record || !next_record ||
+                     !nominal_equal(nominal_expression(expr->as.array_literal.elements[0], env, TYPE_STRUCT, 0),
+                                    nominal_expression(expr->as.array_literal.elements[i], env, TYPE_STRUCT, 0)))) {
                     emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                         "I require the same nominal record type for every array element.",
                         "Use one declared record type for this array.");
@@ -4496,7 +4672,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 /* I apply the complete field annotation before checking its constructor. */
                 if (sdef->field_type_info)
-                    check_concrete_union_arrays(env, sdef->field_type_info[field_index],
+                    check_concrete_union_arrays(env, sdef->field_type_info[field_index], sdef->module_name,
                         expr->as.struct_literal.field_values[i], 0);
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
@@ -4507,7 +4683,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     sdef->module_name, field_value);
                 if (sdef->field_types[field_index] == TYPE_ARRAY) check_record_array_contract(env, sdef->field_types[field_index],
                     sdef->field_element_types ? sdef->field_element_types[field_index] : TYPE_UNKNOWN,
-                    sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, field_value);
+                    sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, sdef->module_name, field_value);
                 if (sdef->field_types[field_index] == TYPE_ARRAY &&
                     sdef->field_element_types &&
                     field_value->type == AST_ARRAY_LITERAL &&
@@ -5513,6 +5689,43 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     stmt->as.let.type_info = copy_payload_type_info(
                         try_get_expr_type_info(stmt->as.let.value, tc->env));
                 }
+                const char *inferred_array_owner = NULL;
+                bool array_owner_known = false;
+                if (inferred == TYPE_ARRAY) {
+                    NominalView array = {0};
+                    array_owner_known = nominal_value_view(stmt->as.let.value, tc->env, 0, &array);
+                    if (array_owner_known && array.info->base_type == TYPE_ARRAY) {
+                        inferred_array_owner = array.owner;
+                        free_payload_type_info(stmt->as.let.type_info);
+                        stmt->as.let.type_info = array.info; /* AST owns this tree. */
+                        array.info = NULL;
+                        const TypeInfo *element = stmt->as.let.type_info->element_type;
+                        if (element) {
+                            stmt->as.let.element_type = element->base_type;
+                            if (element->base_type == TYPE_STRUCT) {
+                                NominalIdentity id = nominal_annotation(tc->env, TYPE_STRUCT, element,
+                                    element->generic_name, inferred_array_owner);
+                                const char *name = env_nominal_name(tc->env, id);
+                                if (name) {
+                                    free(stmt->as.let.type_name);
+                                    stmt->as.let.type_name = strdup(name);
+                                }
+                            }
+                        }
+                    } else {
+                        array_owner_known = false;
+                        if (stmt->as.let.element_type == TYPE_STRUCT || stmt->as.let.element_type == TYPE_ARRAY ||
+                            stmt->as.let.element_type == TYPE_LIST_GENERIC || stmt->as.let.element_type == TYPE_FUNCTION) {
+                            nominal_view_discard(&array);
+                            emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                                "I cannot retain the declaration owner of this inferred array.",
+                                "Preserve the complete element annotation.");
+                            tc->has_error = true;
+                            return TYPE_VOID;
+                        }
+                    }
+                    nominal_view_discard(&array);
+                }
                 NominalIdentity inferred_identity = nominal_expression(stmt->as.let.value, tc->env, inferred, 0);
                 const char *inferred_callable_owner = NULL;
                 FunctionSignature *inferred_signature = NULL;
@@ -5547,8 +5760,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 if (isym) {
                     isym->inferred_nominal = true;
                     const char *owner = env_nominal_owner(tc->env, inferred_identity);
-                    if (inferred_identity.ordinal)
+                    if (inferred_identity.ordinal || array_owner_known) {
+                        if (array_owner_known) owner = inferred_array_owner;
                         isym->nominal_owner = owner ? env_own_checker_allocation(tc->env, strdup(owner)) : NULL;
+                    }
                     if (inferred == TYPE_FUNCTION)
                         isym->callable_owner = inferred_callable_owner
                             ? env_own_checker_allocation(tc->env, strdup(inferred_callable_owner)) : NULL;
@@ -5633,7 +5848,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             
             /* Now check the expression - the specialized functions are registered */
-            check_concrete_union_arrays(tc->env, stmt->as.let.type_info, stmt->as.let.value, 0);
+            check_concrete_union_arrays(tc->env, stmt->as.let.type_info, binding_owner, stmt->as.let.value, 0);
             Type value_type = check_expression(stmt->as.let.value, tc->env);
             /* A projected concrete union retains its complete annotation; I
              * do not accept a different instantiation merely because both are unions. */
@@ -5659,7 +5874,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     stmt->as.let.type_name, binding_owner, stmt->as.let.value)) tc->has_error = true;
             if (stmt->as.let.var_type == TYPE_ARRAY &&
                 !check_record_array_contract(tc->env, stmt->as.let.var_type,
-                    stmt->as.let.element_type, stmt->as.let.type_name, stmt->as.let.value))
+                    stmt->as.let.element_type, stmt->as.let.type_name, binding_owner, stmt->as.let.value))
                 tc->has_error = true;
             
             /* If declared type is STRUCT, check if it's actually an enum or union */
@@ -5972,7 +6187,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 tc->has_error = true;
             }
 
-            check_concrete_union_arrays(tc->env, sym->type_info, stmt->as.set.value, 0);
+            check_concrete_union_arrays(tc->env, sym->type_info, sym->nominal_owner, stmt->as.set.value, 0);
             if (sym->type == TYPE_FUNCTION &&
                 !check_callable_contract(tc->env, sym->type_info ? sym->type_info->fn_sig : NULL,
                                          sym->callable_owner, stmt->as.set.value, 0)) {
@@ -5985,7 +6200,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (!check_nominal_contract(tc->env, sym->type, sym->type_info,
                     sym->struct_type_name, sym->nominal_owner, stmt->as.set.value)) tc->has_error = true;
             if (sym->type == TYPE_ARRAY && !check_record_array_contract(tc->env, sym->type, sym->element_type,
-                    sym->struct_type_name, stmt->as.set.value)) tc->has_error = true;
+                    sym->struct_type_name, sym->nominal_owner, stmt->as.set.value)) tc->has_error = true;
 
             /* Propagate element type to array literals for correct transpilation */
             if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
@@ -6043,18 +6258,44 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             const char *loop_var_struct_name = NULL;
             const char *loop_var_owner = tc->env->current_module;
 
+            TypeInfo *loop_info = NULL;
             if (iter_type == TYPE_ARRAY) {
-                /* Look up array variable to get element type */
-                ASTNode *rng = stmt->as.for_stmt.range_expr;
-                if (rng && rng->type == AST_IDENTIFIER) {
-                    Symbol *arr_sym = env_get_var(tc->env, rng->as.identifier);
-                    if (arr_sym && arr_sym->element_type != TYPE_UNKNOWN) {
-                        loop_var_type = arr_sym->element_type;
-                    }
-                    if (loop_var_type == TYPE_STRUCT && arr_sym && arr_sym->struct_type_name) {
-                        loop_var_struct_name = arr_sym->struct_type_name;
+                NominalView array = {0};
+                if (!nominal_value_view(stmt->as.for_stmt.range_expr, tc->env, 0, &array) ||
+                    !nominal_view_element(&array)) {
+                    nominal_view_discard(&array);
+                    emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                        "I require the iterable's complete array element annotation.",
+                        "Preserve the element declaration and owner.");
+                    tc->has_error = true;
+                    return TYPE_VOID;
+                }
+                const char *resolved_name = NULL;
+                if (!checked_annotation_kind(tc->env, array.info, array.owner, &loop_var_type, &resolved_name)) {
+                    nominal_view_discard(&array);
+                    tc->has_error = true;
+                    return TYPE_VOID;
+                }
+                loop_var_owner = array.owner;
+                if (loop_var_type == TYPE_ENUM || loop_var_type == TYPE_UNION || loop_var_type == TYPE_OPAQUE)
+                    loop_var_struct_name = resolved_name;
+                if (loop_var_type == TYPE_STRUCT) {
+                    NominalIdentity id = nominal_annotation(tc->env, TYPE_STRUCT, array.info,
+                        array.info->generic_name, array.owner);
+                    loop_var_struct_name = env_nominal_name(tc->env, id);
+                    if (!id.ordinal) {
+                        nominal_view_discard(&array);
+                        tc->has_error = true;
+                        return TYPE_VOID;
                     }
                 }
+                loop_info = array.info;
+                if (!env_own_checker_type_info(tc->env, loop_info)) {
+                    nominal_view_discard(&array);
+                    tc->has_error = true;
+                    return TYPE_VOID;
+                }
+                array.info = NULL; /* Registry owns the tree; the symbol borrows it. */
             } else if (iter_type == TYPE_LIST_STRING) {
                 loop_var_type = TYPE_STRING;
             } else if (iter_type == TYPE_LIST_GENERIC) {
@@ -6073,7 +6314,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* TYPE_LIST_INT, TYPE_LIST_TOKEN -> TYPE_INT (default already set) */
 
             Value val = create_void();
-            env_define_var(tc->env, stmt->as.for_stmt.var_name, loop_var_type, false, val);
+            env_define_var_with_type_info(tc->env, stmt->as.for_stmt.var_name, loop_var_type,
+                loop_info && loop_info->base_type == TYPE_ARRAY && loop_info->element_type
+                    ? loop_info->element_type->base_type : TYPE_UNKNOWN,
+                loop_info, false, val);
 
             /* Set definition location and struct type name */
             Symbol *loop_var_sym = env_get_var(tc->env, stmt->as.for_stmt.var_name);
@@ -6144,7 +6388,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     }
                 }
                 
-                check_concrete_union_arrays(tc->env, tc->current_function_return_info, stmt->as.return_stmt.value, 0);
+                check_concrete_union_arrays(tc->env, tc->current_function_return_info, tc->env->current_module, stmt->as.return_stmt.value, 0);
                 if (tc->current_function_return_type == TYPE_FUNCTION &&
                     !check_callable_contract(tc->env, tc->current_function_return_signature,
                         tc->env->current_module, stmt->as.return_stmt.value, 0)) {
@@ -6156,7 +6400,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
-                        stmt->as.return_stmt.value)) tc->has_error = true;
+                        tc->env->current_module, stmt->as.return_stmt.value)) tc->has_error = true;
                 if (!types_match(return_type, tc->current_function_return_type)) {
                     char message[256];
                     snprintf(message, sizeof(message), "Return type mismatch: got %s, expected %s.",
@@ -8549,11 +8793,11 @@ register_function_pass1:;
         if (item->type == AST_LET) {
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
-            check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
+            check_concrete_union_arrays(env, item->as.let.type_info, env->current_module, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
             check_global_ownership(env, item, &tc.has_error);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
-                    item->as.let.type_name, item->as.let.value)) tc.has_error = true;
+                    item->as.let.type_name, env->current_module, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
                 item->as.let.element_type != TYPE_UNKNOWN &&
                 item->as.let.value->type == AST_ARRAY_LITERAL) {
@@ -9320,11 +9564,11 @@ register_function_pass2:;
         if (item->type == AST_LET) {
             /* I provide declared constructor context before checking the initializer. */
             prepare_map_initializer(&tc, item);
-            check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
+            check_concrete_union_arrays(env, item->as.let.type_info, env->current_module, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
             check_global_ownership(env, item, &tc.has_error);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
-                    item->as.let.type_name, item->as.let.value)) tc.has_error = true;
+                    item->as.let.type_name, env->current_module, item->as.let.value)) tc.has_error = true;
             if (item->as.let.var_type == TYPE_ARRAY &&
                 item->as.let.element_type != TYPE_UNKNOWN &&
                 item->as.let.value->type == AST_ARRAY_LITERAL) {

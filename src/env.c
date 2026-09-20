@@ -120,10 +120,12 @@ static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file)
 }
 
 /* I retain checker allocations independently of mutable symbol/function slots.
- * Every registered block is unique and shallowly freed; borrowed subgraphs are
- * never traversed. This deliberately does not change runtime value ownership. */
+ * Every registered block is unique. Legacy blocks are shallowly freed; only
+ * explicitly transferred owned annotation trees use recursive destruction.
+ * This deliberately does not change runtime value ownership. */
 struct EnvCheckerAllocation {
     void *allocation;
+    bool owned_type_info;
     struct EnvCheckerAllocation *next;
 };
 void *env_own_checker_allocation(Environment *env, void *allocation) {
@@ -134,9 +136,21 @@ void *env_own_checker_allocation(Environment *env, void *allocation) {
         exit(1);
     }
     entry->allocation = allocation;
+    entry->owned_type_info = false;
     entry->next = env->checker_allocations;
     env->checker_allocations = entry;
     return allocation;
+}
+
+bool env_own_checker_type_info(Environment *env, TypeInfo *info) {
+    if (!env || !info) return false;
+    struct EnvCheckerAllocation *entry = malloc(sizeof *entry);
+    if (!entry) return false;
+    entry->allocation = info;
+    entry->owned_type_info = true;
+    entry->next = env->checker_allocations;
+    env->checker_allocations = entry;
+    return true;
 }
 
 /* Create environment */
@@ -426,7 +440,8 @@ void free_environment(Environment *env) {
     while (env->checker_allocations) {
         struct EnvCheckerAllocation *entry = env->checker_allocations;
         env->checker_allocations = entry->next;
-        free(entry->allocation);
+        if (entry->owned_type_info) free_payload_type_info(entry->allocation);
+        else free(entry->allocation);
         free(entry);
     }
     free(env);

@@ -102,3 +102,8 @@ bool copy_function_signature_checked(const FunctionSignature *source, FunctionSi
     if (!out) return false;
     return snapshot_signature(source, out, 0);
 }
+
+bool copy_payload_type_info_checked(const TypeInfo *source, TypeInfo **out) {
+    if (!out) return false;
+    return snapshot_type(source, out, 0);
+}
