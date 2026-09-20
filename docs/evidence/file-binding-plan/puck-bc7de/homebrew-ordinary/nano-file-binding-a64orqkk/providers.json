@@ -1,0 +1,42 @@
+{
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/linked-nsi_file_binding.o": {
+    "sha256": "c06cdf4e7357a890bf652a87475a6aa45f6609d08cb5033975c9c47b246a80de",
+    "bytes": 44440
+  },
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/linked-nsi_file_plan.o": {
+    "sha256": "bf65d0775fa989da4dc3bb4557e55e7550e3a4273edde1f46e5afcef4ae9319b",
+    "bytes": 25632
+  },
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/linked-nsi.o": {
+    "sha256": "6c88cdfc487d4a5ef9c95acd8e00f709883f403995696cd368f30d8da0b34588",
+    "bytes": 61176
+  },
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/linked-cJSON.o": {
+    "sha256": "40f9207b0d0ac8cf5bf0ee343e90c220efe7842704441bf1b0e04574623a01e3",
+    "bytes": 81384
+  },
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/linked-utf8.o": {
+    "sha256": "7917140864069389840a6d74baef38313f904c47f125b22a6ba726f8f018f4b5",
+    "bytes": 10384
+  },
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/instrumented-nsi_file_binding.o": {
+    "sha256": "d4c87a588ff971f6463d8064a89c65eb35a7a4a5e65b685bf15fee4b401cbb48",
+    "bytes": 44456
+  },
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/instrumented-nsi_file_plan.o": {
+    "sha256": "945a9e443754cef52a16659061b5d58556d9ca05ccc3cf9dd9ff0e502dc74da0",
+    "bytes": 25632
+  },
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/instrumented-nsi.o": {
+    "sha256": "3f4a137c59dfc50038c5df5d55fd017025df966769e73c982c3590351f3874b7",
+    "bytes": 61272
+  },
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/instrumented-cJSON.o": {
+    "sha256": "f1d0c6304848bdb9c7504f486f718f131e86ef979d377a970daae612a0305327",
+    "bytes": 81368
+  },
+  "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-ordinary/nano-file-binding-a64orqkk/instrumented-utf8.o": {
+    "sha256": "7917140864069389840a6d74baef38313f904c47f125b22a6ba726f8f018f4b5",
+    "bytes": 10384
+  }
+}

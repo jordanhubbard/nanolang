@@ -1,0 +1,42 @@
+{
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/linked-nsi_file_binding.o": {
+    "sha256": "d68221fb96ae3cba61aa6e35e043134b6fa55581130913fa78ff70a5a18dc9b1",
+    "bytes": 44288
+  },
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/linked-nsi_file_plan.o": {
+    "sha256": "f93ebc6a8f3f915642fabcb7fa0d0e04e14231bc0cf7f01069f7d2d6269a90c4",
+    "bytes": 26720
+  },
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/linked-nsi.o": {
+    "sha256": "1b6e2bcef519f59ecc906f3cb5a1e07506663c381a93cd05ba23dfab3073b29f",
+    "bytes": 62336
+  },
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/linked-cJSON.o": {
+    "sha256": "1e7d3b6723f55de3cd0c5a26659c88092d221699a9d53bdd8d35d0dfd826b5ab",
+    "bytes": 80832
+  },
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/linked-utf8.o": {
+    "sha256": "1b8bc1abec8297ce808aa71dc5e8742d1eff9e7e6c3cc36cab7ace736ba9322f",
+    "bytes": 10776
+  },
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-nsi_file_binding.o": {
+    "sha256": "98457af6903af5c9116872d5ff4602c4a1985b06f476cd202923f1610e604829",
+    "bytes": 44280
+  },
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-nsi_file_plan.o": {
+    "sha256": "927ba02ffe507185dde91290e98d5ca6b06a7dcd0e4747256813d8b9289b9089",
+    "bytes": 26688
+  },
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-nsi.o": {
+    "sha256": "ae6f1e6189bf1d234c08b897ec075aad12e111e346d48ee0b39081ee47ad3027",
+    "bytes": 62504
+  },
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-cJSON.o": {
+    "sha256": "709b5d575c7215cdc10326e4ea4f96e1ffa173105610ccc4cb2e468bf9484a6f",
+    "bytes": 80824
+  },
+  "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-utf8.o": {
+    "sha256": "1b8bc1abec8297ce808aa71dc5e8742d1eff9e7e6c3cc36cab7ace736ba9322f",
+    "bytes": 10776
+  }
+}

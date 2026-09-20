@@ -1,0 +1,10 @@
+{
+  "original_source_verified": 12320,
+  "copied_products_verified": 172,
+  "changed_files": [
+    "docs/ROADMAP.md",
+    "tests/nanoisa/test_file_cyclic.c"
+  ],
+  "patch_sha256": "455fb474763fa3200470630948890ccc5938e69b8cc15491c1c225a90ca4fcdd",
+  "production_and_new_fixture_unchanged": true
+}
