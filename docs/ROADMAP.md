@@ -244,6 +244,18 @@ their individual acceptance evidence closes them.
 
 ## Active Execution Queue
 
+- [ ] I finish the two unreached puck adjacency phases after classifying generated cache outputs (`task_4eaa6395ba014821b123f5332817aed0`). The corrected six-method `eafcd1e52` corpus passes, then the inventory guard stops on four newly generated std module artifacts, with no changed or removed prior provider. Retained timestamps place generation inside parser877's C-seed compile; the earlier raw-driver attribution was incorrect. I retain the original terminal/maps and run only shared-policy/totality and both owner-refusal methods on the unchanged successful tools, with cache outputs inventoried separately.
+
+- [ ] I correct the ordered native match emitter's missing line boundary before generated block directives (`task_4eaa6395ba014821b123f5332817aed0`). Both `e75a719bf` focused runs finish4PASS/2FAIL: the named-order Stage1 compile rejects mid-line `#line`, and the separate raw backstop driver lacks `std/env` imports. I retain all six-method results, correct the newline without changing guards/control flow, add a directive-boundary shadow, and add only the missing fixture imports before fresh qualification.
+- [ ] I retain generated guard C and distinguish regenerated module outputs from fixed providers (`task_4eaa6395ba014821b123f5332817aed0`). The failed native driver removed its temporary C because the fixture omitted `--keep-c`; historical bytes are unavailable. The frozen maps expose nine rebuilt `obj/nano_modules` outputs during imported fixture compilation. I preserve these facts, add retention and per-command output snapshots, and do not relabel those phases as fixed-provider runs.
+
+- [ ] I correct my new guard purity shadow's effect-mask expectation (`task_4eaa6395ba014821b123f5332817aed0`). Both fresh first bootstraps at `2ad92f457` stop before Stage1 publication on `purity_node:6310` (Linux 67.203s; puck 87.334s). Mutable identifier reads use existing mask2, not mutation mask4. I retain both terminals and correct only that expected value; the immutable payload guard remains0. Fresh qualification is still required.
+
+- [ ] I migrate the two guarded-owner diagnostic expectations in selected/generic ownership tests from the removed canonical parser refusal to the retained exhaustive-unguarded-owned-match semantic refusal (`task_4eaa6395ba014821b123f5332817aed0`). I record this static fixture mismatch before editing, preserve both source cases and output sentinels, and qualify them alongside the guard checkpoint.
+
+- [ ] I correct recovered a18 match guards before affine union admission (`task_4eaa6395ba014821b123f5332817aed0`, parent `task_a18a9f752536469faafc4d3ebec01dfd`). My [preimplementation audit](CANONICAL_MATCH_GUARDS.md) records lost scrutinees, omitted guard visitors, zero-result terminal misses, statement switch ordering, failure-state restoration, incomplete union envelopes/formal tags, missing ownership joins and shadows. I preserve candidate45ab and canonical parser877. I review lossless guard semantics first, then exact concrete union instances and ownership joins, before fresh full paired/platform gates; no parent or release closure follows from this first slice.
+- [ ] I reconcile peer affine union checkpoint a9ea7d69b onto my qualified canonical guards before admission (parent `task_a18a9f752536469faafc4d3ebec01dfd`). My [recovery review](AFFINE_UNION_RECOVERY_REVIEW.md) records the one-instance restriction, common-position payload restriction, unfinished affine value matches and missing exact retained variant shape. I preserve parser877 and guard889, review exact identities and constructor facts first, then require fresh complete paired/platform acceptance. Peer delivery is not acknowledgement; no release closure follows this static review.
+
 - [x] I retain exact undeclared string builtin results for concat, trim and prefix/suffix predicates, and lower `str_trim` through VM and native C with my existing four-byte whitespace policy (`task_602f10d8e2b348eab8b7e230e12986fa`). My first integrated audio gate exposed missing direct-return builtin classification; I include that path before completion. I preserve declared function identity and test nested expressions, empty/all-space text, UTF-8 bytes, scalar refusal and current string-edge examples before full product reruns.
 - [x] I report VM trim allocation refusal after releasing the input and before publishing a string value (`task_88c3bcfa6f2041f9909718cf7715ed68`). I test corrected ordinary trim and deterministic allocation recovery; I do not replay historical failures.
 
@@ -12477,3 +12489,38 @@ I preserve6fdb Darwin reuse-launcher failure before the driver: verified source 
 I seal private-native9a237 qualification in [my evidence](evidence/file-private-native.md): Linux GCC ordinary/sanitizer, corrected Clang sanitizer and Darwin Apple/Homebrew full original corpus at nativeO0/O2 pass, plus isolated no-private-VM/mismatch controls and VM/frame/opcode/wrapper neighbors. I retain the registry/Clang first failures and both Darwin orchestration prerequisites, with precise4e8/6fdb attribution and138 byte-identical generatedC comparisons. The18-pair seal covers6,199 unique artifacts; source/public/full82ff/5.1 acceptance remains separate, and bounded completion awaits independent review/actual merge.
 
 - [ ] I establish the [explicit public File host-grant conjunction](NANOISA_FILE_PUBLIC_CONJUNCTION.md) under existing6fc/72556/82ff after vm_effects' private native9a23711 acceptance: review concrete grant/gate/API and immutable-byte preparation; review joint matched VM/native service-aware routing while old grant-less guards remain; qualify host authority, startup/cleanup/output and actual installed opt-in/package paths on Linux/Darwin. No public admission precedes matched target and fixture review. The loop/indirect/multi-borrow and paired source/full-shadow requirements above remain mandatory5.1 work, not closed by this initial acyclic public route.
+
+## I audit the matched private File runtime and retain control dependencies
+
+- [ ] I reconcile only82ff after review of [my original-criterion matrix](NANOISA_FILE_PRIVATE_RUNTIME_RECONCILIATION.md): carrier858, frames879, VM885 and native888 are merged, with actual Linux/Darwin private acceptance. The original open row above records its earlier checkpoint; MAC closure and this checkbox await review. Public/source/full File parents remain open.
+- [ ] I prepare and review [the next cyclic-flow and richer-call contract](NANOISA_FILE_CONTROL_CALL_EXTENSION.md), task_243a9a5809bf422caab0bddafa447098 under72556/6931: first finite non-admitting loop analysis, then matched private VM/native fuel and lifetime acceptance; separately closed indirect targets and explicit multi-borrow transport; only then public conjunction and complete paired-source/shadow acceptance. Existing refusals/limits remain until each reviewed dependency qualifies. Public acyclic dfa149 remains separately owned.
+
+I refine task243a9's first [non-admitting cyclic query checkpoint](NANOISA_FILE_CYCLIC_QUERY.md): explicit canonical live-root/reference relations, at most16 exact state alternatives per instruction, bounded FIFO exploration and16MiB accounted storage, immutable revision1 report and concrete zero-iteration/replacement/held-reference controls. I do not reset historical counters in old flow states, change publicdfa149, implement production or execute cyclic modules before separate reviews.
+
+I prepare task243a's first unexecuted production checkpoint: a distinct cyclic
+report/accessor header, bounded canonical state alternatives and FIFO exploration,
+private one-step declaration/state scratch, and checked edge publication. The
+old public preparation always retains DAG validation; no selector or target
+consumes the new query. Source review precedes fixtures, builds or execution.
+
+I prepare task243a's unexecuted query fixtures with full old body adjacency,
+real16/17 alternative joins, owner/reference loop invariants, copied-report and
+old-counter independence, explicit white-box budget relations, allocation
+prefix/transient recovery and retained process-group timeout evidence. Complete
+fixture review precedes compilation or any query gate; File execution stays held.
+
+I record the static1ffa runner-retention gap under243a before qualification:
+leader exit after TERM did not prove group disappearance and Popen errors lacked
+status. My corrected unexecuted fixture uses file-backed logs, bounded independent
+group/leader cleanup on every path, actual decoded two-root swaps with held-owner
+refusal, and exact transfer/edge guard controls. Production remainsf6ee.
+
+- [ ] I preserve the first486ba cyclic query fixture compile terminal and repair only its local exit-name collision (task_1f0d53da650d42aba327852e74a9f3f7): fresh setup passes21.065s, configuration0.064s, ordinary fixture compile fails0.265s before execution. The local `exit` masks inherited CHECK macro libc exit. I retain `/tmp/nanolang-file-cyclic-486ba-linux` and `/tmp/nano-file-cyclic-3u3k0oad`, change only that identifier, then request review before fresh corrected gates. Darwin remains unrun; query production is unchanged.
+
+I seal task243a's bounded private cyclic query acceptance in
+[my platform evidence](evidence/file-cyclic-query.md): corrected04d58 passes
+ordinary/sanitizer query and unchanged CODE/body/flow/hosted/refusal neighbors on
+Linux and puck. I preserve first486ba fixture compile failure and corrected-only
+execution,247 reports,782 unique artifacts,24 equal source/tool pairs and exact
+prepared-provider identities. Productionf6ee is unchanged. Independent review
+and actual merge remain pending; no cyclic File runtime or parent closure follows.

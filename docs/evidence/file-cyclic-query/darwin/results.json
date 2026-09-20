@@ -1,0 +1,52 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 9.891,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.127,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 2.431,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 2.38,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 4.838,
+    "status": 0
+  },
+  {
+    "phase": "code",
+    "seconds": 4.334,
+    "status": 0
+  },
+  {
+    "phase": "body",
+    "seconds": 4.238,
+    "status": 0
+  },
+  {
+    "phase": "flow",
+    "seconds": 4.141,
+    "status": 0
+  },
+  {
+    "phase": "hosted",
+    "seconds": 9.81,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.963,
+    "status": 0
+  }
+]

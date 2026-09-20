@@ -1,0 +1,61 @@
+I retain guard artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8
+test_checked_negatives_preserve_output (tests.test_canonical_match_guards.CanonicalMatchGuards) ... ok
+test_named_union_vm_and_sanitized_native (tests.test_canonical_match_guards.CanonicalMatchGuards) ... ok
+test_native_order_scope_and_control (tests.test_canonical_match_guards.CanonicalMatchGuards) ... FAIL
+test_parser877_unchanged (tests.test_canonical_match_guards.CanonicalMatchGuards) ... ok
+test_shadow_and_profile_refusals (tests.test_canonical_match_guards.CanonicalMatchGuards) ... ok
+test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards) ... FAIL
+
+======================================================================
+FAIL: test_native_order_scope_and_control (tests.test_canonical_match_guards.CanonicalMatchGuards)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-canonical-guards-e75/tests/test_canonical_match_guards.py", line 154, in test_native_order_scope_and_control
+    self.native("named-order", TRACE)
+  File "/private/tmp/nanolang-canonical-guards-e75/tests/test_canonical_match_guards.py", line 139, in native
+    self.command([BIN / compiler, path, "-o", output])
+  File "/private/tmp/nanolang-canonical-guards-e75/tests/test_canonical_match_guards.py", line 127, in command
+    self.assertEqual(result.returncode, expected, f"{args}\n{result.stdout}{result.stderr}")
+AssertionError: 1 != 0 : ['/private/tmp/nanolang-canonical-guards-e75/bin/nanoc_stage1', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/named-order.nano', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/named-order-nanoc_stage1']
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/named-order.nano:27:24: error: expected expression
+   27 | if (0) { _matched = 1; #line 25 "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/named-order.nano"
+      |                        ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/named-order.nano:30:15: error: expected expression
+   30 | _matched = 1; #line 25 "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/named-order.nano"
+      |               ^
+/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/named-order.nano:32:68: error: expected expression
+   32 | } if (!_matched && (_m.tag == nl_Choice_TAG_None)) { _matched = 1; #line 25 "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/named-order.nano"
+      |                                                                    ^
+3 errors generated.
+I could not compile native shadows
+
+
+======================================================================
+FAIL: test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-canonical-guards-e75/tests/test_canonical_match_guards.py", line 197, in test_unchecked_generated_terminal_backstops
+    self.command([BIN / "nanoc_c", source, "-o", driver], timeout=600)
+  File "/private/tmp/nanolang-canonical-guards-e75/tests/test_canonical_match_guards.py", line 127, in command
+    self.assertEqual(result.returncode, expected, f"{args}\n{result.stdout}{result.stderr}")
+AssertionError: 1 != 0 : ['/private/tmp/nanolang-canonical-guards-e75/bin/nanoc_c', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/backstop-driver.nano', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/backstop-driver']
+Warning at line 9, column 1: Unused variable 'parser'
+-- E027 UNDEFINED FUNCTION --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/backstop-driver.nano
+I cannot find a function named `argc`.
+
+20|  if (!= (argc) 2) { return 2 }
+            ^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+-- E027 UNDEFINED FUNCTION --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-f5vsq7g8/backstop-driver.nano
+I cannot find a function named `argv`.
+
+21|  (print (render (== (argv 1) "statement")))
+                        ^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 60.025s
+
+FAILED (failures=2)

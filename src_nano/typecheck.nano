@@ -1040,6 +1040,42 @@ shadow resource_owned_union_index {
     assert (== (resource_owned_union_index parser "Box<int>") 1)
 }
 
+# I visit real guard effects but retain a checked refusal for changed owner state.
+fn resource_guard_preserves(parser: Parser, before: array<ResourceState>, after: ResourceFlow, line: int, column: int, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    let mut same: bool = (and after.next (== (array_length before) (array_length after.states)))
+    if same {
+        let mut i: int = 0
+        while (< i (array_length before)) {
+            let a: ResourceState = (at before i)
+            let b: ResourceState = (at after.states i)
+            if (and (resource_type_is_declared parser a.type_name) (!= a.moved b.moved)) { set same false }
+            if (!= (array_length a.held_places) (array_length b.held_places)) { set same false }
+            else {
+                let mut j: int = 0
+                while (< j (array_length a.held_places)) {
+                    if (!= (at a.held_places j) (at b.held_places j)) { set same false }
+                    set j (+ j 1)
+                }
+            }
+            set i (+ i 1)
+        }
+    }
+    if (not same) { (resource_flow_error diags file_name line column "I do not yet accept ownership-changing or terminal match guards") }
+}
+shadow resource_guard_preserves {
+    let parser: Parser = (resource_test_parser "resource struct Handle { fd: int }")
+    let state: array<ResourceState> = [ResourceState { held_places: [], name: "h", type_name: "Handle", moved: false, line: 1, column: 1 }]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (resource_guard_preserves parser state ResourceFlow { states: state, next: true } 1 1 diags "guard.nano")
+    assert (== (Diagnostics.diag_list_count diags) 0)
+    (resource_guard_preserves parser state ResourceFlow { states: (resource_replace state 0 true), next: true } 1 1 diags "guard.nano")
+    assert (== (Diagnostics.diag_list_count diags) 1)
+    let guarded: Parser = (resource_test_parser "resource struct Handle { fd: int } fn consume(h: Handle) -> bool { return false } fn read(h: Handle) -> int { return match 1 { _ if (consume h) => 1 _ => 0 } }")
+    let errors: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let walked: ResourceFlow = (resource_flow_node guarded 0 ParseNodeType.PNODE_MATCH state false [] errors "guard.nano" "int" "")
+    assert (> (Diagnostics.diag_list_count errors) 0)
+}
+
 fn resource_match_supported(parser: Parser, matched: ASTMatch, input: string) -> bool {
     let index: int = (resource_owned_union_index parser input)
     if (< index 0) { return false }
@@ -1048,6 +1084,7 @@ fn resource_match_supported(parser: Parser, matched: ASTMatch, input: string) ->
     let mut arm: int = 0
     while (< arm matched.arm_count) {
         let name: string = (at matched.arm_variants arm)
+        if (>= (at matched.arm_guard_ids arm) 0) { return false }
         if (not (resource_name_in def.variant_names name)) { return false }
         let mut prior: int = 0
         while (< prior arm) {
@@ -1281,6 +1318,12 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                 } else {
                     if (resource_type_is_declared parser payload) { (resource_flow_error diags file_name matched.line matched.column "I require a binding for the selected resource payload") }
                 }
+            }
+            let guard_id: int = (at matched.arm_guard_ids arm)
+            if (>= guard_id 0) {
+                let guarded: ResourceFlow = (resource_flow_node parser guard_id (at matched.arm_guard_types arm) (resource_copy arm_states (array_length arm_states)) false loop_entry diags file_name return_type "")
+                (resource_guard_preserves parser arm_states guarded matched.line matched.column diags file_name)
+                set arm_states guarded.states
             }
             let branch: ResourceFlow = (resource_flow_value parser (at matched.arm_body_ids arm) (at matched.arm_body_types arm) expected_type arm_states move loop_entry diags file_name return_type)
             if branch.next { (resource_resolve_exit parser branch.states first diags file_name) }
@@ -1792,6 +1835,8 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "scrutinee_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_guard_ids", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false, field_type_name: "int" })
+    set m (array_push m FieldMetadata { struct_name: "ASTMatch", field_name: "arm_guard_types", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false, field_type_name: "int" })
     
     /* ASTStructLiteral fields (schema) */
     set m (array_push m FieldMetadata { struct_name: "ASTStructLiteral", field_name: "struct_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
@@ -4073,31 +4118,76 @@ shadow check_union_construct {
  * Example: match opt { Some(s) => s.value, None(n) => 0 }
  * Returns: NSType of the match arms (must all match)
  */
+# I check patterns against the actual domain, preserving conditional arm order.
+fn check_match_coverage(parser: Parser, matched: ASTMatch, actual: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    let is_int: bool = (== actual.kind TypeKind.TYPE_INT)
+    let mut variants: array<string> = []
+    let mut ui: int = 0
+    while (< ui (parser_get_union_count parser)) {
+        let definition: ASTUnion = (parser_get_union parser ui)
+        if (== definition.name (base_type_name actual.name)) { set variants definition.variant_names }
+        set ui (+ ui 1)
+    }
+    let mut covered: array<string> = []
+    let mut wildcard: bool = false
+    let mut i: int = 0
+    while (< i matched.arm_count) {
+        let pattern: string = (at matched.arm_variants i)
+        if wildcard {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E036" "I cannot reach an arm after an unconditional wildcard" (Diagnostics.diag_location file_name matched.line matched.column)))
+        }
+        if (!= pattern "_") {
+            let valid: bool = (cond (is_int (tc_str_starts_with pattern "INT:")) (else (resource_name_in variants pattern)))
+            if (not valid) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a pattern from the exact match domain" (Diagnostics.diag_location file_name matched.line matched.column)))
+            }
+        }
+        if (parser_match_arm_unconditional parser matched i) {
+            if (== pattern "_") { set wildcard true }
+            else { set covered (array_push covered pattern) }
+        }
+        set i (+ i 1)
+    }
+    let mut total: bool = wildcard
+    if (and (not is_int) (> (array_length variants) 0)) {
+        let mut all: bool = true
+        set i 0
+        while (< i (array_length variants)) {
+            if (not (resource_name_in covered (at variants i))) { set all false }
+            set i (+ i 1)
+        }
+        if all { set total true }
+    }
+    if (not total) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E035" "I require unconditional coverage of every match value" (Diagnostics.diag_location file_name matched.line matched.column)))
+    }
+}
+shadow check_match_coverage {
+    let parser: Parser = (resource_test_parser "fn f() -> int { return match 1 { 1 if false => 2 _ if true => 3 } } fn g() -> int { return match 1 { 1 if true => 2 } } fn h() -> int { return match 1 { _ => 2 1 => 3 } }")
+    let valid: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_match_coverage parser (parser_get_match parser 0) (type_int) valid "coverage.nano")
+    assert (== (Diagnostics.diag_list_count valid) 0)
+    let missing: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_match_coverage parser (parser_get_match parser 1) (type_int) missing "coverage.nano")
+    assert (== (Diagnostics.diag_list_count missing) 1)
+    let dead: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_match_coverage parser (parser_get_match parser 2) (type_int) dead "coverage.nano")
+    assert (== (Diagnostics.diag_list_count dead) 1)
+}
+
 fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let m: ASTMatch = (parser_get_match parser node_id)
     
     /* Check scrutinee (expression being matched) */
     let scrutinee_type: NSType = (check_expr_node parser m.scrutinee m.scrutinee_type symbols diags file_name)
 
-    /* Detect int-pattern match: any arm variant starts with "INT:" */
-    let mut has_int_patterns: bool = false
-    let mut pat_i: int = 0
-    while (< pat_i m.arm_count) {
-        let pv: string = (at m.arm_variants pat_i)
-        if (tc_str_starts_with pv "INT:") {
-            set has_int_patterns true
-        } else { (print "") }
-        set pat_i (+ pat_i 1)
-    }
-
-    if (and (!= scrutinee_type.kind TypeKind.TYPE_UNION) (not has_int_patterns)) {
-        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "match expression must match on union type" (Diagnostics.diag_location file_name m.line m.column))
+    if (and (!= scrutinee_type.kind TypeKind.TYPE_UNION) (!= scrutinee_type.kind TypeKind.TYPE_INT)) {
+        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "I require an exact int or union match scrutinee" (Diagnostics.diag_location file_name m.line m.column))
         (Diagnostics.diag_list_add diags diag)
         return (type_unknown_named "match_error")
-    } else {
-        (print "")
     }
-    
+    (check_match_coverage parser m scrutinee_type diags file_name)
+
     if (<= m.arm_count 0) {
         return (type_unknown_named "empty_match")
     } else {
@@ -4131,6 +4221,17 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
             (print "")
         }
 
+        if (< i (array_length m.arm_guard_ids)) {
+            let guard_id: int = (at m.arm_guard_ids i)
+            if (>= guard_id 0) {
+                let guard_type: NSType = (check_expr_node parser guard_id (at m.arm_guard_types i) arm_symbols diags file_name)
+                if (!= guard_type.kind TypeKind.TYPE_BOOL) {
+                    let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "I require an exact bool match guard" (Diagnostics.diag_location file_name m.line m.column))
+                    (Diagnostics.diag_list_add diags diag)
+                }
+            }
+        }
+
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
         let arm_type: NSType = (check_expr_node parser body_id body_type arm_symbols diags file_name)
@@ -4157,7 +4258,23 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
     return first_arm_type
 }
 
-shadow check_match_expr { assert true }
+shadow check_match_expr {
+    let parser: Parser = (resource_test_parser "fn f() -> int { return match 1 { _ if false => 2 _ => 3 } } fn g() -> int { return match 1 { 1 if 7 => 2 _ => 3 } }")
+    let good: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let actual: NSType = (check_match_expr parser 0 [] good "match.nano")
+    assert (== actual.kind TypeKind.TYPE_INT)
+    assert (== (Diagnostics.diag_list_count good) 0)
+    let bad: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let rejected: NSType = (check_match_expr parser 1 [] bad "match.nano")
+    assert (== (Diagnostics.diag_list_count bad) 1)
+    let named: Parser = (resource_test_parser "union Choice { Some { value: int }, None {} } fn f(c: Choice) -> int { return match c { Some(payload) if (== payload.value 7) => payload.value Some(other) => other.value None(empty) => 0 } }")
+    let symbols: array<Symbol> = [(symbol_new "c" (type_from_string_with_parser named "Choice") false false 0 (empty_param_types) (type_void))]
+    let clean: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let result: NSType = (check_match_expr named 0 symbols clean "named.nano")
+    assert (== result.kind TypeKind.TYPE_INT)
+    assert (== (Diagnostics.diag_list_count clean) 0)
+    assert (== (array_length symbols) 1)
+}
 
 fn check_variant_field_type(parser: Parser, variant_label: string, field_name: string, concrete: string) -> NSType {
     let mut ui: int = 0
@@ -6116,6 +6233,8 @@ fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count
                     set body_count (+ body_count 1)
                 }
             }
+            let guard_id: int = (at n.arm_guard_ids i)
+            if (>= guard_id 0) { set result (purity_join result (purity_node parser guard_id (at n.arm_guard_types i) context body_count)) }
             set result (purity_join result (purity_node parser (at n.arm_body_ids i) (at n.arm_body_types i) context body_count))
             set i (+ i 1)
         }
@@ -6186,6 +6305,10 @@ shadow purity_node {
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "purity.nano")
     let match_context: PurityContext = PurityContext { names: ["choice", ""], mutable: [false, false], seen: [false], globals: [] }
     assert (== (purity_node parsed 0 ParseNodeType.PNODE_MATCH match_context 1) 0)
+    let guarded: Parser = (resource_test_parser "union Choice { Number { value: int }, Empty {} } fn f(choice: Choice, flag: bool) -> int { return match choice { Number(n) if flag => n.value Number(n) => 0 Empty(e) => 0 } } fn g(choice: Choice) -> int { return match choice { Number(n) if (== n.value 1) => n.value Number(n) => 0 Empty(e) => 0 } }")
+    let context: PurityContext = PurityContext { names: ["choice", "flag", ""], mutable: [false, true, false], seen: [false, false], globals: [] }
+    assert (== (purity_node guarded 0 ParseNodeType.PNODE_MATCH context 2) 2)
+    assert (== (purity_node guarded 1 ParseNodeType.PNODE_MATCH context 2) 0)
 }
 
 fn purity_function(parser: Parser, parent: PurityContext, index: int) -> int {

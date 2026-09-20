@@ -1,0 +1,99 @@
+{
+  "head": "eafcd1e52651996b1960a21ef5a3af57baf7a3b1",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "phases": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 0,
+      "seconds": 284.542,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "99bd8c08bb9e066350dde2c24f18f501417d46c10be9579af3b8f5a85431b097"
+    },
+    {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 0,
+      "seconds": 1.278,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "1c245d3e96176b32e426248e8ec0ecd3438fd2aae73b80d2a07aa2d9fe1d58db"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_canonical_match_guards"
+      ],
+      "status": 0,
+      "seconds": 96.514,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "log_sha256": "a859ccca00b03372fb1df32bf88fa036d82deb26a383f06e0082b28e19f5525a"
+    },
+    {
+      "name": "shared-policy",
+      "command": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_shared_match_policy_docs",
+        "tests.test_cseed_match_totality"
+      ],
+      "status": 0,
+      "seconds": 2.51,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "log_sha256": "d65e5883ab4493a1b801ea82a189ed5a2cd98b7a31ec32c4cd2ce21825c9b8b7"
+    },
+    {
+      "name": "owned-refusals",
+      "command": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_selected_variant_ownership.SelectedVariantOwnership.test_guarded_owned_match_remains_rejected",
+        "tests.test_generic_selected_ownership.GenericSelectedOwnership.test_guarded_generic_match_remains_rejected"
+      ],
+      "status": 0,
+      "seconds": 1.005,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "log_sha256": "55b0044279da19d262c06e45c10d928222dfd308dc5a34b98ec7842843041947"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}
