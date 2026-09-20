@@ -517,6 +517,29 @@ static VmResult vm_ra_retain_check(NanoValue value) {
     if(val_is_heap_obj(value) && (!value.as.obj || ((VmHeapHeader *)value.as.obj)->ref_count==UINT32_MAX))return VM_ERR_MEMORY;
     return VM_OK;
 }
+/* These actual scalar handlers reject after popping and do not release a
+ * wrong-tag heap operand. I reject while every operand remains a stack root.
+ * I do not replace polymorphic truthiness/comparison or string fallback rules. */
+static VmResult vm_ra_scalar_inputs(VmState *vm,uint8_t opcode) {
+    uint8_t tag=TAG_VOID;uint16_t count=0;
+    switch(opcode) {
+    case OP_I64_ADD:case OP_I64_SUB:case OP_I64_MUL:case OP_I64_DIV_S:case OP_I64_REM_S:
+    case OP_I64_EQ:case OP_I64_NE:case OP_I64_LT_S:case OP_I64_LE_S:case OP_I64_GT_S:case OP_I64_GE_S:
+        tag=TAG_INT;count=2;break;
+    case OP_I64_NEG:case OP_F64_FROM_BITS:tag=TAG_INT;count=1;break;
+    case OP_F64_ADD:case OP_F64_SUB:case OP_F64_MUL:case OP_F64_DIV:
+    case OP_F64_EQ:case OP_F64_NE:case OP_F64_LT:case OP_F64_LE:case OP_F64_GT:case OP_F64_GE:
+        tag=TAG_FLOAT;count=2;break;
+    case OP_F64_NEG:case OP_F64_TO_BITS:tag=TAG_FLOAT;count=1;break;
+    case OP_BOOL_AND:case OP_BOOL_OR:tag=TAG_BOOL;count=2;break;
+    case OP_BOOL_NOT:tag=TAG_BOOL;count=1;break;
+    case OP_CAST_U8:
+        return stack_peek(vm,0).tag==TAG_INT || stack_peek(vm,0).tag==TAG_U8?VM_OK:VM_ERR_TYPE_ERROR;
+    default:return VM_OK;
+    }
+    for(uint16_t i=0;i<count;i++)if(stack_peek(vm,i).tag!=tag)return VM_ERR_TYPE_ERROR;
+    return VM_OK;
+}
 static bool vm_ra_context(const VmRecordArrayPrivate *p,const VmState *vm) {
     return p && p->prepared && p->busy && vm==&p->vm && vm->module==nvm_record_array_image_borrow(p->image) &&
         vm->root_module==vm->module && !vm->verified && vm->heap.private_record_dag &&
@@ -545,6 +568,8 @@ static VmResult vm_ra_preflight(VmRecordArrayPrivate *p,const VmDispatchInstruct
     if(fact->pushes>vm->stack_capacity-(vm->stack_size-fact->pops))return VM_ERR_STACK_OVERFLOW;
     for(uint16_t i=0;i<fact->pops;i++)if(!vm_ra_value_valid(p,stack_peek(vm,i)))return VM_ERR_TYPE_ERROR;
     const DecodedInstruction *in=&instruction->instruction;
+    VmResult scalar_inputs=vm_ra_scalar_inputs(vm,in->opcode);
+    if(scalar_inputs!=VM_OK)return scalar_inputs;
     NanoValue retained=val_void();
     switch(in->opcode) {
     case OP_PUSH_STR:
@@ -595,7 +620,8 @@ static VmResult vm_ra_preflight(VmRecordArrayPrivate *p,const VmDispatchInstruct
         bool store=in->opcode==OP_STRUCT_SET || in->opcode==OP_AGG_SET;
         NanoValue receiver=stack_peek(vm,store?1:0);
         uint16_t field=in->operands[0].u16;
-        if(receiver.tag!=TAG_STRUCT)return VM_ERR_TYPE_ERROR;
+        if(receiver.tag!=TAG_STRUCT)return (in->opcode==OP_AGG_GET || in->opcode==OP_AGG_SET)?
+            VM_ERR_OUT_OF_BOUNDS:VM_ERR_TYPE_ERROR;
         if(field>=receiver.as.sval->field_count)return VM_ERR_OUT_OF_BOUNDS;
         if(store) {
             if(!vm_ra_field_accepts(p,receiver.as.sval->def_idx,field,stack_peek(vm,0)))return VM_ERR_TYPE_ERROR;
