@@ -268,3 +268,11 @@ The common decoder's TRUNCATED still conflates malformed input and allocation
 failure; I explicitly retain that ambiguity until the whole private query has
 sufficient preflight evidence. This isolated source checkpoint is not the
 kind2 validator or a public authority change. I have not built or qualified it.
+
+## My checked-reader implementation checkpoint
+
+The structural prerequisite is qualified at b79f3c978. I now factor the common ownership reader around an already owned layout table; the existing public wrapper retains its exact legacy decode/preflight and refusal behavior. The private query checks per-kind counts and advisory-name ranges directly against its owned table, without invoking the public classifier recursively. Its explicit private grammar adds complete ordinary ARRAY leaves only when the complete kind2 table validates. No flag is cleared.
+
+I retain the private decoder's ambiguous TRUNCATED result as UNKNOWN; I report MEMORY only for an allocation whose failure I observe directly. I preflight layout counts/field extents before decoding so explicit size ceilings are LIMIT. This does not relabel malformed legacy errors as allocation failures.
+
+I charge bounded work before invoking shared descriptor and union validation: conservative upper bounds include resource path depth and all pairwise union name comparisons. Bounds can refuse before doing the work; I do not claim to count CPU instructions. The complete type/binding scan and iterative type graph each consume the same remaining traversal budget. Owned staging is bounded by the fixed layout/type/binding ceilings and an explicit checked 16MiB sum before allocating. Public consumers retain their prior limits and behavior.
