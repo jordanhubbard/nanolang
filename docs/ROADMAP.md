@@ -13714,3 +13714,28 @@ every injected failure must return exactly MEMORY, preserve output/input and
 leave zero tracked objects/bytes before independent recovery. INVALID, LIMIT or
 UNRESOLVED cannot hide a malformed fixture or incorrect allocation classification.
 I retain the unchanged old origin corpus and its historical assertions separately.
+
+### My copied-plan allocation classification prerequisite (task676858)
+
+I preserve frozen16767e0c1's first Linux terminal. Fresh setup/configuration and
+one-test discovery pass; linked preparation passes2792 checks. Instrumented old
+origin controls pass1290 checks/40 allocation sites and the new92-opcode controls
+pass, then one-shot allocation18 returns UNRESOLVED instead of required MEMORY.
+The retained diagnostic is not a malformed-input or runtime-admission failure.
+Darwin inputs were transferred but not executed after this known terminal.
+
+The existing private layout API explicitly conflates actual truncated wire and
+allocation refusal as NVM_V2_ERR_TRUNCATED. Complete declaration preparation maps
+that result to UNKNOWN, then origin/preparation maps it to UNRESOLVED. I retain
+all old decoder results and allocation ordering. Before repair I specify a new
+private detailed mixed-layout entry with an explicit allocation-failed output,
+set only at actual allocation failures in the existing common decoder/forward
+workspace. Complete mixed declaration preparation maps that fact to MEMORY;
+real truncation and every admission decision remain unchanged. Existing legacy
+public/ordinary wrappers pass no detail sink. The codec's embedded fixture copy
+must rename the new exported symbol as well as its existing aliases.
+
+- [ ] I review this status-only source correction and meaningful detailed-reader
+  controls before fresh corrected providers and the complete query matrix.
+- [ ] I retain exact MEMORY, output/input preservation, zero live payload and
+  independent recovery at every measured failure prefix; no broad status waiver.
