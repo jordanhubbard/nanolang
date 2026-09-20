@@ -1,0 +1,21 @@
+{
+  "name": "make",
+  "argv": [
+    "/usr/bin/make",
+    "--version"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.010360292000000104,
+  "log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263,
+    "archive": "/private/tmp/nanolang-example-time-puck-corrected/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

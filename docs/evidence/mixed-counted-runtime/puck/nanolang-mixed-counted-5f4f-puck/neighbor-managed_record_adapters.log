@@ -1,0 +1,8 @@
+I retain neighbor artifacts at /private/tmp/nanolang-mixed-counted-5f4f-puck/managed_record_adapters-products
+test_packaged_production_scalar_abi (tests.test_managed_record_adapters.RecordAdapters.test_packaged_production_scalar_abi) ... ok
+test_private_adapters_native_and_wasm (tests.test_managed_record_adapters.RecordAdapters.test_private_adapters_native_and_wasm) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 5.591s
+
+OK

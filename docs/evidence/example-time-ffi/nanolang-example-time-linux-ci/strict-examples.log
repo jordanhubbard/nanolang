@@ -1,0 +1,431 @@
+Checking SDL2 dependencies for graphics examples...
+✓ SDL2 found: 2.30.0
+
+==========================================
+Building Examples
+==========================================
+Compiler: ../bin/nanoc_c
+Backend:  c
+Suffix:   (none)
+Note: This will fail if any module dependencies are missing.
+      Run 'make -B modules' to see what's needed.
+      Or use 'make examples-available' to skip unavailable examples.
+
+make[1]: Entering directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+make[1]: Leaving directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+make[1]: Entering directory '/home/jkh/Src/nanolang-example-time-qualification-corrected/examples'
+make[2]: Entering directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+make[2]: Leaving directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+Building ../bin/bullet_beads_simple...
+../bin/nanoc_c physics/bullet_beads_simple.nano  -o ../bin/bullet_beads_simple
+Building ../bin/bullet_beads_visual...
+../bin/nanoc_c physics/bullet_beads_visual.nano  -o ../bin/bullet_beads_visual
+Building ../bin/bullet_bouncy_balls...
+../bin/nanoc_c physics/bullet_bouncy_balls.nano  -o ../bin/bullet_bouncy_balls
+Building ../bin/bullet_rigid_megastacks...
+../bin/nanoc_c physics/bullet_rigid_megastacks.nano  -o ../bin/bullet_rigid_megastacks
+Building ../bin/bullet_soft_body_modern...
+../bin/nanoc_c physics/bullet_soft_body_modern.nano  -o ../bin/bullet_soft_body_modern
+Building ../bin/bullet_softbody_hourglass...
+../bin/nanoc_c physics/bullet_softbody_hourglass.nano  -o ../bin/bullet_softbody_hourglass
+Building ../bin/playground_server...
+../bin/nanoc_c playground/playground_server.nano  -o ../bin/playground_server
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Linking ../bin/playground...
+cp ../bin/playground_server ../bin/playground
+Building ../bin/agentos_ipc_schema...
+../bin/nanoc_c agentos_ipc_schema.nano  -o ../bin/agentos_ipc_schema
+Building ../bin/ai_github_agent...
+../bin/nanoc_c ai_github_agent.nano  -o ../bin/ai_github_agent
+Building ../bin/nano_tools_lint...
+../bin/nanoc_c nano_tools_lint.nano  -o ../bin/nano_tools_lint
+Building ../bin/row_poly_records...
+../bin/nanoc_c row_poly_records.nano  -o ../bin/row_poly_records
+Building ../bin/run_examples...
+../bin/nanoc_c run_examples.nano  -o ../bin/run_examples
+Building ../bin/sdl_example_launcher...
+../bin/nanoc_c sdl_example_launcher.nano  -o ../bin/sdl_example_launcher
+Building ../bin/julia_flow...
+../bin/nanoc_c gpu/julia_flow.nano  -o ../bin/julia_flow
+Building ../bin/opl_ast_builders...
+../bin/nanoc_c opl/opl_ast_builders.nano  -o ../bin/opl_ast_builders
+Building ../bin/opl_cli...
+../bin/nanoc_c opl/opl_cli.nano  -o ../bin/opl_cli
+Building ../bin/opl_lexer_driver...
+../bin/nanoc_c opl/opl_lexer_driver.nano  -o ../bin/opl_lexer_driver
+Building ../bin/opl_parser_driver...
+../bin/nanoc_c opl/opl_parser_driver.nano  -o ../bin/opl_parser_driver
+Building ../bin/opl_validate_driver...
+../bin/nanoc_c opl/opl_validate_driver.nano  -o ../bin/opl_validate_driver
+Linking ../bin/opl...
+cp ../bin/opl_cli ../bin/opl
+Building ../bin/sdl_boids...
+../bin/nanoc_c graphics/sdl_boids.nano  -o ../bin/sdl_boids
+
+Simulation complete!
+Total frames: 1
+
+Simulation complete!
+Total frames: 1
+Building ../bin/sdl_drawing_primitives...
+../bin/nanoc_c graphics/sdl_drawing_primitives.nano  -o ../bin/sdl_drawing_primitives
+Building ../bin/sdl_falling_sand...
+../bin/nanoc_c graphics/sdl_falling_sand.nano  -o ../bin/sdl_falling_sand
+Building ../bin/sdl_fire...
+../bin/nanoc_c graphics/sdl_fire.nano  -o ../bin/sdl_fire
+Building ../bin/sdl_forth_ide...
+../bin/nanoc_c graphics/sdl_forth_ide.nano  -o ../bin/sdl_forth_ide
+Building ../bin/sdl_game_of_life...
+../bin/nanoc_c graphics/sdl_game_of_life.nano  -o ../bin/sdl_game_of_life
+Building ../bin/sdl_glass_sphere...
+../bin/nanoc_c graphics/sdl_glass_sphere.nano  -o ../bin/sdl_glass_sphere
+Building ../bin/sdl_image_demo...
+../bin/nanoc_c graphics/sdl_image_demo.nano  -o ../bin/sdl_image_demo
+Building ../bin/sdl_image_sprite_animation...
+../bin/nanoc_c graphics/sdl_image_sprite_animation.nano  -o ../bin/sdl_image_sprite_animation
+Building ../bin/sdl_image_tiled_background...
+../bin/nanoc_c graphics/sdl_image_tiled_background.nano  -o ../bin/sdl_image_tiled_background
+Building ../bin/sdl_mouse_click...
+../bin/nanoc_c graphics/sdl_mouse_click.nano  -o ../bin/sdl_mouse_click
+Building ../bin/sdl_nanoviz...
+../bin/nanoc_c graphics/sdl_nanoviz.nano  -o ../bin/sdl_nanoviz
+Building ../bin/sdl_particles...
+../bin/nanoc_c graphics/sdl_particles.nano  -o ../bin/sdl_particles
+Building ../bin/sdl_physics_demo...
+../bin/nanoc_c graphics/sdl_physics_demo.nano  -o ../bin/sdl_physics_demo
+Building ../bin/sdl_raytracer...
+../bin/nanoc_c graphics/sdl_raytracer.nano  -o ../bin/sdl_raytracer
+Building ../bin/sdl_starfield...
+../bin/nanoc_c graphics/sdl_starfield.nano  -o ../bin/sdl_starfield
+Building ../bin/sdl_terrain_explorer...
+../bin/nanoc_c graphics/sdl_terrain_explorer.nano  -o ../bin/sdl_terrain_explorer
+Building ../bin/sdl_texture_demo...
+../bin/nanoc_c graphics/sdl_texture_demo.nano  -o ../bin/sdl_texture_demo
+Building ../bin/sdl_ui_widgets_extended...
+../bin/nanoc_c graphics/sdl_ui_widgets_extended.nano  -o ../bin/sdl_ui_widgets_extended
+Building ../bin/sdl_audio_player...
+../bin/nanoc_c audio/sdl_audio_player.nano  -o ../bin/sdl_audio_player
+Building ../bin/sdl_audio_wav...
+../bin/nanoc_c audio/sdl_audio_wav.nano  -o ../bin/sdl_audio_wav
+Building ../bin/sdl_mod_visualizer...
+../bin/nanoc_c audio/sdl_mod_visualizer.nano  -o ../bin/sdl_mod_visualizer
+Building ../bin/sdl_nanoamp...
+../bin/nanoc_c audio/sdl_nanoamp.nano  -o ../bin/sdl_nanoamp
+Building ../bin/sdl_tracker_shell...
+../bin/nanoc_c audio/sdl_tracker_shell.nano  -o ../bin/sdl_tracker_shell
+Building ../bin/sdl_asteroids...
+../bin/nanoc_c games/sdl_asteroids.nano  -o ../bin/sdl_asteroids
+Building ../bin/sdl_checkers...
+../bin/nanoc_c games/sdl_checkers.nano  -o ../bin/sdl_checkers
+Building ../bin/sdl_pong...
+../bin/nanoc_c games/sdl_pong.nano  -o ../bin/sdl_pong
+Building nano_emacs_worker and ../bin/nano_emacs...
+make -C .. nano_emacs_worker
+make[2]: Entering directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -Imodules/nano_eval -o bin/nano_emacs_worker \
+	modules/nano_eval/nano_emacs_worker.c modules/nano_eval/nano_eval_ipc.c \
+	modules/nano_eval/nano_eval.c modules/nano_eval/nano_eval_stubs.c \
+	obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi  -rdynamic -Wl,--export-dynamic
+make[2]: Leaving directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+../bin/nanoc_c emacs/nano_emacs.nano  -o ../bin/nano_emacs
+Building ../bin/ncurses_game_of_life...
+../bin/nanoc_c terminal/ncurses_game_of_life.nano  -o ../bin/ncurses_game_of_life
+Building ../bin/ncurses_matrix_rain...
+../bin/nanoc_c terminal/ncurses_matrix_rain.nano  -o ../bin/ncurses_matrix_rain
+Building ../bin/ncurses_snake...
+../bin/nanoc_c terminal/ncurses_snake.nano  -o ../bin/ncurses_snake
+Building ../bin/opengl_cube...
+../bin/nanoc_c opengl/opengl_cube.nano  -o ../bin/opengl_cube
+Building ../bin/opengl_lit_atelier...
+../bin/nanoc_c opengl/opengl_lit_atelier.nano  -o ../bin/opengl_lit_atelier
+Building ../bin/opengl_modern_hello_triangle...
+../bin/nanoc_c opengl/opengl_modern_hello_triangle.nano  -o ../bin/opengl_modern_hello_triangle
+Building ../bin/opengl_modern_postprocess...
+../bin/nanoc_c opengl/opengl_modern_postprocess.nano  -o ../bin/opengl_modern_postprocess
+Building ../bin/opengl_particle_fountain...
+../bin/nanoc_c opengl/opengl_particle_fountain.nano  -o ../bin/opengl_particle_fountain
+Building ../bin/opengl_solar_system...
+../bin/nanoc_c opengl/opengl_solar_system.nano  -o ../bin/opengl_solar_system
+Building ../bin/opengl_teapot...
+../bin/nanoc_c opengl/opengl_teapot.nano  -o ../bin/opengl_teapot
+Building ../bin/mujoco_opengl_cartpole...
+../bin/nanoc_c mujoco/mujoco_opengl_cartpole.nano  -o ../bin/mujoco_opengl_cartpole
+Building ../bin/mujoco_opengl_drop_lab...
+../bin/nanoc_c mujoco/mujoco_opengl_drop_lab.nano  -o ../bin/mujoco_opengl_drop_lab
+Building ../bin/mujoco_opengl_geom_browser...
+../bin/nanoc_c mujoco/mujoco_opengl_geom_browser.nano  -o ../bin/mujoco_opengl_geom_browser
+Building ../bin/mujoco_opengl_robot_sorter...
+../bin/nanoc_c mujoco/mujoco_opengl_robot_sorter.nano  -o ../bin/mujoco_opengl_robot_sorter
+mkdir -p ../bin/gpu
+../bin/nanoc_c gpu/matmul.nano --target ptx -o ../bin/gpu/matmul.ptx
+✓ PTX assembly emitted to ../bin/gpu/matmul.ptx
+  Load with: cuModuleLoad(&mod, "../bin/gpu/matmul.ptx");
+  Or compile: nvcc -ptx ../bin/gpu/matmul.ptx -o ../bin/gpu/matmul.ptx.cubin
+../bin/nanoc_c gpu/matmul.nano --target opencl -o ../bin/gpu/matmul.cl
+✓ OpenCL C kernel emitted to ../bin/gpu/matmul.cl
+  Load with: clCreateProgramWithSource + clBuildProgram
+  CPU fallback: set POCL_DEVICES=cpu (POCL required)
+../bin/nanoc_c gpu/julia_flow.nano --target ptx -o ../bin/gpu/julia_flow.ptx
+✓ PTX assembly emitted to ../bin/gpu/julia_flow.ptx
+  Load with: cuModuleLoad(&mod, "../bin/gpu/julia_flow.ptx");
+  Or compile: nvcc -ptx ../bin/gpu/julia_flow.ptx -o ../bin/gpu/julia_flow.ptx.cubin
+../bin/nanoc_c gpu/julia_flow.nano --target opencl -o ../bin/gpu/julia_flow.cl
+✓ OpenCL C kernel emitted to ../bin/gpu/julia_flow.cl
+  Load with: clCreateProgramWithSource + clBuildProgram
+  CPU fallback: set POCL_DEVICES=cpu (POCL required)
+
+==========================================
+✓ All Examples Built Successfully
+==========================================
+
+Nanolang-only examples (nl_*):
+  ./bin/nl_advanced_math
+  ./bin/nl_affine_resource_demo
+  ./bin/nl_array_bounds
+  ./bin/nl_array_complete
+  ./bin/nl_array_functional
+  ./bin/nl_array_infer
+  ./bin/nl_boids
+  ./bin/nl_calculator
+  ./bin/nl_checked_math_demo
+  ./bin/nl_comparisons
+  ./bin/nl_control_for
+  ./bin/nl_control_if_while
+  ./bin/nl_csv_processor
+  ./bin/nl_data_analytics
+  ./bin/nl_demo_selfhosting
+  ./bin/nl_dispatch_counter
+  ./bin/nl_dispatch_pipeline
+  ./bin/nl_dispatch_stats
+  ./bin/nl_enum
+  ./bin/nl_extern_char
+  ./bin/nl_extern_math
+  ./bin/nl_extern_string
+  ./bin/nl_factorial
+  ./bin/nl_falling_sand
+  ./bin/nl_fibonacci
+  ./bin/nl_floats
+  ./bin/nl_for_in_array
+  ./bin/nl_forth_interpreter
+  ./bin/nl_functions_basic
+  ./bin/nl_game_of_life
+  ./bin/nl_generics_demo
+  ./bin/nl_global_counter
+  ./bin/nl_hashmap
+  ./bin/nl_hashmap_word_count
+  ./bin/nl_hello
+  ./bin/nl_logical
+  ./bin/nl_match_int
+  ./bin/nl_matrix_operations
+  ./bin/nl_maze
+  ./bin/nl_mutable
+  ./bin/nl_operators
+  ./bin/nl_peg2_csv
+  ./bin/nl_peg2_expr
+  ./bin/nl_peg2_json
+  ./bin/nl_primes
+  ./bin/nl_primes_sieve
+  ./bin/nl_random_sentence
+  ./bin/nl_result_propagation
+  ./bin/nl_snake
+  ./bin/nl_string_interp
+  ./bin/nl_string_operations
+  ./bin/nl_struct
+  ./bin/nl_tictactoe
+  ./bin/nl_tracing
+  ./bin/nl_types
+  ./bin/nl_types_tuple
+  ./bin/nl_types_union_construct
+  ./bin/nl_union_types
+  ./bin/nl_unsafe_demo
+  ./bin/nl_word_frequency
+
+REPL examples:
+  ./bin/full_repl
+
+Advanced examples:
+  ./bin/datetime_demo
+  ./bin/error_handling_patterns
+  ./bin/ffi_tutorial
+  ./bin/math_ext_demo
+  ./bin/namespace_demo
+  ./bin/performance_optimization
+  ./bin/stdio_file_processor
+  ./bin/stdlib_ast_demo
+  ./bin/testing_strategies
+  ./bin/unsafe_demo
+  ./bin/vector2d_demo
+  ./bin/vector2d_physics_simple
+
+Data examples:
+  ./bin/json_demo
+
+API lessons (api_lessons/):
+  ./bin/array_utils_api
+  ./bin/binary_api
+  ./bin/collections_hashmap_api
+  ./bin/collections_set_api
+  ./bin/diagnostics_api
+  ./bin/env_api
+  ./bin/examples_diag_api
+  ./bin/fs_api
+  ./bin/json_api
+  ./bin/log_api
+  ./bin/math_array_ops_api
+  ./bin/math_complex_api
+  ./bin/math_ext_api
+  ./bin/math_extended_api
+  ./bin/math_matrix4_api
+  ./bin/math_quaternion_api
+  ./bin/math_vector2d_api
+  ./bin/math_vector3d_api
+  ./bin/math_vector4d_api
+  ./bin/nano_highlight_api
+  ./bin/peg2_api
+  ./bin/peg_api
+  ./bin/process_api
+  ./bin/proptest_api
+  ./bin/result_api
+  ./bin/std_lib_api
+  ./bin/stdio_api
+  ./bin/stringbuilder_api
+  ./bin/tidy_api
+  ./bin/vector2d_api
+  ./bin/websocket_api
+
+Verified examples (formally proven):
+  ./bin/break_the_proof
+  ./bin/checksum_validator
+  ./bin/financial_order_validator
+  ./bin/medical_dosage
+  ./bin/pid_controller
+  ./bin/proof_trace
+  ./bin/sensor_voting
+  ./bin/state_machine
+  ./bin/verified_vs_unverified
+
+Debugging & Validation examples:
+  ./bin/coverage_demo
+  ./bin/logging_demo
+  ./bin/property_test_math
+  ./bin/property_test_sorting
+
+Network examples:
+  ./bin/http_hello_world
+  ./bin/http_static_server
+
+Physics examples:
+  ./bin/bullet_beads_simple
+  ./bin/bullet_beads_visual
+  ./bin/bullet_bouncy_balls
+  ./bin/bullet_rigid_megastacks
+  ./bin/bullet_soft_body_modern
+  ./bin/bullet_softbody_hourglass
+
+Playground examples:
+  ./bin/playground
+  ./bin/playground_server
+
+Tools & launchers:
+  ./bin/agentos_ipc_schema
+  ./bin/ai_github_agent
+  ./bin/nano_tools_lint
+  ./bin/row_poly_records
+  ./bin/run_examples
+  ./bin/sdl_example_launcher
+
+GPU examples:
+  ./bin/julia_flow
+
+OPL examples:
+  ./bin/opl
+  ./bin/opl_ast_builders
+  ./bin/opl_cli
+  ./bin/opl_lexer_driver
+  ./bin/opl_parser_driver
+  ./bin/opl_validate_driver
+
+SDL examples (sdl_*):
+  ./bin/nano_emacs
+  ./bin/sdl_asteroids
+  ./bin/sdl_audio_player
+  ./bin/sdl_audio_wav
+  ./bin/sdl_boids
+  ./bin/sdl_checkers
+  ./bin/sdl_drawing_primitives
+  ./bin/sdl_example_launcher
+  ./bin/sdl_falling_sand
+  ./bin/sdl_fire
+  ./bin/sdl_forth_ide
+  ./bin/sdl_game_of_life
+  ./bin/sdl_glass_sphere
+  ./bin/sdl_image_demo
+  ./bin/sdl_image_sprite_animation
+  ./bin/sdl_image_tiled_background
+  ./bin/sdl_mod_visualizer
+  ./bin/sdl_mouse_click
+  ./bin/sdl_nanoamp
+  ./bin/sdl_nanoviz
+  ./bin/sdl_particles
+  ./bin/sdl_physics_demo
+  ./bin/sdl_pong
+  ./bin/sdl_raytracer
+  ./bin/sdl_starfield
+  ./bin/sdl_terrain_explorer
+  ./bin/sdl_texture_demo
+  ./bin/sdl_tracker_shell
+  ./bin/sdl_ui_widgets_extended
+
+NCurses examples (ncurses_*):
+  ./bin/ncurses_game_of_life
+  ./bin/ncurses_matrix_rain
+  ./bin/ncurses_snake
+
+OpenGL examples (opengl_*):
+  ./bin/opengl_cube
+  ./bin/opengl_lit_atelier
+  ./bin/opengl_modern_hello_triangle
+  ./bin/opengl_modern_postprocess
+  ./bin/opengl_particle_fountain
+  ./bin/opengl_solar_system
+  ./bin/opengl_teapot
+
+MuJoCo examples (mujoco_*):
+  ./bin/mujoco_opengl_cartpole
+  ./bin/mujoco_opengl_drop_lab
+  ./bin/mujoco_opengl_geom_browser
+  ./bin/mujoco_opengl_robot_sorter
+
+To launch the example browser:
+  cd examples && make launcher
+  # or from repo root: make launcher
+
+make[1]: Leaving directory '/home/jkh/Src/nanolang-example-time-qualification-corrected/examples'
+✅ Examples built successfully!

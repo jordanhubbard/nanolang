@@ -1,0 +1,14 @@
+{"pin": "5f4f0010af06c741517cb606faa73cdf0f3dad7f", "source_files": 3692, "root": "/private/tmp/nanolang-mixed-counted-qualified-5f4f", "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"}
+{"phase": "setup", "status": 0, "seconds": 9.279}
+{"phase": "configuration", "status": 0, "seconds": 0.123}
+{"phase": "discovery", "status": 0, "seconds": 0.123}
+{"phase": "ordinary", "status": 0, "seconds": 3.335}
+{"phase": "clang-ordinary", "status": 0, "seconds": 3.516}
+{"phase": "sanitizer", "status": 0, "seconds": 4.892}
+{"phase": "wasm-package", "status": 0, "seconds": 5.301}
+{"phase": "neighbor-managed_records", "status": 0, "seconds": 3.624}
+{"phase": "neighbor-managed_record_adapters", "status": 0, "seconds": 5.692}
+{"phase": "neighbor-managed_array_copy_runtime", "status": 0, "seconds": 3.377}
+{"phase": "neighbor-managed_array_graphs", "status": 0, "seconds": 3.512}
+{"phase": "neighbor-managed_string_arrays", "status": 0, "seconds": 2.588}
+{"phase": "origin-query", "status": 0, "seconds": 2.923}

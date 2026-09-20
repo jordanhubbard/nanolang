@@ -5757,3 +5757,8 @@ test-cast-u8: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_O
 	CAST_U8_CC="$(CC)" CAST_U8_CFLAGS="$(CFLAGS)" \
 	CAST_U8_OBJECTS="$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" \
 	CAST_U8_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_cast_u8
+
+# I qualify private counted adapters without selecting mixed program execution.
+.PHONY: test-mixed-counted-runtime
+test-mixed-counted-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MC_COUNTED_CC="$(CC)" MC_COUNTED_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_mixed_counted_runtime

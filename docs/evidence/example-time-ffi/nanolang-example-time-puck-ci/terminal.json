@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "head": "28ba6c21373988f09de3fa6e5ba38e3131f184ce",
+  "scope": "retained qualified C seed plus actual CI stage1 prerequisite without global CC overriding module C++ selection, unchanged example regressions, four changed example compilations and full available strict examples; no interactive windows run; deleted inner temporary products not reconstructed"
+}

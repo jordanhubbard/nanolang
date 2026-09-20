@@ -1,0 +1,243 @@
+{
+  "host": "linux",
+  "reports": 187,
+  "objects": 370,
+  "bytes": 295263500,
+  "references": 5766,
+  "equal_pairs": 33,
+  "pairs": [
+    "nanolang-mixed-counted-3c0b-linux/setup-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/clang-ordinary-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/clang-ordinary-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/clang-sanitizer-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/clang-sanitizer-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/configuration-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/configuration-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/discovery-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/discovery-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/ordinary-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/ordinary-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/sanitizer-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/sanitizer-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/setup-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/setup-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux/wasm-package-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux/wasm-package-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/configuration-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/configuration-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-tools-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-source-before.json",
+    "nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-tools-before.json"
+  ],
+  "documented_source_deltas": [
+    {
+      "before": "nanolang-mixed-counted-3c0b-linux/setup-source-before.json",
+      "after": "nanolang-mixed-counted-3c0b-linux/setup-source-after.json",
+      "changed": [
+        "src/nanoisa/managed_native_source.h"
+      ],
+      "scope": "preserved first setup canonical generation of approved testing hooks"
+    }
+  ],
+  "terminals": [
+    {
+      "path": "nanolang-mixed-counted-3c0b-linux/setup-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 2,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/clang-ordinary-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/clang-sanitizer-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/discovery-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/ordinary-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/sanitizer-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/setup-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/wasm-package-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux-neighbors/configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    }
+  ],
+  "scope": "counted manual storage/adapters; seven total native compiler configurations, ordinary LLVM/Wasm/package; no public/source consumer admission"
+}

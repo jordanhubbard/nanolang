@@ -12,6 +12,15 @@ _Static_assert(sizeof(void *) == 8 && sizeof(size_t) == 8,
 #ifdef NMS_TESTING
 static uint64_t live_allocations;
 #endif
+#ifdef NMS_TEST_ALLOC_HOOKS
+#ifndef NMS_TESTING
+#error "I require NMS_TESTING for allocator observation hooks"
+#endif
+/* My fixture owns these nonallocating callbacks; production has no hooks. */
+extern int nms_test_allocation_permitted(uint64_t bytes);
+extern void nms_test_allocation_created(void *memory, uint64_t bytes);
+extern void nms_test_allocation_destroyed(void *memory);
+#endif
 static void copy_bytes(unsigned char *to, const unsigned char *from, uint64_t n) {
     /* Volatile byte accesses keep the freestanding Wasm core independent of
      * compiler-created memcpy/memmove imports, including optimized builds. */
@@ -106,6 +115,9 @@ static void backend_free(void *memory) { free(memory); }
 #endif
 
 static void *allocate(NmsRuntime *runtime, uint64_t bytes) {
+#ifdef NMS_TEST_ALLOC_HOOKS
+    if (!nms_test_allocation_permitted(bytes)) return NULL;
+#endif
 #ifdef NMS_TESTING
     if (!runtime->fail_after) return NULL;
     if (runtime->fail_after != UINT64_MAX) runtime->fail_after--;
@@ -113,6 +125,9 @@ static void *allocate(NmsRuntime *runtime, uint64_t bytes) {
     (void)runtime;
 #endif
     void *memory = backend_allocate(bytes);
+#ifdef NMS_TEST_ALLOC_HOOKS
+    if (memory) nms_test_allocation_created(memory, bytes);
+#endif
 #ifdef NMS_TESTING
     if (memory) live_allocations++;
 #endif
@@ -120,6 +135,9 @@ static void *allocate(NmsRuntime *runtime, uint64_t bytes) {
 }
 static void deallocate(void *memory) {
     if (!memory) return;
+#ifdef NMS_TEST_ALLOC_HOOKS
+    nms_test_allocation_destroyed(memory);
+#endif
 #ifdef NMS_TESTING
     live_allocations--;
 #endif

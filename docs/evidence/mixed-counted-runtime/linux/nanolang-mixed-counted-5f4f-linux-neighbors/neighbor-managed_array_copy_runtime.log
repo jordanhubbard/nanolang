@@ -1,0 +1,8 @@
+I retain neighbor artifacts at /tmp/nanolang-mixed-counted-5f4f-linux-neighbors/managed_array_copy_runtime-products
+test_core_policy_ownership_and_failure_targets (tests.test_managed_array_copy_runtime.ArrayCopyRuntime.test_core_policy_ownership_and_failure_targets) ... ok
+test_packaged_scalar_output_abi (tests.test_managed_array_copy_runtime.ArrayCopyRuntime.test_packaged_scalar_output_abi) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.447s
+
+OK

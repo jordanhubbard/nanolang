@@ -1,0 +1,7 @@
+mkdir -p obj/nanoisa
+mkdir -p obj
+python3 scripts/embed_managed_native.py
+mkdir -p obj/nanovm
+mkdir -p obj/build_bootstrap
+make: *** No rule to make target 'nanoisa'.  Stop.
+make: *** Waiting for unfinished jobs....

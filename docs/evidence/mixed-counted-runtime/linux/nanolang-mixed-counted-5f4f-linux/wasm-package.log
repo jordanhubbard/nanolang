@@ -1,0 +1,7 @@
+I retain counted runtime artifacts at /tmp/nano-mixed-counted-nub6z8ix
+test_03_wasm_and_production_runtime_package (tests.test_mixed_counted_runtime.MixedCountedRuntime.test_03_wasm_and_production_runtime_package) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 5.792s
+
+OK

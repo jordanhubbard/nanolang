@@ -1,0 +1,262 @@
+{
+  "head": "28ba6c21373988f09de3fa6e5ba38e3131f184ce",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "scope": "retained qualified C seed plus actual CI stage1 prerequisite without global CC overriding module C++ selection, unchanged example regressions, four changed example compilations and full available strict examples; no interactive windows run; deleted inner temporary products not reconstructed",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0015564620262011886,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0016669759061187506,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/usr/local/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.015862629981711507,
+      "log": {
+        "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+        "bytes": 440,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0014492300106212497,
+      "log": {
+        "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+        "bytes": 303,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "build",
+      "argv": [
+        "make",
+        "-j2",
+        "stage1",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.16443538200110197,
+      "log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "regressions",
+      "argv": [
+        "make",
+        "test-examples-regressions",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 180,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 25.67198218195699,
+      "log": {
+        "sha256": "3bd5398223a5be23c14886db28ede77a1200eb9efd1f14a159e36fa0ed214920",
+        "bytes": 398,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/3bd5398223a5be23c14886db28ede77a1200eb9efd1f14a159e36fa0ed214920"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "nl_random_sentence",
+      "argv": [
+        "/home/jkh/Src/nanolang-example-time-qualification-corrected/bin/nanoc_c",
+        "examples/language/nl_random_sentence.nano",
+        "-o",
+        "/tmp/nanolang-example-time-linux-ci/nl_random_sentence",
+        "--keep-c"
+      ],
+      "bound_seconds": 120,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 2.5211908699711785,
+      "log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "sdl_fire",
+      "argv": [
+        "/home/jkh/Src/nanolang-example-time-qualification-corrected/bin/nanoc_c",
+        "examples/graphics/sdl_fire.nano",
+        "-o",
+        "/tmp/nanolang-example-time-linux-ci/sdl_fire",
+        "--keep-c"
+      ],
+      "bound_seconds": 120,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 3.5790543819312006,
+      "log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "sdl_starfield",
+      "argv": [
+        "/home/jkh/Src/nanolang-example-time-qualification-corrected/bin/nanoc_c",
+        "examples/graphics/sdl_starfield.nano",
+        "-o",
+        "/tmp/nanolang-example-time-linux-ci/sdl_starfield",
+        "--keep-c"
+      ],
+      "bound_seconds": 120,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 2.7198487889254466,
+      "log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "ncurses_matrix_rain",
+      "argv": [
+        "/home/jkh/Src/nanolang-example-time-qualification-corrected/bin/nanoc_c",
+        "examples/terminal/ncurses_matrix_rain.nano",
+        "-o",
+        "/tmp/nanolang-example-time-linux-ci/ncurses_matrix_rain",
+        "--keep-c"
+      ],
+      "bound_seconds": 120,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 2.1696915179491043,
+      "log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "strict-examples",
+      "argv": [
+        "make",
+        "examples",
+        "EXAMPLES_TIMEOUT=2400",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 2500,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 194.57288526603952,
+      "log": {
+        "sha256": "3a5578d76bcfad06d22d8fdd32fd6674547a2d9d62f6608cf9dca5128bcd4e72",
+        "bytes": 20498,
+        "archive": "/tmp/nanolang-example-time-linux-ci/objects/3a5578d76bcfad06d22d8fdd32fd6674547a2d9d62f6608cf9dca5128bcd4e72"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}
