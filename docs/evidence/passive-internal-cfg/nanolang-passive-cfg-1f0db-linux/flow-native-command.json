@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/tmp/nanolang-passive-cfg-1f0db-linux/flow"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": ""
+  }
+}

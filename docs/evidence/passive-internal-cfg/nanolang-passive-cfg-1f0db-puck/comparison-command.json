@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_flow_bytecode_and_source_order_metadata_match",
+    "tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_par_records_and_scalar_execution"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": ""
+  }
+}

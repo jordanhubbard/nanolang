@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-passive-933-linux/passive-comparison.mk",
+    "CC=/usr/bin/gcc-13",
+    "passive-scoped-sanitizer"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}
