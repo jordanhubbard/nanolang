@@ -406,6 +406,46 @@ NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA
 	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT) $(OBJ_DIR)/nsi_file_plan.o
 NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 
+# I link exactly one explicit File runtime owner; generic consumers still refuse.
+FILE_PUBLIC_LIBRARY = lib/libnano_file_runtime.a
+FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/file_flow nanoisa/isa \
+	nanoisa/managed_array_shapes nanoisa/mixed_float_proof nanoisa/nvm_format \
+	nanoisa/nvm_format_v2 nanoisa/nvm_v2_constants nanoisa/nvm_v2_convert \
+	nanoisa/nvm_v2_cursor nanoisa/nvm_v2_functions nanoisa/nvm_v2_imports \
+	nanoisa/nvm_v2_layouts nanoisa/nvm_v2_module nanoisa/nvm_v2_signatures \
+	nanoisa/ownership_contracts nanoisa/passive nanoisa/reference_places \
+	nanoisa/retained_layouts nanoisa/service_bindings nanoisa/service_bindings_module \
+	nanoisa/service_file_nominal nanoisa/service_file_nominal_plan \
+	nanoisa/verifier nanoisa/verifier_types nanovm/vm_decode nsi_file_plan
+FILE_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY_STEMS))) \
+	$(OBJ_DIR)/nanoisa/file_host_grant.o $(OBJ_DIR)/nanoisa/file_runtime_public.o \
+	$(OBJ_DIR)/nanoisa/file_public_native.o $(OBJ_DIR)/nanovm/file_public_vm.o \
+	$(OBJ_DIR)/nsi_cap.o $(OBJ_DIR)/nsi_file.o $(OBJ_DIR)/nsi_file_values.o
+FILE_PUBLIC_HEADERS = nanoisa/file_public.h nanoisa/file_public_internal.h \
+	nanoisa/file_native_public.h nanoisa/file_native_abi.h \
+	nanoisa/file_host_grant.h nanoisa/file_host_grant_internal.h \
+	nanoisa/file_body.h nanoisa/file_code.h nanoisa/file_flow.h nanoisa/file_hosted.h \
+	nanoisa/file_runtime.h nanoisa/file_runtime_frames.h nanoisa/generated_schema.h \
+	nanoisa/isa.h nanoisa/nvm_format.h nanoisa/nvm_format_v2.h nanoisa/nvm_v2_sections.h \
+	nanoisa/service_bindings.h nanoisa/service_file_nominal.h \
+	nsi_cap.h nsi_file.h nsi_file_values.h
+FILE_CLI_OBJECT = $(OBJ_DIR)/nanoisa/file_cli.o
+.PHONY: file-public-runtime
+file-public-runtime: $(FILE_PUBLIC_LIBRARY) $(addprefix $(SRC_DIR)/,$(FILE_PUBLIC_HEADERS))
+$(FILE_PUBLIC_OBJECTS): $(addprefix $(SRC_DIR)/,$(FILE_PUBLIC_HEADERS))
+$(FILE_PUBLIC_LIBRARY): $(FILE_PUBLIC_OBJECTS)
+	@mkdir -p "$(@D)"
+	@set -e; file_archive_dir=$$(mktemp -d "$(@D)/.file-runtime.XXXXXX"); \
+	trap 'rm -rf "$$file_archive_dir"' EXIT; \
+	$(AR) rcs "$$file_archive_dir/runtime.a" $^; \
+	mv "$$file_archive_dir/runtime.a" "$@"
+$(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(NANOISA_DIR)/file_native_abi.h | $(OBJ_DIR)/nanoisa
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_PUBLIC_ENGINE -c $< -o $@
+$(OBJ_DIR)/nanovm/file_public_vm.o: $(SRC_DIR)/nanovm/file_vm_engine.inc $(NANOISA_DIR)/file_public_internal.h
+$(OBJ_DIR)/nanoisa/file_public_native.o: $(NANOISA_DIR)/file_native_emit.inc $(NANOISA_DIR)/file_native_public.h
+$(OBJ_DIR)/nanoisa/file_cli.o: $(NANOISA_DIR)/file_cli.h $(NANOISA_DIR)/file_hosted.h
+$(OBJ_DIR)/nanoisa/nvm2c_main.o $(OBJ_DIR)/nanovm/main.o: $(NANOISA_DIR)/file_public.h $(NANOISA_DIR)/file_cli.h
+
 # My retained service ABI and immutable catalog participate in incremental builds.
 $(NANOISA_OBJECTS): $(NANOISA_DIR)/file_hosted.h $(NANOISA_DIR)/file_hosted.inc $(NANOISA_DIR)/file_body.h $(NANOISA_DIR)/file_body.inc $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
 $(OBJ_DIR)/nsi_file_plan.o: $(SRC_DIR)/nsi.h $(SRC_DIR)/nsi_cap.h
@@ -525,8 +565,8 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 check-binary64-parser:
 	python3 scripts/embed_binary64_parser.py --check
 
-nvm2c: check-binary64-parser $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+nvm2c: check-binary64-parser $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
 
 .PHONY: nvm2hl test-scalar-reconstruction
 nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
@@ -847,10 +887,10 @@ test-wrapper-gen: nano_virt $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJE
 VMD_SOURCES = $(NANOVM_DIR)/vmd_protocol.c $(NANOVM_DIR)/vmd_client.c $(NANOVM_DIR)/vmd_server.c
 VMD_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(VMD_SOURCES))
 
-nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o $(OBJ_DIR)/nanovm/main.o | bin
+nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o $(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) | bin
 	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
 		$(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o \
-		$(OBJ_DIR)/nanovm/main.o $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS)
+		$(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS)
 
 nano_vmd: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(VMD_OBJECTS) $(OBJ_DIR)/nanovm/vmd_main.o | bin
 	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
@@ -3321,6 +3361,7 @@ module-mvp: module-self-test
 
 # I clean compiler artifacts and sentinels, not retained runtime generations.
 clean:
+	rm -f "$(FILE_PUBLIC_LIBRARY)"
 	@echo "I clean compiler artifacts and retain module runtime caches."
 	python3 scripts/clean_build_trees.py --root "$(OBJ_DIR)" --root "$(BUILD_DIR)" \
 		--root "$(COV_DIR)" --root "$(BIN_DIR)" \
@@ -3992,7 +4033,7 @@ coverage-check: coverage.info
 	fi
 
 # Install binaries
-install: $(COMPILER) vm
+install: $(COMPILER) vm nvm2c file-public-runtime
 	install -d $(PREFIX)/bin
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
 	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
@@ -4000,12 +4041,21 @@ install: $(COMPILER) vm
 	install -m 755 bin/nano_cop $(PREFIX)/bin/nano_cop
 	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
 	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
+	install -m 755 bin/nvm2c $(PREFIX)/bin/nvm2c
+	install -d "$(PREFIX)/lib"
+	install -m 644 "$(FILE_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_file_runtime.a"
+	@set -e; for header in $(FILE_PUBLIC_HEADERS); do \
+		install -d "$(PREFIX)/include/nanolang/file/$$(dirname "$$header")"; \
+		install -m 644 "$(SRC_DIR)/$$header" "$(PREFIX)/include/nanolang/file/$$header"; \
+	done
 ifeq ($(UNAME_S),Linux)
 	install -m 755 bin/nano_as_capture.so $(PREFIX)/bin/nano_as_capture.so
 endif
-	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa)"
+	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa, nvm2c; explicit File runtime package)"
 
 uninstall:
+	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c"
+	@for header in $(FILE_PUBLIC_HEADERS); do rm -f "$(PREFIX)/include/nanolang/file/$$header"; done
 ifeq ($(UNAME_S),Linux)
 	rm -f $(PREFIX)/bin/nano_as_capture.so
 endif

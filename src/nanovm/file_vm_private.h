@@ -1,6 +1,6 @@
 #ifndef NANOVM_FILE_VM_PRIVATE_H
 #define NANOVM_FILE_VM_PRIVATE_H
-/* Explicit private qualification only. Normal builds expose no execution API. */
+/* Explicit private qualification only. Normal builds expose no private execution API. */
 #ifdef NVM_FILE_VM_PRIVATE
 #include "../nanoisa/file_runtime.h"
 /* Fresh serialized-v2 invocation, externally serialized like its private cores.
