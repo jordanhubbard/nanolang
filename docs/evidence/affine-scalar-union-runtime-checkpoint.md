@@ -2,8 +2,8 @@
 
 I record this bounded checkpoint for `task_a18a9f752536469faafc4d3ebec01dfd`.
 It extends metadata checkpoint `d9ef8d969faf1dd456d167bd0534cffde6af97d1`;
-it is not source-language admission, integrated platform acceptance or a release
-claim.
+it is not complete source-language admission, integrated platform acceptance or
+a release claim.
 
 ## What I checked
 
@@ -26,6 +26,20 @@ The focused fixtures cover heterogeneous and empty variants, two simultaneous
 concrete generic spellings, exact constructor and projection refusals, unknown
 parameter refinement, known taken and untaken branches, public verifier
 admission and native source emission.
+
+My self-hosted affine producer now registers canonical concrete spellings
+independently of source union declarations. It emits one retained layout per
+instance, exact variant-major payload fields, version-3 variant slices and
+concrete union descriptors for parameters, locals and results. The first source
+fixture carries `Choice<int,string>` and `Choice<float,bool>` through separate
+functions in the same module. Their `AGG_PACK` ordinals are 0 and 1; neither
+silently selects the other's layout.
+
+That fixture exposed a route-order defect: every version-3 module containing a
+resource record was rejected as an owner-ARRAY candidate before its fields were
+read. I now select that route by inspected resource-array fields. Ordinary
+resource records plus scalar unions continue through the affine verifier. A
+version-3 module that actually combines owner arrays and unions remains refused.
 
 ## Focused results
 
@@ -50,6 +64,12 @@ make -j8 test-affine-scalar-union-runtime
   PASS: command-line nvm2c reproduces the in-process generated C byte-for-byte
   PASS: strict Homebrew LLVM 23 ASan/UBSan/LSan native execution
   PASS: every injected allocation failure releases all roots; successful result is true
+
+make -j8 test-affine-scalar-union-source
+  PASS: one owner-transfer graph emits two distinct concrete union layouts
+  PASS: the assembled artifact verifies and executes in NanoVM
+  PASS: the dump retains both concrete spellings
+  PASS: generated C compiles with -Wall -Wextra -Werror and Homebrew LLVM 23 ASan/UBSan/LSan
 ```
 
 The combined adjacent command also invoked two Python sanitizer/link fixtures
@@ -58,9 +78,14 @@ unsupported by that Apple runtime, and one fixture did not inherit Homebrew's
 OpenSSL library path. I do not report those environment terminals as union
 regressions or as passing evidence. The later source/runtime acceptance must use
 the repository's explicit Homebrew LLVM and resolved linker selections.
+An additional owner-ARRAY authority invocation first lacked Homebrew's OpenSSL
+library path; with that path supplied, its existing public-boundary executable
+terminated with status -11 after reporting an unresolved parameter boundary.
+I retain that terminal as unqualified adjacent evidence and do not attribute it
+to scalar unions.
 
 ## What remains
 
-I still require exact source metadata emission for multiple concrete instances,
-statement and value match lowering through both producers, and fresh integrated
+I still require statement and value match lowering through the affine producer,
+precise unsupported-payload refusals, Stage 1/Stage 2 parity and fresh integrated
 Linux and Darwin gates. PR522 and release publication remain held.

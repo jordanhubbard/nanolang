@@ -4789,6 +4789,11 @@ test-units: test-affine-scalar-union-runtime
 test-affine-scalar-union-runtime: test-affine-bytecode nano_vm nvm2c
 	python3 -m unittest -v tests.test_affine_scalar_union_runtime
 
+.PHONY: test-affine-scalar-union-source
+test-units: test-affine-scalar-union-source
+test-affine-scalar-union-source: nanoisa_emit nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_affine_scalar_union_source
+
 .PHONY: test-legacy-float-conversion
 test-legacy-float-conversion: bootstrap $(INTERPRETER)
 	@python3 -m unittest tests.test_legacy_float_conversion

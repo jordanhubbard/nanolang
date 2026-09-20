@@ -10,6 +10,7 @@ let mut nb_names: array<string> = []
 let mut nb_named: array<bool> = []
 let mut nb_tags: array<int> = []
 let mut nb_layouts: array<int> = []
+let mut nb_identities: array<string> = []
 let mut nb_modes: array<int> = []
 let mut nb_live: array<bool> = []
 let mut nb_disposal_pending: array<bool> = []
@@ -25,11 +26,15 @@ let mut nb_ordinary_layouts: array<bool> = []
 let mut nb_functions: array<int> = []
 let mut nb_result_layout: int = 4294967295
 let mut nb_expression_layout: int = 4294967295
+let mut nb_expression_identity: string = ""
 let mut nb_any_transfer: bool = false
 let mut nb_current_function: int = 0
 let mut nb_edges: array<bool> = []
 let mut nb_paths: array<string> = []
 let mut nb_depths: array<int> = []
+let mut nb_union_layout_base: int = 0
+let mut nb_union_identities: array<string> = []
+let mut nb_union_sources: array<int> = []
 let mut nb_projection_parents: array<int> = []
 let mut nb_projection_fields: array<int> = []
 let mut nb_in_helper: bool = false
@@ -179,9 +184,19 @@ fn nb_hex(value: int, width: int) -> string {
 }
 shadow nb_hex { assert (== (nb_hex 258 2) "0201") assert (== (nb_hex 4294967295 4) "ffffffff") }
 fn nb_descriptor(tag: int, mode: int, layout: int) -> string {
-    return (+ (nb_hex tag 1) (+ (nb_hex mode 1) (+ "0000" (nb_hex layout 4))))
+    let mut retained: int = layout
+    if (== tag 10) {
+        if (!= layout 4294967295) { set retained (+ nb_union_layout_base layout) }
+    } else { if (!= tag 8) { set retained 4294967295 } }
+    return (+ (nb_hex tag 1) (+ (nb_hex mode 1) (+ "0000" (nb_hex retained 4))))
 }
-shadow nb_descriptor { assert (== (nb_descriptor 8 1 2) "0801000002000000") }
+shadow nb_descriptor {
+    assert (== (nb_descriptor 8 1 2) "0801000002000000")
+    set nb_union_layout_base 3
+    assert (== (nb_descriptor 10 0 2) "0a00000005000000")
+    assert (== (nb_descriptor 1 0 2) "01000000ffffffff")
+    set nb_union_layout_base 0
+}
 fn nb_emit(op: string) -> int {
     if (== nb_error "") { set nb_code (+ nb_code (+ "  " (+ op "\n"))) }
     return 0
@@ -273,6 +288,7 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     set nb_projection_fields (array_push nb_projection_fields -1)
     set nb_tags (array_push nb_tags tag)
     set nb_layouts (array_push nb_layouts layout)
+    set nb_identities (array_push nb_identities "")
     set nb_modes (array_push nb_modes mode)
     set nb_live (array_push nb_live true)
     set nb_disposal_pending (array_push nb_disposal_pending false)
@@ -283,7 +299,7 @@ fn nb_reset_locals() -> int {
     set nb_control_depth 0
     set nb_transferred false set nb_loop_first -1 set nb_loop_index -1 set nb_loop_top "" set nb_loop_done ""
     set nb_loop_live [] set nb_loop_pending [] set nb_loop_breaks 0
-    set nb_names [] set nb_named [] set nb_tags []
+    set nb_names [] set nb_named [] set nb_tags [] set nb_identities []
     set nb_projection_parents [] set nb_projection_fields [] set nb_layouts [] set nb_modes []
     set nb_live [] set nb_disposal_pending [] set nb_mutable [] set nb_code "" set nb_returned false set nb_transfers_owner false
     return 0
@@ -675,6 +691,7 @@ fn nb_function_index(parser: Parser, name: string) -> int {
 }
 fn nb_result_tag(parser: Parser, name: string) -> int {
     if (>= (nb_record parser name) 0) { return 8 }
+    if (>= (nb_union_instance parser name) 0) { return 10 }
     return (nb_tag name)
 }
 fn nb_float_array(parser: Parser, id: int, kind: int, expected: bool) -> int {
@@ -709,8 +726,78 @@ shadow nb_array_builtin_arity {
     assert (== (nb_array_builtin_arity "module.array_push") 0)
     assert (== (nb_array_builtin_arity "") 0)
 }
+fn nb_union_expr(parser: Parser, id: int, kind: int, identity: string) -> int {
+    let instance: int = (nb_union_instance parser identity)
+    if (< instance 0) { return (nb_fail "a registered exact concrete scalar union instance") }
+    let canonical: string = (at nb_union_identities instance)
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        let local: int = (nb_local (parser_get_identifier parser id).name)
+        if (or (< local 0) (or (not (at nb_live local)) (or (!= (at nb_tags local) 10) (or (!= (at nb_layouts local) instance) (!= (at nb_identities local) canonical))))) { return (nb_fail "a live exact concrete union value") }
+        set nb_expression_layout instance set nb_expression_identity canonical
+        let _: int = (nb_op1 "LOAD_LOCAL" local) return 10
+    }
+    if (and nb_value_graph (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL))) {
+        if (!= (nb_expr parser id kind) 10) { return (nb_fail "an exact concrete union call result") }
+        if (or (!= nb_expression_layout instance) (!= nb_expression_identity canonical)) { return (nb_fail "the exact concrete union call result") }
+        return 10
+    }
+    if (!= kind ParseNodeType.PNODE_UNION_CONSTRUCT) { return (nb_fail "a concrete union constructor, alias or call result") }
+    let literal: ASTUnionConstruct = (parser_get_union_construct parser id)
+    let source: int = (at nb_union_sources instance)
+    if (!= (nb_union_source parser literal.union_name) source) { return (nb_fail "the exact union constructor declaration") }
+    if (and (> (array_length (nb_union_arguments literal.union_name)) 0) (!= (nb_union_canonical literal.union_name) canonical)) { return (nb_fail "the exact explicit union constructor arguments") }
+    let definition: ASTUnion = (parser_get_union parser source)
+    let variant: int = (nb_union_variant definition literal.variant_name)
+    if (< variant 0) { return (nb_fail "a declared union variant") }
+    let count: int = (at definition.variant_field_counts variant)
+    if (!= literal.field_count count) { return (nb_fail "every union field exactly once") }
+    let offset: int = (nb_union_offset definition variant)
+    let mut slots: array<int> = []
+    let mut i: int = 0
+    while (< i count) { set slots (array_push slots -1) set i (+ i 1) }
+    set i 0
+    while (< i literal.field_count) {
+        let name: string = (at literal.field_names i)
+        let mut field: int = -1
+        let mut candidate: int = 0
+        while (< candidate count) {
+            if (== name (at definition.variant_field_names (+ offset candidate))) { set field candidate }
+            set candidate (+ candidate 1)
+        }
+        if (or (< field 0) (>= (at slots field) 0)) { return (nb_fail "each declared union field once") }
+        let expected: int = (nb_union_payload_tag (nb_union_field_type definition canonical (+ offset field)))
+        let value: int = (at literal.field_value_ids i)
+        let value_kind: int = (at literal.field_value_types i)
+        if (!= (nb_expr parser value value_kind) expected) { return (nb_fail "the exact concrete union field type") }
+        if (!= nb_error "") { return 0 }
+        let slot: int = (nb_slot "" expected 4294967295 0 false)
+        (array_set slots field slot)
+        let _: int = (nb_op1 "STORE_LOCAL" slot)
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i count) { let _: int = (nb_op1 "LOAD_LOCAL" (at slots i)) set i (+ i 1) }
+    let _: int = (nb_emit (+ "AGG_PACK 1 " (+ (int_to_string instance) (+ " " (+ (int_to_string variant) (+ " " (int_to_string count)))))))
+    set nb_expression_layout instance set nb_expression_identity canonical
+    return 10
+}
+shadow nb_union_expr {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} } fn main() -> int { let first: Choice<int,string> = Choice.Left { value: 7 } let second: Choice<float,bool> = Choice.Right { value: true } return 0 }" "union-expr.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "union-expr.nano")
+    set nb_union_identities [] set nb_union_sources [] set nb_error "" let _: int = (nb_reset_locals)
+    assert (nb_register_union parser "Choice<int,string>")
+    assert (nb_register_union parser "Choice<float,bool>")
+    assert (== (nb_union_expr parser 0 ParseNodeType.PNODE_UNION_CONSTRUCT "Choice<int,string>") 10)
+    assert (str_contains nb_code "AGG_PACK 1 0 0 1")
+    assert (== nb_expression_identity "Choice<int,string>")
+    let _: int = (nb_reset_locals) set nb_union_identities [] set nb_union_sources [] set nb_error ""
+}
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (!= nb_error "") { return 0 }
+    if (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) {
+        let identity: string = (parser_get_union_construct parser id).union_name
+        return (nb_union_expr parser id kind identity)
+    }
     if (== kind ParseNodeType.PNODE_ARRAY_LITERAL) { return (nb_float_array parser id kind false) }
     if (== kind ParseNodeType.PNODE_STRING) {
         if (not nb_value_graph) { return (nb_fail "string literals only in a value-call graph") }
@@ -735,6 +822,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         if (< local 0) { return (nb_fail "a live scalar local") }
         if (or (not (at nb_live local)) (and (== (at nb_tags local) 8) (not (nb_ordinary_local local)))) { return (nb_fail "a scalar value, not a copied owner/reference") }
         set nb_expression_layout (at nb_layouts local)
+        set nb_expression_identity (at nb_identities local)
         let _: int = (nb_op1 "LOAD_LOCAL" local) return (at nb_tags local)
     }
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
@@ -862,7 +950,10 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
             let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
             let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
             let layout: int = (nb_record parser parameter.var_type)
-            if (>= layout 0) {
+            let union_layout: int = (nb_union_instance parser parameter.var_type)
+            if (>= union_layout 0) {
+                if (!= (nb_union_expr parser argument.node_id argument.node_type parameter.var_type) 10) { return 0 }
+            } else { if (>= layout 0) {
                 if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
                     let local: int = (nb_local (parser_get_identifier parser argument.node_id).name)
                     if (< local 0) { return (nb_fail "an existing owner argument") }
@@ -873,13 +964,16 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
                 } else { let _: int = (nb_owner parser argument.node_id argument.node_type layout) }
             } else {
                 if (!= (nb_expr parser argument.node_id argument.node_type) (nb_parameter_tag parameter.var_type)) { return (nb_fail "the exact positional scalar argument") }
-            }
+            } }
             set i (+ i 1)
         }
         if (!= nb_error "") { return 0 }
         (array_set nb_edges (+ (* nb_current_function 8) target) true)
         let _: int = (nb_op1 "CALL" target)
         set nb_expression_layout (nb_record parser function.return_type)
+        set nb_expression_identity ""
+        let union_result: int = (nb_union_instance parser function.return_type)
+        if (>= union_result 0) { set nb_expression_layout union_result set nb_expression_identity (at nb_union_identities union_result) }
         return (nb_result_tag parser function.return_type)
     }
     if (and (== kind ParseNodeType.PNODE_CALL) (not nb_in_helper)) {
@@ -1044,6 +1138,16 @@ shadow nb_ordinary {
 fn nb_binding(parser: Parser, binding: ASTLet) -> int {
     if (nb_project_binding parser binding) { return 0 }
     let layout: int = (nb_record parser binding.var_type)
+    let union_layout: int = (nb_union_instance parser binding.var_type)
+    if (>= union_layout 0) {
+        if binding.is_destructure { return (nb_fail "scalar union bindings without record destructuring") }
+        if (!= (nb_union_expr parser binding.value binding.value_type binding.var_type) 10) { return 0 }
+        if (!= nb_error "") { return 0 }
+        let slot: int = (nb_slot binding.name 10 union_layout 0 binding.is_mut)
+        (array_set nb_identities slot (at nb_union_identities union_layout))
+        let _: int = (nb_op1 "STORE_LOCAL" slot)
+        return (nb_name_begin slot binding.name)
+    }
     if (nb_ordinary_layout layout) {
         if binding.is_destructure { return (nb_fail "ordinary bindings without destructive patterns") }
         let _: int = (nb_ordinary parser binding.value binding.value_type layout)
@@ -1281,13 +1385,16 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
                     if (and (== stmt.node_type ParseNodeType.PNODE_RETURN) (not is_shadow)) {
                         let result: ASTReturn = (parser_get_return parser stmt.node_id)
                         if (== nb_result 8) { let _: int = (nb_owner parser result.value result.value_type nb_result_layout) }
+                        else { if (== nb_result 10) {
+                            if (!= (nb_union_expr parser result.value result.value_type (at nb_union_identities nb_result_layout)) 10) { return 0 }
+                        }
                         else {
                             if (== nb_result 0) {
                                 if (>= result.value 0) { return (nb_fail "a zero-value void return") }
                             } else {
                                 if (!= (nb_expr parser result.value result.value_type) nb_result) { return (nb_fail "the declared scalar result") }
                             }
-                        }
+                        } }
                         if (not (nb_consumed 0)) { return 0 }
                         let _: int = (nb_cleanup parser 0)
                         let _: int = (nb_emit "RET") set nb_returned true
@@ -1336,6 +1443,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
     set nb_result (nb_result_tag parser function.return_type)
     set nb_result_layout 4294967295
     if (== nb_result 8) { set nb_result_layout (nb_record parser function.return_type) }
+    if (== nb_result 10) { set nb_result_layout (nb_union_instance parser function.return_type) }
     if nb_value_graph { set nb_helper index set nb_arity function.param_count }
     let mut arity: int = 0
     let mut name: string = function.name
@@ -1352,8 +1460,14 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
             }
             let mut layout: int = (nb_record parser nominal)
             let mut tag: int = 8
-            if (< layout 0) { set layout 4294967295 set tag (nb_parameter_tag parameter.var_type) }
-            let _: int = (nb_slot parameter.name tag layout mode false)
+            let mut identity: string = ""
+            if (< layout 0) {
+                set layout (nb_union_instance parser nominal)
+                if (>= layout 0) { set tag 10 set identity (nb_union_canonical nominal) }
+                else { set layout 4294967295 set tag (nb_parameter_tag parameter.var_type) }
+            }
+            let slot: int = (nb_slot parameter.name tag layout mode false)
+            if (== tag 10) { (array_set nb_identities slot identity) }
             let _: int = (nb_name_begin parameter_index parameter.name)
             set parameter_index (+ parameter_index 1)
         }
@@ -1382,6 +1496,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
     let mut tag_name: string = "int"
     if (== nb_result 4) { set tag_name "bool" }
     if (== nb_result 8) { set tag_name "struct" }
+    if (== nb_result 10) { set tag_name "union" }
     let mut result_count: string = "1"
     if (== nb_result 0) { set tag_name "void" set result_count "0" }
     return (+ ".function " (+ name (+ " " (+ (int_to_string arity) (+ " " (+ (int_to_string (array_length nb_names)) (+ " 0 " (+ tag_name (+ " " (+ result_count (+ "\n" (+ nb_code ".end\n"))))))))))))
@@ -1444,6 +1559,182 @@ shadow nb_route_parts {
     assert (== (at parts 2) "Box<array<bool>>")
     assert (== (array_length (nb_route_parts "Box<>")) 0)
     assert (== (array_length (nb_route_parts "Box<int>tail")) 0)
+}
+
+# I register concrete scalar-union spellings, not source declaration slots.
+fn nb_union_canonical(spelling: string) -> string {
+    let parts: array<string> = (nb_route_parts (str_trim spelling))
+    if (== (array_length parts) 0) { return "" }
+    if (== (array_length parts) 1) { return (str_trim (at parts 0)) }
+    let mut out: string = (+ (str_trim (at parts 0)) "<")
+    let mut i: int = 1
+    while (< i (array_length parts)) {
+        let argument: string = (nb_union_canonical (at parts i))
+        if (== argument "") { return "" }
+        if (> i 1) { set out (+ out ",") }
+        set out (+ out argument)
+        set i (+ i 1)
+    }
+    return (+ out ">")
+}
+shadow nb_union_canonical {
+    assert (== (nb_union_canonical " Choice<int, string> ") "Choice<int,string>")
+    assert (== (nb_union_canonical "Outer<Choice<int, bool>>") "Outer<Choice<int,bool>>")
+    assert (== (nb_union_canonical "Choice<>") "")
+}
+fn nb_union_arguments(spelling: string) -> array<string> {
+    let parts: array<string> = (nb_route_parts (nb_union_canonical spelling))
+    let mut result: array<string> = []
+    let mut i: int = 1
+    while (< i (array_length parts)) { set result (array_push result (at parts i)) set i (+ i 1) }
+    return result
+}
+fn nb_union_source(parser: Parser, spelling: string) -> int {
+    let parts: array<string> = (nb_route_parts (nb_union_canonical spelling))
+    if (== (array_length parts) 0) { return -1 }
+    let name: string = (at parts 0)
+    let mut found: int = -1
+    let mut i: int = 0
+    while (< i (parser_get_union_count parser)) {
+        if (== (parser_get_union parser i).name name) {
+            if (>= found 0) { return -1 }
+            set found i
+        }
+        set i (+ i 1)
+    }
+    return found
+}
+fn nb_union_variant(definition: ASTUnion, name: string) -> int {
+    let mut i: int = 0
+    while (< i definition.variant_count) {
+        if (== (at definition.variant_names i) name) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+fn nb_union_offset(definition: ASTUnion, variant: int) -> int {
+    let mut offset: int = 0
+    let mut i: int = 0
+    while (< i variant) { set offset (+ offset (at definition.variant_field_counts i)) set i (+ i 1) }
+    return offset
+}
+fn nb_union_field_type(definition: ASTUnion, identity: string, field: int) -> string {
+    if (or (< field 0) (>= field (array_length definition.variant_field_types))) { return "" }
+    return (substitute_type_parameters (at definition.variant_field_types field) definition.generic_params (nb_union_arguments identity))
+}
+fn nb_union_payload_tag(spelling: string) -> int {
+    if (== spelling "float") { return 3 }
+    if (== spelling "string") { return 5 }
+    return (nb_tag spelling)
+}
+fn nb_union_supported(parser: Parser, spelling: string) -> bool {
+    let identity: string = (nb_union_canonical spelling)
+    let source: int = (nb_union_source parser identity)
+    if (< source 0) { return false }
+    let definition: ASTUnion = (parser_get_union parser source)
+    let arguments: array<string> = (nb_union_arguments identity)
+    if (or (!= definition.generic_param_count (array_length arguments)) (<= definition.variant_count 0)) { return false }
+    if (and (== definition.generic_param_count 0) (!= identity definition.name)) { return false }
+    let mut i: int = 0
+    while (< i (array_length arguments)) {
+        if (== (nb_union_payload_tag (at arguments i)) 0) { return false }
+        set i (+ i 1)
+    }
+    if (or (!= definition.variant_count (array_length definition.variant_names)) (!= definition.variant_count (array_length definition.variant_field_counts))) { return false }
+    let count: int = (nb_union_offset definition definition.variant_count)
+    if (or (> count 65535) (or (!= count (array_length definition.variant_field_names)) (!= count (array_length definition.variant_field_types)))) { return false }
+    set i 0
+    while (< i count) {
+        if (== (nb_union_payload_tag (nb_union_field_type definition identity i)) 0) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+fn nb_union_instance(parser: Parser, spelling: string) -> int {
+    let identity: string = (nb_union_canonical spelling)
+    let mut i: int = 0
+    while (< i (array_length nb_union_identities)) {
+        if (== (at nb_union_identities i) identity) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+fn nb_register_union(parser: Parser, spelling: string) -> bool {
+    let source: int = (nb_union_source parser spelling)
+    if (< source 0) { return true }
+    if (not (nb_union_supported parser spelling)) { return false }
+    let identity: string = (nb_union_canonical spelling)
+    if (>= (nb_union_instance parser identity) 0) { return true }
+    if (>= (array_length nb_union_identities) 256) { return false }
+    set nb_union_identities (array_push nb_union_identities identity)
+    set nb_union_sources (array_push nb_union_sources source)
+    return true
+}
+shadow nb_register_union {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} }" "union-identity.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "union-identity.nano")
+    set nb_union_identities [] set nb_union_sources []
+    assert (nb_register_union parser "Choice<int, string>")
+    assert (nb_register_union parser "Choice<int,string>")
+    assert (nb_register_union parser "Choice<float,bool>")
+    assert (== (array_length nb_union_identities) 2)
+    assert (== (nb_union_instance parser "Choice<int,string>") 0)
+    assert (== (nb_union_instance parser "Choice<float,bool>") 1)
+    assert (not (nb_register_union parser "Choice<T,bool>"))
+    set nb_union_identities [] set nb_union_sources []
+}
+fn nb_union_layout_bytes(parser: Parser) -> string {
+    let mut out: string = ""
+    let mut instance: int = 0
+    while (< instance (array_length nb_union_identities)) {
+        let identity: string = (at nb_union_identities instance)
+        let definition: ASTUnion = (parser_get_union parser (at nb_union_sources instance))
+        let fields: int = (nb_union_offset definition definition.variant_count)
+        set out (+ out (+ "0200" (+ (nb_hex fields 2) (nb_hex (nb_string identity) 4))))
+        let mut field: int = 0
+        while (< field fields) {
+            let tag: int = (nb_union_payload_tag (nb_union_field_type definition identity field))
+            if (== tag 0) { let _: int = (nb_fail "exact scalar union payload fields") return "" }
+            set out (+ out (+ (nb_hex tag 1) (+ "000000ffffffff" (nb_hex (nb_string (at definition.variant_field_names field)) 4))))
+            set field (+ field 1)
+        }
+        set instance (+ instance 1)
+    }
+    return out
+}
+fn nb_union_fact_bytes(parser: Parser) -> string {
+    let mut out: string = (nb_hex (array_length nb_union_identities) 4)
+    let mut instance: int = 0
+    while (< instance (array_length nb_union_identities)) {
+        let definition: ASTUnion = (parser_get_union parser (at nb_union_sources instance))
+        set out (+ out (+ (nb_hex (+ nb_union_layout_base instance) 4) (+ (nb_hex definition.variant_count 2) "0000")))
+        let mut variant: int = 0
+        while (< variant definition.variant_count) {
+            set out (+ out (+ (nb_hex (nb_string (at definition.variant_names variant)) 4)
+                (+ (nb_hex (nb_union_offset definition variant) 2) (nb_hex (at definition.variant_field_counts variant) 2))))
+            set variant (+ variant 1)
+        }
+        set instance (+ instance 1)
+    }
+    return out
+}
+shadow nb_union_fact_bytes {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} }" "union-facts.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "union-facts.nano")
+    set nb_strings [] set nb_union_identities [] set nb_union_sources [] set nb_union_layout_base 2 set nb_error ""
+    assert (nb_register_union parser "Choice<int,string>")
+    assert (nb_register_union parser "Choice<float,bool>")
+    let layouts: string = (nb_union_layout_bytes parser)
+    let facts: string = (nb_union_fact_bytes parser)
+    assert (str_starts_with layouts "02000200")
+    assert (str_contains layouts "01000000ffffffff")
+    assert (str_contains layouts "05000000ffffffff")
+    assert (str_contains layouts "03000000ffffffff")
+    assert (str_contains layouts "04000000ffffffff")
+    assert (str_starts_with facts "020000000200000003000000")
+    assert (str_contains facts "0500000002000000")
+    assert (== nb_error "")
+    set nb_strings [] set nb_union_identities [] set nb_union_sources [] set nb_union_layout_base 0
 }
 
 # My visited concrete types bound shared DAGs; budget exhaustion cannot grant admission.
@@ -1595,11 +1886,13 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     set nb_error "" set nb_next_label 0 set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_consuming false set nb_paths [] set nb_depths []
     set nb_value_graph true set nb_functions [] set nb_any_transfer false set nb_edges []
     set nb_mixed false set nb_owner_arrays false set nb_ordinary_layouts []
+    set nb_union_identities [] set nb_union_sources []
     let mut edge: int = 0
     while (< edge 64) { set nb_edges (array_push nb_edges false) set edge (+ edge 1) }
     if (or (parser_has_error parser) (or (< first_shadow 0) (> first_shadow parser.shadows_count))) { let _: int = (nb_fail "a parsed module and valid shadow selection") return "" }
     let records: int = (parser_get_struct_def_count parser)
-    if (or (> (parser_get_function_count parser) 8) (or (<= records 0) (or (> parser.imports_count 0) (or (> parser.enums_count 0) (or (> parser.unions_count 0) (> parser.opaque_types_count 0)))))) { let _: int = (nb_fail "only resource records, main, one helper and selected shadows") return "" }
+    set nb_union_layout_base records
+    if (or (> (parser_get_function_count parser) 8) (or (<= records 0) (or (> parser.imports_count 0) (or (> parser.enums_count 0) (> parser.opaque_types_count 0))))) { let _: int = (nb_fail "only resource records, scalar unions, main, one helper and selected shadows") return "" }
     let flags: array<bool> = (declaration_local_lets parser)
     let mut i: int = 0
     while (< i (array_length flags)) { if (not (at flags i)) { let _: int = (nb_fail "no global initializers") return "" } set i (+ i 1) }
@@ -1608,15 +1901,23 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     while (< i (parser_get_function_count parser)) {
         let function: ASTFunction = (parser_get_function parser i)
         if (< function.body 0) { let _: int = (nb_fail "defined source functions") return "" }
+        if (not (nb_register_union parser function.return_type)) { let _: int = (nb_fail "exact concrete scalar union signatures") return "" }
         if (== function.name "main") { if (>= entry 0) { let _: int = (nb_fail "one main") return "" } set entry i }
         else { set nb_helper i }
         let mut prior: int = 0
         while (< prior i) { if (== function.name (parser_get_function parser prior).name) { let _: int = (nb_fail "distinct function declarations") return "" } set prior (+ prior 1) }
         let mut j: int = 0
         while (< j function.param_count) {
-            if (str_starts_with (parser_get_let parser (+ function.param_start j)).var_type "&") { set nb_value_graph false }
+            let spelling: string = (parser_get_let parser (+ function.param_start j)).var_type
+            if (str_starts_with spelling "&") { set nb_value_graph false }
+            if (not (nb_register_union parser spelling)) { let _: int = (nb_fail "exact concrete scalar union signatures") return "" }
             set j (+ j 1)
         }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_let_count parser)) {
+        if (not (nb_register_union parser (parser_get_let parser i).var_type)) { let _: int = (nb_fail "exact concrete scalar union bindings") return "" }
         set i (+ i 1)
     }
     if (< entry 0) { let _: int = (nb_fail "one main") return "" }
@@ -1643,7 +1944,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         let result_layout: int = (nb_record parser function.return_type)
         if nb_value_graph {
             if (and (== (nb_tag function.return_type) 0) (!= function.return_type "void")) {
-                if (not (nb_record_has_owner parser result_layout)) { let _: int = (nb_fail "an exact declared owner result") return "" }
+                if (and (not (nb_record_has_owner parser result_layout)) (< (nb_union_instance parser function.return_type) 0)) { let _: int = (nb_fail "an exact declared owner or scalar union result") return "" }
             }
         } else {
             if (or (< function.param_count 1) (== (nb_tag function.return_type) 0)) { let _: int = (nb_fail "a scalar-result borrowed helper") return "" }
@@ -1660,7 +1961,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
             }
             let layout: int = (nb_record parser nominal)
             if (< layout 0) {
-                if (or (not nb_value_graph) (== (nb_parameter_tag nominal) 0)) { let _: int = (nb_fail "an exact positional parameter") return "" }
+                if (or (not nb_value_graph) (and (== (nb_parameter_tag nominal) 0) (< (nb_union_instance parser nominal) 0))) { let _: int = (nb_fail "an exact positional parameter") return "" }
             } else { if (not (nb_record_has_owner parser layout)) { let _: int = (nb_fail "owner-only record parameters") return "" } if (not nb_value_graph) { if (not (nb_leaf parser layout)) { let _: int = (nb_fail "a scalar-leaf borrowed formal") return "" } } }
             let mut prior: int = 0
             while (< prior j) { if (== parameter.name (parser_get_let parser (+ function.param_start prior)).name) { let _: int = (nb_fail "distinct parameter names") return "" } set prior (+ prior 1) }
@@ -1668,8 +1969,8 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         }
         set i (+ i 1)
     }
-    let mut layouts: string = (nb_hex records 4)
-    let mut ownership: string = (+ "01000000" (nb_hex records 4))
+    let mut layouts: string = (nb_hex (+ records (array_length nb_union_identities)) 4)
+    let mut ownership: string = (+ "01000000" (nb_hex (+ records (array_length nb_union_identities)) 4))
     set i 0
     while (and (== nb_error "") (< i records)) {
         let record: ASTStruct = (parser_get_struct_def parser i)
@@ -1717,6 +2018,10 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         if owned { set ownership (+ ownership "03") } else { set ownership (+ ownership "01") }
         set i (+ i 1)
     }
+    set layouts (+ layouts (nb_union_layout_bytes parser))
+    set i 0
+    while (< i (array_length nb_union_identities)) { set ownership (+ ownership "00") set i (+ i 1) }
+    if (!= nb_error "") { return "" }
     if (and nb_owner_arrays (or nb_mixed (not nb_value_graph))) { let _: int = (nb_fail "a separate mode-zero owner ARRAY profile") return "" }
     while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
     set ownership (+ ownership (nb_hex (array_length nb_functions) 4))
@@ -1745,6 +2050,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
                 let spelling: string = (parser_get_let parser (+ function.param_start j)).var_type
                 let mut tag_name: string = "struct"
                 if nb_value_graph { if (== spelling "int") { set tag_name "int" } if (== spelling "bool") { set tag_name "bool" } if (== spelling "string") { set tag_name "string" } }
+                if (>= (nb_union_instance parser spelling) 0) { set tag_name "union" }
                 set parameters (+ parameters (+ " " tag_name)) set j (+ j 1)
             }
             set parameters (+ parameters "\n")
@@ -1773,7 +2079,18 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         }
     }
     if (and nb_value_graph (not nb_any_transfer)) { let _: int = (nb_fail "an actual owned transfer in my module") return "" }
-    if (> (array_length nb_paths) 0) {
+    if (> (array_length nb_union_identities) 0) {
+        set ownership (+ "03000000" (str_substring ownership 8 (- (str_length ownership) 8)))
+        set ownership (+ ownership (nb_hex (array_length nb_paths) 4))
+        set i 0
+        while (< i (array_length nb_paths)) {
+            let path: string = (at nb_paths i)
+            set ownership (+ ownership (+ (nb_hex (/ (str_length path) 4) 2) (+ "0000" path)))
+            while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
+            set i (+ i 1)
+        }
+        set ownership (+ ownership (nb_union_fact_bytes parser))
+    } else { if (> (array_length nb_paths) 0) {
         set ownership (+ "02000000" (str_substring ownership 8 (- (str_length ownership) 8)))
         set ownership (+ ownership (nb_hex (array_length nb_paths) 4))
         set i 0
@@ -1783,8 +2100,8 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
             while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
             set i (+ i 1)
         }
-    }
-    let mut prelude: string = (+ ".types " (+ (int_to_string records) " 0 0\n.entry 0\n"))
+    } }
+    let mut prelude: string = (+ ".types " (+ (int_to_string records) (+ " 0 " (+ (int_to_string (array_length nb_union_identities)) "\n.entry 0\n"))))
     set i 0
     while (< i (array_length nb_strings)) {
         set prelude (+ prelude (+ ".string \"" (+ (nb_escape_string (at nb_strings i)) "\"\n")))

@@ -14,9 +14,6 @@ NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
     bool resource=false;
     for(uint32_t n=0;n<count;n++)resource|=(flags[n]&NVM_LAYOUT_RESOURCE)!=0;
     if(!resource)return NVM_OWNER_ARRAY_NOT_SELECTED;
-    /* Version 3 may describe scalar unions alongside records, but the owner
-     * ARRAY plan has not admitted that combined execution profile. */
-    if(version==NVM_OWNERSHIP_UNION_VERSION)return NVM_OWNER_ARRAY_INVALID;
     for(uint32_t n=0;n<count;n++)
         if((flags[n]&~(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE)) ||
            ((flags[n]&NVM_LAYOUT_RESOURCE) && !(flags[n]&NVM_LAYOUT_COMPLETE)))
@@ -42,6 +39,10 @@ NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
         }
     }
     if(c.pos!=c.size)return NVM_OWNER_ARRAY_INVALID;
+    /* I route ordinary resource records with scalar unions through the shared
+     * affine verifier. I still refuse the unqualified combined owner-ARRAY
+     * and scalar-union execution profile. */
+    if(selected && version==NVM_OWNERSHIP_UNION_VERSION)return NVM_OWNER_ARRAY_INVALID;
     return selected?NVM_OWNER_ARRAY_SELECTED:NVM_OWNER_ARRAY_NOT_SELECTED;
 }
 /* I complete only parameter tags in a bounded borrowed view. This cursor pass
