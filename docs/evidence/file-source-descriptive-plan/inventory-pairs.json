@@ -1,0 +1,158 @@
+[
+  {
+    "before": "corrected-first-linux/gcc-ordinary-source-before.json",
+    "after": "corrected-first-linux/gcc-ordinary-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "corrected-first-linux/gcc-ordinary-tools-before.json",
+    "after": "corrected-first-linux/gcc-ordinary-tools-after.json",
+    "entries": 12,
+    "equal": true
+  },
+  {
+    "before": "diagnostic-linux/source-before.json",
+    "after": "diagnostic-linux/source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "diagnostic-linux/tools-before.json",
+    "after": "diagnostic-linux/tools-after.json",
+    "entries": 5,
+    "equal": true
+  },
+  {
+    "before": "initial-linux/bootstrap-source-before.json",
+    "after": "initial-linux/bootstrap-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "initial-linux/bootstrap-tools-before.json",
+    "after": "initial-linux/bootstrap-tools-after.json",
+    "entries": 12,
+    "equal": true
+  },
+  {
+    "before": "initial-linux/gcc-ordinary-source-before.json",
+    "after": "initial-linux/gcc-ordinary-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "initial-linux/gcc-ordinary-tools-before.json",
+    "after": "initial-linux/gcc-ordinary-tools-after.json",
+    "entries": 12,
+    "equal": true
+  },
+  {
+    "before": "initial-puck/apple-ordinary-source-before.json",
+    "after": "initial-puck/apple-ordinary-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "initial-puck/apple-ordinary-tools-before.json",
+    "after": "initial-puck/apple-ordinary-tools-after.json",
+    "entries": 11,
+    "equal": true
+  },
+  {
+    "before": "initial-puck/bootstrap-source-before.json",
+    "after": "initial-puck/bootstrap-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "initial-puck/bootstrap-tools-before.json",
+    "after": "initial-puck/bootstrap-tools-after.json",
+    "entries": 11,
+    "equal": true
+  },
+  {
+    "before": "qualified-linux/clang-ordinary-source-before.json",
+    "after": "qualified-linux/clang-ordinary-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "qualified-linux/clang-ordinary-tools-before.json",
+    "after": "qualified-linux/clang-ordinary-tools-after.json",
+    "entries": 12,
+    "equal": true
+  },
+  {
+    "before": "qualified-linux/clang-sanitizer-source-before.json",
+    "after": "qualified-linux/clang-sanitizer-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "qualified-linux/clang-sanitizer-tools-before.json",
+    "after": "qualified-linux/clang-sanitizer-tools-after.json",
+    "entries": 12,
+    "equal": true
+  },
+  {
+    "before": "qualified-linux/gcc-ordinary-source-before.json",
+    "after": "qualified-linux/gcc-ordinary-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "qualified-linux/gcc-ordinary-tools-before.json",
+    "after": "qualified-linux/gcc-ordinary-tools-after.json",
+    "entries": 12,
+    "equal": true
+  },
+  {
+    "before": "qualified-linux/gcc-sanitizer-source-before.json",
+    "after": "qualified-linux/gcc-sanitizer-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "qualified-linux/gcc-sanitizer-tools-before.json",
+    "after": "qualified-linux/gcc-sanitizer-tools-after.json",
+    "entries": 12,
+    "equal": true
+  },
+  {
+    "before": "qualified-puck/apple-ordinary-source-before.json",
+    "after": "qualified-puck/apple-ordinary-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "qualified-puck/apple-ordinary-tools-before.json",
+    "after": "qualified-puck/apple-ordinary-tools-after.json",
+    "entries": 11,
+    "equal": true
+  },
+  {
+    "before": "qualified-puck/homebrew-ordinary-source-before.json",
+    "after": "qualified-puck/homebrew-ordinary-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "qualified-puck/homebrew-ordinary-tools-before.json",
+    "after": "qualified-puck/homebrew-ordinary-tools-after.json",
+    "entries": 11,
+    "equal": true
+  },
+  {
+    "before": "qualified-puck/homebrew-sanitizer-source-before.json",
+    "after": "qualified-puck/homebrew-sanitizer-source-after.json",
+    "entries": 10993,
+    "equal": true
+  },
+  {
+    "before": "qualified-puck/homebrew-sanitizer-tools-before.json",
+    "after": "qualified-puck/homebrew-sanitizer-tools-after.json",
+    "entries": 11,
+    "equal": true
+  }
+]

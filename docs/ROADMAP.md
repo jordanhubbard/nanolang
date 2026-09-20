@@ -12540,3 +12540,14 @@ and actual merge remain pending; no cyclic File runtime or parent closure follow
   - [ ] I review paired acyclic File lowering and complete required v2 metadata/hosted conjunction, all bodies and truthful local/stack/reference facts before execution.
   - [ ] I qualify explicit per-shadow grants, exact selected dependency/root shadows and VOID initializer cleanup, staged compiler publication, C-seed/freshStage1/Stage2 VM/native and installed Linux/Darwin full source/product gates.
   - [ ] I retain cyclic/fuel, indirect-call and richer-borrow source acceptance as mandatory parent continuations; separate query facts or bounded acyclic success cannot close them.
+
+I qualify only the paired descriptive File plan slice at701dca50f with
+[retained evidence](evidence/file-source-descriptive-plan.md): seven Linux/puck
+configurations pass, four ordinary configurations each compare58 cases through
+C-seed/Stage1/Stage2 with exactly75 selected shadows per producer, and every C
+configuration passes7,503 linked/7,518 instrumented checks. I retain original32ade
+bootstraps and all first failures, the approved74c diagnostic, exact copied
+compiler/provider provenance, and explicit postphase-only inventory limits.
+Final independent review and merge are pending;8bbc and all full File/source
+parents remain open. I have not parsed, lowered, published or executed File
+source through these descriptive plans.

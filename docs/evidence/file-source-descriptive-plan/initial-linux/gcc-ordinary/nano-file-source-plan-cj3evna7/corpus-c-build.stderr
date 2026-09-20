@@ -1,0 +1,407 @@
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_0’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:11:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   11 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(0,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:11:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   11 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(0,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_1’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:16:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   16 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(1,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:16:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   16 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(1,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_2’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:22:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   22 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(2,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:22:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   22 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(2,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_3’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:28:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   28 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(3,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:28:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   28 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(3,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_4’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:33:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   33 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(4,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:33:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   33 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(4,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_5’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:38:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   38 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(5,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:38:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   38 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(5,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_6’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:43:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   43 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(6,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:43:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   43 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(6,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_7’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:48:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   48 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(7,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:48:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   48 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(7,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_8’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:53:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   53 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(8,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:53:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   53 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(8,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_9’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:58:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   58 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(9,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:58:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   58 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(9,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_10’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:63:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   63 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(10,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:63:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   63 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(10,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_11’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:68:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   68 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(11,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:68:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   68 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(11,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_12’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:73:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   73 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(12,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:73:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   73 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(12,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_13’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:78:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   78 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(13,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:78:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   78 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(13,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_14’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:83:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   83 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(14,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:83:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   83 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(14,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_15’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:89:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   89 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(15,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:89:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   89 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(15,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_16’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:94:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   94 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(16,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:94:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   94 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(16,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_17’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:99:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   99 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(17,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:99:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   99 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(17,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_18’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:104:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  104 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(18,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:104:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  104 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(18,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_19’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:109:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  109 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(19,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:109:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  109 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(19,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_20’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:114:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  114 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(20,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:114:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  114 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(20,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_21’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:119:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  119 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(21,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:119:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  119 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(21,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_22’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:124:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  124 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(22,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:124:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  124 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(22,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_23’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:129:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  129 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(23,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:129:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  129 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(23,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_24’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:134:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  134 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(24,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:134:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  134 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(24,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_25’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:139:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  139 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(25,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:139:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  139 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(25,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_26’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:144:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  144 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(26,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:144:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  144 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(26,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_27’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:149:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  149 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(27,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:149:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  149 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(27,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_28’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:154:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  154 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(28,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:154:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  154 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(28,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_29’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:159:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  159 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(29,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:159:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  159 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(29,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_30’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:164:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  164 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(30,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:164:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  164 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(30,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_31’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:169:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  169 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(31,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:169:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  169 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(31,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_32’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:174:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  174 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(32,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:174:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  174 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(32,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_33’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:179:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  179 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(33,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:179:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  179 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(33,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_34’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:184:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  184 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(34,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:184:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  184 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(34,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_35’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:189:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  189 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(35,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:189:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  189 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(35,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_36’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:194:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  194 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(36,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:194:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  194 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(36,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_37’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:199:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  199 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(37,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:199:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  199 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(37,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_38’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:202:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  202 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(38,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:202:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  202 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(38,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_39’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:222:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  222 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(39,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:222:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  222 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(39,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_40’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:227:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  227 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(40,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:227:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  227 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(40,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_41’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:248:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  248 | if(s!=2)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(41,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:248:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  248 | if(s!=2)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(41,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_42’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:254:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  254 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(42,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:254:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  254 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(42,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_43’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:260:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  260 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(43,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:260:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  260 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(43,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_44’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:266:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  266 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(44,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:266:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  266 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(44,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_45’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:272:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  272 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(45,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:272:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  272 | if(s!=4)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(45,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_46’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:278:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  278 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(46,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:278:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  278 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(46,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_47’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:284:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  284 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(47,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:284:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  284 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(47,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_48’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:290:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  290 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(48,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:290:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  290 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(48,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_49’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:296:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  296 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(49,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:296:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  296 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(49,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_50’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:302:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  302 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(50,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:302:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  302 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(50,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_51’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:308:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  308 | if(s!=2)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(51,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:308:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  308 | if(s!=2)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(51,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_52’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:314:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  314 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(52,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:314:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  314 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(52,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_53’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:320:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  320 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(53,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:320:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  320 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(53,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_54’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:326:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  326 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(54,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:326:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  326 | if(s!=1)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(54,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_55’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:332:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  332 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(55,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:332:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  332 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(55,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_56’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:338:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  338 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(56,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:338:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  338 | if(s!=0)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(56,s,p);}
+      |                 ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c: In function ‘case_57’:
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:344:1: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  344 | if(s!=2)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(57,s,p);}
+      | ^~
+/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c:344:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  344 | if(s!=2)abort();if(s){if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}emit(57,s,p);}
+      |                 ^~
+cc1: all warnings being treated as errors
