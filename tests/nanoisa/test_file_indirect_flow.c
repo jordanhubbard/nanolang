@@ -92,7 +92,10 @@ static void owned_composition(void){
   call_facts(r,pc,18,1,result?TAG_UNION:TAG_STRUCT);
   for(unsigned k=0;k<8;k++){NvmFileNominalLayout t;CHECK(nvm_file_indirect_flow_type(r,k,&t) && t.global_index==b.layouts[k]);}
   for(unsigned k=0;k<5;k++){uint32_t import;CHECK(nvm_file_indirect_flow_import(r,k,&import) && import==b.imports[k]);}
-  flow_release(r);nvm_module_free(m);
+  memset(m->code,0,m->code_size);memset(m->ownership_data,0,m->ownership_size);nvm_module_free(m);
+  call_facts(r,pc,18,1,result?TAG_UNION:TAG_STRUCT);
+  for(unsigned k=0;k<8;k++){NvmFileNominalLayout t;CHECK(nvm_file_indirect_flow_type(r,k,&t) && t.global_index==b.layouts[k]);}
+  flow_release(r);
  }
 }
 static void ownership_refusals(void){
@@ -131,6 +134,11 @@ static void flow_faults_and_bounds(void){
  scratch->applications=NVM_FILE_INDIRECT_FLOW_APPLICATIONS;NvmFileBodyReport body={0};body.plan=p;body.checked[1]=body.checked[4]=true;NvmFileBodyInstruction fact={0};
  unsigned old_allocations=allocations;CHECK(fif_transfer(scratch,&body,s,&p->instructions[p->starts[0]+i],&fact)==NVM_FILE_FLOW_LIMIT);
  CHECK(scratch->applications==NVM_FILE_INDIRECT_FLOW_APPLICATIONS && allocations==old_allocations);
+ s->stack[s->stack_count++]=initial_value(scalar_type(TAG_FUNCTION),true,0);
+ scratch->applications=0;budget=0;old_allocations=allocations;
+ CHECK(fif_transfer(scratch,&body,s,&p->instructions[p->starts[0]+i],&fact)==NVM_FILE_FLOW_OK);
+ budget=-1;CHECK(scratch->applications==2 && allocations==old_allocations && s->stack_count==1 && s->stack[0].type.tag==TAG_INT);
+ CHECK(fact.has_obligation && fact.obligation.target==NVM_V2_NO_INDEX);
  free(scratch);nvm_file_flow_state_free(s);flow_release(r);
 #endif
  nvm_module_free(m);

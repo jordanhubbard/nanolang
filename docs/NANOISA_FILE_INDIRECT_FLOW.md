@@ -148,3 +148,14 @@ ownership16MiB ceiling and the combined32MiB bound. No transfer allocates.
 
 This checkpoint is source for independent review. I have not compiled it or run
 new fixtures; the qualification checkbox remains open.
+
+## My fixture review checkpoint
+
+The independent review of2bf4840fc found no execution blocker. I supplement its
+successful two-candidate transfer with an explicit zero-allocation budget and
+unchanged allocation count, alongside the application-limit refusal. Owned File
+and OpenResult copied call/stack/type facts survive complete source destruction.
+The corpus also retains caller/candidate borrow violations, unused-body cleanup,
+late backedge candidates, both catalog permutations and target branch orderings.
+I test selected invalid getters; I do not claim every accessor's complete index
+space is exhaustively exercised. Production remains5687cf13c unchanged.
