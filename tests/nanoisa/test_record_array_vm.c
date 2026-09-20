@@ -3,6 +3,7 @@
 #define RECORD_ARRAY_EXECUTION_MAIN retained_record_array_plan_controls
 #include "test_record_array_execution.c"
 #undef RECORD_ARRAY_EXECUTION_MAIN
+int g_argc=0;char **g_argv=NULL;
 #ifdef VM_RA_WHITEBOX
 #define malloc ra_test_malloc
 #define calloc ra_test_calloc

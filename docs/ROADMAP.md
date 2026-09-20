@@ -13978,3 +13978,10 @@ both-host qualification and independent evidence review.
   diagnosed two private preflight `if`/`break` statements on one line; I separate
   the unconditional break without changing control flow. New frozen gates need
   review; neither first terminal is relabeled as a runtime result.
+
+- [ ] I retain both4dc first link terminals and supply standalone fixture
+  argument globals (`task_e852a4626f23400a83a2381546aa6214`). Fresh setup,
+  discovery and strict C compilation passed; the complete eval/cli provider
+  closure needs `g_argc`/`g_argv` normally owned by main. I define zero/NULL
+  globals exactly as the existing private owner-array and VM fixtures do,
+  keeping every provider and assertion. No runtime case has executed.
