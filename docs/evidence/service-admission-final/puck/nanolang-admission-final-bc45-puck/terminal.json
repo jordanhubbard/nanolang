@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "configs": [
+    "apple-ordinary"
+  ],
+  "input_pairs_equal": true,
+  "sanitizer_scope": "fixture plus included VM and observed service TU; other providers ordinary",
+  "host_hooks": "modeled, not actual FFI or callback ABI"
+}

@@ -1,0 +1,32 @@
+{
+  "service_bindings_module_observed.c": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/products/service_bindings_module_observed.c",
+    "sha256": "0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79",
+    "bytes": 15627,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/objects/0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79"
+  },
+  "switch": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/products/switch",
+    "sha256": "3f8d1830d2401e42021518ec02eb66996bce452082710a2ede1609eb98ec9c65",
+    "bytes": 10871432,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/objects/3f8d1830d2401e42021518ec02eb66996bce452082710a2ede1609eb98ec9c65"
+  },
+  "switch.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/products/switch.dSYM/Contents/Info.plist",
+    "sha256": "a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e",
+    "bytes": 635,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/objects/a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e"
+  },
+  "switch.dSYM/Contents/Resources/DWARF/switch": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/products/switch.dSYM/Contents/Resources/DWARF/switch",
+    "sha256": "2412d4ac4ebb58cfd2333fff0fc133c574e9ef22e8b247be71c1a6826b508c0d",
+    "bytes": 4058480,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/objects/2412d4ac4ebb58cfd2333fff0fc133c574e9ef22e8b247be71c1a6826b508c0d"
+  },
+  "switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/products/switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml",
+    "sha256": "c2b82d0ba068d9386f61bf7f7ae3e1ae1d5c344a05fb7f72c21fbbd0cbdd1182",
+    "bytes": 165,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/apple-ordinary/objects/c2b82d0ba068d9386f61bf7f7ae3e1ae1d5c344a05fb7f72c21fbbd0cbdd1182"
+  }
+}

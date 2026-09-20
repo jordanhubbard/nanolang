@@ -1,0 +1,9 @@
+{
+  "archive": "/tmp/nanolang-affine-variants-puck-evidence.tar.gz",
+  "sha256": "622eca68935c296aa28fa558dd60b0d16beb6707cb8995d7c7abd16de9540b23",
+  "bytes": 121850944,
+  "report_hashes": 509,
+  "objects": 4712,
+  "verified_files": 5221,
+  "scope": "Every manifest report and every CAS object after checked extraction; archive digest matches remote"
+}

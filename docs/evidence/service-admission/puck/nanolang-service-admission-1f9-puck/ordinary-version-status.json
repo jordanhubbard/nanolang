@@ -1,0 +1,11 @@
+{
+  "label": "ordinary-version",
+  "argv": [
+    "/usr/bin/clang",
+    "--version"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.047829708899371326
+}

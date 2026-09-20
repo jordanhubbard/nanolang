@@ -1,0 +1,14 @@
+{
+  "service_bindings_module_observed.c": {
+    "path": "/tmp/nanolang-service-admission-51d-linux/clang-sanitizer/products/service_bindings_module_observed.c",
+    "sha256": "0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79",
+    "bytes": 15627,
+    "archive": "/tmp/nanolang-service-admission-51d-linux/clang-sanitizer/objects/0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79"
+  },
+  "switch": {
+    "path": "/tmp/nanolang-service-admission-51d-linux/clang-sanitizer/products/switch",
+    "sha256": "0a52c82f9f61728770e854d66d7dd84472584a72273c0496a08a82f608367efb",
+    "bytes": 30780184,
+    "archive": "/tmp/nanolang-service-admission-51d-linux/clang-sanitizer/objects/0a52c82f9f61728770e854d66d7dd84472584a72273c0496a08a82f608367efb"
+  }
+}

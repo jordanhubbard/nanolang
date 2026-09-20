@@ -1,0 +1,7 @@
+{
+  "ordinary": "/bin/gcc",
+  "native": "/bin/gcc",
+  "provider_source": "/tmp/nanolang-service-admission-51d-linux",
+  "sanitizer_scope": "native generated mixed harness; no full-provider sanitizer claim",
+  "legacy_subprocess_scope": "outer command/status and final products; unchanged child test runners retain their own diagnostics"
+}

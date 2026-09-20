@@ -1,0 +1,8 @@
+{
+  "root": "/home/jkh/Src/nanolang-admission-public-qualified-bc45",
+  "selected_endpoint": "/tmp/nanolang-admission-public-bc45-corrected-linux",
+  "current_sources": 30319,
+  "current_tools": 14,
+  "all_hashes_equal": true,
+  "scope": "Named tools and tracked source; public install deliberately rebuilds providers recorded as products"
+}

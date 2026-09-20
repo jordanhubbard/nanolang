@@ -1,0 +1,13 @@
+{
+  "label": "homebrew-sanitizer",
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_vm_ordinary_admission"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

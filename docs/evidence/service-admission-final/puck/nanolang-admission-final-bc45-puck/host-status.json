@@ -1,0 +1,11 @@
+{
+  "label": "host",
+  "argv": [
+    "uname",
+    "-a"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.0028567080153152347
+}

@@ -1,0 +1,6 @@
+{
+  "previous_map": "/tmp/nanolang-affine-variants-660-linux/gcc-ordinary-before.json",
+  "verified_paths": 3817,
+  "differences": [],
+  "scope": "All selected frozen660 source/tool/provider inputs before corrected driver; no failed binary exists."
+}

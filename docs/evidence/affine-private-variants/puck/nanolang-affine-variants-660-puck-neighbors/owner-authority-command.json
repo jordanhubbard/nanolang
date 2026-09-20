@@ -1,0 +1,11 @@
+{
+  "label": "owner-authority",
+  "argv": [
+    "/usr/bin/make",
+    "CC=/usr/bin/clang",
+    "test-owned-array-authority"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

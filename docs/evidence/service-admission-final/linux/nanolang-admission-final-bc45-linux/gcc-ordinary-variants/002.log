@@ -1,0 +1,10 @@
+constructor 0 locals 0 allocations 13 variant 11 clone 4 clone_variant 2
+constructor 1 locals 0 allocations 9 variant 7 clone 4 clone_variant 2
+constructor 2 locals 0 allocations 9 variant 8 clone 4 clone_variant 2
+constructor 0 locals 3 allocations 13 variant 11 clone 4 clone_variant 2
+constructor 1 locals 3 allocations 9 variant 7 clone 4 clone_variant 2
+constructor 2 locals 3 allocations 9 variant 8 clone 4 clone_variant 2
+constructor 0 locals 256 allocations 13 variant 11 clone 4 clone_variant 2
+constructor 1 locals 256 allocations 9 variant 7 clone 4 clone_variant 2
+constructor 2 locals 256 allocations 9 variant 8 clone 4 clone_variant 2
+43086 private affine variant checks passed; no bytecode execution

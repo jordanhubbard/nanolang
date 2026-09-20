@@ -1,0 +1,15 @@
+{
+  "current_paths": 3836,
+  "all_hashes_equal": true,
+  "selected_endpoint": "/tmp/nanolang-admission-final-bc45-puck-neighbors/emitter-after.json",
+  "dependencies": {
+    "/tmp/nanolang-admission-final-qualified-bc45/obj/nanovm/vm.d": "ff4d4f112835647cc033d8ba62ab409f154ac27059014225bc485ad0c302a144",
+    "/tmp/nanolang-admission-final-qualified-bc45/obj/nanoisa/verifier.d": "67795a7a6d7c545556b2f5297278e14447eeda2fa7ff17722534ea67c2fb236f",
+    "/tmp/nanolang-admission-final-qualified-bc45/obj/nanoisa/service_bindings_module.d": "e799dec3d672922b894ebfcfce0e8533f352e4f3f8b9bda4fdac86cca2875765"
+  },
+  "emitter": {
+    "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/products/emitter.nvm",
+    "bytes": 303304,
+    "sha256": "3aab1a35efc15875e00e5d0036b6af3ec5858f1364ec7ea2b6d0740d23692a55"
+  }
+}

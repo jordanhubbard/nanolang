@@ -1,0 +1,10 @@
+{
+  "label": "vm-ffi-run",
+  "argv": [
+    "/tmp/nanolang-affine-variants-660-linux-neighbors/products/vm-ffi"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.16432126495055854
+}

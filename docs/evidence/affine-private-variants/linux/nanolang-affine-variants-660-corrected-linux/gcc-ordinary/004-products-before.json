@@ -1,0 +1,14 @@
+{
+  "service_bindings_module_observed.c": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-ordinary/products/service_bindings_module_observed.c",
+    "sha256": "0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79",
+    "bytes": 15627,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-ordinary/objects/0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79"
+  },
+  "switch": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-ordinary/products/switch",
+    "sha256": "f3bd8d0c7824e3a676fa7a5e153c401993990befa3c3a3735979b1e9b1e59e34",
+    "bytes": 18196704,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-ordinary/objects/f3bd8d0c7824e3a676fa7a5e153c401993990befa3c3a3735979b1e9b1e59e34"
+  }
+}

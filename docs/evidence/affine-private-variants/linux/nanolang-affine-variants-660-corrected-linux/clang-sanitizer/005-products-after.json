@@ -1,0 +1,20 @@
+{
+  "service_bindings_module_observed.c": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer/products/service_bindings_module_observed.c",
+    "sha256": "0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79",
+    "bytes": 15627,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer/objects/0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79"
+  },
+  "switch": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer/products/switch",
+    "sha256": "f61021f1b88fc4905e26f4ab7053bb728111725fbcd08e3d34012b58363c681f",
+    "bytes": 30776904,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer/objects/f61021f1b88fc4905e26f4ab7053bb728111725fbcd08e3d34012b58363c681f"
+  },
+  "threaded": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer/products/threaded",
+    "sha256": "934db4286be7ab04d829e30ef2df697b6cb2d2473481e4612f75a461c4146040",
+    "bytes": 30791952,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer/objects/934db4286be7ab04d829e30ef2df697b6cb2d2473481e4612f75a461c4146040"
+  }
+}

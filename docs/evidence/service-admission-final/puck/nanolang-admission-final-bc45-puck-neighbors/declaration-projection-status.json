@@ -1,0 +1,12 @@
+{
+  "label": "declaration-projection",
+  "argv": [
+    "/usr/bin/make",
+    "CC=/usr/bin/clang",
+    "test-ownership-declaration-projection"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 2.0436208749888465
+}

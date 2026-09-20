@@ -1,0 +1,9 @@
+{
+  "label": "callback-runtime-run",
+  "argv": [
+    "/tmp/nanolang-admission-final-bc45-linux-neighbors/products/callback-runtime"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

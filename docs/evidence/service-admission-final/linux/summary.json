@@ -1,0 +1,527 @@
+{
+  "roots": [
+    "/tmp/nanolang-admission-final-bc45-linux",
+    "/tmp/nanolang-admission-final-bc45-linux-neighbors",
+    "/tmp/nanolang-admission-public-bc45-linux",
+    "/tmp/nanolang-admission-public-bc45-corrected-linux",
+    "/tmp/nanolang-admission-final-extras"
+  ],
+  "artifacts": 5881,
+  "artifact_bytes": 1241456041,
+  "references": 197235,
+  "pairs": [
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3835,
+      "after_count": 3835
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux/prepare-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux/prepare-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3689,
+      "after_count": 3689
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary/inputs-after.json",
+      "equal": true,
+      "before_count": 152,
+      "after_count": 152
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary-variants/inputs-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary-variants/inputs-after.json",
+      "equal": true,
+      "before_count": 145,
+      "after_count": 145
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/owner-authority-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/owner-authority-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-runtime-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-runtime-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/prepare-clis-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/prepare-clis-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ownership-contracts-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ownership-contracts-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ffi_callback_fixture-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ffi_callback_fixture-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/mixed-query-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/mixed-query-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ffi_artifact_first-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ffi_artifact_first-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/emitter-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/emitter-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/vm-ffi-run-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/vm-ffi-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/mixed-admission-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/mixed-admission-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/vm-ffi-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/vm-ffi-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-allocation-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-allocation-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ffi_artifact_second-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ffi_artifact_second-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/mixed-runtime-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/mixed-runtime-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-failures-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-failures-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-failures-run-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-failures-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/declaration-projection-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/declaration-projection-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/affine-bytecode-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/affine-bytecode-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/owner-array-public-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/owner-array-public-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-runtime-run-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-runtime-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3844,
+      "after_count": 3844
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-linux/setup-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-linux/setup-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 13,
+      "after_count": 13
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-linux/setup-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-linux/setup-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-corrected-linux/discovery-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-corrected-linux/discovery-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-corrected-linux/ordinary-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-corrected-linux/ordinary-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-corrected-linux/configuration-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-corrected-linux/configuration-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-corrected-linux/setup-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-corrected-linux/setup-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 14,
+      "after_count": 14
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-corrected-linux/discovery-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-corrected-linux/discovery-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 14,
+      "after_count": 14
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-corrected-linux/configuration-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-corrected-linux/configuration-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 14,
+      "after_count": 14
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-corrected-linux/ordinary-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-corrected-linux/ordinary-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 14,
+      "after_count": 14
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-corrected-linux/setup-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-corrected-linux/setup-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    }
+  ],
+  "terminals": [
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/other-asan-static-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015767154982313514
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/prepare-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 9.743813754059374
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/other-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.01570241793524474
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 3.7226187869673595
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/ordinary-ubsan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0015372460475191474
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary-variants-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.8659561249660328
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/other-ubsan-static-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015815970953553915
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/other-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015727553982287645
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/ordinary-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.001509278081357479
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/ordinary-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.001619311049580574
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/ordinary-cc1-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0019545949762687087
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/head-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0085793430916965
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/other-asan-preinit-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.01580432301852852
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/ordinary-collect2-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0015494379913434386
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux/host-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.00155203090980649
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/emitter-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 20.464099835022353
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/declaration-projection-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 2.7239758770447224
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ffi_artifact_second-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.03178797790315002
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/mixed-runtime-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 32.9446192960022
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/mixed-query-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.4678119879681617
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ffi_artifact_first-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.06408605701290071
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/affine-bytecode-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.8154809399275109
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-runtime-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.4646819910267368
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/prepare-clis-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 3.1729981070384383
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/owner-authority-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.4669656980549917
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ffi_callback_fixture-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.11399270105175674
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-failures-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.1641153320670128
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/vm-ffi-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.6154302249196917
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-allocation-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.31480380496941507
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/mixed-admission-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.5170897250063717
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/vm-ffi-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.16444980003871024
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-runtime-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.2140601349528879
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/ownership-contracts-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.7153644700301811
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/owner-array-public-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 11.591953702969477
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/callback-failures-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.00759011902846396
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-linux/setup-terminal.json",
+      "returncode": 2,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-corrected-linux/ordinary-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-corrected-linux/setup-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-corrected-linux/discovery-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-corrected-linux/configuration-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    }
+  ],
+  "scope": "Freshbc45 ordinary constructors/admission/real neighbors/emitter and separate public cyclic package; public provider products deliberately rebuilt, only their source/tool pairs claimed equal"
+}

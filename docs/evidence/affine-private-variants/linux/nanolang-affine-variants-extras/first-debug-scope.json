@@ -1,0 +1,17 @@
+{
+  "scope": "one root-authorized retained-binary debugger run, no whole-suite replay",
+  "argv": [
+    "gdb",
+    "-q",
+    "-batch",
+    "-ex",
+    "run",
+    "-ex",
+    "bt 18",
+    "-ex",
+    "info registers pc",
+    "--args",
+    "obj/test_mixed_samples_admission"
+  ],
+  "outer_seconds": 30
+}

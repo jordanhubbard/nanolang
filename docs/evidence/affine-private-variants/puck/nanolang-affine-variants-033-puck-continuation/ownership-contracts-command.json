@@ -1,0 +1,11 @@
+{
+  "label": "ownership-contracts",
+  "argv": [
+    "/usr/bin/make",
+    "CC=/usr/bin/clang",
+    "test-ownership-contracts"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

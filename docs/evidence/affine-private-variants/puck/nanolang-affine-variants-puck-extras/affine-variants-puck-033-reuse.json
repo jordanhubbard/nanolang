@@ -1,0 +1,10 @@
+{
+  "previous_map": "/tmp/nanolang-affine-variants-660-puck-neighbors/owner-authority-after.json",
+  "verified_paths": 3818,
+  "differences": [],
+  "corrected_fixture": {
+    "path": "/tmp/test_owned_array_authority_033.py",
+    "sha256": "54d56285d9f38ab96146fa87af2579858b8f43697df31ce96b51b6ad6cef5534"
+  },
+  "scope": "Frozen660 source/tools/providers/CLIs unchanged before external033 owner fixture and unreached continuation"
+}
