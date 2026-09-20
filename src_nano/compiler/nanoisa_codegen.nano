@@ -4651,6 +4651,9 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         } else {
             if nisa_void_return { return (nisa_fail "a void function cannot return a value") }
         }
+        if (and (== nisa_return_type "u8") (!= (nisa_expr_type parser r.value r.value_type) "u8")) {
+            return (+ (nisa_emit_expected_expr parser r.value r.value_type nisa_return_type) (nisa_line "RET"))
+        }
         if (or (== r.value_type ParseNodeType.PNODE_CALL) (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
             let call: ASTCall = (nisa_get_call parser r.value r.value_type)
             if (and (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {

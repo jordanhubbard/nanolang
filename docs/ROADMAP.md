@@ -13788,3 +13788,5 @@ I complete this generated-byte milestone in PR932 after both-host integration qu
 The same task_fd77704bbf3747e980cceb5888bf2ab7 also covers identifier reads: static AST_IDENTIFIER lookup tries globals and function names before captured lexical bindings. I correct reads and writes together before qualification.
 
 - [ ] I correct static byte-source fixture blockers under task_c6b2a040c1434fc784a9d46c02a4981e before discovery: imported TestCase exposes five unintended methods; captured assignment must change its observable byte; the unchanged original byte program narrows only in its separately executed shadow and must not require a CAST_U8 in production main. I retain seven intended methods, original shadow policy and unchanged original source bytes.
+
+- [ ] I preserve the computed-U8 result conversion before Nano tail-call selection under task_c6b2a040c1434fc784a9d46c02a4981e. Static complete-return audit found the Nano direct/inline return shortcuts bypass nisa_emit_expected_expr. A computed INT-returning call in a U8-returning function must emit the call once, CAST_U8 and RET; only an exact U8 result may retain its existing tail route.
