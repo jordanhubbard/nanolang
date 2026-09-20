@@ -1,0 +1,23 @@
+{
+  "archive_members_rehashed": 567,
+  "archive_other_members": [],
+  "archive_report_members_compared_to_git_seal": 153,
+  "archive_sha256": "d3d688f080976dc2fa93e08f5e2568d34e631d521bb007fcaf6125d07374c97e",
+  "cas_bytes": 391281422,
+  "cas_objects": 865,
+  "corrected_phases": 24,
+  "endpoint_pairs": 76,
+  "first_darwin_failure_preserved": true,
+  "git_reports": 388,
+  "limits": [
+    "Ordinary linked providers are outside passive-TU sanitizer instrumentation.",
+    "Original temporary Python fixture products were cleaned; retained logs are not missing-artifact claims.",
+    "Earlier external driver preparation lacked tracked manifest, with no raw stderr file claimed.",
+    "No complete SDK/OS hash, full product acceptance, or fixed-point claim.",
+    "This audit does not repeat current remote provider/tool endpoint rehash."
+  ],
+  "pin": "cdb2e857d",
+  "references": 14246,
+  "source_git_checks": 3798,
+  "status": "PASS"
+}

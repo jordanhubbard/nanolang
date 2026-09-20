@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-passive-qualified-1f0db/bin/nano_virt",
+    "tests/nanoisa/fixtures/passive_flow.nano",
+    "--emit-nvm",
+    "--strip-debug",
+    "-o",
+    "/private/tmp/nanolang-passive-cfg-1f0db-puck/flow.nvm"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": ""
+  }
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "phase": "build",
+    "seconds": 22.445,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "passive",
+    "seconds": 3.622,
+    "status": 0
+  },
+  {
+    "phase": "source-flow",
+    "seconds": 0.016,
+    "status": 0
+  },
+  {
+    "phase": "flow-vm",
+    "seconds": 0.004,
+    "status": 0
+  },
+  {
+    "phase": "flow-native-emit",
+    "seconds": 0.004,
+    "status": 0
+  },
+  {
+    "phase": "flow-native-build",
+    "seconds": 0.065,
+    "status": 0
+  },
+  {
+    "phase": "flow-native",
+    "seconds": 0.001,
+    "status": 0
+  },
+  {
+    "phase": "comparison-build",
+    "seconds": 34.247,
+    "status": 0
+  },
+  {
+    "phase": "comparison",
+    "seconds": 0.415,
+    "status": 0
+  },
+  {
+    "phase": "scoped-sanitizer",
+    "seconds": 2.02,
+    "status": 0
+  },
+  {
+    "phase": "float-casts",
+    "seconds": 0.816,
+    "status": 0
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "make",
+    "CC=/usr/bin/clang",
+    "test-passive-metadata"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": ""
+  }
+}
