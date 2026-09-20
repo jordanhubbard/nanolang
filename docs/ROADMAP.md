@@ -13165,3 +13165,11 @@ actual compiler inputs, so I require new empty-tree Linux/puck bootstraps and
 complete ordinary token/paired-generator/schema plus parser/module/wrapper
 checks. I preserve51d and original315 evidence without relabeling sanitizer
 acceptance. No new source feature or full File completion is claimed.
+
+I retain [token integrationd4f](evidence/token-value-bytes-union-integration.md)
+on actual893: both fresh complete bootstraps, ordinary paired token/full schema
+generation and parser/module/wrapper checks pass. My251-report supplement
+records12 equal pairs,12 exact shadow selections,8 full generator comparisons
+and current24,345-source/12-tool equality on both hosts. Original sanitizer
+claims stay at original pins; later912 needs scoped dependency assessment.
+No full File/source parent closes from this prerequisite.
