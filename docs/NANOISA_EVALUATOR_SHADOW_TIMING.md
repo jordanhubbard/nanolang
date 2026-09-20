@@ -129,3 +129,28 @@ The seal is `docs/evidence/typecheck-lifetime-729ce/seal.json`:55reports,
 observer overhead and deleted-intermediate limitations; this is not qualification.
 My next authorized measurement targets actual record_list_find visits/time and
 graph disposal/root publication, before selecting any further correction.
+
+## My3f0c registry/disposal measurement
+
+The separate3f0c diagnostic also returns1 at the original ten-second deadline,
+with all six command input pairs equal and no capacity/outer timeout. I retain
+991markers/495completed shadows; the last unmatched begin is
+owned_pattern_complete. First begin through that point spans9.934263301s.
+List lookup performs73,420calls/2,141,454visits in7,153,976ns. Root publication
+performs666,514calls in200,703,059ns. Outermost graph disposal totals1,846,758ns,
+with160,691recursive nodes counted. Snapshot clone time is497,871,112ns and
+indexed borrowed-root lookup is107,943,618ns. These scopes and observer overhead
+are not an additive attribution of the entire elapsed interval.
+
+The measured list lookup cost does not support a registry index as a timeout
+repair. I retain this diagnostic seal separately at
+`docs/evidence/list-registry-3f0c/seal.json`, including complete source/provider
+maps and the unchanged input. The remaining time is still unattributed.
+
+My next existing-profiler preflight succeeds for perf --version but denies an
+own-child task-clock event with status255 because perf_event_paranoid is4. I
+preserve the commands/status/output at
+`/tmp/nanolang-typecheck-profile-preflight`; I do not change host policy. The
+approved fallback is private exclusive scope accounting for evaluator dispatch,
+call/scope cleanup and Environment lookup/index maintenance. That measurement
+must precede any production correction or attribution claim.
