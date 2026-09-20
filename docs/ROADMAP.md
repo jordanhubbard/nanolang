@@ -12835,8 +12835,8 @@ reconciled COMPLETED through actual merge evidence; dependency2 is measured
 private carrier acceptance only. Task15a92 remains OPEN. Optional queued hosted
 checks are not claimed passed.
 
-- [ ] I review and implement my [private cyclic VM/native dispatch plan](NANOISA_FILE_CYCLIC_DISPATCH_PLAN.md) under15a92: exact all-variant coverage, original identities, one carrier fuel budget, real generated functions/labels and explicit semantic ABI/fact agreement.
-- [ ] I review the complete shared-wire fixtures, then qualify Linux/puck VM/native O0/O2, fuel/host/fault/cleanup and unchanged acyclic/public-refusal neighbors with retained first terminals and source/tool/provider seals.
+- [x] I review and implement my [private cyclic VM/native dispatch plan](NANOISA_FILE_CYCLIC_DISPATCH_PLAN.md) under15a92: exact all-variant coverage, original identities, one carrier fuel budget, real generated functions/labels and explicit semantic ABI/fact agreement.
+- [x] I review the complete shared-wire fixtures, then qualify Linux/puck VM/native O0/O2, fuel/host/fault/cleanup and unchanged acyclic/public-refusal neighbors with retained first terminals and source/tool/provider seals.
 - [ ] I review a separate matched public conjunction after private dispatch qualification; closed-indirect, richer-borrow and paired source/shadows remain required, with no old acyclic plan reinterpretation.
 
 I prepare the first reviewed-design27b972 private cyclic dispatch source: distinct
@@ -13153,3 +13153,19 @@ records its interpreter and PyYAML files while keeping the3.14 driver unchanged.
   capture count predicate and all warnings. Production stays unchanged. Exact
   fixture review precedes fresh affected/unrun qualification; earlier passes
   and first terminals keep their own source/compiler attribution.
+
+I reconcile only those two bounded private dispatch checkboxes through actual
+PR907 merge `6dd5d7a2bde2234dfeb3c21633f5426c7a83bae2`, after the independent
+original/supplemental audits and root canonical restack review. Their earlier
+pending-merge paragraphs are historical. The separate public conjunction,
+closed-indirect/richer-borrow/paired-source requirements and parent15a92 remain
+open; current public qualification still requires its own integration and merge.
+
+I finish the cumulative public cyclic matrix with exact attribution: all seven
+compiler/sanitizer configurations pass, all required neighbors pass on each host,
+and the fresh Linux a11c single linked/install method passes51.578 seconds.
+[My public candidate evidence](evidence/file-cyclic-public.md) preserves five
+unexpected terminals, the53 phase endpoint sets, all provider rebuild deltas
+and the separate native-counter assertion. I do not close the public milestone
+or its parents: independent seal review, current-main integration and actual
+merge remain required. I keep the capture recipe flag-propagation follow-up open.

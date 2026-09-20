@@ -1,0 +1,14 @@
+{"pin": "a11cdad02b43c9d4eba24903475e223600b3a9f7", "source_files": 20576, "root": "/private/tmp/nanolang-file-cyclic-public-a11c", "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"}
+{"phase": "setup", "status": 0, "seconds": 9.635}
+{"phase": "configuration", "status": 0, "seconds": 0.133}
+{"phase": "clang-ordinary", "status": 0, "seconds": 56.882}
+{"phase": "sanitizer", "status": 0, "seconds": 112.567}
+{"phase": "private-cyclic-dispatch", "status": 0, "seconds": 71.791}
+{"phase": "carrier", "status": 0, "seconds": 16.918}
+{"phase": "core-values", "status": 0, "seconds": 1.82}
+{"phase": "cyclic", "status": 0, "seconds": 5.574}
+{"phase": "cyclic-hosted", "status": 0, "seconds": 14.219}
+{"phase": "private-vm", "status": 0, "seconds": 15.263}
+{"phase": "private-native", "status": 0, "seconds": 58.758}
+{"phase": "public", "status": 0, "seconds": 45.472}
+{"phase": "archive-boundary", "status": 0, "seconds": 0.625}
