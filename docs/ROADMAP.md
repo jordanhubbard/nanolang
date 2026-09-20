@@ -12627,3 +12627,12 @@ separate120-report seal keeps original46912 sanitizer results distinct; current
 ready integration through462c98 changes no production. Dependency1 awaits
 review/actual merge, while cyclic carrier/fuel/VM/native/public and source
 requirements remain open.
+
+I refine the next15a92 dependency in
+[NANOISA_FILE_CYCLIC_CARRIER_PLAN.md](NANOISA_FILE_CYCLIC_CARRIER_PLAN.md):
+private plan-kind separation, exact variant/physical witness validation, existing
+slot recycling with nonwrapping generations, and one invocation fuel/report
+revision. PR897 completes only copied hosted facts. This new design awaits
+review before production; carrier, matched VM/native, public conjunction and
+source/indirect/richer-borrow obligations stay open. I coordinate closed-target
+indirect design with root-owned2c135 without overlapping implementation.
