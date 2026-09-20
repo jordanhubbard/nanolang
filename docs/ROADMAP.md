@@ -12364,3 +12364,8 @@ qualification builds run before the full fixture checkpoint review.
   Current U8/TCO compiler/provider changes require new Linux/Darwin bootstraps.
   I preserve all source hashes, positive/negative cases, original PREFIX/shadows
   and first terminals; no narrowed replacement or full-product claim follows.
+
+### My full-affine Darwin dependency-discovery prerequisite (273296)
+
+- [x] I preserve the first 3c728 Darwin bootstrap terminal (9.5246s, make exit2, missing openssl/sha.h) and identify the omitted Homebrew PATH used by brew --prefix discovery; sources and HEAD remain unchanged.
+- [ ] I qualify the runner-only explicit PATH correction on a fresh same-pin Darwin tree with actual dependency/compiler/SDK identities; task_273296f15f46457a8199665418602954. The original33 script, product e8d and full parents remain open.
