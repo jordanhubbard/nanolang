@@ -13138,3 +13138,12 @@ fresh Linux/puck bootstraps and ordinary complete token/paired-generator/schema
 checks plus parser/module/wrapper neighbors in new empty build trees. No old
 ABI objects or copied compiler products enter this acceptance. Original scoped
 sanitizer results keep their original pins and are not relabeled integrated.
+
+I retain [fresh token integration51d](evidence/token-value-bytes-integration.md)
+against actual0061: both empty-tree bootstraps, full ordinary token/paired actual
+generator/schema checks and parser/module/wrapper adjacency pass. My252-report
+supplement retains12 equal source/tool pairs,12 exact shadow selections and8
+four-file generator comparisons. Both current24,085-source/12-tool maps and
+824 Linux/631 puck products match. Original sanitizer pins stay unchanged;
+subsequent PR893 is outside this frozen acceptance. Full8bbc/source parents
+and compiler-policy follow-ups remain open pending their own acceptance.

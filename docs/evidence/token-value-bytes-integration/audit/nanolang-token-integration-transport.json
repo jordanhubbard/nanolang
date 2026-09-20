@@ -1,0 +1,17 @@
+{
+  "source_pin": "51d4bb83f9032d630bb2e04e7b4aedcf4552e29b",
+  "source_archive": "/tmp/nanolang-token-integration-51d.tar",
+  "sha256": "4d226ebad43d5d8c9d7c2be5b3826fba90898510766d5bc270c51e82d4182cc9",
+  "bytes": 2343168000,
+  "remote_sha256": "4d226ebad43d5d8c9d7c2be5b3826fba90898510766d5bc270c51e82d4182cc9",
+  "root_linux": "/home/jkh/Src/nanolang-token-integration-51d",
+  "root_puck": "/tmp/nanolang-token-integration-51d",
+  "fresh_empty_roots": true,
+  "copied_compiler_objects": false,
+  "puck_report_archive": {
+    "path": "/tmp/nanolang-token-integration-puck.tar.gz",
+    "sha256": "6b4405c2bb6735ca7ab43c2795568004c215204f714e7857a5b81f7119af7449",
+    "bytes": 22267075,
+    "remote_hash_verified": true
+  }
+}

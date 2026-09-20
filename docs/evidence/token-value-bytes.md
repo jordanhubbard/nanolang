@@ -115,3 +115,10 @@ fixture, schema and build blobs against315, all54 source/tool endpoint pairs,
 and refreshes18170 source hashes and12 tools on each final frozen host plus835
 Linux/620 Darwin final products. Earlier historical limitations remain explicit;
 this does not establish whole release or File source acceptance.
+
+## My canonical integration supplement
+
+I retain [fresh integration51d](token-value-bytes-integration.md) separately
+from the original seal above. Both hosts rebuild the full compiler/token ABI
+closure against actual0061 and pass ordinary paired/schema/adjacency checks.
+No earlier sanitizer or first-terminal attribution changes.
