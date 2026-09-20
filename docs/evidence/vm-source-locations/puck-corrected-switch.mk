@@ -1,0 +1,1 @@
+override CFLAGS += -DNANO_NO_COMPUTED_GOTO

@@ -71,6 +71,7 @@ typedef struct {
     uint16_t effect_local_start;
     uint32_t fn_idx;          /* Function table index */
     uint32_t return_ip;       /* Instruction pointer to return to */
+    uint32_t instruction_ip;  /* Executing instruction; retained at a suspended call. */
     uint32_t stack_base;      /* Stack index where this frame's locals begin */
     uint16_t local_count;     /* Number of locals (including params) */
     VmClosure *closure;       /* Non-NULL if this is a closure call */

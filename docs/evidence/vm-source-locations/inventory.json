@@ -1,0 +1,112 @@
+[
+  {
+    "path": "linux-ordinary-command.json",
+    "sha256": "25f78467ce3041c996dd10c7e8a6d2a17aa78d29c2b2ad0545c9098c486f33a0",
+    "bytes": 30
+  },
+  {
+    "path": "linux-ordinary-status.json",
+    "sha256": "4148fb5f9493dbfed9aa52769e326904fb60aa622eb4b992d9ad4b023c007804",
+    "bytes": 160
+  },
+  {
+    "path": "linux-ordinary.log",
+    "sha256": "a9c794f9b920e46e864eac551b388d44f0ed16c1f60b2d1fc0333a17c26f6102",
+    "bytes": 14104
+  },
+  {
+    "path": "linux-switch-command.json",
+    "sha256": "60ac3f0f382eba2f08b6b9ea61a6c0dd0e1a19d529942c6fd599e836eedbd151",
+    "bytes": 128
+  },
+  {
+    "path": "linux-switch-status.json",
+    "sha256": "d2c2079b5754de180af55df2080c4933d4e4e7db417b824ba56f549c8c1612ed",
+    "bytes": 160
+  },
+  {
+    "path": "linux-switch.log",
+    "sha256": "9629da4967eb81c64880133f501e2d0491689ca7b5bc6ee9724f5fd6c554156e",
+    "bytes": 39842
+  },
+  {
+    "path": "linux-switch.mk",
+    "sha256": "fda21eace18734e5a0be0c8717b26d4d68ae9080f41dff8663e38c64cb96e478",
+    "bytes": 34
+  },
+  {
+    "path": "puck-ordinary-command.json",
+    "sha256": "25f78467ce3041c996dd10c7e8a6d2a17aa78d29c2b2ad0545c9098c486f33a0",
+    "bytes": 30
+  },
+  {
+    "path": "puck-ordinary-status.json",
+    "sha256": "c366f2fd292fe90c4f7f4ad2a6875a2e2c3e2d6e54b9e6700164ed79acc277d1",
+    "bytes": 160
+  },
+  {
+    "path": "puck-ordinary.log",
+    "sha256": "bde07cb68563281186ec856fd08633805fc744eac7ef38e3f7b26d32f5315d74",
+    "bytes": 60023
+  },
+  {
+    "path": "puck-switch-command.json",
+    "sha256": "dc4a52cc8ded694a04078d90b9168d93e1355e8df600d3631a38e5d8cd71f84a",
+    "bytes": 127
+  },
+  {
+    "path": "puck-switch-status.json",
+    "sha256": "ba771913ec56f9969bcdd23273618baee6115edccaa5c658d3759f394a932208",
+    "bytes": 160
+  },
+  {
+    "path": "puck-switch.log",
+    "sha256": "5f3e4cc83c1c6ac88060c4d7cf03f6b84862eb2bc1602330bac31d9a9ccfa248",
+    "bytes": 63138
+  },
+  {
+    "path": "puck-switch.mk",
+    "sha256": "fda21eace18734e5a0be0c8717b26d4d68ae9080f41dff8663e38c64cb96e478",
+    "bytes": 34
+  },
+  {
+    "path": "linux-corrected-switch-command.json",
+    "sha256": "0a13c1528c9bc4a5b5077c3c919e3947ed40fb8d94863f3bc126f571e38d0fd7",
+    "bytes": 148
+  },
+  {
+    "path": "linux-corrected-switch-status.json",
+    "sha256": "e022afeb7aa3d28a92c70ae61969d0991a3899bf10176fcdfbf59fec8b11237a",
+    "bytes": 160
+  },
+  {
+    "path": "linux-corrected-switch.log",
+    "sha256": "9d6f6bcaa60d5fa7a060fe9d16a0b115c75eb58e953a02767d73a2e11949989a",
+    "bytes": 47868
+  },
+  {
+    "path": "linux-corrected-switch.mk",
+    "sha256": "d6c805f5bc081a8f83a9f013cb90522af430e4d47d2ffeedaee6cadedfaa51e1",
+    "bytes": 43
+  },
+  {
+    "path": "puck-corrected-switch-command.json",
+    "sha256": "e82c31b0c74090225c7c3530845207d581bb31a6e63e5055618c9c2da2c3c84d",
+    "bytes": 147
+  },
+  {
+    "path": "puck-corrected-switch-status.json",
+    "sha256": "f28c4275207c5c04169dfb822e3f6a6d2324f1fb3cc6d90ab42a60b5f5e9e693",
+    "bytes": 160
+  },
+  {
+    "path": "puck-corrected-switch.log",
+    "sha256": "c0129cc6c849cb5ce58895b293a5a4e140f07bc21065c26bd94ef94da9f2f436",
+    "bytes": 71164
+  },
+  {
+    "path": "puck-corrected-switch.mk",
+    "sha256": "d6c805f5bc081a8f83a9f013cb90522af430e4d47d2ffeedaee6cadedfaa51e1",
+    "bytes": 43
+  }
+]
