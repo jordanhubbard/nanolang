@@ -190,7 +190,11 @@ GCC 13 rejected the fixture's one-line failed-assembly diagnostic followed by
 `CHECK` under `-Werror=misleading-indentation`. Its retained log is
 `2622ab6fc99e49798c9c6e7acbc7fc152a4ca3852ed7d96c20cfd0fe5e2914ab`.
 I braced only that diagnostic branch at `c30543c3c`; affine production and the
-qualified compiler binaries remained byte-identical. From that test-only head:
+qualified compiler binaries remained byte-identical. The corrected fixture
+also passed the 546/856 affine and VM/native sanitizer runtime gate on Darwin;
+its raw log SHA-256 is
+`ab982cf48888f6229ee0668b7c87eaf35fde453765fa3e9a2ba07b348a03abe4`.
+From that test-only head on Linux:
 
 ```text
 make -j8 test-affine-scalar-union-runtime
