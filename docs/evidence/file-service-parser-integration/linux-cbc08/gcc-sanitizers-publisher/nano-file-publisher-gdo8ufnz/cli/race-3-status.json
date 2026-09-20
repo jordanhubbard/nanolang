@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/raced"
+  ],
+  "pid": 2983198,
+  "returncode": 1,
+  "timeout": false
+}

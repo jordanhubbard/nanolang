@@ -13657,3 +13657,19 @@ gates on Linux and puck. I preserve the original seal and source pins; no
 integrated execution begins before source-delta review. Full8bbc remains open.
 
 - [ ] I correct evidence checkout portability under task_5a8b7cad748c42068cf3c865fdd01bd9 before integrated parser gates: five retained Linux publisher reports have intentionally invalid UTF-8 pathname bytes which APFS refuses. I preserve their original byte-path identities and exact bytes/hashes in manifests and CAS, normalize only Git storage names, and verify unchanged source/fixture blobs. No integrated fixture has run; both platforms must retain complete source inventories at the corrected pin.
+
+I complete the fresh integrated parser matrix atcbc08b5b4 after portable evidence
+storage correction: both new bootstraps, the same seven scoped parser/provider
+configurations, full paired outputs/shadows/schema comparisons, seven affected
+publisher configurations and ordinary parser/module/wrapper neighbors pass.
+I verify all46083 source paths and12 selected tools unchanged on each host,
+retaining961 Linux and718 puck final products. My [supplemental seal](evidence/file-service-parser-integration.md)
+keeps the original5a0e acceptance and17 first terminals distinct. Source lowering,
+resolution, full generated service behavior and whole-parser/union ownership
+acceptance remain open; root review and actual merge still precede closure.
+
+I preserve the first external integration-sealer terminal before correction:
+its adapted script omits summary construction and raises NameError while writing
+seal-summary.json after copying reports/CAS. I restore that manifest construction
+and rerun packaging only. All measured gate reports and qualified inputs remain
+unchanged; I do not rerun qualification or classify this as a parser defect.

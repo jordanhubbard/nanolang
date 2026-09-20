@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/nano-file-binding-srhnjx4p/nsi-file-plan",
+    "tests/fixtures/nsi_file_plan.json"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

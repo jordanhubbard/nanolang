@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/parser-c",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/published/binding.nano"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

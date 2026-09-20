@@ -1,0 +1,34 @@
+{
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-obj/file-binding-publisher/nsi_file_binding.o": {
+    "sha256": "c9e93896546872637d6e35d76a513fa469ad0b09811aaa750c907ee837b6fcde",
+    "bytes": 44272
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-obj/file-binding-publisher/nsi_file_plan.o": {
+    "sha256": "e66897067afbadfb628afe560fbf691ca95209ae076bf425e692283803fee6d5",
+    "bytes": 26720
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-obj/file-binding-publisher/nsi.o": {
+    "sha256": "931bbb2d64f2f99bbe1b3cfb9713d8ed79c396bbbd4f808cf384ddc86a8eb137",
+    "bytes": 62336
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-obj/file-binding-publisher/cJSON.o": {
+    "sha256": "ffb9b1281b9b6ff0a36208e5da940ba3ee0bd3d54de55f8f6370cd17833f02da",
+    "bytes": 80824
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-obj/file-binding-publisher/utf8.o": {
+    "sha256": "bbcb3f9038b360b35ad9ea88cfce7eb2f0289a4c33a650c0b4147bb6dfeec07c",
+    "bytes": 10768
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-obj/file-binding-publisher/nsi_file_publish.o": {
+    "sha256": "a193ab35473e92e799d703d3ef0a006e53b3f7b78cbc30e2a1d1e9ed31b5868f",
+    "bytes": 24224
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-obj/file-binding-publisher/nsi_file_binding_main.o": {
+    "sha256": "4a710fb390e6307a8191527513c565e50df6406fda749b76a1f96f60f239b284",
+    "bytes": 17016
+  },
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-bin/nsi-file-binding": {
+    "sha256": "0a521718047a7ef36c2091bb7f9349169db527de8372c59aaf55b5c74d087842",
+    "bytes": 125552
+  }
+}
