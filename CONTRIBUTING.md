@@ -76,20 +76,29 @@ make clean && make
 ./bin/nanoc file.nano
 ```
 
-### 3. Bootstrap and Self-Hosting
+### 3. Bootstrap, Self-Hosting, and One IR
 
-My bootstrap has two compiler implementations. You must update both.
-1. **C Reference Implementation** (`src/`) - This is how I bootstrap.
-2. **Self-Hosted Implementation** (`src_nano/`) - This exercises my ability to express and build my compiler.
+My bootstrap has two frontend implementations and one portable compiler
+product. You must update every affected implementation.
 
-I use the C version to build my first stage. Then I use that stage to build myself again. If I cannot express a feature in my own syntax, then I am not finished.
+1. **C seed** (`src/`) - I bootstrap and retain an independent reference frontend here.
+2. **Self-hosted compiler** (`src_nano/`) - I express and build my compiler in my own language.
+3. **NanoISA product** (`src/nanovirt/`, `src_nano/compiler/nanoisa_codegen.nano`) - Both frontends lower supported programs to verified `.nvm` v2.
+
+I use the C seed to build the first compiler module. Two subsequent executions
+of the self-hosted compiler build the same source and immutable host closure;
+my fixed-point gate compares the two resulting `.nvm` files byte for byte. If
+I cannot express and lower a feature through that route, then I am not finished.
+Native C is produced from verified NanoISA through `nvm2c`; a direct AST-to-C
+research or bootstrap path is not evidence for the product path.
 
 Your workflow:
-1. Implement the feature in my C reference code.
-2. Verify it passes my tests.
-3. Implement the same feature using my own syntax in `src_nano/`.
-4. Verify my self-hosted components can use it.
-5. Use the feature in my codebase.
+1. Implement the feature in my C seed frontend and NanoISA lowering.
+2. Verify its checked module, VM behavior and applicable translator behavior.
+3. Implement the same feature using my own syntax and NanoISA lowering in `src_nano/`.
+4. Verify my self-hosted components can use it and that mandatory shadows retain their behavior.
+5. Run the relevant fixed-point or paired-producer gate before claiming compiler closure.
+6. Use the feature in my codebase.
 
 Apply the same contract to affected bytecode, VM and AOT paths. Bootstrap smoke
 tests, canonical artifact equality and semantic correctness are separate
@@ -101,12 +110,12 @@ My structure:
 src/          - C reference implementation (bootstrap compiler)
   parser.c    - C parser
   typechecker.c - C typechecker
-  transpiler.c  - C transpiler
+  nanovirt/     - C-seed NanoISA lowering
 
 src_nano/     - NanoLang self-hosted implementation
   parser_mvp.nano - Parser in NanoLang
   typechecker_minimal.nano - Typechecker in NanoLang
-  transpiler_minimal.nano - Transpiler in NanoLang
+  compiler/nanoisa_codegen.nano - Self-hosted NanoISA lowering
 ```
 
 ### 4. Shadow Tests are Mandatory

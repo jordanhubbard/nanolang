@@ -351,7 +351,17 @@ their individual acceptance evidence closes them.
 
 ## Active Execution Queue
 
-- [ ] I keep the exact-binary64 reconstruction gate aligned with the source
+- [ ] I link native NanoISA products with the instrumentation already present
+  in my retained AOT runtime during coverage and sanitizer builds
+  (`task_d4add428dabc6da0d82a3b55a8fed8a7`). The hosted 5.1 coverage gate
+  reaches the Stage 1 hello product and then rejects `nano_aot_runtime.o`
+  because its `__gcov_*` references are not accompanied by the coverage link
+  flags. I will propagate only selected instrumentation link flags through the
+  existing `NANO_LDFLAGS` product boundary, preserve explicit caller
+  overrides, and add an isolated Make contract control before rerunning the
+  failed hosted job.
+
+- [x] I keep the exact-binary64 reconstruction gate aligned with the source
   operations I actually admit (`task_c2d5f6840c96fccfc49b173c5248dc2c`).
   The clean `ebe3afddc` Darwin release run passes every earlier phase and then
   stops because the historical facts fixture still expects `F64_ADD` source
@@ -359,7 +369,9 @@ their individual acceptance evidence closes them.
   admits that opcode. I preserve the full first-terminal log and retain atomic
   previous-output refusal coverage with a genuinely unsupported generic float
   operation; I do not remove the check or turn an accepted operation back into
-  a refusal.
+  a refusal. Both exact-bit and atomic-refusal methods pass in 0.420 seconds;
+  the corrected log is `/private/tmp/nanolang-pr522-binary64-corrected.log`
+  (SHA-256 `f653dd6269dc91bd1c8e06ec35852ef32ee97ea7fbdf33a062ae91089c64c6cd`).
 
 - [x] I keep the module-introspection acceptance program bound to the shared module-facts declarations it calls (`task_3f0ced012cde4f6eb73f6fdd1279d482`). At product `84e04f5d`, bootstrap, 39 focused methods and all 17 core examples pass; the later C-seed introspection gate reports missing emitted scanner declarations. I distinguish direct import ownership from backend closure, preserve every scanner assertion, and qualify the corrected fixture before resuming full acceptance.
 
