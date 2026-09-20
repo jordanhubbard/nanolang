@@ -120,6 +120,14 @@ endif
 SANITIZE_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
 COVERAGE_FLAGS = -fprofile-arcs -ftest-coverage
 
+# My retained AOT runtime is built with the selected instrumentation, while a
+# self-hosted compiler invokes the final native link outside Make. I carry only
+# link-required instrumentation through the existing product environment; I do
+# not leak unrelated build paths or replace an explicit caller selection.
+NANO_PRODUCT_INSTRUMENT_LINK_FLAGS = $(sort $(filter -fsanitize=% -fprofile-arcs -ftest-coverage --coverage,$(CFLAGS) $(LDFLAGS)))
+NANO_LDFLAGS ?= $(NANO_PRODUCT_INSTRUMENT_LINK_FLAGS)
+export NANO_LDFLAGS
+
 SRC_DIR = src
 SRC_NANO_DIR = src_nano
 OBJ_DIR = obj
@@ -901,7 +909,7 @@ test-wrapper-gen: nano_virt $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJE
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/nanovirt/test_wrapper_gen
 	@rm -f tests/nanovirt/test_wrapper_gen
-	@python3 -m unittest tests.test_wrapper_publication
+	@python3 -m unittest tests.test_wrapper_publication tests.test_product_instrument_link_flags
 
 # ── NanoVM Daemon (vmd) objects ───────────────────────────────────────────────
 VMD_SOURCES = $(NANOVM_DIR)/vmd_protocol.c $(NANOVM_DIR)/vmd_client.c $(NANOVM_DIR)/vmd_server.c
@@ -1035,7 +1043,7 @@ $(OBJ_DIR)/nanovirt/%.o: $(NANOVIRT_DIR)/%.c $(NANOVIRT_DIR)/codegen.h $(NANOVIR
 
 # I retain the same optional OpenSSL library directory as my compiler link,
 # including when callers override CFLAGS or LDFLAGS.
-WRAPPER_INSTRUMENT_FLAGS = $(sort $(filter -fsanitize=% -fprofile-arcs -ftest-coverage --coverage,$(CFLAGS) $(LDFLAGS)))
+WRAPPER_INSTRUMENT_FLAGS = $(NANO_PRODUCT_INSTRUMENT_LINK_FLAGS)
 $(OBJ_DIR)/nanovirt/wrapper_gen.o: $(NANOVIRT_DIR)/wrapper_gen.c $(NANOVIRT_DIR)/wrapper_gen.h $(SRC_DIR)/shell_path.h Makefile.gnu | $(OBJ_DIR)/nanovirt
 	$(CC) $(CFLAGS) $(if $(OPENSSL_PREFIX),-DNANO_WRAPPER_CRYPTO_DIR='"$(OPENSSL_PREFIX)/lib"') -DNANO_WRAPPER_INSTRUMENT_FLAGS='"$(WRAPPER_INSTRUMENT_FLAGS)"' -c $< -o $@
 
