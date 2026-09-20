@@ -14,8 +14,13 @@ that proof. Known constructed variants prune their impossible edge rather than
 rejecting an unreachable source-order arm. Locals, calls, results and joins keep
 the concrete layout and conservatively forget only variant refinement.
 
-My ownership verifier admits the bounded union opcodes only after version 3
-metadata validates. A scalar-union constructor counts as the refcounted runtime
+My ownership verifier admits the bounded union opcodes only after the shared
+version-3 envelope and its `UNION_VARIANTS` extension validate. The envelope
+bounds the unchanged version-2 path encoding with `path_bytes`, then carries
+ordered mandatory-understanding extensions. Kind 1 is `UNION_VARIANTS` and
+kind 2 is reserved for the independently owned `ARRAY_FIELDS` validator. The
+current common reader refuses kind 2 rather than projecting only the union
+facts. A scalar-union constructor counts as the refcounted runtime
 transfer it creates. I keep version 3 scalar-union modules out of the unrelated
 owner-ARRAY route. Generated native C retains and releases union carriers,
 records layout, variant and payload count at construction, validates returned
@@ -48,7 +53,9 @@ modified:
 
 ```text
 make -j8 test-ownership-contracts
-  PASS: 177 ownership-contract checks
+  PASS: 185 ownership-contract checks, including bounded v2 paths inside v3,
+        exact extension framing, zero padding, ordering, uniqueness,
+        mandatory-understanding revisions/kinds and held ARRAY_FIELDS refusal
 
 make -j8 test-affine-bytecode
   PASS: 503 ordinary affine-bytecode checks
@@ -67,6 +74,8 @@ make -j8 test-affine-scalar-union-runtime
 
 make -j8 test-affine-scalar-union-source
   PASS: one owner-transfer graph emits two distinct concrete union layouts
+  PASS: producer bytes contain the bounded v2 path suffix and framed
+        UNION_VARIANTS kind 1/revision 1 payload
   PASS: the assembled artifact verifies and executes in NanoVM
   PASS: the dump retains both concrete spellings
   PASS: generated C compiles with -Wall -Wextra -Werror and Homebrew LLVM 23 ASan/UBSan/LSan

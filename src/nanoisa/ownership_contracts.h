@@ -5,7 +5,11 @@
 
 #define NVM_OWNERSHIP_VERSION 1u
 #define NVM_OWNERSHIP_PATH_VERSION 2u
-#define NVM_OWNERSHIP_UNION_VERSION 3u
+#define NVM_OWNERSHIP_EXTENSION_VERSION 3u
+#define NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS 1u
+#define NVM_OWNERSHIP_EXTENSION_ARRAY_FIELDS 2u
+#define NVM_OWNERSHIP_EXTENSION_REVISION_1 1u
+#define NVM_OWNERSHIP_MAX_EXTENSIONS 2u
 #define NVM_OWNED_MAX_FUNCTIONS 8u
 #define NVM_OWNERSHIP_MAX_PATHS 256u
 #define NVM_OWNERSHIP_MAX_PATH_DEPTH 32u
@@ -46,7 +50,8 @@ NvmV2Result nvm_ownership_layout_authorities(const NvmModule *, uint32_t, NvmLay
  * I leave outputs unchanged on failure. */
 NvmV2Result nvm_ownership_path(const NvmModule *module, uint32_t index,
                                uint16_t *fields, uint16_t capacity, uint16_t *count);
-/* I return one exact concrete-union variant slice from version 3 metadata.
+/* I return one exact concrete-union variant slice from the version-3
+ * UNION_VARIANTS extension.
  * Union ordinals follow retained UNION layout order. Failure leaves *out
  * unchanged. This declaration query alone grants no executable authority. */
 NvmV2Result nvm_ownership_union_variant(const NvmModule *module,

@@ -100,10 +100,13 @@ unique and mandatory-understanding: an unknown kind or revision refuses rather
 than being skipped. A version-3 producer emits at least one extension and uses
 the lowest version that represents its facts.
 
-My current `NVM_OWNERSHIP_UNION_VERSION` name and direct path-plus-union suffix
-are provisional PR893 implementation, not an accepted wire contract. I replace
-them with the shared envelope before production qualification. I do not publish
-two version-3 grammars or claim compatibility with draft-only version-3 bytes.
+The earlier `NVM_OWNERSHIP_UNION_VERSION` name and direct path-plus-union suffix
+were provisional PR893 implementation, not an accepted wire contract. My
+shared reader and producer now use the envelope above. Until the independent
+`ARRAY_FIELDS` validator lands, its recognized kind still refuses as mandatory
+but unsupported; I do not project the union half of a module I cannot completely
+validate. I do not publish two version-3 grammars or claim compatibility with
+the discarded draft-only version-3 bytes.
 
 ## I prove the selected variant before projection
 

@@ -1737,6 +1737,25 @@ shadow nb_union_fact_bytes {
     set nb_strings [] set nb_union_identities [] set nb_union_sources [] set nb_union_layout_base 0
 }
 
+# I retain the exact version-2 path-count/rows encoding as one bounded v3 blob.
+fn nb_path_suffix() -> string {
+    let mut out: string = (nb_hex (array_length nb_paths) 4)
+    let mut i: int = 0
+    while (< i (array_length nb_paths)) {
+        let path: string = (at nb_paths i)
+        set out (+ out (+ (nb_hex (/ (str_length path) 4) 2) (+ "0000" path)))
+        while (!= (% (str_length out) 8) 0) { set out (+ out "00") }
+        set i (+ i 1)
+    }
+    return out
+}
+shadow nb_path_suffix {
+    set nb_paths ["0000", "00000100"]
+    assert (== (nb_path_suffix) "0200000001000000000000000200000000000100")
+    set nb_paths []
+    assert (== (nb_path_suffix) "00000000")
+}
+
 # My visited concrete types bound shared DAGs; budget exhaustion cannot grant admission.
 fn nb_record_has_owner(parser: Parser, record_index: int) -> bool {
     if (< record_index 0) { return false }
@@ -2081,25 +2100,17 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     if (and nb_value_graph (not nb_any_transfer)) { let _: int = (nb_fail "an actual owned transfer in my module") return "" }
     if (> (array_length nb_union_identities) 0) {
         set ownership (+ "03000000" (str_substring ownership 8 (- (str_length ownership) 8)))
-        set ownership (+ ownership (nb_hex (array_length nb_paths) 4))
-        set i 0
-        while (< i (array_length nb_paths)) {
-            let path: string = (at nb_paths i)
-            set ownership (+ ownership (+ (nb_hex (/ (str_length path) 4) 2) (+ "0000" path)))
-            while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
-            set i (+ i 1)
-        }
-        set ownership (+ ownership (nb_union_fact_bytes parser))
+        let paths: string = (nb_path_suffix)
+        let facts: string = (nb_union_fact_bytes parser)
+        set ownership (+ ownership (+ (nb_hex (/ (str_length paths) 2) 4) paths))
+        set ownership (+ ownership "01000000")
+        # UNION_VARIANTS kind 1, revision 1, followed by its bounded payload.
+        set ownership (+ ownership (+ "01000100" (nb_hex (/ (str_length facts) 2) 4)))
+        set ownership (+ ownership facts)
+        while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
     } else { if (> (array_length nb_paths) 0) {
         set ownership (+ "02000000" (str_substring ownership 8 (- (str_length ownership) 8)))
-        set ownership (+ ownership (nb_hex (array_length nb_paths) 4))
-        set i 0
-        while (< i (array_length nb_paths)) {
-            let path: string = (at nb_paths i)
-            set ownership (+ ownership (+ (nb_hex (/ (str_length path) 4) 2) (+ "0000" path)))
-            while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
-            set i (+ i 1)
-        }
+        set ownership (+ ownership (nb_path_suffix))
     } }
     let mut prelude: string = (+ ".types " (+ (int_to_string records) (+ " 0 " (+ (int_to_string (array_length nb_union_identities)) "\n.entry 0\n"))))
     set i 0

@@ -17,10 +17,43 @@ class AffineScalarUnionSource(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
+    def assert_shared_ownership_envelope(self, assembly):
+        line = next(row for row in assembly.splitlines()
+                    if row.startswith('.ownership "'))
+        data = bytes.fromhex(line.split('"')[1])
+        self.assertEqual(int.from_bytes(data[0:4], 'little'), 3)
+        layouts = int.from_bytes(data[4:8], 'little')
+        offset = (8 + layouts + 3) & ~3
+        functions = int.from_bytes(data[offset:offset + 4], 'little')
+        offset += 4
+        for _ in range(functions):
+            locals_count = int.from_bytes(data[offset:offset + 2], 'little')
+            offset += 4 + (locals_count + 1) * 8
+        path_bytes = int.from_bytes(data[offset:offset + 4], 'little')
+        self.assertGreaterEqual(path_bytes, 4)
+        self.assertEqual(path_bytes % 4, 0)
+        offset += 4
+        paths = data[offset:offset + path_bytes]
+        self.assertEqual(len(paths), path_bytes)
+        offset += path_bytes
+        self.assertEqual(int.from_bytes(data[offset:offset + 4], 'little'), 1)
+        offset += 4
+        self.assertEqual(int.from_bytes(data[offset:offset + 2], 'little'), 1)
+        self.assertEqual(int.from_bytes(data[offset + 2:offset + 4], 'little'), 1)
+        payload_bytes = int.from_bytes(data[offset + 4:offset + 8], 'little')
+        offset += 8
+        payload = data[offset:offset + payload_bytes]
+        self.assertEqual(len(payload), payload_bytes)
+        self.assertEqual(int.from_bytes(payload[0:4], 'little'), 2)
+        offset += payload_bytes
+        offset = (offset + 3) & ~3
+        self.assertEqual(offset, len(data))
+
     def test_distinct_instances_verify_and_execute_in_vm_and_native(self):
         with tempfile.TemporaryDirectory(prefix='nano-affine-union-source-') as raw:
             work = Path(raw)
             assembly = self.command(ROOT / 'bin/nanoisa_emit', FIXTURE).stdout
+            self.assert_shared_ownership_envelope(assembly)
             self.assertIn('.types 1 0 2', assembly)
             self.assertIn('AGG_PACK 1 0 0 1', assembly)
             self.assertIn('AGG_PACK 1 1 1 1', assembly)
