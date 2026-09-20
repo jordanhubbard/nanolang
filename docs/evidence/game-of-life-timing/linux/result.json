@@ -1,0 +1,5 @@
+{
+  "head": "69208feaca71fadd9abceacb3c9b1d3a179ee422",
+  "passed": true,
+  "limits": "Cseed strict compilation and selected shadows only; graphical window not run; original regression script deletes its temporary products"
+}

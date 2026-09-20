@@ -1,0 +1,32 @@
+{
+  "nanolang-canonical-full-ca377-puck/sources": {
+    "paths": 3675,
+    "equal": true,
+    "map_sha256": "644e9ea27b339dac65608c733037c7d26e68975b8279b444eb5506381b781d59"
+  },
+  "nanolang-canonical-full-ca377-puck/tools": {
+    "paths": 11,
+    "equal": true,
+    "map_sha256": "f70b75e2531f558d5a37e04dd2fa305e3ea1426427314bbb62d3ed8fac7d0a9b"
+  },
+  "nanolang-canonical-full-ca377-puck/products": {
+    "paths": 900,
+    "equal": true,
+    "map_sha256": "8420021fee40289cf2e4c25e4e53f10ac76f0d429dfa0a4f95ff92d8d5aa7a19"
+  },
+  "nanolang-layout-fixture-e761-puck/sources": {
+    "paths": 3676,
+    "equal": true,
+    "map_sha256": "bc802136462204f1da137b7a100f2ff13afeef8c3ca05c1a4b75d17df7e42a03"
+  },
+  "nanolang-layout-fixture-e761-puck/tools": {
+    "paths": 11,
+    "equal": true,
+    "map_sha256": "d1dd939f43d0b718da007dcb56ba74b83c1989583669c4651a0f0fc0f9f6483e"
+  },
+  "nanolang-layout-fixture-e761-puck/products": {
+    "paths": 1545,
+    "equal": true,
+    "map_sha256": "e0c1995eb2267141fee7cd45a7c093079e8b20047447d6aa9a4467e8fcf973cc"
+  }
+}

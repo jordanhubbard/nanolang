@@ -1,0 +1,25 @@
+{
+  "name": "layout",
+  "argv": [
+    "make",
+    "test-nvm-v2-layouts",
+    "CC=/bin/gcc",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 600,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.3148184190504253,
+  "log": {
+    "sha256": "bac76f2e4010d2598bfaeafb01f3b0228af72b7a77bf45c2228de20d11690ae8",
+    "bytes": 1355,
+    "archive": "/tmp/nanolang-layout-fixture-e761-linux/objects/bac76f2e4010d2598bfaeafb01f3b0228af72b7a77bf45c2228de20d11690ae8"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

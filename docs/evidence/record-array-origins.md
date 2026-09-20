@@ -51,3 +51,14 @@ The Linux and downloaded Darwin CAS roots are
 `/tmp/nanolang-record-array-puck-seal-local`. Original and corrected frozen trees
 remain `/tmp/nanolang-record-array-qualified-55045` and
 `/tmp/nanolang-record-array-qualified-2e9fa` on their respective hosts.
+
+## My ready integration
+
+I integrate actual canonical4b2422ffb in a separate ready tree. Incoming changes
+since ca377 are the Game of Life example, macOS CI selector, the four private
+symbol aliases in the existing layout fixture, and documentation/evidence. No
+compiler/runtime/query provider or Make source list changes. My selected source,
+new fixture and Make bytes remain exact2e9faf477; the integration record preserves
+those hashes. I resolve only the additive roadmap tail, retaining both histories.
+I do not relabel the frozen qualification as execution at the ready commit and
+do not repeat unchanged gates for this documentation/example/CI integration.

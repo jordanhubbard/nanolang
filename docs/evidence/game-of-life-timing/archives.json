@@ -1,0 +1,10 @@
+{
+  "/tmp/nanolang-game-life-linux.tar.gz": {
+    "sha256": "22596a9be626a77e00defad285b5fb6d584ab5cc24a30ce5e75f2ebdd39e7cdc",
+    "bytes": 2091985
+  },
+  "/tmp/nanolang-game-life-puck.tar.gz": {
+    "sha256": "1b88461422a52e5be782e53d6d8efb61f255a70a7f431314170fde9f1668f514",
+    "bytes": 1992560
+  }
+}

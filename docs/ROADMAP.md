@@ -13532,3 +13532,36 @@ unchanged ownership/union/array neighbors pass on both hosts. My
 missing-union-name terminals and the fixture-only correction. This completes
 query evidence pending independent review/actual merge; it grants no mixed
 runtime/source admission and does not close full f36/15f/488 parents.
+
+### Layout fault fixture private-symbol closure (2026-09-20)
+
+- [x] I preserve both canonical ca377 full-suite link failures and record their
+  exact duplicate private decoder symbols before editing the fixture; see
+  [my correction contract](LAYOUT_FAULT_FIXTURE_PRIVATE_SYMBOLS.md), MAC task
+  `task_666ba1fff2e44f398e7960c825011f1a`.
+- [x] I rename only the embedded fault fixture's two private decoder exports,
+  retaining the real provider and every existing assertion.
+- [x] I qualify the corrected layout target and original90-method phase on Linux
+  and puck with verified initial provider reuse, unchanged deadlines and retained
+  terminals. The later full-Make verifier corpus fails separately below.
+
+### Complete verifier corpus after canonical admission repair (2026-09-20)
+
+- [ ] I diagnose and repair the exact typed-U8 addition refusal in
+  `tests/test_u8_basic.nano`: my corrected canonical full Make run passes the
+  original90 methods, then rejects `let c: u8 = (+ b 1)` while compiling shadows.
+  MAC `task_c6b2a040c1434fc784a9d46c02a4981e` retains the first verifier terminal.
+- [ ] I restore the required `list_LexerToken_insert` binding for
+  `tests/token_value_bytes.nano` without deleting insert/set/remove or exact-byte
+  assertions. MAC `task_7b805000dfda4da386b55d4691e8c647` retains the independent
+  undefined-function terminal. Linux selected176, verified174, failed2 and
+  skipped0; I do not call that complete verifier-corpus acceptance.
+- [x] I repair my Game of Life random seed call (`task_f84d2ba77b2fa6490e6bfad25b71b613`). Hosted Darwin strict-example job106078349684 retains a compile failure from my incorrect integer declaration for the pointer argument of C time. I use my existing typed epoch-microsecond API divided to seconds, preserve random-seed behavior and qualify existing strict example/shadow checks on Linux and Darwin without weakening warnings.
+
+- [ ] I preserve allocation errors before writing the scalar-union compiler contract length (`task_59fbb2c526127b4e40867e9222de400a`, PR917). Static review finds a missing error guard after allocation-bearing contract writes; I require guarded backpatching, adjacent-site audit and cleanup/recovery coverage. The owning peer has the finding; independent Linux source acceptance and full5.1 remain open.
+
+My Game of Life timing repair at69208feac passes fresh C-seed builds, all five unchanged strict-example regressions, and a retained direct example compilation on Linux and Darwin. I retain the [original failure and reports](evidence/game-of-life-timing/seal.json). Independent review confirms epoch-second seed granularity. I did not run the graphical window, and this does not close native FFI declaration coverage or full5.1 acceptance.
+
+- [ ] I select a supported native sanitizer compiler in my macOS hosted build (`task_0843b8e173511d75050d15c77d42e5fe`). PR918 job106076903795 fails eight reference transport controls because Apple ASan rejects enabled leak detection. I install Homebrew LLVM and set my existing explicit sanitizer/managed-runtime selectors, retaining ordinary CC, assertions, flags and deadlines. I require workflow validation, actual selected transport checks and observed hosted progress before closing this CI scope; full5.1 remains open.
+
+My proposed macOS CI selector step passes YAML/step-order and Bash syntax validation. Executing that exact step on puck selects Homebrew LLVM and all eight unchanged reference transport tests pass in6.802 seconds with leak detection retained. I preserve the [hosted failure and local result](evidence/macos-ci-native-compiler/source-log.json); actual hosted acceptance remains open under task_0843b8e173511d75050d15c77d42e5fe.

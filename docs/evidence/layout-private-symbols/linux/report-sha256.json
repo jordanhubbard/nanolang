@@ -1,0 +1,510 @@
+{
+  "nanolang-canonical-full-ca377-linux/bootstrap-products-after.json": {
+    "sha256": "1942058da5d4f70eb36db5daff4f9c212c94384c15b5d91f5e92123cdf2080ac",
+    "bytes": 286675
+  },
+  "nanolang-canonical-full-ca377-linux/bootstrap-products-before.json": {
+    "sha256": "9eab577933029dfe9df612e378e95ef2dd5510b03a59e2f27971ce0f416674a4",
+    "bytes": 115178
+  },
+  "nanolang-canonical-full-ca377-linux/bootstrap-sources-after.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/bootstrap-sources-before.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/bootstrap-status.json": {
+    "sha256": "83e7843cbd473735b7604f57b1a51f8650401e20852d2f94101173659db3fdc6",
+    "bytes": 725
+  },
+  "nanolang-canonical-full-ca377-linux/bootstrap-tools-after.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/bootstrap-tools-before.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/bootstrap.log": {
+    "sha256": "699563a6b1ebfeece969b566db2ce760d2414e9af8af4a165a27d4d3029b0bce",
+    "bytes": 27637
+  },
+  "nanolang-canonical-full-ca377-linux/build-products-after.json": {
+    "sha256": "9eab577933029dfe9df612e378e95ef2dd5510b03a59e2f27971ce0f416674a4",
+    "bytes": 115178
+  },
+  "nanolang-canonical-full-ca377-linux/build-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-canonical-full-ca377-linux/build-sources-after.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/build-sources-before.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/build-status.json": {
+    "sha256": "09260ceb702d3467f46b3a9d4156b1eea239d44f85e7375daced14b22c0d1c1d",
+    "bytes": 716
+  },
+  "nanolang-canonical-full-ca377-linux/build-tools-after.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/build-tools-before.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/build.log": {
+    "sha256": "7b240be874a2f21c1bc72825b4efbdd97c14796687c081379388876c3a093d03",
+    "bytes": 29669
+  },
+  "nanolang-canonical-full-ca377-linux/compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-canonical-full-ca377-linux/compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-canonical-full-ca377-linux/compiler-sources-after.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/compiler-sources-before.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/compiler-status.json": {
+    "sha256": "f9b115d29c8aa29f9148c4e840077b82a0e7aba1cd07b4a17320729cbd612488",
+    "bytes": 526
+  },
+  "nanolang-canonical-full-ca377-linux/compiler-tools-after.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/compiler-tools-before.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "nanolang-canonical-full-ca377-linux/environment.json": {
+    "sha256": "10faa76a3235e1271d8cee825de44b29e86db13e30ec7e39c401f8f8f255a460",
+    "bytes": 1195
+  },
+  "nanolang-canonical-full-ca377-linux/full-test-products-after.json": {
+    "sha256": "8016d9e2247d1cd4ae9169f2b6b7c1ec608b67ddd94919a3283c835f343a2c69",
+    "bytes": 327424
+  },
+  "nanolang-canonical-full-ca377-linux/full-test-products-before.json": {
+    "sha256": "1942058da5d4f70eb36db5daff4f9c212c94384c15b5d91f5e92123cdf2080ac",
+    "bytes": 286675
+  },
+  "nanolang-canonical-full-ca377-linux/full-test-sources-after.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/full-test-sources-before.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/full-test-status.json": {
+    "sha256": "98378d0e541f12f41cfc3c20df6e959ba0d8a468475d3851ab07a4aaf811201c",
+    "bytes": 710
+  },
+  "nanolang-canonical-full-ca377-linux/full-test-tools-after.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/full-test-tools-before.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/full-test.log": {
+    "sha256": "d5c75dd6d331a5ae11dd953fdab7badba01cdfb53322eabf0ad4aa63772afad8",
+    "bytes": 391035
+  },
+  "nanolang-canonical-full-ca377-linux/llvm-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-canonical-full-ca377-linux/llvm-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-canonical-full-ca377-linux/llvm-sources-after.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/llvm-sources-before.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/llvm-status.json": {
+    "sha256": "d445c5d8d29b6441584f1435c88df2a71cebb490da7293c55a0358e9e93681b2",
+    "bytes": 534
+  },
+  "nanolang-canonical-full-ca377-linux/llvm-tools-after.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/llvm-tools-before.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "nanolang-canonical-full-ca377-linux/make-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-canonical-full-ca377-linux/make-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-canonical-full-ca377-linux/make-sources-after.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/make-sources-before.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/make-status.json": {
+    "sha256": "542e8c47ffbc190982818748e7bc6bfb12173f1efb72d03b5e4caee684688f22",
+    "bytes": 524
+  },
+  "nanolang-canonical-full-ca377-linux/make-tools-after.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/make-tools-before.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "nanolang-canonical-full-ca377-linux/manifest.json": {
+    "sha256": "dcf8bd17cc24cd8f6c2630a25f0746d5941706f20cfc470714bf3e170c4e231b",
+    "bytes": 5260
+  },
+  "nanolang-canonical-full-ca377-linux/native-compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-canonical-full-ca377-linux/native-compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-canonical-full-ca377-linux/native-compiler-sources-after.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/native-compiler-sources-before.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/native-compiler-status.json": {
+    "sha256": "9872a2bb15aff025cd3624e2db5f8fcff9b0e3b4ae2c81e353f643b26ffa7d5e",
+    "bytes": 534
+  },
+  "nanolang-canonical-full-ca377-linux/native-compiler-tools-after.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/native-compiler-tools-before.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/native-compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "nanolang-canonical-full-ca377-linux/runner.json": {
+    "sha256": "52c81779b95f70ccefbcc0d020d0ad9bf8d6ebd21053afa25ecb993797e636ae",
+    "bytes": 230
+  },
+  "nanolang-canonical-full-ca377-linux/source-initial.json": {
+    "sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186",
+    "bytes": 1182902
+  },
+  "nanolang-canonical-full-ca377-linux/tools-initial.json": {
+    "sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261",
+    "bytes": 3010
+  },
+  "nanolang-canonical-full-ca377-linux/tracked-paths.json": {
+    "sha256": "d71d5a4c0f0bbd11862debcba3d5d1ed0ecc5ca6c2ea849e6279660f232c946d",
+    "bytes": 2927464
+  },
+  "nanolang-layout-fixture-e761-linux/compiler-products-after.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/compiler-products-before.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/compiler-sources-after.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/compiler-sources-before.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/compiler-status.json": {
+    "sha256": "c029d3e7464eb166ba243b6ca7e7b58b6be2abc8f4f80753306a61388f693528",
+    "bytes": 526
+  },
+  "nanolang-layout-fixture-e761-linux/compiler-tools-after.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/compiler-tools-before.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "nanolang-layout-fixture-e761-linux/environment.json": {
+    "sha256": "8733d6e5d21a8163ccb1da2a2c89310791f1c99cc9180695c79e408999fccfdb",
+    "bytes": 1223
+  },
+  "nanolang-layout-fixture-e761-linux/full-test-products-after.json": {
+    "sha256": "2de1e39b9f3c27cafadf91985b9cb38e38070088b408e5f701a15f0222835058",
+    "bytes": 732041
+  },
+  "nanolang-layout-fixture-e761-linux/full-test-products-before.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/full-test-sources-after.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/full-test-sources-before.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/full-test-status.json": {
+    "sha256": "a197804ece29d865703a2994767159ca77a050cc56e9ea28aa35bd6263169ddd",
+    "bytes": 708
+  },
+  "nanolang-layout-fixture-e761-linux/full-test-tools-after.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/full-test-tools-before.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/full-test.log": {
+    "sha256": "45631110b9539ec1a9fa0329035ec96d640d35081d05e7d176ed3eaa9487c4df",
+    "bytes": 453970
+  },
+  "nanolang-layout-fixture-e761-linux/layout-products-after.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/layout-products-before.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/layout-sources-after.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/layout-sources-before.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/layout-status.json": {
+    "sha256": "08e287aa1a0b2b125ad30dbeecafec42aa61ae36f2de516ffc625c5b2e9a7c16",
+    "bytes": 718
+  },
+  "nanolang-layout-fixture-e761-linux/layout-tools-after.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/layout-tools-before.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/layout.log": {
+    "sha256": "bac76f2e4010d2598bfaeafb01f3b0228af72b7a77bf45c2228de20d11690ae8",
+    "bytes": 1355
+  },
+  "nanolang-layout-fixture-e761-linux/llvm-products-after.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/llvm-products-before.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/llvm-sources-after.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/llvm-sources-before.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/llvm-status.json": {
+    "sha256": "9a220ee278b9915363bf086a42dc6b050788d5b5335c24624760a0c77424472e",
+    "bytes": 533
+  },
+  "nanolang-layout-fixture-e761-linux/llvm-tools-after.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/llvm-tools-before.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "nanolang-layout-fixture-e761-linux/make-products-after.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/make-products-before.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/make-sources-after.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/make-sources-before.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/make-status.json": {
+    "sha256": "91890e214b6fbfe1f577a37dc26af3096f4d46ce0aab02f49920f94f6e4f4160",
+    "bytes": 522
+  },
+  "nanolang-layout-fixture-e761-linux/make-tools-after.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/make-tools-before.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "nanolang-layout-fixture-e761-linux/manifest.json": {
+    "sha256": "f4d108a207b0aa7d6670ca71df4cc31f1198092bbff8db97832d04531221ecdd",
+    "bytes": 4462
+  },
+  "nanolang-layout-fixture-e761-linux/native-compiler-products-after.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/native-compiler-products-before.json": {
+    "sha256": "b892ab12bf152136cfa911a195e23809b7bcdff4ff53e20bdcdc2668cd565cf5",
+    "bytes": 339267
+  },
+  "nanolang-layout-fixture-e761-linux/native-compiler-sources-after.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/native-compiler-sources-before.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/native-compiler-status.json": {
+    "sha256": "a206c0640b6c8b6ddf631fb24656f2d0757fefb387b8c3e7ff142b28e824f9a8",
+    "bytes": 533
+  },
+  "nanolang-layout-fixture-e761-linux/native-compiler-tools-after.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/native-compiler-tools-before.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/native-compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "nanolang-layout-fixture-e761-linux/runner.json": {
+    "sha256": "00d090d6737be9be19fd9aa29e79b5c0d579d12f62717519b440961ccd2e855b",
+    "bytes": 229
+  },
+  "nanolang-layout-fixture-e761-linux/source-initial.json": {
+    "sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac",
+    "bytes": 1231023
+  },
+  "nanolang-layout-fixture-e761-linux/tools-initial.json": {
+    "sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf",
+    "bytes": 2999
+  },
+  "nanolang-layout-fixture-e761-linux/tracked-paths.json": {
+    "sha256": "3f243b3f48acdf365805e48a7cc3a175901f758bd98a17fe8675716b6344bc4b",
+    "bytes": 2927514
+  },
+  "nanolang-layout-fixture-e761-linux-reuse-corrected/reuse.json": {
+    "sha256": "4e834dd7334bf338b7dfa2ba303c198ace49e7a9dd9d5612293ba9af19ce850b",
+    "bytes": 594351
+  },
+  "nanolang-layout-fixture-e761-linux-reuse-corrected/runner.py": {
+    "sha256": "184e9ea3f1602db5d23b34ab510428e887d2438721e57d50b32da075165ab3ed",
+    "bytes": 2490
+  },
+  "verifier-corpus.json": {
+    "sha256": "56fca6b36cc9944b5f1656b5ff89832cdaeabd819a5ac8d7780f54440c71c1cb",
+    "bytes": 148169
+  },
+  "extras/run-canonical-full-ca377.py": {
+    "sha256": "82a47355cc047c89011102800cb9844e2e42c505237f5e38727693f5693e11cf",
+    "bytes": 5670
+  },
+  "extras/run-layout-fixture-corrected.py": {
+    "sha256": "d3acad1b898e9056823b1615b8a3771a7d810b603efeb76ddf23ef74bb8ef72c",
+    "bytes": 5657
+  },
+  "extras/prepare-layout-fixture-reuse-first.py": {
+    "sha256": "fecff8e3382f7fd032096bf9777608664329a1b3f2519c1d956758c740e193b4",
+    "bytes": 2410
+  },
+  "extras/prepare-layout-fixture-reuse.py": {
+    "sha256": "184e9ea3f1602db5d23b34ab510428e887d2438721e57d50b32da075165ab3ed",
+    "bytes": 2490
+  },
+  "extras/layout-reuse-copy-correction.diff": {
+    "sha256": "778b1d403fd7deb0b4b83ae9b3ab75afa4f49b517a1665245234e6a2890e0448",
+    "bytes": 1385
+  },
+  "extras/layout-reuse-first-preflight.json": {
+    "sha256": "2ebb34692057ea2b49c6211318c33e500681b43b245d5753c9f2f488f9dfc5d3",
+    "bytes": 553
+  },
+  "extras/nanolang-layout-e761-linux-copy.log": {
+    "sha256": "debc1d60628b13a8fb6b65f714dd6781164beb1facbd5283b90cf9294bf45529",
+    "bytes": 15
+  },
+  "current-inputs.json": {
+    "sha256": "df1a358ad3b14e0d2ccd28fc6d3ef6aff6e719ccb02a5e3c94a7dccb57defc4b",
+    "bytes": 1067
+  }
+}
