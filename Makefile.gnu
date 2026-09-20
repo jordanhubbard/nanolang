@@ -1062,6 +1062,20 @@ test-nanovirt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON
 	@./tests/nanovirt/test_codegen
 	@rm -f tests/nanovirt/test_codegen
 
+$(OBJ_DIR)/nanovirt/codegen_contract_allocation.o: $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/codegen.h | $(OBJ_DIR)/nanovirt
+	$(CC) $(CFLAGS) -DNANOVIRT_TEST_CONTRACT_REALLOC -c $< -o $@
+
+.PHONY: test-borrow-contract-allocation
+test-borrow-contract-allocation: $(OBJ_DIR)/nanovirt/codegen_contract_allocation.o $(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_borrow_contract_allocation \
+		tests/nanovirt/test_borrow_contract_allocation.c $(OBJ_DIR)/nanovirt/codegen_contract_allocation.o \
+		$(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_borrow_contract_allocation
+	rm -f $(OBJ_DIR)/test_borrow_contract_allocation
+
+test-units: test-borrow-contract-allocation
+
 nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o | bin
 	$(CC) $(CFLAGS) -o bin/$@ $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(LDFLAGS)
@@ -4816,7 +4830,7 @@ test-affine-scalar-union-runtime: test-affine-bytecode nano_vm nvm2c
 
 .PHONY: test-affine-scalar-union-source
 test-units: test-affine-scalar-union-source
-test-affine-scalar-union-source: nanoisa_emit nano_vm nvm2c nanoisa_dump
+test-affine-scalar-union-source: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_affine_scalar_union_source
 
 .PHONY: test-legacy-float-conversion
