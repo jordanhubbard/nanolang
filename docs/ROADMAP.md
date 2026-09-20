@@ -13666,6 +13666,102 @@ objects and59 equal source/tool pairs. This is manual core/module adapter
 acceptance, not generated mixed execution or public/source admission. I await
 independent review and actual merge under task621; full mixed parents stay open.
 
+### My generated mixed record-array conjunction after PR928
+
+I continue from actual928 mergead0080eb under existing f36b/15f/488. My
+[implementation contract](NANOISA_MIXED_GENERATED_CONJUNCTION.md) keeps the
+qualified query and counted adapter evidence non-admitting until all generated
+consumers agree. I preserve full applicable mixed graph/source requirements.
+
+- [ ] I review and implement a bounded copied execution plan with exact
+  declarations/origins/decoded edges/maxima and an exhaustive root-operation
+  table; qualify lifetime, budgets, copied inputs and failure-atomic publication.
+- [ ] I review and implement matched private VM, real generated C, native LLVM
+  and Wasm execution, preserving alias transactions, caller roots, safe points,
+  first-error cleanup, globals and actual runtime ABI agreement.
+- [ ] I qualify complete generated differential programs, allocation faults,
+  optimized/unoptimized targets, repeated finite-memory lifetimes, old neighbors
+  and installed package closure before changing public selection.
+- [ ] I review and qualify fresh service-first public verification/admission and
+  whole-table serializer/linker/bridge preservation, with no selected fallback.
+- [ ] I implement paired declaration-based source publication/lowering, fresh
+  bootstrap and full original programs/shadows; then complete executed unions,
+  nested/recursive nominal collections and all remaining full parent obligations.
+
+Before generated-plan source work I correct my proposed dynamic frame cap to
+the existing VM_MAX_FRAMES1024 contract after root review. The256 preparation
+function-count bound is distinct. My generated consumers require explicit
+bounded frame storage, not unproved host recursion or a narrower256-frame route.
+
+I prepare the first copied non-admitting generated execution-plan source: exact
+snapshot/defined-field comparison,92 explicit opcode recipes and copied stack
+maxima/edges, bounded work/memory and failure-atomic getters. All old query
+wrappers pass NULL for new internal stack export, preserving their allocation
+shape/counter path. No public/runtime consumer calls this API. I submit source
+for independent review before fixtures, compilation or execution; CAST_U8's
+separate pending backend expansion needs an explicit later recipe, not fallback.
+
+I record the independent c39caf initializer-identity finding before correction:
+my new plan compares a counted eight-byte __init__ name, but existing analysis
+and consumers use C-string comparison. A counted name with embedded NUL could
+therefore disagree. Under existing f36b/15f/488 I explicitly refuse embedded
+NUL function names in this new preparation before analysis, preserve all old
+wrappers and require a counted-name refusal/control fixture before execution.
+
+I prepare the copied execution-plan fixture checkpoint after source review:
+full old origin controls, owned snapshot independence, exact initializer/counted
+NUL boundary, all getters and original bytes,256/257 functions,4096/4097 strings,
+all92 opcode recipes/decoded rows and65536/65537 internal instruction counts.
+I distinguish decoder-only rows from whole-query admission. Combined copy domains
+receive measured one-shot/persistent allocation-prefix failures with fresh
+recovery; exact wrapper byte/work/overflow guards and old verifier decisions
+remain required. The new one-method runner rebuilds seven selected query
+providers, clears LSAN_OPTIONS and retains bounded terminal evidence. No fixture
+has been compiled or executed; I request complete fixture review before gates.
+
+I strengthen the valid combined-plan allocation sweep after fixture review:
+every injected failure must return exactly MEMORY, preserve output/input and
+leave zero tracked objects/bytes before independent recovery. INVALID, LIMIT or
+UNRESOLVED cannot hide a malformed fixture or incorrect allocation classification.
+I retain the unchanged old origin corpus and its historical assertions separately.
+
+### My copied-plan allocation classification prerequisite (task676858)
+
+I preserve frozen16767e0c1's first Linux terminal. Fresh setup/configuration and
+one-test discovery pass; linked preparation passes2792 checks. Instrumented old
+origin controls pass1290 checks/40 allocation sites and the new92-opcode controls
+pass, then one-shot allocation18 returns UNRESOLVED instead of required MEMORY.
+The retained diagnostic is not a malformed-input or runtime-admission failure.
+Darwin inputs were transferred but not executed after this known terminal.
+
+The existing private layout API explicitly conflates actual truncated wire and
+allocation refusal as NVM_V2_ERR_TRUNCATED. Complete declaration preparation maps
+that result to UNKNOWN, then origin/preparation maps it to UNRESOLVED. I retain
+all old decoder results and allocation ordering. Before repair I specify a new
+private detailed mixed-layout entry with an explicit allocation-failed output,
+set only at actual allocation failures in the existing common decoder/forward
+workspace. Complete mixed declaration preparation maps that fact to MEMORY;
+real truncation and every admission decision remain unchanged. Existing legacy
+public/ordinary wrappers pass no detail sink. The codec's embedded fixture copy
+must rename the new exported symbol as well as its existing aliases.
+
+- [ ] I review this status-only source correction and meaningful detailed-reader
+  controls before fresh corrected providers and the complete query matrix.
+- [ ] I retain exact MEMORY, output/input preservation, zero live payload and
+  independent recovery at every measured failure prefix; no broad status waiver.
+
+
+I retain both429da host first terminals: setup/config/discovery and linked2792 checks pass, then the instrumented fixture fails strict compilation because direct mixed-layout controls omitted ownership_layouts_private.h. Production providers compile. I add only the defining private header to the fixture; no prototype invention, warning suppression, predicate change or runtime result is inferred. Fresh corrected gate remains required.
+
+I finish the copied non-admitting execution-plan qualification at frozen c032c:
+all seven selected compiler configurations and both hosts' named neighbors pass.
+Linked2792/observed6377 controls include94 exact-MEMORY allocation positions with
+one-shot/persistent cleanup and independent recovery. I preserve first16767
+UNRESOLVED and both429da missing-header compile terminals. The cumulative seal
+retains577 reports/1240 objects/19073 references/114 equal source-tool pairs.
+This is a preparation milestone only; runtime/public/source parents remain open.
+I submit committed evidence for independent audit before integration/merge.
+
 - [x] I implement generated CAST_U8 semantics after raw PR929 under task_c6b2a040c1434fc784a9d46c02a4981e: exact tagged native C facts/emission and LLVM/Wasm INT-or-U8 narrowing, matching closed-profile/shape transfer, wrong-tag/root cleanup, complete cross-target fixtures and both-host qualification. My [backend checkpoint](NANOISA_CAST_U8_BACKENDS.md) keeps source/reconstruction and separate authority work required.
 
 - [x] I preserve exact INT/U8 native branch carriers before conversion (task_56f2d585ba954a789ceb2afd67efd4ed). My first generated-byte gate refused a verified join; both arms must execute with exact tags after a finite carrier correction.
@@ -13790,3 +13886,37 @@ The same task_fd77704bbf3747e980cceb5888bf2ab7 also covers identifier reads: sta
 - [ ] I correct static byte-source fixture blockers under task_c6b2a040c1434fc784a9d46c02a4981e before discovery: imported TestCase exposes five unintended methods; captured assignment must change its observable byte; the unchanged original byte program narrows only in its separately executed shadow and must not require a CAST_U8 in production main. I retain seven intended methods, original shadow policy and unchanged original source bytes.
 
 - [ ] I preserve the computed-U8 result conversion before Nano tail-call selection under task_c6b2a040c1434fc784a9d46c02a4981e. Static complete-return audit found the Nano direct/inline return shortcuts bypass nisa_emit_expected_expr. A computed INT-returning call in a U8-returning function must emit the call once, CAST_U8 and RET; only an exact U8 result may retain its existing tail route.
+
+### My copied execution-plan integration after actual PR932
+
+I integrate actual byte merge128d5cd2 into a separate ready tree, preserving
+qualified c032c and its original seven-configuration seal. The byte transfer
+now includes CAST_U8, so my exhaustive recipe inventory must include its exact
+no-allocation scalar operation before the new preparation can qualify here.
+I preserve both additive Make targets and all File parser code from canonical.
+
+- [ ] I review the explicit93rd recipe, independent full numeric inventory and
+  a whole-query INT/U8 conversion feeding a declared U8 array field. I retain
+  checked tags and first-error cleanup without safepoints or allocation flags.
+- [ ] I qualify fresh ordinary current providers, complete execution-plan/origin
+  controls and unchanged ownership, union, array and actual layout neighbors on
+  Linux and Darwin. I retain exact source/tool/product endpoints and first
+  terminals; original sanitizer results remain attributed to c032c.
+- [ ] I land this preparation dependency after independent evidence review, then
+  continue matched VM/native/LLVM/Wasm execution and full graph/source acceptance.
+  I do not close f36b/15f/488 with a copied descriptive plan.
+
+I preserve both f093 first integration terminals before correction. Fresh setup,
+configuration and discovery pass; linked C2823 and observed C6420 assertions pass,
+including93 recipes and94 one-shot/persistent allocation positions. The Python
+wrapper then still requires the old92-recipe output string. I update only that
+expected count to the independently enumerated93, retain both failures and all
+C predicates, and require fresh corrected ordinary query plus unrun neighbors.
+
+I complete the fresh b87bb ordinary integration on both hosts:20 phases each,
+linked2823/observed6420 query controls,93 recipes and all named neighbors pass.
+I retain both f093 Python count failures and their passing C controls separately.
+The supplemental seal preserves880 objects/15982 references/96 equal pairs;
+current3716-source inventories and actual lib/provider products are rehashed.
+I submit the ready PR for independent audit. Full mixed execution and source
+parents remain open; original c032c sanitizer attribution is unchanged.
