@@ -13597,3 +13597,13 @@ linkage. I retain both true fault modes, requested-byte peak accounting and
 fresh recovery, all five tags and1024 entry lifetimes. I submit this complete
 fixture before execution; public admission and generated/source consumers remain
 unimplemented under the full parent.
+
+I preserve the first counted-runtime3c0b Linux setup terminal before correction:
+make exits2 in0.114 seconds because the external driver requested nonexistent
+`nanoisa` rather than my declared `nanoisa_dump` target. No fixture compiled or
+executed. Concurrent canonical `embed_managed_native.py` also updates tracked
+`managed_native_source.h` for approved testing hooks; source before/after maps
+retain that sole drift. Under task621 I synchronize that generated header using
+its canonical generator and correct only the external target selection before
+fresh setup. This is a setup/input prerequisite, not a demonstrated runtime
+product failure. Puck Wasmtime selection remains a separate unmet tool route.
