@@ -232,3 +232,59 @@ an interpreter dispatch table. Integer operations are selected at emission time.
 I have not built the emitter or executed generated C at this checkpoint. The
 complete source review precedes fixtures and their independent review; no test
 result is claimed by this source inspection.
+
+## My prepared fixture checkpoint
+
+I reuse the complete existing private VM corpus with three default-preserving
+fixture macros: execute function, entry name and printed target label. Original
+programs, expected scalar values, status/site checks, allocation/host counters and
+all carrier/frame assertions remain unchanged. The ordinary VM test uses the
+same original defaults. I do not call a generated-native run a VM dispatch pass.
+
+A first instrumented/linked capture runs those actual VM assertions and records
+each distinct immutable serialized case (bounded at 512). Capture bookkeeping
+uses separate libc storage, outside the project fault budget. Only after the
+corpus finishes does offline emission write each successful C translation unit.
+It retains failed-emission cases and exact sentinels; no refused source is
+compiled. Capture is itself a newly authorized gate, not evidence I already have.
+
+The native replay registry compares complete case bytes and calls the associated
+separately compiled generated function. It contains no opcode decoder or fallback
+interpreter. An unrecorded nonnull case aborts the fixture. Malformed/unsupported
+cases run the emitter refusal again, with unchanged output, and are explicitly
+emission-phase controls rather than native invocation of an invalid artifact.
+The full native corpus retains copied-fact VM unit controls in its harness; a
+separate minimal linked executable omits the private VM object and fixture
+interpreter entirely, and its symbol inspection must find no private VM entry.
+
+Generated units at O0/O2 route begin/call/return/service through thin fixture
+bridges to the unchanged real carrier functions and existing generation hooks.
+The old scratch-generation, argument/return partial-transfer, handled-close
+initializer suppression, modeled I/O, first/secondary cleanup and post-begin
+allocation-ban assertions therefore run against actual generated native calls.
+The native prebegin allocation sweep also keeps the exact original assertions;
+it may have a different number of allocation attempts than VM preparation.
+
+Separate emitter prefix/transient sweeps preserve prior C-output sentinels, zero
+host acquisition and restored tracked allocation baselines; a terminal attempt
+without an injected failure is required. Output extent arithmetic is a private
+unit test at the 128MiB boundary, not a claimed constructible valid huge module.
+Actual native prebegin controls compile deliberate revision-2 and startup-fact
+mismatch artifacts, require UNRESOLVED, no acquired context and unchanged scalar
+output at O0/O2. Plain isolated execution checks the original first numeric case,
+INT64_MAX+1 producing INT64_MIN. No fixture silently substitutes a different
+program to obtain success.
+
+The runner retains every command, stdout/stderr, status, generated-source hash,
+provider object and binary in a fresh directory. It explicitly rebuilds selected
+hosted/NSI/carrier/native-emitter/VM-sentinel providers, but labels remaining
+common objects ordinary. Each compile/run has a 240-second bound. Linux GCC and
+Clang and Darwin Apple/Homebrew selections are explicit; ASan/UBSan/leak options
+and an empty LSAN_OPTIONS are retained. Qualification setup records the full
+current canonical provider closure, SDK/libffi/OpenSSL and actual executables
+before any phase. Existing original VM/frame and opcode/public refusal neighbors
+remain required, without attributing older sanitizer seals to new providers.
+
+At this checkpoint I have only parsed the Python runner and checked whitespace.
+No provider, capture fixture, emitter or generated program has been compiled or
+executed. Independent complete fixture review precedes frozen qualification.
