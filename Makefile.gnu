@@ -5635,3 +5635,11 @@ $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DI
 .PHONY: test-portable-read-wasm
 test-portable-read-wasm:
 	python3 -m unittest -f -v tests.test_portable_read_wasm
+
+# I keep the ordinary admission observer inside its own VM translation unit.
+.PHONY: test-vm-ordinary-admission
+test-vm-ordinary-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	ORDINARY_ADMISSION_CC='$(CC)' \
+	ORDINARY_ADMISSION_OBJECTS='$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)' \
+	ORDINARY_ADMISSION_LDFLAGS='$(LDFLAGS)' \
+	python3 -m unittest tests.test_vm_ordinary_admission
