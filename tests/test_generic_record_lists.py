@@ -127,6 +127,53 @@ class GenericRecordLists(unittest.TestCase):
         for name in ('mutations', 'staging', 'imported', 'escape', 'async'):
             self.command('evaluator-' + name, [self.programs, 'escape' if name == 'escape' else 'program', FIXTURES / (name + '.nano')])
 
+    def test_deferred_foreign_declarations(self):
+        self.command('foreign-identity-facts', [self.programs, 'foreign-facts'])
+        directory = self.work / 'foreign-declarations'; directory.mkdir()
+        contracts = directory / 'contracts.nano'
+        contracts.write_text('module Contracts\nextern struct NativeHolder { tokens: List<NativeToken> }\n')
+        tokens = directory / 'tokens.nano'
+        tokens.write_text('module Tokens\npub extern struct NativeToken { value: int }\n')
+        self.command('foreign-pending', [self.programs, 'declarations-pending', contracts])
+        # The importer supplies the extern only after the imported pending field.
+        importer = directory / 'importer.nano'
+        importer.write_text(f'module Tokens\nimport "{contracts}"\nextern struct NativeToken {{ value: int }}\n')
+        self.command('foreign-importer-forward', [self.programs, 'declarations-resolved', importer])
+        for order, modules in enumerate(((contracts, tokens), (tokens, contracts))):
+            source = directory / f'order-{order}.nano'
+            source.write_text(''.join(f'import "{module}"\n' for module in modules))
+            self.command(f'foreign-order-{order}', [self.programs, 'declarations-resolved', source])
+        aliased = directory / 'aliased.nano'
+        aliased.write_text(f'import "{tokens}" as native\nextern struct NativeHolder {{ tokens: List<native.NativeToken> }}\n')
+        self.command('foreign-alias', [self.programs, 'declarations-alias', aliased])
+        # I do not turn an unrelated ordinary spelling into foreign authority.
+        ordinary = directory / 'ordinary.nano'
+        ordinary.write_text('module Ordinary\npub struct NativeToken { value: int }\n')
+        unrelated = directory / 'unrelated.nano'
+        unrelated.write_text(f'import "{contracts}"\nimport "{ordinary}"\n')
+        self.command('ordinary-not-foreign', [self.programs, 'declarations-pending', unrelated])
+        for other in (ordinary, directory / 'competing.nano'):
+            if other != ordinary:
+                other.write_text('module Competing\nextern struct NativeToken { value: int }\n')
+            for order, modules in enumerate(((tokens, other), (other, tokens))):
+                source = directory / f'collision-{other.stem}-{order}.nano'
+                source.write_text(''.join(f'import "{module}"\n' for module in modules))
+                _, err = self.command('foreign-collision', [self.programs, 'declarations-import-refuse', source])
+                self.assertIn(b'colliding foreign record declarations', err)
+        unresolved = directory / 'use.nano'
+        unresolved.write_text(f'import "{contracts}"\nfn main() -> int {{ let xs: List<NativeToken> = (list_NativeToken_new) return 0 }}\nshadow main {{ assert true }}\n')
+        _, err = self.command('pending-value-refused', [self.programs, 'declarations-refuse', unresolved])
+        self.assertIn(b"Unknown type 'NativeToken'", err)
+        self.assertNotIn(b'specialization collision', err)
+        ordinary_missing = directory / 'ordinary-missing.nano'
+        ordinary_missing.write_text('struct Holder { values: List<MissingRecord> }\n')
+        _, err = self.command('ordinary-field-unresolved', [self.programs, 'declarations-refuse', ordinary_missing])
+        self.assertIn(b"cannot resolve this list's exact record declaration", err)
+        self.assertNotIn(b'specialization collision', err)
+        # Ordinary same-module forward collection also needs both checker routes.
+        forward = 'struct Holder { values: List<Element> }\nstruct Element { value: int }\nfn main() -> int { let xs: List<Element> = (list_Element_new) return 0 }\nshadow main { assert (== (main) 0) }\n'
+        self.source_routes('ordinary-forward-list', forward)
+
     def test_real_cache_generations_and_private_compiler(self):
         # I use the actual private compiler, including a fresh missing-input path.
         module = self.work / 'cache-input.nano'

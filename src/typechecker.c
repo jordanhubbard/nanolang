@@ -850,6 +850,12 @@ static bool check_nominal_contract(Environment *env, Type type, const TypeInfo *
 }
 
 static bool checked_list_instantiation(Environment *env, const char *name, int line, int column) {
+    if (!env_nominal_identity(env, name, env->current_module, TYPE_STRUCT).ordinal) {
+        emit_context_error("E001 TYPE MISMATCH", line, column, 1,
+            "I cannot resolve this list's exact record declaration.",
+            "Declare the record before value use; a pending extern field grants no value authority.");
+        return false;
+    }
     if (env_register_list_instantiation(env, name)) return true;
     emit_context_error("E001 TYPE MISMATCH", line, column, 1,
         "I cannot register this list's exact declaration without a specialization collision.",
@@ -8074,11 +8080,6 @@ bool type_check(ASTNode *program, Environment *env) {
             sdef.field_element_types = malloc(sizeof(Type) * sdef.field_count);
             for (int j = 0; j < sdef.field_count; j++) {
                 sdef.field_element_types[j] = item->as.struct_def.field_element_types[j];
-                
-                /* Register generic list instantiation for List<T> fields */
-                if (sdef.field_types[j] == TYPE_LIST_GENERIC && sdef.field_type_names[j] != NULL) {
-                    checked_list_instantiation(env, sdef.field_type_names[j], item->line, item->column);
-                }
             }
             
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
@@ -8497,8 +8498,20 @@ register_function_pass1:;
         StructDef *definition = &env->structs[record];
         char *saved_module = env->current_module;
         env->current_module = definition->module_name;
-        for (int field = 0; definition->field_type_info && field < definition->field_count; ++field)
-            register_native_union_context(env, definition->field_type_info[field], 0);
+        for (int field = 0; field < definition->field_count; ++field) {
+            if (definition->field_type_info)
+                register_native_union_context(env, definition->field_type_info[field], 0);
+            if (definition->field_types && definition->field_type_names &&
+                definition->field_types[field] == TYPE_LIST_GENERIC && definition->field_type_names[field]) {
+                const char *element = definition->field_type_names[field];
+                /* Imported extern contracts can refer to declarations supplied
+                 * by their importer. I revisit these facts after each complete
+                 * collection, without publishing unresolved specializations. */
+                if (!definition->is_extern ||
+                    env_nominal_identity(env, element, env->current_module, TYPE_STRUCT).ordinal)
+                    checked_list_instantiation(env, element, 0, 0);
+            }
+        }
         env->current_module = saved_module;
     }
 
@@ -8933,11 +8946,6 @@ bool type_check_module(ASTNode *program, Environment *env) {
             sdef.field_element_types = malloc(sizeof(Type) * sdef.field_count);
             for (int j = 0; j < sdef.field_count; j++) {
                 sdef.field_element_types[j] = item->as.struct_def.field_element_types[j];
-                
-                /* Register generic list instantiation for List<T> fields */
-                if (sdef.field_types[j] == TYPE_LIST_GENERIC && sdef.field_type_names[j] != NULL) {
-                    checked_list_instantiation(env, sdef.field_type_names[j], item->line, item->column);
-                }
             }
             
             sdef.is_resource = item->as.struct_def.is_resource;  /* Propagate resource flag */
@@ -9259,8 +9267,20 @@ register_function_pass2:;
         StructDef *definition = &env->structs[record];
         char *saved_module = env->current_module;
         env->current_module = definition->module_name;
-        for (int field = 0; definition->field_type_info && field < definition->field_count; ++field)
-            register_native_union_context(env, definition->field_type_info[field], 0);
+        for (int field = 0; field < definition->field_count; ++field) {
+            if (definition->field_type_info)
+                register_native_union_context(env, definition->field_type_info[field], 0);
+            if (definition->field_types && definition->field_type_names &&
+                definition->field_types[field] == TYPE_LIST_GENERIC && definition->field_type_names[field]) {
+                const char *element = definition->field_type_names[field];
+                /* Imported extern contracts can refer to declarations supplied
+                 * by their importer. I revisit these facts after each complete
+                 * collection, without publishing unresolved specializations. */
+                if (!definition->is_extern ||
+                    env_nominal_identity(env, element, env->current_module, TYPE_STRUCT).ordinal)
+                    checked_list_instantiation(env, element, 0, 0);
+            }
+        }
         env->current_module = saved_module;
     }
 

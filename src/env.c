@@ -1038,6 +1038,31 @@ NominalIdentity env_nominal_identity(Environment *env, const char *name,
         declaration_owner = found->module_name;
         declaration_name = dot + 1;
     }
+    /* My extern records inhabit the existing unmangled C type namespace.
+     * I retain the registered declaration's owner and ordinal; I never extend
+     * this rule to an ordinary record merely because its spelling is unique.
+     * The binder rejects these collisions too, but callers can register facts
+     * directly, so I independently refuse competing foreign/ordinary origins. */
+    if (kind == TYPE_STRUCT) {
+        size_t foreign = 0;
+        int matches = 0;
+        for (int i = 0; i < env->struct_count; ++i) {
+            const StructDef *record = &env->structs[i];
+            if ((record->name && !strcmp(record->name, declaration_name)) ||
+                (record->original_name && !strcmp(record->original_name, declaration_name))) {
+                ++matches;
+                if (record->is_extern) foreign = (size_t)i + 1;
+            }
+        }
+        if (foreign) {
+            if (matches != 1) return none;
+            const StructDef *record = &env->structs[foreign - 1];
+            if (!record->name || strcmp(record->name, declaration_name) ||
+                (dot && !nominal_owner_equal(record->module_name, declaration_owner))) return none;
+            NominalIdentity identity = {TYPE_STRUCT, foreign};
+            return identity;
+        }
+    }
     NominalIdentity result = none;
     int count = kind == TYPE_STRUCT ? env->struct_count : kind == TYPE_ENUM ? env->enum_count : env->union_count;
     for (int i = 0; i < count; ++i) {

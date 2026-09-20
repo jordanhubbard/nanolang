@@ -104,3 +104,13 @@ identity. I record its setup migration before editing: declare the record,
 require rejection before declaration and success afterward, and add exact
 registered identity assertions. Every old zero/NULL poison assertion remains.
 No historical failure or successful rerun is claimed for this static migration.
+
+## My first preparation prerequisite
+
+Both b915 make-build attempts stopped before bootstrap and these fixtures at
+compiler_contracts.nano:66. I preserve the complete first reports under the
+paths in NANOISA_LIST_FORWARD_DECLARATIONS.md. The corrected source checkpoint
+has nine methods: the added method inspects actual parsed pending/importer
+extern declarations, both module orders, actual alias resolution and collision
+refusals, plus direct registered ordinal/owner controls. It executes no foreign
+ABI. I retain every earlier assertion and the unchanged full LexerToken gate.

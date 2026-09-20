@@ -55,6 +55,72 @@ static void program(const char *path, bool escape, bool reject) {
     }
     puts("I retained my parsed evaluator result and cleanup assertions.");
 }
+/* I inspect declaration facts without executing an unbound foreign ABI. */
+static void declarations(const char *path, const char *mode) {
+    char *source = read_source(path); int count;
+    Token *tokens = tokenize(source, &count); CHECK(tokens);
+    ASTNode *ast = parse_program(tokens, count); CHECK(ast);
+    Environment *env = create_environment(); ModuleList *modules = create_module_list(); CHECK(env && modules);
+    bool imported = process_imports(ast, env, modules, path);
+    if (!strcmp(mode, "declarations-import-refuse")) CHECK(!imported);
+    else {
+        CHECK(imported); typecheck_set_current_file(path);
+        bool checked = type_check(ast, env);
+        if (!strcmp(mode, "declarations-refuse")) CHECK(!checked);
+        else {
+            CHECK(checked);
+            NominalIdentity token = env_nominal_identity(env, "NativeToken", "Contracts", TYPE_STRUCT);
+            if (!strcmp(mode, "declarations-pending")) {
+                CHECK(!token.ordinal && env->generic_instance_count == 0);
+            } else {
+                CHECK(token.ordinal && env->structs[token.ordinal - 1].is_extern);
+                CHECK(!strcmp(env_nominal_owner(env, token), "Tokens"));
+                if (!strcmp(mode, "declarations-alias"))
+                    CHECK(env_nominal_identity(env, "native.NativeToken", NULL, TYPE_STRUCT).ordinal == token.ordinal);
+                bool found = false;
+                for (int i = 0; i < env->generic_instance_count; ++i) {
+                    GenericInstantiation *instance = &env->generic_instances[i];
+                    if (instance->list_element.kind == TYPE_STRUCT && instance->list_element.ordinal == token.ordinal)
+                        found = true;
+                }
+                CHECK(found);
+            }
+        }
+    }
+    free_environment(env); free_ast(ast); free_tokens(tokens, count);
+    free_module_list(modules); clear_module_cache(); free(source);
+    puts("I checked pending and resolved foreign declaration facts without foreign execution.");
+}
+static void foreign_facts(void) {
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        Environment *env = create_environment(); CHECK(env);
+        StructDef ordinary = {0}, foreign = {0};
+        ordinary.name = strdup("OtherRecord"); ordinary.module_name = strdup("Other");
+        foreign.name = strdup("NativeToken"); foreign.module_name = strdup("Tokens"); foreign.is_extern = true;
+        CHECK(ordinary.name && ordinary.module_name && foreign.name && foreign.module_name);
+        env_define_struct(env, reverse ? foreign : ordinary);
+        env_define_struct(env, reverse ? ordinary : foreign);
+        NominalIdentity token = env_nominal_identity(env, "NativeToken", "Contracts", TYPE_STRUCT);
+        CHECK(token.ordinal == (size_t)(reverse ? 1 : 2));
+        CHECK(!strcmp(env_nominal_owner(env, token), "Tokens"));
+        CHECK(!env_nominal_identity(env, "OtherRecord", "Contracts", TYPE_STRUCT).ordinal);
+        char **exported = calloc(1, sizeof(char *)); CHECK(exported);
+        exported[0] = strdup("NativeToken"); CHECK(exported[0]);
+        env_register_namespace(env, "native", "Tokens", NULL, 0, exported, 1, NULL, 0, NULL, 0);
+        CHECK(env_nominal_identity(env, "native.NativeToken", NULL, TYPE_STRUCT).ordinal == token.ordinal);
+        CHECK(!env_nominal_identity(env, "native.NativeToken", "Elsewhere", TYPE_STRUCT).ordinal);
+        CHECK(!env_nominal_identity(env, "native.Missing", NULL, TYPE_STRUCT).ordinal);
+        /* Direct registrations bypass the AST binder, so the resolver itself
+         * must refuse both ordinary and foreign competing declarations. */
+        StructDef collision = {0}; collision.name = strdup("NativeToken");
+        collision.module_name = strdup("Competing"); collision.is_extern = reverse != 0;
+        CHECK(collision.name && collision.module_name); env_define_struct(env, collision);
+        CHECK(!env_nominal_identity(env, "NativeToken", "Contracts", TYPE_STRUCT).ordinal);
+        CHECK(!env_nominal_identity(env, "native.NativeToken", NULL, TYPE_STRUCT).ordinal);
+        CHECK(!env_register_list_instantiation(env, "NativeToken"));
+        free_environment(env);
+    }
+}
 static void caches(const char *path, const char *object, const char *mode) {
     Environment *a = create_environment(), *b = create_environment(); CHECK(a && b);
     ASTNode *first = load_module(path, a); CHECK(first);
@@ -106,7 +172,10 @@ int main(int argc, char **argv) {
     CHECK(argc >= 2); nano_scheduler_init();
     if (!strcmp(argv[1], "program") || !strcmp(argv[1], "escape") || !strcmp(argv[1], "reject")) {
         CHECK(argc == 3); program(argv[2], !strcmp(argv[1], "escape"), !strcmp(argv[1], "reject"));
-    } else if (!strcmp(argv[1], "callable")) task_callable();
+    } else if (!strncmp(argv[1], "declarations-", 13)) {
+        CHECK(argc == 3); declarations(argv[2], argv[1]);
+    } else if (!strcmp(argv[1], "foreign-facts")) foreign_facts();
+    else if (!strcmp(argv[1], "callable")) task_callable();
     else { CHECK(argc == 4); caches(argv[2], argv[3], argv[1]); }
     return 0;
 }
