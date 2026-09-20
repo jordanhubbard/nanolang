@@ -12695,7 +12695,7 @@ backedges and return in both arena modes. I retain all prior fault predicates
 and distinguish retained creation bytes from an unmeasured preparation peak.
 This bounded fixture addition remains unexecuted pending review.
 
-- [ ] I repair carrier fixture post-refusal root inspection (`1a19c4ff`, parent
+- [x] I repair carrier fixture post-refusal root inspection (`1a19c4ff`, parent
   `15a92`). Frozen `c5d048` Linux setup/configuration passed; its first ordinary
   gate compiled, passed the retained 84,506 carrier and 42,381 frame checks, then
   failed the inherited `frame_local` helper. I preserve the complete terminal
@@ -12706,7 +12706,7 @@ This bounded fixture addition remains unexecuted pending review.
   markers improve later attribution. Production and status predicates remain
   unchanged; root reviews the bounded diff before fresh corrected gates.
 
-- [ ] I retain the historical Git input for my Darwin public neighbor (`task_c4c58d627e7c4611973070666387d06d`, parent15a92). At ac877 my corrected carrier matrix and private neighbors passed; public CLI/instrumented methods passed before the linked method's fixed `git show` failed in an archive without `.git`. Root approved only that uncompleted method with verified read-only historical repository, fixed commit/blob, fresh artifacts and source/tool/provider endpoints. Original terminal and passing scopes remain distinct; no fixture or production changes.
+- [x] I retain the historical Git input for my Darwin public neighbor (`task_c4c58d627e7c4611973070666387d06d`, parent15a92). At ac877 my corrected carrier matrix and private neighbors passed; public CLI/instrumented methods passed before the linked method's fixed `git show` failed in an archive without `.git`. Root approved only that uncompleted method with verified read-only historical repository, fixed commit/blob, fresh artifacts and source/tool/provider endpoints. Original terminal and passing scopes remain distinct; no fixture or production changes.
 
 I qualify the bounded15a92 carrier protocol at ac877 with exact d407 production:
 Linux GCC/Clang and Darwin Apple/Homebrew ordinary plus supported scoped
@@ -12765,3 +12765,14 @@ merges automatically. Both original manifests (444 reports total) remain byte
 exact. This static integration adds no gate rerun or broader acceptance claim.
 The final audit/identity records are in `evidence/file-cyclic-carrier-final`;
 actual merge and bounded repair reconciliation remain pending, full15a92 open.
+
+I record actual PR902 merge `9c90a55e1a08c79878b5219ca34b0c14a883401f`
+after independent original/supplemental seals and additive901 integration review.
+The earlier pending-merge statements are historical. Repairs1a19/c4c58 are
+reconciled COMPLETED through actual merge evidence; dependency2 is measured
+private carrier acceptance only. Task15a92 remains OPEN. Optional queued hosted
+checks are not claimed passed.
+
+- [ ] I review and implement my [private cyclic VM/native dispatch plan](NANOISA_FILE_CYCLIC_DISPATCH_PLAN.md) under15a92: exact all-variant coverage, original identities, one carrier fuel budget, real generated functions/labels and explicit semantic ABI/fact agreement.
+- [ ] I review the complete shared-wire fixtures, then qualify Linux/puck VM/native O0/O2, fuel/host/fault/cleanup and unchanged acyclic/public-refusal neighbors with retained first terminals and source/tool/provider seals.
+- [ ] I review a separate matched public conjunction after private dispatch qualification; closed-indirect, richer-borrow and paired source/shadows remain required, with no old acyclic plan reinterpretation.
