@@ -115,3 +115,11 @@ at the corrected-puck report/log paths. Linux's corrected setup is unaffected.
 I replace shell construction with a retained Python launcher that uses
 json.dumps and an explicit environment mapping. This changes no source, fixture,
 tool selection or deadline; it makes the already reviewed configuration exact.
+
+My final review catches unrelated Make comment damage from my merge-marker
+cleanup: replacing the separator substring also shortened separator comments and
+joined following comment lines. I restore those exact comment-only hunks from
+canonical7bba, verifying every noncomment/nonblank line remains identical to the
+qualified bc45 recipe. No source, target, flags or command order changes. I keep
+all frozen bc45 files and their original hashes; this ready-tree comment-only
+correction does not relabel qualification and does not justify a runtime replay.
