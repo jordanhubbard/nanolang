@@ -109,6 +109,7 @@ C uses `<nanolang/file/nanoisa/file_native_public.h>`; host code uses
 `<nanolang/file/nanoisa/file_public.h>`. The explicit baseline transitive manifest
 is file_body.h, file_code.h, file_flow.h, file_hosted.h, file_runtime.h,
 file_runtime_frames.h, generated_schema.h, isa.h, nvm_format.h,
+nvm_format_v2.h, nvm_v2_sections.h,
 service_bindings.h, service_file_nominal.h under nanoisa, and nsi_cap.h,
 nsi_file.h, nsi_file_values.h at the root. I add the public/native/grant headers
 and any exact new native-fact header dependencies found during source factoring.
