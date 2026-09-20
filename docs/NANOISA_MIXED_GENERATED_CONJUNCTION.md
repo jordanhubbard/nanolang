@@ -355,3 +355,21 @@ every injected failure must return exactly MEMORY, preserve output/input and
 leave zero tracked objects/bytes before independent recovery. INVALID, LIMIT or
 UNRESOLVED cannot hide a malformed fixture or incorrect allocation classification.
 I retain the unchanged old origin corpus and its historical assertions separately.
+
+My first strict MEMORY sweep stopped at original allocation18 on Linux16767.
+The old private layout enum conflates actual truncation and allocation refusal;
+its documented UNKNOWN mapping propagated as UNRESOLVED. I retain that terminal
+and every old decoder result. The proposed detailed mixed-layout entry returns
+the same enum and sets a separate optional allocation-failed bit only at actual
+items/fields/forward-workspace failures. Common decoding keeps allocation order
+and cleanup unchanged. Complete mixed declaration preparation alone reads that
+fact and publishes MEMORY; real truncation/invalid bytes retain their old status.
+
+I add independent detailed-reader controls for all four ordinary and six
+forward-graph allocation positions, one-shot and persistent refusal, equal legacy
+versus detailed allocation-call counts, untouched outputs and fresh recovery.
+Actual truncated wire must leave the detail false and perform no allocation;
+reserved-byte invalidity also leaves it false. The embedded old codec fixture
+renames the new exported symbol to preserve its separate faulted provider copy.
+The original complete-plan exact MEMORY assertion remains unchanged. I submit
+source and these controls for review before any corrected execution.

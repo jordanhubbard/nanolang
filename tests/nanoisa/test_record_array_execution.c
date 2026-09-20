@@ -334,6 +334,38 @@ static void complete_opcode_table(void) {
     }
     printf("I checked %zu explicit opcode recipes and every numeric opcode\n",count);
 }
+static void detailed_layout_allocation(void) {
+    for(unsigned forward=0;forward<2;forward++) {
+        Input c;basic(&c,TAG_INT,true);
+        if(forward){c.layouts[32]=TAG_STRUCT;size_t at=36;b32(c.layouts,&at,2);}
+        NvmV2Layouts layouts={0};bool memory=true;ra_calls=0;
+        CHECK(nvm_ownership_mixed_layouts_private_decode_detailed(c.layouts,c.l,&layouts,&memory)==NVM_V2_OK&&!memory&&layouts.count==3);
+        size_t positions=ra_calls;CHECK(positions==(forward?6u:4u));nvm_v2_layouts_free(&layouts);CHECK(!ra_live&&!ra_bytes);
+        for(unsigned persistent=0;persistent<2;persistent++)for(size_t i=0;i<positions;i++) {
+            size_t attempts[2]={0};
+            for(unsigned detailed=0;detailed<2;detailed++) {
+                layouts=(NvmV2Layouts){.items=(void *)(uintptr_t)1,.count=77};memory=false;
+                ra_calls=0;ra_fail=i;ra_persistent=(int)persistent;
+                NvmV2Result r=detailed?
+                    nvm_ownership_mixed_layouts_private_decode_detailed(c.layouts,c.l,&layouts,&memory):
+                    nvm_ownership_mixed_layouts_private_decode(c.layouts,c.l,&layouts);
+                CHECK(r==NVM_V2_ERR_TRUNCATED&&layouts.items==(void *)(uintptr_t)1&&layouts.count==77);
+                CHECK(!ra_live&&!ra_bytes&&memory==(detailed!=0));attempts[detailed]=ra_calls;
+                ra_fail=SIZE_MAX;ra_persistent=0;
+                layouts=(NvmV2Layouts){0};memory=true;
+                CHECK(nvm_ownership_mixed_layouts_private_decode_detailed(c.layouts,c.l,&layouts,&memory)==NVM_V2_OK&&!memory);
+                nvm_v2_layouts_free(&layouts);CHECK(!ra_live&&!ra_bytes);
+            }
+            CHECK(attempts[0]==attempts[1]);
+        }
+        layouts=(NvmV2Layouts){.items=(void *)(uintptr_t)1,.count=77};memory=true;ra_calls=0;
+        CHECK(nvm_ownership_mixed_layouts_private_decode_detailed(c.layouts,c.l-1,&layouts,&memory)==NVM_V2_ERR_TRUNCATED&&!memory&&!ra_calls);
+        CHECK(layouts.items==(void *)(uintptr_t)1&&layouts.count==77);
+        c.layouts[5]=1;memory=true;
+        CHECK(nvm_ownership_mixed_layouts_private_decode_detailed(c.layouts,c.l,&layouts,&memory)==NVM_V2_ERR_RESERVED_FLAGS&&!memory);
+        CHECK(layouts.items==(void *)(uintptr_t)1&&layouts.count==77&&!ra_live&&!ra_bytes);
+    }
+}
 static void plan_accounting(void) {
     for(unsigned over=0;over<2;over++) {
         NvmRecordArrayExecutionPlan p={0};p.bytes=NVM_RECORD_ARRAY_EXECUTION_BYTES-16+over;
@@ -403,6 +435,7 @@ int main(void) {
     puts("I begin closed preparation refusal boundaries");plan_refusals();
 #ifdef RA_WHITEBOX
     puts("I begin complete opcode recipes");complete_opcode_table();
+    puts("I begin precise private layout allocation facts");detailed_layout_allocation();
     puts("I begin plan allocation/work boundaries");plan_accounting();
 #endif
     printf("PASS %u record-array execution-plan checks; no runtime admission\n",checks);return 0;
