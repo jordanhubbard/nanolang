@@ -179,6 +179,8 @@ static void public_boundaries(void){
  CHECK(r.status==NVM_FILE_RUNTIME_OK && out.tag==TAG_INT && out.value==251);
 #ifdef HOSTED_INSTRUMENT
  CHECK(public_reentries>0);
+#else
+ CHECK(public_reentries==0);
 #endif
  CHECK(nvm_file_host_grant_revoke(public_grant)==NVM_FILE_HOST_OK);out=before;
  r=nvm_file_execute_bytes(public_grant,bytes,n,&out);
