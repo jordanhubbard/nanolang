@@ -2430,26 +2430,16 @@ static void compile_expr(CG *cg, ASTNode *node) {
             break;
         }
         int16_t slot = local_find(cg, id);
-        if (slot >= 0) {
-            emit_op(cg, OP_LOAD_LOCAL, (int)slot);
-        } else {
+        int16_t captured = slot < 0 ? upvalue_resolve(cg, id) : -1;
+        if (slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)slot);
+        else if (captured >= 0) emit_op(cg, OP_LOAD_UPVALUE, 0, (int)captured);
+        else {
             int16_t gslot = global_find(cg, id);
-            if (gslot >= 0) {
-                emit_op(cg, OP_LOAD_GLOBAL, (uint32_t)gslot);
-            } else {
-                /* Check if it's a function name (function-as-value) */
+            if (gslot >= 0) emit_op(cg, OP_LOAD_GLOBAL, (uint32_t)gslot);
+            else {
                 int32_t fn_idx = fn_find(cg, id);
-                if (fn_idx >= 0) {
-                    emit_op(cg, OP_FUNCREF, (uint32_t)fn_idx);
-                } else {
-                    /* Check if it's a captured variable from parent scope */
-                    int16_t uv = upvalue_resolve(cg, id);
-                    if (uv >= 0) {
-                        emit_op(cg, OP_LOAD_UPVALUE, 0, (int)uv);
-                    } else {
-                        cg_error(cg, node->line, "undefined variable '%s'", id);
-                    }
-                }
+                if (fn_idx >= 0) emit_op(cg, OP_FUNCREF, (uint32_t)fn_idx);
+                else cg_error(cg, node->line, "undefined variable '%s'", id);
             }
         }
         break;
@@ -3673,24 +3663,19 @@ static void compile_stmt(CG *cg, ASTNode *node) {
                 compile_stored_expr(cg, node->as.set.value);
             emit_op(cg, OP_STORE_LOCAL, (int)slot);
         } else {
-            int16_t gslot = global_find(cg, node->as.set.name);
-            if (gslot >= 0) {
+            int16_t uv = upvalue_resolve(cg, node->as.set.name);
+            int16_t gslot = uv < 0 ? global_find(cg, node->as.set.name) : -1;
+            if (uv >= 0) {
+                if (cg->upvalues[uv].declared_type == TYPE_U8)
+                    compile_expected_tag(cg, node->as.set.value, TAG_U8);
+                else compile_stored_expr(cg, node->as.set.value);
+                emit_op(cg, OP_STORE_UPVALUE, 0, (int)uv);
+            } else if (gslot >= 0) {
                 if (cg->globals[gslot].declared_type == TYPE_U8)
                     compile_expected_tag(cg, node->as.set.value, TAG_U8);
                 else compile_stored_expr(cg, node->as.set.value);
                 emit_op(cg, OP_STORE_GLOBAL, (uint32_t)gslot);
-            } else {
-                /* Check upvalues for captured mutable variables */
-                int16_t uv = upvalue_resolve(cg, node->as.set.name);
-                if (uv >= 0) {
-                    if (cg->upvalues[uv].declared_type == TYPE_U8)
-                        compile_expected_tag(cg, node->as.set.value, TAG_U8);
-                    else compile_stored_expr(cg, node->as.set.value);
-                    emit_op(cg, OP_STORE_UPVALUE, 0, (int)uv);
-                } else {
-                    cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
-                }
-            }
+            } else cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
         }
         break;
     }
