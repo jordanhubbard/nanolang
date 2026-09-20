@@ -1,0 +1,7 @@
+test_passive_flow_bytecode_and_source_order_metadata_match (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_flow_bytecode_and_source_order_metadata_match) ... ok
+test_passive_par_records_and_scalar_execution (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_par_records_and_scalar_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.579s
+
+OK

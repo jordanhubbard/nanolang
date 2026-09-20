@@ -1,0 +1,42 @@
+[
+  {
+    "phase": "build",
+    "seconds": 21.212,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.114,
+    "status": 0
+  },
+  {
+    "phase": "passive",
+    "seconds": 3.472,
+    "status": 0
+  },
+  {
+    "phase": "source-flow",
+    "seconds": 0.016,
+    "status": 0
+  },
+  {
+    "phase": "flow-vm",
+    "seconds": 0.004,
+    "status": 0
+  },
+  {
+    "phase": "flow-native-emit",
+    "seconds": 0.004,
+    "status": 0
+  },
+  {
+    "phase": "flow-native-build",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "flow-native",
+    "seconds": 0.001,
+    "status": 0
+  }
+]

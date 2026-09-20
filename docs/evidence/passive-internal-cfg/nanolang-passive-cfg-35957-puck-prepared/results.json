@@ -1,0 +1,17 @@
+[
+  {
+    "phase": "build",
+    "seconds": 9.494,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.09,
+    "status": 0
+  },
+  {
+    "phase": "passive",
+    "seconds": 9.506,
+    "status": 2
+  }
+]

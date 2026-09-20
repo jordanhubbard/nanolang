@@ -1,0 +1,7 @@
+test_cast_float_matches_vm_scalar_conversions (tests.test_native_floats.NativeFloats.test_cast_float_matches_vm_scalar_conversions) ... ok
+test_cast_float_through_polymorphic_calls_and_local_loop (tests.test_native_floats.NativeFloats.test_cast_float_through_polymorphic_calls_and_local_loop) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.081s
+
+OK
