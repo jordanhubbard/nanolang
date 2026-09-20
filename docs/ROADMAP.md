@@ -12964,3 +12964,24 @@ and exact native/VM trace controls; its only finding is the explicitly retained
 Linux interpreter historical-hash omission above. No runtime/source public
 activation follows this private checkpoint. Parent15a92 stays open; repair78437
 requires actual merge reconciliation.
+
+### I join explicit public grants to matched cyclic File execution
+
+I prepare the next dependency of `task_15a92c930af7433e9e25b41c7c5c761f`
+from reviewed PR907 head92b9. The private dispatch qualification is sealed;
+its actual canonical merge and this design's review precede production.
+Contract: [explicit cyclic public admission](NANOISA_FILE_CYCLIC_PUBLIC_ADMISSION.md).
+
+- [ ] I review exact installed option/report types, new explicit public VM/native
+  entries, grant/gate precedence, complete fresh report agreement and fuel/error
+  semantics while preserving the existing acyclic API and selectors.
+- [ ] I factor the qualified private engines without semantic drift, implement
+  the matched public wrappers and exact installed archive/header closure, and
+  submit complete production plus fixtures for independent review before gates.
+- [ ] I qualify explicit installed CLI/API selection, deterministic fuel and
+  cleanup/publication, busy/revoked grants, disagreement before acquisition,
+  multi-unit native linking and old refusals on Linux/Darwin with exact actual
+  interpreter/compiler/provider inventories and retained first terminals.
+- [ ] I seal and independently review the bounded public conjunction, merge it,
+  then reconcile only its measured milestone. Full15a92 source/shadows,
+  closed-indirect/richer-borrow work and full72556/6931 remain required/open.
