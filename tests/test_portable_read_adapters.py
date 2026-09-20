@@ -143,7 +143,7 @@ class PortableReadAdapters(unittest.TestCase):
         try:
             self.command([*cc, '--version'])
             self.command([*llvm, '--version'])
-            triple = self.command([*llvm, '-dumpmachine']).strip()
+            triple = self.command([*llvm, *llvm_flags, '-dumpmachine']).strip()
             self.assertRegex(triple, r'^[a-zA-Z0-9_.-]+$')
             ir = self.work / 'typed-read.ll'
             ir.write_text(f'target triple = "{triple}"\n' + (ROOT / 'tests/nanoisa/portable_read_link.ll').read_text())
