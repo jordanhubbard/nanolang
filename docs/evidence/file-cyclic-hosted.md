@@ -100,3 +100,30 @@ physical witnesses/generation reuse, finite fuel, matched private VM/native,
 then a separately reviewed public conjunction after actual dfa149 integration.
 Closed indirect, richer borrowing, paired source/shadows and full parents remain
 required; these hosted facts do not discharge them.
+
+## I retain the ordinary public-archive integration
+
+I qualify frozen `881fcf0a71e8a3f08a6fd3d2962dca6d1719fed7` after public895.
+Fresh Linux and puck setup, unchanged ordinary hosted tests, and the archive
+boundary driver all pass. I retain eight source/tool before/after pairs and
+120 reports in [the separate manifest](file-cyclic-hosted-integration/report-sha256.json).
+The archive contains481 unique artifacts referenced2,744 times; its SHA256 is
+`602a016546481d6d1f2b364f32b41ae8e865e6059b81280ece8e324261661eed` at
+`/tmp/nanolang-file-cyclic-hosted-integration-artifacts.tar.gz`.
+
+I subtract every `FILE_PUBLIC_OBJECTS` member from the driver's explicit object
+list, assert disjointness against actual archive members, and retain `nm` proof
+that query/public/grant entry definitions come from the archive. Cyclic hosted
+preparation succeeds while public VM and native emission refuse before acquisition
+and preserve outputs; the same grant then executes an acyclic scalar entry.
+No cyclic or File service instruction executes. Source-private headers do not
+become installed APIs. My current maps rehash11,221 sources per host,173 Linux
+and172 Darwin provider inputs, and10/13 tool labels respectively.
+
+The ready merge includes canonical896/898 through `462c98e2d`; its additions
+are managed tests/scripts/docs, with no production or Makefile change.
+[Exact identities](file-cyclic-hosted-integration/ready-identity.json) retain the
+qualified hosted/query and integration fixture bytes. Original46912 sanitizer
+results remain attributed only to that original pin; I repeat no bootstrap or
+full package/sanitizer matrix. Task15a92 and all later execution obligations stay
+open pending their separate checkpoints.

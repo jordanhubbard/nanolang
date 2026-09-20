@@ -12620,3 +12620,10 @@ linked-archive conjunction fixture: private cyclic-hosted success plus public
 VM/emitter refusal and output preservation, then an acyclic scalar control.
 This uses source-private headers, not a newly installed cyclic API. Root reviews
 this fixture first; original46912 sanitizer attribution stays unchanged.
+
+I retain the15a92 dependency1 integration at881fc: both-host fresh setup,
+ordinary hosted tests and actual archive/public-refusal controls pass. The
+separate120-report seal keeps original46912 sanitizer results distinct; current
+ready integration through462c98 changes no production. Dependency1 awaits
+review/actual merge, while cyclic carrier/fuel/VM/native/public and source
+requirements remain open.

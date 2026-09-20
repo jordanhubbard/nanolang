@@ -1,0 +1,16 @@
+                 U _memcpy
+00000000000004fc T _nl_ascii_isalnum
+00000000000004e8 T _nl_ascii_isalpha
+00000000000004d8 T _nl_ascii_isdigit
+0000000000000528 T _nl_ascii_islower
+0000000000000538 T _nl_ascii_isprint
+00000000000004b8 T _nl_ascii_isspace
+0000000000000518 T _nl_ascii_isupper
+000000000000055c T _nl_ascii_tolower
+0000000000000548 T _nl_ascii_toupper
+0000000000000314 T _nl_utf8_cstr_or_marker
+0000000000000158 T _nl_utf8_ok_cstr
+0000000000000570 T _nl_utf8_sanitize_log
+0000000000000000 T _nl_utf8_validate
+                 U _strlen
+                 U _strncpy
