@@ -300,7 +300,8 @@ static void index_attempt(bool retirement, size_t preload, size_t at, bool once,
     }
     TupleValue empty = {0}; Value owned = integer(0);
     if (retirement) CHECK(env_clone_value_snapshot(tuple_value(&empty), &owned));
-    Value saved_owned = owned, out = integer(883), sentinel = out;
+    Value saved_owned, out = integer(883), sentinel;
+    memcpy(&saved_owned, &owned, sizeof owned); memcpy(&sentinel, &out, sizeof out);
     begin(at, once);
     bool ok = retirement ? env_retire_value(env, owned) : env_value_snapshot(env, text_value("new"), &out);
     *count = attempts; end();
@@ -420,7 +421,7 @@ static void index_collision_and_limits(void) {
     CHECK(record_index_bytes(16, &bytes) && bytes == sizeof(struct EnvRecordIndex) + 16 * sizeof(struct EnvRecordResult *));
     struct EnvRecordIndex *index = env->record_result_index;
     struct EnvRecordResult candidate = {.next = env->record_results, .value = pool[missing]};
-    struct EnvRecordResult saved = candidate;
+    struct EnvRecordResult saved; memcpy(&saved, &candidate, sizeof candidate);
     index->count = SIZE_MAX;
     CHECK(!record_result_publish(env, &candidate));
     CHECK(!memcmp(&candidate, &saved, sizeof candidate) && env->record_result_index == index && index->count == SIZE_MAX);
