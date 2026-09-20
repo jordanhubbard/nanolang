@@ -26,12 +26,13 @@ static void word(uint8_t *p,uint32_t n) {for(unsigned i=0;i<4;i++)p[i]=(uint8_t)
 static void allocation_failures(NvmModule *m,uint32_t index) {
     NvmLayoutAuthority out=NVM_LAYOUT_AUTHORITY_RESOURCE;
     budget=-1;allocation_calls=0;
-    CHECK(nvm_ownership_layout_authority(m,index,&out)==NVM_V2_OK);
-    unsigned measured=allocation_calls;CHECK(measured>0);
+    CHECK(nvm_retained_layouts_valid(m));unsigned first_decode=allocation_calls;CHECK(first_decode>0);
+    allocation_calls=0;CHECK(nvm_ownership_layout_authority(m,index,&out)==NVM_V2_OK);
+    unsigned measured=allocation_calls;CHECK(measured==2*first_decode);
     for(unsigned point=0;point<measured;point++){
         budget=(long)point;out=NVM_LAYOUT_AUTHORITY_RESOURCE;
         NvmV2Result r=nvm_ownership_layout_authority(m,index,&out);
-        CHECK(r==NVM_V2_ERR_SECTION_TYPE || r==NVM_V2_ERR_TRUNCATED);
+        CHECK(r==(point<first_decode?NVM_V2_ERR_SECTION_TYPE:NVM_V2_ERR_TRUNCATED));
         CHECK(out==NVM_LAYOUT_AUTHORITY_RESOURCE);
         budget=-1;CHECK(nvm_ownership_layout_authority(m,index,&out)==NVM_V2_OK);
         CHECK(out==NVM_LAYOUT_AUTHORITY_ORDINARY);
