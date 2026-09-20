@@ -91,3 +91,23 @@ annotation trees under the explicit checker-tree destructor. This is cumulative
 checker metadata until Environment teardown, not expression-bounded reclamation.
 I have not run this checkpoint. Fresh full build/bootstrap and all previously
 required source, allocation and lifetime gates remain pending.
+
+## My static identity correction before execution
+
+Root review of 245710e1c identified two invalid shortcuts before any run. A NULL
+function body does not identify a builtin. My actual builtin declarations are
+static cache objects populated from BUILTIN_LANG registry rows. I will expose a
+predicate for those exact objects and use it in both array intrinsic predicates;
+registered externs and copied Function values do not acquire builtin identity.
+The existing reserved-name lookup order remains explicit and unchanged.
+
+My array-identity requirement also used ownerless union/opaque lookups and a
+single-capital-letter heuristic to bypass checks. I remove those shortcuts.
+An exact ordinary record declaration takes precedence; only an exact enum or
+union declaration in the annotation's owner can use its existing separate type
+policy. Declared union formals are resolved through the explicit substitution
+context. Missing declarations do not become formals because of their spelling.
+OpaqueTypeDef currently represents a global foreign C-pointer namespace and has
+no module-owner field. Its presence cannot exempt an ordinary-record array from
+identity comparison; I do not invent module provenance for that legacy table.
+I retain enum-list parity and all original gates as open requirements.

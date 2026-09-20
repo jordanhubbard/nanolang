@@ -13700,3 +13700,13 @@ seconds. Neither run reached bootstrap or fixtures. Source and tool maps agree.
 My Linux terminal is retained in `/tmp/nanolang-record-lists-9f4e-linux-prepare`
 and my Darwin terminal in `/private/tmp/nanolang-record-lists-9f4e-puck-prepare`.
 The parser progress is not complete timeout acceptance for the remaining graph.
+
+Before executing array checkpoint245710e1c, I record two static review defects
+under task_1a4cba8a04804aa287e5b9d6eefb98f7: bodyless functions were treated as
+builtins without registry-object identity, and ownerless union/opaque lookups or
+single-letter names could bypass array record checks.
+
+- [ ] I require the actual builtin cache object, preserve reserved-name lookup
+  order, and check explicit extern declarations and copied function objects.
+- [ ] I prioritize exact owner-bound record identity, remove opaque/name-form
+  bypasses, and check record/union/opaque name collisions and declared formals.
