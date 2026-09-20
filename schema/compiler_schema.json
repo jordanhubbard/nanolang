@@ -203,9 +203,16 @@
         [
           "column",
           "int"
+        ],
+        [
+          "value_bytes",
+          "int"
         ]
       ],
-      "emit_c": true
+      "emit_c": true,
+      "c_field_types": {
+        "value_bytes": "int64_t"
+      }
     },
     {
       "name": "ParseNode",

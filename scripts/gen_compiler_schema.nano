@@ -524,7 +524,13 @@ fn gen_c(schema: Json) -> string {
                         let field: Json = (get_index fields j)
                         let field_name: string = (as_string (get_index field 0))
                         let field_type: string = (as_string (get_index field 1))
-                        let c_type: string = (map_type_to_c field_type)
+                        let mut c_type: string = (map_type_to_c field_type)
+                        if (object_has struct_obj "c_field_types") {
+                            let overrides: Json = (get struct_obj "c_field_types")
+                            if (object_has overrides field_name) {
+                                set c_type (as_string (get overrides field_name))
+                            }
+                        }
                         set output (+ output (+ "    " (+ c_type (+ " " (+ field_name ";\n")))))
                         set j (+ j 1)
                     }
@@ -563,6 +569,11 @@ shadow gen_c {
     let result: string = (gen_c schema)
     assert (> (str_length result) 0)
     (free schema)
+    let counted: Json = (parse "{\"tokens\":[\"TOKEN_EOF\"],\"parse_nodes\":[],\"nano_structs\":[{\"name\":\"LexerToken\",\"emit_c\":true,\"fields\":[[\"value_bytes\",\"int\"]],\"c_field_types\":{\"value_bytes\":\"int64_t\"}}]}")
+    let counted_c: string = (gen_c counted)
+    assert (str_contains counted_c "int64_t value_bytes;")
+    (free counted)
+
 }
 
 fn main() -> int {

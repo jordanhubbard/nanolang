@@ -219,6 +219,7 @@ def gen_c(schema: dict) -> str:
                 c_type = f"{c_type}" # Use value instead of pointer to match NanoLang semantics
             elif c_type == "Type":
                 c_type = "NSType" # Special case for 'Type' conflict
+            c_type = struct.get("c_field_types", {}).get(field_name, c_type)
             lines.append(f"    {c_type} {field_name};")
         lines.append(f"}} {c_struct_name};")
         lines.append(f"typedef {c_struct_name} {struct_name};")

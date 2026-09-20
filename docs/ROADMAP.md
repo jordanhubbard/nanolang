@@ -12587,7 +12587,7 @@ and actual merge remain pending; no cyclic File runtime or parent closure follow
 
 ### My paired File source and NSI publication prerequisite
 
-- [ ] I correct the token bridge inventory findings within8bbc before count propagation: inactive lexer_bridge.c treats the current by-value list getter as a pointer, and token_helpers.h declares List_Token while its implementation takes List_LexerToken. I align exact owning declarations/copies and preserve all count fields without recomputing them, with focused bridge compile/copy/rollback controls before any activation claim.
+- [ ] I correct the token bridge inventory findings within8bbc before count propagation: inactive lexer_bridge.c treats the current by-value list getter as a pointer, and token_helpers.h declares List_Token while its implementation takes List_LexerToken. I align exact owning declarations/copies and preserve all count fields without recomputing them, with focused bridge compile/copy/rollback controls before any activation claim. The same inactive bridge also leaks a returned empty list; I record and clean that owned empty prefix before qualification.
 
 - [ ] I implement the reviewed [token byte-count prerequisite](TOKEN_VALUE_BYTES.md) under8bbc before service AST work: preserve raw token values, retain complete decoded literal byte counts including escaped NUL suffixes, distinguish raw grammar bodies, regenerate the primary C/Nano schema and update every constructor/list bridge. I record the internal by-value ABI change and require clean paired bootstrap/runtime/module closure; no old binary/provider mixing or public service admission. Production plus service-independent fixtures receive review before execution.
 
