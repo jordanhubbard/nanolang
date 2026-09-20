@@ -12627,3 +12627,5 @@ separate120-report seal keeps original46912 sanitizer results distinct; current
 ready integration through462c98 changes no production. Dependency1 awaits
 review/actual merge, while cyclic carrier/fuel/VM/native/public and source
 requirements remain open.
+
+- [ ] I establish [exact closed-target indirect File calls](NANOISA_FILE_INDIRECT_TARGETS.md), `task_2c135a488bd61576caf83debb2786270` under72556/6931: review current callable identity and bounded target-set/signature/call-graph query; review complete candidate ownership composition and matched VM/native membership-before-transfer; qualify fault/fuel/lifetime and unchanged guards, then public installed and paired source/shadows. Callable argument/results and richer borrowed target transport remain mandatory later checkpoints; no target query or existing function tag grants File execution. Root owns this lane alongside the separate cyclic carrier/fuel and source work.
