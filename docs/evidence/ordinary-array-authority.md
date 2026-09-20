@@ -115,3 +115,10 @@ is an additive file_flow include and explicit Make target; it does not enter
 my declaration-query call graph or change the eight selected reader/decoder/
 fixture inputs listed above. I compared those exact Git blobs against d74 and
 retained both additive roadmap histories. Earlier gate pins remain unchanged.
+
+I integrate actual PR911 at0a5ff1e after the token ABI change. My ordinary-array
+runner links only NANOISA_OBJECTS and utf8, with the ownership/layout providers
+rebuilt directly; it neither includes LexerToken nor links the lexer, parser,
+compiler AST schema or generated list modules. All selected NanoISA query and
+fixture inputs remain unchanged. I preserve the qualified C declaration closure
+and retain the token integration's separate full compiler/ABI evidence.
