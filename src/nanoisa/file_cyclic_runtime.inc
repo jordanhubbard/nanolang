@@ -248,3 +248,11 @@ bool nvm_file_runtime_cyclic_abi(uint32_t revision,size_t options,size_t report,
         report==sizeof(NvmFileCyclicExecutionReport) && view==sizeof(NvmFileRuntimeView) &&
         frame==sizeof(NvmFileCyclicFrameView);
 }
+
+/* Revision 1: exact selected variants, charge-before-effects, invocation fuel,
+ * checked call/return staging and cleanup-before-publication. */
+bool nvm_file_runtime_cyclic_native_abi(uint32_t revision,size_t options,size_t report,
+                                      size_t view,size_t frame,size_t value) {
+    return revision==1u && frame==sizeof(NvmFileRuntimeFrameView) &&
+        nvm_file_runtime_cyclic_abi(revision,options,report,value,view);
+}

@@ -1,0 +1,1 @@
+{"argv": ["/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/make-bin/nsi-file-binding", "tests/fixtures/nsi_file_plan.json", "--file-binding-dir", "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/cli/report-failure"], "stderr": "read-only /dev/null"}

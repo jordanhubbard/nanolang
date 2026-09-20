@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/cli/existing-empty"
+  ]
+}

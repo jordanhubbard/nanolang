@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/cli/input-symlink",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/cli/refused-symlink"
+  ],
+  "pid": 458541,
+  "returncode": 1,
+  "timeout": false
+}
