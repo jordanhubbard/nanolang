@@ -213,7 +213,13 @@ static void refusal_and_owned(void) {
 int main(void) {
     for(unsigned p=0;p<2;p++) {
         VmDispatchProfile profile=p?vm_dispatch_profile_all():vm_dispatch_profile_none();
-        for(unsigned width=0;width<4;width++)private_transitions(profile,width);public_and_direct(profile);exclusions(profile);host_paths(profile);fused_managed_effects(profile);
+        for(unsigned width=0;width<4;width++) {
+            private_transitions(profile,width);
+        }
+        public_and_direct(profile);
+        exclusions(profile);
+        host_paths(profile);
+        fused_managed_effects(profile);
     }
     refusal_and_owned();
     printf("%u ordinary admission checks passed; real VM, modeled host hooks; no timing claim\n",checks);
