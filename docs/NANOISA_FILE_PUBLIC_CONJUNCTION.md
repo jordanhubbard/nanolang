@@ -40,7 +40,10 @@ The initial proposed C types and names are:
   `nvm_file_host_grant_create_temporary_files(NvmFileHostGrant **out)` and destroyed
   by `nvm_file_host_grant_destroy(NvmFileHostGrant **inout)`. Creation is the host's
   explicit choice to permit exactly catalog1's five temporary-file methods. It
-  does not open a stream. There is no raw struct constructor or grant wire codec.
+  does not open a stream. `nvm_file_host_grant_revoke(NvmFileHostGrant *grant)`
+  disables a still-live object without freeing it; later execution returns STATE.
+  Revocation and destruction both refuse BUSY while public execution is active.
+  There is no raw struct constructor or grant wire codec.
 - `NvmFileScalar { uint8_t tag; int64_t value; }`, accepting only canonical INT or
   BOOL output. No File, Result, context, capability or nominal handle escapes.
 - `nvm_file_execute_bytes(grant, const uint8_t *bytes, size_t size,
@@ -63,7 +66,8 @@ are host policy objects, not security against arbitrary native C memory forgery.
 The bytecode/source cannot construct or supply one. A valid grant pointer follows
 normal C lifetime rules; dangling pointers after destruction are outside the API.
 
-The immutable grant records the exact supported catalog/runtime ABI and temporary
+The grant's policy/catalog/runtime ABI fields are immutable; its live/revoked
+state changes only under the runtime gate. It records exactly the temporary
 service policy. It grants neither arbitrary paths nor generic FFI, COP, dlsym,
 Socket or GPU access. Every invocation explicitly supplies its grant; it creates
 one fresh File-values identity and never caches authority on VmState/NvmModule,
@@ -87,6 +91,8 @@ from symbol names. Direct private-core users still owe their documented external
 serialization; the public gate does not make unrelated unsynchronized private
 calls safe. Caller-owned grant/output pointer storage must not race destruction
 or writes; grant destroy refuses while any public File invocation is active.
+Nonexecuting public byte verification/emission also takes the shared gate for
+its private query interval, without requiring or creating a host execution grant.
 I add no concurrent callbacks, fork inheritance, asynchronous ownership or cross-
 process grant transport in this slice. Those cannot obtain an accidental route.
 
@@ -95,7 +101,9 @@ process grant transport in this slice. Those cannot obtain an accidental route.
 Before any temp acquisition or dynamic-loader attempt I require all of:
 
 1. Non-NULL valid live host grant, supported exact catalog/runtime ABI and explicit
-   temporary-service policy; failed/missing grant refuses before plan allocation.
+   temporary-service policy. Missing grant returns INVALID, revoked live grant
+   STATE, incompatible catalog/ABI UNRESOLVED, and gate contention BUSY, all with
+   acquired=false before plan allocation. A freed pointer is not a revoked grant.
 2. Actual bounded serialized-v2 envelope with required bits1/9, exact version2
    nominal payload, imports/type maps, flags and cross-section validation. Version1,
    malformed partial claims and forged/mismatched catalog bindings stay refused.
