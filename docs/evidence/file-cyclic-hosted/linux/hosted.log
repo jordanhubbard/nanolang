@@ -1,0 +1,12 @@
+I retain hosted-plan artifacts at /tmp/nano-file-hosted-vmmfs9e4
+test_full_chain_allocation_prefix_and_transient_recovery (tests.test_file_hosted.FileHosted.test_full_chain_allocation_prefix_and_transient_recovery) ... I retain 435 transient refusals and 0 complete recovered plans after one allocation failure
+I retain 55 precise MEMORY and 380 ambiguous UNRESOLVED allocation prefixes
+PASS 597901 private serialized File hosted-plan checks; no handler or public admission
+ok
+test_linked_serialized_startup_bounds_and_refusal (tests.test_file_hosted.FileHosted.test_linked_serialized_startup_bounds_and_refusal) ... PASS 2518 private serialized File hosted-plan checks; no handler or public admission
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 20.747s
+
+OK

@@ -12542,3 +12542,11 @@ input independence, real16/17 joins and full-chain allocation recovery. The
 runner reuses qualified bounded process cleanup with fresh rebuilt providers.
 No fixture/build/execution has run; sourcebae2 remains unchanged and review is
 required before frozen query-only gates.
+
+I seal15a92 dependency1 at frozen46912: Linux12 and Darwin11 phases PASS,
+including fresh setup, ordinary selected compilers, strict scoped sanitizers and
+unchanged cyclic/CODE/body/flow/hosted/opcode neighbors. [My hosted evidence](evidence/file-cyclic-hosted.md)
+retains230 reports,945 unique artifacts,23 equal source/tool pairs and all
+allocation/output controls. No correction or cyclic service execution occurs.
+Independent review and merge are pending;15a92 and all later runtime/public/
+source obligations remain open.
