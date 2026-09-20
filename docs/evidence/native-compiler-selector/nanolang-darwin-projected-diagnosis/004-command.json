@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "cc",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-fno-omit-frame-pointer",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first.c",
+    "-lm",
+    "-o",
+    "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first"
+  ],
+  "cwd": "/private/tmp/nanolang-file-cyclic-public-final",
+  "timeout": 120
+}

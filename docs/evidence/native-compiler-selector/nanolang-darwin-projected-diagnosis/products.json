@@ -1,0 +1,266 @@
+{
+  "/tmp/nanolang-darwin-projected-diagnosis/005.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/inputs-after.json": {
+    "sha256": "97a26b9f678d1c3fe56663fbddcb2885d5c6f31de7d60d8c2fed20bbf175c6d5",
+    "bytes": 1160
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/007-status.json": {
+    "sha256": "6b0a546809a59bf4f1a909855b9e3e66a5fc68bacf9dd726cd5f404b578c7ace",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/009.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/001.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/011.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/003.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/002-status.json": {
+    "sha256": "4eb606abf800b29c77295a2236057f026abd219744d86af38f7b4f8bc3febf4c",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/007.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/007.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/006-command.json": {
+    "sha256": "1a731b100bccd3a4b6399e13bc1edc78db621c12bd150be28aae1c39b95d23f1",
+    "bytes": 372
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/001-command.json": {
+    "sha256": "cf50da43587a48b02b778dda5c2fd7b37b41f869a6d337214af58f6fbdd40c8c",
+    "bytes": 278
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/001-status.json": {
+    "sha256": "4d8c5a1fa28d9aef8e68df479bb141919da3f8d6c658e59220d659bab005d910",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/008-status.json": {
+    "sha256": "159eff3c5d4a4aafd8011e83fa86988b889bb2728230236fbabff7311f8878e6",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/003.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/011.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/011-status.json": {
+    "sha256": "921833e09d381d5925ecda9bef5a5cfa251d4f8577505a496327f5d8eb8e3f68",
+    "bytes": 129
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/000-command.json": {
+    "sha256": "f67241591d2505e883cee49dfc0cd239038e3616a9c8cb80af7c6de22638d2da",
+    "bytes": 374
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/001.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/007-command.json": {
+    "sha256": "2f80ae52f8e3b97417c9f21cb5c41d5e706399a92504a6fdf54d6f5cfa1017a1",
+    "bytes": 277
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/009.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/005.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/004-status.json": {
+    "sha256": "f231fc480260c60d610c0b3e232d9a9f6a8ce27848f7961c95910ee48464d4b5",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/010-command.json": {
+    "sha256": "4534ae6273a4e92805d87b7efd9a0ebbbe3ccedfb6b6c758aa04cf365060ecfa",
+    "bytes": 456
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/000.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/005-command.json": {
+    "sha256": "cc1677c401f4c44a1e243264164d6afd57bb55c3bdc418ef3903c036a8d6831d",
+    "bytes": 187
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/002-command.json": {
+    "sha256": "26230aeec025fb0321e3ac49d8f1e97dd68556598c61113ee6e772c9b9347058",
+    "bytes": 257
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/inputs-before.json": {
+    "sha256": "97a26b9f678d1c3fe56663fbddcb2885d5c6f31de7d60d8c2fed20bbf175c6d5",
+    "bytes": 1160
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/003-status.json": {
+    "sha256": "b0f45afb75e5bd7277bfe9be51f6ad659bf30df8226d8eeff62d42cfb678882b",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/004.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/008.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/003-command.json": {
+    "sha256": "5f6db9941bb9eb980f160dd78f009da2aaf124d948117cd8b276ed9d30059e67",
+    "bytes": 358
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/004-command.json": {
+    "sha256": "6513763987ee143982c474967591564305256fea56ae0615f6739aeac471f11b",
+    "bytes": 458
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/011-command.json": {
+    "sha256": "799a358250bf10827c93b5c7436b9f71eab67ea306d5eae2d6c8803b918c708b",
+    "bytes": 186
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/006.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/010.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/002.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/006-status.json": {
+    "sha256": "23d96bb90711043a760650ce525431e460e75885c991212dcb0e808b109c151c",
+    "bytes": 132
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/002.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/005-status.json": {
+    "sha256": "a1a2c1727c998940e45cf6604e4293fac2a0184c5a95b9c3bdcabf99fb5e8004",
+    "bytes": 129
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/010.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/store-first-sample.txt": {
+    "sha256": "da12a102e88f6b2c431f99b64f72bcf259c7151f874276d84f0bec415eb233f6",
+    "bytes": 7350
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/006.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/010-status.json": {
+    "sha256": "adba035de545eba84c64fc5770549a7733e33796abc657cb4011d1388319443c",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/009-command.json": {
+    "sha256": "de56888028c711b5ab587f5a6fa9e087f6f614e156c6c3468a2c60c20c7abc24",
+    "bytes": 356
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/009-status.json": {
+    "sha256": "82d33f286156845b38ec02cfc2cbe3610564204f335728aae3bd79e033161f83",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/environment.json": {
+    "sha256": "5b2f1144b6cda2ac04e2c09e42d6a6ff0ce539df9eae518cfc8a4a6e9ee66bbf",
+    "bytes": 177
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/008.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/004.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/008-command.json": {
+    "sha256": "1ee7f6d9dcf56c619778262639e145fe55f5edfaf131dfc55790d537b4d97f26",
+    "bytes": 256
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/000-status.json": {
+    "sha256": "55a4ca934698029ce10535f7064e38716158e829f6eb8ef06128a9db6f8521dc",
+    "bytes": 129
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/000.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/main-first.nasm": {
+    "sha256": "db6499c9d1987d8ee2fe2462035f3e91d176970d06f2ea84bf40c5e3cbb2f6c9",
+    "bytes": 298
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/main-first.c": {
+    "sha256": "c02a57de25713c6b55743cb193fd40d7e0ebf46f5281e5f0535dc48273cce033",
+    "bytes": 43149
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first.nvm": {
+    "sha256": "b658be3ad039d3295f7de55ba219cfea12584e739a6d21c5768835efc6d31fe9",
+    "bytes": 500
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first": {
+    "sha256": "6151d2423a40992ae1d7e89fde553e06d9611d0a11fc89695a4ba6fd1e20741f",
+    "bytes": 91384
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first.c": {
+    "sha256": "05928747a3d06f1dfa084ad8e32641a4eb0c757afec7513bf168c2099895633a",
+    "bytes": 43149
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/main-first": {
+    "sha256": "dcfae4447079c331701cf06d40e83cf1c23f6171e3ec8d8848995ea9342da15d",
+    "bytes": 91384
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/main-first.nvm": {
+    "sha256": "ed2a537d69170f59a25908fae6f94c5fc9511e3add70239db213906df0bf0ca4",
+    "bytes": 500
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first.nasm": {
+    "sha256": "993aebd2098c7383fd0bd167818258946a6fea6e295e8f7a42ae7e795612b563",
+    "bytes": 298
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first.dSYM/Contents/Info.plist": {
+    "sha256": "3a812850ec16fa459a7e4fa60a89f66addfd595006ed740d6bc0b8997e857ff4",
+    "bytes": 640
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first.dSYM/Contents/Resources/DWARF/store-first": {
+    "sha256": "933f174a7e1bb8db201f354739a76331f5b791ad54b3758362503a1868aa34fc",
+    "bytes": 43848
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first.dSYM/Contents/Resources/Relocations/aarch64/store-first.yml": {
+    "sha256": "8b823b4d8ad8c07b26079100fa5cd2ca7fe24ad6165855531a5c73d36096a026",
+    "bytes": 169
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/main-first.dSYM/Contents/Info.plist": {
+    "sha256": "4e621f2d2c512788736caecfd8006fef09f95243e5d50e2b75bdd1e489acca7a",
+    "bytes": 639
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/main-first.dSYM/Contents/Resources/DWARF/main-first": {
+    "sha256": "8c4bf1fa31c9e29b0f302f2afd8172efd69cb420f64afd519e366dae985dbe53",
+    "bytes": 43848
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/main-first.dSYM/Contents/Resources/Relocations/aarch64/main-first.yml": {
+    "sha256": "c1d52df0cc35127a61edd4c985f6cc24b5f817a64ba943d9a389d3efb8637be0",
+    "bytes": 168
+  }
+}

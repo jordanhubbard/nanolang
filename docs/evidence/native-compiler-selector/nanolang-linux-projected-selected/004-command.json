@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "cc",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-fno-omit-frame-pointer",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "/tmp/nanolang-linux-projected-selected/nano-projected-global-3_yiklgm/store-first.c",
+    "-lm",
+    "-o",
+    "/tmp/nanolang-linux-projected-selected/nano-projected-global-3_yiklgm/store-first"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85",
+  "timeout": 120
+}

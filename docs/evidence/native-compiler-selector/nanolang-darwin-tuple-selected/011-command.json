@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/seed.native"
+  ],
+  "cwd": "/private/tmp/nanolang-file-cyclic-public-final",
+  "timeout": 120,
+  "selected_ASAN_OPTIONS": "detect_leaks=0"
+}

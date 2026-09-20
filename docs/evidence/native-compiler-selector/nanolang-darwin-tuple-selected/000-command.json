@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-cyclic-public-final/bin/nanoc_c",
+    "src_nano/nanoisa_emit.nano",
+    "-o",
+    "/tmp/nanolang-darwin-tuple-selected/nanoisa_emit",
+    "--keep-c"
+  ],
+  "cwd": "/private/tmp/nanolang-file-cyclic-public-final",
+  "timeout": 900,
+  "selected_ASAN_OPTIONS": null
+}

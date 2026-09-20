@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-cyclic-public-final/bin/nano_vm",
+    "--verify-only",
+    "/tmp/nanolang-darwin-projected-diagnosis/nano-projected-global-cueax2xc/store-first.nvm"
+  ],
+  "cwd": "/private/tmp/nanolang-file-cyclic-public-final",
+  "timeout": 120
+}

@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/tmp/nanolang-linux-tuple-selected/nano-tuple-values-beevlg0g/source.native"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85",
+  "timeout": 120,
+  "selected_ASAN_OPTIONS": "detect_leaks=1"
+}
