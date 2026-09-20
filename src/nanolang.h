@@ -811,6 +811,7 @@ typedef struct {
     size_t evaluation_leases; /* Queued/active evaluator bundles prevent teardown. */
     struct EnvRecordList *record_lists; /* Evaluator-owned handles, including tombstones. */
     struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
+    struct EnvRecordIndex *record_result_index; /* Exact typed-root membership; arena owns entries. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
     Function *functions;

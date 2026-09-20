@@ -109,3 +109,24 @@ Then I rebuild all providers from the new header/source on both hosts before the
 original full build/bootstrap and focused/source/neighbor gates. Prior binaries
 cannot stand in for this changed Environment layout. My enum and full Make tasks
 remain open until their own acceptance is established.
+
+## My production checkpoint audit
+
+I implement the index only in src/env_record_lists.inc and add its opaque pointer
+in Environment. The constructor search finds one allocating production constructor,
+create_environment's calloc; no production by-value or memcpy Environment copies
+were found. Four existing stack Environment fixtures use zero/designated initializers
+and do not publish arena roots. All consumers must rebuild against the new header.
+
+The publisher search finds only env_value_snapshot and env_retire_value. Both now
+use record_result_publish; the only other arena-head update is teardown. The
+snapshot caller discards only its new clone on failure; retirement frees only its
+unpublished entry. The helper allocates and populates a replacement index without
+changing old slots or entries, checks its count, locates the candidate slot, then
+commits without further fallible work. The existing linked arena owns all graphs.
+
+Lookup returns exact typed-root membership without allocation. Teardown detaches
+and frees the index before the existing list/arena destruction; the Environment's
+lease preflight still precedes all cleanup. Symbol ownership, nested graph copies,
+public escape copies and scheduler/provider lease code are unchanged. I have run
+only diff checks at this source checkpoint, not builds, fixtures or timing gates.

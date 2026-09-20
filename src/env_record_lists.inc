@@ -16,6 +16,103 @@ struct EnvRecordResult {
     Value value;
 };
 
+/* My slots borrow arena entries. They never own or shorten a graph's lifetime. */
+struct EnvRecordIndex {
+    size_t capacity;
+    size_t count;
+    struct EnvRecordResult *slots[];
+};
+
+static const void *record_result_pointer(Value value) {
+    if (value.type == VAL_STRING) return value.as.string_val;
+    if (value.type == VAL_STRUCT) return value.as.struct_val;
+    if (value.type == VAL_TUPLE) return value.as.tuple_val;
+    return NULL;
+}
+
+static size_t record_result_hash(Value value) {
+    uint64_t hash = (uint64_t)(uintptr_t)record_result_pointer(value);
+    hash ^= (uint64_t)value.type * UINT64_C(0x9e3779b97f4a7c15);
+    hash ^= hash >> 30;
+    hash *= UINT64_C(0xbf58476d1ce4e5b9);
+    hash ^= hash >> 27;
+    hash *= UINT64_C(0x94d049bb133111eb);
+    hash ^= hash >> 31;
+    return (size_t)hash;
+}
+
+static bool record_index_bytes(size_t capacity, size_t *out) {
+    if (!out || capacity < 16 || (capacity & (capacity - 1)) ||
+        capacity > (SIZE_MAX - sizeof(struct EnvRecordIndex)) / sizeof(struct EnvRecordResult *)) return false;
+    *out = sizeof(struct EnvRecordIndex) + capacity * sizeof(struct EnvRecordResult *);
+    return true;
+}
+
+/* I locate before writing. Hash equality alone grants no membership. */
+static bool record_index_slot(const struct EnvRecordIndex *index, Value value,
+                              size_t *slot, bool *found) {
+    size_t bytes;
+    const void *pointer = record_result_pointer(value);
+    if (!index || !pointer || !slot || !found || !record_index_bytes(index->capacity, &bytes) ||
+        index->count > index->capacity - index->capacity / 4) return false;
+    size_t position = record_result_hash(value) & (index->capacity - 1);
+    for (size_t probe = 0; probe < index->capacity; ++probe) {
+        const struct EnvRecordResult *entry = index->slots[position];
+        if (!entry || (entry->value.type == value.type && record_result_pointer(entry->value) == pointer)) {
+            *slot = position;
+            *found = entry != NULL;
+            return true;
+        }
+        position = (position + 1) & (index->capacity - 1);
+    }
+    return false;
+}
+
+/* True transfers the complete entry; false leaves caller ownership and every
+ * old index/list byte unchanged. No user callback occurs in this transaction. */
+static bool record_result_publish(Environment *env, struct EnvRecordResult *entry) {
+    if (!env || !entry || !record_result_pointer(entry->value)) return false;
+    struct EnvRecordIndex *old = env->record_result_index;
+    size_t count = old ? old->count : 0, capacity = old ? old->capacity : 16;
+    size_t slot = 0, bytes;
+    bool found = false;
+    if (count == SIZE_MAX || (!old && env->record_results) ||
+        !record_index_bytes(capacity, &bytes)) return false;
+    if (old && (!record_index_slot(old, entry->value, &slot, &found) || found)) return false;
+    bool grow = old && count + 1 > capacity - capacity / 4;
+    if (grow) {
+        if (capacity > SIZE_MAX / 2) return false;
+        capacity *= 2;
+        if (!record_index_bytes(capacity, &bytes)) return false;
+    }
+    struct EnvRecordIndex *table = old;
+    if (!old || grow) {
+        table = calloc(1, bytes);
+        if (!table) return false;
+        table->capacity = capacity;
+        for (size_t i = 0; old && i < old->capacity; ++i) {
+            struct EnvRecordResult *retained = old->slots[i];
+            if (!retained) continue;
+            if (!record_index_slot(table, retained->value, &slot, &found) || found) goto failed;
+            table->slots[slot] = retained;
+            ++table->count;
+        }
+        if (table->count != count ||
+            !record_index_slot(table, entry->value, &slot, &found) || found) goto failed;
+    }
+    /* All fallible work is complete; the old graphs stay at their addresses. */
+    entry->next = env->record_results;
+    table->slots[slot] = entry;
+    table->count = count + 1;
+    env->record_results = entry;
+    env->record_result_index = table;
+    if (table != old) free(old);
+    return true;
+failed:
+    free(table); /* This path only owns an unpublished replacement table. */
+    return false;
+}
+
 /* I own only the record/tuple/string value graph. Other reference leaves keep
  * their original ownership contract and are never released by this pair. */
 void env_discard_value_snapshot(Value owned) {
@@ -118,8 +215,11 @@ bool env_value_snapshot(Environment *env, Value source, Value *out) {
     Value copy;
     if (!env_clone_value_snapshot(source, &copy)) { free(entry); return false; }
     entry->value = copy;
-    entry->next = env->record_results;
-    env->record_results = entry;
+    if (!record_result_publish(env, entry)) {
+        env_discard_value_snapshot(copy);
+        free(entry);
+        return false;
+    }
     *out = copy;
     return true;
 }
@@ -129,14 +229,9 @@ bool env_record_snapshot(Environment *env, Value source, Value *out) {
 }
 
 bool env_record_result_borrowed(Environment *env, Value value) {
-    if (!env || (value.type != VAL_STRUCT && value.type != VAL_TUPLE && value.type != VAL_STRING)) return false;
-    for (struct EnvRecordResult *entry = env->record_results; entry; entry = entry->next) {
-        if (entry->value.type != value.type) continue;
-        if (value.type == VAL_STRING && entry->value.as.string_val == value.as.string_val) return true;
-        if (value.type == VAL_STRUCT && entry->value.as.struct_val == value.as.struct_val) return true;
-        if (value.type == VAL_TUPLE && entry->value.as.tuple_val == value.as.tuple_val) return true;
-    }
-    return false;
+    size_t slot;
+    bool found;
+    return env && record_index_slot(env->record_result_index, value, &slot, &found) && found;
 }
 
 /* I transfer ownership only after registration succeeds. My caller clears its
@@ -148,8 +243,7 @@ bool env_retire_value(Environment *env, Value owned) {
     struct EnvRecordResult *entry = malloc(sizeof(*entry));
     if (!entry) return false;
     entry->value = owned;
-    entry->next = env->record_results;
-    env->record_results = entry;
+    if (!record_result_publish(env, entry)) { free(entry); return false; }
     return true;
 }
 
@@ -287,6 +381,9 @@ bool env_record_list_apply(Environment *env, NominalIdentity element,
 }
 
 static void env_record_storage_free(Environment *env) {
+    struct EnvRecordIndex *index = env->record_result_index;
+    env->record_result_index = NULL;
+    free(index);
     while (env->record_lists) {
         struct EnvRecordList *entry = env->record_lists;
         env->record_lists = entry->next;
