@@ -12365,9 +12365,20 @@ qualification builds run before the full fixture checkpoint review.
   I preserve all source hashes, positive/negative cases, original PREFIX/shadows
   and first terminals; no narrowed replacement or full-product claim follows.
 
+### My full-affine Darwin dependency-discovery prerequisite (273296)
+
+- [x] I preserve the first 3c728 Darwin bootstrap terminal (9.5246s, make exit2, missing openssl/sha.h) and identify the omitted Homebrew PATH used by brew --prefix discovery; sources and HEAD remain unchanged.
+- [x] I qualify the runner-only explicit PATH correction on a fresh same-pin Darwin tree with actual dependency/compiler/SDK identities; task_273296f15f46457a8199665418602954. Fresh bootstrap285.790s and original33 script77.369s pass. Actual-merge ledger reconciliation remains pending; product e8d and full parents remain open.
+
+### My complete affine-script acceptance at 3c728
+
+- [x] I freshly bootstrap canonical851 source at frozen3c728 on Linux (282.734s) and Darwin (285.790s corrected configuration), prepare exact frontend/VM tools and pass my unchanged33-method script on bothhosts (85.286s/77.369s). I preserve all36 source hashes,144 boundary observations, fullPREFIX/shadows and authority-specific refusal expectations. My later parser877 is outside this source pin; evidence is `docs/evidence/affine-full-suite/`.
+- [ ] I review/reconcile this bounded script acceptance against task_e8d860a16da0464891dd32e91c42bef1 after actual merge. The larger make target's module/generic identity, current integrated product/fixed-point and full ownership/managed/release gates remain required; I do not close full parents from these33 methods.
+
 ### My remaining affine acceptance after the full33 script
 
 - [x] I run the complete unchanged nine-method module-identity suite with the fresh3c728 stages and separate source/tool/artifact evidence on Linux and Darwin (78.581s/67.801s; `docs/evidence/affine-module-identity-3c728/`); parent task_e8d860a16da0464891dd32e91c42bef1. Contract: `docs/AFFINE_REMAINING_ACCEPTANCE.md`. The generic16 methods await coordinated a18 integration; no full-make/product claim follows these nine.
 - [ ] I map every original430220/4be acceptance clause to exact merged runtime/source/seal evidence and explicit exclusions, then obtain review before parent ledger closure. Source ARRAY binding reassignment remains refused; I add no new implementation under this reconciliation.
 
 - [x] I repair sealed affine evidence publication under task_36d34c2f22f945189281548f0997faaf: ordinary git add omitted ignored retention-wrapper Python caches listed in my report manifests. I preserve the original publication and exact archives, explicitly include those small hashed records, and require every advertised report to be tracked/hash-exact before corrected push. No source, assertion, gate or archive changes; actual-merge reconciliation remains pending.
+
