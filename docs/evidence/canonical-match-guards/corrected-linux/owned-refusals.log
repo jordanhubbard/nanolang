@@ -1,0 +1,7 @@
+test_guarded_owned_match_remains_rejected (tests.test_selected_variant_ownership.SelectedVariantOwnership.test_guarded_owned_match_remains_rejected) ... ok
+test_guarded_generic_match_remains_rejected (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_guarded_generic_match_remains_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.070s
+
+OK

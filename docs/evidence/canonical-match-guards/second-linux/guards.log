@@ -1,0 +1,73 @@
+I retain guard artifacts at /tmp/nano-canonical-match-guards-e0lhdwek
+test_checked_negatives_preserve_output (tests.test_canonical_match_guards.CanonicalMatchGuards.test_checked_negatives_preserve_output) ... ok
+test_named_union_vm_and_sanitized_native (tests.test_canonical_match_guards.CanonicalMatchGuards.test_named_union_vm_and_sanitized_native) ... ok
+test_native_order_scope_and_control (tests.test_canonical_match_guards.CanonicalMatchGuards.test_native_order_scope_and_control) ... FAIL
+test_parser877_unchanged (tests.test_canonical_match_guards.CanonicalMatchGuards.test_parser877_unchanged) ... ok
+test_shadow_and_profile_refusals (tests.test_canonical_match_guards.CanonicalMatchGuards.test_shadow_and_profile_refusals) ... ok
+test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards.test_unchecked_generated_terminal_backstops) ... FAIL
+
+======================================================================
+FAIL: test_native_order_scope_and_control (tests.test_canonical_match_guards.CanonicalMatchGuards.test_native_order_scope_and_control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-canonical-match-guard-shadow/tests/test_canonical_match_guards.py", line 154, in test_native_order_scope_and_control
+    self.native("named-order", TRACE)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-canonical-match-guard-shadow/tests/test_canonical_match_guards.py", line 139, in native
+    self.command([BIN / compiler, path, "-o", output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-canonical-match-guard-shadow/tests/test_canonical_match_guards.py", line 127, in command
+    self.assertEqual(result.returncode, expected, f"{args}\n{result.stdout}{result.stderr}")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-canonical-match-guard-shadow/bin/nanoc_stage1', '/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano', '-o', '/tmp/nano-canonical-match-guards-e0lhdwek/named-order-nanoc_stage1']
+/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano: In function ‘nl_main’:
+/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano:27:24: error: stray ‘#’ in program
+   27 |  return 0
+      |                        ^
+/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano:27:25: error: ‘line’ undeclared (first use in this function); did you mean ‘link’?
+   27 |  return 0
+      |                         ^   
+      |                         link
+/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano:27:25: note: each undeclared identifier is reported only once for each function it appears in
+/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano:27:29: error: expected ‘;’ before numeric constant
+   27 |  return 0
+      |                             ^  
+      |                             ;
+/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano:30:15: error: stray ‘#’ in program
+/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano:30:20: error: expected ‘;’ before numeric constant
+/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano:32:68: error: stray ‘#’ in program
+/tmp/nano-canonical-match-guards-e0lhdwek/named-order.nano:32:73: error: expected ‘;’ before numeric constant
+I could not compile native shadows
+
+
+======================================================================
+FAIL: test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards.test_unchecked_generated_terminal_backstops)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-canonical-match-guard-shadow/tests/test_canonical_match_guards.py", line 197, in test_unchecked_generated_terminal_backstops
+    self.command([BIN / "nanoc_c", source, "-o", driver], timeout=600)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-canonical-match-guard-shadow/tests/test_canonical_match_guards.py", line 127, in command
+    self.assertEqual(result.returncode, expected, f"{args}\n{result.stdout}{result.stderr}")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/home/jkh/Src/nanolang-canonical-match-guard-shadow/bin/nanoc_c', '/tmp/nano-canonical-match-guards-e0lhdwek/backstop-driver.nano', '-o', '/tmp/nano-canonical-match-guards-e0lhdwek/backstop-driver']
+Warning at line 9, column 1: Unused variable 'parser'
+-- E027 UNDEFINED FUNCTION --- /tmp/nano-canonical-match-guards-e0lhdwek/backstop-driver.nano
+I cannot find a function named `argc`.
+
+20|  if (!= (argc) 2) { return 2 }
+            ^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+-- E027 UNDEFINED FUNCTION --- /tmp/nano-canonical-match-guards-e0lhdwek/backstop-driver.nano
+I cannot find a function named `argv`.
+
+21|  (print (render (== (argv 1) "statement")))
+                        ^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 56.739s
+
+FAILED (failures=2)

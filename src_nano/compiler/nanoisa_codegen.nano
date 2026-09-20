@@ -1294,12 +1294,38 @@ shadow nisa_emit_union {
     assert (== (nisa_reset) 0)
 }
 
+# I retain my named-union profile and the shared literal-true coverage rule.
+fn nisa_match_coverage(parser: Parser, matched: ASTMatch, definition: ASTUnion) -> bool {
+    let mut covered: array<bool> = []
+    let mut i: int = 0
+    while (< i definition.variant_count) { set covered (array_push covered false) set i (+ i 1) }
+    set i 0
+    while (< i matched.arm_count) {
+        let variant: int = (nisa_union_variant definition (at matched.arm_variants i))
+        if (< variant 0) { return false }
+        if (parser_match_arm_unconditional parser matched i) { (array_set covered variant true) }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i definition.variant_count) {
+        if (not (at covered i)) { return false }
+        set i (+ i 1)
+    }
+    return (> definition.variant_count 0)
+}
+shadow nisa_match_coverage {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice { Yes { value: int }, No {} } fn f(c: Choice) -> int { return match c { Yes(a) if false => 1 Yes(b) if true => 2 No(c) => 3 } } fn g(c: Choice) -> int { return match c { Yes(a) if false => 1 No(c) => 3 } }" "coverage.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "coverage.nano")
+    assert (nisa_match_coverage parser (parser_get_match parser 0) (parser_get_union parser 0))
+    assert (not (nisa_match_coverage parser (parser_get_match parser 1) (parser_get_union parser 0)))
+}
+
 fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
     let node: ASTMatch = (parser_get_match parser node_id)
     let actual: string = (nisa_expr_type parser node.scrutinee node.scrutinee_type)
     if (not (nisa_union_supported parser actual)) { return "" }
     let definition: ASTUnion = (parser_get_union parser (nisa_union_index parser actual))
-    if (!= node.arm_count definition.variant_count) { return "" }
+    if (not (nisa_match_coverage parser node definition)) { return "" }
     let saved_names: array<string> = nisa_names
     let saved_types: array<string> = nisa_types
     let mut result: string = ""
@@ -1307,11 +1333,6 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
     while (< i node.arm_count) {
         let variant: string = (at node.arm_variants i)
         if (< (nisa_union_variant definition variant) 0) { return "" }
-        let mut previous: int = 0
-        while (< previous i) {
-            if (== variant (at node.arm_variants previous)) { return "" }
-            set previous (+ previous 1)
-        }
         if (== (at node.arm_body_types i) ParseNodeType.PNODE_BLOCK) { return "" }
         let mut names: array<string> = []
         let mut types: array<string> = []
@@ -1325,6 +1346,14 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
         set types (array_push types (+ actual (+ "." variant)))
         set nisa_names names
         set nisa_types types
+        if (< i (array_length node.arm_guard_ids)) {
+            let guard_id: int = (at node.arm_guard_ids i)
+            if (and (>= guard_id 0) (!= (nisa_expr_type parser guard_id (at node.arm_guard_types i)) "bool")) {
+                set nisa_names saved_names
+                set nisa_types saved_types
+                return ""
+            }
+        }
         let arm_type: string = (nisa_expr_type parser (at node.arm_body_ids i) (at node.arm_body_types i))
         set nisa_names saved_names
         set nisa_types saved_types
@@ -1346,6 +1375,17 @@ shadow nisa_match_result_type {
     assert (== (array_length nisa_names) 1)
     assert (== (at nisa_names 0) "outer")
     assert (== (at nisa_types 0) "bool")
+    let bad_tokens: List<LexerToken> = (tokenize_string "union Choice { Yes { value: int }, No {} } fn main() -> int { return match Choice.Yes { value: 2 } { Yes(x) if 7 => 9 Yes(y) => y.value No(n) => 0 } }" "bad.nano" (diag_list_new))
+    let bad: Parser = (parse_program bad_tokens (list_LexerToken_length bad_tokens) "bad.nano")
+    assert (== (nisa_match_result_type bad 0) "")
+    assert (== (array_length nisa_names) 1)
+    assert (== (at nisa_names 0) "outer")
+    assert (== (at nisa_types 0) "bool")
+    let rejected: string = (nisa_emit_match_body bad 0 "int")
+    assert (not nisa_ok)
+    assert (== (array_length nisa_names) 1)
+    assert (== (at nisa_names 0) "outer")
+    assert (== (at nisa_types 0) "bool")
     assert (== (nisa_reset) 0)
 }
 
@@ -1364,13 +1404,13 @@ shadow nisa_emit_match_value {
     assert (== (nisa_reset) 0)
 }
 
-fn nisa_emit_match_body(parser: Parser, node_id: int, result_type: string) -> string {
+fn nisa_emit_match_body_checked(parser: Parser, node_id: int, result_type: string) -> string {
     if (not nisa_ok) { return "" }
     let node: ASTMatch = (parser_get_match parser node_id)
     let actual: string = (nisa_expr_type parser node.scrutinee node.scrutinee_type)
     if (not (nisa_union_supported parser actual)) { return (nisa_fail "I require an exact scalar union match") }
     let definition: ASTUnion = (parser_get_union parser (nisa_union_index parser actual))
-    if (!= node.arm_count definition.variant_count) { return (nisa_fail "I require one match arm per variant") }
+    if (not (nisa_match_coverage parser node definition)) { return (nisa_fail "I require unconditional named-union match coverage") }
     let mut out: string = (nisa_emit_expr parser node.scrutinee node.scrutinee_type)
     let end: string = (nisa_fresh)
     let mut i: int = 0
@@ -1378,11 +1418,8 @@ fn nisa_emit_match_body(parser: Parser, node_id: int, result_type: string) -> st
         let name: string = (at node.arm_variants i)
         let variant: int = (nisa_union_variant definition name)
         if (< variant 0) { return (nisa_fail "I require a named match variant") }
-        let mut previous: int = 0
-        while (< previous i) {
-            if (== name (at node.arm_variants previous)) { return (nisa_fail "I require distinct match variants") }
-            set previous (+ previous 1)
-        }
+        let guard_id: int = (at node.arm_guard_ids i)
+        let guard_type: int = (at node.arm_guard_types i)
         if (== result_type "") {
             if (!= (at node.arm_body_types i) ParseNodeType.PNODE_BLOCK) { return (nisa_fail "I require a statement block in each match arm") }
         } else {
@@ -1396,9 +1433,17 @@ fn nisa_emit_match_body(parser: Parser, node_id: int, result_type: string) -> st
         set out (+ out (nisa_line_imm "JMP_FALSE" next))
         let slot: int = (array_length nisa_names)
         let binding: string = (at node.arm_bindings i)
-        set nisa_names (array_push nisa_names binding)
+        set nisa_names (array_push nisa_names (cond ((== binding "_") "") (else binding)))
         set nisa_types (array_push nisa_types (+ actual (+ "." name)))
+        # I retain the original scrutinee across false guard edges.
+        set out (+ out (nisa_line "DUP"))
         set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+        if (>= guard_id 0) {
+            if (!= (nisa_expr_type parser guard_id guard_type) "bool") { return (nisa_fail "I require an exact bool match guard") }
+            set out (+ out (nisa_emit_expected_expr parser guard_id guard_type "bool"))
+            set out (+ out (nisa_line_imm "JMP_FALSE" next))
+        }
+        set out (+ out (nisa_line "POP"))
         if (== result_type "") {
             set out (+ out (nisa_emit_block parser (at node.arm_body_ids i)))
         } else {
@@ -1426,6 +1471,33 @@ fn nisa_emit_match_body(parser: Parser, node_id: int, result_type: string) -> st
     set out (+ out (nisa_line "HALT"))
     return (+ out (nisa_label_line end))
 }
+shadow nisa_emit_match_body_checked {
+    let _: int = (nisa_reset)
+    let text: string = (nanoisa_emit_nasm "union Choice { Yes { value: int }, No {} } fn main() -> int { return match Choice.Yes { value: 2 } { Yes(x) if false => 9 Yes(y) if true => y.value No(n) => 0 } }")
+    assert nisa_ok
+    assert (str_contains text "DUP\n  STORE_LOCAL")
+    assert (str_contains text "ASSERT")
+    assert (== (nisa_reset) 0)
+}
+
+fn nisa_emit_match_body(parser: Parser, node_id: int, result_type: string) -> string {
+    let mut saved_names: array<string> = []
+    let mut saved_types: array<string> = []
+    let mut slot: int = 0
+    while (< slot (array_length nisa_names)) {
+        set saved_names (array_push saved_names (at nisa_names slot))
+        set saved_types (array_push saved_types (at nisa_types slot))
+        set slot (+ slot 1)
+    }
+    let out: string = (nisa_emit_match_body_checked parser node_id result_type)
+    if (not nisa_ok) {
+        set nisa_names saved_names
+        set nisa_types saved_types
+        return ""
+    }
+    return out
+}
+
 shadow nisa_emit_match_body {
     let _: int = (nisa_reset)
     let text: string = (nanoisa_emit_nasm "union Choice { Yes { value: int }, No {} } fn main() -> int { let c: Choice = Choice.Yes { value: 2 } match c { Yes(x) => { return x.value } No(n) => { return 0 } } }")

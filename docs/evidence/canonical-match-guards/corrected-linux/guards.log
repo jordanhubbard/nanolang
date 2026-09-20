@@ -1,0 +1,12 @@
+I retain guard artifacts at /tmp/nano-canonical-match-guards-i4f59uwc
+test_checked_negatives_preserve_output (tests.test_canonical_match_guards.CanonicalMatchGuards.test_checked_negatives_preserve_output) ... ok
+test_named_union_vm_and_sanitized_native (tests.test_canonical_match_guards.CanonicalMatchGuards.test_named_union_vm_and_sanitized_native) ... ok
+test_native_order_scope_and_control (tests.test_canonical_match_guards.CanonicalMatchGuards.test_native_order_scope_and_control) ... ok
+test_parser877_unchanged (tests.test_canonical_match_guards.CanonicalMatchGuards.test_parser877_unchanged) ... ok
+test_shadow_and_profile_refusals (tests.test_canonical_match_guards.CanonicalMatchGuards.test_shadow_and_profile_refusals) ... ok
+test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards.test_unchecked_generated_terminal_backstops) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 95.590s
+
+OK
