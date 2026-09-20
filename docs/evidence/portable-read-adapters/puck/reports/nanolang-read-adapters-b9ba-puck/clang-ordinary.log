@@ -1,0 +1,27 @@
+test_private_c_and_typed_llvm_boundaries (tests.test_portable_read_adapters.PortableReadAdapters.test_private_c_and_typed_llvm_boundaries) ... I retain private adapter evidence at /private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary
+I checked 4 measured call allocations in persistent and transient modes.
+I passed 1741 private read-text adapter checks; no bytecode admission.
+I checked 4 measured call allocations in persistent and transient modes.
+I passed 1741 private read-text adapter checks; no bytecode admission.
+I checked 4 measured call allocations in persistent and transient modes.
+I passed 1741 private read-text adapter checks; no bytecode admission.
+FAIL
+
+======================================================================
+FAIL: test_private_c_and_typed_llvm_boundaries (tests.test_portable_read_adapters.PortableReadAdapters.test_private_c_and_typed_llvm_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-portable-read-adapters-b9ba/tests/test_portable_read_adapters.py", line 185, in test_private_c_and_typed_llvm_boundaries
+    self.command([*common, *fixture_flags, 'tests/nanoisa/test_portable_read_adapters.c',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *objects, *link, '-lm', '-o', binary])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-portable-read-adapters-b9ba/tests/test_portable_read_adapters.py", line 101, in command
+    self.assertEqual(status['returncode'], 0, (status, log.read_text(errors='replace')))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ({'argv': ['/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23', '-std=c11', '-D_POSIX_C_SOURCE=200809L', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-Isrc/nanoisa', 'tests/nanoisa/test_portable_read_adapters.c', '/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/unhooked-0.o', '/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/unhooked-1.o', '/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/unhooked-2.o', '-lm', '-o', '/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/unhooked-C'], 'cwd': '/private/tmp/nanolang-portable-read-adapters-b9ba', 'returncode': 1, 'timeout': False, 'leader_reaped': True, 'group_disappeared': True, 'signals': [], 'errors': []}, "tests/nanoisa/test_portable_read_adapters.c:28:50: error: variable 'active_refusals' set but not used [-Werror,-Wunused-but-set-global]\n   28 | static NprFileHost *active_probe;static unsigned active_refusals;\n      |                                                  ^\ntests/nanoisa/test_portable_read_adapters.c:29:17: error: variable 'opens' set but not used [-Werror,-Wunused-but-set-global]\n   29 | static unsigned opens,closes,successful_opens;static bool read_error,close_error,read_progress;static int last_fd=-1;\n      |                 ^\ntests/nanoisa/test_portable_read_adapters.c:29:107: error: variable 'last_fd' set but not used [-Werror,-Wunused-but-set-global]\n   29 | static unsigned opens,closes,successful_opens;static bool read_error,close_error,read_progress;static int last_fd=-1;\n      |                                                                                                           ^\n3 errors generated.\n")
+
+----------------------------------------------------------------------
+Ran 1 test in 2.726s
+
+FAILED (failures=1)

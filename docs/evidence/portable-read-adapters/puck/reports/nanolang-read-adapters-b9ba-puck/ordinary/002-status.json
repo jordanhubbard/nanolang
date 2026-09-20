@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-O0",
+    "-S",
+    "-emit-llvm",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/ordinary/products/target-probe.c",
+    "-o",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/ordinary/products/target-probe.ll"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-b9ba",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

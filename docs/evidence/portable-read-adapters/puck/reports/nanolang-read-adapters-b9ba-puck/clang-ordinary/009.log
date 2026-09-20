@@ -1,0 +1,2 @@
+I checked 4 measured call allocations in persistent and transient modes.
+I passed 1741 private read-text adapter checks; no bytecode admission.

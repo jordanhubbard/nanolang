@@ -1,0 +1,50 @@
+{
+  "observed-0.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-0.o",
+    "sha256": "44487a57a6bf8537150f7c9655506b03ee646d53a9c66197fc4a2109ff992c8f",
+    "bytes": 24992,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/44487a57a6bf8537150f7c9655506b03ee646d53a9c66197fc4a2109ff992c8f"
+  },
+  "observed-1.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-1.o",
+    "sha256": "44caf8c4129c97ec523aa7743855712f087c3c1289cee82844e28c2a251c2fb5",
+    "bytes": 15096,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/44caf8c4129c97ec523aa7743855712f087c3c1289cee82844e28c2a251c2fb5"
+  },
+  "observed-2.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/observed-2.o",
+    "sha256": "b68ad41d31df42b27dd382e3cb972961c2ae60327e6c123abe5c2151461b87ca",
+    "bytes": 436648,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/b68ad41d31df42b27dd382e3cb972961c2ae60327e6c123abe5c2151461b87ca"
+  },
+  "target-probe.c": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/target-probe.ll",
+    "sha256": "9111d0e55ac5ad3fd3cef091ba8af0f421ad765ffbe7685e3ef4b9df95073b63",
+    "bytes": 1209,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/9111d0e55ac5ad3fd3cef091ba8af0f421ad765ffbe7685e3ef4b9df95073b63"
+  },
+  "typed-O0.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/typed-O0.o",
+    "sha256": "8149c5c7ca812238c688780b5663cd41921e0029a32f04e5dd7846350cb7d9ed",
+    "bytes": 736,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/8149c5c7ca812238c688780b5663cd41921e0029a32f04e5dd7846350cb7d9ed"
+  },
+  "typed-O2.o": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/typed-O2.o",
+    "sha256": "b0187380709f83f015405b6580d9ed933f1cc92053bdb0bf8bc9628aee2056d8",
+    "bytes": 560,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/b0187380709f83f015405b6580d9ed933f1cc92053bdb0bf8bc9628aee2056d8"
+  },
+  "typed-read.ll": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/typed-read.ll",
+    "sha256": "a18558c75e3f457606b8cbb9aed53a8868148977883cc2c33555ceb712891a58",
+    "bytes": 501,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/a18558c75e3f457606b8cbb9aed53a8868148977883cc2c33555ceb712891a58"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "-Werror",
+    "-O2",
+    "-c",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/typed-read.ll",
+    "-o",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/typed-O2.o"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-b9ba",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

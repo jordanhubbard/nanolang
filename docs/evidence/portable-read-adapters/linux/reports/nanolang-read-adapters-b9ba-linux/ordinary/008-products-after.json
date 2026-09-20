@@ -1,0 +1,56 @@
+{
+  "observed-0.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/observed-0.o",
+    "sha256": "cf5673568c8bd5815213e5eb50e165ad1a2cd48b0e3a8b374b3cb2c304d179f6",
+    "bytes": 22176,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/objects/cf5673568c8bd5815213e5eb50e165ad1a2cd48b0e3a8b374b3cb2c304d179f6"
+  },
+  "observed-1.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/observed-1.o",
+    "sha256": "fc5e350d42f9b22bc0a9f7a46184ebcdf54464058cc1e47559fbc90e0840c3a5",
+    "bytes": 12536,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/objects/fc5e350d42f9b22bc0a9f7a46184ebcdf54464058cc1e47559fbc90e0840c3a5"
+  },
+  "observed-2.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/observed-2.o",
+    "sha256": "e3cdeedf6c1494bedf25f4468ba1016851b491b45b3f35bccb601920bc0c29ad",
+    "bytes": 205656,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/objects/e3cdeedf6c1494bedf25f4468ba1016851b491b45b3f35bccb601920bc0c29ad"
+  },
+  "observed-C": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/observed-C",
+    "sha256": "9ac2d901386e92a9a8d4fb830c7332c79962aef2c070991e5f60622d6091a434",
+    "bytes": 308896,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/objects/9ac2d901386e92a9a8d4fb830c7332c79962aef2c070991e5f60622d6091a434"
+  },
+  "target-probe.c": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/target-probe.ll",
+    "sha256": "15cfdca71ccca7da0c48a888f780dea299fa4f23cbad50045b524472b748e2c1",
+    "bytes": 1059,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/objects/15cfdca71ccca7da0c48a888f780dea299fa4f23cbad50045b524472b748e2c1"
+  },
+  "typed-O0.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/typed-O0.o",
+    "sha256": "79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc",
+    "bytes": 1048,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/objects/79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc"
+  },
+  "typed-O2.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/typed-O2.o",
+    "sha256": "a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147",
+    "bytes": 1024,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/objects/a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147"
+  },
+  "typed-read.ll": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/typed-read.ll",
+    "sha256": "30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3",
+    "bytes": 502,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/objects/30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3"
+  }
+}
