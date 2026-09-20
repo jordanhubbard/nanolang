@@ -32,6 +32,21 @@ concrete generic spellings, exact constructor and projection refusals, unknown
 parameter refinement, known taken and untaken branches, public verifier
 admission and native source emission.
 
+I no longer use those display spellings as the equality authority. The
+self-hosted producer derives a key from the resolved root-module union
+declaration, its module owner and every recursively resolved type argument.
+Canonical spelling differences therefore share one key, while simultaneous
+and nested concrete instances remain distinct. The admitted producer still
+refuses imports. An unresolved alias, ambiguous declaration or equal-looking
+cross-module declaration therefore refuses instead of falling back to text;
+this checkpoint does not claim imported-alias admission.
+
+`MATCH_TAG` now refines only the stack value it tests on the successful edge.
+It does not write the selected variant back to the source local. A later load
+of that local, another parameter with the same concrete layout and a join with
+an unrefined predecessor all require their own proof before projection. Direct
+projection from the matched stack value remains admitted.
+
 My self-hosted affine producer now registers canonical concrete spellings
 independently of source union declarations. It emits one retained layout per
 instance, exact variant-major payload fields, version-3 variant slices and
@@ -93,8 +108,62 @@ terminated with status -11 after reporting an unresolved parameter boundary.
 I retain that terminal as unqualified adjacent evidence and do not attribute it
 to scalar unions.
 
+## Declaration identity and exact-value qualification
+
+I qualified the bounded identity and refinement correction from a fresh
+detached Darwin checkout at exact head
+`19c7573ed9645f89f058012a782fe4a3833122a8`. That head is the bounded
+production checkpoint `143ad7ab` merged with canonical main `af8809b3`; the
+merge was automatic and retained the shared version-3 envelope unchanged.
+
+The first new different-receiver control did not reach affine analysis. The C
+fixture emitted one `.parameters` tag for every nonzero arity, so its new
+two-parameter function was malformed. I retained that terminal and corrected
+the fixture to emit the exact requested parameter list before rerunning any
+acceptance gate.
+
+```text
+make -j8 bootstrap
+  PASS in 301.86s: C seed, Stage 1, Stage 2 and installed-compiler smoke checks
+  NOTE: Stage 1 and Stage 2 native binaries differ; this is not fixed-point evidence
+
+make -j8 nanoisa_emit nano_vm nvm2c nanoisa_dump
+  PASS in 76.89s
+
+make -j8 test-affine-scalar-union-runtime
+  PASS: 546 ordinary affine checks
+  PASS: 856 allocation-path affine checks
+  PASS: VM/native runtime and Homebrew LLVM 23 ASan/UBSan/LSan
+
+NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang \
+  python3 -m unittest -v tests.test_affine_scalar_union_source
+  PASS: simultaneous concrete instances verify and execute in VM/native routes
+
+make -j8 test-ownership-contracts test-owned-transfers
+  PASS: ownership contract Python control
+  PASS: 184 ordinary and 275 allocation-path owned-transfer checks
+```
+
+The source index was clean before qualification and after the final command.
+The selected actual compilers
+were Apple Clang 21.0.0 at SHA-256
+`1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9`
+and Homebrew Clang 23.1.1 at SHA-256
+`570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888`.
+The retained raw logs are:
+
+```text
+e7feda8dd8688be8f914e6c6e4f3ad04c6329403bceed9617bd1b578a0148b03  /private/tmp/nanolang-pr893-19c7573e-bootstrap.log
+290aca9b9257535383d31e8eeb866945ee3cabb080bf1bb2cf3cce98aa218a8d  /private/tmp/nanolang-pr893-19c7573e-tools.log
+740d56b846a83ef4c576a2d94d460ad6ae0fc2653886fb374949bdbcc88ac552  /private/tmp/nanolang-pr893-19c7573e-runtime.log
+94c3cf1d571110a2ece5a2ac87a2c64f440e3eed95945fb79987d8a57b307036  /private/tmp/nanolang-pr893-19c7573e-source.log
+0590ffbe33cfebe0f4c8b0432e5ddf8f0bdd53a5c4a74e181555bc6d78989bf9  /private/tmp/nanolang-pr893-19c7573e-adjacent.log
+```
+
 ## What remains
 
-I still require statement and value match lowering through the affine producer,
-precise unsupported-payload refusals, Stage 1/Stage 2 parity and fresh integrated
-Linux and Darwin gates. PR522 and release publication remain held.
+I still require the complete statement/value match matrix, precise
+unsupported-payload refusals, qualified mixed-envelope conjunction after the
+independently owned `ARRAY_FIELDS` validator, Stage 1/Stage 2 producer parity
+and fresh integrated Linux qualification. PR522 and release publication remain
+held.
