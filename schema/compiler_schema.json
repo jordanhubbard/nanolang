@@ -1175,6 +1175,14 @@
           "array<int>"
         ],
         [
+          "arm_guard_ids",
+          "array<int>"
+        ],
+        [
+          "arm_guard_types",
+          "array<int>"
+        ],
+        [
           "arm_count",
           "int"
         ]
