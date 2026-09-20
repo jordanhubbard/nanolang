@@ -1,0 +1,22 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 9.668,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.125,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 5.588,
+    "status": 0
+  },
+  {
+    "phase": "archive-boundary",
+    "seconds": 0.773,
+    "status": 0
+  }
+]

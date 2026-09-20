@@ -1,0 +1,31 @@
+{
+  "pin": "78aac70e23cd5750ff96b9d0a58f321f24def7c9",
+  "platform": "darwin",
+  "configs": [
+    [
+      "apple-ordinary",
+      "/usr/bin/clang",
+      [],
+      false,
+      true
+    ],
+    [
+      "homebrew-ordinary",
+      "/opt/homebrew/opt/llvm/bin/clang",
+      [],
+      false,
+      false
+    ],
+    [
+      "homebrew-sanitizers",
+      "/opt/homebrew/opt/llvm/bin/clang",
+      [],
+      true,
+      false
+    ]
+  ],
+  "source_count": 26453,
+  "source_scope": "all tracked files at the frozen pin",
+  "sanitizer_scope": "parser fixture and fresh env/lexer/UTF8 selected sanitizer providers (env free observation only); ordinary common/runtime providers reused; publisher seven providers fresh at selected flags",
+  "tool_scope": "explicit drivers, selected subtools, sanitizer libraries and Darwin ffi headers/library; not complete transitive system toolchain"
+}

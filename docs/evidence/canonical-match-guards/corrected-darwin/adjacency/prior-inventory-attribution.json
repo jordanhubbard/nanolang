@@ -1,0 +1,20 @@
+{
+  "prior_files_unchanged": 218,
+  "added": {
+    "/private/tmp/nanolang-canonical-guards-eaf/obj/module_cache/v2-b5e8b8c731caf4238143e8b8ed06746853ddda4fb694e60f47c897c154e47074/.nano-gen-O8Wu46/libstd.dylib": "9f5250b8932d32f3cf5da0e964511515be5b68a52250498a1971a06af96e8676",
+    "/private/tmp/nanolang-canonical-guards-eaf/obj/module_cache/v2-b5e8b8c731caf4238143e8b8ed06746853ddda4fb694e60f47c897c154e47074/.nano-gen-O8Wu46/std.o": "21d2d0089b6233f2618d6716ef44b9730b5d0bb3d3c342a0240cfc6462282ccd",
+    "/private/tmp/nanolang-canonical-guards-eaf/obj/module_cache/v2-b5e8b8c731caf4238143e8b8ed06746853ddda4fb694e60f47c897c154e47074/.nano-gen-O8Wu46/std_0.o": "265b6466ca517fcfd8a314320cd3bd237021b59e5fb17f58b69310b91b5890ed",
+    "/private/tmp/nanolang-canonical-guards-eaf/obj/module_cache/v2-b5e8b8c731caf4238143e8b8ed06746853ddda4fb694e60f47c897c154e47074/.nano-gen-O8Wu46/std_1.o": "e1d5f656a2f05de9f0161bf191cb8e6bb093a517aa1d142a34673e072adb806c"
+  },
+  "command": [
+    "/private/tmp/nanolang-canonical-guards-eaf/bin/nanoc_c",
+    "/private/tmp/nanolang-canonical-guards-eaf/tests/parser_parenthesized.nano",
+    "-o",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-4ftsjf58/parser877-nanoc_c",
+    "--keep-c"
+  ],
+  "command_mtime": 1789870484.3476892,
+  "library_mtime": 1789870497.7743776,
+  "terminal_mtime": 1789870509.4143326,
+  "limits": "Timestamp correlation and cache source manifests; no per-command cache snapshot was recorded historically. Raw-driver attribution was incorrect."
+}

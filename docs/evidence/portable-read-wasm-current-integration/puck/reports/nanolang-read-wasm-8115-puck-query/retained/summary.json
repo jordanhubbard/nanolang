@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "commands": 1,
+  "phases": [
+    {
+      "phase": "declaration-query",
+      "passed": true,
+      "inputs_equal": true,
+      "source_equal": true
+    }
+  ]
+}

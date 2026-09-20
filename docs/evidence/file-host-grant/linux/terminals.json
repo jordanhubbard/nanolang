@@ -1,0 +1,126 @@
+[
+  {
+    "command": [
+      "/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "file-host-grant",
+      "CC=/bin/gcc",
+      "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC",
+      "OBJ_DIR=/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/obj",
+      "LIBFFI_CFLAGS=",
+      "LIBFFI_LIBS="
+    ],
+    "elapsed_seconds": 0.08,
+    "label": "make",
+    "phase": "gcc-normal",
+    "status": 0
+  },
+  {
+    "command": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_host_grant"
+    ],
+    "elapsed_seconds": 0.247,
+    "label": "fixture",
+    "phase": "gcc-normal",
+    "status": 0
+  },
+  {
+    "command": [
+      "/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "file-host-grant",
+      "CC=/usr/local/bin/clang",
+      "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "OBJ_DIR=/tmp/nanolang-file-host-grant-54822-linux/clang-normal/obj",
+      "LIBFFI_CFLAGS=",
+      "LIBFFI_LIBS="
+    ],
+    "elapsed_seconds": 0.091,
+    "label": "make",
+    "phase": "clang-normal",
+    "status": 0
+  },
+  {
+    "command": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_host_grant"
+    ],
+    "elapsed_seconds": 0.262,
+    "label": "fixture",
+    "phase": "clang-normal",
+    "status": 0
+  },
+  {
+    "command": [
+      "/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "file-host-grant",
+      "CC=/bin/gcc",
+      "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "OBJ_DIR=/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/obj",
+      "LIBFFI_CFLAGS=",
+      "LIBFFI_LIBS="
+    ],
+    "elapsed_seconds": 0.09,
+    "label": "make",
+    "phase": "gcc-sanitizers",
+    "status": 0
+  },
+  {
+    "command": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_host_grant"
+    ],
+    "elapsed_seconds": 0.354,
+    "label": "fixture",
+    "phase": "gcc-sanitizers",
+    "status": 0
+  },
+  {
+    "command": [
+      "/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "file-host-grant",
+      "CC=/usr/local/bin/clang",
+      "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -fsanitize=address,undefined -fno-omit-frame-pointer",
+      "OBJ_DIR=/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/obj",
+      "LIBFFI_CFLAGS=",
+      "LIBFFI_LIBS="
+    ],
+    "elapsed_seconds": 0.066,
+    "label": "make",
+    "phase": "clang-sanitizers",
+    "status": 0
+  },
+  {
+    "command": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_file_host_grant"
+    ],
+    "elapsed_seconds": 0.532,
+    "label": "fixture",
+    "phase": "clang-sanitizers",
+    "status": 0
+  }
+]

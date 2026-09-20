@@ -1,0 +1,262 @@
+{
+  "reviewed_publisher": "742b1494dddad202292e787892acdb9c2e519a73",
+  "canonical_merge": "6dd5d7a2bde2234dfeb3c21633f5426c7a83bae2",
+  "scope": "Static restack only; no fixture rerun or new platform/sanitizer acceptance",
+  "selected_inputs": [
+    {
+      "path": "src/nsi_file_binding_main.c",
+      "sha256": "4149f2e198e965349b82370d88985dd0267f5891767a523f844634c6c39283cc",
+      "bytes": 5148
+    },
+    {
+      "path": "src/nsi_file_publish.c",
+      "sha256": "a62a2abcb22488bb4c896bb0561a030e1fe40d629345abcabc087b7b56954e6d",
+      "bytes": 12390
+    },
+    {
+      "path": "src/nsi_file_binding.c",
+      "sha256": "15f1db30f9046d9b478019ae5abd221637af70d8c7f48f123162e2dbf5217c3f",
+      "bytes": 18682
+    },
+    {
+      "path": "src/nsi_file_plan.c",
+      "sha256": "66cc890caeb1e20628bf3a9696a5a6c6d409f70aff8296c82720a24b098d35bc",
+      "bytes": 7317
+    },
+    {
+      "path": "src/nsi.c",
+      "sha256": "ec1e9aa45aa93088871b184d339913c72d7351d10b82412e63739766b817afba",
+      "bytes": 32591
+    },
+    {
+      "path": "src/cJSON.c",
+      "sha256": "e3b9e8902dfd7472fb65cca9ab275d5da03dffe4e5d2ecb0b3586fd5f2f4e248",
+      "bytes": 80517
+    },
+    {
+      "path": "src/utf8.c",
+      "sha256": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+      "bytes": 5485
+    },
+    {
+      "path": "src/nsi_file_publish.h",
+      "sha256": "a418999d6a58554b091c9486c1dbb883f3e4d484fe9163453f077d381115554f",
+      "bytes": 1325
+    },
+    {
+      "path": "src/nsi_file_binding.h",
+      "sha256": "00feca07258be973ff3a050736f2dcea54f83722a8af7aeee9ce32165db80d8a",
+      "bytes": 2071
+    },
+    {
+      "path": "src/nsi_file_plan.h",
+      "sha256": "dd9d995fb119ff5f8712aac2f1d907d45ed7fd0a98082260ade1fc0204b25203",
+      "bytes": 2455
+    },
+    {
+      "path": "src/nsi_file_catalog.h",
+      "sha256": "95ab2277fc3dd7993f1130617591a4cc06bde8e2158de6f023dc47c1c2006a35",
+      "bytes": 403
+    },
+    {
+      "path": "src/nsi_cap.h",
+      "sha256": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+      "bytes": 2672
+    },
+    {
+      "path": "src/nsi_internal.h",
+      "sha256": "0860dacc5571bd821036c03f517798083c2c3836b5c01d9e78923c503bb53def",
+      "bytes": 367
+    },
+    {
+      "path": "src/nsi.h",
+      "sha256": "2e063bc54582e7999fc431a419e429b9e3e610ff9fc92e91556dc5c3a1708118",
+      "bytes": 2957
+    },
+    {
+      "path": "src/cJSON.h",
+      "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+      "bytes": 16394
+    },
+    {
+      "path": "src/utf8.h",
+      "sha256": "a03bc4dfa283b7acee20f108015690ebdc372c6be81c9e9c825c2d229c885e33",
+      "bytes": 1231
+    },
+    {
+      "path": "tests/test_nsi_file_publish.py",
+      "sha256": "887c9dd160e9de66ab30d94c264ad67e12ebfc23b24967ca4dae2641d24ad2ec",
+      "bytes": 4157
+    },
+    {
+      "path": "tests/test_nsi_file_publish.c",
+      "sha256": "5b4735fbc0d9bf48a0b7c23d76f07f8e2110e2ef5a3f2a0d16bf00325542717b",
+      "bytes": 15778
+    },
+    {
+      "path": "tests/file_binding_publish_cli.py",
+      "sha256": "ba2af456105d968926d9d790716b8778af2745ecdc612ef7ccb5c522093e0fe0",
+      "bytes": 8764
+    },
+    {
+      "path": "tests/test_file_source_plan.py",
+      "sha256": "60d843dc252dab6436b9fcecc475262d4c6b051c9fa7d473fe0ddfd05f8f78dc",
+      "bytes": 9478
+    },
+    {
+      "path": "tests/test_nsi_file_binding.py",
+      "sha256": "1d037dd183dca4f07e10bcfcde65a608bd555407e563fafc22a57dad2c9548fa",
+      "bytes": 5139
+    },
+    {
+      "path": "tests/test_nsi_file_binding.c",
+      "sha256": "5c060915dcf2011004da4aebb1729cf79a9a3a7ebae5979d4a4a6afde21cdbf3",
+      "bytes": 10984
+    },
+    {
+      "path": "tests/file_binding_corpus.py",
+      "sha256": "e7f82859da8f16388eef69a5f71efb7459cf68b7b4411b5d1729cd79c16842ca",
+      "bytes": 8785
+    },
+    {
+      "path": "tests/fixtures/nsi_file_plan.json",
+      "sha256": "94ca15393167e556494e52b61626f74d68dd61b0a274854a96413ec5d78d33be",
+      "bytes": 8381
+    },
+    {
+      "path": "tests/differential/let_binding.nano",
+      "sha256": "71f2560be10e45e453c27bdff41ed179d655763b078c76bb540c4a1d41b75cd0",
+      "bytes": 178
+    },
+    {
+      "path": "tests/differential/let_binding.sexp",
+      "sha256": "8d875b9f6a8a35e704bdc91f6e1fec76263372639aaf52426c31dcf772697cc3",
+      "bytes": 56
+    },
+    {
+      "path": "tests/file_binding_hooks.h",
+      "sha256": "f053710bc208770a49222527204bd7aa70aba7b49a243ce0d66bcc7c3fd29bbf",
+      "bytes": 546
+    },
+    {
+      "path": "tests/fixtures/nsi_file_binding_expected.nano.txt",
+      "sha256": "c417f6dc01df739208cb989113e503dfa0aa11c6a9305561784e9c9a8099107b",
+      "bytes": 3942
+    },
+    {
+      "path": "tests/nanoisa/fixtures/native_underscore_bindings.nano",
+      "sha256": "e90f57403f98ab9ff308025f8d7d365b277a94926cfbd75ed21bad56eb49d508",
+      "bytes": 3060
+    },
+    {
+      "path": "tests/nanoisa/test_local_bindings.c",
+      "sha256": "486d2b40ef14562ab4b592b0c7404c31661da08ced872229793a3cf7b3481669",
+      "bytes": 5692
+    },
+    {
+      "path": "tests/nanoisa/test_local_bindings_alloc.c",
+      "sha256": "503fe93cf9841d43a23f659b2d9452bd8ae894440e8baafbedc7531c1a9ebb1a",
+      "bytes": 1481
+    },
+    {
+      "path": "tests/nanoisa/test_service_bindings.c",
+      "sha256": "d985f48729ffc497e7c38bb9a9b635151aa8bbb951ede8665da353e5976f6e31",
+      "bytes": 4009
+    },
+    {
+      "path": "tests/nanoisa/test_service_bindings_module.c",
+      "sha256": "7581ccc8f00055ae0f31ff71c930641ffe4c1aafe285917688fb0b533869f5d6",
+      "bytes": 11934
+    },
+    {
+      "path": "tests/selfhost/test_match_bindings.nano",
+      "sha256": "fd23795082e1e528ca96061e992d135c5b104831e6a8fdc46db144c9df5a50df",
+      "bytes": 1157
+    },
+    {
+      "path": "tests/test_local_binding_metadata.py",
+      "sha256": "952c0759c3882fa71a0b0679f678dcee9d98b9ea8d49b33e12cd169f3df4d621",
+      "bytes": 3745
+    },
+    {
+      "path": "tests/test_nanovirt_match_bindings.py",
+      "sha256": "5021af98e809fc27ed9ebdea8ae56754e644cd39a5260f5ddb6725c759bb4f9a",
+      "bytes": 2618
+    },
+    {
+      "path": "tests/test_native_underscore_bindings.py",
+      "sha256": "8e3728e18fea18e231d9c9d109b9f2f5fa780ebaebacaf6d0ab1944718f9a52c",
+      "bytes": 3795
+    },
+    {
+      "path": "tests/test_nsi_file_plan.c",
+      "sha256": "dd2d8498a0825b2c58809254a05ed7d6e92514ae3d49864675f2aebee2d1a243",
+      "bytes": 6142
+    },
+    {
+      "path": "tests/test_nsi_file_plan.py",
+      "sha256": "6f204ce26b0ad70277523162f86232084f9155b7a978e26eaa7a1841d8503b8f",
+      "bytes": 2068
+    },
+    {
+      "path": "tests/test_selfhost_module_bindings.py",
+      "sha256": "710734cfa31d5f49bc28b4d149fa41d45cbc9e38897836304e0ec2aaa4d47329",
+      "bytes": 8726
+    },
+    {
+      "path": "tests/test_service_bindings.py",
+      "sha256": "52aefa2df200b589c911a19643150d84b4d24a8f19e7020c14133b091ce3b554",
+      "bytes": 1813
+    },
+    {
+      "path": "tests/test_service_bindings_module.py",
+      "sha256": "138cc5a278cc3653b042cd7390cad67b4dac209d4d4d919ad88b48ade1998ade",
+      "bytes": 5064
+    },
+    {
+      "path": "tests/test_void_bindings.py",
+      "sha256": "f9a407caa812d615663262f6e981ec3a0796527cea435d26490885f95dae1693",
+      "bytes": 1937
+    },
+    {
+      "path": "tests/user_guide/refresh_language_bindings.nano",
+      "sha256": "768280d2f91f50acd2e852a601a571d542c11b7bdeeeff2dc3200632df977876",
+      "bytes": 310
+    }
+  ],
+  "incoming_source_fixture_paths_exact_canonical": [
+    "src/nanoisa/file_cyclic_dispatch.inc",
+    "src/nanoisa/file_cyclic_native_emit.inc",
+    "src/nanoisa/file_cyclic_runtime.h",
+    "src/nanoisa/file_cyclic_runtime.inc",
+    "src/nanoisa/nvm2c_file_cyclic_private.c",
+    "src/nanoisa/nvm2c_file_cyclic_private.h",
+    "src/nanoisa/portable_read_wasm.c",
+    "src/nanoisa/portable_read_wasm.h",
+    "src/nanovm/file_vm_cyclic_private.c",
+    "src/nanovm/file_vm_cyclic_private.h",
+    "src/runtime/portable_read_node.mjs",
+    "src/runtime/portable_read_wasmtime.py",
+    "src/typechecker.c",
+    "tests/nanoisa/file_cyclic_dispatch_hooks.h",
+    "tests/nanoisa/file_cyclic_dispatch_values.c",
+    "tests/nanoisa/portable_read_wasm_node.mjs",
+    "tests/nanoisa/portable_read_wasm_python.py",
+    "tests/nanoisa/test_file_cyclic_dispatch.c",
+    "tests/nanoisa/test_file_cyclic_native_buffer.c",
+    "tests/nanoisa/test_file_cyclic_runtime.c",
+    "tests/nanoisa/test_portable_read_wasm.c",
+    "tests/nanovm/test_vm.c",
+    "tests/test_cseed_match_totality.py",
+    "tests/test_file_cyclic_dispatch.py",
+    "tests/test_portable_read_wasm.py"
+  ],
+  "publisher_make_block_exact": true,
+  "make_old_lines_retained_only_additions": true,
+  "original_evidence_blob_count_unchanged": 1946,
+  "provider_closure_excludes": [
+    "src/typechecker.c",
+    "src/nanoisa/file_cyclic_runtime.inc",
+    "src/nanoisa/portable_read_wasm.c"
+  ]
+}

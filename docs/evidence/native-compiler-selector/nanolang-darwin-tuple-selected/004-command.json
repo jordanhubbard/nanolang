@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-darwin-tuple-selected/nanoisa_emit",
+    "/private/tmp/nanolang-file-cyclic-public-final/tests/nanoisa/fixtures/tuple_values.nano",
+    "-o",
+    "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.nasm"
+  ],
+  "cwd": "/private/tmp/nanolang-file-cyclic-public-final",
+  "timeout": 120,
+  "selected_ASAN_OPTIONS": null
+}

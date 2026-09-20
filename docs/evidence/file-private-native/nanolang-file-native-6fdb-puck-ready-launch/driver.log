@@ -1,0 +1,5 @@
+{"phase": "sanitizer", "status": 0, "seconds": 52.909}
+{"phase": "vm", "status": 0, "seconds": 5.392}
+{"phase": "frames", "status": 0, "seconds": 5.033}
+{"phase": "opcodes", "status": 0, "seconds": 3.428}
+{"phase": "wrapper", "status": 0, "seconds": 6.144}

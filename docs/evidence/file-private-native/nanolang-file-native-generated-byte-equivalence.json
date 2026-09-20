@@ -1,0 +1,14 @@
+{
+  "instrumented": {
+    "count": 71,
+    "before": "/tmp/nano-file-private-native-6z3lxxa1/instrumented-cases",
+    "after": "/tmp/nano-file-private-native-j5trw3z4/instrumented-cases",
+    "equal": true
+  },
+  "linked": {
+    "count": 67,
+    "before": "/tmp/nano-file-private-native-6z3lxxa1/linked-cases",
+    "after": "/tmp/nano-file-private-native-j5trw3z4/linked-cases",
+    "equal": true
+  }
+}

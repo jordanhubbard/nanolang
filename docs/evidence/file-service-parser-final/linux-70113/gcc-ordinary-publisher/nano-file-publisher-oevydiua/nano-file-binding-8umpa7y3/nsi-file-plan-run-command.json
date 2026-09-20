@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/nano-file-binding-8umpa7y3/nsi-file-plan",
+    "tests/fixtures/nsi_file_plan.json"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-70113",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "-std=c11",
+    "-D_DEFAULT_SOURCE",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "-Dmalloc=read_stack_malloc",
+    "-Dcalloc=read_stack_calloc",
+    "-Drealloc=read_stack_realloc",
+    "-Dfree=read_stack_free",
+    "-c",
+    "src/nanoisa/verifier.c",
+    "-o",
+    "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/products/instrumented-read_stack.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-8115",
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

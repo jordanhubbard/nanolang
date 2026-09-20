@@ -1,0 +1,9 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-lv4m_991/case.nano
+I require a match guard to have type bool.
+
+4|  let selected: int = match 7 { 7 if 1 => 1 _ => 0 }
+                                       ^
+Hint: Give this guard an exact bool type before I select an arm.
+Warning at line 3, column 2: Unused variable 'choice'
+Warning at line 4, column 2: Unused variable 'selected'
+Type checking failed

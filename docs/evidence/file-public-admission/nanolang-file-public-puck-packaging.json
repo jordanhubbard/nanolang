@@ -1,0 +1,23 @@
+{
+  "reports": [
+    "nanolang-file-public-389-puck",
+    "nanolang-file-public-dd401-puck",
+    "nanolang-file-public-dd401-puck-remaining",
+    "nanolang-file-public-9bac-puck",
+    "nanolang-file-public-a46-puck",
+    "nanolang-file-public-a46-neighbors-puck",
+    "nanolang-file-public-a46-preflight-puck"
+  ],
+  "references": 21306,
+  "unique": 7904,
+  "archives": {
+    "nanolang-file-public-puck-reports.tar.gz": {
+      "sha256": "e27e5c7efffc428d49eb55854c320b0359326bf7cd1116d1f993231a9ad0a77a",
+      "bytes": 14539881
+    },
+    "nanolang-file-public-puck-artifacts.tar.gz": {
+      "sha256": "6bfdc9049f841cc6eb038db19431989121b12fa3796e5f4f93f4526259338933",
+      "bytes": 267385901
+    }
+  }
+}

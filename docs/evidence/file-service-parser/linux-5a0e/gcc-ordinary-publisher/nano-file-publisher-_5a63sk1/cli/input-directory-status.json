@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/input-directory",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/refused-directory"
+  ],
+  "pid": 2685509,
+  "returncode": 1,
+  "timeout": false
+}

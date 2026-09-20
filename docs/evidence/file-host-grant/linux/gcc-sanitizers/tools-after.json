@@ -1,0 +1,26 @@
+{
+  "as": {
+    "path": "/usr/bin/aarch64-linux-gnu-as",
+    "sha256": "1ffda50efb6d91b6b05ef933aced099595c36577594c0296c91161f2d13db374"
+  },
+  "cc1": {
+    "path": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1",
+    "sha256": "64edfe466dd55c4216c006e9fa237af012e4974281dd4d11640aacfc3b3693af"
+  },
+  "compiler": {
+    "path": "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+  },
+  "ld": {
+    "path": "/usr/bin/aarch64-linux-gnu-ld.bfd",
+    "sha256": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c"
+  },
+  "make": {
+    "path": "/usr/bin/make",
+    "sha256": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0"
+  },
+  "python": {
+    "path": "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14",
+    "sha256": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8"
+  }
+}

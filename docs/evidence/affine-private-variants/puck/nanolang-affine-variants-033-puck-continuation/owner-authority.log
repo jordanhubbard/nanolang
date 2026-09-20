@@ -1,0 +1,19 @@
+test_authority_and_failure_atomicity (owner_authority_corrected.OwnedArrayAuthority.test_authority_and_failure_atomicity) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.265s
+
+OK
+I retain structural INVALID at allocation prefix 656, exact retained-layout boundary.
+I retain structural INVALID at allocation prefix 657, exact retained-layout boundary.
+I retain structural INVALID at allocation prefix 658, exact retained-layout boundary.
+I retain structural INVALID at allocation prefix 659, exact retained-layout boundary.
+I retain structural INVALID at allocation prefix 660, exact retained-layout boundary.
+I preserve private plan outputs through 657 MEMORY and 5 attributed structural INVALID failures.
+I retain structural INVALID at allocation prefix 656, exact retained-layout boundary.
+I retain structural INVALID at allocation prefix 657, exact retained-layout boundary.
+I retain structural INVALID at allocation prefix 658, exact retained-layout boundary.
+I retain structural INVALID at allocation prefix 659, exact retained-layout boundary.
+I retain structural INVALID at allocation prefix 660, exact retained-layout boundary.
+I preserve public absent-sidecar plan outputs through 657 MEMORY and 5 attributed structural INVALID failures.
+5433 private owner ARRAY authority checks passed; no pending module execution

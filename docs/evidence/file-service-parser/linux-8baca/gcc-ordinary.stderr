@@ -1,0 +1,17 @@
+test_c_ownership_and_refusal (tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal) ... FAIL
+
+======================================================================
+FAIL: test_c_ownership_and_refusal (tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-service-parser-8baca/tests/test_file_service_parser.py", line 61, in test_c_ownership_and_refusal
+    self.command('parser-c-build',[*self.cc,*self.flags,ROOT/'tests/test_file_service_parser.c',*self.selected,*self.common,*self.links,'-o',exe])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-service-parser-8baca/tests/test_file_source_plan.py", line 110, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('parser-c-build', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'', b'/home/jkh/Src/nanolang-file-service-parser-8baca/tests/test_file_service_parser.c: In function \xe2\x80\x98grammar\xe2\x80\x99:\n/home/jkh/Src/nanolang-file-service-parser-8baca/tests/test_file_service_parser.c:73:17: error: initialization discards \xe2\x80\x98const\xe2\x80\x99 qualifier from pointer target type [-Werror=discarded-qualifiers]\n   73 |     char *saved=t[5].value;\n      |                 ^\ncc1: all warnings being treated as errors\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 1.387s
+
+FAILED (failures=1)

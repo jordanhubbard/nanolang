@@ -1,0 +1,6 @@
+[
+  "ssh",
+  "puck.local",
+  "/opt/homebrew/bin/python3",
+  "-"
+]

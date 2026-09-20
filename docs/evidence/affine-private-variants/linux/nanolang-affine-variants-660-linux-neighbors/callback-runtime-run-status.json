@@ -1,0 +1,10 @@
+{
+  "label": "callback-runtime-run",
+  "argv": [
+    "/tmp/nanolang-affine-variants-660-linux-neighbors/products/callback-runtime"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.4647235060110688
+}

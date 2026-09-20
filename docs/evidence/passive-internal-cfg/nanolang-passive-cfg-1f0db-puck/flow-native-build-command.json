@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "/private/tmp/nanolang-passive-cfg-1f0db-puck/flow.c",
+    "-lm",
+    "-o",
+    "/private/tmp/nanolang-passive-cfg-1f0db-puck/flow"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": ""
+  }
+}

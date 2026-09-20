@@ -1,0 +1,28 @@
+I retain native artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-private-native-tk_besx7
+test_instrumented_native_corpus (tests.test_file_private_native.FilePrivateNative.test_instrumented_native_corpus) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_native_corpus (tests.test_file_private_native.FilePrivateNative.test_instrumented_native_corpus)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-file-native-4e8-corrected/tests/test_file_private_native.py", line 218, in test_instrumented_native_corpus
+    self.qualify('instrumented', True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-file-native-4e8-corrected/tests/test_file_private_native.py", line 138, in qualify
+    objects = self.providers(name, instrument)
+  File "/private/tmp/nanolang-file-native-4e8-corrected/tests/test_file_private_native.py", line 104, in providers
+    self.command(f'{name}-{stem}-build', [*self.compiler, *self.flags, '-O1', *hooks, '-c',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ('tests/nanoisa/file_runtime_frame_values.c' if instrument and stem == 'nsi_file_values' else source),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '-o', str(obj)])
+        ^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-file-native-4e8-corrected/tests/test_file_private_native.py", line 83, in command
+    self.assertEqual(process.returncode, 0, (args, stdout_text, stderr_text))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : (['/opt/homebrew/opt/llvm/bin/clang', '-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi', '-std=c11', '-D_DEFAULT_SOURCE', '-DNVM_FILE_VM_PRIVATE', '-DNVM_FILE_NATIVE_PRIVATE', '-g', '-Wall', '-Wextra', '-Werror', '-I.', '-Isrc', '-Isrc/nanoisa', '-fsanitize=address,undefined', '-fno-omit-frame-pointer', '-O1', '-include', 'tests/nanoisa/file_runtime_hooks.h', '-Dmalloc=file_test_malloc', '-Dcalloc=file_test_calloc', '-Drealloc=file_test_realloc', '-Dfree=file_test_free', '-c', 'src/nanoisa/nvm2c_file_private.c', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-private-native-tk_besx7/instrumented-nvm2c_file_private.o'], '', 'src/nanoisa/nvm2c_file_private.c:320:95: error: misleading indentation; statement is not part of the previous \'else\' [-Werror,-Wmisleading-indentation]\n  320 |             "NF_TRY(nvm_file_runtime_scalar(c,src,TAG_INT,arm==NVM_FILE_FLOW_ARM_ERROR));\\n");break;\n      |                                                                                               ^\nsrc/nanoisa/nvm2c_file_private.c:317:9: note: previous statement is here\n  317 |         else fn_text(b,"if(!nvm_file_runtime_view(c,src,&value))return nf_bad(c);\\n"\n      |         ^\n1 error generated.\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 5.014s
+
+FAILED (failures=1)

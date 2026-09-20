@@ -1,0 +1,1 @@
+fixture: /tmp/nanolang-array-neighbor-cdd-baseline/fixture.c:47: invalid: Assertion `nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK && !needs' failed.

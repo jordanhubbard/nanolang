@@ -1,0 +1,24 @@
+{
+  "name": "nl_random_sentence",
+  "argv": [
+    "/private/tmp/nanolang-example-time-28ba6-corrected/bin/nanoc_c",
+    "examples/language/nl_random_sentence.nano",
+    "-o",
+    "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence",
+    "--keep-c"
+  ],
+  "bound_seconds": 120,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 1.8050305000000009,
+  "log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

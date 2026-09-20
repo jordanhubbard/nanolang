@@ -1,0 +1,749 @@
+{
+  "archive": {
+    "files": 5222,
+    "path": "/tmp/nanolang-affine-variants-puck-evidence.tar.gz",
+    "sha256": "622eca68935c296aa28fa558dd60b0d16beb6707cb8995d7c7abd16de9540b23"
+  },
+  "audit_scripts": {
+    "/tmp/audit-affine-service-git.py": "5349acb8b33935389d0594315a1ba00738f2075f07b0d9e4a533843569c0a273",
+    "/tmp/audit-affine-service-independent.py": "351f8876f583f6c923d645b5eb914edc90371261b3fde98040541597298250c2",
+    "/tmp/audit-affine-service-puck-current.py": "f14908e6777454cb707fb71a4dda1f3169ab80286e95ea9bed82e2427b1df882",
+    "/tmp/finalize-affine-service-audit.py": "bbcd12c0e70f893c9bc51d338080500f16113d8992a2e0db9b2dad20cecd6828"
+  },
+  "combined_store": {
+    "archived_references": 694928,
+    "bytes": 1671602397,
+    "index_matches_independently_rehashed_host_stores": true,
+    "unique_objects": 5636
+  },
+  "darwin": {
+    "all_cas_backed_hash_records": 336530,
+    "archived_references": 336528,
+    "bytes": 470493957,
+    "objects": 4712,
+    "other_hash_records": [],
+    "pairs": [
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck/prepare-before.json",
+        "entries": 3661,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck/apple-ordinary-before.json",
+        "entries": 3805,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer-before.json",
+        "entries": 3805,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck/apple-ordinary/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/mixed-admission-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/ffi_callback_fixture-build-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/vm-ffi-build-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/ffi_artifact_first-build-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/prepare-clis-before.json",
+        "entries": 3808,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/ffi_artifact_second-build-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/callback-failures-run-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/callback-failures-build-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/callback-runtime-run-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/vm-ffi-run-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/callback-allocation-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-puck-neighbors/callback-runtime-build-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck/prepare-before.json",
+        "entries": 3664,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck/apple-ordinary-before.json",
+        "entries": 3810,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-before.json",
+        "entries": 3810,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck/apple-ordinary/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/inputs-before.json",
+        "entries": 138,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/inputs-before.json",
+        "entries": 138,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/mixed-admission-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/ffi_callback_fixture-build-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/vm-ffi-build-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/owner-authority-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/ffi_artifact_first-build-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/prepare-clis-before.json",
+        "entries": 3811,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/mixed-query-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/ffi_artifact_second-build-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/callback-failures-run-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/callback-failures-build-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/callback-runtime-run-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/vm-ffi-run-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/callback-allocation-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-puck-neighbors/callback-runtime-build-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-033-puck-continuation/mixed-runtime-before.json",
+        "entries": 3820,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-033-puck-continuation/affine-bytecode-before.json",
+        "entries": 3820,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-033-puck-continuation/ownership-contracts-before.json",
+        "entries": 3820,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-033-puck-continuation/owner-authority-before.json",
+        "entries": 3820,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-033-puck-continuation/owner-array-public-before.json",
+        "entries": 3820,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-033-puck-continuation/emitter-before.json",
+        "entries": 3820,
+        "equal": true
+      }
+    ],
+    "plain_hash_metadata": [
+      {
+        "record": {
+          "path": "/tmp/test_owned_array_authority_033.py",
+          "sha256": "54d56285d9f38ab96146fa87af2579858b8f43697df31ce96b51b6ad6cef5534"
+        },
+        "report": "nanolang-affine-variants-puck-extras/affine-variants-puck-033-reuse.json"
+      },
+      {
+        "record": {
+          "bytes": 303304,
+          "path": "/tmp/nanolang-affine-variants-033-puck-continuation/products/emitter.nvm",
+          "sha256": "f905bba86c66c5cc25ba337ecc750b1c375be893d9ce9fe38360f69796d8be35"
+        },
+        "report": "nanolang-affine-variants-033-puck-continuation/current-verification.json"
+      }
+    ],
+    "reported_references": 336528,
+    "reports": 509,
+    "retained_failures": [
+      {
+        "path": "/tmp/nanolang-service-admission-51d-puck-neighbors/mixed-admission-status.json",
+        "returncode": 2,
+        "seconds": 0.9577839160338044,
+        "timeout": false
+      },
+      {
+        "path": "/tmp/nanolang-affine-variants-660-puck-neighbors/owner-authority-status.json",
+        "returncode": 2,
+        "seconds": 0.9537686250405386,
+        "timeout": false
+      }
+    ],
+    "terminals": 54
+  },
+  "darwin_current": {
+    "categories": {
+      "external": 11,
+      "providers_products": 153,
+      "sources": 3656
+    },
+    "endpoint": "/tmp/nanolang-affine-variants-033-puck-continuation/emitter-after.json",
+    "files": 3820,
+    "mismatches": 0
+  },
+  "external_source_archive": {
+    "exists": true,
+    "hash_verified": true,
+    "path": "/tmp/nanolang-affine-variants-660-source.tar",
+    "scope": "local source archive; remote uses isolated clone with current tracked-byte inventories, not this archive"
+  },
+  "git": {
+    "git_reports": 1218,
+    "historical_endpoint_git_files": 3656,
+    "pin": "b69866db1a3568f7c22dd34c4cb01f5da89dff8b",
+    "selected_paths": {
+      "Makefile.gnu": {
+        "sha256": "766075b7a2ee25fd6a48e2cf8b1fd8950c2dfda6243328ba538c216b799284c5",
+        "source_pin": "033203384"
+      },
+      "src/nanoisa/affine_state.c": {
+        "sha256": "fa11ac27b98d17ba7c43d9a3ee8446cc890177f37bac5eaa1492928800258854",
+        "source_pin": "660e91f70"
+      },
+      "src/nanoisa/mixed_samples.inc": {
+        "sha256": "37a2d75d07b82e6a7c517decdb04bab7f84aeb6d3f1a8e8601ebb23541b48705",
+        "source_pin": "660e91f70"
+      },
+      "src/nanoisa/mixed_samples_prepare.inc": {
+        "sha256": "74d555d9b0ccf6ca20c6d0fae9bcde85ac76db5237e5c964e5c448b9233f6ead",
+        "source_pin": "660e91f70"
+      },
+      "src/nanoisa/owned_array_admit.inc": {
+        "sha256": "b6890e34cb6668e2652fc8708d0768a5951129afb13a99fe0006548163478e2b",
+        "source_pin": "660e91f70"
+      },
+      "src/nanoisa/owned_array_authority.inc": {
+        "sha256": "1e623f5d0dc2aa655987d559ac0e7fa10ab11111eb6c9c758507846a3438044c",
+        "source_pin": "660e91f70"
+      },
+      "src/nanoisa/service_bindings_module.c": {
+        "sha256": "a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4",
+        "source_pin": "660e91f70"
+      },
+      "src/nanoisa/service_classification_private.h": {
+        "sha256": "60da7dfcabb801265bddbe3ef01027874cf83c6fd12baa799d821e9bb6200dcb",
+        "source_pin": "660e91f70"
+      },
+      "src/nanovirt/shadow_runner.c": {
+        "sha256": "bda245b197b31c15d28e4f5feb892f3d34d71388e044ab91d024e04b1ca354a9",
+        "source_pin": "660e91f70"
+      },
+      "src/nanovm/vm.c": {
+        "sha256": "65f1e4c81f50148d60c2427c0ccb23bbb499f4c8b3d8b8d96c93548b8d75d13d",
+        "source_pin": "660e91f70"
+      },
+      "src_nano/nanoisa_emit.nano": {
+        "sha256": "b895ab0c65f914d916ea9252207e1e3582008e836f723f430ecc4cbe1c2bc42d",
+        "source_pin": "660e91f70"
+      },
+      "tests/nanoisa/test_affine_private_variants.c": {
+        "sha256": "3f3c8da707e7ba9197f4e8d738dedd7d6091606565e9fe39138d3f7cf1a52c80",
+        "source_pin": "660e91f70"
+      },
+      "tests/nanovm/test_ordinary_admission.c": {
+        "sha256": "2308cb263aa283aeb5ad379aeed7288d07f45848262618aa454f092aaccf5afc",
+        "source_pin": "660e91f70"
+      },
+      "tests/test_affine_private_variants.py": {
+        "sha256": "1ac4af9d5d5ae507074577116b6ce5d2c0ead961fbf0abf428cab8ca809ec22d",
+        "source_pin": "660e91f70"
+      },
+      "tests/test_owned_array_authority.py": {
+        "sha256": "54d56285d9f38ab96146fa87af2579858b8f43697df31ce96b51b6ad6cef5534",
+        "source_pin": "033203384"
+      },
+      "tests/test_vm_ordinary_admission.py": {
+        "sha256": "aad23be78899a9f4fe86377d3f4d1a516f3229b01fa5d50d10374b4e0d825214",
+        "source_pin": "660e91f70"
+      }
+    },
+    "status": "PASS"
+  },
+  "limits": [
+    "Frozen 660/033 acceptance; later canonical integration remains separate.",
+    "Sanitizer and allocation instrumentation scoped to selected translation units, not complete process allocation.",
+    "Legacy deleted temporary products are supported by original logs only, not reconstructed historical binaries.",
+    "Debugger exit status was not retained; signal/backtrace and unchanged input identities are evidence, not a diagnostic pass.",
+    "No full bootstrap, cross-host byte equality, or complete transitive system-tool closure claimed."
+  ],
+  "linux": {
+    "all_cas_backed_hash_records": 358401,
+    "archived_references": 358400,
+    "bytes": 1242484503,
+    "objects": 4645,
+    "other_hash_records": [
+      {
+        "file": "nanolang-affine-variants-extras/source-archive.json",
+        "hash": "4a19d9a398eef1a2919417b98d609df7d6d88aa5ca622324c3bd9ea788da7d98"
+      }
+    ],
+    "pairs": [
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux/gcc-ordinary-before.json",
+        "entries": 3812,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux/gcc-sanitizer-before.json",
+        "entries": 3812,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux/prepare-before.json",
+        "entries": 3668,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux/clang-sanitizer-before.json",
+        "entries": 3812,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux/gcc-sanitizer/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux/gcc-ordinary/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux/clang-sanitizer/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/callback-runtime-build-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/prepare-clis-before.json",
+        "entries": 3815,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/ffi_callback_fixture-build-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/ffi_artifact_first-build-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/vm-ffi-run-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/mixed-admission-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/vm-ffi-build-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/callback-allocation-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/ffi_artifact_second-build-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/callback-failures-build-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/callback-failures-run-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-service-admission-51d-linux-neighbors/callback-runtime-run-before.json",
+        "entries": 3823,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux/prepare-before.json",
+        "entries": 3671,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux/gcc-ordinary-variants/inputs-before.json",
+        "entries": 247,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-ordinary-before.json",
+        "entries": 3817,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer-before.json",
+        "entries": 3817,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/prepare-before.json",
+        "entries": 3671,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer-before.json",
+        "entries": 3817,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-ordinary/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-ordinary-variants/inputs-before.json",
+        "entries": 138,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer/inputs-before.json",
+        "entries": 152,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer-variants/inputs-before.json",
+        "entries": 138,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer-variants/inputs-before.json",
+        "entries": 138,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/owner-authority-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/callback-runtime-build-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/prepare-clis-before.json",
+        "entries": 3818,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/ownership-contracts-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/ffi_callback_fixture-build-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/mixed-query-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/ffi_artifact_first-build-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/emitter-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/vm-ffi-run-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/mixed-admission-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/vm-ffi-build-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/callback-allocation-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/ffi_artifact_second-build-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/mixed-runtime-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/callback-failures-build-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/callback-failures-run-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/affine-bytecode-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/owner-array-public-before.json",
+        "entries": 3826,
+        "equal": true
+      },
+      {
+        "before": "/tmp/nanolang-affine-variants-660-linux-neighbors/callback-runtime-run-before.json",
+        "entries": 3826,
+        "equal": true
+      }
+    ],
+    "plain_hash_metadata": [
+      {
+        "record": {
+          "bytes": 303296,
+          "path": "/tmp/nanolang-affine-variants-660-linux-neighbors/products/emitter.nvm",
+          "sha256": "d97429a2c29dd09382b8957487e3a133011538dd4b9bcee3b18ac165c701e030"
+        },
+        "report": "nanolang-affine-variants-660-linux-neighbors/current-verification.json"
+      },
+      {
+        "record": {
+          "path": "/tmp/nanolang-affine-variants-660-source.tar",
+          "scope": "local source archive; remote uses isolated clone with current tracked-byte inventories, not this archive",
+          "sha256": "4a19d9a398eef1a2919417b98d609df7d6d88aa5ca622324c3bd9ea788da7d98"
+        },
+        "report": "nanolang-affine-variants-extras/source-archive.json"
+      }
+    ],
+    "reported_references": 358400,
+    "reports": 703,
+    "retained_failures": [
+      {
+        "path": "/tmp/nanolang-service-admission-51d-linux-neighbors/mixed-admission-status.json",
+        "returncode": 2,
+        "seconds": 1.9683129449840635,
+        "timeout": false
+      },
+      {
+        "path": "/tmp/nanolang-affine-variants-660-linux/gcc-ordinary-variants-status.json",
+        "returncode": 1,
+        "seconds": 1.016346661024727,
+        "timeout": false
+      }
+    ],
+    "terminals": 80
+  },
+  "linux_current": {
+    "endpoint": "/tmp/nanolang-affine-variants-linux-seal/reports/nanolang-affine-variants-660-linux-neighbors/emitter-after.json",
+    "files": 3826,
+    "mismatches": 0
+  },
+  "matrix": [
+    {
+      "configuration": "gcc-ordinary",
+      "constructor_allocation_indices": {
+        "clone": 2,
+        "mixed": 7,
+        "owner": 8,
+        "public": 11
+      },
+      "constructor_checks": 43086,
+      "dispatch_macro_evidence": true,
+      "host": "linux",
+      "service_checks_per_dispatch": 3506
+    },
+    {
+      "configuration": "gcc-sanitizer",
+      "constructor_allocation_indices": {
+        "clone": 2,
+        "mixed": 7,
+        "owner": 8,
+        "public": 11
+      },
+      "constructor_checks": 43086,
+      "dispatch_macro_evidence": true,
+      "host": "linux",
+      "service_checks_per_dispatch": 3506
+    },
+    {
+      "configuration": "clang-sanitizer",
+      "constructor_allocation_indices": {
+        "clone": 2,
+        "mixed": 7,
+        "owner": 8,
+        "public": 11
+      },
+      "constructor_checks": 43086,
+      "dispatch_macro_evidence": true,
+      "host": "linux",
+      "service_checks_per_dispatch": 3506
+    },
+    {
+      "configuration": "apple-ordinary",
+      "constructor_allocation_indices": {
+        "clone": 2,
+        "mixed": 7,
+        "owner": 8,
+        "public": 11
+      },
+      "constructor_checks": 43086,
+      "dispatch_macro_evidence": true,
+      "host": "darwin",
+      "service_checks_per_dispatch": 3506
+    },
+    {
+      "configuration": "homebrew-sanitizer",
+      "constructor_allocation_indices": {
+        "clone": 2,
+        "mixed": 7,
+        "owner": 8,
+        "public": 11
+      },
+      "constructor_checks": 43086,
+      "dispatch_macro_evidence": true,
+      "host": "darwin",
+      "service_checks_per_dispatch": 3506
+    }
+  ],
+  "status": "PASS_WITH_STATED_SCOPE_LIMITS"
+}

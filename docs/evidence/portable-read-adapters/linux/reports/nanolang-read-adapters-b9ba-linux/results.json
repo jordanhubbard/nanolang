@@ -1,0 +1,42 @@
+[
+  {
+    "phase": "ordinary",
+    "timeout": false,
+    "errors": [],
+    "signals": [],
+    "returncode": 0,
+    "leader_reaped": true,
+    "group_disappeared": true,
+    "seconds": 3.077
+  },
+  {
+    "phase": "gcc-sanitizer",
+    "timeout": false,
+    "errors": [],
+    "signals": [],
+    "returncode": 0,
+    "leader_reaped": true,
+    "group_disappeared": true,
+    "seconds": 5.476
+  },
+  {
+    "phase": "clang-ordinary",
+    "timeout": false,
+    "errors": [],
+    "signals": [],
+    "returncode": 0,
+    "leader_reaped": true,
+    "group_disappeared": true,
+    "seconds": 3.323
+  },
+  {
+    "phase": "clang-sanitizer",
+    "timeout": false,
+    "errors": [],
+    "signals": [],
+    "returncode": 0,
+    "leader_reaped": true,
+    "group_disappeared": true,
+    "seconds": 5.827
+  }
+]

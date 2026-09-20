@@ -1,0 +1,10 @@
+{
+  "label": "callback-failures-run",
+  "argv": [
+    "/private/tmp/nanolang-admission-final-bc45-puck-neighbors/products/callback-failures"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.2597750839777291
+}

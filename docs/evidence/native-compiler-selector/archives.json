@@ -1,0 +1,14 @@
+{
+  "diagnostic": {
+    "bytes": 131886,
+    "sha256": "394070dc2322a888f06ec06324fc5b508ff85089e65d4c6b6b7cf07fd5ba1f56"
+  },
+  "selected": {
+    "bytes": 1608537,
+    "sha256": "f7d0fbbecb1c94b442279bf82fe1bc4ac65b719f3c4db8cde1899a0687742b24"
+  },
+  "linux-selected": {
+    "sha256": "48f84c095b9528f05edb66747b74cfdcc58d90163ccd629a3591fca3744b4667",
+    "bytes": 2628968
+  }
+}

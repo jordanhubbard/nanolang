@@ -1,0 +1,67 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 9.279,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.123,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.123,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 3.335,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 3.516,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 4.892,
+    "status": 0
+  },
+  {
+    "phase": "wasm-package",
+    "seconds": 5.301,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_records",
+    "seconds": 3.624,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_record_adapters",
+    "seconds": 5.692,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_array_copy_runtime",
+    "seconds": 3.377,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_array_graphs",
+    "seconds": 3.512,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_string_arrays",
+    "seconds": 2.588,
+    "status": 0
+  },
+  {
+    "phase": "origin-query",
+    "seconds": 2.923,
+    "status": 0
+  }
+]

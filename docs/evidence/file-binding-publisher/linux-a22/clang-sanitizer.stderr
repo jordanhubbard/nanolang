@@ -1,0 +1,8 @@
+test_actual_cli (tests.test_nsi_file_publish.FileBindingPublisher.test_actual_cli) ... ok
+test_api_and_faults (tests.test_nsi_file_publish.FileBindingPublisher.test_api_and_faults) ... ok
+test_strict_binding_and_legacy_neighbors (tests.test_nsi_file_publish.FileBindingPublisher.test_strict_binding_and_legacy_neighbors) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 14.044s
+
+OK

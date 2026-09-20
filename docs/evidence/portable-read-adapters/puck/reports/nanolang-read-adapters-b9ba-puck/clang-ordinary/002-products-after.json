@@ -1,0 +1,14 @@
+{
+  "target-probe.c": {
+    "path": "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/target-probe.ll",
+    "sha256": "508114348a31a8e63e9e0b38f2069f8bbe9f7f392f6611730cf843d81e327194",
+    "bytes": 1197,
+    "archive": "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/objects/508114348a31a8e63e9e0b38f2069f8bbe9f7f392f6611730cf843d81e327194"
+  }
+}

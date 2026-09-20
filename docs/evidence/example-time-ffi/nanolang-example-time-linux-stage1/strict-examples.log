@@ -1,0 +1,279 @@
+Checking SDL2 dependencies for graphics examples...
+✓ SDL2 found: 2.30.0
+
+==========================================
+Building Examples
+==========================================
+Compiler: ../bin/nanoc_c
+Backend:  c
+Suffix:   (none)
+Note: This will fail if any module dependencies are missing.
+      Run 'make -B modules' to see what's needed.
+      Or use 'make examples-available' to skip unavailable examples.
+
+make[1]: Entering directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+make[1]: Leaving directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+make[1]: Entering directory '/home/jkh/Src/nanolang-example-time-qualification-corrected/examples'
+make[2]: Entering directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+make[2]: Leaving directory '/home/jkh/Src/nanolang-example-time-qualification-corrected'
+Building ../bin/full_repl...
+../bin/nanoc_c language/full_repl.nano  -o ../bin/full_repl
+Building ../bin/datetime_demo...
+../bin/nanoc_c advanced/datetime_demo.nano  -o ../bin/datetime_demo
+Building ../bin/error_handling_patterns...
+../bin/nanoc_c advanced/error_handling_patterns.nano  -o ../bin/error_handling_patterns
+Building ../bin/ffi_tutorial...
+../bin/nanoc_c advanced/ffi_tutorial.nano  -o ../bin/ffi_tutorial
+Building ../bin/math_ext_demo...
+../bin/nanoc_c advanced/math_ext_demo.nano  -o ../bin/math_ext_demo
+Building ../bin/namespace_demo...
+../bin/nanoc_c advanced/namespace_demo.nano  -o ../bin/namespace_demo
+Building ../bin/performance_optimization...
+../bin/nanoc_c advanced/performance_optimization.nano  -o ../bin/performance_optimization
+Building ../bin/stdio_file_processor...
+../bin/nanoc_c advanced/stdio_file_processor.nano  -o ../bin/stdio_file_processor
+Building ../bin/stdlib_ast_demo...
+../bin/nanoc_c advanced/stdlib_ast_demo.nano  -o ../bin/stdlib_ast_demo
+Building ../bin/testing_strategies...
+../bin/nanoc_c advanced/testing_strategies.nano  -o ../bin/testing_strategies
+Building ../bin/unsafe_demo...
+../bin/nanoc_c advanced/unsafe_demo.nano  -o ../bin/unsafe_demo
+Building ../bin/vector2d_demo...
+../bin/nanoc_c advanced/vector2d_demo.nano  -o ../bin/vector2d_demo
+Building ../bin/vector2d_physics_simple...
+../bin/nanoc_c advanced/vector2d_physics_simple.nano  -o ../bin/vector2d_physics_simple
+Building ../bin/json_demo...
+../bin/nanoc_c data/json_demo.nano  -o ../bin/json_demo
+Building ../bin/array_utils_api...
+../bin/nanoc_c api_lessons/array_utils_api.nano  -o ../bin/array_utils_api
+Building ../bin/binary_api...
+../bin/nanoc_c api_lessons/binary_api.nano  -o ../bin/binary_api
+Building ../bin/collections_hashmap_api...
+../bin/nanoc_c api_lessons/collections_hashmap_api.nano  -o ../bin/collections_hashmap_api
+Building ../bin/collections_set_api...
+../bin/nanoc_c api_lessons/collections_set_api.nano  -o ../bin/collections_set_api
+Building ../bin/diagnostics_api...
+../bin/nanoc_c api_lessons/diagnostics_api.nano  -o ../bin/diagnostics_api
+Building ../bin/env_api...
+../bin/nanoc_c api_lessons/env_api.nano  -o ../bin/env_api
+Building ../bin/examples_diag_api...
+../bin/nanoc_c api_lessons/examples_diag_api.nano  -o ../bin/examples_diag_api
+Building ../bin/fs_api...
+../bin/nanoc_c api_lessons/fs_api.nano  -o ../bin/fs_api
+Building ../bin/json_api...
+../bin/nanoc_c api_lessons/json_api.nano  -o ../bin/json_api
+Building ../bin/log_api...
+../bin/nanoc_c api_lessons/log_api.nano  -o ../bin/log_api
+Building ../bin/math_array_ops_api...
+../bin/nanoc_c api_lessons/math_array_ops_api.nano  -o ../bin/math_array_ops_api
+Building ../bin/math_complex_api...
+../bin/nanoc_c api_lessons/math_complex_api.nano  -o ../bin/math_complex_api
+Building ../bin/math_ext_api...
+../bin/nanoc_c api_lessons/math_ext_api.nano  -o ../bin/math_ext_api
+Building ../bin/math_extended_api...
+../bin/nanoc_c api_lessons/math_extended_api.nano  -o ../bin/math_extended_api
+Building ../bin/math_matrix4_api...
+../bin/nanoc_c api_lessons/math_matrix4_api.nano  -o ../bin/math_matrix4_api
+Building ../bin/math_quaternion_api...
+../bin/nanoc_c api_lessons/math_quaternion_api.nano  -o ../bin/math_quaternion_api
+Building ../bin/math_vector2d_api...
+../bin/nanoc_c api_lessons/math_vector2d_api.nano  -o ../bin/math_vector2d_api
+Building ../bin/math_vector3d_api...
+../bin/nanoc_c api_lessons/math_vector3d_api.nano  -o ../bin/math_vector3d_api
+Building ../bin/math_vector4d_api...
+../bin/nanoc_c api_lessons/math_vector4d_api.nano  -o ../bin/math_vector4d_api
+Building ../bin/nano_highlight_api...
+../bin/nanoc_c api_lessons/nano_highlight_api.nano  -o ../bin/nano_highlight_api
+Building ../bin/peg2_api...
+../bin/nanoc_c api_lessons/peg2_api.nano  -o ../bin/peg2_api
+Building ../bin/peg_api...
+../bin/nanoc_c api_lessons/peg_api.nano  -o ../bin/peg_api
+Building ../bin/process_api...
+../bin/nanoc_c api_lessons/process_api.nano  -o ../bin/process_api
+Building ../bin/proptest_api...
+../bin/nanoc_c api_lessons/proptest_api.nano  -o ../bin/proptest_api
+Building ../bin/result_api...
+../bin/nanoc_c api_lessons/result_api.nano  -o ../bin/result_api
+Building ../bin/std_lib_api...
+../bin/nanoc_c api_lessons/std_lib_api.nano  -o ../bin/std_lib_api
+Building ../bin/stdio_api...
+../bin/nanoc_c api_lessons/stdio_api.nano  -o ../bin/stdio_api
+Building ../bin/stringbuilder_api...
+../bin/nanoc_c api_lessons/stringbuilder_api.nano  -o ../bin/stringbuilder_api
+Building ../bin/tidy_api...
+../bin/nanoc_c api_lessons/tidy_api.nano  -o ../bin/tidy_api
+Building ../bin/vector2d_api...
+../bin/nanoc_c api_lessons/vector2d_api.nano  -o ../bin/vector2d_api
+Building ../bin/websocket_api...
+../bin/nanoc_c api_lessons/websocket_api.nano  -o ../bin/websocket_api
+Building ../bin/break_the_proof...
+../bin/nanoc_c verified/break_the_proof.nano  -o ../bin/break_the_proof
+Building ../bin/checksum_validator...
+../bin/nanoc_c verified/checksum_validator.nano  -o ../bin/checksum_validator
+Building ../bin/financial_order_validator...
+../bin/nanoc_c verified/financial_order_validator.nano  -o ../bin/financial_order_validator
+Building ../bin/medical_dosage...
+../bin/nanoc_c verified/medical_dosage.nano  -o ../bin/medical_dosage
+Building ../bin/pid_controller...
+../bin/nanoc_c verified/pid_controller.nano  -o ../bin/pid_controller
+Building ../bin/proof_trace...
+../bin/nanoc_c verified/proof_trace.nano  -o ../bin/proof_trace
+Building ../bin/sensor_voting...
+../bin/nanoc_c verified/sensor_voting.nano  -o ../bin/sensor_voting
+Building ../bin/state_machine...
+../bin/nanoc_c verified/state_machine.nano  -o ../bin/state_machine
+Building ../bin/verified_vs_unverified...
+../bin/nanoc_c verified/verified_vs_unverified.nano  -o ../bin/verified_vs_unverified
+Building ../bin/coverage_demo...
+../bin/nanoc_c debug/coverage_demo.nano  -o ../bin/coverage_demo
+Building ../bin/logging_demo...
+../bin/nanoc_c debug/logging_demo.nano  -o ../bin/logging_demo
+Building ../bin/property_test_math...
+../bin/nanoc_c debug/property_test_math.nano  -o ../bin/property_test_math
+Building ../bin/property_test_sorting...
+../bin/nanoc_c debug/property_test_sorting.nano  -o ../bin/property_test_sorting
+Building ../bin/http_hello_world...
+../bin/nanoc_c network/http_hello_world.nano  -o ../bin/http_hello_world
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Building ../bin/http_static_server...
+../bin/nanoc_c network/http_static_server.nano  -o ../bin/http_static_server
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c: In function ‘serve_static_file’:
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:50: warning: ‘index.html’ directive output may be truncated writing 10 bytes into a region of size between 1 and 1024 [-Wformat-truncation=]
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |                                                  ^~~~~~~~~~~~~~
+/home/jkh/Src/nanolang-example-time-qualification-corrected/modules/http_server/http_server.c:274:9: note: ‘snprintf’ output between 11 and 1034 bytes into a destination of size 1024
+  274 |         snprintf(with_index, sizeof(with_index), "%sindex.html", req->path);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Building ../bin/bullet_beads_simple...
+../bin/nanoc_c physics/bullet_beads_simple.nano  -o ../bin/bullet_beads_simple
+. /usr/include/stdio.h
+.. /usr/include/aarch64-linux-gnu/bits/libc-header-start.h
+... /usr/include/features.h
+.... /usr/include/features-time64.h
+..... /usr/include/aarch64-linux-gnu/bits/wordsize.h
+..... /usr/include/aarch64-linux-gnu/bits/timesize.h
+.... /usr/include/aarch64-linux-gnu/sys/cdefs.h
+..... /usr/include/aarch64-linux-gnu/bits/wordsize.h
+..... /usr/include/aarch64-linux-gnu/bits/long-double.h
+.... /usr/include/aarch64-linux-gnu/gnu/stubs.h
+..... /usr/include/aarch64-linux-gnu/bits/wordsize.h
+..... /usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h
+.. /usr/lib/gcc/aarch64-linux-gnu/13/include/stddef.h
+.. /usr/lib/gcc/aarch64-linux-gnu/13/include/stdarg.h
+.. /usr/include/aarch64-linux-gnu/bits/types.h
+... /usr/include/aarch64-linux-gnu/bits/wordsize.h
+... /usr/include/aarch64-linux-gnu/bits/timesize.h
+... /usr/include/aarch64-linux-gnu/bits/typesizes.h
+... /usr/include/aarch64-linux-gnu/bits/time64.h
+.. /usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h
+... /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h
+.. /usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h
+.. /usr/include/aarch64-linux-gnu/bits/types/__FILE.h
+.. /usr/include/aarch64-linux-gnu/bits/types/FILE.h
+.. /usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h
+.. /usr/include/aarch64-linux-gnu/bits/stdio_lim.h
+.. /usr/include/aarch64-linux-gnu/bits/floatn.h
+... /usr/include/aarch64-linux-gnu/bits/long-double.h
+... /usr/include/aarch64-linux-gnu/bits/floatn-common.h
+.... /usr/include/aarch64-linux-gnu/bits/long-double.h
+. /usr/include/stdlib.h
+.. /usr/include/aarch64-linux-gnu/bits/libc-header-start.h
+.. /usr/lib/gcc/aarch64-linux-gnu/13/include/stddef.h
+.. /usr/include/aarch64-linux-gnu/bits/waitflags.h
+.. /usr/include/aarch64-linux-gnu/bits/waitstatus.h
+.. /usr/include/aarch64-linux-gnu/bits/stdlib-float.h
+. /usr/include/string.h
+.. /usr/include/aarch64-linux-gnu/bits/libc-header-start.h
+.. /usr/lib/gcc/aarch64-linux-gnu/13/include/stddef.h
+.. /usr/include/aarch64-linux-gnu/bits/types/locale_t.h
+... /usr/include/aarch64-linux-gnu/bits/types/__locale_t.h
+. /usr/lib/gcc/aarch64-linux-gnu/13/include/stdbool.h
+. /usr/lib/gcc/aarch64-linux-gnu/13/include/stdint.h
+.. /usr/include/stdint.h
+... /usr/include/aarch64-linux-gnu/bits/libc-header-start.h
+... /usr/include/aarch64-linux-gnu/bits/wchar.h
+... /usr/include/aarch64-linux-gnu/bits/wordsize.h
+... /usr/include/aarch64-linux-gnu/bits/stdint-intn.h
+... /usr/include/aarch64-linux-gnu/bits/stdint-uintn.h
+... /usr/include/aarch64-linux-gnu/bits/stdint-least.h
+. /usr/include/math.h
+.. /usr/include/aarch64-linux-gnu/bits/libc-header-start.h
+.. /usr/include/aarch64-linux-gnu/bits/math-vector.h
+... /usr/include/aarch64-linux-gnu/bits/libm-simd-decl-stubs.h
+.. /usr/include/aarch64-linux-gnu/bits/flt-eval-method.h
+.. /usr/include/aarch64-linux-gnu/bits/fp-logb.h
+.. /usr/include/aarch64-linux-gnu/bits/fp-fast.h
+.. /usr/include/aarch64-linux-gnu/bits/mathcalls-helper-functions.h
+.. /usr/include/aarch64-linux-gnu/bits/mathcalls.h
+.. /usr/include/aarch64-linux-gnu/bits/mathcalls-helper-functions.h
+.. /usr/include/aarch64-linux-gnu/bits/mathcalls.h
+.. /usr/include/aarch64-linux-gnu/bits/mathcalls-helper-functions.h
+.. /usr/include/aarch64-linux-gnu/bits/mathcalls.h
+. /usr/include/bullet/btBulletDynamicsCommon.h
+.. /usr/include/bullet/btBulletCollisionCommon.h
+... /usr/include/bullet/BulletCollision/CollisionDispatch/btCollisionWorld.h
+.... /usr/include/bullet/LinearMath/btVector3.h
+..... /usr/include/bullet/LinearMath/btScalar.h
+...... /usr/lib/gcc/aarch64-linux-gnu/13/include/float.h
+...... /usr/include/assert.h
+..... /usr/include/bullet/LinearMath/btMinMax.h
+..... /usr/include/bullet/LinearMath/btAlignedAllocator.h
+.... /usr/include/bullet/LinearMath/btTransform.h
+..... /usr/include/bullet/LinearMath/btMatrix3x3.h
+...... /usr/include/bullet/LinearMath/btVector3.h
+...... /usr/include/bullet/LinearMath/btQuaternion.h
+....... /usr/include/bullet/LinearMath/btQuadWord.h
+.... /usr/include/bullet/BulletCollision/CollisionDispatch/btCollisionObject.h
+..... /usr/include/bullet/LinearMath/btMotionState.h
+...... /usr/include/bullet/LinearMath/btTransform.h
+..... /usr/include/bullet/LinearMath/btAlignedAllocator.h
+..... /usr/include/bullet/LinearMath/btAlignedObjectArray.h
+In file included from /usr/include/bullet/BulletCollision/CollisionDispatch/btCollisionObject.h:34,
+                 from /usr/include/bullet/BulletCollision/CollisionDispatch/btCollisionWorld.h:79,
+                 from /usr/include/bullet/btBulletCollisionCommon.h:22,
+                 from /usr/include/bullet/btBulletDynamicsCommon.h:20,
+                 from /home/jkh/Src/nanolang-example-time-qualification-corrected/modules/bullet/bullet_ffi.c:16:
+/usr/include/bullet/LinearMath/btAlignedObjectArray.h:38:10: fatal error: new: No such file or directory
+   38 | #include <new>  //for placement new
+      |          ^~~~~
+compilation terminated.
+I could not retain compiler and assembler inputs for bullet; I will not compile live sources after capture failure
+Error: Failed to build module 'bullet'
+Error: Failed to compile modules
+make[1]: *** [Makefile:798: ../bin/bullet_beads_simple] Error 1
+make[1]: Leaving directory '/home/jkh/Src/nanolang-example-time-qualification-corrected/examples'
+make: *** [Makefile.gnu:3245: examples-core] Error 2

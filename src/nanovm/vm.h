@@ -155,9 +155,6 @@ typedef struct VmState {
      * is redundant. Cleared conservatively whenever a module changes or a
      * new, unverified module is linked. */
     bool verified;
-    /* I skip repeated ownership-route scans only for a verified immutable
-     * graph whose complete module set needs no owned execution. */
-    bool ordinary_execution;
     VmModuleConstants module_constants;
 
     /* Operand stack */

@@ -1,0 +1,76 @@
+{
+  "source_pin": "5f4f0010af06c741517cb606faa73cdf0f3dad7f",
+  "objects": 737,
+  "object_bytes": 408131200,
+  "references": 10508,
+  "equal_source_tool_pairs": 59,
+  "phase_terminals": 30,
+  "preserved_nonzero_terminals": [
+    {
+      "path": "nanolang-mixed-counted-3c0b-linux/setup-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 2,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    }
+  ],
+  "darwin_archive": {
+    "path": "/tmp/nanolang-mixed-counted-puck-evidence.tar.gz",
+    "bytes": 51130659,
+    "sha256": "47281566df393e01a1eef0232c6c844ed728447da7ad0a45ab220f600ee22697"
+  },
+  "selected_source": {
+    "Makefile.gnu": {
+      "sha256": "2a91071178231738362e48edf8ee11bfabe7d5651eedcc7ac3f3e83a5e573f05",
+      "git_blob": "14e9744bfdfa4c56f9632e272f47e6a9b95d4dde"
+    },
+    "src/nanoisa/managed_strings.c": {
+      "sha256": "24c5d151d101a1b32ffcd34725e15814fb8bb8576cb5f255e2220564db368dc7",
+      "git_blob": "fae1410d2fa3682ded5dc6be84888390e4b13faf"
+    },
+    "src/nanoisa/managed_native_source.h": {
+      "sha256": "16314615e322c8ddc39a8ee3e7fddf23790b5a060c3a124374fda4c902c1aed2",
+      "git_blob": "a51d5a464780e471b933dc989744f67160a33a57"
+    },
+    "tests/test_mixed_counted_runtime.py": {
+      "sha256": "fbf5665f60d71b9cdc5112af43884bcca26cf6095805109527f0e02e9d6751ca",
+      "git_blob": "49e32c3eefe98ace8a67953bab6570851d58cbc1"
+    },
+    "tests/nanoisa/mixed_counted_catalog.h": {
+      "sha256": "08c6f2fbc62243c9afdeb866bdaa4f799e528e2f9930d153454648ef3cee99fa",
+      "git_blob": "cdbbb173639e246b8545b6a9b607375227a22a15"
+    },
+    "tests/nanoisa/mixed_counted_tracker.h": {
+      "sha256": "a15b19ee5c1f84103d6e4777c3f0b85ebbde172b104198b9bf24a9fdd8ce0df8",
+      "git_blob": "5073c498e0e555a47bde85605d8803404b255f98"
+    },
+    "tests/nanoisa/mixed_counted_wasm_memory.h": {
+      "sha256": "264b3a0bb11c9dfb834d0d36386e4cd3309c9af7278996820cdd64adb80948fd",
+      "git_blob": "3c61ea909cd68be09ff661190616311e2ced8632"
+    },
+    "tests/nanoisa/test_mixed_counted_query.c": {
+      "sha256": "ecc99b10e25afda78806742038ccf0a3c170ec81843fcb0396997d794b09ccbd",
+      "git_blob": "fae5dac374cf55818e1d5eba29963851709fc53b"
+    },
+    "tests/nanoisa/test_mixed_counted_runtime.c": {
+      "sha256": "d646559f6a23a43e6cc2d14aae8503759ae6da6d89d39853889d14157085c736",
+      "git_blob": "2b2b2fbf4a668fb14134f634111f0a04f0c04b73"
+    }
+  },
+  "scope": "manual counted core/module adapters, not generated mixed consumer or admission; original header generation drift preserved; lib archive current-only supplement"
+}

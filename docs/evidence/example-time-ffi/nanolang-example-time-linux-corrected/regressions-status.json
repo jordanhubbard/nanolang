@@ -1,0 +1,25 @@
+{
+  "name": "regressions",
+  "argv": [
+    "make",
+    "test-examples-regressions",
+    "CC=/bin/gcc",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 180,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 25.720522535964847,
+  "log": {
+    "sha256": "3bd5398223a5be23c14886db28ede77a1200eb9efd1f14a159e36fa0ed214920",
+    "bytes": 398,
+    "archive": "/tmp/nanolang-example-time-linux-corrected/objects/3bd5398223a5be23c14886db28ede77a1200eb9efd1f14a159e36fa0ed214920"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

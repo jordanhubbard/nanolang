@@ -1,0 +1,42 @@
+{
+  "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85/tests/test_nanoisa_flat_records.py": {
+    "sha256": "359153d0b7ad796884a01801af5ef2913ca0ae1fa0de120681ea65c5b1c99949",
+    "bytes": 111024
+  },
+  "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85/bin/nanoisa": {
+    "sha256": "d93229c5ccd9adb1342695ef806534336b30a4a2d397d9158b648b77946bf70f",
+    "bytes": 2577112
+  },
+  "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85/bin/nano_vm": {
+    "sha256": "53ec93d85201151be05ae927612937b042081be7cfb76d6cd12685c36061f407",
+    "bytes": 15322440
+  },
+  "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85/bin/nvm2c": {
+    "sha256": "ebea92a7304bf1ea532ec6ca7948f604d3756909fcc78d4b08578006986bad43",
+    "bytes": 2814336
+  },
+  "/usr/bin/cc": {
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+    "bytes": 990040
+  },
+  "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14": {
+    "sha256": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8",
+    "bytes": 133264
+  },
+  "/tmp/nanolang-linux-projected-selected.py": {
+    "sha256": "b7ebc16136c129a9f545e39b8a114aa96dcb548ad974f3751f3005a3515d9a97",
+    "bytes": 3240
+  },
+  "/home/jkh/Src/nanolang-capture-flags/tests/test_nanoisa_flat_records.py": {
+    "sha256": "4d0c12b92c65f48fa7958dc28867ccc9a7e799aa102f1c02ba6c98e3c54f5193",
+    "bytes": 111114
+  },
+  "/usr/bin/gcc": {
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+    "bytes": 990040
+  },
+  "/usr/lib/gcc/aarch64-linux-gnu/13/libasan.so": {
+    "sha256": "de6c4e81ffe87e94b6a6977cf5ec3eb403cb26fbd1aea1c1b9637f843ec51daf",
+    "bytes": 10792896
+  }
+}

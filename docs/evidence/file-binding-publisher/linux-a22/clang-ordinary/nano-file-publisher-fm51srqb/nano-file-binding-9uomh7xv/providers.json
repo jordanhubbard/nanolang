@@ -1,0 +1,42 @@
+{
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/linked-nsi_file_binding.o": {
+    "sha256": "aae5fec40f78d068914a52b393dc551cee9549b346d3a672bbee34eb077516b1",
+    "bytes": 52224
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/linked-nsi_file_plan.o": {
+    "sha256": "4808b6cbf75dd5c7afa7752fe63f624d0e48ba3779e62164eebc0c77f4d0f4b5",
+    "bytes": 32608
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/linked-nsi.o": {
+    "sha256": "92f75630affcb790808a0b88f20290080f64d8a4092e2bdd4cb34f5eb91462de",
+    "bytes": 79568
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/linked-cJSON.o": {
+    "sha256": "13e32e869636e439b0164a1969429e88d147c0b0f5cdec078a96836c33c1a34a",
+    "bytes": 108664
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/linked-utf8.o": {
+    "sha256": "a0a391c5c174843dfc00caab12fe28523e6c3ee83dcdf28b601a2d1699446c5f",
+    "bytes": 13176
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/instrumented-nsi_file_binding.o": {
+    "sha256": "1a706964ea82e4a62434bca2bb3eaa0cdf4028ab8484598ad0d3470fc06089c0",
+    "bytes": 52344
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/instrumented-nsi_file_plan.o": {
+    "sha256": "886790e4ead75ef0acd70c2815e76b22a4ca455e5ae2226ea53b5369292596f4",
+    "bytes": 32696
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/instrumented-nsi.o": {
+    "sha256": "b2e16d22bf73943949233577d5b29394a3a494b4101930c5ea09c8370bfb2243",
+    "bytes": 79768
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/instrumented-cJSON.o": {
+    "sha256": "6a6fbf0ca19f61eee37548de024d4cc08b80dfe6ba222c521a74edbca720ca3c",
+    "bytes": 108712
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv/instrumented-utf8.o": {
+    "sha256": "a0a391c5c174843dfc00caab12fe28523e6c3ee83dcdf28b601a2d1699446c5f",
+    "bytes": 13176
+  }
+}

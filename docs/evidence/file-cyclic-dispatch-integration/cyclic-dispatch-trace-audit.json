@@ -1,0 +1,145 @@
+{
+  "configs": [
+    {
+      "group": "6a65-linux",
+      "phase": "ordinary",
+      "modes": [
+        {
+          "mode": "instrumented",
+          "traces": 36,
+          "modules": 23,
+          "generated": 22
+        },
+        {
+          "mode": "linked",
+          "traces": 33,
+          "modules": 23,
+          "generated": 22
+        }
+      ],
+      "nested_success_statuses": 180,
+      "isolated_pairs": 14
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "clang-ordinary",
+      "modes": [
+        {
+          "mode": "instrumented",
+          "traces": 36,
+          "modules": 23,
+          "generated": 22
+        },
+        {
+          "mode": "linked",
+          "traces": 33,
+          "modules": 23,
+          "generated": 22
+        }
+      ],
+      "nested_success_statuses": 180,
+      "isolated_pairs": 14
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "sanitizer",
+      "modes": [
+        {
+          "mode": "instrumented",
+          "traces": 36,
+          "modules": 23,
+          "generated": 22
+        },
+        {
+          "mode": "linked",
+          "traces": 33,
+          "modules": 23,
+          "generated": 22
+        }
+      ],
+      "nested_success_statuses": 180,
+      "isolated_pairs": 14
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "clang-sanitizer",
+      "modes": [
+        {
+          "mode": "instrumented",
+          "traces": 36,
+          "modules": 23,
+          "generated": 22
+        },
+        {
+          "mode": "linked",
+          "traces": 33,
+          "modules": 23,
+          "generated": 22
+        }
+      ],
+      "nested_success_statuses": 180,
+      "isolated_pairs": 14
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "ordinary",
+      "modes": [
+        {
+          "mode": "instrumented",
+          "traces": 36,
+          "modules": 23,
+          "generated": 22
+        },
+        {
+          "mode": "linked",
+          "traces": 33,
+          "modules": 23,
+          "generated": 22
+        }
+      ],
+      "nested_success_statuses": 180,
+      "isolated_pairs": 14
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "clang-ordinary",
+      "modes": [
+        {
+          "mode": "instrumented",
+          "traces": 36,
+          "modules": 23,
+          "generated": 22
+        },
+        {
+          "mode": "linked",
+          "traces": 33,
+          "modules": 23,
+          "generated": 22
+        }
+      ],
+      "nested_success_statuses": 180,
+      "isolated_pairs": 14
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "sanitizer",
+      "modes": [
+        {
+          "mode": "instrumented",
+          "traces": 36,
+          "modules": 23,
+          "generated": 22
+        },
+        {
+          "mode": "linked",
+          "traces": 33,
+          "modules": 23,
+          "generated": 22
+        }
+      ],
+      "nested_success_statuses": 180,
+      "isolated_pairs": 14
+    }
+  ],
+  "generated_first_corrected_equal": 22
+}

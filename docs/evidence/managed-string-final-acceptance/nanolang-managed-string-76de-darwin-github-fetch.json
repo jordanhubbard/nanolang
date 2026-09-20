@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ConnectTimeout=10",
+    "jordanh@CXWWHGGJX0.local",
+    "git -C /private/tmp/nanolang-managed-string-971b-darwin fetch https://github.com/jordanhubbard/nanolang.git test/managed-string-acceptance"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": "From https://github.com/jordanhubbard/nanolang\n * branch              test/managed-string-acceptance -> FETCH_HEAD\n",
+  "seconds": 2.202108431025408
+}

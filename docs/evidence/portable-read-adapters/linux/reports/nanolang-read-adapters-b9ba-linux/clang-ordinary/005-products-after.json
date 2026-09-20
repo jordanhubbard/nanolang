@@ -1,0 +1,38 @@
+{
+  "observed-0.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/products/observed-0.o",
+    "sha256": "c88e733017c5bed7eb36271bef80d4d4c70a69ef0ba6f017d0dbcaf01118a50a",
+    "bytes": 15256,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/objects/c88e733017c5bed7eb36271bef80d4d4c70a69ef0ba6f017d0dbcaf01118a50a"
+  },
+  "target-probe.c": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/products/target-probe.ll",
+    "sha256": "0592b5ba59d9eb98af95b983b5162ce54b6948486c007d986b3b839e8daf518d",
+    "bytes": 1071,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/objects/0592b5ba59d9eb98af95b983b5162ce54b6948486c007d986b3b839e8daf518d"
+  },
+  "typed-O0.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/products/typed-O0.o",
+    "sha256": "79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc",
+    "bytes": 1048,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/objects/79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc"
+  },
+  "typed-O2.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/products/typed-O2.o",
+    "sha256": "a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147",
+    "bytes": 1024,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/objects/a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147"
+  },
+  "typed-read.ll": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/products/typed-read.ll",
+    "sha256": "30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3",
+    "bytes": 502,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/objects/30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3"
+  }
+}

@@ -1,0 +1,22 @@
+I retain carrier artifacts at /tmp/nano-file-frames-jibrxpm6
+test_instrumented_frames_and_preserved_carrier (tests.test_file_runtime_frames.FileRuntimeFrames.test_instrumented_frames_and_preserved_carrier) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_frames_and_preserved_carrier (tests.test_file_runtime_frames.FileRuntimeFrames.test_instrumented_frames_and_preserved_carrier)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-frames-fixture-corrected/tests/test_file_runtime_frames.py", line 80, in test_instrumented_frames_and_preserved_carrier
+    self.qualify('instrumented', True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-frames-fixture-corrected/tests/test_file_runtime_frames.py", line 77, in qualify
+    self.command(f'{name}-run', [str(exe)], run=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-frames-fixture-corrected/tests/test_file_runtime_frames.py", line 41, in command
+    self.assertEqual(result.returncode, 0, (args, result.stdout, result.stderr))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : (['/tmp/nano-file-frames-jibrxpm6/instrumented'], 'I retain 436 allocation refusals and 0 recovered complete carriers\nPASS 84505 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch\n', 'FAIL 317: !tracked_live && !tracked_bytes\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 3.337s
+
+FAILED (failures=1)

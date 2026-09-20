@@ -1,0 +1,7 @@
+test_c99_consumers_share_c11_gate (tests.test_file_host_grant.FileHostGrant.test_c99_consumers_share_c11_gate) ... I retain grant artifacts at /tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/fixtures/nano-file-host-grant-kfc1yquj
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.468s
+
+OK

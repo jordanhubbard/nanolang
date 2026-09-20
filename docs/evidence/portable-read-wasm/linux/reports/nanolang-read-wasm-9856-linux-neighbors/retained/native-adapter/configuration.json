@@ -1,0 +1,43 @@
+{
+  "cc": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13"
+  ],
+  "flags": [],
+  "clang": [
+    "/usr/local/bin/clang-23"
+  ],
+  "llvm_flags": [
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "extra_tools": {
+    "cc": "/usr/bin/gcc",
+    "clang": "/usr/local/bin/clang",
+    "python": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "make": "/usr/bin/make",
+    "ld": "/bin/ld",
+    "ar": "/bin/ar",
+    "pkg-config": "/bin/pkg-config",
+    "libasan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libasan.so",
+    "libubsan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libubsan.so",
+    "cc1": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1",
+    "collect2": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2"
+  },
+  "rebuilt_sources": [
+    "src/nanoisa/portable_read_host.c",
+    "src/nanoisa/portable_read_managed.c",
+    "src/nanoisa/managed_strings.c"
+  ],
+  "allocator_hooks": [
+    "src/nanoisa/portable_read_host.c",
+    "src/nanoisa/portable_read_managed.c",
+    "src/nanoisa/managed_strings.c"
+  ],
+  "io_hooks": "src/nanoisa/portable_read_host.c",
+  "unhooked_comparison": "All three TUs rebuilt without hooks.",
+  "environment": {
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": ""
+  },
+  "scope": "Direct C and LLVM ABI forwarding only; no NanoISA emission or public profile. Inventoried phase endpoint bytes, not all transitive system tools."
+}

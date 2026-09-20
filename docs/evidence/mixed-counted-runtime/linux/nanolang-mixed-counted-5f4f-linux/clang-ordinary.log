@@ -1,0 +1,104 @@
+I retain counted runtime artifacts at /tmp/nano-mixed-counted-fyspow72
+test_01_query_descriptor_correspondence (tests.test_mixed_counted_runtime.MixedCountedRuntime.test_01_query_descriptor_correspondence) ... ok
+test_02_native_core_and_adapter (tests.test_mixed_counted_runtime.MixedCountedRuntime.test_02_native_core_and_adapter) ... I begin counted mixed core, boundaries, faults and module entries.
+I checked 87908 counted mixed assertions; status 0; no admission.
+I begin counted mixed core, boundaries, faults and module entries.
+I measured operation 0 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 0 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 0 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 0 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 0 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 1 position 0 mode 0: requests 1 successes 5 frees 5 peak 837 status 0.
+I measured operation 1 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 1 position 0 mode 0: requests 1 successes 5 frees 5 peak 837 status 0.
+I measured operation 1 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 1 position 0 mode 0: requests 1 successes 5 frees 5 peak 837 status 0.
+I measured operation 2 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 2 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 2 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 2 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 2 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 3 position 0 mode 0: requests 1 successes 5 frees 5 peak 597 status 0.
+I measured operation 3 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 3 position 0 mode 0: requests 1 successes 5 frees 5 peak 597 status 0.
+I measured operation 3 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 3 position 0 mode 0: requests 1 successes 5 frees 5 peak 597 status 0.
+I measured operation 4 position 0 mode 0: requests 1 successes 5 frees 5 peak 701 status 0.
+I measured operation 4 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 4 position 0 mode 0: requests 1 successes 5 frees 5 peak 701 status 0.
+I measured operation 4 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 4 position 0 mode 0: requests 1 successes 5 frees 5 peak 701 status 0.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 1 mode 0: requests 1 successes 10 frees 10 peak 781 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 2 mode 0: requests 2 successes 11 frees 11 peak 797 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 3 mode 0: requests 3 successes 12 frees 12 peak 1613 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 1 mode 1: requests 1 successes 10 frees 10 peak 781 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 2 mode 1: requests 2 successes 11 frees 11 peak 797 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 3 mode 1: requests 3 successes 12 frees 12 peak 1613 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 6 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 6 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 6 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 6 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 6 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I checked 89182 counted mixed assertions; status 0; no admission.
+I measured 9629 requests, 9628 backend successes, 9628 frees, 0 live requested bytes, 4258 peak requested bytes.
+I begin counted mixed core, boundaries, faults and module entries.
+I checked 87908 counted mixed assertions; status 0; no admission.
+I begin counted mixed core, boundaries, faults and module entries.
+I measured operation 0 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 0 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 0 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 0 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 0 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 1 position 0 mode 0: requests 1 successes 5 frees 5 peak 837 status 0.
+I measured operation 1 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 1 position 0 mode 0: requests 1 successes 5 frees 5 peak 837 status 0.
+I measured operation 1 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 1 position 0 mode 0: requests 1 successes 5 frees 5 peak 837 status 0.
+I measured operation 2 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 2 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 2 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 2 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 2 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 3 position 0 mode 0: requests 1 successes 5 frees 5 peak 597 status 0.
+I measured operation 3 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 3 position 0 mode 0: requests 1 successes 5 frees 5 peak 597 status 0.
+I measured operation 3 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 3 position 0 mode 0: requests 1 successes 5 frees 5 peak 597 status 0.
+I measured operation 4 position 0 mode 0: requests 1 successes 5 frees 5 peak 701 status 0.
+I measured operation 4 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 4 position 0 mode 0: requests 1 successes 5 frees 5 peak 701 status 0.
+I measured operation 4 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 4 position 0 mode 0: requests 1 successes 5 frees 5 peak 701 status 0.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 1 mode 0: requests 1 successes 10 frees 10 peak 781 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 2 mode 0: requests 2 successes 11 frees 11 peak 797 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 3 mode 0: requests 3 successes 12 frees 12 peak 1613 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 1 mode 1: requests 1 successes 10 frees 10 peak 781 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 2 mode 1: requests 2 successes 11 frees 11 peak 797 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 5 position 3 mode 1: requests 3 successes 12 frees 12 peak 1613 status 3.
+I measured operation 5 position 0 mode 0: requests 3 successes 13 frees 13 peak 1837 status 0.
+I measured operation 6 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 6 position 1 mode 0: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 6 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I measured operation 6 position 1 mode 1: requests 1 successes 4 frees 4 peak 581 status 3.
+I measured operation 6 position 0 mode 0: requests 1 successes 5 frees 5 peak 709 status 0.
+I checked 89182 counted mixed assertions; status 0; no admission.
+I measured 9629 requests, 9628 backend successes, 9628 frees, 0 live requested bytes, 4258 peak requested bytes.
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.380s
+
+OK

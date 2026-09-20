@@ -1,0 +1,27 @@
+{
+  "name": "scalar-neighbors",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_nvm2llvm",
+    "tests.test_nvm2llvm_floats",
+    "tests.test_nvm2wasm",
+    "tests.test_scalar_u8"
+  ],
+  "bound_seconds": 900,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 73.54625430901069,
+  "log": {
+    "sha256": "17c7298d7104c835b3373fd96667b3f42970764601132dcce0f5dbac211e1a54",
+    "bytes": 4638,
+    "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/17c7298d7104c835b3373fd96667b3f42970764601132dcce0f5dbac211e1a54"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

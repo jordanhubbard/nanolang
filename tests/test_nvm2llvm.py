@@ -258,10 +258,10 @@ RET
         self.run_cmd(['lli', ir], success=False)
 
     def test_refused_profile_preserves_output(self):
-        module = self.module('.string outside "heap"\n.entry main\n.function main 0 0 0 int 1\nPUSH_STR outside\nPUSH_STR outside\nSTR_CONTAINS\nPOP\nPUSH_I64 0\nRET\n.end\n')
+        module = self.module('.import "" "get_argc" int\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
         output = self.work/'kept.ll'; output.write_text('prior output')
         result = self.run_cmd([LLVM, module, '-o', output], success=False)
-        self.assertIn('scalar LLVM profile', result.stderr)
+        self.assertIn('closed scalar', result.stderr)
         self.assertEqual(output.read_text(), 'prior output')
         self.assertEqual(list(self.work.glob('kept.ll.*')), [])
         original = module.read_bytes()
@@ -274,17 +274,20 @@ RET
         self.run_cmd([LLVM, module, '-o', output], success=False)
         self.assertEqual(output.read_text(), 'prior output')
 
-    def test_nominal_metadata_and_nonscalar_signature_refused(self):
-        for text in (
-            '.types 1 0 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n',
-            '.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n.function unused 1 1 0 int 1\n.parameters unused array\nPUSH_I64 0\nRET\n.end\n',
-        ):
-            with self.subTest(text=text):
-                module = self.module(text)
-                self.run_cmd([VM, '--verify-only', module])
-                result = self.run_cmd([LLVM, module], success=False)
-                self.assertEqual(result.stdout, '')
-                self.assertIn('parameters' if '.parameters' in text else 'scalar', result.stderr)
+    def test_count_only_nominal_metadata_refused(self):
+        module = self.module('.types 1 0 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
+        self.run_cmd([VM, '--verify-only', module])
+        result = self.run_cmd([LLVM, module], success=False)
+        self.assertEqual(result.stdout, '')
+        self.assertIn('retained layout facts', result.stderr)
+
+    def test_existing_predicate_and_unused_array_signature(self):
+        self.compare('.string hay "abc"\n.string yes "b"\n.string no "z"\n'
+            '.entry main\n.function main 0 0 0 int 1\n'
+            'PUSH_STR hay\nPUSH_STR yes\nSTR_CONTAINS\nASSERT\n'
+            'PUSH_STR hay\nPUSH_STR no\nSTR_CONTAINS\nBOOL_NOT\nASSERT\n'
+            'PUSH_I64 0\nRET\n.end\n'
+            '.function unused 1 1 0 int 1\n.parameters unused array\nPUSH_I64 0\nRET\n.end\n')
 
     def test_nonzero_arity_initializer_refused(self):
         module = self.module('.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'

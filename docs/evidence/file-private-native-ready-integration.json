@@ -1,0 +1,17 @@
+{
+  "qualified_seal": "0da877eb446a575c8b296f4a50654aa4e18b7d00",
+  "incoming_main": "dc83a0c92432534226d50b422a9d0b8e78657f79",
+  "resolution": "Additive ROADMAP tail only; both histories retained",
+  "exact_production_fixture_sha256": {
+    "src/nanoisa/file_runtime.c": "0424c03d6901eea51393acd35b3e595a5e81dcf14375049dc2a82d7d9c34d7fe",
+    "src/nanoisa/nvm2c_file_private.c": "e665b13e5697995156b31869fd91adaae62e82a733c43412bfb83dfa86e88944",
+    "src/nanoisa/nvm2c_file_private.h": "bfcb42796aae3c627b5b87ba2711a7a9fada76e85a02ae3b8a0bb7594fe2a663",
+    "tests/nanoisa/test_file_private_vm.c": "d3404ab37026d5bfe2c5ddfb95152acddbe7ec1067efe3d8c5073386dc0ed5c4",
+    "tests/nanoisa/test_file_private_native.c": "b56e27bac5c03067b557660a4980b9c1568dd9e0c520edfe53d939f960a53d69",
+    "tests/nanoisa/test_file_native_buffer.c": "a69d7558ccbfae9b0e14b404213837d16dcd1bc1b1fac15901d52e41480fc947",
+    "tests/nanoisa/file_native_hooks.h": "13acd7e83eb0764cbf414a512391819d4715f8492bb8a603c7f8bae03e1c72d2",
+    "tests/test_file_private_native.py": "9c28795c86432bded1f839a31eeb81177f84789e43f5e786f16bd7739faac0c2"
+  },
+  "incoming_production": "Three isolated grant files and explicit independent Make target; no existing native/VM/frame/provider change",
+  "new_execution": false
+}

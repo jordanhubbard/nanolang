@@ -1,0 +1,206 @@
+{
+  "unhooked-C": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C",
+    "sha256": "36eaa1144d2f2d542ee4b9b0d4834e4186b4147ab18bbe8140aef69ef7619350",
+    "bytes": 94248,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/36eaa1144d2f2d542ee4b9b0d4834e4186b4147ab18bbe8140aef69ef7619350"
+  },
+  "unhooked-C-files/caf\u00e9-\u20ac.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "unhooked-C-files/vector-0.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unhooked-C-files/vector-1.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "unhooked-C-files/vector-2.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "unhooked-C-files/vector-3.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "unhooked-C-files/vector-4.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "unhooked-C-files/vector-5.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "unhooked-C-files/vector-6.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "unhooked-C-files/vector-7.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "unhooked-C-files/vector-8.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unhooked-C-files/vector-9.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "unhooked-C.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C.dSYM/Contents/Info.plist",
+    "sha256": "7d102a0ed0341d11506e9d823f54e7425c5988c25739999040fb44ea99aa3f56",
+    "bytes": 639,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/7d102a0ed0341d11506e9d823f54e7425c5988c25739999040fb44ea99aa3f56"
+  },
+  "unhooked-C.dSYM/Contents/Resources/DWARF/unhooked-C": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C.dSYM/Contents/Resources/DWARF/unhooked-C",
+    "sha256": "11119f74e70ba4942f9e4d2d069064e514f0e322c889328cc174c49341ba3296",
+    "bytes": 135554,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/11119f74e70ba4942f9e4d2d069064e514f0e322c889328cc174c49341ba3296"
+  },
+  "unhooked-C.dSYM/Contents/Resources/Relocations/aarch64/unhooked-C.yml": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C.dSYM/Contents/Resources/Relocations/aarch64/unhooked-C.yml",
+    "sha256": "5f0123a491128f81c8b08c91a47bdde36d3bf785474867a7e0132c9d32c73669",
+    "bytes": 155,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/5f0123a491128f81c8b08c91a47bdde36d3bf785474867a7e0132c9d32c73669"
+  },
+  "unhooked-O0": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0",
+    "sha256": "ba3a1236ce71a2cff5746075a4660ccdf99ec187e456e3aabc0e280a33bdd557",
+    "bytes": 94312,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/ba3a1236ce71a2cff5746075a4660ccdf99ec187e456e3aabc0e280a33bdd557"
+  },
+  "unhooked-O0-files/caf\u00e9-\u20ac.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "unhooked-O0-files/vector-0.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unhooked-O0-files/vector-1.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "unhooked-O0-files/vector-2.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "unhooked-O0-files/vector-3.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "unhooked-O0-files/vector-4.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "unhooked-O0-files/vector-5.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "unhooked-O0-files/vector-6.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "unhooked-O0-files/vector-7.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "unhooked-O0-files/vector-8.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unhooked-O0-files/vector-9.bin": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "unhooked-O0.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0.dSYM/Contents/Info.plist",
+    "sha256": "f4ab579d34abb64a5e7bd905dc3f3249c200d078d3f5d3fc988aa8e0374a0e56",
+    "bytes": 640,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/f4ab579d34abb64a5e7bd905dc3f3249c200d078d3f5d3fc988aa8e0374a0e56"
+  },
+  "unhooked-O0.dSYM/Contents/Resources/DWARF/unhooked-O0": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0.dSYM/Contents/Resources/DWARF/unhooked-O0",
+    "sha256": "cf7b45bc0c10c2c2f9cae33c4b642bd6d038ed83f849d3a5988c89a6ff4be71b",
+    "bytes": 139663,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/cf7b45bc0c10c2c2f9cae33c4b642bd6d038ed83f849d3a5988c89a6ff4be71b"
+  },
+  "unhooked-O0.dSYM/Contents/Resources/Relocations/aarch64/unhooked-O0.yml": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O0.dSYM/Contents/Resources/Relocations/aarch64/unhooked-O0.yml",
+    "sha256": "555d1d64ddab3776ea0e3334e5cea3406d1e6ab45456d41cb59028f5c2d151a6",
+    "bytes": 156,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/555d1d64ddab3776ea0e3334e5cea3406d1e6ab45456d41cb59028f5c2d151a6"
+  },
+  "unhooked-O2": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O2",
+    "sha256": "77ab750cbc9507deb12af7f8836231a934f23ea31410f64ec7e0024972805fd7",
+    "bytes": 94312,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/77ab750cbc9507deb12af7f8836231a934f23ea31410f64ec7e0024972805fd7"
+  },
+  "unhooked-O2.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O2.dSYM/Contents/Info.plist",
+    "sha256": "dc9d3e43e06a9732f14eb3a5673012b61b2bbeffdb498bc46c461aa8f7126c9a",
+    "bytes": 640,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/dc9d3e43e06a9732f14eb3a5673012b61b2bbeffdb498bc46c461aa8f7126c9a"
+  },
+  "unhooked-O2.dSYM/Contents/Resources/DWARF/unhooked-O2": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O2.dSYM/Contents/Resources/DWARF/unhooked-O2",
+    "sha256": "5bce8df5f923111b7a614b5120dcb57c033a418fe778ac6c900d41471a9139b8",
+    "bytes": 135567,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/5bce8df5f923111b7a614b5120dcb57c033a418fe778ac6c900d41471a9139b8"
+  },
+  "unhooked-O2.dSYM/Contents/Resources/Relocations/aarch64/unhooked-O2.yml": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-O2.dSYM/Contents/Resources/Relocations/aarch64/unhooked-O2.yml",
+    "sha256": "0f7e9eca28f8a0257d32bb1924b6bce40401a30703d9f7310439386484bc0332",
+    "bytes": 156,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/0f7e9eca28f8a0257d32bb1924b6bce40401a30703d9f7310439386484bc0332"
+  }
+}

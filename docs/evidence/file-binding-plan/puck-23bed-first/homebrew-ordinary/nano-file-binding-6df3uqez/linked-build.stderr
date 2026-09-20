@@ -1,0 +1,4 @@
+tests/test_nsi_file_binding.c:22:70: error: variable 'fail_hits' set but not used [-Werror,-Wunused-but-set-global]
+   22 | static size_t live, live_bytes, peak_bytes, calls, fail_at=SIZE_MAX, fail_hits;
+      |                                                                      ^
+1 error generated.

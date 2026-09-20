@@ -1,0 +1,196 @@
+{
+  "head": "163290ddab180431955145919f6e31a4a6d37cec",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "fixture_overlay": null,
+  "matrix_mode": "ordinary",
+  "scope": "Selected generated native C ASan/UBSan and emitted native IR ASan when requested; ordinary LLVM/Wasm. Explicit target ABI corrected generated CAST_U8 native/LLVM/Wasm acceptance with inventoried first-build ordinary providers; source and reconstruction remain unimplemented",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0014207499334588647,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0053993010660633445,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/usr/local/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.017770542996004224,
+      "log": {
+        "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+        "bytes": 440,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0019642759580165148,
+      "log": {
+        "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+        "bytes": 303,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "reconstruction-tool",
+      "argv": [
+        "make",
+        "nvm2hl",
+        "CC=/bin/gcc"
+      ],
+      "bound_seconds": 300,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.26482232194393873,
+      "log": {
+        "sha256": "13e0bcc86636e2db2d861201750a6ba03d02875a542e4fa00587ddad1c2535f0",
+        "bytes": 1284,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/13e0bcc86636e2db2d861201750a6ba03d02875a542e4fa00587ddad1c2535f0"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "assemble-refusal",
+      "argv": [
+        "/home/jkh/Src/nanolang-cast-u8-backends/bin/nanoisa",
+        "asm",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/convert.nasm",
+        "-o",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/convert.nvm"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0017888819565996528,
+      "log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "reconstructed-c-refusal",
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/check-refusal.py",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c.out",
+        "/home/jkh/Src/nanolang-cast-u8-backends/bin/nvm2hl",
+        "--language",
+        "c",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/convert.nvm",
+        "-o",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c.out"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.11565354000777006,
+      "log": {
+        "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+        "bytes": 127,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "reconstructed-nano-refusal",
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/check-refusal.py",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano.out",
+        "/home/jkh/Src/nanolang-cast-u8-backends/bin/nvm2hl",
+        "--language",
+        "nano",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/convert.nvm",
+        "-o",
+        "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano.out"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.11423810303676873,
+      "log": {
+        "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+        "bytes": 127,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

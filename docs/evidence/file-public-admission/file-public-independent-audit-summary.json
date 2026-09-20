@@ -1,0 +1,26 @@
+{
+  "pin": "54a98b7c1",
+  "reports_as_git_blobs": 417,
+  "unique_archived_artifacts": 16409,
+  "artifact_bytes": 4324821877,
+  "phase_source_tool_pairs": 32,
+  "configurations": 7,
+  "fixture_terminals_checked": 2639,
+  "current_linux_reports": 8,
+  "current_puck_reports": 6,
+  "sources_per_tree": 10015,
+  "errors": [],
+  "limits": [
+    "provider objects deliberately rebuilt by make -B install and ordinary neighbor preparation; no fixed provider/compiler claim across configurations",
+    "current source/tool paths rehashed; historical binaries verified from retained content store",
+    "byte API and native package only; source loops indirect and richer borrows remain outside acceptance"
+  ],
+  "audit_files": {
+    "/tmp/file-public-independent-content-audit.json": "acaadc02ee110843f60c2a556e20d883f51f34ef92fac751433996527fee34f3",
+    "/tmp/file-public-independent-map-audit.json": "4cb3831bc1a922256cc09e91289f1aadea83eadf0652460205f071cbe18c9011",
+    "/tmp/file-public-independent-matrix-audit.json": "71aea7208b68b4b9c04d7240c7d85b3bad872b118cfac51d18e537b780eca269",
+    "/tmp/file-public-independent-provider-audit.json": "551df3fb6c14c4789d277383bc26b050a8e2b3ded9cea534024a00dd27149c0a",
+    "/tmp/file-public-independent-current-linux.json": "cc5898eacb6347d917b808459661b4f58e199c48a2c5a0bd97b8a3439628490a",
+    "/tmp/file-public-independent-current-puck.json": "532d343750c59d59ef1548214c18785f2e48464751cbe3173652cc60c8046750"
+  }
+}

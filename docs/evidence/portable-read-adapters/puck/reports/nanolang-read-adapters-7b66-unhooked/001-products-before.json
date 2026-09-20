@@ -1,0 +1,26 @@
+{
+  "unhooked-C": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C",
+    "sha256": "36eaa1144d2f2d542ee4b9b0d4834e4186b4147ab18bbe8140aef69ef7619350",
+    "bytes": 94248,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/36eaa1144d2f2d542ee4b9b0d4834e4186b4147ab18bbe8140aef69ef7619350"
+  },
+  "unhooked-C.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C.dSYM/Contents/Info.plist",
+    "sha256": "7d102a0ed0341d11506e9d823f54e7425c5988c25739999040fb44ea99aa3f56",
+    "bytes": 639,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/7d102a0ed0341d11506e9d823f54e7425c5988c25739999040fb44ea99aa3f56"
+  },
+  "unhooked-C.dSYM/Contents/Resources/DWARF/unhooked-C": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C.dSYM/Contents/Resources/DWARF/unhooked-C",
+    "sha256": "11119f74e70ba4942f9e4d2d069064e514f0e322c889328cc174c49341ba3296",
+    "bytes": 135554,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/11119f74e70ba4942f9e4d2d069064e514f0e322c889328cc174c49341ba3296"
+  },
+  "unhooked-C.dSYM/Contents/Resources/Relocations/aarch64/unhooked-C.yml": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-unhooked/products/unhooked-C.dSYM/Contents/Resources/Relocations/aarch64/unhooked-C.yml",
+    "sha256": "5f0123a491128f81c8b08c91a47bdde36d3bf785474867a7e0132c9d32c73669",
+    "bytes": 155,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-unhooked/objects/5f0123a491128f81c8b08c91a47bdde36d3bf785474867a7e0132c9d32c73669"
+  }
+}

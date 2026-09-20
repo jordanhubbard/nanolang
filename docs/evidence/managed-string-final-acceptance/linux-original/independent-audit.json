@@ -1,0 +1,241 @@
+{
+  "passed": true,
+  "problems": [],
+  "base": "/tmp/nanolang-managed-string-971b-linux-original",
+  "root": "/home/jkh/Src/nanolang-managed-string-971b-linux",
+  "pin": "971b075a28d912495f09584cb9ceb3813dd656f8",
+  "report_manifest_sha256": "16051f632801f91d9eb0bb5364aeb5b3c1bad7c4d53eb4e4b396b3ef6765e2d5",
+  "counters": {
+    "reports": 4582,
+    "object_references": 3297085,
+    "command_pairs": 456
+  },
+  "unique_referenced_objects": 3852,
+  "archive_bytes": 1586647241,
+  "current_map_counts": {
+    "providers": 319,
+    "sources": 3115,
+    "tools": 54
+  },
+  "current_unique_files_hashed": 3475,
+  "current_stat_mismatches": [],
+  "phase": {
+    "commands": 456,
+    "errors": 0,
+    "exception": null,
+    "failures": 0,
+    "inputs_equal": true,
+    "passed": true,
+    "retention_failures": [],
+    "seconds": 99.47971279395279,
+    "skipped": [],
+    "tests_run": 23
+  },
+  "selected_tests": [
+    "tests.test_llvm_managed_strings.ManagedStrings.test_allocation_failure_unwinds_callee_and_preserves_global_owner",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_callee_errors_unwind_all_frames_and_preserve_prior_global_writes",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_content_aliases_branches_loop_and_nested_calls",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_dynamic_return_tag_errors_clean_explicit_and_implicit_frames",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_failed_initializer_cleans_locals_and_preserves_committed_global",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_global_ownership_reentry_initializer_and_terminal_disposal",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_managed_profile_preserves_numeric_tags_and_total_boundaries",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_native_byte_and_descriptor_allocation_failure_are_recoverable",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_substring_allocation_failure_and_type_error_cleanup",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_substring_bytes_indices_aliases_and_reentry",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_unsupported_array_shape_and_reserved_entry_refusals_preserve_output",
+    "tests.test_llvm_managed_strings.ManagedStrings.test_wasm_memory_cap_failure_cleans_frames_and_reuses_storage",
+    "tests.test_llvm_managed_decimal.ManagedDecimal.test_decimal_bytes_limits_and_dynamic_aliases",
+    "tests.test_llvm_managed_decimal.ManagedDecimal.test_globals_nonstrings_and_error_cleanup",
+    "tests.test_llvm_managed_format.ManagedFormat.test_allocation_failure_and_allocation_free_identity",
+    "tests.test_llvm_managed_format.ManagedFormat.test_exact_scalar_bytes_and_string_owner_transfer",
+    "tests.test_llvm_managed_format.ManagedFormat.test_float_instruction_and_signature_publication",
+    "tests.test_managed_binary64_format.Binary64Format.test_emitted_formatting_matches_vm_and_reference",
+    "tests.test_managed_binary64_format.Binary64Format.test_float_format_allocation_failure_recovers",
+    "tests.test_managed_binary64_format.Binary64Format.test_portable_core_matches_2077_reference_values",
+    "tests.test_managed_binary64_parse.Binary64Parse.test_core_bits_and_ownership_match_reference_on_native_and_wasm",
+    "tests.test_managed_binary64_parse.Binary64Parse.test_emitted_float_parsing_aliases_and_cleanup",
+    "tests.test_managed_binary64_parse.Binary64Parse.test_vm_bits_and_both_generated_c_conversion_paths"
+  ],
+  "nonzero_commands": [
+    {
+      "command": 23,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-iow4f7tt/input.nvm"
+      ]
+    },
+    {
+      "command": 35,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-iow4f7tt/input.nvm"
+      ]
+    },
+    {
+      "command": 47,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-iow4f7tt/input.nvm"
+      ]
+    },
+    {
+      "command": 59,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-iow4f7tt/input.nvm"
+      ]
+    },
+    {
+      "command": 71,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-iow4f7tt/input.nvm"
+      ]
+    },
+    {
+      "command": 83,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-iow4f7tt/input.nvm"
+      ]
+    },
+    {
+      "command": 113,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-coqlb52o/input.nvm"
+      ]
+    },
+    {
+      "command": 125,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-coqlb52o/input.nvm"
+      ]
+    },
+    {
+      "command": 137,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-9v9repte/input.nvm"
+      ]
+    },
+    {
+      "command": 149,
+      "returncode": 3,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-suavne8_/input.nvm"
+      ]
+    },
+    {
+      "command": 200,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-61h3o1ak/input.nvm"
+      ]
+    },
+    {
+      "command": 224,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/refuse.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/previous"
+      ]
+    },
+    {
+      "command": 225,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/refuse.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/previous"
+      ]
+    },
+    {
+      "command": 227,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/refuse.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/previous"
+      ]
+    },
+    {
+      "command": 228,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/refuse.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/previous"
+      ]
+    },
+    {
+      "command": 236,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/input.nvm",
+        "--entry-name",
+        "nano_dispose",
+        "-o",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/previous"
+      ]
+    },
+    {
+      "command": 237,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/input.nvm",
+        "--entry-name",
+        "nano_try_entry",
+        "-o",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/previous"
+      ]
+    },
+    {
+      "command": 238,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/input.nvm",
+        "--entry-name",
+        "nano_runtime_hidden",
+        "-o",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-fckoi01g/previous"
+      ]
+    },
+    {
+      "command": 276,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-971b-linux-original/temporary/nano-managed-emitted-sva1o31t/input.nvm"
+      ]
+    }
+  ],
+  "limits": [
+    "Command input maps use recorded stat-keyed cached digests, not an independent byte read per command.",
+    "Phase endpoint digests are forced fresh by the frozen runner; audit independently rehashes each referenced archive object and current immutable input.",
+    "Source scope excludes historical docs except the acceptance contract and roadmap.",
+    "Tool/library inventory does not establish every transitive compiler tool or runtime loader selection.",
+    "Only original phase audited; O2 and other acceptance remain separate."
+  ],
+  "seconds": 16.002531922014896
+}

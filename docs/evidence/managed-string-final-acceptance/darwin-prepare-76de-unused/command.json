@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "GNUmakefile",
+    "-f",
+    "scripts/managed_string_acceptance.mk",
+    "-j4",
+    "managed-string-acceptance-providers",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt"
+  ],
+  "cwd": "/private/tmp/nanolang-managed-string-76de-darwin",
+  "path": "/private/tmp/nanolang-managed-string-76de-darwin-prepare/tool-bin:/usr/bin:/bin:/usr/sbin:/sbin"
+}

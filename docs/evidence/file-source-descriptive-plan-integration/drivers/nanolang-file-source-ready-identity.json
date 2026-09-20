@@ -1,0 +1,39 @@
+{
+  "qualified": "96495b848",
+  "canonical": "8b84b9cd012d3db595bcb461701e76f84e488cbb",
+  "qualified_paths": {
+    "modules/file_source_catalog/file_source_catalog.h": true,
+    "modules/file_source_catalog/file_source_catalog.nano": true,
+    "modules/file_source_catalog/module.json": true,
+    "src/nanoisa/file_source_catalog.c": true,
+    "src/nanoisa/file_source_plan.c": true,
+    "src/nanoisa/file_source_plan.h": true,
+    "src_nano/compiler/file_source_plan.nano": true,
+    "tests/file_source_plan_corpus.py": true,
+    "tests/nanoisa/test_file_source_plan.c": true,
+    "tests/test_file_source_plan.py": true
+  },
+  "incoming_paths": {
+    "src/nanoisa/file_code.inc": true,
+    "src/nanoisa/file_cyclic_hosted.h": true,
+    "src/nanoisa/file_cyclic_hosted.inc": true,
+    "src/nanoisa/file_flow.c": true,
+    "src/nanoisa/file_indirect_targets.h": true,
+    "src/nanoisa/file_indirect_targets.inc": true,
+    "src/nanoisa/portable_host_plan.c": true,
+    "src/nanoisa/portable_host_plan.h": true,
+    "tests/nanoisa/test_file_cyclic_hosted.c": true,
+    "tests/nanoisa/test_file_cyclic_hosted_integration.c": true,
+    "tests/nanoisa/test_file_indirect_targets.c": true,
+    "tests/nanoisa/test_portable_host_plan.c": true,
+    "tests/test_file_cyclic_hosted.py": true,
+    "tests/test_file_cyclic_hosted_integration.py": true,
+    "tests/test_file_indirect_targets.py": true,
+    "tests/test_llvm_enum_scalars.py": true,
+    "tests/test_llvm_literal_strings.py": true,
+    "tests/test_llvm_managed_strings.py": true,
+    "tests/test_llvm_scalar_globals.py": true,
+    "tests/test_managed_string_core.py": true,
+    "tests/test_portable_host_plan.py": true
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "head": "565a48d3faa2d68eb49a81809846cbc5ad61ec3d",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "scope": "raw CAST_U8 VM, schema and existing byte backend neighbors; source conversion remains unimplemented",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0015005109598860145,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-cast-u8-linux/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0014910399913787842,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-cast-u8-linux/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/usr/local/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.015678687021136284,
+      "log": {
+        "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+        "bytes": 440,
+        "archive": "/tmp/nanolang-cast-u8-linux/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.001460799016058445,
+      "log": {
+        "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+        "bytes": 303,
+        "archive": "/tmp/nanolang-cast-u8-linux/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "discovery",
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-c",
+        "import unittest;from tests import test_cast_u8;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8);assert s.countTestCases()==1;print('I discover exactly one raw CAST_U8 method.')"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.06409239303320646,
+      "log": {
+        "sha256": "1ba5d3ddb18ed37c83e7d1723710be3e0f1484fb36ae44d3ee1d4c880e225c8d",
+        "bytes": 43,
+        "archive": "/tmp/nanolang-cast-u8-linux/objects/1ba5d3ddb18ed37c83e7d1723710be3e0f1484fb36ae44d3ee1d4c880e225c8d"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "build",
+      "argv": [
+        "make",
+        "-j2",
+        "nanoisa_dump",
+        "nano_vm",
+        "nvm2c",
+        "nvm2llvm",
+        "nvm2wasm",
+        "CC=/bin/gcc",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 21.27180614299141,
+      "log": {
+        "sha256": "dd91075bf5a739733006283a1fda44baefd948a3967e855b482777941287aa14",
+        "bytes": 34188,
+        "archive": "/tmp/nanolang-cast-u8-linux/objects/dd91075bf5a739733006283a1fda44baefd948a3967e855b482777941287aa14"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "schema",
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_nanoisa_schema"
+      ],
+      "bound_seconds": 120,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 1.6166628249920905,
+      "log": {
+        "sha256": "9a60cb8993e0922fd8b33beac4cbf79a20148a227a6d9cf4219b4d596b883717",
+        "bytes": 5039,
+        "archive": "/tmp/nanolang-cast-u8-linux/objects/9a60cb8993e0922fd8b33beac4cbf79a20148a227a6d9cf4219b4d596b883717"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "raw-ordinary",
+      "argv": [
+        "make",
+        "test-cast-u8",
+        "CC=/bin/gcc",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 300,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 8.03443266497925,
+      "log": {
+        "sha256": "200148be33ad7dac51cca9ac29050c8c2d9d7298f2a3574f98db58d6015fd961",
+        "bytes": 4032,
+        "archive": "/tmp/nanolang-cast-u8-linux/objects/200148be33ad7dac51cca9ac29050c8c2d9d7298f2a3574f98db58d6015fd961"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "byte-neighbors",
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_scalar_u8"
+      ],
+      "bound_seconds": 900,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 13.24584326997865,
+      "log": {
+        "sha256": "61fa7ab0d4793dae058039d75dccfcb3400b3a64da733ee356474b0a7639b043",
+        "bytes": 1078,
+        "archive": "/tmp/nanolang-cast-u8-linux/objects/61fa7ab0d4793dae058039d75dccfcb3400b3a64da733ee356474b0a7639b043"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

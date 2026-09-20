@@ -6,6 +6,7 @@
 # Prerequisites: sdl_drawing_primitives
 # Expected Output: graphical
 
+module "stdlib/timing.nano" as Timing
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf.nano"
@@ -21,7 +22,6 @@ let MAX_Z: float = 1000.0
 # === EXTERNAL FUNCTIONS ===
 extern fn rand() -> int
 extern fn srand(seed: int) -> void
-extern fn time(t: int) -> int
 
 # === STAR STRUCTURE ===
 # Flat array: [x1, y1, z1, x2, y2, z2, ...]
@@ -168,7 +168,7 @@ fn main() -> int {
     (println "Press ESC to exit, UP/DOWN to change speed")
 
     # Seed random
-    let t: int = (time 0)
+    let t: int = (/ (Timing.get_microseconds) 1000000)
     (srand t)
 
     # Initialize SDL

@@ -1,0 +1,42 @@
+{
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/linked-nsi_file_binding.o": {
+    "sha256": "f40ac6ce8af038b1bc651cc9603f8086433f8ae2168ed239378d7585df8bc968",
+    "bytes": 299000
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/linked-nsi_file_plan.o": {
+    "sha256": "8798812991c4f510b6ade9e3f01d824382bf561b45e72648e337fbbee7d02e9c",
+    "bytes": 131880
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/linked-nsi.o": {
+    "sha256": "756db4345e3aa7f5b4ddb07c6c7a9587e0d4b419435391b516253e70368ed993",
+    "bytes": 550656
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/linked-cJSON.o": {
+    "sha256": "16089dd54565f1f9e17f721b732ee113b6423b91342e0af31a4a6efcc3efc7a0",
+    "bytes": 639320
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/linked-utf8.o": {
+    "sha256": "4c62dbf475aece94c2f8150507f1e448200532653a532190ea41d8303c98c0e7",
+    "bytes": 49744
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/instrumented-nsi_file_binding.o": {
+    "sha256": "4571ba577667fd56ee72c74659e10698dd886b0047fe2455bd84d90da4359e49",
+    "bytes": 294856
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/instrumented-nsi_file_plan.o": {
+    "sha256": "ac9bc61871c8690d3615ddf18ede41134cf82cd85912dc47f6450512f55a4518",
+    "bytes": 132040
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/instrumented-nsi.o": {
+    "sha256": "11aa2ec5f1aa43c04fa9465783e4aed1adaf3f8e01fe9e5e5f2b1509615ed738",
+    "bytes": 546504
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/instrumented-cJSON.o": {
+    "sha256": "f971fe7b3239efbc9b0caf0876a2cc1fc249217b573b578b470c0d1cb22281a9",
+    "bytes": 639544
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/gcc-sanitizer/nano-file-binding-mz0j0jua/instrumented-utf8.o": {
+    "sha256": "83168729041a8794456a84e0873260f47b032a3cf4b60d0c2aee2bdcd77dc092",
+    "bytes": 49840
+  }
+}

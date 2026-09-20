@@ -1,0 +1,80 @@
+{
+  "head": "565a48d3faa2d68eb49a81809846cbc5ad61ec3d",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "scope": "raw CAST_U8 VM, schema and existing byte backend neighbors; source conversion remains unimplemented",
+  "phases": [
+    {
+      "name": "homebrew-ordinary",
+      "argv": [
+        "make",
+        "test-cast-u8",
+        "CC=/opt/homebrew/opt/llvm/bin/clang",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE",
+        "LDFLAGS=-lm"
+      ],
+      "bound_seconds": 300,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 2.4533579170238227,
+      "log": {
+        "sha256": "a51dd471c1dbacd9ddb0de3eee194fa880c90200dac34faddb250918d3c145eb",
+        "bytes": 4264,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-final/objects/a51dd471c1dbacd9ddb0de3eee194fa880c90200dac34faddb250918d3c145eb"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "homebrew-sanitizers",
+      "argv": [
+        "make",
+        "test-cast-u8",
+        "CC=/opt/homebrew/opt/llvm/bin/clang",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer",
+        "LDFLAGS=-lm -fsanitize=address,undefined"
+      ],
+      "bound_seconds": 300,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 6.416139250039123,
+      "log": {
+        "sha256": "3ef3cf966ca50b9ed3ca7a5145d481c02e9ba9b416271744efb56ef34569e62b",
+        "bytes": 4346,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-final/objects/3ef3cf966ca50b9ed3ca7a5145d481c02e9ba9b416271744efb56ef34569e62b"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "byte-neighbors",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_scalar_u8"
+      ],
+      "bound_seconds": 900,
+      "status": 1,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 6.820288124959916,
+      "log": {
+        "sha256": "3f29bcd12e4cd6251dfca959dbdf178bedd6fe100b04f27cc4ca09f24c5ff836",
+        "bytes": 1827,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-final/objects/3f29bcd12e4cd6251dfca959dbdf178bedd6fe100b04f27cc4ca09f24c5ff836"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

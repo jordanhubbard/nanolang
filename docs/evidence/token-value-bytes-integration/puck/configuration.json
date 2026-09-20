@@ -1,0 +1,17 @@
+{
+  "pin": "51d4bb83f9032d630bb2e04e7b4aedcf4552e29b",
+  "platform": "puck",
+  "configs": [
+    [
+      "apple-ordinary",
+      "/usr/bin/clang",
+      [],
+      false,
+      true
+    ]
+  ],
+  "source_count": 24085,
+  "source_scope": "all tracked files at the frozen pin",
+  "sanitizer_scope": "ordinary integration only; original seven sanitizer/compiler configurations remain at original qualified pins",
+  "tool_scope": "explicit drivers, selected subtools, sanitizer libraries and Darwin ffi headers/library; not complete transitive system toolchain"
+}

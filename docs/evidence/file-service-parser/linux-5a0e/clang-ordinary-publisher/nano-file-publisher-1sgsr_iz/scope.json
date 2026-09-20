@@ -1,0 +1,6 @@
+{
+  "provider_mode": "all7 explicit Make providers freshly built with selected compiler/flags; CPPFLAGS required by CFLAGS forced header",
+  "instrumented": "publisher+CLI included with real-operation hooks;5 strict providers linked without custom malloc hooks",
+  "close_error": "real close followed by injected reporting failure; not arbitrary OS close disposition",
+  "source_execution": false
+}

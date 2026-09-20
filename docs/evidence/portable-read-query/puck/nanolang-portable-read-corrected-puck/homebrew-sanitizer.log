@@ -1,0 +1,69 @@
+test_owned_declarations_and_allocation_boundaries (tests.test_portable_host_plan.PortableHostPlan) ... I retain query evidence at /private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer
+phase: copied declarations, input destruction and closed profiles
+phase: exact declarations and complete unused-function checks
+phase: independent preallocation limits
+phase: exact allocation domains, persistent prefixes and transient failures
+fault mode=prefix index=0 domains=2 status=2
+fault mode=prefix index=1 domains=2 status=2
+fault mode=prefix index=2 domains=2 status=2
+fault mode=prefix index=3 domains=4 status=2
+fault mode=prefix index=4 domains=4 status=2
+fault mode=prefix index=5 domains=4 status=2
+fault mode=prefix index=6 domains=10 status=2
+fault mode=prefix index=7 domains=10 status=2
+fault mode=prefix index=8 domains=10 status=2
+fault mode=prefix index=9 domains=10 status=2
+fault mode=prefix index=10 domains=10 status=2
+fault mode=prefix index=11 domains=2 status=2
+fault mode=prefix index=12 domains=2 status=2
+fault mode=prefix index=13 domains=2 status=2
+fault mode=prefix index=14 domains=4 status=2
+fault mode=prefix index=15 domains=4 status=2
+fault mode=prefix index=16 domains=4 status=2
+fault mode=prefix index=17 domains=9 status=5
+fault mode=prefix index=18 domains=9 status=5
+fault mode=prefix index=19 domains=9 status=5
+fault mode=prefix index=20 domains=9 status=5
+fault mode=prefix index=21 domains=9 status=5
+fault mode=prefix index=22 domains=1 status=5
+fault mode=transient index=0 domains=2 status=2
+fault mode=transient index=1 domains=2 status=2
+fault mode=transient index=2 domains=2 status=2
+fault mode=transient index=3 domains=4 status=2
+fault mode=transient index=4 domains=4 status=2
+fault mode=transient index=5 domains=4 status=2
+fault mode=transient index=6 domains=8 status=0
+fault mode=transient index=7 domains=8 status=0
+fault mode=transient index=8 domains=8 status=0
+fault mode=transient index=9 domains=8 status=0
+fault mode=transient index=10 domains=8 status=0
+fault mode=transient index=11 domains=2 status=2
+fault mode=transient index=12 domains=2 status=2
+fault mode=transient index=13 domains=2 status=2
+fault mode=transient index=14 domains=4 status=2
+fault mode=transient index=15 domains=4 status=2
+fault mode=transient index=16 domains=4 status=2
+fault mode=transient index=17 domains=8 status=0
+fault mode=transient index=18 domains=8 status=0
+fault mode=transient index=19 domains=8 status=0
+fault mode=transient index=20 domains=8 status=0
+fault mode=transient index=21 domains=8 status=0
+fault mode=transient index=22 domains=1 status=5
+I retain 29 structural INVALID, 7 report MEMORY and 10 advisory-only successful transient queries.
+PASS: 5994 private portable read-text checks; no bytecode or host execution.
+FAIL
+
+======================================================================
+FAIL: test_owned_declarations_and_allocation_boundaries (tests.test_portable_host_plan.PortableHostPlan)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-portable-read-qualified/tests/test_portable_host_plan.py", line 136, in test_owned_declarations_and_allocation_boundaries
+    self.command([*common, *([] if instrument else ['-DREAD_LINKED']),
+  File "/private/tmp/nanolang-portable-read-qualified/tests/test_portable_host_plan.py", line 86, in command
+    self.assertEqual(status['returncode'], 0, (status, log.read_text(errors='replace')))
+AssertionError: 1 != 0 : ({'argv': ['/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23', '-std=c11', '-D_DEFAULT_SOURCE', '-O1', '-g', '-Wall', '-Wextra', '-Werror', '-Isrc/nanoisa', '-fsanitize=address,undefined', '-fno-omit-frame-pointer', '-DREAD_LINKED', 'tests/nanoisa/test_portable_host_plan.c', '/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/linked-read_query.o', '/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/linked-read_decode.o', '/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/linked-read_stack.o', '/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/linked-read_types.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/file_flow.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/service_file_nominal.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/service_file_nominal_plan.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/service_bindings.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/service_bindings_module.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/mixed_float_proof.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/managed_array_shapes.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/local_bindings.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/affine_bytecode.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/affine_state.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/ownership_contracts.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/retained_layouts.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/reference_places.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/passive.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/isa.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_format.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_format_v2.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_v2_cursor.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_v2_constants.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_v2_signatures.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_v2_layouts.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_v2_functions.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_v2_imports.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_v2_module.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm_v2_convert.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/assembler.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/disassembler.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm2c.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nvm2c_shape.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/frontend.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanoisa/nanoisa_facade.o', '/private/tmp/nanolang-portable-read-qualified/obj/nanovm/vm_dispatch.o', '/private/tmp/nanolang-portable-read-qualified/obj/nsi_file_plan.o', '/private/tmp/nanolang-portable-read-qualified/obj/utf8.o', '-lm', '-lcrypto', '-lffi', '-L/opt/homebrew/opt/openssl@3/lib', '-o', '/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/linked'], 'cwd': '/private/tmp/nanolang-portable-read-qualified', 'timeout': False, 'cleanup_complete': True, 'returncode': 1}, "tests/nanoisa/test_portable_host_plan.c:15:17: error: variable 'failed_domains' set but not used [-Werror,-Wunused-but-set-global]\n   15 | static unsigned failed_domains;\n      |                 ^\n1 error generated.\n")
+
+----------------------------------------------------------------------
+Ran 1 test in 2.956s
+
+FAILED (failures=1)

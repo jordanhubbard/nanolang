@@ -1,0 +1,40 @@
+{
+  "head": "c1409c5b5338a36ad304ea0ed9cc5a218cdba0f4",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "phases": [
+    {
+      "name": "transport",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/tmp/run-match-call-unit-retained.py",
+        "tests.test_reference_eval_transport"
+      ],
+      "status": 0,
+      "seconds": 7.598,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "log_sha256": "231d1fbeaad462235663460ff43ee4a3262ba748879f185e72d88e2b26e8a7b5"
+    },
+    {
+      "name": "full-test",
+      "command": [
+        "make",
+        "test",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 2,
+      "seconds": 1114.818,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "3bec10913170901dba25352730b9826f481a737578c6598b3ed188ef28b123be"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}

@@ -1,0 +1,2172 @@
+{
+  "linux": {
+    "host": "linux",
+    "reports": 502,
+    "objects": 6189,
+    "bytes": 1983165116,
+    "references": 471782,
+    "equal_pairs": 108,
+    "terminals": {
+      "nanolang-cast-u8-backends-linux-asan/build-status.json": {
+        "name": "build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/bin/gcc",
+          "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+          "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 1.216859537991695,
+        "log": {
+          "sha256": "e447f8adf4f9b995091d2273fd2b4f8efd7dd2e4cb3f0c84172d0873f3a9db50",
+          "bytes": 7931,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-asan/objects/e447f8adf4f9b995091d2273fd2b4f8efd7dd2e4cb3f0c84172d0873f3a9db50"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-asan/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0016457950696349144,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-asan/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-asan/discovery-status.json": {
+        "name": "discovery",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.11420174001250416,
+        "log": {
+          "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+          "bytes": 51,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-asan/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-asan/generated-byte-status.json": {
+        "name": "generated-byte",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_cast_u8_backends"
+        ],
+        "bound_seconds": 1800,
+        "status": 1,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 26.676814606064,
+        "log": {
+          "sha256": "de8dfa174413c44abf08fd1806f52a14eb329f88a5ccd8e8d61eb68bb39676e5",
+          "bytes": 6513,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-asan/objects/de8dfa174413c44abf08fd1806f52a14eb329f88a5ccd8e8d61eb68bb39676e5"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-asan/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.015852828975766897,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-asan/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-asan/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.001529635046608746,
+        "log": {
+          "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+          "bytes": 303,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-asan/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-asan/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.015829324023798108,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-asan/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-corrected/build-status.json": {
+        "name": "build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/bin/gcc",
+          "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+          "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 3.271386631997302,
+        "log": {
+          "sha256": "3e223205572d57c0f3b668f7765e1311fffac1ae69fa5a86256a01f78e6a5654",
+          "bytes": 8091,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/3e223205572d57c0f3b668f7765e1311fffac1ae69fa5a86256a01f78e6a5654"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-corrected/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0014996500685811043,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-corrected/discovery-status.json": {
+        "name": "discovery",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0640318050282076,
+        "log": {
+          "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+          "bytes": 51,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-corrected/generated-byte-status.json": {
+        "name": "generated-byte",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_cast_u8_backends"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 33.79687413503416,
+        "log": {
+          "sha256": "7875f6f1432465595058b677d7842bc3a9c5700b41e309ffae5a572f0aa5b936",
+          "bytes": 1195,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/7875f6f1432465595058b677d7842bc3a9c5700b41e309ffae5a572f0aa5b936"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-corrected/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0157085390528664,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-corrected/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.001525250030681491,
+        "log": {
+          "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+          "bytes": 303,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-corrected/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0015843709697946906,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-first/build-status.json": {
+        "name": "build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/bin/gcc",
+          "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+          "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 21.118848821963184,
+        "log": {
+          "sha256": "8fb00b055d23b3804ba8d7675d9a7c8194e18fe21650186beca8cbd6c2790018",
+          "bytes": 34228,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-first/objects/8fb00b055d23b3804ba8d7675d9a7c8194e18fe21650186beca8cbd6c2790018"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-first/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0015210750279948115,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-first/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-first/discovery-status.json": {
+        "name": "discovery",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.06399177201092243,
+        "log": {
+          "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+          "bytes": 51,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-first/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-first/generated-byte-status.json": {
+        "name": "generated-byte",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_cast_u8_backends"
+        ],
+        "bound_seconds": 1800,
+        "status": 1,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 8.333129961974919,
+        "log": {
+          "sha256": "59ba544efcbc07c4f941e23d830c3dccc2b18989bec55f8e4dd116e615a10fd3",
+          "bytes": 10977,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-first/objects/59ba544efcbc07c4f941e23d830c3dccc2b18989bec55f8e4dd116e615a10fd3"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-first/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.015686688013374805,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-first/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-first/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0015423389850184321,
+        "log": {
+          "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+          "bytes": 303,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-first/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-first/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0014738739700987935,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-first/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-asan/build-status.json": {
+        "name": "build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/bin/gcc",
+          "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+          "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 1.2170448169345036,
+        "log": {
+          "sha256": "e447f8adf4f9b995091d2273fd2b4f8efd7dd2e4cb3f0c84172d0873f3a9db50",
+          "bytes": 7931,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-asan/objects/e447f8adf4f9b995091d2273fd2b4f8efd7dd2e4cb3f0c84172d0873f3a9db50"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-asan/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0014678760198876262,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-asan/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-asan/discovery-status.json": {
+        "name": "discovery",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.11410956806503236,
+        "log": {
+          "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+          "bytes": 51,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-asan/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-asan/generated-byte-status.json": {
+        "name": "generated-byte",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_cast_u8_backends"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 37.16174826293718,
+        "log": {
+          "sha256": "9597e7a8d9333295b8f27a7dfa3b151db4ea9b60b7e0e904ae12a30aa2f3ec90",
+          "bytes": 1195,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-asan/objects/9597e7a8d9333295b8f27a7dfa3b151db4ea9b60b7e0e904ae12a30aa2f3ec90"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-asan/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.01573571003973484,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-asan/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-asan/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0015405010199174285,
+        "log": {
+          "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+          "bytes": 303,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-asan/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-asan/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.015780397108756006,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-asan/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-ordinary/build-status.json": {
+        "name": "build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/bin/gcc",
+          "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+          "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 1.174665431957692,
+        "log": {
+          "sha256": "e447f8adf4f9b995091d2273fd2b4f8efd7dd2e4cb3f0c84172d0873f3a9db50",
+          "bytes": 7931,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-ordinary/objects/e447f8adf4f9b995091d2273fd2b4f8efd7dd2e4cb3f0c84172d0873f3a9db50"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-ordinary/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0015861779684200883,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-ordinary/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-ordinary/discovery-status.json": {
+        "name": "discovery",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.11402997293043882,
+        "log": {
+          "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+          "bytes": 51,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-ordinary/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-ordinary/generated-byte-status.json": {
+        "name": "generated-byte",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_cast_u8_backends"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 34.3019275770057,
+        "log": {
+          "sha256": "821554ce0fc3bc58248e1af7b763ad1105f6a58553c5e3e7842d560cd1bc695d",
+          "bytes": 1195,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-ordinary/objects/821554ce0fc3bc58248e1af7b763ad1105f6a58553c5e3e7842d560cd1bc695d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-ordinary/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.03173115896061063,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-ordinary/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-ordinary/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0014582090079784393,
+        "log": {
+          "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+          "bytes": 303,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-ordinary/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-layout-ordinary/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0015085450140759349,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-ordinary/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0014475269708782434,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.01579602900892496,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0014206470223143697,
+        "log": {
+          "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+          "bytes": 303,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0014691590331494808,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors/scalar-neighbors-status.json": {
+        "name": "scalar-neighbors",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_nvm2llvm",
+          "tests.test_nvm2llvm_floats",
+          "tests.test_nvm2wasm",
+          "tests.test_scalar_u8"
+        ],
+        "bound_seconds": 900,
+        "status": 1,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 56.80294698104262,
+        "log": {
+          "sha256": "4c13175f5a67184a05f9f65a0950ec975af1a0d1bca8f15d9fa49a831cae374a",
+          "bytes": 9114,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors/objects/4c13175f5a67184a05f9f65a0950ec975af1a0d1bca8f15d9fa49a831cae374a"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors-corrected/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.07613863295409828,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors-corrected/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.016845926991663873,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors-corrected/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0033751019509509206,
+        "log": {
+          "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+          "bytes": 303,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors-corrected/managed-neighbors-status.json": {
+        "name": "managed-neighbors",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_llvm_managed_strings",
+          "tests.test_llvm_managed_mutable_arrays",
+          "tests.test_managed_binary64_bits",
+          "tests.test_managed_binary64_format"
+        ],
+        "bound_seconds": 1200,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 42.57408136699814,
+        "log": {
+          "sha256": "a96d65aea132162c5c7f078be2bf52e6577ff6e70223ad77b3fc3dcd41ad3753",
+          "bytes": 4021,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/a96d65aea132162c5c7f078be2bf52e6577ff6e70223ad77b3fc3dcd41ad3753"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors-corrected/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0039062270661816,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-neighbors-corrected/scalar-neighbors-status.json": {
+        "name": "scalar-neighbors",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_nvm2llvm",
+          "tests.test_nvm2llvm_floats",
+          "tests.test_nvm2wasm",
+          "tests.test_scalar_u8"
+        ],
+        "bound_seconds": 900,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 73.54625430901069,
+        "log": {
+          "sha256": "17c7298d7104c835b3373fd96667b3f42970764601132dcce0f5dbac211e1a54",
+          "bytes": 4638,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/17c7298d7104c835b3373fd96667b3f42970764601132dcce0f5dbac211e1a54"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-reconstruction/assemble-refusal-status.json": {
+        "name": "assemble-refusal",
+        "argv": [
+          "/home/jkh/Src/nanolang-cast-u8-backends/bin/nanoisa",
+          "asm",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/convert.nasm",
+          "-o",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/convert.nvm"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0017888819565996528,
+        "log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-reconstruction/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0014207499334588647,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-reconstruction/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.017770542996004224,
+        "log": {
+          "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+          "bytes": 440,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-reconstruction/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0019642759580165148,
+        "log": {
+          "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+          "bytes": 303,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-reconstruction/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/bin/gcc",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0053993010660633445,
+        "log": {
+          "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+          "bytes": 246,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c-refusal-status.json": {
+        "name": "reconstructed-c-refusal",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/check-refusal.py",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c.out",
+          "/home/jkh/Src/nanolang-cast-u8-backends/bin/nvm2hl",
+          "--language",
+          "c",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/convert.nvm",
+          "-o",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c.out"
+        ],
+        "bound_seconds": 60,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.11565354000777006,
+        "log": {
+          "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+          "bytes": 127,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano-refusal-status.json": {
+        "name": "reconstructed-nano-refusal",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/check-refusal.py",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano.out",
+          "/home/jkh/Src/nanolang-cast-u8-backends/bin/nvm2hl",
+          "--language",
+          "nano",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/convert.nvm",
+          "-o",
+          "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano.out"
+        ],
+        "bound_seconds": 60,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.11423810303676873,
+        "log": {
+          "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+          "bytes": 127,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-linux-reconstruction/reconstruction-tool-status.json": {
+        "name": "reconstruction-tool",
+        "argv": [
+          "make",
+          "nvm2hl",
+          "CC=/bin/gcc"
+        ],
+        "bound_seconds": 300,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.26482232194393873,
+        "log": {
+          "sha256": "13e0bcc86636e2db2d861201750a6ba03d02875a542e4fa00587ddad1c2535f0",
+          "bytes": 1284,
+          "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/13e0bcc86636e2db2d861201750a6ba03d02875a542e4fa00587ddad1c2535f0"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      }
+    }
+  },
+  "puck": {
+    "host": "puck",
+    "reports": 374,
+    "objects": 5832,
+    "bytes": 287206907,
+    "references": 344772,
+    "equal_pairs": 80,
+    "terminals": {
+      "nanolang-cast-u8-backends-puck-layout-asan/build-status.json": {
+        "name": "build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/usr/bin/clang",
+          "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+          "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS="
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 1.063380917,
+        "log": {
+          "sha256": "e6d72eaab121bae7aa1fd0e24f02997c4fa1f917292931ae095c3c9dea4f2487",
+          "bytes": 8850,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-asan/objects/e6d72eaab121bae7aa1fd0e24f02997c4fa1f917292931ae095c3c9dea4f2487"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-asan/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.15042608299999993,
+        "log": {
+          "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+          "bytes": 200,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-asan/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-asan/discovery-status.json": {
+        "name": "discovery",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-c",
+          "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.0485747080000003,
+        "log": {
+          "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+          "bytes": 51,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-asan/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-asan/generated-byte-status.json": {
+        "name": "generated-byte",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_cast_u8_backends"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 43.689214459,
+        "log": {
+          "sha256": "768d543cfff902a320bd1f76e6f007e0d4f840b9fdf049fade30071ee3723e3a",
+          "bytes": 1207,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-asan/objects/768d543cfff902a320bd1f76e6f007e0d4f840b9fdf049fade30071ee3723e3a"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-asan/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.024435500000000054,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-asan/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-asan/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.012477709000000115,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-asan/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-asan/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.20494854100000026,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-asan/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-ordinary/build-status.json": {
+        "name": "build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/usr/bin/clang",
+          "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+          "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS="
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 9.901470875,
+        "log": {
+          "sha256": "034d6ea3f88997243f6ea4a051bd45dd8610cdfcecd2eaabdb071941ddab49b7",
+          "bytes": 61513,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-ordinary/objects/034d6ea3f88997243f6ea4a051bd45dd8610cdfcecd2eaabdb071941ddab49b7"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-ordinary/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.15063229099999997,
+        "log": {
+          "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+          "bytes": 200,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-ordinary/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-ordinary/discovery-status.json": {
+        "name": "discovery",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-c",
+          "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.045960749999999884,
+        "log": {
+          "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+          "bytes": 51,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-ordinary/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-status.json": {
+        "name": "generated-byte",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_cast_u8_backends"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 29.125405375000003,
+        "log": {
+          "sha256": "56b900ac3a2d5aef2c634036b79aac05f0dd96bcac3c9d075756e045893f9050",
+          "bytes": 1207,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-ordinary/objects/56b900ac3a2d5aef2c634036b79aac05f0dd96bcac3c9d075756e045893f9050"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-ordinary/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.21072916699999977,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-ordinary/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-ordinary/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.012375625000000223,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-ordinary/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.024702291999999737,
+        "log": {
+          "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+          "bytes": 200,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-ordinary/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.024250499999999953,
+        "log": {
+          "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+          "bytes": 200,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.024573999999999874,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.012445708,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.024590708999999933,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-status.json": {
+        "name": "scalar-neighbors",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_nvm2llvm",
+          "tests.test_nvm2llvm_floats",
+          "tests.test_nvm2wasm",
+          "tests.test_scalar_u8"
+        ],
+        "bound_seconds": 900,
+        "status": 1,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 20.888924666999998,
+        "log": {
+          "sha256": "d25d721380e87e92530380819a417583ffd87b597afb5097a0e18b85df53aa07",
+          "bytes": 6635,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/d25d721380e87e92530380819a417583ffd87b597afb5097a0e18b85df53aa07"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.15061124999999986,
+        "log": {
+          "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+          "bytes": 200,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors-corrected/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.024587332999999933,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors-corrected/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors-corrected/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.012422957999999706,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors-corrected/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-status.json": {
+        "name": "managed-neighbors",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_llvm_managed_strings",
+          "tests.test_llvm_managed_mutable_arrays",
+          "tests.test_managed_binary64_bits",
+          "tests.test_managed_binary64_format"
+        ],
+        "bound_seconds": 1200,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 43.546286375,
+        "log": {
+          "sha256": "832579e718d4bbff9b5c50c6cf68c56bb0bf12c75d2109e8419eb1033ab97cfa",
+          "bytes": 2733,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors-corrected/objects/832579e718d4bbff9b5c50c6cf68c56bb0bf12c75d2109e8419eb1033ab97cfa"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.20226670800000024,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors-corrected/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-status.json": {
+        "name": "scalar-neighbors",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_nvm2llvm",
+          "tests.test_nvm2llvm_floats",
+          "tests.test_nvm2wasm",
+          "tests.test_scalar_u8"
+        ],
+        "bound_seconds": 900,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 22.645070416000003,
+        "log": {
+          "sha256": "ece6ec43a313fad35606e70357cbfbcb5590bc05c3b4d22d9fc74622c8932225",
+          "bytes": 3103,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors-corrected/objects/ece6ec43a313fad35606e70357cbfbcb5590bc05c3b4d22d9fc74622c8932225"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-ordinary/build-status.json": {
+        "name": "build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/usr/bin/clang",
+          "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+          "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS="
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 9.933995,
+        "log": {
+          "sha256": "034d6ea3f88997243f6ea4a051bd45dd8610cdfcecd2eaabdb071941ddab49b7",
+          "bytes": 61513,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-ordinary/objects/034d6ea3f88997243f6ea4a051bd45dd8610cdfcecd2eaabdb071941ddab49b7"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-ordinary/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.12666187499999992,
+        "log": {
+          "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+          "bytes": 200,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-ordinary/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-ordinary/discovery-status.json": {
+        "name": "discovery",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-c",
+          "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.04823083299999986,
+        "log": {
+          "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+          "bytes": 51,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-ordinary/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-ordinary/generated-byte-status.json": {
+        "name": "generated-byte",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.test_cast_u8_backends"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 31.706745333,
+        "log": {
+          "sha256": "7434d3b8876f550a71b6670b5bdccaa33a43a87b7d5d1fba8a1f6523d0b0fe11",
+          "bytes": 1207,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-ordinary/objects/7434d3b8876f550a71b6670b5bdccaa33a43a87b7d5d1fba8a1f6523d0b0fe11"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-ordinary/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.02460166699999977,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-ordinary/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-ordinary/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.012461166000000024,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-ordinary/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-ordinary/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.20150583300000013,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-ordinary/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-status.json": {
+        "name": "assemble-refusal",
+        "argv": [
+          "/private/tmp/nanolang-cast-u8-backends-e0e85/bin/nanoisa",
+          "asm",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/convert.nasm",
+          "-o",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/convert.nvm"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.044882417000000174,
+        "log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-reconstruction/compiler-status.json": {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.020634416000000044,
+        "log": {
+          "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+          "bytes": 200,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-reconstruction/llvm-status.json": {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.03843237499999974,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-reconstruction/make-status.json": {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.01865983300000007,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-reconstruction/native-compiler-status.json": {
+        "name": "native-compiler",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.03959866699999992,
+        "log": {
+          "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+          "bytes": 222,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-status.json": {
+        "name": "reconstructed-c-refusal",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/check-refusal.py",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c.out",
+          "/private/tmp/nanolang-cast-u8-backends-e0e85/bin/nvm2hl",
+          "--language",
+          "c",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/convert.nvm",
+          "-o",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c.out"
+        ],
+        "bound_seconds": 60,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.7194677090000008,
+        "log": {
+          "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+          "bytes": 127,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-status.json": {
+        "name": "reconstructed-nano-refusal",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/check-refusal.py",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano.out",
+          "/private/tmp/nanolang-cast-u8-backends-e0e85/bin/nvm2hl",
+          "--language",
+          "nano",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/convert.nvm",
+          "-o",
+          "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano.out"
+        ],
+        "bound_seconds": 60,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.07878612499999971,
+        "log": {
+          "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+          "bytes": 127,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      "nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-status.json": {
+        "name": "reconstruction-tool",
+        "argv": [
+          "make",
+          "nvm2hl",
+          "CC=/usr/bin/clang"
+        ],
+        "bound_seconds": 300,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.33649337500000076,
+        "log": {
+          "sha256": "71feaa296a1f2db9321f0f2e2629dbeb6ffefe986d10f9422a2d9cfa356cd614",
+          "bytes": 1469,
+          "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/71feaa296a1f2db9321f0f2e2629dbeb6ffefe986d10f9422a2d9cfa356cd614"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      }
+    }
+  }
+}

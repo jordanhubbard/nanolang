@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "make",
+    "-B",
+    "/tmp/nanolang-capture-flags-qualified/gcc-default/nano_as_capture.so",
+    "BIN_DIR=/tmp/nanolang-capture-flags-qualified/gcc-default"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-capture-flags",
+  "selected_environment": {}
+}

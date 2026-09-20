@@ -1,0 +1,117 @@
+{
+  "additional_artifact_entries": 2767,
+  "canonical_base": "4fbca3578",
+  "crossplatform_source_equality": 8993,
+  "equal_inventory_pairs": [
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "normal",
+      "sources": 8993,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "opcodes",
+      "sources": 8993,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "wrapper",
+      "sources": 8993,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "setup",
+      "sources": 8993,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "integrated-darwin",
+      "phase": "normal",
+      "sources": 8993,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "integrated-darwin",
+      "phase": "opcodes",
+      "sources": 8993,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "integrated-darwin",
+      "phase": "wrapper",
+      "sources": 8993,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "integrated-darwin",
+      "phase": "setup",
+      "sources": 8993,
+      "tools": 14
+    }
+  ],
+  "fixture": "8644219d8",
+  "manual_frames_only": true,
+  "phases": {
+    "integrated-darwin": [
+      {
+        "phase": "setup",
+        "seconds": 11.464,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 5.597,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.855,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 7.585,
+        "status": 0
+      }
+    ],
+    "integrated-linux": [
+      {
+        "phase": "setup",
+        "seconds": 20.836,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 6.464,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.065,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 3.082,
+        "status": 0
+      }
+    ]
+  },
+  "production": "83cb11f9b",
+  "public_dispatch": false,
+  "qualified_integration": "1525adfd0",
+  "total_artifact_entries": 11070,
+  "unique_artifacts": 1646,
+  "unique_bytes": 1085099995
+}

@@ -199,7 +199,7 @@ static void cps_walk(ASTNode *node, CPSContext *ctx) {
     case AST_STRUCT_DEF:
     case AST_ENUM_DEF:
     case AST_UNION_DEF:
-    case AST_OPAQUE_TYPE:
+    case AST_SERVICE_DECL: case AST_OPAQUE_TYPE:
     case AST_QUALIFIED_NAME:
     case AST_PRINT:
     case AST_ASSERT:

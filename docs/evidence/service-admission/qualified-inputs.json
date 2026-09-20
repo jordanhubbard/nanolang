@@ -1,0 +1,15 @@
+{
+  "pin": "1f9d2962533dd9bde5e50e9c524a2d9ac96f33ea",
+  "sha256": {
+    "src/nanovm/vm.c": "65f1e4c81f50148d60c2427c0ccb23bbb499f4c8b3d8b8d96c93548b8d75d13d",
+    "src/nanoisa/service_bindings_module.c": "a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4",
+    "src/nanoisa/service_classification_private.h": "60da7dfcabb801265bddbe3ef01027874cf83c6fd12baa799d821e9bb6200dcb",
+    "src/nanoisa/owned_array_admit.inc": "c8aa87c3b9bd8c221c32472fad7d35c6f46804c6db826d1acc64e5bd88233ed7",
+    "src/nanoisa/mixed_samples_prepare.inc": "74d555d9b0ccf6ca20c6d0fae9bcde85ac76db5237e5c964e5c448b9233f6ead",
+    "tests/nanovm/test_ordinary_admission.c": "2308cb263aa283aeb5ad379aeed7288d07f45848262618aa454f092aaccf5afc",
+    "tests/test_vm_ordinary_admission.py": "aad23be78899a9f4fe86377d3f4d1a516f3229b01fa5d50d10374b4e0d825214",
+    "Makefile.gnu": "c194a830fc1bf1f689a8b54411289291930655b7c7cd1046535be0c7f7d2e17b",
+    "src_nano/nanoisa_emit.nano": "b895ab0c65f914d916ea9252207e1e3582008e836f723f430ecc4cbe1c2bc42d",
+    "src/nanovirt/shadow_runner.c": "bda245b197b31c15d28e4f5feb892f3d34d71388e044ab91d024e04b1ca354a9"
+  }
+}

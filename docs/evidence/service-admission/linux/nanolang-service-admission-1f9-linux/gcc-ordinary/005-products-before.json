@@ -1,0 +1,20 @@
+{
+  "service_bindings_module_observed.c": {
+    "path": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary/products/service_bindings_module_observed.c",
+    "sha256": "0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79",
+    "bytes": 15627,
+    "archive": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary/objects/0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79"
+  },
+  "switch": {
+    "path": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary/products/switch",
+    "sha256": "8e8887e9c486de5d74f75a363cd7835fe75aaba2fb815ed2e8b1ce868c8d0644",
+    "bytes": 18066456,
+    "archive": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary/objects/8e8887e9c486de5d74f75a363cd7835fe75aaba2fb815ed2e8b1ce868c8d0644"
+  },
+  "threaded": {
+    "path": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary/products/threaded",
+    "sha256": "60afecbf7d85390cf14c1df6382b885d9509641b931d185f58fb663c150fd988",
+    "bytes": 18074344,
+    "archive": "/tmp/nanolang-service-admission-1f9-linux/gcc-ordinary/objects/60afecbf7d85390cf14c1df6382b885d9509641b931d185f58fb663c150fd988"
+  }
+}

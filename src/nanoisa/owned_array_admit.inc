@@ -1,13 +1,19 @@
 #include "owned_array_admission.h"
+#include "service_classification_private.h"
 NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
-    if(!m || nvm_service_execution_pending(m))return NVM_OWNER_ARRAY_NOT_SELECTED;
+    return nvm_owned_array_route_classified(m, NULL);
+}
+NvmOwnedArrayRoute nvm_owned_array_route_classified(
+    const NvmModule *m, const NvmServiceClassification *facts) {
+    if(!m || nvm_service_pending_classified(m,facts))return NVM_OWNER_ARRAY_NOT_SELECTED;
     if(!m->ownership_data && !m->ownership_size)return NVM_OWNER_ARRAY_NOT_SELECTED;
     if(!m->ownership_data || !m->ownership_size)
         return NVM_OWNER_ARRAY_INVALID;
     NvmV2Cursor c;uint32_t version,count,layouts;const uint8_t *flags;
     nvm_v2_cursor_init(&c,m->ownership_data,m->ownership_size);
     if(nvm_v2_u32(&c,&version)!=NVM_V2_OK ||
-       (version!=NVM_OWNERSHIP_VERSION && version!=NVM_OWNERSHIP_PATH_VERSION) ||
+       (version!=NVM_OWNERSHIP_VERSION && version!=NVM_OWNERSHIP_PATH_VERSION &&
+        version!=NVM_OWNERSHIP_EXTENSION_VERSION) ||
        nvm_v2_u32(&c,&count)!=NVM_V2_OK || count>NVM_RECORD_PLAN_MAX_LAYOUTS ||
        nvm_v2_take(&c,count,&flags)!=NVM_V2_OK)return NVM_OWNER_ARRAY_INVALID;
     bool resource=false;
@@ -38,6 +44,9 @@ NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
         }
     }
     if(c.pos!=c.size)return NVM_OWNER_ARRAY_INVALID;
+    /* I keep all shared version-3 extensions outside this older owner-ARRAY
+     * profile until their combined authority is reviewed. */
+    if(selected && version==NVM_OWNERSHIP_EXTENSION_VERSION)return NVM_OWNER_ARRAY_INVALID;
     return selected?NVM_OWNER_ARRAY_SELECTED:NVM_OWNER_ARRAY_NOT_SELECTED;
 }
 /* I complete only parameter tags in a bounded borrowed view. This cursor pass

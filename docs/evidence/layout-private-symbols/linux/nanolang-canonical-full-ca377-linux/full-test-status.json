@@ -1,0 +1,25 @@
+{
+  "name": "full-test",
+  "argv": [
+    "make",
+    "test",
+    "CC=/bin/gcc",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 5400,
+  "status": 2,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 234.62947921594605,
+  "log": {
+    "sha256": "d5c75dd6d331a5ae11dd953fdab7badba01cdfb53322eabf0ad4aa63772afad8",
+    "bytes": 391035,
+    "archive": "/tmp/nanolang-canonical-full-ca377-linux/objects/d5c75dd6d331a5ae11dd953fdab7badba01cdfb53322eabf0ad4aa63772afad8"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

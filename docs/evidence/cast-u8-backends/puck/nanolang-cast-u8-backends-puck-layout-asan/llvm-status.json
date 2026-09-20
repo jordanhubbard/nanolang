@@ -1,0 +1,21 @@
+{
+  "name": "llvm",
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "--version"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.024435500000000054,
+  "log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222,
+    "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-asan/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

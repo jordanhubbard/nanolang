@@ -1,0 +1,33 @@
+{
+  "source": {
+    "entries": 3692,
+    "map": "/tmp/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-source-after.json",
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35"
+  },
+  "tools": {
+    "entries": 14,
+    "map": "/tmp/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-tools-after.json",
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41"
+  },
+  "providers-and-last-fixture-artifacts": {
+    "entries": 253,
+    "map": "/tmp/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-artifacts.json",
+    "sha256": "61e8408675760fff89894c292b76dcd7a8dcbcbd4088105453fdb15c82a6c18d"
+  },
+  "/tmp/nanolang-mixed-counted-qualified-5f4f/lib/libnano_file_runtime.a": {
+    "sha256": "c6294e5ce70dc4c1218b5f4358e0f8acf0e2c4b6999b58a3e84574cab3c5ad0b",
+    "bytes": 4254230,
+    "artifact": "/tmp/nanolang-mixed-counted-linux-seal/objects/c6294e5ce70dc4c1218b5f4358e0f8acf0e2c4b6999b58a3e84574cab3c5ad0b",
+    "scope": "current only; not historical phase map"
+  },
+  "3c0b/source-archive": {
+    "sha256": "5ba8f98a8c382d2885ebf5a3cb48350ae3def81e87c7f420eef2fd6f11b4e104",
+    "bytes": 15123337,
+    "artifact": "/tmp/nanolang-mixed-counted-linux-seal/objects/5ba8f98a8c382d2885ebf5a3cb48350ae3def81e87c7f420eef2fd6f11b4e104"
+  },
+  "5f4f/source-archive": {
+    "sha256": "5638125adcc98aa44b00951c80eb3131e6d5d7b914b534aeaa6958608ebcae42",
+    "bytes": 15123756,
+    "artifact": "/tmp/nanolang-mixed-counted-linux-seal/objects/5638125adcc98aa44b00951c80eb3131e6d5d7b914b534aeaa6958608ebcae42"
+  }
+}

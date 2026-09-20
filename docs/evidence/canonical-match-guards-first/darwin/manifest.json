@@ -1,0 +1,25 @@
+{
+  "head": "2ad92f457e93af4ec02f77b3d389563fd72cd11e",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "phases": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap"
+      ],
+      "status": 2,
+      "seconds": 87.334,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "62778fdc6565fa12ddc5cb3ffef79a4908967376a63d79949afb148b9a6a5733"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}

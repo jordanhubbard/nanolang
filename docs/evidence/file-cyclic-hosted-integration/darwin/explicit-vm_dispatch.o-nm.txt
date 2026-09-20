@@ -1,0 +1,12 @@
+                 U _calloc
+                 U _free
+                 U _snprintf
+00000000000008cc T _vm_dispatch_advance
+00000000000000d4 T _vm_dispatch_build_function
+00000000000006d0 T _vm_dispatch_build_module
+0000000000000898 T _vm_dispatch_current
+0000000000000000 T _vm_dispatch_function_free
+000000000000003c T _vm_dispatch_module_free
+00000000000000cc T _vm_dispatch_profile_all
+00000000000000c4 T _vm_dispatch_profile_none
+0000000000000844 T _vm_dispatch_seek

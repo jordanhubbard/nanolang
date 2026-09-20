@@ -1336,10 +1336,25 @@ static MatchDomain check_match_domain(ASTNode *matched, Environment *env,
     } else if (match_type == TYPE_INT) {
         return MATCH_DOMAIN_INT;
     } else if (match_type == TYPE_UNION) {
-        if (union_base_name && env_get_union(env, union_base_name))
-            return MATCH_DOMAIN_UNION;
-        message = "I require an exact known union identity before I check match coverage.";
-        hint = "Give the scrutinee a declared union type that I can resolve here.";
+        UnionDef *definition = union_base_name ? env_get_union(env, union_base_name) : NULL;
+        if (definition) {
+            bool empty_valid = true;
+            for (int arm = 0; arm < matched->as.match_expr.arm_count; ++arm) {
+                const char *binding = matched->as.match_expr.pattern_bindings[arm];
+                if (!binding || *binding) continue;
+                bool zero = false;
+                for (int variant = 0; variant < definition->variant_count; ++variant)
+                    if (!strcmp(matched->as.match_expr.pattern_variants[arm], definition->variant_names[variant]))
+                        zero = definition->variant_field_counts[variant] == 0;
+                if (!zero) { empty_valid = false; break; }
+            }
+            if (empty_valid) return MATCH_DOMAIN_UNION;
+            message = "I require an exact zero-field variant for an empty match binding.";
+            hint = "Bind this payload by name, or explicitly discard it with underscore where permitted.";
+        } else {
+            message = "I require an exact known union identity before I check match coverage.";
+            hint = "Give the scrutinee a declared union type that I can resolve here.";
+        }
     } else {
         message = "I require a match to inspect an int or a known union.";
         hint = "Give the scrutinee an exact supported type before matching it.";
@@ -4310,7 +4325,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
-            if (match_expr_node->type == AST_FIELD_ACCESS) {
+            if (match_expr_node->type == AST_FIELD_ACCESS || match_expr_node->type == AST_CALL) {
                 TypeInfo *field_info = try_get_expr_type_info(match_expr_node, env);
                 if (field_info && field_info->generic_name && env_get_union(env, field_info->generic_name)) {
                     union_type_info = field_info;
@@ -4353,7 +4368,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 const char *variant_name_i = expr->as.match_expr.pattern_variants[i];
 
                 /* Wildcard arm: _ => { body }  — no binding to add; also skip or-patterns */
-                if (strcmp(expr->as.match_expr.pattern_bindings[i], "_") != 0 &&
+                if (expr->as.match_expr.pattern_bindings[i][0] &&
+                    strcmp(expr->as.match_expr.pattern_bindings[i], "_") != 0 &&
                     strcmp(variant_name_i, "_") != 0 &&
                     strncmp(variant_name_i, "INT:", 4) != 0 &&
                     strncmp(variant_name_i, "OR:", 3) != 0) {
@@ -5751,7 +5767,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
 
-            if (match_expr_node->type == AST_FIELD_ACCESS) {
+            if (match_expr_node->type == AST_FIELD_ACCESS || match_expr_node->type == AST_CALL) {
                 TypeInfo *field_info = try_get_expr_type_info(match_expr_node, tc->env);
                 if (field_info && field_info->generic_name && env_get_union(tc->env, field_info->generic_name)) {
                     union_type_info = field_info;
@@ -5790,7 +5806,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 const char *variant_name_s = stmt->as.match_expr.pattern_variants[i];
 
                 /* Only add binding for non-wildcard, non-int-pattern, non-or-pattern arms */
-                if (strcmp(stmt->as.match_expr.pattern_bindings[i], "_") != 0 &&
+                if (stmt->as.match_expr.pattern_bindings[i][0] &&
+                    strcmp(stmt->as.match_expr.pattern_bindings[i], "_") != 0 &&
                     strcmp(variant_name_s, "_") != 0 &&
                     strncmp(variant_name_s, "INT:", 4) != 0 &&
                     strncmp(variant_name_s, "OR:", 3) != 0) {
@@ -7148,6 +7165,10 @@ static bool functions_match(Function *f1, Function *f2) {
  * I retain inferred metadata just as the ordinary function checker does;
  * the bytecode emitter still needs it when choosing operand/array kinds. */
 bool type_check_root_shadows(ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     if (!program || program->type != AST_PROGRAM || !env) return false;
     bool ok = true;
     for (int i = 0; i < program->as.program.count; i++) {
@@ -7238,6 +7259,10 @@ static bool register_effect_declaration(ASTNode *item, Environment *env) {
 }
 
 bool type_check(ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
         return false;
@@ -7739,7 +7764,7 @@ register_function_pass1:;
             
             Function func = (Function){0};
             func.source_file = env_current_file(env);
-            func.name = strdup(func_name);  /* Create copy to avoid const qualifier warning */
+            func.name = env_own_checker_allocation(env, strdup(func_name));  /* Create copy to avoid const qualifier warning */
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
             func.return_type = return_type;
@@ -7773,7 +7798,7 @@ register_function_pass1:;
                         }
                     }
                     if (valid) {
-                        func.module_name = strdup(module_name_from_ast);
+                        func.module_name = env_own_checker_allocation(env, strdup(module_name_from_ast));
                     }
                     break;
                 }
@@ -7789,7 +7814,7 @@ register_function_pass1:;
                     }
                 }
                 if (valid_module_name) {
-                    func.module_name = strdup(env->current_module);
+                    func.module_name = env_own_checker_allocation(env, strdup(env->current_module));
                 }
             }
 
@@ -8041,7 +8066,7 @@ register_function_pass1:;
                 }
                 /* For function parameters, create TypeInfo with signature */
                 else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
-                    TypeInfo *type_info = malloc(sizeof(TypeInfo));
+                    TypeInfo *type_info = env_own_checker_allocation(env, malloc(sizeof(TypeInfo)));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
                     type_info->fn_sig = item->as.function.params[j].fn_sig;
@@ -8146,6 +8171,10 @@ register_function_pass1:;
 
 /* Type check a module (without requiring main function) */
 bool type_check_module(ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
         return false;
@@ -8522,23 +8551,23 @@ register_function_pass2:;
             /* Register function signature */
             Function f = (Function){0};
             f.source_file = env_current_file(env);
-            f.name = strdup(func_name);
+            f.name = env_own_checker_allocation(env, strdup(func_name));
             f.param_count = item->as.function.param_count;
-            f.params = malloc(sizeof(Parameter) * f.param_count);
+            f.params = env_own_checker_allocation(env, malloc(sizeof(Parameter) * f.param_count));
             for (int j = 0; j < f.param_count; j++) {
                 /* I preserve borrowed generic/tuple metadata before copying owned names. */
                 f.params[j] = item->as.function.params[j];
-                f.params[j].name = strdup(item->as.function.params[j].name);
+                f.params[j].name = env_own_checker_allocation(env, strdup(item->as.function.params[j].name));
                 f.params[j].type = item->as.function.params[j].type;
                 f.params[j].struct_type_name = item->as.function.params[j].struct_type_name ? 
-                    strdup(item->as.function.params[j].struct_type_name) : NULL;
+                    env_own_checker_allocation(env, strdup(item->as.function.params[j].struct_type_name)) : NULL;
                 f.params[j].element_type = item->as.function.params[j].element_type;
                 f.params[j].fn_sig = item->as.function.params[j].fn_sig;
             }
             f.return_type = item->as.function.return_type;
             f.return_element_type = item->as.function.return_element_type;
             f.return_struct_type_name = item->as.function.return_struct_type_name ? 
-                strdup(item->as.function.return_struct_type_name) : NULL;
+                env_own_checker_allocation(env, strdup(item->as.function.return_struct_type_name)) : NULL;
             f.return_fn_sig = item->as.function.return_fn_sig;
             f.return_type_info = item->as.function.return_type_info;
             f.body = item->as.function.body;
@@ -8546,7 +8575,7 @@ register_function_pass2:;
             f.is_extern = item->as.function.is_extern;
             f.is_pub = item->as.function.is_pub;  /* Store visibility */
             f.is_pure = item->as.function.is_pure;  /* Propagate purity annotation */
-            f.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            f.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
 
             env_define_function(env, f);
             register_native_union_context(env, f.return_type_info, 0);
@@ -8792,6 +8821,8 @@ register_function_pass2:;
                 else if (param_type == TYPE_STRING) val = create_string("");
                 else if (param_type == TYPE_ARRAY) {
                     val = create_array((ValueType)element_type, 0, 0);
+                    env_own_checker_allocation(env, val.as.array_val);
+                    env_own_checker_allocation(env, val.as.array_val->data);
                 } else if (param_type == TYPE_STRUCT) {
                     val = create_struct(item->as.function.params[j].struct_type_name, NULL, NULL, 0);
                 } else if (param_type == TYPE_UNION) {
@@ -8806,7 +8837,7 @@ register_function_pass2:;
                 }
                 /* For function parameters, create TypeInfo with signature */
                 else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
-                    TypeInfo *type_info = malloc(sizeof(TypeInfo));
+                    TypeInfo *type_info = env_own_checker_allocation(env, malloc(sizeof(TypeInfo)));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
                     type_info->fn_sig = item->as.function.params[j].fn_sig;

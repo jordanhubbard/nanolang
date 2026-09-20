@@ -2955,6 +2955,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
         for (int i = 0; i < arm_count; i++) {
             const char *variant = node->as.match_expr.pattern_variants[i];
             const char *binding = node->as.match_expr.pattern_bindings[i];
+            if (binding && !*binding) {
+                int16_t selected = ud ? union_variant_index(ud, variant) : -1;
+                if (selected < 0 || ud->variant_field_counts[selected] != 0) {
+                    cg_error(cg, node->line, "I require an exact zero-field variant for an empty match binding");
+                    break;
+                }
+            }
 
             uint32_t jf_instr, jf_off;
 
@@ -4169,6 +4176,10 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                                               ModuleList *modules, const char *input_file,
                                               bool shadows, bool include_imports) {
     CodegenResult result = {0};
+    if (ast_has_service_declaration(program)) {
+        snprintf(result.error_msg, sizeof(result.error_msg), "I have not resolved File service declarations for this consumer.");
+        return result;
+    }
 
     if (!program || program->type != AST_PROGRAM) {
         result.ok = false;
@@ -4181,7 +4192,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         Function *function = &env->functions[i];
         StructDef *returned = function->return_type == TYPE_STRUCT && function->return_struct_type_name
             ? env_get_struct(env, function->return_struct_type_name) : NULL;
-        if(returned && is_resource_type(env,function->return_struct_type_name))return codegen_borrow_compile(program,modules,shadows);
+        if(returned && is_resource_type(env,function->return_struct_type_name))return codegen_borrow_compile(program,env,modules,shadows);
         for (int p = 0; p < function->param_count; ++p) {
             if (!function->params) continue;
             Parameter *parameter = &function->params[p];
@@ -4189,12 +4200,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 ? env_get_struct(env, parameter->struct_type_name) : NULL;
             if (parameter->type == TYPE_BORROW_SHARED || parameter->type == TYPE_BORROW_MUT ||
                 (record && is_resource_type(env,parameter->struct_type_name))) {
-                return codegen_borrow_compile(program, modules, shadows);
+                return codegen_borrow_compile(program, env, modules, shadows);
             }
         }
     }
 
-    if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,modules,shadows);
+    if(borrow_source_uses_owner(program,env))return codegen_borrow_compile(program,env,modules,shadows);
 
     CgLocalName *local_names=NULL;
     CgAuthoritySlot *authority_slots=NULL;

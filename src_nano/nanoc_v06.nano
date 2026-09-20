@@ -252,6 +252,17 @@ shadow resolve_cc_binary {
     assert (> (str_length cc) 0)
 }
 
+fn native_product_cflags(configured: string) -> string {
+    if (== configured "") { return "-O1" }
+    return configured
+}
+
+shadow native_product_cflags {
+    assert (== (native_product_cflags "") "-O1")
+    assert (== (native_product_cflags "-O0 -g") "-O0 -g")
+    assert (== (native_product_cflags "-fsanitize=address") "-fsanitize=address")
+}
+
 /* =============================================================================
  * STRING HELPERS
  * ============================================================================= */

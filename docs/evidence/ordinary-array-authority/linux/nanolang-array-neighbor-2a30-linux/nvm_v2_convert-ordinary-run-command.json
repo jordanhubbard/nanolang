@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/tmp/nanolang-array-neighbor-2a30-linux/controls/nvm_v2_convert-ordinary"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": ""
+  }
+}

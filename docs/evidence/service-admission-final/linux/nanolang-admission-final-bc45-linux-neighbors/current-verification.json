@@ -1,0 +1,15 @@
+{
+  "current_paths": 3844,
+  "all_hashes_equal": true,
+  "selected_endpoint": "/tmp/nanolang-admission-final-bc45-linux-neighbors/emitter-after.json",
+  "dependencies": {
+    "/home/jkh/Src/nanolang-admission-final-qualified-bc45/obj/nanovm/vm.d": "fc6a1c12714a1fa96d12366c92e2c557f0e291cbbe30dacef502d8f3f16d14ac",
+    "/home/jkh/Src/nanolang-admission-final-qualified-bc45/obj/nanoisa/verifier.d": "1488313c624c078f3039a3029bf1a36dfd5f7f1d33f9397c284774ec1f163a53",
+    "/home/jkh/Src/nanolang-admission-final-qualified-bc45/obj/nanoisa/service_bindings_module.d": "d6c2ff42d5a8bc06c200a30d0c65964c02c70e1c6c657e536f81198fba679409"
+  },
+  "emitter": {
+    "path": "/tmp/nanolang-admission-final-bc45-linux-neighbors/products/emitter.nvm",
+    "bytes": 303308,
+    "sha256": "6ea0e0b1b8f50f499762e5bb1bdc4715034f9d26ed793a000ea84c3cc2c2f388"
+  }
+}

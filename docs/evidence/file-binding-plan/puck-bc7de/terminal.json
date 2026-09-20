@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "pin": "bc7debbff",
+  "configs": [
+    "homebrew-ordinary",
+    "homebrew-sanitizer"
+  ],
+  "all_input_pairs_equal": true
+}

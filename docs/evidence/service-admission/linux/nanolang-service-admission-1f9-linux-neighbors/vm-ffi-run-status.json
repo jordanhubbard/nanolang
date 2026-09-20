@@ -1,0 +1,10 @@
+{
+  "label": "vm-ffi-run",
+  "argv": [
+    "/tmp/nanolang-service-admission-1f9-linux-neighbors/products/vm-ffi"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.11416292295325547
+}

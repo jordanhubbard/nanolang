@@ -1,0 +1,10 @@
+{
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+  "ASAN_OPTIONS": null,
+  "UBSAN_OPTIONS": null,
+  "LSAN_OPTIONS": null,
+  "CC": null,
+  "SDKROOT": null,
+  "DEVELOPER_DIR": null,
+  "NANO_NATIVE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang"
+}

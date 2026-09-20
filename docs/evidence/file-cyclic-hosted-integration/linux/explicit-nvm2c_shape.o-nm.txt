@@ -1,0 +1,15 @@
+                 U __snprintf_chk
+                 U __stack_chk_fail
+                 U __stack_chk_guard
+                 U free
+                 U malloc
+00000000000003e0 T nvm_shape_child
+0000000000001450 T nvm_shape_convert
+00000000000000a0 T nvm_shape_destroy
+00000000000002e0 T nvm_shape_kind
+0000000000000320 T nvm_shape_lookup
+0000000000000130 T nvm_shape_new
+0000000000000254 T nvm_shape_root
+0000000000001590 T nvm_shape_solve_conversions
+0000000000000ec0 T nvm_shape_unify
+                 U realloc

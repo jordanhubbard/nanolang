@@ -1,0 +1,42 @@
+{
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/linked-nsi_file_binding.o": {
+    "sha256": "f716dea1a250a2e175847b5243401c52c6a70b95172c437faf162ab7d703d1a6",
+    "bytes": 252952
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/linked-nsi_file_plan.o": {
+    "sha256": "12ad560019c1f9727d28ee1a48dddc1ede817f6f0f21ae22561d754eb2a67f16",
+    "bytes": 137888
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/linked-nsi.o": {
+    "sha256": "12ad413c917ae66686234c9ecfaed42346e16f23e4538881796bc3b5dd0089b3",
+    "bytes": 401944
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/linked-cJSON.o": {
+    "sha256": "8fc39dd055b786d3b05b8da627b92200c8febafdec925b33c39a7a67158b3ea3",
+    "bytes": 438088
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/linked-utf8.o": {
+    "sha256": "675ca9363f3dd1612faa0af4a5ff19f47b8e565836f43bf249b1a0b7087638f5",
+    "bytes": 42400
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/instrumented-nsi_file_binding.o": {
+    "sha256": "32d35acaa44d09db308d6515077cb15ae2ea6c3705359d9e68229550a6d6540f",
+    "bytes": 253040
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/instrumented-nsi_file_plan.o": {
+    "sha256": "3554e85a5dbafa4747f3191d7ded8b914b0009d3532b6ac6cb0fd5bf2da125ac",
+    "bytes": 137960
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/instrumented-nsi.o": {
+    "sha256": "d2c99e24b420970a90ec07d660827f4c50a17625cf1ece11b3d1fd7d8cfdec84",
+    "bytes": 400336
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/instrumented-cJSON.o": {
+    "sha256": "762963f795c5913df039d3a60919513a31d293ee826871734d56d6d7f242183c",
+    "bytes": 438136
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-sanitizer/nano-file-binding-rdmyzoeg/instrumented-utf8.o": {
+    "sha256": "675ca9363f3dd1612faa0af4a5ff19f47b8e565836f43bf249b1a0b7087638f5",
+    "bytes": 42400
+  }
+}

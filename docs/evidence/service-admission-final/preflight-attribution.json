@@ -1,0 +1,7 @@
+{
+  "path": "/tmp/nanolang-admission-public-bc45-corrected-puck-driver.log",
+  "observed_ssh_returncode": 1,
+  "evidence_kind": "agent-observed supervisor result plus retained raw JSONDecodeError/environment, not a phase terminal emitted by driver",
+  "phase_command_reached": false,
+  "correction": "retained Python environment mapping with json.dumps"
+}

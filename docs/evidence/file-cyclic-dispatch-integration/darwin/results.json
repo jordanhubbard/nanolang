@@ -1,0 +1,47 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 9.601,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.148,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.091,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 40.603,
+    "status": 0
+  },
+  {
+    "phase": "cyclic",
+    "seconds": 2.525,
+    "status": 0
+  },
+  {
+    "phase": "cyclic-hosted",
+    "seconds": 5.416,
+    "status": 0
+  },
+  {
+    "phase": "indirect-flow",
+    "seconds": 2.4,
+    "status": 0
+  },
+  {
+    "phase": "public",
+    "seconds": 44.815,
+    "status": 0
+  },
+  {
+    "phase": "archive-boundary",
+    "seconds": 0.651,
+    "status": 0
+  }
+]

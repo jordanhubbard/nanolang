@@ -1,0 +1,13 @@
+I retain cyclic query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-cyclic-uxfp0v57
+test_instrumented_cyclic_query (tests.test_file_cyclic.FileCyclic.test_instrumented_cyclic_query) ... PASS 9508 private acyclic File body checks; no hosted stack ABI or execution authority
+I checked 47 allocation prefixes and 47 transient query failures
+PASS 124339 private cyclic query checks; no pending module execution
+ok
+test_linked_cyclic_query (tests.test_file_cyclic.FileCyclic.test_linked_cyclic_query) ... PASS 3663 private acyclic File body checks; no hosted stack ABI or execution authority
+PASS 108837 private cyclic query checks; no pending module execution
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.261s
+
+OK

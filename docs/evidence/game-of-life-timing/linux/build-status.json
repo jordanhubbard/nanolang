@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "make",
+    "-j2",
+    "bin/nanoc_c"
+  ],
+  "limit": 1200,
+  "timeout": false,
+  "returncode": 0,
+  "seconds": 21.01514981407672,
+  "log_sha256": "c1409adf60fbeeb8b04878db7a77d2978f8d8ebaeda8ce414d6f07b0bd0b5af2"
+}

@@ -17,6 +17,9 @@ SMOKE = ROOT/'tests/nanoisa/managed_string_smoke.c'
 
 class ManagedCore(unittest.TestCase):
     def setUp(self):
+        self.leak_check = os.environ.get('NMS_CORE_LEAK_CHECK',
+                                        '0' if platform.system() == 'Darwin' else '1')
+        self.assertIn(self.leak_check, ('0', '1'))
         self.cc = shlex.split(os.environ.get('CC', 'cc'))
         self.wasm_cc = shlex.split(os.environ.get('NMS_WASM_CC', 'clang'))
         for tool in (self.cc[0], self.wasm_cc[0], 'node', 'wasmtime', 'opt'):
@@ -28,8 +31,7 @@ class ManagedCore(unittest.TestCase):
     def run_cmd(self, args):
         result = subprocess.run([str(a) for a in args], capture_output=True, text=True,
                                 timeout=60, env={**os.environ,
-                                'ASAN_OPTIONS': ('detect_leaks=0' if platform.system() == 'Darwin'
-                                                 else 'detect_leaks=1')+':abort_on_error=1'})
+                                'ASAN_OPTIONS': 'detect_leaks='+self.leak_check+':abort_on_error=1'})
         self.assertEqual(result.returncode, 0, str(args)+'\n'+result.stdout+result.stderr)
         return result
 

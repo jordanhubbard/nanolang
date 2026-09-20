@@ -1,0 +1,950 @@
+{
+  "artifact_bytes": 234593121,
+  "artifact_references": 12106,
+  "corrected_fixture": "5a367e16e61587a424f7572cfd9bb68b1b4ee68f",
+  "current_linux": [
+    {
+      "group": "linux-first",
+      "last": "clang-ordinary",
+      "mismatches": 0,
+      "products": 167,
+      "root": "/home/jkh/Src/nanolang-mixed-declaration-dd5a",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "group": "linux-corrected",
+      "last": "ownership-public",
+      "mismatches": 0,
+      "products": 171,
+      "root": "/home/jkh/Src/nanolang-mixed-declaration-5a367",
+      "sources": 28172,
+      "tools": 10
+    }
+  ],
+  "limits": [
+    "Allocation hooks and query sanitizers cover ownership_contracts.c and nvm_v2_layouts.c; ordinary common providers and reference helper allocation remain outside that scope.",
+    "Selected tools and SDK/header identities are recorded, not a complete SDK/OS/toolchain closure.",
+    "Unchanged Python legacy neighbors delete their own temporary native fixtures; retained logs establish their outcomes but no deleted-binary archive is claimed.",
+    "Non-admitting declaration query only; no source/runtime/public mixed admission or full5.1 closure."
+  ],
+  "phases": {
+    "darwin-corrected": [
+      {
+        "phase": "setup",
+        "seconds": 8.639,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.132,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.074,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 1.511,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 1.468,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 2.793,
+        "status": 0
+      },
+      {
+        "phase": "ownership_contracts-build",
+        "seconds": 0.182,
+        "status": 0
+      },
+      {
+        "phase": "ownership_contracts-run",
+        "seconds": 0.282,
+        "status": 0
+      },
+      {
+        "phase": "ordinary_record_authority-build",
+        "seconds": 0.251,
+        "status": 0
+      },
+      {
+        "phase": "ordinary_record_authority-run",
+        "seconds": 0.248,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_convert-build",
+        "seconds": 0.188,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_convert-run",
+        "seconds": 0.297,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_endtoend-build",
+        "seconds": 0.129,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_endtoend-run",
+        "seconds": 0.234,
+        "status": 0
+      },
+      {
+        "phase": "old-array",
+        "seconds": 1.29,
+        "status": 0
+      },
+      {
+        "phase": "affine-union",
+        "seconds": 2.981,
+        "status": 0
+      },
+      {
+        "phase": "ownership-public",
+        "seconds": 1.381,
+        "status": 0
+      }
+    ],
+    "linux-corrected": [
+      {
+        "phase": "configuration",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 1.216,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 2.972,
+        "status": 0
+      },
+      {
+        "phase": "clang-sanitizer",
+        "seconds": 3.221,
+        "status": 0
+      },
+      {
+        "phase": "ownership_contracts-build",
+        "seconds": 0.164,
+        "status": 0
+      },
+      {
+        "phase": "ownership_contracts-run",
+        "seconds": 0.004,
+        "status": 0
+      },
+      {
+        "phase": "ordinary_record_authority-build",
+        "seconds": 0.315,
+        "status": 0
+      },
+      {
+        "phase": "ordinary_record_authority-run",
+        "seconds": 0.004,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_convert-build",
+        "seconds": 0.215,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_convert-run",
+        "seconds": 0.002,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_endtoend-build",
+        "seconds": 0.165,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_endtoend-run",
+        "seconds": 0.001,
+        "status": 0
+      },
+      {
+        "phase": "old-array",
+        "seconds": 0.866,
+        "status": 0
+      },
+      {
+        "phase": "affine-union",
+        "seconds": 20.914,
+        "status": 0
+      },
+      {
+        "phase": "ownership-public",
+        "seconds": 0.615,
+        "status": 0
+      }
+    ],
+    "linux-first": [
+      {
+        "phase": "setup",
+        "seconds": 20.213,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.114,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 1.117,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 0.365,
+        "status": 1
+      }
+    ]
+  },
+  "production": "31c68af10c3c970cf4fd9289fb0b03613bba1e6d",
+  "provider_deltas": [
+    {
+      "added": 163,
+      "changed_existing": [],
+      "existing": 0,
+      "group": "linux-first",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "setup"
+    },
+    {
+      "added": 0,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-first",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "configuration"
+    },
+    {
+      "added": 0,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-first",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "discovery"
+    },
+    {
+      "added": 18,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-first",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ordinary"
+    },
+    {
+      "added": 4,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-first",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "clang-ordinary"
+    },
+    {
+      "added": 0,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "configuration"
+    },
+    {
+      "added": 18,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "clang-ordinary"
+    },
+    {
+      "added": 18,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "sanitizer"
+    },
+    {
+      "added": 18,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "clang-sanitizer"
+    },
+    {
+      "added": 1,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ownership_contracts-build"
+    },
+    {
+      "added": 1,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ownership_contracts-run"
+    },
+    {
+      "added": 2,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ordinary_record_authority-build"
+    },
+    {
+      "added": 2,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ordinary_record_authority-run"
+    },
+    {
+      "added": 3,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "nvm_v2_convert-build"
+    },
+    {
+      "added": 3,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "nvm_v2_convert-run"
+    },
+    {
+      "added": 4,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "nvm_v2_endtoend-build"
+    },
+    {
+      "added": 4,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "nvm_v2_endtoend-run"
+    },
+    {
+      "added": 22,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "old-array"
+    },
+    {
+      "added": 7,
+      "changed_existing": [
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/bin/nano_vm",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/bin/nvm2c",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/bcp47.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/bench.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/bench_native.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/builtins_registry.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/cJSON.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/c_backend.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/catalog.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/channel.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/coroutine.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/cps_pass.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/dce_pass.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/diag_id.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/docgen.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/docgen_md.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/dwarf_info.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/effects.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/emit_typed_ast.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/env.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/eval.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/eval/eval_hashmap.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/eval/eval_io.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/eval/eval_math.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/eval/eval_string.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/fmt.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/fold_constants.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/interpreter_ffi.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/json_diagnostics.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/lexer.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/locale.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/module.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/module_builder.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/module_metadata.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanocore_export.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanocore_subset.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/affine_bytecode.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/affine_state.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/assembler.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/disassembler.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/file_cli.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/file_cyclic_public_abi.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/file_cyclic_public_native.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/file_flow.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/file_host_grant.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/file_public_native.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/file_runtime_public.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/frontend.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/isa.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/local_bindings.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/managed_array_shapes.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/mixed_float_proof.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nanoisa_facade.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm2c.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm2c_main.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm2c_shape.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_format.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_format_v2.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_v2_constants.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_v2_convert.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_v2_cursor.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_v2_functions.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_v2_imports.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_v2_layouts.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_v2_module.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/nvm_v2_signatures.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/ownership_contracts.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/passive.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/reference_places.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/retained_layouts.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/service_bindings.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/service_bindings_module.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/service_file_nominal.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/service_file_nominal_plan.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/verifier.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanoisa/verifier_types.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/cop_protocol.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/file_cyclic_public_vm.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/file_public_vm.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/heap.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/heap_cycles.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/main.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/value.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/vm.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/vm_builtins.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/vm_callback.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/vm_decode.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/vm_dispatch.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/vm_ffi.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/vm_ffi_arrays.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/vmd_client.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nanovm/vmd_protocol.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nominal_types.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nsi_cap.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nsi_file.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nsi_file_plan.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/nsi_file_values.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/opencl_backend.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/par_let_pass.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/parser.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/pgo_pass.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/ptx_backend.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/reflection.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/resource_flow.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/resource_tracking.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/riscv_backend.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/callback_runtime.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/cli.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/dyn_array.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/effect_runtime.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/ffi_loader.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/gc.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/gc_struct.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTArrayLiteral.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTAssert.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTBinaryOp.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTBlock.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTBool.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTCall.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTEnum.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTFieldAccess.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTFloat.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTFor.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTFunction.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTIdentifier.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTIf.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTImport.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTLet.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTMatch.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTModuleQualifiedCall.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTNumber.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTOpaqueType.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTPrint.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTReturn.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTSet.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTShadow.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTStmtRef.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTString.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTStruct.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTStructLiteral.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTTupleIndex.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTTupleLiteral.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTUnion.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTUnionConstruct.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTUnsafeBlock.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_ASTWhile.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_CompilerDiagnostic.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_CompilerSourceLocation.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_LexerToken.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_int.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_string.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/list_token.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/module_build_dir.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/nl_string.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/regex.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/runtime/token_helpers.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/stdlib_runtime.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/tco_pass.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/toon_output.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/transpiler.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/type_infer.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/typechecker.o",
+        "/home/jkh/Src/nanolang-mixed-declaration-5a367/obj/utf8.o"
+      ],
+      "existing": 163,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "affine-union"
+    },
+    {
+      "added": 5,
+      "changed_existing": [],
+      "existing": 166,
+      "group": "linux-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ownership-public"
+    },
+    {
+      "added": 163,
+      "changed_existing": [],
+      "existing": 0,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "setup"
+    },
+    {
+      "added": 0,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "configuration"
+    },
+    {
+      "added": 0,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "discovery"
+    },
+    {
+      "added": 24,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ordinary"
+    },
+    {
+      "added": 24,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "clang-ordinary"
+    },
+    {
+      "added": 24,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "sanitizer"
+    },
+    {
+      "added": 4,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ownership_contracts-build"
+    },
+    {
+      "added": 4,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ownership_contracts-run"
+    },
+    {
+      "added": 8,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ordinary_record_authority-build"
+    },
+    {
+      "added": 8,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ordinary_record_authority-run"
+    },
+    {
+      "added": 12,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "nvm_v2_convert-build"
+    },
+    {
+      "added": 12,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "nvm_v2_convert-run"
+    },
+    {
+      "added": 16,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "nvm_v2_endtoend-build"
+    },
+    {
+      "added": 16,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "nvm_v2_endtoend-run"
+    },
+    {
+      "added": 40,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "old-array"
+    },
+    {
+      "added": 19,
+      "changed_existing": [],
+      "existing": 163,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "affine-union"
+    },
+    {
+      "added": 17,
+      "changed_existing": [],
+      "existing": 166,
+      "group": "darwin-corrected",
+      "note": "Query translation units rebuild with selected fixture flags; neighbor targets add separately retained products.",
+      "phase": "ownership-public"
+    }
+  ],
+  "source": "dd5a3ab637959c5cae1c3fd0a6212b516bb64265",
+  "source_tool_pairs": [
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "setup",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "configuration",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "discovery",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "ordinary",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "clang-ordinary",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "configuration",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "clang-ordinary",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "sanitizer",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "clang-sanitizer",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "ownership_contracts-build",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "ownership_contracts-run",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "ordinary_record_authority-build",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "ordinary_record_authority-run",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "nvm_v2_convert-build",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "nvm_v2_convert-run",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "nvm_v2_endtoend-build",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "nvm_v2_endtoend-run",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "old-array",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "affine-union",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "ownership-public",
+      "sources": 28172,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "setup",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "configuration",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "discovery",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "ordinary",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "clang-ordinary",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "sanitizer",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "ownership_contracts-build",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "ownership_contracts-run",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "ordinary_record_authority-build",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "ordinary_record_authority-run",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "nvm_v2_convert-build",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "nvm_v2_convert-run",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "nvm_v2_endtoend-build",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "nvm_v2_endtoend-run",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "old-array",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "affine-union",
+      "sources": 28172,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "ownership-public",
+      "sources": 28172,
+      "tools": 15
+    }
+  ],
+  "unique_artifacts": 598
+}

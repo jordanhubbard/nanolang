@@ -1,0 +1,7 @@
+test_c99_consumers_share_c11_gate (tests.test_file_host_grant.FileHostGrant) ... I retain grant artifacts at /private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.690s
+
+OK

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-array-neighbor-2a30-linux/providers.mk",
+    "CC=/usr/bin/gcc",
+    "array-config"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": ""
+  }
+}

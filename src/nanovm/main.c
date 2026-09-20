@@ -10,6 +10,9 @@
  * Without:       executes directly in-process (original behavior).
  */
 
+#include "../nanoisa/file_public.h"
+#include "../nanoisa/file_cyclic_public.h"
+#include "../nanoisa/file_cli.h"
 #include "vm.h"
 #include "vm_ffi.h"
 #include "vmd_client.h"
@@ -73,6 +76,59 @@ static uint8_t *read_file(const char *path, uint32_t *out_size) {
 
     *out_size = (uint32_t)size;
     return data;
+}
+
+/* Explicit bounded File route: input-file I/O is separate from service grants.
+ * Generic module/VM/FFI readiness never sees this invocation. */
+static bool file_instruction_limit(const char *text, uint64_t *out) {
+    if (!text || !*text) return false;
+    uint64_t value = 0;
+    for (const unsigned char *p = (const unsigned char *)text; *p; ++p) {
+        if (*p < '0' || *p > '9') return false;
+        uint64_t digit = (uint64_t)(*p - '0');
+        if (value > (NVM_FILE_CYCLIC_FUEL_MAX - digit) / 10) return false;
+        value = value * 10 + digit;
+    }
+    *out = value;
+    return true;
+}
+static int run_file_standalone(const char *path, const NvmFileCyclicOptions *options) {
+    uint8_t *bytes = NULL;
+    size_t size = 0;
+    char diagnostic[256] = {0};
+    if (!nvm_file_cli_read(path,&bytes,&size,diagnostic,sizeof diagnostic)) {
+        fprintf(stderr,"%s\n",diagnostic);
+        return 1;
+    }
+    NvmFileHostGrant *grant = NULL;
+    NvmFileHostStatus created = nvm_file_host_grant_create_temporary_files(&grant);
+    if (created != NVM_FILE_HOST_OK) {
+        free(bytes);
+        fprintf(stderr,"I cannot create a temporary-file grant (%u)\n",(unsigned)created);
+        return 1;
+    }
+    NvmFileScalar scalar = {0};
+    NvmFileCyclicExecutionReport cyclic = {0};
+    NvmFileRuntimeReport report;
+    if (options) {
+        cyclic = nvm_file_execute_cyclic_bytes(grant,bytes,size,options,&scalar);
+        report = cyclic.runtime;
+    } else report = nvm_file_execute_bytes(grant,bytes,size,&scalar);
+    free(bytes);
+    NvmFileHostStatus destroyed = nvm_file_host_grant_destroy(&grant);
+    if (report.status != NVM_FILE_RUNTIME_OK || destroyed != NVM_FILE_HOST_OK) {
+        if (options) fprintf(stderr,
+                "I refuse cyclic File execution (status %u, site %u:%u, limit %llu, started %llu, exhausted %u, cleanup %llu, grant %u)\n",
+                (unsigned)report.status,report.function,report.instruction,
+                (unsigned long long)cyclic.instruction_limit,
+                (unsigned long long)cyclic.instructions_started,(unsigned)cyclic.fuel_exhausted,
+                (unsigned long long)report.cleanup.cleanup_failures,(unsigned)destroyed);
+        else fprintf(stderr,"I refuse File execution (status %u, site %u:%u, cleanup %llu, grant %u)\n",
+                (unsigned)report.status,report.function,report.instruction,
+                (unsigned long long)report.cleanup.cleanup_failures,(unsigned)destroyed);
+        return 1;
+    }
+    return (int)((uint64_t)scalar.value & UINT64_C(255));
 }
 
 static NvmModule *load_verified_module(const char *path,
@@ -256,11 +312,15 @@ static int run_shadow_module(void) {
 }
 
 int main(int argc, char *argv[]) {
+    bool allow_temporary_files = false;
+    bool file_cyclic = false, file_limit_set = false;
+    NvmFileCyclicOptions file_options = {NVM_FILE_CYCLIC_RUNTIME_REVISION, 0};
     g_argc = argc;
     g_argv = argv;
 
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s [--verify-only | --daemon | --check-shadows] [--debug] [--profile-isa FILE] <file.nvm> [-- guest-args...]\n", argv[0]);
+        fprintf(stderr, "Usage: %s [--verify-only | --daemon | --check-shadows | --allow-temporary-files] [--debug] [--profile-isa FILE] <file.nvm> [-- guest-args...]\n", argv[0]);
+        fprintf(stderr, "For cyclic File execution I require --allow-temporary-files --file-cyclic --file-instruction-limit N.\n");
         return 1;
     }
 
@@ -283,6 +343,21 @@ int main(int argc, char *argv[]) {
             }
             guest_start = i;
             break;
+        } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
+            allow_temporary_files = true;
+        } else if (strcmp(argv[i], "--file-cyclic") == 0) {
+            if (file_cyclic) {
+                fprintf(stderr,"I accept --file-cyclic once.\n");
+                return 1;
+            }
+            file_cyclic = true;
+        } else if (strcmp(argv[i], "--file-instruction-limit") == 0) {
+            if (file_limit_set || i + 1 >= argc ||
+                !file_instruction_limit(argv[++i], &file_options.instruction_limit)) {
+                fprintf(stderr,"I require one decimal File instruction limit from 0 through 1000000.\n");
+                return 1;
+            }
+            file_limit_set = true;
         } else if (strcmp(argv[i], "--check-shadows") == 0) {
             check_shadows = true;
         } else if (strcmp(argv[i], "--verify-only") == 0) {
@@ -315,6 +390,19 @@ int main(int argc, char *argv[]) {
     if (!nvm_path) {
         fprintf(stderr, "Error: No .nvm file specified\n");
         return 1;
+    }
+
+    if (file_cyclic != file_limit_set || (file_cyclic && !allow_temporary_files)) {
+        fprintf(stderr,"I require --file-cyclic, --file-instruction-limit and --allow-temporary-files together.\n");
+        return 1;
+    }
+    if (allow_temporary_files) {
+        if (check_shadows || verify_only || daemon_mode || repeat_requested ||
+            g_profile_path || g_isolate_ffi || g_debug_mode || guest_start) {
+            fprintf(stderr,"I run the explicit temporary-file profile without other execution modes or guest arguments.\n");
+            return 1;
+        }
+        return run_file_standalone(nvm_path, file_cyclic ? &file_options : NULL);
     }
 
     if (check_shadows && (verify_only || daemon_mode || repeat_requested ||

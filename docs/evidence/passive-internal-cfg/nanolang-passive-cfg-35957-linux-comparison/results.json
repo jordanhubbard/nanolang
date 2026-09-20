@@ -1,0 +1,17 @@
+[
+  {
+    "phase": "comparison-build",
+    "seconds": 32.891,
+    "status": 0
+  },
+  {
+    "phase": "comparison",
+    "seconds": 0.415,
+    "status": 0
+  },
+  {
+    "phase": "scoped-sanitizer",
+    "seconds": 2.02,
+    "status": 0
+  }
+]

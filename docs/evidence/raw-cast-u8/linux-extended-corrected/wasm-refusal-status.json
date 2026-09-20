@@ -1,0 +1,26 @@
+{
+  "name": "wasm-refusal",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "/tmp/nanolang-cast-u8-linux-extended-corrected/check-refusal.py",
+    "/tmp/nanolang-cast-u8-linux-extended-corrected/wasm.out",
+    "/home/jkh/Src/nanolang-cast-u8-qualification/bin/nvm2wasm",
+    "/tmp/nanolang-cast-u8-linux-extended-corrected/convert.nvm",
+    "-o",
+    "/tmp/nanolang-cast-u8-linux-extended-corrected/wasm.out"
+  ],
+  "bound_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.11451857094652951,
+  "log": {
+    "sha256": "95ff413d48ea8378dd142369e8b11a5f8b51556bb4017736f24f95964d26f720",
+    "bytes": 231,
+    "archive": "/tmp/nanolang-cast-u8-linux-extended-corrected/objects/95ff413d48ea8378dd142369e8b11a5f8b51556bb4017736f24f95964d26f720"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

@@ -1,0 +1,24 @@
+{
+  "name": "generated-byte",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_cast_u8_backends"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 33.79687413503416,
+  "log": {
+    "sha256": "7875f6f1432465595058b677d7842bc3a9c5700b41e309ffae5a572f0aa5b936",
+    "bytes": 1195,
+    "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/7875f6f1432465595058b677d7842bc3a9c5700b41e309ffae5a572f0aa5b936"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

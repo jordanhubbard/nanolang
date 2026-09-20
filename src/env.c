@@ -117,6 +117,26 @@ static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file)
     return NULL;
 }
 
+/* I retain checker allocations independently of mutable symbol/function slots.
+ * Every registered block is unique and shallowly freed; borrowed subgraphs are
+ * never traversed. This deliberately does not change runtime value ownership. */
+struct EnvCheckerAllocation {
+    void *allocation;
+    struct EnvCheckerAllocation *next;
+};
+void *env_own_checker_allocation(Environment *env, void *allocation) {
+    if (!allocation) return NULL;
+    struct EnvCheckerAllocation *entry = malloc(sizeof *entry);
+    if (!entry) {
+        fprintf(stderr, "I could not allocate checker ownership metadata\n");
+        exit(1);
+    }
+    entry->allocation = allocation;
+    entry->next = env->checker_allocations;
+    env->checker_allocations = entry;
+    return allocation;
+}
+
 /* Create environment */
 Environment *create_environment(void) {
     /* calloc, not malloc: every field below is set explicitly, but zeroing
@@ -298,12 +318,22 @@ void free_environment(Environment *env) {
             if (env->unions[i].variant_field_types && env->unions[i].variant_field_types[j]) {
                 free(env->unions[i].variant_field_types[j]);
             }
+            if (env->unions[i].variant_field_type_names && env->unions[i].variant_field_type_names[j]) {
+                for (int k = 0; k < env->unions[i].variant_field_counts[j]; k++)
+                    free(env->unions[i].variant_field_type_names[j][k]);
+                free(env->unions[i].variant_field_type_names[j]);
+            }
         }
         free(env->unions[i].variant_field_type_info);
         if (env->unions[i].variant_names) free(env->unions[i].variant_names);
         if (env->unions[i].variant_field_counts) free(env->unions[i].variant_field_counts);
         if (env->unions[i].variant_field_names) free(env->unions[i].variant_field_names);
         if (env->unions[i].variant_field_types) free(env->unions[i].variant_field_types);
+        free(env->unions[i].variant_field_type_names);
+        for (int j = 0; j < env->unions[i].generic_param_count; j++)
+            free(env->unions[i].generic_params[j]);
+        free(env->unions[i].generic_params);
+        free(env->unions[i].module_name);
     }
     free(env->unions);
     
@@ -393,6 +423,12 @@ void free_environment(Environment *env) {
         free(env->modules);
     }
 
+    while (env->checker_allocations) {
+        struct EnvCheckerAllocation *entry = env->checker_allocations;
+        env->checker_allocations = entry->next;
+        free(entry->allocation);
+        free(entry);
+    }
     free(env);
 }
 

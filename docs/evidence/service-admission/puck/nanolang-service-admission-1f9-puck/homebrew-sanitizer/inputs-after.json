@@ -1,0 +1,914 @@
+{
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+    "bytes": 138440,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/value.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/value.o",
+    "sha256": "b3819e1e3b3d9f9cc4ff84f93e8d142b447dc66b3d0bba6212c6a59699cb2abb",
+    "bytes": 20248,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/b3819e1e3b3d9f9cc4ff84f93e8d142b447dc66b3d0bba6212c6a59699cb2abb"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/heap.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/heap.o",
+    "sha256": "d245a77533ca3eb9e5d09f7b17e0af9ac2e0e916e2613c81c935dc4d1c988606",
+    "bytes": 51208,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/d245a77533ca3eb9e5d09f7b17e0af9ac2e0e916e2613c81c935dc4d1c988606"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/heap_cycles.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/heap_cycles.o",
+    "sha256": "65b2132810db61c3833c173e4205eb057ddfdba13adafc8435eeafb2f6638d75",
+    "bytes": 28000,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/65b2132810db61c3833c173e4205eb057ddfdba13adafc8435eeafb2f6638d75"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_callback.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_callback.o",
+    "sha256": "7cf01e12c7d995200a415ff7d976620d2b1e8ba5714d33b26edac60544315777",
+    "bytes": 26240,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/7cf01e12c7d995200a415ff7d976620d2b1e8ba5714d33b26edac60544315777"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_ffi.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_ffi.o",
+    "sha256": "6af1ed2c8e9081a9407889cad9a1a3bdb866a5b6abd163a5b15391b288e28f85",
+    "bytes": 175752,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/6af1ed2c8e9081a9407889cad9a1a3bdb866a5b6abd163a5b15391b288e28f85"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_builtins.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_builtins.o",
+    "sha256": "2f52a65c347c8450f151570b9085922e3277e8a5fe524b3ca8d10512b4e6c70d",
+    "bytes": 43416,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/2f52a65c347c8450f151570b9085922e3277e8a5fe524b3ca8d10512b4e6c70d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/cop_protocol.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/cop_protocol.o",
+    "sha256": "de3a8231d355292dbe437ede1e7d5e6d512b8ed3bbec2590981f6b1e25ab0390",
+    "bytes": 62440,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/de3a8231d355292dbe437ede1e7d5e6d512b8ed3bbec2590981f6b1e25ab0390"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_ffi_arrays.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_ffi_arrays.o",
+    "sha256": "ac644ff5d3c878b32de232f41825ce0cdab8e622685d1476033b5dd72915b069",
+    "bytes": 20528,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/ac644ff5d3c878b32de232f41825ce0cdab8e622685d1476033b5dd72915b069"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/callback_runtime.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/callback_runtime.o",
+    "sha256": "582b54e785b5ae2e0f4988bb2a3f1d859d2e094e727777a01f343d704255f8ec",
+    "bytes": 23224,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/582b54e785b5ae2e0f4988bb2a3f1d859d2e094e727777a01f343d704255f8ec"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/file_flow.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/file_flow.o",
+    "sha256": "099910b0a1da5f74ed07426e740fefd5ffcaf68442b5d60640c4bd4df0b61bf4",
+    "bytes": 294312,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/099910b0a1da5f74ed07426e740fefd5ffcaf68442b5d60640c4bd4df0b61bf4"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/service_file_nominal.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/service_file_nominal.o",
+    "sha256": "e981ef55967b7e54ccec859a7f3ef3327f9ed92303974a7f0ae0faf917a3e333",
+    "bytes": 23400,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/e981ef55967b7e54ccec859a7f3ef3327f9ed92303974a7f0ae0faf917a3e333"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/service_file_nominal_plan.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/service_file_nominal_plan.o",
+    "sha256": "a9dbc2987c16e33e1bbd1a8c5ac7337155a7a7542bf0ff9058faf1a8bb14cb05",
+    "bytes": 29832,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/a9dbc2987c16e33e1bbd1a8c5ac7337155a7a7542bf0ff9058faf1a8bb14cb05"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/service_bindings.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/service_bindings.o",
+    "sha256": "fbb5c92390dc9870b94f431f209d7081f0f1f70d39067ae06ead06eb0e80cca3",
+    "bytes": 7552,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/fbb5c92390dc9870b94f431f209d7081f0f1f70d39067ae06ead06eb0e80cca3"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/mixed_float_proof.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/mixed_float_proof.o",
+    "sha256": "14130a1d85c9050237adfb7e3fb27927d04c16fc88cef304aca0288714225c05",
+    "bytes": 63680,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/14130a1d85c9050237adfb7e3fb27927d04c16fc88cef304aca0288714225c05"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/managed_array_shapes.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/managed_array_shapes.o",
+    "sha256": "231f4d177c07f59fb6841b34342c28251e961d49a1f366d27943784004c34bc4",
+    "bytes": 77888,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/231f4d177c07f59fb6841b34342c28251e961d49a1f366d27943784004c34bc4"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/local_bindings.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/local_bindings.o",
+    "sha256": "4878e7d9f3dc49a346959d4adce5d0864fc1d6b276ab902062be1720ff3ee45c",
+    "bytes": 16096,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/4878e7d9f3dc49a346959d4adce5d0864fc1d6b276ab902062be1720ff3ee45c"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/affine_bytecode.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/affine_bytecode.o",
+    "sha256": "9605ffa801c3d4aac2df3c30ab47089ec59e86096bc75b4b312dce7c8f0b9c12",
+    "bytes": 54288,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/9605ffa801c3d4aac2df3c30ab47089ec59e86096bc75b4b312dce7c8f0b9c12"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/affine_state.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/affine_state.o",
+    "sha256": "5cc4b0818ccbd981beb91148f4ac68ad449986a1ac0f5dec3f62d969a96eb2ee",
+    "bytes": 194872,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/5cc4b0818ccbd981beb91148f4ac68ad449986a1ac0f5dec3f62d969a96eb2ee"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/ownership_contracts.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/ownership_contracts.o",
+    "sha256": "7e942ba7aa6354a2f5db513d7a61bf59804ff17fab51651de7c4a0605f7d71ea",
+    "bytes": 23792,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/7e942ba7aa6354a2f5db513d7a61bf59804ff17fab51651de7c4a0605f7d71ea"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/retained_layouts.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/retained_layouts.o",
+    "sha256": "aebfa752195c293a526a25cb0fb255b0be34d9887839e1fd0a1716460fe988b4",
+    "bytes": 133672,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/aebfa752195c293a526a25cb0fb255b0be34d9887839e1fd0a1716460fe988b4"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/reference_places.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/reference_places.o",
+    "sha256": "1c61b43f8eaa03f23c768a3de99d9fbaac11723abf107eff7d7bc5d06d017d37",
+    "bytes": 10304,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/1c61b43f8eaa03f23c768a3de99d9fbaac11723abf107eff7d7bc5d06d017d37"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/passive.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/passive.o",
+    "sha256": "50b4247b670614d456fea62c39d0fd4861ba35ce400fea10cb54873e270980c7",
+    "bytes": 39808,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/50b4247b670614d456fea62c39d0fd4861ba35ce400fea10cb54873e270980c7"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/isa.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/isa.o",
+    "sha256": "57f5ac874f3f56e64badf2c915a1711151fd223f5dec98e2bf6d905510207543",
+    "bytes": 39672,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/57f5ac874f3f56e64badf2c915a1711151fd223f5dec98e2bf6d905510207543"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/verifier_types.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/verifier_types.o",
+    "sha256": "2f78363207ab78460dde202d1b5d32fb4b145162323ecdcc5c6168de85eff84f",
+    "bytes": 22968,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/2f78363207ab78460dde202d1b5d32fb4b145162323ecdcc5c6168de85eff84f"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_format.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_format.o",
+    "sha256": "2ccb0a8033fc9eecaae3553d07a7149bdb1dda0f0eb905c48716f392e5a4ad65",
+    "bytes": 50432,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/2ccb0a8033fc9eecaae3553d07a7149bdb1dda0f0eb905c48716f392e5a4ad65"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_format_v2.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_format_v2.o",
+    "sha256": "faca71b665b7febbeb42f4f3d1fc52b754277831bb9bbef58d2b55b4561de006",
+    "bytes": 13384,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/faca71b665b7febbeb42f4f3d1fc52b754277831bb9bbef58d2b55b4561de006"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_cursor.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_cursor.o",
+    "sha256": "57427bf5abfad8b652b434f341dc77fae8268b14f1c346f4337c324bdc36a22d",
+    "bytes": 7592,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/57427bf5abfad8b652b434f341dc77fae8268b14f1c346f4337c324bdc36a22d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_constants.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_constants.o",
+    "sha256": "2e6d97d7eac742e0f860e95fe869ed824f90b04d26a11d5a8b7b366c94102baa",
+    "bytes": 10736,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/2e6d97d7eac742e0f860e95fe869ed824f90b04d26a11d5a8b7b366c94102baa"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_signatures.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_signatures.o",
+    "sha256": "7e1e03a329a19e6a5b4cb7fb5ad95675a05cc5240b2747c9d5a45859e677e0c1",
+    "bytes": 11624,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/7e1e03a329a19e6a5b4cb7fb5ad95675a05cc5240b2747c9d5a45859e677e0c1"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_layouts.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_layouts.o",
+    "sha256": "20cef78df4fc2b31184ac0ad39360f40dea076094563c0a4ab83c4fef278368e",
+    "bytes": 15392,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/20cef78df4fc2b31184ac0ad39360f40dea076094563c0a4ab83c4fef278368e"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_functions.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_functions.o",
+    "sha256": "23a151486225f1811bd5b4b73c14ca09c6b591bb946bceec69c3474d481c9332",
+    "bytes": 12784,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/23a151486225f1811bd5b4b73c14ca09c6b591bb946bceec69c3474d481c9332"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_imports.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_imports.o",
+    "sha256": "47004326c241a6b6e1555edbe50feff2c84db63df638a717622fb7d0c2a1cd7b",
+    "bytes": 23976,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/47004326c241a6b6e1555edbe50feff2c84db63df638a717622fb7d0c2a1cd7b"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_module.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_module.o",
+    "sha256": "d465fc7a3b620d850574387785754929544386b32869e09a2a6746ae015f13f1",
+    "bytes": 34896,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/d465fc7a3b620d850574387785754929544386b32869e09a2a6746ae015f13f1"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_convert.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm_v2_convert.o",
+    "sha256": "951a79fbef9102e29b8969b7b9652b6f3087dd2e39844884baef09c923d80635",
+    "bytes": 37184,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/951a79fbef9102e29b8969b7b9652b6f3087dd2e39844884baef09c923d80635"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/assembler.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/assembler.o",
+    "sha256": "0e8710076f0eba9ffeeebc9ecb3e3cccbf215d5e077d1968fb69351df6825d7e",
+    "bytes": 115168,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/0e8710076f0eba9ffeeebc9ecb3e3cccbf215d5e077d1968fb69351df6825d7e"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/disassembler.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/disassembler.o",
+    "sha256": "414187932b868b71d9cc38ff2ca779edb3c4adfaa9f0806ab129d75bc8de92c5",
+    "bytes": 38480,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/414187932b868b71d9cc38ff2ca779edb3c4adfaa9f0806ab129d75bc8de92c5"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/verifier.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/verifier.o",
+    "sha256": "a327351dd9096e9a5522c437f98a3eeda938d754cb079e692de49dedd0b74056",
+    "bytes": 121904,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/a327351dd9096e9a5522c437f98a3eeda938d754cb079e692de49dedd0b74056"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm2c.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm2c.o",
+    "sha256": "7ba218859f84acd2cf69e9aa0ac09f861fa7ccb1ceb18a1a555322099583c395",
+    "bytes": 649904,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/7ba218859f84acd2cf69e9aa0ac09f861fa7ccb1ceb18a1a555322099583c395"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm2c_shape.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nvm2c_shape.o",
+    "sha256": "cd793ded14291d6b9098cb9a1388ce3fc7ef8807b9a16da45ccb1b6e4eb2a833",
+    "bytes": 36144,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/cd793ded14291d6b9098cb9a1388ce3fc7ef8807b9a16da45ccb1b6e4eb2a833"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/frontend.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/frontend.o",
+    "sha256": "76401ef53af2f51ba69c501b43dd7482f4bdb5eec58fcf71de229f4aac02f36f",
+    "bytes": 28288,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/76401ef53af2f51ba69c501b43dd7482f4bdb5eec58fcf71de229f4aac02f36f"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nanoisa_facade.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanoisa/nanoisa_facade.o",
+    "sha256": "b0f5f15b17adc54ffa201a54602e776f64112143e4423996d65050998100cff0",
+    "bytes": 49824,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/b0f5f15b17adc54ffa201a54602e776f64112143e4423996d65050998100cff0"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_decode.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_decode.o",
+    "sha256": "eebe845b823ebb134d3ce9868da3359c956267bb1d4cf476390abf5d8704d1df",
+    "bytes": 21152,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/eebe845b823ebb134d3ce9868da3359c956267bb1d4cf476390abf5d8704d1df"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_dispatch.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanovm/vm_dispatch.o",
+    "sha256": "dc2f604d05c60d9db5fd9a70f0a9de3b9d3e03e12e40033888d0a59a51444e52",
+    "bytes": 23920,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/dc2f604d05c60d9db5fd9a70f0a9de3b9d3e03e12e40033888d0a59a51444e52"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nsi_file_plan.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nsi_file_plan.o",
+    "sha256": "8246b8f91857e83245839c4278a36c1776d18acc4064c77d32e7aae7c2cce0e7",
+    "bytes": 25784,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/8246b8f91857e83245839c4278a36c1776d18acc4064c77d32e7aae7c2cce0e7"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/lexer.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/lexer.o",
+    "sha256": "699fb944ede6e6d8b05e70ca6cce47729f194ffb0eb55abbe97e74c10462b0a3",
+    "bytes": 46056,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/699fb944ede6e6d8b05e70ca6cce47729f194ffb0eb55abbe97e74c10462b0a3"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/parser.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/parser.o",
+    "sha256": "621fb97f7249c31c6d5af3a096b2c88dab7f0f6533b4fcb03d5ac12b8833009b",
+    "bytes": 347368,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/621fb97f7249c31c6d5af3a096b2c88dab7f0f6533b4fcb03d5ac12b8833009b"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/typechecker.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/typechecker.o",
+    "sha256": "1fad64ba00a1a4b5970bc0f1a659d4051155b92f8e6d831838ca199a8365727d",
+    "bytes": 465736,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/1fad64ba00a1a4b5970bc0f1a659d4051155b92f8e6d831838ca199a8365727d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/transpiler.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/transpiler.o",
+    "sha256": "ef635946ffb1335bd213296cbcfd30c96d80a73c9f6095331cfc505dccb870fc",
+    "bytes": 654184,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/ef635946ffb1335bd213296cbcfd30c96d80a73c9f6095331cfc505dccb870fc"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/stdlib_runtime.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/stdlib_runtime.o",
+    "sha256": "c1491be08b0e044d0ec8b91967df58f8e50d812f20b36340a2e22b92317537d5",
+    "bytes": 288464,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/c1491be08b0e044d0ec8b91967df58f8e50d812f20b36340a2e22b92317537d5"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/env.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/env.o",
+    "sha256": "fe9553c2e79a6f569e64a611a2810525eb66fafacb9c1bfee0b3db56cfe9a78a",
+    "bytes": 120920,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/fe9553c2e79a6f569e64a611a2810525eb66fafacb9c1bfee0b3db56cfe9a78a"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/builtins_registry.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/builtins_registry.o",
+    "sha256": "a1685808030bb7a15feb45a9831ee6d0073bb53cde1ea91902d127f47c30bc67",
+    "bytes": 31776,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/a1685808030bb7a15feb45a9831ee6d0073bb53cde1ea91902d127f47c30bc67"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/module.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/module.o",
+    "sha256": "f99e79196b368a282eb39c4a5e9e8d8bfa82c90f4039cf115b1bf7e0b5683792",
+    "bytes": 151248,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/f99e79196b368a282eb39c4a5e9e8d8bfa82c90f4039cf115b1bf7e0b5683792"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/module_metadata.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/module_metadata.o",
+    "sha256": "4e965a856bae31b4ea0f343f913b0b4c8022947a1e5ba1e1b26c589eec305fc1",
+    "bytes": 89096,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/4e965a856bae31b4ea0f343f913b0b4c8022947a1e5ba1e1b26c589eec305fc1"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/cJSON.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/cJSON.o",
+    "sha256": "318f7c32030a4262b4c12c7168b1c8f6ab2a1bb3e6e68bcd0d2198f3a051e7b1",
+    "bytes": 93432,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/318f7c32030a4262b4c12c7168b1c8f6ab2a1bb3e6e68bcd0d2198f3a051e7b1"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/toon_output.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/toon_output.o",
+    "sha256": "928b33e8fc5b094b4a193c77ab769c9f56b05841393af02898991d11e319277b",
+    "bytes": 13728,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/928b33e8fc5b094b4a193c77ab769c9f56b05841393af02898991d11e319277b"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/module_builder.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/module_builder.o",
+    "sha256": "15204d8a32b78454f1b072c9ce16fb8fc7cf6f966bbf796a437ba6fe835468ee",
+    "bytes": 512560,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/15204d8a32b78454f1b072c9ce16fb8fc7cf6f966bbf796a437ba6fe835468ee"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/resource_tracking.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/resource_tracking.o",
+    "sha256": "c42ccbc04a5ce36f4e1349ca5d3adf4c6e4842ca6e7c8fe4e6b1aedc061eb6f6",
+    "bytes": 40520,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/c42ccbc04a5ce36f4e1349ca5d3adf4c6e4842ca6e7c8fe4e6b1aedc061eb6f6"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/eval.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/eval.o",
+    "sha256": "d836a03b698d93e2a7c4714872185f113c7c81cbf7b9e174925760aaa753cdee",
+    "bytes": 404024,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/d836a03b698d93e2a7c4714872185f113c7c81cbf7b9e174925760aaa753cdee"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/eval/eval_hashmap.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/eval/eval_hashmap.o",
+    "sha256": "194c17e608b4af35e8e0b1e8d726bfcf561f5587378a0df8dc8d2bc5291a5d04",
+    "bytes": 18064,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/194c17e608b4af35e8e0b1e8d726bfcf561f5587378a0df8dc8d2bc5291a5d04"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/eval/eval_math.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/eval/eval_math.o",
+    "sha256": "951e9241698241aa2ab7f6f5ea48dfdc90d2ae472024e1704b3989a18f428995",
+    "bytes": 14816,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/951e9241698241aa2ab7f6f5ea48dfdc90d2ae472024e1704b3989a18f428995"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/eval/eval_string.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/eval/eval_string.o",
+    "sha256": "46d13bff553def1fb8f00baab367374ef26e7f2976b9f3f9948384a9e02ec46c",
+    "bytes": 26560,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/46d13bff553def1fb8f00baab367374ef26e7f2976b9f3f9948384a9e02ec46c"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/eval/eval_io.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/eval/eval_io.o",
+    "sha256": "bfba904e78ba53b571af92ca681cea96124be927e5776bc32e6a6f0fa4989016",
+    "bytes": 73464,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/bfba904e78ba53b571af92ca681cea96124be927e5776bc32e6a6f0fa4989016"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/interpreter_ffi.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/interpreter_ffi.o",
+    "sha256": "31d25c652d1cf0ddfd12e747af9a9f59f6623fac65bfe61ca15a1b76411ac7d7",
+    "bytes": 43808,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/31d25c652d1cf0ddfd12e747af9a9f59f6623fac65bfe61ca15a1b76411ac7d7"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/json_diagnostics.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/json_diagnostics.o",
+    "sha256": "9c36cc9dd8a1917c316152115638816100d8c524267be61a09b12603da098fa8",
+    "bytes": 18328,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/9c36cc9dd8a1917c316152115638816100d8c524267be61a09b12603da098fa8"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/reflection.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/reflection.o",
+    "sha256": "e906003e504e9137d03712ef3d75b651c2e919b01535309445c33f5bfbec4c52",
+    "bytes": 40744,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/e906003e504e9137d03712ef3d75b651c2e919b01535309445c33f5bfbec4c52"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanocore_subset.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanocore_subset.o",
+    "sha256": "12d379b826cb54574962f5166cb18775df7a01ed07cd763e90c6c60e662d8beb",
+    "bytes": 39336,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/12d379b826cb54574962f5166cb18775df7a01ed07cd763e90c6c60e662d8beb"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nanocore_export.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nanocore_export.o",
+    "sha256": "25d792e36e278914bf314e663f65f2d516bfc9932ceac67a816b0faccc38a0e0",
+    "bytes": 77992,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/25d792e36e278914bf314e663f65f2d516bfc9932ceac67a816b0faccc38a0e0"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/emit_typed_ast.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/emit_typed_ast.o",
+    "sha256": "8b58e2697ae5b52caf147fedfdc64b131e950c60ff039c7b4343cada1574871d",
+    "bytes": 59160,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/8b58e2697ae5b52caf147fedfdc64b131e950c60ff039c7b4343cada1574871d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/type_infer.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/type_infer.o",
+    "sha256": "086e24ada373f227fa950193f9f36de1f3a74142a9517f76aa386b2c18a69ef1",
+    "bytes": 108672,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/086e24ada373f227fa950193f9f36de1f3a74142a9517f76aa386b2c18a69ef1"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/effects.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/effects.o",
+    "sha256": "391b6d7f19e809efb6d7fd2a451d9ad9bd11aee8f15565f1823513581400e936",
+    "bytes": 57360,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/391b6d7f19e809efb6d7fd2a451d9ad9bd11aee8f15565f1823513581400e936"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/fold_constants.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/fold_constants.o",
+    "sha256": "2da5a05d259012795990e544d1e9245282975831afda88f86aab459da79be206",
+    "bytes": 27272,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/2da5a05d259012795990e544d1e9245282975831afda88f86aab459da79be206"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/dce_pass.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/dce_pass.o",
+    "sha256": "03c7ed79f06aadd1996b1c6ecc9c7760e04b2843145d53941f2901738b54d76c",
+    "bytes": 28040,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/03c7ed79f06aadd1996b1c6ecc9c7760e04b2843145d53941f2901738b54d76c"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/par_let_pass.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/par_let_pass.o",
+    "sha256": "07d45534aef09ef6fdfc5c3c661ccc13710c6362b1431f3f6e7d8e6b2aee4ab4",
+    "bytes": 19232,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/07d45534aef09ef6fdfc5c3c661ccc13710c6362b1431f3f6e7d8e6b2aee4ab4"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/ptx_backend.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/ptx_backend.o",
+    "sha256": "5858f6f5c7256e9c1305dfe02f9a4e9f764eda7e6ec9f5e57dabbcb9d3c0d127",
+    "bytes": 56288,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/5858f6f5c7256e9c1305dfe02f9a4e9f764eda7e6ec9f5e57dabbcb9d3c0d127"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/opencl_backend.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/opencl_backend.o",
+    "sha256": "aa02a62a34a6a6c038aac378bc2867e94e1a4816bd35e3456ea5751fc7fb8e99",
+    "bytes": 54912,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/aa02a62a34a6a6c038aac378bc2867e94e1a4816bd35e3456ea5751fc7fb8e99"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/tco_pass.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/tco_pass.o",
+    "sha256": "408c732c23629ff7dd00f3ae223346c3da58cc7f2df7b35d1acb514924d2f3f0",
+    "bytes": 47848,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/408c732c23629ff7dd00f3ae223346c3da58cc7f2df7b35d1acb514924d2f3f0"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/cps_pass.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/cps_pass.o",
+    "sha256": "d7232ef5cc3143e61d102dcceadaf2474b1111f00a81f1e6f95a4bcde75cc89f",
+    "bytes": 20648,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/d7232ef5cc3143e61d102dcceadaf2474b1111f00a81f1e6f95a4bcde75cc89f"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/coroutine.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/coroutine.o",
+    "sha256": "81fd193f05abb17dc412a7cdaa3f9b78c63f38f22ce133f52c5d91b74c36060b",
+    "bytes": 21352,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/81fd193f05abb17dc412a7cdaa3f9b78c63f38f22ce133f52c5d91b74c36060b"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/pgo_pass.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/pgo_pass.o",
+    "sha256": "231f33e0d89c4256c4dc6e7349faa82d7aa2288ac89607f35cc42412078a745b",
+    "bytes": 36880,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/231f33e0d89c4256c4dc6e7349faa82d7aa2288ac89607f35cc42412078a745b"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/c_backend.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/c_backend.o",
+    "sha256": "37970cec0551332414cc8e70e476d32a746199181d3437229509be517cbd28e3",
+    "bytes": 228256,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/37970cec0551332414cc8e70e476d32a746199181d3437229509be517cbd28e3"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/bench.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/bench.o",
+    "sha256": "aa4caa0253653a4d84804dfda6c39b69118ff767d04530d3dbd50fdc5734f642",
+    "bytes": 36192,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/aa4caa0253653a4d84804dfda6c39b69118ff767d04530d3dbd50fdc5734f642"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/bench_native.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/bench_native.o",
+    "sha256": "fd7c096a2a88550b76fa29529eb66d6be8d172fe5e7c484782fae26d81bced8e",
+    "bytes": 20336,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/fd7c096a2a88550b76fa29529eb66d6be8d172fe5e7c484782fae26d81bced8e"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/riscv_backend.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/riscv_backend.o",
+    "sha256": "e1b30acfb2c84b9b96e1ba27c7a8f093735201569f6383a1ba059c8bd2208246",
+    "bytes": 47760,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/e1b30acfb2c84b9b96e1ba27c7a8f093735201569f6383a1ba059c8bd2208246"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/dwarf_info.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/dwarf_info.o",
+    "sha256": "322cda3a042dc1737cc2da14cdb750e0f36711291570960e93efc66842d12748",
+    "bytes": 13920,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/322cda3a042dc1737cc2da14cdb750e0f36711291570960e93efc66842d12748"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/docgen_md.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/docgen_md.o",
+    "sha256": "d2c0b7bb6d411fcf750aaff4067185635b9ffb891e9331e5607ee46e16a6c1f6",
+    "bytes": 43976,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/d2c0b7bb6d411fcf750aaff4067185635b9ffb891e9331e5607ee46e16a6c1f6"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/docgen.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/docgen.o",
+    "sha256": "c380c50c3c602bc34e51ee74a43a6ad3da2d063e1c53ee158f3eb00c036995a5",
+    "bytes": 68488,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/c380c50c3c602bc34e51ee74a43a6ad3da2d063e1c53ee158f3eb00c036995a5"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/fmt.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/fmt.o",
+    "sha256": "3c6b28fd90ba4a07fcaa6b11109c535a50a78635df22015e0bfc60652f7d0aa6",
+    "bytes": 25856,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/3c6b28fd90ba4a07fcaa6b11109c535a50a78635df22015e0bfc60652f7d0aa6"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/channel.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/channel.o",
+    "sha256": "ce482021ddb82bf2db8cf7db3ec72d254bf46eb1fe7d4eec5a31eac885463f7c",
+    "bytes": 12472,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/ce482021ddb82bf2db8cf7db3ec72d254bf46eb1fe7d4eec5a31eac885463f7c"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/bcp47.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/bcp47.o",
+    "sha256": "8b047284c508de0b25eae0a476d86d5e8721050c70facfb018844c920bcb02c6",
+    "bytes": 11856,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/8b047284c508de0b25eae0a476d86d5e8721050c70facfb018844c920bcb02c6"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/locale.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/locale.o",
+    "sha256": "a346db74cef9835558cded4304be9ead20e9d28d40833df5892f3e1f4d76e4c1",
+    "bytes": 11048,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/a346db74cef9835558cded4304be9ead20e9d28d40833df5892f3e1f4d76e4c1"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/utf8.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/utf8.o",
+    "sha256": "a01e68f0bdc184b6ad1126c3342f3f981d0b5f1ffe81af7f3e26460a0f1cc66d",
+    "bytes": 13360,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/a01e68f0bdc184b6ad1126c3342f3f981d0b5f1ffe81af7f3e26460a0f1cc66d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/diag_id.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/diag_id.o",
+    "sha256": "71bbf1df24b230c6428016962d74b3e15fd96e9abe735c6aa009c912e7780e9b",
+    "bytes": 11592,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/71bbf1df24b230c6428016962d74b3e15fd96e9abe735c6aa009c912e7780e9b"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/catalog.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/catalog.o",
+    "sha256": "c1d7bf2c15edc0df6538776ce5d18bc86e99994dbe47350f1417624f0325480e",
+    "bytes": 26696,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/c1d7bf2c15edc0df6538776ce5d18bc86e99994dbe47350f1417624f0325480e"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/resource_flow.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/resource_flow.o",
+    "sha256": "f4cb065b79d532e014a4064c8f3cf78cce19bccd137f49a90313922b587afa80",
+    "bytes": 105424,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/f4cb065b79d532e014a4064c8f3cf78cce19bccd137f49a90313922b587afa80"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/nominal_types.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/nominal_types.o",
+    "sha256": "04c5286db7aca21bc2f24074d92726e1e0c981e9f66478a4333c8aced6f2a8cb",
+    "bytes": 45728,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/04c5286db7aca21bc2f24074d92726e1e0c981e9f66478a4333c8aced6f2a8cb"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_int.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_int.o",
+    "sha256": "23db1331f497bb15a282d9a2540ed3f0bc7978d18b7a825c0f07c6da95a65c6a",
+    "bytes": 12816,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/23db1331f497bb15a282d9a2540ed3f0bc7978d18b7a825c0f07c6da95a65c6a"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_string.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_string.o",
+    "sha256": "976347ab71150a86cd4e5db18768f753734bfdf66972def36c54bee00e33bc10",
+    "bytes": 14496,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/976347ab71150a86cd4e5db18768f753734bfdf66972def36c54bee00e33bc10"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_LexerToken.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_LexerToken.o",
+    "sha256": "9504b7a42901d7f84f45c20c57290a38da0a7a6eff13d689346d932d7eb69744",
+    "bytes": 13360,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/9504b7a42901d7f84f45c20c57290a38da0a7a6eff13d689346d932d7eb69744"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_token.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_token.o",
+    "sha256": "788333c2f2fb5af52dcde980b74ee82d82466773fa76e88a95bd9786d8f5104a",
+    "bytes": 13136,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/788333c2f2fb5af52dcde980b74ee82d82466773fa76e88a95bd9786d8f5104a"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_CompilerDiagnostic.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_CompilerDiagnostic.o",
+    "sha256": "188d9d467f928d6a7b4fa2e3f5421faf18e0f1eb0791fa7d7d71efef20f1f94d",
+    "bytes": 13808,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/188d9d467f928d6a7b4fa2e3f5421faf18e0f1eb0791fa7d7d71efef20f1f94d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_CompilerSourceLocation.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_CompilerSourceLocation.o",
+    "sha256": "1eb89c82460c3e5ceb3e186ff52ad3e94c0d0a9dd2105aef6e862dd970363f78",
+    "bytes": 13656,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/1eb89c82460c3e5ceb3e186ff52ad3e94c0d0a9dd2105aef6e862dd970363f78"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTNumber.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTNumber.o",
+    "sha256": "f69ac034c2d7f53b05c2277b4469451ab85585f0c05181bbca2711d8d5a3f7d1",
+    "bytes": 13280,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/f69ac034c2d7f53b05c2277b4469451ab85585f0c05181bbca2711d8d5a3f7d1"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTFloat.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTFloat.o",
+    "sha256": "776a8f3a3788f0bdbbed8ec15c1d65b4c811b3640620d527c4dc70c317790b92",
+    "bytes": 13248,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/776a8f3a3788f0bdbbed8ec15c1d65b4c811b3640620d527c4dc70c317790b92"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTString.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTString.o",
+    "sha256": "f7b33dfd39633dc2556439c98bf583fc36c131fef30cd31b598c9ddd40e701d4",
+    "bytes": 13280,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/f7b33dfd39633dc2556439c98bf583fc36c131fef30cd31b598c9ddd40e701d4"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTBool.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTBool.o",
+    "sha256": "1ab6382d0e2f25d4025a841220ebadf8ed3dcecde244090f62dcc722c63b79dc",
+    "bytes": 13184,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/1ab6382d0e2f25d4025a841220ebadf8ed3dcecde244090f62dcc722c63b79dc"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTIdentifier.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTIdentifier.o",
+    "sha256": "c751cdc894fb611a7c6301ac1643ae5415253f603f9f5766c2795a30a976ffbb",
+    "bytes": 13424,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/c751cdc894fb611a7c6301ac1643ae5415253f603f9f5766c2795a30a976ffbb"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTBinaryOp.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTBinaryOp.o",
+    "sha256": "771580e4919016f134c4240b9a48d53703955fba6916c12a19cc8695f70a7d2c",
+    "bytes": 13472,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/771580e4919016f134c4240b9a48d53703955fba6916c12a19cc8695f70a7d2c"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTCall.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTCall.o",
+    "sha256": "68e6a071c51bc5ee967f1b5c40ad9410b64d80c8ccf18b9cfdc9df0713da73e9",
+    "bytes": 13264,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/68e6a071c51bc5ee967f1b5c40ad9410b64d80c8ccf18b9cfdc9df0713da73e9"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTModuleQualifiedCall.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTModuleQualifiedCall.o",
+    "sha256": "99565f0733b0dfb7406847cf8fe76cd1ec5754812a96dd492a76aae11f1dd97d",
+    "bytes": 13800,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/99565f0733b0dfb7406847cf8fe76cd1ec5754812a96dd492a76aae11f1dd97d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTArrayLiteral.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTArrayLiteral.o",
+    "sha256": "fceb9ed3b56df8cb97270f57467abf379e7f6232ff22fcec9afb417ea0e0a573",
+    "bytes": 13488,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/fceb9ed3b56df8cb97270f57467abf379e7f6232ff22fcec9afb417ea0e0a573"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTLet.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTLet.o",
+    "sha256": "a10bc1892c54d317fc1db578bb3b79e6a7861846414b2a9a3344d3c81c492933",
+    "bytes": 14232,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/a10bc1892c54d317fc1db578bb3b79e6a7861846414b2a9a3344d3c81c492933"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTSet.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTSet.o",
+    "sha256": "6a554f542d50fd269e1e2c739d1f0bae7a3a45c579aca60ce0b5d4387c309137",
+    "bytes": 13248,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/6a554f542d50fd269e1e2c739d1f0bae7a3a45c579aca60ce0b5d4387c309137"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTStmtRef.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTStmtRef.o",
+    "sha256": "a30ef613bc247235bb6c8af78e5e7891954c96235f148808720568a086799f06",
+    "bytes": 13184,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/a30ef613bc247235bb6c8af78e5e7891954c96235f148808720568a086799f06"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTIf.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTIf.o",
+    "sha256": "30d21dd08fac27b316b45cca7bd681edbb261c3675e81ea7e9658976a06bbd91",
+    "bytes": 13240,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/30d21dd08fac27b316b45cca7bd681edbb261c3675e81ea7e9658976a06bbd91"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTWhile.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTWhile.o",
+    "sha256": "17ed0e593ed6975549a2a0162f627be21fdcc352f4332196aad6d620d8420418",
+    "bytes": 13312,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/17ed0e593ed6975549a2a0162f627be21fdcc352f4332196aad6d620d8420418"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTFor.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTFor.o",
+    "sha256": "d09cd861c78f2771e4c826f9c00aa90a5858aa973d3f2e7724e967b2043c53a2",
+    "bytes": 13264,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/d09cd861c78f2771e4c826f9c00aa90a5858aa973d3f2e7724e967b2043c53a2"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTReturn.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTReturn.o",
+    "sha256": "5e14a421812f2105e1e2d362501e6a8b797d66857bc52502b9d7a7d567d5b002",
+    "bytes": 13304,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/5e14a421812f2105e1e2d362501e6a8b797d66857bc52502b9d7a7d567d5b002"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTBlock.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTBlock.o",
+    "sha256": "eef07285f46c7fd78f3e818ea65fca7b03d941d31afdded2d30df6608483858d",
+    "bytes": 13296,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/eef07285f46c7fd78f3e818ea65fca7b03d941d31afdded2d30df6608483858d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTUnsafeBlock.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTUnsafeBlock.o",
+    "sha256": "37aeb8f53db87c9946e12cb755e02d7e15b3c1f98d92954bbb902ed1901e1160",
+    "bytes": 13504,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/37aeb8f53db87c9946e12cb755e02d7e15b3c1f98d92954bbb902ed1901e1160"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTPrint.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTPrint.o",
+    "sha256": "352a94adf993106c23b4112afca030a2608816cb0e2f71adb176b577c51d4a63",
+    "bytes": 13272,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/352a94adf993106c23b4112afca030a2608816cb0e2f71adb176b577c51d4a63"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTAssert.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTAssert.o",
+    "sha256": "c7e936e16fa90fd7fc04166648ba6449c2885b991e1724fcb3d22e712febf80e",
+    "bytes": 13328,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/c7e936e16fa90fd7fc04166648ba6449c2885b991e1724fcb3d22e712febf80e"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTFunction.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTFunction.o",
+    "sha256": "c28999d85be24c4a64e15929dbb0fff65712cd545daa011c18471e34d07238ff",
+    "bytes": 13480,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/c28999d85be24c4a64e15929dbb0fff65712cd545daa011c18471e34d07238ff"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTShadow.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTShadow.o",
+    "sha256": "577025da427df486ed1b24be708ba1e6cdf6fcbe695de2651d8924ab32271003",
+    "bytes": 13256,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/577025da427df486ed1b24be708ba1e6cdf6fcbe695de2651d8924ab32271003"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTStruct.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTStruct.o",
+    "sha256": "9416fc6496e3defd7b3611415f7bccb4e6f173727b8cc1cd69a16deecad84194",
+    "bytes": 14312,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/9416fc6496e3defd7b3611415f7bccb4e6f173727b8cc1cd69a16deecad84194"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTStructLiteral.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTStructLiteral.o",
+    "sha256": "93f1ac5a2403be21a4eb65e2dcf52ba12962e1c8f45ad3bc2607b67eec592bbb",
+    "bytes": 14504,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/93f1ac5a2403be21a4eb65e2dcf52ba12962e1c8f45ad3bc2607b67eec592bbb"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTFieldAccess.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTFieldAccess.o",
+    "sha256": "094221551a9c18f0fd47dba815c67decaea389510c7980d704bdddaeefa00567",
+    "bytes": 13448,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/094221551a9c18f0fd47dba815c67decaea389510c7980d704bdddaeefa00567"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTEnum.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTEnum.o",
+    "sha256": "1de98722311f904be60f593bca80d53e2701adc308dbffc39493214d77e2d06d",
+    "bytes": 14120,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/1de98722311f904be60f593bca80d53e2701adc308dbffc39493214d77e2d06d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTUnion.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTUnion.o",
+    "sha256": "01dc531254aeaa172b347e4058ad8eb48784c208bc774eb2ceb02f8556fc880f",
+    "bytes": 14336,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/01dc531254aeaa172b347e4058ad8eb48784c208bc774eb2ceb02f8556fc880f"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTUnionConstruct.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTUnionConstruct.o",
+    "sha256": "2bd0424879a7417912732d8e299b16eede9bc49f9a5473b64c2b781e30dc8cb0",
+    "bytes": 14488,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/2bd0424879a7417912732d8e299b16eede9bc49f9a5473b64c2b781e30dc8cb0"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTMatch.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTMatch.o",
+    "sha256": "8989bcd8bdf4433c9e5b5935dc8bde92dfe308b049428b4833f7930da62fc13c",
+    "bytes": 14344,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/8989bcd8bdf4433c9e5b5935dc8bde92dfe308b049428b4833f7930da62fc13c"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTImport.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTImport.o",
+    "sha256": "1add06a9d16542b4f1af7e6f024c42e5f9f43538db39bc1793df9724125a2940",
+    "bytes": 14304,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/1add06a9d16542b4f1af7e6f024c42e5f9f43538db39bc1793df9724125a2940"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTOpaqueType.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTOpaqueType.o",
+    "sha256": "8ef18af870eab6adb6769e9d9277e8376ca971f7bac42aec18f6811f7f988f7c",
+    "bytes": 13432,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/8ef18af870eab6adb6769e9d9277e8376ca971f7bac42aec18f6811f7f988f7c"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTTupleLiteral.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTTupleLiteral.o",
+    "sha256": "957f94d82d62e8a05300375c415c74a67cb6ed3c98ad1a2580df1bc78bf96b24",
+    "bytes": 14360,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/957f94d82d62e8a05300375c415c74a67cb6ed3c98ad1a2580df1bc78bf96b24"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTTupleIndex.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/list_ASTTupleIndex.o",
+    "sha256": "37a140ddf8dd8afd394d061e365d4af4a40d3ee4bf181da08d1a910416c3b887",
+    "bytes": 13456,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/37a140ddf8dd8afd394d061e365d4af4a40d3ee4bf181da08d1a910416c3b887"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/token_helpers.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/token_helpers.o",
+    "sha256": "0d1aaef23e539eeff0dd1c26a6801f638f6ed6e6dde3b58d6ae1dac3a4ec3134",
+    "bytes": 4080,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/0d1aaef23e539eeff0dd1c26a6801f638f6ed6e6dde3b58d6ae1dac3a4ec3134"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/gc.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/gc.o",
+    "sha256": "dd1b508a6b778fa9daf332358491461bab7a1849533981a76677d2797f5f19b2",
+    "bytes": 8410656,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/dd1b508a6b778fa9daf332358491461bab7a1849533981a76677d2797f5f19b2"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/effect_runtime.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/effect_runtime.o",
+    "sha256": "3c32424c53c70e03f29620360b16ad0c5ad57e3da4debe8cf6718bdcc68ca79c",
+    "bytes": 3344,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/3c32424c53c70e03f29620360b16ad0c5ad57e3da4debe8cf6718bdcc68ca79c"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/dyn_array.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/dyn_array.o",
+    "sha256": "00e1eaf5e4ee703b7fa7ba41277d85c06128684eb87c9dfaee2ce4153496e40b",
+    "bytes": 61640,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/00e1eaf5e4ee703b7fa7ba41277d85c06128684eb87c9dfaee2ce4153496e40b"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/gc_struct.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/gc_struct.o",
+    "sha256": "ed1161f7a70ae56075f982ece1a60deb67f0602b9ce9c30bc8f973da56c4554c",
+    "bytes": 16536,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/ed1161f7a70ae56075f982ece1a60deb67f0602b9ce9c30bc8f973da56c4554c"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/nl_string.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/nl_string.o",
+    "sha256": "6e08d88132648273728872b049b423a33fca56ac087ace714808b56960d29f05",
+    "bytes": 21896,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/6e08d88132648273728872b049b423a33fca56ac087ace714808b56960d29f05"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/ffi_loader.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/ffi_loader.o",
+    "sha256": "bed2af1a37afb20720ec287294e4e321fe9eb01524eef15446982d42e5a3f25a",
+    "bytes": 28776,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/bed2af1a37afb20720ec287294e4e321fe9eb01524eef15446982d42e5a3f25a"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/module_build_dir.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/module_build_dir.o",
+    "sha256": "edffc14324b4de9016b1b07a1144e62af82ce5d89f0bf6a903d1c50705aef775",
+    "bytes": 10784,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/edffc14324b4de9016b1b07a1144e62af82ce5d89f0bf6a903d1c50705aef775"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/cli.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/cli.o",
+    "sha256": "f41d66ec06b19796376f6ad218f929cc32ddd31689d566d6523ecc9d3651a102",
+    "bytes": 4640,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/f41d66ec06b19796376f6ad218f929cc32ddd31689d566d6523ecc9d3651a102"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/obj/runtime/regex.o": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/obj/runtime/regex.o",
+    "sha256": "04c214bab1eda49f1b43ee0b3f4da669579fec94b8d5d1873534a26f91692577",
+    "bytes": 14424,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/04c214bab1eda49f1b43ee0b3f4da669579fec94b8d5d1873534a26f91692577"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/src/nanovm/vm.c": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/src/nanovm/vm.c",
+    "sha256": "65f1e4c81f50148d60c2427c0ccb23bbb499f4c8b3d8b8d96c93548b8d75d13d",
+    "bytes": 238164,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/65f1e4c81f50148d60c2427c0ccb23bbb499f4c8b3d8b8d96c93548b8d75d13d"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/src/nanoisa/service_bindings_module.c": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/src/nanoisa/service_bindings_module.c",
+    "sha256": "a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4",
+    "bytes": 15533,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/src/nanoisa/service_classification_private.h": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/src/nanoisa/service_classification_private.h",
+    "sha256": "60da7dfcabb801265bddbe3ef01027874cf83c6fd12baa799d821e9bb6200dcb",
+    "bytes": 939,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/60da7dfcabb801265bddbe3ef01027874cf83c6fd12baa799d821e9bb6200dcb"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/tests/nanovm/test_ordinary_admission.c": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/tests/nanovm/test_ordinary_admission.c",
+    "sha256": "2308cb263aa283aeb5ad379aeed7288d07f45848262618aa454f092aaccf5afc",
+    "bytes": 18015,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/2308cb263aa283aeb5ad379aeed7288d07f45848262618aa454f092aaccf5afc"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/tests/nanoisa/owned_fixture.h": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/tests/nanoisa/owned_fixture.h",
+    "sha256": "3d4f8100376f84fabbabc8d2995520cb4cfc7d295c24c2f991a0e72ac4d7a34b",
+    "bytes": 1574,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/3d4f8100376f84fabbabc8d2995520cb4cfc7d295c24c2f991a0e72ac4d7a34b"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/tests/test_vm_ordinary_admission.py": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/tests/test_vm_ordinary_admission.py",
+    "sha256": "aad23be78899a9f4fe86377d3f4d1a516f3229b01fa5d50d10374b4e0d825214",
+    "bytes": 4330,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/aad23be78899a9f4fe86377d3f4d1a516f3229b01fa5d50d10374b4e0d825214"
+  },
+  "/private/tmp/nanolang-service-admission-1f9/tests/test_portable_read_adapters.py": {
+    "path": "/private/tmp/nanolang-service-admission-1f9/tests/test_portable_read_adapters.py",
+    "sha256": "0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a",
+    "bytes": 10322,
+    "archive": "/private/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/objects/0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a"
+  }
+}

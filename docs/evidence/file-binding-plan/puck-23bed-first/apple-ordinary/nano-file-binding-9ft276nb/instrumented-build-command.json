@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-binding-qualified-23bed/src",
+    "-I",
+    "/private/tmp/nanolang-file-binding-qualified-23bed/tests",
+    "-I",
+    "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb",
+    "-DBINDING_INSTRUMENT",
+    "tests/test_nsi_file_binding.c",
+    "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-nsi_file_binding.o",
+    "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-nsi_file_plan.o",
+    "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-nsi.o",
+    "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-cJSON.o",
+    "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/instrumented-utf8.o",
+    "-lm",
+    "-o",
+    "/private/tmp/nanolang-file-binding-23bed-puck/apple-ordinary/nano-file-binding-9ft276nb/binding-instrumented"
+  ],
+  "cwd": "/private/tmp/nanolang-file-binding-qualified-23bed",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

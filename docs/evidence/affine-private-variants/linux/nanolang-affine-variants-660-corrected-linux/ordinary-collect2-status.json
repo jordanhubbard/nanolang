@@ -1,0 +1,11 @@
+{
+  "label": "ordinary-collect2",
+  "argv": [
+    "/bin/gcc",
+    "-print-prog-name=collect2"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.0012311650207266212
+}

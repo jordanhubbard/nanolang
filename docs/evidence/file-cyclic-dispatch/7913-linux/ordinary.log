@@ -1,0 +1,23 @@
+I retain cyclic dispatch artifacts at /tmp/nano-file-cyclic-dispatch-g8db3hv7
+test_instrumented_matched_cyclic_dispatch (tests.test_file_cyclic_dispatch.FileCyclicDispatch.test_instrumented_matched_cyclic_dispatch) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_matched_cyclic_dispatch (tests.test_file_cyclic_dispatch.FileCyclicDispatch.test_instrumented_matched_cyclic_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-cyclic-dispatch-7913/tests/test_file_cyclic_dispatch.py", line 206, in test_instrumented_matched_cyclic_dispatch
+    self.qualify('instrumented', True)
+  File "/home/jkh/Src/nanolang-file-cyclic-dispatch-7913/tests/test_file_cyclic_dispatch.py", line 114, in qualify
+    output = self.command(f'{name}-capture-run', [str(capture), str(directory)])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-cyclic-dispatch-7913/tests/test_file_cyclic_dispatch.py", line 52, in command
+    return cyclic_runner.FileCyclic.command(self, name, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-cyclic-dispatch-7913/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 4.589s
+
+FAILED (failures=1)

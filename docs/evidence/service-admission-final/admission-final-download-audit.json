@@ -1,0 +1,8 @@
+{
+  "archive": "/tmp/nanolang-admission-final-puck-evidence.tar.gz",
+  "sha256": "a00bcd79142d5657570e593e3c89e6b9596655b93dc8af20bf3680975db7def8",
+  "bytes": 166052271,
+  "report_hashes": 352,
+  "objects": 6077,
+  "scope": "Every manifest report and CAS object checked after safe extraction; digest equals remote"
+}

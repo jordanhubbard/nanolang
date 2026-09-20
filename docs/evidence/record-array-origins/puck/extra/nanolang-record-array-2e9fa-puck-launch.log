@@ -1,0 +1,19 @@
+{"pin": "2e9faf477168d62022b2d917596cf806c6ebc475", "source_files": 3684, "root": "/private/tmp/nanolang-record-array-qualified-2e9fa", "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"}
+{"phase": "setup", "status": 0, "seconds": 8.707}
+{"phase": "configuration", "status": 0, "seconds": 0.123}
+{"phase": "discovery", "status": 0, "seconds": 0.069}
+{"phase": "ordinary", "status": 0, "seconds": 3.292}
+{"phase": "clang-ordinary", "status": 0, "seconds": 3.278}
+{"phase": "sanitizer", "status": 0, "seconds": 6.872}
+{"phase": "ownership_contracts-build", "status": 0, "seconds": 0.175}
+{"phase": "ownership_contracts-run", "status": 0, "seconds": 0.239}
+{"phase": "ordinary_record_authority-build", "status": 0, "seconds": 0.278}
+{"phase": "ordinary_record_authority-run", "status": 0, "seconds": 0.234}
+{"phase": "nvm_v2_convert-build", "status": 0, "seconds": 0.177}
+{"phase": "nvm_v2_convert-run", "status": 0, "seconds": 0.306}
+{"phase": "nvm_v2_endtoend-build", "status": 0, "seconds": 0.127}
+{"phase": "nvm_v2_endtoend-run", "status": 0, "seconds": 0.246}
+{"phase": "old-array", "status": 0, "seconds": 1.268}
+{"phase": "affine-union", "status": 0, "seconds": 2.165}
+{"phase": "ownership-public", "status": 0, "seconds": 1.343}
+{"phase": "complete-declarations", "status": 0, "seconds": 1.498}

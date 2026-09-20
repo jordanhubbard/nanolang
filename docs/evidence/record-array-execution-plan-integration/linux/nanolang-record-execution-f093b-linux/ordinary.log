@@ -1,0 +1,30 @@
+I retain query artifacts at /tmp/nano-record-array-execution-ta6s804j
+test_complete_plan_and_allocation_controls (tests.test_record_array_execution.RecordArrayExecution.test_complete_plan_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 788 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin copied byte conversion recipes
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+PASS 2823 record-array execution-plan checks; no runtime admission
+FAIL
+
+======================================================================
+FAIL: test_complete_plan_and_allocation_controls (tests.test_record_array_execution.RecordArrayExecution.test_complete_plan_and_allocation_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-execution-qualified-f093b/tests/test_record_array_execution.py", line 62, in test_complete_plan_and_allocation_controls
+    self.assertIn(b'92 explicit opcode recipes', output)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'92 explicit opcode recipes' not found in b'I begin copied facts\nI begin alias/copy facts\nI begin refusal boundaries\nI begin call/global/join facts\nI begin old-mode compatibility\nI begin bounded accounting and recovery\nI measured 40 allocation positions and 56546 peak payload bytes; every refusal recovered\nPASS 1290 record-array origin checks; no runtime admission\nI begin owned execution snapshots\nI begin copied byte conversion recipes\nI begin initializer identity and call signatures\nI begin exact branch and instruction facts\nI begin the 256-function and counted-string boundaries\nI begin closed preparation refusal boundaries\nI begin complete opcode recipes\nI checked 93 explicit opcode recipes and every numeric opcode\nI begin precise private layout allocation facts\nI begin plan allocation/work boundaries\nI measured 94 plan allocation positions and 74382 peak payload bytes; each one-shot/persistent refusal recovered\nPASS 6420 record-array execution-plan checks; no runtime admission\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 3.797s
+
+FAILED (failures=1)

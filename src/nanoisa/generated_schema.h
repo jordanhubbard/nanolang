@@ -3,7 +3,7 @@
 #define NANOISA_GENERATED_SCHEMA_H
 
 #define NANOISA_SCHEMA_VERSION 2
-#define NANOISA_LEGACY_OPCODE_COUNT 188
+#define NANOISA_LEGACY_OPCODE_COUNT 189
 #define NANOISA_V2_FAMILY_COUNT 72
 
 /* Encoding of the opcode space. The primary plane holds one-byte
@@ -154,6 +154,7 @@ static const NanoisaSchemaOpcode nanoisa_schema_opcodes[] = {
     {"TYPE_CHECK", 0x8c, 1, {OPERAND_U8, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 1},
     {"F64_FROM_BITS", 0x8d, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 1},
     {"F64_TO_BITS", 0x8e, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 1},
+    {"CAST_U8", 0x8f, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 1},
     {"CLOSURE_NEW", 0x90, 2, {OPERAND_U32, OPERAND_U16, OPERAND_NONE, OPERAND_NONE}, -1, -1},
     {"PRINT", 0xa0, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 0},
     {"ASSERT", 0xa1, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 1, 0},
@@ -227,7 +228,7 @@ static const NanoisaSchemaOpcode nanoisa_schema_opcodes[] = {
 };
 
 /* Extended opcode plane, reached through NANOISA_EXTENSION_PREFIX. */
-static const NanoisaSchemaOpcode nanoisa_extended_opcodes[1] = { {0} };
+static const NanoisaSchemaOpcode nanoisa_extended_opcodes[1] = { {0, 0, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 0, 0} };
 
 static const NanoisaV2Family nanoisa_v2_families[] = {
     {"const.i64", "Push a signed 64-bit integer literal.", "none", "core-semantics", 1, 0, 1},

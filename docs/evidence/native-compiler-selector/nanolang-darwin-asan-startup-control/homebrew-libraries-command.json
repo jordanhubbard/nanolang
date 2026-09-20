@@ -1,0 +1,1 @@
+{"argv": ["/usr/bin/otool", "-L", "/tmp/nanolang-darwin-asan-startup-control/homebrew"], "timeout": 30}

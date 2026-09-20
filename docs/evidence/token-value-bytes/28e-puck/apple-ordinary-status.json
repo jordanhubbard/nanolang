@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_token_value_bytes"
+  ],
+  "timeout": false,
+  "returncode": 1,
+  "cleanup_errors": [],
+  "child_returncode": 1,
+  "group_absent": true,
+  "seconds": 0.4926962499999945
+}

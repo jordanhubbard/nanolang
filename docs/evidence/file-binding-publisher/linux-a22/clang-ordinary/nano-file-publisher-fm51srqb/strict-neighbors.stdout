@@ -1,0 +1,6 @@
+I retain strict binding artifacts at /tmp/nanolang-file-publisher-a22-linux/clang-ordinary/nano-file-publisher-fm51srqb/nano-file-binding-9uomh7xv
+PASS strict File binding 7855 checks cases=704 allocations=0/0/0/0 bound=7575764 mode=linked
+PASS strict File binding 26881859 checks cases=704 allocations=11429125/233370/0/1618970 bound=7575764 mode=instrumented
+nsi 20 passed, 0 failed
+nsi-generator 3 passed, 0 failed
+nsi-file-plan PASS 902 checks; exact private file plan, no service execution

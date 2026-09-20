@@ -1,0 +1,1109 @@
+I retain public cyclic artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-cyclic-public-9e2ei_cn
+test_instrumented_public_cyclic_corpus (tests.test_file_cyclic_public.FileCyclicPublic.test_instrumented_public_cyclic_corpus) ... I begin dispatch case0 fuel2 expected0
+TRACE 0 1 0 1 0 2 2 0 0 9 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT17 HOST0/0 
+I begin dispatch case1 fuel100 expected0
+TRACE 1 1 0 1 0 100 6 0 0 28 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT17 HOST0/0 
+I begin dispatch case2 fuel1000 expected0
+TRACE 2 1 0 1 0 1000 118 0 0 169 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT4 HOST0/0 
+I begin dispatch case3 fuel1000 expected0
+TRACE 3 1 0 1 0 1000 18 0 0 88 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT99 HOST0/0 
+I begin dispatch case4 fuel9 expected0
+TRACE 4 1 0 1 0 9 9 0 1 5 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT11 HOST0/0 
+I begin dispatch case5 fuel8 expected3
+TRACE 5 1 3 1 5 8 8 1 1 5 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case6 fuel0 expected3
+TRACE 6 1 3 1 5 0 0 1 2 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case7 fuel8 expected0
+TRACE 7 1 0 1 0 8 8 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST0/0 
+I begin dispatch case8 fuel7 expected3
+TRACE 8 1 3 1 5 7 7 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case9 fuel32 expected0
+TRACE 9 1 0 1 0 32 32 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case10 fuel31 expected3
+TRACE 10 1 3 1 5 31 31 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case11 fuel56 expected0
+TRACE 11 1 0 1 0 56 56 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case12 fuel55 expected3
+TRACE 12 1 3 1 5 55 55 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case13 fuel6200 expected0
+TRACE 13 1 0 1 0 6200 6200 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case14 fuel6199 expected3
+TRACE 14 1 3 1 5 6199 6199 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case15 fuel8 expected0
+TRACE 15 1 0 1 0 8 8 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST0/0 
+I begin dispatch case16 fuel7 expected3
+TRACE 16 1 3 1 5 7 7 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case17 fuel32 expected0
+TRACE 17 1 0 1 0 32 32 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case18 fuel31 expected3
+TRACE 18 1 3 1 5 31 31 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case19 fuel56 expected0
+TRACE 19 1 0 1 0 56 56 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case20 fuel55 expected3
+TRACE 20 1 3 1 5 55 55 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case21 fuel6200 expected0
+TRACE 21 1 0 1 0 6200 6200 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case22 fuel6199 expected3
+TRACE 22 1 3 1 5 6199 6199 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case23 fuel14 expected0
+TRACE 23 1 0 1 0 14 14 0 0 53 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT31 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case24 fuel9 expected0
+TRACE 24 1 0 1 0 9 9 0 0 29 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT37 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case25 fuel20 expected0
+TRACE 25 1 0 1 0 20 20 0 0 62 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT42 HOST1/1 O1;C0:0;
+I begin dispatch case26 fuel9 expected3
+TRACE 26 1 3 1 5 9 9 1 2 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case27 fuel45 expected0
+TRACE 27 1 0 1 0 45 45 0 0 97 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT29 HOST1/1 O1;C0:0;
+I begin dispatch case28 fuel43 expected3
+TRACE 28 1 3 1 5 43 43 1 0 60 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case29 fuel100 expected9
+TRACE 29 1 9 1 8 100 11 0 0 44 8 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case30 fuel100 expected0
+TRACE 30 1 0 1 0 100 13 0 0 137 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT0 HOST1/0 O0;
+I begin dispatch case31 fuel14 expected10
+TRACE 31 1 10 1 0 14 14 0 0 53 0 2 8,5,0,0,0,1,0 8,28,0,0,0,1,0 OUT-999 HOST2/2 O1;O1;C-1:5;C-1:28;
+I begin dispatch case32 fuel100 expected3
+TRACE 32 1 3 1 5 100 3 0 0 14 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case33 fuel100 expected3
+TRACE 33 1 3 1 5 100 6 0 1 6 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case34 fuel100 expected3
+TRACE 34 1 3 1 5 100 1 0 0 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case35 fuel100 expected2
+TRACE 35 1 2 0 0 100 0 0 4294967295 4294967295 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin allocation prefix0 transient0
+I begin allocation prefix1 transient0
+I begin allocation prefix2 transient0
+I begin allocation prefix3 transient0
+I begin allocation prefix4 transient0
+I begin allocation prefix5 transient0
+I begin allocation prefix6 transient0
+I begin allocation prefix7 transient0
+I begin allocation prefix8 transient0
+I begin allocation prefix9 transient0
+I begin allocation prefix10 transient0
+I begin allocation prefix11 transient0
+I begin allocation prefix12 transient0
+I begin allocation prefix13 transient0
+I begin allocation prefix14 transient0
+I begin allocation prefix15 transient0
+I begin allocation prefix16 transient0
+I begin allocation prefix17 transient0
+I begin allocation prefix18 transient0
+I begin allocation prefix19 transient0
+I begin allocation prefix20 transient0
+I begin allocation prefix21 transient0
+I begin allocation prefix22 transient0
+I begin allocation prefix23 transient0
+I begin allocation prefix24 transient0
+I begin allocation prefix25 transient0
+I begin allocation prefix26 transient0
+I begin allocation prefix27 transient0
+I begin allocation prefix28 transient0
+I begin allocation prefix29 transient0
+I begin allocation prefix30 transient0
+I begin allocation prefix31 transient0
+I begin allocation prefix32 transient0
+I begin allocation prefix33 transient0
+I begin allocation prefix34 transient0
+I begin allocation prefix35 transient0
+I begin allocation prefix36 transient0
+I begin allocation prefix37 transient0
+I begin allocation prefix38 transient0
+I begin allocation prefix39 transient0
+I begin allocation prefix40 transient0
+I begin allocation prefix41 transient0
+I begin allocation prefix42 transient0
+I begin allocation prefix43 transient0
+I begin allocation prefix44 transient0
+I begin allocation prefix45 transient0
+I begin allocation prefix46 transient0
+I begin allocation prefix47 transient0
+I begin allocation prefix48 transient0
+I begin allocation prefix49 transient0
+I begin allocation prefix50 transient0
+I begin allocation prefix51 transient0
+I begin allocation prefix52 transient0
+I begin allocation prefix53 transient0
+I begin allocation prefix54 transient0
+I begin allocation prefix55 transient0
+I begin allocation prefix56 transient0
+I begin allocation prefix57 transient0
+I begin allocation prefix58 transient0
+I begin allocation prefix59 transient0
+I begin allocation prefix60 transient0
+I begin allocation prefix61 transient0
+I begin allocation prefix62 transient0
+I begin allocation prefix63 transient0
+I begin allocation prefix64 transient0
+I begin allocation prefix65 transient0
+I begin allocation prefix66 transient0
+I begin allocation prefix67 transient0
+I begin allocation prefix68 transient0
+I begin allocation prefix69 transient0
+I begin allocation prefix70 transient0
+I begin allocation prefix71 transient0
+I begin allocation prefix72 transient0
+I begin allocation prefix73 transient0
+I begin allocation prefix74 transient0
+I begin allocation prefix75 transient0
+I begin allocation prefix76 transient0
+I begin allocation prefix77 transient0
+I begin allocation prefix78 transient0
+I begin allocation prefix79 transient0
+I begin allocation prefix80 transient0
+I begin allocation prefix81 transient0
+I begin allocation prefix82 transient0
+I begin allocation prefix83 transient0
+I begin allocation prefix84 transient0
+I begin allocation prefix85 transient0
+I begin allocation prefix86 transient0
+I begin allocation prefix87 transient0
+I begin allocation prefix88 transient0
+I begin allocation prefix89 transient0
+I begin allocation prefix90 transient0
+I begin allocation prefix91 transient0
+I begin allocation prefix92 transient0
+I begin allocation prefix93 transient0
+I begin allocation prefix94 transient0
+I begin allocation prefix95 transient0
+I begin allocation prefix96 transient0
+I begin allocation prefix97 transient0
+I begin allocation prefix98 transient0
+I begin allocation prefix99 transient0
+I begin allocation prefix100 transient0
+I begin allocation prefix101 transient0
+I begin allocation prefix102 transient0
+I begin allocation prefix103 transient0
+I begin allocation prefix104 transient0
+I begin allocation prefix105 transient0
+I begin allocation prefix106 transient0
+I begin allocation prefix107 transient0
+I begin allocation prefix108 transient0
+I begin allocation prefix109 transient0
+I begin allocation prefix110 transient0
+I begin allocation prefix111 transient0
+I begin allocation prefix112 transient0
+I begin allocation prefix113 transient0
+I begin allocation prefix114 transient0
+I begin allocation prefix115 transient0
+I begin allocation prefix116 transient0
+I begin allocation prefix117 transient0
+I begin allocation prefix118 transient0
+I begin allocation prefix119 transient0
+I begin allocation prefix120 transient0
+I begin allocation prefix121 transient0
+I begin allocation prefix122 transient0
+I begin allocation prefix123 transient0
+I begin allocation prefix124 transient0
+I begin allocation prefix125 transient0
+I begin allocation prefix126 transient0
+I begin allocation prefix127 transient0
+I begin allocation prefix128 transient0
+I begin allocation prefix129 transient0
+I begin allocation prefix130 transient0
+I begin allocation prefix131 transient0
+I begin allocation prefix132 transient0
+I begin allocation prefix133 transient0
+I begin allocation prefix134 transient0
+I begin allocation prefix135 transient0
+I begin allocation prefix136 transient0
+I begin allocation prefix137 transient0
+I begin allocation prefix138 transient0
+I begin allocation prefix139 transient0
+I begin allocation prefix140 transient0
+I begin allocation prefix141 transient0
+I begin allocation prefix142 transient0
+I begin allocation prefix143 transient0
+I begin allocation prefix144 transient0
+I begin allocation prefix145 transient0
+I begin allocation prefix146 transient0
+I begin allocation prefix147 transient0
+I begin allocation prefix148 transient0
+I begin allocation prefix149 transient0
+I begin allocation prefix150 transient0
+I begin allocation prefix151 transient0
+I begin allocation prefix152 transient0
+I begin allocation prefix153 transient0
+I begin allocation prefix154 transient0
+I begin allocation prefix155 transient0
+I begin allocation prefix156 transient0
+I begin allocation prefix157 transient0
+I begin allocation prefix158 transient0
+I begin allocation prefix159 transient0
+I begin allocation prefix160 transient0
+I begin allocation prefix161 transient0
+I begin allocation prefix162 transient0
+I begin allocation prefix163 transient0
+I begin allocation prefix164 transient0
+I begin allocation prefix165 transient0
+I begin allocation prefix166 transient0
+I begin allocation prefix167 transient0
+I begin allocation prefix168 transient0
+I begin allocation prefix169 transient0
+I begin allocation prefix170 transient0
+I begin allocation prefix171 transient0
+I begin allocation prefix172 transient0
+I begin allocation prefix173 transient0
+I begin allocation prefix174 transient0
+I begin allocation prefix175 transient0
+I begin allocation prefix176 transient0
+I begin allocation prefix177 transient0
+I begin allocation prefix178 transient0
+I begin allocation prefix179 transient0
+I begin allocation prefix180 transient0
+I begin allocation prefix181 transient0
+I begin allocation prefix182 transient0
+I begin allocation prefix183 transient0
+I begin allocation prefix184 transient0
+I begin allocation prefix185 transient0
+I begin allocation prefix186 transient0
+I begin allocation prefix187 transient0
+I begin allocation prefix188 transient0
+I begin allocation prefix189 transient0
+I begin allocation prefix190 transient0
+I begin allocation prefix191 transient0
+I begin allocation prefix192 transient0
+I begin allocation prefix193 transient0
+I begin allocation prefix194 transient0
+I begin allocation prefix195 transient0
+I begin allocation prefix196 transient0
+I begin allocation prefix197 transient0
+I begin allocation prefix198 transient0
+I begin allocation prefix199 transient0
+I begin allocation prefix200 transient0
+I begin allocation prefix201 transient0
+I begin allocation prefix202 transient0
+I begin allocation prefix0 transient1
+I begin allocation prefix1 transient1
+I begin allocation prefix2 transient1
+I begin allocation prefix3 transient1
+I begin allocation prefix4 transient1
+I begin allocation prefix5 transient1
+I begin allocation prefix6 transient1
+I begin allocation prefix7 transient1
+I begin allocation prefix8 transient1
+I begin allocation prefix9 transient1
+I begin allocation prefix10 transient1
+I begin allocation prefix11 transient1
+I begin allocation prefix12 transient1
+I begin allocation prefix13 transient1
+I begin allocation prefix14 transient1
+I begin allocation prefix15 transient1
+I begin allocation prefix16 transient1
+I begin allocation prefix17 transient1
+I begin allocation prefix18 transient1
+I begin allocation prefix19 transient1
+I begin allocation prefix20 transient1
+I begin allocation prefix21 transient1
+I begin allocation prefix22 transient1
+I begin allocation prefix23 transient1
+I begin allocation prefix24 transient1
+I begin allocation prefix25 transient1
+I begin allocation prefix26 transient1
+I begin allocation prefix27 transient1
+I begin allocation prefix28 transient1
+I begin allocation prefix29 transient1
+I begin allocation prefix30 transient1
+I begin allocation prefix31 transient1
+I begin allocation prefix32 transient1
+I begin allocation prefix33 transient1
+I begin allocation prefix34 transient1
+I begin allocation prefix35 transient1
+I begin allocation prefix36 transient1
+I begin allocation prefix37 transient1
+I begin allocation prefix38 transient1
+I begin allocation prefix39 transient1
+I begin allocation prefix40 transient1
+I begin allocation prefix41 transient1
+I begin allocation prefix42 transient1
+I begin allocation prefix43 transient1
+I begin allocation prefix44 transient1
+I begin allocation prefix45 transient1
+I begin allocation prefix46 transient1
+I begin allocation prefix47 transient1
+I begin allocation prefix48 transient1
+I begin allocation prefix49 transient1
+I begin allocation prefix50 transient1
+I begin allocation prefix51 transient1
+I begin allocation prefix52 transient1
+I begin allocation prefix53 transient1
+I begin allocation prefix54 transient1
+I begin allocation prefix55 transient1
+I begin allocation prefix56 transient1
+I begin allocation prefix57 transient1
+I begin allocation prefix58 transient1
+I begin allocation prefix59 transient1
+I begin allocation prefix60 transient1
+I begin allocation prefix61 transient1
+I begin allocation prefix62 transient1
+I begin allocation prefix63 transient1
+I begin allocation prefix64 transient1
+I begin allocation prefix65 transient1
+I begin allocation prefix66 transient1
+I begin allocation prefix67 transient1
+I begin allocation prefix68 transient1
+I begin allocation prefix69 transient1
+I begin allocation prefix70 transient1
+I begin allocation prefix71 transient1
+I begin allocation prefix72 transient1
+I begin allocation prefix73 transient1
+I begin allocation prefix74 transient1
+I begin allocation prefix75 transient1
+I begin allocation prefix76 transient1
+I begin allocation prefix77 transient1
+I begin allocation prefix78 transient1
+I begin allocation prefix79 transient1
+I begin allocation prefix80 transient1
+I begin allocation prefix81 transient1
+I begin allocation prefix82 transient1
+I begin allocation prefix83 transient1
+I begin allocation prefix84 transient1
+I begin allocation prefix85 transient1
+I begin allocation prefix86 transient1
+I begin allocation prefix87 transient1
+I begin allocation prefix88 transient1
+I begin allocation prefix89 transient1
+I begin allocation prefix90 transient1
+I begin allocation prefix91 transient1
+I begin allocation prefix92 transient1
+I begin allocation prefix93 transient1
+I begin allocation prefix94 transient1
+I begin allocation prefix95 transient1
+I begin allocation prefix96 transient1
+I begin allocation prefix97 transient1
+I begin allocation prefix98 transient1
+I begin allocation prefix99 transient1
+I begin allocation prefix100 transient1
+I begin allocation prefix101 transient1
+I begin allocation prefix102 transient1
+I begin allocation prefix103 transient1
+I begin allocation prefix104 transient1
+I begin allocation prefix105 transient1
+I begin allocation prefix106 transient1
+I begin allocation prefix107 transient1
+I begin allocation prefix108 transient1
+I begin allocation prefix109 transient1
+I begin allocation prefix110 transient1
+I begin allocation prefix111 transient1
+I begin allocation prefix112 transient1
+I begin allocation prefix113 transient1
+I begin allocation prefix114 transient1
+I begin allocation prefix115 transient1
+I begin allocation prefix116 transient1
+I begin allocation prefix117 transient1
+I begin allocation prefix118 transient1
+I begin allocation prefix119 transient1
+I begin allocation prefix120 transient1
+I begin allocation prefix121 transient1
+I begin allocation prefix122 transient1
+I begin allocation prefix123 transient1
+I begin allocation prefix124 transient1
+I begin allocation prefix125 transient1
+I begin allocation prefix126 transient1
+I begin allocation prefix127 transient1
+I begin allocation prefix128 transient1
+I begin allocation prefix129 transient1
+I begin allocation prefix130 transient1
+I begin allocation prefix131 transient1
+I begin allocation prefix132 transient1
+I begin allocation prefix133 transient1
+I begin allocation prefix134 transient1
+I begin allocation prefix135 transient1
+I begin allocation prefix136 transient1
+I begin allocation prefix137 transient1
+I begin allocation prefix138 transient1
+I begin allocation prefix139 transient1
+I begin allocation prefix140 transient1
+I begin allocation prefix141 transient1
+I begin allocation prefix142 transient1
+I begin allocation prefix143 transient1
+I begin allocation prefix144 transient1
+I begin allocation prefix145 transient1
+I begin allocation prefix146 transient1
+I begin allocation prefix147 transient1
+I begin allocation prefix148 transient1
+I begin allocation prefix149 transient1
+I begin allocation prefix150 transient1
+I begin allocation prefix151 transient1
+I begin allocation prefix152 transient1
+I begin allocation prefix153 transient1
+I begin allocation prefix154 transient1
+I begin allocation prefix155 transient1
+I begin allocation prefix156 transient1
+I begin allocation prefix157 transient1
+I begin allocation prefix158 transient1
+I begin allocation prefix159 transient1
+I begin allocation prefix160 transient1
+I begin allocation prefix161 transient1
+I begin allocation prefix162 transient1
+I begin allocation prefix163 transient1
+I begin allocation prefix164 transient1
+I begin allocation prefix165 transient1
+I begin allocation prefix166 transient1
+I begin allocation prefix167 transient1
+I begin allocation prefix168 transient1
+I begin allocation prefix169 transient1
+I begin allocation prefix170 transient1
+I begin allocation prefix171 transient1
+I begin allocation prefix172 transient1
+I begin allocation prefix173 transient1
+I begin allocation prefix174 transient1
+I begin allocation prefix175 transient1
+I begin allocation prefix176 transient1
+I begin allocation prefix177 transient1
+I begin allocation prefix178 transient1
+I begin allocation prefix179 transient1
+I begin allocation prefix180 transient1
+I begin allocation prefix181 transient1
+I begin allocation prefix182 transient1
+I begin allocation prefix183 transient1
+I begin allocation prefix184 transient1
+I begin allocation prefix185 transient1
+I begin allocation prefix186 transient1
+I begin allocation prefix187 transient1
+I begin allocation prefix188 transient1
+I begin allocation prefix189 transient1
+I begin allocation prefix190 transient1
+I begin allocation prefix191 transient1
+I begin allocation prefix192 transient1
+I begin allocation prefix193 transient1
+I begin allocation prefix194 transient1
+I begin allocation prefix195 transient1
+I begin allocation prefix196 transient1
+I begin allocation prefix197 transient1
+I begin allocation prefix198 transient1
+I begin allocation prefix199 transient1
+I begin allocation prefix200 transient1
+I begin allocation prefix201 transient1
+I begin allocation prefix202 transient1
+PASS cyclic dispatch preparation allocation refusals=404
+PASS cyclic native replay: 36 matching report/host traces
+PASS public cyclic native full corpus and grant boundary
+I begin dispatch case0 fuel2 expected0
+TRACE 0 1 0 1 0 2 2 0 0 9 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT17 HOST0/0 
+I begin dispatch case1 fuel100 expected0
+TRACE 1 1 0 1 0 100 6 0 0 28 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT17 HOST0/0 
+I begin dispatch case2 fuel1000 expected0
+TRACE 2 1 0 1 0 1000 118 0 0 169 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT4 HOST0/0 
+I begin dispatch case3 fuel1000 expected0
+TRACE 3 1 0 1 0 1000 18 0 0 88 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT99 HOST0/0 
+I begin dispatch case4 fuel9 expected0
+TRACE 4 1 0 1 0 9 9 0 1 5 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT11 HOST0/0 
+I begin dispatch case5 fuel8 expected3
+TRACE 5 1 3 1 5 8 8 1 1 5 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case6 fuel0 expected3
+TRACE 6 1 3 1 5 0 0 1 2 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case7 fuel8 expected0
+TRACE 7 1 0 1 0 8 8 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST0/0 
+I begin dispatch case8 fuel7 expected3
+TRACE 8 1 3 1 5 7 7 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case9 fuel32 expected0
+TRACE 9 1 0 1 0 32 32 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case10 fuel31 expected3
+TRACE 10 1 3 1 5 31 31 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case11 fuel56 expected0
+TRACE 11 1 0 1 0 56 56 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case12 fuel55 expected3
+TRACE 12 1 3 1 5 55 55 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case13 fuel6200 expected0
+TRACE 13 1 0 1 0 6200 6200 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case14 fuel6199 expected3
+TRACE 14 1 3 1 5 6199 6199 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case15 fuel8 expected0
+TRACE 15 1 0 1 0 8 8 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST0/0 
+I begin dispatch case16 fuel7 expected3
+TRACE 16 1 3 1 5 7 7 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case17 fuel32 expected0
+TRACE 17 1 0 1 0 32 32 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case18 fuel31 expected3
+TRACE 18 1 3 1 5 31 31 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case19 fuel56 expected0
+TRACE 19 1 0 1 0 56 56 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case20 fuel55 expected3
+TRACE 20 1 3 1 5 55 55 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case21 fuel6200 expected0
+TRACE 21 1 0 1 0 6200 6200 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case22 fuel6199 expected3
+TRACE 22 1 3 1 5 6199 6199 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case23 fuel14 expected0
+TRACE 23 1 0 1 0 14 14 0 0 53 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT31 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case24 fuel9 expected0
+TRACE 24 1 0 1 0 9 9 0 0 29 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT37 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case25 fuel20 expected0
+TRACE 25 1 0 1 0 20 20 0 0 62 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT42 HOST1/1 O1;C0:0;
+I begin dispatch case26 fuel9 expected3
+TRACE 26 1 3 1 5 9 9 1 2 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case27 fuel45 expected0
+TRACE 27 1 0 1 0 45 45 0 0 97 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT29 HOST1/1 O1;C0:0;
+I begin dispatch case28 fuel43 expected3
+TRACE 28 1 3 1 5 43 43 1 0 60 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case29 fuel100 expected9
+TRACE 29 1 9 1 8 100 11 0 0 44 8 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case30 fuel100 expected0
+TRACE 30 1 0 1 0 100 13 0 0 137 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT0 HOST1/0 O0;
+I begin dispatch case31 fuel14 expected10
+TRACE 31 1 10 1 0 14 14 0 0 53 0 2 8,5,0,0,0,1,0 8,28,0,0,0,1,0 OUT-999 HOST2/2 O1;O1;C-1:5;C-1:28;
+I begin dispatch case32 fuel100 expected3
+TRACE 32 1 3 1 5 100 3 0 0 14 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case33 fuel100 expected3
+TRACE 33 1 3 1 5 100 6 0 1 6 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case34 fuel100 expected3
+TRACE 34 1 3 1 5 100 1 0 0 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case35 fuel100 expected2
+TRACE 35 1 2 0 0 100 0 0 4294967295 4294967295 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin allocation prefix0 transient0
+I begin allocation prefix1 transient0
+I begin allocation prefix2 transient0
+I begin allocation prefix3 transient0
+I begin allocation prefix4 transient0
+I begin allocation prefix5 transient0
+I begin allocation prefix6 transient0
+I begin allocation prefix7 transient0
+I begin allocation prefix8 transient0
+I begin allocation prefix9 transient0
+I begin allocation prefix10 transient0
+I begin allocation prefix11 transient0
+I begin allocation prefix12 transient0
+I begin allocation prefix13 transient0
+I begin allocation prefix14 transient0
+I begin allocation prefix15 transient0
+I begin allocation prefix16 transient0
+I begin allocation prefix17 transient0
+I begin allocation prefix18 transient0
+I begin allocation prefix19 transient0
+I begin allocation prefix20 transient0
+I begin allocation prefix21 transient0
+I begin allocation prefix22 transient0
+I begin allocation prefix23 transient0
+I begin allocation prefix24 transient0
+I begin allocation prefix25 transient0
+I begin allocation prefix26 transient0
+I begin allocation prefix27 transient0
+I begin allocation prefix28 transient0
+I begin allocation prefix29 transient0
+I begin allocation prefix30 transient0
+I begin allocation prefix31 transient0
+I begin allocation prefix32 transient0
+I begin allocation prefix33 transient0
+I begin allocation prefix34 transient0
+I begin allocation prefix35 transient0
+I begin allocation prefix36 transient0
+I begin allocation prefix37 transient0
+I begin allocation prefix38 transient0
+I begin allocation prefix39 transient0
+I begin allocation prefix40 transient0
+I begin allocation prefix41 transient0
+I begin allocation prefix42 transient0
+I begin allocation prefix43 transient0
+I begin allocation prefix44 transient0
+I begin allocation prefix45 transient0
+I begin allocation prefix46 transient0
+I begin allocation prefix47 transient0
+I begin allocation prefix48 transient0
+I begin allocation prefix49 transient0
+I begin allocation prefix50 transient0
+I begin allocation prefix51 transient0
+I begin allocation prefix52 transient0
+I begin allocation prefix53 transient0
+I begin allocation prefix54 transient0
+I begin allocation prefix55 transient0
+I begin allocation prefix56 transient0
+I begin allocation prefix57 transient0
+I begin allocation prefix58 transient0
+I begin allocation prefix59 transient0
+I begin allocation prefix60 transient0
+I begin allocation prefix61 transient0
+I begin allocation prefix62 transient0
+I begin allocation prefix63 transient0
+I begin allocation prefix64 transient0
+I begin allocation prefix65 transient0
+I begin allocation prefix66 transient0
+I begin allocation prefix67 transient0
+I begin allocation prefix68 transient0
+I begin allocation prefix69 transient0
+I begin allocation prefix70 transient0
+I begin allocation prefix71 transient0
+I begin allocation prefix72 transient0
+I begin allocation prefix73 transient0
+I begin allocation prefix74 transient0
+I begin allocation prefix75 transient0
+I begin allocation prefix76 transient0
+I begin allocation prefix77 transient0
+I begin allocation prefix78 transient0
+I begin allocation prefix79 transient0
+I begin allocation prefix80 transient0
+I begin allocation prefix81 transient0
+I begin allocation prefix82 transient0
+I begin allocation prefix83 transient0
+I begin allocation prefix84 transient0
+I begin allocation prefix85 transient0
+I begin allocation prefix86 transient0
+I begin allocation prefix87 transient0
+I begin allocation prefix88 transient0
+I begin allocation prefix89 transient0
+I begin allocation prefix90 transient0
+I begin allocation prefix91 transient0
+I begin allocation prefix92 transient0
+I begin allocation prefix93 transient0
+I begin allocation prefix94 transient0
+I begin allocation prefix95 transient0
+I begin allocation prefix96 transient0
+I begin allocation prefix97 transient0
+I begin allocation prefix98 transient0
+I begin allocation prefix99 transient0
+I begin allocation prefix100 transient0
+I begin allocation prefix101 transient0
+I begin allocation prefix102 transient0
+I begin allocation prefix103 transient0
+I begin allocation prefix104 transient0
+I begin allocation prefix105 transient0
+I begin allocation prefix106 transient0
+I begin allocation prefix107 transient0
+I begin allocation prefix108 transient0
+I begin allocation prefix109 transient0
+I begin allocation prefix110 transient0
+I begin allocation prefix111 transient0
+I begin allocation prefix112 transient0
+I begin allocation prefix113 transient0
+I begin allocation prefix114 transient0
+I begin allocation prefix115 transient0
+I begin allocation prefix116 transient0
+I begin allocation prefix117 transient0
+I begin allocation prefix118 transient0
+I begin allocation prefix119 transient0
+I begin allocation prefix120 transient0
+I begin allocation prefix121 transient0
+I begin allocation prefix122 transient0
+I begin allocation prefix123 transient0
+I begin allocation prefix124 transient0
+I begin allocation prefix125 transient0
+I begin allocation prefix126 transient0
+I begin allocation prefix127 transient0
+I begin allocation prefix128 transient0
+I begin allocation prefix129 transient0
+I begin allocation prefix130 transient0
+I begin allocation prefix131 transient0
+I begin allocation prefix132 transient0
+I begin allocation prefix133 transient0
+I begin allocation prefix134 transient0
+I begin allocation prefix135 transient0
+I begin allocation prefix136 transient0
+I begin allocation prefix137 transient0
+I begin allocation prefix138 transient0
+I begin allocation prefix139 transient0
+I begin allocation prefix140 transient0
+I begin allocation prefix141 transient0
+I begin allocation prefix142 transient0
+I begin allocation prefix143 transient0
+I begin allocation prefix144 transient0
+I begin allocation prefix145 transient0
+I begin allocation prefix146 transient0
+I begin allocation prefix147 transient0
+I begin allocation prefix148 transient0
+I begin allocation prefix149 transient0
+I begin allocation prefix150 transient0
+I begin allocation prefix151 transient0
+I begin allocation prefix152 transient0
+I begin allocation prefix153 transient0
+I begin allocation prefix154 transient0
+I begin allocation prefix155 transient0
+I begin allocation prefix156 transient0
+I begin allocation prefix157 transient0
+I begin allocation prefix158 transient0
+I begin allocation prefix159 transient0
+I begin allocation prefix160 transient0
+I begin allocation prefix161 transient0
+I begin allocation prefix162 transient0
+I begin allocation prefix163 transient0
+I begin allocation prefix164 transient0
+I begin allocation prefix165 transient0
+I begin allocation prefix166 transient0
+I begin allocation prefix167 transient0
+I begin allocation prefix168 transient0
+I begin allocation prefix169 transient0
+I begin allocation prefix170 transient0
+I begin allocation prefix171 transient0
+I begin allocation prefix172 transient0
+I begin allocation prefix173 transient0
+I begin allocation prefix174 transient0
+I begin allocation prefix175 transient0
+I begin allocation prefix176 transient0
+I begin allocation prefix177 transient0
+I begin allocation prefix178 transient0
+I begin allocation prefix179 transient0
+I begin allocation prefix180 transient0
+I begin allocation prefix181 transient0
+I begin allocation prefix182 transient0
+I begin allocation prefix183 transient0
+I begin allocation prefix184 transient0
+I begin allocation prefix185 transient0
+I begin allocation prefix186 transient0
+I begin allocation prefix187 transient0
+I begin allocation prefix188 transient0
+I begin allocation prefix189 transient0
+I begin allocation prefix190 transient0
+I begin allocation prefix191 transient0
+I begin allocation prefix192 transient0
+I begin allocation prefix193 transient0
+I begin allocation prefix194 transient0
+I begin allocation prefix195 transient0
+I begin allocation prefix196 transient0
+I begin allocation prefix197 transient0
+I begin allocation prefix198 transient0
+I begin allocation prefix199 transient0
+I begin allocation prefix200 transient0
+I begin allocation prefix201 transient0
+I begin allocation prefix202 transient0
+I begin allocation prefix0 transient1
+I begin allocation prefix1 transient1
+I begin allocation prefix2 transient1
+I begin allocation prefix3 transient1
+I begin allocation prefix4 transient1
+I begin allocation prefix5 transient1
+I begin allocation prefix6 transient1
+I begin allocation prefix7 transient1
+I begin allocation prefix8 transient1
+I begin allocation prefix9 transient1
+I begin allocation prefix10 transient1
+I begin allocation prefix11 transient1
+I begin allocation prefix12 transient1
+I begin allocation prefix13 transient1
+I begin allocation prefix14 transient1
+I begin allocation prefix15 transient1
+I begin allocation prefix16 transient1
+I begin allocation prefix17 transient1
+I begin allocation prefix18 transient1
+I begin allocation prefix19 transient1
+I begin allocation prefix20 transient1
+I begin allocation prefix21 transient1
+I begin allocation prefix22 transient1
+I begin allocation prefix23 transient1
+I begin allocation prefix24 transient1
+I begin allocation prefix25 transient1
+I begin allocation prefix26 transient1
+I begin allocation prefix27 transient1
+I begin allocation prefix28 transient1
+I begin allocation prefix29 transient1
+I begin allocation prefix30 transient1
+I begin allocation prefix31 transient1
+I begin allocation prefix32 transient1
+I begin allocation prefix33 transient1
+I begin allocation prefix34 transient1
+I begin allocation prefix35 transient1
+I begin allocation prefix36 transient1
+I begin allocation prefix37 transient1
+I begin allocation prefix38 transient1
+I begin allocation prefix39 transient1
+I begin allocation prefix40 transient1
+I begin allocation prefix41 transient1
+I begin allocation prefix42 transient1
+I begin allocation prefix43 transient1
+I begin allocation prefix44 transient1
+I begin allocation prefix45 transient1
+I begin allocation prefix46 transient1
+I begin allocation prefix47 transient1
+I begin allocation prefix48 transient1
+I begin allocation prefix49 transient1
+I begin allocation prefix50 transient1
+I begin allocation prefix51 transient1
+I begin allocation prefix52 transient1
+I begin allocation prefix53 transient1
+I begin allocation prefix54 transient1
+I begin allocation prefix55 transient1
+I begin allocation prefix56 transient1
+I begin allocation prefix57 transient1
+I begin allocation prefix58 transient1
+I begin allocation prefix59 transient1
+I begin allocation prefix60 transient1
+I begin allocation prefix61 transient1
+I begin allocation prefix62 transient1
+I begin allocation prefix63 transient1
+I begin allocation prefix64 transient1
+I begin allocation prefix65 transient1
+I begin allocation prefix66 transient1
+I begin allocation prefix67 transient1
+I begin allocation prefix68 transient1
+I begin allocation prefix69 transient1
+I begin allocation prefix70 transient1
+I begin allocation prefix71 transient1
+I begin allocation prefix72 transient1
+I begin allocation prefix73 transient1
+I begin allocation prefix74 transient1
+I begin allocation prefix75 transient1
+I begin allocation prefix76 transient1
+I begin allocation prefix77 transient1
+I begin allocation prefix78 transient1
+I begin allocation prefix79 transient1
+I begin allocation prefix80 transient1
+I begin allocation prefix81 transient1
+I begin allocation prefix82 transient1
+I begin allocation prefix83 transient1
+I begin allocation prefix84 transient1
+I begin allocation prefix85 transient1
+I begin allocation prefix86 transient1
+I begin allocation prefix87 transient1
+I begin allocation prefix88 transient1
+I begin allocation prefix89 transient1
+I begin allocation prefix90 transient1
+I begin allocation prefix91 transient1
+I begin allocation prefix92 transient1
+I begin allocation prefix93 transient1
+I begin allocation prefix94 transient1
+I begin allocation prefix95 transient1
+I begin allocation prefix96 transient1
+I begin allocation prefix97 transient1
+I begin allocation prefix98 transient1
+I begin allocation prefix99 transient1
+I begin allocation prefix100 transient1
+I begin allocation prefix101 transient1
+I begin allocation prefix102 transient1
+I begin allocation prefix103 transient1
+I begin allocation prefix104 transient1
+I begin allocation prefix105 transient1
+I begin allocation prefix106 transient1
+I begin allocation prefix107 transient1
+I begin allocation prefix108 transient1
+I begin allocation prefix109 transient1
+I begin allocation prefix110 transient1
+I begin allocation prefix111 transient1
+I begin allocation prefix112 transient1
+I begin allocation prefix113 transient1
+I begin allocation prefix114 transient1
+I begin allocation prefix115 transient1
+I begin allocation prefix116 transient1
+I begin allocation prefix117 transient1
+I begin allocation prefix118 transient1
+I begin allocation prefix119 transient1
+I begin allocation prefix120 transient1
+I begin allocation prefix121 transient1
+I begin allocation prefix122 transient1
+I begin allocation prefix123 transient1
+I begin allocation prefix124 transient1
+I begin allocation prefix125 transient1
+I begin allocation prefix126 transient1
+I begin allocation prefix127 transient1
+I begin allocation prefix128 transient1
+I begin allocation prefix129 transient1
+I begin allocation prefix130 transient1
+I begin allocation prefix131 transient1
+I begin allocation prefix132 transient1
+I begin allocation prefix133 transient1
+I begin allocation prefix134 transient1
+I begin allocation prefix135 transient1
+I begin allocation prefix136 transient1
+I begin allocation prefix137 transient1
+I begin allocation prefix138 transient1
+I begin allocation prefix139 transient1
+I begin allocation prefix140 transient1
+I begin allocation prefix141 transient1
+I begin allocation prefix142 transient1
+I begin allocation prefix143 transient1
+I begin allocation prefix144 transient1
+I begin allocation prefix145 transient1
+I begin allocation prefix146 transient1
+I begin allocation prefix147 transient1
+I begin allocation prefix148 transient1
+I begin allocation prefix149 transient1
+I begin allocation prefix150 transient1
+I begin allocation prefix151 transient1
+I begin allocation prefix152 transient1
+I begin allocation prefix153 transient1
+I begin allocation prefix154 transient1
+I begin allocation prefix155 transient1
+I begin allocation prefix156 transient1
+I begin allocation prefix157 transient1
+I begin allocation prefix158 transient1
+I begin allocation prefix159 transient1
+I begin allocation prefix160 transient1
+I begin allocation prefix161 transient1
+I begin allocation prefix162 transient1
+I begin allocation prefix163 transient1
+I begin allocation prefix164 transient1
+I begin allocation prefix165 transient1
+I begin allocation prefix166 transient1
+I begin allocation prefix167 transient1
+I begin allocation prefix168 transient1
+I begin allocation prefix169 transient1
+I begin allocation prefix170 transient1
+I begin allocation prefix171 transient1
+I begin allocation prefix172 transient1
+I begin allocation prefix173 transient1
+I begin allocation prefix174 transient1
+I begin allocation prefix175 transient1
+I begin allocation prefix176 transient1
+I begin allocation prefix177 transient1
+I begin allocation prefix178 transient1
+I begin allocation prefix179 transient1
+I begin allocation prefix180 transient1
+I begin allocation prefix181 transient1
+I begin allocation prefix182 transient1
+I begin allocation prefix183 transient1
+I begin allocation prefix184 transient1
+I begin allocation prefix185 transient1
+I begin allocation prefix186 transient1
+I begin allocation prefix187 transient1
+I begin allocation prefix188 transient1
+I begin allocation prefix189 transient1
+I begin allocation prefix190 transient1
+I begin allocation prefix191 transient1
+I begin allocation prefix192 transient1
+I begin allocation prefix193 transient1
+I begin allocation prefix194 transient1
+I begin allocation prefix195 transient1
+I begin allocation prefix196 transient1
+I begin allocation prefix197 transient1
+I begin allocation prefix198 transient1
+I begin allocation prefix199 transient1
+I begin allocation prefix200 transient1
+I begin allocation prefix201 transient1
+I begin allocation prefix202 transient1
+PASS cyclic dispatch preparation allocation refusals=404
+PASS cyclic native replay: 36 matching report/host traces
+PASS public cyclic native full corpus and grant boundary
+ok
+test_linked_public_cyclic_and_installed_package (tests.test_file_cyclic_public.FileCyclicPublic.test_linked_public_cyclic_and_installed_package) ... I begin dispatch case0 fuel2 expected0
+TRACE 0 1 0 1 0 2 2 0 0 9 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT17 HOST0/0 
+I begin dispatch case1 fuel100 expected0
+TRACE 1 1 0 1 0 100 6 0 0 28 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT17 HOST0/0 
+I begin dispatch case2 fuel1000 expected0
+TRACE 2 1 0 1 0 1000 118 0 0 169 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT4 HOST0/0 
+I begin dispatch case3 fuel1000 expected0
+TRACE 3 1 0 1 0 1000 18 0 0 88 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT99 HOST0/0 
+I begin dispatch case4 fuel9 expected0
+TRACE 4 1 0 1 0 9 9 0 1 5 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT11 HOST0/0 
+I begin dispatch case5 fuel8 expected3
+TRACE 5 1 3 1 5 8 8 1 1 5 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case6 fuel0 expected3
+TRACE 6 1 3 1 5 0 0 1 2 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case7 fuel8 expected0
+TRACE 7 1 0 1 0 8 8 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST0/0 
+I begin dispatch case8 fuel7 expected3
+TRACE 8 1 3 1 5 7 7 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case9 fuel32 expected0
+TRACE 9 1 0 1 0 32 32 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case10 fuel31 expected3
+TRACE 10 1 3 1 5 31 31 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case11 fuel56 expected0
+TRACE 11 1 0 1 0 56 56 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case12 fuel55 expected3
+TRACE 12 1 3 1 5 55 55 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case13 fuel6200 expected0
+TRACE 13 1 0 1 0 6200 6200 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case14 fuel6199 expected3
+TRACE 14 1 3 1 5 6199 6199 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case15 fuel8 expected0
+TRACE 15 1 0 1 0 8 8 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST0/0 
+I begin dispatch case16 fuel7 expected3
+TRACE 16 1 3 1 5 7 7 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case17 fuel32 expected0
+TRACE 17 1 0 1 0 32 32 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case18 fuel31 expected3
+TRACE 18 1 3 1 5 31 31 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case19 fuel56 expected0
+TRACE 19 1 0 1 0 56 56 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case20 fuel55 expected3
+TRACE 20 1 3 1 5 55 55 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case21 fuel6200 expected0
+TRACE 21 1 0 1 0 6200 6200 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case22 fuel6199 expected3
+TRACE 22 1 3 1 5 6199 6199 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case23 fuel14 expected0
+TRACE 23 1 0 1 0 14 14 0 0 53 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT31 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case24 fuel9 expected0
+TRACE 24 1 0 1 0 9 9 0 0 29 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT37 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case25 fuel20 expected0
+TRACE 25 1 0 1 0 20 20 0 0 62 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT42 HOST1/1 O1;C0:0;
+I begin dispatch case26 fuel9 expected3
+TRACE 26 1 3 1 5 9 9 1 2 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case27 fuel45 expected0
+TRACE 27 1 0 1 0 45 45 0 0 97 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT29 HOST1/1 O1;C0:0;
+I begin dispatch case28 fuel43 expected3
+TRACE 28 1 3 1 5 43 43 1 0 60 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case29 fuel100 expected9
+TRACE 29 1 9 1 8 100 11 0 0 44 8 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case30 fuel100 expected0
+TRACE 30 1 0 1 0 100 13 0 0 137 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT0 HOST1/0 O0;
+I begin dispatch case31 fuel14 expected10
+TRACE 31 1 10 1 0 14 14 0 0 53 0 2 8,5,0,0,0,1,0 8,28,0,0,0,1,0 OUT-999 HOST2/2 O1;O1;C-1:5;C-1:28;
+I begin dispatch case32 fuel100 expected2
+TRACE 32 1 2 0 0 100 0 0 4294967295 4294967295 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+PASS cyclic native replay: 33 matching report/host traces
+PASS public cyclic native full corpus and grant boundary
+I begin dispatch case0 fuel2 expected0
+TRACE 0 1 0 1 0 2 2 0 0 9 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT17 HOST0/0 
+I begin dispatch case1 fuel100 expected0
+TRACE 1 1 0 1 0 100 6 0 0 28 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT17 HOST0/0 
+I begin dispatch case2 fuel1000 expected0
+TRACE 2 1 0 1 0 1000 118 0 0 169 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT4 HOST0/0 
+I begin dispatch case3 fuel1000 expected0
+TRACE 3 1 0 1 0 1000 18 0 0 88 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT99 HOST0/0 
+I begin dispatch case4 fuel9 expected0
+TRACE 4 1 0 1 0 9 9 0 1 5 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT11 HOST0/0 
+I begin dispatch case5 fuel8 expected3
+TRACE 5 1 3 1 5 8 8 1 1 5 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case6 fuel0 expected3
+TRACE 6 1 3 1 5 0 0 1 2 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case7 fuel8 expected0
+TRACE 7 1 0 1 0 8 8 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST0/0 
+I begin dispatch case8 fuel7 expected3
+TRACE 8 1 3 1 5 7 7 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case9 fuel32 expected0
+TRACE 9 1 0 1 0 32 32 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case10 fuel31 expected3
+TRACE 10 1 3 1 5 31 31 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case11 fuel56 expected0
+TRACE 11 1 0 1 0 56 56 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case12 fuel55 expected3
+TRACE 12 1 3 1 5 55 55 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case13 fuel6200 expected0
+TRACE 13 1 0 1 0 6200 6200 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case14 fuel6199 expected3
+TRACE 14 1 3 1 5 6199 6199 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case15 fuel8 expected0
+TRACE 15 1 0 1 0 8 8 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST0/0 
+I begin dispatch case16 fuel7 expected3
+TRACE 16 1 3 1 5 7 7 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+I begin dispatch case17 fuel32 expected0
+TRACE 17 1 0 1 0 32 32 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case18 fuel31 expected3
+TRACE 18 1 3 1 5 31 31 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;W1:1:1:255;C0:0;
+I begin dispatch case19 fuel56 expected0
+TRACE 19 1 0 1 0 56 56 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case20 fuel55 expected3
+TRACE 20 1 3 1 5 55 55 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST2/2 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case21 fuel6200 expected0
+TRACE 21 1 0 1 0 6200 6200 0 0 122 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT73 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case22 fuel6199 expected3
+TRACE 22 1 3 1 5 6199 6199 1 0 122 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST258/258 O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;O1;W1:1:1:255;C0:0;
+I begin dispatch case23 fuel14 expected0
+TRACE 23 1 0 1 0 14 14 0 0 53 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT31 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case24 fuel9 expected0
+TRACE 24 1 0 1 0 9 9 0 0 29 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT37 HOST2/2 O1;O1;C0:0;C0:0;
+I begin dispatch case25 fuel20 expected0
+TRACE 25 1 0 1 0 20 20 0 0 62 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT42 HOST1/1 O1;C0:0;
+I begin dispatch case26 fuel9 expected3
+TRACE 26 1 3 1 5 9 9 1 2 0 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case27 fuel45 expected0
+TRACE 27 1 0 1 0 45 45 0 0 97 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT29 HOST1/1 O1;C0:0;
+I begin dispatch case28 fuel43 expected3
+TRACE 28 1 3 1 5 43 43 1 0 60 5 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case29 fuel100 expected9
+TRACE 29 1 9 1 8 100 11 0 0 44 8 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST1/1 O1;C0:0;
+I begin dispatch case30 fuel100 expected0
+TRACE 30 1 0 1 0 100 13 0 0 137 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT0 HOST1/0 O0;
+I begin dispatch case31 fuel14 expected10
+TRACE 31 1 10 1 0 14 14 0 0 53 0 2 8,5,0,0,0,1,0 8,28,0,0,0,1,0 OUT-999 HOST2/2 O1;O1;C-1:5;C-1:28;
+I begin dispatch case32 fuel100 expected2
+TRACE 32 1 2 0 0 100 0 0 4294967295 4294967295 0 0 0,0,0,0,0,0,0 0,0,0,0,0,0,0 OUT-999 HOST0/0 
+PASS cyclic native replay: 33 matching report/host traces
+PASS public cyclic native full corpus and grant boundary
+PASS real CLI staging and modeled I/O/allocation failure cleanup
+PASS installed cyclic and acyclic native units
+PASS installed cyclic and acyclic native units
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 112.482s
+
+OK

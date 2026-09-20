@@ -1,0 +1,67 @@
+{
+  "original_production": "74eb52c10",
+  "darwin_header_correction": "5fff9b63d",
+  "original_fixture": "a22cc0c0a",
+  "final_puck_fixture": "4e828f288",
+  "strict_cases": 704,
+  "equal_input_pairs": [
+    "linux-a22/make-provider-closure-tools-before.json",
+    "linux-a22/gcc-sanitizer-tools-before.json",
+    "linux-a22/clang-ordinary-tools-before.json",
+    "linux-a22/make-provider-closure-source-before.json",
+    "linux-a22/clang-sanitizer-tools-before.json",
+    "linux-a22/gcc-ordinary-tools-before.json",
+    "linux-a22/gcc-ordinary-source-before.json",
+    "linux-a22/clang-sanitizer-source-before.json",
+    "linux-a22/gcc-sanitizer-source-before.json",
+    "linux-a22/clang-ordinary-source-before.json",
+    "puck-4e828/make-provider-closure-tools-before.json",
+    "puck-4e828/homebrew-sanitizer-source-before.json",
+    "puck-4e828/make-provider-closure-source-before.json",
+    "puck-4e828/apple-ordinary-tools-before.json",
+    "puck-4e828/homebrew-ordinary-tools-before.json",
+    "puck-4e828/homebrew-sanitizer-tools-before.json",
+    "puck-4e828/homebrew-ordinary-source-before.json",
+    "puck-4e828/apple-ordinary-source-before.json",
+    "puck-a22-first/make-provider-closure-tools-before.json",
+    "puck-a22-first/make-provider-closure-source-before.json",
+    "puck-5fff-first/make-provider-closure-tools-before.json",
+    "puck-5fff-first/make-provider-closure-source-before.json",
+    "puck-5fff-first/apple-ordinary-tools-before.json",
+    "puck-5fff-first/apple-ordinary-source-before.json"
+  ],
+  "artifact_objects": 1298,
+  "artifact_references": 6095,
+  "artifact_bytes": 1376171921,
+  "scope": "explicit anchored directory publication and CLI; no generated shadow or service execution",
+  "current_maps": {
+    "file-publisher-current-linux.json": {
+      "source_root": "/home/jkh/Src/nanolang-file-publisher-qualified-a22",
+      "reference": "/tmp/nanolang-file-publisher-a22-linux",
+      "sources": 16218,
+      "tools": 12,
+      "current_matches": true
+    },
+    "file-publisher-current-puck-a22.json": {
+      "source_root": "/tmp/nanolang-file-publisher-qualified-a22",
+      "reference": "/tmp/nanolang-file-publisher-a22-puck",
+      "sources": 16218,
+      "tools": 12,
+      "current_matches": true
+    },
+    "file-publisher-current-puck-5fff.json": {
+      "source_root": "/tmp/nanolang-file-publisher-corrected-5fff",
+      "reference": "/tmp/nanolang-file-publisher-5fff-puck",
+      "sources": 16218,
+      "tools": 13,
+      "current_matches": true
+    },
+    "file-publisher-current-puck-4e828.json": {
+      "source_root": "/tmp/nanolang-file-publisher-corrected-4e828",
+      "reference": "/tmp/nanolang-file-publisher-4e828-puck",
+      "sources": 16218,
+      "tools": 13,
+      "current_matches": true
+    }
+  }
+}

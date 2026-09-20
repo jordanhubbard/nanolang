@@ -1,0 +1,6 @@
+{
+  "CC": "/usr/bin/gcc",
+  "PYTHONPATH": "/tmp/nanolang-affine-full-3c728-linux-module-identity/retention:/home/jkh/Src/nanolang-affine-full-3c728c437",
+  "AFFINE_RETAIN_DIR": "/tmp/nanolang-affine-full-3c728-linux-module-identity/artifacts",
+  "AFFINE_PROFILE_EVIDENCE_DIR": "/tmp/nanolang-affine-full-3c728-linux-module-identity/boundary-routes"
+}

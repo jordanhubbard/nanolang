@@ -1,0 +1,27 @@
+[
+  {
+    "phase": "sanitizer",
+    "seconds": 52.909,
+    "status": 0
+  },
+  {
+    "phase": "vm",
+    "seconds": 5.392,
+    "status": 0
+  },
+  {
+    "phase": "frames",
+    "seconds": 5.033,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.428,
+    "status": 0
+  },
+  {
+    "phase": "wrapper",
+    "seconds": 6.144,
+    "status": 0
+  }
+]

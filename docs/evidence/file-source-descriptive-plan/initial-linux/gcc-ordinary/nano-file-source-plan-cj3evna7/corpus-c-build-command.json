@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-source-qualified-32ade",
+    "/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus.c",
+    "/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/file_source_plan.o",
+    "/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/file_source_catalog.o",
+    "/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/nsi_file_plan.o",
+    "-o",
+    "/tmp/nanolang-file-source-32ade-linux/gcc-ordinary/nano-file-source-plan-cj3evna7/corpus-c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-source-qualified-32ade",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

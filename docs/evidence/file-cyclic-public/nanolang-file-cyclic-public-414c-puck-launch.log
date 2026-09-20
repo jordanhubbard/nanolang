@@ -1,0 +1,10 @@
+{"pin": "414c1042fefeefc4c51392c3e4276f03ee6a8750", "source_files": 20576, "root": "/private/tmp/nanolang-file-cyclic-public-414c", "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"}
+{"phase": "schema-consistency", "status": 1, "seconds": 0.043}
+Traceback (most recent call last):
+  File "/tmp/nanolang-file-cyclic-public-414c-puck-launch.py", line 17, in <module>
+    subprocess.run(['/opt/homebrew/bin/python3','/tmp/nanolang-file-cyclic-public-414c-driver.py',str(root),'/tmp/nanolang-file-cyclic-public-414c-puck'],check=True,env=env)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/opt/homebrew/bin/python3', '/tmp/nanolang-file-cyclic-public-414c-driver.py', '/tmp/nanolang-file-cyclic-public-414c', '/tmp/nanolang-file-cyclic-public-414c-puck']' returned non-zero exit status 1.

@@ -1,0 +1,7 @@
+-- E001 TYPE MISMATCH --- /tmp/nano-canonical-match-guards-1q1p9lvd/bool.nano
+I require a match guard to have type bool.
+
+2| fn main() -> int { return match 1 { 1 if 7 => 2 _ => 0 } } shadow main { assert true }
+                                            ^
+Hint: Give this guard an exact bool type before I select an arm.
+Type checking failed

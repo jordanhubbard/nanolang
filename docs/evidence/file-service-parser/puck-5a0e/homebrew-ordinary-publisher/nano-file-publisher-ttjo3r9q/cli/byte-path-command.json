@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/quoted ' $(touch injected); \udcff\udcc3"
+  ]
+}

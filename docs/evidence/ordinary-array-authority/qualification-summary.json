@@ -1,0 +1,980 @@
+{
+  "artifact_bytes": 301726476,
+  "historical_linux_query_actual_python_hash_captured": false,
+  "hosts": {
+    "linux": {
+      "bytes": 213735943,
+      "host": "linux",
+      "objects": 515,
+      "pairs": [
+        {
+          "after": "ordinary_record_authority-build-source-after.json",
+          "before": "ordinary_record_authority-build-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ordinary_record_authority-build-tools-after.json",
+          "before": "ordinary_record_authority-build-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ordinary-source-after.json",
+          "before": "ordinary-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ordinary-tools-after.json",
+          "before": "ordinary-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "configuration-source-after.json",
+          "before": "configuration-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "configuration-tools-after.json",
+          "before": "configuration-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ownership_contracts-run-source-after.json",
+          "before": "ownership_contracts-run-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ownership_contracts-run-tools-after.json",
+          "before": "ownership_contracts-run-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ownership_contracts-build-source-after.json",
+          "before": "ownership_contracts-build-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ownership_contracts-build-tools-after.json",
+          "before": "ownership_contracts-build-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "sanitizer-source-after.json",
+          "before": "sanitizer-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "sanitizer-tools-after.json",
+          "before": "sanitizer-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "clang-sanitizer-source-after.json",
+          "before": "clang-sanitizer-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "clang-sanitizer-tools-after.json",
+          "before": "clang-sanitizer-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "setup-source-after.json",
+          "before": "setup-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "setup-tools-after.json",
+          "before": "setup-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ordinary_record_authority-run-source-after.json",
+          "before": "ordinary_record_authority-run-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ordinary_record_authority-run-tools-after.json",
+          "before": "ordinary_record_authority-run-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "clang-ordinary-source-after.json",
+          "before": "clang-ordinary-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "clang-ordinary-tools-after.json",
+          "before": "clang-ordinary-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-linux"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-run-source-after.json",
+          "before": "ordinary_record_authority-ordinary-run-source-before.json",
+          "root": "nanolang-array-neighbor-cdd-linux"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-run-tools-after.json",
+          "before": "ordinary_record_authority-ordinary-run-tools-before.json",
+          "root": "nanolang-array-neighbor-cdd-linux"
+        },
+        {
+          "after": "configuration-source-after.json",
+          "before": "configuration-source-before.json",
+          "root": "nanolang-array-neighbor-cdd-linux"
+        },
+        {
+          "after": "configuration-tools-after.json",
+          "before": "configuration-tools-before.json",
+          "root": "nanolang-array-neighbor-cdd-linux"
+        },
+        {
+          "after": "setup-source-after.json",
+          "before": "setup-source-before.json",
+          "root": "nanolang-array-neighbor-cdd-linux"
+        },
+        {
+          "after": "setup-tools-after.json",
+          "before": "setup-tools-before.json",
+          "root": "nanolang-array-neighbor-cdd-linux"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-build-source-after.json",
+          "before": "ordinary_record_authority-ordinary-build-source-before.json",
+          "root": "nanolang-array-neighbor-cdd-linux"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-build-tools-after.json",
+          "before": "ordinary_record_authority-ordinary-build-tools-before.json",
+          "root": "nanolang-array-neighbor-cdd-linux"
+        },
+        {
+          "after": "nvm_v2_convert-ordinary-run-source-after.json",
+          "before": "nvm_v2_convert-ordinary-run-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "nvm_v2_convert-ordinary-run-tools-after.json",
+          "before": "nvm_v2_convert-ordinary-run-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-run-source-after.json",
+          "before": "ordinary_record_authority-ordinary-run-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-run-tools-after.json",
+          "before": "ordinary_record_authority-ordinary-run-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "nvm_v2_endtoend-ordinary-run-source-after.json",
+          "before": "nvm_v2_endtoend-ordinary-run-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "nvm_v2_endtoend-ordinary-run-tools-after.json",
+          "before": "nvm_v2_endtoend-ordinary-run-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "ordinary_record_authority-sanitizer-run-source-after.json",
+          "before": "ordinary_record_authority-sanitizer-run-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "ordinary_record_authority-sanitizer-run-tools-after.json",
+          "before": "ordinary_record_authority-sanitizer-run-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "configuration-source-after.json",
+          "before": "configuration-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "configuration-tools-after.json",
+          "before": "configuration-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "nvm_v2_endtoend-ordinary-build-source-after.json",
+          "before": "nvm_v2_endtoend-ordinary-build-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "nvm_v2_endtoend-ordinary-build-tools-after.json",
+          "before": "nvm_v2_endtoend-ordinary-build-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "ordinary_record_authority-sanitizer-build-source-after.json",
+          "before": "ordinary_record_authority-sanitizer-build-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "ordinary_record_authority-sanitizer-build-tools-after.json",
+          "before": "ordinary_record_authority-sanitizer-build-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "setup-source-after.json",
+          "before": "setup-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "setup-tools-after.json",
+          "before": "setup-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-build-source-after.json",
+          "before": "ordinary_record_authority-ordinary-build-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-build-tools-after.json",
+          "before": "ordinary_record_authority-ordinary-build-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "nvm_v2_convert-ordinary-build-source-after.json",
+          "before": "nvm_v2_convert-ordinary-build-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        },
+        {
+          "after": "nvm_v2_convert-ordinary-build-tools-after.json",
+          "before": "nvm_v2_convert-ordinary-build-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-linux"
+        }
+      ],
+      "references": 3940,
+      "terminals": [
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-run-terminal.json",
+          "returncode": -6,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "setup-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ownership_contracts-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "configuration-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "clang-sanitizer-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "clang-ordinary-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ownership_contracts-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "sanitizer-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-ordinary-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-cdd-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-ordinary-run-terminal.json",
+          "returncode": -6,
+          "root": "nanolang-array-neighbor-cdd-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "setup-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-cdd-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "configuration-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-cdd-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-ordinary-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "nvm_v2_convert-ordinary-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-sanitizer-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-ordinary-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "nvm_v2_convert-ordinary-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "setup-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "nvm_v2_endtoend-ordinary-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-sanitizer-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "configuration-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "nvm_v2_endtoend-ordinary-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-linux",
+          "timeout": false
+        }
+      ]
+    },
+    "puck": {
+      "bytes": 82479904,
+      "host": "puck",
+      "objects": 380,
+      "pairs": [
+        {
+          "after": "ordinary_record_authority-build-source-after.json",
+          "before": "ordinary_record_authority-build-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "ordinary_record_authority-build-tools-after.json",
+          "before": "ordinary_record_authority-build-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "setup-source-after.json",
+          "before": "setup-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "setup-tools-after.json",
+          "before": "setup-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "ordinary_record_authority-run-source-after.json",
+          "before": "ordinary_record_authority-run-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "ordinary_record_authority-run-tools-after.json",
+          "before": "ordinary_record_authority-run-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "clang-ordinary-source-after.json",
+          "before": "clang-ordinary-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "clang-ordinary-tools-after.json",
+          "before": "clang-ordinary-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "configuration-source-after.json",
+          "before": "configuration-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "configuration-tools-after.json",
+          "before": "configuration-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "ownership_contracts-build-source-after.json",
+          "before": "ownership_contracts-build-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "ownership_contracts-build-tools-after.json",
+          "before": "ownership_contracts-build-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "sanitizer-source-after.json",
+          "before": "sanitizer-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "sanitizer-tools-after.json",
+          "before": "sanitizer-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "ordinary-source-after.json",
+          "before": "ordinary-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "ordinary-tools-after.json",
+          "before": "ordinary-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "ownership_contracts-run-source-after.json",
+          "before": "ownership_contracts-run-source-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "ownership_contracts-run-tools-after.json",
+          "before": "ownership_contracts-run-tools-before.json",
+          "root": "nanolang-ordinary-array-ef450-puck"
+        },
+        {
+          "after": "setup-source-after.json",
+          "before": "setup-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "setup-tools-after.json",
+          "before": "setup-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "nvm_v2_convert-ordinary-build-source-after.json",
+          "before": "nvm_v2_convert-ordinary-build-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "nvm_v2_convert-ordinary-build-tools-after.json",
+          "before": "nvm_v2_convert-ordinary-build-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "configuration-source-after.json",
+          "before": "configuration-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "configuration-tools-after.json",
+          "before": "configuration-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "nvm_v2_endtoend-ordinary-run-source-after.json",
+          "before": "nvm_v2_endtoend-ordinary-run-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "nvm_v2_endtoend-ordinary-run-tools-after.json",
+          "before": "nvm_v2_endtoend-ordinary-run-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "nvm_v2_endtoend-ordinary-build-source-after.json",
+          "before": "nvm_v2_endtoend-ordinary-build-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "nvm_v2_endtoend-ordinary-build-tools-after.json",
+          "before": "nvm_v2_endtoend-ordinary-build-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-build-source-after.json",
+          "before": "ordinary_record_authority-ordinary-build-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-build-tools-after.json",
+          "before": "ordinary_record_authority-ordinary-build-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "nvm_v2_convert-ordinary-run-source-after.json",
+          "before": "nvm_v2_convert-ordinary-run-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "nvm_v2_convert-ordinary-run-tools-after.json",
+          "before": "nvm_v2_convert-ordinary-run-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "ordinary_record_authority-sanitizer-run-source-after.json",
+          "before": "ordinary_record_authority-sanitizer-run-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "ordinary_record_authority-sanitizer-run-tools-after.json",
+          "before": "ordinary_record_authority-sanitizer-run-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "ordinary_record_authority-sanitizer-build-source-after.json",
+          "before": "ordinary_record_authority-sanitizer-build-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "ordinary_record_authority-sanitizer-build-tools-after.json",
+          "before": "ordinary_record_authority-sanitizer-build-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-run-source-after.json",
+          "before": "ordinary_record_authority-ordinary-run-source-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        },
+        {
+          "after": "ordinary_record_authority-ordinary-run-tools-after.json",
+          "before": "ordinary_record_authority-ordinary-run-tools-before.json",
+          "root": "nanolang-array-neighbor-2a30-puck"
+        }
+      ],
+      "references": 3216,
+      "terminals": [
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ownership_contracts-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ownership_contracts-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "clang-ordinary-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "sanitizer-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "configuration-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-run-terminal.json",
+          "returncode": -6,
+          "root": "nanolang-ordinary-array-ef450-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "setup-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-ordinary-array-ef450-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "nvm_v2_convert-ordinary-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "nvm_v2_endtoend-ordinary-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-sanitizer-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-ordinary-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "configuration-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-ordinary-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "nvm_v2_endtoend-ordinary-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "setup-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "ordinary_record_authority-sanitizer-run-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        },
+        {
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "phase": "nvm_v2_convert-ordinary-build-terminal.json",
+          "returncode": 0,
+          "root": "nanolang-array-neighbor-2a30-puck",
+          "timeout": false
+        }
+      ]
+    }
+  },
+  "neighbor_fixture": "2a30d68e23618a8c97f033f5bb12b80fbc55f657",
+  "puck_archive": {
+    "path": "/tmp/nanolang-ordinary-array-puck-seal-v2.tar.gz",
+    "sha256": "10ab440c7fb6599a10568e8b097945fd54f8ba44d39ae3aba6ff3bff7ed9ecf9"
+  },
+  "query_fixture": "ef4500e40",
+  "query_production": "4f5f26126",
+  "unique_artifacts": 893
+}

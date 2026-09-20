@@ -1,0 +1,23 @@
+{
+  "name": "corrected-byte-result-guard",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "/tmp/nanolang-cast-u8-linux-guard/run-corrected-guard.py",
+    "/home/jkh/Src/nanolang-cast-u8-qualification",
+    "/tmp/nanolang-scalar-u8-8caba.py"
+  ],
+  "bound_seconds": 120,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 2.519859028980136,
+  "log": {
+    "sha256": "b2139b05b3b6b5bd94db24945b289d65b77ffa800d878a4b11b6296cf5b35549",
+    "bytes": 237,
+    "archive": "/tmp/nanolang-cast-u8-linux-guard/objects/b2139b05b3b6b5bd94db24945b289d65b77ffa800d878a4b11b6296cf5b35549"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

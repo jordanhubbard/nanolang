@@ -1,0 +1,18 @@
+--- /tmp/prepare-layout-fixture-reuse-first.py	2026-09-20 05:50:36.495442864 -0700
++++ /tmp/prepare-layout-fixture-reuse.py	2026-09-20 05:50:55.835348900 -0700
+@@ -1,5 +1,5 @@
+ import hashlib,json,pathlib,shutil,subprocess,sys
+-old=pathlib.Path(sys.argv[1]).resolve();new=pathlib.Path(sys.argv[2]).resolve();reports=pathlib.Path(sys.argv[3]).resolve();out=pathlib.Path(sys.argv[4]);out.mkdir(exist_ok=False);store=out/'objects';store.mkdir()
++old=pathlib.Path(sys.argv[1]).resolve();new=pathlib.Path(sys.argv[2]).resolve();reports=pathlib.Path(sys.argv[3]).resolve();out=pathlib.Path(sys.argv[4]);out.mkdir(exist_ok=False);store=out/'objects';store.mkdir();shutil.copyfile(__file__,out/'runner.py')
+ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+ def git(root,*args):return subprocess.check_output(['git',*args],cwd=root,text=True).strip()
+ assert git(old,'rev-parse','HEAD')=='ca3779e08b9cfc92414719a27e5e1456245dcfac'
+@@ -16,7 +16,7 @@
+   if sha(src)==sha(dst):shutil.copystat(src,dst)
+   else:changes.append(rel)
+ assert set(changes)=={'docs/ROADMAP.md','tests/nanoisa/test_nvm_v2_layouts.c'},changes
+-for src in sorted(old.rglob('*')):
++for src in sorted(old.rglob('*'), key=lambda p:(p.is_symlink(),str(p))):
+  rel=str(src.relative_to(old))
+  if rel=='.git' or rel in tracked or not src.is_file():continue
+  dst=new/rel;dst.parent.mkdir(parents=True,exist_ok=True)

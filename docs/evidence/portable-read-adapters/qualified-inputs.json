@@ -1,0 +1,50 @@
+{
+  "src/nanoisa/portable_read_host.c": {
+    "sha256": "3d5174e498c850935bec53e3a4d5d4f861986a8f04d406a6ebf23060416a920a",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "src/nanoisa/portable_read_host.h": {
+    "sha256": "b6be464836821234122f5422745590ebdea8fd3c0ce082573220736e168d07c1",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "src/nanoisa/portable_read_managed.c": {
+    "sha256": "1c2aa732202913130b76832234bce2911d84d35c0d2bba8ec0cbcc87b0102420",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "src/nanoisa/portable_read_managed.h": {
+    "sha256": "5c12ad95295d04f9a2bf50cb2f20f22ffa999db4dd9dc51e687bc043b94073fd",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "src/nanoisa/managed_strings.c": {
+    "sha256": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "src/nanoisa/managed_strings.h": {
+    "sha256": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "src/nanoisa/binary64_parse.h": {
+    "sha256": "bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "tests/nanoisa/portable_read_hooks.h": {
+    "sha256": "e227e13cd6c3fc7706ce1bc39ecd21c5072f98919036b5310c731780eb3a7c8a",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "tests/nanoisa/portable_read_link.ll": {
+    "sha256": "81048b18584a6b3ff637eb5c08eaf8aa72546d64a0487bb875d3001bc499ad30",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "tests/nanoisa/test_portable_read_adapters.c": {
+    "sha256": "cc2db12f085dd1045d1bb7ee6f20230690ea206473b4e3b0a8038526369a9660",
+    "qualified_pin": "7b66bf71c"
+  },
+  "tests/test_portable_read_adapters.py": {
+    "sha256": "0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a",
+    "qualified_pin": "b9ba1fce7"
+  },
+  "Makefile.gnu": {
+    "sha256": "dbdaaa51a67ecbc0edb1ecf58f320f034a01b5fe26ed1c37b5465fa3bdb97dcd",
+    "qualified_pin": "b9ba1fce7"
+  }
+}

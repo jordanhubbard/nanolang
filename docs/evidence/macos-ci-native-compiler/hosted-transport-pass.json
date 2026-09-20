@@ -1,0 +1,7 @@
+{
+  "job": "https://github.com/jordanhubbard/nanolang/actions/runs/35512296463/job/106082187346",
+  "full_log_sha256": "c4ab56a506d92129f3abaca86a22ded298c9f42d41c2375e76b651e38a6462e2",
+  "full_log_bytes": 3441776,
+  "full_log_retained": "/tmp/nanolang-pr921-darwin.log",
+  "scope": "Eight unchanged reference transport checks pass in6.414s; whole job fails later on duplicate private layout fixture symbols repaired separately in PR922."
+}

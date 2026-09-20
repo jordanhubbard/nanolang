@@ -192,6 +192,7 @@ typedef enum {
     OP_CAST_BOOL   = 0x8A,   /* pop value -> push as bool */
     OP_CAST_STRING = 0x8B,   /* pop value -> push as string */
     OP_TYPE_CHECK  = 0x8C,   /* operand: u8 expected tag; pop value -> push bool */
+    OP_CAST_U8     = 0x8F,   /* INT modulo 256 or U8 identity -> exact U8 */
 
     /* Closures (0x90-0x97) */
     OP_CLOSURE_NEW  = 0x90,  /* operands: u32 fn_idx, u16 capture_count */
@@ -365,12 +366,18 @@ typedef struct {
 /* The extension prefix is exactly the byte reserved by the enum, and it sits
  * one past the last usable primary opcode. Opcode values are identifiers, so
  * the "limit" is an exclusive bound, never an instruction count. */
-_Static_assert(NANOISA_EXTENSION_PREFIX == OP_EXTENSION_PREFIX,
+#ifdef __cplusplus
+#define NANOISA_SCHEMA_ASSERT static_assert
+#else
+#define NANOISA_SCHEMA_ASSERT _Static_assert
+#endif
+NANOISA_SCHEMA_ASSERT(NANOISA_EXTENSION_PREFIX == OP_EXTENSION_PREFIX,
                "extension prefix must match the reserved opcode byte");
-_Static_assert(NANOISA_PRIMARY_OPCODE_LIMIT == NANOISA_EXTENSION_PREFIX,
+NANOISA_SCHEMA_ASSERT(NANOISA_PRIMARY_OPCODE_LIMIT == NANOISA_EXTENSION_PREFIX,
                "primary opcode plane ends exactly at the extension prefix");
-_Static_assert(OP_AGG_TAG < NANOISA_PRIMARY_OPCODE_LIMIT,
+NANOISA_SCHEMA_ASSERT(OP_AGG_TAG < NANOISA_PRIMARY_OPCODE_LIMIT,
                "the last primary opcode must stay below the plane limit");
+#undef NANOISA_SCHEMA_ASSERT
 
 /* ========================================================================
  * Decoded Instruction (for disassembly / VM execution)

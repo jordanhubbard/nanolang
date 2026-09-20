@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_ownership_layouts_private"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": "",
+    "OWNERSHIP_LAYOUT_CC": "/usr/bin/gcc",
+    "OWNERSHIP_LAYOUT_CFLAGS": " -fsanitize=address,undefined -fno-omit-frame-pointer"
+  }
+}

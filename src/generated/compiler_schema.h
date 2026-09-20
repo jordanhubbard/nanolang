@@ -92,6 +92,10 @@ typedef struct List_ASTPrint List_ASTPrint;
 #define FORWARD_DEFINED_List_ASTReturn
 typedef struct List_ASTReturn List_ASTReturn;
 #endif
+#ifndef FORWARD_DEFINED_List_ASTServiceDecl
+#define FORWARD_DEFINED_List_ASTServiceDecl
+typedef struct List_ASTServiceDecl List_ASTServiceDecl;
+#endif
 #ifndef FORWARD_DEFINED_List_ASTSet
 #define FORWARD_DEFINED_List_ASTSet
 typedef struct List_ASTSet List_ASTSet;
@@ -305,7 +309,8 @@ typedef enum {
     PNODE_PAR_BLOCK = 40,
     PNODE_EFFECT_DECL = 41,
     PNODE_HANDLE_EXPR = 42,
-    PNODE_ASYNC_FN = 43
+    PNODE_ASYNC_FN = 43,
+    PNODE_SERVICE_DECL = 44
 } ParseNodeType;
 
 #ifndef DEFINED_nl_LexerToken
@@ -315,6 +320,7 @@ typedef struct nl_LexerToken {
     const char * value;
     int line;
     int column;
+    int64_t value_bytes;
 } nl_LexerToken;
 typedef nl_LexerToken LexerToken;
 typedef nl_LexerToken Token;
@@ -729,6 +735,8 @@ typedef struct nl_ASTMatch {
     DynArray * arm_bindings;
     DynArray * arm_body_ids;
     DynArray * arm_body_types;
+    DynArray * arm_guard_ids;
+    DynArray * arm_guard_types;
     int arm_count;
 } nl_ASTMatch;
 typedef nl_ASTMatch ASTMatch;
@@ -868,6 +876,8 @@ typedef struct nl_Parser {
     int next_node_id;
     int last_expr_node_id;
     int last_expr_node_type;
+    List_ASTServiceDecl * services;
+    int services_count;
 } nl_Parser;
 typedef nl_Parser Parser;
 #endif
@@ -964,6 +974,22 @@ typedef struct nl_TranspilePhaseOutput {
     const char * output_path;
 } nl_TranspilePhaseOutput;
 typedef nl_TranspilePhaseOutput TranspilePhaseOutput;
+#endif
+
+#ifndef DEFINED_nl_ASTServiceDecl
+#define DEFINED_nl_ASTServiceDecl
+typedef struct nl_ASTServiceDecl {
+    int node_type;
+    int line;
+    int column;
+    const char * interface_id;
+    int interface_bytes;
+    const char * document_path;
+    int path_bytes;
+    int catalog_version;
+    int origin_index;
+} nl_ASTServiceDecl;
+typedef nl_ASTServiceDecl ASTServiceDecl;
 #endif
 
 #endif /* NANOLANG_GENERATED_COMPILER_SCHEMA_H */

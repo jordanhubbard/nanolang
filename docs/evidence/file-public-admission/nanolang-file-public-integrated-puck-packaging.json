@@ -1,0 +1,17 @@
+{
+  "reports": [
+    "nanolang-file-public-integrated-puck"
+  ],
+  "references": 6024,
+  "unique": 2357,
+  "archives": {
+    "nanolang-file-public-integrated-puck-reports.tar.gz": {
+      "sha256": "4bfb6eee65cf5c4cfd4cf5f325a70eee4b5b4ee4238b351d92a6e4a8d2ce4e08",
+      "bytes": 3559751
+    },
+    "nanolang-file-public-integrated-puck-artifacts.tar.gz": {
+      "sha256": "8ab62d3f03bf257756efbafe69571e14da994bc71018bdb3b7ef3352a5828c7e",
+      "bytes": 48155160
+    }
+  }
+}

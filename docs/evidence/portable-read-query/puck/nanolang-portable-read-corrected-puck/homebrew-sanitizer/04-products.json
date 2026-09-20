@@ -1,0 +1,32 @@
+{
+  "instrumented": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/instrumented",
+    "sha256": "c1819d7feda59ed4d8cfd2dabe2e7eb32703b1f1f04420eef7dd248826c62154",
+    "bytes": 1127728,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/objects/c1819d7feda59ed4d8cfd2dabe2e7eb32703b1f1f04420eef7dd248826c62154"
+  },
+  "instrumented-read_decode.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/instrumented-read_decode.o",
+    "sha256": "ef3b7f284b1175358bbae2f24e86e9f18fcba8622fd4727ac87a5ece44fec6fa",
+    "bytes": 59504,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/objects/ef3b7f284b1175358bbae2f24e86e9f18fcba8622fd4727ac87a5ece44fec6fa"
+  },
+  "instrumented-read_query.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/instrumented-read_query.o",
+    "sha256": "960f6deda3440af83daa9cabb6cf80ec45e8c58ae6791b8019b7d7b014bf0649",
+    "bytes": 125368,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/objects/960f6deda3440af83daa9cabb6cf80ec45e8c58ae6791b8019b7d7b014bf0649"
+  },
+  "instrumented-read_stack.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/instrumented-read_stack.o",
+    "sha256": "cd320c6603210ef1c6de3f5019cba8d53713473191bc2d553ff22ea5481b1edd",
+    "bytes": 441712,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/objects/cd320c6603210ef1c6de3f5019cba8d53713473191bc2d553ff22ea5481b1edd"
+  },
+  "instrumented-read_types.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/products/instrumented-read_types.o",
+    "sha256": "74dc97a857f57f367a0624ed70af941ac68c36ccd3dcb7b072c7a8020aaaabfb",
+    "bytes": 48352,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/objects/74dc97a857f57f367a0624ed70af941ac68c36ccd3dcb7b072c7a8020aaaabfb"
+  }
+}

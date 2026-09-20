@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "CC=/usr/bin/clang",
+    "test-portable-read-plan"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-8115",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/nano-file-binding-ldfv3kt6/nsi"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-5a534",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

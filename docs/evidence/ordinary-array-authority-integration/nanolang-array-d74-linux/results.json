@@ -1,0 +1,47 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 20.52,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.114,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 0.816,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-ordinary-build",
+    "seconds": 0.315,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-ordinary-run",
+    "seconds": 0.003,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-ordinary-build",
+    "seconds": 0.164,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-ordinary-run",
+    "seconds": 0.004,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-ordinary-build",
+    "seconds": 0.164,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-ordinary-run",
+    "seconds": 0.002,
+    "status": 0
+  }
+]

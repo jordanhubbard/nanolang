@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/tmp/nanolang-ordinary-array-ef450-linux/controls/ownership_contracts"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": ""
+  }
+}

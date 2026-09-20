@@ -7,7 +7,8 @@ extern struct LexerToken {
     token_type: int,
     value: string,
     line: int,
-    column: int
+    column: int,
+    value_bytes: int
 }
 
 extern struct ParseNode {
@@ -297,6 +298,8 @@ extern struct ASTMatch {
     arm_bindings: array<string>,
     arm_body_ids: array<int>,
     arm_body_types: array<int>,
+    arm_guard_ids: array<int>,
+    arm_guard_types: array<int>,
     arm_count: int
 }
 
@@ -415,11 +418,25 @@ extern struct Parser {
     tuple_indices_count: int,
     next_node_id: int,
     last_expr_node_id: int,
-    last_expr_node_type: int
+    last_expr_node_type: int,
+    services: List<ASTServiceDecl>,
+    services_count: int
 }
 
 extern struct TypeEnvironment {
     error_count: int,
     has_error: bool,
     diagnostics: List<CompilerDiagnostic>
+}
+
+extern struct ASTServiceDecl {
+    node_type: int,
+    line: int,
+    column: int,
+    interface_id: string,
+    interface_bytes: int,
+    document_path: string,
+    path_bytes: int,
+    catalog_version: int,
+    origin_index: int
 }

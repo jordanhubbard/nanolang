@@ -1,0 +1,45 @@
+{
+  "scope": "Storage-only normalization; all original logical byte paths and report bytes preserved. No source or fixture change.",
+  "reports": [
+    {
+      "original_storage_path_bytes_hex": "6c696e75782d35613533342f6763632d6f7264696e6172792d7075626c69736865722f6e616e6f2d66696c652d7075626c69736865722d74713138636176612f636c692f71756f7465642027202428746f75636820696e6a6563746564293b20ffc32f696e746572666163652e6e73692e6a736f6e",
+      "original_report_key": "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+      "portable_storage_path": "byte-path-reports/de94b5eeb45c5573d91cdd5d1bb0336174e7aa606044bda7de19ddd71b79e6b0.json",
+      "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+      "bytes": 5385,
+      "cas": "/tmp/nanolang-file-service-parser-artifacts/1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
+    },
+    {
+      "original_storage_path_bytes_hex": "6c696e75782d356130652f636c616e672d6f7264696e6172792d7075626c69736865722f6e616e6f2d66696c652d7075626c69736865722d31736773725f697a2f636c692f71756f7465642027202428746f75636820696e6a6563746564293b20ffc32f696e746572666163652e6e73692e6a736f6e",
+      "original_report_key": "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+      "portable_storage_path": "byte-path-reports/9eaa518c12f2977e500107cc28f414b21f6de3e02cb0630a12c910ef83ca9635.json",
+      "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+      "bytes": 5385,
+      "cas": "/tmp/nanolang-file-service-parser-artifacts/1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
+    },
+    {
+      "original_storage_path_bytes_hex": "6c696e75782d356130652f636c616e672d73616e6974697a6572732d7075626c69736865722f6e616e6f2d66696c652d7075626c69736865722d72746370696237692f636c692f71756f7465642027202428746f75636820696e6a6563746564293b20ffc32f696e746572666163652e6e73692e6a736f6e",
+      "original_report_key": "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+      "portable_storage_path": "byte-path-reports/c06e5d833755be0d6bf0294fefaa7851a539034756ffcc9ea260d919ece7010b.json",
+      "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+      "bytes": 5385,
+      "cas": "/tmp/nanolang-file-service-parser-artifacts/1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
+    },
+    {
+      "original_storage_path_bytes_hex": "6c696e75782d356130652f6763632d6f7264696e6172792d7075626c69736865722f6e616e6f2d66696c652d7075626c69736865722d5f35613633736b312f636c692f71756f7465642027202428746f75636820696e6a6563746564293b20ffc32f696e746572666163652e6e73692e6a736f6e",
+      "original_report_key": "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+      "portable_storage_path": "byte-path-reports/2dfc91bca5b6f25630b5a293cd84dad4cf06e8cd1e08244d4c60d2fff78dbbe2.json",
+      "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+      "bytes": 5385,
+      "cas": "/tmp/nanolang-file-service-parser-artifacts/1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
+    },
+    {
+      "original_storage_path_bytes_hex": "6c696e75782d356130652f6763632d73616e6974697a6572732d7075626c69736865722f6e616e6f2d66696c652d7075626c69736865722d6b77376c6b7074312f636c692f71756f7465642027202428746f75636820696e6a6563746564293b20ffc32f696e746572666163652e6e73692e6a736f6e",
+      "original_report_key": "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+      "portable_storage_path": "byte-path-reports/178d5758c57cf2dd5f7163d2da3a555e67566a944c15039590a547713e4b6c35.json",
+      "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+      "bytes": 5385,
+      "cas": "/tmp/nanolang-file-service-parser-artifacts/1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
+    }
+  ]
+}

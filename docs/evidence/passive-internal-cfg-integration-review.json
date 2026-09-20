@@ -1,0 +1,114 @@
+{
+  "seal": "7919987157bd4b97166879f88f8c72bd2bc17cc9",
+  "pin": "6ae98a219a9588ec554348dd55c3b2f127f3ea51",
+  "git_reports": 239,
+  "cas": 493,
+  "bytes": 211112401,
+  "artifact_refs": 9205,
+  "pairs": 48,
+  "terminals": [
+    "nanolang-passive-integrated-6ae-linux/build",
+    "nanolang-passive-integrated-6ae-linux/discovery",
+    "nanolang-passive-integrated-6ae-linux/passive",
+    "nanolang-passive-integrated-6ae-linux/source-flow",
+    "nanolang-passive-integrated-6ae-linux/flow-vm",
+    "nanolang-passive-integrated-6ae-linux/flow-native-emit",
+    "nanolang-passive-integrated-6ae-linux/flow-native-build",
+    "nanolang-passive-integrated-6ae-linux/flow-native",
+    "nanolang-passive-integrated-6ae-linux/comparison-build",
+    "nanolang-passive-integrated-6ae-linux/comparison",
+    "nanolang-passive-integrated-6ae-linux/scoped-sanitizer",
+    "nanolang-passive-integrated-6ae-linux/float-casts",
+    "nanolang-passive-integrated-6ae-puck/build",
+    "nanolang-passive-integrated-6ae-puck/discovery",
+    "nanolang-passive-integrated-6ae-puck/passive",
+    "nanolang-passive-integrated-6ae-puck/source-flow",
+    "nanolang-passive-integrated-6ae-puck/flow-vm",
+    "nanolang-passive-integrated-6ae-puck/flow-native-emit",
+    "nanolang-passive-integrated-6ae-puck/flow-native-build",
+    "nanolang-passive-integrated-6ae-puck/flow-native",
+    "nanolang-passive-integrated-6ae-puck/comparison-build",
+    "nanolang-passive-integrated-6ae-puck/comparison",
+    "nanolang-passive-integrated-6ae-puck/scoped-sanitizer",
+    "nanolang-passive-integrated-6ae-puck/float-casts"
+  ],
+  "incoming_canonical_paths": [
+    "src/nanoisa/file_cyclic_dispatch.inc",
+    "src/nanoisa/file_cyclic_native_emit.inc",
+    "src/nanoisa/file_cyclic_runtime.h",
+    "src/nanoisa/file_cyclic_runtime.inc",
+    "src/nanoisa/nvm2c_file_cyclic_private.c",
+    "src/nanoisa/nvm2c_file_cyclic_private.h",
+    "src/nanoisa/portable_read_wasm.c",
+    "src/nanoisa/portable_read_wasm.h",
+    "src/nanovm/file_vm_cyclic_private.c",
+    "src/nanovm/file_vm_cyclic_private.h",
+    "src/nsi_file_binding_main.c",
+    "src/nsi_file_publish.c",
+    "src/nsi_file_publish.h",
+    "src/runtime/portable_read_node.mjs",
+    "src/runtime/portable_read_wasmtime.py",
+    "src/typechecker.c",
+    "tests/file_binding_publish_cli.py",
+    "tests/nanoisa/file_cyclic_dispatch_hooks.h",
+    "tests/nanoisa/file_cyclic_dispatch_values.c",
+    "tests/nanoisa/portable_read_wasm_node.mjs",
+    "tests/nanoisa/portable_read_wasm_python.py",
+    "tests/nanoisa/test_file_cyclic_dispatch.c",
+    "tests/nanoisa/test_file_cyclic_native_buffer.c",
+    "tests/nanoisa/test_file_cyclic_runtime.c",
+    "tests/nanoisa/test_portable_read_wasm.c",
+    "tests/nanovm/test_vm.c",
+    "tests/test_cseed_match_totality.py",
+    "tests/test_file_cyclic_dispatch.py",
+    "tests/test_nsi_file_publish.c",
+    "tests/test_nsi_file_publish.py",
+    "tests/test_portable_read_wasm.py"
+  ],
+  "make_only_additive": true,
+  "archive_sha256": "6f0eca4aaeaca2821b203417607532f8672fc61bb0dad56cd3d00fbbc1ac7e4c",
+  "logs": {
+    "nanolang-passive-integrated-6ae-linux": {
+      "passive.log": "_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic\n/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -DPASSIVE_CFG_ALLOCATION_TEST -Isrc/nanoisa -o obj/test_passive_cfg_alloc tests/nanoisa/test_passive.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic\npassive: 273 passed, 0 failed\n..........................\n----------------------------------------------------------------------\nRan 26 tests in 2.394s\n\nOK\n",
+      "comparison.log": "test_passive_flow_bytecode_and_source_order_metadata_match (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_flow_bytecode_and_source_order_metadata_match) ... ok\ntest_passive_par_records_and_scalar_execution (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_par_records_and_scalar_execution) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.333s\n\nOK\n",
+      "scoped-sanitizer.log": "/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -fsanitize=address,undefined -fno-omit-frame-pointer -DPASSIVE_CFG_ALLOCATION_TEST -Isrc/nanoisa -o obj/test_passive_cfg_sanitized tests/nanoisa/test_passive.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic\nobj/test_passive_cfg_sanitized\npassive: 273 passed, 0 failed\n",
+      "flow-vm.log": "15\n",
+      "flow-native.log": "15\n",
+      "float-casts.log": "test_cast_float_matches_vm_scalar_conversions (tests.test_native_floats.NativeFloats.test_cast_float_matches_vm_scalar_conversions) ... ok\ntest_cast_float_through_polymorphic_calls_and_local_loop (tests.test_native_floats.NativeFloats.test_cast_float_through_polymorphic_calls_and_local_loop) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.775s\n\nOK\n"
+    },
+    "nanolang-passive-integrated-6ae-puck": {
+      "passive.log": " obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib\n/usr/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -DPASSIVE_CFG_ALLOCATION_TEST -Isrc/nanoisa -o obj/test_passive_cfg_alloc tests/nanoisa/test_passive.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib\npassive: 273 passed, 0 failed\n..........................\n----------------------------------------------------------------------\nRan 26 tests in 8.819s\n\nOK\n",
+      "comparison.log": "test_passive_flow_bytecode_and_source_order_metadata_match (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_flow_bytecode_and_source_order_metadata_match) ... ok\ntest_passive_par_records_and_scalar_execution (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_par_records_and_scalar_execution) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 1.962s\n\nOK\n",
+      "scoped-sanitizer.log": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -fsanitize=address,undefined -fno-omit-frame-pointer -DPASSIVE_CFG_ALLOCATION_TEST -Isrc/nanoisa -o obj/test_passive_cfg_sanitized tests/nanoisa/test_passive.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib\nobj/test_passive_cfg_sanitized\npassive: 273 passed, 0 failed\n",
+      "flow-vm.log": "15\n",
+      "flow-native.log": "15\n",
+      "float-casts.log": "test_cast_float_matches_vm_scalar_conversions (tests.test_native_floats.NativeFloats.test_cast_float_matches_vm_scalar_conversions) ... ok\ntest_cast_float_through_polymorphic_calls_and_local_loop (tests.test_native_floats.NativeFloats.test_cast_float_through_polymorphic_calls_and_local_loop) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 1.099s\n\nOK\n"
+    }
+  },
+  "current_pending": false,
+  "current": {
+    "linux": {
+      "host": "linux",
+      "root": "/home/jkh/Src/nanolang-passive-integrated-6ae",
+      "counts": {
+        "source": 22951,
+        "tools": 10,
+        "artifacts": 295
+      },
+      "mismatches": [],
+      "frozen_git_source_inputs": 2441
+    },
+    "puck": {
+      "host": "puck",
+      "root": "/tmp/nanolang-passive-integrated-6ae",
+      "counts": {
+        "source": 22951,
+        "tools": 13,
+        "artifacts": 244
+      },
+      "mismatches": [],
+      "frozen_git_source_inputs": 2441
+    }
+  },
+  "verdict": "PASS scoped frozen6ae integration; later canonical changes outside this audit; no execution reruns"
+}

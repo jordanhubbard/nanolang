@@ -1,0 +1,14 @@
+{
+  "constructors": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer-variants/products/constructors",
+    "sha256": "8b730db17a6ee035bf6adbe2af580516d12678050dab2dcb44527dddb1bec547",
+    "bytes": 15617768,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer-variants/objects/8b730db17a6ee035bf6adbe2af580516d12678050dab2dcb44527dddb1bec547"
+  },
+  "nvm_v2_layouts.o": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer-variants/products/nvm_v2_layouts.o",
+    "sha256": "7cf2b52df6b2a03ccebad683595ed2703b6c616acff9af12f38bf1b5155ee4df",
+    "bytes": 89360,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer-variants/objects/7cf2b52df6b2a03ccebad683595ed2703b6c616acff9af12f38bf1b5155ee4df"
+  }
+}

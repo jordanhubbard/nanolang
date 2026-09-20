@@ -1,0 +1,13 @@
+{
+  "source": "3c383068a",
+  "platform": "Linux aarch64",
+  "cases": 4,
+  "capture_replay_tests_per_case": 10,
+  "statuses": "all pass",
+  "production_review": "release_audit independent source review PASS",
+  "limitations": [
+    "External assembler helper only; default filters sanitizer driver flags.",
+    "Existing corpus removes temporary per-test intermediates; final helpers and all commands/logs retained.",
+    "Darwin has no helper target; no Darwin runtime qualification claimed."
+  ]
+}

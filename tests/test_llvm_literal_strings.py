@@ -109,21 +109,24 @@ class LiteralStrings(unittest.TestCase):
                 else:
                     self.compare(body,trap=True)
 
-    def test_managed_string_operations_and_conversion_refusals(self):
+    def test_managed_string_operations_and_array_conversion(self):
         for op in ('ADD','STR_CONCAT'):
             self.compare('PUSH_STR a\nPUSH_STR b\n'+op+'\nSTR_LEN\nPUSH_I64 6\nEQ\nASSERT\n')
         self.compare('PUSH_I64 1\nPUSH_I64 2\nADD\nPOP\n',
                      '.function unused 1 1 0 void 0\n.parameters unused string\nRET\n.end\n')
         self.compare('PUSH_STR a\nPUSH_STR a\nSTR_SPLIT\nPOP\n')
-        cases = [self.program('ARR_NEW 5\nPOP\n')]
-        for text in cases:
-            module = self.assemble(text)
-            self.run_cmd([ROOT/'bin/nano_vm','--verify-only',module])
-            for tool in ('nvm2llvm','nvm2wasm'):
-                out = self.work/'previous'
-                out.write_bytes(b'previous')
-                self.run_cmd([ROOT/'bin'/tool,module,'-o',out],success=False)
-                self.assertEqual(out.read_bytes(), b'previous')
+        module = self.compare('ARR_NEW 5\nPOP\n')
+        self.run_cmd([ROOT/'bin/nano_vm','--verify-only',module])
+        for tool in ('nvm2llvm','nvm2wasm'):
+            out = self.work/'previous'
+            out.write_bytes(b'previous')
+            self.run_cmd([ROOT/'bin'/tool,module,'-o',out])
+            self.assertNotEqual(out.read_bytes(), b'previous')
+            if tool == 'nvm2llvm':
+                self.run_cmd(['lli',out])
+            else:
+                result = self.run_cmd(['wasmtime','run','--invoke','nano_entry',out])
+                self.assertEqual(result.stdout, '0\n')
         self.compare('PUSH_I64 1\nPUSH_I64 2\nADD\nPUSH_I64 3\nEQ\nASSERT\n')
 
 

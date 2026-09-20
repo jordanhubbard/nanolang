@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "problems": [],
+  "base": "/private/tmp/nanolang-managed-string-971b-darwin-core-package",
+  "root": "/private/tmp/nanolang-managed-string-971b-darwin",
+  "pin": "971b075a28d912495f09584cb9ceb3813dd656f8",
+  "report_manifest_sha256": "96a17358ade1b098782d58b8152b7dbfb00398f82ca0bbad8127e2d1a005a869",
+  "counters": {
+    "reports": 581,
+    "object_references": 398286,
+    "command_pairs": 56
+  },
+  "unique_referenced_objects": 3472,
+  "archive_bytes": 190782498,
+  "current_map_counts": {
+    "providers": 334,
+    "sources": 3115,
+    "tools": 32
+  },
+  "current_unique_files_hashed": 3468,
+  "current_stat_mismatches": [],
+  "phase": {
+    "commands": 56,
+    "errors": 0,
+    "exception": null,
+    "failures": 0,
+    "inputs_equal": true,
+    "passed": true,
+    "retention_failures": [],
+    "seconds": 21.30560099997092,
+    "skipped": [],
+    "tests_run": 5
+  },
+  "selected_tests": [
+    "tests.test_managed_string_core.ManagedCore.test_native_core_sanitizers_and_production_mode",
+    "tests.test_managed_string_core.ManagedCore.test_production_wasm_and_verified_runtime_ir_have_no_test_hooks",
+    "tests.test_managed_string_core.ManagedCore.test_wasm_import_free_reuse_pressure_and_fresh_instances",
+    "tests.test_managed_runtime_package.ManagedRuntimePackage.test_private_module_scalar_abi_lifecycle",
+    "tests.test_managed_runtime_package.ManagedRuntimePackage.test_reproducible_target_packages_and_real_links"
+  ],
+  "nonzero_commands": [],
+  "limits": [
+    "Command input maps use recorded stat-keyed cached digests, not an independent byte read per command.",
+    "Phase endpoint digests are forced fresh by the frozen runner; audit independently rehashes each referenced archive object and current immutable input.",
+    "Source scope excludes historical docs except the acceptance contract and roadmap.",
+    "Tool/library inventory does not establish every transitive compiler tool or runtime loader selection.",
+    "Only the named phase audited; remaining acceptance remains separate."
+  ],
+  "seconds": 231.07638354203664
+}

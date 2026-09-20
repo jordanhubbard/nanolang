@@ -1,0 +1,120 @@
+python3 -m unittest -v tests.test_reference_eval_transport
+2026-09-20T12:34:36.8112860Z test_caller_child_survives_success_and_missing_program (tests.test_reference_eval_transport.ReferenceTransport.test_caller_child_survives_success_and_missing_program) ... FAIL
+2026-09-20T12:34:36.8629630Z test_early_exit_keeps_parent_signal_policy_and_cleans_children (tests.test_reference_eval_transport.ReferenceTransport.test_early_exit_keeps_parent_signal_policy_and_cleans_children) ... FAIL
+2026-09-20T12:34:36.9075220Z test_empty_nonzero_and_missing_program (tests.test_reference_eval_transport.ReferenceTransport.test_empty_nonzero_and_missing_program) ... FAIL
+2026-09-20T12:34:36.9502510Z test_large_input_and_output_before_consumption (tests.test_reference_eval_transport.ReferenceTransport.test_large_input_and_output_before_consumption) ... FAIL
+2026-09-20T12:34:36.9956520Z test_output_allocation_failure_reaps_both_owned_children (tests.test_reference_eval_transport.ReferenceTransport.test_output_allocation_failure_reaps_both_owned_children) ... FAIL
+2026-09-20T12:34:37.0721540Z test_path_lookup_and_trim (tests.test_reference_eval_transport.ReferenceTransport.test_path_lookup_and_trim) ... FAIL
+2026-09-20T12:34:37.1475670Z test_quoted_expression_and_adjacent_spaced_path (tests.test_reference_eval_transport.ReferenceTransport.test_quoted_expression_and_adjacent_spaced_path) ... FAIL
+2026-09-20T12:34:37.2016530Z test_repeated_calls_and_closed_standard_descriptors (tests.test_reference_eval_transport.ReferenceTransport.test_repeated_calls_and_closed_standard_descriptors) ... FAIL
+2026-09-20T12:34:37.2034390Z 
+2026-09-20T12:34:37.2036100Z ======================================================================
+2026-09-20T12:34:37.2037240Z FAIL: test_caller_child_survives_success_and_missing_program (tests.test_reference_eval_transport.ReferenceTransport.test_caller_child_survives_success_and_missing_program)
+2026-09-20T12:34:37.2038290Z ----------------------------------------------------------------------
+2026-09-20T12:34:37.2041830Z Traceback (most recent call last):
+2026-09-20T12:34:37.2042660Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 232, in test_caller_child_survives_success_and_missing_program
+2026-09-20T12:34:37.2043600Z     self.assertEqual(self.run_eval('(EInt 42)',compiler,mode='foreign-child'),'ok')
+2026-09-20T12:34:37.2044040Z                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2044610Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 183, in run_eval
+2026-09-20T12:34:37.2045270Z     self.assertEqual(result.returncode,0 if success else 3,result.stdout+result.stderr)
+2026-09-20T12:34:37.2045750Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2046260Z AssertionError: -6 != 0 : ==74740==AddressSanitizer: detect_leaks is not supported on this platform.
+2026-09-20T12:34:37.2046660Z 
+2026-09-20T12:34:37.2046670Z 
+2026-09-20T12:34:37.2046800Z ======================================================================
+2026-09-20T12:34:37.2047650Z FAIL: test_early_exit_keeps_parent_signal_policy_and_cleans_children (tests.test_reference_eval_transport.ReferenceTransport.test_early_exit_keeps_parent_signal_policy_and_cleans_children)
+2026-09-20T12:34:37.2048440Z ----------------------------------------------------------------------
+2026-09-20T12:34:37.2048850Z Traceback (most recent call last):
+2026-09-20T12:34:37.2049460Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 216, in test_early_exit_keeps_parent_signal_policy_and_cleans_children
+2026-09-20T12:34:37.2050280Z     self.run_eval(expression,compiler,mode='ignore-pipe',success=False)
+2026-09-20T12:34:37.2050920Z     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2051370Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 183, in run_eval
+2026-09-20T12:34:37.2051900Z     self.assertEqual(result.returncode,0 if success else 3,result.stdout+result.stderr)
+2026-09-20T12:34:37.2052280Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2052690Z AssertionError: -6 != 3 : ==74742==AddressSanitizer: detect_leaks is not supported on this platform.
+2026-09-20T12:34:37.2052990Z 
+2026-09-20T12:34:37.2052990Z 
+2026-09-20T12:34:37.2053080Z ======================================================================
+2026-09-20T12:34:37.2053600Z FAIL: test_empty_nonzero_and_missing_program (tests.test_reference_eval_transport.ReferenceTransport.test_empty_nonzero_and_missing_program)
+2026-09-20T12:34:37.2054140Z ----------------------------------------------------------------------
+2026-09-20T12:34:37.2054460Z Traceback (most recent call last):
+2026-09-20T12:34:37.2054920Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 209, in test_empty_nonzero_and_missing_program
+2026-09-20T12:34:37.2055420Z     self.run_eval('(EInt 42)',compiler,success=False)
+2026-09-20T12:34:37.2055680Z     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2056080Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 183, in run_eval
+2026-09-20T12:34:37.2056590Z     self.assertEqual(result.returncode,0 if success else 3,result.stdout+result.stderr)
+2026-09-20T12:34:37.2057020Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2057430Z AssertionError: -6 != 3 : ==74743==AddressSanitizer: detect_leaks is not supported on this platform.
+2026-09-20T12:34:37.2057730Z 
+2026-09-20T12:34:37.2057730Z 
+2026-09-20T12:34:37.2057820Z ======================================================================
+2026-09-20T12:34:37.2058390Z FAIL: test_large_input_and_output_before_consumption (tests.test_reference_eval_transport.ReferenceTransport.test_large_input_and_output_before_consumption)
+2026-09-20T12:34:37.2059170Z ----------------------------------------------------------------------
+2026-09-20T12:34:37.2059430Z Traceback (most recent call last):
+2026-09-20T12:34:37.2059900Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 203, in test_large_input_and_output_before_consumption
+2026-09-20T12:34:37.2060490Z     self.assertEqual(self.run_eval(expression,compiler),'p'*262144+expression)
+2026-09-20T12:34:37.2060810Z                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2061200Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 183, in run_eval
+2026-09-20T12:34:37.2061720Z     self.assertEqual(result.returncode,0 if success else 3,result.stdout+result.stderr)
+2026-09-20T12:34:37.2062140Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2062560Z AssertionError: -6 != 0 : ==74744==AddressSanitizer: detect_leaks is not supported on this platform.
+2026-09-20T12:34:37.2062860Z 
+2026-09-20T12:34:37.2062860Z 
+2026-09-20T12:34:37.2062950Z ======================================================================
+2026-09-20T12:34:37.2063560Z FAIL: test_output_allocation_failure_reaps_both_owned_children (tests.test_reference_eval_transport.ReferenceTransport.test_output_allocation_failure_reaps_both_owned_children)
+2026-09-20T12:34:37.2064240Z ----------------------------------------------------------------------
+2026-09-20T12:34:37.2064510Z Traceback (most recent call last):
+2026-09-20T12:34:37.2065020Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 223, in test_output_allocation_failure_reaps_both_owned_children
+2026-09-20T12:34:37.2065600Z     self.run_eval(expression,compiler,success=False,fail_grow=True)
+2026-09-20T12:34:37.2066070Z     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2066500Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 183, in run_eval
+2026-09-20T12:34:37.2067030Z     self.assertEqual(result.returncode,0 if success else 3,result.stdout+result.stderr)
+2026-09-20T12:34:37.2067420Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2067830Z AssertionError: -6 != 3 : ==74745==AddressSanitizer: detect_leaks is not supported on this platform.
+2026-09-20T12:34:37.2068130Z 
+2026-09-20T12:34:37.2068130Z 
+2026-09-20T12:34:37.2068220Z ======================================================================
+2026-09-20T12:34:37.2068660Z FAIL: test_path_lookup_and_trim (tests.test_reference_eval_transport.ReferenceTransport.test_path_lookup_and_trim)
+2026-09-20T12:34:37.2069120Z ----------------------------------------------------------------------
+2026-09-20T12:34:37.2069380Z Traceback (most recent call last):
+2026-09-20T12:34:37.2069840Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 196, in test_path_lookup_and_trim
+2026-09-20T12:34:37.2070360Z     self.assertEqual(self.run_eval('(EInt 42)','-',path=folder),'answer')
+2026-09-20T12:34:37.2070670Z                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2071080Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 183, in run_eval
+2026-09-20T12:34:37.2071630Z     self.assertEqual(result.returncode,0 if success else 3,result.stdout+result.stderr)
+2026-09-20T12:34:37.2072090Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2072570Z AssertionError: -6 != 0 : ==74746==AddressSanitizer: detect_leaks is not supported on this platform.
+2026-09-20T12:34:37.2072940Z 
+2026-09-20T12:34:37.2072940Z 
+2026-09-20T12:34:37.2073090Z ======================================================================
+2026-09-20T12:34:37.2073750Z FAIL: test_quoted_expression_and_adjacent_spaced_path (tests.test_reference_eval_transport.ReferenceTransport.test_quoted_expression_and_adjacent_spaced_path)
+2026-09-20T12:34:37.2074840Z ----------------------------------------------------------------------
+2026-09-20T12:34:37.2075180Z Traceback (most recent call last):
+2026-09-20T12:34:37.2075700Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 191, in test_quoted_expression_and_adjacent_spaced_path
+2026-09-20T12:34:37.2076330Z     self.assertEqual(self.run_eval(expression,compiler),expression)
+2026-09-20T12:34:37.2076670Z                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2077160Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 183, in run_eval
+2026-09-20T12:34:37.2077760Z     self.assertEqual(result.returncode,0 if success else 3,result.stdout+result.stderr)
+2026-09-20T12:34:37.2078190Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2078670Z AssertionError: -6 != 0 : ==74747==AddressSanitizer: detect_leaks is not supported on this platform.
+2026-09-20T12:34:37.2078980Z 
+2026-09-20T12:34:37.2078980Z 
+2026-09-20T12:34:37.2079120Z ======================================================================
+2026-09-20T12:34:37.2079780Z FAIL: test_repeated_calls_and_closed_standard_descriptors (tests.test_reference_eval_transport.ReferenceTransport.test_repeated_calls_and_closed_standard_descriptors)
+2026-09-20T12:34:37.2080430Z ----------------------------------------------------------------------
+2026-09-20T12:34:37.2080770Z Traceback (most recent call last):
+2026-09-20T12:34:37.2081330Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 227, in test_repeated_calls_and_closed_standard_descriptors
+2026-09-20T12:34:37.2081980Z     self.assertEqual(self.run_eval('(EInt 42)',compiler,mode='repeat'),'ok')
+2026-09-20T12:34:37.2082880Z                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2083360Z   File "/Users/runner/work/nanolang/nanolang/tests/test_reference_eval_transport.py", line 183, in run_eval
+2026-09-20T12:34:37.2083960Z     self.assertEqual(result.returncode,0 if success else 3,result.stdout+result.stderr)
+2026-09-20T12:34:37.2084390Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-20T12:34:37.2084880Z AssertionError: -6 != 0 : ==74748==AddressSanitizer: detect_leaks is not supported on this platform.
+2026-09-20T12:34:37.2085210Z 
+2026-09-20T12:34:37.2085210Z 
+2026-09-20T12:34:37.2085380Z ----------------------------------------------------------------------
+2026-09-20T12:34:37.2085680Z Ran 8 tests in 1.028s
+2026-09-20T12:34:37.2085820Z 
+2026-09-20T12:34:37.2085920Z FAILED (failures=8)
+2026-09-20T12:34:37.2121330Z make[1]: *** [test-reference-eval-transport] Error 1
+2026-09-20T12:34:37.2133710Z make: *** [test] Error 2

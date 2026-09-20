@@ -1,4 +1,7 @@
 #include "file_runtime.h"
+#include "file_runtime_frames.h"
+#include "file_cyclic_runtime.h"
+#include "../nsi_file_values_internal.h"
 #include "nvm_v2_sections.h"
 #include "../nsi_file_catalog.h"
 #include <limits.h>
@@ -20,10 +23,19 @@ typedef struct {
 typedef struct {
     uint32_t function, instruction, locals_base, stack_base, stack_count;
     uint32_t staging_base, reference_base, region_base;
+    bool waiting, instruction_open;
+    uint8_t variant;
 } FileRuntimeFrame;
+typedef enum { FR_ACYCLIC, FR_CYCLIC } FileRuntimeKind;
+typedef struct { NlFileValue owners[NVM_FILE_FLOW_OWNERS]; uint32_t roots[NVM_FILE_FLOW_OWNERS]; } FileRuntimeWitness;
 typedef enum { FR_READY, FR_ACTIVE, FR_TERMINAL } FileRuntimePhase;
 struct NvmFileRuntime {
     NvmFileHostedPlan *plan;
+    NvmFileCyclicHostedPlan *cyclic_plan;
+    FileRuntimeKind kind;
+    FileRuntimeWitness *witness;
+    uint64_t instruction_limit, instructions_started;
+    bool fuel_exhausted, transfer_active;
     NvmFileHostedStartup startup;
     NvmFileRuntimeStorage storage;
     NvmFileFlowDeclaration types[NVM_FILE_NOMINAL_TYPES];
@@ -35,6 +47,8 @@ struct NvmFileRuntime {
     NvmFileRuntimeReport report;
     NvmFileRuntimeView result;
     FileRuntimePhase phase;
+    NvmFileRuntimeMode mode;
+    uint16_t frame_count;
     bool busy, acquired, complete;
     uint32_t current_root, region_count;
     uint64_t next_region;
@@ -58,6 +72,14 @@ static NvmFileRuntimeStatus fr_ready(NvmFileRuntime *c) {
     if(c->phase!=FR_ACTIVE)return NVM_FILE_RUNTIME_STATE;
     if(c->report.status!=NVM_FILE_RUNTIME_OK)return c->report.status;
     if(c->complete)return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
+    return NVM_FILE_RUNTIME_OK;
+}
+static NvmFileRuntimeStatus fr_effect(NvmFileRuntime *c) {
+    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    if(c->kind==FR_CYCLIC && !c->transfer_active &&
+       (!c->frame_count || c->frames[c->frame_count-1].waiting ||
+        !c->frames[c->frame_count-1].instruction_open))
+        return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
     return NVM_FILE_RUNTIME_OK;
 }
 static NvmFileRuntimeStatus fr_core(NvmFileRuntime *c,NlFileValueStatus s) {
@@ -116,6 +138,8 @@ static bool fr_error_payload(NlFileResult r,int64_t out[NVM_FILE_RUNTIME_FIELDS]
     out[0]=(int64_t)r.status;out[1]=r.host_errno;out[2]=r.cleanup_errno;out[3]=(int64_t)r.bytes;
     out[4]=r.eof;out[5]=r.consumed;out[6]=r.cleanup_failed;return true;
 }
+#include "file_cyclic_runtime_facts.inc"
+
 NvmFileRuntimeStatus nvm_file_runtime_create(const uint8_t *bytes,size_t size,NvmFileRuntimeMode mode,NvmFileRuntime **out) {
     if(!out || (mode!=NVM_FILE_RUNTIME_VM && mode!=NVM_FILE_RUNTIME_NATIVE))return NVM_FILE_RUNTIME_INVALID;
     NvmFileHostedPlan *plan=NULL;NvmFileFlowStatus checked=nvm_file_hosted_prepare(bytes,size,&plan);
@@ -135,7 +159,7 @@ NvmFileRuntimeStatus nvm_file_runtime_create(const uint8_t *bytes,size_t size,Nv
     }
     NvmFileRuntime *c=calloc(1,sizeof *c);
     if(!c){nvm_file_hosted_free(plan);return NVM_FILE_RUNTIME_MEMORY;}
-    c->plan=plan;c->startup=startup;c->next_region=1;
+    c->plan=plan;c->startup=startup;c->next_region=1;c->mode=mode;
     c->storage=(NvmFileRuntimeStorage){total,(uint32_t)values,startup.reference_slots,startup.region_slots,startup.frames};
     c->values=calloc(c->storage.values,sizeof *c->values);
     c->references=calloc(c->storage.references,sizeof *c->references);
@@ -172,7 +196,14 @@ NvmFileRuntimeStatus nvm_file_runtime_begin(NvmFileRuntime *c) {
 NvmFileRuntimeStatus nvm_file_runtime_site(NvmFileRuntime *c,uint32_t function,uint16_t instruction) {
     NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     NvmFileCodeInstruction in;NvmFileBodyInstruction fact;
-    if(!nvm_file_hosted_instruction(c->plan,function,instruction,&in,&fact) || !fact.reachable)
+    uint8_t variant=0;
+    if(c->kind==FR_CYCLIC) {
+        if(!c->frame_count || c->frames[c->frame_count-1].function!=function ||
+           c->frames[c->frame_count-1].instruction!=instruction)
+            return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
+        variant=c->frames[c->frame_count-1].variant;
+    }
+    if(!fr_instruction(c,function,instruction,variant,&in,&fact) || !fact.reachable)
         return fr_error(c,NVM_FILE_RUNTIME_INVALID,NL_FILE_VALUE_ARGUMENT);
     c->report.function=function;c->report.instruction=in.byte_offset;return NVM_FILE_RUNTIME_OK;
 }
@@ -190,7 +221,7 @@ bool nvm_file_runtime_view(const NvmFileRuntime *c,uint32_t root,NvmFileRuntimeV
     *out=c->values[root].view;return true;
 }
 NvmFileRuntimeStatus nvm_file_runtime_scalar(NvmFileRuntime *c,uint32_t dst,uint8_t tag,int64_t value) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_empty(c,dst) || (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_VOID) ||
        (tag==TAG_BOOL && value!=0 && value!=1) || (tag==TAG_VOID && value))
         return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
@@ -198,13 +229,13 @@ NvmFileRuntimeStatus nvm_file_runtime_scalar(NvmFileRuntime *c,uint32_t dst,uint
     c->values[dst].view=v;return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_copy(NvmFileRuntime *c,uint32_t src,uint32_t dst) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_live(c,src) || !fr_empty(c,dst) || c->values[src].view.owning || c->values[src].view.formal)
         return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
     c->values[dst].view=c->values[src].view;return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_move(NvmFileRuntime *c,uint32_t src,uint32_t dst) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_live(c,src) || !fr_empty(c,dst) || c->values[src].view.formal)
         return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
     if(c->values[src].view.owning) {
@@ -214,7 +245,7 @@ NvmFileRuntimeStatus nvm_file_runtime_move(NvmFileRuntime *c,uint32_t src,uint32
     c->values[dst].view=c->values[src].view;fr_clear(c,src);return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_drop(NvmFileRuntime *c,uint32_t root) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_live(c,root) || c->values[root].view.formal)return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
     if(c->values[root].view.owning) {
         c->busy=true;NlFileValueStatus core=nl_file_value_drop(c->files,&c->values[root].owner);c->busy=false;
@@ -223,7 +254,7 @@ NvmFileRuntimeStatus nvm_file_runtime_drop(NvmFileRuntime *c,uint32_t root) {
     fr_clear(c,root);return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_construct(NvmFileRuntime *c,uint32_t ordinal,uint16_t variant,const uint32_t *inputs,size_t count,uint32_t dst) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(ordinal>=NVM_FILE_NOMINAL_TYPES || dst>=c->storage.values || count>NVM_FILE_RUNTIME_FIELDS || (count && !inputs))
         return fr_error(c,NVM_FILE_RUNTIME_INVALID,NL_FILE_VALUE_ARGUMENT);
     NvmFileFlowDeclaration type=c->types[ordinal];bool record=type.category==NVM_FILE_CATEGORY_RECORD;
@@ -250,7 +281,7 @@ NvmFileRuntimeStatus nvm_file_runtime_construct(NvmFileRuntime *c,uint32_t ordin
     c->values[dst].view=value;return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_project(NvmFileRuntime *c,uint32_t src,uint16_t field,uint32_t dst) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_live(c,src) || (src!=dst && !fr_empty(c,dst)))return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
     NvmFileRuntimeView input=c->values[src].view;uint32_t ordinal=input.type.catalog_ordinal;
     if(input.owning || input.formal || ordinal>=NVM_FILE_NOMINAL_TYPES)return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
@@ -282,7 +313,7 @@ NvmFileRuntimeStatus nvm_file_runtime_result_arm(NvmFileRuntime *c,uint32_t root
     *out=arm;return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_take(NvmFileRuntime *c,uint32_t src,NvmFileFlowArm arm,uint32_t dst) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_live(c,src) || !fr_empty(c,dst) || (arm!=NVM_FILE_FLOW_ARM_OK && arm!=NVM_FILE_FLOW_ARM_ERROR))
         return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
     NvmFileFlowArm actual;status=nvm_file_runtime_result_arm(c,src,&actual);if(status!=NVM_FILE_RUNTIME_OK)return status;
@@ -324,12 +355,12 @@ static bool fr_aliases(const NvmFileRuntime *c,uint32_t origin) {
     return false;
 }
 NvmFileRuntimeStatus nvm_file_runtime_region_begin(NvmFileRuntime *c) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(c->region_count==c->storage.regions || c->next_region==UINT64_MAX)return fr_error(c,NVM_FILE_RUNTIME_LIMIT,NL_FILE_VALUE_LIMIT);
     c->regions[c->region_count++]=c->next_region++;return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_borrow(NvmFileRuntime *c,uint32_t owner,uint32_t reference) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_live(c,owner) || c->values[owner].view.type.category!=NVM_FILE_CATEGORY_FILE ||
        !c->values[owner].view.owning || !c->region_count || reference>=c->storage.references || c->references[reference].live)
         return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
@@ -340,7 +371,7 @@ NvmFileRuntimeStatus nvm_file_runtime_borrow(NvmFileRuntime *c,uint32_t owner,ui
     r.live=true;c->references[reference]=r;return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_bind_formal(NvmFileRuntime *c,uint32_t source,uint32_t root,uint32_t reference) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_reference(c,source) || !fr_empty(c,root) || reference>=c->storage.references || c->references[reference].live)
         return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
     FileRuntimeReference r=c->references[source];r.formal=true;r.formal_root=root;r.region=0;
@@ -348,7 +379,7 @@ NvmFileRuntimeStatus nvm_file_runtime_bind_formal(NvmFileRuntime *c,uint32_t sou
     c->references[reference]=r;c->values[root].view=value;c->values[root].reference=reference;return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_end_reference(NvmFileRuntime *c,uint32_t reference) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_reference(c,reference))return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
     FileRuntimeReference *r=&c->references[reference];
     if(r->formal) {
@@ -363,7 +394,7 @@ NvmFileRuntimeStatus nvm_file_runtime_end_reference(NvmFileRuntime *c,uint32_t r
     *r=(FileRuntimeReference){0};return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_region_end(NvmFileRuntime *c) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!c->region_count)return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
     uint64_t region=c->regions[c->region_count-1];
     for(uint32_t i=0;i<c->storage.references;i++)if(c->references[i].live && !c->references[i].formal &&
@@ -391,9 +422,9 @@ static bool fr_scalar_result(NvmFileRuntime *c,uint32_t ordinal,NlFileScalarResu
     *out=result;return true;
 }
 NvmFileRuntimeStatus nvm_file_runtime_service(NvmFileRuntime *c,uint32_t import,uint32_t reference,uint32_t input,uint32_t output) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     uint32_t ordinal;
-    if(!fr_empty(c,output) || !nvm_file_hosted_import(c->plan,import,&ordinal) || ordinal>=NVM_SERVICE_BINDING_COUNT)
+    if(!fr_empty(c,output) || !fr_import(c,import,&ordinal) || ordinal>=NVM_SERVICE_BINDING_COUNT)
         return fr_error(c,NVM_FILE_RUNTIME_INVALID,NL_FILE_VALUE_ARGUMENT);
     bool borrows=ordinal>=1 && ordinal<=3;
     if((borrows && !fr_reference(c,reference)) || (!borrows && reference!=NVM_FILE_RUNTIME_NO_SLOT))
@@ -430,10 +461,17 @@ NvmFileRuntimeStatus nvm_file_runtime_service(NvmFileRuntime *c,uint32_t import,
     c->values[output].view=result;return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_complete_root(NvmFileRuntime *c,uint32_t root) {
-    NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
+    if(c->kind==FR_CYCLIC) {
+        NvmFileCodeInstruction in;NvmFileBodyInstruction fact;
+        FileRuntimeFrame *f=&c->frames[c->frame_count-1];
+        if(c->frame_count!=1 || !fr_instruction(c,f->function,(uint16_t)f->instruction,f->variant,&in,&fact) ||
+           in.decoded.opcode!=OP_RET || !fact.exit_checked)
+            return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
+    }
     bool initializer=c->current_root==c->startup.initializer;
     NvmFileHostedFunction fn;
-    if(!nvm_file_hosted_function(c->plan,c->current_root,&fn))return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
+    if(!fr_function(c,c->current_root,&fn))return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
     if(initializer) {
         if(root!=NVM_FILE_RUNTIME_NO_SLOT || fn.code.declaration.result_count)return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
     } else if(!fr_live(c,root) || !fr_same(c->values[root].view.type,fn.code.declaration.result) ||
@@ -452,7 +490,7 @@ NvmFileRuntimeStatus nvm_file_runtime_complete_root(NvmFileRuntime *c,uint32_t r
     }
     if(!initializer)c->result=c->values[root].view;
     memset(c->values,0,(size_t)c->storage.values*sizeof *c->values);
-    memset(c->frames,0,(size_t)c->storage.frames*sizeof *c->frames);
+    memset(c->frames,0,(size_t)c->storage.frames*sizeof *c->frames);c->frame_count=0;
     if(initializer)c->current_root=c->startup.entry;
     else c->complete=true;
     return NVM_FILE_RUNTIME_OK;
@@ -461,7 +499,7 @@ static NvmFileRuntimeReport fr_refused(NvmFileRuntimeStatus status) {
     NvmFileRuntimeReport report={0};report.status=status;
     report.function=report.instruction=NVM_V2_NO_INDEX;return report;
 }
-NvmFileRuntimeReport nvm_file_runtime_finish(NvmFileRuntime *c,NvmFileRuntimeView *out) {
+static NvmFileRuntimeReport fr_finish(NvmFileRuntime *c,NvmFileRuntimeView *out) {
     if(!c)return fr_refused(NVM_FILE_RUNTIME_INVALID);
     if(c->busy)return fr_refused(NVM_FILE_RUNTIME_BUSY);
     if(c->phase==FR_TERMINAL) {
@@ -499,15 +537,31 @@ NvmFileRuntimeReport nvm_file_runtime_finish(NvmFileRuntime *c,NvmFileRuntimeVie
             fr_error(c,NVM_FILE_RUNTIME_CLEANUP,c->report.cleanup.execution);
     } else c->report.cleanup.execution=c->report.core_status;
     memset(c->regions,0,(size_t)c->storage.regions*sizeof *c->regions);c->region_count=0;
-    c->busy=false;c->phase=FR_TERMINAL;
+    c->frame_count=0;c->busy=false;c->phase=FR_TERMINAL;
     if(c->report.status==NVM_FILE_RUNTIME_OK && out)*out=c->result;
     return c->report;
+}
+NvmFileRuntimeReport nvm_file_runtime_finish(NvmFileRuntime *c,NvmFileRuntimeView *out) {
+    if(c && c->kind!=FR_ACYCLIC)return fr_refused(NVM_FILE_RUNTIME_STATE);
+    return fr_finish(c,out);
 }
 NvmFileRuntimeReport nvm_file_runtime_destroy(NvmFileRuntime **address,NvmFileRuntimeView *out) {
     if(!address || !*address)return fr_refused(NVM_FILE_RUNTIME_INVALID);
     NvmFileRuntime *c=*address;
+    if(c->kind!=FR_ACYCLIC)return fr_refused(NVM_FILE_RUNTIME_STATE);
     if(c->busy)return fr_refused(NVM_FILE_RUNTIME_BUSY);
     NvmFileRuntimeReport report=nvm_file_runtime_finish(c,out);
     free(c->frames);free(c->regions);free(c->references);free(c->values);nvm_file_hosted_free(c->plan);free(c);*address=NULL;
     return report;
 }
+
+#include "file_runtime_frames.inc"
+#include "file_cyclic_runtime.inc"
+
+#if defined(NVM_FILE_NATIVE_PRIVATE) || defined(NVM_FILE_PUBLIC_ENGINE)
+#include "file_native_abi.h"
+bool nvm_file_runtime_native_abi(uint32_t revision,size_t view,size_t frame,size_t report) {
+    return revision==NVM_FILE_NATIVE_ABI && view==sizeof(NvmFileRuntimeView) &&
+        frame==sizeof(NvmFileRuntimeFrameView) && report==sizeof(NvmFileRuntimeReport);
+}
+#endif

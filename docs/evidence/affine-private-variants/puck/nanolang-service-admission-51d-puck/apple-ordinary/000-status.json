@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-D_GNU_SOURCE",
+    "-UNDEBUG",
+    "-Isrc",
+    "-Isrc/nanoisa",
+    "-iquote",
+    "/private/tmp/nanolang-service-admission-integrated/src/nanoisa",
+    "-DNANO_NO_COMPUTED_GOTO",
+    "-dM",
+    "-E",
+    "tests/nanovm/test_ordinary_admission.c"
+  ],
+  "cwd": "/private/tmp/nanolang-service-admission-integrated",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

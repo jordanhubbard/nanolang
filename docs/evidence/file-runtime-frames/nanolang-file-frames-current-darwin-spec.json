@@ -1,0 +1,14 @@
+[
+  {
+    "root": "/tmp/nanolang-file-frames-041",
+    "report": "/tmp/nanolang-file-frames-041-darwin",
+    "source": "normal-source-after.json",
+    "tools": "normal-tools-after.json"
+  },
+  {
+    "root": "/tmp/nanolang-file-frames-864",
+    "report": "/tmp/nanolang-file-frames-864-darwin",
+    "source": "wrapper-source-after.json",
+    "tools": "wrapper-tools-after.json"
+  }
+]

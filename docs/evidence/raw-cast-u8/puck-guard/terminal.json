@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "head": "565a48d3faa2d68eb49a81809846cbc5ad61ec3d",
+  "scope": "Selected rebuilt VM and fixture sanitizers plus unsupported translator output preservation; ordinary linked providers separately inventoried."
+}

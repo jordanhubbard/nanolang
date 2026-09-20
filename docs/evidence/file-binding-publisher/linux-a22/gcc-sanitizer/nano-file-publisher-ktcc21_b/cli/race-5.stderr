@@ -1,0 +1,1 @@
+{"status":6,"failed_stage":7,"first_errno":17,"cleanup_errno":0,"published":false,"durable":false,"cleanup_pending":false,"path_encoding":"byte-codepoints-0-255","input":"tests/fixtures/nsi_file_plan.json","directory":"/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/cli/raced","staging_name":".nsi-file-binding-3a79712cc8f6c779f629e40cbc0c0f60"}

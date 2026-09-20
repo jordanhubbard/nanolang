@@ -1,0 +1,36 @@
+FAULT index=1 operation=open stage=2 published=0 durable=0 cleanup=0 pending=0
+FAULT index=2 operation=fstat stage=2 published=0 durable=0 cleanup=0 pending=0
+FAULT index=3 operation=entropy stage=3 published=0 durable=0 cleanup=0 pending=0
+FAULT index=4 operation=mkdir stage=3 published=0 durable=0 cleanup=0 pending=0
+FAULT index=5 operation=openat stage=3 published=0 durable=0 cleanup=116 pending=1
+FAULT index=6 operation=fstat stage=3 published=0 durable=0 cleanup=116 pending=1
+FAULT index=7 operation=fstatat stage=3 published=0 durable=0 cleanup=0 pending=0
+FAULT index=8 operation=openat stage=4 published=0 durable=0 cleanup=0 pending=0
+FAULT index=9 operation=fstat stage=4 published=0 durable=0 cleanup=116 pending=1
+FAULT index=10 operation=write stage=4 published=0 durable=0 cleanup=0 pending=0
+FAULT index=11 operation=sync stage=4 published=0 durable=0 cleanup=0 pending=0
+FAULT index=12 operation=close stage=9 published=0 durable=0 cleanup=0 pending=1
+FAULT index=13 operation=openat stage=5 published=0 durable=0 cleanup=0 pending=0
+FAULT index=14 operation=fstat stage=5 published=0 durable=0 cleanup=116 pending=1
+FAULT index=15 operation=write stage=5 published=0 durable=0 cleanup=0 pending=0
+FAULT index=16 operation=sync stage=5 published=0 durable=0 cleanup=0 pending=0
+FAULT index=17 operation=close stage=9 published=0 durable=0 cleanup=0 pending=1
+FAULT index=18 operation=sync stage=6 published=0 durable=0 cleanup=0 pending=0
+FAULT index=19 operation=fstatat stage=7 published=0 durable=0 cleanup=0 pending=0
+FAULT index=20 operation=rename stage=7 published=0 durable=0 cleanup=0 pending=0
+FAULT index=21 operation=sync stage=8 published=1 durable=0 cleanup=0 pending=0
+FAULT index=22 operation=close stage=9 published=1 durable=1 cleanup=0 pending=1
+FAULT index=23 operation=close stage=9 published=1 durable=1 cleanup=0 pending=1
+EINTR operation=write interrupts=64 attempts=66 status=0
+EINTR operation=write interrupts=65 attempts=65 status=5
+EINTR operation=sync interrupts=64 attempts=68 status=0
+EINTR operation=sync interrupts=65 attempts=65 status=5
+CLI_FAULT index=1 operation=open
+CLI_FAULT index=2 operation=fstat
+CLI_FAULT index=3 operation=malloc
+CLI_FAULT index=4 operation=read
+CLI_FAULT index=5 operation=read
+CLI_FAULT index=6 operation=close
+CLI_EINTR interrupts=64 attempts=66 result=0
+CLI_EINTR interrupts=65 attempts=65 result=1
+PASS File publisher checks=3447 mode=instrumented

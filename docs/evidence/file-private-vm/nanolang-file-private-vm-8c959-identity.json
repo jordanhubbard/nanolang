@@ -1,0 +1,9 @@
+{
+  "src/nanovm/file_vm_private.c": "5c7b858295ca33846256ba4c00324205731a748fb25aa3340801566ccc4b78f7",
+  "src/nanovm/file_vm_private.h": "91e1015cc1dbe70e1b805f294ecd6885189b05c4fd81d2d6d759fa5bbaf6110a",
+  "src/nanoisa/file_runtime_frames.h": "13e5e17b6954dfcb28814019c89b624908f202b12152e6d172ea912ad85583b7",
+  "src/nanoisa/file_runtime_frames.inc": "9e03fc1690f8e5c46158c4d2d338bc934f847f8fcead45bbcb72b3c332b2229e",
+  "tests/nanoisa/test_file_private_vm.c": "617543b23951261116d58a46ad1c11e2c7f8e48d80f738c56a41ece8d649f5fd",
+  "tests/nanoisa/test_file_runtime_frames.c": "f652d8e5fc88932d1acb4e2dd77c9d34572085070f812f1933a87ff532a753b8",
+  "tests/test_file_private_vm.py": "cd24d6e781de31e78526ef843e9c6f3e6c53b27398b85fecf574bcd9608c3c9e"
+}

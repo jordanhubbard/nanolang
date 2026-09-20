@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-binding-qualified-23bed/src",
+    "-I",
+    "/home/jkh/Src/nanolang-file-binding-qualified-23bed/tests",
+    "-I",
+    "/tmp/nanolang-file-binding-23bed-linux/gcc-ordinary/nano-file-binding-08juzk59",
+    "-include",
+    "/home/jkh/Src/nanolang-file-binding-qualified-23bed/tests/file_binding_hooks.h",
+    "-c",
+    "src/nsi.c",
+    "-o",
+    "/tmp/nanolang-file-binding-23bed-linux/gcc-ordinary/nano-file-binding-08juzk59/instrumented-nsi.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-binding-qualified-23bed",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

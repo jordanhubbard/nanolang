@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-service-parser-70113/src",
+    "-c",
+    "/home/jkh/Src/nanolang-file-service-parser-70113/tests/file_service_parser_eval.c",
+    "-o",
+    "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary/nano-file-service-parser-6yxaj5d1/eval.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-70113",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

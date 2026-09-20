@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-admission-public-bc45-selected-puck/providers.mk",
+    "carrier-config",
+    "CC=/usr/bin/clang"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": "",
+    "NMS_NATIVE_CLANG_FLAGS": ""
+  }
+}

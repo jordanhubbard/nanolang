@@ -1,0 +1,8 @@
+{
+  "CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "OWNED_ARRAY_OVERWRITE_CFLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "PYTHONPATH": "/private/tmp/nanolang-owned-array-overwrite-a4d3c0302",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk"
+}

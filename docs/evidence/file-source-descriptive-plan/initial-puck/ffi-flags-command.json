@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/pkg-config",
+    "--cflags",
+    "--libs",
+    "libffi"
+  ],
+  "cwd": "/private/tmp/nanolang-file-source-qualified-32ade",
+  "environment": {
+    "CC": "/usr/bin/clang",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "PKG_CONFIG_PATH": "/opt/homebrew/opt/libffi/lib/pkgconfig:/opt/homebrew/opt/openssl@3/lib/pkgconfig",
+    "NMS_NATIVE_CLANG_FLAGS": null,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_SOURCE_CC": null,
+    "NANO_FILE_SOURCE_CFLAGS": null,
+    "NANO_FILE_SOURCE_SANITIZERS": null
+  }
+}

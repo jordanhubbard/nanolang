@@ -1,0 +1,18 @@
+{
+  "args": [
+    "git",
+    "-C",
+    "/private/tmp/nanolang-managed-string-e4f-puck",
+    "rev-parse",
+    "HEAD"
+  ],
+  "cleanup": {
+    "confirmed": true,
+    "errors": [],
+    "group_gone": true,
+    "pid": 64633,
+    "reaped": true
+  },
+  "exception": null,
+  "returncode": 0
+}

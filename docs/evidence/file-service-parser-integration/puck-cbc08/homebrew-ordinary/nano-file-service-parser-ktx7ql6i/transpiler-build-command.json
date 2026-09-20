@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-cbc08/src",
+    "-c",
+    "/private/tmp/nanolang-file-service-parser-cbc08/src/transpiler.c",
+    "-o",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/transpiler.o"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

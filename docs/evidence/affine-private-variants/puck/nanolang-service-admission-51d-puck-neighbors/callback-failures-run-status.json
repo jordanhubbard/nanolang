@@ -1,0 +1,10 @@
+{
+  "label": "callback-failures-run",
+  "argv": [
+    "/private/tmp/nanolang-service-admission-51d-puck-neighbors/products/callback-failures"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.2911158329807222
+}

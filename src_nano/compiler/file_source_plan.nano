@@ -1,0 +1,248 @@
+# I describe explicit checked source requests; I parse and execute no service.
+module "modules/file_source_catalog/file_source_catalog.nano" as FileCatalog
+
+pub struct FileSourceText { data: string, size: int }
+pub struct FileSourceBinding { id: int, kind: int, ordinal: int, name: FileSourceText }
+pub struct FileSourceRequest {
+    module_id: FileSourceText, interface_id: FileSourceText, catalog_view: FileSourceText,
+    catalog_version: int, line: int, column: int, bindings: array<FileSourceBinding>
+}
+pub struct FileSourceAlias { module_id: FileSourceText, name: FileSourceText, id: int, target: int }
+pub struct FileSourceOrdinary { module_id: FileSourceText, name: FileSourceText, id: int }
+pub struct FileSourceRow {
+    module_id: string, name: string, id: int, target: int, request: int,
+    kind: int, ordinal: int, category: int, input_mode: int, result_ordinal: int,
+    global_layout: int, import_index: int, line: int, column: int
+}
+pub struct FileSourcePlan { status: int, rows: array<FileSourceRow>, logical_bytes: int }
+
+fn fsp_string(value: string) -> string {
+    return (+ (int_to_string (str_length value)) (+ ":" (+ value ";")))
+}
+shadow fsp_string { assert (== (fsp_string "File") "4:File;") }
+fn fsp_number(value: int) -> string { return (+ "#" (+ (int_to_string value) ";")) }
+shadow fsp_number { assert (== (fsp_number 1) "#1;") }
+
+# This independently formats every catalog fact; C exposes only immutable getters.
+pub fn file_source_catalog_view() -> string {
+    let mut out: string = (+ "file-source-catalog1;" (fsp_string (FileCatalog.text 0 0 0 0)))
+    set out (+ out (+ (fsp_number 8) (fsp_number 5)))
+    let mut i: int = 0
+    while (< i 8) {
+        let mut f: int = 0
+        while (< f 2) { set out (+ out (fsp_string (FileCatalog.text 1 i f 0))) set f (+ f 1) }
+        set f 0
+        while (< f 2) { set out (+ out (fsp_number (FileCatalog.number 1 i f 0))) set f (+ f 1) }
+        let count: int = (FileCatalog.number 1 i 1 0)
+        if (or (< count 0) (> count 8)) { return "" }
+        let mut j: int = 0
+        while (< j count) {
+            set f 2
+            while (< f 5) { set out (+ out (fsp_string (FileCatalog.text 1 i f j))) set f (+ f 1) }
+            set out (+ out (fsp_number (FileCatalog.number 1 i 2 j)))
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i 5) {
+        let mut f: int = 0
+        while (< f 4) { set out (+ out (fsp_string (FileCatalog.text 2 i f 0))) set f (+ f 1) }
+        set f 0
+        while (< f 5) { set out (+ out (fsp_number (FileCatalog.number 2 i f 0))) set f (+ f 1) }
+        let count: int = (FileCatalog.number 2 i 4 0)
+        if (or (< count 0) (> count 8)) { return "" }
+        let mut j: int = 0
+        while (< j count) {
+            set f 4
+            while (< f 7) { set out (+ out (fsp_string (FileCatalog.text 2 i f j))) set f (+ f 1) }
+            set f 5
+            while (< f 10) { set out (+ out (fsp_number (FileCatalog.number 2 i f j))) set f (+ f 1) }
+            set j (+ j 1)
+        }
+        set j 0
+        while (< j 2) {
+            set out (+ out (fsp_number (FileCatalog.number 2 i 10 j)))
+            set out (+ out (fsp_string (FileCatalog.text 2 i 7 j)))
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    if (>= (str_length out) 32768) { return "" }
+    return out
+}
+shadow file_source_catalog_view {
+    let view: string = (file_source_catalog_view)
+    assert (str_contains view "file-source-catalog1;")
+    assert (str_contains view "nsi.local-file.v1.close")
+}
+fn fsp_text_ok(value: FileSourceText, maximum: int, name: bool) -> bool {
+    let count: int = value.size
+    if (or (<= count 0) (or (> count maximum) (> count (str_length value.data)))) { return false }
+    let mut i: int = 0
+    while (< i count) {
+        let c: int = (char_at value.data i)
+        if (== c 0) { return false }
+        if name {
+            let letter: bool = (or (or (and (>= c 97) (<= c 122)) (and (>= c 65) (<= c 90))) (== c 95))
+            if (not (or letter (and (> i 0) (and (>= c 48) (<= c 57))))) { return false }
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow fsp_text_ok {
+    assert (fsp_text_ok FileSourceText { data: "_a1", size: 3 } 128 true)
+    assert (not (fsp_text_ok FileSourceText { data: "1a", size: 2 } 128 true))
+    assert (not (fsp_text_ok FileSourceText { data: "", size: 0 } 4096 false))
+}
+# Call only after counted-span validation. I copy exactly the declared prefix.
+fn fsp_value(value: FileSourceText) -> string {
+    let out: string = (str_substring value.data 0 value.size)
+    assert (== (str_length out) value.size)
+    return out
+}
+shadow fsp_value { assert (== (fsp_value FileSourceText { data: "abc", size: 2 }) "ab") }
+fn fsp_equal(left: FileSourceText, right: FileSourceText) -> bool {
+    if (!= left.size right.size) { return false }
+    # Validated full spans already end at their first NUL; equality compares bytes.
+    if (and (> left.size 0) (and (== left.size (str_length left.data)) (== right.size (str_length right.data)))) {
+        return (== left.data right.data)
+    }
+    let mut i: int = 0
+    while (< i left.size) {
+        if (!= (char_at left.data i) (char_at right.data i)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow fsp_equal {
+    assert (fsp_equal FileSourceText { data: "same", size: 4 } FileSourceText { data: "same", size: 4 })
+    assert (not (fsp_equal FileSourceText { data: "same", size: 4 } FileSourceText { data: "sand", size: 4 }))
+    assert (fsp_equal FileSourceText { data: "abc", size: 2 } FileSourceText { data: "abd", size: 2 })
+    assert (fsp_equal FileSourceText { data: "éx", size: 1 } FileSourceText { data: "èy", size: 1 })
+}
+fn fsp_literal(value: FileSourceText, literal: string) -> bool {
+    return (fsp_equal value FileSourceText { data: literal, size: (str_length literal) })
+}
+shadow fsp_literal { assert (fsp_literal FileSourceText { data: "abc", size: 2 } "ab") }
+fn fsp_id_ok(value: int) -> bool { return (and (> value 0) (<= value 2147483647)) }
+shadow fsp_id_ok { assert (fsp_id_ok 1) assert (not (fsp_id_ok 2147483648)) }
+fn fsp_add(budget: int, value: FileSourceText) -> int {
+    let size: int = value.size
+    if (or (< budget 0) (>= size (- 1048576 budget))) { return -1 }
+    return (+ budget (+ size 1))
+}
+shadow fsp_add { assert (== (fsp_add 0 FileSourceText { data: "x", size: 1 }) 2) assert (== (fsp_add 1048575 FileSourceText { data: "x", size: 1 }) -1) }
+fn fsp_failure(status: int) -> FileSourcePlan {
+    let rows: array<FileSourceRow> = []
+    return FileSourcePlan { status: status, rows: rows, logical_bytes: 0 }
+}
+shadow fsp_failure { assert (== (fsp_failure 2).status 2) }
+fn fsp_category(kind: int, ordinal: int) -> int {
+    if (== kind 1) { return 5 }
+    if (== ordinal 0) { return 1 }
+    if (== ordinal 3) { return 2 }
+    if (< ordinal 3) { return 3 }
+    return 4
+}
+shadow fsp_category { assert (== (fsp_category 0 3) 2) assert (== (fsp_category 1 0) 5) }
+
+# Status0 OK,1 INVALID,2 LIMIT,3 C-only MEMORY,4 UNRESOLVED.
+# Nano allocation failure is not a recoverable status; no output/file is published.
+pub fn file_source_plan(requests: array<FileSourceRequest>, aliases: array<FileSourceAlias>, ordinary: array<FileSourceOrdinary>) -> FileSourcePlan {
+    let nr: int = (array_length requests)
+    let na: int = (array_length aliases)
+    let no: int = (array_length ordinary)
+    if (<= nr 0) { return (fsp_failure 1) }
+    if (or (> nr 16) (or (> na 64) (> no 256))) { return (fsp_failure 2) }
+    let catalog: string = (file_source_catalog_view)
+    if (== catalog "") { return (fsp_failure 4) }
+    let mut rows: array<FileSourceRow> = []
+    let mut space: array<FileSourceOrdinary> = []
+    let mut budget: int = 0
+    let mut r: int = 0
+    while (< r nr) {
+        let request: FileSourceRequest = (at requests r)
+        if (or (not (fsp_text_ok request.module_id 4096 false)) (or (not (fsp_text_ok request.interface_id 256 false)) (not (fsp_text_ok request.catalog_view 32767 false)))) { return (fsp_failure 1) }
+        if (or (not (fsp_id_ok request.line)) (or (not (fsp_id_ok request.column)) (!= (array_length request.bindings) 13))) { return (fsp_failure 1) }
+        if (or (!= request.catalog_version 1) (or (not (fsp_literal request.interface_id (FileCatalog.text 0 0 0 0))) (not (fsp_literal request.catalog_view catalog)))) { return (fsp_failure 4) }
+        set budget (fsp_add (fsp_add (fsp_add budget request.module_id) request.interface_id) request.catalog_view)
+        if (< budget 0) { return (fsp_failure 2) }
+        let mut j: int = 0
+        while (< j r) { if (fsp_equal request.module_id (at requests j).module_id) { return (fsp_failure 1) } set j (+ j 1) }
+        let mut seen: array<int> = []
+        set j 0
+        while (< j 13) {
+            let binding: FileSourceBinding = (at request.bindings j)
+            if (or (not (fsp_id_ok binding.id)) (or (< binding.kind 0) (> binding.kind 1))) { return (fsp_failure 1) }
+            let limit: int = (cond ((== binding.kind 1) 5) (else 8))
+            if (or (< binding.ordinal 0) (or (>= binding.ordinal limit) (not (fsp_text_ok binding.name 128 true)))) { return (fsp_failure 1) }
+            let index: int = (+ binding.ordinal (cond ((== binding.kind 1) 8) (else 0)))
+            let mut k: int = 0
+            while (< k (array_length seen)) { if (== (at seen k) index) { return (fsp_failure 1) } set k (+ k 1) }
+            if (not (fsp_literal binding.name (FileCatalog.text (+ binding.kind 1) binding.ordinal 1 0))) { return (fsp_failure 1) }
+            set seen (array_push seen index)
+            set budget (fsp_add budget binding.name)
+            if (< budget 0) { return (fsp_failure 2) }
+            let mode: int = (cond ((== binding.kind 1) (FileCatalog.number 2 binding.ordinal 3 0)) (else 4294967295))
+            let result: int = (cond ((== binding.kind 1) (+ 3 binding.ordinal)) (else 4294967295))
+            let row: FileSourceRow = FileSourceRow { module_id: (fsp_value request.module_id), name: (fsp_value binding.name), id: binding.id, target: binding.id, request: r, kind: binding.kind, ordinal: binding.ordinal, category: (fsp_category binding.kind binding.ordinal), input_mode: mode, result_ordinal: result, global_layout: 4294967295, import_index: 4294967295, line: request.line, column: request.column }
+            set rows (array_push rows row)
+            set space (array_push space FileSourceOrdinary { module_id: request.module_id, name: binding.name, id: binding.id })
+            set j (+ j 1)
+        }
+        set r (+ r 1)
+    }
+    let base_count: int = (array_length rows)
+    let mut a: int = 0
+    while (< a na) {
+        let alias: FileSourceAlias = (at aliases a)
+        if (or (not (fsp_id_ok alias.id)) (or (not (fsp_id_ok alias.target)) (or (not (fsp_text_ok alias.module_id 4096 false)) (not (fsp_text_ok alias.name 128 true))))) { return (fsp_failure 1) }
+        set budget (fsp_add (fsp_add budget alias.module_id) alias.name)
+        if (< budget 0) { return (fsp_failure 2) }
+        let mut target: int = -1
+        let mut i: int = 0
+        while (< i base_count) { if (== (at rows i).id alias.target) { set target i break } set i (+ i 1) }
+        if (< target 0) { return (fsp_failure 4) }
+        let source: FileSourceRow = (at rows target)
+        let row: FileSourceRow = FileSourceRow { module_id: (fsp_value alias.module_id), name: (fsp_value alias.name), id: alias.id, target: alias.target, request: source.request, kind: source.kind, ordinal: source.ordinal, category: source.category, input_mode: source.input_mode, result_ordinal: source.result_ordinal, global_layout: 4294967295, import_index: 4294967295, line: source.line, column: source.column }
+        set rows (array_push rows row)
+        set space (array_push space FileSourceOrdinary { module_id: alias.module_id, name: alias.name, id: alias.id })
+        set a (+ a 1)
+    }
+    let mut i: int = 0
+    while (< i no) {
+        let item: FileSourceOrdinary = (at ordinary i)
+        if (or (not (fsp_id_ok item.id)) (or (not (fsp_text_ok item.module_id 4096 false)) (not (fsp_text_ok item.name 128 true)))) { return (fsp_failure 1) }
+        set budget (fsp_add (fsp_add budget item.module_id) item.name)
+        if (< budget 0) { return (fsp_failure 2) }
+        set space (array_push space item)
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length space)) {
+        let left: FileSourceOrdinary = (at space i)
+        let mut j: int = 0
+        while (< j i) {
+            let right: FileSourceOrdinary = (at space j)
+            if (or (== left.id right.id) (and (fsp_equal left.module_id right.module_id) (fsp_equal left.name right.name))) { return (fsp_failure 1) }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length rows)) {
+        let row: FileSourceRow = (at rows i)
+        set budget (fsp_add (fsp_add budget FileSourceText { data: row.module_id, size: (str_length row.module_id) }) FileSourceText { data: row.name, size: (str_length row.name) })
+        if (< budget 0) { return (fsp_failure 2) }
+        set i (+ i 1)
+    }
+    return FileSourcePlan { status: 0, rows: rows, logical_bytes: budget }
+}
+shadow file_source_plan {
+    let requests: array<FileSourceRequest> = []
+    let aliases: array<FileSourceAlias> = []
+    let ordinary: array<FileSourceOrdinary> = []
+    assert (== (file_source_plan requests aliases ordinary).status 1)
+}

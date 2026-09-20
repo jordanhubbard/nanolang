@@ -1,0 +1,52 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 19.871,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 0.816,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 0.766,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 2.069,
+    "status": 0
+  },
+  {
+    "phase": "clang-sanitizer",
+    "seconds": 2.121,
+    "status": 0
+  },
+  {
+    "phase": "ownership_contracts-build",
+    "seconds": 0.164,
+    "status": 0
+  },
+  {
+    "phase": "ownership_contracts-run",
+    "seconds": 0.004,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-build",
+    "seconds": 0.265,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-run",
+    "seconds": 1.117,
+    "status": -6
+  }
+]

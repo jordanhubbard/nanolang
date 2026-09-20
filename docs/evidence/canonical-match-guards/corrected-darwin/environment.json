@@ -1,0 +1,8 @@
+{
+  "CC": "/usr/bin/clang",
+  "NANOLANG_GUARD_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "NANO_BUILD_CACHE": "/private/tmp/nanolang-canonical-guards-eaf/obj/module_cache",
+  "NANO_MODULE_PATH": "/private/tmp/nanolang-canonical-guards-eaf/modules"
+}

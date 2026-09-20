@@ -1,0 +1,15 @@
+{
+  "original": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/service_bindings_module.c",
+    "sha256": "a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4",
+    "bytes": 15533,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary/objects/a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4"
+  },
+  "instrumented": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary/products/service_bindings_module_observed.c",
+    "sha256": "0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79",
+    "bytes": 15627,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary/objects/0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79"
+  },
+  "scope": "One observation before unchanged real predicate body; all provider callers."
+}

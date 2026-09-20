@@ -1,0 +1,8 @@
+I retain integration artifacts at /tmp/nano-file-cyclic-hosted-integration-qvpwa5wo
+test_actual_public_archive_keeps_cyclic_refusal (tests.test_file_cyclic_hosted_integration.FileCyclicHostedIntegration.test_actual_public_archive_keeps_cyclic_refusal) ... PASS 174 linked archive cyclic refusal and acyclic scalar controls; no cyclic execution
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.379s
+
+OK

@@ -1,0 +1,16 @@
+test_private_c_and_typed_llvm_boundaries (tests.test_portable_read_adapters.PortableReadAdapters.test_private_c_and_typed_llvm_boundaries) ... I retain private adapter evidence at /tmp/nanolang-read-adapters-corrected-linux/ordinary
+FAIL
+
+======================================================================
+FAIL: test_private_c_and_typed_llvm_boundaries (tests.test_portable_read_adapters.PortableReadAdapters.test_private_c_and_typed_llvm_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-portable-read-adapters-15069/tests/test_portable_read_adapters.py", line 147, in test_private_c_and_typed_llvm_boundaries
+    self.assertRegex(triple, r'^[a-zA-Z0-9_.-]+$')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: '^[a-zA-Z0-9_.-]+$' not found in "clang-23: warning: future releases of the clang compiler will prefer GCC installations containing libstdc++ include directories; '/usr/lib/gcc/aarch64-linux-gnu/13' would be chosen over '/usr/lib/gcc/aarch64-linux-gnu/14' [-Wgcc-install-dir-libstdcxx]\naarch64-unknown-linux-gnu"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.753s
+
+FAILED (failures=1)

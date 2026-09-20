@@ -943,7 +943,19 @@ static void restore_native_match_binding(Environment *env, ASTNode *match, int a
                                          const char *owner) {
     const char *name = match->as.match_expr.pattern_bindings[arm];
     const char *variant = match->as.match_expr.pattern_variants[arm];
-    if (!owner || !name || !*name || !strcmp(name, "_") ||
+    if (name && !*name) {
+        UnionDef *definition = owner ? env_get_union(env, owner) : NULL;
+        bool zero = false;
+        for (int v = 0; definition && v < definition->variant_count; ++v)
+            if (!strcmp(variant, definition->variant_names[v]))
+                zero = definition->variant_field_counts[v] == 0;
+        if (!zero) {
+            fprintf(stderr, "I require an exact zero-field variant for an empty match binding\n");
+            exit(1);
+        }
+        return;
+    }
+    if (!owner || !name || !strcmp(name, "_") ||
         !strcmp(variant, "_") || !strncmp(variant, "INT:", 4) ||
         !strncmp(variant, "OR:", 3)) return;
     size_t size = strlen(owner) + strlen(variant) + 2;
@@ -1531,7 +1543,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                        op == TOKEN_AND || op == TOKEN_OR);
 
                     if (needs_parens) emit_literal(list, "(");
+                    /* I preserve each operand's source grouping, including
+                     * nested comparisons, as my Nano emitter does. */
+                    emit_literal(list, "(");
                     build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_literal(list, ")");
 
                     const char *op_str = NULL;
                     switch (op) {
@@ -1551,7 +1567,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         default: op_str = " OP "; break;
                     }
                     emit_literal(list, op_str);
+                    emit_literal(list, "(");
                     build_expr(list, expr->as.prefix_op.args[1], env);
+                    emit_literal(list, ")");
                     if (needs_parens) emit_literal(list, ")");
                 }
             } else if (arg_count == 1) {
@@ -3248,7 +3266,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                 }
                             }
                         }
-                        if (variant_field_count > 0 && binding_name && strcmp(binding_name, "_") != 0) {
+                        if (variant_field_count > 0 && binding_name && *binding_name && strcmp(binding_name, "_") != 0) {
                             emit_literal(list, "nl_");
                             emit_literal(list, union_c_name);
                             emit_literal(list, "_");
@@ -3357,7 +3375,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         }
 
                         /* Declare binding only if variant has fields */
-                        if (variant_field_count > 0 && binding_name && strcmp(binding_name, "_") != 0) {
+                        if (variant_field_count > 0 && binding_name && *binding_name && strcmp(binding_name, "_") != 0) {
                             emit_literal(list, "nl_");
                             emit_literal(list, union_c_name);
                             emit_literal(list, "_");
@@ -3692,7 +3710,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                                 }
                             }
                         }
-                        if (variant_field_count > 0 && binding_name && strcmp(binding_name, "_") != 0) {
+                        if (variant_field_count > 0 && binding_name && *binding_name && strcmp(binding_name, "_") != 0) {
                             emit_indent_item(list, indent + 2);
                             emit_literal(list, "nl_");
                             emit_literal(list, union_c_name);
@@ -3809,7 +3827,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         }
 
                         if (variant_field_count > 0) {
-                            if (binding_name && strcmp(binding_name, "_") != 0) {
+                            if (binding_name && *binding_name && strcmp(binding_name, "_") != 0) {
                                 emit_indent_item(list, indent + 3);
                                 emit_literal(list, "nl_");
                                 emit_literal(list, union_c_name);

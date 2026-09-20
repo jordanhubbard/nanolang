@@ -1,0 +1,8 @@
+Testing boolean operator precedence...
+✓ AND-OR precedence test passed
+✓ OR-AND precedence test passed
+✓ Nested logic test passed
+✓ XOR simulation test passed
+✓ XOR both true test passed
+All boolean precedence tests passed!
+I kept generated C in /tmp/nano_native_1789910966_0/program.c

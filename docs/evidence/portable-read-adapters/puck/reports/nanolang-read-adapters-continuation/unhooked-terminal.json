@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3",
+    "/private/tmp/resume-read-adapter-unhooked.py",
+    "/private/tmp/nanolang-portable-read-adapters-b9ba",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary",
+    "/private/tmp/nanolang-read-adapters-7b66-unhooked",
+    "/private/tmp/portable-read-adapters-7b66.c"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-b9ba",
+  "timeout": false,
+  "errors": [],
+  "signals": [],
+  "returncode": 0,
+  "group_disappeared": true,
+  "seconds": 2.101
+}

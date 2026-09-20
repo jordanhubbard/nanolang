@@ -1,0 +1,15 @@
+{
+  "reports": 262,
+  "unique_objects": 6410,
+  "bytes": 2096341134,
+  "archived_references": 238657,
+  "equal_source_tool_pairs": 52,
+  "qualified_fixture": "e7614728b60b479dd1040bbf89268ed259bd456e",
+  "canonical_original": "ca3779e08b9cfc92414719a27e5e1456245dcfac",
+  "puck_archive": {
+    "path": "/tmp/nanolang-layout-full-puck-evidence.tar.gz",
+    "sha256": "651b0dead42a9b6e4fc76c47ae9ffd368a2fd916a1858be39e4d4909eab85934",
+    "bytes": 211774515
+  },
+  "base_reports": 260
+}

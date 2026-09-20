@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-array-neighbor-2a30-puck/providers.mk",
+    "-j2",
+    "CC=/usr/bin/cc",
+    "array-providers",
+    "nano_vm",
+    "nvm2c"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/cc",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib:/opt/homebrew/opt/libffi/lib",
+    "LSAN_OPTIONS": ""
+  }
+}

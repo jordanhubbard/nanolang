@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-file-source-integrated-af68/bin/nanoc_stage1",
+    "/tmp/nanolang-file-source-integrated-linux/gcc-ordinary/nano-file-source-plan-y9fef74x/corpus.nano",
+    "-o",
+    "/tmp/nanolang-file-source-integrated-linux/gcc-ordinary/nano-file-source-plan-y9fef74x/nanoc_stage1"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-source-integrated-af68",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

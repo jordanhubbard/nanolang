@@ -1,0 +1,40 @@
+{
+  "tools": {
+    "cc": "/usr/bin/gcc",
+    "clang": "/usr/local/bin/clang",
+    "python": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "make": "/usr/bin/make",
+    "ld": "/bin/ld",
+    "ar": "/bin/ar",
+    "pkg-config": "/bin/pkg-config",
+    "libasan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libasan.so",
+    "libubsan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libubsan.so",
+    "cc1": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1",
+    "collect2": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2"
+  },
+  "env": {
+    "PATH": "/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/usr/local/cuda/bin:/opt/bin/:/home/jkh/.codex/tmp/arg0/codex-arg0q1IvSc:/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/home/jkh/.local/share/pnpm:/home/jkh/gocode/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/cuda/bin:/snap/bin:/home/jkh/.cargo/bin:/home/jkh/.ghcup/bin:/home/jkh/.local/bin:/home/jkh/.local/bin:/sbin:/usr/sbin:/bin:/usr/bin:/home/jkh/Bin:.",
+    "PORTABLE_WASM_CLANG": "/usr/local/bin/clang",
+    "PORTABLE_WASM_LD": "/usr/local/bin/wasm-ld",
+    "PORTABLE_WASM_NODE": "/home/linuxbrew/.linuxbrew/bin/node",
+    "PORTABLE_WASM_PYTHON": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "PORTABLE_WASM_WHEEL": "/tmp/nanolang-wasmtime-43-design/wasmtime-43.0.0-py3-none-manylinux2014_aarch64.whl",
+    "PORTABLE_WASM_FLAGS": "",
+    "PORTABLE_WASM_EXTRA_TOOLS": "{\"clang\": \"/usr/local/bin/clang-23\", \"linker\": \"/usr/local/bin/lld\", \"node\": \"/home/linuxbrew/.linuxbrew/Cellar/node/26.0.0/bin/node\", \"python\": \"/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14\", \"wheel\": \"/tmp/nanolang-wasmtime-43-design/wasmtime-43.0.0-py3-none-manylinux2014_aarch64.whl\"}",
+    "PORTABLE_WASM_ARTIFACTS": "/tmp/nanolang-read-wasm-8115-linux-query/neighbors",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "CC": "/usr/bin/gcc",
+    "PORTABLE_ADAPTER_CC": "/usr/bin/gcc",
+    "PORTABLE_ADAPTER_CLANG": "/usr/local/bin/clang",
+    "PORTABLE_ADAPTER_CFLAGS": "",
+    "PORTABLE_ADAPTER_LLVM_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "PORTABLE_ADAPTER_EXTRA_TOOLS": "{\"cc\": \"/usr/bin/gcc\", \"clang\": \"/usr/local/bin/clang\", \"python\": \"/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14\", \"make\": \"/usr/bin/make\", \"ld\": \"/bin/ld\", \"ar\": \"/bin/ar\", \"pkg-config\": \"/bin/pkg-config\", \"libasan.so\": \"/usr/lib/gcc/aarch64-linux-gnu/13/libasan.so\", \"libubsan.so\": \"/usr/lib/gcc/aarch64-linux-gnu/13/libubsan.so\", \"cc1\": \"/usr/libexec/gcc/aarch64-linux-gnu/13/cc1\", \"collect2\": \"/usr/libexec/gcc/aarch64-linux-gnu/13/collect2\"}",
+    "PORTABLE_ADAPTER_ARTIFACTS": "/tmp/nanolang-read-wasm-8115-linux-query/retained/native-adapter",
+    "PORTABLE_READ_CC": "/usr/bin/gcc",
+    "PORTABLE_READ_CFLAGS": "",
+    "PORTABLE_READ_ARTIFACTS": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query"
+  },
+  "scope": "ordinary integrated declaration query only; no native/engine repeats, no new sanitizer or installed CLI/package claim"
+}

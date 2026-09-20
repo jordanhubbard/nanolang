@@ -1,0 +1,14 @@
+test_foreign_record_collision_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_foreign_record_collision_is_rejected) ... ok
+test_generic_annotation_metadata (tests.test_affine_module_identity.AffineModuleIdentity.test_generic_annotation_metadata) ... ok
+test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) ... ok
+test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) ... ok
+test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) ... ok
+test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) ... ok
+test_resource_use_after_move (tests.test_affine_module_identity.AffineModuleIdentity.test_resource_use_after_move) ... ok
+test_same_module_duplicate_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_same_module_duplicate_is_rejected) ... ok
+test_unresolved_resource (tests.test_affine_module_identity.AffineModuleIdentity.test_unresolved_resource) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 78.581s
+
+OK

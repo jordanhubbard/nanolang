@@ -1,0 +1,9 @@
+{
+  "label": "nanoisa-run",
+  "argv": [
+    "/tmp/nanolang-portable-read-resume-linux/nanoisa-binary"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

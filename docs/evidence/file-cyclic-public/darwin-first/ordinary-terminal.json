@@ -1,0 +1,10 @@
+{
+  "bound": 3600,
+  "cleanup_signals": [],
+  "errors": [],
+  "group_disappeared": true,
+  "launched": true,
+  "leader_reaped": true,
+  "returncode": 1,
+  "timeout": false
+}

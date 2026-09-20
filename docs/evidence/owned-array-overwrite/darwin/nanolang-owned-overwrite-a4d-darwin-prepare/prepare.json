@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-owned-overwrite-a4d-darwin-prepare/prepare.mk",
+    "CC=/usr/bin/clang",
+    "overwrite-providers"
+  ],
+  "status": 0,
+  "seconds": 8.06850824994035
+}

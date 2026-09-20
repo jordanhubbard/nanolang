@@ -1,0 +1,32 @@
+[
+  {
+    "phase": "configuration",
+    "seconds": 0.114,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_record_adapters",
+    "seconds": 3.973,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_array_copy_runtime",
+    "seconds": 3.522,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_array_graphs",
+    "seconds": 3.021,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_string_arrays",
+    "seconds": 2.77,
+    "status": 0
+  },
+  {
+    "phase": "origin-query",
+    "seconds": 3.525,
+    "status": 0
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/make-obj/file-binding-publisher/nsi_file_binding.o": {
+    "sha256": "291bd3040ca1855b1516a94209df34205d3872f5fdf75cc15e1b48bc10ec409e",
+    "bytes": 252984
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/make-obj/file-binding-publisher/nsi_file_plan.o": {
+    "sha256": "f187002c40a8008dd613f30dbc5e38c25bc1eac00ec1baaec34bcddee987cbb4",
+    "bytes": 137880
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/make-obj/file-binding-publisher/nsi.o": {
+    "sha256": "545dfed6db34016e1febd2662f47d1a4fc84361c9f0db4624655f845dd220fb1",
+    "bytes": 401928
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/make-obj/file-binding-publisher/cJSON.o": {
+    "sha256": "1da9d2f4432c6803d9ab4f3ad719edeab326f7ee529d6d995d7ebd3d93d8c12f",
+    "bytes": 438088
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/make-obj/file-binding-publisher/utf8.o": {
+    "sha256": "5b5a296e7085f0c0c6b3670fb2d975e8cec01d1ea89b88db633be3b1c37c96b3",
+    "bytes": 42392
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/make-obj/file-binding-publisher/nsi_file_publish.o": {
+    "sha256": "fa59f08fbda8d3b307c1dc5ddb7ba08bb35e8bf029a135d5bb71625de28120e9",
+    "bytes": 76328
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/make-obj/file-binding-publisher/nsi_file_binding_main.o": {
+    "sha256": "52eeb0c87947bc27845a912b118a03bae0bdbe94da531c0f70585ffc97117047",
+    "bytes": 48648
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/make-bin/nsi-file-binding": {
+    "sha256": "cebcf23b4e290dd94ff3ccb1733568b12fa2553d5ad6b30003304352e8bd6cce",
+    "bytes": 12773576
+  }
+}

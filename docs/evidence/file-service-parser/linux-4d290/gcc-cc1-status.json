@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-print-prog-name=cc1"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.0018262279918417335
+}

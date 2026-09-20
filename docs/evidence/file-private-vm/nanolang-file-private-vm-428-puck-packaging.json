@@ -1,0 +1,15 @@
+{
+  "artifact_entries": 1876,
+  "unique_artifacts": 356,
+  "bytes": 193937209,
+  "archives": {
+    "nanolang-file-private-vm-428-puck-artifacts.tar.gz": {
+      "bytes": 30007589,
+      "sha256": "97ae804973c568296c00b52953d0f2e6adead9749bc260db46d6d6986dfd2f03"
+    },
+    "nanolang-file-private-vm-428-puck-reports.tar.gz": {
+      "bytes": 3884263,
+      "sha256": "52b5b8d335b161b774345fc8181611ea14e0218c46cae15ee209b4b364047ce0"
+    }
+  }
+}

@@ -28,6 +28,9 @@ static int close_error[4];static unsigned close_index;
 static NvmFileRuntime *reenter;
 static unsigned reentries;
 static void nested_entry(void){
+#ifdef FILE_RUNTIME_NESTED_EXTRA
+ FILE_RUNTIME_NESTED_EXTRA();
+#endif
  if(!reenter)return;
  NvmFileRuntime *saved=reenter;NvmFileRuntimeView out;memset(&out,0xa5,sizeof out);NvmFileRuntimeView before=out;
  CHECK(nvm_file_runtime_begin(saved)==NVM_FILE_RUNTIME_BUSY);
@@ -330,7 +333,10 @@ static void allocation_controls(void){
  printf("I retain %u allocation refusals and %u recovered complete carriers\n",failures,recovered);
 }
 #endif
-int main(void){
+#ifndef FILE_RUNTIME_MAIN
+#define FILE_RUNTIME_MAIN main
+#endif
+int FILE_RUNTIME_MAIN(void){
  FILE *sentinel=tmpfile();CHECK(sentinel);int sentinel_fd=fileno(sentinel);CHECK(sentinel_fd>=0);
  carrier_lifecycle();passive();invalid_and_partial();invalid_passive();scalar_and_limits();initializer();public_refusal();
 #ifdef HOSTED_INSTRUMENT

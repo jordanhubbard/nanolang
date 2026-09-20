@@ -1,0 +1,8 @@
+{
+  "phase": "extract-before-build",
+  "returncode": 1,
+  "error": "TypeError: extractall() got an unexpected keyword argument 'filter'",
+  "source_archive_sha256": "ce49e75f1982c1aa385fb8123f541f3a365a97f6bcecc8a63d8bd516396a191d",
+  "directory": "/private/tmp/nanolang-file-indirect-qualified-5acd",
+  "correction": "Use supported Homebrew Python in new directory; no build or fixture ran"
+}

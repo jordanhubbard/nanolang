@@ -1,0 +1,108 @@
+resource struct Owner { value: int }
+
+union Choice<T,U> {
+    Left { value: T },
+    Right { value: U },
+    Empty {}
+}
+
+fn relay_int(value: Choice<int,string>) -> Choice<int,string> {
+    return value
+}
+
+shadow relay_int {
+    let value: Choice<int,string> = (relay_int Choice.Left { value: 17 })
+    assert (match_int value)
+}
+
+fn relay_float(value: Choice<float,bool>) -> Choice<float,bool> {
+    return value
+}
+
+shadow relay_float {
+    let value: Choice<float,bool> = (relay_float Choice.Left { value: 2.5 })
+    assert (match_float value)
+}
+
+fn statement_int(value: Choice<int,string>) -> int {
+    match value {
+        Left(payload) => { return (+ payload.value 10) }
+        Right(payload) => { assert (== payload.value "right") return 55 }
+        Empty(payload) => { return (- 0 1) }
+    }
+}
+
+shadow statement_int {
+    assert (== (statement_int Choice.Left { value: 17 }) 27)
+    assert (== (statement_int Choice.Right { value: "right" }) 55)
+    assert (== (statement_int Choice.Empty {}) (- 0 1))
+}
+
+fn match_int(value: Choice<int,string>) -> bool {
+    return match value {
+        Left(payload) if (> payload.value 20) => false
+        Left(payload) => (== payload.value 17)
+        Right(payload) => (== payload.value "right")
+        Empty(payload) => false
+    }
+}
+
+shadow match_int {
+    assert (match_int Choice.Left { value: 17 })
+    assert (match_int Choice.Right { value: "right" })
+    assert (not (match_int Choice.Left { value: 18 }))
+    assert (not (match_int Choice.Left { value: 21 }))
+}
+
+fn statement_float(value: Choice<float,bool>) -> int {
+    match value {
+        Left(payload) => { assert (== payload.value 2.5) return 25 }
+        Right(payload) => { assert payload.value return 1 }
+        Empty(payload) => { return (- 0 1) }
+    }
+}
+
+shadow statement_float {
+    assert (== (statement_float Choice.Left { value: 2.5 }) 25)
+    assert (== (statement_float Choice.Right { value: true }) 1)
+    assert (== (statement_float Choice.Empty {}) (- 0 1))
+}
+
+fn match_float(value: Choice<float,bool>) -> bool {
+    return match value {
+        Left(payload) => (== payload.value 2.5)
+        Right(payload) => payload.value
+        Empty(payload) => false
+    }
+}
+
+shadow match_float {
+    assert (match_float Choice.Left { value: 2.5 })
+    assert (match_float Choice.Right { value: true })
+    assert (not (match_float Choice.Right { value: false }))
+}
+
+fn main() -> int {
+    let owner: Owner = Owner { value: 9 }
+    let Owner { value } = owner
+    let first: Choice<int,string> = Choice.Left { value: 17 }
+    let first_result: Choice<int,string> = (relay_int first)
+    let second: Choice<float,bool> = Choice.Right { value: true }
+    let second_result: Choice<float,bool> = (relay_float second)
+    assert (== value 9)
+    assert (== (statement_int first_result) 27)
+    assert (match_int first_result)
+    assert (== (statement_float second_result) 1)
+    assert (match_float second_result)
+    assert (not (match_int Choice.Left { value: 21 }))
+    let printed: Choice<int,string> = Choice.Right { value: "right" }
+    (println (match printed {
+        Left(payload) => "wrong-left"
+        Right(payload) => payload.value
+        Empty(payload) => "wrong-empty"
+    }))
+    (println "semantic-source-parity-pass")
+    return 0
+}
+
+shadow main { assert (== (main) 0) }

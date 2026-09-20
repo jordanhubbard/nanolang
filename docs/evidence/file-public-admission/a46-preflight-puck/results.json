@@ -1,0 +1,42 @@
+[
+  {
+    "label": "apple-linked-replay",
+    "status": 0,
+    "seconds": 0.5
+  },
+  {
+    "label": "apple-linked-capture",
+    "status": 0,
+    "seconds": 0.492
+  },
+  {
+    "label": "apple-instrumented-replay",
+    "status": 0,
+    "seconds": 0.906
+  },
+  {
+    "label": "apple-instrumented-capture",
+    "status": 0,
+    "seconds": 0.946
+  },
+  {
+    "label": "homebrew-linked-replay",
+    "status": 0,
+    "seconds": 0.721
+  },
+  {
+    "label": "homebrew-linked-capture",
+    "status": 0,
+    "seconds": 0.429
+  },
+  {
+    "label": "homebrew-instrumented-replay",
+    "status": 0,
+    "seconds": 0.776
+  },
+  {
+    "label": "homebrew-instrumented-capture",
+    "status": 0,
+    "seconds": 0.841
+  }
+]

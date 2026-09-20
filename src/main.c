@@ -1636,7 +1636,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         "runtime/list_ASTStructLiteral.c", "runtime/list_ASTFieldAccess.c",
         "runtime/list_ASTEnum.c", "runtime/list_ASTUnion.c",
         "runtime/list_ASTUnionConstruct.c", "runtime/list_ASTMatch.c",
-        "runtime/list_ASTImport.c", "runtime/list_ASTOpaqueType.c",
+        "runtime/list_ASTImport.c", "runtime/list_ASTOpaqueType.c", "runtime/list_ASTServiceDecl.c",
         "runtime/list_ASTTupleLiteral.c", "runtime/list_ASTTupleIndex.c",
         "runtime/token_helpers.c", "runtime/gc.c", "runtime/effect_runtime.c", "runtime/dyn_array.c",
         "runtime/gc_struct.c", "runtime/nl_string.c", "runtime/cli.c", "runtime/regex.c",

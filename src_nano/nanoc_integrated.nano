@@ -44,6 +44,7 @@
  * ========================================================================= */
 
 import "src_nano/generated/compiler_schema.nano"
+import "src_nano/compiler/token_value_bytes.nano"
 import "src_nano/generated/compiler_contracts.nano"
 
 # This compiler uses many extern (runtime/FFI) functions; importing any module as unsafe
@@ -55,7 +56,8 @@ extern struct LexerToken {
     token_type: int,
     value: string,
     line: int,
-    column: int
+    column: int,
+    value_bytes: int
 }
 /* AST Node structures (matching ast_shared.nano with node_type field) */
 extern struct ASTNumber {
@@ -605,7 +607,7 @@ fn process_string(source: string, i: int, len: int, tokens: List<LexerToken>, li
     } else {
         let str_length: int = (- pos start)
         let str_value: string = (str_substring source start str_length)
-        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_STRING, value: str_value, line: line, column: column }
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_STRING, value: str_value, line: line, column: column, value_bytes: (token_literal_value_bytes str_value) }
         (list_LexerToken_push tokens tok)
         return (+ pos 1)
     }
@@ -639,13 +641,13 @@ fn process_number(source: string, i: int, len: int, tokens: List<LexerToken>, li
         }
         let float_length: int = (- pos start)
         let float_value: string = (str_substring source start float_length)
-        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_FLOAT, value: float_value, line: line, column: column }
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_FLOAT, value: float_value, line: line, column: column, value_bytes: (str_length float_value) }
         (list_LexerToken_push tokens tok)
         return pos
     } else {
         let num_length: int = (- pos start)
         let num_value: string = (str_substring source start num_length)
-        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_NUMBER, value: num_value, line: line, column: column }
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_NUMBER, value: num_value, line: line, column: column, value_bytes: (str_length num_value) }
         (list_LexerToken_push tokens tok)
         return pos
     }
@@ -668,7 +670,7 @@ fn process_identifier(source: string, i: int, len: int, tokens: List<LexerToken>
     let id_length: int = (- pos start)
     let id_value: string = (str_substring source start id_length)
     let token_type: int = (keyword_or_identifier id_value)
-    let tok: LexerToken = LexerToken { token_type: token_type, value: id_value, line: line, column: column }
+    let tok: LexerToken = LexerToken { token_type: token_type, value: id_value, line: line, column: column, value_bytes: (str_length id_value) }
     (list_LexerToken_push tokens tok)
     return pos
 }
@@ -683,82 +685,82 @@ shadow process_identifier {
 # Process single character token - returns new position
 fn process_single_char(c: int, tokens: List<LexerToken>, line: int, column: int, i: int) -> int {
     if (== c 40) {
-        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LPAREN, value: "", line: line, column: column }
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LPAREN, value: "", line: line, column: column, value_bytes: (str_length "") }
         (list_LexerToken_push tokens tok)
         return (+ i 1)
     } else {
         if (== c 41) {
-            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_RPAREN, value: "", line: line, column: column }
+            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_RPAREN, value: "", line: line, column: column, value_bytes: (str_length "") }
             (list_LexerToken_push tokens tok)
             return (+ i 1)
         } else {
             if (== c 123) {
-                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LBRACE, value: "", line: line, column: column }
+                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LBRACE, value: "", line: line, column: column, value_bytes: (str_length "") }
                 (list_LexerToken_push tokens tok)
                 return (+ i 1)
             } else {
                 if (== c 125) {
-                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_RBRACE, value: "", line: line, column: column }
+                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_RBRACE, value: "", line: line, column: column, value_bytes: (str_length "") }
                     (list_LexerToken_push tokens tok)
                     return (+ i 1)
                 } else {
                     if (== c 91) {
-                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LBRACKET, value: "", line: line, column: column }
+                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LBRACKET, value: "", line: line, column: column, value_bytes: (str_length "") }
                         (list_LexerToken_push tokens tok)
                         return (+ i 1)
                     } else {
                         if (== c 93) {
-                            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_RBRACKET, value: "", line: line, column: column }
+                            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_RBRACKET, value: "", line: line, column: column, value_bytes: (str_length "") }
                             (list_LexerToken_push tokens tok)
                             return (+ i 1)
                         } else {
                             if (== c 44) {
-                                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_COMMA, value: "", line: line, column: column }
+                                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_COMMA, value: "", line: line, column: column, value_bytes: (str_length "") }
                                 (list_LexerToken_push tokens tok)
                                 return (+ i 1)
                             } else {
                                 if (== c 58) {
-                                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_COLON, value: "", line: line, column: column }
+                                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_COLON, value: "", line: line, column: column, value_bytes: (str_length "") }
                                     (list_LexerToken_push tokens tok)
                                     return (+ i 1)
                                 } else {
                                     if (== c 46) {
-                                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_DOT, value: "", line: line, column: column }
+                                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_DOT, value: "", line: line, column: column, value_bytes: (str_length "") }
                                         (list_LexerToken_push tokens tok)
                                         return (+ i 1)
                                     } else {
                                         if (== c 43) {
-                                            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_PLUS, value: "", line: line, column: column }
+                                            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_PLUS, value: "", line: line, column: column, value_bytes: (str_length "") }
                                             (list_LexerToken_push tokens tok)
                                             return (+ i 1)
                                         } else {
                                             if (== c 45) {
-                                                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_MINUS, value: "", line: line, column: column }
+                                                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_MINUS, value: "", line: line, column: column, value_bytes: (str_length "") }
                                                 (list_LexerToken_push tokens tok)
                                                 return (+ i 1)
                                             } else {
                                                 if (== c 42) {
-                                                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_STAR, value: "", line: line, column: column }
+                                                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_STAR, value: "", line: line, column: column, value_bytes: (str_length "") }
                                                     (list_LexerToken_push tokens tok)
                                                     return (+ i 1)
                                                 } else {
                                                     if (== c 47) {
-                                                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_SLASH, value: "", line: line, column: column }
+                                                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_SLASH, value: "", line: line, column: column, value_bytes: (str_length "") }
                                                         (list_LexerToken_push tokens tok)
                                                         return (+ i 1)
                                                     } else {
                                                         if (== c 37) {
-                                                            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_PERCENT, value: "", line: line, column: column }
+                                                            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_PERCENT, value: "", line: line, column: column, value_bytes: (str_length "") }
                                                             (list_LexerToken_push tokens tok)
                                                             return (+ i 1)
                                                         } else {
                                                             if (== c 60) {
-                                                                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LT, value: "", line: line, column: column }
+                                                                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LT, value: "", line: line, column: column, value_bytes: (str_length "") }
                                                                 (list_LexerToken_push tokens tok)
                                                                 return (+ i 1)
                                                             } else {
                                                                 if (== c 62) {
-                                                                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_GT, value: "", line: line, column: column }
+                                                                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_GT, value: "", line: line, column: column, value_bytes: (str_length "") }
                                                                     (list_LexerToken_push tokens tok)
                                                                     return (+ i 1)
                                                                 } else {
@@ -799,27 +801,27 @@ fn process_two_char(source: string, i: int, len: int, tokens: List<LexerToken>, 
     let next: int = (char_at source (+ i 1))
     
     if (and (== c 45) (== next 62)) {
-        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_ARROW, value: "", line: line, column: column }
+        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_ARROW, value: "", line: line, column: column, value_bytes: (str_length "") }
         (list_LexerToken_push tokens tok)
         return (+ i 2)
     } else {
         if (and (== c 61) (== next 61)) {
-            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_EQ, value: "", line: line, column: column }
+            let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_EQ, value: "", line: line, column: column, value_bytes: (str_length "") }
             (list_LexerToken_push tokens tok)
             return (+ i 2)
         } else {
             if (and (== c 33) (== next 61)) {
-                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_NE, value: "", line: line, column: column }
+                let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_NE, value: "", line: line, column: column, value_bytes: (str_length "") }
                 (list_LexerToken_push tokens tok)
                 return (+ i 2)
             } else {
                 if (and (== c 60) (== next 61)) {
-                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LE, value: "", line: line, column: column }
+                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_LE, value: "", line: line, column: column, value_bytes: (str_length "") }
                     (list_LexerToken_push tokens tok)
                     return (+ i 2)
                 } else {
                     if (and (== c 62) (== next 61)) {
-                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_GE, value: "", line: line, column: column }
+                        let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_GE, value: "", line: line, column: column, value_bytes: (str_length "") }
                         (list_LexerToken_push tokens tok)
                         return (+ i 2)
                     } else {
@@ -877,7 +879,7 @@ fn tokenize(source: string) -> List<LexerToken> {
                 
                 # Try assignment operator
                 if (and (== new_pos -1) (== c 61)) {
-                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_ASSIGN, value: "", line: line, column: column }
+                    let tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_ASSIGN, value: "", line: line, column: column, value_bytes: (str_length "") }
                     (list_LexerToken_push tokens tok)
                     set new_pos (+ i 1)
                 } else {
@@ -920,7 +922,7 @@ fn tokenize(source: string) -> List<LexerToken> {
     }
     
     # Add EOF token
-    let eof_tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_EOF, value: "", line: line, column: column }
+    let eof_tok: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_EOF, value: "", line: line, column: column, value_bytes: (str_length "") }
     (list_LexerToken_push tokens eof_tok)
     return tokens
 }
@@ -1233,7 +1235,8 @@ fn parser_current(p: Parser) -> LexerToken {
             token_type: 0,  /* EOF */
             value: "",
             line: 0,
-            column: 0
+            column: 0,
+            value_bytes: 0
         }
     } else {
         return (list_LexerToken_get p.tokens p.position)
@@ -3253,6 +3256,10 @@ fn parse_definition(p: Parser) -> Parser {
     } else {
         let tok: LexerToken = (parser_current p)
         
+        # I retain my legacy schema and explicitly refuse the new service grammar.
+        if (and (== tok.token_type (token_identifier)) (== tok.value "service")) {
+            return (parser_with_error p true)
+        }
         /* Dispatch based on token type */
         if (== tok.token_type (token_fn)) {
             return (parse_function_definition p)

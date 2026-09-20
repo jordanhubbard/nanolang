@@ -1,0 +1,32 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 9.293,
+    "status": 0
+  },
+  {
+    "phase": "normal",
+    "seconds": 5.688,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 13.775,
+    "status": 0
+  },
+  {
+    "phase": "frames",
+    "seconds": 12.399,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.549,
+    "status": 0
+  },
+  {
+    "phase": "wrapper",
+    "seconds": 6.666,
+    "status": 0
+  }
+]

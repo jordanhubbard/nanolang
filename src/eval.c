@@ -200,6 +200,40 @@ static Value eval_match_invariant_failure(const char *reason) {
     return create_void();
 }
 
+/* I own only a directly constructed empty union, never an alias or payload. */
+static bool eval_match_owns_empty_literal(const ASTNode *scrutinee, Value value) {
+    if (!scrutinee || value.type != VAL_UNION || !value.as.union_val)
+        return false;
+    bool literal =
+        (scrutinee->type == AST_STRUCT_LITERAL &&
+         scrutinee->as.struct_literal.field_count == 0) ||
+        (scrutinee->type == AST_UNION_CONSTRUCT &&
+         scrutinee->as.union_construct.field_count == 0);
+    UnionValue *u = value.as.union_val;
+    return literal && u->field_count == 0 &&
+           !u->field_names && !u->field_values;
+}
+
+static void eval_match_release_empty_literal(Value value, bool owned, Value result) {
+    if (!owned || (result.type == VAL_UNION &&
+                   result.as.union_val == value.as.union_val)) return;
+    UnionValue *u = value.as.union_val;
+    free(u->union_name);
+    free(u->variant_name);
+    free(u);
+}
+
+/* I retire only owned names; values and declaration type facts are separate. */
+static void eval_match_pop_metadata(Environment *env, int first) {
+    for (int i = first; i < env->symbol_count; ++i) {
+        free(env->symbols[i].name);
+        free(env->symbols[i].struct_type_name);
+        env->symbols[i].name = NULL;
+        env->symbols[i].struct_type_name = NULL;
+    }
+    env->symbol_count = first;
+}
+
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
 static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
     int first = env->symbol_count;
@@ -5347,6 +5381,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (match_val.type == VAL_UNION && !match_val.as.union_val)
                 return eval_match_invariant_failure("a union match received no value");
 
+            bool owns_empty = eval_match_owns_empty_literal(
+                expr->as.match_expr.expr, match_val);
+
             /* Every pattern, including a wildcard, participates in source order. */
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
@@ -5356,8 +5393,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (match_val.type == VAL_UNION && strcmp(pattern_variant, "_") != 0) {
                     UnionValue *union_value = match_val.as.union_val;
                     const char *binding = expr->as.match_expr.pattern_bindings[i];
-                    /* I discard underscore payloads without hiding an outer name. */
-                    if (binding && strcmp(binding, "_") != 0) {
+                    if (binding && !*binding && union_value->field_count != 0)
+                        return eval_match_invariant_failure("I require a zero-field variant for an empty match binding");
+                    /* I create no local for () or underscore discard. */
+                    if (binding && *binding && strcmp(binding, "_") != 0) {
                         Value binding_value;
                         if (union_value->field_count > 0) {
                             char **field_names = malloc(sizeof(char *) * (size_t)union_value->field_count);
@@ -5387,25 +5426,29 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (guard) {
                     Value guard_value = eval_expression(guard, env);
                     if (guard_value.is_return || guard_value.is_break || guard_value.is_continue) {
-                        env->symbol_count = saved_symbol_count;
+                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_match_release_empty_literal(match_val, owns_empty, guard_value);
                         return guard_value;
                     }
                     if (guard_value.type != VAL_BOOL) {
-                        env->symbol_count = saved_symbol_count;
+                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_match_release_empty_literal(match_val, owns_empty, create_void());
                         return eval_match_invariant_failure(
                             "a checked match guard did not produce bool");
                     }
                     if (!guard_value.as.bool_val) {
-                        env->symbol_count = saved_symbol_count;
+                        eval_match_pop_metadata(env, saved_symbol_count);
                         continue;
                     }
                 }
 
                 Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-                env->symbol_count = saved_symbol_count;
+                eval_match_pop_metadata(env, saved_symbol_count);
+                eval_match_release_empty_literal(match_val, owns_empty, result);
                 return result;
             }
 
+            eval_match_release_empty_literal(match_val, owns_empty, create_void());
             return eval_match_invariant_failure(
                 "a checked match reached no successful arm");
         }
@@ -6114,6 +6157,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             return create_void();
         }
         
+        case AST_SERVICE_DECL:
+            return eval_match_invariant_failure("I have not resolved File service declarations for this consumer");
         case AST_FUNCTION:
         case AST_SHADOW:
             /* Function and shadow definitions are handled at program level */
@@ -6158,6 +6203,7 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
 
 bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modules,
                             const char *input_file, bool include_imports, bool verbose) {
+    if (ast_has_service_declaration(program)) { fprintf(stderr, "I have not resolved File service declarations for this consumer.\n"); return false; }
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program for shadow tests\n");
         return false;

@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/parser-c",
+    "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/published/binding.nano"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-8134",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

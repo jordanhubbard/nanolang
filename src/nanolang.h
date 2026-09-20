@@ -229,7 +229,8 @@ typedef enum {
     AST_EFFECT_HANDLER,    /* Extended handle expression (row-poly compat)    */
     AST_EFFECT_OP,         /* perform Foo.op arg                              */
     AST_ASYNC_FN,          /* async fn declaration: async fn name(...) -> T { body } */
-    AST_AWAIT              /* await expression: await expr */
+    AST_AWAIT,             /* await expression: await expr */
+    AST_SERVICE_DECL       /* Counted, unresolved File service declaration */
 } ASTNodeType;
 
 /* Forward declaration */
@@ -483,6 +484,13 @@ struct ASTNode {
         struct {
             char *name;            /* Type name (e.g., "GLFWwindow", "SDL_Window") */
         } opaque_type;
+        struct {
+            char *interface_id;
+            char *document_path;
+            int64_t interface_bytes, path_bytes;
+            int64_t catalog_version;
+            int64_t origin_index; /* -1 until the module resolver binds origin */
+        } service_decl;
         /* Tuple literal: (1, "hello", true) */
         struct {
             ASTNode **elements;    /* Array of element expressions */
@@ -793,6 +801,7 @@ typedef struct {
     Symbol *symbols;
     int symbol_count;
     int symbol_capacity;
+    struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
     Function *functions;
     int function_count;
@@ -879,6 +888,7 @@ typedef struct {
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);
+bool ast_has_service_declaration(const ASTNode *program);
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
@@ -923,6 +933,9 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
+/* Transfer one newly allocated checker-only block; NULL is a no-op.
+ * Borrowed AST/signature blocks and runtime values must never enter this registry. */
+void *env_own_checker_allocation(Environment *env, void *allocation);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
@@ -958,6 +971,7 @@ char *typeinfo_to_generic_arg_name(TypeInfo *info);
 void env_register_union_instantiation(Environment *env, const char *union_name,
                                       const char **type_args, int type_arg_count);
 int env_get_enum_variant(Environment *env, const char *variant_name);
+/* I take ownership of a newly registered union and its allocated metadata. */
 void env_define_union(Environment *env, UnionDef union_def);
 UnionDef *env_get_union(Environment *env, const char *name);
 void env_define_opaque_type(Environment *env, const char *name);

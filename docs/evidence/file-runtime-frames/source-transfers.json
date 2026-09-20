@@ -1,0 +1,14 @@
+{
+  "nanolang-file-frames-041-overlay.tar.gz": {
+    "bytes": 386659,
+    "sha256": "f57f022f0a0aca5ac7e180ea52bb810a43f5850c13194952627eee05bd9d7d35"
+  },
+  "nanolang-file-frames-56bb-source.tar.gz": {
+    "bytes": 110524975,
+    "sha256": "7a378cc1695c279a125967eec06eba79f7eca53a9ad0f7fb3a90a9b7c765060a"
+  },
+  "nanolang-file-frames-864-overlay.tar.gz": {
+    "bytes": 387647,
+    "sha256": "7451ba2f73b47c2c33638152ba959f31ae8500ed9a1a0a0d7383b6aa1535044c"
+  }
+}

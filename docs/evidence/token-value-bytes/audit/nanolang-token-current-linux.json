@@ -1,0 +1,227 @@
+{
+  "28e": {
+    "root": "/home/jkh/Src/nanolang-token-qualified-28e",
+    "report": "/tmp/nanolang-token-28e-linux",
+    "phase": "gcc-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-28e-linux/gcc-ordinary-source-after.json",
+        "report_sha256": "0bd12cd35fa5565a7aaba5195af6135bc36e28bf01fd569ac755f90e6f42774d",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-28e-linux/gcc-ordinary-tools-after.json",
+        "report_sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-28e-linux/gcc-ordinary-products-after.json",
+        "report_sha256": "0e125985444f949fdfea070ea9f9897556e629301c218d8f5e858edbf03a7730",
+        "count": 779,
+        "mismatches": []
+      }
+    }
+  },
+  "7bf": {
+    "root": "/home/jkh/Src/nanolang-token-corrected-7bf",
+    "report": "/tmp/nanolang-token-7bf-linux",
+    "phase": "gcc-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-7bf-linux/gcc-ordinary-source-after.json",
+        "report_sha256": "240ad332881e064a946e3a99660ddb6c3a2b369419442d63eca3da071f42b17e",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-7bf-linux/gcc-ordinary-tools-after.json",
+        "report_sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-7bf-linux/gcc-ordinary-products-after.json",
+        "report_sha256": "59e8d44cb2fee25b679fc4825fcae6d8bbe0f8987b0b4f4c32c9d70ee58abf40",
+        "count": 306,
+        "mismatches": []
+      }
+    }
+  },
+  "083": {
+    "root": "/home/jkh/Src/nanolang-token-corrected-083",
+    "report": "/tmp/nanolang-token-083-linux",
+    "phase": "gcc-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-083-linux/gcc-ordinary-source-after.json",
+        "report_sha256": "c900abd07a4f903b4be6d2dd0905251eef3f157ba96d80792ce319c41a8aa8cb",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-083-linux/gcc-ordinary-tools-after.json",
+        "report_sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-083-linux/gcc-ordinary-products-after.json",
+        "report_sha256": "f7b14db2c8f798ad99f54260ded977f19e12618e164e64ee26fb6b2f351ebb2a",
+        "count": 324,
+        "mismatches": []
+      }
+    }
+  },
+  "ece": {
+    "root": "/home/jkh/Src/nanolang-token-corrected-ece",
+    "report": "/tmp/nanolang-token-ece-linux",
+    "phase": "gcc-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-ece-linux/gcc-ordinary-source-after.json",
+        "report_sha256": "5bc222b9df0730d1694b475d738c955dce56097cc302f73b5fdc55efa8016ada",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-ece-linux/gcc-ordinary-tools-after.json",
+        "report_sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-ece-linux/gcc-ordinary-products-after.json",
+        "report_sha256": "fe2be12f90e1afb9f5643a51bd9ac7d20e6a196b3908f15ed0553de2785dac77",
+        "count": 324,
+        "mismatches": []
+      }
+    }
+  },
+  "1bb": {
+    "root": "/home/jkh/Src/nanolang-token-corrected-1bb",
+    "report": "/tmp/nanolang-token-1bb-linux",
+    "phase": "gcc-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-1bb-linux/gcc-ordinary-source-after.json",
+        "report_sha256": "afe0af0ac9ff64bad099855f6d61ef55c8a03aefcba44d960d48d77afffcb3cf",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-1bb-linux/gcc-ordinary-tools-after.json",
+        "report_sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-1bb-linux/gcc-ordinary-products-after.json",
+        "report_sha256": "eb326b5d408aad4d64401d767bead0db1f6e09b5c9baf01e4341a1306cb7968e",
+        "count": 324,
+        "mismatches": []
+      }
+    }
+  },
+  "d285": {
+    "root": "/home/jkh/Src/nanolang-token-corrected-d285",
+    "report": "/tmp/nanolang-token-d285-linux",
+    "phase": "gcc-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-d285-linux/gcc-ordinary-source-after.json",
+        "report_sha256": "cccd8d19ece92cbb9ad8412e004cc3e27db6a8e68220cab706f6741bf2350a03",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-d285-linux/gcc-ordinary-tools-after.json",
+        "report_sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-d285-linux/gcc-ordinary-products-after.json",
+        "report_sha256": "8633b8238c95603fd88783cef80f1101f9e929540cc2befd5ce7f6950640497c",
+        "count": 324,
+        "mismatches": []
+      }
+    }
+  },
+  "303": {
+    "root": "/home/jkh/Src/nanolang-token-corrected-303",
+    "report": "/tmp/nanolang-token-303-linux",
+    "phase": "gcc-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-303-linux/gcc-ordinary-source-after.json",
+        "report_sha256": "8a100e87abbc6f3c7315a566c8ef94759ed86857a177bdf6979ab109024488e4",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-303-linux/gcc-ordinary-tools-after.json",
+        "report_sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-303-linux/gcc-ordinary-products-after.json",
+        "report_sha256": "18d237c0a53a62be92c626a4c77c1fad8d902e48fc7a882cfad76a98d49d4415",
+        "count": 327,
+        "mismatches": []
+      }
+    }
+  },
+  "ae62": {
+    "root": "/home/jkh/Src/nanolang-token-corrected-ae62",
+    "report": "/tmp/nanolang-token-ae62-linux",
+    "phase": "gcc-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-ae62-linux/gcc-ordinary-source-after.json",
+        "report_sha256": "ed61c322be16c2209e7e0bb4e21a92fba6bb8f071dcb6e56afdb7bfb3c2b8009",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-ae62-linux/gcc-ordinary-tools-after.json",
+        "report_sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-ae62-linux/gcc-ordinary-products-after.json",
+        "report_sha256": "4680f1cface7d4fe0acbb159186ea1ec4b1d65b98f9f6d2b6d83f249c82fefb5",
+        "count": 327,
+        "mismatches": []
+      }
+    }
+  },
+  "315": {
+    "root": "/home/jkh/Src/nanolang-token-corrected-315",
+    "report": "/tmp/nanolang-token-315-linux",
+    "phase": "ordinary-adjacency",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-315-linux/ordinary-adjacency-source-after.json",
+        "report_sha256": "3fd19a8cfdb85d4d916474cdbfe1900230a955601e26fdb0d855a56ddf7190ca",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-315-linux/ordinary-adjacency-tools-after.json",
+        "report_sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-315-linux/ordinary-adjacency-products-after.json",
+        "report_sha256": "2399d01f205c3b1bace336936d3a965dd09bd67c4c3b5e4ad6b8b2595c78bbc4",
+        "count": 835,
+        "mismatches": []
+      }
+    }
+  }
+}

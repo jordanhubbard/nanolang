@@ -1,0 +1,55 @@
+{
+  "automatic_merge": true,
+  "canonical": "209a4d558",
+  "incoming_scope": [
+    "docs/AFFINE_UNION_RECOVERY_REVIEW.md",
+    "docs/ROADMAP.md"
+  ],
+  "manual_resolution": false,
+  "new_execution": false,
+  "original_seal": "1b7b5570d",
+  "qualified_source_fixture": "04d58ca3a4514ea1ed3c71a469c9784224bd67c5",
+  "reason": "Incoming main changes documentation only; qualified provider and fixture bytes remain exact.",
+  "source_fixture_build_identity": {
+    "Makefile.gnu": {
+      "exact": true,
+      "qualified_blob": "f2d4272a4fd17f7d104536ff0a80fc4ab2d9e894",
+      "sha256": "4fdff3381f8655de9383db4747970e58f90172e5e3e52e93f5a7d3deb2bc880b"
+    },
+    "src/nanoisa/file_code.inc": {
+      "exact": true,
+      "qualified_blob": "e3eec3278b880123536dc9a5e60aabe29c54f659",
+      "sha256": "8e745c3a45174339d58af2d4221cc92bcdeaeaabee4a31e261187e16e7710b0f"
+    },
+    "src/nanoisa/file_cyclic.h": {
+      "exact": true,
+      "qualified_blob": "f36d43f2ab76431a8f6c2dde66bcf5f83e556b2b",
+      "sha256": "654eec19f56172747242152bc90e3f95054f6879171a1528187e51c4721eb1ad"
+    },
+    "src/nanoisa/file_cyclic.inc": {
+      "exact": true,
+      "qualified_blob": "7d8784217df40a657c0d4857c7346b0e905fead8",
+      "sha256": "0b9d5fd0579e94e3a63898daaf78431c2b7957a2f3790e604597c138698607c9"
+    },
+    "src/nanoisa/file_flow.c": {
+      "exact": true,
+      "qualified_blob": "755a6add32875acf9f3a6793e7d4fdec7a5938d3",
+      "sha256": "0ccf26585e2bae7b58ef2c5165be5bddd5202a016f3b445eac8d1e367a3ef077"
+    },
+    "tests/nanoisa/test_file_cyclic.c": {
+      "exact": true,
+      "qualified_blob": "e57bfea3339697f81ab20b52a671da4dd0278226",
+      "sha256": "c67a64a538000f95fc66c35e89727c4b7443ca031e7d26d3bb658152b3eff95c"
+    },
+    "tests/nanoisa/test_file_flow.c": {
+      "exact": true,
+      "qualified_blob": "2b5601831c0b1edf6012d587df21be3fb35a692a",
+      "sha256": "d99a5f063a87e9ec781fdbf07a0646e2828367cb0e4cf212f8c2082cd4ebb79d"
+    },
+    "tests/test_file_cyclic.py": {
+      "exact": true,
+      "qualified_blob": "d974405b86c4a7c0fd6e032a655d56e74d722a40",
+      "sha256": "9a9fa1d92975b4356f562dd49d077b01206e5131cc9550a9ab4f98406f1a1dcd"
+    }
+  }
+}

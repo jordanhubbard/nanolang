@@ -1,0 +1,830 @@
+{
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+    "bytes": 138440,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/file_flow.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/file_flow.o",
+    "sha256": "cb9dd37a94adffa65588a14bfd22856c4588bb7c5437e82653296ac3c51421d6",
+    "bytes": 321776,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/cb9dd37a94adffa65588a14bfd22856c4588bb7c5437e82653296ac3c51421d6"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/service_file_nominal.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/service_file_nominal.o",
+    "sha256": "b1a912f31dc6a21a771d85ad9c1ed20355b86a83065fd1a95ef2bf1bfddf7a0d",
+    "bytes": 23416,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/b1a912f31dc6a21a771d85ad9c1ed20355b86a83065fd1a95ef2bf1bfddf7a0d"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/service_file_nominal_plan.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/service_file_nominal_plan.o",
+    "sha256": "61d57a2d744f24ea8ae306ad62caa5a3d2f7e4c3fb216c0a3b7de7e55db851d6",
+    "bytes": 29848,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/61d57a2d744f24ea8ae306ad62caa5a3d2f7e4c3fb216c0a3b7de7e55db851d6"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/service_bindings.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/service_bindings.o",
+    "sha256": "1c61023664c9654badecbb5ea03b287af43faf2532458a96d940111db41df320",
+    "bytes": 7568,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/1c61023664c9654badecbb5ea03b287af43faf2532458a96d940111db41df320"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/service_bindings_module.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/service_bindings_module.o",
+    "sha256": "720e9bc0982f88cf9db60b0c85899df702f8a937fc3b1e3b8c9db769da9a9ec5",
+    "bytes": 42904,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/720e9bc0982f88cf9db60b0c85899df702f8a937fc3b1e3b8c9db769da9a9ec5"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/mixed_float_proof.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/mixed_float_proof.o",
+    "sha256": "7703a4231513eca70f8272fa945007108a180d12104b1543ac8b86085dc3a38f",
+    "bytes": 63696,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/7703a4231513eca70f8272fa945007108a180d12104b1543ac8b86085dc3a38f"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/managed_array_shapes.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/managed_array_shapes.o",
+    "sha256": "8507c127b43944f28f850fbf7530de62bf7f5a3e074470b79c25805d26480892",
+    "bytes": 77904,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/8507c127b43944f28f850fbf7530de62bf7f5a3e074470b79c25805d26480892"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/local_bindings.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/local_bindings.o",
+    "sha256": "8ade4140e02c2c8f75023cfc7513cb1c4a18483f2dec0bca74ac6e071b82a6ee",
+    "bytes": 16112,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/8ade4140e02c2c8f75023cfc7513cb1c4a18483f2dec0bca74ac6e071b82a6ee"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/affine_bytecode.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/affine_bytecode.o",
+    "sha256": "15140a5992f9fef620afa4e843bb44074678f4166765481f3bb6efcd5b80a337",
+    "bytes": 62752,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/15140a5992f9fef620afa4e843bb44074678f4166765481f3bb6efcd5b80a337"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/ownership_contracts.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/ownership_contracts.o",
+    "sha256": "dcdefeb665518ccd1c9bc2028de9b0d0f0fdf0a00ac9021ff8d2c9db8d4cbb0d",
+    "bytes": 53384,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/dcdefeb665518ccd1c9bc2028de9b0d0f0fdf0a00ac9021ff8d2c9db8d4cbb0d"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/retained_layouts.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/retained_layouts.o",
+    "sha256": "4191751f6d6322a3402c88cbf13a3c6d8c38d51f8bee3c754377f62cf761152d",
+    "bytes": 133688,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/4191751f6d6322a3402c88cbf13a3c6d8c38d51f8bee3c754377f62cf761152d"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/reference_places.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/reference_places.o",
+    "sha256": "49d11574a93d09f5e90775f020fb7bb06f31dd39d69048bd3abcae653b6f3523",
+    "bytes": 10320,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/49d11574a93d09f5e90775f020fb7bb06f31dd39d69048bd3abcae653b6f3523"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/passive.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/passive.o",
+    "sha256": "c1c59c39eeed8e69b784ee93c241e4d62e5e1117d055e45b7418359acc265bff",
+    "bytes": 46512,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/c1c59c39eeed8e69b784ee93c241e4d62e5e1117d055e45b7418359acc265bff"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/isa.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/isa.o",
+    "sha256": "22e49ad4beedd4e00a08a6ad0f330e6836ed4de8d57e1b9398025459f251c9a0",
+    "bytes": 39688,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/22e49ad4beedd4e00a08a6ad0f330e6836ed4de8d57e1b9398025459f251c9a0"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/verifier_types.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/verifier_types.o",
+    "sha256": "d415a76ff91922d4fbae015ff26be6e8c257e12b370dd7177889f5d246251594",
+    "bytes": 22984,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/d415a76ff91922d4fbae015ff26be6e8c257e12b370dd7177889f5d246251594"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_format.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_format.o",
+    "sha256": "e47235528aaadd0120771edc18ff36ecca115668792d444d20f265afa5f1db60",
+    "bytes": 50448,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/e47235528aaadd0120771edc18ff36ecca115668792d444d20f265afa5f1db60"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_format_v2.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_format_v2.o",
+    "sha256": "f766995fcfefa27f097f493e03ee3208c6c9d12efe67617356bc2f7b3de9cac6",
+    "bytes": 13400,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/f766995fcfefa27f097f493e03ee3208c6c9d12efe67617356bc2f7b3de9cac6"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_cursor.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_cursor.o",
+    "sha256": "25e44f7c5c4258f1fd184e30580fb2c3de28d2086255ac3bae7df989d10ea5b1",
+    "bytes": 7608,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/25e44f7c5c4258f1fd184e30580fb2c3de28d2086255ac3bae7df989d10ea5b1"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_constants.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_constants.o",
+    "sha256": "499e5b734463ac6cc5e42c9b2561e4a1f0957f140788cafdbb751fd6bdeb9684",
+    "bytes": 10752,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/499e5b734463ac6cc5e42c9b2561e4a1f0957f140788cafdbb751fd6bdeb9684"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_signatures.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_signatures.o",
+    "sha256": "116c091527ba1d19291b3f3942c569696e35412e086e804db4d7ec419a1ccf7c",
+    "bytes": 11640,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/116c091527ba1d19291b3f3942c569696e35412e086e804db4d7ec419a1ccf7c"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_functions.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_functions.o",
+    "sha256": "252917527802828cd56ed0d8dcf71a0a4dd3a8cbc546e3d0c47258ad3c57975b",
+    "bytes": 12800,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/252917527802828cd56ed0d8dcf71a0a4dd3a8cbc546e3d0c47258ad3c57975b"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_imports.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_imports.o",
+    "sha256": "7e2b56b6e98abe98c9830f2cde995c05c32c06887153ba97a5c77d933b70cd69",
+    "bytes": 23992,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/7e2b56b6e98abe98c9830f2cde995c05c32c06887153ba97a5c77d933b70cd69"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_module.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_module.o",
+    "sha256": "b8e515f896a880c725dd09212a9cc5122f8d32f07beebda178d2bdfe7b51df11",
+    "bytes": 34912,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/b8e515f896a880c725dd09212a9cc5122f8d32f07beebda178d2bdfe7b51df11"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_convert.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm_v2_convert.o",
+    "sha256": "46500d674924d03e9ff4603c55fc521d16f55f323ac40c5080e59f77c4fe8083",
+    "bytes": 37200,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/46500d674924d03e9ff4603c55fc521d16f55f323ac40c5080e59f77c4fe8083"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/assembler.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/assembler.o",
+    "sha256": "2d582d6f5b8e3b819cab6d7d530681b013ce8d94680d6163a44b0a6f61bb7498",
+    "bytes": 115184,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/2d582d6f5b8e3b819cab6d7d530681b013ce8d94680d6163a44b0a6f61bb7498"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/disassembler.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/disassembler.o",
+    "sha256": "e4af0f90343b25498be3b46b821819d6e55f19a3207e44f63dbeb4bcff643350",
+    "bytes": 38496,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/e4af0f90343b25498be3b46b821819d6e55f19a3207e44f63dbeb4bcff643350"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/verifier.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/verifier.o",
+    "sha256": "42df1c2f74d0f622690f48d2c7474a555d24798afeb863fa7e7bd40823ff0cd5",
+    "bytes": 122496,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/42df1c2f74d0f622690f48d2c7474a555d24798afeb863fa7e7bd40823ff0cd5"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm2c.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm2c.o",
+    "sha256": "c2a1aefdd855453b2cfd5502cb1988feb1e3c0b10428fe892786e26a0b26a8b8",
+    "bytes": 653360,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/c2a1aefdd855453b2cfd5502cb1988feb1e3c0b10428fe892786e26a0b26a8b8"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm2c_shape.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nvm2c_shape.o",
+    "sha256": "bdb12c4cd0b63078a1edf13d68f1e170563e245c703d827625f8f27f8494a261",
+    "bytes": 36160,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/bdb12c4cd0b63078a1edf13d68f1e170563e245c703d827625f8f27f8494a261"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/frontend.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/frontend.o",
+    "sha256": "08594326db9d17ad2246a1168ddbf94492cb31547c622ef26367300223c2843b",
+    "bytes": 28304,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/08594326db9d17ad2246a1168ddbf94492cb31547c622ef26367300223c2843b"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nanoisa_facade.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanoisa/nanoisa_facade.o",
+    "sha256": "c68bc8db394760723e3f9f20244e015b768faa65253076ba924f1e59a092c010",
+    "bytes": 49840,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/c68bc8db394760723e3f9f20244e015b768faa65253076ba924f1e59a092c010"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanovm/vm_decode.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanovm/vm_decode.o",
+    "sha256": "5a0daeda7496e8a054e13fff99b3b0d2c13cde2d7a3a67686e463e1b8241421b",
+    "bytes": 21168,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/5a0daeda7496e8a054e13fff99b3b0d2c13cde2d7a3a67686e463e1b8241421b"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanovm/vm_dispatch.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nanovm/vm_dispatch.o",
+    "sha256": "d72bbfedd932073deeb866baa479049d6b09e54d25b9bd3e122f53cee8ba5bd2",
+    "bytes": 23936,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/d72bbfedd932073deeb866baa479049d6b09e54d25b9bd3e122f53cee8ba5bd2"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/nsi_file_plan.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/nsi_file_plan.o",
+    "sha256": "fc63d20599dc4ee533aff8b9c539849914262b645de684b8bd3fc3fabe64eef8",
+    "bytes": 25800,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/fc63d20599dc4ee533aff8b9c539849914262b645de684b8bd3fc3fabe64eef8"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/obj/utf8.o": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/obj/utf8.o",
+    "sha256": "483afb5077f380f48f5d9789d2c6c666e84a4ddf2f8454e687b03db5bad63039",
+    "bytes": 13376,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/483afb5077f380f48f5d9789d2c6c666e84a4ddf2f8454e687b03db5bad63039"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/tests/test_affine_private_variants.py": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/tests/test_affine_private_variants.py",
+    "sha256": "1ac4af9d5d5ae507074577116b6ce5d2c0ead961fbf0abf428cab8ca809ec22d",
+    "bytes": 3242,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/1ac4af9d5d5ae507074577116b6ce5d2c0ead961fbf0abf428cab8ca809ec22d"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/tests/test_portable_read_adapters.py": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/tests/test_portable_read_adapters.py",
+    "sha256": "0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a",
+    "bytes": 10322,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/tests/nanoisa/test_affine_private_variants.c": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/tests/nanoisa/test_affine_private_variants.c",
+    "sha256": "3f3c8da707e7ba9197f4e8d738dedd7d6091606565e9fe39138d3f7cf1a52c80",
+    "bytes": 6524,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/3f3c8da707e7ba9197f4e8d738dedd7d6091606565e9fe39138d3f7cf1a52c80"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/affine_bytecode.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/affine_bytecode.h",
+    "sha256": "446e948b49ad19e3ee2651b481c2c028d568f3a0579a132dd793a906077b413a",
+    "bytes": 1102,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/446e948b49ad19e3ee2651b481c2c028d568f3a0579a132dd793a906077b413a"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/affine_state.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/affine_state.h",
+    "sha256": "cc5e638513eda6b6b76e1a150f50190e01363c3ba7dc57f605877285bea3a4b6",
+    "bytes": 7170,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/cc5e638513eda6b6b76e1a150f50190e01363c3ba7dc57f605877285bea3a4b6"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/assembler.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/assembler.h",
+    "sha256": "213d5742beb5229264c4bb7d76b049eb65dcea8148e74ee7a1f9528d50c7af28",
+    "bytes": 2553,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/213d5742beb5229264c4bb7d76b049eb65dcea8148e74ee7a1f9528d50c7af28"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/binary64_parse.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/binary64_parse.h",
+    "sha256": "bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5",
+    "bytes": 11057,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/binary64_parse_source.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/binary64_parse_source.h",
+    "sha256": "2ca32a258bf8e831a4a645320c213a034de4ea2c75403e4c4cfb1492fb26021f",
+    "bytes": 12540,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/2ca32a258bf8e831a4a645320c213a034de4ea2c75403e4c4cfb1492fb26021f"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/disassembler.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/disassembler.h",
+    "sha256": "d8baff98ab34084c607eaac7518f49edf8c7b7c4f740e4d8ee20a2adbac44d49",
+    "bytes": 1505,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/d8baff98ab34084c607eaac7518f49edf8c7b7c4f740e4d8ee20a2adbac44d49"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_body.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_body.h",
+    "sha256": "5d7d6d08a229b50d263639232b9c99381932f43a4a169ff20151255521c9720a",
+    "bytes": 1588,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/5d7d6d08a229b50d263639232b9c99381932f43a4a169ff20151255521c9720a"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cli.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cli.h",
+    "sha256": "75760db6b29076aeceff826d0180c962a33d68ef47a2b0f98f613c8aa2af3e34",
+    "bytes": 435,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/75760db6b29076aeceff826d0180c962a33d68ef47a2b0f98f613c8aa2af3e34"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_code.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_code.h",
+    "sha256": "f19203d91a1116f86c380a371cbaeb0dfdbe7c6a36660a38efa647f77f9f9da5",
+    "bytes": 2083,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/f19203d91a1116f86c380a371cbaeb0dfdbe7c6a36660a38efa647f77f9f9da5"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic.h",
+    "sha256": "654eec19f56172747242152bc90e3f95054f6879171a1528187e51c4721eb1ad",
+    "bytes": 3114,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/654eec19f56172747242152bc90e3f95054f6879171a1528187e51c4721eb1ad"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_hosted.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_hosted.h",
+    "sha256": "7738fcf708e5398bcbc7ddf83311d7fad2fe0f62df462db04ee4db9b376aceaf",
+    "bytes": 3742,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/7738fcf708e5398bcbc7ddf83311d7fad2fe0f62df462db04ee4db9b376aceaf"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_runtime.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_runtime.h",
+    "sha256": "b01969d559d1bd06e6e98f071d62c9ea1a0d06dad37ca9146c2e828e9651cad6",
+    "bytes": 1962,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/b01969d559d1bd06e6e98f071d62c9ea1a0d06dad37ca9146c2e828e9651cad6"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_flow.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_flow.h",
+    "sha256": "2e29fc4d25830afcaa253e67568e437097318d7d9da069537ff8beb1716e7f8f",
+    "bytes": 7541,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/2e29fc4d25830afcaa253e67568e437097318d7d9da069537ff8beb1716e7f8f"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_host_grant.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_host_grant.h",
+    "sha256": "8b7f524daa47bd6f2d2118f58cacd0405e937bcc0605bb12def7d4ea5fe455ac",
+    "bytes": 1409,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/8b7f524daa47bd6f2d2118f58cacd0405e937bcc0605bb12def7d4ea5fe455ac"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_host_grant_internal.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_host_grant_internal.h",
+    "sha256": "752b0c38ccd91c1d22a5d9b9423b95a2aad62876d0e9b3da7d8ef93b0af1fb45",
+    "bytes": 811,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/752b0c38ccd91c1d22a5d9b9423b95a2aad62876d0e9b3da7d8ef93b0af1fb45"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_hosted.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_hosted.h",
+    "sha256": "45f1c219d5395b69e613c8890b8ddbd0b490a2b4db08ecb9e489eb4c390819b0",
+    "bytes": 2007,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/45f1c219d5395b69e613c8890b8ddbd0b490a2b4db08ecb9e489eb4c390819b0"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_flow.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_flow.h",
+    "sha256": "0b3cc7e14d8036344d691780d21cfa316149236665e5454f5a058db73a476d33",
+    "bytes": 2742,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/0b3cc7e14d8036344d691780d21cfa316149236665e5454f5a058db73a476d33"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_hosted.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_hosted.h",
+    "sha256": "76ee83575c653e83d56d9faba0cc4a3f17717d58c007ae0eeafbea58bbaf1c87",
+    "bytes": 3972,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/76ee83575c653e83d56d9faba0cc4a3f17717d58c007ae0eeafbea58bbaf1c87"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_targets.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_targets.h",
+    "sha256": "c27137d7d7650886d0d539c8df1e30cf2e37023230961fcef056669e74a5c39c",
+    "bytes": 1836,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/c27137d7d7650886d0d539c8df1e30cf2e37023230961fcef056669e74a5c39c"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_native_abi.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_native_abi.h",
+    "sha256": "5a43f4ee61279663a2ead77aafc210134819c8eb38872141fd88b053c1745b8b",
+    "bytes": 486,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/5a43f4ee61279663a2ead77aafc210134819c8eb38872141fd88b053c1745b8b"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_native_public.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_native_public.h",
+    "sha256": "7071ce61cc5a875675c079954a1c2dc8ccf89b13a7ed5a3845dc2fdba6823c2c",
+    "bytes": 308,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/7071ce61cc5a875675c079954a1c2dc8ccf89b13a7ed5a3845dc2fdba6823c2c"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_public.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_public.h",
+    "sha256": "b5ff8662cb1063f634192e0d304d308ac0422627050a155d8f8368f02706408b",
+    "bytes": 977,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/b5ff8662cb1063f634192e0d304d308ac0422627050a155d8f8368f02706408b"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_public_internal.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_public_internal.h",
+    "sha256": "9b6783d0936406e8b0ad18200d0b5f2e2a21ba6c3470ddf41129c3f37c32e7e4",
+    "bytes": 2114,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/9b6783d0936406e8b0ad18200d0b5f2e2a21ba6c3470ddf41129c3f37c32e7e4"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_runtime.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_runtime.h",
+    "sha256": "8c500c063e4c0439981c9090cd04d42d72c268a4d8b7378abe256cc5bcc70b78",
+    "bytes": 4912,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/8c500c063e4c0439981c9090cd04d42d72c268a4d8b7378abe256cc5bcc70b78"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_runtime_frames.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_runtime_frames.h",
+    "sha256": "13e5e17b6954dfcb28814019c89b624908f202b12152e6d172ea912ad85583b7",
+    "bytes": 2489,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/13e5e17b6954dfcb28814019c89b624908f202b12152e6d172ea912ad85583b7"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_source_plan.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_source_plan.h",
+    "sha256": "2a7539d90113c3cfee83420129cbeacf45ee0b738ee8c82623104f899c8e9ee3",
+    "bytes": 2826,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/2a7539d90113c3cfee83420129cbeacf45ee0b738ee8c82623104f899c8e9ee3"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/frontend.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/frontend.h",
+    "sha256": "3f7b849153f6d32672d75d436f37d6453dd27b4772f6f3ba5ef9116965528467",
+    "bytes": 2524,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/3f7b849153f6d32672d75d436f37d6453dd27b4772f6f3ba5ef9116965528467"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/generated_schema.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/generated_schema.h",
+    "sha256": "ee90cabca21889fc526f591adc040d4c87e38fbca373bc618b27a85397be916f",
+    "bytes": 26677,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/ee90cabca21889fc526f591adc040d4c87e38fbca373bc618b27a85397be916f"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/isa.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/isa.h",
+    "sha256": "0560102734e96302a71df0ee40753238fdc6fabe377b3b0ad337f324d8f3fd3a",
+    "bytes": 18612,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/0560102734e96302a71df0ee40753238fdc6fabe377b3b0ad337f324d8f3fd3a"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/local_bindings.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/local_bindings.h",
+    "sha256": "39b7b9cdc4de50b00827adb4b684b3546954a846c228b43ceb82286db10961ec",
+    "bytes": 750,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/39b7b9cdc4de50b00827adb4b684b3546954a846c228b43ceb82286db10961ec"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_array_shapes.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_array_shapes.h",
+    "sha256": "2ca7c20170e31c133544830ceb604a83f130a30f812f4864282e3e2552991e47",
+    "bytes": 2064,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/2ca7c20170e31c133544830ceb604a83f130a30f812f4864282e3e2552991e47"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_native_source.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_native_source.h",
+    "sha256": "49e3ae2fe8ff5e0f9766d89339c6f1bea19ff3235f96ecadf6927e98d93b016a",
+    "bytes": 90728,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/49e3ae2fe8ff5e0f9766d89339c6f1bea19ff3235f96ecadf6927e98d93b016a"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_record_plan.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_record_plan.h",
+    "sha256": "c30beccb47c344e6cd47621a3a13d2a130070c3b1f5d7f0ac94079da9b6c8461",
+    "bytes": 1645,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/c30beccb47c344e6cd47621a3a13d2a130070c3b1f5d7f0ac94079da9b6c8461"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_record_shapes.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_record_shapes.h",
+    "sha256": "b5920e095fbc468450a0d390b6c1cfe0ab9ef8665a9662639bea323472e686c8",
+    "bytes": 2013,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/b5920e095fbc468450a0d390b6c1cfe0ab9ef8665a9662639bea323472e686c8"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_strings.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/managed_strings.h",
+    "sha256": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+    "bytes": 7837,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_float_proof.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_float_proof.h",
+    "sha256": "fe97d297b8343c0cc94b8b6b5299b289ae37d39484e443f33626c8ecba7b5487",
+    "bytes": 1848,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/fe97d297b8343c0cc94b8b6b5299b289ae37d39484e443f33626c8ecba7b5487"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_layout_view.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_layout_view.h",
+    "sha256": "228141f446a0ee362a3e35bdc00516dab5e8d0701b7f9940dfad1db249cb8d1c",
+    "bytes": 1148,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/228141f446a0ee362a3e35bdc00516dab5e8d0701b7f9940dfad1db249cb8d1c"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_samples.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_samples.h",
+    "sha256": "90340653ab2f7d32993874520225be5a56ad88be4c5d101358724f279e6d4e6a",
+    "bytes": 1427,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/90340653ab2f7d32993874520225be5a56ad88be4c5d101358724f279e6d4e6a"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_samples_internal.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_samples_internal.h",
+    "sha256": "9e0c6107b305e16850d53132fad8c40a70a66808f7cbd56b5340a7de86e6f6a1",
+    "bytes": 2667,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/9e0c6107b305e16850d53132fad8c40a70a66808f7cbd56b5340a7de86e6f6a1"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c.h",
+    "sha256": "2b007f627b6482e3c1a07e69ddb97c450014ac911b8f1c10e7d6ac89ed70ae35",
+    "bytes": 4044,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/2b007f627b6482e3c1a07e69ddb97c450014ac911b8f1c10e7d6ac89ed70ae35"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_file_cyclic_private.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_file_cyclic_private.h",
+    "sha256": "57f26cfc26b55fa7ba5e91db8cbc9dd499a180d7f612d7368bc2c8be70eef6e1",
+    "bytes": 645,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/57f26cfc26b55fa7ba5e91db8cbc9dd499a180d7f612d7368bc2c8be70eef6e1"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_file_private.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_file_private.h",
+    "sha256": "ef5d18ed1d83ca3ecf5048d29c60487556b08b24cef426f26d208f15d4ff69d8",
+    "bytes": 580,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/ef5d18ed1d83ca3ecf5048d29c60487556b08b24cef426f26d208f15d4ff69d8"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_owned.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_owned.h",
+    "sha256": "db0ff8b8b061a1506beb2a2ac4f5c8cfe3b1d50e070dbe9fa22efd4d179da9b6",
+    "bytes": 38692,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/db0ff8b8b061a1506beb2a2ac4f5c8cfe3b1d50e070dbe9fa22efd4d179da9b6"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_shape.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_shape.h",
+    "sha256": "77e1007aceaa9a5828ae8ebf9fd1ef598e22086acb742bdca11d21a368f43df8",
+    "bytes": 2423,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/77e1007aceaa9a5828ae8ebf9fd1ef598e22086acb742bdca11d21a368f43df8"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2llvm.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2llvm.h",
+    "sha256": "2509f8edfd1afea099fa06ffca9c9fdd291c5a48569f38f1954bbc2199c6766d",
+    "bytes": 599,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/2509f8edfd1afea099fa06ffca9c9fdd291c5a48569f38f1954bbc2199c6766d"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm_format.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm_format.h",
+    "sha256": "a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34",
+    "bytes": 15573,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm_format_v2.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm_format_v2.h",
+    "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+    "bytes": 5599,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm_v2_sections.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm_v2_sections.h",
+    "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+    "bytes": 18955,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ordinary_array_authority.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ordinary_array_authority.h",
+    "sha256": "8e8b342a6c8cd07486ca558f82ba4bbd963481e642c4c74908690f279bff0677",
+    "bytes": 1437,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/8e8b342a6c8cd07486ca558f82ba4bbd963481e642c4c74908690f279bff0677"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_admission.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_admission.h",
+    "sha256": "81a845ba68f31ac6d2d39dda881744d83c8f1f08cf613698d18146fb26e5275e",
+    "bytes": 758,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/81a845ba68f31ac6d2d39dda881744d83c8f1f08cf613698d18146fb26e5275e"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_authority.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_authority.h",
+    "sha256": "35a2b5cc5f7afdbb20065e31193795e3805d9c82409172588abc2907ab7cd1cd",
+    "bytes": 1859,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/35a2b5cc5f7afdbb20065e31193795e3805d9c82409172588abc2907ab7cd1cd"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_authority_internal.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_authority_internal.h",
+    "sha256": "3287409b5d15561e5590e3527833eab6f1851b7bc3cb0d84353a57c5b880e1cc",
+    "bytes": 739,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/3287409b5d15561e5590e3527833eab6f1851b7bc3cb0d84353a57c5b880e1cc"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_layouts.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_layouts.h",
+    "sha256": "f3b1e15fa1448ae4f86f7df77b4c668b645a81a82a5b1ff112bc8431bd95e490",
+    "bytes": 2220,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/f3b1e15fa1448ae4f86f7df77b4c668b645a81a82a5b1ff112bc8431bd95e490"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_origins.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_origins.h",
+    "sha256": "487b9e2b2ffe11779b35007479af83a988c2c5709ae13a7b63275b939f969fc0",
+    "bytes": 2343,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/487b9e2b2ffe11779b35007479af83a988c2c5709ae13a7b63275b939f969fc0"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_runtime_private.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_runtime_private.h",
+    "sha256": "af684d55d843b75876c9133676080a7ace1991d4b722250658930d933fc3585f",
+    "bytes": 618,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/af684d55d843b75876c9133676080a7ace1991d4b722250658930d933fc3585f"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ownership_contracts.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ownership_contracts.h",
+    "sha256": "3c0dba6242a9bbfd559f07a5b9b4e48ea5786c0286e91a85378889f0fa929135",
+    "bytes": 3017,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/3c0dba6242a9bbfd559f07a5b9b4e48ea5786c0286e91a85378889f0fa929135"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ownership_layouts_private.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ownership_layouts_private.h",
+    "sha256": "022d44bafbeb81c44b23045027159a3a4c67500c28628a930b0c6ead418997dc",
+    "bytes": 1030,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/022d44bafbeb81c44b23045027159a3a4c67500c28628a930b0c6ead418997dc"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/passive.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/passive.h",
+    "sha256": "0bdc1d7deb3289d96a442a1a98eef1a5876c87bf3a54c7d4d7b5cbd49a251d98",
+    "bytes": 289,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/0bdc1d7deb3289d96a442a1a98eef1a5876c87bf3a54c7d4d7b5cbd49a251d98"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/portable_host_plan.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/portable_host_plan.h",
+    "sha256": "7c5ea7161d188cd008a37b9d4c2df689355f1ccbb0ab70f5a169244d1df01250",
+    "bytes": 3272,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/7c5ea7161d188cd008a37b9d4c2df689355f1ccbb0ab70f5a169244d1df01250"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/portable_read_host.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/portable_read_host.h",
+    "sha256": "b6be464836821234122f5422745590ebdea8fd3c0ce082573220736e168d07c1",
+    "bytes": 1427,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/b6be464836821234122f5422745590ebdea8fd3c0ce082573220736e168d07c1"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/portable_read_managed.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/portable_read_managed.h",
+    "sha256": "5c12ad95295d04f9a2bf50cb2f20f22ffa999db4dd9dc51e687bc043b94073fd",
+    "bytes": 756,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/5c12ad95295d04f9a2bf50cb2f20f22ffa999db4dd9dc51e687bc043b94073fd"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/portable_read_wasm.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/portable_read_wasm.h",
+    "sha256": "1301021fce4837e1f525e6e7a91cfb1b38034cef1d4184dd5ce6f0b7d01525a9",
+    "bytes": 503,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/1301021fce4837e1f525e6e7a91cfb1b38034cef1d4184dd5ce6f0b7d01525a9"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/reference_places.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/reference_places.h",
+    "sha256": "394d7b616dc377c6ccd8829716f57557c508b66c218d77dd9d21102c5b0478bc",
+    "bytes": 2021,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/394d7b616dc377c6ccd8829716f57557c508b66c218d77dd9d21102c5b0478bc"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/retained_layouts.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/retained_layouts.h",
+    "sha256": "f2150b5b1c1826b23bb4dad57ec54c4b148d45c7e02850bd8d53bfc927158a41",
+    "bytes": 711,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/f2150b5b1c1826b23bb4dad57ec54c4b148d45c7e02850bd8d53bfc927158a41"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/service_bindings.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/service_bindings.h",
+    "sha256": "e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79",
+    "bytes": 1572,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/service_bindings_module.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/service_bindings_module.h",
+    "sha256": "5a06e11b1d795e519c1ea08327338d8c885ac274c02a97c06c036c892131160e",
+    "bytes": 1840,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/5a06e11b1d795e519c1ea08327338d8c885ac274c02a97c06c036c892131160e"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/service_classification_private.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/service_classification_private.h",
+    "sha256": "60da7dfcabb801265bddbe3ef01027874cf83c6fd12baa799d821e9bb6200dcb",
+    "bytes": 939,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/60da7dfcabb801265bddbe3ef01027874cf83c6fd12baa799d821e9bb6200dcb"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/service_file_nominal.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/service_file_nominal.h",
+    "sha256": "f7e8a3bbcb98442125b987f97299f9eab39fa834c6a2c5d615476970a0de29b8",
+    "bytes": 2746,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/f7e8a3bbcb98442125b987f97299f9eab39fa834c6a2c5d615476970a0de29b8"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/verifier.h": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/verifier.h",
+    "sha256": "72dac5c5480c1c7f0d1f221de0510c4c6c0d8125ee5c2772fd6129f57677872a",
+    "bytes": 6061,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/72dac5c5480c1c7f0d1f221de0510c4c6c0d8125ee5c2772fd6129f57677872a"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_body.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_body.inc",
+    "sha256": "4ecb4d41efa7ce946475d1472d448c14118cbf469f8011b3c790c77fa3928623",
+    "bytes": 12635,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/4ecb4d41efa7ce946475d1472d448c14118cbf469f8011b3c790c77fa3928623"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_code.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_code.inc",
+    "sha256": "faf12de9c7e0a4348b2bb6a85e25a86b100bbe702bb6d229b0f36c2c2aa6b25f",
+    "bytes": 16179,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/faf12de9c7e0a4348b2bb6a85e25a86b100bbe702bb6d229b0f36c2c2aa6b25f"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic.inc",
+    "sha256": "bcb9be656bf3239d1102f35c6a4f1c632ae874821621f61c04f88077320ac90b",
+    "bytes": 21604,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/bcb9be656bf3239d1102f35c6a4f1c632ae874821621f61c04f88077320ac90b"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_dispatch.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_dispatch.inc",
+    "sha256": "e05e16bd9f21b0bc113afdd870c8e35691d9034ae3d2e40dd3f505393ee09731",
+    "bytes": 6370,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/e05e16bd9f21b0bc113afdd870c8e35691d9034ae3d2e40dd3f505393ee09731"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_hosted.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_hosted.inc",
+    "sha256": "7ebdf8bdc7c37a85565469257136e7c39c6536e3b61ce0a654036af5e63b4af0",
+    "bytes": 17692,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/7ebdf8bdc7c37a85565469257136e7c39c6536e3b61ce0a654036af5e63b4af0"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_native_emit.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_native_emit.inc",
+    "sha256": "51eae5d8994ae313b94858101d35a35ee0be589797708cca777c53381a2d98ff",
+    "bytes": 28432,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/51eae5d8994ae313b94858101d35a35ee0be589797708cca777c53381a2d98ff"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_runtime.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_runtime.inc",
+    "sha256": "40e55b14879247155f6de84317e83a21facd6df0514edc57746c7510bcafccd0",
+    "bytes": 15776,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/40e55b14879247155f6de84317e83a21facd6df0514edc57746c7510bcafccd0"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_runtime_facts.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_cyclic_runtime_facts.inc",
+    "sha256": "6cb8be8583f9ce6401afd1447bc538fa33a8caa6dd635bb081c55c94e3df6536",
+    "bytes": 5489,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/6cb8be8583f9ce6401afd1447bc538fa33a8caa6dd635bb081c55c94e3df6536"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_hosted.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_hosted.inc",
+    "sha256": "9942e7e0fba50418202ca88b45ba43f1bd8ae1024335d3da6f7bfbfd1b32c65e",
+    "bytes": 17556,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/9942e7e0fba50418202ca88b45ba43f1bd8ae1024335d3da6f7bfbfd1b32c65e"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_flow.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_flow.inc",
+    "sha256": "963e9482b9b7e24e4aae0f4722358be649a0f128061c8437b3820ec878ff4892",
+    "bytes": 10437,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/963e9482b9b7e24e4aae0f4722358be649a0f128061c8437b3820ec878ff4892"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_hosted.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_hosted.inc",
+    "sha256": "a0c176b01de910950110d8a3b6cc2cc8453b3b2abf64c658aaedc51827d00325",
+    "bytes": 17417,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/a0c176b01de910950110d8a3b6cc2cc8453b3b2abf64c658aaedc51827d00325"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_targets.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_indirect_targets.inc",
+    "sha256": "37477dc80ff97d0d2355213c9887ba0694f3828412443b75e42de42d5d9ac862",
+    "bytes": 19835,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/37477dc80ff97d0d2355213c9887ba0694f3828412443b75e42de42d5d9ac862"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_native_emit.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_native_emit.inc",
+    "sha256": "a2557d7955247d924ed6d3fd1efed40514f8225dc157b87327e79f76f4a58ef7",
+    "bytes": 28570,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/a2557d7955247d924ed6d3fd1efed40514f8225dc157b87327e79f76f4a58ef7"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_runtime_frames.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/file_runtime_frames.inc",
+    "sha256": "94fcfc75e4a134ebdea1d62ae339d183486607ecad7345ca10958e50aec0f049",
+    "bytes": 20401,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/94fcfc75e4a134ebdea1d62ae339d183486607ecad7345ca10958e50aec0f049"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_layout_view.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_layout_view.inc",
+    "sha256": "55c3bf72dbe18fece62809463967d84082d8fc3df071aa4365c9d01963c70dcb",
+    "bytes": 9752,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/55c3bf72dbe18fece62809463967d84082d8fc3df071aa4365c9d01963c70dcb"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_samples.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_samples.inc",
+    "sha256": "37a2d75d07b82e6a7c517decdb04bab7f84aeb6d3f1a8e8601ebb23541b48705",
+    "bytes": 33022,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/37a2d75d07b82e6a7c517decdb04bab7f84aeb6d3f1a8e8601ebb23541b48705"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_samples_prepare.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/mixed_samples_prepare.inc",
+    "sha256": "74d555d9b0ccf6ca20c6d0fae9bcde85ac76db5237e5c964e5c448b9233f6ead",
+    "bytes": 12269,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/74d555d9b0ccf6ca20c6d0fae9bcde85ac76db5237e5c964e5c448b9233f6ead"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_map_roots.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_map_roots.inc",
+    "sha256": "d5a413c7da1eeca3770a69b21fe7717207553d5308322ba8c35cd48fc720e058",
+    "bytes": 6312,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/d5a413c7da1eeca3770a69b21fe7717207553d5308322ba8c35cd48fc720e058"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_map_runtime.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2c_map_runtime.inc",
+    "sha256": "2c3f8eae322b419035751de72f4abea6ad6aaab0a949f60353a33738136af651",
+    "bytes": 6254,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/2c3f8eae322b419035751de72f4abea6ad6aaab0a949f60353a33738136af651"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2llvm_managed.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm2llvm_managed.inc",
+    "sha256": "6b5c8f676c56f634b38ca2b53c4a5bfd69b908ceb577a081c034680f831663ad",
+    "bytes": 33085,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/6b5c8f676c56f634b38ca2b53c4a5bfd69b908ceb577a081c034680f831663ad"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ordinary_array_authority.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ordinary_array_authority.inc",
+    "sha256": "f1d4663ffc4fc34af4777bba4ec18f005dbca68976150632a07c80b6a436a1de",
+    "bytes": 6744,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/f1d4663ffc4fc34af4777bba4ec18f005dbca68976150632a07c80b6a436a1de"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_admit.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_admit.inc",
+    "sha256": "b6890e34cb6668e2652fc8708d0768a5951129afb13a99fe0006548163478e2b",
+    "bytes": 8317,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/b6890e34cb6668e2652fc8708d0768a5951129afb13a99fe0006548163478e2b"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_authority.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_authority.inc",
+    "sha256": "1e623f5d0dc2aa655987d559ac0e7fa10ab11111eb6c9c758507846a3438044c",
+    "bytes": 30532,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/1e623f5d0dc2aa655987d559ac0e7fa10ab11111eb6c9c758507846a3438044c"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_layouts.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_layouts.inc",
+    "sha256": "018a1e735fbe0917a537542d10c439266eda7a2176f28fb5b78efd412366e6ab",
+    "bytes": 11305,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/018a1e735fbe0917a537542d10c439266eda7a2176f28fb5b78efd412366e6ab"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_origins.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_origins.inc",
+    "sha256": "dd930fa29386e9f655d7ab0e1731fba3c4554c26607259ecb74d3c6f293512d2",
+    "bytes": 39339,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/dd930fa29386e9f655d7ab0e1731fba3c4554c26607259ecb74d3c6f293512d2"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_prepare.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/owned_array_prepare.inc",
+    "sha256": "341c03c2f7636aefcf6786177e167cc8d43086bf51e383428ed38105f77c50f6",
+    "bytes": 3195,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/341c03c2f7636aefcf6786177e167cc8d43086bf51e383428ed38105f77c50f6"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ownership_array_fields.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/ownership_array_fields.inc",
+    "sha256": "d430c7cf44f7559bac9383afc85f295ac3b48240d343f996909b4e552734e488",
+    "bytes": 5673,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/d430c7cf44f7559bac9383afc85f295ac3b48240d343f996909b4e552734e488"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/passive_calls.inc": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/passive_calls.inc",
+    "sha256": "ffb05fc00586a37a1f7b237073eb9b7d81999638ef8a65e99100390615935b57",
+    "bytes": 6809,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/ffb05fc00586a37a1f7b237073eb9b7d81999638ef8a65e99100390615935b57"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/affine_state.c": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/affine_state.c",
+    "sha256": "fa11ac27b98d17ba7c43d9a3ee8446cc890177f37bac5eaa1492928800258854",
+    "bytes": 34473,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/fa11ac27b98d17ba7c43d9a3ee8446cc890177f37bac5eaa1492928800258854"
+  },
+  "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm_v2_layouts.c": {
+    "path": "/private/tmp/nanolang-affine-variants-qualified-660/src/nanoisa/nvm_v2_layouts.c",
+    "sha256": "91ccaed95d17ba63eda88c926b9427ce10df85d4a95cbb0801c5a4bb6ecd1efd",
+    "bytes": 9546,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/91ccaed95d17ba63eda88c926b9427ce10df85d4a95cbb0801c5a4bb6ecd1efd"
+  }
+}

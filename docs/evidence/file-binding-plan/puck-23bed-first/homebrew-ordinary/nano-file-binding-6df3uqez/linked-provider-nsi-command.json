@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-binding-qualified-23bed/src",
+    "-I",
+    "/private/tmp/nanolang-file-binding-qualified-23bed/tests",
+    "-I",
+    "/private/tmp/nanolang-file-binding-23bed-puck/homebrew-ordinary/nano-file-binding-6df3uqez",
+    "-c",
+    "src/nsi.c",
+    "-o",
+    "/private/tmp/nanolang-file-binding-23bed-puck/homebrew-ordinary/nano-file-binding-6df3uqez/linked-nsi.o"
+  ],
+  "cwd": "/private/tmp/nanolang-file-binding-qualified-23bed",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

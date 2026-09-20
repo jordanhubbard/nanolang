@@ -1,0 +1,17 @@
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/obj/eval.o: in function `eval_call_impl':
+/home/jkh/Src/nanolang-affine-variants-qualified-660/src/eval.c:3325:(.text+0x93e4): undefined reference to `g_argc'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/src/eval.c:3325:(.text+0x93e8): undefined reference to `g_argc'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/src/eval.c:3325:(.text+0x93f8): undefined reference to `g_argv'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/src/eval.c:3325:(.text+0x93fc): undefined reference to `g_argv'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/src/eval.c:3320:(.text+0x94c0): undefined reference to `g_argc'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/src/eval.c:3320:(.text+0x94c4): undefined reference to `g_argc'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/obj/runtime/cli.o: in function `get_argc':
+/home/jkh/Src/nanolang-affine-variants-qualified-660/src/runtime/cli.c:17:(.text+0x0): undefined reference to `g_argc'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/src/runtime/cli.c:17:(.text+0x4): undefined reference to `g_argc'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/obj/runtime/cli.o: in function `get_argv':
+/home/jkh/Src/nanolang-affine-variants-qualified-660/src/runtime/cli.c:22:(.text+0x14): undefined reference to `g_argc'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/obj/runtime/cli.o:/home/jkh/Src/nanolang-affine-variants-qualified-660/src/runtime/cli.c:22: more undefined references to `g_argc' follow
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/obj/runtime/cli.o: in function `get_argv':
+/home/jkh/Src/nanolang-affine-variants-qualified-660/src/runtime/cli.c:25:(.text+0x28): undefined reference to `g_argv'
+/bin/ld: /home/jkh/Src/nanolang-affine-variants-qualified-660/src/runtime/cli.c:25:(.text+0x2c): undefined reference to `g_argv'
+collect2: error: ld returned 1 exit status

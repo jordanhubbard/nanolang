@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-admission-public-bc45-corrected-linux/providers.mk",
+    "-j2",
+    "CC=/bin/gcc",
+    "carrier-providers",
+    "nvm2c",
+    "nvm2llvm",
+    "nvm2hl",
+    "nano_virt",
+    "file-public-runtime"
+  ],
+  "selectors": {
+    "CC": "/bin/gcc",
+    "LSAN_OPTIONS": "",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}

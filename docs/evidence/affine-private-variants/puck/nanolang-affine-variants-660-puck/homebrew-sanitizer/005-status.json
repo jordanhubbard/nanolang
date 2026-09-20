@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer/products/threaded"
+  ],
+  "cwd": "/private/tmp/nanolang-affine-variants-qualified-660",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

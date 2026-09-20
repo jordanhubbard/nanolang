@@ -1,0 +1,15 @@
+test_real_private_wasm_embeddings (tests.test_portable_read_wasm.PortableReadWasm.test_real_private_wasm_embeddings) ... I retain private Wasm reader artifacts at /tmp/nanolang-read-wasm-9856-linux/engines
+{"guest": "O0-ordinary", "engine": "Node", "checks": 336, "realVectors": 8, "modeled": 16, "scope": "private direct Wasm adapter; no NanoISA admission"}
+{"guest": "O0-ordinary", "engine": "Wasmtime43", "checks": 336, "realVectors": 8, "modeled": 16, "scope": "private direct Wasm adapter; no NanoISA admission"}
+{"guest": "O0-managed-observed", "engine": "Node", "checks": 362, "realVectors": 8, "modeled": 19, "scope": "private direct Wasm adapter; no NanoISA admission"}
+{"guest": "O0-managed-observed", "engine": "Wasmtime43", "checks": 362, "realVectors": 8, "modeled": 19, "scope": "private direct Wasm adapter; no NanoISA admission"}
+{"guest": "O2-ordinary", "engine": "Node", "checks": 336, "realVectors": 8, "modeled": 16, "scope": "private direct Wasm adapter; no NanoISA admission"}
+{"guest": "O2-ordinary", "engine": "Wasmtime43", "checks": 336, "realVectors": 8, "modeled": 16, "scope": "private direct Wasm adapter; no NanoISA admission"}
+{"guest": "O2-managed-observed", "engine": "Node", "checks": 362, "realVectors": 8, "modeled": 19, "scope": "private direct Wasm adapter; no NanoISA admission"}
+{"guest": "O2-managed-observed", "engine": "Wasmtime43", "checks": 362, "realVectors": 8, "modeled": 19, "scope": "private direct Wasm adapter; no NanoISA admission"}
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 8.360s
+
+OK

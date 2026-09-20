@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85/bin/nanoc_c",
+    "src_nano/nanoisa_emit.nano",
+    "-o",
+    "/tmp/nanolang-linux-tuple-selected/nanoisa_emit",
+    "--keep-c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85",
+  "timeout": 900,
+  "selected_ASAN_OPTIONS": null
+}
