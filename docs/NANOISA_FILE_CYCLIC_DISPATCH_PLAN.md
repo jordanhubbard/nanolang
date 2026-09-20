@@ -226,3 +226,44 @@ bytes. The new explicit Make object recipes use owning source paths and C11;
 provider lists exclude public VM/native/grant entries and any VM dispatcher
 from the generated-native runtime. These are proposed source changes for review,
 not measured execution. Complete source review precedes fixture preparation.
+
+## My prepared fixture checkpoint
+
+After root approved source4a12db5e0, I prepare one captured-wire corpus for actual
+VM execution and generated native replay. I compare every printed report field,
+scalar result, host-call ordering and byte/progress observations exactly between
+the VM capture and each native O0/O2 replay on the same host. The fixture reuses
+reviewed module constructors, not the old manual instruction driver. Existing
+manual carrier, private acyclic VM/native and public/archive suites remain
+separate required neighbors; compiling their included helpers does not run them.
+
+The corpus includes zero/one/two/258 acquisitions under both catalog maps, nested
+iterations and early return, a lower-index helper shared by initializer/entry,
+exact9/8/0 fuel with original function/PC assertions, two-owner swaps, owned
+call/return, nested borrowed calls, held-reference backedges and exhaustion,
+assertion cleanup, OpenResult.Error, close-failure aggregation and generation
+limits during call/return/service-result staging. No per-instruction project
+allocation is permitted in instrumented normal dispatch. An instrumented core
+wrapper asserts zero live owners/borrows **before** the real disposal sweep;
+successful carrier exits also expose empty frames/regions before cleanup.
+
+I retain complete preparation allocation-prefix and single-failure sweeps with
+fresh recovery, unchanged output sentinels, emitter buffer bounds and no host
+effects during emission. The ordinary linked route remains distinct from that
+allocation instrumentation. Common objects retain their inventoried build; this
+is not a whole-program sanitizer claim.
+
+Native isolated drivers link the explicit query/core provider closure without VM
+dispatch or emitter objects. They check wrong semantic ABI revision/size, a
+non-first variant, reference relation and edge mismatch before acquisition, plus
+forced entry into an emitted zero-variant dead label. These are deliberate
+fixture edits to retained generated C, not admitted malformed modules. Native
+function bodies use operations/gotos; the agreement function's reference-slot
+switch is not bytecode interpretation. Symbol inventories remain artifacts.
+
+My runner reuses the reviewed file-backed240-second command runner with bounded
+TERM/KILL cleanup after normal/timeout completion and retained launch errors.
+Fresh Linux and puck ordinary selected compilers plus supported scoped sanitizer
+configurations require frozen source/provider/tool endpoints and retained
+products. The complete prepared fixture goes to review before any build or run;
+public/installed/source/indirect/richer-borrow acceptance remains open.

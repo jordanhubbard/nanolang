@@ -12782,3 +12782,11 @@ macro-gated VM/native units, shared all-variant coverage, exact generated semant
 agreement, separate ABI guard and one carrier fuel budget. Existing acyclic and
 public engines stay unchanged. I submit source before fixtures/build/execution;
 15a92 remains OPEN and no cyclic public admission is claimed.
+
+After full4a12 source approval, I prepare the shared-wire private cyclic dispatch
+fixture and bounded runner. VM capture versus native O0/O2 compares complete
+reports and ordered host events; exact shared fuel, live-reference backedges,
+258 reuse, staging faults, pre-sweep core draining, allocation/output controls
+and isolated ABI/non-first-variant/reference/edge/dead-label refusals are explicit.
+Old private/public/archive neighbors remain separate required gates. No fixture
+has been compiled or executed; I submit the complete checkpoint for review.
