@@ -1,0 +1,10 @@
+{
+  "qualified": "10fc127b1df43c4b1f880907b671b28de59ae859",
+  "integrated": "7123157389a8f54507684678072cb9d296413e5b",
+  "qualified_source_changes": [
+    "Makefile.gnu",
+    "src/nanoisa/file_runtime.c",
+    "tests/nanoisa/test_file_runtime.c"
+  ],
+  "provider_and_fixture_bytes_unchanged": true
+}
