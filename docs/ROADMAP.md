@@ -12838,3 +12838,13 @@ zero-variant instruction2 native forced-entry refusal and unchanged2-instruction
 positive path. The unsupported-op control will replace that penultimate NOP
 with PRINT while preserving final RET. No production/query rule changes; root
 reviews this fixture-only delta before fresh gates. Repair78437 remains open.
+
+I retain frozen100c Linux ordinary first terminal11.592s after successful fresh
+setup22.369s/configuration/two-test discovery. Its full VM capture passed23 exact
+modules and the emitter sweep passed334 allocation refusals, retaining generated
+C and O0 objects. Replay registry compilation then failed GCC's unchanged
+`-Werror=misleading-indentation`: fixture text placed `if (...) abort(); return r;`
+on one line. Native replay had not run. Before correction I specify only a
+newline between those fixture-generated statements; no assertion or production
+change. Puck's independently running100c gate remains separately attributed.
+I keep repair78437 open and request exact correction review before fresh runs.
