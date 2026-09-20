@@ -41,11 +41,15 @@ class GenericRecordLists(unittest.TestCase):
         cls.programs = cls.work / 'parsed-lifetimes'
         cls.coroutine_errors = cls.work / 'coroutine-errors'
         cls.array_identity = cls.work / 'array-identity'
+        cls.array_allocations = cls.work / 'array-allocations'
         common = [*cls.cc, *cls.flags, '-std=c99', '-Wall', '-Wextra', '-Werror', '-I', ROOT / 'src']
         cls.command('coroutine-error-build', [*common, ROOT / 'tests/test_coroutine_error_allocation.c',
             *cls.links, '-o', cls.coroutine_errors])
         cls.command('array-identity-build', [*common, ROOT / 'tests/test_nominal_array_identity.c',
             *[p for p in cls.objects if p.name != 'typechecker.o'], *cls.links, '-o', cls.array_identity])
+        cls.command('array-allocation-build', [*common, ROOT / 'tests/test_nominal_array_allocations.c',
+            ROOT / 'tests/test_nominal_array_allocations_checker.c',
+            *[p for p in cls.objects if p.name not in ('env.o', 'typechecker.o')], *cls.links, '-o', cls.array_allocations])
         cls.command('owned-build', [*common, '-DEVALUATOR_ALLOCATION_HOOKS', ROOT / 'tests/test_evaluator_owned_lifetimes.c',
             ROOT / 'tests/test_evaluator_lifetime_eval.c', ROOT / 'tests/test_evaluator_lifetime_module.c',
             *[p for p in cls.objects if p.name not in ('env.o', 'eval.o', 'module.o')], *cls.links, '-o', cls.owned])
@@ -134,8 +138,98 @@ class GenericRecordLists(unittest.TestCase):
         for name in ('mutations', 'staging', 'imported', 'escape', 'async'):
             self.command('evaluator-' + name, [self.programs, 'escape' if name == 'escape' else 'program', FIXTURES / (name + '.nano')])
 
+    def test_array_source_paths_and_producers(self):
+        for name in ('array_paths', 'array_producers'):
+            source = (FIXTURES / (name + '.nano')).read_text()
+            source = source.replace('"array_records.nano"', '"' + str(FIXTURES / 'array_records.nano') + '"')
+            self.source_routes(name, source)
+
+    def test_array_destination_and_origin_refusals(self):
+        prelude = f'module "{FIXTURES / "array_records.nano"}" as records\n'
+        prelude += '''struct Item { value: int }
+struct Holder { values: array<Item> }
+fn make() -> Item { return Item { value: 31 } }
+shadow make { assert (== (make).value 31) }
+fn consume(values: array<Item>) -> int { return (array_length values) }
+shadow consume { assert (== (consume [(make)]) 1) }
+fn keep(value: Item) -> bool { return true }
+shadow keep { assert (keep (make)) }
+'''
+        wrong = {
+            'initializer': 'let values: array<Item> = (records.values)',
+            'assignment': 'let mut values: array<Item> = [] set values (records.values)',
+            'field': 'let holder: Holder = Holder { values: (records.values) }',
+            'qualified-field': 'let holder: records.Holder = records.Holder { values: [(make)] }',
+            'direct': '(consume (records.values))',
+            'qualified': '(records.forward [(make)])',
+            'indirect': 'let f: fn(array<Item>) -> int = consume (f (records.values))',
+            'inferred': 'let values = (records.values) let wrong: array<Item> = values',
+            'nested': 'let values: array<array<Item>> = [[], (records.values)]',
+            'mixed-literal': 'let values = [(make), (records.make 7)]',
+            'index': 'let value: Item = (at (records.values) 0)',
+            'iteration': 'for value in (records.values) { let wrong: Item = value }',
+            'new': 'let values: array<Item> = (array_new 2 (records.make 7))',
+            'push': 'let values: array<Item> = (array_push [(make)] (records.make 7))',
+            'push-ignored': 'let values: array<Item> = [(make)] (array_push values (records.make 7))',
+            'set-element': 'let values: array<Item> = [(make)] (array_set values 0 (records.make 7))',
+            'slice': 'let values: array<Item> = (array_slice (records.values) 0 1)',
+            'map-input': 'let values = (map (records.values) keep)',
+            'filter-input': 'let values = (filter (records.values) keep)',
+            'map-output': 'let values: array<Item> = (map (records.values) records.raise)',
+            'if': 'let values: array<Item> = (if true { [(make)] } else { (records.values) })',
+            'cond': 'let values: array<Item> = (cond (true [(make)]) (else (records.values)))',
+            'match': 'let values: array<Item> = (match true { true => { [(make)] } false => { (records.values) } })',
+            'empty-unresolved': 'let values: array<Missing> = []',
+        }
+        for name, body in wrong.items():
+            self.source_routes('array-refuse-' + name, prelude + 'fn main() -> int { ' + body + ' return 0 }\nshadow main { assert true }\n', True)
+        self.source_routes('array-refuse-return', prelude + '''fn wrong() -> array<Item> { return (records.values) }
+shadow wrong { assert true }
+fn main() -> int { return 0 }
+shadow main { assert true }
+''', True)
+        # I exercise the second module-checking pass with the same wrong global boundary.
+        module = self.work / 'array-wrong-module.nano'
+        module.write_text(prelude + 'let wrong: array<Item> = (records.values)\n')
+        self.source_routes('array-refuse-module-global', f'module "{module}" as bad\nfn main() -> int {{ return 0 }}\nshadow main {{ assert true }}\n', True, import_refusal=True)
+
+    def test_array_union_definition_and_substitution_owners(self):
+        prelude = f'module "{FIXTURES / "array_records.nano"}" as records\n'
+        prelude += '''struct Item { value: int }
+fn make() -> Item { return Item { value: 31 } }
+shadow make { assert (== (make).value 31) }
+'''
+        both = 'records.Mixed<Item>.Both { fixed: (records.values), supplied: [(make)] }'
+        source = prelude + '''fn main() -> int {
+ let value: records.Mixed<Item> = BOTH
+ let nested: records.Nested<Item> = records.Nested<Item>.Wrapped { inner: BOTH }
+ let empty: records.Mixed<Item> = records.Mixed<Item>.Both { fixed: [], supplied: [] }
+ match value { Both(payload) => {
+  assert (== (at payload.fixed 0).value 7)
+  assert (== (at payload.supplied 0).value 31)
+ } }
+ match nested { Wrapped(outer) => { match outer.inner { Both(payload) => {
+  assert (== (at payload.fixed 1).value 9)
+  assert (== (at payload.supplied 0).value 31)
+ } } } }
+ match empty { Both(payload) => { assert (== (array_length payload.fixed) 0) assert (== (array_length payload.supplied) 0) } }
+ return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        self.source_routes('array-union-mixed-owners', source.replace('BOTH', both))
+        for name, expression in (
+            ('fixed', both.replace('fixed: (records.values)', 'fixed: [(make)]')),
+            ('substituted', both.replace('supplied: [(make)]', 'supplied: (records.values)'))):
+            for nested in (False, True):
+                annotation = 'records.Nested<Item>' if nested else 'records.Mixed<Item>'
+                value = 'records.Nested<Item>.Wrapped { inner: ' + expression + ' }' if nested else expression
+                self.source_routes('array-union-refuse-' + name + ('-nested' if nested else ''),
+                    prelude + 'fn main() -> int { let value: ' + annotation + ' = ' + value + ' return 0 }\nshadow main { assert true }\n', True)
+
     def test_array_intrinsic_and_declaration_identity(self):
         self.command('array-identity', [self.array_identity])
+        self.command('array-allocations', [self.array_allocations])
 
     def test_deferred_foreign_declarations(self):
         self.command('foreign-identity-facts', [self.programs, 'foreign-facts'])
@@ -203,7 +297,7 @@ class GenericRecordLists(unittest.TestCase):
             _, err = self.command(mode, [self.programs, mode, module, self.work / (mode + '.o')], expected=(1,))
             self.assertIn(diagnostic, err)
 
-    def source_routes(self, name, source, reject=False, vm=True):
+    def source_routes(self, name, source, reject=False, vm=True, import_refusal=False):
         path = self.work / (name + '.nano'); path.write_text(source)
         for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):
             output = self.work / (name + '-' + compiler); output.write_bytes(SENTINEL)
@@ -214,7 +308,8 @@ class GenericRecordLists(unittest.TestCase):
                 self.assertNotIn(b'C compilation failed', out + err)
             else: self.command(name + '-' + compiler + '-run', [output], timeout=15)
         # I exercise checker refusal in the actual evaluator too, before run_program.
-        self.command(name + '-evaluator', [self.programs, 'reject' if reject else 'program', path])
+        mode = 'declarations-import-refuse' if import_refusal else 'reject' if reject else 'program'
+        self.command(name + '-evaluator', [self.programs, mode, path])
         if vm:
             output = self.work / (name + '.nvm'); output.write_bytes(SENTINEL)
             self.command(name + '-emit', [ROOT / 'bin/nano_virt', path, '--emit-nvm', '-o', output],

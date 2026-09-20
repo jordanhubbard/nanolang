@@ -134,8 +134,43 @@ static void declaration_identity(void) {
     assert(!checked_annotations_equal_context(env, &formal, "Definitions", &wrong, "Records", 0, &context, NULL));
     free_environment(env);
 }
+static void mixed_substitution_identity(void) {
+    Environment *env = create_environment(); assert(env);
+    identity_record(env, "Item", "Definitions");
+    identity_record(env, "Item", "Caller");
+    TypeInfo fixed = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+    TypeInfo formal = {.base_type = TYPE_STRUCT, .generic_name = "T"};
+    TypeInfo inner_formal = {.base_type = TYPE_STRUCT, .generic_name = "U"};
+    TypeInfo fixed_array = {.base_type = TYPE_ARRAY, .element_type = &fixed};
+    TypeInfo formal_array = {.base_type = TYPE_ARRAY, .element_type = &formal};
+    TypeInfo nested_array = {.base_type = TYPE_ARRAY, .element_type = &inner_formal};
+    char *outer_names[] = {"T"}, *inner_names[] = {"U"};
+    UnionDef outer = {.generic_param_count = 1, .generic_params = outer_names};
+    UnionDef inner = {.generic_param_count = 1, .generic_params = inner_names};
+    TypeInfo *outer_args[] = {&fixed}, *inner_args[] = {&formal};
+    TypeInfo outer_instance = {.type_param_count = 1, .type_params = outer_args};
+    TypeInfo inner_instance = {.type_param_count = 1, .type_params = inner_args};
+    NominalSubstitution outer_context = {&outer, &outer_instance, "Caller", NULL};
+    NominalSubstitution inner_context = {&inner, &inner_instance, "Definitions", &outer_context};
+    assert(checked_annotations_equal_context(env, &fixed_array, "Definitions", &fixed_array, "Definitions", 0, &outer_context, NULL));
+    assert(!checked_annotations_equal_context(env, &fixed_array, "Definitions", &fixed_array, "Caller", 0, &outer_context, NULL));
+    assert(checked_annotations_equal_context(env, &formal_array, "Definitions", &fixed_array, "Caller", 0, &outer_context, NULL));
+    assert(!checked_annotations_equal_context(env, &formal_array, "Definitions", &fixed_array, "Definitions", 0, &outer_context, NULL));
+    assert(checked_annotations_equal_context(env, &nested_array, "Definitions", &fixed_array, "Caller", 0, &inner_context, NULL));
+    assert(!checked_annotations_equal_context(env, &nested_array, "Definitions", &fixed_array, "Definitions", 0, &inner_context, NULL));
+    /* I retain both owners inside one full callback annotation. */
+    Type tags[] = {TYPE_ARRAY, TYPE_ARRAY};
+    TypeInfo *expected[] = {&fixed_array, &formal_array};
+    TypeInfo *actual[] = {&fixed_array, &fixed_array};
+    FunctionSignature wanted = {.param_count = 2, .param_types = tags, .param_type_info = expected, .return_type = TYPE_VOID};
+    FunctionSignature wrong = {.param_count = 2, .param_types = tags, .param_type_info = actual, .return_type = TYPE_VOID};
+    assert(!checked_signature_equal_context(env, &wanted, "Definitions", &wrong, "Definitions", 0, &outer_context, NULL));
+    assert(!checked_signature_equal_context(env, &wanted, "Definitions", &wrong, "Caller", 0, &outer_context, NULL));
+    assert(checked_signature_equal_context(env, &wanted, "Definitions", &wanted, "Definitions", 0, &outer_context, &outer_context));
+    free_environment(env);
+}
 int main(void) {
-    intrinsic_identity(); parsed_extern_policy(); declaration_identity();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity(); mixed_substitution_identity();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }

@@ -111,3 +111,35 @@ OpaqueTypeDef currently represents a global foreign C-pointer namespace and has
 no module-owner field. Its presence cannot exempt an ordinary-record array from
 identity comparison; I do not invent module provenance for that legacy table.
 I retain enum-list parity and all original gates as open requirements.
+
+## My complete fixture checkpoint
+
+I retain the prior nine list/lifetime methods and the actual builtin identity
+method. Three additional methods exercise array source paths/producers, rejected
+boundary/owner mismatches, and mixed fixed-definition/substituted generic-union
+leaves. Each source route keeps C seed, Stage1, Stage2, actual evaluator and
+NanoVirt/NanoVM controls; imports include repeated aliases of one declaration
+and same-spelling distinct records. Local and imported arrays cross fields,
+parameters, direct/qualified/indirect returns, inferred aliases, branches,
+nested literals and iteration. Empty arrays need destination facts. I keep all
+original compiler shadow deadlines and the unchanged LexerToken input.
+
+A separate two-TU fault binary includes my actual env.c and typechecker.c under
+malloc/calloc/realloc/strdup/free hooks. It excludes exactly env.o/typechecker.o
+from the prepared provider closure. My old evaluator fault binary and its three
+hooked TUs are unchanged. I measure and sweep every allocation of the checked
+TypeInfo graph copy and selected array views, both persistent-prefix and single
+transient failures, with fresh recovery and output/retained-input checks. A
+transient branch probe may recompute a complete valid view; I check its exact
+result depth/name/owner and cleanup rather than claiming that every injected
+failure must terminate the operation. I separately fail the one registry-node
+allocation, retain the caller-owned tree, then transfer it once and check full
+Environment teardown. This is not a whole-compiler OOM recovery claim:
+nominal_callable_view still uses legacy fatal signature construction/copying;
+map/filter/callable source controls do not turn that policy into checked failure.
+
+While authoring those source controls, I identify a further static prerequisite:
+ignored-result array_push and array_set bypass the destination-view check. I
+retain exact wrong-record controls and a valid array_set control in this
+checkpoint. Their production check requires review before execution; I do not
+call the source draft qualified or weaken those required refusals.

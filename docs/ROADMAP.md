@@ -13710,3 +13710,16 @@ single-letter names could bypass array record checks.
   order, and check explicit extern declarations and copied function objects.
 - [ ] I prioritize exact owner-bound record identity, remove opaque/name-form
   bypasses, and check record/union/opaque name collisions and declared formals.
+
+My source-array fixture preparation identifies another static prerequisite under
+`task_1a4cba8a04804aa287e5b9d6eefb98f7`: an ignored-result `array_push` and void
+`array_set` do not ask for an annotation view. Their builtin declarations have
+NULL parameter facts, so the ordinary parameter loop supplies no nominal check.
+No invalid program has been run to establish this source finding.
+
+- [ ] I validate the selected real array mutation builtin's receiver element
+  declaration against its inserted value even without a destination expression,
+  preserving local/foreign call precedence and scalar conversion policy.
+- [ ] I retain positive replacement and negative ignored-push/replacement source
+  controls alongside the full array provenance fixture checkpoint, and review
+  the prerequisite before fresh qualification.

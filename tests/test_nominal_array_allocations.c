@@ -1,0 +1,206 @@
+/* I observe actual env/checker allocations only; setup and other providers
+ * remain outside this independent domain. Legacy fatal signature copies are
+ * not recoverable-prefix acceptance. */
+#define _POSIX_C_SOURCE 200809L
+#define _DARWIN_C_SOURCE
+#include "../src/nanolang.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+static size_t checks, attempts, failed, at, live;
+static bool observing, once;
+static void *pointers[4096];
+#define CHECK(x) do { ++checks; if (!(x)) { fprintf(stderr, "I failed %s at %d\n", #x, __LINE__); exit(90); } } while (0)
+static bool failure(void) {
+    if (!observing) return false;
+    size_t index = attempts++;
+    if (once ? index == at : index >= at) { ++failed; return true; }
+    return false;
+}
+static void remember(void *p) {
+    if (!p || !observing) return;
+    for (size_t i = 0; i < sizeof pointers / sizeof *pointers; ++i)
+        if (!pointers[i]) { pointers[i] = p; ++live; return; }
+    CHECK(false);
+}
+void *array_alloc_malloc(size_t size) {
+    if (failure()) return NULL;
+    void *p = malloc(size); remember(p); return p;
+}
+void *array_alloc_calloc(size_t count, size_t size) {
+    if (failure()) return NULL;
+    void *p = calloc(count, size); remember(p); return p;
+}
+void *array_alloc_realloc(void *p, size_t size) {
+    if (failure()) return NULL;
+    size_t slot = SIZE_MAX;
+    for (size_t i = 0; i < sizeof pointers / sizeof *pointers; ++i)
+        if (p && pointers[i] == p) { slot = i; break; }
+    void *next = realloc(p, size);
+    if (next) { if (slot != SIZE_MAX) pointers[slot] = next; else remember(next); }
+    return next;
+}
+char *array_alloc_strdup(const char *s) {
+    size_t bytes = strlen(s) + 1;
+    char *p = array_alloc_malloc(bytes); if (p) memcpy(p, s, bytes); return p;
+}
+void array_alloc_free(void *p) {
+    for (size_t i = 0; p && i < sizeof pointers / sizeof *pointers; ++i)
+        if (pointers[i] == p) { pointers[i] = NULL; CHECK(live); --live; break; }
+    free(p);
+}
+#define malloc array_alloc_malloc
+#define calloc array_alloc_calloc
+#define realloc array_alloc_realloc
+#define strdup array_alloc_strdup
+#define free array_alloc_free
+#include "../src/env.c"
+#undef malloc
+#undef calloc
+#undef realloc
+#undef strdup
+#undef free
+int g_argc;
+char **g_argv;
+char g_project_root[4096] = ".";
+const char *get_project_root(void) { return g_project_root; }
+extern bool array_test_view(Environment *, ASTNode *, unsigned, TypeInfo **, const char **);
+static void begin(size_t prefix, bool transient) {
+    CHECK(!observing && !live); observing = true; attempts = failed = 0;
+    at = prefix; once = transient;
+}
+static size_t stop(void) { observing = false; return attempts; }
+
+static size_t copy_attempt(size_t prefix, bool transient) {
+    char name[] = "Item"; Type tags[] = {TYPE_STRUCT}; char *names[] = {name};
+    TypeInfo leaf = {.base_type = TYPE_STRUCT, .generic_name = name};
+    TypeInfo *params[] = {&leaf};
+    FunctionSignature signature = {.param_count = 1, .param_types = tags,
+        .param_struct_names = names, .param_type_info = params, .return_type = TYPE_STRUCT,
+        .return_struct_name = name, .return_type_info = &leaf};
+    TypeInfo root = {.base_type = TYPE_ARRAY, .element_type = &leaf, .type_params = params,
+        .type_param_count = 1, .tuple_types = tags, .tuple_type_names = names, .tuple_element_count = 1,
+        .row_field_names = names, .row_field_types = tags, .row_field_type_names = names,
+        .row_field_count = 1, .fn_sig = &signature};
+    TypeInfo *out = &root;
+    begin(prefix, transient); bool ok = copy_payload_type_info_checked(&root, &out); size_t count = stop();
+    if (prefix != SIZE_MAX) {
+        CHECK(!ok && failed && out == &root);
+        CHECK(!strcmp(name, "Item") && root.element_type == &leaf && signature.param_type_info[0] == &leaf);
+    }
+    else {
+        CHECK(ok && out != &root && out->element_type != &leaf);
+        name[0] = 'X';
+        CHECK(!strcmp(out->element_type->generic_name, "Item"));
+        CHECK(!strcmp(out->fn_sig->param_type_info[0]->generic_name, "Item"));
+        CHECK(!strcmp(out->tuple_type_names[0], "Item"));
+        CHECK(!strcmp(out->row_field_type_names[0], "Item"));
+        free_payload_type_info(out);
+    }
+    CHECK(!live); return count;
+}
+static void registration_controls(void) {
+    for (int transient = 0; transient < 2; ++transient) {
+        Environment *env = create_environment(); CHECK(env);
+        TypeInfo leaf = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+        TypeInfo source = {.base_type = TYPE_ARRAY, .element_type = &leaf};
+        TypeInfo *owned = NULL;
+        begin(SIZE_MAX, false); CHECK(copy_payload_type_info_checked(&source, &owned)); stop();
+        size_t retained = live; CHECK(retained >= 3);
+        struct EnvCheckerAllocation *before = env->checker_allocations;
+        /* I fail only the registry node, keeping the already-owned tree alive. */
+        attempts = failed = 0; at = 0; once = transient != 0; observing = true;
+        CHECK(!env_own_checker_type_info(env, owned)); stop();
+        CHECK(attempts == 1 && failed == 1 && live == retained && env->checker_allocations == before);
+        CHECK(!strcmp(owned->element_type->generic_name, "Item"));
+        attempts = failed = 0; at = SIZE_MAX; observing = true;
+        CHECK(env_own_checker_type_info(env, owned)); stop();
+        CHECK(attempts == 1 && !failed && live == retained + 1);
+        CHECK(env->checker_allocations->allocation == owned && env->checker_allocations->owned_type_info);
+        free_environment(env); CHECK(!live);
+    }
+    TypeInfo borrowed = {.base_type = TYPE_INT};
+    CHECK(!env_own_checker_type_info(NULL, &borrowed));
+    CHECK(borrowed.base_type == TYPE_INT);
+    CHECK(!env_own_checker_type_info(NULL, NULL));
+}
+static size_t view_attempt(Environment *env, ASTNode *expression, size_t prefix, bool transient, unsigned expected_depth) {
+    TypeInfo sentinel = {.base_type = TYPE_BOOL}, *out = &sentinel;
+    const char *owner = "unchanged";
+    begin(prefix, transient); bool ok = array_test_view(env, expression, 0, &out, &owner); size_t count = stop();
+    if (prefix != SIZE_MAX) CHECK(failed && (!ok || transient));
+    if (!ok) CHECK(out == &sentinel && !strcmp(owner, "unchanged"));
+    else {
+        CHECK(out != &sentinel && owner == NULL);
+        TypeInfo *leaf = out;
+        unsigned depth = 0;
+        while (leaf->base_type == TYPE_ARRAY) { CHECK(leaf->element_type && ++depth <= 2); leaf = leaf->element_type; }
+        CHECK(depth == expected_depth);
+        CHECK(leaf->base_type == TYPE_STRUCT && leaf->generic_name && !strcmp(leaf->generic_name, "Item"));
+        free_payload_type_info(out);
+    }
+    if (prefix == SIZE_MAX) CHECK(ok && !failed);
+    CHECK(!live); return count;
+}
+static void view_controls(void) {
+    Environment *env = create_environment(); CHECK(env);
+    StructDef definition = {0}; definition.name = strdup("Item"); CHECK(definition.name);
+    env_define_struct(env, definition);
+    TypeInfo leaf = {.base_type = TYPE_STRUCT, .generic_name = "Item"};
+    TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &leaf};
+    TypeInfo nested = {.base_type = TYPE_ARRAY, .element_type = &array};
+    env_define_var_with_type_info(env, "values", TYPE_ARRAY, TYPE_STRUCT, &array, false, create_void());
+    env_define_var_with_type_info(env, "nested", TYPE_ARRAY, TYPE_ARRAY, &nested, false, create_void());
+    env_define_var_with_type_info(env, "item", TYPE_STRUCT, TYPE_UNKNOWN, &leaf, false, create_void());
+    ASTNode values = {0}, item = {0}, nested_value = {0}, zero = {0};
+    values.type = item.type = nested_value.type = AST_IDENTIFIER;
+    values.as.identifier = "values"; item.as.identifier = "item"; nested_value.as.identifier = "nested";
+    zero.type = AST_NUMBER;
+    ASTNode *elements[] = {&item, &item};
+    ASTNode literal = {0}; literal.type = AST_ARRAY_LITERAL;
+    literal.as.array_literal.elements = elements; literal.as.array_literal.element_count = 2;
+    ASTNode branch = {0}; branch.type = AST_IF;
+    branch.as.if_stmt.then_branch = &literal; branch.as.if_stmt.else_branch = &values;
+    ASTNode empty = {0}; empty.type = AST_ARRAY_LITERAL;
+    ASTNode *arguments[][3] = {{&zero, &item, NULL}, {&values, &item, NULL},
+        {&empty, &item, NULL}, {&values, &zero, NULL}, {&nested_value, &zero, NULL}, {&values, &zero, &zero}};
+    const char *names[] = {"array_new", "array_push", "array_push", "at", "array_get", "array_slice"};
+    ASTNode calls[6] = {{0}};
+    for (size_t i = 0; i < 6; ++i) {
+        CHECK(env_get_function(env, names[i])); /* I initialize builtin lookup outside observation. */
+        calls[i].type = AST_CALL; calls[i].as.call.name = (char *)names[i];
+        calls[i].as.call.args = arguments[i]; calls[i].as.call.arg_count = i == 5 ? 3 : 2;
+    }
+    ASTNode *cases[] = {&values, &nested_value, &literal, &branch,
+        &calls[0], &calls[1], &calls[2], &calls[3], &calls[4], &calls[5]};
+    const unsigned depths[] = {1, 2, 1, 1, 1, 1, 1, 0, 1, 1};
+    for (size_t c = 0; c < sizeof cases / sizeof *cases; ++c) {
+        size_t count = view_attempt(env, cases[c], SIZE_MAX, false, depths[c]); CHECK(count > 0);
+        printf("I measure view %zu: %zu allocation attempts.\n", c, count);
+        for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+            view_attempt(env, cases[c], i, transient != 0, depths[c]);
+            CHECK(view_attempt(env, cases[c], SIZE_MAX, false, depths[c]) == count);
+        }
+    }
+    TypeInfo sentinel = {.base_type = TYPE_BOOL}, *out = &sentinel; const char *owner = "unchanged";
+    CHECK(!array_test_view(env, &values, 129, &out, &owner) && out == &sentinel);
+    free_environment(env); CHECK(!live);
+}
+int main(void) {
+    size_t count = copy_attempt(SIZE_MAX, false); CHECK(count > 20);
+    printf("I measure the complete TypeInfo copy: %zu allocation attempts.\n", count);
+    for (int transient = 0; transient < 2; ++transient) for (size_t i = 0; i < count; ++i) {
+        copy_attempt(i, transient != 0); CHECK(copy_attempt(SIZE_MAX, false) == count);
+    }
+    TypeInfo chain[129] = {{0}}, sentinel = {.base_type = TYPE_BOOL}, *out = &sentinel;
+    for (int i = 0; i < 128; ++i) { chain[i].base_type = TYPE_ARRAY; chain[i].element_type = &chain[i + 1]; }
+    chain[128].base_type = TYPE_INT;
+    CHECK(!copy_payload_type_info_checked(chain, &out) && out == &sentinel);
+    CHECK(copy_payload_type_info_checked(chain + 1, &out)); free_payload_type_info(out);
+    CHECK(copy_payload_type_info_checked(NULL, &out) && out == NULL);
+    CHECK(!copy_payload_type_info_checked(chain, NULL));
+    registration_controls(); view_controls();
+    printf("I passed %zu separate checker annotation allocation assertions.\n", checks);
+    return 0;
+}

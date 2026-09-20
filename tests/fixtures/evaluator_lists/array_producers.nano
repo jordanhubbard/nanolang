@@ -1,0 +1,26 @@
+module "array_records.nano" as records
+fn main() -> int {
+    let literal: array<records.Item> = [(records.make 7), (records.make 9)]
+    let created = (array_new 2 (records.make 4))
+    assert (== (at created 1).value 4)
+    let appended = (array_push [] (records.make 6))
+    assert (== (at appended 0).value 6)
+    (array_set created 1 (records.make 12))
+    assert (== (at created 1).value 12)
+    let extended = (array_push literal (records.make 11))
+    assert (== (at extended 2).value 11)
+    let sliced = (array_slice extended 1 2)
+    assert (== (at sliced 0).value 9)
+    let filtered = (filter (records.values) records.keep)
+    assert (== (array_length filtered) 1)
+    assert (== (at filtered 0).value 9)
+    let mapped = (map (records.values) records.raise)
+    assert (== (at mapped 0).value 8)
+    let read: fn(records.Item) -> int = records.read
+    let numbers = (map (records.values) read)
+    assert (== (at numbers 1) 9)
+    let ranged = (range 2 5)
+    assert (== (at ranged 2) 4)
+    return 0
+}
+shadow main { assert (== (main) 0) }
