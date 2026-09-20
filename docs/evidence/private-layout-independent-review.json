@@ -1,0 +1,64 @@
+{
+  "qualification_pin": "83b04f11c",
+  "report_status": "uncommitted at audit; file hashes only, not Git publication",
+  "reports": 79,
+  "artifacts": 60,
+  "bytes": 25640538,
+  "pairs": 14,
+  "phases": [
+    {
+      "host": "linux",
+      "phase": "ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "clang-sanitizer-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "clang-ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "sanitizer-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "clang-ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "sanitizer-terminal.json",
+      "status": 0
+    }
+  ],
+  "refs": 144,
+  "archive": {
+    "bytes": 2809768,
+    "path": "/tmp/nanolang-private-layout-puck-evidence.tar.gz",
+    "sha256": "5139705d0d65c0925a9c3cce2dc1e9210ded002e5ff477bd5eaffe0464ed1927"
+  },
+  "archive_members": {
+    "artifacts": 36,
+    "reports": 34
+  },
+  "linux_current": {
+    "sources": 11584,
+    "tools": 6
+  },
+  "puck_current": {
+    "sources": 11584,
+    "tools": 9
+  },
+  "retained_compile_execution_status_references": 28
+}
