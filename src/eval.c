@@ -3892,12 +3892,22 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* Generic list functions: list_TypeName_operation for user-defined types */
     /* Pattern: list_ASTNumber_new, list_Point_push, etc. */
     /* For interpreter/shadow tests, we use a simple generic list that stores pointers */
-    if (strncmp(name, "list_", 5) == 0) {
+    if (strncmp(name, "list_", 5) == 0 && !env_get_function(env, name)) {
         /* Extract the operation: list_TypeName_op -> op */
         const char *last_underscore = strrchr(name, '_');
-        if (last_underscore) {
+        if (last_underscore && last_underscore > name + 5) {
             const char *operation = last_underscore + 1;
-            
+            char *element_name = strndup(name + 5, (size_t)(last_underscore - name - 5));
+            if (!element_name) {
+                fprintf(stderr, "I cannot allocate generic-list declaration metadata\n");
+                exit(1);
+            }
+            bool enum_element = env_get_enum(env, element_name) != NULL;
+            free(element_name);
+            if (enum_element) {
+                fprintf(stderr, "I do not yet interpret implicit enum-list operations\n");
+                exit(1);
+            }
             /* Use list_int as the underlying implementation (stores pointers as int64) */
             if (strcmp(operation, "new") == 0) {
                 List_int *list = list_int_new();  /* Generic list stores pointers */

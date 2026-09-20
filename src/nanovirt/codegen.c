@@ -928,7 +928,7 @@ static void compile_list_mutation(CG *cg, ASTNode *node, const char *operation) 
     int argc = insert ? 3 : pop ? 1 : 2;
     Type result = check_expression(node, cg->env);
     if (node->as.call.arg_count != argc ||
-        (insert ? result != TYPE_VOID : result != TYPE_STRUCT && result != TYPE_ENUM)) {
+        (insert ? result != TYPE_VOID : result != TYPE_STRUCT)) {
         cg_error(cg, node->line, "I require a checked ordinary list mutation");
         return;
     }
@@ -2020,7 +2020,20 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     if (strncmp(name, "list_", 5) == 0 || strncmp(name, "List_", 5) == 0) {
         /* Find the operation suffix */
         const char *suffix = strrchr(name, '_');
-        if (suffix) {
+        if (suffix && suffix > name + 5) {
+            if (!env_get_function(cg->env, name)) {
+                char *element_name = strndup(name + 5, (size_t)(suffix - name - 5));
+                if (!element_name) {
+                    cg_error(cg, node->line, "I cannot retain list declaration metadata");
+                    return true;
+                }
+                bool enum_element = env_get_enum(cg->env, element_name) != NULL;
+                free(element_name);
+                if (enum_element) {
+                    cg_error(cg, node->line, "I do not yet lower implicit enum-list operations");
+                    return true;
+                }
+            }
             if (!strcmp(suffix, "_insert") || !strcmp(suffix, "_remove") ||
                 !strcmp(suffix, "_pop")) {
                 /* Real declarations, including externs, retain call precedence. */
@@ -2354,6 +2367,9 @@ static bool restore_match_binding(CG *cg, ASTNode *match, int arm, const char *o
     Symbol *binding = &cg->env->symbols[cg->env->symbol_count - 1];
     free(binding->struct_type_name);
     binding->struct_type_name = nominal;
+    binding->nominal_owner = checked.nominal_owner;
+    binding->callable_owner = checked.callable_owner;
+    binding->inferred_nominal = checked.inferred_nominal;
     binding->def_line = checked.def_line; binding->def_column = checked.def_column;
     binding->def_file = checked.def_file; binding->is_resource = checked.is_resource;
     binding->scope_end_line = match->as.match_expr.arm_bodies[arm]->scope_end_line;

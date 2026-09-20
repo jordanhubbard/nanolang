@@ -13549,3 +13549,8 @@ My proposed macOS CI selector step passes YAML/step-order and Bash syntax valida
       both evaluator function-return paths with reviewed record snapshot lifetime;
       preserve exact loop-element provenance and measured C/NanoISA iteration
       semantics under the same list task before full list parity acceptance.
+- [ ] Review my first owner-aware list source checkpoint, including generated
+      uppercase declaration owner/visibility, concrete-name collision handling,
+      copied symbol contexts and inferred metadata replay; only then finish the
+      separately reviewed evaluator storage/return/iteration checkpoint and its
+      full source/fixture acceptance. No compiled result is claimed by this draft.

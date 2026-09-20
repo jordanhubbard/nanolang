@@ -185,3 +185,46 @@ normal returns, enclosing-handler returns and parameter truncation. The existing
 record cleanup paths are not a blanket leak-free interpreter claim. I also found
 the accepted generic-list iteration gap above; it stays in this task and cannot
 be hidden by an insert-only fixture. No old faulty path was executed.
+
+## My first owner-aware source checkpoint
+
+I add environment-local declaration identity queries and environment-owned
+nominal/callable owner strings on Symbol. The ordinal is a temporary comparison
+result; I recompute it from retained annotation context rather than cache it in
+an AST or persist it across environments. Normal symbol insertion initializes all
+fields. Header constants already zero their entire Symbol. Both lowerers preserve
+these contexts when replaying checked match bindings. Inferred local bindings
+retain their origin owner across repeated checks of the same source declaration.
+
+My expression query follows identifiers, ordinary fields, direct/indirect results,
+effect results, implicit list results and agreeing branch results. Exact record
+checks now precede destination publication at the existing local/global/field/
+call/assignment/return boundaries. Callable comparison carries a separate owner
+for each signature, including nested signatures and branch alternatives. Generic
+record iteration derives its element declaration from the receiver expression.
+Unknown expression evidence refuses instead of inheriting an unrelated name.
+
+Generated uppercase list declarations previously had a global module with a raw
+T signature. I now resolve their concrete record first and retain its annotation
+owner in their generated Function. These generated extern declarations have no
+private user body; they are marked public for the existing callable access check.
+This particular choice needs source review alongside same-spelled imported
+records and actual user declaration precedence. I do not claim that generated
+specialization spelling alone establishes an owner. Existing specialization
+registration is keyed by concrete spelling; ambiguous or colliding declarations
+must not become accepted through that legacy key. Qualification must exercise
+this boundary before any module compatibility claim.
+
+I leave scalar enum numeric compatibility unchanged and refuse the new implicit
+enum-list route in the checker, mutation lowerer and evaluator fallback. The only
+evaluator changes in this checkpoint are that explicit refusal and preservation
+of actual function declaration precedence. Typed record-list storage, both return
+copy paths and generic evaluator iteration remain the next reviewed source
+checkpoint; I have not implemented the arena yet.
+
+This is an unqualified source checkpoint. I checked patch whitespace and inspected
+new symbol initialization and copied-binding sites; I have not compiled or run a
+fixture. Full consumer audit, legal import/alias controls, generated declaration
+collision controls, inferred metadata replay and every accepted ordinary record
+expression shape remain required fixture/source review boundaries. Missing
+metadata refusals are not a permanent reduction of my full list scope.

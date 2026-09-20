@@ -587,6 +587,12 @@ typedef enum {
     RESOURCE_CONSUMED   /* Resource variable consumed (ownership transferred) */
 } ResourceUseState;
 
+/* Environment-local declaration identity. Zero means unresolved. */
+typedef struct {
+    Type kind;
+    size_t ordinal;
+} NominalIdentity;
+
 /* Symbol table entry for variables */
 typedef struct {
     char *name;
@@ -617,6 +623,10 @@ typedef struct {
      * line in some other module. Not owned: it points at a path string the
      * caller keeps alive for the compilation. */
     const char *def_file;
+    /* Environment-owned annotation contexts, never borrowed current_module storage. */
+    const char *nominal_owner;
+    const char *callable_owner;
+    bool inferred_nominal;
 } Symbol;
 
 /* Function table entry */
@@ -940,6 +950,9 @@ bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
 StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner);
+NominalIdentity env_nominal_identity(Environment *env, const char *name, const char *owner, Type kind);
+const char *env_nominal_name(Environment *env, NominalIdentity identity);
+const char *env_nominal_owner(Environment *env, NominalIdentity identity);
 bool bind_nominal_records(ASTNode *program, Environment *env);
 void env_register_namespace(Environment *env, const char *alias, const char *module_name,
                             char **function_names, int function_count,

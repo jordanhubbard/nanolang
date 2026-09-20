@@ -463,7 +463,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
         env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
     }
 
-    Symbol sym;
+    Symbol sym = {0};
     sym.name = strdup(name);
     sym.type = type;
     sym.struct_type_name = NULL;  /* Initialize to NULL (set later for struct types) */
@@ -483,6 +483,9 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.scope_end_line = 0;
     sym.scope_end_column = 0;
     sym.def_file = env->current_file;   /* NULL when no file is in scope */
+    sym.nominal_owner = env->current_module
+        ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
+    sym.callable_owner = sym.nominal_owner;
 
     /* WORKAROUND: Check if symbol already exists and preserve/update metadata */
     /* This handles a bug where symbols are added multiple times during type-checking.
@@ -967,6 +970,75 @@ Value create_union(const char *union_name, int variant_index, const char *varian
     return v;
 }
 
+/* I return an ordinal rather than a pointer into reallocatable declarations.
+ * Owner equality is exact; a missing owner denotes global scope, not a wildcard. */
+static bool nominal_owner_equal(const char *a, const char *b) {
+    return (!a && !b) || (a && b && !strcmp(a, b));
+}
+
+NominalIdentity env_nominal_identity(Environment *env, const char *name,
+                                     const char *owner, Type kind) {
+    NominalIdentity none = {TYPE_UNKNOWN, 0};
+    if (!env || !name || !*name || (kind != TYPE_STRUCT && kind != TYPE_ENUM)) return none;
+    const char *declaration_name = name;
+    const char *declaration_owner = owner;
+    const char *dot = strchr(name, '.');
+    if (dot) {
+        size_t prefix = (size_t)(dot - name);
+        const ModuleNamespace *found = NULL;
+        for (int i = 0; i < env->namespace_count; ++i) {
+            const ModuleNamespace *ns = &env->namespaces[i];
+            if (nominal_owner_equal(ns->owner_module, owner) && ns->alias &&
+                strlen(ns->alias) == prefix && !memcmp(ns->alias, name, prefix)) {
+                if (found) return none;
+                found = ns;
+            }
+        }
+        if (!found || !dot[1]) return none;
+        bool exported = false;
+        int count = kind == TYPE_STRUCT ? found->struct_count : found->enum_count;
+        char **names = kind == TYPE_STRUCT ? found->struct_names : found->enum_names;
+        for (int i = 0; names && i < count; ++i)
+            if (names[i] && !strcmp(names[i], dot + 1)) exported = true;
+        if (!exported) return none;
+        declaration_owner = found->module_name;
+        declaration_name = dot + 1;
+    }
+    NominalIdentity result = none;
+    int count = kind == TYPE_STRUCT ? env->struct_count : env->enum_count;
+    for (int i = 0; i < count; ++i) {
+        const char *actual = kind == TYPE_STRUCT ? env->structs[i].name : env->enums[i].name;
+        const char *original = kind == TYPE_STRUCT ? env->structs[i].original_name : NULL;
+        const char *module = kind == TYPE_STRUCT ? env->structs[i].module_name : env->enums[i].module_name;
+        bool local = nominal_owner_equal(module, declaration_owner);
+        bool spelling = actual && !strcmp(actual, declaration_name);
+        /* A distinct canonical mangled name already names its owner. I never
+         * treat an unmangled foreign spelling as a globally unique import. */
+        bool canonical = !dot && spelling && original && strcmp(actual, original);
+        if ((local && (spelling || (original && !strcmp(original, declaration_name)))) || canonical) {
+            if (result.ordinal) return none;
+            result.kind = kind;
+            result.ordinal = (size_t)i + 1;
+        }
+    }
+    return result;
+}
+
+const char *env_nominal_name(Environment *env, NominalIdentity identity) {
+    if (!env || !identity.ordinal) return NULL;
+    if (identity.kind == TYPE_STRUCT && identity.ordinal <= (size_t)env->struct_count)
+        return env->structs[identity.ordinal - 1].name;
+    if (identity.kind == TYPE_ENUM && identity.ordinal <= (size_t)env->enum_count)
+        return env->enums[identity.ordinal - 1].name;
+    return NULL;
+}
+
+const char *env_nominal_owner(Environment *env, NominalIdentity identity) {
+    if (!env_nominal_name(env, identity)) return NULL;
+    return identity.kind == TYPE_STRUCT ? env->structs[identity.ordinal - 1].module_name
+                                      : env->enums[identity.ordinal - 1].module_name;
+}
+
 /* I test declaration identity without importing another module's fallback. */
 StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner) {
     if (!env || !name) return NULL;
@@ -1314,6 +1386,11 @@ OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name) {
 
 /* Register a list instantiation for code generation */
 void env_register_list_instantiation(Environment *env, const char *element_type) {
+    NominalIdentity identity = env_nominal_identity(env, element_type, env->current_module, TYPE_STRUCT);
+    /* This incremental implicit route requires a concrete ordinary record. */
+    if (!identity.ordinal) return;
+    element_type = env_nominal_name(env, identity);
+    const char *element_owner = env_nominal_owner(env, identity);
     /* Check if already registered */
     for (int i = 0; i < env->generic_instance_count; i++) {
         GenericInstantiation *inst = &env->generic_instances[i];
@@ -1354,8 +1431,10 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     Parameter *params;
 
     func.is_extern = true;
-    func.is_pub = false;
-    func.module_name = NULL;
+    /* Generated operations carry the element annotation's owner. They have no
+     * private user body; ordinary source visibility still resolves the record. */
+    func.is_pub = true;
+    func.module_name = element_owner ? env_own_checker_allocation(env, strdup(element_owner)) : NULL;
     
     /* List_T_new() -> List<T>* */
     snprintf(func_name, sizeof(func_name), "%s_new", specialized);
