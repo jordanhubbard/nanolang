@@ -269,6 +269,30 @@ d59170b338f8f11b4234108600263331c8fed44faf533fc9ceca1a729502aadd  /tmp/nanolang-
 ab7c086173af223b3ec48076c5ad6d6f9777495bbb59e4e3b3b698e080fd6653  /tmp/nanolang-pr893-bb5d744b.mYM3aX/current-verifier-nvm2c.log
 ```
 
+## Additive current-main restack
+
+Canonical main then advanced to `0061feed5` through private cyclic File dispatch
+and exclusive File binding publication. Those commits changed `Makefile.gnu` and
+my roadmap additively, but changed none of my union producer, affine analysis,
+ownership codec, verifier, VM, nvm2c or focused fixtures. I merged that exact
+main automatically at `dac87fbecbea5285d21ca376a42fbb9e9283b2b3`; the three
+scoped source hashes remained byte-identical to the preceding qualification.
+
+I did not call this unrelated File integration a new compiler bootstrap. I ran
+the complete bounded union targets at the exact merged head with freshly linked
+test products. They pass 546 ordinary plus 856 allocation-path affine checks,
+VM/native sanitizer execution, the simultaneous-instance source route,
+ownership contracts, 184 ordinary plus 275 allocation-path transfers, all 96
+verifier checks, 1,365 shape constraints and all 2,422 structured nvm2c checks.
+The retained Darwin logs are:
+
+```text
+0021042f3e9cc43f8d23f46b7564573c8bd8f9c0740ddfe9f2b5c363246a3bb1  /private/tmp/nanolang-pr893-dac87fbe-darwin-runtime.log
+7415ebc66b7a29a323e90fae5aa514a2747c9b0598fe30072d6fc632015a1471  /private/tmp/nanolang-pr893-dac87fbe-darwin-source.log
+9c7c531f85367e2d6630eaaab13f85ae07c4f1bcf5469149e52df95edf3515ff  /private/tmp/nanolang-pr893-dac87fbe-darwin-adjacent.log
+05e8586680dacfa3200d70beb657dd555dcb70ad434a2f6eefa5cb19c754e4b8  /private/tmp/nanolang-pr893-dac87fbe-darwin-verifier-nvm2c.log
+```
+
 ## What remains
 
 I still require the complete statement/value match matrix, precise
