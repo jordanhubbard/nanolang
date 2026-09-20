@@ -127,7 +127,7 @@ class FilePrivateNative(unittest.TestCase):
                 # There is deliberately no executable artifact for a refused module.
                 source += ['char *text=(char *)(uintptr_t)1;char error[256];',
                            'r.status=nvm2c_file_private_emit(bytes,size,&text,error,sizeof error);',
-                           f'if(r.status!={status} || text!=(char *)(uintptr_t)1)abort();return r;}}']
+                           f'if(r.status!={status} || text!=(char *)(uintptr_t)1)abort();', 'return r;}']
         source += ['if(!bytes){r.status=NVM_FILE_RUNTIME_INVALID;return r;}',
                    'fprintf(stderr,"I lack an exact captured native case (%zu bytes)\\n",size);abort();}', '']
         path = self.artifacts / (name + '-registry.c')
