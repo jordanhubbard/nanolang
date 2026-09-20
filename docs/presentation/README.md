@@ -4,7 +4,7 @@ This is the reproducible authoring package for my developer presentation and tec
 narrative: a Google Slides deck and a Google Doc built from my source, specifications,
 tests, roadmap, and release evidence.
 
-**Local 5.1 One IR release edition; Google publication unchanged.** I describe
+**Local v5.1.0 One IR release edition; Google publication unchanged.** I describe
 my verified compiler product, raw self-hosted bytecode fixed point, translator
 boundary and retained runtime limits. The repository freshness gate requires
 this pair to match the release tree. Updating the existing Google Slides and

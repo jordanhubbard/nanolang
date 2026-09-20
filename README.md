@@ -8,7 +8,7 @@
 
 I emit verified NanoISA bytecode as my portable compiler product. I translate that module to C11 when you need a native process, and I can execute it directly in NanoVM. NanoVM can isolate supported external calls in a separate process. After 4.0 I added versioned service contracts, unforgeable capabilities, a POSIX fabric, and a trap journal. I do not claim a kernel. My core semantics are mechanically proved in Coq — type soundness, progress, determinism, and the big-step ↔ small-step equivalence proof are all complete and `Admitted`-free.
 
-Version 5.1.0 is my One IR release. Its [release record](docs/RELEASE_5.1.md) describes the NanoISA-only product path, matching self-hosted compiler bytecode, platform evidence and deliberate boundaries. I preserve the narrower [5.0 record](docs/RELEASE_5.0.md) as history.
+`v5.1.0` is my One IR release. Its [release record](docs/RELEASE_5.1.md) describes the NanoISA-only product path, matching self-hosted compiler bytecode, platform evidence and deliberate boundaries. I preserve the narrower [5.0 record](docs/RELEASE_5.0.md) as history.
 
 ## Documentation
 
