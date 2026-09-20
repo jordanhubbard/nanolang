@@ -1,0 +1,21 @@
+{
+  "source": "bbafb83f4f3ba851fd8e59f5dfb3515fcf07f19b",
+  "runner_sha256": "4628cda5505c5bf8c23f6ee83f057c904631fb22ae512cf2d8deb9ae6aaac335",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 2,
+      "seconds": 65.219,
+      "sha256": "8655a3b92d67404ca0e3c56a1a61e292985c1ba8a027c3e6d61eff77deffa6cb"
+    }
+  ],
+  "source_unchanged": true,
+  "unchanged_head": true,
+  "tracked_tree_clean": true
+}

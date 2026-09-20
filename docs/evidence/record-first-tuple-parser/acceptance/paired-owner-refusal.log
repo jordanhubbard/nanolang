@@ -1,0 +1,7 @@
+RETAINED /tmp/nano-source-borrows-ge8vosts
+test_inline_owner_wrappers_refuse_without_ordinary_fallback (tests.test_source_borrow_emission.SourceBorrowEmission.test_inline_owner_wrappers_refuse_without_ordinary_fallback) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 187.574s
+
+OK

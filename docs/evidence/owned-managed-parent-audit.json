@@ -1,0 +1,79 @@
+{
+  "scope": "Read-only original-contract/merged-evidence mapping; no task closure or full-parent acceptance",
+  "canonical_base": "2cf1b4fd40690925e87bfe339361ac4a8fe40d86",
+  "ancestor_commits": {
+    "0c7756c2": "0c7756c2032ab704ac4b5d1b85159d618eae8305",
+    "1cbe8c6f": "1cbe8c6f4c8dd2130ca44eb89e2d1f62594d32f4",
+    "2cb8728a": "2cb8728a3be87ada7f15b052a904ee278c317aeb",
+    "3660228d": "3660228d933537082ee727a64333d97302e5e805",
+    "3b0f3151": "3b0f31516ec473b620dd45ccf9d09a9c91485b01",
+    "47ad402f": "47ad402f27d8d716e76dd914851739d9c852f3ef",
+    "4fbca357": "4fbca3578ba56635c6f2884012eb49c2786289d1",
+    "4fc20434": "4fc20434c99181a9471a79c34ecd329c19f3e693",
+    "5079d92e": "5079d92e3b867861f17155bce727e9c293292463",
+    "59ffcecc": "59ffceccf422047c91395e1cf5d08e62e5a1d64c",
+    "6a993be5": "6a993be5511297cb2cf6793d3a8aae0b6a75f8e2",
+    "8953110f": "8953110f4e664f07caea43667e8a8fc0f74e3147",
+    "9ac3b046": "9ac3b0461162d8516d2ecdf02ab0fddfd00dd107",
+    "9d254504": "9d254504a69a9badbd39ab06bf7827687817b51e",
+    "a52d990d": "a52d990d7a0883ec5692be0f03872e0aaa1d54d9",
+    "b7040dcd": "b7040dcdf061b58700aef7ffbb7315217b415c6a",
+    "c4529256": "c4529256252e6cb45e63c9eb967101821de297b1",
+    "d0de3d23": "d0de3d23a730c66531f2ed2c5d972215302ebe19",
+    "e119cda8": "e119cda8afa6539e084ecd9673cf5fc8536e25e0",
+    "ec8f5b7a": "ec8f5b7a9317f48412c673973729f768122c01b4",
+    "f88af33f": "f88af33f9bd7aa4fa6c1c7b86ad2de2e9b8fccb7"
+  },
+  "referenced_documents": {
+    "docs/NANOISA_OWNED_FLOAT_ARRAY_FIELDS.md": "35f92c4e6905a150e4093ac11570cbd686755d5a8cbbe7da2b2467fcc1cbf6c8",
+    "docs/evidence/owned-array-layout-query.md": "a842dfb85f639d693ad437672be950c3b0e048b8297267efc78f1b766aba54b3",
+    "docs/evidence/owned-array-origin-query.md": "7ded4e2a86a21e5db7f05a188bd0f73fd94a7bb9bcbb9c22ecbd3d62e1783e11",
+    "docs/evidence/owned-array-authority-query.md": "c189cccdd32c2d5bfc4f58cd15486726340405e19c3791bf3221d3b7c526868a",
+    "docs/evidence/owned-array-operand-query.md": "d70baf424934f44648342b778240d3e13179564e4d6b84c44b22e29c9e39d8a1",
+    "docs/evidence/private-owned-array-runtime.md": "60b9ca9fbd13f75982ef90bd72f4ed28d01c9126209b9b02fbea1001c3d2e09e",
+    "docs/evidence/private-owned-array-true-switch.md": "1783b75f6fc9b7c7f11eb27ca9412c81a6585a1bcd679ed591326b9162c39383",
+    "docs/evidence/owned-array-public-activation.md": "ed28030fb273213aa012a43229b8267b15b392b5c5dab0eb06220aeb24bf8843",
+    "docs/evidence/owned-array-mutation-runtime.md": "c455e69b9cd34c0702a90313f25d3f5c4339aa1763278744d6db93ecdc088ff7",
+    "docs/evidence/owned-array-mutation-darwin.md": "9b8ce6b384f6911be5f6e06ffc90651a4e20d934ad0d432b2857592ec2c62678",
+    "docs/evidence/owned-array-overwrite/README.md": "2cfa70fa7649a8c55326e040c3c144b3f21839ada25b001022e844be5d1575bf",
+    "docs/evidence/owned-array-bits-boundaries.md": "d5c00d9226c023c0dc4606cb9a0601e2bfa933c2f312d4e2b5110071c260aeef",
+    "docs/evidence/owned-array-source-final.md": "789fcce78526b5f866e4a9cefbfc2d784de75257f3785f4587c69cfaca77d72e",
+    "docs/evidence/owned-array-mutation-final/README.md": "8e4551763adcbb8d14f1e921cd70082f7f1a24ee9326fcb6b7df517222669b57",
+    "docs/NANOISA_MIXED_OWNED_MANAGED_VALUES.md": "a0c4faef2a7cfd850ee9803e0938585b393180a36496c4967615eddd282a42ab",
+    "docs/evidence/owned-binary64.md": "24a9f083d7814afbbff113eb9c285cae23c0b3ce1e962da6a8f631b3a0cca389",
+    "docs/evidence/mixed-layout-view.md": "a5a490fd3e7da623514bdf309675f08ce6c7c2163516808dc561cfca6db30edd",
+    "docs/evidence/mixed-float-proof.md": "f76baa72be226a1110f992aad1637171c04edbe52b26cdb7b4cf95fe0df610ac",
+    "docs/evidence/mixed-samples-composition.md": "c0dfecff6706c33ff38ef2d1201cd1e5f5833967cb26c868f859ba5fb05b357a",
+    "docs/evidence/mixed-samples-runtime.md": "773df7064281de4a425b1b3649c32fd44fc817111b3ab7b9d238291ee3b92774",
+    "docs/evidence/mixed-samples-runtime-integration.md": "334395d5de1c991f3921f8e0d3e11ba5cfacf04208cb0d272b4a8e133258c01a",
+    "docs/evidence/mixed-samples-linkargs-darwin.md": "0b27d6963f9140a37cd318c68c41e71a237e645e718cbb7b5942bf4daf657d54",
+    "docs/evidence/mixed-samples-source-linux/manifest.json": "9b9e1e2315c9c2820d9d8d0395e40021375d63fe18d7a2b16c0e4dc1a46e1a71",
+    "docs/evidence/mixed-samples-source-darwin/manifest.json": "5214a1fde8b42f7d0272615d51004b45a8a3dfc29cd81796acfe0ba676a89f2e",
+    "docs/evidence/owned-string-fields-source.md": "ec1658f015dbe4d89f16e81d395beb838d06188fb772a65da765bb034cab1418",
+    "docs/AFFINE_REMAINING_ACCEPTANCE.md": "59fe4decd9ff114118ca58ade354547551b30ee841b3f4c15cf6526f12792809"
+  },
+  "observed_tasks": {
+    "430220": {
+      "id": "task_430220ce190946518d404088533531b6",
+      "state": "waiting",
+      "title": "Preserve mutable FLOAT arrays inside affine Bundle owners",
+      "description": "Preserve the unchanged Bundle { file: Handle, samples: array<float> } acceptance in tests/test_owned_record_patterns.py, full PREFIX and all selected shadows. This required dependent child of managed51da/aggregate488a/affine28f2/producte8d follows qualified mixed ordinary arrays and owned STRING lifecycle. First document exact authority and closed mutable FLOAT-array provenance through owner construction/projection/destructive unpack/calls/results, shared identity and retained roots. Runtime/backend review and qualification precede paired source admission. No owner authority clearing, inferred element tags from ARRAY alone, historical failed tool replay, or parent/release closure. Contract-only initial checkpoint; dependent implementation remains held until prerequisites qualify.",
+      "updated_at": "2026-09-19T00:32:37.464559+00:00"
+    },
+    "4be": {
+      "id": "task_4be28fef163f42069064357639b3b5cc",
+      "state": "open",
+      "title": "Define mixed ordinary managed values and owned selected-shadow execution",
+      "description": "I preserve unchanged tests/test_owned_record_patterns.py Samples source plus the complete PREFIX and every selected shadow. Static audit at f761af4c finds multiple explicit profile boundaries: owned native lowering lacks already verifier-admitted binary64 instructions, ownership COMPLETE layouts reject ARRAY fields, affine analysis lacks ordinary managed record/array provenance and roots, and both specialized source producers lack ordinary managed lowering. I propose ordered runtime/value/descriptor prerequisites before paired source admission, separating managed fields inside an affine Bundle from ordinary managed values alongside Handle. No source partition, shadow omission, fallback, runtime admission or completion is claimed. Parents task_28f2fb4b1f3c8a5ce93df628bb569d76, task_51da49b39230468784da3481b893563b, task_488a05eb5e2a417caf83a8353363a30d and product task_e8d860a16da0464891dd32e91c42bef1 remain open. Contract proposal requires root review before implementation.\n\nContract checkpoint09ae2e63 is pushed on docs/mixed-owned-managed-shadow-contract, based on canonical f761af4c. docs/NANOISA_MIXED_OWNED_MANAGED_VALUES.md records the exact opcode/descriptor/source boundaries and smallest proposed native binary64 scalar prerequisite. Independent release_audit review is pending; no production implementation or tests executed.\n",
+      "updated_at": "2026-09-18T21:37:45.201746+00:00"
+    },
+    "e8d": {
+      "id": "task_e8d860a16da0464891dd32e91c42bef1",
+      "state": "open",
+      "title": "Qualify installed-product affine ownership suite after checked profile refusals",
+      "description": "I preserve the first installed-product 950f36d1 full make test-quick terminal status2/1734.273s, after fresh bootstrap216.202s/tools24.445s, all3 component builds/entries,17core,244eligibleVM examples and docs158/158 pass. tests/test_affine_selfhost.sh runs33 methods and reports55 subcase checked lowering failures across Stage1/Stage2/nano_virt. Log /tmp/nanolang-product-quick-950f36d1/test-quick.log and manifests retain1674 unchanged sources, clean pinned head and intentional Stage1 rebuild. No failed artifact replay.\n\nBefore production repair I classify each subcase by original expectation, producer and first refusal, separating missing positive admission from negative diagnostic phase and unrelated fixtures; record exact dependency order against existing full ownership/affine parents. I preserve original tests, mandatory shadows, exact layouts/move checks and full product routing. No legacy fallback, eligibility exclusions or weakened assertions. Corrections need a reviewed bounded contract, fresh paired source/verifier/VM/native gates and a new installed-product acceptance pin. Full task_d76ae44a12fd4d27a2b4aa84c30d7bc6 remains open. c435 example boundary is separately completed. Frozen950f remains untouched; evidence goes on separate branch.\n",
+      "updated_at": "2026-09-18T19:20:45.138806+00:00"
+    }
+  },
+  "audit_document_sha256": "add447ff395f889d6d206d2d20ff50fa89850f2fc30ca952beb367afd5d19477"
+}

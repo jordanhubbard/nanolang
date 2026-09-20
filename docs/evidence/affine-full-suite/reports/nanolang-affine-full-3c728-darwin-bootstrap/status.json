@@ -1,0 +1,9 @@
+{
+  "pin": "3c728c4371c6897f5ff08807adab1a528f3ca48d",
+  "phase": "bootstrap",
+  "success": false,
+  "error": "RuntimeError('bootstrap failed with 2')",
+  "seconds": 9.524598875,
+  "sources_unchanged": true,
+  "head_unchanged": true
+}

@@ -24,7 +24,7 @@
 - [x] I admit exact owned string parameters and printing in both source producers (`task_a4326d3ba9a74cdd938b97e777d10132`) after peer runtime task_badd6be9c31a6e2eac810b95913b4f84 qualified in PR750. My [source contract](NANOISA_SOURCE_OWNED_STRING_PRINT.md) keeps int/bool resource leaves separate from STRING parameter classification, preserves exact positional ownership, complete shadows and prior output, and requires unchanged affine-example VM/native acceptance. String fields/results/new locals, reference mixtures and general string operations stay refused; my fresh integrated bootstrap and unchanged42-method paired gate pass with [sealed evidence](evidence/source-owned-string-print.md); full product acceptance remains separate.
 
 - [x] I preserve interpreter logical operand return/break/continue completion before BOOL conversion (`task_5772f3b901a34463b0fd9c06b32a390d`), retaining first09074 interpreter failure and unchanged ordinary exit acceptance; contract in `docs/NANOVIRT_SOURCE_SHORT_CIRCUIT_CONTRACT.md`.
-- [ ] I preserve record-first tuple construction through canonical parsing (`task_d9730c3ab71e45b283e3c38094638d47`). In PR744 qualification at eda6e6cc, C-seed/raw emitters reach semantic ownership refusal for `(Leaf { value: 1 }, 2)`, while Stage1/Stage2 canonical emission reports a parse error at line2,column65. I retain the exact source/log, do not count parsing refusal as ownership proof, and keep this parser boundary separate from the bounded source graph admission.
+- [x] I preserve record-first tuple construction through canonical parsing (`task_d9730c3ab71e45b283e3c38094638d47`). In PR744 qualification at eda6e6cc, C-seed/raw emitters reach semantic ownership refusal for `(Leaf { value: 1 }, 2)`, while Stage1/Stage2 canonical emission reports a parse error at line2,column65. I retain the exact source/log, do not count parsing refusal as ownership proof, and keep this parser boundary separate from the bounded source graph admission. I route an uppercase named literal followed by `{` through ordinary expression/tuple parsing, preserving prefix calls and grouped expressions. My first candidate incorrectly bypassed declaration-aware qualified literal selection; independent review identified it and fresh bootstrap stopped at the existing ambiguous-union shadow. I retain that terminal and select named literals with the existing declaration-aware helper before tuple/group completion. Fresh corrected bootstrap, all three compiled parser assertion routes and all 36 paired semantic refusals pass; [my evidence](evidence/record-first-tuple-parser/README.md) retains the failed candidate and exact source boundaries. Full ownership and release acceptance remain separate.
 
 - [x] I require positive specialized owned-source admission and lexical resource routing (`task_9c2b62a5450c4fedace6b068c7f190d5`). Generic advisory metadata verification is not admission evidence; selected shadow-only owners must qualify, the specialized owned route requires actual transfer with prior-output preservation on refusal, and local/global/shadow ownership uses must not depend on popped checker scopes. PR788 separately qualifies positive owner-free selected-closure routing; it does not authorize failed-owned fallback. This is a static review correction within [source graph admission](NANOISA_SOURCE_OWNED_VALUE_GRAPHS.md), with no runtime widening. My bounded source acceptance passes at79a386f8: fresh bootstrap, all38 paired methods and runtime regressions; see [evidence](evidence/source-owned-value-graphs.md). PR744 is canonically merged and these bounded children are reconciled.
 
@@ -869,6 +869,17 @@ their individual acceptance evidence closes them.
       Both negative methods preserve prior output. This does not implement
       general tuple substitution or ownership transfer. MAC
       `task_bcd773ad3c084ce099a3da5aef682fef`.
+
+- [ ] I release independently owned registered and extracted union metadata
+      (`task_0bae7b0426fc4c3e912ab00cfd7de136`, under `task_00c47a5d65d04c48914864ec0de553d6`).
+      My current environment owns allocated field type-name arrays, generic
+      formals and module names, while extracted metadata still borrows those
+      pointers. I first give the extracted copy independent ownership, then
+      free each owner's allocations. I require AST/environment/module lifetime
+      independence in both destruction orders, null/empty controls, a fresh
+      unsuppressed ASan/UBSan/LSan lifecycle gate and the existing normal
+      metadata suite. Import-tracker freeing is already canonical; callback
+      placeholder and other parent leaks remain separate until measured.
 
 - [ ] **Release legacy union metadata allocations.** My payload lifetime check
       exposed 245 bytes retained by existing registered field-name/formal arrays
@@ -11482,7 +11493,7 @@ I qualify704c's explicitly split local/argument wrapper scope at frozen1012222a:
 
 - [x] I qualify ordered inline scalar-owned construction (`task_f4a34feabe954cc2921151c2819edc66`, product-affine e8d860/ownership28f2) under my [preimplementation contract](NANOISA_ORDERED_INLINE_OWNERS.md). I first review paired source staging, then qualify source-order once evaluation, declaration-order packing, exact nominal child literals/existing leaf factories, hidden-root partial-construction cleanup and full selected shadows with fresh paired VM/native tools. I preserve named-child behavior, bounds and publication refusals. This prerequisite adds no managed fields or result types; the unchanged Bundle STRING/array methods and broad parents remain open.
 
-- [ ] I preserve ordinary managed values alongside owners in the complete unchanged Samples/PREFIX selected-shadow module (`task_4be28fef163f42069064357639b3b5cc`). My [static contract proposal](NANOISA_MIXED_OWNED_MANAGED_VALUES.md) orders already-admitted native binary64 scalar lowering, exact ordinary/owner/array provenance and descriptor compatibility, managed roots and runtime operations, then paired source admission. I do not partition shadows or clear owner authority. Managed array/string fields inside affine Bundle remain separate required dependents under ownership28f2 and managed51da/488; product-affine e8d860 remains open. I require review before production and preserve the historical950f failure.
+- [x] I preserve ordinary managed values alongside owners in the complete unchanged Samples/PREFIX selected-shadow module (`task_4be28fef163f42069064357639b3b5cc`). My [static contract proposal](NANOISA_MIXED_OWNED_MANAGED_VALUES.md) orders native binary64 scalar lowering with separately checked public admission, exact ordinary/owner/array provenance and descriptor compatibility, managed roots and runtime operations, then paired source admission. I do not partition shadows or clear owner authority. Managed array/string fields inside affine Bundle remain separate required dependents under ownership28f2 and managed51da/488; product-affine e8d860 remains open. I require review before production and preserve the historical950f failure.
 
 - [x] I complete direct native binary64 scalar lowering with the separately qualified public opcode companion (`task_cb823e6c37e6465e8d6ad10f3b726364`) before mixed managed source admission. My [preimplementation contract](NANOISA_OWNED_NATIVE_BINARY64.md) preserves exact tags and transported bits, shared arithmetic policy, and the VM distinction between generic NaN ordering and F64 predicates. I retain matching-tag comparison, source/signature/field/array refusals and qualify ordinary VM/native scalar-plus-owner modules after production review. Parent4be and full ownership remain open.
 
@@ -11585,7 +11596,7 @@ I retain793523 source366f77 first qualification before correcting its migrated d
 
 I qualify793523 Linux source at366f77 with fresh bootstrap, unchanged original Bundle/PREFIX and focused3 GCC/3 Clang passes. The first adjacent58-method run retains its diagnostic-only failure; after recorded case-specific correctionff570537, the affected method passes174.458seconds on unchanged production/tools. My [source evidence](evidence/owned-string-fields-source.md) distinguishes the57 prior passing methods from this fresh corrected method and preserves all original seals. Darwin source acceptance and canonical shared-authority integration remain required; the task and full parents stay open.
 
-- [ ] I retain mutable FLOAT arrays inside affine Bundle owners (`task_430220ce190946518d404088533531b6`) under my [preimplementation contract](NANOISA_OWNED_FLOAT_ARRAY_FIELDS.md). After qualified mixed ordinary arrays and retained STRING owner lifecycle, I require exact owner-field provenance through pack/projection/unpack/calls/results, shared mutable identity, failure-atomic retain/growth/cleanup, then reviewed paired source admission. I preserve the unchanged original Bundle/PREFIX and all selected shadows; descriptor ARRAY alone grants no element proof. Private partial checkpoints do not close owner calls/results or broader managed/ownership/product acceptance.
+- [x] I retain mutable FLOAT arrays inside affine Bundle owners (`task_430220ce190946518d404088533531b6`) under my [preimplementation contract](NANOISA_OWNED_FLOAT_ARRAY_FIELDS.md). After qualified mixed ordinary arrays and retained STRING owner lifecycle, I require exact owner-field provenance through pack/projection/unpack/calls/results, shared mutable identity, failure-atomic retain/growth/cleanup, then reviewed paired source admission. I preserve the unchanged original Bundle/PREFIX and all selected shadows; descriptor ARRAY alone grants no element proof. Private partial checkpoints do not close owner calls/results or broader managed/ownership/product acceptance.
 
 I integrate private composition1bf5 with main5d660625 atb8cc31f7, preserving prior artifacts and exact analysis/fixture identity. Fresh GCC/Clang sanitizer query gates pass112,454 assertions each;39 sealed reports retain8 actual tools,31 linked objects and1,619 source identities. No pending execution or public admission follows; canonical child closure remains pending.
 
@@ -12383,3 +12394,37 @@ I prepare private VMe105 source before new service execution: macro-only `file_v
 I prepare VMe105's fresh actual-dispatch fixture/driver after source review: old carrier/frame suites preserved, all supported opcode spellings and actual predicate/Result arms, full File I/O/call/initializer paths, generation/scratch-publication failures, no-postbegin-allocation and complete preparation fault prefixes. Instrumented hooks and linked production remain separate; only syntax checks have run. Full fixture review precedes service execution.
 I retain private VMe105's first frozen ec54 Linux terminal: fresh setup20.410s passes; normal status1/3.538s fails the output conjunction at fixture line55 after old carrier84506/frame42381 checks. The log does not print the failing case or actual value. Static review finds my new `vm_lifetimes` expects7 from inherited `owner_module`, whose unchanged main CODE and qualified frame fixture return37. I record this concrete expected-value mismatch before correcting7 to37 and adding failure-only expected/actual diagnostics; no production change or assertion weakening. Puck source transfer completed but no gate ran there. I preserve the failed binary/report and do not replay it.
 I qualify private VMe105 atcfb2a9903: actual macro-gated dispatch passes Linux ordinary/GCC/Clang and puck ordinary/Homebrew sanitizer modes, plus preserved frame/opcode/public-refusal/wrapper neighbors. My149-report seal retains14 equal inventory pairs and949 unique artifacts, with the originalec54 expected-value failure preserved. This is actual private VM execution only; native direct lowering/public selection/source and full82ff/File/5.1 parents remain open.
+### My full-affine Darwin dependency-discovery prerequisite (273296)
+
+- [x] I preserve the first 3c728 Darwin bootstrap terminal (9.5246s, make exit2, missing openssl/sha.h) and identify the omitted Homebrew PATH used by brew --prefix discovery; sources and HEAD remain unchanged.
+- [x] I qualify the runner-only explicit PATH correction on a fresh same-pin Darwin tree with actual dependency/compiler/SDK identities; task_273296f15f46457a8199665418602954. Fresh bootstrap285.790s and original33 script77.369s pass. Actual PR878 mergeea6fd7b46 and helper reconciliation verify COMPLETED; product e8d and full parents remain open.
+
+### My complete affine-script acceptance at 3c728
+
+- [x] I freshly bootstrap canonical851 source at frozen3c728 on Linux (282.734s) and Darwin (285.790s corrected configuration), prepare exact frontend/VM tools and pass my unchanged33-method script on bothhosts (85.286s/77.369s). I preserve all36 source hashes,144 boundary observations, fullPREFIX/shadows and authority-specific refusal expectations. My later parser877 is outside this source pin; evidence is `docs/evidence/affine-full-suite/`.
+- [ ] I review/reconcile this bounded script acceptance against task_e8d860a16da0464891dd32e91c42bef1 after actual merge. The larger make target's module/generic identity, current integrated product/fixed-point and full ownership/managed/release gates remain required; I do not close full parents from these33 methods.
+
+### My remaining affine acceptance after the full33 script
+
+- [x] I run the complete unchanged nine-method module-identity suite with the fresh3c728 stages and separate source/tool/artifact evidence on Linux and Darwin (78.581s/67.801s; `docs/evidence/affine-module-identity-3c728/`); parent task_e8d860a16da0464891dd32e91c42bef1. Contract: `docs/AFFINE_REMAINING_ACCEPTANCE.md`. The generic16 methods await coordinated a18 integration; no full-make/product claim follows these nine.
+- [x] I map every original430220/4be acceptance clause to exact merged runtime/source/seal evidence and explicit exclusions, then obtain review before parent ledger closure. Source ARRAY binding reassignment remains refused; I add no new implementation under this reconciliation.
+
+- [x] I repair sealed affine evidence publication under task_36d34c2f22f945189281548f0997faaf: ordinary git add omitted ignored retention-wrapper Python caches listed in my report manifests. I preserve the original publication and exact archives, explicitly include those small hashed records, and require every advertised report to be tracked/hash-exact before corrected push. No source, assertion, gate or archive changes; actual-merge reconciliation remains pending.
+
+
+- [x] I qualify independent union metadata lifetimes at10fc127b1 with normal and fully rebuilt GCC ASan/UBSan/LSan lifecycle checks and existing complete metadata/scoping targets on Linux. I preserve both destruction orders, nested TypeInfo and allocated zero-length arrays in [my evidence](evidence/union-metadata-ownership/README.md). Child0bae7b awaits actual-merge reconciliation; callback/placeholder and full parent00c47 remain open.
+
+
+### My bounded owned/managed canonical reconciliation
+
+I merge the independently reviewed clause matrix and nine-method supplement in
+PR880 at06594fa06be9f36aa1eff1ffa8fee303052d89fe. The actual-merge helper verifies
+canonical ancestry, publishes the measured scope and confirms live MAC
+COMPLETED for430220,4be and the separate Darwin273296 runner correction (PR878).
+My [ledger record](evidence/owned-managed-bounded-reconciliation.json) preserves
+prior states and exact exclusions. I mark only the two original bounded family
+rows complete; historical first terminals and the original contracts remain.
+Source ARRAY binding reassignment stays refused, arbitrary profile composition
+and broader51da/488a/28f2 target obligations stay open, and live e8d/d76 remain
+OPEN. Generic16 awaits coordinated a18 integration;33+9 are not fullmake, current
+product, fixed-point or release acceptance.

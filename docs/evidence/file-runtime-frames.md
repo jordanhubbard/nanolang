@@ -127,3 +127,11 @@ with its fixture/evidence updates. That later parser input is not part of my1525
 measurement. I do not claim a new source bootstrap or repeat private C gates for
 that disjoint change. My manual frame evidence still grants no public File
 execution authority.
+
+I resolve the later ea6fd7b46 integration in a separate ready tree, preserving
+all additive ROADMAP rows. PR878 adds affine-suite documentation/evidence only;
+PR877 remains the sole incoming production delta (`src_nano/parser.nano`).
+All seven frame production/fixture paths remain byte-identical to8644219d8.
+I verify that all341 manifest entries are Git-tracked and their committed
+contents match their sealed hashes; filesystem presence alone is insufficient.
+I do not repeat unchanged File gates for these disjoint additions.
