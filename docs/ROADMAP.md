@@ -13565,3 +13565,20 @@ My Game of Life timing repair at69208feac passes fresh C-seed builds, all five u
 - [ ] I select a supported native sanitizer compiler in my macOS hosted build (`task_0843b8e173511d75050d15c77d42e5fe`). PR918 job106076903795 fails eight reference transport controls because Apple ASan rejects enabled leak detection. I install Homebrew LLVM and set my existing explicit sanitizer/managed-runtime selectors, retaining ordinary CC, assertions, flags and deadlines. I require workflow validation, actual selected transport checks and observed hosted progress before closing this CI scope; full5.1 remains open.
 
 My proposed macOS CI selector step passes YAML/step-order and Bash syntax validation. Executing that exact step on puck selects Homebrew LLVM and all eight unchanged reference transport tests pass in6.802 seconds with leak detection retained. I preserve the [hosted failure and local result](evidence/macos-ci-native-compiler/source-log.json); actual hosted acceptance remains open under task_0843b8e173511d75050d15c77d42e5fe.
+
+### Counted mixed record-array runtime prerequisite (2026-09-20)
+
+I base this next step on actual PR924 merge `ae916a0a821fffdccb9d92b6e62614f97d605801`;
+its independently audited query remains non-admitting. MAC
+`task_621ca4f76f0344bca70099a0ac9a3934` owns my
+[counted runtime contract](NANOISA_MIXED_RECORD_ARRAY_COUNTED_RUNTIME.md).
+
+- [ ] I review exact descriptor/query correspondence, counted root transfers,
+  alias replacement/growth/copy, failure cleanup and native/Wasm route limits.
+- [ ] I implement and review fixtures for the existing core/module adapters,
+  with measured allocation-prefix recovery and production package linkage.
+- [ ] I qualify native O0/O2, supported sanitizers and import-free finite-memory
+  Wasm, retain first terminals and seal all required route evidence.
+- [ ] I separately implement and qualify matching fresh public admission and
+  generated VM/native/LLVM/Wasm consumers, then paired source lowering and
+  unchanged shadows. Full mixed f36/15f/488 and full5.1 remain required.
