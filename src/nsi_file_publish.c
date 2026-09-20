@@ -13,6 +13,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#if defined(__APPLE__)
+#include <sys/random.h>
+#endif
 #if defined(__linux__)
 #include <sys/syscall.h>
 #include <linux/fs.h>
