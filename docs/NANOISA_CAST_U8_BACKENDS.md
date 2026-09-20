@@ -32,3 +32,17 @@ wrong-tag paths and retained managed owners. O0/O2 and selected sanitizers,
 LLVM verification/optimization, both Wasm engines, existing scalar/managed
 neighbors and unchanged unsupported-profile publication are required. A missing
 carrier or consumer case is remaining work, not permission to narrow acceptance.
+
+My first Linux gate at `446c41da4` passes all byte identities, integer extrema,
+local/global/call transport and once-only operands across generated targets.
+It refuses an INT/U8 branch join in native classification. I add only the finite
+INT-or-U8 mask (optionally VOID) to boxed scalar storage; UNKNOWN, enum, float
+and aggregate members do not acquire this new mask. Existing numeric shape
+storage describes representation; exact scalar tag facts remain independent.
+Both branch arms retain their runtime tag until the checked conversion.
+
+My first wrong-tag fixture also encountered the documented native embedded-NUL
+string refusal before conversion. I retain that input and failure. For native
+wrong-tag execution I separately assemble and verify an equal-length plain
+string control; LLVM/Wasm still execute the original counted-NUL owner case.
+Neither correction waives the full backend-equivalence parent.

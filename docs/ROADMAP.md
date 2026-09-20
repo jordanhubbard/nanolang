@@ -13667,3 +13667,6 @@ acceptance, not generated mixed execution or public/source admission. I await
 independent review and actual merge under task621; full mixed parents stay open.
 
 - [ ] I implement generated CAST_U8 semantics after raw PR929 under task_c6b2a040c1434fc784a9d46c02a4981e: exact tagged native C facts/emission and LLVM/Wasm INT-or-U8 narrowing, matching closed-profile/shape transfer, wrong-tag/root cleanup, complete cross-target fixtures and both-host qualification. My [backend checkpoint](NANOISA_CAST_U8_BACKENDS.md) keeps source/reconstruction and separate authority work required.
+
+- [ ] I preserve exact INT/U8 native branch carriers before conversion (task_56f2d585ba954a789ceb2afd67efd4ed). My first generated-byte gate refused a verified join; both arms must execute with exact tags after a finite carrier correction.
+- [ ] I isolate native plain-string byte-error controls from counted-NUL managed cleanup fixtures (task_01d32045c43e43a19592b74ab077fb72), preserving the original refused case and independently verified native control without claiming native counted-string support.
