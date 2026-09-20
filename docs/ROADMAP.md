@@ -12634,3 +12634,5 @@ separate120-report seal keeps original46912 sanitizer results distinct; current
 ready integration through462c98 changes no production. Dependency1 awaits
 review/actual merge, while cyclic carrier/fuel/VM/native/public and source
 requirements remain open.
+
+- [ ] I implement the private ordinary record-array authority query under task_f36b179a0f2b4a1b99c29ccd2af66f99 using the agreed shared v3 envelope at peer8fadd11f: [reconciled reader contract](NANOISA_ORDINARY_RECORD_ARRAY_AUTHORITY.md). I preserve public ARRAY_FIELDS refusal until the separate consumer audit, validate whole mixed envelopes before private projection, review source then fixtures, and qualify limits/faults/copied lifetime on Linux/Darwin. Flat declaration facts do not close full15f/488 or grant executable admission.
