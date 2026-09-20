@@ -95,3 +95,15 @@ fresh, and add the actual declaration-projection target to ordinary neighbors.
 The unused52b checkouts contain no qualification runs and are not evidence of a
 pass. Public package checks use a separate integration tree because their actual
 Make install deliberately rebuilds providers; my ordinary gate tree stays frozen.
+
+Both bc45 ordinary integrations pass, including the new declaration query and
+original emitter. Separate public-package setup then stops before fixtures on
+both hosts: my external environment omitted NMS_RUNTIME_CLANG/NMS_RUNTIME_OPT and
+the known Linux NMS_NATIVE_CLANG_FLAGS GCC13 selection. Linux's managed IR builder
+therefore reports the strict Clang GCC14-selection warning; Darwin reports missing
+opt. I retain both Make2 setup logs and source/tool/product maps at
+`/tmp/nanolang-admission-public-bc45-{linux,puck}`. I correct launch configuration
+only, explicitly inventory the selected optimizer, and continue separate public
+trees. There is no product/fixture change or ordinary-gate repetition. I record
+that some setup products already exist and may be completed/rebuilt; only source
+and tool immutability is claimed during these actual setup/install phases.
