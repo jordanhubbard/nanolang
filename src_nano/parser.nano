@@ -8174,20 +8174,20 @@ fn parser_service_utf8(text: string) -> bool {
     let size: int = (str_length text)
     let mut i: int = 0
     while (< i size) {
-        let byte: int = (char_at text i)
-        if (<= byte 127) { set i (+ i 1) }
+        let lead_code: int = (char_at text i)
+        if (<= lead_code 127) { set i (+ i 1) }
         else {
             let mut need: int = 0
             let mut low: int = 128
             let mut high: int = 191
-            if (and (>= byte 194) (<= byte 223)) { set need 2 }
-            else if (== byte 224) { set need 3 set low 160 }
-            else if (and (>= byte 225) (<= byte 236)) { set need 3 }
-            else if (== byte 237) { set need 3 set high 159 }
-            else if (or (== byte 238) (== byte 239)) { set need 3 }
-            else if (== byte 240) { set need 4 set low 144 }
-            else if (and (>= byte 241) (<= byte 243)) { set need 4 }
-            else if (== byte 244) { set need 4 set high 143 }
+            if (and (>= lead_code 194) (<= lead_code 223)) { set need 2 }
+            else if (== lead_code 224) { set need 3 set low 160 }
+            else if (and (>= lead_code 225) (<= lead_code 236)) { set need 3 }
+            else if (== lead_code 237) { set need 3 set high 159 }
+            else if (or (== lead_code 238) (== lead_code 239)) { set need 3 }
+            else if (== lead_code 240) { set need 4 set low 144 }
+            else if (and (>= lead_code 241) (<= lead_code 243)) { set need 4 }
+            else if (== lead_code 244) { set need 4 set high 143 }
             else { return false }
             if (> need (- size i)) { return false }
             let first: int = (char_at text (+ i 1))
