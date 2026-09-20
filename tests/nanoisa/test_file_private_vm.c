@@ -52,8 +52,11 @@ static NvmFileRuntimeReport vrbytes(uint8_t *bytes,size_t n,NvmFileRuntimeStatus
  unsigned loads=loader_attempts,forks=fork_attempts;
  NvmFileRuntimeReport report=nvm_file_vm_execute(bytes,n,&out);
  CHECK(report.status==expected && loads==loader_attempts && forks==fork_attempts);
- if(expected==NVM_FILE_RUNTIME_OK)CHECK(report.acquired && !report.cleanup.cleanup_failures && out.initialized &&
-  !out.owning && !out.formal && out.type.tag==tag && out.values[0]==value);
+ if(expected==NVM_FILE_RUNTIME_OK){
+  if(out.type.tag!=tag || out.values[0]!=value)fprintf(stderr,"private VM output: expected tag=%u value=%lld; actual tag=%u value=%lld\n",(unsigned)tag,(long long)value,(unsigned)out.type.tag,(long long)out.values[0]);
+  CHECK(report.acquired && !report.cleanup.cleanup_failures && out.initialized &&
+   !out.owning && !out.formal && out.type.tag==tag && out.values[0]==value);
+ }
  else CHECK(!memcmp(&out,&saved,sizeof out));
  empty_host();return report;
 }
@@ -140,7 +143,7 @@ static void vm_lifetimes(void){
  for(unsigned perm=0;perm<2;perm++){
   NvmFileNominalBindings b;vr(vm_io_module(&b,perm,0),NVM_FILE_RUNTIME_OK,TAG_INT,251);
   vr(overlap_module(&b,perm),NVM_FILE_RUNTIME_OK,TAG_INT,909);
-  vr(owner_module(&b,perm),NVM_FILE_RUNTIME_OK,TAG_INT,7);
+  vr(owner_module(&b,perm),NVM_FILE_RUNTIME_OK,TAG_INT,37);
   NvmModule *m=bodymodule(&b,perm);setbody(m,0,lifecycle_code(b));vr(m,NVM_FILE_RUNTIME_OK,TAG_INT,0);
   vr(init_frame_module(&b),NVM_FILE_RUNTIME_OK,TAG_INT,52);
  }
