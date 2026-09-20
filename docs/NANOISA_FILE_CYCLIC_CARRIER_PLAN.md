@@ -190,10 +190,11 @@ flag. A fuel failure does not overwrite an earlier assertion or cleanup result.
 Finish drains all references/roots without fuel, then disposes the core and
 publishes a scalar only on complete clean success. Repeated finish preserves the
 cached report; destroy returns that report before freeing the context. BUSY or
-wrong-kind calls do not consume or destroy an active invocation. Invalid options
-return revision1, INVALID, acquired=false, started0, fuel_exhausted=false and
-leave scalar output untouched; their report retains the supplied limit when
-available. The new semantic ABI checks revision and all new struct sizes; old
+wrong-kind calls do not consume or destroy an active invocation. Cyclic create returns only INVALID for invalid options and preserves its
+context output. The eventual execution adapters, not create or finish(NULL),
+construct revision1 INVALID reports with acquired=false, started0 and
+fuel_exhausted=false, retaining a supplied limit when available and leaving
+scalar output untouched. The new semantic ABI checks revision and all new struct sizes; old
 ABI1 remains exact. Fuel is not a wall-clock or hostile-I/O timeout.
 
 ## I review and qualify in dependency order
@@ -230,3 +231,33 @@ service effect for an uncharged instruction. Native output contains real
 functions/gotos/direct calls, not an embedded bytecode interpreter. Closed
 indirect, richer borrowing, paired source/all shadows and full release remain
 open and are not discharged by this bounded carrier checkpoint.
+
+## I retain my first unexecuted carrier source checkpoint
+
+I implement the proposed source-private header and explicit plan kind in
+`file_runtime.c`, with common fact getters that copy declarations/storage but
+never create an old hosted authority. The new facts and carrier includes own
+cyclic creation, physical witnesses, fuel and report lifecycle. Old acyclic
+entry points retain their plan path. Wrong-kind old finish/destroy return before
+cleanup or free; the cyclic destructor owns its separate plan and witness arena.
+
+Pure `nsi_file_values_internal.h` validators check live generations, owner kinds,
+borrow epochs and exact live/borrowed slot masks without host I/O. The carrier
+compares these masks with all rooted owners/originating references so terminal
+core disposal cannot conceal an unrooted live value at a checked boundary.
+OpenResult arm checks consult `nl_file_open_view`, not its cached carrier arm.
+Underlying slot retirement, generation/epoch counters and public declarations
+remain unchanged. The new private declarations are not installed.
+
+Frame transfer changes select only the retained edge variant, validate the full
+current/ancestor physical relationships, preserve argument/return roots and
+close an instruction before the next charged entry. Common mutation primitives
+require an open cyclic instruction; the bounded internal return transfer can
+move its already-rooted result after removing the callee frame. This is still
+a carrier protocol, not proof that an external C caller evaluated an opcode or
+branch correctly. Matched VM/native implementations remain required.
+
+The Make dependency addition covers both carrier object owners and the private
+value validator header. I have only reviewed source and checked whitespace;
+no fixture, compilation or cyclic/service execution occurs at this checkpoint.
+Root source review precedes fixture preparation and fresh qualification.

@@ -12636,3 +12636,10 @@ revision. PR897 completes only copied hosted facts. This new design awaits
 review before production; carrier, matched VM/native, public conjunction and
 source/indirect/richer-borrow obligations stay open. I coordinate closed-target
 indirect design with root-owned2c135 without overlapping implementation.
+
+I prepare the first15a92 private cyclic carrier source checkpoint after reviewed
+e39 design: explicit plan kind, exact variant/witness and complete core-slot
+coverage, nonwrapping existing physical lifetimes, shared fuel/open-instruction
+protocol and distinct report/cleanup. Invalid options return create status only;
+later adapters own their failure reports. I hold all builds/fixtures/execution
+for source review and retain public acyclic APIs/refusals and full later goals.
