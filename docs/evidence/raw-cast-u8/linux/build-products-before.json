@@ -1,0 +1,12 @@
+{
+  "/home/jkh/Src/nanolang-cast-u8-qualification/tests/__pycache__/test_cast_u8.cpython-314.pyc": {
+    "sha256": "8f52ee9f1104a723cf09fc034472723b6d87bd28bd8e25ecb7e1c5ac69e3bc16",
+    "bytes": 3623,
+    "archive": "/tmp/nanolang-cast-u8-linux/objects/8f52ee9f1104a723cf09fc034472723b6d87bd28bd8e25ecb7e1c5ac69e3bc16"
+  },
+  "/home/jkh/Src/nanolang-cast-u8-qualification/tests/__pycache__/test_file_cyclic.cpython-314.pyc": {
+    "sha256": "1b49756dd2acd4b562eb537462d30c283833da5d071a7c157a5746dd5a776c03",
+    "bytes": 9802,
+    "archive": "/tmp/nanolang-cast-u8-linux/objects/1b49756dd2acd4b562eb537462d30c283833da5d071a7c157a5746dd5a776c03"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "clang-ordinary",
+  "argv": [
+    "make",
+    "test-cast-u8",
+    "CC=/usr/local/bin/clang",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "LDFLAGS=-lm"
+  ],
+  "bound_seconds": 300,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 2.220394728006795,
+  "log": {
+    "sha256": "71500cc3e9c6cc60b9fa51046a0f49a60a3983599a3ce306962dbe731977d540",
+    "bytes": 4079,
+    "archive": "/tmp/nanolang-cast-u8-linux-extended-corrected/objects/71500cc3e9c6cc60b9fa51046a0f49a60a3983599a3ce306962dbe731977d540"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

@@ -1,0 +1,24 @@
+I retain neighbor artifacts at /tmp/nanolang-mixed-counted-5f4f-linux/managed_record_adapters-products
+test_packaged_production_scalar_abi (tests.test_managed_record_adapters.RecordAdapters.test_packaged_production_scalar_abi) ... ok
+test_private_adapters_native_and_wasm (tests.test_managed_record_adapters.RecordAdapters.test_private_adapters_native_and_wasm) ... FAIL
+
+======================================================================
+FAIL: test_private_adapters_native_and_wasm (tests.test_managed_record_adapters.RecordAdapters.test_private_adapters_native_and_wasm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nanolang-mixed-counted-qualified-5f4f/tests/test_managed_record_adapters.py", line 30, in test_private_adapters_native_and_wasm
+    self.command([*compiler,*extra,'-std=c11','-O1','-Wall','-Wextra','-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '-fsanitize=address,undefined','-fno-sanitize-recover=all',*flags,FIXTURE,'-o',exe])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nanolang-mixed-counted-qualified-5f4f/tests/test_managed_record_adapters.py", line 14, in command
+    self.assertEqual(result.returncode,0,str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ['/usr/local/bin/clang', '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', PosixPath('/tmp/nanolang-mixed-counted-qualified-5f4f/tests/nanoisa/test_managed_record_adapters.c'), '-o', PosixPath('/tmp/nanolang-mixed-counted-5f4f-linux/managed_record_adapters-products/nano-record-adapters-kw175l4n/native')]
+clang: error: future releases of the clang compiler will prefer GCC installations containing libstdc++ include directories; '/usr/lib/gcc/aarch64-linux-gnu/13' would be chosen over '/usr/lib/gcc/aarch64-linux-gnu/14' [-Werror,-Wgcc-install-dir-libstdcxx]
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.381s
+
+FAILED (failures=1)

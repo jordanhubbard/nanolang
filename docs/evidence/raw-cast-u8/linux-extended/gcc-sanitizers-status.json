@@ -1,0 +1,24 @@
+{
+  "name": "gcc-sanitizers",
+  "argv": [
+    "make",
+    "test-cast-u8",
+    "CC=/bin/gcc",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "LDFLAGS=-lm -fsanitize=address,undefined"
+  ],
+  "bound_seconds": 300,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 10.13801961694844,
+  "log": {
+    "sha256": "32aa6a0f61ed80aff25b7043e0114fb921ab4305072825d715abdcd874793d04",
+    "bytes": 4097,
+    "archive": "/tmp/nanolang-cast-u8-linux-extended/objects/32aa6a0f61ed80aff25b7043e0114fb921ab4305072825d715abdcd874793d04"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

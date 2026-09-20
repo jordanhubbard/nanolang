@@ -1,0 +1,75 @@
+test_calls_locals_branch_and_implicit_result_transport (tests.test_scalar_u8.ScalarU8.test_calls_locals_branch_and_implicit_result_transport) ... FAIL
+test_declared_byte_argument_retains_runtime_tag_guard (tests.test_scalar_u8.ScalarU8.test_declared_byte_argument_retains_runtime_tag_guard) ... FAIL
+test_declared_byte_result_checks_actual_return_tag (tests.test_scalar_u8.ScalarU8.test_declared_byte_result_checks_actual_return_tag) ... FAIL
+test_exact_conversions_tags_and_unsigned_order (tests.test_scalar_u8.ScalarU8.test_exact_conversions_tags_and_unsigned_order) ... FAIL
+test_generic_byte_order_across_scalar_backends (tests.test_scalar_u8.ScalarU8.test_generic_byte_order_across_scalar_backends) ... FAIL
+test_native_byte_display_and_unused_signature (tests.test_scalar_u8.ScalarU8.test_native_byte_display_and_unused_signature) ... FAIL
+test_typed_integer_instruction_still_checks_byte_tag (tests.test_scalar_u8.ScalarU8.test_typed_integer_instruction_still_checks_byte_tag) ... FAIL
+
+======================================================================
+FAIL: test_calls_locals_branch_and_implicit_result_transport (tests.test_scalar_u8.ScalarU8.test_calls_locals_branch_and_implicit_result_transport)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-565a4/tests/test_nvm2wasm.py", line 22, in setUp
+    self.assertIsNotNone(shutil.which(tool), tool + ' is required')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : llvm-as is required
+
+======================================================================
+FAIL: test_declared_byte_argument_retains_runtime_tag_guard (tests.test_scalar_u8.ScalarU8.test_declared_byte_argument_retains_runtime_tag_guard)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-565a4/tests/test_nvm2wasm.py", line 22, in setUp
+    self.assertIsNotNone(shutil.which(tool), tool + ' is required')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : llvm-as is required
+
+======================================================================
+FAIL: test_declared_byte_result_checks_actual_return_tag (tests.test_scalar_u8.ScalarU8.test_declared_byte_result_checks_actual_return_tag)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-565a4/tests/test_nvm2wasm.py", line 22, in setUp
+    self.assertIsNotNone(shutil.which(tool), tool + ' is required')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : llvm-as is required
+
+======================================================================
+FAIL: test_exact_conversions_tags_and_unsigned_order (tests.test_scalar_u8.ScalarU8.test_exact_conversions_tags_and_unsigned_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-565a4/tests/test_nvm2wasm.py", line 22, in setUp
+    self.assertIsNotNone(shutil.which(tool), tool + ' is required')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : llvm-as is required
+
+======================================================================
+FAIL: test_generic_byte_order_across_scalar_backends (tests.test_scalar_u8.ScalarU8.test_generic_byte_order_across_scalar_backends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-565a4/tests/test_nvm2wasm.py", line 22, in setUp
+    self.assertIsNotNone(shutil.which(tool), tool + ' is required')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : llvm-as is required
+
+======================================================================
+FAIL: test_native_byte_display_and_unused_signature (tests.test_scalar_u8.ScalarU8.test_native_byte_display_and_unused_signature)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-565a4/tests/test_nvm2wasm.py", line 22, in setUp
+    self.assertIsNotNone(shutil.which(tool), tool + ' is required')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : llvm-as is required
+
+======================================================================
+FAIL: test_typed_integer_instruction_still_checks_byte_tag (tests.test_scalar_u8.ScalarU8.test_typed_integer_instruction_still_checks_byte_tag)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-565a4/tests/test_nvm2wasm.py", line 22, in setUp
+    self.assertIsNotNone(shutil.which(tool), tool + ' is required')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : llvm-as is required
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+FAILED (failures=7)

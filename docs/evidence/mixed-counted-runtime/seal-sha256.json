@@ -1,0 +1,1310 @@
+{
+  "docs/evidence/mixed-counted-runtime/linux/artifact-store.json": {
+    "sha256": "f6b71d17182eed9c92d31b198a0e15ad762bb55c6ddbc1adf2daf7c39b5c6d60",
+    "bytes": 82377
+  },
+  "docs/evidence/mixed-counted-runtime/linux/current-inputs.json": {
+    "sha256": "3c208c8bc1142943c87ebde76db0551c05f34ab98d67134168803791b0593480",
+    "bytes": 1575
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/nanolang-mixed-counted-3c0b-launch.py": {
+    "sha256": "7e0af33f6295ed528b904be59128651cb3cf3db1a375ba73ab6e562b714c0b56",
+    "bytes": 2141
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/nanolang-mixed-counted-3c0b-linux-launch.log": {
+    "sha256": "c2db51aee34ad38d79a3cb21e132af796433af9e2a36b39d94cb1f827ca370a8",
+    "bytes": 1753
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/nanolang-mixed-counted-3c0b-source.json": {
+    "sha256": "1e72e10883b472e1900111f83b758d7647196bae7af028c0793deb3fef08907d",
+    "bytes": 402310
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/nanolang-mixed-counted-5f4f-launch.py": {
+    "sha256": "0c379d536ccfcde6ed804a67f8e0ce7d7b662fbcbbaa0e6716dd428b0a526947",
+    "bytes": 2218
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/nanolang-mixed-counted-5f4f-linux-launch.log": {
+    "sha256": "1202992d3067687f1e801a6477b220dabf44857ee8e27c05b5d8dbabc1323bbe",
+    "bytes": 1622
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/nanolang-mixed-counted-5f4f-linux-neighbors-launch.log": {
+    "sha256": "b792d5ef84172b241c1405914e571a6e4eeb3b2ee52098b03ef7702564a10e05",
+    "bytes": 420
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/nanolang-mixed-counted-5f4f-source.json": {
+    "sha256": "b571dde9ff05df09b5319c577b2e7e20c3d62d6f10894b4ef6c808886fa19b3b",
+    "bytes": 402310
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/nanolang-mixed-counted-neighbor-launch.py": {
+    "sha256": "afe6e355b9888ab09753842048406eb0b9973ffc5e94817ab0ee86d2e05a62c5",
+    "bytes": 1309
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/nanolang-mixed-counted-wasmtime-selection.json": {
+    "sha256": "3a70445d87a162874be6cf19275bce609da2bdfe8a952acf2ce6f189b39c727c",
+    "bytes": 2251
+  },
+  "docs/evidence/mixed-counted-runtime/linux/extra/sealer.py": {
+    "sha256": "fbea7f1f4c90b3ae6f012b463f015979a36e58e8578c4782cb8d0fe62ec6d351",
+    "bytes": 4879
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/clang-version.txt": {
+    "sha256": "e642c7956111b181d1d8d0485d79ce16f1882356b0f49113cb36714408b04118",
+    "bytes": 440
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/driver.py": {
+    "sha256": "a35014884bf1267a7153c412fcfc0c96ad15674844afb4515a5b81de08e4081b",
+    "bytes": 9073
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/environment.json": {
+    "sha256": "cee754218cf758fe7effdbf09c914f5b550bf5919ebc51e04affeaa4906a839d",
+    "bytes": 885
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/ordinary-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/providers.mk": {
+    "sha256": "23081484b613d5188333935591127224f7af5f610ac3a9d88d8846deafdaf28b",
+    "bytes": 182
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/results.json": {
+    "sha256": "11a8b52d88ca104142d20901d5a1bd6cdb404ec0158ae0e0718eeed19a82d6fe",
+    "bytes": 72
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/sanitizer-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/setup-artifacts.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/setup-command.json": {
+    "sha256": "0379cd23700fc27959e1bc009fb27318899a626ca64d99cb64a313b2cd94c8f7",
+    "bytes": 497
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/setup-inputs-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/setup-source-after.json": {
+    "sha256": "315a95e7c2bf17e2b6ee6a81d1abc2a8669f17db7477db73e5fbae484361c5b4",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/setup-source-before.json": {
+    "sha256": "a4a2a0cf4f4de3343cebce53a4f848a03add10de10dafb66bbb28be47d43e495",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/setup-terminal.json": {
+    "sha256": "6c104150e9f37dd37be904eab2850ddc821c1053d8a8ef298d796d9e4383ef96",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/setup-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/setup-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-3c0b-linux/setup.log": {
+    "sha256": "fab5b7c3d9191230954d2b2d1add53a4c4656fd519bc935121c7fcd76c2a2be7",
+    "bytes": 216
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-ordinary-artifacts.json": {
+    "sha256": "896d9f2d2b51c9e59741d45c62e9d85de5e4d63c578395feaf1225e2ca121698",
+    "bytes": 67166
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-ordinary-command.json": {
+    "sha256": "7d8869b2ea445ef8033a296438d345afed5c12d7510edc7a290e7cb60bff595b",
+    "bytes": 1815
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-ordinary-inputs-before.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-ordinary-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-ordinary-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-ordinary-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-ordinary-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-ordinary-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-ordinary.log": {
+    "sha256": "c17dc6a00d9351a912cfdec2b5e0f74e049ea5da2cfc95851df44c52f1fb7c48",
+    "bytes": 9177
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-sanitizer-artifacts.json": {
+    "sha256": "95b260dd6f01528d54446c76ab9b21e9b42a91ea733245458eb7f51372d9c58d",
+    "bytes": 67166
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-sanitizer-command.json": {
+    "sha256": "509d4755942032a14603c8a1a0b607116b5b9e37a844febb8c56c3a8f8da753b",
+    "bytes": 1894
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-sanitizer-inputs-before.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-sanitizer-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-sanitizer-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-sanitizer-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-sanitizer-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-sanitizer-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-sanitizer.log": {
+    "sha256": "5a34b79fa49b2ad2499e3ede2f0f98071ce89963eab054406fc4b68403578f65",
+    "bytes": 9177
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/clang-version.txt": {
+    "sha256": "e642c7956111b181d1d8d0485d79ce16f1882356b0f49113cb36714408b04118",
+    "bytes": 440
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/configuration-artifacts.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/configuration-command.json": {
+    "sha256": "d662faf5de483d286ce8853993949cf4ae6c2286326b24a74276e08953fd0b5f",
+    "bytes": 431
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/configuration-inputs-before.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/configuration-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/configuration-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/configuration-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/configuration-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/configuration-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/configuration.log": {
+    "sha256": "5b6797087b9e4a1a0e3839f26ce39e9ffdd697c2731eb876eab45a8f90130ff8",
+    "bytes": 1069
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/discovery-artifacts.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/discovery-command.json": {
+    "sha256": "2be1b101cd16eae8aa5322ba9ad8c6e8ce43bfd3bc97bbbce791bea9f67fe97d",
+    "bytes": 1642
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/discovery-inputs-before.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/discovery-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/discovery-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/discovery-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/discovery-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/discovery-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/discovery.log": {
+    "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "bytes": 2
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/driver.py": {
+    "sha256": "0e7fd8c96397f6c25ba0ad32a5e45a058798bd4d18566db736af327f3aba0ac3",
+    "bytes": 9078
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/environment.json": {
+    "sha256": "cee754218cf758fe7effdbf09c914f5b550bf5919ebc51e04affeaa4906a839d",
+    "bytes": 885
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-artifacts.json": {
+    "sha256": "cebd8e7d9bfed8118e93145ea172c63eeb86c76a6f2bdd17ef8bab5d0917132a",
+    "bytes": 51618
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-command.json": {
+    "sha256": "bacec55722793c635a06b61d26655b4a859fc1e60a3150f1b3e3063272f1cdc3",
+    "bytes": 580
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-inputs-before.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-terminal.json": {
+    "sha256": "0f232b515d90fca33e1be1317cafd0382b308b9de3d81bea849f59e8c012c231",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_record_adapters.log": {
+    "sha256": "704379ad6a0a03892152ca12dd59dca752ee43160e5bda6a5f823d2be6c7a560",
+    "bytes": 2216
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-artifacts.json": {
+    "sha256": "bb5e5d2772b88455a87ae701b416952e1744468107e207d2b8a5b0a2797dee76",
+    "bytes": 51215
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-command.json": {
+    "sha256": "c9a31ab45c182d98fc1fc658aa36df4df42e79332364007d8f5b3bb0216e2321",
+    "bytes": 564
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-inputs-before.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_records-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/neighbor-managed_records.log": {
+    "sha256": "46cf6ae56ee742e8257052cc038b173958118ffa4c3a357fa70c2b6ad43989d7",
+    "bytes": 433
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary-artifacts.json": {
+    "sha256": "5e61049b2e686423c2f11f771a7b938cf3c47e12d80f50801a9f9206bd6c06f3",
+    "bytes": 67166
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary-command.json": {
+    "sha256": "3cdb457216cf94938361505730175fdfb9f6bfc8b0e0c84406f7ebbac99b50eb",
+    "bytes": 1755
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary-inputs-before.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/ordinary.log": {
+    "sha256": "af603c6c1cca91753ab089706a6abdf01bb9aa519e2207aef383f40b7ad289b7",
+    "bytes": 9177
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/providers.mk": {
+    "sha256": "23081484b613d5188333935591127224f7af5f610ac3a9d88d8846deafdaf28b",
+    "bytes": 182
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/results.json": {
+    "sha256": "bcadf799a22c966cbce8cbcbadb8f80212a77aa9a34d0a34c187a610329c4e11",
+    "bytes": 786
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/retained-neighbor.py": {
+    "sha256": "1cd82c3ecad013d2a75da68a30326b4a3329f733a2ca2a85d1426d8985fa587b",
+    "bytes": 704
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer-artifacts.json": {
+    "sha256": "6d48094a6bf85384a49948944b00957250f23975572bd9497c1fc7d32ef0f630",
+    "bytes": 67166
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer-command.json": {
+    "sha256": "c058c0954f05f267821baae791a5243dfac5187c25937f8e53ba533fff2198c3",
+    "bytes": 1833
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer-inputs-before.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/sanitizer.log": {
+    "sha256": "d3c4e13776846231c483f3fc4163766d3e09030d4254b87ddca6cfea27f7d6d3",
+    "bytes": 9178
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/setup-artifacts.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/setup-command.json": {
+    "sha256": "de777fc8af61b74070b23e297bd8206c47109330c3eb434c3ad7aaece690b35d",
+    "bytes": 502
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/setup-inputs-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/setup-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/setup-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/setup-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/setup-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/setup-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/setup.log": {
+    "sha256": "1be4d8b8d16ac466c962037aa7dd39a6eb27f3366686e5ae9c88a19f00496eeb",
+    "bytes": 33213
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/wasm-package-artifacts.json": {
+    "sha256": "4fa1856ebf3fd87e46914720cc878a080ec7de5d408c600be92293b93c8aa9ac",
+    "bytes": 97709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/wasm-package-command.json": {
+    "sha256": "2a03f220695f9286b8195af45b144e6d8d9e7f06a331c60d8130719cb592fb70",
+    "bytes": 1834
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/wasm-package-inputs-before.json": {
+    "sha256": "013593b39c9c4a50689066ea8130b1b119460654977ae7c6f3d65354392b8f03",
+    "bytes": 49585
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/wasm-package-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/wasm-package-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/wasm-package-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/wasm-package-tools-after.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/wasm-package-tools-before.json": {
+    "sha256": "34aa09b1154199515b45cc783f2f7e4149ca1535c4438713c3999a797d58847a",
+    "bytes": 2103
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux/wasm-package.log": {
+    "sha256": "fd94a88503a78ecf6938f444609039719b239682e2c6cd273d3d96d16d06c643",
+    "bytes": 318
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/clang-version.txt": {
+    "sha256": "e642c7956111b181d1d8d0485d79ce16f1882356b0f49113cb36714408b04118",
+    "bytes": 440
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/configuration-artifacts.json": {
+    "sha256": "5120032b2c3359986253824a18dd97e56cc63122f62a938c823b12b9dcbb2cd4",
+    "bytes": 51275
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/configuration-command.json": {
+    "sha256": "152a06f9852e7914cb13166850c0cb5c8cc16507342e362c5ae4f19705e7b2e5",
+    "bytes": 539
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/configuration-inputs-before.json": {
+    "sha256": "5120032b2c3359986253824a18dd97e56cc63122f62a938c823b12b9dcbb2cd4",
+    "bytes": 51275
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/configuration-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/configuration-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/configuration-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/configuration-tools-after.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/configuration-tools-before.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/configuration.log": {
+    "sha256": "5b6797087b9e4a1a0e3839f26ce39e9ffdd697c2731eb876eab45a8f90130ff8",
+    "bytes": 1069
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/driver.py": {
+    "sha256": "944c99e5189ae64ad916d90dbdeeed46b1d92d05a6685d68e04bf2d3d1e0086b",
+    "bytes": 9212
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/environment.json": {
+    "sha256": "bed805c05ceb0a5531182ecd8fedaa8eab252b3ba891f3dc40f74a44b303a991",
+    "bytes": 1065
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-artifacts.json": {
+    "sha256": "a286d68bc59984a6a8d28add6c09eb4a4c893343e9ec385a32e7ff538cfc7847",
+    "bytes": 54137
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-command.json": {
+    "sha256": "a26694dde38447796838a25ce834cdf9dbfe9f87d1996d71a8dc35ce100f75d6",
+    "bytes": 715
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-inputs-before.json": {
+    "sha256": "5120032b2c3359986253824a18dd97e56cc63122f62a938c823b12b9dcbb2cd4",
+    "bytes": 51275
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-tools-after.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime-tools-before.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_copy_runtime.log": {
+    "sha256": "4d4581cbe3e25ab9dff1210af316f7b2efb344a4e2d20a5c67b395396c035546",
+    "bytes": 500
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-artifacts.json": {
+    "sha256": "1a478607ce77d0b19662015178e15c92595ab07c10446217c8a46fc20f0e327f",
+    "bytes": 53372
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-command.json": {
+    "sha256": "00b4506b7a30a80cc05778ab906715e2952b4f9769c47a99afa9277487de3441",
+    "bytes": 703
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-inputs-before.json": {
+    "sha256": "5120032b2c3359986253824a18dd97e56cc63122f62a938c823b12b9dcbb2cd4",
+    "bytes": 51275
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-tools-after.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs-tools-before.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_array_graphs.log": {
+    "sha256": "02dc7b470f4077ab1cdc1def351b1083a94dcf299f46e8a48e871fa5b21f7c3f",
+    "bytes": 504
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-artifacts.json": {
+    "sha256": "3a413021158a9ea7bd49e2622b8f9a98e878d3c8ac2ffbbdeffc627be6c8fe99",
+    "bytes": 51992
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-command.json": {
+    "sha256": "4c1286c4cbf55f1e3f85e530c35d673b189263194d88f0af554205947c260f11",
+    "bytes": 762
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-inputs-before.json": {
+    "sha256": "5120032b2c3359986253824a18dd97e56cc63122f62a938c823b12b9dcbb2cd4",
+    "bytes": 51275
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-tools-after.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters-tools-before.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_record_adapters.log": {
+    "sha256": "8ffb6e060e448e52f790686991e2c6d6a7837bb62f41b9ac9ccca43af6581474",
+    "bytes": 345
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-artifacts.json": {
+    "sha256": "17e1a21794d3252aad0db8bdc85f7050bc73e0e2b02c76280d3c508c0c48ea0f",
+    "bytes": 52662
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-command.json": {
+    "sha256": "ce704f06a6d5bd32c409850ea47c825c290b3fb8b8be2e5d6ed03ad12ccf7f93",
+    "bytes": 705
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-inputs-before.json": {
+    "sha256": "5120032b2c3359986253824a18dd97e56cc63122f62a938c823b12b9dcbb2cd4",
+    "bytes": 51275
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-tools-after.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays-tools-before.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/neighbor-managed_string_arrays.log": {
+    "sha256": "75d85ea60ba43e293565ccfe31693e016505596a9a1a36dae9c80adc72f9a366",
+    "bytes": 489
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/ordinary-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-artifacts.json": {
+    "sha256": "61e8408675760fff89894c292b76dcd7a8dcbcbd4088105453fdb15c82a6c18d",
+    "bytes": 77454
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-command.json": {
+    "sha256": "53099862dc608b85a74c012256388f7594106dab26e25fd5db333eee65a9081a",
+    "bytes": 1663
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-inputs-before.json": {
+    "sha256": "5120032b2c3359986253824a18dd97e56cc63122f62a938c823b12b9dcbb2cd4",
+    "bytes": 51275
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-tools-after.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query-tools-before.json": {
+    "sha256": "0823c3fd2aef4b45bf1ae01b685e6dc4b8c6747573a79f9098629abf32576e41",
+    "bytes": 2055
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/origin-query.log": {
+    "sha256": "48e57bcedc7732f21d4bd04dd6377aeb35775371dd2a55191a4a3d91a4292b11",
+    "bytes": 871
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/providers.mk": {
+    "sha256": "23081484b613d5188333935591127224f7af5f610ac3a9d88d8846deafdaf28b",
+    "bytes": 182
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/results.json": {
+    "sha256": "d00fbe1418259ed72484fcc42d14b88a9a46ad93b78a6727fa302252e567a3e7",
+    "bytes": 537
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/retained-neighbor.py": {
+    "sha256": "1cd82c3ecad013d2a75da68a30326b4a3329f733a2ca2a85d1426d8985fa587b",
+    "bytes": 704
+  },
+  "docs/evidence/mixed-counted-runtime/linux/nanolang-mixed-counted-5f4f-linux-neighbors/sanitizer-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "docs/evidence/mixed-counted-runtime/linux/report-sha256.json": {
+    "sha256": "1c71d159dec24a61d6ef81aefcaedb7e1c94c7051eaa70d78620ce289396fd56",
+    "bytes": 33606
+  },
+  "docs/evidence/mixed-counted-runtime/linux/summary.json": {
+    "sha256": "f96a0a794cd5d8f9ece94c21cb690cd5d1ca248684dfffe175618d0703344cc9",
+    "bytes": 8518
+  },
+  "docs/evidence/mixed-counted-runtime/objects.json": {
+    "sha256": "90bafe2965c4f488fdcbe6b3ba823bc3feae0aa8a00245c1cb725faa671848bc",
+    "bytes": 181107
+  },
+  "docs/evidence/mixed-counted-runtime/puck/artifact-store.json": {
+    "sha256": "8b7c1084285116a123a45ca21c2fb7bb230fdffc220e67f36ba47943d7616fe8",
+    "bytes": 87274
+  },
+  "docs/evidence/mixed-counted-runtime/puck/current-inputs.json": {
+    "sha256": "4364dee9260fc84970b0fb75d76c95a4fe4c86aeb8d2df77e5350babcdd48da4",
+    "bytes": 1273
+  },
+  "docs/evidence/mixed-counted-runtime/puck/extra/nanolang-mixed-counted-5f4f-launch.py": {
+    "sha256": "0c379d536ccfcde6ed804a67f8e0ce7d7b662fbcbbaa0e6716dd428b0a526947",
+    "bytes": 2218
+  },
+  "docs/evidence/mixed-counted-runtime/puck/extra/nanolang-mixed-counted-5f4f-puck-launch.log": {
+    "sha256": "00ead82a096f0915249cabb89e193a7e362c96d915bb9e4d39e2855f7eebc079",
+    "bytes": 1058
+  },
+  "docs/evidence/mixed-counted-runtime/puck/extra/nanolang-mixed-counted-5f4f-source.json": {
+    "sha256": "b571dde9ff05df09b5319c577b2e7e20c3d62d6f10894b4ef6c808886fa19b3b",
+    "bytes": 402310
+  },
+  "docs/evidence/mixed-counted-runtime/puck/extra/sealer.py": {
+    "sha256": "fbea7f1f4c90b3ae6f012b463f015979a36e58e8578c4782cb8d0fe62ec6d351",
+    "bytes": 4879
+  },
+  "docs/evidence/mixed-counted-runtime/puck/extra/wasmtime-selection.json": {
+    "sha256": "3a09fab5581df3c0c140cd17906f15b37d26e449d0357654c19ae0eacd1a1f8f",
+    "bytes": 2499
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-ordinary-artifacts.json": {
+    "sha256": "65ba05ff85134b7c3be72c8c4a9273fd3110d2c5f578b2fac9094909d6dcd2b3",
+    "bytes": 78447
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-ordinary-command.json": {
+    "sha256": "5ca83bccdaca7bd90420c7be712f5c0300146bb239143ef17faaf86a0082377a",
+    "bytes": 2081
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-ordinary-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-ordinary-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-ordinary-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-ordinary-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-ordinary-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-ordinary-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-ordinary.log": {
+    "sha256": "8165d9fa37ba3036c3b99efc1c1626d7256e7048a1475d5107f824ec187240a7",
+    "bytes": 9221
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/clang-version.txt": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/configuration-artifacts.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/configuration-command.json": {
+    "sha256": "88cbfe39ab9eaae07024388021e49bacc590529b52d178c2bbc8754a04faf2bf",
+    "bytes": 814
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/configuration-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/configuration-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/configuration-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/configuration-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/configuration-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/configuration-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/configuration.log": {
+    "sha256": "e7245a4acd4c1106808eca89dc26844c5e24af194822fe5736cf3090b8bfd278",
+    "bytes": 1092
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/discovery-artifacts.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/discovery-command.json": {
+    "sha256": "1710165ab4b5bb03af885e4b14e97be117ba202f0e4153981704211452e520e2",
+    "bytes": 1947
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/discovery-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/discovery-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/discovery-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/discovery-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/discovery-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/discovery-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/discovery.log": {
+    "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+    "bytes": 2
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/driver.py": {
+    "sha256": "0e7fd8c96397f6c25ba0ad32a5e45a058798bd4d18566db736af327f3aba0ac3",
+    "bytes": 9078
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/environment.json": {
+    "sha256": "becb196b0be0e8c78c95d7db0a59dcbab3e231f667bd1c696021b21868710530",
+    "bytes": 895
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_copy_runtime-artifacts.json": {
+    "sha256": "8b28a831d30c0955a41be0a53f849169b355ba4aad042e7bcf2004eeb99f2be5",
+    "bytes": 54934
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_copy_runtime-command.json": {
+    "sha256": "e34c2f53b8693ad138302d2eb202de2e91f19f390f6f97d13554e1cda988283c",
+    "bytes": 821
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_copy_runtime-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_copy_runtime-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_copy_runtime-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_copy_runtime-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_copy_runtime-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_copy_runtime-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_copy_runtime.log": {
+    "sha256": "31e45f2fc4b13ddd58cbdb39b2b7b9da543eef9202ca14993d7d1f42024666b8",
+    "bytes": 497
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_graphs-artifacts.json": {
+    "sha256": "afb6e1ea62fce51d9a49ecfe6dcfe252893c51835f728526d76d7a140538e776",
+    "bytes": 54181
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_graphs-command.json": {
+    "sha256": "ae629e18a04aeb5c4f797dc5dcd0f6d944fe94335cc5ff554587fc36e5e69b1f",
+    "bytes": 809
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_graphs-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_graphs-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_graphs-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_graphs-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_graphs-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_graphs-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_array_graphs.log": {
+    "sha256": "2dd670ac215f14a10f2a7145bdc67ef0f34c110e86e03255f1850937fc8f9d5f",
+    "bytes": 501
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_record_adapters-artifacts.json": {
+    "sha256": "35d979aae4a8ed5a448d2a62c7881cf6d4752d9272fe24bf129966c0fac0ae7a",
+    "bytes": 54942
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_record_adapters-command.json": {
+    "sha256": "d53b56f6232f92defe90931dd210b3c33504f327d1e68bead357d6ae6e790206",
+    "bytes": 815
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_record_adapters-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_record_adapters-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_record_adapters-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_record_adapters-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_record_adapters-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_record_adapters-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_record_adapters.log": {
+    "sha256": "f64cbcbda355f83a32d18486862174b0c2013505cfa5cdaf04c662eabae74ee5",
+    "bytes": 474
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_records-artifacts.json": {
+    "sha256": "7d2b76faf22a594629eff58c71780ddacdea3632440c7672d7adfd8509f26ed1",
+    "bytes": 53820
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_records-command.json": {
+    "sha256": "f360c53db66740c863997be7b900f524c21f313b20e94bd5f3154e685405b77e",
+    "bytes": 799
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_records-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_records-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_records-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_records-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_records-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_records-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_records.log": {
+    "sha256": "991cbcd9d69d6d166d5e9e00c96f96cb1bb0440fb5edd1a0c38bef1c94bf115f",
+    "bytes": 440
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_string_arrays-artifacts.json": {
+    "sha256": "c5d28a740ae7b336910511b742edb8ca7c6bf28a528386d08859826c1b56b307",
+    "bytes": 53483
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_string_arrays-command.json": {
+    "sha256": "8b6488fc15bfdcadc948264b85bc7679bce5216041ce26c4576375e5893b42ef",
+    "bytes": 811
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_string_arrays-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_string_arrays-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_string_arrays-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_string_arrays-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_string_arrays-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_string_arrays-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/neighbor-managed_string_arrays.log": {
+    "sha256": "997e8904111124928b3279fef26419186cba35f2ef10b23c52ac83a74aca1cd0",
+    "bytes": 486
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary-artifacts.json": {
+    "sha256": "e8586cad1cab7a956eea691adc6374d63a05171de6e3d2a959b19eaf9fd4779c",
+    "bytes": 78447
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary-command.json": {
+    "sha256": "be930ff181c75c9e2bcda6ed4dd63ae7b57ab7a10cd4ad3d678bb498f13d8379",
+    "bytes": 2141
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary-version.txt": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/ordinary.log": {
+    "sha256": "3aab68cb4e14fb0509ad878e3763829317f329357ce443061084e757ccc153e7",
+    "bytes": 9221
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/origin-query-artifacts.json": {
+    "sha256": "5ff558d34772c749addb255c1dbb58953b78d4c5d3b3e708036c85d7c92faecb",
+    "bytes": 83951
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/origin-query-command.json": {
+    "sha256": "aa230ef0af4184f08497c55996df7824d8440ef97bfa88277d0afe99afc4a018",
+    "bytes": 1992
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/origin-query-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/origin-query-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/origin-query-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/origin-query-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/origin-query-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/origin-query-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/origin-query.log": {
+    "sha256": "e3a361d9e5aea4ffa12a6d849012e0a53808a89df73b23976aec14229f6b1e73",
+    "bytes": 915
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/providers.mk": {
+    "sha256": "23081484b613d5188333935591127224f7af5f610ac3a9d88d8846deafdaf28b",
+    "bytes": 182
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/results.json": {
+    "sha256": "4267ec2396e42272d226a161e9e5c33d4238db954db0e8cbaf22822ccba23554",
+    "bytes": 1067
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/retained-neighbor.py": {
+    "sha256": "1cd82c3ecad013d2a75da68a30326b4a3329f733a2ca2a85d1426d8985fa587b",
+    "bytes": 704
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer-artifacts.json": {
+    "sha256": "73281bb4d644f82e1e1d7462a0420be053f6a3f9fd8e8f6f396f3c7c2ed3a299",
+    "bytes": 78447
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer-command.json": {
+    "sha256": "8fc086d6b56cfc163e31cf1a23590c12e22963df35dcc9d319c7e4139a90a7f3",
+    "bytes": 2159
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer-version.txt": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sanitizer.log": {
+    "sha256": "07fe6e2d67310cfcc0ceb5af168cfcccb2da734d708f9f21dcc63ee86c1c2b70",
+    "bytes": 9221
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/sdk-version.txt": {
+    "sha256": "14a06c556ac677f94334dd2c86395d46009b9def8685e00741e60d31305a0262",
+    "bytes": 5
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/setup-artifacts.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/setup-command.json": {
+    "sha256": "b9ca422912497e0d8ae99562ad6328d5e4030ac02bd155e177f52cf5996520e7",
+    "bytes": 885
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/setup-inputs-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/setup-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/setup-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/setup-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/setup-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/setup-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/setup.log": {
+    "sha256": "acb5ed6b64f9755da0c6c69cc03dcf7f984e8474f0d6bfaed8b059b4d12d0f62",
+    "bytes": 71977
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/wasm-package-artifacts.json": {
+    "sha256": "aee4841015aa054acb9c0a0cbeb6d0d41fc51edcb751f07c21879e0d33af8f65",
+    "bytes": 108659
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/wasm-package-command.json": {
+    "sha256": "f2dc39242bfc92eb5dcfacfd227a20df581572c828293f92a942f15f0b7bc16e",
+    "bytes": 2100
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/wasm-package-inputs-before.json": {
+    "sha256": "dec98f88ee4f4b0e77ff65977b1c877dec65807db0e271b2a247010bcbd7daeb",
+    "bytes": 52120
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/wasm-package-source-after.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/wasm-package-source-before.json": {
+    "sha256": "eb702a0c3275dbacc62f26f5c2e6723868c757e053aeaf1f8503be07e93bed35",
+    "bytes": 394709
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/wasm-package-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/wasm-package-tools-after.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/wasm-package-tools-before.json": {
+    "sha256": "34d73f512d481771be8f503092ba01b235dfa5ae9268559a3194b763a4197e3b",
+    "bytes": 3183
+  },
+  "docs/evidence/mixed-counted-runtime/puck/nanolang-mixed-counted-5f4f-puck/wasm-package.log": {
+    "sha256": "ecaf95fd924f0c782ca9b2f66994c3dc82863376ce18bc290b6f177720d623f8",
+    "bytes": 362
+  },
+  "docs/evidence/mixed-counted-runtime/puck/report-sha256.json": {
+    "sha256": "dab2b9a14d7da7792882bbfea58fe648ae2b9edb4e21cac97f99009a58ef64f4",
+    "bytes": 23327
+  },
+  "docs/evidence/mixed-counted-runtime/puck/summary.json": {
+    "sha256": "c61a005804e47f37b29e2361a4c274319990c9268ea0390045447a48631483fc",
+    "bytes": 6232
+  },
+  "docs/evidence/mixed-counted-runtime/summary.json": {
+    "sha256": "a2f470a7533dd7478f387e7b0d2d6956738d4ba1426c319f131b1e002b4d4ed9",
+    "bytes": 2991
+  }
+}

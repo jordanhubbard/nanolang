@@ -1,0 +1,5 @@
+I do not support opcode 0x8f at function 0 offset 9 in my scalar LLVM profile
+I did not publish LLVM output
+I could not complete my Wasm translation
+I did not publish Wasm output
+I refused conversion and preserved existing output.

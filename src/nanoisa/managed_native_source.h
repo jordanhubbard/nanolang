@@ -1,9 +1,9 @@
 /* I generate exact managed native source; do not edit.
  * managed_strings.h SHA256 487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699
  * binary64_parse.h SHA256 bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5
- * managed_strings.c SHA256 2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d
+ * managed_strings.c SHA256 24c5d151d101a1b32ffcd34725e15814fb8bb8576cb5f255e2220564db368dc7
  * I remove only the two named local includes from managed_strings.c.
- * Assembled SHA256 960497d424bc695d80c339d556274051ec4aed8e60d28d464600d612b6254ac9
+ * Assembled SHA256 82f4f199044f7247148da245e22279276cea04ab560258b6a132b00239ff8cd2
  */
 #ifndef NANOISA_MANAGED_NATIVE_SOURCE_H
 #define NANOISA_MANAGED_NATIVE_SOURCE_H
@@ -475,6 +475,15 @@ static const char nms_native_source[] =
 "#ifdef NMS_TESTING\n"
 "static uint64_t live_allocations;\n"
 "#endif\n"
+"#ifdef NMS_TEST_ALLOC_HOOKS\n"
+"#ifndef NMS_TESTING\n"
+"#error \"I require NMS_TESTING for allocator observation hooks\"\n"
+"#endif\n"
+"/* My fixture owns these nonallocating callbacks; production has no hooks. */\n"
+"extern int nms_test_allocation_permitted(uint64_t bytes);\n"
+"extern void nms_test_allocation_created(void *memory, uint64_t bytes);\n"
+"extern void nms_test_allocation_destroyed(void *memory);\n"
+"#endif\n"
 "static void copy_bytes(unsigned char *to, const unsigned char *from, uint64_t n) {\n"
 "    /* Volatile byte accesses keep the freestanding Wasm core independent of\n"
 "     * compiler-created memcpy/memmove imports, including optimized builds. */\n"
@@ -569,6 +578,9 @@ static const char nms_native_source[] =
 "#endif\n"
 "\n"
 "static void *allocate(NmsRuntime *runtime, uint64_t bytes) {\n"
+"#ifdef NMS_TEST_ALLOC_HOOKS\n"
+"    if (!nms_test_allocation_permitted(bytes)) return NULL;\n"
+"#endif\n"
 "#ifdef NMS_TESTING\n"
 "    if (!runtime->fail_after) return NULL;\n"
 "    if (runtime->fail_after != UINT64_MAX) runtime->fail_after--;\n"
@@ -576,6 +588,9 @@ static const char nms_native_source[] =
 "    (void)runtime;\n"
 "#endif\n"
 "    void *memory = backend_allocate(bytes);\n"
+"#ifdef NMS_TEST_ALLOC_HOOKS\n"
+"    if (memory) nms_test_allocation_created(memory, bytes);\n"
+"#endif\n"
 "#ifdef NMS_TESTING\n"
 "    if (memory) live_allocations++;\n"
 "#endif\n"
@@ -583,6 +598,9 @@ static const char nms_native_source[] =
 "}\n"
 "static void deallocate(void *memory) {\n"
 "    if (!memory) return;\n"
+"#ifdef NMS_TEST_ALLOC_HOOKS\n"
+"    nms_test_allocation_destroyed(memory);\n"
+"#endif\n"
 "#ifdef NMS_TESTING\n"
 "    live_allocations--;\n"
 "#endif\n"

@@ -1,0 +1,41 @@
+test_c_string_escapes_dangerous_characters (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_codes_and_names_are_unique (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_compact_forms_alias_canonical_instructions (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_compact_forms_are_encoding_justified (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_compact_forms_use_compact_operands (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_compact_operand_kinds_alias_canonical_encodings (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_computed_goto_table_matches_the_handlers (tests.test_nanoisa_schema.NanoisaSchemaTests)
+Every handler must be reachable through the computed-goto table. ... ok
+test_encoding_justifications_alias_a_canonical_instruction (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_every_instruction_has_a_comprehensible_meaning (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_every_public_instruction_records_a_justification (tests.test_nanoisa_schema.NanoisaSchemaTests)
+Roadmap 4.0 Phase 12: every public instruction records why it belongs ... ok
+test_every_schema_opcode_has_a_verifier_route (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_every_schema_opcode_matches_enum_and_vm_dispatch (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_extended_plane_is_defined_and_disjoint (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_extension_prefix_is_not_a_primary_opcode (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_fixed_legacy_stack_effects_are_paired (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_generated_header_exposes_encoding_constants (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_generated_header_is_current (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_generated_header_records_justifications (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_get_set_pairs_are_symmetric (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_meanings_are_unique (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_memory_operands_are_uniform (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_only_encoding_forms_claim_the_encoding_justification (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_operands_reference_declared_kinds (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_runtime_library_algorithms_are_documented (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_runtime_library_algorithms_are_not_v2_instructions (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_v2_families_declare_stack_and_ownership (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_v2_families_exclude_string_and_collection_algorithms (tests.test_nanoisa_schema.NanoisaSchemaTests)
+Trimming, case, splitting, replacement, formatting, parsing, and ... ok
+test_validate_rejects_duplicate_meaning (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_validate_rejects_encoding_without_canonical (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_validate_rejects_missing_justification (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_validate_rejects_missing_meaning (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_validate_rejects_undeclared_operand (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+test_validate_rejects_unknown_justification (tests.test_nanoisa_schema.NanoisaSchemaTests) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 2.465s
+
+OK

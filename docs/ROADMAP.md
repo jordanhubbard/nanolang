@@ -13592,6 +13592,80 @@ PR918 and PR919 are merged, and PR922 completes the unchanged90-method phase on 
 
 The complete Make run subsequently verifies174 of176 corpus programs. Computed U8 conversion task_c6b2a040c1434fc784a9d46c02a4981e and generic-list mutation task_7b805000dfda4da386b55d4691e8c647 remain open, along with all full5.1 bootstrap, mixed/source, service, platform and release gates. These diagnostic closures do not approve publication.
 
+- [ ] I implement exact computed INT-to-U8 conversion under task_c6b2a040c1434fc784a9d46c02a4981e and [my reviewed consumer contract](NANOISA_COMPUTED_U8_CONVERSION.md). The first legacy0x8f catalog/VM/type-verifier checkpoint preserves modulo256 computed conversion and exact U8 identity, checks runtime tags and cleanup, and leaves other targets closed. Complete native/LLVM/Wasm/reconstruction and paired source contexts remain required before the original corpus or full5.1 closes.
+
+- [x] I isolate raw CAST_U8 test discovery (task_193af77877c5462db39bd02531e4f194): module import must not discover the helper TestCase. Static review caught this before fixture execution; I require exactly one intended method before qualification.
+
+- [x] I correct raw-byte qualification tool selection (task_b1d7122b5b944fcfb9c848ff117e6ec4). My first Darwin schema check selected Python without PyYAML; my first Linux Clang fixture omitted its explicit GCC installation under strict diagnostics. I retain both first failures and use installed dependency-capable Python and the selected GCC13 support path. Static preflight also replaces the unexecuted refusal program's nonexistent DROP mnemonic with POP. No production assertion changes.
+
+- [x] I honor the selected native compiler in my scalar-byte result guard (task_7c697095d2d64577afb9171401d9affe). My first Darwin neighbor run used hardcoded Apple cc, whose sanitizer rejected detect_leaks before the native invariant. I preserve that terminal and all leak, SIGABRT, and diagnostic assertions while selecting NANO_NATIVE_TEST_CC consistently with my other native fixtures.
+
+- [x] I qualify my raw CAST_U8 catalog/verifier/VM prerequisite (task_b9424348ce3643b582627c159621ce2c): both dispatch modes pass2742 assertions per executable across seven compiler configurations; existing byte neighbors and unsupported backend output preservation are qualified with [retained scope and first failures](RAW_CAST_U8_QUALIFICATION.md). Source lowering and other backend implementations remain unchecked under task_c6b2a040c1434fc784a9d46c02a4981e.
+
+### Counted mixed record-array runtime prerequisite (2026-09-20)
+
+I base this next step on actual PR924 merge `ae916a0a821fffdccb9d92b6e62614f97d605801`;
+its independently audited query remains non-admitting. MAC
+`task_621ca4f76f0344bca70099a0ac9a3934` owns my
+[counted runtime contract](NANOISA_MIXED_RECORD_ARRAY_COUNTED_RUNTIME.md).
+
+- [x] I review exact descriptor/query correspondence, counted root transfers,
+  alias replacement/growth/copy, failure cleanup and native/Wasm route limits.
+- [x] I implement and review fixtures for the existing core/module adapters,
+  with measured allocation-prefix recovery and production package linkage.
+- [x] I qualify native O0/O2, supported sanitizers and import-free finite-memory
+  Wasm, retain first terminals and seal all required route evidence.
+- [ ] I separately implement and qualify matching fresh public admission and
+  generated VM/native/LLVM/Wasm consumers, then paired source lowering and
+  unchanged shadows. Full mixed f36/15f/488 and full5.1 remain required.
+
+Before counted-runtime fixture implementation I record the instrumentation
+prerequisite under `task_621ca4f76f0344bca70099a0ac9a3934`: my current testing
+budget supports persistent exhaustion but not one-shot refusal or measured
+allocator peak. I require an independently reviewed, doubly guarded testing hook
+at actual allocation/free entries, followed by a fixed-storage fixture tracker;
+I preserve both fault modes and production package hook absence.
+
+I complete the counted-runtime fixture checkpoint after root approval of
+`120eb444e` and testing-hook source `0ff7f3268`: three explicit methods cover
+copied query/catalog facts, native core/adapters and Wasm/production-package
+linkage. I retain both true fault modes, requested-byte peak accounting and
+fresh recovery, all five tags and1024 entry lifetimes. I submit this complete
+fixture before execution; public admission and generated/source consumers remain
+unimplemented under the full parent.
+
+I preserve the first counted-runtime3c0b Linux setup terminal before correction:
+make exits2 in0.114 seconds because the external driver requested nonexistent
+`nanoisa` rather than my declared `nanoisa_dump` target. No fixture compiled or
+executed. Concurrent canonical `embed_managed_native.py` also updates tracked
+`managed_native_source.h` for approved testing hooks; source before/after maps
+retain that sole drift. Under task621 I synchronize that generated header using
+its canonical generator and correct only the external target selection before
+fresh setup. This is a setup/input prerequisite, not a demonstrated runtime
+product failure. Puck Wasmtime selection remains a separate unmet tool route.
+
+I preserve the first 5f4f Linux old-adapter neighbor terminal: the packaged
+method passes, then the native/Wasm method stops at strict Clang GCC14/13
+installation selection before its executable is produced. My seven new native
+configurations and both-host Wasm/package gates pass; all Darwin neighbors pass.
+Under task621 and root approval I select GCC13 explicitly in the external
+neighbor CC command, then run only that failed method and unrun Linux neighbors
+with unchanged source/provider identities. I do not replay the passed method.
+I resolve the earlier Darwin Wasmtime prerequisite with a private official
+v43.0.0 aarch64-macos archive, SHA256
+`abee7cf0f459f189b8a27f41bc3f645c0569198fdc52bc87fbe0a3b5bb83074f`,
+verified against its release digest before extraction. I retain its executable
+identity and change no global installation.
+
+I complete counted-runtime qualification at frozen5f4f: seven native compiler
+configurations, both-host ordinary LLVM/Wasm/production-package controls, and
+all named storage/origin neighbors pass. I retain the first setup/header drift
+and strict-Clang neighbor terminal separately. My sealed counted-storage
+[evidence](evidence/mixed-counted-runtime.md) contains327 reports,737 distinct
+objects and59 equal source/tool pairs. This is manual core/module adapter
+acceptance, not generated mixed execution or public/source admission. I await
+independent review and actual merge under task621; full mixed parents stay open.
+
 - [ ] I implement the actual paired generated File source route under existing task_8bbc1cf5295b4b59b314640ef57c725f, following [my concrete source design](NANOISA_FILE_SOURCE_IMPLEMENTATION.md), after review. I base it on actual token911 merge cf238dfd1. In dependency order I integrate primary AST/schema and real parsers; bounded companion snapshots and complete namespace resolution; independent C/Nano typed checking and File byte lowering; then actual selected shadows, explicit grant routing and staged installed publication. Each source/fixture checkpoint is reviewed before execution. I require fresh C-seed/Stage1/Stage2, all helper/module shadows and full paired product gates on Linux/Darwin. Cyclic/indirect/richer-borrow source acceptance remains mandatory, not closed by the first acyclic slice.
 - [x] I record and correct a documentation-only result-name mismatch before the source design: the immutable catalog, renderer and descriptive plans name rewind's result PositionResult; my older paired-source table said RewindResult. I change the table to the existing identity without changing any catalog, source or runtime behavior.
 
@@ -13673,3 +13747,11 @@ its adapted script omits summary construction and raises NameError while writing
 seal-summary.json after copying reports/CAS. I restore that manifest construction
 and rerun packaging only. All measured gate reports and qualified inputs remain
 unchanged; I do not rerun qualification or classify this as a parser defect.
+
+I prepare PR927 final canonical integration against actual PR929 mergea2c32d186.
+The incoming six NanoISA/VM files add counted allocator test hooks and raw
+CAST_U8 handling; C/Nano producer and File parser/cleanup/fixture bytes are
+unchanged. I retain the frozenCBC full matrix and resolve only additive
+Make/roadmap appends. Source/dependency review determines any bounded ordinary
+provider/refusal checks before execution; I do not replay bootstrap or claim
+new integrated sanitizer acceptance from static identity alone.
