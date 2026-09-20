@@ -28,6 +28,9 @@ NvmFileRuntimeStatus file_native_call(NvmFileRuntime *c){return nvm_file_runtime
 NvmFileRuntimeStatus file_native_return(NvmFileRuntime *c){return nvm_file_runtime_frame_return(c);}
 NvmFileRuntimeStatus file_native_service(NvmFileRuntime *c,uint32_t i,uint32_t r,uint32_t a,uint32_t o){return nvm_file_runtime_service(c,i,r,a,o);}
 #endif
+#ifndef FILE_NATIVE_MAIN
+#define FILE_NATIVE_MAIN main
+#endif
 #ifndef FILE_NATIVE_VM_EXECUTE
 #define FILE_NATIVE_VM_EXECUTE nvm_file_vm_execute
 #endif
@@ -97,14 +100,14 @@ static void emit_cases(const char *directory){
 #endif
  printf("PASS native capture: %u exact modules, %u emitted, %u refused before host\n",record_count,positive,negative);
 }
-int main(int argc,char **argv){CHECK(argc==2);CHECK(original_vm_corpus_main()==0);emit_cases(argv[1]);return 0;}
+int FILE_NATIVE_MAIN(int argc,char **argv){CHECK(argc==2);CHECK(original_vm_corpus_main()==0);emit_cases(argv[1]);return 0;}
 #else
 NvmFileRuntimeReport file_native_registered(const uint8_t *,size_t,NvmFileRuntimeView *);
 static unsigned native_calls;
 static NvmFileRuntimeReport native_dispatch(const uint8_t *bytes,size_t size,NvmFileRuntimeView *out){
  native_calls++;return file_native_registered(bytes,size,out);
 }
-int main(void){
+int FILE_NATIVE_MAIN(void){
  CHECK(original_vm_corpus_main()==0);CHECK(native_calls>30);empty_host();
 #ifdef HOSTED_INSTRUMENT
  CHECK(!tracked_live && !tracked_bytes);

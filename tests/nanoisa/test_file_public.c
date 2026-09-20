@@ -10,9 +10,9 @@ static void public_nested(void);
 #define FILE_VM_BOUNDARY_LABEL "legacy grant-less File routes remain refused"
 #define FILE_NATIVE_VM_EXECUTE public_vm_bridge
 #define FILE_NATIVE_EMIT public_emit_bridge
-#define main public_prior_main
+#define FILE_NATIVE_MAIN public_prior_main
 #include "test_file_private_native.c"
-#undef main
+#undef FILE_NATIVE_MAIN
 #undef FILE_RUNTIME_NESTED_EXTRA
 #include "../../src/nanoisa/file_public_internal.h"
 
