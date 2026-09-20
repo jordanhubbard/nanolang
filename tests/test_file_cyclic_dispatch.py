@@ -95,7 +95,7 @@ class FileCyclicDispatch(unittest.TestCase):
             else:
                 lines += ['char *text=(char *)(uintptr_t)1;char error[256];',
                           'r.runtime.status=nvm2c_file_cyclic_private_emit(bytes,size,&text,error,sizeof error);',
-                          f'if(r.runtime.status!={status} || text!=(char *)(uintptr_t)1)abort();return r;}}']
+                          f'if(r.runtime.status!={status} || text!=(char *)(uintptr_t)1)abort();\nreturn r;}}']
         lines += ['abort();}', '']
         result = self.artifacts / f'{name}-registry.c'
         result.write_text('\n'.join(lines))
