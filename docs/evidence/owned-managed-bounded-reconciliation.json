@@ -2,7 +2,7 @@
   "scope": "Actual-merge reconciliation of only original bounded430220/4be and Darwin273296; no broader task completion",
   "pr880_merge": "06594fa06be9f36aa1eff1ffa8fee303052d89fe",
   "pr880_reviewed_head": "df6d9706d79dc8d61dc0b828362e717abab10e0a",
-  "pr878_merge": "ea6fd7b46",
+  "pr878_merge": "ea6fd7b46549237c7f7b4918fa7c2217bcea7cf0",
   "verification": "Supported helper verified merged states, reviewed-head ancestry and remote canonical tip; live MAC states re-read afterward.",
   "tasks": {
     "430220": {

@@ -61,7 +61,7 @@ for coordinated a18 union/first-success integration. Complete current installed
 full-quick and remaining fixed-point/product gates are still absent. Thus e8d
 and full d76 remain open even if all bounded430220/4be clauses are reconciled.
 
-## My proposed ledger action
+## My actual ledger action
 
 I replace stale initial-proposal wording with this exact evidence matrix while
 preserving historical entries and exclusions. Root and independent native-effects review approve using the
