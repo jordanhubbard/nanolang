@@ -1,0 +1,20 @@
+{
+  "archive": "/tmp/nanolang-file-native-4e8-source.tar.gz",
+  "archive_sha256": "e67142efe9259d180295a07d40cd0b6b643eccc5d3596eb605949033ee543cbe",
+  "host": "puck.local",
+  "tree": "/tmp/nanolang-file-native-4e8",
+  "evidence": "/tmp/nanolang-file-native-4e8-puck",
+  "extraction": {
+    "command": "ssh puck.local python3 -",
+    "status": 1,
+    "error": "TypeError: extractall() got an unexpected keyword argument 'filter'"
+  },
+  "dependent_launch": {
+    "status": 1,
+    "error": "missing .qualification-tracked; git ls-files exits128 in empty non-git tree",
+    "cause": "orchestrator did not stop after prerequisite tool returned exit1"
+  },
+  "source_extracted": false,
+  "build_executed": false,
+  "service_executed": false
+}

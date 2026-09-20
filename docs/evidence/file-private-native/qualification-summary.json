@@ -1,0 +1,265 @@
+{
+  "artifact_references": 20890,
+  "bytes": 2112141322,
+  "current_linux": [
+    {
+      "group": "linux-first",
+      "mismatches": 0,
+      "sources": 9583,
+      "tools": 9,
+      "tree": "/home/jkh/Src/nanolang-file-native-acff"
+    },
+    {
+      "group": "linux",
+      "mismatches": 0,
+      "sources": 9583,
+      "tools": 9,
+      "tree": "/home/jkh/Src/nanolang-file-native-4e8"
+    },
+    {
+      "group": "linux-corrected",
+      "mismatches": 0,
+      "sources": 9583,
+      "tools": 9,
+      "tree": "/home/jkh/Src/nanolang-file-native-6fdb"
+    }
+  ],
+  "initial_fixture": "acff55b42",
+  "passed_earlier_fixture": "4e8ec0d67",
+  "phases": {
+    "darwin": [
+      {
+        "phase": "setup",
+        "seconds": 9.527,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 36.839,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 5.094,
+        "status": 1
+      }
+    ],
+    "darwin-corrected": [
+      {
+        "phase": "sanitizer",
+        "seconds": 52.909,
+        "status": 0
+      },
+      {
+        "phase": "vm",
+        "seconds": 5.392,
+        "status": 0
+      },
+      {
+        "phase": "frames",
+        "seconds": 5.033,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.428,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 6.144,
+        "status": 0
+      }
+    ],
+    "linux": [
+      {
+        "phase": "normal",
+        "seconds": 50.137,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 139.821,
+        "status": 0
+      },
+      {
+        "phase": "clang",
+        "seconds": 9.036,
+        "status": 1
+      }
+    ],
+    "linux-corrected": [
+      {
+        "phase": "clang",
+        "seconds": 70.39,
+        "status": 0
+      },
+      {
+        "phase": "vm",
+        "seconds": 6.731,
+        "status": 0
+      },
+      {
+        "phase": "frames",
+        "seconds": 6.382,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.023,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 3.02,
+        "status": 0
+      }
+    ],
+    "linux-first": [
+      {
+        "phase": "setup",
+        "seconds": 20.966,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 10.488,
+        "status": 1
+      }
+    ]
+  },
+  "private_native": true,
+  "production": "e501b6efc",
+  "public_admission": false,
+  "source_tool_pairs": [
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "normal",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "setup",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "normal",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "clang",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "sanitizer",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "clang",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "opcodes",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "wrapper",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "vm",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-corrected",
+      "phase": "frames",
+      "sources": 9583,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "normal",
+      "sources": 9583,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "sanitizer",
+      "sources": 9583,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "setup",
+      "sources": 9583,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "opcodes",
+      "sources": 9583,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "wrapper",
+      "sources": 9583,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "vm",
+      "sources": 9583,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "frames",
+      "sources": 9583,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin-corrected",
+      "phase": "sanitizer",
+      "sources": 9583,
+      "tools": 10
+    }
+  ],
+  "unique_artifacts": 6199,
+  "whitespace_correction": "6fdb7a60e",
+  "whole_program_sanitizer": false
+}
