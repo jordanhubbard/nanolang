@@ -12809,3 +12809,9 @@ public emission and b7ef/2d2 remain open.
   I preserve both pre-build terminals, retain selected absolute argv spelling,
   still archive resolved tool bytes, and review the fixture correction before
   fresh qualification. No guest or production behavior was exercised.
+
+- [ ] I retain puck's first9856 neighbor preflight failure: non-login SSH PATH
+  omits installed Homebrew pkg-config. I select its exact absolute path and
+  explicitly prepend Homebrew bin for Make's python3/pkg-config discovery,
+  record that environment, and review fresh neighbor-only continuation. The
+  already passed actual-engine matrix and Linux neighbors keep their own pins.

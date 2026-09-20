@@ -379,3 +379,22 @@ symlink for argv. The existing retain() still resolves and hashes its actual
 bytes. This preserves wasm-ld's required invocation mode and keeps byte identity
 separate from command spelling. I change no assertion, warning policy, production
 source or selected tool. Corrected fresh gates require independent review first.
+
+## My puck adjacency tool-discovery correction
+
+The corrected9856 engine matrix passes all eight routes on both hosts before
+adjacency. Puck's first neighbor driver stops during its own tool inventory,
+before any test/build, because non-login SSH supplies only system PATH entries
+and shutil.which(pkg-config) returns no path. The installed tool is
+/opt/homebrew/bin/pkg-config. I retain its0.048s return1 terminal at
+/private/tmp/nanolang-read-wasm-9856-puck-neighbors with equal outer endpoints.
+
+Before correcting this external driver I record the exact change: Darwin selects
+that absolute pkg-config path and prepends /opt/homebrew/bin to child PATH, which
+Make uses for its existing python3/pkg-config recipes. The driver records PATH
+and still hashes all selected tool bytes. No fixture, compiler flag, production
+source, assertion or engine route changes. Fresh puck adjacency requires review;
+completed engine gates are not repeated or attributed to this later driver.
+My neighbors remain native core/module lifecycle with GCC/Homebrew unsuppressed
+ASan/UBSan/LSan, ordinary native adapter and declaration query. Full installed
+CLI/package acceptance remains later under2d2.
