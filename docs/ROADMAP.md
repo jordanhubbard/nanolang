@@ -244,6 +244,8 @@ their individual acceptance evidence closes them.
 
 ## Active Execution Queue
 
+- [ ] I finish the two unreached puck adjacency phases after classifying generated cache outputs (`task_4eaa6395ba014821b123f5332817aed0`). The corrected six-method `eafcd1e52` corpus passes, then the inventory guard stops on four newly generated std module artifacts, with no changed or removed prior provider. Retained timestamps place generation inside parser877's C-seed compile; the earlier raw-driver attribution was incorrect. I retain the original terminal/maps and run only shared-policy/totality and both owner-refusal methods on the unchanged successful tools, with cache outputs inventoried separately.
+
 - [ ] I correct the ordered native match emitter's missing line boundary before generated block directives (`task_4eaa6395ba014821b123f5332817aed0`). Both `e75a719bf` focused runs finish4PASS/2FAIL: the named-order Stage1 compile rejects mid-line `#line`, and the separate raw backstop driver lacks `std/env` imports. I retain all six-method results, correct the newline without changing guards/control flow, add a directive-boundary shadow, and add only the missing fixture imports before fresh qualification.
 - [ ] I retain generated guard C and distinguish regenerated module outputs from fixed providers (`task_4eaa6395ba014821b123f5332817aed0`). The failed native driver removed its temporary C because the fixture omitted `--keep-c`; historical bytes are unavailable. The frozen maps expose nine rebuilt `obj/nano_modules` outputs during imported fixture compilation. I preserve these facts, add retention and per-command output snapshots, and do not relabel those phases as fixed-provider runs.
 
