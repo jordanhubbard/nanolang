@@ -13864,3 +13864,12 @@ in a new driver/evidence directory; product source and fixture assertions remain
   fields and the existing exclusive-borrow rule. I audit constructor/schema fields
   across every affected record and send the complete correction for source review;
   no old failed binary or dependent fixture is rerun.
+
+- [ ] I resolve the actual10b74 C-seed module-link closure failure before bootstrap
+  can pass: File companion/catalog/NanoISA/compiler-support module aggregate
+  objects repeat nsi_file_plan, catalog, cJSON and UTF-8 providers. Both hosts pass
+  the earlier record type check, then fail the Stage1 final link. Nano's corrected
+  native provider registry cannot repair this earlier C-seed link. I require an
+  explicit static owner/import dependency plan with standalone and combined module
+  controls; I retain private shared-library dependencies and do not suppress
+  duplicate symbols or silently choose a provider profile.
