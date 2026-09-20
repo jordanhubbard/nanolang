@@ -96,3 +96,9 @@ references and22 phase endpoint sets. Both current frozen trees retain27,913
 tracked files. Source/tool before-after maps match in every phase; current source,
 selected tools and final products rehash without mismatch. The combined archive
 SHA256 is `be2f22990f0e798c79d7c9b7f3f36d34070a3742e683b00482bb54a3babfef74`.
+
+Root independently verified the original seal: all599 committed reports,19,463
+CAS objects,54,301 references,106 source/tool equalities,53 terminal records
+including all five retained failures, and the combined archive hash. The
+[attributed root audit](file-cyclic-public-root-audit.json) records this original
+scope. Final integration review remains separate.
