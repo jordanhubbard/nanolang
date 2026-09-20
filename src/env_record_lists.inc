@@ -5,6 +5,55 @@
 #include <limits.h>
 #include <stdint.h>
 
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+#include <time.h>
+#include <inttypes.h>
+#include <stdio.h>
+static uint64_t lifetime_allocations, lifetime_clone_nodes, lifetime_clones_ns;
+static uint64_t lifetime_retirements, lifetime_roots, lifetime_lookups, lifetime_visits, lifetime_lookup_ns;
+static unsigned lifetime_markers;
+static void lifetime_add(uint64_t *value, uint64_t amount) {
+    if (*value > UINT64_MAX - amount) { fputs("I overflowed a diagnostic counter.\n", stderr); exit(92); }
+    *value += amount;
+}
+static uint64_t lifetime_now(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) || now.tv_sec < 0 || now.tv_nsec < 0 || now.tv_nsec >= 1000000000L ||
+        (uint64_t)now.tv_sec > (UINT64_MAX - (uint64_t)now.tv_nsec) / UINT64_C(1000000000)) {
+        fputs("I cannot read the diagnostic clock.\n", stderr); exit(92);
+    }
+    return (uint64_t)now.tv_sec * UINT64_C(1000000000) + (uint64_t)now.tv_nsec;
+}
+static void lifetime_elapsed(uint64_t *total, uint64_t start) {
+    uint64_t end = lifetime_now();
+    if (end < start) { fputs("I observed a diagnostic clock reversal.\n", stderr); exit(92); }
+    lifetime_add(total, end - start);
+}
+void nano_evaluator_lifetime_marker(const char *phase, const char *name) {
+    if (lifetime_markers++ >= 8192) { fputs("I exceeded my diagnostic marker bound.\n", stderr); exit(92); }
+    int written = fprintf(stderr, "LIFETIME %s %.160s ns=%" PRIu64 " allocations=%" PRIu64
+        " clone_nodes=%" PRIu64 " clone_ns=%" PRIu64 " retirements=%" PRIu64
+        " roots=%" PRIu64 " lookups=%" PRIu64 " visits=%" PRIu64 " lookup_ns=%" PRIu64 "\n",
+        phase, name, lifetime_now(), lifetime_allocations, lifetime_clone_nodes, lifetime_clones_ns,
+        lifetime_retirements, lifetime_roots, lifetime_lookups, lifetime_visits, lifetime_lookup_ns);
+    if (written < 0 || fflush(stderr)) exit(92);
+}
+#if defined(malloc) || defined(calloc) || defined(realloc) || defined(strdup)
+#error I require unwrapped allocators for this separate timing build.
+#endif
+static void *lifetime_malloc(size_t n) { lifetime_add(&lifetime_allocations, 1); return malloc(n); }
+static void *lifetime_calloc(size_t n, size_t width) { lifetime_add(&lifetime_allocations, 1); return calloc(n, width); }
+static void *lifetime_realloc(void *p, size_t n) { lifetime_add(&lifetime_allocations, 1); return realloc(p, n); }
+static char *lifetime_strdup(const char *p) { lifetime_add(&lifetime_allocations, 1); return strdup(p); }
+#define malloc lifetime_malloc
+#define calloc lifetime_calloc
+#define realloc lifetime_realloc
+#define strdup lifetime_strdup
+#define LIFETIME_COUNT(counter) lifetime_add(&counter, 1)
+#else
+#define LIFETIME_COUNT(counter) ((void)0)
+#endif
+
 struct EnvRecordList {
     struct EnvRecordList *next;
     NominalIdentity element;
@@ -51,6 +100,7 @@ void env_discard_record(StructValue *record) {
 }
 
 static bool clone_value_at(Value source, Value *out, unsigned depth) {
+    LIFETIME_COUNT(lifetime_clone_nodes);
     if (depth >= 128) return false;
     Value copy = source;
     copy.is_return = copy.is_break = copy.is_continue = false;
@@ -104,7 +154,14 @@ fail:
 }
 
 bool env_clone_value_snapshot(Value source, Value *out) {
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+    uint64_t start = lifetime_now();
+    bool result = out && clone_value_at(source, out, 0);
+    lifetime_elapsed(&lifetime_clones_ns, start);
+    return result;
+#else
     return out && clone_value_at(source, out, 0);
+#endif
 }
 
 bool env_clone_record(Value source, Value *out) {
@@ -120,6 +177,7 @@ bool env_value_snapshot(Environment *env, Value source, Value *out) {
     entry->value = copy;
     entry->next = env->record_results;
     env->record_results = entry;
+    LIFETIME_COUNT(lifetime_roots);
     *out = copy;
     return true;
 }
@@ -128,9 +186,15 @@ bool env_record_snapshot(Environment *env, Value source, Value *out) {
     return source.type == VAL_STRUCT && env_value_snapshot(env, source, out);
 }
 
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static bool lifetime_borrowed_body(Environment *env, Value value) {
+#else
 bool env_record_result_borrowed(Environment *env, Value value) {
+#endif
+    LIFETIME_COUNT(lifetime_lookups);
     if (!env || (value.type != VAL_STRUCT && value.type != VAL_TUPLE && value.type != VAL_STRING)) return false;
     for (struct EnvRecordResult *entry = env->record_results; entry; entry = entry->next) {
+        LIFETIME_COUNT(lifetime_visits);
         if (entry->value.type != value.type) continue;
         if (value.type == VAL_STRING && entry->value.as.string_val == value.as.string_val) return true;
         if (value.type == VAL_STRUCT && entry->value.as.struct_val == value.as.struct_val) return true;
@@ -139,9 +203,19 @@ bool env_record_result_borrowed(Environment *env, Value value) {
     return false;
 }
 
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+bool env_record_result_borrowed(Environment *env, Value value) {
+    uint64_t start = lifetime_now();
+    bool result = lifetime_borrowed_body(env, value);
+    lifetime_elapsed(&lifetime_lookup_ns, start);
+    return result;
+}
+#endif
+
 /* I transfer ownership only after registration succeeds. My caller clears its
  * symbol after true; false preserves its ownership. */
 bool env_retire_value(Environment *env, Value owned) {
+    LIFETIME_COUNT(lifetime_retirements);
     if (!env || (owned.type != VAL_STRUCT && owned.type != VAL_TUPLE) ||
         (owned.type == VAL_STRUCT ? !owned.as.struct_val : !owned.as.tuple_val) ||
         env_record_result_borrowed(env, owned)) return false;
@@ -150,6 +224,7 @@ bool env_retire_value(Environment *env, Value owned) {
     entry->value = owned;
     entry->next = env->record_results;
     env->record_results = entry;
+    LIFETIME_COUNT(lifetime_roots);
     return true;
 }
 
@@ -301,3 +376,11 @@ static void env_record_storage_free(Environment *env) {
         free(entry);
     }
 }
+
+#undef LIFETIME_COUNT
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+#undef malloc
+#undef calloc
+#undef realloc
+#undef strdup
+#endif

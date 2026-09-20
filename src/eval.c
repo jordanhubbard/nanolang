@@ -33,6 +33,13 @@
 #include <math.h>
 #include <limits.h>
 
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+extern void nano_evaluator_lifetime_marker(const char *, const char *);
+#define LIFETIME_MARK(phase, name) nano_evaluator_lifetime_marker(phase, name)
+#else
+#define LIFETIME_MARK(phase, name) ((void)0)
+#endif
+
 /* g_argc/g_argv are defined in main.c / nano_main.c */
 extern int g_argc;
 extern char **g_argv;
@@ -6216,7 +6223,9 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
                     }
                 }
 
+                LIFETIME_MARK("begin", func_name);
                 eval_statement(item->as.shadow.body, env);
+                LIFETIME_MARK("end", func_name);
 
                 if (!verbose && saved_stdout_fd >= 0) {
                     fflush(stdout);

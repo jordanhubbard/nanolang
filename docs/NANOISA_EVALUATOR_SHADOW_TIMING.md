@@ -14,7 +14,7 @@ complete imported shadows and unchanged ten-second supervision, inside a bounded
 120-second external process group. No reduced graph or timing acceptance follows.
 
 My stderr markers identify each shadow start/end, monotonic time, cumulative
-checked snapshot allocation attempts, clone nodes, retained roots, borrowed-root
+checked snapshot allocation attempts, clone nodes, cumulative published arena roots, retirement attempts, borrowed-root
 lookup calls and visited entries. I cap markers at 8192 and check counter overflow.
 I measure cumulative clone and borrowed-root lookup nanoseconds separately; clone
 timing is inclusive and not additive with overall shadow timing. Only successful
@@ -25,3 +25,9 @@ compiler allocations. Retired storage remains alive exactly as in production.
 My counters and clocks add overhead. Completed marker intervals show work before
 the last marker; the killed interval has no end sample. Cumulative arena cost is
 a hypothesis until measured. I do not optimize or alter ownership in this build.
+
+I count retirement attempts, including refused attempts, and cumulative roots
+published by snapshot/retirement; roots is not a current-live or peak-memory
+measurement. The actual allocator wrappers count attempts in env_record_lists.inc
+only. Callable signature allocation is outside that counter. The disabled macro
+adds no clock or counter calls and leaves the original clone/lookup bodies intact.
