@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "import tempfile,unittest\nclass Retained(tempfile.TemporaryDirectory):\n def cleanup(self):\n  if self._finalizer.detach():print('I retain wrapper artifacts at '+self.name,flush=True)\ntempfile.TemporaryDirectory=Retained\nunittest.main(module=None,argv=['unittest','-f','-v','tests.test_wrapper_publication'])\n"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_OPCODE_TEST_CC": "/usr/bin/gcc",
+    "NANO_FILE_VALUES_CC": "/usr/bin/gcc",
+    "NANO_NATIVE_TEST_CC": "/usr/bin/gcc",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}
