@@ -7,8 +7,19 @@
   coverage; Stage 1 refuses eight generated functions as `too many locals`.
   I preserve the ceiling, every endpoint, evaluation order, call/local and
   multi-result snapshots, and prior-output refusals. I remove only redundant
-  pure single-result temporaries in the shared reconstructor, then require
-  C/Nano/C-seed/Stage 1/Stage 2 parity and replacement full gates.
+  pure single-result temporaries in the shared reconstructor. The first clean
+  60-method correction gate (`b52f39d37`) passes unsigned division but retains
+  six carry/borrow ceiling refusals, loses three inspected call-argument
+  snapshots, and lets one contextual byte literal cross NanoLang as `int`
+  (log SHA-256
+  `6188ce954db1b310f3cc4c75d4d48ddb796b924410bd0346d56666c5b6dc82e3`).
+  I therefore retain explicit call-argument and byte-literal snapshots while
+  leaving exact, already-evaluated boolean expressions inline. I then require
+  C/Nano/C-seed/Stage 1/Stage 2 parity and replacement full gates. The
+  corrected focused gate passes all 60 methods in 255.557 seconds (log
+  SHA-256
+  `4a4f338e0ed9ac6d88badf01487a5623a04cde32d28f2b1eb0d0be412cdfdb78`);
+  the complete replacement hosted matrix remains required.
 
 - [ ] I keep my full hosted sanitizer suite inside an explicit measured outer
   bound (`task_4477289a83667be58ce3ae1b6bf11124`). Exact replacement run
