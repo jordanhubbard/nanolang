@@ -13924,3 +13924,14 @@ proofs, their frame cap or a public verified bit. Full f36b/15f/488 remain open.
   complete differential acceptance before any public selection.
 - [ ] I complete public transport/admission, paired source and the remaining
   full mixed graph requirements from the original conjunction contract.
+
+Before private mixed VM code I record concrete handler obligations found during
+source inventory. Ordinary STRUCT_NEW allocates zero fields, and ordinary
+STRUCT_LITERAL/AGG_PACK store compact identities; the new route must instantiate
+complete descriptor fields and map to global layout identities without altering
+old routes. Existing retain increments are unchecked: private DUP/load/get and
+boxed push/slice need overflow-safe publication and partial-copy rollback.
+The cycle collector may grow its suspect buffer or collect during release;
+private transaction boundaries require a reviewed safe-point policy and measured
+cleanup under allocation failure. These are new-route implementation prerequisites,
+not claims of an executed public failure. I retain the complete93-opcode domain.
