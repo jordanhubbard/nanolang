@@ -12906,3 +12906,7 @@ I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5
 ### My ordinary-admission fixture indentation prerequisite
 
 - [ ] I correct the new fixture main-loop indentation after retaining the firstedd51 strict GCC compilation terminal under task_4931a66f39c04b1a96981a4e00d43646; no fixture executed. I preserve strict warnings, all assertions and original provider/source evidence, review the tiny correction, then run a fresh corrected fixture.
+
+### My next emitter admission measurement
+
+- [ ] I review and run one separately built private timing observer on qualified8d731 production, retaining full/reuse admission buckets, ASSERT counts and matched shadow-marker deltas under the unchanged full imported ten-second gate. Task_4931a66f39c04b1a96981a4e00d43646 remains open; evidencecd85 preserves both ordinary deadline failures. I make no broader lifetime or cache change before measured diagnosis and independent design review.
