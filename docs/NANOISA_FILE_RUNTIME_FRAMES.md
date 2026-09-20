@@ -293,3 +293,31 @@ set of possible statuses, change production, execute preserved artifacts, or
 claim that the original log measured the replacement status. Fresh corrected
 qualification must establish that result. The initial native Clang setup
 failure and its corrected11.405s setup remain separate retained terminals.
+
+## I keep the fixture allocation domain coherent
+
+Both independent041031 normal attempts reach my final tracked-allocation zero
+assertion and stop there. Neither log prints the outstanding count/bytes.
+Static review finds that included `fixture()` allocates through the tracker,
+but my new `frame_module()` replaces its ownership and CODE buffers with raw
+`free` after the included carrier source undefines those macros. Those real
+frees cannot remove their earlier tracker entries.
+
+Before a new run I restore all four allocation macros over the new frame helper
+definitions in instrumented mode only. This covers ownership/CODE replacement,
+new signature and chain fixture storage, input cleanup and all matching helper
+frees. The linked fixture retains ordinary allocation. I retain the final zero
+assertion, prefix controls, actual destructor behavior and every semantic check.
+
+| Allocation owner | Allocation/free closure |
+|---|---|
+| Included old fixture definitions | Their existing HOSTED_INSTRUMENT scope stays unchanged |
+| New frame helper definitions | Instrumented malloc/calloc/realloc/free all use the existing tracker |
+| Fresh hosted/nominal/module providers and File cores | Existing driver rebuilds use the same four hooks |
+| Generation helper TU | Includes exact File-values production under those driver hooks; helper adds no allocation |
+| Included runtime production | Existing calloc/free hooks; frame operations add no allocation |
+| Shared serialize helper's caller-owned input | Existing raw allocation with matching free accepted by tracker wrapper; not a tracked runtime root |
+
+I do not repair accounting by clearing its table, relaxing zero, changing a
+production allocator, or executing the preserved failures. Fresh qualification
+must show that the complete tracked closure now drains normally.
