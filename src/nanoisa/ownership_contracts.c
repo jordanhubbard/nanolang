@@ -219,16 +219,25 @@ NvmV2Result nvm_ownership_path(const NvmModule *module,uint32_t index,
     return NVM_V2_OK;
 }
 
+/* I collect only checked numeric facts during one complete declaration read. */
+typedef struct {
+    NvmOwnershipExtensionView view;
+    NvmUnionVariantFact *rows;
+    uint32_t capacity, count;
+    uint32_t *starts;
+    uint16_t *variants;
+    bool ambiguous;
+} OwnershipProjection;
 static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
                                     const NvmV2Layouts *layouts,
                                     uint32_t wanted_union,uint16_t wanted_variant,
-                                    NvmUnionVariantFact *selected) {
+                                    NvmUnionVariantFact *selected, OwnershipProjection *projection) {
     uint32_t count;NvmV2Result result;
     NvmUnionVariantFact found={0};bool have=false;
     if ((result=nvm_v2_u32(cursor,&count))!=NVM_V2_OK) return result;
     if (count!=module->union_count || count>NVM_OWNERSHIP_MAX_UNIONS)
         return NVM_V2_ERR_INDEX_RANGE;
-    uint32_t ordinal=0;
+    uint32_t ordinal=0, copied=0;
     for (uint32_t i=0;i<count;i++) {
         uint32_t layout;uint16_t variants,reserved;
         if ((result=nvm_v2_u32(cursor,&layout))!=NVM_V2_OK ||
@@ -242,6 +251,12 @@ static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
             layouts->items[layout].name_idx==NVM_V2_NO_INDEX)
             return NVM_V2_ERR_SECTION_TYPE;
         const NvmV2Layout *shape=&layouts->items[layout];
+        if (projection && projection->rows) {
+            if (copied>projection->capacity || variants>projection->capacity-copied)
+                return NVM_V2_ERR_INDEX_RANGE;
+            projection->starts[i]=copied;
+            projection->variants[i]=variants;
+        }
         size_t variants_at=cursor->pos;
         uint32_t next=0;
         for (uint16_t v=0;v<variants;v++) {
@@ -269,6 +284,9 @@ static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
                     field->name_idx==NVM_V2_NO_INDEX)
                     return NVM_V2_ERR_SECTION_TYPE;
             }
+            if (projection && projection->rows)
+                projection->rows[copied]=(NvmUnionVariantFact){layout,name,offset,fields};
+            copied++;
             if (i==wanted_union && v==wanted_variant) {
                 found=(NvmUnionVariantFact){layout,name,offset,fields};have=true;
             }
@@ -285,13 +303,14 @@ static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
     if (cursor->pos!=cursor->size) return NVM_V2_ERR_SECTION_RANGE;
     if (wanted_union!=NVM_V2_NO_INDEX && !have) return NVM_V2_ERR_INDEX_RANGE;
     if (have && selected) *selected=found;
+    if (projection) projection->count=copied;
     return NVM_V2_OK;
 }
 
 #include "ownership_array_fields.inc"
 static NvmV2Result ownership_validate_owned(const NvmModule *module,
         const NvmV2Layouts *layouts,bool *requires_verifier,
-        NvmOrdinaryArrayAuthority *private_plan) {
+        NvmOrdinaryArrayAuthority *private_plan, OwnershipProjection *projection) {
     NvmV2Result result;
     bool ambiguous=false;
     NvmV2Cursor cursor;
@@ -319,14 +338,22 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
         if (locals != function->local_count || params != function->arity || params > locals ||
             function->result_count > 1) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
         int return_tag = function->result_count ? function->result_tag : TAG_VOID;
-        if ((result = descriptor(&cursor, layouts, flags, version, false, return_tag, &needs, private_plan?&ambiguous:NULL))
-            != NVM_V2_OK) goto done;
+        ambiguous=false;
+        result=descriptor(&cursor,layouts,flags,version,false,return_tag,&needs,private_plan?&ambiguous:NULL);
+        if (result!=NVM_V2_OK) {
+            if (!projection || !ambiguous) goto done;
+            projection->ambiguous=true;result=NVM_V2_OK;
+        }
         for (uint16_t local = 0; local < locals; local++) {
             int tag = -1;
             if (local < params) tag = module->function_param_types &&
                 module->function_param_types[i] ? module->function_param_types[i][local] : TAG_VOID;
-            if ((result = descriptor(&cursor, layouts, flags, version, local < params, tag, &needs, private_plan?&ambiguous:NULL))
-                != NVM_V2_OK) goto done;
+            ambiguous=false;
+            result=descriptor(&cursor,layouts,flags,version,local<params,tag,&needs,private_plan?&ambiguous:NULL);
+            if (result!=NVM_V2_OK) {
+                if (!projection || !ambiguous) goto done;
+                projection->ambiguous=true;result=NVM_V2_OK;
+            }
         }
     }
     NvmOwnershipExtensions extensions={0};
@@ -342,8 +369,9 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
         if (extensions.union_variants.data) {
             NvmV2Cursor unions;nvm_v2_cursor_init(&unions,extensions.union_variants.data,
                                                   extensions.union_variants.size);
-            if ((result=union_facts_read(&unions,module,layouts,NVM_V2_NO_INDEX,0,NULL))
+            if ((result=union_facts_read(&unions,module,layouts,NVM_V2_NO_INDEX,0,NULL,projection))
                 !=NVM_V2_OK) goto done;
+            if (projection) projection->view=extensions.union_variants;
             needs=true;
         }
         if (extensions.array_fields.data) {
@@ -354,7 +382,7 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
     if (cursor.pos != cursor.size) { result = NVM_V2_ERR_SECTION_RANGE; goto done; }
     *requires_verifier = needs;
 done:
-    if (private_plan && ambiguous) private_plan->failure=NVM_OAA_UNKNOWN;
+    if (private_plan && ambiguous && !projection) private_plan->failure=NVM_OAA_UNKNOWN;
     return result;
 }
 
@@ -370,7 +398,7 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
     NvmV2Result result = nvm_v2_layouts_decode(module->layout_data,
                                              module->layout_size, &layouts);
     if (result != NVM_V2_OK) return result;
-    result=ownership_validate_owned(module,&layouts,requires_verifier,NULL);
+    result=ownership_validate_owned(module,&layouts,requires_verifier,NULL,NULL);
     nvm_v2_layouts_free(&layouts);
     return result;
 }
@@ -413,7 +441,7 @@ NvmV2Result nvm_ownership_union_variant(const NvmModule *module,
     NvmV2Cursor unions;nvm_v2_cursor_init(&unions,extensions.union_variants.data,
                                           extensions.union_variants.size);
     NvmUnionVariantFact selected;
-    result=union_facts_read(&unions,module,&layouts,union_ordinal,variant,&selected);
+    result=union_facts_read(&unions,module,&layouts,union_ordinal,variant,&selected,NULL);
     if (result==NVM_V2_OK) *out=selected;
 done_query:
     nvm_v2_layouts_free(&layouts);
@@ -468,3 +496,5 @@ NvmV2Result nvm_ownership_layout_authorities(const NvmModule *module, uint32_t c
 }
 
 #include "ordinary_array_authority.inc"
+
+#include "ownership_declaration_projection.inc"
