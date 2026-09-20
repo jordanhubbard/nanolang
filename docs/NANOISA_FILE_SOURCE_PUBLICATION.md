@@ -167,3 +167,14 @@ it will stop on an unexpected terminal. A fixture timeout or failed build does
 not authorize replaying that unchanged failed artifact. These planned checks
 remain nonexecuting with respect to File services and confer no publication,
 parser, source lowering or host authority.
+
+I strengthen the first fixture checkpoint after static review384c: I require the
+exact selected shadow multiset for every generated `case_N`, both Nano boundary
+helpers, every source-plan helper and both catalog bridge functions. C-seed
+success JSON has no successful-name list, so I pair its exact count/completion
+with actual `--verbose` selection records and retain a normalized JSON manifest.
+Stage1/2 manifests come from their actual shadow trace. I remove only the known
+self-hosted module-owner prefix, and reject missing, duplicate or unexpected
+names. My runner writes child stdout/stderr directly to retained files, records
+the first exit/timeout before cleanup, and separately records bounded post-kill
+wait failures and group disappearance. No PIPE drain is needed to save output.
