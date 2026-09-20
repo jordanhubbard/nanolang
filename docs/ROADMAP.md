@@ -12866,3 +12866,5 @@ operation failure, secondary cleanup and postcommit status, exact retry/collisio
 bounds, real no-replacement sentinels/concurrent processes and unchanged strict
 neighbors. Actual scoped Make compiles must prove CPPFLAGS forwarding. No build,
 publication operation or generated source has run; full fixture review is next.
+
+- [ ] I correct the measured a22 puck actual-Make first terminal before fresh gates: `getentropy` lacks its Darwin declaration. The selected Xcode SDK declares it in `sys/random.h:38`, not unistd.h/stdlib.h. I add the Apple-specific header to publisher and fixture prelude; no entropy/retry behavior changes. I preserve original Linux passes and the failed puck source/tool/compiler evidence.
