@@ -375,7 +375,9 @@ original global/per-kind record identities, copied facts after input erasure/fre
 getter sentinels, aliases mutated before/after field installation, exact FLOAT
 field writes versus a packed-compatible INT write, distinct slices, field
 replacement, direct parameter/result transport, weak global facts and both
-branch alternatives. New-mode standalone nested/VOID/ENUM/record element origins
+branch alternatives, a wrong-element branch and an exact forward nested-record
+referent. I compare complete input bytes before/after each ordinary query and
+refuse a cyclic referent without publishing facts. New-mode standalone nested/VOID/ENUM/record element origins
 are refused even outside fields; the unchanged old graph query still accepts
 its existing nested-array control. I retain old record/profile decisions before
 and after the new query.

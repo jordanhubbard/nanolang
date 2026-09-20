@@ -13519,3 +13519,5 @@ actual Python/compiler selection. I have not compiled or run these fixtures;
 root review precedes the seven-configuration matrix and unchanged neighbors.
 
 I save this fixture draft before the independent PR922 audit. It remains uncompiled and unexecuted, with final static coverage review pending; this draft is not a gate authorization or a completed fixture milestone.
+
+I finish the draft static coverage pass after the PR922 audit: I add exact forward nested-record/global-index facts, cyclic-referent refusal, a wrong-element branch alternative, and complete input-byte preservation. The fixture checkpoint is ready for root source/fixture review; no test or build has run.

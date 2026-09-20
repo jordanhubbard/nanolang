@@ -78,7 +78,9 @@ static void authority(Input *c){
 }
 static void finish(Input *c){scalar(c,TAG_INT);op(c,OP_RET);c->fn[0].code_length=(uint32_t)c->n;authority(c);}
 static NvmRecordArrayOrigins *query(Input *c,NvmArrayEligibilityStatus expected){
+    Input before=*c;
     NvmRecordArrayOrigins *p=(void *)(uintptr_t)1;NvmArrayEligibilityResult r=nvm_analyze_record_array_origins(&c->m,&p);
+    CHECK(!memcmp(c,&before,sizeof before));
     if(r.status!=expected)fprintf(stderr,"I expected %u, got %u: %s\n",expected,r.status,r.message);
     CHECK(r.status==expected);CHECK(expected==NVM_ARRAY_ELIGIBLE?p!=(void *)(uintptr_t)1:p==(void *)(uintptr_t)1);return p;
 }
@@ -160,6 +162,23 @@ static void field_call_global_join(void){
     size_t other=c.n;array(&c,TAG_INT);size_t join=c.n;record(&c,0);op(&c,OP_POP);finish(&c);
     size_t at=branch+1;b32(c.code,&at,(uint32_t)(other-branch));at=jump+1;b32(c.code,&at,(uint32_t)(join-jump));
     p=query(&c,NVM_ARRAY_ELIGIBLE);CHECK(nvm_record_array_field_value(p,0,&v)&&v.origins==3);nvm_record_array_origins_free(p);
+    c.code[other+1]=TAG_STRING;query(&c,NVM_ARRAY_UNRESOLVED);
+}
+static void forward_record_identity(void){
+    Input c;init(&c,TAG_INT,true);array(&c,TAG_INT);record(&c,1);record(&c,0);op(&c,OP_POP);finish(&c);
+    /* Global layout1 is a forward record field referring to global layout2.
+     * I remove only its old array binding, keeping the inner array binding. */
+    c.layouts[32]=TAG_STRUCT;size_t at=36;b32(c.layouts,&at,2);
+    at=c.o-44;b32(c.ownership,&at,28);at=c.o-28;b32(c.ownership,&at,1);
+    memmove(c.ownership+c.o-24,c.ownership+c.o-12,12);c.o-=12;c.m.ownership_size=(uint32_t)c.o;
+    NvmRecordArrayOrigins *p=query(&c,NVM_ARRAY_ELIGIBLE);NvmRecordHeapOrigin inner,outer;NvmRecordValueOrigins v;
+    CHECK(nvm_record_array_origin(p,1,&inner)&&inner.record_ordinal==1&&inner.layout_index==2);
+    CHECK(nvm_record_array_origin(p,2,&outer)&&outer.record_ordinal==0&&outer.layout_index==1);
+    CHECK(nvm_record_array_field_value(p,0,&v)&&v.origins==1&&v.tags==MASK(TAG_ARRAY));
+    CHECK(nvm_record_array_field_value(p,1,&v)&&v.origins==2&&v.tags==MASK(TAG_STRUCT));nvm_record_array_origins_free(p);
+    /* I replace the declared referent with its own layout: cyclic authority
+     * fails before any origin report can be published. */
+    at=36;b32(c.layouts,&at,1);query(&c,NVM_ARRAY_INVALID);
 }
 static void old_mode(void){
     Input c;basic(&c,TAG_INT,false);NvmRecordEligibilityReport *old=(void *)(uintptr_t)1;
@@ -214,4 +233,4 @@ static void boundaries(void){
     printf("I measured %zu allocation positions and %zu peak payload bytes; every refusal recovered\n",measured,actual_peak);
 #endif
 }
-int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}
+int main(void){setvbuf(stdout,NULL,_IONBF,0);puts("I begin copied facts");copied_facts();puts("I begin alias/copy facts");aliases_and_copies();puts("I begin refusal boundaries");refusals();puts("I begin call/global/join facts");field_call_global_join();forward_record_identity();puts("I begin old-mode compatibility");old_mode();puts("I begin bounded accounting and recovery");boundaries();printf("PASS %u record-array origin checks; no runtime admission\n",checks);return 0;}
