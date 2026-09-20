@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-bin/nsi-file-binding",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/cli/input-invalid",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/cli/refused-invalid"
+  ],
+  "pid": 23747,
+  "returncode": 1,
+  "timeout": false
+}

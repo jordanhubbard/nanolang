@@ -12870,3 +12870,11 @@ publication operation or generated source has run; full fixture review is next.
 - [ ] I correct the measured a22 puck actual-Make first terminal before fresh gates: `getentropy` lacks its Darwin declaration. The selected Xcode SDK declares it in `sys/random.h:38`, not unistd.h/stdlib.h. I add the Apple-specific header to publisher and fixture prelude; no entropy/retry behavior changes. I preserve original Linux passes and the failed puck source/tool/compiler evidence.
 
 - [ ] I reconcile the measured5fff puck raw-filename fixture assumption before fresh gates: actual Make succeeds and CLI reaches rename, which reports IO/EILSEQ(92) for invalid UTF-8 bytes, published=false with clean rollback and exact JSON byte escaping. The fixture incorrectly requires universal successful publication for every non-NUL byte sequence. I retain that first terminal; propose an independent same-filesystem name-support probe and separate universally valid quoted-name positive, with exact raw-byte success/refusal and cleanup assertions. No publisher behavior change or filesystem support claim follows without review.
+
+I retain [the explicit publisher qualification](evidence/file-binding-publisher.md):
+seven Linux/puck ordinary/sanitizer configurations pass real Make/API/CLI/fault/
+concurrency controls and unchanged strict neighbors. Both puck first terminals
+remain immutable; Apple-header and exact-filesystem-probe corrections have their
+own reviewed pins. My1,944-report seal records24 equal input pairs and1,298
+artifact objects. Independent review/merge remain pending; generated source,
+installed compiler routing and the full File/source parents remain open.
