@@ -53,11 +53,19 @@ closure remained unchanged. The complete gate took 821.266 seconds. I compare
 raw Stage 1 and Stage 2 bytes; I do not normalize them or compare the distinct
 C-seed lowering output with Stage 1.
 
-The release also requires the corresponding standalone native compiler fixed
-point, the clean Darwin suite, and the hosted Linux, Linux ARM64 and macOS
-matrix. The GitHub release record names their final exact revisions and
-outcomes. A fixed point is reproducibility evidence, not a proof that my
-compiler is correct.
+The standalone native route at the same source pin produced two successive
+491,800-byte modules with raw SHA-256
+`c3a425bb90edc4101a1e7c1ec92f2acee1a781a30407d608cfc381ea3a13c2b4`.
+Generation took 1,238.087 seconds and 1,286.890 seconds. Both modules verified;
+the Stage 1 native compiler compiled the unchanged hello source, and that
+module verified and executed. The exact three-library host closure and
+post-run source/tool hashes remained unchanged. The native compiler processes
+do not link `nano_vm`.
+
+The VM and native artifacts have different sizes, so I make no cross-route
+raw-equality claim. [My retained fixed-point record](evidence/v5.1-final-fixedpoints.md)
+names the bounds, hashes and evidence limits. A fixed point is reproducibility
+evidence, not a proof that my compiler is correct.
 
 ## Language and runtime work carried into 5.1
 

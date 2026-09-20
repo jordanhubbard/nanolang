@@ -96,6 +96,14 @@ Both verified, and Stage 2 compiled, verified and executed hello. The gate took
 821.266 seconds. This proves raw reproducibility for that source and immutable
 host closure, not compiler correctness.
 
+At the same compiler-source pin, the standalone native route produced equal
+491,800-byte Stage 1 and Stage 2 modules with SHA-256
+`c3a425bb90edc4101a1e7c1ec92f2acee1a781a30407d608cfc381ea3a13c2b4`.
+The two generations took 1,238.087 and 1,286.890 seconds, verified, preserved
+the exact three-library host closure and compiled a verified, executing hello.
+I do not compare those bytes with the distinct VM-route modules. The exact
+record is `docs/evidence/v5.1-final-fixedpoints.md`.
+
 My product driver publishes verified `.nvm`; `nvm2c`, `nvm2llvm` and
 `nvm2wasm` consume the module. The C seed remains a bootstrap/reference
 frontend. Private non-admitting mixed record-array execution, unrestricted
