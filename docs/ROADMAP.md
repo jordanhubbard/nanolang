@@ -870,6 +870,17 @@ their individual acceptance evidence closes them.
       general tuple substitution or ownership transfer. MAC
       `task_bcd773ad3c084ce099a3da5aef682fef`.
 
+- [ ] I release independently owned registered and extracted union metadata
+      (`task_0bae7b0426fc4c3e912ab00cfd7de136`, under `task_00c47a5d65d04c48914864ec0de553d6`).
+      My current environment owns allocated field type-name arrays, generic
+      formals and module names, while extracted metadata still borrows those
+      pointers. I first give the extracted copy independent ownership, then
+      free each owner's allocations. I require AST/environment/module lifetime
+      independence in both destruction orders, null/empty controls, a fresh
+      unsuppressed ASan/UBSan/LSan lifecycle gate and the existing normal
+      metadata suite. Import-tracker freeing is already canonical; callback
+      placeholder and other parent leaks remain separate until measured.
+
 - [ ] **Release legacy union metadata allocations.** My payload lifetime check
       exposed 245 bytes retained by existing registered field-name/formal arrays
       and the environment import tracker. I establish borrower ownership before
