@@ -1,0 +1,11 @@
+[
+  {
+    "group": "darwin-integration",
+    "root": "/private/tmp/nanolang-file-cyclic-public-final",
+    "last": "archive-boundary",
+    "sources": 27913,
+    "tools": 36,
+    "products": 203,
+    "mismatches": 0
+  }
+]

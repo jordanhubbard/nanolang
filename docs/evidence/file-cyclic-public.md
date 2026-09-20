@@ -63,3 +63,36 @@ bytes and54,301 references. All eight frozen trees retain20,576 tracked source
 files; final source/tool/product rehashes have no mismatch. The original and
 corrected Darwin archives remain separate from the combined artifact archive.
 Independent seal review and current-main integration are still pending.
+
+## My final canonical integration
+
+I retain the preceding original qualification at its exact pins. In a separate
+tree I integrate canonical `e59fc09b591db977e53e4fef549d7615ad34e114`, including
+merged893/909/911/912/913, at frozen `4c85e7984b5fb18ce8b8e69d4ab3461e2812ada5`.
+All25 qualified public source/header/generator/fixture files remain identical.
+Only additive Make targets and roadmap histories require conflict resolution.
+Incoming common token ABI, ownership reader, passive and indirect-hosted query
+changes receive fresh providers and compiler/package tools on both hosts. I reuse
+no earlier objects as current canonical acceptance.
+
+All11 selected phases pass on Linux GCC13 and Darwin Apple Clang: schema
+consistency, all33 schema tests, fresh setup, configuration, exactly-two-test
+discovery, full ordinary public cyclic corpus/installed package, matched private
+dispatch, cyclic hosted, indirect hosted, old acyclic public and actual archive
+boundary conjunction. The public corpus takes99.854 seconds on Linux and57.993
+on Darwin. Installed inclusion retains all30 headers and C99/C11/C++11/C++17;
+actual generated native runs retain O0/O2 and every report/host-trace assertion.
+
+This supplement is ordinary integration acceptance. My original seven compiler
+and sanitizer configurations keep their prior pins and instrumentation limits.
+Full install rebuilds remain explicit provider deltas, rather than an assertion
+that all object bytes stay unchanged. The separate [integration report index](file-cyclic-public-integration/report-sha256.json) seals commands, terminals,
+endpoint maps, artifacts and current rehashes. Independent review and actual
+merge remain pending; full source/indirect/richer-borrow and release goals remain
+open.
+
+My integration seal contains251 reports and6,834 unique artifacts,20,411
+references and22 phase endpoint sets. Both current frozen trees retain27,913
+tracked files. Source/tool before-after maps match in every phase; current source,
+selected tools and final products rehash without mismatch. The combined archive
+SHA256 is `be2f22990f0e798c79d7c9b7f3f36d34070a3742e683b00482bb54a3babfef74`.

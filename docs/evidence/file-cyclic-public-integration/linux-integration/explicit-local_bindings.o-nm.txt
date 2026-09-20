@@ -1,0 +1,13 @@
+                 U __stack_chk_fail
+                 U __stack_chk_guard
+                 U free
+                 U isa_decode
+                 U malloc
+                 U memcmp
+                 U memcpy
+0000000000000a74 T nvm_add_local_binding
+                 U nvm_add_metadata
+                 U nvm_add_string
+00000000000008f0 T nvm_local_name_at
+0000000000000698 T nvm_local_names_validate
+                 U nvm_metadata_valid
