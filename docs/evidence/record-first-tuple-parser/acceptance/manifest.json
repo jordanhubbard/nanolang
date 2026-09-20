@@ -1,0 +1,95 @@
+{
+  "source": "2132eaba802a3a2a296d654424ed7659b1dafb16",
+  "steps": [
+    {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "nano_virt",
+        "nanoisa_emit",
+        "nano_vm",
+        "nvm2c",
+        "nanoisa_dump"
+      ],
+      "status": 0,
+      "seconds": 27.932,
+      "log_sha256": "083cd45a452cbc66678510a53a27521ad641783d079f4b33a49c60eaaa67ef74"
+    },
+    {
+      "name": "nanoc_c-parser-build",
+      "command": [
+        "/home/jkh/Src/nanolang-record-first-tuple-qualified/bin/nanoc_c",
+        "/home/jkh/Src/nanolang-record-first-tuple-qualified/tests/parser_parenthesized.nano",
+        "-o",
+        "/tmp/nanolang-record-first-2132-acceptance/nanoc_c-parser"
+      ],
+      "status": 0,
+      "seconds": 11.29,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "nanoc_c-parser-run",
+      "command": [
+        "/tmp/nanolang-record-first-2132-acceptance/nanoc_c-parser"
+      ],
+      "status": 0,
+      "seconds": 0.016,
+      "log_sha256": "5c5d2b9df66aaafb61e380428a2c7599d8983cee660ee911a43b55f16df08d79"
+    },
+    {
+      "name": "nanoc_stage1-parser-build",
+      "command": [
+        "/home/jkh/Src/nanolang-record-first-tuple-qualified/bin/nanoc_stage1",
+        "/home/jkh/Src/nanolang-record-first-tuple-qualified/tests/parser_parenthesized.nano",
+        "-o",
+        "/tmp/nanolang-record-first-2132-acceptance/nanoc_stage1-parser"
+      ],
+      "status": 0,
+      "seconds": 28.736,
+      "log_sha256": "5c5d2b9df66aaafb61e380428a2c7599d8983cee660ee911a43b55f16df08d79"
+    },
+    {
+      "name": "nanoc_stage1-parser-run",
+      "command": [
+        "/tmp/nanolang-record-first-2132-acceptance/nanoc_stage1-parser"
+      ],
+      "status": 0,
+      "seconds": 0.008,
+      "log_sha256": "5c5d2b9df66aaafb61e380428a2c7599d8983cee660ee911a43b55f16df08d79"
+    },
+    {
+      "name": "nanoc_stage2-parser-build",
+      "command": [
+        "/home/jkh/Src/nanolang-record-first-tuple-qualified/bin/nanoc_stage2",
+        "/home/jkh/Src/nanolang-record-first-tuple-qualified/tests/parser_parenthesized.nano",
+        "-o",
+        "/tmp/nanolang-record-first-2132-acceptance/nanoc_stage2-parser"
+      ],
+      "status": 0,
+      "seconds": 8.635,
+      "log_sha256": "5c5d2b9df66aaafb61e380428a2c7599d8983cee660ee911a43b55f16df08d79"
+    },
+    {
+      "name": "nanoc_stage2-parser-run",
+      "command": [
+        "/tmp/nanolang-record-first-2132-acceptance/nanoc_stage2-parser"
+      ],
+      "status": 0,
+      "seconds": 0.008,
+      "log_sha256": "5c5d2b9df66aaafb61e380428a2c7599d8983cee660ee911a43b55f16df08d79"
+    },
+    {
+      "name": "paired-owner-refusal",
+      "command": [
+        "python3",
+        "/tmp/nanolang-record-first-2132-acceptance/retained-test.py"
+      ],
+      "status": 0,
+      "seconds": 187.688,
+      "log_sha256": "d2f22dce3a87ac7f489928f0e8b64159aad0db1540ebcd798620bf9663aba4af"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true
+}
