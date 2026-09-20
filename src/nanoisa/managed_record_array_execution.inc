@@ -453,8 +453,8 @@ bool nvm_record_array_image_bound(const NvmRecordArrayExecutionPlan *plan,
         compare+=(uint64_t)m->string_lengths[i]+2;
     }
     /* I include this cost scan, defined-field copying and fixed section rows. */
-    uint64_t work=bytes+compare+1024+(uint64_t)m->function_count*4+
-        (uint64_t)m->string_count*2;
+    uint64_t work=bytes+compare+1024+(uint64_t)m->function_count*8+
+        (uint64_t)m->string_count*4;
     if(bytes>NVM_RECORD_ARRAY_EXECUTION_BYTES || work>NVM_RECORD_ARRAY_EXECUTION_STEPS)return false;
     *out=(NvmRecordArrayImageCost){bytes,work};return true;
 }

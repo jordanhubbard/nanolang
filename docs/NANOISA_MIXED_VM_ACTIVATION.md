@@ -215,3 +215,81 @@ require the separate collector and safe-point implementation in my parent scope.
 My eligible STRUCT_NEW remains zero-field only: the existing query compares its
 implicit constructed count0 with the exact declaration field count. I map that
 constructor's compact identity without expanding its admitted field count.
+
+## My first source checkpoint
+
+My implementation is in `record_array_vm_prepare.inc` and
+`record_array_vm_run.inc`, included by the actual `vm.c` only under
+`NANO_RECORD_ARRAY_PRIVATE_RUNTIME`. Every VM translation unit in that private
+build must use the same macro: it adds instance-local fields to `VmHeap`.
+Ordinary VM builds have neither the private activation definitions nor those
+heap fields. The image materializer is a source-private query helper; it grants
+no runtime authority on its own and is not an installed API header.
+
+I preserve old admission wrappers and pass NULL private context from every old
+core entry. The private core entry requires this exact instance, its busy run,
+owned copied module, decoded/dispatch storage and unverified ordinary VM state.
+It does not set the old verified flag or an owned activation proof. I select no
+fusion; both actual dispatch implementations still execute the shared handlers.
+
+I compare all256 opcode decisions and require exactly93 matching recipes. Before
+constants I compare every declared instruction, including unreachable rows:
+exact operand bits/types/width, dynamic pops/pushes, recipe/check obligations,
+fallthrough/branch/call targets, decoder boundary/index maps and unfused dispatch
+indices. My image copy checks the complete defined module facts against the
+retained plan; I keep both owners until instance disposal.
+
+My extra reservation table is conservative and cumulative. Freed preparation
+buffers do not refund it, so overlap never borrows space from another phase.
+
+| Storage or scan | Reservation before allocation or scan |
+| --- | --- |
+| Retained execution plan | Existing128MiB/33554432-step query ceiling and reported reserved counts |
+| Private instance, including1024 actual frames and258 iterative release entries | Exact `sizeof(VmRecordArrayPrivate)` bytes and zeroing work |
+| Independently owned image | Fixed owner, all logical copied rows, string terminators, optional parameter rows; exact snapshot-copy and defined-field-comparison work plus both cost scans |
+| Runtime copied instruction/field tables | Checked count times owning C type size, plus copy/getter work |
+| Global layouts and compact-record map | Fixed256-row arrays in the instance; all declaration/binding/field scans charged |
+| Explicit nominal DFS temporary | Exact256 color bytes plus256 pairs of uint16, with one bounded traversal of all fields and layout nodes |
+| Decoder and dispatch function tables | Function count times actual owning types |
+| Decoder instructions | Sum of every16/doubled reallocation capacity times actual row size, conservatively covering old/new overlap |
+| Decoder and dispatch byte maps | Nine bytes times `(code_length+1)` per function; all boundary scans charged |
+| Unfused dispatch instructions | Exact instruction count times actual row size |
+| Decode/project/compare work | Reserved map zeroing and allocation-copy bytes, code scans, full instruction comparisons and complete opcode-space comparison |
+| Operand/local roots |524289 actual `NanoValue` slots, reserved and zeroed before execution |
+| Globals | Exact inferred global count times `NanoValue` |
+| Constants and intern table | Pointer table, every full string allocation including duplicate upper bounds, all doubling bucket capacities and collision-chain comparison upper bounds |
+
+The private reservation cannot exceed128MiB/33554432 steps. It overlaps the
+retained query plan, so reported combined preparation never exceeds
+256MiB/67108864 steps. This is a preparation bound, not an execution fuel policy.
+The source checkpoint has not yet been built or qualified.
+
+For stack capacity I partition the actual shared stack at active frame bases.
+A suspended caller contributes its locals plus remaining operands; arguments
+already occupy the next callee segment and are not counted twice. Each segment
+has at most256 locals and256 operands. CALL replaces its argument suffix with
+the callee's at-most256 locals only after the1024-frame check. RET removes the
+callee segment before placing its at-most-one result in the caller. The selected
+initializer can leave one result below the entry root, exactly as ordinary
+`vm_execute` does; this is the extra slot. Thus every live stack offset is below
+`1024*512+1`, including zero-local/zero-result calls and implicit returns. Return
+staging is an existing local C value before publication, not an extra live VM
+frame. I check the fixed capacity and dynamic operand/transfer bounds at runtime.
+
+My instance owns a previously published result separately from this stack.
+Failure drains the actual live stack once and clears suspended callable slots;
+globals and the prior result survive. Successful entry stages its result, drains
+initializer results, and only then replaces the prior result. Every invocation
+increments an epoch before effects; UINT64_MAX refuses before root mutation.
+Observation identities compare heap aliases only within one idle instance epoch;
+they are never accepted as inputs or dereferenced on behalf of a caller. Getters
+copy value bits, shapes or counted bytes and preserve output on refusal. Busy,
+wrong-thread and invalid instance operations refuse; destruction of a busy or
+wrong-thread instance leaves ownership with the caller.
+
+I keep allocation-free iterative release limited to actual validated DAG edges.
+Private string interning and boxed-array push/copy check retain overflow before
+publication. Slice rollback releases only successfully retained elements. All
+constructors and mutations validate exact physical record layout/field shape and
+flat element tags before touching an edge. These changes are instance-local;
+ordinary heaps preserve their historical reference and collection behavior.

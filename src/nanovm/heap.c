@@ -368,6 +368,9 @@ VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     /* Check intern table for dedup (O(1) expected via bucket chain). */
     VmString *existing = vm_intern_lookup(heap, hash, data, length);
     if (existing) {
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+        if(heap->private_record_dag && existing->header.ref_count==UINT32_MAX)return NULL;
+#endif
         existing->header.ref_count++;
         return existing;
     }
@@ -633,6 +636,10 @@ void vm_array_swap_scalar_storage(VmArray *a, VmArray *b) {
 
 bool vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
     if (!a) return false;
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+    if(heap->private_record_dag && (v.tag!=a->elem_type ||
+       (val_is_heap_obj(v) && (!v.as.obj || ((VmHeapHeader *)v.as.obj)->ref_count==UINT32_MAX))))return false;
+#endif
     if (a->length >= a->capacity) {
         if (!array_grow(heap, a)) return false;
     }
@@ -690,6 +697,15 @@ VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end) 
         return result;
     }
     for (uint32_t i = 0; i < new_len; i++) {
+#ifdef NANO_RECORD_ARRAY_PRIVATE_RUNTIME
+        if(heap->private_record_dag) {
+            NanoValue child=a->elements[start+i];
+            if(child.tag!=a->elem_type || (val_is_heap_obj(child) &&
+               (!child.as.obj || ((VmHeapHeader *)child.as.obj)->ref_count==UINT32_MAX))) {
+                result->length=i;vm_release(heap,val_array(result));return NULL;
+            }
+        }
+#endif
         result->elements[i] = a->elements[start + i];
         vm_retain(heap, result->elements[i]);
     }
