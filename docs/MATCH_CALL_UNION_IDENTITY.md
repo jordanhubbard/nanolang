@@ -33,3 +33,20 @@ user-guide snippet checker and runs its existing check target, then the
 relevant shared match controls and fresh bootstrap. Platform and provider
 attribution stay explicit; this correction does not close full generic-union,
 affine, bootstrap-equivalence or release acceptance.
+
+## Retained preparation failure
+
+My first external runner selected `make build`, which completes the CI
+component build but does not produce the `nanoc_stage1`/`nanoc_stage2` paths
+required by the canonical guard corpus. Linux passed the build, unchanged
+user-guide tool compile and all 12 totality/policy methods, then ran all six
+guard methods: one passed and five errored on the absent Stage 1 executable.
+I retain the complete first terminal and products under
+`/tmp/nanolang-match-call-8538-linux`; I do not call its `bootstrap` phase
+label evidence of the distinct `make bootstrap` target.
+
+My correction is external preparation only: verify prior provider hashes,
+run actual `make bootstrap` on the retained source pin, then execute the full
+guard corpus and previously unreached user-guide/full test commands. I record
+new provider products separately and preserve the original passed phases.
+No production source, fixture assertion or compiler warning is changed.

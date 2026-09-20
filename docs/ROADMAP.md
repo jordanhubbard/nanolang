@@ -12831,3 +12831,5 @@ actual merge and bounded repair reconciliation remain pending, full15a92 open.
 ### Generic union call match identity (2026-09-20)
 
 - [ ] I repair the shared C checker call-scrutinee metadata loss observed in PR 906/907/908 arm64 CI without weakening exact union identity or coverage (`task_a1d38d93616f4c48a3b8692b30226a82`; [contract](MATCH_CALL_UNION_IDENTITY.md)). I retain the three first terminals, review source/fixtures before execution, and qualify direct Result/Option statement/value matches plus unchanged user-guide and match-policy controls on fresh providers.
+
+- [ ] I correct the generic-call CI gate runner's `make build`/`make bootstrap` prerequisite mismatch, retaining the six-method first terminal and separately qualifying actual Stage 1/2 guard paths on frozen `8538faadf` source (`task_a1d38d93616f4c48a3b8692b30226a82`).
