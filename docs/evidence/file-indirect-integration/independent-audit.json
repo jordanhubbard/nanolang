@@ -1,0 +1,33 @@
+{
+  "reports": 228,
+  "artifacts": 653,
+  "artifact_bytes": 331263234,
+  "pairs": 46,
+  "terminal_passes": 23,
+  "archive_sha256": "c01e173da70a7c4b708b68775680862415ea70b336c2ac6109cdc02ac340a988",
+  "references": 4497,
+  "seven_configs": {
+    "linux/ordinary": true,
+    "linux/sanitizer": true,
+    "linux/clang-ordinary": true,
+    "linux/clang-sanitizer": true,
+    "puck/ordinary": true,
+    "puck/sanitizer": true,
+    "puck/clang-ordinary": true
+  },
+  "ready_original_manifest_equal": true,
+  "linux_current": {
+    "sources": 11580,
+    "tools": 9,
+    "products": 190,
+    "errors": []
+  },
+  "ready_critical_inputs_equal": 7,
+  "puck_current": {
+    "sources": 11580,
+    "tools": 12,
+    "products": 195,
+    "errors": []
+  },
+  "scope": "Private target facts only; instrumented query/nominal-plan TU and ordinary other providers; endpoint equality, not intermediate/transitive closure. No bytecode execution."
+}
