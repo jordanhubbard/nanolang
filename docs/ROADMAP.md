@@ -13650,3 +13650,18 @@ registered its extern LexerToken. I do not call this a specialization collision.
 
 My preimplementation boundary is in
 `docs/NANOISA_LIST_FORWARD_DECLARATIONS.md`. Both first roots remain unchanged.
+
+#### My evaluator parser-shadow timing prerequisite
+
+I retain both cc606 make-build status-2 terminals under
+`task_2deaad56f65c497f80546220aa1ca9d0`: Linux 41.616 seconds and Darwin
+31.928 seconds. Each passed the prior declaration error, then reached my original
+ten-second parser-shadow deadline. Source/tool maps match; bootstrap and fixtures
+remain unrun. I have not established the cause.
+
+- [ ] I measure the unchanged full parser shadow graph in a separate diagnostic
+  build with bounded monotonic markers and exact snapshot/retirement counters.
+- [ ] I review actual costs and lifetime obligations before proposing a repair;
+  neither the deadline nor the selected shadow graph changes.
+
+My diagnostic boundary is in docs/NANOISA_EVALUATOR_SHADOW_TIMING.md.
