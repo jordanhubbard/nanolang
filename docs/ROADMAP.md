@@ -14104,3 +14104,13 @@ both-mode/two-host evidence; it does not close the mixed runtime requirements.
   becomes an additional neighbor. I retain first terminals, reuse only exact
   inventoried provider bytes and run corrected/unrun neighbors in fresh paths;
   I do not replay the passing private corpus for fixture-only corrections.
+
+I retain the first46c neighbor-launch preflights separately from product tests.
+Linux did not create a new tree: free space fell below the promised2GiB setup
+minimum, so it remains capacity-gated without deleting evidence. Puck copied
+providers but stopped before any test because `obj/build_bootstrap/schema.stamp`
+is build metadata outside the historical executable/object inventory. My next
+fresh launcher keeps exact historic hash requirements for every qualified
+provider, and separately records current-only hashes for copied `.d`/`.stamp`
+metadata. This does not fabricate historical metadata hashes or repeat passing
+private VM configurations. The source and every semantic assertion stay46c.
