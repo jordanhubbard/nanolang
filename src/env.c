@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "eval_u8.h"
 #include "builtins_registry.h"
 #include "runtime/gc.h"
 #include <string.h>
@@ -452,6 +453,7 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
 }
 
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+    value = eval_checked_scalar_destination(type, value);
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
     if (value.type == VAL_STRUCT && value.as.struct_val &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
@@ -608,6 +610,7 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
+        value = eval_checked_scalar_destination(sym->type, value);
         /* I copy before releasing the old binding, including self-assignment
          * and a record field borrowed from that binding. */
         if (value.type == VAL_STRUCT && value.as.struct_val) {

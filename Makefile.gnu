@@ -5775,3 +5775,6 @@ test-file-service-parser: bootstrap3 nano_virt
 	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/env.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/transpiler.o,$(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)))" python3 -m unittest -f -v tests.test_file_service_parser
 test-file-service-parser-sanitizers: nano_virt
 	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/env.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/transpiler.o,$(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)))" NANO_SERVICE_PARSER_SANITIZERS=1 python3 -m unittest -f -v tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal
+
+# My checked scalar evaluator destinations share this exact helper.
+$(OBJ_DIR)/env.o $(OBJ_DIR)/eval.o: $(SRC_DIR)/eval_u8.h

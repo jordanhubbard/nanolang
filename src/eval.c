@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
 
 #include "nanolang.h"
+#include "eval_u8.h"
 #include "string_literal_decode.h"
 #include "binary64_bits.h"
 #include "binary64_format.h"
@@ -4858,6 +4859,9 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
     env->symbol_count = old_symbol_count;
 
+    /* An outer handler's return has not reached its destination yet. */
+    if (!return_value.is_return)
+        return_value = eval_checked_scalar_destination(func->return_type, return_value);
     return return_value;
 }
 
@@ -6556,6 +6560,9 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     }
     env->symbol_count = original_symbol_count;
 
+    /* An outer handler's return has not reached its destination yet. */
+    if (!return_value.is_return)
+        return_value = eval_checked_scalar_destination(func->return_type, return_value);
     return return_value;
 }
 
