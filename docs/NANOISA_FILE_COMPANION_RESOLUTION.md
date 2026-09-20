@@ -316,3 +316,161 @@ allocator storage, or authorize source execution. Later introspection readers
 and namespace preparation still require the retained-byte audit before the full
 production checkpoint. The existing helper shadows now check aligned retention
 and duplicate-path reuse after an input mutation; none have executed.
+
+### My explicit visibility tuples and descriptive namespace keys
+
+My resolution owns `(importing origin, qualifier, member, original target)` rows.
+For unqualified rows the descriptive plan's module key remains the canonical
+absolute origin. For qualified rows I use `N<origin-bytes>:<origin><qualifier-bytes>:<qualifier>`
+with canonical unsigned decimal lengths and no leading zeros. The domains are
+disjoint because supported absolute origins begin with `/`, never `N`. Lengths
+count bytes, not Unicode characters. I validate the complete key against the
+old plan's4096-byte counted module limit before allocation; qualifier/member
+identifiers retain the existing128-byte bound. Both producers independently
+construct the same key and charge every copied byte and comparison. Normalized
+paired reports retain and compare the original tuple and target, not just this
+internal encoding. The encoded key alone grants no identity or authority.
+
+My actual Nano declaration nodes currently omit public modifiers, and the let
+list includes locals. I therefore propose an optional capture wrapper around
+the existing parse-program loop, retaining each real parse-definition token
+interval, public modifier and before/after node-list extents. Legacy parsing
+disables capture and keeps the current Parser/schema ABI. Opted-in graph
+preparation owns the captured records alongside the original parsed module; it
+does not infer visibility from stripped merged text or a second grammar.
+
+The actual `--allow-temporary-files` preparatory branch performs this source
+work before module builds, FFI loading or shadows. During this checkpoint it
+creates no runtime grant and publishes no service output; existing lowering and
+consumer refusal remains. A no-service graph returns to ordinary compilation,
+with ordinary shadow and output behavior preserved. Default paths do not opt in.
+
+### My inherited string-allocation failure boundary
+
+My source audit finds that both existing generated `nl_str_concat` helpers return
+an empty string on allocation failure; other Nano runtime allocations can stop
+the process. I do not describe all Nano allocation failures as process-fatal or
+claim recoverable-OOM equivalence with the C transactional APIs. Before releasing
+a bridge token I compare each copied source/document/catalog byte count with its
+immutable borrowed count. A mismatch refuses conservatively as UNRESOLVED. An
+empty successful input remains distinguishable by its reported zero count. My
+process publishes no service output at this checkpoint; later publication must
+stage and clean its own artifacts across process failure.
+
+## My complete preparatory source checkpoint
+
+I connect the actual C `compile_file` and Nano `compile_program` drivers through
+`--allow-temporary-files`. C calls `nl_file_source_resolve`; Nano selects
+`collect_files_ast`, retains `ParsedDeclarations` with each first-read source,
+then calls its independent `file_resolution_prepare`. The Nano collector follows
+only the imports produced by its actual parser. It does not reconstruct imports
+or public visibility with a second grammar. Both collectors canonicalize physical
+source paths, deduplicate completed inputs, refuse active cycles, and retain
+original bytes. My Nano legacy collector still scans lines and now retains
+first-read text; recognizing the existing C `pub use` form is an explicit paired
+language prerequisite, not a File-only interpretation. My new parser branch
+reuses `parse_import` and marks its single actual import. Bare `use` stays invalid.
+The parser capture wrapper leaves the existing Parser/generated-schema ABI intact.
+
+My no-service result is `NONE`; the actual drivers then run ordinary compilation,
+including its existing shadows and output rules. Preparatory source input limits
+still apply to an explicitly opted-in invocation: unsupported packages, malformed
+source, active cycles or exceeded configured limits fail rather than silently
+bypassing preparation. Without the option I retain the ordinary selection path.
+A service graph returns `PREPARED` or a refusal, and both CLI drivers return a
+nonzero terminal without output publication, module preparation, dynamic loading,
+FFI calls or shadow execution. `PREPARED` is descriptive success, never admission.
+The separate byte APIs and their actual per-invocation runtime grants are unchanged.
+
+I assign original IDs by canonical path byte order and actual declaration order.
+Each service introduces all13 checked catalog names; ordinary declarations share
+the collision domain before a plan can succeed. The exact returned top-level let
+node identifies a global; a let inside its initializer does not become a global.
+Shadow locals are not declarations. Public import rows propagate original target
+identities through aliases. A qualifier is now a sequence of dot-separated
+identifier components, each1..128 ASCII bytes; its complete encoded namespace
+must fit4096 bytes. Importing an exported namespace preserves all of its qualified
+descendants. Selectively renaming that namespace replaces only the first qualifier
+component, preserving its original target tuple. I sort alias rows before final
+IDs, then remap namespace-alias target IDs by their retained original origin/name.
+Service aliases always point to original catalog IDs. Sorting C rows never leaves
+duplicate owning qualifier pointers on a work-limit exit: I reserve each insertion
+pass before moving rows. No encoded key grants authority on its own.
+
+I refuse a complete namespace when metadata could contribute header/FFI-generated
+names, package extraction is needed, anonymous/hoisted declarations have unknown
+original identities, destructuring produces generated globals, or generic unions
+require generated declarations. I also refuse Nano-only permissive public
+modifiers outside my paired declaration/import forms. These are explicit
+`UNRESOLVED` boundaries, not completion of full source acceptance. The required
+metadata/packages/generated-name, complete language/shadow, nominal propagation,
+independent lowering, cyclic/indirect/richer-borrow and runtime/publication gates
+remain open under the original parents.
+
+### My concrete storage and work accounting
+
+| Allocation or retained data | Actual owner and bound |
+| --- | --- |
+| C graph and namespace tables | One zeroed `sizeof(NlFileResolution)` allocation contains5000 module slots,50000 import edges,528 visibility rows with4097-byte encoded-key arrays, sorted/postorder tables and all16x13 request/binding slots. Allocation failure preserves the output sentinel. |
+| C retained canonical paths | At most5000 separately owned `strlen(path)+1` allocations, each at most4096 bytes; completed duplicate paths reuse the first module. `realpath`/shared resolver temporary allocation is inherited libc/resolver storage, not this retained-byte report. |
+| C and Nano original input payload | At most64MiB in the sum of `(complete source bytes+1)` across unique modules. The common data-only reader checks file size before allocation, regularity, complete EOF, NUL and RFC3629 UTF-8; it closes once. Nano copies while its source token is live and verifies the exact count before destroying it. |
+| C qualifier strings | One owned `strlen(qualifier)+1` per successful visibility row, at most528x4097 bytes, freed once after any failure or successful resolution destruction. Name/target spans borrow retained AST/path/static catalog storage. |
+| Strict companion set | Its existing independent64MiB requested-heap cap counts all retained snapshots plus the full nested strict-parser/binding reservation. `peak_heap_bytes_reserved` remains a snapshot-only bound. It overlaps the retained graph and later plan; I never label that64MiB as a total compiler cap. |
+| C descriptive plan | One transactional allocation from the existing plan builder, retaining its existing16 requests/64 aliases/256 ordinary and1MiB text limits. `plan_bytes` reports its exact owning size. It coexists with graph and companion storage until resolution destruction. |
+| Nano retained graph and resolution values | Arrays retain original Parser/list handles and source strings; immutable row records retain original tuple/target strings. Snapshot copying reserves a separate64MiB logical sum of all four copied document/catalog spans before each copy. Encoded keys are checked before construction. Visibility logical text has a2300000-byte ceiling; the old plan still enforces its own unchanged1MiB budget. These are logical payload bounds, not a measured Nano allocator peak or recoverable-OOM guarantee. |
+| Data bridge | One externally serialized positive token, never reused, owns either a source copy or a strict set. Its bounded200000-byte wire contains at most16 request records. The fixed `CompanionTransport` automatic array is reported separately, alongside named catalog/parent buffers. A busy/exhausted bridge returns0 and does not replace its owner. Failed preparation still requires token destruction. |
+| Inherited parser/runtime storage | C lexer/token/AST allocations, Nano list/string/array allocator overhead and lifetimes, ordinary resolver/libc temporaries, stack frames and kernel storage are outside the snapshot and retained-graph caps. I make no total compiler heap or stack claim and no new recoverable parser OOM claim. |
+
+On a successful C result, `input_bytes` is the fixed graph size plus retained
+path/source/qualifier bytes; `source_bytes` is its raw-source subset. A conservative
+upper bound on that report is `sizeof(NlFileResolution) + 64MiB + 5000*4096 +
+528*4097`. The snapshot peak plus that retained graph and `plan_bytes` conservatively
+covers the named owning heap overlaps, excluding the inherited domains above.
+Failure reports preserve the actual first boundary and snapshot/reader report;
+I do not reinterpret every inherited parser/resolver failure as MEMORY.
+C free destroys the plan, strict set, qualifier allocations, original ASTs,
+source and paths. Getters return borrowed immutable views until destruction.
+
+The graph's own work budget is separately2^41 charged units. I bound modules,
+edges, captured declarations and visibility before table growth. C charges input
+passes, path/name comparisons and sorting before their destructive steps. Nano
+reserves repeated path-table comparisons, raw-byte bookkeeping and actual sorting
+comparisons, including the C-seed `char_at` helper's repeated length scans; row
+validation/comparisons and alias remapping consume the same finite budget. The
+bridge reports raw newline-count+1 as data, avoiding a second source-size-squared
+Nano scan merely to enforce line limits. Both adapters preserve smaller configured
+file/line limits and cap maxima at5000 files,50000 edges/lines and20000 lines per
+file. The owning strict snapshot independently retains its existing2^41 work cap.
+These are implementation-specific conservative counters, not equal CPU counts,
+wall-clock guarantees or bounds on inherited parser, system path resolution or
+ordinary compiler execution. Paired normalized reports compare original origins,
+visibility/targets, catalog/plan facts and bytes, not these differing counters.
+
+### My source review and later qualification boundary
+
+This checkpoint changes no service AST/schema layout, nominal type propagation,
+wire authority or runtime admission. The C driver links a distinct sorted
+`FILE_SOURCE_COMPILER_OBJECTS` closure; I do not add overlapping NSI objects to
+unsorted common VM/interpreter links. The Nano data module names its nine actual
+C providers and canonical header. Full fresh C-seed/Stage1/Stage2 bootstrap and
+all selected module/helper shadows remain required after the production and
+fixture reviews. Static diff checks do not stand in for those gates.
+
+My upcoming fixtures must exercise actual drivers, real publisher bytes and
+strict companion documents; ordinary no-service opt-in/default behavior;
+first-read mutation and original parser retention; symlink/CWD import selection;
+public/private/selective/wildcard/nested re-export visibility; namespace and
+catalog collisions; metadata/package/generated-namespace refusals; UTF-8/NUL and
+configured/counted limits; C allocation prefixes and every owning cleanup root;
+bridge busy/stale/destroy/copy lifetime; exact paired tuple/target/plan reports;
+no module/FFI/shadow/output attempts for preparatory service graphs; and unchanged
+public byte-consumer refusal/grant controls. I have not executed these fixtures.
+
+My final static provider audit identifies an additional prerequisite before this
+source checkpoint is a qualification candidate: repeated canonical C providers
+and shared basename object paths in the actual Nano native module collector.
+I record task_28cf8f795b2a410d8bd015d2a4545018 and the concrete
+[native provider closure correction](NANOISA_FILE_NATIVE_PROVIDER_CLOSURE.md).
+The graph/namespace/bridge source is reviewable, but I hold provider implementation
+for that plan review and all builds/fixtures for complete source review. I do not
+claim the currently repeated manifests already link successfully.

@@ -13795,3 +13795,19 @@ canonical source on both actual producer adapters; missing canonicalization
 refuses. All ordinary search branches remain unchanged. This first graph source
 delta is unexecuted; original AST inventory, complete namespace, service-origin
 association and data-only snapshot transport remain required before fixtures.
+
+- [ ] I resolve task_2c60a37ea81345ff86f6452ad1011fbc before complete File namespace preparation: my actual Nano parser consumes public modifiers without retaining them in declaration nodes, and its let list also contains locals. I retain optional original parse-definition intervals and exact declaration-list extents in the actual parser loop, without inventing a second visibility grammar or changing the existing Parser ABI. Source review precedes fixtures; all original visibility and paired import gates remain required.
+
+- [ ] I resolve task_b35285e7bca14a9abcc58bdb32a2108c before paired source graph acceptance: C retains actual `pub use` re-export imports, while my Nano parser currently rejects them after consuming `pub`. I reuse the actual import parser, retain `is_pub_use`, and extend the ordinary collector only for this explicit legacy syntax. Opted-in source graphs consume original AST import edges and retained first-read parse results. Paired syntax/visibility, nested re-export, ordinary compilation and unchanged shadow selection remain mandatory; source review precedes execution.
+
+I prepare the full source checkpoint for actual paired opt-in graph collection,
+original parser retention, complete supported namespace and data-only snapshots.
+I preserve explicit unresolved metadata/package/generated-name boundaries under
+full8bbc. My accounting distinguishes the64MiB snapshot heap cap, separately
+bounded retained source/tables, inherited parser/runtime storage and Nano logical
+copy limits. Existing concatenation helpers can return empty strings on OOM;
+I therefore verify copied byte counts and make no paired recoverable-OOM claim.
+Root reviews the complete source before fixtures; no bootstrap, File service,
+shadow or new public execution has run for this checkpoint.
+
+- [ ] I resolve task_28cf8f795b2a410d8bd015d2a4545018 before the File graph bootstrap: newly co-imported file_source_catalog/nanoisa/companion manifests repeat canonical C providers, while the actual Nano driver appends basename-only object paths without provider-context identity. I preserve this as a static closure finding, not an executed linker failure. A reviewed source/compiler/effective-flags ownership policy and same-basename collision control must precede complete qualification; I do not drop standalone providers or silently select first/last compilation.

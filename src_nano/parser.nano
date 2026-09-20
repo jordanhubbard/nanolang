@@ -7978,6 +7978,29 @@ fn parse_import(p: Parser) -> Parser {
     }
 }
 
+# I reuse my import parser and mark only the single resulting real import.
+fn parse_pub_use(p: Parser) -> Parser {
+    let parsed: Parser = (parse_import p)
+    if parsed.has_error { return parsed }
+    if (!= parsed.imports_count (+ p.imports_count 1)) { return (parser_with_error parsed true) }
+    let mut imported: ASTImport = (list_ASTImport_get parsed.imports p.imports_count)
+    set imported.is_pub_use true
+    (list_ASTImport_set parsed.imports p.imports_count imported)
+    return parsed
+}
+shadow parse_pub_use {
+    let tokens: List<LexerToken> = (tokenize_string "pub use \"dep.nano\" as dep" "export.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "export.nano")
+    assert (not parsed.has_error)
+    assert (== parsed.imports_count 1)
+    let imported: ASTImport = (list_ASTImport_get parsed.imports 0)
+    assert imported.is_pub_use
+    assert (== imported.module_path "dep.nano")
+    assert (== imported.module_name "dep")
+    let invalid: List<LexerToken> = (tokenize_string "use \"dep.nano\"" "invalid.nano" (list_CompilerDiagnostic_new))
+    assert (parse_program invalid (list_LexerToken_length invalid) "invalid.nano").has_error
+}
+
 /* Parse module import: module "path" [as alias] */
 /* Parse unsafe module import: unsafe module "path" [as alias] */
 fn parse_module_import(p: Parser, is_unsafe: bool) -> Parser {
@@ -8270,6 +8293,9 @@ fn parse_definition(p: Parser) -> Parser {
                 return (parser_with_error p_work true)
             } else {
                 set tok (parser_current p_work)
+                if (== tok.token_type LexerTokenType.TOKEN_USE) {
+                    return (parse_pub_use p_work)
+                }
             }
         } else {
             (print "")
@@ -8410,21 +8436,86 @@ shadow parse_definition {
  * Returns:
  *   Parser state containing all parsed definitions
  */
-pub fn parse_program(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
+# I retain optional top-level facts from my real parser loop, never a second grammar.
+pub struct ParsedDefinition {
+    first_token: int, after_token: int, is_public: bool,
+    before: array<int>, after: array<int>, result_kind: int, result_index: int
+}
+pub struct ParsedDeclarations { parser: Parser, definitions: array<ParsedDefinition>, truncated: bool }
+
+fn parser_declaration_extents(p: Parser) -> array<int> {
+    return [p.functions_count, p.structs_count, p.enums_count, p.unions_count,
+        p.opaque_types_count, p.lets_count, p.services_count, p.imports_count, p.shadows_count]
+}
+shadow parser_declaration_extents {
+    let p: Parser = (parser_new (list_LexerToken_new) 0 "empty.nano")
+    let extents: array<int> = (parser_declaration_extents p)
+    assert (== (array_length extents) 9)
+    assert (== (at extents 0) 0)
+    assert (== (at extents 8) 0)
+}
+
+fn parse_program_impl(tokens: List<LexerToken>, token_count: int, file_name: string, capture: bool) -> ParsedDeclarations {
     let mut p: Parser = (parser_new tokens token_count file_name)
-    
-    /* Parse all definitions until end of tokens or error */
+    let mut definitions: array<ParsedDefinition> = []
+    let mut truncated: bool = false
     while (and (not (parser_is_at_end p)) (not (parser_has_error p))) {
         let before_pos: int = p.position
+        let mut before: array<int> = []
+        let mut is_public: bool = false
+        if (and capture (not truncated)) {
+            if (>= (array_length definitions) 4096) {
+                set truncated true
+                set definitions []
+            }
+            set before (parser_declaration_extents p)
+            set is_public (== (parser_current p).token_type (token_pub))
+        }
         set p (parse_definition p)
-
-        /* Safety: ensure progress to avoid infinite loops */
         if (and (== p.position before_pos) (not (parser_has_error p))) {
             set p (parser_with_error (parser_advance p) true)
         }
+        if (and capture (and (not truncated) (not (parser_has_error p)))) {
+            set definitions (array_push definitions (ParsedDefinition {
+                first_token: before_pos, after_token: p.position, is_public: is_public,
+                before: before, after: (parser_declaration_extents p),
+                result_kind: p.last_expr_node_type, result_index: p.last_expr_node_id
+            }))
+        }
     }
-    
-    return p
+    # I publish no complete declaration inventory after a partial parse failure.
+    if (parser_has_error p) { set definitions [] }
+    return ParsedDeclarations { parser: p, definitions: definitions, truncated: truncated }
+}
+shadow parse_program_impl {
+    let empty: ParsedDeclarations = (parse_program_impl (list_LexerToken_new) 0 "empty.nano" false)
+    assert (== (array_length empty.definitions) 0)
+    assert (not (parser_has_error empty.parser))
+}
+
+pub fn parse_program_declarations(tokens: List<LexerToken>, token_count: int, file_name: string) -> ParsedDeclarations {
+    return (parse_program_impl tokens token_count file_name true)
+}
+shadow parse_program_declarations {
+    let source: string = "pub fn visible() -> int { let local: int = 2 return local }\nlet global: int = 3\n"
+    let tokens: List<LexerToken> = (tokenize_string source "capture.nano" (list_CompilerDiagnostic_new))
+    let parsed: ParsedDeclarations = (parse_program_declarations tokens (list_LexerToken_length tokens) "capture.nano")
+    assert (not (parser_has_error parsed.parser))
+    assert (== (array_length parsed.definitions) 2)
+    let first: ParsedDefinition = (at parsed.definitions 0)
+    let second: ParsedDefinition = (at parsed.definitions 1)
+    assert first.is_public
+    assert (not second.is_public)
+    assert (== (at first.before 0) 0)
+    assert (== (at first.after 0) 1)
+    assert (> (at first.after 5) (at first.before 5))
+    assert (== second.first_token first.after_token)
+    assert (== (- (at second.after 5) (at second.before 5)) 1)
+}
+
+pub fn parse_program(tokens: List<LexerToken>, token_count: int, file_name: string) -> Parser {
+    let result: ParsedDeclarations = (parse_program_impl tokens token_count file_name false)
+    return result.parser
 }
 
 shadow parse_program {

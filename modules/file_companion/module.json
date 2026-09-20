@@ -1,0 +1,7 @@
+{
+  "name": "file_companion",
+  "version": "1.0.0",
+  "description": "I retain strict compiler-input snapshots without source or execution authority",
+  "headers": ["file_companion_bridge.h"],
+  "c_sources": ["../../src/file_companion_bridge.c", "../../src/file_source_input.c", "../../src/file_companion_snapshot.c", "../../src/nsi_file_binding.c", "../../src/nsi_file_plan.c", "../../src/nsi.c", "../../src/cJSON.c", "../../src/utf8.c", "../../src/nanoisa/file_source_catalog.c"]
+}

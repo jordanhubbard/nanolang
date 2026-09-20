@@ -1,6 +1,7 @@
 #include "runtime/shadow_timeout.h"
 #include "nanovirt/shadow_runner.h"
 #include "nanolang.h"
+#include "file_source_resolution.h"
 #include "colors.h"
 #include "version.h"
 #include "module_builder.h"
@@ -80,6 +81,7 @@ extern void json_diagnostics_cleanup(void);
 typedef struct {
     bool verbose;
     bool keep_c;
+    bool allow_temporary_files; /* Descriptive preparation only until source admission. */
     bool show_intermediate_code;
     bool test_imports;
     bool save_asm;            /* -S flag: save generated C to .genC file */
@@ -567,6 +569,18 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
 static int compile_file(const char *input_file, const char *output_file, CompilerOptions *opts) {
     List_CompilerDiagnostic *diags = nl_list_CompilerDiagnostic_new();
 
+    if (opts->allow_temporary_files) {
+        NlFileResolution *prepared = NULL;
+        NlFileResolutionReport report = nl_file_source_resolve(input_file, &prepared);
+        if (report.status != NL_FILE_RESOLUTION_NONE) {
+            if (report.status == NL_FILE_RESOLUTION_PREPARED)
+                fprintf(stderr, "I prepared File source declarations; source lowering is not admitted.\n");
+            else fprintf(stderr, "I cannot prepare complete File source declarations: %d\n", (int)report.status);
+            nl_file_source_resolution_free(prepared);
+            nl_list_CompilerDiagnostic_free(diags);
+            return 1;
+        }
+    }
     /* Read source file */
     FILE *file = fopen(input_file, "rb");
     if (!file) {
@@ -1804,6 +1818,7 @@ int main(int argc, char *argv[]) {
         printf("  -o <file>      Specify output file (default: $TMPDIR/nanoc_a.out)\n");
         printf("  --verbose      Show detailed compilation steps and commands\n");
         printf("                 (also enabled by NANO_VERBOSE_BUILD=1 env var)\n");
+        printf("  --allow-temporary-files  Prepare File source facts only; source execution remains held\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
         printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
@@ -2013,6 +2028,8 @@ int main(int argc, char *argv[]) {
             i++;
         } else if (strcmp(argv[i], "--verbose") == 0) {
             opts.verbose = true;
+        } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
+            opts.allow_temporary_files = true;
         } else if (strcmp(argv[i], "--keep-c") == 0) {
             opts.keep_c = true;
         } else if (strcmp(argv[i], "-fshow-intermediate-code") == 0) {

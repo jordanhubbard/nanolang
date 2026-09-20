@@ -233,7 +233,9 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/module_build_dir.c \
 	$(RUNTIME_DIR)/cli.c $(RUNTIME_DIR)/regex.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
-COMPILER_OBJECTS = $(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS))
+FILE_SOURCE_COMPILER_SOURCES = $(SRC_DIR)/file_source_resolution.c $(SRC_DIR)/file_source_input.c $(SRC_DIR)/file_companion_snapshot.c $(SRC_DIR)/nsi_file_binding.c $(SRC_DIR)/nsi_file_plan.c $(SRC_DIR)/nsi.c $(SRC_DIR)/nanoisa/file_source_plan.c $(SRC_DIR)/nanoisa/file_source_catalog.c
+FILE_SOURCE_COMPILER_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(FILE_SOURCE_COMPILER_SOURCES))
+COMPILER_OBJECTS = $(sort $(FILE_SOURCE_COMPILER_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS))
 INTERPRETER = $(BIN_DIR)/nano
 INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nano_main.o $(OBJ_DIR)/proptest.o
 
@@ -5772,9 +5774,9 @@ test-file-service-parser-sanitizers: nano_virt
 
 # I prepare compiler companion data without adding a default execution route.
 FILE_COMPANION_DIR = $(OBJ_DIR)/file-companion-plan
-FILE_COMPANION_NAMES = file_companion_snapshot nsi_file_binding nsi_file_plan nsi cJSON utf8
+FILE_COMPANION_NAMES = file_companion_bridge file_source_input file_companion_snapshot nsi_file_binding nsi_file_plan nsi cJSON utf8
 FILE_COMPANION_OBJECTS = $(addprefix $(FILE_COMPANION_DIR)/,$(addsuffix .o,$(FILE_COMPANION_NAMES))) $(FILE_COMPANION_DIR)/file_source_catalog.o
-FILE_COMPANION_HEADERS = $(addprefix $(SRC_DIR)/,file_companion_snapshot.h nanoisa/file_source_plan.h nsi_file_binding.h nsi_file_plan.h nsi_file_catalog.h nsi_cap.h nsi_internal.h nsi.h cJSON.h utf8.h)
+FILE_COMPANION_HEADERS = $(addprefix $(SRC_DIR)/,file_companion_snapshot.h file_companion_bridge.h file_source_input.h file_source_resolution.h nanoisa/file_source_plan.h nsi_file_binding.h nsi_file_plan.h nsi_file_catalog.h nsi_cap.h nsi_internal.h nsi.h cJSON.h utf8.h)
 .PHONY: file-companion-plan
 file-companion-plan: $(FILE_COMPANION_OBJECTS)
 $(FILE_COMPANION_DIR):
@@ -5783,3 +5785,9 @@ $(FILE_COMPANION_DIR)/%.o: $(SRC_DIR)/%.c $(FILE_COMPANION_HEADERS) | $(FILE_COM
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@
 $(FILE_COMPANION_DIR)/file_source_catalog.o: $(SRC_DIR)/nanoisa/file_source_catalog.c $(FILE_COMPANION_HEADERS) | $(FILE_COMPANION_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@
+
+# My opt-in compiler preparation uses these headers before any service execution.
+$(OBJ_DIR)/main.o $(OBJ_DIR)/file_source_resolution.o: $(SRC_DIR)/file_source_resolution.h $(SRC_DIR)/file_source_input.h $(SRC_DIR)/file_companion_snapshot.h $(SRC_DIR)/nanoisa/file_source_plan.h
+$(OBJ_DIR)/file_source_input.o: $(SRC_DIR)/file_source_input.h $(SRC_DIR)/file_companion_snapshot.h $(SRC_DIR)/utf8.h
+$(OBJ_DIR)/file_companion_snapshot.o: $(FILE_COMPANION_HEADERS)
+$(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi_file_plan.o $(OBJ_DIR)/nsi.o: $(FILE_COMPANION_HEADERS)

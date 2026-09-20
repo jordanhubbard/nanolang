@@ -1,0 +1,504 @@
+# I resolve original source facts independently; my C bridge only copies input data.
+import "src_nano/parser.nano"
+import "src_nano/compiler/file_source_plan.nano"
+module "modules/file_source_catalog/file_source_catalog.nano" as ResolutionCatalog
+module "modules/file_companion/file_companion.nano" as Companion
+module "std/fs.nano" as ResolutionFs
+
+pub struct FileVisibility {
+    origin: string, qualifier: string, name: string, target_origin: string,
+    target_name: string, id: int, target: int, kind: int, ordinal: int,
+    exported: bool, service: bool
+}
+pub struct FileParsedOrigin { path: string, source: string, parsed: ParsedDeclarations }
+pub struct FileSourceSnapshot { module_path: string, original: string, canonical: string, generated: string, catalog: string }
+pub struct FileResolution {
+    status: int, origins: array<FileParsedOrigin>, rows: array<FileVisibility>,
+    plan: FileSourcePlan, snapshots: array<FileSourceSnapshot>, work: int, text_bytes: int
+}
+fn fsr_empty(status: int) -> FileResolution {
+    return FileResolution { status: status, origins: [], rows: [],
+        plan: FileSourcePlan { status: 4, rows: [], logical_bytes: 0 }, snapshots: [], work: 0, text_bytes: 0 }
+}
+shadow fsr_empty { assert (== (fsr_empty 2).status 2) }
+fn fsr_compare(a: string, b: string) -> int {
+    let na: int = (str_length a)
+    let nb: int = (str_length b)
+    let mut i: int = 0
+    while (and (< i na) (< i nb)) {
+        let av: int = (char_at a i)
+        let bv: int = (char_at b i)
+        if (< av bv) { return (- 0 1) }
+        if (> av bv) { return 1 }
+        set i (+ i 1)
+    }
+    if (< na nb) { return (- 0 1) }
+    if (> na nb) { return 1 }
+    return 0
+}
+shadow fsr_compare { assert (< (fsr_compare "/a" "/b") 0) assert (== (fsr_compare "/a" "/a") 0) }
+fn fsr_text(value: string) -> FileSourceText {
+    let size: int = (str_length value)
+    return FileSourceText { data: value, size: size }
+}
+shadow fsr_text { assert (== (fsr_text "abc").size 3) }
+fn fsr_namespace(origin: string, qualifier: string) -> string {
+    if (== qualifier "") { return origin }
+    let a: int = (str_length origin)
+    let b: int = (str_length qualifier)
+    let ad: string = (int_to_string a)
+    let bd: string = (int_to_string b)
+    let bytes: int = (+ (+ a b) (+ 3 (+ (str_length ad) (str_length bd))))
+    if (> bytes 4096) { return "" }
+    return (+ "N" (+ ad (+ ":" (+ origin (+ bd (+ ":" qualifier))))))
+}
+shadow fsr_namespace { assert (== (fsr_namespace "/a" "F") "N2:/a1:F") }
+fn fsr_identifier(value: string) -> bool {
+    let size: int = (str_length value)
+    if (or (<= size 0) (> size 128)) { return false }
+    let mut i: int = 0
+    while (< i size) {
+        let c: int = (char_at value i)
+        let letter: bool = (or (and (>= c 65) (<= c 90)) (or (and (>= c 97) (<= c 122)) (== c 95)))
+        if (not (or letter (and (> i 0) (and (>= c 48) (<= c 57))))) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow fsr_identifier { assert (fsr_identifier "File") assert (not (fsr_identifier "x.y")) }
+fn fsr_qualifier(value: string) -> bool {
+    let size: int = (str_length value)
+    if (or (<= size 0) (> size 4096)) { return false }
+    let mut start: int = 0
+    let mut i: int = 0
+    while (<= i size) {
+        if (or (== i size) (== (char_at value i) 46)) {
+            let width: int = (- i start)
+            if (or (<= width 0) (> width 128)) { return false }
+            if (not (fsr_identifier (str_substring value start width))) { return false }
+            set start (+ i 1)
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow fsr_qualifier {
+    assert (fsr_qualifier "Outer.Inner")
+    assert (not (fsr_qualifier "Outer..Inner"))
+}
+fn fsr_join_qualifier(a: string, b: string) -> string {
+    let an: int = (str_length a)
+    let bn: int = (str_length b)
+    if (> (+ (+ an bn) 1) 4096) { return "" }
+    if (== a "") { return b }
+    if (== b "") { return a }
+    return (+ a (+ "." b))
+}
+shadow fsr_join_qualifier { assert (== (fsr_join_qualifier "Outer" "Inner") "Outer.Inner") }
+fn fsr_namespace_suffix(qualifier: string, name: string) -> bool {
+    let a: int = (str_length qualifier)
+    let b: int = (str_length name)
+    if (< a b) { return false }
+    if (!= (str_substring qualifier 0 b) name) { return false }
+    if (== a b) { return true }
+    return (== (char_at qualifier b) 46)
+}
+shadow fsr_namespace_suffix {
+    assert (fsr_namespace_suffix "Outer.Inner" "Outer")
+    assert (not (fsr_namespace_suffix "OuterElse" "Outer"))
+}
+fn fsr_add(input: FileResolution, origin: string, qualifier: string, name: string,
+    exported: bool, service: bool, kind: int, ordinal: int, target: int,
+    target_origin: string, target_name: string) -> FileResolution {
+    let mut result: FileResolution = input
+    if (!= result.status 1) { return result }
+    if (or (not (fsr_identifier name))
+        (and (!= qualifier "") (not (fsr_qualifier qualifier)))) {
+        set result.status 5 return result
+    }
+    let key: string = (fsr_namespace origin qualifier)
+    let key_size: int = (str_length key)
+    if (or (== key_size 0) (or (> key_size 4096) (>= (array_length result.rows) 528))) { set result.status 3 return result }
+    let qualifier_size: int = (str_length qualifier)
+    let name_size: int = (str_length name)
+    set result.work (+ result.work (* 8 (* (+ (+ qualifier_size name_size) 1) (+ (+ qualifier_size name_size) 1))))
+    if (> result.work 2199023255552) { set result.status 3 return result }
+    let mut i: int = 0
+    while (< i (array_length result.rows)) {
+        let old: FileVisibility = (at result.rows i)
+        set result.work (+ result.work 16384)
+        if (> result.work 2199023255552) { set result.status 3 return result }
+        if (and (== old.origin origin) (and (== old.qualifier qualifier) (== old.name name))) {
+            if (and (> target 0) (and (== old.target target) (== old.exported exported))) { return result }
+            set result.status 2 return result
+        }
+        set i (+ i 1)
+    }
+    let id: int = (+ (array_length result.rows) 1)
+    let mut actual: int = target
+    let mut actual_origin: string = target_origin
+    let mut actual_name: string = target_name
+    if (== target 0) { set actual id set actual_origin origin set actual_name name }
+    if (> (+ result.text_bytes (+ key_size 258)) 2300000) { set result.status 3 return result }
+    set result.rows (array_push result.rows (FileVisibility { origin: origin, qualifier: qualifier,
+        name: name, target_origin: actual_origin, target_name: actual_name, id: id, target: actual,
+        kind: kind, ordinal: ordinal, exported: exported, service: service }))
+    set result.text_bytes (+ result.text_bytes (+ key_size 258))
+    if (> result.text_bytes 2300000) { set result.status 3 }
+    return result
+}
+shadow fsr_add {
+    let first: FileResolution = (fsr_add (fsr_empty 1) "/a" "" "value" false false 2 0 0 "" "")
+    assert (== first.status 1)
+    assert (== (array_length first.rows) 1)
+    assert (== (fsr_add first "/a" "" "value" false false 2 0 0 "" "").status 2)
+}
+fn fsr_find_path(paths: array<string>, path: string) -> int {
+    let mut found: int = (- 0 1)
+    let mut i: int = 0
+    while (< i (array_length paths)) {
+        if (== (at paths i) path) { if (>= found 0) { return (- 0 1) } set found i }
+        set i (+ i 1)
+    }
+    return found
+}
+shadow fsr_find_path { assert (== (fsr_find_path ["/a", "/b"] "/b") 1) assert (< (fsr_find_path ["/a", "/a"] "/a") 0) }
+fn fsr_wire_text(value: string) -> string {
+    let size: int = (str_length value)
+    return (+ (int_to_string size) (+ ":" value))
+}
+shadow fsr_wire_text { assert (== (fsr_wire_text "/a") "2:/a") }
+
+pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, original: array<ParsedDeclarations>, repo_root: string,
+    resolver: fn(string, string, string) -> string) -> FileResolution {
+    let mut result: FileResolution = (fsr_empty 1)
+    let count: int = (array_length paths)
+    if (or (<= count 0) (or (> count 5000) (!= count (array_length sources)))) { return (fsr_empty 2) }
+    if (!= count (array_length original)) { return (fsr_empty 2) }
+    let mut sorted: array<string> = []
+    let mut services: int = 0
+    let mut edge_count: int = 0
+    let mut i: int = 0
+    while (< i count) {
+        let path: string = (at paths i)
+        let path_size: int = (str_length path)
+        if (or (<= path_size 0) (> path_size 4095)) { return (fsr_empty 3) }
+        if (or (!= (ResolutionFs.canonical path) path) (!= (fsr_find_path paths path) i)) { return (fsr_empty 2) }
+        let source: string = (at sources i)
+        let source_size: int = (str_length source)
+        set result.text_bytes (+ result.text_bytes (+ source_size 1))
+        if (> result.text_bytes 67108864) { return (fsr_empty 3) }
+        let parsed: ParsedDeclarations = (at original i)
+        set edge_count (+ edge_count parsed.parser.imports_count)
+        if (> edge_count 50000) { return (fsr_empty 3) }
+        if (or (parser_has_error parsed.parser) (!= parsed.parser.file_name path)) { return (fsr_empty 5) }
+        set services (+ services parsed.parser.services_count)
+        set sorted (array_push sorted path)
+        let mut j: int = i
+        while (> j 0) {
+            let previous_size: int = (str_length (at sorted (- j 1)))
+            let scan_width: int = (+ (+ path_size previous_size) 1)
+            set result.work (+ result.work (* 4 (* scan_width scan_width)))
+            if (> result.work 2199023255552) { return (fsr_empty 3) }
+            if (<= (fsr_compare (at sorted (- j 1)) path) 0) { break }
+            (array_set sorted j (at sorted (- j 1)))
+            set j (- j 1)
+        }
+        (array_set sorted j path)
+        set i (+ i 1)
+    }
+    set result.work (+ result.work (+ (* result.text_bytes 8) (* (+ (* count count) (* edge_count count)) 8192)))
+    if (> result.work 2199023255552) { return (fsr_empty 3) }
+    if (== services 0) { set result.status 0 return result }
+    if (> services 16) { return (fsr_empty 3) }
+    # Source storage is distinct from the existing descriptive plan's text budget.
+    set result.text_bytes 0
+    let mut requests: array<FileSourceRequest> = []
+    let mut wire: string = (+ (int_to_string services) ";")
+    set i 0
+    while (< i count) {
+        let path: string = (at sorted i)
+        let source_index: int = (fsr_find_path paths path)
+        let parsed: ParsedDeclarations = (at original source_index)
+        let parser: Parser = parsed.parser
+        if parsed.truncated { return (fsr_empty 3) }
+        let metadata: int = (Companion.metadata path)
+        if (< metadata 0) { return (fsr_empty 6) }
+        if (> metadata 0) { return (fsr_empty 5) }
+        set result.origins (array_push result.origins (FileParsedOrigin { path: path, source: (at sources source_index), parsed: parsed }))
+        let mut d: int = 0
+        while (< d (array_length parsed.definitions)) {
+            let def: ParsedDefinition = (at parsed.definitions d)
+            let before: array<int> = def.before
+            let after: array<int> = def.after
+            if def.is_public {
+                let exported_decl: bool = (or (> (at after 0) (at before 0))
+                    (or (> (at after 1) (at before 1)) (or (> (at after 2) (at before 2)) (> (at after 3) (at before 3)))))
+                if (not exported_decl) {
+                    if (!= (- (at after 7) (at before 7)) 1) { return (fsr_empty 5) }
+                    let exported_import: ASTImport = (parser_get_import parser (at before 7))
+                    if (not exported_import.is_pub_use) { return (fsr_empty 5) }
+                }
+            }
+            if (> (at after 6) (at before 6)) {
+                if (!= (- (at after 6) (at before 6)) 1) { return (fsr_empty 5) }
+                let svc: ASTServiceDecl = (parser_get_service parser (at before 6))
+                if (or (<= svc.path_bytes 0) (or (> svc.path_bytes 4095) (!= svc.path_bytes (str_length svc.document_path)))) { return (fsr_empty 3) }
+                if (or (<= svc.interface_bytes 0) (or (> svc.interface_bytes 4095) (!= svc.interface_bytes (str_length svc.interface_id)))) { return (fsr_empty 3) }
+                (list_ASTServiceDecl_set parser.services (at before 6) (ASTServiceDecl { node_type: svc.node_type,
+                    line: svc.line, column: svc.column, interface_id: svc.interface_id, interface_bytes: svc.interface_bytes,
+                    document_path: svc.document_path, path_bytes: svc.path_bytes, catalog_version: svc.catalog_version, origin_index: i }))
+                let mut bindings: array<FileSourceBinding> = []
+                let mut b: int = 0
+                while (< b 13) {
+                    let mut kind: int = 0
+                    let mut ordinal: int = b
+                    if (>= b 8) { set kind 1 set ordinal (- b 8) }
+                    let name: string = (ResolutionCatalog.text (+ kind 1) ordinal 1 0)
+                    set result (fsr_add result path "" name true true kind ordinal 0 "" "")
+                    if (!= result.status 1) { return result }
+                    let id: int = (at result.rows (- (array_length result.rows) 1)).id
+                    set bindings (array_push bindings (FileSourceBinding { id: id, kind: kind, ordinal: ordinal, name: (fsr_text name) }))
+                    set b (+ b 1)
+                }
+                set wire (+ wire (+ (int_to_string svc.catalog_version) (+ ";" (+ (int_to_string svc.line) (+ ";" (+ (int_to_string svc.column) ";"))))))
+                set wire (+ wire (+ (fsr_wire_text path) (+ (fsr_wire_text svc.document_path) (fsr_wire_text svc.interface_id))))
+                let wire_size: int = (str_length wire)
+                if (> wire_size 200000) { return (fsr_empty 3) }
+                set requests (array_push requests (FileSourceRequest { module_id: (fsr_text path), interface_id: (fsr_text svc.interface_id),
+                    catalog_view: (fsr_text ""), catalog_version: svc.catalog_version, line: svc.line, column: svc.column, bindings: bindings }))
+            } else if (> (at after 8) (at before 8)) {
+                # A shadow's locals are not globals; unresolved hoisted functions refuse.
+                if (> (at after 0) (at before 0)) { return (fsr_empty 5) }
+            } else if (and (> (at after 5) (at before 5)) (== def.result_kind ParseNodeType.PNODE_LET)) {
+                if (> (at after 0) (at before 0)) { return (fsr_empty 5) }
+                # The real returned node identifies the global; initializer locals are not globals.
+                if (or (< def.result_index (at before 5)) (>= def.result_index (at after 5))) { return (fsr_empty 5) }
+                let decl: ASTLet = (parser_get_let parser def.result_index)
+                if (or decl.is_destructure decl.is_destructure_projection) { return (fsr_empty 5) }
+                set result (fsr_add result path "" decl.name (not decl.is_mut) false 7 0 0 "" "")
+            } else if (> (at after 0) (at before 0)) {
+                if (!= (- (at after 0) (at before 0)) 1) { return (fsr_empty 5) }
+                let decl: ASTFunction = (parser_get_function parser (at before 0))
+                set result (fsr_add result path "" decl.name def.is_public false 2 0 0 "" "")
+            } else if (> (at after 1) (at before 1)) {
+                let decl: ASTStruct = (parser_get_struct_def parser (at before 1))
+                set result (fsr_add result path "" decl.name def.is_public false 3 0 0 "" "")
+            } else if (> (at after 2) (at before 2)) {
+                let decl: ASTEnum = (parser_get_enum parser (at before 2))
+                set result (fsr_add result path "" decl.name def.is_public false 4 0 0 "" "")
+            } else if (> (at after 3) (at before 3)) {
+                let decl: ASTUnion = (parser_get_union parser (at before 3))
+                if (> decl.generic_param_count 0) { return (fsr_empty 5) }
+                set result (fsr_add result path "" decl.name def.is_public false 5 0 0 "" "")
+            } else if (> (at after 4) (at before 4)) {
+                let decl: ASTOpaqueType = (list_ASTOpaqueType_get parser.opaque_types (at before 4))
+                set result (fsr_add result path "" decl.type_name false false 6 0 0 "" "")
+            } else if (> (at after 5) (at before 5)) { return (fsr_empty 5) }
+            if (!= result.status 1) { return result }
+            set d (+ d 1)
+        }
+        set i (+ i 1)
+    }
+    let base: int = (array_length result.rows)
+    # The existing collector returns dependencies before importers. I check each
+    # actual parsed edge; a missing/cyclic edge cannot borrow line-scan authority.
+    set i 0
+    while (< i count) {
+        let owner: string = (at paths i)
+        let parser: Parser = (at original i).parser
+        let mut e: int = 0
+        while (< e (parser_get_import_count parser)) {
+            let imp: ASTImport = (parser_get_import parser e)
+            let selected: string = (resolver owner imp.module_path repo_root)
+            let target_path: string = (ResolutionFs.canonical selected)
+            let target_index: int = (fsr_find_path paths target_path)
+            if (or (< target_index 0) (>= target_index i)) { return (fsr_empty 5) }
+            let prefix: string = imp.module_name
+            if (!= prefix "") { set result (fsr_add result owner "" prefix imp.is_pub_use false 8 0 0 "" "") }
+            let available: int = (array_length result.rows)
+            if (and imp.is_selective (not imp.is_wildcard)) {
+                let mut s: int = 0
+                while (< s imp.import_symbol_count) {
+                    let name: string = (at imp.import_symbols s)
+                    let mut alias: string = name
+                    if (< s (array_length imp.import_aliases)) { if (!= (at imp.import_aliases s) "") { set alias (at imp.import_aliases s) } }
+                    let mut found: int = (- 0 1)
+                    let mut n: int = 0
+                    while (< n available) {
+                        let row: FileVisibility = (at result.rows n)
+                        set result.work (+ result.work 8192)
+                        if (and (== row.origin target_path) (and row.exported (and (== row.qualifier "") (== row.name name)))) {
+                            if (>= found 0) { return (fsr_empty 2) } set found n
+                        }
+                        set n (+ n 1)
+                    }
+                    if (< found 0) { return (fsr_empty 5) }
+                    let row: FileVisibility = (at result.rows found)
+                    set result (fsr_add result owner prefix alias imp.is_pub_use row.service row.kind row.ordinal row.target row.target_origin row.target_name)
+                    if (== row.kind 8) {
+                        set n 0
+                        while (< n available) {
+                            let child: FileVisibility = (at result.rows n)
+                            set result.work (+ result.work 16384)
+                            if (> result.work 2199023255552) { return (fsr_empty 3) }
+                            if (and (== child.origin target_path) (and child.exported (fsr_namespace_suffix child.qualifier name))) {
+                                let name_size: int = (str_length name)
+                                let qualifier_size: int = (str_length child.qualifier)
+                                let mut suffix: string = ""
+                                if (> qualifier_size name_size) { set suffix (str_substring child.qualifier (+ name_size 1) (- qualifier_size (+ name_size 1))) }
+                                let renamed: string = (fsr_join_qualifier alias suffix)
+                                let joined: string = (fsr_join_qualifier prefix renamed)
+                                if (or (== renamed "") (== joined "")) { return (fsr_empty 3) }
+                                set result (fsr_add result owner joined child.name imp.is_pub_use child.service child.kind child.ordinal child.target child.target_origin child.target_name)
+                                if (!= result.status 1) { return result }
+                            }
+                            set n (+ n 1)
+                        }
+                    }
+                    set s (+ s 1)
+                }
+            } else {
+                let mut n: int = 0
+                while (< n available) {
+                    let row: FileVisibility = (at result.rows n)
+                    set result.work (+ result.work 16384)
+                    if (> result.work 2199023255552) { return (fsr_empty 3) }
+                    if (and (== row.origin target_path) row.exported) {
+                        let joined: string = (fsr_join_qualifier prefix row.qualifier)
+                        if (and (== joined "") (or (!= prefix "") (!= row.qualifier ""))) { return (fsr_empty 3) }
+                        set result (fsr_add result owner joined row.name imp.is_pub_use row.service row.kind row.ordinal row.target row.target_origin row.target_name)
+                        if (!= result.status 1) { return result }
+                    }
+                    set n (+ n 1)
+                }
+            }
+            if (!= result.status 1) { return result }
+            if (> result.work 2199023255552) { return (fsr_empty 3) }
+            set e (+ e 1)
+        }
+        set i (+ i 1)
+    }
+    # I assign alias IDs after stable visibility sorting; targets remain original IDs.
+    set i base
+    while (< i (array_length result.rows)) {
+        let value: FileVisibility = (at result.rows i)
+        let key: string = (fsr_namespace value.origin value.qualifier)
+        let mut j: int = i
+        while (> j base) {
+            let previous: FileVisibility = (at result.rows (- j 1))
+            let previous_key: string = (fsr_namespace previous.origin previous.qualifier)
+            let width: int = (+ 259 (+ (str_length previous_key) (str_length key)))
+            set result.work (+ result.work (* 4 (* width width)))
+            if (> result.work 2199023255552) { return (fsr_empty 3) }
+            let comparison: int = (fsr_compare previous_key key)
+            if (or (< comparison 0) (and (== comparison 0) (<= (fsr_compare previous.name value.name) 0))) { break }
+            (array_set result.rows j previous)
+            set j (- j 1)
+            set result.work (+ result.work 16384)
+        }
+        (array_set result.rows j value)
+        set i (+ i 1)
+    }
+    set i base
+    while (< i (array_length result.rows)) {
+        let value: FileVisibility = (at result.rows i)
+        (array_set result.rows i (FileVisibility { origin: value.origin, qualifier: value.qualifier,
+            name: value.name, target_origin: value.target_origin, target_name: value.target_name,
+            id: (+ i 1), target: value.target, kind: value.kind, ordinal: value.ordinal,
+            exported: value.exported, service: value.service }))
+        set i (+ i 1)
+    }
+    if (> result.work 2199023255552) { return (fsr_empty 3) }
+    set i base
+    while (< i (array_length result.rows)) {
+        let mut row: FileVisibility = (at result.rows i)
+        if (== row.kind 8) {
+            let mut found: bool = false
+            let mut j: int = base
+            while (< j (array_length result.rows)) {
+                let candidate: FileVisibility = (at result.rows j)
+                set result.work (+ result.work 8192)
+                if (> result.work 2199023255552) { return (fsr_empty 3) }
+                if (and (== candidate.kind 8) (and (== candidate.qualifier "")
+                    (and (== candidate.origin row.target_origin) (== candidate.name row.target_name)))) {
+                    set row.target candidate.id set found true break
+                }
+                set j (+ j 1)
+            }
+            if (not found) { return (fsr_empty 5) }
+            (array_set result.rows i row)
+        }
+        set i (+ i 1)
+    }
+    let token: int = (Companion.open wire)
+    if (<= token 0) { return (fsr_empty 5) }
+    let snapshot_status: int = (Companion.number token (- 0 1) 0)
+    if (!= snapshot_status 0) {
+        let dropped: bool = (Companion.destroy token)
+        if (not dropped) { return (fsr_empty 5) }
+        if (== snapshot_status 2) { return (fsr_empty 3) }
+        if (== snapshot_status 3) { return (fsr_empty 4) }
+        if (== snapshot_status 5) { return (fsr_empty 6) }
+        return (fsr_empty 5)
+    }
+    let mut snapshot_bytes: int = 0
+    set i 0
+    while (< i (array_length requests)) {
+        let q: FileSourceRequest = (at requests i)
+        let mut field: int = 3
+        while (<= field 6) {
+            let width: int = (Companion.number token i field)
+            if (or (< width 0) (>= width (- 67108864 snapshot_bytes))) {
+                let dropped: bool = (Companion.destroy token)
+                return (fsr_empty 3)
+            }
+            set snapshot_bytes (+ snapshot_bytes (+ width 1))
+            set field (+ field 1)
+        }
+        let catalog_size: int = (Companion.number token i 6)
+        let catalog: string = (Companion.text token i 6)
+        let copied_size: int = (str_length catalog)
+        if (or (< catalog_size 0) (!= catalog_size copied_size)) {
+            let dropped: bool = (Companion.destroy token)
+            return (fsr_empty 5)
+        }
+        let original_document: string = (Companion.text token i 3)
+        let canonical_document: string = (Companion.text token i 4)
+        let generated_source: string = (Companion.text token i 5)
+        let original_size: int = (str_length original_document)
+        let canonical_size: int = (str_length canonical_document)
+        let generated_size: int = (str_length generated_source)
+        if (or (!= original_size (Companion.number token i 3))
+            (or (!= canonical_size (Companion.number token i 4)) (!= generated_size (Companion.number token i 5)))) {
+            let dropped: bool = (Companion.destroy token)
+            return (fsr_empty 5)
+        }
+        set result.snapshots (array_push result.snapshots (FileSourceSnapshot { module_path: q.module_id.data,
+            original: original_document, canonical: canonical_document, generated: generated_source, catalog: catalog }))
+        (array_set requests i (FileSourceRequest { module_id: q.module_id, interface_id: q.interface_id, catalog_view: (fsr_text catalog),
+            catalog_version: q.catalog_version, line: q.line, column: q.column, bindings: q.bindings }))
+        set i (+ i 1)
+    }
+    if (not (Companion.destroy token)) { return (fsr_empty 5) }
+    let mut aliases: array<FileSourceAlias> = []
+    let mut ordinary: array<FileSourceOrdinary> = []
+    set i 0
+    while (< i (array_length result.rows)) {
+        let row: FileVisibility = (at result.rows i)
+        let key: FileSourceText = (fsr_text (fsr_namespace row.origin row.qualifier))
+        if (not row.service) { set ordinary (array_push ordinary (FileSourceOrdinary { module_id: key, name: (fsr_text row.name), id: row.id })) }
+        else if (>= i base) { set aliases (array_push aliases (FileSourceAlias { module_id: key, name: (fsr_text row.name), id: row.id, target: row.target })) }
+        set i (+ i 1)
+    }
+    set result.plan (file_source_plan requests aliases ordinary)
+    if (!= result.plan.status 0) { set result.status 5 }
+    return result
+}
+fn fsr_unused_resolver(owner: string, path: string, root: string) -> string { return path }
+shadow fsr_unused_resolver { assert (== (fsr_unused_resolver "/a" "./b" "/") "./b") }
+shadow file_resolution_prepare {
+    let invalid: FileResolution = (file_resolution_prepare [] [] [] "" fsr_unused_resolver)
+    assert (== invalid.status 2)
+    assert (== (array_length invalid.rows) 0)
+}
