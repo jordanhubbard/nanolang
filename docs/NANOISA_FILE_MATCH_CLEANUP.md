@@ -111,3 +111,44 @@ symbols untouched. I null the two retired metadata pointers before lowering
 the count. My environment index uses slot indices and hashes, so it needs no
 freed name when synchronizing a shorter count. No allocator is added to the
 new cleanup path, and no native storage or ABI field changes.
+
+## I prepare the cleanup fixture without executing it
+
+My existing208 persistent/transient allocation rows, ordinary match controls,
+complete actual publisher parse/refusals and paired947-shadow corpus remain.
+I add two separately named output rows, and the Python harness requires every
+row exactly once in its fixed order.
+
+`tests/file_service_parser_eval.c` includes my actual interpreter in a fresh
+selected provider. Its direct helper controls distinguish both literal AST
+kinds from identifiers/calls/fields/conditionals/matches, check supplied payload
+and actual payload exclusion, preserve an exact escaping pointer, and preserve
+a distinct returned union. Its alias controls invoke the actual match evaluator
+16 times each over caller-owned empty, scalar-payload and nested-union roots.
+The fixture owns/frees those roots explicitly after checking pointer/content
+identity; this does not qualify general interpreter union destruction.
+
+Four real parsed/typechecked ordinary source programs exercise false-guard
+fallthrough, wildcard/discard, named-empty binding and a distinct returned
+empty union. `choose` returns the tested value; `main` remains an ordinary int
+entry. Each program executes32 times, emits native C four times, and compares
+all preexisting symbol names/nominal names and symbol counts afterward. I free
+the explicitly returned empty union as the host fixture's result. A separately
+labeled direct-AST guard-return control invokes the real evaluator over the
+parsed fresh literal while preserving its original guard table afterward.
+The exact defensive same-pointer helper path is a unit control, not a claim
+that ordinary zero-field syntax can expose that scrutinee pointer.
+
+I freshly compile actual `eval.c` through the fixture wrapper and `transpiler.c`
+with the same ordinary or ASan/UBSan flags as the parser/env/lexer/UTF8 providers.
+Their old ordinary objects are rejected from the shared object list. The actual
+iterative emission provider remains ordinary and explicitly inventoried; this
+is not full-compiler instrumentation. Generic/open-record metadata-pop sites
+retain the static lifetime audit; the new repeated native source controls
+exercise ordinary function completion directly.
+
+I require a fresh full compiler bootstrap on each host before the complete
+paired/schema corpus, seven C configurations, actual publisher/strict binding
+adjacency and parser/module/wrapper neighbors. I retain all successful5a534
+ordinary phases and both first LSan terminals separately. No new gate runs
+before review of this full fixture checkpoint.

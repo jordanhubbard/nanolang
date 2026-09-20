@@ -140,8 +140,42 @@ static void ordinary_bindings(void) {
     }
     puts("ordinary-bindings:zero:named:discard:payload-refused:unknown-refused:backends-checked");
 }
+void file_match_cleanup_units(void);
+void file_match_cleanup_guard_return(ASTNode *,Environment *);
+void file_match_cleanup_free_returned(Value);
+static void match_cleanup_sources(void) {
+    const char *bodies[]={
+        "match Choice.None {} { None(n) if false => { return 99 } None() => { return 7 } Some(_) => { return 8 } }",
+        "match Choice.None {} { _ => { return 7 } }",
+        "match Choice.None {} { None(_) => { return 7 } Some(_) => { return 8 } }",
+        "match Choice.None {} { None(n) => { return Choice.None {} } Some(_) => { return Choice.None {} } }"};
+    for(size_t c=0;c<sizeof(bodies)/sizeof(*bodies);++c){
+        char source[1024];assert(snprintf(source,sizeof(source),
+            "union Choice { None {}, Some { value: int } } fn choose() -> %s { %s } fn main() -> int { return 7 }",c==3?"Choice":"int",bodies[c])<(int)sizeof(source));
+        reset();ASTNode*p=parse(source);assert(p&&!ast_has_service_declaration(p));
+        Environment*env=create_environment();assert(env);env->suppress_shadow_warnings=true;assert(type_check(p,env));
+        int count=env->symbol_count;
+        char**names=calloc((size_t)count,sizeof(*names));char**nominals=calloc((size_t)count,sizeof(*nominals));
+        assert(names&&nominals);
+        for(int i=0;i<count;++i){names[i]=strdup(env->symbols[i].name);assert(names[i]);if(env->symbols[i].struct_type_name){nominals[i]=strdup(env->symbols[i].struct_type_name);assert(nominals[i]);}}
+        for(int repeat=0;repeat<32;++repeat){
+            Value result=call_function("choose",NULL,0,env);
+            if(c==3){assert(result.type==VAL_UNION&&!strcmp(result.as.union_val->variant_name,"None"));file_match_cleanup_free_returned(result);}
+            else assert(result.type==VAL_INT&&result.as.int_val==7);
+            assert(env->symbol_count==count);
+        }
+        for(int repeat=0;repeat<4;++repeat){char*output=transpile_to_c(p,env,"match-cleanup.nano");assert(output);free(output);assert(env->symbol_count==count);}
+        for(int i=0;i<count;++i){assert(!strcmp(names[i],env->symbols[i].name));assert((nominals[i]!=NULL)==(env->symbols[i].struct_type_name!=NULL));if(nominals[i])assert(!strcmp(nominals[i],env->symbols[i].struct_type_name));free(names[i]);free(nominals[i]);}
+        free(names);free(nominals);free_environment(env);free_ast(p);assert(!live_count);
+    }
+    /* I label the synthetic guard-control path separately from parsed source. */
+    reset();ASTNode*p=parse("union Choice { None {}, Some { value: int } } fn main() -> int { match Choice.None {} { None(n) => { return 7 } Some(_) => { return 8 } } }");
+    assert(p);Environment*env=create_environment();assert(env);env->suppress_shadow_warnings=true;assert(type_check(p,env));
+    file_match_cleanup_guard_return(ordinary_match(p),env);free_environment(env);free_ast(p);assert(!live_count);
+    puts("match-cleanup-source:repeated:guard-fallthrough:early-return:distinct-result:metadata-retained");
+}
 int main(int argc,char **argv) {
-    assert(argc==2);grammar();allocations();ordinary_bindings();reset();
+    assert(argc==2);grammar();allocations();ordinary_bindings();file_match_cleanup_units();match_cleanup_sources();reset();
     FILE*f=fopen(argv[1],"rb");assert(f);assert(!fseek(f,0,SEEK_END));long size=ftell(f);assert(size>0&&size<1048576);rewind(f);
     char*s=malloc((size_t)size+1);assert(s&&fread(s,1,(size_t)size,f)==(size_t)size);s[size]=0;assert(!fclose(f));
     ASTNode*p=parse(s);free(s);retained(p,6);Environment*env=create_environment();assert(env);
