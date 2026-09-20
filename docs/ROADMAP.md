@@ -13607,3 +13607,16 @@ retain that sole drift. Under task621 I synchronize that generated header using
 its canonical generator and correct only the external target selection before
 fresh setup. This is a setup/input prerequisite, not a demonstrated runtime
 product failure. Puck Wasmtime selection remains a separate unmet tool route.
+
+I preserve the first 5f4f Linux old-adapter neighbor terminal: the packaged
+method passes, then the native/Wasm method stops at strict Clang GCC14/13
+installation selection before its executable is produced. My seven new native
+configurations and both-host Wasm/package gates pass; all Darwin neighbors pass.
+Under task621 and root approval I select GCC13 explicitly in the external
+neighbor CC command, then run only that failed method and unrun Linux neighbors
+with unchanged source/provider identities. I do not replay the passed method.
+I resolve the earlier Darwin Wasmtime prerequisite with a private official
+v43.0.0 aarch64-macos archive, SHA256
+`abee7cf0f459f189b8a27f41bc3f645c0569198fdc52bc87fbe0a3b5bb83074f`,
+verified against its release digest before extraction. I retain its executable
+identity and change no global installation.
