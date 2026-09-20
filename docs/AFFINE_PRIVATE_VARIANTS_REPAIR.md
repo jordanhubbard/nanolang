@@ -40,3 +40,15 @@ or production. No c387 gate ran. I now qualify fresh constructor and existing
 service-admission controls with explicit ordinary/sanitizer compiler selections,
 then complete actual mixed/owner/shared-authority neighbors and the unchanged
 imported-emitter deadline. Original51d failures remain frozen.
+
+My first660 Linux preparation passed, but the constructor link failed before any
+fixture execution: the external driver supplied the larger VM/compiler closure,
+whose eval/CLI objects require g_argc/g_argv. I retain command/status/log and input
+endpoints at `/tmp/nanolang-affine-variants-660-linux`. This is a demonstrated
+external object-selection error; the reviewed Make target is already correct.
+Before continuation I make the external Make fragment print that target's exact
+NANOISA_OBJECTS minus affine_state/nvm_v2_layouts plus NANOISA_UTF8. I retain the
+larger closure for the VM fixture only. No production or fixture changes, no
+failed binary replay, and no claim that the original link passed. I verify the
+frozen660 selected provider identities before corrected commands. Darwin had no
+fixture command before this correction.
