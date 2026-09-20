@@ -1,3 +1,4 @@
+from "modules/std/env.nano" import argc, argv
 import "src_nano/parser.nano"
 import "src_nano/transpiler.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string

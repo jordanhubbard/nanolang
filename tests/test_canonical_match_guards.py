@@ -1,4 +1,5 @@
 """I retain canonical guard effects and check explicit profile refusals."""
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -85,11 +86,26 @@ class CanonicalMatchGuards(unittest.TestCase):
                        UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
         cls.cc = shlex.split(os.environ.get("NANOLANG_GUARD_SAN_CC", os.environ.get("CC", "cc")))
 
+    def retain_files(self, paths):
+        archive = self.work / "generated-artifacts"
+        archive.mkdir(exist_ok=True)
+        records = {}
+        for path in sorted(paths):
+            data = path.read_bytes()
+            digest = hashlib.sha256(data).hexdigest()
+            destination = archive / digest
+            if not destination.exists():
+                destination.write_bytes(data)
+            records[str(path)] = {"sha256": digest, "bytes": len(data), "archive": str(destination)}
+        return records
+
     def command(self, args, expected=0, timeout=180):
         type(self).serial += 1
         stem = self.work / f"command-{self.serial:04d}"
         args = list(map(str, args))
         stem.with_suffix(".json").write_text(json.dumps(args))
+        generated_before = self.retain_files((ROOT / "obj/nano_modules").glob("*.o"))
+        stem.with_suffix(".generated-before.json").write_text(json.dumps(generated_before, indent=2))
         started = time.monotonic()
         timed_out = False
         cleanup = []
@@ -122,6 +138,16 @@ class CanonicalMatchGuards(unittest.TestCase):
         result = subprocess.CompletedProcess(args, status,
             stem.with_suffix(".stdout").read_bytes().decode("utf-8", errors="replace"),
             stem.with_suffix(".stderr").read_bytes().decode("utf-8", errors="replace"))
+        generated_after = self.retain_files((ROOT / "obj/nano_modules").glob("*.o"))
+        stem.with_suffix(".generated-after.json").write_text(json.dumps(generated_after, indent=2))
+        retained_c = []
+        for line in (result.stdout + "\n" + result.stderr).splitlines():
+            prefix = "I kept generated C in "
+            if line.startswith(prefix):
+                path = Path(line[len(prefix):])
+                self.assertTrue(path.is_file(), (args, line))
+                retained_c.append(path)
+        stem.with_suffix(".generated-c.json").write_text(json.dumps(self.retain_files(retained_c), indent=2))
         self.assertFalse(timed_out, (args, terminal, result.stdout, result.stderr))
         if expected is not None:
             self.assertEqual(result.returncode, expected, f"{args}\n{result.stdout}{result.stderr}")
@@ -136,7 +162,7 @@ class CanonicalMatchGuards(unittest.TestCase):
         path = self.source(name, text)
         for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
             output = self.work / f"{name}-{compiler}"
-            self.command([BIN / compiler, path, "-o", output])
+            self.command([BIN / compiler, path, "-o", output, "--keep-c"])
             self.command([output], timeout=15)
 
     def refuse(self, name, text, pattern, compilers=("nanoc_c", "nanoc_stage1", "nanoc_stage2"), bytecode=False):
@@ -194,7 +220,7 @@ class CanonicalMatchGuards(unittest.TestCase):
     def test_unchecked_generated_terminal_backstops(self):
         source = self.source("backstop-driver", (ROOT / "tests/nanoisa/fixtures/match_guard_backstop_driver.nano.txt").read_text())
         driver = self.work / "backstop-driver"
-        self.command([BIN / "nanoc_c", source, "-o", driver], timeout=600)
+        self.command([BIN / "nanoc_c", source, "-o", driver, "--keep-c"], timeout=600)
         for mode in ("expression", "statement"):
             text = self.command([driver, mode]).stdout
             generated = self.work / f"backstop-{mode}.c"
@@ -211,7 +237,7 @@ class CanonicalMatchGuards(unittest.TestCase):
     def test_parser877_unchanged(self):
         for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
             output = self.work / f"parser877-{compiler}"
-            self.command([BIN / compiler, ROOT / "tests/parser_parenthesized.nano", "-o", output], timeout=600)
+            self.command([BIN / compiler, ROOT / "tests/parser_parenthesized.nano", "-o", output, "--keep-c"], timeout=600)
             self.command([output])
 
 
