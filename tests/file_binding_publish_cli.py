@@ -1,5 +1,6 @@
 """I exercise the actual explicit tool; forward source remains unexecuted text."""
 import json
+import errno
 import os
 from pathlib import Path
 import subprocess
@@ -70,8 +71,27 @@ for kind in ('symlink','directory','fifo','invalid','oversize'):
     r=run('input-'+kind,src,dest,1);assert not r['published'] and not dest.exists()
 existing_input_link=work/'input-existing-symlink';existing_input_link.symlink_to(source.resolve());assert existing_input_link.exists()
 r=run('input-existing-symlink',existing_input_link,work/'refused-existing-symlink',1);assert not r['published'] and not (work/'refused-existing-symlink').exists()
+quoted=work/"quoted ' $(touch injected); utf8-\u00e9"
+r=run('quoted-path',source,quoted);assert r['directory'].encode('latin1')==os.fsencode(quoted);complete(quoted);assert not (repo/'injected').exists()
 odd=work/os.fsdecode(b"quoted ' $(touch injected); \xff\xc3")
-r=run('byte-path',source,odd);assert r['directory'].encode('latin1')==os.fsencode(odd);complete(odd);assert not (repo/'injected').exists()
+parent_identity=work.stat()
+probe={'component_hex':os.fsencode(odd.name).hex(),'parent_dev':parent_identity.st_dev,'parent_ino':parent_identity.st_ino,'mkdir_errno':None,'rmdir_errno':None}
+try:
+    try:os.mkdir(odd,0o700);probe['mkdir_errno']=0
+    except OSError as failure:probe['mkdir_errno']=failure.errno
+    if probe['mkdir_errno']==0:
+        try:os.rmdir(odd);probe['rmdir_errno']=0
+        except OSError as failure:probe['rmdir_errno']=failure.errno;raise
+finally:(work/'raw-byte-filesystem-probe.json').write_text(json.dumps(probe,indent=2)+'\n')
+assert probe['mkdir_errno'] in (0,errno.EILSEQ),probe
+r=run('byte-path',source,odd,0 if probe['mkdir_errno']==0 else 1)
+assert r['directory'].encode('latin1')==os.fsencode(odd)
+if probe['mkdir_errno']==0:assert r['published'] and r['durable'];complete(odd)
+else:
+    assert r['status']==5 and r['failed_stage']==7 and r['first_errno']==errno.EILSEQ
+    assert not r['published'] and not r['durable'] and not r['cleanup_pending'] and r['cleanup_errno']==0
+    assert not os.path.lexists(odd)
+assert not (repo/'injected').exists()
 longname='x'*4096;r=run('long-input',longname,work/'long-refused',1);assert r['status']==2 and not r['published']
 r=finished('usage',*launch('usage',[exe]),2);assert not r['published']
 # All children inherit the outer retained runner group. Its timeout cleanup kills

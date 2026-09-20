@@ -57,7 +57,11 @@ The destination path is at most4095 bytes excluding its terminator; final
 component is1..255 bytes, is neither `.` nor `..`, and contains no slash.
 Trailing slash is invalid. Relative single-component destinations use parent
 `.`; `/name` uses parent `/`. I accept arbitrary non-NUL filename bytes,
-including spaces and shell metacharacters; no UTF-8 promise is needed for paths.
+including spaces and shell metacharacters; I do not reinterpret or require UTF-8
+before passing paths to the OS. The host filesystem may reject otherwise valid
+byte strings (for example EILSEQ on an invalid UTF-8 component); I report that
+checked syscall error with unchanged byte diagnostics and rollback, not universal
+filesystem name support.
 Longer paths/components return LIMIT before filesystem mutation. A filesystem
 with a smaller component limit may still return its ordinary checked IO error.
 
@@ -320,3 +324,13 @@ selected tools, fresh scoped Make/provider objects, source/tool before/after
 maps, actual binaries and first terminals. Leak detection stays enabled with no
 inherited LSAN suppression. This does not qualify installed compiler routing,
 generated shadows, service execution or broader source acceptance.
+
+I preserve the5fff puck invalid-byte filename terminal: actual rename returns
+EILSEQ and the old fixture incorrectly requires success. The corrected fixture
+keeps a quoted/metacharacter valid-UTF8 publication positive on every host. It
+probes mkdir of the exact invalid-byte component in the same parent, retaining
+device/inode, component hex and mkdir/rmdir outcomes. Only successful probe or
+exact EILSEQ are allowed. Publisher success is required for the former; the
+latter requires exact RENAME/EILSEQ, no commit, no final entry, clean rollback
+and original JSON byte identity. Other errors fail the fixture. Linux's prior
+successful raw-byte publication remains separately retained; production is unchanged.
