@@ -7,12 +7,16 @@ NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
     NvmV2Cursor c;uint32_t version,count,layouts;const uint8_t *flags;
     nvm_v2_cursor_init(&c,m->ownership_data,m->ownership_size);
     if(nvm_v2_u32(&c,&version)!=NVM_V2_OK ||
-       (version!=NVM_OWNERSHIP_VERSION && version!=NVM_OWNERSHIP_PATH_VERSION) ||
+       (version!=NVM_OWNERSHIP_VERSION && version!=NVM_OWNERSHIP_PATH_VERSION &&
+        version!=NVM_OWNERSHIP_UNION_VERSION) ||
        nvm_v2_u32(&c,&count)!=NVM_V2_OK || count>NVM_RECORD_PLAN_MAX_LAYOUTS ||
        nvm_v2_take(&c,count,&flags)!=NVM_V2_OK)return NVM_OWNER_ARRAY_INVALID;
     bool resource=false;
     for(uint32_t n=0;n<count;n++)resource|=(flags[n]&NVM_LAYOUT_RESOURCE)!=0;
     if(!resource)return NVM_OWNER_ARRAY_NOT_SELECTED;
+    /* Version 3 may describe scalar unions alongside records, but the owner
+     * ARRAY plan has not admitted that combined execution profile. */
+    if(version==NVM_OWNERSHIP_UNION_VERSION)return NVM_OWNER_ARRAY_INVALID;
     for(uint32_t n=0;n<count;n++)
         if((flags[n]&~(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE)) ||
            ((flags[n]&NVM_LAYOUT_RESOURCE) && !(flags[n]&NVM_LAYOUT_COMPLETE)))

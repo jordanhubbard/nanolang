@@ -117,7 +117,7 @@ static void check_union_transport(void) {
     word(data,32,int_variant);half(data,36,0);half(data,38,1);
     word(data,40,pair_variant);half(data,44,1);half(data,46,2);
     word(data,48,empty_variant);half(data,52,3);half(data,54,0);
-    bool needs=true;CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_OK && !needs);
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_OK && needs);
     NvmUnionVariantFact fact={99,99,99,99};
     CHECK(nvm_ownership_union_variant(module,0,0,&fact)==NVM_V2_OK &&
           fact.layout==0 && fact.name_idx==int_variant &&
@@ -145,8 +145,41 @@ static void check_union_transport(void) {
     nvm_module_free(module);
 }
 
+static void check_concrete_union_instances(void) {
+    NvmModule *module=nvm_module_new();CHECK(module!=NULL);
+    uint32_t first=nvm_add_string(module,"Choice<int,string>",18);
+    uint32_t second=nvm_add_string(module,"Choice<float,bool>",18);
+    uint32_t left=nvm_add_string(module,"IntValue",8);
+    uint32_t right=nvm_add_string(module,"FloatValue",10);
+    uint32_t value=nvm_add_string(module,"value",5);
+    CHECK(first!=UINT32_MAX && second!=UINT32_MAX && left!=UINT32_MAX &&
+          right!=UINT32_MAX && value!=UINT32_MAX);
+    NvmV2LayoutField fields[]={{TAG_INT,NVM_V2_NO_INDEX,value},
+                               {TAG_FLOAT,NVM_V2_NO_INDEX,value}};
+    NvmV2Layout items[]={{NVM_V2_LAYOUT_UNION,1,first,&fields[0]},
+                         {NVM_V2_LAYOUT_UNION,1,second,&fields[1]}};
+    NvmV2Layouts layouts={items,2};module->union_count=2;
+    CHECK(nvm_retain_layouts(module,&layouts)==NVM_V2_OK);
+    module->ownership_size=56;module->ownership_data=calloc(56,1);
+    CHECK(module->ownership_data!=NULL);uint8_t *data=module->ownership_data;
+    word(data,0,NVM_OWNERSHIP_UNION_VERSION);word(data,4,2);
+    word(data,12,0);word(data,16,0);word(data,20,2);
+    word(data,24,0);half(data,28,1);word(data,32,left);half(data,38,1);
+    word(data,40,1);half(data,44,1);word(data,48,right);half(data,54,1);
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_OK && needs);
+    NvmUnionVariantFact fact={0};
+    CHECK(nvm_ownership_union_variant(module,0,0,&fact)==NVM_V2_OK &&
+          fact.layout==0 && fact.name_idx==left && fact.field_count==1);
+    CHECK(nvm_ownership_union_variant(module,1,0,&fact)==NVM_V2_OK &&
+          fact.layout==1 && fact.name_idx==right && fact.field_count==1);
+    word(data,40,0);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_TYPE);
+    word(data,40,1);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_OK);
+    nvm_module_free(module);
+}
+
 int main(int argc, char **argv) {
     check_union_transport();
+    check_concrete_union_instances();
     AsmResult result;
     NvmModule *module = asm_assemble(
         ".types 1 0 0\n.entry 1\n.function read 1 1 0 int 1\n"

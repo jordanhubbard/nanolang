@@ -55,7 +55,7 @@ static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *fla
 }
 
 static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,
-                               const uint8_t *flags, bool parameter,
+                               const uint8_t *flags, uint32_t version, bool parameter,
                                int signature_tag, bool *needs) {
     uint8_t tag, mode;
     uint16_t reserved;
@@ -71,9 +71,13 @@ static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,
         return NVM_V2_ERR_SECTION_TYPE;
     if (layout != NVM_V2_NO_INDEX) {
         if (layout >= layouts->count) return NVM_V2_ERR_INDEX_RANGE;
-        if (tag != TAG_STRUCT || !(flags[layout] & NVM_LAYOUT_COMPLETE) ||
-            layouts->items[layout].kind != NVM_V2_LAYOUT_STRUCT)
+        bool record=tag==TAG_STRUCT && (flags[layout]&NVM_LAYOUT_COMPLETE) &&
+                    layouts->items[layout].kind==NVM_V2_LAYOUT_STRUCT;
+        bool union_value=version==NVM_OWNERSHIP_UNION_VERSION && tag==TAG_UNION &&
+                         !flags[layout] && layouts->items[layout].kind==NVM_V2_LAYOUT_UNION;
+        if (!record && !union_value)
             return NVM_V2_ERR_SECTION_TYPE;
+        if (union_value) *needs=true;
     }
     if (mode) {
         if (layout == NVM_V2_NO_INDEX || !(flags[layout] & NVM_LAYOUT_RESOURCE))
@@ -250,13 +254,13 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
         if (locals != function->local_count || params != function->arity || params > locals ||
             function->result_count > 1) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
         int return_tag = function->result_count ? function->result_tag : TAG_VOID;
-        if ((result = descriptor(&cursor, &layouts, flags, false, return_tag, &needs))
+        if ((result = descriptor(&cursor, &layouts, flags, version, false, return_tag, &needs))
             != NVM_V2_OK) goto done;
         for (uint16_t local = 0; local < locals; local++) {
             int tag = -1;
             if (local < params) tag = module->function_param_types &&
                 module->function_param_types[i] ? module->function_param_types[i][local] : TAG_VOID;
-            if ((result = descriptor(&cursor, &layouts, flags, local < params, tag, &needs))
+            if ((result = descriptor(&cursor, &layouts, flags, version, local < params, tag, &needs))
                 != NVM_V2_OK) goto done;
         }
     }
@@ -266,6 +270,7 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
     if (version==NVM_OWNERSHIP_UNION_VERSION &&
         (result=union_facts_read(&cursor,module,&layouts,NVM_V2_NO_INDEX,0,NULL))!=NVM_V2_OK)
         goto done;
+    if (version==NVM_OWNERSHIP_UNION_VERSION && module->union_count) needs=true;
     if (cursor.pos != cursor.size) { result = NVM_V2_ERR_SECTION_RANGE; goto done; }
     *requires_verifier = needs;
 done:

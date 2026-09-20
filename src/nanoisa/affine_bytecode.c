@@ -5,7 +5,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct { uint8_t tag; bool observation; uint16_t root; bool owned; uint32_t layout; } Value;
+typedef struct {
+    uint8_t tag;
+    bool observation;
+    uint16_t root;
+    bool owned;
+    uint32_t layout;
+    uint16_t variant;
+} Value;
 typedef struct {
     NvmAffineState *locals;
     Value *stack;
@@ -29,18 +36,40 @@ static Frame *frame_clone(const Frame *from) {
     }
     return out;
 }
-static bool stack_equal(const Frame *a,const Frame *b) {
-    if (a->count!=b->count) return false;
-    for (uint16_t i=0;i<a->count;i++) {
-        Value x=a->stack[i],y=b->stack[i];
+static bool stack_meet(Frame *destination,const Frame *incoming,bool *changed) {
+    if (!changed) return false;
+    *changed=false;
+    if (destination->count!=incoming->count) return false;
+    for (uint16_t i=0;i<destination->count;i++) {
+        Value x=destination->stack[i],y=incoming->stack[i];
         if (x.tag!=y.tag || x.observation!=y.observation || x.owned!=y.owned ||
             (x.owned && x.layout!=y.layout) ||
             (x.observation && x.root!=y.root)) return false;
+        if (x.tag==TAG_UNION) {
+            if (x.layout!=y.layout) return false;
+            if (x.variant!=y.variant && x.variant!=NVM_AFFINE_UNKNOWN_VARIANT) {
+                destination->stack[i].variant=NVM_AFFINE_UNKNOWN_VARIANT;*changed=true;
+            }
+            if (x.root!=y.root && x.root!=UINT16_MAX) {
+                destination->stack[i].root=UINT16_MAX;*changed=true;
+            }
+        }
     }
     return true;
 }
 static bool scalar(uint8_t tag) {
     return tag==TAG_INT || tag==TAG_U8 || tag==TAG_BOOL || tag==TAG_FLOAT;
+}
+static bool union_fact_for_layout(const NvmModule *module,uint32_t layout,
+                                  uint16_t variant,NvmUnionVariantFact *out) {
+    if (!module || !out) return false;
+    for (uint32_t ordinal=0;ordinal<module->union_count;ordinal++) {
+        NvmUnionVariantFact fact;
+        if (nvm_ownership_union_variant(module,ordinal,variant,&fact)!=NVM_V2_OK)
+            continue;
+        if (fact.layout==layout) {*out=fact;return true;}
+    }
+    return false;
 }
 static bool push(Frame *f,Value value) {
     if (f->count==NVM_AFFINE_MAX_STACK) return false;
@@ -102,7 +131,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                                    const NvmAffineState *caller,uint32_t reference,AnalysisCalls *calls);
 static bool supported(uint8_t op,bool value_graph) {
     switch(op) {
-    case OP_CALL: case OP_CALL_REF:
+    case OP_HALT: case OP_CALL: case OP_CALL_REF: case OP_MATCH_TAG:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
@@ -110,7 +139,8 @@ static bool supported(uint8_t op,bool value_graph) {
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
-    case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
+    case OP_AGG_PACK: case OP_AGG_GET: case OP_AGG_TAG: case OP_STRUCT_GET:
+    case OP_ADD: case OP_SUB: case OP_MUL:
     case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
     case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV: case OP_F64_NEG:
@@ -126,7 +156,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
     switch(op) {
-    case OP_NOP: case OP_JMP: return NULL;
+    case OP_NOP: case OP_JMP: case OP_HALT: return NULL;
     case OP_CALL: {
         uint32_t target=in->operands[0].u32;
         if (!calls->value_graph || !target || target>=module->function_count)
@@ -143,14 +173,17 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             NvmAffineType parameter=parameters[p];
             if (argument.observation || argument.tag!=parameter.tag ||
                 argument.owned!=(parameter.tag==TAG_STRUCT) ||
-                (argument.owned && argument.layout!=parameter.layout))
+                ((argument.owned || argument.tag==TAG_UNION) &&
+                 argument.layout!=parameter.layout))
                 return "I require exact positional consuming argument types";
         }
         NvmAffineAnalysis call=analyze(module,target,NULL,0,calls);
         if (!call.ok) return "I require complete consuming-helper owner resolution";
         f->count-=count;
         if (result.tag==TAG_VOID) return NULL;
-        return push(f,(Value){.tag=result.tag,.owned=result.tag==TAG_STRUCT,.layout=result.layout})
+        return push(f,(Value){.tag=result.tag,.root=UINT16_MAX,
+                              .owned=result.tag==TAG_STRUCT,.layout=result.layout,
+                              .variant=NVM_AFFINE_UNKNOWN_VARIANT})
             ? NULL:"I cannot retain a checked value-call result";
     }
     case OP_CALL_REF: {
@@ -215,7 +248,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         NvmAffineType type;
         if (!nvm_affine_take_local(f->locals,in->operands[0].u16,&type))
             return "I require a live unheld owner for an explicit move";
-        return push(f,(Value){type.tag,false,0,true,type.layout})?NULL:
+        return push(f,(Value){.tag=type.tag,.root=UINT16_MAX,.owned=true,
+                              .layout=type.layout,.variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:
             "I cannot extend my owned analysis stack";
     }
     case OP_OWN_STORE_LOCAL: {
@@ -238,7 +272,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
                 return "I require exact scalar or owned fields in declaration order";
         }
         f->count-=count;
-        return push(f,(Value){TAG_STRUCT,false,0,true,layout})?NULL:
+        return push(f,(Value){.tag=TAG_STRUCT,.root=UINT16_MAX,.owned=true,
+                              .layout=layout,.variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:
             "I cannot extend my owned analysis stack";
     }
     case OP_OWN_UNPACK_LOCAL: {
@@ -248,17 +283,53 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             !nvm_affine_record_fields(f->locals,type.layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
             f->count+count>NVM_AFFINE_MAX_STACK || !nvm_affine_take_local(f->locals,source,&type))
             return "I require an intact owner and space for all unpacked fields";
-        for (uint16_t i=0;i<count;i++) if (!push(f,(Value){fields[i].tag,false,0,
-                                                    fields[i].tag==TAG_STRUCT,fields[i].layout}))
+        for (uint16_t i=0;i<count;i++) if (!push(f,(Value){.tag=fields[i].tag,
+                                                    .root=UINT16_MAX,
+                                                    .owned=fields[i].tag==TAG_STRUCT,
+                                                    .layout=fields[i].layout,
+                                                    .variant=NVM_AFFINE_UNKNOWN_VARIANT}))
             return "I cannot extend my unpacked analysis stack";
         return NULL;
     }
-    case OP_LOAD_LOCAL:
+    case OP_AGG_PACK: {
+        if (in->operands[0].u8!=AGG_VARIANT)
+            return "I require explicit owned construction for records";
+        NvmUnionVariantFact fact;
+        uint16_t variant=in->operands[2].u16,count=in->operands[3].u16;
+        if (nvm_ownership_union_variant(module,in->operands[1].u32,variant,&fact)!=NVM_V2_OK ||
+            count!=fact.field_count || count>f->count)
+            return "I require an exact retained scalar-union constructor shape";
+        NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t available=0;
+        if (!nvm_affine_union_fields(f->locals,fact.layout,variant,fields,
+                                     NVM_AFFINE_MAX_STACK,&available) || available!=count)
+            return "I require exact scalar-union payload facts";
+        for (uint16_t i=0;i<count;i++) {
+            Value value=f->stack[f->count-count+i];
+            if (value.observation || value.owned || value.tag!=fields[i].tag)
+                return "I require exact scalar-union fields in declaration order";
+        }
+        f->count-=count;
+        return push(f,(Value){.tag=TAG_UNION,.root=UINT16_MAX,.layout=fact.layout,
+                              .variant=variant})?NULL:
+            "I cannot retain a checked scalar-union value";
+    }
+    case OP_LOAD_LOCAL: {
         local=in->operands[0].u16;
         if (!nvm_affine_local_info(f->locals,local,&tag,&mode))
             return "I require a live checked local";
-        if (!push(f,(Value){tag,tag==TAG_STRUCT,local,false,NVM_V2_NO_INDEX})) return "I cannot extend my analysis stack";
+        uint32_t layout=NVM_V2_NO_INDEX;uint16_t variant=NVM_AFFINE_UNKNOWN_VARIANT;
+        if (tag==TAG_UNION) {
+            NvmAffineType type;
+            if (!nvm_affine_local_type(f->locals,local,&type))
+                return "I require an exact scalar-union local";
+            layout=type.layout;
+            (void)nvm_affine_union_variant(f->locals,local,&variant);
+        }
+        if (!push(f,(Value){.tag=tag,.observation=tag==TAG_STRUCT,.root=local,
+                            .layout=layout,.variant=variant}))
+            return "I cannot extend my analysis stack";
         return NULL;
+    }
     case OP_STORE_LOCAL: {
         local=in->operands[0].u16;
         if (local>=locals || !f->count || (f->stack[f->count-1].observation || f->stack[f->count-1].owned))
@@ -266,13 +337,47 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         Value value=f->stack[f->count-1];
         /* Defining a scalar consults its exact declaration. The subsequent
          * lookup makes type disagreement a refusal, never a widening. */
-        if (!(scalar(value.tag) ? nvm_affine_scalar_define(f->locals,local) :
-              calls->value_graph && value.tag==TAG_STRING && nvm_affine_string_define(f->locals,local)) ||
+        bool defined=scalar(value.tag) ? nvm_affine_scalar_define(f->locals,local) :
+            calls->value_graph && value.tag==TAG_STRING ? nvm_affine_string_define(f->locals,local) :
+            calls->value_graph && value.tag==TAG_UNION ?
+                nvm_affine_union_define(f->locals,local,value.layout,value.variant) : false;
+        if (!defined ||
             !nvm_affine_local_info(f->locals,local,&tag,&mode) || tag!=value.tag)
             return "I require the exact scalar local type";
         f->count--;return NULL;
     }
-    case OP_AGG_GET: case OP_STRUCT_GET:
+    case OP_MATCH_TAG: {
+        if (!f->count || f->stack[f->count-1].tag!=TAG_UNION ||
+            f->stack[f->count-1].observation || f->stack[f->count-1].owned)
+            return "I require an exact scalar-union match source";
+        NvmUnionVariantFact fact;
+        if (!union_fact_for_layout(module,f->stack[f->count-1].layout,
+                                   in->operands[0].u16,&fact))
+            return "I require a match variant within the concrete union";
+        /* The branch handler validates the variant against the value's layout. */
+        return NULL;
+    }
+    case OP_AGG_TAG:
+        if (!f->count || f->stack[f->count-1].tag!=TAG_UNION ||
+            f->stack[f->count-1].observation || f->stack[f->count-1].owned)
+            return "I require an exact scalar-union tag source";
+        f->count--;tag=TAG_INT;break;
+    case OP_AGG_GET:
+        if (f->count && f->stack[f->count-1].tag==TAG_UNION &&
+            !f->stack[f->count-1].observation && !f->stack[f->count-1].owned) {
+            Value value=f->stack[f->count-1];
+            if (value.variant==NVM_AFFINE_UNKNOWN_VARIANT)
+                return "I require a proven scalar-union variant before projection";
+            NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count=0;
+            if (!nvm_affine_union_fields(f->locals,value.layout,value.variant,fields,
+                                         NVM_AFFINE_MAX_STACK,&count) ||
+                in->operands[0].u16>=count)
+                return "I require an exact scalar-union payload field";
+            tag=fields[in->operands[0].u16].tag;f->count--;break;
+        }
+        /* Resource-record observations retain their established path. */
+        /* fall through */
+    case OP_STRUCT_GET:
         if (!f->count || !f->stack[f->count-1].observation || f->stack[f->count-1].owned ||
             !(nvm_affine_scalar_field(f->locals,f->stack[f->count-1].root,
                                      in->operands[0].u16,&tag) ||
@@ -339,7 +444,9 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         tag=TAG_BOOL;break;
     default:return "I require a connected affine instruction contract";
     }
-    return push(f,(Value){tag,false,0,false,NVM_V2_NO_INDEX})?NULL:"I cannot extend my analysis stack";
+    return push(f,(Value){.tag=tag,.root=UINT16_MAX,.layout=NVM_V2_NO_INDEX,
+                          .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:
+        "I cannot extend my analysis stack";
 }
 typedef struct {
     uint32_t *items;
@@ -357,10 +464,12 @@ static bool propagate(Frame **frames,uint32_t target,const Frame *state,Worklist
                        const char **error) {
     bool changed=true;
     if (frames[target]) {
-        if (!stack_equal(frames[target],state) ||
-            !nvm_affine_state_meet_initialization(frames[target]->locals,state->locals,&changed)) {
+        bool stack_changed=false,locals_changed=false;
+        if (!stack_meet(frames[target],state,&stack_changed) ||
+            !nvm_affine_state_meet_initialization(frames[target]->locals,state->locals,&locals_changed)) {
             *error="I require exact ownership and stack provenance at every join";return false;
         }
+        changed=stack_changed || locals_changed;
     } else {
         frames[target]=frame_clone(state);
         if (!frames[target]) {*error="I cannot allocate an analysis branch";return false;}
@@ -369,6 +478,16 @@ static bool propagate(Frame **frames,uint32_t target,const Frame *state,Worklist
         *error="I exceeded my bounded affine worklist";return false;
     }
     return true;
+}
+static bool match_refine(Frame *frame,uint16_t variant) {
+    if (!frame || !frame->count) return false;
+    Value *value=&frame->stack[frame->count-1];
+    if (value->tag!=TAG_UNION || value->observation || value->owned ||
+        (value->variant!=NVM_AFFINE_UNKNOWN_VARIANT && value->variant!=variant))
+        return false;
+    value->variant=variant;
+    return value->root==UINT16_MAX ||
+        nvm_affine_union_refine(frame->locals,value->root,variant);
 }
 #ifdef NVM_AFFINE_TEST_VISIT_LIMIT
 extern uint32_t NVM_AFFINE_TEST_VISIT_LIMIT(uint32_t limit);
@@ -439,26 +558,51 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
         current=frame_clone(frames[index]);
         if (!current) {error="I cannot allocate an instruction state";goto done;}
         uint8_t op=instruction->instruction.opcode;
+        bool fallthrough=true;
         if (op==OP_RET) {
             uint8_t tag=TAG_VOID;
             if (current->count==1 && !current->stack[0].observation) tag=current->stack[0].tag;
             else if (current->count) {error="I refuse an observation escape or extra return operands";goto done;}
-            bool exit_ok=current->count==1 && current->stack[0].owned
+            bool exact_value=current->count==1 &&
+                (current->stack[0].owned || current->stack[0].tag==TAG_UNION);
+            bool exit_ok=exact_value
                 ? nvm_affine_can_exit_type(current->locals,(NvmAffineType){tag,current->stack[0].layout})
                 : nvm_affine_can_exit_scalar(current->locals,tag);
             if (!exit_ok) {
                 error="I require an exact declared result and no live owned obligations";goto done;
             }
+        } else if (op==OP_HALT) {
+            if (current->count) {error="I require an empty stack at my terminal invariant";goto done;}
         } else {
             error=step(current,&instruction->instruction,entry->local_count,m,function,calls);
             if (error) goto done;
+            if (op==OP_MATCH_TAG) {
+                uint32_t relative=instruction->resolved_target-entry->code_offset;
+                const VmDecodedInstruction *target=vm_decoded_function_at(&decoded,relative);
+                uint16_t wanted=instruction->instruction.operands[0].u16;
+                uint16_t known=current->stack[current->count-1].variant;
+                if (!target) {error="I require an instruction at my match target";goto done;}
+                if (known==NVM_AFFINE_UNKNOWN_VARIANT || known==wanted) {
+                    Frame *matched=frame_clone(current);
+                    if (!matched || !match_refine(matched,wanted) ||
+                        !propagate(frames,(uint32_t)(target-decoded.instructions),matched,&work,&error)) {
+                        frame_free(matched);
+                        if (!error) error="I require a checked scalar-union match edge";
+                        goto done;
+                    }
+                    frame_free(matched);
+                }
+                /* A constructed or previously refined exact variant makes one
+                 * edge unreachable.  I do not reject the dead source-order arm. */
+                if (known==wanted) fallthrough=false;
+            }
             if (op==OP_JMP || op==OP_JMP_TRUE || op==OP_JMP_FALSE) {
                 uint32_t relative=instruction->resolved_target-entry->code_offset;
                 const VmDecodedInstruction *target=vm_decoded_function_at(&decoded,relative);
                 if (!target) {error="I require an instruction at my branch target";goto done;}
                 if (!propagate(frames,(uint32_t)(target-decoded.instructions),current,&work,&error)) goto done;
             }
-            if (op!=OP_JMP) {
+            if (op!=OP_JMP && fallthrough) {
                 if (index+1==count) {error="I require an explicit return rather than fallthrough";goto done;}
                 if (!propagate(frames,index+1,current,&work,&error)) goto done;
             }
