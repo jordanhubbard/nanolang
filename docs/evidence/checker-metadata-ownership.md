@@ -31,3 +31,19 @@ output before a Make recipe can remove it. The artifact store retains826 files
 scope, not a claim that every transitive program or temporary source is archived.
 The qualified source tree and tools remain untouched; this ready tree adds only
 documentation. Parent00c47 remains open pending its original-clause audit.
+
+## My original full-fixture supplemental acceptance
+
+After recorded precode b53ce04cf, I link the complete unchanged
+`tests/test_module_metadata.c` into a fresh external binary against the exact
+already qualified f7c O0 ASan/UBSan provider set. Build and the single unsuppressed
+run both pass, including original union payload substitution, parsed nested-array
+callbacks, controlled graph/extraction and all other current C metadata tests.
+I retain the binary at /tmp/nanolang-checker-owner-full-metadata/test_module_metadata.
+My [supplemental seal](checker-metadata-full/report-sha256.json) records full
+source/provider/tool equality before and after, exact link command, environment,
+binary hash and terminal output. No old failed binary or qualified tree changed.
+
+This addresses the original scoped245-byte union and595-byte callback acceptance
+clauses after their ownership repairs. It supports parent00c47 reconciliation only
+after actual merge and independent review; it is not whole-compiler leak freedom.
