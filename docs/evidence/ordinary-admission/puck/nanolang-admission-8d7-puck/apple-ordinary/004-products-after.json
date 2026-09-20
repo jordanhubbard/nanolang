@@ -1,0 +1,50 @@
+{
+  "switch": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/products/switch",
+    "sha256": "74ca454f1af68c115b1819d0418fcb0b714ae4beba7872b1cb35bc51e2671b7c",
+    "bytes": 10826712,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/objects/74ca454f1af68c115b1819d0418fcb0b714ae4beba7872b1cb35bc51e2671b7c"
+  },
+  "switch.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/products/switch.dSYM/Contents/Info.plist",
+    "sha256": "a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e",
+    "bytes": 635,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/objects/a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e"
+  },
+  "switch.dSYM/Contents/Resources/DWARF/switch": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/products/switch.dSYM/Contents/Resources/DWARF/switch",
+    "sha256": "6a9abe53dd5d6cffb3cbd171b0e66b010266bb93a56a5f62eeb516b1ae65953b",
+    "bytes": 4044720,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/objects/6a9abe53dd5d6cffb3cbd171b0e66b010266bb93a56a5f62eeb516b1ae65953b"
+  },
+  "switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/products/switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml",
+    "sha256": "c1188f2d14ba33a28fb462dd4a432389e271055c5e73d3632f9f2b84dac417a5",
+    "bytes": 157,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/objects/c1188f2d14ba33a28fb462dd4a432389e271055c5e73d3632f9f2b84dac417a5"
+  },
+  "threaded": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/products/threaded",
+    "sha256": "c6fbc11c2bf0a344f00b1c3db734ceca8d3ffb746e3ec24c106af30f1b7512ea",
+    "bytes": 10826776,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/objects/c6fbc11c2bf0a344f00b1c3db734ceca8d3ffb746e3ec24c106af30f1b7512ea"
+  },
+  "threaded.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/products/threaded.dSYM/Contents/Info.plist",
+    "sha256": "b666278867d5aca926e877813cf17502336414b2322fbc45153b4a03b560a54a",
+    "bytes": 637,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/objects/b666278867d5aca926e877813cf17502336414b2322fbc45153b4a03b560a54a"
+  },
+  "threaded.dSYM/Contents/Resources/DWARF/threaded": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/products/threaded.dSYM/Contents/Resources/DWARF/threaded",
+    "sha256": "b80fa696e423c9e66b9fb5ca0e062404667015cd4c170c4559cded08934030f0",
+    "bytes": 4058744,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/objects/b80fa696e423c9e66b9fb5ca0e062404667015cd4c170c4559cded08934030f0"
+  },
+  "threaded.dSYM/Contents/Resources/Relocations/aarch64/threaded.yml": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/products/threaded.dSYM/Contents/Resources/Relocations/aarch64/threaded.yml",
+    "sha256": "020f0b14303000182eb49537e8348d32671899a375fad9c914b01c21ab5343ba",
+    "bytes": 159,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/objects/020f0b14303000182eb49537e8348d32671899a375fad9c914b01c21ab5343ba"
+  }
+}

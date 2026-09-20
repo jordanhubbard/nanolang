@@ -1,0 +1,169 @@
+[
+  {
+    "label": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0015701820375397801
+  },
+  {
+    "label": "head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0033724299864843488
+  },
+  {
+    "label": "ordinary-version",
+    "argv": [
+      "/bin/gcc",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.001286418060772121
+  },
+  {
+    "label": "other-version",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.015472403028979897
+  },
+  {
+    "label": "ordinary-asan",
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libasan.so"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0016042300267145038
+  },
+  {
+    "label": "ordinary-ubsan",
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libubsan.so"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0013708830811083317
+  },
+  {
+    "label": "ordinary-cc1",
+    "argv": [
+      "/bin/gcc",
+      "-print-prog-name=cc1"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0012874420499429107
+  },
+  {
+    "label": "ordinary-collect2",
+    "argv": [
+      "/bin/gcc",
+      "-print-prog-name=collect2"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0012453929521143436
+  },
+  {
+    "label": "other-asan",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.so"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.015501140034757555
+  },
+  {
+    "label": "other-asan-static",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.015499859000556171
+  },
+  {
+    "label": "other-asan-preinit",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan-preinit.a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.015549603966064751
+  },
+  {
+    "label": "other-ubsan-static",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.ubsan_standalone.a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.015709143015556037
+  },
+  {
+    "label": "prepare",
+    "argv": [
+      "/bin/make",
+      "-f",
+      "/tmp/nanolang-admission-edd-linux/prepare.mk",
+      "-j4",
+      "CC=/bin/gcc",
+      "admission-prepare"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 10.31653670500964
+  },
+  {
+    "label": "gcc-ordinary",
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_vm_ordinary_admission"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 1,
+    "seconds": 1.6182056539691985
+  }
+]

@@ -1,0 +1,6 @@
+test_real_vm_admission_lifetime (tests.test_vm_ordinary_admission.OrdinaryAdmission.test_real_vm_admission_lifetime) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 9.440s
+
+OK

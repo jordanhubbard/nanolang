@@ -1,0 +1,31 @@
+{
+  "label": "ffi_artifact_first-build",
+  "argv": [
+    "/usr/bin/clang",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi",
+    "-I/opt/homebrew/opt/openssl@3/include",
+    "-fPIC",
+    "-dynamiclib",
+    "-DARTIFACT_ANSWER=42",
+    "tests/nanovm/ffi_artifact_fixture.c",
+    "-o",
+    "/private/tmp/nanolang-admission-qualified-8d7/obj/ffi_artifact_first.so",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/opt/openssl@3/lib"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

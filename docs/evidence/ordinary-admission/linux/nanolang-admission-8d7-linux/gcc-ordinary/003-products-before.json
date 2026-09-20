@@ -1,0 +1,8 @@
+{
+  "switch": {
+    "path": "/tmp/nanolang-admission-8d7-linux/gcc-ordinary/products/switch",
+    "sha256": "ef260486bdcd183d0025c74c0c76feac008509292d099a26368fb11ca7db33bb",
+    "bytes": 18052488,
+    "archive": "/tmp/nanolang-admission-8d7-linux/gcc-ordinary/objects/ef260486bdcd183d0025c74c0c76feac008509292d099a26368fb11ca7db33bb"
+  }
+}

@@ -1,0 +1,13 @@
+[nanovm] fn=0(main) off=0 op=PUSH_BOOL stack=1 top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=2 op=ASSERT stack=2 top={tag=bool raw=1 ptr=0x1} top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=3 op=PUSH_BOOL stack=1 top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=5 op=ASSERT stack=2 top={tag=bool raw=1 ptr=0x1} top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=6 op=PUSH_I64 stack=1 top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=15 op=RET stack=2 top={tag=int raw=42 ptr=0x2a} top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=0 op=PUSH_BOOL stack=1 top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=2 op=ASSERT stack=2 top={tag=bool raw=1 ptr=0x1} top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=3 op=PUSH_BOOL stack=1 top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=5 op=ASSERT stack=2 top={tag=bool raw=1 ptr=0x1} top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=6 op=PUSH_I64 stack=1 top={tag=void raw=0 ptr=0x0}
+[nanovm] fn=0(main) off=15 op=RET stack=2 top={tag=int raw=42 ptr=0x2a} top={tag=void raw=0 ptr=0x0}
+644 ordinary admission checks passed; real VM, modeled host hooks; no timing claim

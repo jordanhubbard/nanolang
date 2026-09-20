@@ -1,0 +1,13 @@
+{
+  "label": "mixed-admission",
+  "argv": [
+    "/bin/make",
+    "CC=/bin/gcc",
+    "test-mixed-samples-admission",
+    "test-mixed-samples-runtime-alloc"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 1.5184268180746585
+}

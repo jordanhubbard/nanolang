@@ -1,0 +1,10 @@
+{
+  "label": "callback-failures-run",
+  "argv": [
+    "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/products/callback-failures"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.007634272915311158
+}

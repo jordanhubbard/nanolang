@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-admission-8d7-puck/apple-ordinary/products/threaded"
+  ],
+  "cwd": "/private/tmp/nanolang-admission-qualified-8d7",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

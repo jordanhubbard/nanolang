@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "configs": [
+    "gcc-ordinary",
+    "gcc-sanitizer",
+    "clang-sanitizer"
+  ],
+  "input_pairs_equal": true,
+  "sanitizer_scope": "fixture plus included VM, ordinary providers",
+  "host_hooks": "modeled, not actual FFI or callback ABI"
+}

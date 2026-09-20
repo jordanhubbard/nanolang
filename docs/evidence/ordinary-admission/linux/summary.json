@@ -1,0 +1,497 @@
+{
+  "roots": [
+    "/tmp/nanolang-admission-edd-linux",
+    "/tmp/nanolang-admission-8d7-linux",
+    "/tmp/nanolang-admission-8d7-linux-neighbors",
+    "/tmp/nanolang-admission-8d7-linux-neighbors-corrected",
+    "/tmp/nanolang-admission-8d7-linux-neighbors-llvm"
+  ],
+  "artifacts": 4427,
+  "artifact_bytes": 918891507,
+  "references": 186324,
+  "pairs": [
+    {
+      "before": "/tmp/nanolang-admission-edd-linux/gcc-ordinary-before.json",
+      "after": "/tmp/nanolang-admission-edd-linux/gcc-ordinary-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3765,
+      "after_count": 3765
+    },
+    {
+      "before": "/tmp/nanolang-admission-edd-linux/prepare-before.json",
+      "after": "/tmp/nanolang-admission-edd-linux/prepare-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3620,
+      "after_count": 3620
+    },
+    {
+      "before": "/tmp/nanolang-admission-edd-linux/gcc-ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-admission-edd-linux/gcc-ordinary/inputs-after.json",
+      "equal": true,
+      "before_count": 151,
+      "after_count": 151
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux/gcc-ordinary-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux/gcc-ordinary-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3765,
+      "after_count": 3765
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux/gcc-sanitizer-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux/gcc-sanitizer-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3765,
+      "after_count": 3765
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux/prepare-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux/prepare-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3620,
+      "after_count": 3620
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux/clang-sanitizer-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux/clang-sanitizer-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3765,
+      "after_count": 3765
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux/gcc-sanitizer/inputs-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux/gcc-sanitizer/inputs-after.json",
+      "equal": true,
+      "before_count": 151,
+      "after_count": 151
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux/gcc-ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux/gcc-ordinary/inputs-after.json",
+      "equal": true,
+      "before_count": 151,
+      "after_count": 151
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux/clang-sanitizer/inputs-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux/clang-sanitizer/inputs-after.json",
+      "equal": true,
+      "before_count": 151,
+      "after_count": 151
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-corrected/prepare-clis-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-corrected/prepare-clis-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3766,
+      "after_count": 3766
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-runtime-build-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-runtime-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/prepare-clis-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/prepare-clis-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3767,
+      "after_count": 3767
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/ffi_callback_fixture-build-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/ffi_callback_fixture-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/ffi_artifact_first-build-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/ffi_artifact_first-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/emitter-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/emitter-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/vm-ffi-run-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/vm-ffi-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/mixed-admission-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/mixed-admission-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/vm-ffi-build-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/vm-ffi-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-allocation-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-allocation-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/ffi_artifact_second-build-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/ffi_artifact_second-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/mixed-runtime-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/mixed-runtime-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-failures-build-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-failures-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-failures-run-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-failures-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/owner-array-public-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/owner-array-public-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    },
+    {
+      "before": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-runtime-run-before.json",
+      "after": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-runtime-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3775,
+      "after_count": 3775
+    }
+  ],
+  "terminals": [
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/other-asan-static-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015499859000556171
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/prepare-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 10.31653670500964
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/other-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015472403028979897
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/gcc-ordinary-status.json",
+      "returncode": 1,
+      "timeout": false,
+      "seconds": 1.6182056539691985
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/ordinary-ubsan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0013708830811083317
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/other-ubsan-static-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015709143015556037
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/other-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015501140034757555
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/ordinary-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.001286418060772121
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/ordinary-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0016042300267145038
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/ordinary-cc1-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0012874420499429107
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/head-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0033724299864843488
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/other-asan-preinit-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015549603966064751
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/ordinary-collect2-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0012453929521143436
+    },
+    {
+      "path": "/tmp/nanolang-admission-edd-linux/host-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0015701820375397801
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/other-asan-static-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.01573950203601271
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/prepare-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.11406836798414588
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/other-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015588507987558842
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/gcc-ordinary-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 3.7255808650515974
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/ordinary-ubsan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.001306992955505848
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/gcc-sanitizer-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 10.639591225073673
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/other-ubsan-static-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015787902055308223
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/other-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.015434184926562011
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/ordinary-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0014518110547214746
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/ordinary-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0013918259646743536
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/ordinary-cc1-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.001304832985624671
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/head-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0074844659538939595
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/clang-sanitizer-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 9.537561948993243
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/other-asan-preinit-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.01575585303362459
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/ordinary-collect2-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0012841759016737342
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux/host-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0015341800171881914
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-corrected/prepare-clis-status.json",
+      "returncode": 2,
+      "timeout": false,
+      "seconds": 2.6718340709339827
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/emitter-status.json",
+      "returncode": 1,
+      "timeout": false,
+      "seconds": 21.219094409025274
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/ffi_artifact_second-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.03175064199604094
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/mixed-runtime-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 33.05102075089235
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/ffi_artifact_first-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.06407735403627157
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-runtime-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.46463987801689655
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/prepare-clis-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.418287324020639
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/ffi_callback_fixture-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.11414195701945573
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-failures-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.16421834903303534
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/vm-ffi-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.6154067440656945
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-allocation-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.3645841629477218
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/mixed-admission-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.5184268180746585
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/vm-ffi-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.16403311502654105
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-runtime-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.21447666501626372
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/owner-array-public-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 12.048121278989129
+    },
+    {
+      "path": "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/callback-failures-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.007634272915311158
+    }
+  ],
+  "scope": "focused VM plus modeled hooks; separate unchanged actual host/ownership neighbors; emitter deadline remains failure"
+}

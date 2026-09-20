@@ -1,0 +1,14 @@
+{
+  "label": "prepare",
+  "argv": [
+    "/bin/make",
+    "-f",
+    "/tmp/nanolang-admission-edd-linux/prepare.mk",
+    "-j4",
+    "CC=/bin/gcc",
+    "admission-prepare"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

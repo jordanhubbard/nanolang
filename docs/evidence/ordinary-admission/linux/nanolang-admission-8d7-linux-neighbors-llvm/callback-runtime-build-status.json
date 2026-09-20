@@ -1,0 +1,32 @@
+{
+  "label": "callback-runtime-build",
+  "argv": [
+    "/bin/gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-UNDEBUG",
+    "-pthread",
+    "-Isrc/nanovm",
+    "-Isrc/nanoisa",
+    "tests/nanovm/test_callback_runtime.c",
+    "src/runtime/callback_runtime.c",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic",
+    "-o",
+    "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/products/callback-runtime"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.21447666501626372
+}

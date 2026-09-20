@@ -1,0 +1,19 @@
+{
+  "changed_input_classification": [
+    "/private/tmp/nanolang-admission-qualified-8d7/bin/nanoisa_hl_facts"
+  ],
+  "before": {
+    "sha256": "ce1a07fe08377ffcd97c22c44b7d544322ca4267e17f3e2e9cdac5d65422295e",
+    "bytes": 786880,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck-neighbors-llvm/objects/ce1a07fe08377ffcd97c22c44b7d544322ca4267e17f3e2e9cdac5d65422295e"
+  },
+  "after": {
+    "sha256": "f32b4fd74bb53debb22a33e54e0e710fbb41dcfc3ac2616218f18f4d12219c69",
+    "bytes": 786880,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck-neighbors-llvm/objects/f32b4fd74bb53debb22a33e54e0e710fbb41dcfc3ac2616218f18f4d12219c69"
+  },
+  "input_rows_rehashed": 3762,
+  "product_rows_rehashed": 345,
+  "setup_rerun": false,
+  "original_guard_failure_preserved": true
+}

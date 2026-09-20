@@ -1,0 +1,11 @@
+{
+  "label": "other-version",
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "--version"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

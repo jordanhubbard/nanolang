@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/products/threaded"
+  ],
+  "cwd": "/private/tmp/nanolang-admission-qualified-8d7",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

@@ -1,0 +1,11 @@
+{
+  "label": "ordinary-asan",
+  "argv": [
+    "/bin/gcc",
+    "-print-file-name=libasan.so"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.0016042300267145038
+}

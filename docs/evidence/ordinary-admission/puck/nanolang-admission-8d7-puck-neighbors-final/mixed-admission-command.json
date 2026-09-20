@@ -1,0 +1,12 @@
+{
+  "label": "mixed-admission",
+  "argv": [
+    "/usr/bin/make",
+    "CC=/usr/bin/clang",
+    "test-mixed-samples-admission",
+    "test-mixed-samples-runtime-alloc"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

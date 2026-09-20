@@ -1,0 +1,50 @@
+{
+  "switch": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/products/switch",
+    "sha256": "57d8772a949f3547cc5f458215dfe51ff6c0a4b5257f14814d9b15fcfc7d6f10",
+    "bytes": 11266200,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/objects/57d8772a949f3547cc5f458215dfe51ff6c0a4b5257f14814d9b15fcfc7d6f10"
+  },
+  "switch.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/products/switch.dSYM/Contents/Info.plist",
+    "sha256": "a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e",
+    "bytes": 635,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/objects/a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e"
+  },
+  "switch.dSYM/Contents/Resources/DWARF/switch": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/products/switch.dSYM/Contents/Resources/DWARF/switch",
+    "sha256": "0cb361a50bb5ff536bb80f8c89d0d1a6e6f1d44e6b51048d787aeffcf544cf67",
+    "bytes": 4397843,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/objects/0cb361a50bb5ff536bb80f8c89d0d1a6e6f1d44e6b51048d787aeffcf544cf67"
+  },
+  "switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/products/switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml",
+    "sha256": "e4a08ef9adc4c573ba454890b91e0d7136505818c325e3ba1ba66476aded5840",
+    "bytes": 161,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/objects/e4a08ef9adc4c573ba454890b91e0d7136505818c325e3ba1ba66476aded5840"
+  },
+  "threaded": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/products/threaded",
+    "sha256": "b0f8fd9e97dfd3a4bed52133362c0a0ef0c2547b715641a00d1f7258dd02b2c0",
+    "bytes": 11266440,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/objects/b0f8fd9e97dfd3a4bed52133362c0a0ef0c2547b715641a00d1f7258dd02b2c0"
+  },
+  "threaded.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/products/threaded.dSYM/Contents/Info.plist",
+    "sha256": "b666278867d5aca926e877813cf17502336414b2322fbc45153b4a03b560a54a",
+    "bytes": 637,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/objects/b666278867d5aca926e877813cf17502336414b2322fbc45153b4a03b560a54a"
+  },
+  "threaded.dSYM/Contents/Resources/DWARF/threaded": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/products/threaded.dSYM/Contents/Resources/DWARF/threaded",
+    "sha256": "0d4d85c7b301631ab37aa292e36dcb286fa8e96409c12a727998f863897f3353",
+    "bytes": 4413218,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/objects/0d4d85c7b301631ab37aa292e36dcb286fa8e96409c12a727998f863897f3353"
+  },
+  "threaded.dSYM/Contents/Resources/Relocations/aarch64/threaded.yml": {
+    "path": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/products/threaded.dSYM/Contents/Resources/Relocations/aarch64/threaded.yml",
+    "sha256": "38cba611defb4d41a1f432f5bc8a419c1922518beaa9cc191ab7d461940037f6",
+    "bytes": 163,
+    "archive": "/private/tmp/nanolang-admission-8d7-puck/homebrew-sanitizer/objects/38cba611defb4d41a1f432f5bc8a419c1922518beaa9cc191ab7d461940037f6"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "label": "callback-allocation",
+  "argv": [
+    "/usr/bin/make",
+    "CC=/usr/bin/clang",
+    "test-vm-callback-allocation"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.7238399169873446
+}

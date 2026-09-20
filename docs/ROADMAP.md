@@ -12910,3 +12910,7 @@ I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5
 I retain the ordinary-admission neighbor preflight path-resolution failure under task_4931a66f39c04b1a96981a4e00d43646. The reviewed external driver correction changes only provider path resolution and existence checks; all focused qualification remains attributed to8d731, and the fresh neighbor phases remain required.
 
 I also retain both ordinary-admission neighbor build-only LLVM selection terminals under task_4931a66f39c04b1a96981a4e00d43646. The reviewed external selectors pin actual clang/opt and Linux native-only GCC13 selection; production, fixtures and strict warnings remain unchanged. Unreached neighbor/emitter qualification remains required.
+
+### My bounded ordinary admission evidence, with emitter still open
+
+I qualified8d731's focused five-configuration/two-dispatch matrix and actual callback/FFI, mixed and owner ARRAY neighbors on Linux/puck. I retain both unchanged full imported emitter ten-second failures. `docs/evidence/ordinary-admission.md` and its sealed reports distinguish modeled hooks, actual ABI neighbors, instrumentation scope and all preparation terminals. Task_4931a66f39c04b1a96981a4e00d43646 remains open; the next prerequisite is a separately reviewed timing diagnostic on corrected production, then any further authority-preserving design. I do not close the timeout or claim full5.1 acceptance.

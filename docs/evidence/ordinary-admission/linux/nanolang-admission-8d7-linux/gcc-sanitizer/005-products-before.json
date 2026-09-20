@@ -1,0 +1,14 @@
+{
+  "switch": {
+    "path": "/tmp/nanolang-admission-8d7-linux/gcc-sanitizer/products/switch",
+    "sha256": "9676f9db7f134e92d98fa3784378504add2cbda3bd38f6f4be8453b689d615c7",
+    "bytes": 19950240,
+    "archive": "/tmp/nanolang-admission-8d7-linux/gcc-sanitizer/objects/9676f9db7f134e92d98fa3784378504add2cbda3bd38f6f4be8453b689d615c7"
+  },
+  "threaded": {
+    "path": "/tmp/nanolang-admission-8d7-linux/gcc-sanitizer/products/threaded",
+    "sha256": "ac992873f0033b00b49430b97ccafc401fb5e95e6a769df250afe14c1c45929f",
+    "bytes": 20050112,
+    "archive": "/tmp/nanolang-admission-8d7-linux/gcc-sanitizer/objects/ac992873f0033b00b49430b97ccafc401fb5e95e6a769df250afe14c1c45929f"
+  }
+}

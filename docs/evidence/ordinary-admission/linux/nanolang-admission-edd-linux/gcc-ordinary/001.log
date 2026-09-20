@@ -1,0 +1,8 @@
+tests/nanovm/test_ordinary_admission.c: In function ‘main’:
+tests/nanovm/test_ordinary_admission.c:216:9: error: this ‘for’ clause does not guard... [-Werror=misleading-indentation]
+  216 |         for(unsigned width=0;width<4;width++)private_transitions(profile,width);public_and_direct(profile);exclusions(profile);host_paths(profile);fused_managed_effects(profile);
+      |         ^~~
+tests/nanovm/test_ordinary_admission.c:216:81: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+  216 |         for(unsigned width=0;width<4;width++)private_transitions(profile,width);public_and_direct(profile);exclusions(profile);host_paths(profile);fused_managed_effects(profile);
+      |                                                                                 ^~~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors

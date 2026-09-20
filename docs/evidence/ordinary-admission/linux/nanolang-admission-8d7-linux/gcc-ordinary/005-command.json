@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/tmp/nanolang-admission-8d7-linux/gcc-ordinary/products/threaded"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-admission-qualified-8d7",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

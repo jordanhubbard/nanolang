@@ -1,0 +1,8 @@
+{
+  "switch": {
+    "path": "/tmp/nanolang-admission-8d7-linux/clang-sanitizer/products/switch",
+    "sha256": "c9b7315656ba4f739e67434cbf994db05f65b94fa55c0adb72949ce0a15d829e",
+    "bytes": 30538480,
+    "archive": "/tmp/nanolang-admission-8d7-linux/clang-sanitizer/objects/c9b7315656ba4f739e67434cbf994db05f65b94fa55c0adb72949ce0a15d829e"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "label": "vm-ffi-run",
+  "argv": [
+    "/private/tmp/nanolang-admission-8d7-puck-neighbors-final/products/vm-ffi"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

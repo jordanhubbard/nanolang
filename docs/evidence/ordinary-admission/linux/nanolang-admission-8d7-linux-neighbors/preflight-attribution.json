@@ -1,0 +1,9 @@
+{
+  "status": 1,
+  "stage": "initial input snapshot before any neighbor command",
+  "exception": "FileNotFoundError /home/jkh/Src/nanolang/obj/nanoisa/affine_bytecode.o",
+  "cause": "relative providers resolved against process cwd instead of frozen qualification root",
+  "driver_sha256": "33acd7da0cafc6b2b63649d3342eca93d7ceee80b960cf4bdae7d71be91ad949",
+  "record_type": "post-terminal attribution; original driver exited without terminal JSON",
+  "corrected_driver_sha256": "cbb6c9218e30254a1d3fbcf840616896d2773ee6f8a1ce2ac37ca41fd5211f05"
+}

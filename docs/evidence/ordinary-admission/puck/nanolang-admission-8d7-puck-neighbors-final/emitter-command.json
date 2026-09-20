@@ -1,0 +1,14 @@
+{
+  "label": "emitter",
+  "argv": [
+    "/private/tmp/nanolang-admission-qualified-8d7/bin/nano_virt",
+    "src_nano/nanoisa_emit.nano",
+    "--emit-nvm",
+    "--strip-debug",
+    "-o",
+    "/private/tmp/nanolang-admission-8d7-puck-neighbors-final/products/emitter.nvm"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

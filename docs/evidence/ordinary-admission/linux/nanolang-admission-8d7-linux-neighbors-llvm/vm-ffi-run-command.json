@@ -1,0 +1,9 @@
+{
+  "label": "vm-ffi-run",
+  "argv": [
+    "/tmp/nanolang-admission-8d7-linux-neighbors-llvm/products/vm-ffi"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

@@ -1,0 +1,14 @@
+{
+  "label": "prepare",
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "/private/tmp/nanolang-admission-8d7-puck/prepare.mk",
+    "-j4",
+    "CC=/usr/bin/clang",
+    "admission-prepare"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}
