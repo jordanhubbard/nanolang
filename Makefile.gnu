@@ -1024,6 +1024,11 @@ test-diagnostics: stage1
 	@./tests/test_diagnostics
 	@rm -f tests/test_diagnostics
 
+.PHONY: test-checker-metadata-ownership
+test-checker-metadata-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_checker_metadata_ownership tests/test_checker_metadata_ownership.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_checker_metadata_ownership
+
 .PHONY: test-module-metadata
 test-module-metadata: stage1 nano_virt nano_vm $(OBJ_DIR)/test_module_generation_probe test-generated-list-metadata
 	@echo "Running module metadata unit tests..."

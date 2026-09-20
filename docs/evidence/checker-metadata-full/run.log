@@ -1,0 +1,47 @@
+Warning: Function 'transform' is missing a shadow test
+Warning: Function 'invoke' is missing a shadow test
+Warning: Function 'factory' is missing a shadow test
+Error: /tmp/nano_mod_utf8_2974674/module.json is not valid UTF-8
+Error: Invalid JSON in /tmp/nanolang-callback-metadata-apBL4r/module.json
+Error: Invalid JSON in /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require complete, NUL-free module metadata: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require complete, NUL-free module metadata: /tmp/nanolang-callback-metadata-apBL4r/module.json
+I require complete, NUL-free module metadata: /tmp/nanolang-callback-metadata-apBL4r/module.json
+=== Module Metadata Tests ===
+  Testing union_payload_lifetime... ✓
+  Testing recursive_signature_roundtrip... ✓
+  Testing function_metadata_lifetime... ✓
+  Testing extracted_signature_ownership... ✓
+  Testing malformed_signature_metadata... ✓
+  Testing serialize_null_returns_null... ✓
+  Testing serialize_empty_module... ✓
+  Testing serialize_single_void_function... ✓
+  Testing serialize_function_is_extern... ✓
+  Testing serialize_function_with_params... ✓
+  Testing serialize_function_with_struct_return... ✓
+  Testing serialize_memory_annotations... ✓
+  Testing serialize_int_constant... ✓
+  Testing serialize_float_constant... ✓
+  Testing serialize_long_identifiers... ✓
+  Testing serialize_multiple_functions... ✓
+  Testing serialize_param_with_struct_type... ✓
+  Testing embed_null_inputs_return_false... ✓
+  Testing embed_buffer_too_small... ✓
+  Testing embed_metadata_at_end... ✓
+  Testing embed_metadata_before_main... ✓
+  Testing deserialize_stub_returns_false... ✓
+  Testing module_json_requires_utf8... ✓
+  Testing callback_adapters... ✓
+
+✓ All module metadata tests passed!
