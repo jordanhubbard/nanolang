@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/tmp/nanolang-token-7bf-linux/gcc-ordinary/nano-token-bytes-gnqab9xt/counts-c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-token-corrected-7bf",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

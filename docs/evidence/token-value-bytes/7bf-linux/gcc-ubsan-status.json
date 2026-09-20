@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-print-file-name=libubsan.so"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.001784721971489489
+}

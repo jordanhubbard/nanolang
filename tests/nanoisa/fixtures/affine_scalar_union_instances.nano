@@ -1,0 +1,39 @@
+resource struct Owner { value: int }
+
+union Choice<T,U> {
+    Left { value: T },
+    Right { value: U },
+    Empty {}
+}
+
+fn consume(owner: Owner) -> int {
+    let Owner { value } = owner
+    return value
+}
+
+shadow consume { assert true }
+
+fn relay_int(value: Choice<int,string>) -> Choice<int,string> {
+    return value
+}
+
+shadow relay_int { assert true }
+
+fn relay_float(value: Choice<float,bool>) -> Choice<float,bool> {
+    return value
+}
+
+shadow relay_float { assert true }
+
+fn main() -> int {
+    let owner: Owner = Owner { value: 9 }
+    let consumed: int = (consume owner)
+    let first: Choice<int,string> = Choice.Left { value: 7 }
+    let first_result: Choice<int,string> = (relay_int first)
+    let second: Choice<float,bool> = Choice.Right { value: true }
+    let second_result: Choice<float,bool> = (relay_float second)
+    assert (== consumed 9)
+    return 0
+}
+
+shadow main { assert true }

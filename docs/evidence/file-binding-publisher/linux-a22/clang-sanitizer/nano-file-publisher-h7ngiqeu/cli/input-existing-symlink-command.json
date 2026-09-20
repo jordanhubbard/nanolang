@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/cli/input-existing-symlink",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/cli/refused-existing-symlink"
+  ]
+}

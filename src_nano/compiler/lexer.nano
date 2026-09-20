@@ -7,6 +7,7 @@
  */
 
 import "src_nano/compiler/ir.nano"
+import "src_nano/compiler/token_value_bytes.nano"
 from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors, diag_list_new
 from "std/fs.nano" import read
 
@@ -257,7 +258,11 @@ shadow keyword_or_identifier {
 }
 
 fn push_tok(tokens: List<LexerToken>, token_type: int, value: string, line: int, column: int) -> void {
-    let tok: LexerToken = LexerToken { token_type: token_type, value: value, line: line, column: column }
+    let mut value_bytes: int = (str_length value)
+    if (== token_type LexerTokenType.TOKEN_STRING) {
+        set value_bytes (token_literal_value_bytes value)
+    }
+    let tok: LexerToken = LexerToken { token_type: token_type, value: value, line: line, column: column, value_bytes: value_bytes }
     (list_LexerToken_push tokens tok)
 }
 
@@ -269,6 +274,7 @@ shadow push_tok {
     assert (== tok.token_type 24)
     assert (== tok.line 1)
     assert (== tok.column 1)
+    assert (== tok.value_bytes 2)
 }
 
 fn process_string(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
@@ -376,7 +382,9 @@ fn process_grammar_body(source: string, i: int, len: int, tokens: List<LexerToke
     /* Extract body (excludes the closing '}') */
     let body_len: int = (- pos body_start)
     let body: string = (str_substring source body_start body_len)
-    (push_tok tokens LexerTokenType.TOKEN_STRING body line column)
+    # I retain raw grammar body bytes, not string-literal escape counts.
+    let body_token: LexerToken = LexerToken { token_type: LexerTokenType.TOKEN_STRING, value: body, line: line, column: column, value_bytes: body_len }
+    (list_LexerToken_push tokens body_token)
     return (+ pos 1)  /* advance past '}' */
 }
 

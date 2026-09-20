@@ -1,0 +1,27 @@
+# I count decoded bytes without constructing a decoded string or losing a NUL suffix.
+pub fn token_literal_value_bytes(raw: string) -> int {
+    let mut count: int = 0
+    let mut i: int = 0
+    let length: int = (str_length raw)
+    while (< i length) {
+        if (and (== (char_at raw i) 92) (< (+ i 1) length)) {
+            set i (+ i 1)
+            let code: int = (char_at raw i)
+            let known: bool = (or (or (or (== code 110) (== code 116)) (or (== code 114) (== code 48))) (or (or (== code 92) (== code 39)) (== code 34)))
+            if (not known) { set count (+ count 1) }
+        }
+        set count (+ count 1)
+        set i (+ i 1)
+    }
+    return count
+}
+
+shadow token_literal_value_bytes {
+    assert (== (token_literal_value_bytes "") 0)
+    assert (== (token_literal_value_bytes "a\\0suffix") 8)
+    assert (== (token_literal_value_bytes "\\n\\t\\r\\0\\\\\\'\\\"") 7)
+    assert (== (token_literal_value_bytes "\\u0000\\x41\\q") 12)
+    assert (== (token_literal_value_bytes "é") 2)
+    assert (== (token_literal_value_bytes "x\\") 2)
+    assert (== (token_literal_value_bytes "\\\\0") 2)
+}

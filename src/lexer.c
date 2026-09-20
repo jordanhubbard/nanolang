@@ -1,6 +1,7 @@
 #include "nanolang.h"
 #include "utf8.h"
 #include "diag_id.h"
+#include "string_literal_decode.h"
 #include <limits.h>
 
 /* Forward declaration for mutual recursion with lex_fstring */
@@ -19,6 +20,8 @@ static Token create_token(TokenType type, const char *value, int line, int colum
     token.value = value ? strdup(value) : NULL;
     token.line = line;
     token.column = column;
+    token.value_bytes = value ? (int64_t)(type == TOKEN_STRING ?
+        nl_string_literal_value_bytes(value) : strlen(value)) : 0;
     return token;
 }
 

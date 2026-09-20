@@ -4479,7 +4479,9 @@ test-affine-generic-identity: bootstrap
 test-units: test-passive-metadata
 test-passive-metadata: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c nanoisa_dump
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_passive tests/nanoisa/test_passive.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
-	@python3 -m unittest tests.test_passive_metadata tests.test_passive_inputs tests.test_passive_directives tests.test_passive_calls
+	$(CC) $(CFLAGS) -DPASSIVE_CFG_ALLOCATION_TEST -I$(NANOISA_DIR) -o obj/test_passive_cfg_alloc tests/nanoisa/test_passive.c $(filter-out $(OBJ_DIR)/nanoisa/passive.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@obj/test_passive_cfg_alloc
+	@python3 -m unittest tests.test_passive_metadata tests.test_passive_inputs tests.test_passive_directives tests.test_passive_calls tests.test_passive_internal_cfg
 
 .PHONY: test-global-initializer-context
 test-units: test-global-initializer-context
@@ -4758,7 +4760,7 @@ test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2was
 .PHONY: test-ordinary-record-authority
 test-units: test-ordinary-record-authority
 test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm nvm2c
-	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
+	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
 
 .PHONY: test-ownership-contracts
 test-units: test-ownership-contracts
@@ -4802,6 +4804,16 @@ test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -DNVM_AFFINE_TEST_VISIT_LIMIT=affine_bytecode_test_visit_limit -c src/nanoisa/affine_bytecode.c -o obj/test_affine_bytecode_alloc.o
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_bytecode_alloc
+
+.PHONY: test-affine-scalar-union-runtime
+test-units: test-affine-scalar-union-runtime
+test-affine-scalar-union-runtime: test-affine-bytecode nano_vm nvm2c
+	python3 -m unittest -v tests.test_affine_scalar_union_runtime
+
+.PHONY: test-affine-scalar-union-source
+test-units: test-affine-scalar-union-source
+test-affine-scalar-union-source: nanoisa_emit nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_affine_scalar_union_source
 
 .PHONY: test-legacy-float-conversion
 test-legacy-float-conversion: bootstrap $(INTERPRETER)
@@ -5660,7 +5672,47 @@ test-file-cyclic-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) 
 	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public
 test-file-cyclic-public-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
 	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public
+# I publish only through this explicit tool; default/install lists stay separate.
+FILE_BINDING_PUBLISH_DIR = $(OBJ_DIR)/file-binding-publisher
+FILE_BINDING_PUBLISH_NAMES = nsi_file_binding_main nsi_file_publish nsi_file_binding nsi_file_plan nsi cJSON utf8
+FILE_BINDING_PUBLISH_OBJECTS = $(addprefix $(FILE_BINDING_PUBLISH_DIR)/,$(addsuffix .o,$(FILE_BINDING_PUBLISH_NAMES)))
+FILE_BINDING_PUBLISH_HEADERS = $(addprefix $(SRC_DIR)/,nsi_file_publish.h nsi_file_binding.h nsi_file_plan.h nsi_file_catalog.h nsi_cap.h nsi_internal.h nsi.h cJSON.h utf8.h)
+.PHONY: nsi-file-binding
+nsi-file-binding: $(BIN_DIR)/nsi-file-binding
+$(BIN_DIR)/nsi-file-binding: $(FILE_BINDING_PUBLISH_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+$(FILE_BINDING_PUBLISH_DIR):
+	mkdir -p "$@"
+$(FILE_BINDING_PUBLISH_DIR)/%.o: $(SRC_DIR)/%.c $(FILE_BINDING_PUBLISH_HEADERS) | $(FILE_BINDING_PUBLISH_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c "$<" -o "$@"
+
+.PHONY: test-file-binding-publisher test-file-binding-publisher-sanitizers
+test-file-binding-publisher:
+	NANO_FILE_PUBLISH_CC="$(CC)" NANO_FILE_PUBLISH_CFLAGS="$(CFLAGS)" NANO_FILE_PUBLISH_LDFLAGS="$(LDFLAGS)" NANO_FILE_PUBLISH_SANITIZERS=0 python3 -m unittest -f -v tests.test_nsi_file_publish
+test-file-binding-publisher-sanitizers:
+	NANO_FILE_PUBLISH_CC="$(CC)" NANO_FILE_PUBLISH_CFLAGS="$(CFLAGS)" NANO_FILE_PUBLISH_LDFLAGS="$(LDFLAGS)" NANO_FILE_PUBLISH_SANITIZERS=1 python3 -m unittest -f -v tests.test_nsi_file_publish
+
+# I rebuild the token ABI closure before paired lexer metadata qualification.
+.PHONY: test-token-value-bytes test-token-value-bytes-sanitizers
+test-token-value-bytes: bootstrap3
+	NANO_TOKEN_CC="$(CC)" NANO_TOKEN_CFLAGS="$(CFLAGS)" NANO_TOKEN_SANITIZERS=0 python3 -m unittest -f -v tests.test_token_value_bytes
+test-token-value-bytes-sanitizers:
+	NANO_TOKEN_CC="$(CC)" NANO_TOKEN_CFLAGS="$(CFLAGS)" NANO_TOKEN_SANITIZERS=1 python3 -m unittest -f -v tests.test_token_value_bytes.TokenValueBytes.test_c_counts_decoder_and_bridges
 # I require explicit real-engine/compiler/wheel selections for this private ABI.
 .PHONY: test-portable-read-wasm
 test-portable-read-wasm:
 	python3 -m unittest -f -v tests.test_portable_read_wasm
+
+# I rebuild the owning query TU for the private indirect hosted conjunction.
+$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_hosted.h $(NANOISA_DIR)/file_indirect_hosted.inc
+
+.PHONY: test-file-indirect-hosted
+# I query copied indirect plans; no callable or service executes.
+test-file-indirect-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_INDIRECT_HOSTED_CC="$(CC)" NANO_FILE_INDIRECT_HOSTED_CFLAGS="$(CFLAGS)" FILE_INDIRECT_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_INDIRECT_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_hosted
+
+# I keep private array declaration decoding separate from public layout policy.
+$(OBJ_DIR)/nanoisa/nvm_v2_layouts.o: $(NANOISA_DIR)/ownership_layouts_private.h
+
+# I rebuild my shared reader for private array grammar changes.
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ordinary_array_authority.h $(NANOISA_DIR)/ownership_array_fields.inc $(NANOISA_DIR)/ordinary_array_authority.inc $(NANOISA_DIR)/ownership_layouts_private.h

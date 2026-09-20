@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-bin/nsi-file-binding",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/cli/input-existing-symlink",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/cli/refused-existing-symlink"
+  ],
+  "pid": 23621,
+  "returncode": 1,
+  "timeout": false
+}

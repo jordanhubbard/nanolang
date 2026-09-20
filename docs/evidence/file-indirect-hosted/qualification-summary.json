@@ -1,0 +1,784 @@
+{
+  "artifact_bytes": 536719205,
+  "artifact_references": 14720,
+  "current_linux": [
+    {
+      "group": "linux-first",
+      "mismatches": 0,
+      "providers": 173,
+      "sources": 16216,
+      "tools": 10,
+      "tree": "/home/jkh/Src/nanolang-file-indirect-hosted-qualified-225b"
+    },
+    {
+      "group": "linux",
+      "mismatches": 0,
+      "providers": 173,
+      "sources": 16216,
+      "tools": 10,
+      "tree": "/home/jkh/Src/nanolang-file-indirect-hosted-qualified-5c26"
+    }
+  ],
+  "first_fixture": "225b67a6da942b32896ab167d664a95040701281",
+  "phases": {
+    "darwin": [
+      {
+        "phase": "setup",
+        "seconds": 9.568,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.127,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.077,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 5.977,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 6.181,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 13.67,
+        "status": 0
+      },
+      {
+        "phase": "cyclic",
+        "seconds": 6.036,
+        "status": 0
+      },
+      {
+        "phase": "code",
+        "seconds": 5.605,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 5.609,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 5.396,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 10.535,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.484,
+        "status": 0
+      },
+      {
+        "phase": "cyclic-hosted",
+        "seconds": 12.916,
+        "status": 0
+      },
+      {
+        "phase": "indirect_targets",
+        "seconds": 5.792,
+        "status": 0
+      },
+      {
+        "phase": "indirect_flow",
+        "seconds": 5.968,
+        "status": 0
+      }
+    ],
+    "darwin-first": [
+      {
+        "phase": "setup",
+        "seconds": 9.531,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.127,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.075,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 3.909,
+        "status": 1
+      }
+    ],
+    "linux": [
+      {
+        "phase": "setup",
+        "seconds": 22.47,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 7.383,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 7.734,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 53.554,
+        "status": 0
+      },
+      {
+        "phase": "clang-sanitizer",
+        "seconds": 22.821,
+        "status": 0
+      },
+      {
+        "phase": "cyclic",
+        "seconds": 10.992,
+        "status": 0
+      },
+      {
+        "phase": "code",
+        "seconds": 8.785,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 8.685,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 8.038,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 22.571,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.222,
+        "status": 0
+      },
+      {
+        "phase": "cyclic-hosted",
+        "seconds": 36.353,
+        "status": 0
+      },
+      {
+        "phase": "indirect_targets",
+        "seconds": 8.934,
+        "status": 0
+      },
+      {
+        "phase": "indirect_flow",
+        "seconds": 10.537,
+        "status": 0
+      }
+    ],
+    "linux-first": [
+      {
+        "phase": "setup",
+        "seconds": 21.972,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.114,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 3.372,
+        "status": 1
+      }
+    ]
+  },
+  "production": "95c04f751a909b122cdbc0ac207516b2496511a7",
+  "provider_pairs": [
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux-first",
+      "phase": "discovery",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux-first",
+      "phase": "ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux-first",
+      "phase": "configuration",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": true,
+      "existing_input_count": 0,
+      "group": "linux-first",
+      "phase": "setup",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "flow",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "discovery",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "indirect_targets",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "configuration",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "indirect_flow",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "opcodes",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "code",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "body",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "cyclic",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "hosted",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "sanitizer",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "clang-sanitizer",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "cyclic-hosted",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": true,
+      "existing_input_count": 0,
+      "group": "linux",
+      "phase": "setup",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "clang-ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin-first",
+      "phase": "discovery",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin-first",
+      "phase": "ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin-first",
+      "phase": "configuration",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": true,
+      "existing_input_count": 0,
+      "group": "darwin-first",
+      "phase": "setup",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "flow",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "discovery",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "indirect_targets",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "configuration",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "indirect_flow",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "opcodes",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "code",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "body",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "cyclic",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "hosted",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "sanitizer",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "cyclic-hosted",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": true,
+      "existing_input_count": 0,
+      "group": "darwin",
+      "phase": "setup",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "clang-ordinary",
+      "unchanged": true
+    }
+  ],
+  "qualified_fixture": "5c26faaa0bd3892f3528c3732a5791ffc925ea4b",
+  "query_only": true,
+  "runtime_admitted": false,
+  "source_tool_pairs": [
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "discovery",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "ordinary",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "configuration",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "setup",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "flow",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "discovery",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "indirect_targets",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "ordinary",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "configuration",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "indirect_flow",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "opcodes",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "code",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "body",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "cyclic",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "hosted",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "sanitizer",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "clang-sanitizer",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "cyclic-hosted",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "setup",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "clang-ordinary",
+      "sources": 16216,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin-first",
+      "phase": "discovery",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-first",
+      "phase": "ordinary",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-first",
+      "phase": "configuration",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin-first",
+      "phase": "setup",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "flow",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "discovery",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "indirect_targets",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "ordinary",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "configuration",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "indirect_flow",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "opcodes",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "code",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "body",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "cyclic",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "hosted",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "sanitizer",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "cyclic-hosted",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "setup",
+      "sources": 16216,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "clang-ordinary",
+      "sources": 16216,
+      "tools": 15
+    }
+  ],
+  "unique_artifacts": 1456,
+  "whole_program_sanitizer": false
+}

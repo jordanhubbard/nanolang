@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-token-corrected-ece/src",
+    "-c",
+    "/home/jkh/Src/nanolang-token-corrected-ece/src/lexer.c",
+    "-o",
+    "/tmp/nanolang-token-ece-linux/gcc-ordinary/nano-token-bytes-dl_4px8n/lexer.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-token-corrected-ece",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

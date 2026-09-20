@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "import unittest; s=unittest.defaultTestLoader.loadTestsFromName('tests.test_passive_internal_cfg'); print(s.countTestCases()); assert s.countTestCases()==4"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": ""
+  }
+}

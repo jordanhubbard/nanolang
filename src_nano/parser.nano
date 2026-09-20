@@ -396,7 +396,8 @@ pub fn parser_current(p: Parser) -> LexerToken {
             token_type: 0,  /* EOF */
             value: "",
             line: 0,
-            column: 0
+            column: 0,
+            value_bytes: 0
         }
     } else {
         return (list_LexerToken_get p.tokens p.position)
@@ -9263,7 +9264,8 @@ shadow parse_phase_run {
         token_type: LexerTokenType.TOKEN_EOF,
         value: "",
         line: 1,
-        column: 1
+        column: 1,
+        value_bytes: 0
     }
     (list_LexerToken_push tokens eof)
     

@@ -1,0 +1,10 @@
+mkdir -p "obj/file-binding-publisher"
+mkdir -p bin
+/usr/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c "src/nsi_file_binding_main.c" -o "obj/file-binding-publisher/nsi_file_binding_main.o"
+/usr/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c "src/nsi_file_publish.c" -o "obj/file-binding-publisher/nsi_file_publish.o"
+/usr/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c "src/nsi_file_binding.c" -o "obj/file-binding-publisher/nsi_file_binding.o"
+/usr/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c "src/nsi_file_plan.c" -o "obj/file-binding-publisher/nsi_file_plan.o"
+/usr/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c "src/nsi.c" -o "obj/file-binding-publisher/nsi.o"
+/usr/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c "src/cJSON.c" -o "obj/file-binding-publisher/cJSON.o"
+/usr/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c "src/utf8.c" -o "obj/file-binding-publisher/utf8.o"
+/usr/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nsi-file-binding obj/file-binding-publisher/nsi_file_binding_main.o obj/file-binding-publisher/nsi_file_publish.o obj/file-binding-publisher/nsi_file_binding.o obj/file-binding-publisher/nsi_file_plan.o obj/file-binding-publisher/nsi.o obj/file-binding-publisher/cJSON.o obj/file-binding-publisher/utf8.o -lm -lcrypto -lffi  -rdynamic

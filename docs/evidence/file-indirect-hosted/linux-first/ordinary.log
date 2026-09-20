@@ -1,0 +1,20 @@
+I retain indirect hosted artifacts at /tmp/nano-file-indirect-hosted-vyeecq5i
+test_full_chain_allocations_and_all_variants (tests.test_file_indirect_hosted.FileIndirectHosted.test_full_chain_allocations_and_all_variants) ... FAIL
+
+======================================================================
+FAIL: test_full_chain_allocations_and_all_variants (tests.test_file_indirect_hosted.FileIndirectHosted.test_full_chain_allocations_and_all_variants)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-indirect-hosted-qualified-225b/tests/test_file_indirect_hosted.py", line 53, in test_full_chain_allocations_and_all_variants
+    self.qualify("instrumented", True)
+  File "/home/jkh/Src/nanolang-file-indirect-hosted-qualified-225b/tests/test_file_indirect_hosted.py", line 47, in qualify
+    stdout = self.command(f"{name}-run", [str(exe)])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-indirect-hosted-qualified-225b/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 3.323s
+
+FAILED (failures=1)

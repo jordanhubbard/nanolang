@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-passive-integrated-6ae/bin/nano_vm",
+    "/tmp/nanolang-passive-integrated-6ae-linux/flow.nvm"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": ""
+  }
+}

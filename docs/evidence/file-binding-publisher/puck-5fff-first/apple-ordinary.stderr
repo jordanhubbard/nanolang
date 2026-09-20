@@ -1,0 +1,17 @@
+test_actual_cli (tests.test_nsi_file_publish.FileBindingPublisher.test_actual_cli) ... FAIL
+
+======================================================================
+FAIL: test_actual_cli (tests.test_nsi_file_publish.FileBindingPublisher.test_actual_cli)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-file-publisher-corrected-5fff/tests/test_nsi_file_publish.py", line 43, in test_actual_cli
+    self.command('actual-cli',[sys.executable,'tests/file_binding_publish_cli.py',self.exe,self.work/'cli','tests/fixtures/nsi_file_plan.json'],timeout=300)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-file-publisher-corrected-5fff/tests/test_file_source_plan.py", line 110, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('actual-cli', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'', b'Traceback (most recent call last):\n  File "/private/tmp/nanolang-file-publisher-corrected-5fff/tests/file_binding_publish_cli.py", line 74, in <module>\n    r=run(\'byte-path\',source,odd);assert r[\'directory\'].encode(\'latin1\')==os.fsencode(odd);complete(odd);assert not (repo/\'injected\').exists()\n  File "/private/tmp/nanolang-file-publisher-corrected-5fff/tests/file_binding_publish_cli.py", line 38, in run\n    def run(name,src,dest,rc=0):return finished(name,*launch(name,[exe,src,\'--file-binding-dir\',dest]),rc)\n                                       ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/private/tmp/nanolang-file-publisher-corrected-5fff/tests/file_binding_publish_cli.py", line 25, in finished\n    assert not status[\'timeout\'] and status[\'returncode\'] in accepted,(name,status)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (\'byte-path\', {\'argv\': [\'/private/tmp/nanolang-file-publisher-5fff-puck/apple-ordinary/nano-file-publisher-nbmik3x1/make-bin/nsi-file-binding\', \'tests/fixtures/nsi_file_plan.json\', \'--file-binding-dir\', "/private/tmp/nanolang-file-publisher-5fff-puck/apple-ordinary/nano-file-publisher-nbmik3x1/cli/quoted \' $(touch injected); \\udcff\\udcc3"], \'pid\': 19064, \'returncode\': 1, \'timeout\': False})\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.951s
+
+FAILED (failures=1)

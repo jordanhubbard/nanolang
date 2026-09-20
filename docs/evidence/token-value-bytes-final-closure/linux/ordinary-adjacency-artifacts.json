@@ -1,0 +1,542 @@
+{
+  "clang-ubsan.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "clang-ubsan.stdout": {
+    "sha256": "190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec",
+    "bytes": 85,
+    "archive": "/tmp/nanolang-token-final-linux/objects/190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec"
+  },
+  "ffi-flags.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ffi-flags.stdout": {
+    "sha256": "18d3dbd625cf1db6c40095bf8cd63711a9c193b0b5f5535480ed41b72eca576a",
+    "bytes": 7,
+    "archive": "/tmp/nanolang-token-final-linux/objects/18d3dbd625cf1db6c40095bf8cd63711a9c193b0b5f5535480ed41b72eca576a"
+  },
+  "gcc-asan.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-asan.stdout": {
+    "sha256": "86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265",
+    "bytes": 45,
+    "archive": "/tmp/nanolang-token-final-linux/objects/86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265"
+  },
+  "gcc-cc1.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-cc1.stdout": {
+    "sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f",
+    "bytes": 42,
+    "archive": "/tmp/nanolang-token-final-linux/objects/64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/counts-c": {
+    "sha256": "daa687b5d77a0cefc3be11f21a0695715e092b12808af34d154fa5e6cd781111",
+    "bytes": 153016,
+    "archive": "/tmp/nanolang-token-final-linux/objects/daa687b5d77a0cefc3be11f21a0695715e092b12808af34d154fa5e6cd781111"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/counts-c-build.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/counts-c-build.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/counts-c-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/counts-c-run.stdout": {
+    "sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "bytes": 55,
+    "archive": "/tmp/nanolang-token-final-linux/objects/55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/fstrings": {
+    "sha256": "aaa50e6375e9632d4cedf9c8ab5f8214366219af97e6278a49f12f1c2fe93827",
+    "bytes": 139936,
+    "archive": "/tmp/nanolang-token-final-linux/objects/aaa50e6375e9632d4cedf9c8ab5f8214366219af97e6278a49f12f1c2fe93827"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/fstrings-build.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/fstrings-build.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/fstrings-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/fstrings-run.stdout": {
+    "sha256": "9f19ab3bd32fe8a6b1fb94855cbf192be2cd4df1a76a2ef1c4941bef594099c1",
+    "bytes": 58,
+    "archive": "/tmp/nanolang-token-final-linux/objects/9f19ab3bd32fe8a6b1fb94855cbf192be2cd4df1a76a2ef1c4941bef594099c1"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_c": {
+    "sha256": "c07536621024d9850014810754da73c0f46920753b79f5ce83532ebea2bd6cca",
+    "bytes": 9002048,
+    "archive": "/tmp/nanolang-token-final-linux/objects/c07536621024d9850014810754da73c0f46920753b79f5ce83532ebea2bd6cca"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_c-build.stderr": {
+    "sha256": "e663e53feeb7a28aa2d0373f3fdc38837f1f5cce657caf486561fa9536d861c1",
+    "bytes": 2130,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e663e53feeb7a28aa2d0373f3fdc38837f1f5cce657caf486561fa9536d861c1"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_c-build.stdout": {
+    "sha256": "5b112a01edb1df214d618aa4c3e9144329b51a6cf84cf87acd3834b9e264b47f",
+    "bytes": 8301,
+    "archive": "/tmp/nanolang-token-final-linux/objects/5b112a01edb1df214d618aa4c3e9144329b51a6cf84cf87acd3834b9e264b47f"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_c-generate.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_c-generate.stdout": {
+    "sha256": "afb855c1bb93f0f9f21d6689a116abe46cf00722e98393862f55b0018422e9a3",
+    "bytes": 316,
+    "archive": "/tmp/nanolang-token-final-linux/objects/afb855c1bb93f0f9f21d6689a116abe46cf00722e98393862f55b0018422e9a3"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_c.c": {
+    "sha256": "a6903e3168932570497c5310ec3c25fbef1f86f94260d69ce6706ed533562535",
+    "bytes": 140762,
+    "archive": "/tmp/nanolang-token-final-linux/objects/a6903e3168932570497c5310ec3c25fbef1f86f94260d69ce6706ed533562535"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage1": {
+    "sha256": "785004b67cea23f6a2fcef4cad6b41ceac8f476afc0778f4f0467acf9ac5fa85",
+    "bytes": 8853920,
+    "archive": "/tmp/nanolang-token-final-linux/objects/785004b67cea23f6a2fcef4cad6b41ceac8f476afc0778f4f0467acf9ac5fa85"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage1-build.stderr": {
+    "sha256": "2ef56d24b5575ea0d2f3adeba24c73923b71abeeb0352038441cdd5b0a2fcc7e",
+    "bytes": 2717,
+    "archive": "/tmp/nanolang-token-final-linux/objects/2ef56d24b5575ea0d2f3adeba24c73923b71abeeb0352038441cdd5b0a2fcc7e"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage1-build.stdout": {
+    "sha256": "2692e3fb435cd02265e33d36fc6f27e66824f6c4448c7dee994e24f752993dab",
+    "bytes": 165,
+    "archive": "/tmp/nanolang-token-final-linux/objects/2692e3fb435cd02265e33d36fc6f27e66824f6c4448c7dee994e24f752993dab"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage1-generate.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage1-generate.stdout": {
+    "sha256": "afb855c1bb93f0f9f21d6689a116abe46cf00722e98393862f55b0018422e9a3",
+    "bytes": 316,
+    "archive": "/tmp/nanolang-token-final-linux/objects/afb855c1bb93f0f9f21d6689a116abe46cf00722e98393862f55b0018422e9a3"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage1-tmp/nano_native_1789901572_0/program.c": {
+    "sha256": "9caa9caf8a70ef5f9d5850d3cdb40aed2b89b6a07911170408ba3670a574b910",
+    "bytes": 103160,
+    "archive": "/tmp/nanolang-token-final-linux/objects/9caa9caf8a70ef5f9d5850d3cdb40aed2b89b6a07911170408ba3670a574b910"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage2": {
+    "sha256": "e4bec9db9ca57d5dc3c53557554a83be33d0737bca4be66c4b46f91eb46138d8",
+    "bytes": 8853920,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e4bec9db9ca57d5dc3c53557554a83be33d0737bca4be66c4b46f91eb46138d8"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage2-build.stderr": {
+    "sha256": "2ef56d24b5575ea0d2f3adeba24c73923b71abeeb0352038441cdd5b0a2fcc7e",
+    "bytes": 2717,
+    "archive": "/tmp/nanolang-token-final-linux/objects/2ef56d24b5575ea0d2f3adeba24c73923b71abeeb0352038441cdd5b0a2fcc7e"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage2-build.stdout": {
+    "sha256": "631c6d2cb21125a035a290a7b3213af1527206a55c5ec6ddd2ddd611fb13f698",
+    "bytes": 165,
+    "archive": "/tmp/nanolang-token-final-linux/objects/631c6d2cb21125a035a290a7b3213af1527206a55c5ec6ddd2ddd611fb13f698"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage2-generate.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage2-generate.stdout": {
+    "sha256": "afb855c1bb93f0f9f21d6689a116abe46cf00722e98393862f55b0018422e9a3",
+    "bytes": 316,
+    "archive": "/tmp/nanolang-token-final-linux/objects/afb855c1bb93f0f9f21d6689a116abe46cf00722e98393862f55b0018422e9a3"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/gen_compiler_schema-nanoc_stage2-tmp/nano_native_1789901576_0/program.c": {
+    "sha256": "9caa9caf8a70ef5f9d5850d3cdb40aed2b89b6a07911170408ba3670a574b910",
+    "bytes": 103160,
+    "archive": "/tmp/nanolang-token-final-linux/objects/9caa9caf8a70ef5f9d5850d3cdb40aed2b89b6a07911170408ba3670a574b910"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/lexer.o": {
+    "sha256": "2924864cc7bb5a32e23a9e0eefd62d49ede4d7be94f17b52f8a376c9fc1bfdcb",
+    "bytes": 91312,
+    "archive": "/tmp/nanolang-token-final-linux/objects/2924864cc7bb5a32e23a9e0eefd62d49ede4d7be94f17b52f8a376c9fc1bfdcb"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-lexer.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-lexer.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-runtime-list_LexerToken.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-runtime-list_LexerToken.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-runtime-list_token.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-runtime-list_token.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-runtime-token_helpers.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-runtime-token_helpers.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-utf8.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/provider-utf8.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/python-generator/scripts/gen_compiler_schema.py": {
+    "sha256": "18c947e5bfe81da1558d958529f59348b2dbf21519c5b7b828d4a32d8080ff19",
+    "bytes": 9389,
+    "archive": "/tmp/nanolang-token-final-linux/objects/18c947e5bfe81da1558d958529f59348b2dbf21519c5b7b828d4a32d8080ff19"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/python-generator/src/generated/compiler_schema.h": {
+    "sha256": "82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456",
+    "bytes": 23716,
+    "archive": "/tmp/nanolang-token-final-linux/objects/82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/python-generator/src_nano/generated/compiler_ast.nano": {
+    "sha256": "54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95",
+    "bytes": 8408,
+    "archive": "/tmp/nanolang-token-final-linux/objects/54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/python-generator/src_nano/generated/compiler_contracts.nano": {
+    "sha256": "24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416",
+    "bytes": 1610,
+    "archive": "/tmp/nanolang-token-final-linux/objects/24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/python-generator/src_nano/generated/compiler_schema.nano": {
+    "sha256": "a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060",
+    "bytes": 3146,
+    "archive": "/tmp/nanolang-token-final-linux/objects/a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/python-generator-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/python-generator-run.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/runtime-list_LexerToken.o": {
+    "sha256": "4965557d3d759b70994a087f39210634065c39c5c3ed6fa1db16d431d8b093ef",
+    "bytes": 28056,
+    "archive": "/tmp/nanolang-token-final-linux/objects/4965557d3d759b70994a087f39210634065c39c5c3ed6fa1db16d431d8b093ef"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/runtime-list_token.o": {
+    "sha256": "2ac976a140d7278af48186e591db12fc2de91cbd9684cf004e00c4d62ce95b69",
+    "bytes": 27856,
+    "archive": "/tmp/nanolang-token-final-linux/objects/2ac976a140d7278af48186e591db12fc2de91cbd9684cf004e00c4d62ce95b69"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/runtime-token_helpers.o": {
+    "sha256": "ae219d5c7ce1999865e24a17e1d9adbe875d2b573913716e74a3c6e337ddfa06",
+    "bytes": 9096,
+    "archive": "/tmp/nanolang-token-final-linux/objects/ae219d5c7ce1999865e24a17e1d9adbe875d2b573913716e74a3c6e337ddfa06"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_c/src/generated/compiler_schema.h": {
+    "sha256": "82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456",
+    "bytes": 23716,
+    "archive": "/tmp/nanolang-token-final-linux/objects/82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_c/src_nano/generated/compiler_ast.nano": {
+    "sha256": "54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95",
+    "bytes": 8408,
+    "archive": "/tmp/nanolang-token-final-linux/objects/54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_c/src_nano/generated/compiler_contracts.nano": {
+    "sha256": "24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416",
+    "bytes": 1610,
+    "archive": "/tmp/nanolang-token-final-linux/objects/24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_c/src_nano/generated/compiler_schema.nano": {
+    "sha256": "a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060",
+    "bytes": 3146,
+    "archive": "/tmp/nanolang-token-final-linux/objects/a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_stage1/src/generated/compiler_schema.h": {
+    "sha256": "82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456",
+    "bytes": 23716,
+    "archive": "/tmp/nanolang-token-final-linux/objects/82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_stage1/src_nano/generated/compiler_ast.nano": {
+    "sha256": "54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95",
+    "bytes": 8408,
+    "archive": "/tmp/nanolang-token-final-linux/objects/54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_stage1/src_nano/generated/compiler_contracts.nano": {
+    "sha256": "24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416",
+    "bytes": 1610,
+    "archive": "/tmp/nanolang-token-final-linux/objects/24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_stage1/src_nano/generated/compiler_schema.nano": {
+    "sha256": "a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060",
+    "bytes": 3146,
+    "archive": "/tmp/nanolang-token-final-linux/objects/a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_stage2/src/generated/compiler_schema.h": {
+    "sha256": "82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456",
+    "bytes": 23716,
+    "archive": "/tmp/nanolang-token-final-linux/objects/82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_stage2/src_nano/generated/compiler_ast.nano": {
+    "sha256": "54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95",
+    "bytes": 8408,
+    "archive": "/tmp/nanolang-token-final-linux/objects/54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_stage2/src_nano/generated/compiler_contracts.nano": {
+    "sha256": "24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416",
+    "bytes": 1610,
+    "archive": "/tmp/nanolang-token-final-linux/objects/24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/schema-nanoc_stage2/src_nano/generated/compiler_schema.nano": {
+    "sha256": "a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060",
+    "bytes": 3146,
+    "archive": "/tmp/nanolang-token-final-linux/objects/a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_c": {
+    "sha256": "bcc803c2ec47e6be4249a371f63566a8b68a041f922de3ed3dea63c859b7a2f7",
+    "bytes": 9830496,
+    "archive": "/tmp/nanolang-token-final-linux/objects/bcc803c2ec47e6be4249a371f63566a8b68a041f922de3ed3dea63c859b7a2f7"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_c-build.stderr": {
+    "sha256": "5ad607b2e445b5749a9bc15dfa92075c89481d373712ca8355a4cd2d25aed2bd",
+    "bytes": 2781,
+    "archive": "/tmp/nanolang-token-final-linux/objects/5ad607b2e445b5749a9bc15dfa92075c89481d373712ca8355a4cd2d25aed2bd"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_c-build.stdout": {
+    "sha256": "0365effc4e47619536cf9a9ca7a09bc18bd306b29a08dcbc29b6ba0c1d3e0117",
+    "bytes": 33605,
+    "archive": "/tmp/nanolang-token-final-linux/objects/0365effc4e47619536cf9a9ca7a09bc18bd306b29a08dcbc29b6ba0c1d3e0117"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_c-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_c-run.stdout": {
+    "sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "bytes": 55,
+    "archive": "/tmp/nanolang-token-final-linux/objects/55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_c.c": {
+    "sha256": "1e3d8ac2e1ea74d551e6114f079019e23547b054edc9fcac0452e01b05b6a4e8",
+    "bytes": 117020,
+    "archive": "/tmp/nanolang-token-final-linux/objects/1e3d8ac2e1ea74d551e6114f079019e23547b054edc9fcac0452e01b05b6a4e8"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage1": {
+    "sha256": "7ca1d0959f108ab5589cccde427f6d4b924c191a42593d634d859fb5784ea6f4",
+    "bytes": 8858280,
+    "archive": "/tmp/nanolang-token-final-linux/objects/7ca1d0959f108ab5589cccde427f6d4b924c191a42593d634d859fb5784ea6f4"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage1-build.stderr": {
+    "sha256": "e492b39e976e776d8b24e9fbdf80a0f2c34e110812c7a662d3bb781dd431831e",
+    "bytes": 3859,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e492b39e976e776d8b24e9fbdf80a0f2c34e110812c7a662d3bb781dd431831e"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage1-build.stdout": {
+    "sha256": "6a21179f6fc28fb7e8d081f79c9f089af1cbb922321d36ee73d9c40942c32d2f",
+    "bytes": 163,
+    "archive": "/tmp/nanolang-token-final-linux/objects/6a21179f6fc28fb7e8d081f79c9f089af1cbb922321d36ee73d9c40942c32d2f"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage1-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage1-run.stdout": {
+    "sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "bytes": 55,
+    "archive": "/tmp/nanolang-token-final-linux/objects/55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage1-tmp/nano_native_1789901562_0/program.c": {
+    "sha256": "c9e7408aad11c915ea8e006b374168c51699d83e72ccece7eb28dec42e338427",
+    "bytes": 165678,
+    "archive": "/tmp/nanolang-token-final-linux/objects/c9e7408aad11c915ea8e006b374168c51699d83e72ccece7eb28dec42e338427"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage2": {
+    "sha256": "624be4787584bf7f500a869d824a572aae6e0f092a73cbc1e72b7ba19f6e3c07",
+    "bytes": 8858280,
+    "archive": "/tmp/nanolang-token-final-linux/objects/624be4787584bf7f500a869d824a572aae6e0f092a73cbc1e72b7ba19f6e3c07"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage2-build.stderr": {
+    "sha256": "e492b39e976e776d8b24e9fbdf80a0f2c34e110812c7a662d3bb781dd431831e",
+    "bytes": 3859,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e492b39e976e776d8b24e9fbdf80a0f2c34e110812c7a662d3bb781dd431831e"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage2-build.stdout": {
+    "sha256": "5b58e02def8bc3732758745775ab3918f39550f6b5abcacc39abe4545b988b75",
+    "bytes": 163,
+    "archive": "/tmp/nanolang-token-final-linux/objects/5b58e02def8bc3732758745775ab3918f39550f6b5abcacc39abe4545b988b75"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage2-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage2-run.stdout": {
+    "sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "bytes": 55,
+    "archive": "/tmp/nanolang-token-final-linux/objects/55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/token_value_bytes-nanoc_stage2-tmp/nano_native_1789901566_0/program.c": {
+    "sha256": "c9e7408aad11c915ea8e006b374168c51699d83e72ccece7eb28dec42e338427",
+    "bytes": 165678,
+    "archive": "/tmp/nanolang-token-final-linux/objects/c9e7408aad11c915ea8e006b374168c51699d83e72ccece7eb28dec42e338427"
+  },
+  "gcc-ordinary/nano-token-bytes-mwzzk7m3/utf8.o": {
+    "sha256": "4b69bc413ec532ce7463e19a6c3328d1ef0f297c95f7baa236bb8bc1fc85226b",
+    "bytes": 18336,
+    "archive": "/tmp/nanolang-token-final-linux/objects/4b69bc413ec532ce7463e19a6c3328d1ef0f297c95f7baa236bb8bc1fc85226b"
+  },
+  "gcc-ordinary.stderr": {
+    "sha256": "a0e26c2e7c102f076ad8673a5989c6c190632e32067f4f07a0d4b9ba1aab3039",
+    "bytes": 331,
+    "archive": "/tmp/nanolang-token-final-linux/objects/a0e26c2e7c102f076ad8673a5989c6c190632e32067f4f07a0d4b9ba1aab3039"
+  },
+  "gcc-ordinary.stdout": {
+    "sha256": "7696bd2858c2a23b883715ee079ee58afefcdb9505f9ce9c71462653b4f85656",
+    "bytes": 99,
+    "archive": "/tmp/nanolang-token-final-linux/objects/7696bd2858c2a23b883715ee079ee58afefcdb9505f9ce9c71462653b4f85656"
+  },
+  "gcc-ubsan.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gcc-ubsan.stdout": {
+    "sha256": "3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3",
+    "bytes": 46,
+    "archive": "/tmp/nanolang-token-final-linux/objects/3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3"
+  },
+  "host.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "host.stdout": {
+    "sha256": "43d7b8def3daee1fa5e499ae90f0e8073a4f79789460cebb9c04aae034ce25e6",
+    "bytes": 126,
+    "archive": "/tmp/nanolang-token-final-linux/objects/43d7b8def3daee1fa5e499ae90f0e8073a4f79789460cebb9c04aae034ce25e6"
+  },
+  "make-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "make-version.stdout": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303,
+    "archive": "/tmp/nanolang-token-final-linux/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+  },
+  "ordinary-adjacency.stderr": {
+    "sha256": "b72970e0a6fad875852e7e16fedcfbbe98d73020fc7f81ab34d871b28dfc4c21",
+    "bytes": 9391,
+    "archive": "/tmp/nanolang-token-final-linux/objects/b72970e0a6fad875852e7e16fedcfbbe98d73020fc7f81ab34d871b28dfc4c21"
+  },
+  "ordinary-adjacency.stdout": {
+    "sha256": "17efe6892d99aeb4852a12dbde884466034d83d5441437879c9f9839ffa5b601",
+    "bytes": 8096,
+    "archive": "/tmp/nanolang-token-final-linux/objects/17efe6892d99aeb4852a12dbde884466034d83d5441437879c9f9839ffa5b601"
+  },
+  "ordinary-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ordinary-version.stdout": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246,
+    "archive": "/tmp/nanolang-token-final-linux/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+  },
+  "other-asan.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "other-asan.stdout": {
+    "sha256": "731b76cb47024d752310ac6ca0303ec0927c180e47b6ad81b54246f562a41425",
+    "bytes": 73,
+    "archive": "/tmp/nanolang-token-final-linux/objects/731b76cb47024d752310ac6ca0303ec0927c180e47b6ad81b54246f562a41425"
+  },
+  "other-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "other-version.stdout": {
+    "sha256": "3f71ea936365a0e0ded6b5e03b18884ba042415fb6acf05b0f1b2dfe5a6096e5",
+    "bytes": 191,
+    "archive": "/tmp/nanolang-token-final-linux/objects/3f71ea936365a0e0ded6b5e03b18884ba042415fb6acf05b0f1b2dfe5a6096e5"
+  },
+  "pkg-config-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "pkg-config-version.stdout": {
+    "sha256": "25cec9739d3218e48acc5d8c3d4333e1d624121c5b7ab3bcddc71d0fa0134b83",
+    "bytes": 6,
+    "archive": "/tmp/nanolang-token-final-linux/objects/25cec9739d3218e48acc5d8c3d4333e1d624121c5b7ab3bcddc71d0fa0134b83"
+  },
+  "providers.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-token-final-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "providers.stdout": {
+    "sha256": "5350389d32ec6c6ae63d54009b31b1e93b32a34c0f707db4a892fb30bb1d7ed4",
+    "bytes": 29052,
+    "archive": "/tmp/nanolang-token-final-linux/objects/5350389d32ec6c6ae63d54009b31b1e93b32a34c0f707db4a892fb30bb1d7ed4"
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "artifact_bytes": 25640538,
+  "artifact_references": 144,
+  "equal_source_tool_pairs": [
+    {
+      "after": "ordinary-source-after.json",
+      "before": "ordinary-source-before.json",
+      "count": 11584,
+      "host": "linux"
+    },
+    {
+      "after": "ordinary-tools-after.json",
+      "before": "ordinary-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "sanitizer-source-after.json",
+      "before": "sanitizer-source-before.json",
+      "count": 11584,
+      "host": "linux"
+    },
+    {
+      "after": "sanitizer-tools-after.json",
+      "before": "sanitizer-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "clang-sanitizer-source-after.json",
+      "before": "clang-sanitizer-source-before.json",
+      "count": 11584,
+      "host": "linux"
+    },
+    {
+      "after": "clang-sanitizer-tools-after.json",
+      "before": "clang-sanitizer-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "clang-ordinary-source-after.json",
+      "before": "clang-ordinary-source-before.json",
+      "count": 11584,
+      "host": "linux"
+    },
+    {
+      "after": "clang-ordinary-tools-after.json",
+      "before": "clang-ordinary-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "ordinary-source-after.json",
+      "before": "ordinary-source-before.json",
+      "count": 11584,
+      "host": "puck"
+    },
+    {
+      "after": "ordinary-tools-after.json",
+      "before": "ordinary-tools-before.json",
+      "count": 10,
+      "host": "puck"
+    },
+    {
+      "after": "sanitizer-source-after.json",
+      "before": "sanitizer-source-before.json",
+      "count": 11584,
+      "host": "puck"
+    },
+    {
+      "after": "sanitizer-tools-after.json",
+      "before": "sanitizer-tools-before.json",
+      "count": 10,
+      "host": "puck"
+    },
+    {
+      "after": "clang-ordinary-source-after.json",
+      "before": "clang-ordinary-source-before.json",
+      "count": 11584,
+      "host": "puck"
+    },
+    {
+      "after": "clang-ordinary-tools-after.json",
+      "before": "clang-ordinary-tools-before.json",
+      "count": 10,
+      "host": "puck"
+    }
+  ],
+  "fixture": "83b04f11c",
+  "production": "f4200bff56069e49fe44ba41f5cb66dc8299ccc7",
+  "puck_archive": {
+    "bytes": 2809768,
+    "path": "/tmp/nanolang-private-layout-puck-evidence.tar.gz",
+    "sha256": "5139705d0d65c0925a9c3cce2dc1e9210ded002e5ff477bd5eaffe0464ed1927"
+  },
+  "terminals": [
+    {
+      "host": "linux",
+      "phase": "ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "clang-sanitizer-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "clang-ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "sanitizer-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "clang-ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "sanitizer-terminal.json",
+      "status": 0
+    }
+  ],
+  "unique_artifacts": 60
+}

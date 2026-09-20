@@ -1,0 +1,22 @@
+{
+  "qualified": "d74a643f0d490c8f2227d467155d29af438cdb63",
+  "integrated": "4fe0961ba15fafc88c6ed59c0b8cf005e72d8dcb",
+  "unchanged": [
+    "src/nanoisa/ownership_contracts.c",
+    "src/nanoisa/ownership_contracts.h",
+    "src/nanoisa/ordinary_array_authority.inc",
+    "src/nanoisa/ownership_array_fields.inc",
+    "src/nanoisa/ownership_layouts_private.h",
+    "src/nanoisa/nvm_v2_layouts.c",
+    "tests/nanoisa/test_ordinary_array_authority.c",
+    "tests/test_ordinary_array_authority.py"
+  ],
+  "incoming": [
+    "Makefile.gnu",
+    "src/nanoisa/nvm2c.c",
+    "src/nanoisa/passive.c",
+    "tests/nanoisa/test_passive.c",
+    "tests/test_passive_internal_cfg.py"
+  ],
+  "scope": "The ordinary declaration query and byte container conversion do not evaluate passive CFGs or emit the numeric parser wrapper changed in PR912. No declaration or refusal decision changes."
+}

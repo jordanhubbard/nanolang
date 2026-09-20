@@ -1,0 +1,563 @@
+{
+  "git_blobs": 389,
+  "cas_files": 1456,
+  "cas_bytes": 536719205,
+  "archive_members": 1456,
+  "archive": {
+    "bytes": 153286766,
+    "path": "/tmp/nanolang-file-indirect-hosted-artifacts.tar.gz",
+    "sha256": "09aafea75b78b89e0748b5560cd4e3715d7067b02d59cea19ea0faf24f04f667"
+  },
+  "references": 14720,
+  "pairs": [
+    {
+      "group": "linux-first",
+      "phase": "discovery",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux-first",
+      "phase": "ordinary",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux-first",
+      "phase": "configuration",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux-first",
+      "phase": "setup",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 0
+    },
+    {
+      "group": "linux",
+      "phase": "flow",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "discovery",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "indirect_targets",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "ordinary",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "configuration",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "indirect_flow",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "opcodes",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "code",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "body",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "cyclic",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "hosted",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "sanitizer",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "clang-sanitizer",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "cyclic-hosted",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "linux",
+      "phase": "setup",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 0
+    },
+    {
+      "group": "linux",
+      "phase": "clang-ordinary",
+      "sources": 16216,
+      "tools": 10,
+      "unchanged_inputs": 173
+    },
+    {
+      "group": "darwin-first",
+      "phase": "discovery",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin-first",
+      "phase": "ordinary",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin-first",
+      "phase": "configuration",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin-first",
+      "phase": "setup",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 0
+    },
+    {
+      "group": "darwin",
+      "phase": "flow",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "discovery",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "indirect_targets",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "ordinary",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "configuration",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "indirect_flow",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "opcodes",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "code",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "body",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "cyclic",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "hosted",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "sanitizer",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "cyclic-hosted",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    },
+    {
+      "group": "darwin",
+      "phase": "setup",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 0
+    },
+    {
+      "group": "darwin",
+      "phase": "clang-ordinary",
+      "sources": 16216,
+      "tools": 15,
+      "unchanged_inputs": 172
+    }
+  ],
+  "phases": {
+    "linux-first": [
+      {
+        "phase": "setup",
+        "seconds": 21.972,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.114,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 3.372,
+        "status": 1
+      }
+    ],
+    "linux": [
+      {
+        "phase": "setup",
+        "seconds": 22.47,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 7.383,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 7.734,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 53.554,
+        "status": 0
+      },
+      {
+        "phase": "clang-sanitizer",
+        "seconds": 22.821,
+        "status": 0
+      },
+      {
+        "phase": "cyclic",
+        "seconds": 10.992,
+        "status": 0
+      },
+      {
+        "phase": "code",
+        "seconds": 8.785,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 8.685,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 8.038,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 22.571,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.222,
+        "status": 0
+      },
+      {
+        "phase": "cyclic-hosted",
+        "seconds": 36.353,
+        "status": 0
+      },
+      {
+        "phase": "indirect_targets",
+        "seconds": 8.934,
+        "status": 0
+      },
+      {
+        "phase": "indirect_flow",
+        "seconds": 10.537,
+        "status": 0
+      }
+    ],
+    "darwin-first": [
+      {
+        "phase": "setup",
+        "seconds": 9.531,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.127,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.075,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 3.909,
+        "status": 1
+      }
+    ],
+    "darwin": [
+      {
+        "phase": "setup",
+        "seconds": 9.568,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.127,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.077,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 5.977,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 6.181,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 13.67,
+        "status": 0
+      },
+      {
+        "phase": "cyclic",
+        "seconds": 6.036,
+        "status": 0
+      },
+      {
+        "phase": "code",
+        "seconds": 5.605,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 5.609,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 5.396,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 10.535,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.484,
+        "status": 0
+      },
+      {
+        "phase": "cyclic-hosted",
+        "seconds": 12.916,
+        "status": 0
+      },
+      {
+        "phase": "indirect_targets",
+        "seconds": 5.792,
+        "status": 0
+      },
+      {
+        "phase": "indirect_flow",
+        "seconds": 5.968,
+        "status": 0
+      }
+    ]
+  },
+  "current_linux": [
+    {
+      "group": "linux-first",
+      "sources": 16216,
+      "tools": 10,
+      "providers": 173
+    },
+    {
+      "group": "linux",
+      "sources": 16216,
+      "tools": 10,
+      "providers": 173
+    }
+  ],
+  "production_unchanged": true,
+  "current_puck": [
+    {
+      "group": "darwin-first",
+      "sources": 16216,
+      "tools": 15,
+      "providers": 172
+    },
+    {
+      "group": "darwin",
+      "sources": 16216,
+      "tools": 15,
+      "providers": 172
+    }
+  ],
+  "first_terminals": {
+    "linux-first": {
+      "instrumented-run-stderr.log": "FAIL 303: tracked_live==baseline && tracked_bytes==basebytes\n",
+      "instrumented-run-stdout.log": "I retain 435 transient refusals and 0 complete recovered plans after one allocation failure\nI retain 55 precise MEMORY and 380 ambiguous UNRESOLVED allocation prefixes\nPASS 597902 private serialized File hosted-plan checks; no handler or public admission\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\n"
+    },
+    "darwin-first": {
+      "instrumented-run-stderr.log": "FAIL 310: !tracked_live && !tracked_bytes\n",
+      "instrumented-run-stdout.log": "I retain 435 transient refusals and 0 complete recovered plans after one allocation failure\nI retain 55 precise MEMORY and 380 ambiguous UNRESOLVED allocation prefixes\nPASS 597902 private serialized File hosted-plan checks; no handler or public admission\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI checked indirect hosted allocation prefixes 409 and transient refusals 409, complete recoveries 0/0\n"
+    }
+  },
+  "darwin_download_archives": {
+    "/tmp/nanolang-file-indirect-hosted-puck-reports.tar.gz": {
+      "sha256": "323b5cad80daa699d1030a15466df3883d8d9a5f66021d219c6b53e71ad3002d",
+      "bytes": 21319275
+    },
+    "/tmp/nanolang-file-indirect-hosted-puck-artifacts.tar.gz": {
+      "sha256": "f3516d8c4664c785bfe36f49eedc444a07981501d54bab67b347578613c5c0a8",
+      "bytes": 55266712
+    }
+  },
+  "qualified_source_git_identity": [
+    {
+      "group": "linux-first",
+      "exact_commit": "225b67a6",
+      "production_and_fixture_files": 488
+    },
+    {
+      "group": "darwin-first",
+      "exact_commit": "225b67a6",
+      "production_and_fixture_files": 488
+    },
+    {
+      "group": "linux",
+      "exact_commit": "5c26faaa",
+      "production_and_fixture_files": 488
+    },
+    {
+      "group": "darwin",
+      "exact_commit": "5c26faaa",
+      "production_and_fixture_files": 488
+    }
+  ]
+}
