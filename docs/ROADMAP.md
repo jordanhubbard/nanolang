@@ -12490,3 +12490,9 @@ report/accessor header, bounded canonical state alternatives and FIFO exploratio
 private one-step declaration/state scratch, and checked edge publication. The
 old public preparation always retains DAG validation; no selector or target
 consumes the new query. Source review precedes fixtures, builds or execution.
+
+I prepare task243a's unexecuted query fixtures with full old body adjacency,
+real16/17 alternative joins, owner/reference loop invariants, copied-report and
+old-counter independence, explicit white-box budget relations, allocation
+prefix/transient recovery and retained process-group timeout evidence. Complete
+fixture review precedes compilation or any query gate; File execution stays held.

@@ -5512,3 +5512,8 @@ $(FILE_HOST_GRANT_OBJECT): $(NANOISA_DIR)/file_host_grant.c $(NANOISA_DIR)/file_
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(NANOISA_DIR) -std=c11 -c $< -o $@
 test-file-host-grant: file-host-grant
 	NANO_FILE_HOST_GRANT_CC="$(CC)" NANO_FILE_HOST_GRANT_CPPFLAGS="$(CPPFLAGS)" NANO_FILE_HOST_GRANT_CFLAGS="$(CFLAGS)" NANO_FILE_HOST_GRANT_LDFLAGS="$(LDFLAGS)" NANO_FILE_HOST_GRANT_OBJECT="$(FILE_HOST_GRANT_OBJECT)" python3 -m unittest -f -v tests.test_file_host_grant
+
+# I inspect cyclic proof facts only; no pending File module executes.
+.PHONY: test-file-cyclic
+test-file-cyclic: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	FILE_CYCLIC_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_CYCLIC_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic

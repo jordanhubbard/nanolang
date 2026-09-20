@@ -226,3 +226,36 @@ the scratch borrows its report's nominal plan and does not release that borrow.
 Publication validates every processed variant and edge reference. This
 checkpoint is static-only: no compilation, fixtures or cyclic execution has run.
 I request source review before preparing the meaningful fixture checkpoint.
+
+## My unexecuted query fixture checkpoint
+
+I retain and call the entire existing acyclic body fixture unchanged before
+my cyclic cases. New instrumented and separately linked C fixtures inspect
+actual reports only; no pending bytecode or File service executes. They cover
+entry-versus-backedge initialization, zero-iteration LOAD refusal, owner
+replacement after consume-close, held-owner replacement refusal, a live
+exclusive borrow across a loop with CALL_REF, balanced per-iteration borrow/drop
+and owner-empty headers, lower-index callees, nested SCCs and unbalanced exits.
+Both nominal permutations retain original catalog/global mappings.
+
+My16/17 boundary uses real decoded branches and distinct initialization masks
+at one join, without changing the production bound. I compare each deterministic
+report's state fields, every reference/region and edge variant, retain old DAG
+refusals, compare acyclic body facts, and prove copied reports survive destruction
+of original CODE/ownership input. An independently live old flow state retains
+its historical cleanup counter and original declaration counter.
+
+Query-only white-box controls additionally test bijective two-owner renaming,
+duplicate roots, dangling/duplicate observations, exact storage arithmetic,
+queue/module-pair ceilings and preflight size bounds. I label these separately
+from constructible maximum wire programs. Every allocation prefix and each
+single transient allocation failure requires unchanged output, zero tracked
+query allocations and a fresh successful analysis. I add an opt-in allocator
+hook in the inherited fixture; its default behavior and assertions stay intact.
+
+The new runner selects compiler/flags explicitly, keeps every binary and raw
+stdout/stderr, records command/status, and bounds child process-group cleanup
+after timeout. Ordinary versus sanitizer flags are explicit gate configuration;
+no sanitizer claim follows from default ordinary flags. Scope is query/provider
+instrumentation, not whole-runtime instrumentation. I have not run this fixture,
+a compiler or its runner; I request review before frozen gates.
