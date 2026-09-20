@@ -1,0 +1,229 @@
+# My real wasm32 read-text embedding boundary
+
+I continue task_b7ef4d216a4948c58f7a710feacc4251 under
+task_2d2e9eb552394f6e84e90f5aa08484e2 from canonical
+`0a488a1040412746566290bd93110ff76e8720dd`, the actual merge of native PR903.
+My native evidence stays at its recorded pins. This document proposes the next
+private Wasm adapter and real embedding checkpoint. It is design only: I have
+not built a guest, initialized a Wasmtime engine, installed a binding or read a
+file through this new route. I downloaded official wheels for source inspection.
+
+I preserve [my full linkage contract](NANOISA_PORTABLE_READ_TEXT_LINKAGE.md)
+and [qualified native adapter boundary](NANOISA_PORTABLE_READ_TEXT_ADAPTERS.md).
+The declaration query's PREPARED status supplies neither typed call authority
+nor managed lifetime authority. My public translators, selectors, source
+producers and CLI routes remain unchanged in this checkpoint. Direct compiled
+C/LLVM-to-Wasm adapter linkage is not an emitted NanoISA CALL_EXTERN claim.
+
+## My exact guest API and workspace amendment
+
+I propose private `src/nanoisa/portable_read_wasm.h/.c`, outside default providers:
+
+```c
+NprManagedResult npr_wasm_read_managed(NmsRuntime *, NmsHandle argument);
+/* Exactly one external Wasm function, not an indirect native callback. */
+int32_t npr_wasm_host_read_text(uint32_t path_offset, uint32_t path_length,
+    uint32_t destination_offset, uint32_t capacity, uint32_t length_offset);
+```
+
+The declaration uses Clang's import_module/import_name attributes for
+`nanolang_host_v1.read_text`, with exact Wasm type
+`(i32,i32,i32,i32,i32)->i32`. I reuse NprManagedResult, NPR_OK/DENIED/LIMIT/MEMORY/
+INVALID values0..4 and unchanged NmsStatus/NmsHandle. The result is a private C
+ABI struct, not a cross-host handle representation. No host receives NmsRuntime
+or creates a managed handle. Guest exports for fixtures report numeric statuses
+and observed bytes; no host import returns a C pointer or a borrowed string.
+
+My native wrapper uses libc malloc/free for scratch. My existing freestanding
+Wasm core deliberately has no malloc/free imports. I therefore amend the earlier
+phrase “same scratch layout” to mean the same disjoint fields and bounds, with
+**different storage lifetime**: one private static workspace per module instance,
+not a per-call allocation. It contains4097 path bytes,1048576 destination bytes,
+an aligned uint32 length and a busy flag. Source asserts its exact wasm32 size
+and a conservative total<=1052692 bytes. Static data precedes __heap_base and
+cannot overlap the unchanged managed allocator's pool. I reserve an explicit
+64KiB stack, initial32 memory pages and maximum1024 pages (2MiB/64MiB).
+There is no scratch allocation-failure call site to claim in this profile;
+instantiation can fail before any file effect. Host scratch and managed result
+allocation can still fail independently.
+
+Only one synchronous call may use an instance at a time, including across
+multiple NmsRuntime objects. Reentry returns NPR_INVALID/NMS_OK/zero before
+changing workspace. A normal returned path clears busy, including every error.
+An engine trap terminally invalidates the embedding instance; I do not reuse
+its potentially busy workspace or assert that nms_finish ran after a trap.
+
+I require active, non-disposed runtime and a valid STRING handle before the
+import. I borrow argument ownership throughout; failures never consume it.
+I inspect at most4097 bytes for the first NUL, reject prefix>4096, copy the
+prefix to workspace and initialize length to UINT32_MAX. I pass fixed disjoint
+workspace offsets and capacity1048576. I use explicit byte loops so optimized
+freestanding compilation cannot introduce memcpy/memchr imports. Known status,
+length<=capacity and no embedded NUL are checked after the import. Only then
+nms_create copies a new owned result. Its allocation may grow linear memory;
+no host view is live then. Managed validation/allocation failure returns
+NPR_OK/exact NmsStatus/zero; host failure returns exact NprStatus/NMS_OK/zero.
+All fields initialize on every path. Two OK statuses alone publish a nonzero
+owned STRING, including empty. Caller roots/aliases remain; caller releases
+success once. No implicit begin/finish/disposal or caller-root drain occurs.
+
+## My instance and module envelope
+
+I propose `runtime/portable_read_node.mjs` exporting synchronous
+`createReadTextInstance(moduleBytes, paths)` and
+`runtime/portable_read_wasmtime.py` exporting
+`create_read_text_instance(module_bytes, paths)`. Both return one private
+embedding object owning its compiled module, instance, copied allowlist and
+export-active/callback-active/terminal state; Python also owns Engine/Store/Linker. Its checked call
+method invokes a named export and terminally invalidates the object on an engine
+trap. Close refuses during an active call, otherwise drops instance/context
+references. Node GC does not promise immediate OS memory reclamation; Python
+releases supported binding owners in dependency order. Neither keeps an fd
+between callbacks. These hosts are serialized embedding libraries, not CLIs,
+WASI grants, path sandboxes or general untrusted-module execution services.
+
+Before engine instantiation I require a bounded structural module envelope:
+magic/version, <=16MiB bytes, <=64 sections, <=4096 function types, <=65536
+functions, names<=4096 bytes, checked u32 LEBs, exact section extents, unique
+standard sections, no start section, and exactly one import: the five-i32/
+one-i32 function above. I permit no imported memory, table, global, WASI or
+other function. I require one defined unshared memory32 with explicit initial32
+and maximum1024 pages and exactly one memory export named `memory` referring to
+index0. Function exports remain fixture-specific and bounded by the envelope;
+the engine validates remaining code/type/section-order rules before readiness.
+Malformed, unsupported or duplicate structural declarations refuse before host
+setup can open a path. This small parser does not prove guest body ownership.
+I specify independent JS/Python implementations of the same bounded envelope,
+with common byte-vector acceptance; no generic parser package is required.
+
+Node's Module.imports lists names/kinds but not the full function signature;
+it is not sufficient alone. My bounded type/import parser checks the exact
+signature and I cross-check the engine's import/export inventory. Wasmtime's
+Module.imports/FuncType supplies an additional exact signature cross-check.
+The binding begins not-ready until instantiation and memory export checks finish;
+the callback refuses if not-ready, callback-active or terminal. An export-active
+flag guards the outer call separately: the first callback during that call is
+allowed, while nested exports and nested callbacks are refused. No imported start callback
+can cause effects. I never attach one context to multiple memories or stores.
+
+## My callback validation and file semantics
+
+At every invocation I reinterpret each i32 as unsigned32. I validate the current
+memory length, path<=4096, capacity<=1048576, input/destination/four-byte output
+ranges using offset<=size and length<=size-offset, and pairwise disjoint spans
+before reading paths, mutating output or opening. Empty spans do not overlap.
+The length cell may be unaligned; I encode little-endian bytes without native
+unaligned casts. The host-owned context/allowlist is outside guest memory.
+I copy path bytes, reject NUL/empty and compare exact bytes against an immutable
+copied allowlist of<=64 nonempty NUL-free paths each<=4096. No normalization,
+symlink containment, stable inode identity or ambient fallback is implied.
+
+I acquire the actual current memory for each callback and retain no guest view
+between calls. Neither host grows memory, calls guest code nor permits concurrent
+access during this synchronous import. Shared memory and threads are excluded.
+Memory growth between calls is supported; a stale ArrayBuffer/view is never
+reused. Before publication I reacquire/recheck the memory size and expected
+ranges. Unexpected memory change selects INVALID and publishes no length;
+any prior file read is not rolled back. Host callbacks cannot access managed
+roots, invoke another export or recycle the instance while active.
+
+I allocate a host result buffer of capacity+1 and any small length/path storage
+before open where the host API permits; allocation failure selects MEMORY.
+I read real bytes until EOF or one excess byte. Excess selects LIMIT immediately.
+Content containing NUL becomes successful empty. Open/read/close errors yield
+successful empty only absent an earlier terminal status. A selected LIMIT or
+MEMORY survives a later close failure. I close an opened descriptor exactly once
+in finally, never retry close, and keep close outcome diagnostics separate from
+first status. Unknown programming/engine faults terminate the instance rather
+than becoming empty success. Known host errors return numeric statuses, not
+engine traps. I distinguish actual I/O from injected progress/error reports.
+
+Only OK copies payload into guest scratch, then writes the four-byte length
+last. Failed callbacks preserve the old length cell; output bytes are unpublished
+scratch and need not be restored after a failed publication. A host publication
+allocation failure returns MEMORY with unchanged length. The wrapper rejects
+unset/oversize lengths and unexpected status from test bindings. Host language
+and runtime allocations are not claimed allocation-free, even where preallocated
+read buffers avoid an extra allocation per read.
+
+Node uses Buffer byte paths and fs.openSync/readSync/closeSync; readSync fills
+preallocated storage. Python uses os.open with bytes, os.readv into preallocated
+bytearray views and os.close. Interrupted reads are handled by the supported
+runtime or bounded supervised call; I do not retry close. Nontermination from
+external files is controlled by the outer process deadline, not falsely called
+a per-file finite-time guarantee. No writes, process launch or deletion belong
+to this read callback. Host libraries are trusted embedding code, not containment
+for malicious JS/Python replacements.
+
+## My pinned real providers
+
+I inspected official [Wasmtime43.0.0 distribution metadata](https://pypi.org/project/wasmtime/43.0.0/)
+and its shipped Python sources, not just current online API documentation.
+The copied [provenance manifest](design/portable-read-wasm/wasmtime-43-provenance.json)
+contains official download URLs, exact wheel size/hash and member hashes.
+
+| Platform | Wheel SHA256 | Embedded engine SHA256 |
+|---|---|---|
+| Linux aarch64 | 30b042fd4a05d0f8a320baed53fcb971aff8a3789ed6967f4521f87931ace717 | 80e2b31ed365e66763d64e0829bf90209695ea37d85f1d14215fcdecaf5779ec |
+| Darwin arm64 | 5a03c7aa03519df58fed5115ad8093d6deac46386115add715e725448e89ab25 | 1f1fe5ae2e60d9271c1d6e1db9d1048b9802478a0e30dee64103b5b6db91ff64 |
+
+The exact APIs are Linker.define_func(module,name,FuncType,callback,
+access_caller=True), Linker.instantiate, Caller.get("memory"),
+Memory.data_len(caller), Memory.read(caller,start,stop) and
+Memory.write(caller,bytearray,start). Shipped _memory.py uses Python slice
+normalization, so read/write APIs do not replace my explicit unsigned bounds
+checks. Config disables wasm_threads, wasm_multi_memory and wasm_memory64;
+the envelope independently rejects incompatible memory declarations. A Wasmtime
+CLI alone cannot register this import. Neither host currently has this Python
+binding installed; future reviewed setup uses a private extraction/venv with
+these exact wheels, no global install. Linux Python3.14.5 and puck Python3.14.7
+identities and all actually loaded native libraries will be inventoried then.
+
+I inspected the supported [Node26 filesystem APIs](https://nodejs.org/download/release/v26.0.0/docs/api/fs.html)
+and [Python os.readv byte-buffer API](https://docs.python.org/3/library/os.html#os.readv).
+Current Linux Node26.0.0 is `/home/linuxbrew/.linuxbrew/bin/node`, SHA256
+`e09477b9d377ead4cdd6cde98242d7bdebf931751cfe6fed36cc277cdae9631a`;
+puck Node26.9.0 is `/opt/homebrew/bin/node`, SHA256
+`28f0fc07e2b86fc0eae5f9751f34ab14d63bd0132882f89cc4a5b4a44965592e`.
+Guest compilation uses Linux `/usr/local/bin/clang` LLVM23git and wasm-ld,
+SHA256 `3679c26d7a60727b11acba72366337f0e35853c9cd3cd342a463aa2f8fe10c9e`
+and `26aef56c3a0344597409c0a90c74906157513c8ff44a5c56c3af11f56ba77221`;
+puck Homebrew23.1.1 clang and `/opt/homebrew/opt/lld/bin/wasm-ld`, SHA256
+`570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888`
+and `1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e`.
+These are design preflight observations, not a qualified frozen toolchain.
+
+## My ordered source and acceptance checkpoints
+
+1. I review this design, then implement the private guest thunk and two real
+   embedding libraries plus bounded envelope readers. I freeze complete API,
+   exact workspace sizeof, cleanup and numeric limits for full source review.
+   Native adapters, managed allocator, public translation and default providers
+   remain byte unchanged. No host execution precedes source and fixture reviews.
+2. I prepare strict freestanding O0/O2 guest compilation through retained LLVM
+   IR and wasm-ld with a one-symbol allow-undefined file, never blanket
+   allow-undefined. I inspect every actual import/signature/memory/export and
+   absence of malloc/free/WASI/VM interpreter. Both hosts build fresh guests;
+   both Node and actual private Wasmtime run the resulting real artifacts.
+3. I cover native byte vectors: empty/exact1MiB/+1, multibyte filename/content,
+   partial UTF8, embedded content NUL, path prefix NUL,4096/4097,64/65 copied
+   allowlist rows and denied-before-open. I observe close-once and first-error
+   precedence separately for actual filesystem outcomes and injected faults.
+4. I exercise unsigned high-bit offsets, subtraction boundaries, all pairwise
+   overlaps, unaligned length, wrong/missing/extra imports and signature/memory
+   envelopes. Refusals precede effects and preserve length. I separately test
+   real growth between calls, growth during result creation, exhausted memory,
+   callback status/length refusals, reentry/active close, trap terminal state and
+   two independent instances. All managed argument/outside/global-simulated
+   roots survive; copied results survive scratch reuse; final explicit normal
+   cleanup reaches baseline. No true source-global claim follows from simulation.
+5. I retain output/log/status before fixture assertions with bounded process-group
+   TERM/KILL cleanup, source/tool/provider maps, private package/member hashes,
+   guests/IR and all first terminals. Native sanitizers cannot instrument guest
+   Wasm or prebuilt engines; guest allocation hooks and actual bounded memory
+   refusal are separately attributed. Existing native adapter/query and relevant
+   managed Wasm/core controls remain adjacent evidence, not substituted gates.
+6. After this private milestone, I still require separately reviewed complete
+   typed/lifetime call authority, actual NanoISA-to-LLVM/Wasm emission and source
+   lowering, exact host registration/installed packaging and full relevant
+   compiler/bootstrap/application gates. b7ef/2d2 remain open throughout.

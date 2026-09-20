@@ -12773,3 +12773,20 @@ merges automatically. Both original manifests (444 reports total) remain byte
 exact. This static integration adds no gate rerun or broader acceptance claim.
 The final audit/identity records are in `evidence/file-cyclic-carrier-final`;
 actual merge and bounded repair reconciliation remain pending, full15a92 open.
+
+## My real Wasm read-text host checkpoint (b7ef under2d2)
+
+I record actual native PR903 merge `0a488a1040412746566290bd93110ff76e8720dd`.
+Its private native acceptance does not close b7ef/2d2 or admit a host import.
+I continue from that canonical pin under [my concrete Wasm design](NANOISA_PORTABLE_READ_TEXT_WASM.md).
+
+- [ ] I review the exact per-instance static workspace amendment, wasm32 import,
+  bounded module/memory envelope and real Node/Wasmtime43 APIs before source.
+- [ ] I implement and review only private guest/embedding sources, preserving
+  qualified native/runtime bytes and unchanged public selectors/providers.
+- [ ] I review fixtures then qualify actual O0/O2 guests on both real hosts and
+  engines, including copied roots/returns, memory growth/limits, pre-effect span
+  refusal, real file semantics and separately attributed allocation/error cleanup.
+- [ ] I seal exact tools/packages/IR/guests and retained first terminals, integrate
+  through review, then continue full typed/lifetime authority, emitted/source and
+  installed host linkage under the existing open b7ef/2d2 roadmap obligations.
