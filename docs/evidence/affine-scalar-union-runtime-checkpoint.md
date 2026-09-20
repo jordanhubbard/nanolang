@@ -37,13 +37,19 @@ make -j8 test-ownership-contracts
   PASS: 177 ownership-contract checks
 
 make -j8 test-affine-bytecode
-  PASS: 502 ordinary affine-bytecode checks
-  PASS: 812 allocation-failure affine-bytecode checks
+  PASS: 503 ordinary affine-bytecode checks
+  PASS: 813 allocation-failure affine-bytecode checks
 
 make -j8 test-verifier test-nvm2c test-owned-transfers
   PASS: 96 verifier checks
   PASS: 2422 structured nvm2c checks, 0 failed
   PASS: 184 ordinary and 275 allocation-failure owned-transfer checks
+
+make -j8 test-affine-scalar-union-runtime
+  PASS: serialized artifact verifies and executes in NanoVM
+  PASS: command-line nvm2c reproduces the in-process generated C byte-for-byte
+  PASS: strict Homebrew LLVM 23 ASan/UBSan/LSan native execution
+  PASS: every injected allocation failure releases all roots; successful result is true
 ```
 
 The combined adjacent command also invoked two Python sanitizer/link fixtures
@@ -55,7 +61,6 @@ the repository's explicit Homebrew LLVM and resolved linker selections.
 
 ## What remains
 
-I still require an executable generated-C/VM union fixture, exact source
-metadata emission for multiple concrete instances, statement and value match
-lowering through both producers, and fresh integrated Linux and Darwin gates.
-PR522 and release publication remain held.
+I still require exact source metadata emission for multiple concrete instances,
+statement and value match lowering through both producers, and fresh integrated
+Linux and Darwin gates. PR522 and release publication remain held.

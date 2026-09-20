@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 static unsigned checks;
+static const char *native_output,*module_output;
 #define CHECK(c) do {checks++;assert(c);} while(0)
 #ifdef AFFINE_BYTECODE_ALLOCATION_TEST
 static unsigned allocation_attempts, fail_at;
@@ -88,7 +89,22 @@ static void analyze_union(const char *body,uint16_t params,uint16_t locals,uint8
         CHECK(nvm_verify(m).ok);
         char error[256]={0};char *native=nvm2c_emit(m,error,sizeof(error));
         if(!native)fprintf(stderr,"union native emission: %s\n",error);
-        CHECK(native!=NULL);free(native);
+        CHECK(native!=NULL);
+        if(native_output) {
+            FILE *file=fopen(native_output,"wb");CHECK(file!=NULL);
+            size_t length=strlen(native);CHECK(fwrite(native,1,length,file)==length);
+            CHECK(fclose(file)==0);
+            NvmV2Module wire={0};size_t bytes=0;
+            CHECK(nvm_v2_from_nvm_module(m,&wire)==NVM_V2_OK);
+            CHECK(nvm_v2_module_serialize(&wire,NULL,0,&bytes)==NVM_V2_OK);
+            uint8_t *serialized=malloc(bytes);CHECK(serialized!=NULL);
+            CHECK(nvm_v2_module_serialize(&wire,serialized,bytes,NULL)==NVM_V2_OK);
+            file=fopen(module_output,"wb");CHECK(file!=NULL);
+            CHECK(fwrite(serialized,1,bytes,file)==bytes);CHECK(fclose(file)==0);
+            free(serialized);nvm_v2_module_free(&wire);
+            native_output=NULL;module_output=NULL;
+        }
+        free(native);
     }
     nvm_module_free(m);
 }
@@ -132,7 +148,9 @@ static void analyze(const char *body,uint16_t params,uint16_t locals,const uint8
     if(resource)CHECK(!nvm_verify(m).ok); /* Analysis never admits runtime. */
     free(before);nvm_module_free(m);
 }
-int main(void) {
+int main(int argc,char **argv) {
+    if(argc==3){native_output=argv[1];module_output=argv[2];}
+    else CHECK(argc==1);
     uint8_t tags[4]={TAG_STRUCT,TAG_BOOL,TAG_INT,TAG_INT};
     uint8_t shared[4]={1,0,0,0},exclusive[4]={2,0,0,0};
     analyze("LOAD_LOCAL 0\nAGG_GET 0\nRET\n",1,1,tags,shared,TAG_INT,true,true,NULL);
@@ -140,6 +158,7 @@ int main(void) {
                   "LOAD_LOCAL 0\nMATCH_TAG 1 matched\nPOP\nPUSH_BOOL 0\nRET\n"
                   "matched:\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nAGG_GET 1\nRET\n",
                   0,2,TAG_BOOL,true,NULL);
+    if(argc==3)CHECK(native_output==NULL && module_output==NULL);
     analyze_union("PUSH_STR 0\nPUSH_BOOL 1\nAGG_PACK 1 0 1 2\nMATCH_TAG 0 matched\n"
                   "POP\nPUSH_BOOL 0\nRET\nmatched:\nAGG_GET 9\nRET\n",
                   0,0,TAG_BOOL,true,NULL);
