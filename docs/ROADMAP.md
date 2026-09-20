@@ -12364,3 +12364,8 @@ qualification builds run before the full fixture checkpoint review.
   Current U8/TCO compiler/provider changes require new Linux/Darwin bootstraps.
   I preserve all source hashes, positive/negative cases, original PREFIX/shadows
   and first terminals; no narrowed replacement or full-product claim follows.
+
+### My remaining affine acceptance after the full33 script
+
+- [ ] I run the complete unchanged nine-method module-identity suite with the fresh3c728 stages and separate source/tool/artifact evidence on Linux and Darwin; parent task_e8d860a16da0464891dd32e91c42bef1. Contract: `docs/AFFINE_REMAINING_ACCEPTANCE.md`. The generic16 methods await coordinated a18 integration; no full-make/product claim follows these nine.
+- [ ] I map every original430220/4be acceptance clause to exact merged runtime/source/seal evidence and explicit exclusions, then obtain review before parent ledger closure. Source ARRAY binding reassignment remains refused; I add no new implementation under this reconciliation.
