@@ -213,3 +213,33 @@ nominal graphs and cycle collection, generic/imported nominal identity, mixed
 resource/ordinary restrictions, tuples/maps/callables and richer applicable
 language shapes. These remain full5.1 requirements under15f/488. File source and
 peer affine source lanes remain separate; this design changes neither.
+
+## My prerequisite extraction checkpoint
+
+I first extract three existing static helpers without adding a query entry or
+changing any caller's policy. This small checkpoint does not implement the new
+mode, budget or report yet. I keep the original function bodies, diagnostics,
+allocation and output behavior intact, including the existing max-stack write
+before the type pass; the future new report must stage that output privately.
+
+| Existing check | Extracted helper and unchanged caller order |
+|---|---|
+| NULL/service/code pointer; main index; function code ranges, overlap, names, result/parameter tags, result count and arity/local relation | `verify_module_ranges`, called first by `verify_structure_checked` after its original output initialization. |
+| Complete ownership validation, affine analysis/owned admission, retained layout validation | Remain in `verify_structure_checked`, between ranges and contracts, with the existing `mixed_composed` private callers unchanged. |
+| Passive and callback contracts; import names/kind/path/signature/parameter bounds | `verify_module_contracts_and_imports`, after retained-layout validation. |
+| Decode/boundaries; every operand switch case including owned-transfer refusal, branch/handler/match targets, direct/tail/linked calls, closures/function refs, strings/imports/locals, aggregate/type operands and primary-plane guard; stack height/ownership balance; type pass; decoded cleanup | `verify_function_body`, called only after unchanged service/owner-array/Samples routing, module validation, function-index validation and admitted-owner shortcut. |
+
+All general/function/max-stack/linked wrappers retain `verify_function_impl`;
+affine/owned paths retain `verify_structure`; Samples and owner-array private
+preparations retain their existing `verify_structure_checked` calls. No external
+header or caller can invoke the extracted static helpers. The historical
+`mixed_composed` bool is not a new permission mechanism.
+
+The next checkpoint must introduce a synchronous original-module preparation,
+constructing its own fresh declaration plan and bounded decoded/stack report.
+It cannot export or accept that bool. It must reject unsupported transfers before
+calling a common body that could invoke affine analysis, account decode capacity
+and byte-boundary arrays plus stack/type scratch and publication overlap, and
+include all scan/work counters. That complete private entry still requires
+production review and fixture review before execution. This extraction alone
+is not sufficient to call the new grammar structurally prepared.

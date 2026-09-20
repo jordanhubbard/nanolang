@@ -13453,3 +13453,9 @@ generated lifetime are not supplied by metadata. I record
 
 This checkpoint is documentation only. I preserve File parser, peer affine source,
 service-admission work and all frozen qualification trees independently.
+
+I prepare the f641 prerequisite extraction checkpoint with three static verifier
+helpers and a complete moved-check/caller map. All old policy branches, diagnostics
+and outputs retain their order; no new API, admission, facts or execution are
+claimed. The next reviewed checkpoint must supply the original-module private
+preparation and complete memory/work accounting before any fixture gates.
