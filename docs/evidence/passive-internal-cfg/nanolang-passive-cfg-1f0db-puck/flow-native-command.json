@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-passive-cfg-1f0db-puck/flow"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": ""
+  }
+}

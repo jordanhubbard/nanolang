@@ -6,6 +6,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef PASSIVE_CFG_ALLOCATION_TEST
+static int passive_allocation_budget = -1;
+static unsigned passive_allocation_failures;
+static void *passive_test_calloc(size_t count, size_t size) {
+    if (passive_allocation_budget == 0) { ++passive_allocation_failures; return NULL; }
+    if (passive_allocation_budget > 0) --passive_allocation_budget;
+    return calloc(count, size);
+}
+#define calloc passive_test_calloc
+#include "../../src/nanoisa/passive.c"
+#undef calloc
+#endif
 static int passed, failed;
 #define CHECK(x) do { if (x) ++passed; else { ++failed; fprintf(stderr,"Failed line %d: %s\n",__LINE__,#x); } } while(0)
 static void put(uint8_t *p, uint32_t v) {
@@ -146,7 +158,72 @@ static void text_roundtrip(const NvmModule *m, const uint8_t *bytes, size_t size
         nvm_module_free(copy);
     }
 }
+/* I call the passive validator directly for every mutation, independently of
+ * ordinary verifier refusals, and retain the unmodified bytecode after each. */
+static void internal_cfg(void) {
+    AsmResult result;
+    const char *source = ".entry 0\n.function main 0 2 0 int 1\n"
+        "PUSH_BOOL 1\nJMP_FALSE rhs_false\nPUSH_BOOL 1\nJMP store\n"
+        "rhs_false:\nPUSH_BOOL 0\nstore:\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nPRINTLN\nPUSH_I64 0\nRET\n.end\n";
+    NvmModule *m = asm_assemble(source, &result);
+    CHECK(m != NULL); if (!m) return;
+    const uint32_t fields[] = {2,1,1,0,0,19,1, 0,19,0,0,0,0,0};
+    attach(m, fields, sizeof fields);
+    CHECK(nvm_passive_valid(m)); CHECK(nvm_verify(m).ok);
+    m->code[1] = 0; CHECK(nvm_passive_valid(m)); m->code[1] = 1;
+    uint8_t saved[19]; memcpy(saved, m->code, sizeof saved);
+    const uint32_t targets[] = {0, 2, 9, 17, 19, 20, UINT32_MAX};
+    for (size_t i = 0; i < sizeof targets / sizeof targets[0]; ++i) {
+        put(m->code + 3, targets[i] - 2u);
+        CHECK(!nvm_passive_valid(m)); memcpy(m->code, saved, sizeof saved);
+    }
+    m->code[2] = OP_JMP; CHECK(!nvm_passive_valid(m)); /* unreachable arm */
+    memcpy(m->code, saved, sizeof saved);
+    m->code[7] = OP_POP; m->code[8] = OP_NOP;
+    CHECK(!nvm_passive_valid(m)); memcpy(m->code, saved, sizeof saved);
+    m->code[7] = OP_PRINTLN; m->code[8] = OP_NOP;
+    CHECK(!nvm_passive_valid(m)); memcpy(m->code, saved, sizeof saved);
+    m->code[17] = 1; CHECK(!nvm_passive_valid(m)); /* wrong destination */
+    memcpy(m->code, saved, sizeof saved);
+    m->code[16] = OP_LOAD_LOCAL; CHECK(!nvm_passive_valid(m));
+    memcpy(m->code, saved, sizeof saved);
+    /* I join the common result store with two values on only one edge. */
+    m->code[7] = OP_PUSH_BOOL; m->code[8] = 1;
+    for (unsigned i = 9; i < 14; ++i) m->code[i] = OP_NOP;
+    CHECK(!nvm_passive_valid(m)); memcpy(m->code, saved, sizeof saved);
+    put(m->passive_data, 1); CHECK(!nvm_passive_valid(m)); put(m->passive_data, 2);
+#ifdef PASSIVE_CFG_ALLOCATION_TEST
+    unsigned failed_prefixes = 0;
+    for (int prefix = 0; prefix < 16; ++prefix) {
+        passive_allocation_failures = 0; passive_allocation_budget = prefix;
+        bool ok = nvm_passive_valid(m); passive_allocation_budget = -1;
+        if (!passive_allocation_failures) { CHECK(ok); break; }
+        CHECK(!ok); ++failed_prefixes; CHECK(nvm_passive_valid(m));
+    }
+    /* calls.state, block nodes, CFG instructions, dependency and input sets */
+    CHECK(failed_prefixes == 5);
+#endif
+    nvm_module_free(m);
+    /* The documented bound is inclusive and is checked before CFG allocation. */
+    for (uint32_t count = 65536; count <= 65537; ++count) {
+        m = asm_assemble(".entry 0\n.function main 0 1 0 int 1\nPUSH_I64 0\nRET\n.end\n", &result);
+        CHECK(m != NULL); if (!m) continue;
+        uint32_t exit = count + 3, size = exit + 10;
+        free(m->code); m->code = calloc(size, 1); CHECK(m->code != NULL);
+        if (!m->code) { nvm_module_free(m); continue; }
+        for (uint32_t i = 0; i < count - 2; ++i) m->code[i] = OP_NOP;
+        m->code[count - 2] = OP_PUSH_BOOL; m->code[count - 1] = 1;
+        m->code[count] = OP_STORE_LOCAL;
+        m->code[exit] = OP_PUSH_I64; m->code[size - 1] = OP_RET;
+        m->code_size = size; m->functions[0].code_length = size;
+        uint32_t claim[] = {2,1,1,0,0,exit,1, 0,exit,0,0,0,0,0};
+        attach(m, claim, sizeof claim);
+        CHECK(nvm_passive_valid(m) == (count == 65536)); nvm_module_free(m);
+    }
+}
 int main(int argc,char **argv) {
+    internal_cfg();
     independent_and_input();
     branch_entries(argc > 1 ? argv[1] : NULL);
     NvmModule *m=fixture(); if(!m) return 1;

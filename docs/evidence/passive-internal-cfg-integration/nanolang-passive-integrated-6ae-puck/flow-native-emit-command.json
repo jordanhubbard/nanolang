@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-passive-integrated-6ae/bin/nvm2c",
+    "/private/tmp/nanolang-passive-integrated-6ae-puck/flow.nvm",
+    "-o",
+    "/private/tmp/nanolang-passive-integrated-6ae-puck/flow.c"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": ""
+  }
+}

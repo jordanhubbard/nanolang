@@ -1,0 +1,54 @@
+{
+  "head": "8538faadf0e4b97168187245909fa0cffab2ef36",
+  "phases": [
+    {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "nano_virt",
+        "CC=/bin/gcc"
+      ],
+      "status": 0,
+      "seconds": 20.192,
+      "cleanup": [],
+      "timeout": false,
+      "providers_equal": false,
+      "output_exists": false
+    },
+    {
+      "name": "passive",
+      "command": [
+        "/home/jkh/Src/nanolang-passive-8538-fresh/bin/nano_virt",
+        "tests/nanoisa/fixtures/passive_flow.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/tmp/nanolang-passive-shadow-8538-fresh/passive.nvm"
+      ],
+      "status": 1,
+      "seconds": 0.033,
+      "cleanup": [],
+      "timeout": false,
+      "providers_equal": true,
+      "output_exists": false
+    },
+    {
+      "name": "emitter",
+      "command": [
+        "/home/jkh/Src/nanolang-passive-8538-fresh/bin/nano_virt",
+        "src_nano/nanoisa_emit.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/tmp/nanolang-passive-shadow-8538-fresh/emitter.nvm"
+      ],
+      "status": 1,
+      "seconds": 21.579,
+      "cleanup": [],
+      "timeout": false,
+      "providers_equal": false,
+      "output_exists": false
+    }
+  ]
+}

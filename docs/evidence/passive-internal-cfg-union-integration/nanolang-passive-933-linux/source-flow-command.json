@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/tmp/nanolang-passive-933-linux-source/bin/nano_virt",
+    "tests/nanoisa/fixtures/passive_flow.nano",
+    "--emit-nvm",
+    "--strip-debug",
+    "-o",
+    "/tmp/nanolang-passive-933-linux/flow.nvm"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}
