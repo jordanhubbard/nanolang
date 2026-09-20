@@ -13723,3 +13723,19 @@ No invalid program has been run to establish this source finding.
 - [ ] I retain positive replacement and negative ignored-push/replacement source
   controls alongside the full array provenance fixture checkpoint, and review
   the prerequisite before fresh qualification.
+
+My fresh 40870 preparation retains another first terminal under timing task
+`task_2deaad56f65c497f80546220aa1ca9d0`: both hosts compile the parser, then
+stop at typecheck.nano's unchanged ten-second shadow limit. Linux make-build
+returns2 at65.577s and Darwin returns2 at60.595s. Sources/tools agree, process
+groups are gone, and no disk guard or outer timeout fires. Bootstrap, provider
+preparation and all13 fixture methods remain unreached. I retain the exact logs
+and summaries in `docs/evidence/record-lists-40870-preparation/`, with complete
+maps/products at the original preparation roots.
+
+- [ ] I measure the unchanged full typecheck shadow graph at a separate
+  macro-only observer pin: checked graph cloning, indexed root probes/hits,
+  annotation/signature allocation and bounded shadow timestamps. I preserve
+  the10s child/120s outer bounds and review all added counters before execution.
+- [ ] I choose any further correction only from the measured work and preserve
+  both40870 first terminals; parser progress alone is not timeout completion.

@@ -82,3 +82,21 @@ my endpoint product maps retain surviving module sources, captures and binaries.
 This supports an exact Environment-owned root index as a candidate under
 task_c2e9d2f19f1b4a359e841edcceda4abd. It does not establish total timeout cause
 or passing production acceptance. My original full graph and all gates remain.
+
+## My next unchanged graph
+
+At40870, both hosts compiled the parser and then stopped during typecheck.nano's
+full shadow graph at the original ten-second deadline. Linux make-build returned2
+in65.577s; Darwin returned2 in60.595s. Their source/tool maps agree and process
+groups are gone. Minimum monitored free space was4,598,083,584bytes on Linux and
+33,105,829,888bytes on Darwin; no disk guard fired. These are timeout observations,
+not infrastructure attribution. Bootstrap and all13 fixture methods are unreached.
+
+I retain the new terminal summaries/logs under
+`docs/evidence/record-lists-40870-preparation/`. Complete44report/4056object Linux
+preparation remains at `/tmp/nanolang-record-lists-40870-linux-prepare`; the
+44report/4051object Darwin preparation remains at
+`/private/tmp/nanolang-record-lists-40870-puck-prepare`. My new diagnostic starts
+from the exact40870 production pin in a separate tree. I keep all shadows and
+the10s child/120s outer limits. Any added counter or timing wrapper receives
+source review before execution. No timing result qualifies production behavior.
