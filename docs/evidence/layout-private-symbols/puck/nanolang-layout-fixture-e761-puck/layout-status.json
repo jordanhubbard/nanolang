@@ -1,0 +1,25 @@
+{
+  "name": "layout",
+  "argv": [
+    "make",
+    "test-nvm-v2-layouts",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS="
+  ],
+  "bound_seconds": 600,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.6553994589485228,
+  "log": {
+    "sha256": "9f7f2effa5581550ded784bc688373f41549fe5a68f75acd57e0238bdbe41fe4",
+    "bytes": 1541,
+    "archive": "/private/tmp/nanolang-layout-fixture-e761-puck/objects/9f7f2effa5581550ded784bc688373f41549fe5a68f75acd57e0238bdbe41fe4"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

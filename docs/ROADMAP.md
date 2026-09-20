@@ -13479,10 +13479,11 @@ I reproduced both projected native timeouts on puck with the unchanged120-second
   exact duplicate private decoder symbols before editing the fixture; see
   [my correction contract](LAYOUT_FAULT_FIXTURE_PRIVATE_SYMBOLS.md), MAC task
   `task_666ba1fff2e44f398e7960c825011f1a`.
-- [ ] I rename only the embedded fault fixture's two private decoder exports,
+- [x] I rename only the embedded fault fixture's two private decoder exports,
   retaining the real provider and every existing assertion.
-- [ ] I qualify the corrected layout target and complete Make test on Linux and
-  puck with verified provider reuse, unchanged deadlines and retained terminals.
+- [x] I qualify the corrected layout target and original90-method phase on Linux
+  and puck with verified initial provider reuse, unchanged deadlines and retained
+  terminals. The later full-Make verifier corpus fails separately below.
 
 ### Complete verifier corpus after canonical admission repair (2026-09-20)
 

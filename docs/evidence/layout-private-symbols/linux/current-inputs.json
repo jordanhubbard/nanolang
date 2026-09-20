@@ -1,0 +1,32 @@
+{
+  "nanolang-canonical-full-ca377-linux/sources": {
+    "paths": 3675,
+    "equal": true,
+    "map_sha256": "fc23c642b75aeb3e329376f48eb9765223cec7c253568461625c46e9aa72c186"
+  },
+  "nanolang-canonical-full-ca377-linux/tools": {
+    "paths": 11,
+    "equal": true,
+    "map_sha256": "019063287fb604cccf7da74c644f98bed44d4cdceee5b196581bb638e755f261"
+  },
+  "nanolang-canonical-full-ca377-linux/products": {
+    "paths": 911,
+    "equal": true,
+    "map_sha256": "8016d9e2247d1cd4ae9169f2b6b7c1ec608b67ddd94919a3283c835f343a2c69"
+  },
+  "nanolang-layout-fixture-e761-linux/sources": {
+    "paths": 3676,
+    "equal": true,
+    "map_sha256": "ca3627e335c333dfb1549d7d6e98fa13fd1bfd13aa6773b7ff613202a60f2aac"
+  },
+  "nanolang-layout-fixture-e761-linux/tools": {
+    "paths": 11,
+    "equal": true,
+    "map_sha256": "fc4cd5b2727b6a4a293b849cc3c7eea11171f84a038214fc816dee51ff368baf"
+  },
+  "nanolang-layout-fixture-e761-linux/products": {
+    "paths": 1846,
+    "equal": true,
+    "map_sha256": "2de1e39b9f3c27cafadf91985b9cb38e38070088b408e5f701a15f0222835058"
+  }
+}

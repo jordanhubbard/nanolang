@@ -1,0 +1,9 @@
+{
+  "host": "linux",
+  "reports": 127,
+  "objects": 5151,
+  "bytes": 1321560224,
+  "archive_references": 119775,
+  "equal_source_tool_pairs": 26,
+  "scope": "layout49 both; original90 passes then completeMake fails later verifier174/176; first layout link failure and observed preflight copy failure retained"
+}

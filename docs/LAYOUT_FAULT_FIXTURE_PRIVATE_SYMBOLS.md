@@ -38,3 +38,27 @@ transcript, not a separately captured historical log. I do not fabricate one.
 The corrected helper copies regular files before symlinks and archives itself
 before checks. Fresh corrected destinations and file-backed preflight logs keep
 the original roots unchanged. This does not change the fixture checkpoint.
+
+## Measured continuation
+
+My corrected layout target passes49 checks on each host. The complete canonical
+Make target then passes the original90-method source comparison on Linux in
+160.989 seconds and on puck in201.715 seconds. This includes the original
+imported-emitter ten-second policy and the native tests using explicit supported
+compiler selectors.
+
+The full Make commands later return2 at the verifier corpus:176 selected,
+174 verified,2 failed,0 skipped on each host. Linux's full command takes908.020
+seconds; puck's takes998.762 seconds. The new U8 and LexerToken-insert failures
+have separate MAC/roadmap entries. I do not claim whole-Make or release acceptance.
+
+My corrected roots initially reused922 Linux and910 puck products after checking
+all original source/tool/product endpoint hashes. The canonical Make build
+prerequisite then rebuilt bootstrap/components in those relocated roots. My
+phase product maps retain those actual changes; I do not call the providers
+immutable across the full Make command or claim that bootstrap did not run.
+
+I integrate later canonical example-only PR920 and macOS CI selector PR921 in
+my ready tree. Neither changes the four-line fixture correction or qualified
+compiler/runtime source. Their independent evidence remains attributed to its
+own pins; the recorded Make executions remain at my e761 fixture checkpoint.
