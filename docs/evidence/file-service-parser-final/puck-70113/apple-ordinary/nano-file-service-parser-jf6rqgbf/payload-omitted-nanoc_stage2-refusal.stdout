@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0001] I require an exact zero-field variant for an empty match binding (/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary/nano-file-service-parser-jf6rqgbf/ordinary-payload-omitted.nano:1:66)

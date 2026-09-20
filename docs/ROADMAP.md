@@ -13755,3 +13755,13 @@ unchanged. I retain the frozenCBC full matrix and resolve only additive
 Make/roadmap appends. Source/dependency review determines any bounded ordinary
 provider/refusal checks before execution; I do not replay bootstrap or claim
 new integrated sanitizer acceptance from static identity alone.
+
+I complete the approved final PR927 ordinary refresh at 7011339a against actual
+PR929 a2c32d186. Both hosts pass fresh affected providers, complete paired parser
+and ownership/refusal controls, actual publisher and wrapper checks. I retain
+exact CBC compiler binaries with per-phase before/after hashes, copy no provider
+or module cache, and keep the original bootstrap and sanitizer claims separate.
+Current checks verify all 54,637 sources and 12 selected tools on each host,
+plus 482 Linux and 431 puck products. My [final supplemental seal](evidence/file-service-parser-final.md)
+records this bounded acceptance; full File source resolution/lowering and the
+8bbc parent remain open pending their complete required gates.
