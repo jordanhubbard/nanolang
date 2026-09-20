@@ -116,3 +116,22 @@ The private macro is disabled in production. I rebuild env.c, eval.c and
 typechecker.c for this diagnostic and retain the exact unchanged40870 providers
 for every other object. No authority, cache lifetime, allocation result,
 argument order, shadow selection or deadline is changed.
+
+## My bounded registry/disposal follow-up
+
+The first729ce measured interval leaves most time unattributed:9.730780s span,
+0.484468s snapshot cloning and0.103280s indexed root lookup, with zero view or
+signature allocation deltas. I preserve that run and authorize no optimization
+from it. My next separate source pin adds record_list_find calls, visited entries,
+hits and elapsed time, root-publication calls/time, and graph-discard nodes/time.
+List search includes both live entries and retained dead tombstones as the
+unchanged implementation visits them. Publication includes rehashing. Disposal
+counts every recursive node, but clocks only outermost calls using a checked
+private depth counter, so its own nested intervals are not added repeatedly.
+These scopes still overlap with their callers and instrumentation overhead.
+
+I keep the full typecheck_driver input, every shadow, the10s child/120s outer
+bounds, exact frozen40870 providers outside three freshly built diagnostic TUs,
+and the capacity guard. I emit only the same8192-bounded shadow markers; the
+last unmatched interval remains unmeasured. No implementation behavior, handle
+validation, ownership, lifetime or allocation result changes.

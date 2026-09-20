@@ -36,7 +36,9 @@ void nano_evaluator_lifetime_marker(const char *phase, const char *name) {
         "graph_allocations", "clone_nodes", "clone_ns", "retirements", "roots",
         "lookups", "lookup_hits", "lookup_ns", "index_calls", "index_probes", "index_hits",
         "view_calls", "view_ns", "view_copies", "view_wrap_allocations",
-        "checked_metadata_allocations", "legacy_metadata_allocations"
+        "checked_metadata_allocations", "legacy_metadata_allocations",
+        "list_calls", "list_visits", "list_hits", "list_ns",
+        "publication_calls", "publication_ns", "discard_nodes", "discard_ns"
     };
     if (lifetime_markers++ >= 8192) { fputs("I exceeded my diagnostic marker bound.\n", stderr); exit(92); }
     if (fprintf(stderr, "LIFETIME %s %.160s ns=%" PRIu64, phase, name, nano_lifetime_now()) < 0) exit(92);
@@ -125,7 +127,11 @@ static bool record_index_slot(const struct EnvRecordIndex *index, Value value,
 
 /* True transfers the complete entry; false leaves caller ownership and every
  * old index/list byte unchanged. No user callback occurs in this transaction. */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static bool lifetime_publication_body(Environment *env, struct EnvRecordResult *entry) {
+#else
 static bool record_result_publish(Environment *env, struct EnvRecordResult *entry) {
+#endif
     if (!env || !entry || !record_result_pointer(entry->value)) return false;
     struct EnvRecordIndex *old = env->record_result_index;
     size_t count = old ? old->count : 0, capacity = old ? old->capacity : 16;
@@ -169,9 +175,23 @@ failed:
     return false;
 }
 
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static bool record_result_publish(Environment *env, struct EnvRecordResult *entry) {
+    LIFE_COUNT(LIFE_PUBLICATION_CALLS);
+    uint64_t start = nano_lifetime_now();
+    bool result = lifetime_publication_body(env, entry);
+    nano_lifetime_elapsed(LIFE_PUBLICATION_NS, start);
+    return result;
+}
+#endif
+
 /* I own only the record/tuple/string value graph. Other reference leaves keep
  * their original ownership contract and are never released by this pair. */
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static void lifetime_discard_body(Value owned) {
+#else
 void env_discard_value_snapshot(Value owned) {
+#endif
     if (owned.type == VAL_STRING) {
         if (gc_is_managed(owned.as.string_val)) gc_release(owned.as.string_val);
         else free(owned.as.string_val);
@@ -195,6 +215,20 @@ void env_discard_value_snapshot(Value owned) {
         free(tuple);
     }
 }
+
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static unsigned lifetime_discard_depth;
+void env_discard_value_snapshot(Value owned) {
+    LIFE_COUNT(LIFE_DISCARD_NODES);
+    bool outer = lifetime_discard_depth == 0;
+    uint64_t start = outer ? nano_lifetime_now() : 0;
+    if (lifetime_discard_depth == UINT_MAX) { fputs("I overflowed diagnostic disposal depth.\n", stderr); exit(92); }
+    ++lifetime_discard_depth;
+    lifetime_discard_body(owned);
+    --lifetime_discard_depth;
+    if (outer) nano_lifetime_elapsed(LIFE_DISCARD_NS, start);
+}
+#endif
 
 void env_discard_record(StructValue *record) {
     Value owned = {0};
@@ -325,12 +359,29 @@ bool env_retire_record(Environment *env, Value owned) {
     return owned.type == VAL_STRUCT && env_retire_value(env, owned);
 }
 
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static struct EnvRecordList *lifetime_list_find_body(Environment *env, Value handle) {
+#else
 static struct EnvRecordList *record_list_find(Environment *env, Value handle) {
+#endif
     if (!env || handle.type != VAL_INT) return NULL;
-    for (struct EnvRecordList *entry = env->record_lists; entry; entry = entry->next)
+    for (struct EnvRecordList *entry = env->record_lists; entry; entry = entry->next) {
+        LIFE_COUNT(LIFE_LIST_VISITS);
         if (handle.as.int_val == (long long)(intptr_t)&entry->storage) return entry;
+    }
     return NULL;
 }
+
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+static struct EnvRecordList *record_list_find(Environment *env, Value handle) {
+    LIFE_COUNT(LIFE_LIST_CALLS);
+    uint64_t start = nano_lifetime_now();
+    struct EnvRecordList *result = lifetime_list_find_body(env, handle);
+    if (result) LIFE_COUNT(LIFE_LIST_HITS);
+    nano_lifetime_elapsed(LIFE_LIST_NS, start);
+    return result;
+}
+#endif
 
 bool env_record_list_identity(Environment *env, Value handle, NominalIdentity *out) {
     struct EnvRecordList *entry = record_list_find(env, handle);
