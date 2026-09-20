@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/ordinary/products/unhooked-O0",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/ordinary/products/unhooked-O0-files"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-b9ba",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

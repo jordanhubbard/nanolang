@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "--version"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-15069",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

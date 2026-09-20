@@ -1,0 +1,14 @@
+{
+  "target-probe.c": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/target-probe.ll",
+    "sha256": "9111d0e55ac5ad3fd3cef091ba8af0f421ad765ffbe7685e3ef4b9df95073b63",
+    "bytes": 1209,
+    "archive": "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/objects/9111d0e55ac5ad3fd3cef091ba8af0f421ad765ffbe7685e3ef4b9df95073b63"
+  }
+}

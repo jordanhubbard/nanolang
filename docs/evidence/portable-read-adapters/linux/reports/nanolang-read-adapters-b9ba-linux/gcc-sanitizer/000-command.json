@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "--version"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-adapters-b9ba",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}
