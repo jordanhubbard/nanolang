@@ -87,9 +87,11 @@ class TokenValueBytes(unittest.TestCase):
             (self.work/(label+'-expected-selection.json')).write_text(json.dumps({'names':expected,'inputs':inputs},indent=2)+'\n')
             for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
                 exe=self.work/(label+'-'+compiler);shadow=self.work/(label+'-'+compiler+'-shadows.json')
-                args=[ROOT/'bin'/compiler,source,'-o',exe]
+                temp=self.work/(label+'-'+compiler+'-tmp');temp.mkdir()
+                args=[ROOT/'bin'/compiler,source,'-o',exe,'--keep-c']
+                (self.work/(label+'-'+compiler+'-retention.json')).write_text(json.dumps({'keep_c':True,'TMPDIR':str(temp)},indent=2)+'\n')
                 if compiler=='nanoc_c':args+=['--llm-shadow-json',shadow,'--verbose']
-                out,err=self.command(label+'-'+compiler+'-build',args,timeout=900,extra={'NANO_SHADOW_TRACE':'1'})
+                out,err=self.command(label+'-'+compiler+'-build',args,timeout=900,extra={'NANO_SHADOW_TRACE':'1','TMPDIR':str(temp)})
                 if compiler=='nanoc_c':
                     report=json.loads(shadow.read_text())
                     self.assertTrue(report['completed'] and report['success'])

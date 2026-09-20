@@ -12587,6 +12587,8 @@ and actual merge remain pending; no cyclic File runtime or parent closure follow
 
 ### My paired File source and NSI publication prerequisite
 
+- [ ] I complete native accepted-transitive declaration closure (`task_784f64db9b7443c888242a3b52b9dbe5`) and integer string-length comparison semantics (`task_50f624351db54305ac31a918e9874010`) under full5.1 source publication, with the083 first diagnostics and paired strict native gates; explicit fixture imports/locals do not close either child. I record that083 final temporary C was automatically removed; future producer commands use --keep-c and report-owned TMPDIR, without replaying083 or claiming its missing file is retained.
+
 - [ ] I retain083 paired C-seed76-shadow PASS on Linux/puck followed by native C compile failure: accepted transitive helper references lack emitted prototypes and direct int/str_length comparisons produce signedness errors. Before fresh token gates I give the fixture explicit direct module imports and typed length locals with unchanged assertions/selection. The broader accepted-visibility/declaration and integer-builtin C lowering mismatch remains a required source-publication follow-up; this fixture correction does not repair or qualify it.
 
 - [ ] I retain7bf corrected C decoder/list/bridge and unchanged f-string PASS on both hosts, then the first paired C-seed typecheck refusal before shadows: my new Nano fixture binds generic list_remove as an element, but its existing source signature is void. I call remove as a statement and assert the remaining length/shifted element count, preserving pop, high-bit metadata and actual C remove-return controls. No compiler/list production change or old-binary replay.
