@@ -100,3 +100,19 @@ preparation remains at `/tmp/nanolang-record-lists-40870-linux-prepare`; the
 from the exact40870 production pin in a separate tree. I keep all shadows and
 the10s child/120s outer limits. Any added counter or timing wrapper receives
 source review before execution. No timing result qualifies production behavior.
+
+My40870 observer extension counts root-index slot calls, actual probes and
+matching occupied slots separately from borrowed-root lookup calls/hits/time.
+Index counts include publication and rehash work; they are not all lookups.
+Graph clone timing remains inclusive. I count each nominal view entry, owned
+copy request and wrapper allocation attempt, and time view entries inclusively;
+recursive view intervals are nonadditive. I separately count allocator attempts
+inside the checked annotation copier and legacy payload_alloc, retaining the
+latter's fatal policy. These are named allocation domains, not all allocation.
+I emit cumulative fields only at the same bounded shadow markers. Work before
+the first marker is retained as a prefix but excluded from interval deltas.
+
+The private macro is disabled in production. I rebuild env.c, eval.c and
+typechecker.c for this diagnostic and retain the exact unchanged40870 providers
+for every other object. No authority, cache lifetime, allocation result,
+argument order, shadow selection or deadline is changed.

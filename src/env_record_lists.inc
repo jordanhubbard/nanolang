@@ -5,6 +5,58 @@
 #include <limits.h>
 #include <stdint.h>
 
+#include "evaluator_timing_private.h"
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+#include <time.h>
+#include <inttypes.h>
+#include <stdio.h>
+static uint64_t lifetime_counters[LIFE_COUNTER_COUNT];
+static unsigned lifetime_markers;
+void nano_lifetime_add(enum NanoLifetimeCounter counter, uint64_t amount) {
+    if ((unsigned)counter >= LIFE_COUNTER_COUNT || lifetime_counters[counter] > UINT64_MAX - amount) {
+        fputs("I overflowed a diagnostic counter.\n", stderr); exit(92);
+    }
+    lifetime_counters[counter] += amount;
+}
+uint64_t nano_lifetime_now(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) || now.tv_sec < 0 || now.tv_nsec < 0 || now.tv_nsec >= 1000000000L ||
+        (uint64_t)now.tv_sec > (UINT64_MAX - (uint64_t)now.tv_nsec) / UINT64_C(1000000000)) {
+        fputs("I cannot read the diagnostic clock.\n", stderr); exit(92);
+    }
+    return (uint64_t)now.tv_sec * UINT64_C(1000000000) + (uint64_t)now.tv_nsec;
+}
+void nano_lifetime_elapsed(enum NanoLifetimeCounter counter, uint64_t start) {
+    uint64_t end = nano_lifetime_now();
+    if (end < start) { fputs("I observed a diagnostic clock reversal.\n", stderr); exit(92); }
+    nano_lifetime_add(counter, end - start);
+}
+void nano_evaluator_lifetime_marker(const char *phase, const char *name) {
+    static const char *const names[LIFE_COUNTER_COUNT] = {
+        "graph_allocations", "clone_nodes", "clone_ns", "retirements", "roots",
+        "lookups", "lookup_hits", "lookup_ns", "index_calls", "index_probes", "index_hits",
+        "view_calls", "view_ns", "view_copies", "view_wrap_allocations",
+        "checked_metadata_allocations", "legacy_metadata_allocations"
+    };
+    if (lifetime_markers++ >= 8192) { fputs("I exceeded my diagnostic marker bound.\n", stderr); exit(92); }
+    if (fprintf(stderr, "LIFETIME %s %.160s ns=%" PRIu64, phase, name, nano_lifetime_now()) < 0) exit(92);
+    for (unsigned i = 0; i < LIFE_COUNTER_COUNT; ++i)
+        if (fprintf(stderr, " %s=%" PRIu64, names[i], lifetime_counters[i]) < 0) exit(92);
+    if (fputc('\n', stderr) == EOF || fflush(stderr)) exit(92);
+}
+#if defined(malloc) || defined(calloc) || defined(realloc) || defined(strdup)
+#error I require unwrapped allocators for this separate timing build.
+#endif
+static void *lifetime_malloc(size_t n) { LIFE_COUNT(LIFE_GRAPH_ALLOC); return malloc(n); }
+static void *lifetime_calloc(size_t n, size_t width) { LIFE_COUNT(LIFE_GRAPH_ALLOC); return calloc(n, width); }
+static void *lifetime_realloc(void *p, size_t n) { LIFE_COUNT(LIFE_GRAPH_ALLOC); return realloc(p, n); }
+static char *lifetime_strdup(const char *p) { LIFE_COUNT(LIFE_GRAPH_ALLOC); return strdup(p); }
+#define malloc lifetime_malloc
+#define calloc lifetime_calloc
+#define realloc lifetime_realloc
+#define strdup lifetime_strdup
+#endif
+
 struct EnvRecordList {
     struct EnvRecordList *next;
     NominalIdentity element;
@@ -51,16 +103,19 @@ static bool record_index_bytes(size_t capacity, size_t *out) {
 /* I locate before writing. Hash equality alone grants no membership. */
 static bool record_index_slot(const struct EnvRecordIndex *index, Value value,
                               size_t *slot, bool *found) {
+    LIFE_COUNT(LIFE_INDEX_CALLS);
     size_t bytes;
     const void *pointer = record_result_pointer(value);
     if (!index || !pointer || !slot || !found || !record_index_bytes(index->capacity, &bytes) ||
         index->count > index->capacity - index->capacity / 4) return false;
     size_t position = record_result_hash(value) & (index->capacity - 1);
     for (size_t probe = 0; probe < index->capacity; ++probe) {
+        LIFE_COUNT(LIFE_INDEX_PROBES);
         const struct EnvRecordResult *entry = index->slots[position];
         if (!entry || (entry->value.type == value.type && record_result_pointer(entry->value) == pointer)) {
             *slot = position;
             *found = entry != NULL;
+            if (*found) LIFE_COUNT(LIFE_INDEX_HITS);
             return true;
         }
         position = (position + 1) & (index->capacity - 1);
@@ -106,6 +161,7 @@ static bool record_result_publish(Environment *env, struct EnvRecordResult *entr
     table->count = count + 1;
     env->record_results = entry;
     env->record_result_index = table;
+    LIFE_COUNT(LIFE_ROOTS);
     if (table != old) free(old);
     return true;
 failed:
@@ -148,6 +204,7 @@ void env_discard_record(StructValue *record) {
 }
 
 static bool clone_value_at(Value source, Value *out, unsigned depth) {
+    LIFE_COUNT(LIFE_CLONE_NODES);
     if (depth >= 128) return false;
     Value copy = source;
     copy.is_return = copy.is_break = copy.is_continue = false;
@@ -201,7 +258,14 @@ fail:
 }
 
 bool env_clone_value_snapshot(Value source, Value *out) {
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+    uint64_t start = nano_lifetime_now();
+    bool result = out && clone_value_at(source, out, 0);
+    nano_lifetime_elapsed(LIFE_CLONE_NS, start);
+    return result;
+#else
     return out && clone_value_at(source, out, 0);
+#endif
 }
 
 bool env_clone_record(Value source, Value *out) {
@@ -231,12 +295,22 @@ bool env_record_snapshot(Environment *env, Value source, Value *out) {
 bool env_record_result_borrowed(Environment *env, Value value) {
     size_t slot;
     bool found;
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+    LIFE_COUNT(LIFE_LOOKUPS);
+    uint64_t start = nano_lifetime_now();
+    bool result = env && record_index_slot(env->record_result_index, value, &slot, &found) && found;
+    if (result) LIFE_COUNT(LIFE_LOOKUP_HITS);
+    nano_lifetime_elapsed(LIFE_LOOKUP_NS, start);
+    return result;
+#else
     return env && record_index_slot(env->record_result_index, value, &slot, &found) && found;
+#endif
 }
 
 /* I transfer ownership only after registration succeeds. My caller clears its
  * symbol after true; false preserves its ownership. */
 bool env_retire_value(Environment *env, Value owned) {
+    LIFE_COUNT(LIFE_RETIREMENTS);
     if (!env || (owned.type != VAL_STRUCT && owned.type != VAL_TUPLE) ||
         (owned.type == VAL_STRUCT ? !owned.as.struct_val : !owned.as.tuple_val) ||
         env_record_result_borrowed(env, owned)) return false;
@@ -398,3 +472,10 @@ static void env_record_storage_free(Environment *env) {
         free(entry);
     }
 }
+
+#ifdef NANO_EVALUATOR_LIFETIME_TIMING
+#undef malloc
+#undef calloc
+#undef realloc
+#undef strdup
+#endif

@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "evaluator_timing_private.h"
 #include "effects.h"
 #include "tracing.h"
 #include "resource_tracking.h"

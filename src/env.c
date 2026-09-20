@@ -1801,6 +1801,7 @@ void free_type_info(TypeInfo *info) {
 /* Payload annotations own their complete parsed tree. I never borrow a nested
  * node across AST, environment and extracted-module lifetimes. */
 static void *payload_alloc(size_t count, size_t size) {
+    LIFE_COUNT(LIFE_LEGACY_METADATA_ALLOC);
     if (count && size > SIZE_MAX / count) {
         fprintf(stderr, "I cannot represent this payload type metadata\n");
         exit(1);

@@ -5745,6 +5745,7 @@ test-ownership-declaration-projection: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 
 # I rebuild evaluator storage with its owning translation unit.
 $(OBJ_DIR)/env.o: $(SRC_DIR)/env_record_lists.inc $(SRC_DIR)/env_provider_leases.inc $(SRC_DIR)/env_signature_snapshot.inc
+$(OBJ_DIR)/env.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/typechecker.o: $(SRC_DIR)/evaluator_timing_private.h
 
 .PHONY: test-evaluator-owned-lifetimes test-generic-record-lists
 # I require a separately recorded fresh bootstrap for the paired source methods.
