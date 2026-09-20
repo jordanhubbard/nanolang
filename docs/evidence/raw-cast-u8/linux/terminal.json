@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "head": "565a48d3faa2d68eb49a81809846cbc5ad61ec3d",
+  "scope": "raw CAST_U8 VM, schema and existing byte backend neighbors; source conversion remains unimplemented"
+}

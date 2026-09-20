@@ -1,0 +1,26 @@
+{
+  "name": "llvm-refusal",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "/tmp/nanolang-cast-u8-linux-extended-corrected/check-refusal.py",
+    "/tmp/nanolang-cast-u8-linux-extended-corrected/llvm.out",
+    "/home/jkh/Src/nanolang-cast-u8-qualification/bin/nvm2llvm",
+    "/tmp/nanolang-cast-u8-linux-extended-corrected/convert.nvm",
+    "-o",
+    "/tmp/nanolang-cast-u8-linux-extended-corrected/llvm.out"
+  ],
+  "bound_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.06401730701327324,
+  "log": {
+    "sha256": "7a10a05081317ad73b4d710e63f43c9a44cf097914fb9f43e2835d27fd8decfc",
+    "bytes": 160,
+    "archive": "/tmp/nanolang-cast-u8-linux-extended-corrected/objects/7a10a05081317ad73b4d710e63f43c9a44cf097914fb9f43e2835d27fd8decfc"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

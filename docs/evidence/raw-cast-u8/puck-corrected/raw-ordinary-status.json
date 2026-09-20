@@ -1,0 +1,25 @@
+{
+  "name": "raw-ordinary",
+  "argv": [
+    "make",
+    "test-cast-u8",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS="
+  ],
+  "bound_seconds": 300,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 3.0270751669304445,
+  "log": {
+    "sha256": "1dc9edeaf22f6bfd73148ef9fa5eaffb6eeaf2d72272b02709aaf7dec8ee3145",
+    "bytes": 4263,
+    "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/1dc9edeaf22f6bfd73148ef9fa5eaffb6eeaf2d72272b02709aaf7dec8ee3145"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

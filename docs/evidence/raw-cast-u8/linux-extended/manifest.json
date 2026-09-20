@@ -1,0 +1,56 @@
+{
+  "head": "565a48d3faa2d68eb49a81809846cbc5ad61ec3d",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "scope": "raw CAST_U8 VM, schema and existing byte backend neighbors; source conversion remains unimplemented",
+  "phases": [
+    {
+      "name": "gcc-sanitizers",
+      "argv": [
+        "make",
+        "test-cast-u8",
+        "CC=/bin/gcc",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer",
+        "LDFLAGS=-lm -fsanitize=address,undefined"
+      ],
+      "bound_seconds": 300,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 10.13801961694844,
+      "log": {
+        "sha256": "32aa6a0f61ed80aff25b7043e0114fb921ab4305072825d715abdcd874793d04",
+        "bytes": 4097,
+        "archive": "/tmp/nanolang-cast-u8-linux-extended/objects/32aa6a0f61ed80aff25b7043e0114fb921ab4305072825d715abdcd874793d04"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "clang-ordinary",
+      "argv": [
+        "make",
+        "test-cast-u8",
+        "CC=/usr/local/bin/clang",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE",
+        "LDFLAGS=-lm"
+      ],
+      "bound_seconds": 300,
+      "status": 2,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.21453296905383468,
+      "log": {
+        "sha256": "88d952965eb8498537e1ed881018f762911ce9f0b568d1b822bdca838bb7d102",
+        "bytes": 5365,
+        "archive": "/tmp/nanolang-cast-u8-linux-extended/objects/88d952965eb8498537e1ed881018f762911ce9f0b568d1b822bdca838bb7d102"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

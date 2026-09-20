@@ -1,0 +1,24 @@
+{
+  "name": "byte-neighbors",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_scalar_u8"
+  ],
+  "bound_seconds": 900,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 13.044776772963814,
+  "log": {
+    "sha256": "a62fac4780f0930485d7a3d3b6d44df5886b5e1529989ab6a9e5aacf4fbe2802",
+    "bytes": 1078,
+    "archive": "/tmp/nanolang-cast-u8-linux-final/objects/a62fac4780f0930485d7a3d3b6d44df5886b5e1529989ab6a9e5aacf4fbe2802"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

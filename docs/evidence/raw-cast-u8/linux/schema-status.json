@@ -1,0 +1,24 @@
+{
+  "name": "schema",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_nanoisa_schema"
+  ],
+  "bound_seconds": 120,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 1.6166628249920905,
+  "log": {
+    "sha256": "9a60cb8993e0922fd8b33beac4cbf79a20148a227a6d9cf4219b4d596b883717",
+    "bytes": 5039,
+    "archive": "/tmp/nanolang-cast-u8-linux/objects/9a60cb8993e0922fd8b33beac4cbf79a20148a227a6d9cf4219b4d596b883717"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

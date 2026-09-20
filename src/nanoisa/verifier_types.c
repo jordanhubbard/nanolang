@@ -154,6 +154,7 @@ static bool type_rule_for(uint8_t opcode, TypeRule *out) {
 
     /* Casts state their own result. */
     case OP_CAST_INT:    RULE0(TAG_INT);
+    case OP_CAST_U8:     RULE1(TAG_INT, TAG_U8);
     case OP_CAST_FLOAT:  RULE0(TAG_FLOAT);
     case OP_CAST_BOOL:   RULE0(TAG_BOOL);
     case OP_CAST_STRING: RULE0(TAG_STRING);
@@ -265,13 +266,15 @@ static NvmVerifyResult verify_types_checked(const NvmModule *mod, uint32_t fn_id
                 if (from_top >= d) break;          /* height walk owns arity */
                 uint8_t have = in[d - 1 - from_top];
                 uint8_t want = rule.args[k];
-                if (have != TYPE_UNKNOWN && want != TYPE_UNKNOWN && have != want) {
+                bool byte_identity = instr->opcode == OP_CAST_U8 && have == TAG_U8;
+                if (have != TYPE_UNKNOWN && want != TYPE_UNKNOWN && have != want && !byte_identity) {
                     result.ok = false;
                     snprintf(result.error_msg, sizeof(result.error_msg),
                              "function[%u] %s at offset %u expects %s but the "
                              "operand is %s",
                              fn_idx, info->name, di->byte_offset,
-                             isa_tag_name(want), isa_tag_name(have));
+                             instr->opcode == OP_CAST_U8 ? "int or u8" : isa_tag_name(want),
+                             isa_tag_name(have));
                     goto done;
                 }
             }

@@ -1,0 +1,165 @@
+{
+  "head": "565a48d3faa2d68eb49a81809846cbc5ad61ec3d",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "scope": "raw CAST_U8 VM, schema and existing byte backend neighbors; source conversion remains unimplemented",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/usr/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.02445770800113678,
+      "log": {
+        "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+        "bytes": 200,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.04684754100162536,
+      "log": {
+        "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.02470295794773847,
+      "log": {
+        "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/usr/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.012552333064377308,
+      "log": {
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+        "bytes": 263,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "schema",
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_nanoisa_schema"
+      ],
+      "bound_seconds": 120,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 2.591328833019361,
+      "log": {
+        "sha256": "dad3ae2f86fc920141269d2233599cb00fa4a9b8e4986c292fd99f401ab64342",
+        "bytes": 3560,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/dad3ae2f86fc920141269d2233599cb00fa4a9b8e4986c292fd99f401ab64342"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "raw-ordinary",
+      "argv": [
+        "make",
+        "test-cast-u8",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS="
+      ],
+      "bound_seconds": 300,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 3.0270751669304445,
+      "log": {
+        "sha256": "1dc9edeaf22f6bfd73148ef9fa5eaffb6eeaf2d72272b02709aaf7dec8ee3145",
+        "bytes": 4263,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/1dc9edeaf22f6bfd73148ef9fa5eaffb6eeaf2d72272b02709aaf7dec8ee3145"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "byte-neighbors",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_scalar_u8"
+      ],
+      "bound_seconds": 900,
+      "status": 1,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.04571504204068333,
+      "log": {
+        "sha256": "435842b597d028dbb766dbfa757b0fbde14aa5346427181fe30d6d42654a67f4",
+        "bytes": 5279,
+        "archive": "/private/tmp/nanolang-cast-u8-puck-corrected/objects/435842b597d028dbb766dbfa757b0fbde14aa5346427181fe30d6d42654a67f4"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

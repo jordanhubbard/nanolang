@@ -1,0 +1,24 @@
+{
+  "name": "homebrew-sanitizers",
+  "argv": [
+    "make",
+    "test-cast-u8",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "LDFLAGS=-lm -fsanitize=address,undefined"
+  ],
+  "bound_seconds": 300,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 6.416139250039123,
+  "log": {
+    "sha256": "3ef3cf966ca50b9ed3ca7a5145d481c02e9ba9b416271744efb56ef34569e62b",
+    "bytes": 4346,
+    "archive": "/private/tmp/nanolang-cast-u8-puck-final/objects/3ef3cf966ca50b9ed3ca7a5145d481c02e9ba9b416271744efb56ef34569e62b"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

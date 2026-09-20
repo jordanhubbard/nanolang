@@ -1,0 +1,26 @@
+{
+  "name": "llvm-refusal",
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/private/tmp/nanolang-cast-u8-puck-guard/check-refusal.py",
+    "/private/tmp/nanolang-cast-u8-puck-guard/llvm.out",
+    "/private/tmp/nanolang-cast-u8-565a4/bin/nvm2llvm",
+    "/private/tmp/nanolang-cast-u8-puck-guard/convert.nvm",
+    "-o",
+    "/private/tmp/nanolang-cast-u8-puck-guard/llvm.out"
+  ],
+  "bound_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.048535749898292124,
+  "log": {
+    "sha256": "7a10a05081317ad73b4d710e63f43c9a44cf097914fb9f43e2835d27fd8decfc",
+    "bytes": 160,
+    "archive": "/private/tmp/nanolang-cast-u8-puck-guard/objects/7a10a05081317ad73b4d710e63f43c9a44cf097914fb9f43e2835d27fd8decfc"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

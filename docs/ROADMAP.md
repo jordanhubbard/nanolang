@@ -13592,6 +13592,16 @@ PR918 and PR919 are merged, and PR922 completes the unchanged90-method phase on 
 
 The complete Make run subsequently verifies174 of176 corpus programs. Computed U8 conversion task_c6b2a040c1434fc784a9d46c02a4981e and generic-list mutation task_7b805000dfda4da386b55d4691e8c647 remain open, along with all full5.1 bootstrap, mixed/source, service, platform and release gates. These diagnostic closures do not approve publication.
 
+- [ ] I implement exact computed INT-to-U8 conversion under task_c6b2a040c1434fc784a9d46c02a4981e and [my reviewed consumer contract](NANOISA_COMPUTED_U8_CONVERSION.md). The first legacy0x8f catalog/VM/type-verifier checkpoint preserves modulo256 computed conversion and exact U8 identity, checks runtime tags and cleanup, and leaves other targets closed. Complete native/LLVM/Wasm/reconstruction and paired source contexts remain required before the original corpus or full5.1 closes.
+
+- [x] I isolate raw CAST_U8 test discovery (task_193af77877c5462db39bd02531e4f194): module import must not discover the helper TestCase. Static review caught this before fixture execution; I require exactly one intended method before qualification.
+
+- [x] I correct raw-byte qualification tool selection (task_b1d7122b5b944fcfb9c848ff117e6ec4). My first Darwin schema check selected Python without PyYAML; my first Linux Clang fixture omitted its explicit GCC installation under strict diagnostics. I retain both first failures and use installed dependency-capable Python and the selected GCC13 support path. Static preflight also replaces the unexecuted refusal program's nonexistent DROP mnemonic with POP. No production assertion changes.
+
+- [x] I honor the selected native compiler in my scalar-byte result guard (task_7c697095d2d64577afb9171401d9affe). My first Darwin neighbor run used hardcoded Apple cc, whose sanitizer rejected detect_leaks before the native invariant. I preserve that terminal and all leak, SIGABRT, and diagnostic assertions while selecting NANO_NATIVE_TEST_CC consistently with my other native fixtures.
+
+- [x] I qualify my raw CAST_U8 catalog/verifier/VM prerequisite (task_b9424348ce3643b582627c159621ce2c): both dispatch modes pass2742 assertions per executable across seven compiler configurations; existing byte neighbors and unsupported backend output preservation are qualified with [retained scope and first failures](RAW_CAST_U8_QUALIFICATION.md). Source lowering and other backend implementations remain unchecked under task_c6b2a040c1434fc784a9d46c02a4981e.
+
 ### Counted mixed record-array runtime prerequisite (2026-09-20)
 
 I base this next step on actual PR924 merge `ae916a0a821fffdccb9d92b6e62614f97d605801`;

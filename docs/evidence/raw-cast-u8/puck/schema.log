@@ -1,0 +1,18 @@
+test_nanoisa_schema (unittest.loader._FailedTest.test_nanoisa_schema) ... ERROR
+
+======================================================================
+ERROR: test_nanoisa_schema (unittest.loader._FailedTest.test_nanoisa_schema)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_nanoisa_schema
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/loader.py", line 141, in loadTestsFromName
+    module = __import__(module_name)
+  File "/private/tmp/nanolang-cast-u8-565a4/tests/test_nanoisa_schema.py", line 7, in <module>
+    import yaml
+ModuleNotFoundError: No module named 'yaml'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
