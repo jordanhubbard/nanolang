@@ -12587,6 +12587,8 @@ and actual merge remain pending; no cyclic File runtime or parent closure follow
 
 ### My paired File source and NSI publication prerequisite
 
+- [ ] I preserve ae62 C-seed generator63-shadow PASS and exact four-file byte parity on Linux/puck, then Stage1 SH0002 refusal of the existing builtin-target str_starts_with shadow. I introduce a named schema_prefix_matches wrapper at the three generator call sites and attach the same positive/negative assertions to that function. I retain the paired builtin-shadow policy disagreement as a full5.1 follow-up (`task_ba64cfbaa3d94de9bf3f7066c3fd3a5d`); the generator wrapper is not a checker policy repair.
+
 - [ ] I preserve303 generator63-shadow PASS on Linux/puck followed by strict native compilation failure in my new schema_name_before helper: an int index compares with direct str_length lowered to size_t. I retain task_50f624351db54305ac31a918e9874010 and give this helper typed left/right byte-length locals with identical ordering and existing shadows; no warning suppression or four-file parity relaxation.
 
 - [ ] I preserve d285 first generator terminals on Linux/puck: after the typed boolean correction, pre-existing generator shadows call file_delete and JSON mutator externs as statements outside unsafe blocks. I use the existing public delete/json_array_push/object_set wrappers and matching JSON constructor wrappers, preserving exact calls, ownership, shadows and four-file output checks. This is newly exercised generator qualification, not a token decoder regression; I change no global safety policy.
