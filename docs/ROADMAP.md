@@ -13108,3 +13108,10 @@ I retain the907 canonical restack at3df299892 after actual906/ca0c9f6a8: fresh p
   I review the complete diff before fresh gates, retain C99/C11/C++11/C++17
   -Werror and all existing public/installed assertions, then seal exact outcomes.
   Parent15a92/public acceptance and source/indirect/richer-borrow work stay open.
+
+I also retain the independent aff3 Darwin first ordinary terminal: two methods
+run57.171 seconds, with the instrumented public corpus passing before the linked
+installed C++11 header fails the same missing-field initializer diagnostic. Apple
+Clang accepts the old assertion spelling as an extension; GCC reports both defects.
+Neither host reaches later configurations. Correction97a3866 changes only the
+three reviewed header/generator files; fresh qualification awaits source review.
