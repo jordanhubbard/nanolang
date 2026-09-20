@@ -101,3 +101,11 @@ qualification remains attributed to its earlier pins. Declaration decoding does
 not authorize storage or execution. Mixed whole-envelope projection, array
 origin/mutation proofs and source/runtime acceptance remain full5.1 obligations.
 Independent integration audit and actual merge remain pending.
+
+I integrate actual PR912 at4fe0961 with additive histories intact. My [static
+closure comparison](ordinary-array-passive-integration.json) preserves the
+exact query, shared declaration reader, private layout decoder and fixture
+inputs. These declaration/container checks do not evaluate passive CFGs or
+emit the changed optional numeric helper. I retain d74 measurements at their
+actual pin; public ARRAY_FIELDS refusal and complete mixed validation limits
+remain unchanged.
