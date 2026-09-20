@@ -1,0 +1,19 @@
+I retain File CODE artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-code-smxq1t9r
+test_instrumented_preparation_allocation_recovery (tests.test_file_code.FileCode.test_instrumented_preparation_allocation_recovery) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_preparation_allocation_recovery (tests.test_file_code.FileCode.test_instrumented_preparation_allocation_recovery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-indirect-72e-puck-source/tests/test_file_code.py", line 42, in test_instrumented_preparation_allocation_recovery
+    self.qualify("instrumented", True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-indirect-72e-puck-source/tests/test_file_code.py", line 36, in qualify
+    self.assertEqual(result.returncode, 0, (args, result.stdout, result.stderr))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : (['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-code-smxq1t9r/instrumented'], '', '==86989==AddressSanitizer: detect_leaks is not supported on this platform.\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 2.999s
+
+FAILED (failures=1)

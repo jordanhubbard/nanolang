@@ -1,0 +1,47 @@
+[
+  {
+    "phase": "configuration",
+    "seconds": 0.151,
+    "status": 0
+  },
+  {
+    "phase": "code",
+    "seconds": 5.764,
+    "status": 0
+  },
+  {
+    "phase": "body",
+    "seconds": 5.98,
+    "status": 0
+  },
+  {
+    "phase": "flow",
+    "seconds": 5.744,
+    "status": 0
+  },
+  {
+    "phase": "hosted",
+    "seconds": 4.233,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.484,
+    "status": 0
+  },
+  {
+    "phase": "cyclic-hosted",
+    "seconds": 5.76,
+    "status": 0
+  },
+  {
+    "phase": "indirect_targets",
+    "seconds": 2.379,
+    "status": 0
+  },
+  {
+    "phase": "indirect_flow",
+    "seconds": 2.552,
+    "status": 0
+  }
+]

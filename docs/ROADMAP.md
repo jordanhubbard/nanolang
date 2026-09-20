@@ -13114,3 +13114,27 @@ I keep these independent of PR910's generic-call identity and VM fixture repair.
 I retain paired passive control-flow and optional-parser-helper qualification at1f0db in [my evidence](evidence/passive-internal-cfg.md):26 passive methods,273 C checks, paired flow/par, unchanged flow VM/native output and scoped sanitizers pass on both hosts. Canonical integration and actual merge remain pending; the full release remains held.
 
 I reconcile bounded PR910 match and VM-fixture repairs at actual6b86de83d, private Wasm906 atca0c9f6a8, private cyclic907 at6dd5d7a2b and publisher908 at0061feed5. Their broader source/runtime parents and emitter deadline/Darwin executable-timeout blockers stay open. I integrate the passive repair with0061feed5 next, rebuilding the changed common checker/provider closure on both hosts before publication.
+
+- [ ] I establish the distinct [private indirect File hosted plan](NANOISA_FILE_INDIRECT_HOSTED.md) under task2c135 after canonical904: review exact serialized/startup conjunction, every-candidate frame/value/staging bounds and copied lifetime; then implement/review/qualify all allocation failures and original neighbors on Linux/Darwin. Runtime membership/fuel/cleanup, public installed admission, callable arguments/results, richer borrows and paired source/full shadows remain required later checkpoints.
+
+I prepare the reviewed95c indirect-hosted fixture checkpoint before any run.
+I compare copied full alternatives and callable obligations, exercise both
+candidate orders with a larger non-first callee, startup and wire refusals,
+input destruction, all getter sentinels and persistent/transient allocation
+prefixes with independent recovery. Instrumented internal controls cover target
+map identity and exact callable staging limits; the serialized instruction
+ceiling remains separate. I reuse the13-provider hosted allocation closure and
+bounded runner, without FLOW_INSTRUMENT or runtime dispatch. Fixture review
+precedes frozen Linux/Darwin qualification; no acceptance is claimed here.
+
+- [ ] I repair task_ff730d2cf69d4b6998f66bdcc66e66d1 before new indirect-hosted gates. I preserve225b's Linux line303 baseline failure and Darwin line310 final-zero failure (Darwin reached409 persistent and409 transient refusals). Both fresh setups/discovery passed; neither complete method passed. My arity fixture frees the tracked bodymodule ownership buffer through ordinary free, bypassing the tracker. I pair its replacement allocation/free under HOSTED hooks, add a pre-sweep zero-live checkpoint and diagnostic counts, then request review before fresh full qualification. I change no production or assertion and do not replay old binaries.
+
+I retain the [indirect-hosted qualification seal](evidence/file-indirect-hosted.md)
+at corrected5c26: all7 compiler configurations and unchanged query neighbors
+passed on Linux/Darwin,31 corrected phases total. Both225b tracker failures remain
+sealed separately; no production source changed. I verify39 source/tool pairs,
+existing provider identities and current sources/tools before sealing389 reports
+and1,456 content-addressed artifacts. Bounded independent review/actual merge and
+ff730 reconciliation remain pending; full2c135/runtime/public/source remain open.
+
+- [ ] I correct task_f4463938a7b1ea12bc6eadacfdb9fc85 in the indirect-hosted72e integration driver's Darwin neighbor selector before continuing task2c135: existing CODE/BODY/FLOW runners always enable ASan with leak detection, but my ordinary integration adapter selected AppleClang. I retain the first CODE unsupported-leak terminal and the prior setup/query/cyclic passes. I restore explicit Homebrew Clang for these unchanged neighbors, preserve every assertion and leak setting, and run the failed/unreached phases into a fresh report on the frozen source.

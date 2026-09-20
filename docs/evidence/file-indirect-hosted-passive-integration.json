@@ -1,0 +1,19 @@
+{
+  "qualified": "72e3be01c2d46291c3d23ff0ded74f285a0f654e",
+  "integrated": "40aa9eeac21d1ca999d725d505512b6d73b80788",
+  "unchanged": [
+    "src/nanoisa/file_flow.c",
+    "src/nanoisa/file_indirect_hosted.h",
+    "src/nanoisa/file_indirect_hosted.inc",
+    "tests/nanoisa/test_file_indirect_hosted.c",
+    "tests/test_file_indirect_hosted.py"
+  ],
+  "incoming": [
+    "Makefile.gnu",
+    "src/nanoisa/nvm2c.c",
+    "src/nanoisa/passive.c",
+    "tests/nanoisa/test_passive.c",
+    "tests/test_passive_internal_cfg.py"
+  ],
+  "scope": "PR912 changes passive CFG validation and an optional generated-C helper reference. The copied indirect hosted query does not execute passive nodes or generate native code; its query sources and fixtures remain exact. Existing source/module passive refusal remains intact."
+}
