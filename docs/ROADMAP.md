@@ -12827,3 +12827,5 @@ merges automatically. Both original manifests (444 reports total) remain byte
 exact. This static integration adds no gate rerun or broader acceptance claim.
 The final audit/identity records are in `evidence/file-cyclic-carrier-final`;
 actual merge and bounded repair reconciliation remain pending, full15a92 open.
+
+- [ ] I establish the distinct [private indirect File hosted plan](NANOISA_FILE_INDIRECT_HOSTED.md) under task2c135 after canonical904: review exact serialized/startup conjunction, every-candidate frame/value/staging bounds and copied lifetime; then implement/review/qualify all allocation failures and original neighbors on Linux/Darwin. Runtime membership/fuel/cleanup, public installed admission, callable arguments/results, richer borrows and paired source/full shadows remain required later checkpoints.
