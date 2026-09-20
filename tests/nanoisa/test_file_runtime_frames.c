@@ -288,13 +288,13 @@ static void formal_end_and_duplicate_origin(void){
  ROK(nvm_file_runtime_end_reference(c,original));ROK(nvm_file_runtime_borrow(c,fl(c,1),origin));
  ROK(nvm_file_runtime_bind_formal(c,origin,staged,original));CHECK(nvm_file_runtime_frame_end_reference(c)==NVM_FILE_RUNTIME_BORROWED);
  CHECK(view(c,staged).formal);finish_bad(&c,NVM_FILE_RUNTIME_BORROWED);
- /* A second borrowed formal still receives the same encoded CALL_REF origin.
-  * I require preparation refusal, before a context or host resource exists. */
+ /* CODE preparation admits exactly one borrowed formal for CALL_REF. It
+  * refuses this shape as UNRESOLVED before flow's duplicate-origin check. */
  NvmModule *m=overlap_module(&b,false);size_t at=ownership_function_offset(m,1);
  desc(m->ownership_data+at+12+8,TAG_STRUCT,2,b.layouts[0]);uint8_t params[]={TAG_STRUCT,TAG_STRUCT,TAG_INT};
  CHECK(nvm_set_function_param_types(m,1,params,3));size_t n;uint8_t *bytes=serialize(m,&n);nvm_module_free(m);
  unsigned attempts=open_attempts;c=(NvmFileRuntime *)(uintptr_t)1;
- CHECK(nvm_file_runtime_create(bytes,n,NVM_FILE_RUNTIME_VM,&c)==NVM_FILE_RUNTIME_INVALID);
+ CHECK(nvm_file_runtime_create(bytes,n,NVM_FILE_RUNTIME_VM,&c)==NVM_FILE_RUNTIME_UNRESOLVED);
  CHECK(c==(NvmFileRuntime *)(uintptr_t)1 && open_attempts==attempts);free(bytes);
 }
 static void return_refusals(void){
