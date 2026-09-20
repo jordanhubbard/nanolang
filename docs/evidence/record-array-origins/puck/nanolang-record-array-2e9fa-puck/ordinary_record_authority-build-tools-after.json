@@ -1,0 +1,62 @@
+{
+  "apple_clang": {
+    "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "sha256": "be5518e9c6736cda8dfc3486ce11e8112a2e08045084260691cf41f57a653f59"
+  },
+  "apple_ld": {
+    "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld",
+    "sha256": "59dd8bfc2656bf8a3a413f26225bbc9133ed58dea82e959428a9d645c700250d"
+  },
+  "ar": {
+    "path": "/usr/bin/ar",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "cc": {
+    "path": "/usr/bin/cc",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "clang": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "driver_python": {
+    "path": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "gcc": {
+    "path": "/usr/bin/gcc",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "ld": {
+    "path": "/usr/bin/ld",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "libcrypto": {
+    "path": "/opt/homebrew/Cellar/openssl@3/3.6.4/lib/libcrypto.3.dylib",
+    "sha256": "bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c"
+  },
+  "libffi_header": {
+    "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX26.4.sdk/usr/include/ffi/ffi.h",
+    "sha256": "cfc632aa9411334f99e14681008b2db105bc52b834f31b4d714d4326deac3a85"
+  },
+  "make": {
+    "path": "/usr/bin/make",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "ordinary": {
+    "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "sha256": "be5518e9c6736cda8dfc3486ce11e8112a2e08045084260691cf41f57a653f59"
+  },
+  "python3": {
+    "path": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "sanitizer": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "xcrun": {
+    "path": "/usr/bin/xcrun",
+    "sha256": "178e19cfe796ce33815195c42d34562c20ec4d5131534fb7e6a55b91f14371d5"
+  }
+}

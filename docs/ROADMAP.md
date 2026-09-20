@@ -13523,3 +13523,12 @@ I save this fixture draft before the independent PR922 audit. It remains uncompi
 I finish the draft static coverage pass after the PR922 audit: I add exact forward nested-record/global-index facts, cyclic-referent refusal, a wrong-element branch alternative, and complete input-byte preservation. The fixture checkpoint is ready for root source/fixture review; no test or build has run.
 
 I preserve the first55045 Linux/puck query failures under task_88f58fa7a28a4c16aa60149688cb49bb: setup/discovery passed, then the first positive declaration was INVALID. Before repair, I identify LAYOUTS byte offsets8/20 as the unused union layout/field names, both incorrectly NO_INDEX despite the unchanged union reader requiring names. I replace only these fixture names with existing string0/string1; all authority checks and expected results remain unchanged. Fresh corrected trees follow, with first terminals immutable.
+
+I complete the bounded f641 query qualification at frozen2e9faf477: all seven
+Linux/Darwin configurations pass787 linked/1289 instrumented checks, with40
+measured allocation positions and independent recovery per refusal. All specified
+unchanged ownership/union/array neighbors pass on both hosts. My
+[record-array seal](evidence/record-array-origins.md) preserves both original55045
+missing-union-name terminals and the fixture-only correction. This completes
+query evidence pending independent review/actual merge; it grants no mixed
+runtime/source admission and does not close full f36/15f/488 parents.
