@@ -4739,7 +4739,7 @@ test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2was
 .PHONY: test-ordinary-record-authority
 test-units: test-ordinary-record-authority
 test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm nvm2c
-	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
+	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
 
 .PHONY: test-ownership-contracts
 test-units: test-ownership-contracts
