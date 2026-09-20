@@ -252,3 +252,19 @@ profiles differ. No temporary clearing of resource flags or invented ORDINARY
 classification substitutes for this checked path. Legacy allocator/status
 ambiguities must remain UNKNOWN unless a preceding complete preflight makes
 MEMORY distinguishable. My own query allocations report MEMORY precisely.
+
+## My private structural decoder source checkpoint
+
+I factor `nvm_v2_layouts.c` through one internal profile. The original public
+entry always selects its existing scalar/string forward family; my new
+`nvm_ownership_layouts_private_decode` additionally accepts ARRAY with NO_INDEX
+as a forward-record leaf. The existing iterative graph checks and all numeric
+field/reserved/kind checks remain shared. No array element contract is inferred.
+
+The private wrapper preflights exact serialized extent,256 layouts and65536
+fields under a16MiB input ceiling before any decoder allocation. It publishes
+an owned numeric table only on success and leaves output unchanged on failure.
+The common decoder's TRUNCATED still conflates malformed input and allocation
+failure; I explicitly retain that ambiguity until the whole private query has
+sufficient preflight evidence. This isolated source checkpoint is not the
+kind2 validator or a public authority change. I have not built or qualified it.

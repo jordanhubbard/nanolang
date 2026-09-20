@@ -16,6 +16,7 @@
 #include <string.h>
 #include "nvm_v2_sections.h"
 #include "isa.h"
+#include "ownership_layouts_private.h"
 
 /* kind, reserved, field_count, name_idx. */
 #define ENTRY_HEADER_BYTES 8
@@ -27,7 +28,7 @@ static void free_fields(NvmV2Layout *items, uint32_t n) {
 }
 
 /* I qualify only exact scalar/string/record DAGs on the extended path. */
-static NvmV2Result forward_record_graph(const NvmV2Layout *items, uint32_t count) {
+static NvmV2Result forward_record_graph(const NvmV2Layout *items, uint32_t count, bool array_leaves) {
     for (uint32_t i = 0; i < count; i++) {
         const NvmV2Layout *layout = &items[i];
         if (layout->kind != NVM_V2_LAYOUT_STRUCT) return NVM_V2_ERR_INDEX_RANGE;
@@ -37,7 +38,7 @@ static NvmV2Result forward_record_graph(const NvmV2Layout *items, uint32_t count
                 if (field->nested_idx >= count) return NVM_V2_ERR_INDEX_RANGE;
             } else if (field->type_tag == TAG_INT || field->type_tag == TAG_U8 ||
                        field->type_tag == TAG_FLOAT || field->type_tag == TAG_BOOL ||
-                       field->type_tag == TAG_STRING) {
+                       field->type_tag == TAG_STRING || (array_leaves && field->type_tag == TAG_ARRAY)) {
                 if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_INDEX_RANGE;
             } else return NVM_V2_ERR_INDEX_RANGE;
         }
@@ -68,8 +69,8 @@ done:
     free(colors); free(stack); return result;
 }
 
-NvmV2Result nvm_v2_layouts_decode(const uint8_t *data, size_t size,
-                                  NvmV2Layouts *out) {
+static NvmV2Result layouts_decode_profile(const uint8_t *data, size_t size,
+                                           NvmV2Layouts *out, bool array_leaves) {
     out->items = NULL;
     out->count = 0;
 
@@ -143,7 +144,7 @@ NvmV2Result nvm_v2_layouts_decode(const uint8_t *data, size_t size,
         }
     }
 
-    if (forward && (r = forward_record_graph(items, count)) != NVM_V2_OK) goto fail;
+    if (forward && (r = forward_record_graph(items, count, array_leaves)) != NVM_V2_OK) goto fail;
 
     out->items = items;
     out->count = count;
@@ -153,6 +154,36 @@ fail:
     free_fields(items, built);
     free(items);
     return r;
+}
+
+NvmV2Result nvm_v2_layouts_decode(const uint8_t *data, size_t size,
+                                  NvmV2Layouts *out) {
+    return layouts_decode_profile(data,size,out,false);
+}
+
+/* I bound the private numeric copy before allocating. Semantic shape checks and
+ * iterative cycle rejection remain the common decoder's responsibility. */
+NvmV2Result nvm_ownership_layouts_private_decode(const uint8_t *data,size_t size,
+                                                 NvmV2Layouts *out) {
+    if(!out || !data || !size)return NVM_V2_ERR_SECTION_RANGE;
+    if(size>NVM_OWNERSHIP_LAYOUTS_PRIVATE_MAX_BYTES)return NVM_V2_ERR_INDEX_RANGE;
+    NvmV2Cursor c;nvm_v2_cursor_init(&c,data,size);
+    uint32_t count,total=0;NvmV2Result result=nvm_v2_u32(&c,&count);
+    if(result!=NVM_V2_OK)return result;
+    if(count>NVM_OWNERSHIP_LAYOUTS_PRIVATE_MAX_LAYOUTS)return NVM_V2_ERR_INDEX_RANGE;
+    for(uint32_t i=0;i<count;i++) {
+        const uint8_t *header,*fields;
+        if((result=nvm_v2_take(&c,ENTRY_HEADER_BYTES,&header))!=NVM_V2_OK)return result;
+        uint16_t n=(uint16_t)((uint16_t)header[2]|((uint16_t)header[3]<<8));
+        if(n>NVM_OWNERSHIP_LAYOUTS_PRIVATE_MAX_FIELDS-total)return NVM_V2_ERR_INDEX_RANGE;
+        total+=n;
+        if((result=nvm_v2_take(&c,(size_t)n*FIELD_BYTES,&fields))!=NVM_V2_OK)return result;
+    }
+    if(c.pos!=c.size)return NVM_V2_ERR_SECTION_RANGE;
+    NvmV2Layouts owned={0};
+    result=layouts_decode_profile(data,size,&owned,true);
+    if(result!=NVM_V2_OK)return result;
+    *out=owned;return NVM_V2_OK;
 }
 
 void nvm_v2_layouts_free(NvmV2Layouts *l) {
