@@ -12524,3 +12524,12 @@ Linux and puck. I preserve first486ba fixture compile failure and corrected-only
 execution,247 reports,782 unique artifacts,24 equal source/tool pairs and exact
 prepared-provider identities. Productionf6ee is unchanged. Independent review
 and actual merge remain pending; no cyclic File runtime or parent closure follows.
+
+### My paired File source and NSI publication prerequisite
+
+- [ ] I review [my paired File source contract](NANOISA_FILE_SOURCE_PUBLICATION.md), `task_8bbc1cf5295b4b59b314640ef57c725f`, on actual public merge97546742 under6fc/72556/6931/d03c. I retain exact catalog/declaration identity and proposed grammar, cross-format coexistence with the separately owned scalar-union schema, and all mandatory source/shadow/control-flow requirements. This row authorizes no implementation before review.
+  - [ ] I implement and independently review only paired non-admitting source plans/catalog data access first, with exact copied identities, budgets and transactional outputs.
+  - [ ] I review paired declaration parsing/checking/schema/clone propagation and distinct generated binding publication before fixtures, retaining strict existing NSI v0 semantics.
+  - [ ] I review paired acyclic File lowering and complete required v2 metadata/hosted conjunction, all bodies and truthful local/stack/reference facts before execution.
+  - [ ] I qualify explicit per-shadow grants, exact selected dependency/root shadows and VOID initializer cleanup, staged compiler publication, C-seed/freshStage1/Stage2 VM/native and installed Linux/Darwin full source/product gates.
+  - [ ] I retain cyclic/fuel, indirect-call and richer-borrow source acceptance as mandatory parent continuations; separate query facts or bounded acyclic success cannot close them.
