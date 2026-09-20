@@ -9,3 +9,11 @@ I cap the observer at 8192 rows (twice the existing compiler's 4096-function bou
 After the active interval is observed, I inspect its actual loops and call graph. A further diagnostic needs its own reviewed checkpoint. Native aggregate executable timeouts on Darwin are a separate task and are not explained by this observer.
 
 I place stdio declarations before the helper. Static source review confirms my generated function names use `$shadow_%d_%.32s` and the entry wrapper is `$shadow_entry`; both share the checked eight-byte prefix. The entry wrapper can produce a final leave observation without a direct-call enter. I do not count that as a missing trace event.
+
+## My first observed interval
+
+At source115b, fresh GCC13 preparation passed in20.697seconds. My single original emitter command returned1 after21.725seconds including module preparation, with the unchanged ten-second shadow diagnostic. The outer120-second bound was not reached and no output module was published.
+
+I retained401 marker rows:201 entries and200 exits, in balanced order except the final entry. The last completed interval was `$shadow_199_parser_mark_owned` (function762, code166385). The open interval was `$shadow_200_parse_owned_pattern` (function763, code166525). Its original shadow at `src_nano/parser.nano:5067` parses `let Box { item } = box` and `let Choice.Some { item } = payload`. The observation does not determine which of those calls was active or whether preceding work consumed most of the deadline.
+
+Tracked participating sources and selected executable tools remained equal. Module preparation added405 provider/cache files and changed no existing provider. Exact reports and CAS inventory are under `docs/evidence/emitter-shadow-progress`; source115b and its prepared products remain frozen. This is interval attribution, not a timing qualification or root-cause claim.
