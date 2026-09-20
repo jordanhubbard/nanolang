@@ -1,0 +1,334 @@
+{
+  "nanolang-record-vm-46c4d-r2-linux/clang-version.txt": {
+    "sha256": "e642c7956111b181d1d8d0485d79ce16f1882356b0f49113cb36714408b04118",
+    "bytes": 440
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration-artifacts.json": {
+    "sha256": "26c6ded3e4864f9c2f979de39112cca1bc562fe76b91e33f4e3c7946123849b6",
+    "bytes": 48423
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration-command.json": {
+    "sha256": "ae95eaaf6361aeedc94ff006c921fb1f2f4495373e0980fa09810b464e56741e",
+    "bytes": 337
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration-inputs-before.json": {
+    "sha256": "26c6ded3e4864f9c2f979de39112cca1bc562fe76b91e33f4e3c7946123849b6",
+    "bytes": 48423
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration-source-after.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration-source-before.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration-space-before.json": {
+    "sha256": "cd3d3de1eea45dac5f6f21fdccb1ca3dedd4d8a3d5f80475944c0f6cde155fa4",
+    "bytes": 62
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration-tools-after.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration-tools-before.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/configuration.log": {
+    "sha256": "ace92959db5f3dd49a684a77baf50e31b413ecc6ac4b38911d0e57a019522a34",
+    "bytes": 4743
+  },
+  "nanolang-record-vm-46c4d-r2-linux/driver.py": {
+    "sha256": "90565e4d0a93b583c88dc54e834e56d44864bb5833b9fd23b1b207c07f8130a9",
+    "bytes": 9320
+  },
+  "nanolang-record-vm-46c4d-r2-linux/environment.json": {
+    "sha256": "456dd5929bf94496d6047e8c90d97419ba0701378b905e55410f98090fb1eb2e",
+    "bytes": 1069
+  },
+  "nanolang-record-vm-46c4d-r2-linux/ordinary-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-artifacts.json": {
+    "sha256": "0ccc0e95eecf604b88fa3a23f9accc6cc3589842b31cbf20ab01fd76db5bf750",
+    "bytes": 48716
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-command.json": {
+    "sha256": "16da5ffeae4051532049dc9de1ff16d971aa8b0b179a1d78b5333d28abd903f2",
+    "bytes": 5204
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-inputs-before.json": {
+    "sha256": "26c6ded3e4864f9c2f979de39112cca1bc562fe76b91e33f4e3c7946123849b6",
+    "bytes": 48423
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-source-after.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-source-before.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-space-before.json": {
+    "sha256": "f2ef1b3825696300093712214c05c01fd244f6577b4caacaa2f4acde51669f8b",
+    "bytes": 62
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-tools-after.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build-tools-before.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-artifacts.json": {
+    "sha256": "0ccc0e95eecf604b88fa3a23f9accc6cc3589842b31cbf20ab01fd76db5bf750",
+    "bytes": 48716
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-command.json": {
+    "sha256": "701e6460e8c321841a572e5072c8b9abbabd929e499821a0176fe90d80d1ee1c",
+    "bytes": 248
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-inputs-before.json": {
+    "sha256": "26c6ded3e4864f9c2f979de39112cca1bc562fe76b91e33f4e3c7946123849b6",
+    "bytes": 48423
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-source-after.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-source-before.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-space-before.json": {
+    "sha256": "ca3757c469b75d845af7a29af30a72419b574602b7124158019a20f727eaf8db",
+    "bytes": 62
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-tools-after.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run-tools-before.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/owned-string-proof-run.log": {
+    "sha256": "b57a06da0e9629ed97e74dab5fa87f9b2213ff6ecfc3cefc5ea2cda828d50176",
+    "bytes": 51
+  },
+  "nanolang-record-vm-46c4d-r2-linux/providers.mk": {
+    "sha256": "2c1636a660adb5df08ef6442466c64d45c80e21258befa2c39956e0feeb86834",
+    "bytes": 327
+  },
+  "nanolang-record-vm-46c4d-r2-linux/results.json": {
+    "sha256": "d3e381df8d1b3b18ca76a996c7123e59c65fc825f37e7b3f5107c10d03f94e6f",
+    "bytes": 607
+  },
+  "nanolang-record-vm-46c4d-r2-linux/sanitizer-version.txt": {
+    "sha256": "5698ba2bce15103316282b418bf772fd5ce99fbe60fd5ba2987d69fa39f61e58",
+    "bytes": 249
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-artifacts.json": {
+    "sha256": "81e6beb254818bfc10bc621ab17d399ba6ceaed797ca22290b69f0c2dabb7541",
+    "bytes": 726296
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-command.json": {
+    "sha256": "4f0a4ed32b1aa131f06c7b63e1bd5c1f67fe4cdd7c72970c5ac5ce8ad2bd1636",
+    "bytes": 484
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-inputs-before.json": {
+    "sha256": "360a6ea28752edd6e607cacb8a798d41b376acbef73b5d6baef927c850d3e39a",
+    "bytes": 48702
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-source-after.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-source-before.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-space-before.json": {
+    "sha256": "9efa99b6b245fd107ea963fd6a5fa63f0fdb906c004f5e9516c4b11216b800e6",
+    "bytes": 62
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-tools-after.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public-tools-before.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-cyclic-public.log": {
+    "sha256": "2f0a3cd4f18a845ba0c4d7631c4b83e80b9c85b78f1a3772bc4a3df6e4e0ea5d",
+    "bytes": 133685
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-artifacts.json": {
+    "sha256": "cf3305b8a536365a823ce076480e5f53949700f73bc560d536f927defca06543",
+    "bytes": 95831
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-command.json": {
+    "sha256": "877ae3e63e9b6e51bbd6c0338478e1a9530c169631b96601a2d00f2bd1d07b62",
+    "bytes": 481
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-inputs-before.json": {
+    "sha256": "c1a5aa94cc0fd23be1bece38b6c2fd12f65e50a5becbda08b417662f172a66f7",
+    "bytes": 48423
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-source-after.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-source-before.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-space-before.json": {
+    "sha256": "45fbc8d88f754117662d35671e29f3a2fbc2bfe5fe27cc14fcaa2dd1d68b7754",
+    "bytes": 62
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-tools-after.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm-tools-before.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-file-private-vm.log": {
+    "sha256": "64d59d6a9e93fe6c37f04e889dda56e98bfc8d428c1713d633d289e21450b694",
+    "bytes": 5265
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-artifacts.json": {
+    "sha256": "d85e536eb9ad287d2b82ebbf5933398915aa9242d7fad2a2030acda594dcfcfd",
+    "bytes": 48716
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-command.json": {
+    "sha256": "879d1258006b9648861d0d225192be744670057bc924971a62acecde00c26f8b",
+    "bytes": 487
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-inputs-before.json": {
+    "sha256": "c1a5aa94cc0fd23be1bece38b6c2fd12f65e50a5becbda08b417662f172a66f7",
+    "bytes": 48423
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-source-after.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-source-before.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-space-before.json": {
+    "sha256": "9a4bb5039e2e6d0639c9b59f116e0f784c9ca89d3b164b71048bfcbe52017db5",
+    "bytes": 62
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-tools-after.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite-tools-before.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-owned-array-overwrite.log": {
+    "sha256": "8eecc9bd6cdb610095c93b5b0aeeacd35c01fa0c9655bdde502241b7f2e7338f",
+    "bytes": 3953
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-artifacts.json": {
+    "sha256": "d85e536eb9ad287d2b82ebbf5933398915aa9242d7fad2a2030acda594dcfcfd",
+    "bytes": 48716
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-command.json": {
+    "sha256": "5c589f9ce0237e1714d27124c91a72b55e87cb8bfc2b134a5596244c526595fc",
+    "bytes": 487
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-inputs-before.json": {
+    "sha256": "26c6ded3e4864f9c2f979de39112cca1bc562fe76b91e33f4e3c7946123849b6",
+    "bytes": 48423
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-source-after.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-source-before.json": {
+    "sha256": "1e14c0933204fb153a3a7f4b865f9c00f5ad6d3951e8ff9f256f6d9e8d6923c6",
+    "bytes": 399120
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-space-before.json": {
+    "sha256": "0aea6a674e478884905de4055122b76f9fb9d9afc0b014be59e7f1363ee431de",
+    "bytes": 62
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-tools-after.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission-tools-before.json": {
+    "sha256": "6648066ad42bbea6585519fa915c764ff51087b4c4f899f8548ba54bd873a0a4",
+    "bytes": 1658
+  },
+  "nanolang-record-vm-46c4d-r2-linux/test-vm-ordinary-admission.log": {
+    "sha256": "78e7c36623254c02fd414942ae18dac7ed995754d2818e44c09fe01e315ef75c",
+    "bytes": 4012
+  },
+  "extra/nanolang-record-vm-46c4d-source.json": {
+    "sha256": "c86e75936283ad59959912237c26e94855c7e404cb23c47e84c886841fd3396d",
+    "bytes": 406801
+  },
+  "extra/nanolang-record-vm-46c4d-r2-launch.py": {
+    "sha256": "e80c5b77ca8f2c945a9e9fb1f4b4f7d112086b610d7fa2fa95861d4c81b852b0",
+    "bytes": 4004
+  },
+  "extra/nanolang-record-vm-46c4d-r2-linux-reuse.json": {
+    "sha256": "3c5c91a2295e10cabc4b3bba2e749a663380f1d9c1978c0ba8ebb1ec825da999",
+    "bytes": 49378
+  },
+  "extra/nanolang-record-vm-46c4d-linux-launch.log": {
+    "sha256": "c10acf54d391e35abfc0684162b55334fdf10eb6a6f94ab294ff37564bdf4eb8",
+    "bytes": 307
+  },
+  "extra/nanolang-record-vm-46c4d-r2-linux-launch.log": {
+    "sha256": "a1c25e94408f758841dadedab3e25b8e9f8555b8dc8baca3f61e2e350f36f303",
+    "bytes": 612
+  },
+  "current-inputs.json": {
+    "sha256": "904204000a0c7e1ca19218e8246dc0ea417f61359865bafaade962d4e9203631",
+    "bytes": 977
+  }
+}

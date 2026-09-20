@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-vm-46c4d-launch.py", line 6, in <module>
+    assert shutil.disk_usage('/tmp').free >= 2*1024**3,'I need 2 GiB free before fresh setup'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I need 2 GiB free before fresh setup

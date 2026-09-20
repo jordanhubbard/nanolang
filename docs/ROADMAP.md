@@ -14114,3 +14114,15 @@ fresh launcher keeps exact historic hash requirements for every qualified
 provider, and separately records current-only hashes for copied `.d`/`.stamp`
 metadata. This does not fabricate historical metadata hashes or repeat passing
 private VM configurations. The source and every semantic assertion stay46c.
+
+My integrated15d1 private VM now passes the full seven-configuration Linux/puck
+matrix, actual switch/goto and linked/observed forms:2375/5948 checks each,
+all93 retired recipes/256 decisions,86 preparation and8 execution allocation
+positions with both failure modes and recovery. Fixture-only46c corrected and
+unrun admission/proof/overwrite/File/package neighbors pass both hosts without
+replaying the private corpus. `docs/evidence/record-array-private-vm.md` seals
+671 reports,5001 artifacts and112 source/tool pairs, preserves every historical
+terminal and accurately distinguishes rebuilt package providers. Independent
+review and actual merge remain pending; full generated/public/graph/source
+requirements stay open. My compressed Darwin archive retains every CAS byte
+locally without redundant extraction under the current Linux capacity limit.

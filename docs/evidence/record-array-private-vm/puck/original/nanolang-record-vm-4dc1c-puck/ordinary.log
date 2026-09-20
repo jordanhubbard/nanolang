@@ -1,0 +1,28 @@
+I retain private VM artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-vm-0ge2d_sz
+test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_private_vm (tests.test_record_array_vm.RecordArrayVm.test_instrumented_private_vm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-record-vm-qualified-4dc1c/tests/test_record_array_vm.py", line 80, in test_instrumented_private_vm
+    self.qualify(True)
+    ~~~~~~~~~~~~^^^^^^
+  File "/private/tmp/nanolang-record-vm-qualified-4dc1c/tests/test_record_array_vm.py", line 65, in qualify
+    self.command(mode + '-build', [*self.cc, *self.flags, *dispatch,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *(['-DVM_RA_WHITEBOX'] if observed else []),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/test_record_array_vm.c', 'tests/nanoisa/record_array_alloc.c',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *products, *self.objects, *self.ldflags, '-o', str(exe)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-record-vm-qualified-4dc1c/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 3.099s
+
+FAILED (failures=1)
