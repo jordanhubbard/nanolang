@@ -180,3 +180,17 @@ are checked in the in-memory module; original wire offsets/checksum are not
 reinterpreted as a fresh serialized image. Existing decoder, stack and operand
 checks cover every function, including unreachable helpers. My API header is
 the exact status/getter/output contract for source review before fixtures.
+
+My first source checkpoint adds only `src/nanoisa/portable_host_plan.h/.c`.
+No default provider list, shared verifier, profile, CLI or runtime changes.
+My report uses one fixed allocation for at most64 copied import rows. Counts
+and row getters copy complete values and preserve outputs on invalid indices.
+The row distinguishes catalog ownership obligations (borrow a rooted argument;
+copy an owned managed result) from behavior a future adapter must establish.
+My call graph is allocation-free envelope/predecode/budget checks, then existing
+`nvm_verify` → ordinary per-function decoder/stack/advisory types, then report
+allocation. Preflight excludes every metadata condition selecting owner/mixed
+delegation; no public entry calls this private query. All query output remains
+unchanged on reported failure. The only retained pointers are static diagnostics;
+the plan borrows no input storage. No fixtures, build or host operation has run
+for this source checkpoint.
