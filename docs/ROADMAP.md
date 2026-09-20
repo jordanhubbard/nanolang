@@ -11156,7 +11156,9 @@ I qualify both legacy formatting children with fresh Linux/Darwin bootstrap and 
 
 - [ ] I define and align early/multiple wildcard ordering (`task_477bdd430a1442e7bc19cbacdbac0bde`, required7a99/shared-source prerequisite). My [static audit](PUBLIC_C_GUARDED_MATCH_CONTRACT.md#my-specification-and-source-audit) distinguishes interpreter specific-first/last-wildcard behavior from source-order NanoVirt/legacy emission; inspected guides do not settle that ordering. My [shared preimplementation policy](SHARED_MATCH_POLICY_CONTRACT.md) selects lexical first-success order, permits multiple conditional wildcards, rejects arms after an unconditional wildcard and requires all-route acceptance rather than a majority-backend assumption.
 
-  - [ ] I publish the approved match rule in my normative specification, machine-readable specification, control-flow guide and canonical guidance before changing checker behavior. I include migration examples for early unconditional wildcards, incomplete statement/value matches and non-BOOL guards, and distinguish the intended rule from routes that still issue capability refusals.
+  - [x] I publish the approved match rule in my normative specification, machine-readable specification, control-flow guide and canonical guidance before changing checker behavior. I include migration examples for early unconditional wildcards, incomplete statement/value matches and non-BOOL guards, and distinguish the intended rule from routes that still issue capability refusals. Reviewed PR790 merged as `9c52fdae`; this documentation gate does not claim runtime alignment.
+  - [ ] I align my C-seed interpreter with lexical first-success match selection and a terminal impossible-miss invariant (`task_477bdd430a1442e7bc19cbacdbac0bde`, `task_70c5a56802e44142af0f19da2469f654`). I reject the first arm after an unconditional wildcard, evaluate conditional wildcards in their source position, retain one scrutinee evaluation and arm-local scope, and terminate rather than return `void` when malformed unchecked input reaches no arm. Fresh checker refusals, interpreter effects/order controls and a forked low-level backstop test precede completion. Self-hosted, public C and all-route alignment remain open.
+    - [ ] I register the existing `E035 NON-EXHAUSTIVE MATCH` and new `E036 UNREACHABLE MATCH ARM` in my stable diagnostic catalog before qualifying the new refusal. The catalog must not lag the checked errors that callers consume.
   - [x] I give my self-hosted parser an exact guarded-match capability refusal until its schema can retain guards losslessly. I preserve the guard token location and route the specific parser diagnostic through the ordinary phase result instead of rewriting the arm or reporting only an unexpected token. I qualify integer, wildcard and named-payload guarded arms at the exact `if`, retain ordinary unguarded controls, and preserve the existing non-match phase diagnostic fallback. This checked refusal does not claim guarded-match or totality support. My [bounded evidence](evidence/selfhost-match-guard-refusal.md) retains the first installed-route mismatch and qualifies the corrected modular and installed paths.
     - [x] I route that specific refusal through my installed self-hosted compiler too (`task_9e3ccdb98a98b654dbf22e7f2af634cb`). Fresh checkpoint `5f7d521e` passes bootstrap and the modular phase shadows, but my first Stage 1 source control still reports `unexpected token 'if'` at the correct location. I retain that first outcome and qualify corrected checkpoint `0d13778a` through fresh bootstrap, both installed stages, all three guarded arm forms, unguarded controls and the unchanged generic fallback in [my bounded evidence](evidence/selfhost-match-guard-refusal.md).
   - [x] I preserve match guards through every accepting analysis and clone path before changing dispatch. I include effect and CPS walks, BOOL type inference, PGO cloning/substitution and source lookup, with guard-only effects/references and clone-integrity regressions. My [bounded evidence](evidence/shared-match-short-paths.md) passes the focused and adjacent suites; I do not let a correct emitter hide a guard erased earlier in the pipeline.
@@ -11880,6 +11882,118 @@ actual merge-ledger reconciliation is pending. Mutationbba622, parent430220/4be,
 product and release remain open. Ready integration adds only canonical private
 File query code after qualification, preserving both frozen trees and public paths.
 
+I reconcile only source18731 and fixtured27a from actual PR846 merge3660228d;
+live MAC states are COMPLETED and evidence records canonical ancestry. I now
+prepare mutationbba622's approved paired set/push/length checkpoint in a fresh
+canonical worktree, preserving qualified1c4e inputs. Exact unbound identity,
+arity-before-evaluation, ordered roots and SET+POP/VOID, PUSH/ARRAY, LEN/INT stay
+mandatory. Runtime supplement5652 is separately tracked. Complete source review
+precedes new bootstrap/execution; mutation and fullparents remain open.
+
+For mutationbba622, reviewed production1de22 now has a prepared six-method source
+fixture plus all six unchanged owner-array groups. I preserve full PREFIX/shadows,
+ordered consuming helper/constructor observations, aliases/growth/length/return,
+lexical/declared identity, exact refusal phases and prepared-root failure cleanup.
+Only Python syntax and whitespace are checked; fixture review precedes execution.
+
+- [ ] Before completing mutationbba622, I correct permitted declared `array_push`
+  identity across C checking/shadow attachment, interpretation and paired native
+  emission/inference (`task_286bcd3cbf28b8ad009677ed6b9f8c73`). My
+  [bounded contract](DECLARED_ARRAY_PUSH_IDENTITY.md) preserves reserved set/length,
+  lexical precedence, ordinary builtin controls and every unchanged mutation
+  PREFIX/shadow. Frozen961a Linux/Darwin first terminals each passed three methods
+  and initializer/scope controls, then failed the declared-push fourth method:
+  registry ARRAY displaced declared INT. I retain both logs and do not replay
+  failed binaries. Production review precedes fresh stages and the full twelve
+  methods; mutation/parent430220/product/release remain open.
+
+I refine task286b before code: native Nano direct identifier calls currently emit
+C arguments without snapshots. I bound the correction to declared/bound push,
+including callee capture and signature-directed ordered arguments; unrelated
+direct calls stay outside this checkpoint. Root reviewed this clarification.
+
+I prepare task286b's complete C lookup/checker/interpreter/native and Nano native
+push-only correction plus meaningful helper shadows and a separate identity
+fixture. Native name mapping and result-element inference use selected signatures;
+callee/argument snapshots apply only to declared/bound push. I have not run new
+programs or bootstrap. The complete production/fixture checkpoint awaits review,
+with both961a failures and the full mutation suite preserved. The next product
+acceptance remains the entire unchanged owned-record-pattern suite after these
+prerequisites pass, not a narrowed Bundle replacement.
+
+- [ ] I separate accepted declared push C names from my retained builtin helper
+  (`task_c6d34913ce079519f958caaeef7817fb`, dependency of286b/bba622). My frozenbb52 first
+  identity case fails C compilation with duplicate `nl_array_push`; both fresh
+  bootstraps/tools pass independently. I retain all old outcomes, builtin helper
+  availability and unchanged source fixtures. My naming contract requires paired
+  definition/prototype/call/function-value agreement, meaningful controls and
+  complete review before fresh qualification. Darwin source gates remain unrun.
+
+- [ ] I retain exact declared push identity in ordinary canonical type/emission
+  (`task_3615e58e593058d66ea4cdd2915df4d9`, dependency of286b/bba622). Frozen925c firstcase
+  passes all native routes and Ccanonical, then Stage1canonical refuses because
+  receiver inference precedes declared result lookup; ARR_PUSH emission has the
+  same spelling-only issue. I preserve that terminal and add only exact resolved
+  nonextern push guards with mandatory identity/type/opcode shadows. Existing
+  return context, indirect refusals and builtin behavior stay unchanged.
+
+- [ ] I align the ordinary declared-push fixture with my existing canonical
+  generation comparison contract (`task_1b9beb8884f241d34478c3275178f43b`). I preserve0c54's
+  first dump assertion failure and all successful native/canonical operations.
+  Raw Stage1/Stage2 equality and per-producer deterministic bytes replace an
+  unsupported Cseed text-equality assertion; explicit CALL/result-element controls
+  and all original twelve owner-profile exact comparisons remain. No normalized
+  metadata-equivalence or fullcompilerfixedpoint completion is claimed.
+
+- [ ] I preserve declared push through interpreted function-value initializers
+  (`task_aabb6d691adff0b1f98a3aae572b16ce`, prerequisite of286b/bba622). I retain
+  both0c54/7e76 first terminals and successful earlier groups. I distinguish only
+  retained non-global located VOID checker rows from actual bindings for an
+  exact same-module nonextern declared push, keeping metadata and alias lifetime
+  unchanged. I review the bounded C correction and meaningful controls before
+  fresh affected/unrun gates; parent mutation/product acceptance stays open.
+
+- [ ] I localize my existing evaluator handler-order initialization refusal
+  (`task_6ba90e4583d504291f90cf3f11bd2cc9`). At frozen9f7 my Linux C setup passes
+  52.500s and the new initializer boundary plus six existing evaluator controls
+  pass, then `eval_handler_return_expression_order` fails run_ctx_init at2694
+  (make2/3.101s). No identity/mutation/pattern gates have run. I preserve that
+  terminal and add diagnostic-only phase/body reporting with unchanged cases
+  and assertions before a reviewed fresh diagnostic build; no root cause or
+  relationship to declared push is inferred from this result alone.
+
+  My fresh nonexecuting case13 diagnostic confirms E035 for its guarded-only
+  integer match. I add one unconditional fallback that calls mark; executing it
+  changes trace and fails the unchanged result7 assertion. This restores fixture
+  validity under my existing totality policy without weakening handler ordering.
+  A fresh complete evaluator test binary must pass before dependent source gates.
+
+  The first overlay launch stops pre-build because the failed make left its
+  untracked test binary. I preserve it and permit only its exact path/hash in
+  the corrected runner; no source change or failed binary replay is involved.
+
+  The corrected evaluator overlay fails result7 with4099 (1.250s). My old match
+  implementation retains only the last wildcard, skipping the earlier guarded
+  emit and running fallback mark. I depend on separately reviewed PR855 lexical
+  match ordering, retain the exact assertion, and do not duplicate its repair.
+  Dependent source gates remain unrun until qualified integration.
+
+  I schedule the independent six identity, twelve mutation and full twelve
+  owned-pattern methods before855 integration after root review. Results remain
+  partial evidence; evaluator acceptance stays FAILED and all completion/merge
+  claims stay held until integration and its full evaluator/affected gates pass.
+
+- [ ] I preserve and recover my Darwin source-gate storage boundary
+  (`task_0ff247470372fbf16059e2403df75be0`). After identity6 passes, mutation setup
+  stops with truncated traceback/no method results; subsequent df shows100%.
+  I preserve the unknown exception boundary, remove only self-owned verified
+  duplicate copies after off-host hashing, and require a fresh setup/result.
+  I leave qualified providers, other sessions and full acceptance untouched.
+
+  Recovered Darwin mutation12 and full owned-pattern12 pass. The first offload
+  removal preflight refuses inventory JSON files misclassified as directories,
+  before any deletion. I preserve it and restrict selection to nested artifact
+  directory entries, with full hashes checked again before duplicate removal.
 - [x] I reconcile bounded Linux mutation task5652 from actual847 merge a52d990d7 through the default-profile actual-merge helper; its verified MAC state is COMPLETED. I retain all qualified trees and broader parent/source obligations.
 - [x] I qualify the unchanged mutation runtime supplement on isolated Darwin task_d5da9c17547f495793d4359c57cadbee after reviewing my [setup/compiler/freeze contract](NANOISA_OWNED_ARRAY_MUTATION_DARWIN.md). I require explicit Apple ordinary and Homebrew sanitizer selection, exact per-phase inventories, first terminals and unchanged fixture assertions; Linux evidence does not substitute for this host.
 - [x] I correct the Darwin mutation evidence driver before fixture execution: copying protected Apple compiler flags with shutil.copy2 fails at chflags with EPERM. I retain the first pre-fixture terminal, archive executable contents with copyfile and verify hashes, and use complete external path identities so Apple and Homebrew clang archives cannot collide. Taskd5da records this driver-only correction; production/fixtures stay unchanged.
@@ -11943,3 +12057,54 @@ full Forth conformance and release acceptance remain open.
 I clarify framebb338 before production: I finish staging every value argument before installing any callee local; no interleaving may overwrite a later argument in the VM suffix. Root approves the remaining contract with public/dispatcher boundaries unchanged.
 I retain the prefreeze frame-fixture syntax finding under bb338: my new synthetic module builder tried to set `NvmFunctionEntry.max_stack`, which belongs to the v2 function table rather than the in-memory function entry. Both linked/instrumented syntax-only checks refused compilation before any fixture execution. I remove that nonexistent assignment; the existing service bridge already emits the intended zero/derived wire bound. I change no production or assertion.
 I prepare the complete bb338 fixture checkpoint: old carrier assertions remain called through an optional main macro, with new explicit overlap/formal forwarding/File+Result returns,64-frame and equal-mode controls, exact refusal/output checks, generation-limited staged-root cleanup and initializer handled-close-error suppression. My frame contract records the owning-TU instrumentation and ordered Linux/puck normal/sanitizer/neighbor gate plan. Only syntax/parsing checks have run; complete fixture review precedes service execution. Carrier PR858 is now actually merged at21ed843950d0bd9a397d663cf9dfd3184f5d156a;82ff and full File parents remain open.
+- [ ] I qualify the bounded C-seed match-ordering slice in PR855 with repeated
+  conditional wildcards, integer early-wildcard order and complete stderr capture
+  (`task_477bdd430a1442e7bc19cbacdbac0bde`, `task_70c5a56802e44142af0f19da2469f654`).
+  I retain the reviewed exhaustive handler-order correction from task6ba90 and
+  its original E035/4099 terminals. No production change or parent closure follows
+  from preparing these additional controls.
+
+- [ ] I register the unchecked match-backstop fixture function before its named
+  call (`task_3f1a7d4857974ba399007aabc5239b0b`). My first855 supplement passes88
+  evaluator controls then fails the child-exit assertion; run_program deliberately
+  skips function registration. I retain that terminal and require explicit
+  fixture-only registration, unchanged backstop assertions and fresh qualification.
+
+- [ ] I repair the stale integer-reduce evaluator fixture argument order
+  (`task_d4427bf731b14e899228b1443922a066`). The fresh diagnostic confirms E001
+  for function-before-initializer. I retain the result15 shadow and execute it
+  after correcting the two calls, without relaxing my checked reduce contract.
+
+- [ ] I correct the match-gate runner working directory for its retained relative
+  native FFI fixture library (qualification prerequisite under taskd4427).
+  I preserve the12b61 library-open terminal and select the hash-verified provider
+  checkout only for evaluator execution; assertions and production remain intact.
+
+- [x] I qualify the corrected C-seed match fixtures on Linux at `7a21096f8`: all 122 evaluator cases and eight totality tests pass with unchanged source, 155 providers, and six tool identities. I retain every first terminal in [my sealed evidence](evidence/shared-match-linux/README.md). Integration, fresh bootstrap, Darwin acceptance, and the shared parent tasks remain open.
+- [ ] I await the completed checkout transfer/fetch and verify exact clean HEAD
+  before launching Darwin push qualification (`task_6cd6a0d6ecc44c5f5beba3c8f5c867ab`). My
+  first925c runner failed HEAD lookup before make because fetch was still active;
+  I preserve that log and empty evidence directory. Fetch then completed normally.
+  I correct only external launch ordering/evidence destinations, retaining925c
+  source and explicit tools. Linux bootstrap remains independent; no compiler
+  result or product defect follows from this preparation failure.
+
+- [ ] I freshly integrate mutationbba622, declared-push286b/aabb and evaluator
+  dependency855 under my [final integration gate](OWNED_ARRAY_MUTATION_FINAL_INTEGRATION.md).
+  I preserve partial9f7 evidence and every failed first terminal, merge canonical
+  File providers and reviewed match fixtures, then require new bootstraps and
+  full evaluator/totality plus six identity, twelve mutation/source and twelve
+  unchanged owned-pattern methods on both hosts. Review precedes execution;
+  existing task children and broader parents remain open until actual acceptance.
+
+- [ ] I correct only integrated evaluator archive orchestration (task_a9c5d7f9b908eab1d423f1265f665129): make removes its passing binary. I preserve Linux123 PASS and the runner failure separately, resume unrun gates, and retain a build-only external evaluator binary on Darwin under my amended integration contract.
+
+- [x] I qualify frozen916424260 with fresh Linux and puck bootstraps, complete
+  evaluator123 and totality8, all six identity methods, all twelve mutation/source
+  methods and the entire unchanged twelve-method owned-record-pattern suite on
+  both hosts. My [integrated seal](evidence/owned-array-mutation-final/README.md)
+  preserves Linux's successful evaluator followed by runner-only archive failure
+  and its corrected unrun-gate continuation; Darwin retains its evaluator binary.
+  I preserve prior partial9f7 acceptance and all first terminals. Canonical review
+  and actual merge reconciliation remain pending; mutation and broader parents
+  are not closed by this evidence checkpoint.

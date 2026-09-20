@@ -1,0 +1,12 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nano_virt",
+    "/tmp/nano-owned-pattern-vwrh8fo9/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-vwrh8fo9/case.nvm",
+    "--emit-nvm"
+  ],
+  "status": 1,
+  "stdout": "",
+  "stderr": "I require every record or selected variant field exactly once in an owned pattern at line 5.\nWarning: Function 'bad' is missing a shadow test\nerror: type check failed\n"
+}

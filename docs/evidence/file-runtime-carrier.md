@@ -141,3 +141,19 @@ audits and the ready-integration record. Ready `bf2d16248` integrates canonical
 856 (`179626d39`) in a separate tree; its only upstream change is ROADMAP.
 I preserve both additive ledger rows, verify exact `a02d5ab19` production and
 `be65d0368` fixture/Make identities, and repeat no unchanged gate.
+
+## I preserve measured pins while integrating canonical861
+
+I integrate canonical59ffceccf422047c91395e1cf5d08e62e5a1d64c through an
+automatic additive merge. Independent static review checks all ten carrier
+production paths against a02d5ab19, the three fixture/hook/driver paths against
+be65d0368, and all ten incoming source paths against canonical59ff. They match.
+I seal that review in `file-runtime-carrier/canonical-861-static-identity.json`.
+
+Canonical861 changes source array-binding/evaluation/lowering support and
+associated source fixtures. It changes no File, NanoISA or VM carrier authority.
+Its common source objects are part of the wider link closure, while the private
+carrier fixture does not exercise source evaluation/lowering. I retain the
+measured carrier and neighbor results at their original pins. This static
+integration is not a new build, execution or tool-inventory qualification, and
+I do not relabel canonical source acceptance as a carrier gate.

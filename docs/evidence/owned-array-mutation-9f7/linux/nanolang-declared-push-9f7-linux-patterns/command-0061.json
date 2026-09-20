@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nanoc_stage1",
+    "/tmp/nano-owned-pattern-8055dlwx/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-8055dlwx/program"
+  ],
+  "status": 1,
+  "stdout": "NSType checking failed\nDiagnostics:\n  [E0036] I require every record or selected variant field exactly once in an owned pattern. (/tmp/nano-owned-pattern-8055dlwx/case.nano:5:29)\n  [E0011] I cannot find this name in the current scope: __owned$4 (/tmp/nano-owned-pattern-8055dlwx/case.nano:5:29)\n  [E0011] I cannot find this name in the current scope: __owned$4 (/tmp/nano-owned-pattern-8055dlwx/case.nano:5:29)\n",
+  "stderr": ""
+}

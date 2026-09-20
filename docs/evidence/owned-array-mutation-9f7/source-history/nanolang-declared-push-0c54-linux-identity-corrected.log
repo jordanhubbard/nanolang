@@ -1,0 +1,27 @@
+I retain declared push artifacts in /tmp/nanolang-declared-push-7a4yfmcl
+test_declared_array_return_element_facts (declared_push_corrected.DeclaredArrayPushIdentity.test_declared_array_return_element_facts) ... ok
+test_declared_scalar_order_and_initializer (declared_push_corrected.DeclaredArrayPushIdentity.test_declared_scalar_order_and_initializer) ... ok
+test_lexical_signature_and_restoration (declared_push_corrected.DeclaredArrayPushIdentity.test_lexical_signature_and_restoration) ... 
+  test_lexical_signature_and_restoration (declared_push_corrected.DeclaredArrayPushIdentity.test_lexical_signature_and_restoration) (case='declared-function-value', compiler='nanoc_c') ... FAIL
+
+======================================================================
+FAIL: test_lexical_signature_and_restoration (declared_push_corrected.DeclaredArrayPushIdentity.test_lexical_signature_and_restoration) (case='declared-function-value', compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nanolang-declared-push-7e76-fixture.py", line 34, in positive
+    self.command([ROOT / 'bin' / compiler, source, '-o', binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nanolang-declared-push-7e76-fixture.py", line 23, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Undefined function 'selected'
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 5, column 2
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 24.523s
+
+FAILED (failures=1)

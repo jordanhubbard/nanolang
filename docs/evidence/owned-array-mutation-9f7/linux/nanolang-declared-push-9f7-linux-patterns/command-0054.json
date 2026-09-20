@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/home/jkh/Src/nanolang-declared-push-evaluator-initializer/bin/nanoc_stage2",
+    "/tmp/nano-owned-pattern-2p0efbxp/case.nano",
+    "-o",
+    "/tmp/nano-owned-pattern-2p0efbxp/program"
+  ],
+  "status": 1,
+  "stdout": "Parse error at /tmp/nano-owned-pattern-2p0efbxp/case.nano:5, column 45: unexpected token ''\n",
+  "stderr": ""
+}

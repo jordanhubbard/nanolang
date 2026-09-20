@@ -1,0 +1,26 @@
+{
+  "/usr/bin/gcc": {
+    "path": "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+  },
+  "/usr/bin/make": {
+    "path": "/usr/bin/make",
+    "sha256": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0"
+  },
+  "/usr/bin/python3": {
+    "path": "/usr/bin/python3.12",
+    "sha256": "1401f5c1ddd9e8f9d77622113a8d04b5f7ef57c0e3f40dd29db248a5aa91622e"
+  },
+  "/usr/bin/as": {
+    "path": "/usr/bin/aarch64-linux-gnu-as",
+    "sha256": "1ffda50efb6d91b6b05ef933aced099595c36577594c0296c91161f2d13db374"
+  },
+  "/usr/bin/ld": {
+    "path": "/usr/bin/aarch64-linux-gnu-ld.bfd",
+    "sha256": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c"
+  },
+  "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1": {
+    "path": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1",
+    "sha256": "64edfe466dd55c4216c006e9fa237af012e4974281dd4d11640aacfc3b3693af"
+  }
+}

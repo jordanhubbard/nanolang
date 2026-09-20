@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-mutation-match-916424260-linux-build/setup.mk",
+    "CC=/usr/bin/gcc",
+    "stage1",
+    "owned-array-source-setup"
+  ],
+  "status": 0,
+  "seconds": 27.874910781974904
+}

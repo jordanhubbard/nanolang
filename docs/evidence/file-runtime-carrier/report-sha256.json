@@ -1,5 +1,6 @@
 {
   "artifact-store.json": "73b458993e5b558fc98b767601171201ce02eb9af9be98ef09a9b03d02fa199d",
+  "canonical-861-static-identity.json": "f09fdbf5a297dd052ef61c1ad45e2857ce704e4df331183e36312fa84949b7ed",
   "darwin-config/clang-version.txt": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
   "darwin-config/driver.py": "11cbab320bab50928df0d96cb7402db6376bafc62b6d71421237b7420b830e7c",
   "darwin-config/environment.json": "103430bae1246d23ac39a5bc8012a54e546af253af9c915a28199b92ebfdcb5f",
