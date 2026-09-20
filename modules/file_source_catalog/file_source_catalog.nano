@@ -1,0 +1,19 @@
+module file_source_catalog
+
+# I expose immutable data only. Neither function accepts an AST or executes File.
+extern fn nl_file_source_catalog_string(kind: int, ordinal: int, field: int, member: int) -> string
+extern fn nl_file_source_catalog_number(kind: int, ordinal: int, field: int, member: int) -> int
+pub fn text(kind: int, ordinal: int, field: int, member: int) -> string {
+    unsafe { return (nl_file_source_catalog_string kind ordinal field member) }
+}
+shadow text {
+    assert (== (text 0 0 0 0) "nsi:nanolang/filesystem")
+    assert (== (text -1 0 0 0) "")
+}
+pub fn number(kind: int, ordinal: int, field: int, member: int) -> int {
+    unsafe { return (nl_file_source_catalog_number kind ordinal field member) }
+}
+shadow number {
+    assert (== (number 2 0 0 0) 1)
+    assert (== (number 2 5 0 0) -1)
+}

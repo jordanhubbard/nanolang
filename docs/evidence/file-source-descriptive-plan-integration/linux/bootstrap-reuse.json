@@ -1,0 +1,44 @@
+{
+  "original_bootstrap": "32ade5b5d",
+  "retained_qualified_tree": "/home/jkh/Src/nanolang-file-source-qualified-701",
+  "copied": {
+    "nanoc": {
+      "source": "/home/jkh/Src/nanolang-file-source-qualified-701/bin/nanoc",
+      "original": {
+        "sha256": "627473e4ac33cca30c908f6a1d5eb76889b987b51d547f0274c5cc1e1649d38c",
+        "bytes": 11423384
+      },
+      "copied": {
+        "sha256": "627473e4ac33cca30c908f6a1d5eb76889b987b51d547f0274c5cc1e1649d38c",
+        "bytes": 11423384,
+        "archive": "/tmp/nanolang-file-source-integrated-linux/objects/627473e4ac33cca30c908f6a1d5eb76889b987b51d547f0274c5cc1e1649d38c"
+      }
+    },
+    "nanoc_stage1": {
+      "source": "/home/jkh/Src/nanolang-file-source-qualified-701/bin/nanoc_stage1",
+      "original": {
+        "sha256": "f0a4f7a3fbbbb8f443b1a658add5ab68c714b8c1cb6d9aa9beaa3bc9e03ca686",
+        "bytes": 17470232
+      },
+      "copied": {
+        "sha256": "f0a4f7a3fbbbb8f443b1a658add5ab68c714b8c1cb6d9aa9beaa3bc9e03ca686",
+        "bytes": 17470232,
+        "archive": "/tmp/nanolang-file-source-integrated-linux/objects/f0a4f7a3fbbbb8f443b1a658add5ab68c714b8c1cb6d9aa9beaa3bc9e03ca686"
+      }
+    },
+    "nanoc_stage2": {
+      "source": "/home/jkh/Src/nanolang-file-source-qualified-701/bin/nanoc_stage2",
+      "original": {
+        "sha256": "627473e4ac33cca30c908f6a1d5eb76889b987b51d547f0274c5cc1e1649d38c",
+        "bytes": 11423384
+      },
+      "copied": {
+        "sha256": "627473e4ac33cca30c908f6a1d5eb76889b987b51d547f0274c5cc1e1649d38c",
+        "bytes": 11423384,
+        "archive": "/tmp/nanolang-file-source-integrated-linux/objects/627473e4ac33cca30c908f6a1d5eb76889b987b51d547f0274c5cc1e1649d38c"
+      }
+    }
+  },
+  "all_src_nano_exact": true,
+  "Cseed_and_all_C_providers": "fresh build at integration pin; no reused objects"
+}

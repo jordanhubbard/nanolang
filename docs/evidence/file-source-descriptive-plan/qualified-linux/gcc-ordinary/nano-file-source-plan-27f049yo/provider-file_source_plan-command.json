@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-source-qualified-701",
+    "-c",
+    "src/nanoisa/file_source_plan.c",
+    "-o",
+    "/tmp/nanolang-file-source-701-linux/gcc-ordinary/nano-file-source-plan-27f049yo/file_source_plan.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-source-qualified-701",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

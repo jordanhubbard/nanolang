@@ -1,0 +1,14 @@
+{
+  "scope": "resolved owning Apple Clang hash measured only after passing gates; original maps retain selected /usr/bin/clang shim",
+  "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "identity": {
+    "sha256": "be5518e9c6736cda8dfc3486ce11e8112a2e08045084260691cf41f57a653f59",
+    "bytes": 271279344
+  },
+  "version_returncode": 0,
+  "sdk": {
+    "owning-clang": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "sdk-version": "26.2"
+  }
+}

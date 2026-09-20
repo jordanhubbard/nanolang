@@ -1,0 +1,83 @@
+Warning at line 484, column 2: Unused variable 'catalog'
+Warning at line 943, column 2: Unused variable 'catalog'
+[ffi_loader] Initialized
+[ffi_loader] Loaded 'file_source_catalog' from /home/jkh/Src/nanolang-file-source-integrated-af68/modules/file_source_catalog/.build/.nano-gen-OCT9vS/libfile_source_catalog.so
+Running shadow tests...
+Testing text... PASSED
+Testing number... PASSED
+Testing fsp_string... PASSED
+Testing fsp_number... PASSED
+Testing file_source_catalog_view... PASSED
+Testing fsp_text_ok... PASSED
+Testing fsp_value... PASSED
+Testing fsp_equal... PASSED
+Testing fsp_literal... PASSED
+Testing fsp_id_ok... PASSED
+Testing fsp_add... PASSED
+Testing fsp_failure... PASSED
+Testing fsp_category... PASSED
+Testing file_source_plan... PASSED
+Testing emit... CASE -1 1 0
+PASSED
+Testing case_0... PASSED
+Testing case_1... PASSED
+Testing case_2... PASSED
+Testing case_3... PASSED
+Testing case_4... PASSED
+Testing case_5... PASSED
+Testing case_6... PASSED
+Testing case_7... PASSED
+Testing case_8... PASSED
+Testing case_9... PASSED
+Testing case_10... PASSED
+Testing case_11... PASSED
+Testing case_12... PASSED
+Testing case_13... PASSED
+Testing case_14... PASSED
+Testing case_15... PASSED
+Testing case_16... PASSED
+Testing case_17... PASSED
+Testing case_18... PASSED
+Testing case_19... PASSED
+Testing case_20... PASSED
+Testing case_21... PASSED
+Testing case_22... PASSED
+Testing case_23... PASSED
+Testing case_24... PASSED
+Testing case_25... PASSED
+Testing case_26... PASSED
+Testing case_27... PASSED
+Testing case_28... PASSED
+Testing case_29... PASSED
+Testing case_30... PASSED
+Testing case_31... PASSED
+Testing case_32... PASSED
+Testing case_33... PASSED
+Testing case_34... PASSED
+Testing case_35... PASSED
+Testing case_36... PASSED
+Testing case_37... PASSED
+Testing case_38... PASSED
+Testing case_39... PASSED
+Testing case_40... PASSED
+Testing case_41... PASSED
+Testing case_42... PASSED
+Testing case_43... PASSED
+Testing case_44... PASSED
+Testing case_45... PASSED
+Testing case_46... PASSED
+Testing case_47... PASSED
+Testing case_48... PASSED
+Testing case_49... PASSED
+Testing case_50... PASSED
+Testing case_51... PASSED
+Testing case_52... PASSED
+Testing case_53... PASSED
+Testing case_54... PASSED
+Testing case_55... PASSED
+Testing case_56... PASSED
+Testing case_57... PASSED
+Testing nano_extent_case... PASSED
+Testing nano_budget_case... PASSED
+All shadow tests passed! (75 tests)
+[ffi_loader] Shut down

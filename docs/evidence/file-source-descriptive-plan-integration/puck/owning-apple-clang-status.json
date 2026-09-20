@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/xcrun",
+    "--find",
+    "clang"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.005953457904979587
+}

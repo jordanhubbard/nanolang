@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/usr/bin/xcrun",
+    "--show-sdk-version"
+  ],
+  "returncode": 0,
+  "scope": "postphase-only tool identity query"
+}

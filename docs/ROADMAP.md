@@ -12583,6 +12583,33 @@ execution,247 reports,782 unique artifacts,24 equal source/tool pairs and exact
 prepared-provider identities. Productionf6ee is unchanged. Independent review
 and actual merge remain pending; no cyclic File runtime or parent closure follows.
 
+### My paired File source and NSI publication prerequisite
+
+- [ ] I review [my paired File source contract](NANOISA_FILE_SOURCE_PUBLICATION.md), `task_8bbc1cf5295b4b59b314640ef57c725f`, on actual public merge97546742 under6fc/72556/6931/d03c. I retain exact catalog/declaration identity and proposed grammar, cross-format coexistence with the separately owned scalar-union schema, and all mandatory source/shadow/control-flow requirements. This row authorizes no implementation before review.
+  - [ ] I implement and independently review only paired non-admitting source plans/catalog data access first, with exact copied identities, budgets and transactional outputs.
+  - [ ] I correct the statically discovered6c22 Nano request extent gap before fixtures: bare strings use strlen and cannot represent C counted-span validation of embedded NUL. Mirror explicit byte extents in Nano request text and reject length mismatches; retain truthful caller span semantics without widening string runtime or publication authority.
+  - [ ] I correct the statically reviewed384c fixture acceptance gaps before execution: replace aggregate/sample shadow checks with exact selected names for every generated case, Nano boundary helper, source-plan helper and catalog bridge; retain complete file-backed stdout/stderr and bounded process cleanup without losing the first terminal. C-seed success JSON currently exposes counts, not successful names; I retain actual verbose selection records alongside it rather than inventing JSON fields.
+  - [ ] I retain frozen32ade Linux bootstrap PASS281.203s and the first GCC fixture terminal: linked/instrumented ownership passes, then adjacent generated unbraced if statements fail strict misleading-indentation compilation before Nano execution. I correct only generated statement bracing/line layout, preserve every predicate and sentinel assertion, and freshly compile the corrected corpus after review; the independent puck attempt remains separately observed.
+  - [ ] I preserve independent32ade puck bootstrap PASS278.261s, passing C ownership/corpus, and first C-seed Nano module failure before shadows. My new bridge advertises a module-local header which the existing pure-Nano object compile path does not inherit (module.c passes NULL compile flags); I use the existing src include-root header directly rather than change generic compiler propagation. I retain that observed general include-propagation limitation for later module publication review. Two fixture qualified-call result-field accesses also lack inferred struct type; I bind exact FileSourcePlan locals before reading status. No assertions, shadow selection or source-plan semantics are removed.
+  - [ ] I preserve corrected74c Linux first terminal: C ownership/corpus and both Nano module builds pass; C-seed stops the selected shadow child at its unchanged10-second deadline without an observed last shadow because verbose output was buffered. Before changing fixtures or production I run a separately labeled, isolated unbuffered diagnostic under the same deadline to distinguish a single-boundary cost from aggregate suite cost; it cannot replace qualification. Original32ade/74c failure trees remain immutable.
+  - [ ] I retain the approved isolated74c unbuffered diagnostic:75 actual shadow starts,74 PASSED records, no FAILED record, and the unchanged whole-suite10-second deadline during nano_budget_case (standalone duration unmeasured); all10,993 source and5 tool hashes remain equal. Before fresh qualification I optimize only equal positive full-length Nano text spans with existing byte-string equality, preserving the original counted-prefix loop, complete58-case corpus, exact1MiB budget shadows and deadline.
+  - [ ] I qualify the reviewed descriptive-only fixture checkpoint: canonical C/Nano requests, counted byte prefixes including partial UTF-8/NUL, exact limits, C allocation rollback/input independence, full imported helper/module shadows through actual C-seed/fresh Stage1/2, and retained Linux/Darwin ordinary plus scoped C sanitizer evidence. I preserve the NSI/completeness caller precondition and Nano recoverable-allocation limitation.
+  - [ ] I review paired declaration parsing/checking/schema/clone propagation and distinct generated binding publication before fixtures, retaining strict existing NSI v0 semantics.
+  - [ ] I review paired acyclic File lowering and complete required v2 metadata/hosted conjunction, all bodies and truthful local/stack/reference facts before execution.
+  - [ ] I qualify explicit per-shadow grants, exact selected dependency/root shadows and VOID initializer cleanup, staged compiler publication, C-seed/freshStage1/Stage2 VM/native and installed Linux/Darwin full source/product gates.
+  - [ ] I retain cyclic/fuel, indirect-call and richer-borrow source acceptance as mandatory parent continuations; separate query facts or bounded acyclic success cannot close them.
+
+I qualify only the paired descriptive File plan slice at701dca50f with
+[retained evidence](evidence/file-source-descriptive-plan.md): seven Linux/puck
+configurations pass, four ordinary configurations each compare58 cases through
+C-seed/Stage1/Stage2 with exactly75 selected shadows per producer, and every C
+configuration passes7,503 linked/7,518 instrumented checks. I retain original32ade
+bootstraps and all first failures, the approved74c diagnostic, exact copied
+compiler/provider provenance, and explicit postphase-only inventory limits.
+Final independent review and merge are pending;8bbc and all full File/source
+parents remain open. I have not parsed, lowered, published or executed File
+source through these descriptive plans.
+
 ## I compose cyclic File execution after the qualified query
 
 I retain the preceding pending-review/first-failure paragraphs as historical
@@ -12640,3 +12667,21 @@ requirements remain open.
 - [x] I retain and correct the first indirect-query qualification extraction failure: system Python on puck lacks tarfile.extractall(filter=...), so no fixture/build ran. I verify the same source archive hash and extract with supported Homebrew Python into a fresh directory before Darwin gates; Linux qualification is independent. I preserve the first terminal and complete both host reports before closing this driver correction.
 
 - [x] I qualify the first private indirect-target query at5acd1b370 on Linux/puck with seven ordinary/sanitizer configurations and separate code/body/flow/hosted/opcode/cyclic neighbors. [Retained evidence](evidence/file-indirect-targets.md) records all target-query limits; candidate ownership/runtime/source and full task2c135 remain open.
+
+I prepare the descriptive source-plan integration on canonical8b84b9cd in a
+separate tree, preserving frozen701 qualification. All ten plan/module/fixture
+files retain their exact qualified bytes; all21 incoming source/test files
+retain canonical bytes. Only additive Make/roadmap conflicts required resolution.
+Before execution I review fresh changed-provider/C-seed relinking and ordinary
+full source-plan gates on Linux/puck. I retain exact original Stage1/Stage2
+compiler provenance, rebuild imported bridge/module products with empty caches,
+and keep original bootstrap/sanitizer claims at their measured pins. This
+integration does not grant source publication or File execution authority.
+
+I retain the approved af68 integration: fresh C-seed/provider builds and ordinary
+full paired source-plan gates pass on Linux and puck, with all58 cases and75
+selected shadows per producer. My supplemental293-report seal preserves eight
+equal input pairs and698 artifacts; original701 sanitizer and32ade bootstrap
+claims remain distinct. Root independently verifies the original892-report seal.
+Final supplemental review/actual merge remain pending; full8bbc/source parents
+stay open and no source publication or File execution follows.

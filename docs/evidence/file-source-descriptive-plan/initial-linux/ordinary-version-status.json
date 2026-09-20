@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "--version"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.0013257371028885245
+}

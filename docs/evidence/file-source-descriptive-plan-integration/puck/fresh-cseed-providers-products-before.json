@@ -1,0 +1,17 @@
+{
+  "bin/nanoc": {
+    "sha256": "9f11b9f95c73460d84d1a60e420169111fd1bb09a8bc025eaf5aafdeac1f9444",
+    "bytes": 10494416,
+    "archive": "/private/tmp/nanolang-file-source-integrated-puck/objects/9f11b9f95c73460d84d1a60e420169111fd1bb09a8bc025eaf5aafdeac1f9444"
+  },
+  "bin/nanoc_stage1": {
+    "sha256": "09f99ff2551bd2823c754411c2081f785d8b06101f829fe3cdd40677f435977a",
+    "bytes": 12202224,
+    "archive": "/private/tmp/nanolang-file-source-integrated-puck/objects/09f99ff2551bd2823c754411c2081f785d8b06101f829fe3cdd40677f435977a"
+  },
+  "bin/nanoc_stage2": {
+    "sha256": "9f11b9f95c73460d84d1a60e420169111fd1bb09a8bc025eaf5aafdeac1f9444",
+    "bytes": 10494416,
+    "archive": "/private/tmp/nanolang-file-source-integrated-puck/objects/9f11b9f95c73460d84d1a60e420169111fd1bb09a8bc025eaf5aafdeac1f9444"
+  }
+}
