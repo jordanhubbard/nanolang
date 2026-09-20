@@ -1,5 +1,17 @@
 # My Roadmap
 
+- [ ] I give my hosted full-release bootstrap shadows their existing finite CI
+  budget (`task_188a0717e52f57e5ce3d3ee5ab7d5085`). Replacement run
+  `35539999974` passes every earlier check, then Linux x64, Linux ARM64 and
+  coverage rebuild my full compiler during `make test` and stop mandatory
+  compiler shadows at my shipped 10-second default. I keep that product
+  default and every shadow unchanged, but select the same explicit 60-second
+  CI budget already used by my sanitizer and strict-example jobs. I retain
+  the three first terminals (x64 `820d84bf4cc23023bc0dca31a11bb75255a67cbec13c40f6a9de6bf82b991cb7`,
+  ARM64 `78681274bf6a16a3d6b68faf0f13f03be7191ac4f44c9f8fa000d1ccf6cb5c50`,
+  coverage `aa7bf2c48cad035a7d2dbc782e80fa35fed949ab59eb896b9432b3c374825e06`)
+  and require replacement x64, ARM64 and coverage gates before release.
+
 - [ ] I keep my retained document-pair acceptance aligned with the generated
   `v5.1.0` presentation (`task_2a49f076bf61e42c6fd33816fca5f3b8`).
   The clean Darwin, Linux ARM64 and hosted coverage gates pass every earlier
