@@ -23,8 +23,10 @@ to 10,432 and 10,064 bytes. The unchanged control then passes.
 
 ## My policy
 
-When `NANO_CFLAGS` is absent, I compile the generated native product with
-`-O1`. When it is present, I preserve its bytes exactly. This keeps explicit
+When `NANO_CFLAGS` is absent or explicitly empty, I compile the generated
+native product with `-O1`. The environment interface presents both cases as
+the same empty string, so I do not claim to distinguish them. When
+`NANO_CFLAGS` is nonempty, I preserve its bytes exactly. This keeps explicit
 debug, sanitizer, optimization and diagnostic selections authoritative. I do
 not change the C-seed tool build, linker flags, target selection, runtime ABI,
 or source language semantics.
@@ -35,7 +37,8 @@ that redesign.
 
 ## My acceptance
 
-I require helper shadows for the absent and explicit settings, a fresh Darwin
-bootstrap through both self-hosted stages, installed-compiler and no-C-seed
-smokes, the unchanged source control, and retained static frame measurements.
-Native stage byte inequality is recorded and is not a fixed-point claim.
+I require helper shadows for the empty/default and nonempty explicit settings,
+a fresh Darwin bootstrap through both self-hosted stages, installed-compiler
+and no-C-seed smokes, the unchanged source control, and retained static frame
+measurements. Native stage byte inequality is recorded and is not a
+fixed-point claim.

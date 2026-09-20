@@ -48,8 +48,10 @@ fact, and I do not describe this result as a native fixed point.
 ## My policy controls
 
 With `NANO_CFLAGS` absent, freshly built Stage 1 compiled unchanged hello and
-printed a native command containing `-O1`. The produced program ran and
-printed `Hello from NanoLang!`. The raw log is
+printed a native command containing `-O1`. An explicitly empty value follows
+the same policy because the environment interface supplies the same empty
+string. The produced program ran and printed `Hello from NanoLang!`. The raw
+log is
 `/private/tmp/nanolang-e159-default.log`, SHA-256
 `5399ea4768b2895a7980046eea400605f5047cabe26fbc3f077c6b0e06475836`.
 
@@ -59,8 +61,10 @@ printed a native command containing that exact setting and no injected
 raw log is `/private/tmp/nanolang-e159-explicit.log`, SHA-256
 `db7e06fb5391d46666185237b0565a6cb6c887895133103525c5cc6a61cc9f2f`.
 
-The helper shadow covers absent flags, an explicit debug setting and an
-explicit sanitizer setting during both self-hosted bootstrap stages. These
-controls qualify only the default-versus-explicit flag boundary. The retained
-frame measurements and rejected heap-pool hypothesis remain in the bounded
-contract; a generated-C ABI redesign remains separate work.
+The helper shadow covers the empty/default setting, an explicit debug setting
+and an explicit sanitizer setting during both self-hosted bootstrap stages.
+These controls qualify only the empty/default-versus-nonempty flag boundary;
+they do not claim that absence and an explicitly empty environment value are
+distinguishable. The retained frame measurements and rejected heap-pool
+hypothesis remain in the bounded contract; a generated-C ABI redesign remains
+separate work.
