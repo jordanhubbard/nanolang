@@ -3048,6 +3048,39 @@ static void test_stack_trace_executing_offsets(void) {
     }
 }
 
+static void test_stack_trace_fused_field_location(void) {
+    for (unsigned fused = 0; fused < 2; ++fused) {
+        uint8_t code[128];
+        uint32_t load = 0, field = 0;
+        uint32_t size = emit_local_field_program(code, 9, &load, &field);
+        NvmModule *mod = make_module(code, size, 0, 1);
+        mod->header.flags |= NVM_FLAG_DEBUG_INFO;
+        mod->source_file_idx = nvm_add_string(mod, "fused.nano", 10);
+        nvm_add_debug_entry(mod, load, 301, 1);
+        nvm_add_debug_entry(mod, field, 302, 2);
+        nvm_add_debug_entry(mod, size - 1, 303, 3);
+        char buf[2048] = {0};
+        FILE *out = fmemopen(buf, sizeof(buf) - 1, "w");
+        ASSERT(out != NULL, "I capture the fused field location");
+        VmState vm;
+        vm_init(&vm, mod);
+        vm.output = out;
+        vm_set_dispatch_profile(&vm, fused ? vm_dispatch_profile_all() : vm_dispatch_profile_none());
+        ASSERT(vm_rebuild_module(&vm, mod), "I rebuild the selected fusion profile");
+        uint32_t index = vm.dispatch_module.functions[0].offset_to_index[load] - 1;
+        ASSERT_EQ_INT(vm.dispatch_module.functions[0].instructions[index].super_op,
+                      fused ? VM_SUPER_LOAD_LOCAL_FIELD : VM_SUPER_NONE,
+                      "I exercise the actual requested dispatch profile");
+        ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_OUT_OF_BOUNDS, "I preserve field bounds failure");
+        fclose(out);
+        ASSERT(strstr(buf, "fused.nano:302:2") != NULL, "I report the field phase");
+        ASSERT(strstr(buf, "fused.nano:301") == NULL, "I do not report the preceding local load");
+        ASSERT(strstr(buf, "fused.nano:303") == NULL, "I do not report the continuation");
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
+}
+
 static void test_stack_trace_col(void) {
     /*
      * Verify col appears in the trace when source_col > 0 in the debug entry.
@@ -5962,6 +5995,7 @@ int main(void) {
     RUN_TEST(test_stack_trace_debug_mode);
     RUN_TEST(test_assertion_stack_context);
     RUN_TEST(test_stack_trace_executing_offsets);
+    RUN_TEST(test_stack_trace_fused_field_location);
     RUN_TEST(test_stack_trace_col);
     RUN_TEST(test_stack_trace_multi_frame);
 

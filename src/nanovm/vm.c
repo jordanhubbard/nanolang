@@ -1420,6 +1420,7 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
         if(index>=vm->stack_size)return VM_ERR_TYPE_ERROR;
         retained=vm->stack[index];
         if(decoded->super_op==VM_SUPER_LOAD_LOCAL_FIELD) {
+            frame->instruction_ip += in->byte_length;
             if(retained.tag!=TAG_STRUCT || !retained.as.sval || decoded->super_operand>=retained.as.sval->field_count)return VM_ERR_TYPE_ERROR;
             retained=retained.as.sval->fields[decoded->super_operand];
         }
@@ -1846,6 +1847,9 @@ vm_dispatch_top:
                     return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
                                       "Local %u out of range", idx);
                 }
+                /* I have completed the local-load phase. The field access
+                 * retains its own portable source location under fusion. */
+                frame->instruction_ip = instr_start + instr.byte_length;
                 NanoValue aggregate = vm->stack[abs_idx];
                 NanoValue value = val_void();
                 if (aggregate.tag == TAG_STRUCT && aggregate.as.sval

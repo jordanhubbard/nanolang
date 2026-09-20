@@ -13933,3 +13933,5 @@ The same record-order task_865923a37b6d470c83326aed625b8897 includes both native
 - [ ] I report the executing instruction in VM source diagnostics (`task_b7779ee196994432a18178145d93ac42`). My70516 assertion at line13 reports the following line14 because source lookup uses the advanced instruction pointer. I preserve that evidence and qualify exact statement, branch and call locations through both dispatch modes.
 
 I retain the first corrected VM source-location gate under task_b7779ee196994432a18178145d93ac42: 274616 checks pass and one new fixture expectation fails. The formatter correctly uses `file:?` for missing mapping; my fixture incorrectly expected no colon. I correct that expectation to the explicit unknown marker, preserving exact caller and assertion line checks.
+
+My independent source-location review also requires phase-specific mapping for fused LOAD_LOCAL/AGG_GET under task_b7779ee196994432a18178145d93ac42. I retain the local-load offset through its bounds check, then use the second portable instruction offset for field checks, including owned-array preflight. I require fused/unfused exact-line controls before closure.

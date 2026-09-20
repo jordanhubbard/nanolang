@@ -114,3 +114,12 @@ substring/callback/heap/stack allocation controls. The explicit
 `NANO_NO_COMPUTED_GOTO` build and full VM corpus also pass. Logs remain under
 `/tmp/nanolang-vm-source-location-first`, `-corrected` and `-switch`. This is
 Linux evidence; platform integration and canonical merge remain required.
+
+Independent review found that fused LOAD_LOCAL/AGG_GET needs a second location
+inside one dispatch step. I retain the first offset for local bounds checks and
+select the portable field-access offset before field checks, including the owned
+array preflight. Two actual fusion profiles assert the field line independently
+of both the preceding load and following continuation. The corrected Linux full
+VM corpus passes274632 checks in ordinary and explicit switch builds; unchanged
+allocation gates pass. My earlier944379 Darwin ordinary/switch gates passed at
+274618 checks; they do not qualify this later fused-phase correction.
