@@ -323,3 +323,13 @@ zero tracked allocations. This preserves every prior predicate and checks that
 the unhooked path actually bypasses host instrumentation. No warning suppression.
 Corrected linked routes and the unreached Homebrew sanitizer phase need fresh
 qualification; already passed b9ba Linux/Apple/observed results keep that pin.
+
+My bounded continuation driver will verify every original Homebrew ordinary
+endpoint input and the archived hashes of its three unhooked production objects
+and two LLVM forwarding objects. It supplies corrected7b66 C as a separate
+input outside the original qualified tree, then freshly builds/runs only the
+three previously unrun unhooked C/O0/O2 routes. The unchanged reviewed runner
+retains each command/status/product and fresh input maps. A separate isolated
+7b66 checkout will rebuild every production TU for the previously unreached
+Homebrew sanitizer phase only. Both drivers are retained beside first preflights;
+source/fixture attribution stays split. These continuation drivers await review.
