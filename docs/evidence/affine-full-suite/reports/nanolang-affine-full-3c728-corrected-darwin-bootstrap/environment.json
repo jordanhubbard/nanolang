@@ -1,0 +1,12 @@
+{
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "CC": "/usr/bin/clang",
+  "NANO_VM": "/private/tmp/nanolang-affine-full-3c728c437-corrected/bin/nano_vm",
+  "NANO_NVM2C": "/private/tmp/nanolang-affine-full-3c728c437-corrected/bin/nvm2c",
+  "NANO_AOT_RUNTIME": "/private/tmp/nanolang-affine-full-3c728c437-corrected/bin/nano_aot_runtime.o",
+  "NANO_MODULE_PATH": "/private/tmp/nanolang-affine-full-3c728c437-corrected/modules",
+  "NANO_BUILD_CACHE": "/private/tmp/nanolang-affine-full-3c728c437-corrected/obj/module_cache",
+  "PYTHONPATH": "/private/tmp/nanolang-affine-full-3c728c437-corrected"
+}

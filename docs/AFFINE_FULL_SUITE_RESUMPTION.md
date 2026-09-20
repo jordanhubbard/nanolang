@@ -48,3 +48,21 @@ this33-method prerequisite can discharge its original affine-suite boundary;
 full managed/ownership target coverage, complete product/fixed-point gates and
 release publication require their remaining evidence. I reconcile no full parent
 merely because a narrower prerequisite passed.
+
+## My Darwin dependency-discovery correction
+
+I preserve the first 3c728 Darwin bootstrap: make exits 2 after 9.5246 seconds
+because module_build_dir.c cannot find openssl/sha.h. My noninteractive SSH PATH
+was /usr/bin:/bin:/usr/sbin:/sbin; Makefile.gnu discovers OpenSSL with brew
+--prefix openssl. The installed header exists under /opt/homebrew/opt/openssl.
+This establishes a missing runner dependency-discovery path, not a compiler
+source defect. My first tree, log and unchanged source maps remain intact.
+
+Under task_273296f15f46457a8199665418602954 I use a fresh corrected Darwin tree
+at the same 3c728 source pin and a new evidence prefix. I set PATH explicitly to
+/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin before dependency discovery, retain
+explicit /usr/bin/clang and SDKROOT, record actual brew/pkg-config and compiler
+identities and resolved OpenSSL prefix/header/library hashes, then perform the
+same bounded bootstrap and preparation. I change no flags, assertions or source.
+I inspect remaining shell-selected setup tools before execution; Linux proceeds
+on its original frozen boundary.

@@ -1320,6 +1320,7 @@ shadow main { assert true }
     def test_inline_owner_wrappers_refuse_without_ordinary_fallback(self):
         cases = {
             'tuple': 'let wrapped: (int, Leaf) = (2, Leaf { value: 1 })',
+            'record-first-tuple': 'let wrapped: (Leaf, int) = (Leaf { value: 1 }, 2)',
             'array': 'let wrapped: array<Leaf> = [Leaf { value: 1 }]',
             'field': 'let wrapped: int = Leaf { value: 1 }.value',
             'call': 'let wrapped: int = (unknown Leaf { value: 1 })',

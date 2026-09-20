@@ -1,0 +1,8 @@
+{
+  "command": [
+    "/bin/bash",
+    "tests/test_affine_selfhost.sh"
+  ],
+  "status": 0,
+  "seconds": 77.46487512499999
+}
