@@ -13666,6 +13666,15 @@ objects and59 equal source/tool pairs. This is manual core/module adapter
 acceptance, not generated mixed execution or public/source admission. I await
 independent review and actual merge under task621; full mixed parents stay open.
 
+- [x] I implement generated CAST_U8 semantics after raw PR929 under task_c6b2a040c1434fc784a9d46c02a4981e: exact tagged native C facts/emission and LLVM/Wasm INT-or-U8 narrowing, matching closed-profile/shape transfer, wrong-tag/root cleanup, complete cross-target fixtures and both-host qualification. My [backend checkpoint](NANOISA_CAST_U8_BACKENDS.md) keeps source/reconstruction and separate authority work required.
+
+- [x] I preserve exact INT/U8 native branch carriers before conversion (task_56f2d585ba954a789ceb2afd67efd4ed). My first generated-byte gate refused a verified join; both arms must execute with exact tags after a finite carrier correction.
+- [x] I isolate native plain-string byte-error controls from counted-NUL managed cleanup fixtures (task_01d32045c43e43a19592b74ab077fb72), preserving the original refused case and independently verified native control without claiming native counted-string support.
+
+- [x] I publish the selected scalar LLVM target layout before optimization and instrumentation (task_30a188f3af5143098301249ed8fed8cf). My first emitted-IR sanitizer gate exposed inconsistent default/native value sizing; I preserve the failure and qualify explicit native/wasm32 ABI declarations from the validated runtime package on both hosts.
+
+- [x] I refresh stale scalar refusal fixtures for existing managed support (task_f3db8cc076e14bb285f2182f4e6d56d5): positive STR_CONTAINS and unused-array-signature execution, precise retained-layout refusal and unchanged unused-import/output preservation on both hosts. No production admission predicate changes.
+
 - [ ] I implement the actual paired generated File source route under existing task_8bbc1cf5295b4b59b314640ef57c725f, following [my concrete source design](NANOISA_FILE_SOURCE_IMPLEMENTATION.md), after review. I base it on actual token911 merge cf238dfd1. In dependency order I integrate primary AST/schema and real parsers; bounded companion snapshots and complete namespace resolution; independent C/Nano typed checking and File byte lowering; then actual selected shadows, explicit grant routing and staged installed publication. Each source/fixture checkpoint is reviewed before execution. I require fresh C-seed/Stage1/Stage2, all helper/module shadows and full paired product gates on Linux/Darwin. Cyclic/indirect/richer-borrow source acceptance remains mandatory, not closed by the first acyclic slice.
 - [x] I record and correct a documentation-only result-name mismatch before the source design: the immutable catalog, renderer and descriptive plans name rewind's result PositionResult; my older paired-source table said RewindResult. I change the table to the existing identity without changing any catalog, source or runtime behavior.
 
@@ -13765,3 +13774,7 @@ Current checks verify all 54,637 sources and 12 selected tools on each host,
 plus 482 Linux and 431 puck products. My [final supplemental seal](evidence/file-service-parser-final.md)
 records this bounded acceptance; full File source resolution/lowering and the
 8bbc parent remain open pending their complete required gates.
+
+- [x] I retain the supported Darwin sanitizer compiler in my byte integration driver (task_0601baaa79b149238071813ffd10d1f5). The first afdbb scalar-neighbor run selected Apple Clang for an always-instrumented guard and stopped at unsupported leak detection. I preserve that terminal and select inventoried Homebrew Clang for scalar and managed neighbor reruns; production, assertions and leak detection remain unchanged.
+
+I complete this generated-byte milestone in PR932 after both-host integration qualification and independent source/evidence review. Task_c6b2a040c1434fc784a9d46c02a4981e remains open for source/reconstruction and unchanged full-corpus acceptance; this checkbox does not complete that parent.

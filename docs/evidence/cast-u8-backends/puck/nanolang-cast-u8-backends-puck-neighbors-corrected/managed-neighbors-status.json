@@ -1,0 +1,27 @@
+{
+  "name": "managed-neighbors",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_llvm_managed_strings",
+    "tests.test_llvm_managed_mutable_arrays",
+    "tests.test_managed_binary64_bits",
+    "tests.test_managed_binary64_format"
+  ],
+  "bound_seconds": 1200,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 43.546286375,
+  "log": {
+    "sha256": "832579e718d4bbff9b5c50c6cf68c56bb0bf12c75d2109e8419eb1033ab97cfa",
+    "bytes": 2733,
+    "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors-corrected/objects/832579e718d4bbff9b5c50c6cf68c56bb0bf12c75d2109e8419eb1033ab97cfa"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}
