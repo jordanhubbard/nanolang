@@ -1,0 +1,9 @@
+#!/usr/bin/python3
+import subprocess,sys,pathlib,hashlib,json,uuid
+args=sys.argv[1:];rc=subprocess.run(['/usr/bin/gcc',*args]).returncode
+if rc==0 and '-o' in args:
+ p=pathlib.Path(args[args.index('-o')+1])
+ if p.is_file():
+  b=p.read_bytes();s=hashlib.sha256(b).hexdigest();root=pathlib.Path(__file__).parent/'artifacts';(root/s).write_bytes(b)
+  (root/(str(uuid.uuid4())+'.json')).write_text(json.dumps({'arguments':args,'path':str(p.resolve()),'sha256':s}))
+sys.exit(rc)

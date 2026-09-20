@@ -1,0 +1,52 @@
+{
+  "pin": "f7c58a0de2ecdeca9ce30d25d33c83d6c45372d8",
+  "steps": [
+    {
+      "name": "normal",
+      "command": [
+        "make",
+        "-j2",
+        "test-checker-metadata-ownership",
+        "test-union-metadata-ownership",
+        "CC=/tmp/nanolang-checker-owner-f7c-gates/gcc-retain"
+      ],
+      "status": 0,
+      "seconds": 12.897,
+      "tools_unchanged": true,
+      "log_sha256": "925ddcf537b1b3926504e9e906d43e04dead533f75381b00c51391d541f4ffb7"
+    },
+    {
+      "name": "gcc-sanitized",
+      "command": [
+        "make",
+        "-j2",
+        "test-checker-metadata-ownership",
+        "OBJ_DIR=obj-checker-gcc",
+        "CC=/tmp/nanolang-checker-owner-f7c-gates/gcc-retain",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O0 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+        "LDFLAGS=-lm -fsanitize=address,undefined"
+      ],
+      "status": 0,
+      "seconds": 9.116,
+      "tools_unchanged": true,
+      "log_sha256": "84dc5fa65dc8c8b7881dbaa97a2e8b9f6ab26ecd2ffe1ede785bbbaac9b2b67f"
+    },
+    {
+      "name": "adjacent",
+      "command": [
+        "make",
+        "-j2",
+        "test-module-metadata",
+        "test-env-scoping",
+        "CC=/tmp/nanolang-checker-owner-f7c-gates/gcc-retain",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 0,
+      "seconds": 27.705,
+      "tools_unchanged": true,
+      "log_sha256": "21af6f5a3b34641190043fe22128439feaa60951d6856f2c037c0698869ee5c1"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true
+}
