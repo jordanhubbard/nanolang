@@ -226,7 +226,7 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_ASTFieldAccess.c $(RUNTIME_DIR)/list_ASTEnum.c \
 	$(RUNTIME_DIR)/list_ASTUnion.c $(RUNTIME_DIR)/list_ASTUnionConstruct.c \
 	$(RUNTIME_DIR)/list_ASTMatch.c $(RUNTIME_DIR)/list_ASTImport.c \
-	$(RUNTIME_DIR)/list_ASTOpaqueType.c $(RUNTIME_DIR)/list_ASTTupleLiteral.c \
+	$(RUNTIME_DIR)/list_ASTOpaqueType.c $(RUNTIME_DIR)/list_ASTServiceDecl.c $(RUNTIME_DIR)/list_ASTTupleLiteral.c \
 	$(RUNTIME_DIR)/list_ASTTupleIndex.c \
 	$(RUNTIME_DIR)/token_helpers.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/effect_runtime.c $(RUNTIME_DIR)/dyn_array.c \
 	$(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/ffi_loader.c \
@@ -474,7 +474,7 @@ $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/n
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
 
 $(OBJ_DIR)/eval.o: src/runtime/binary64_parse.h $(NANOISA_DIR)/binary64_parse.h
-$(OBJ_DIR)/c_backend.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/string_literal_decode.h
+$(OBJ_DIR)/parser.o $(OBJ_DIR)/c_backend.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval_clock_test.o: src/string_literal_decode.h
 $(OBJ_DIR)/c_backend.o: src/binary64_format.h src/c_backend_values.inc
 $(OBJ_DIR)/nanovm/vm.o: $(NANOISA_DIR)/binary64_parse.h
 $(OBJ_DIR)/nanoisa/nvm2c.o: src/binary64_arithmetic_source.h $(NANOISA_DIR)/binary64_parse_source.h $(NANOISA_DIR)/nvm2c_owned.h $(NANOISA_DIR)/managed_native_source.h
@@ -5752,6 +5752,13 @@ test-ownership-declaration-projection: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 test-record-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_origins
 
+# I exercise raw byte conversion under both VM dispatch implementations.
+.PHONY: test-cast-u8
+test-cast-u8: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	CAST_U8_CC="$(CC)" CAST_U8_CFLAGS="$(CFLAGS)" \
+	CAST_U8_OBJECTS="$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" \
+	CAST_U8_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_cast_u8
+
 # I qualify private counted adapters without selecting mixed program execution.
 .PHONY: test-mixed-counted-runtime
 test-mixed-counted-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -5761,3 +5768,10 @@ test-mixed-counted-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 # I prepare copied execution facts without opening a runtime route.
 test-record-array-execution: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_execution
+
+# I require fresh schema ABI products before actual paired service parser gates.
+.PHONY: test-file-service-parser test-file-service-parser-sanitizers
+test-file-service-parser: bootstrap3 nano_virt
+	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/env.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/transpiler.o,$(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)))" python3 -m unittest -f -v tests.test_file_service_parser
+test-file-service-parser-sanitizers: nano_virt
+	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/env.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/transpiler.o,$(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)))" NANO_SERVICE_PARSER_SANITIZERS=1 python3 -m unittest -f -v tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal

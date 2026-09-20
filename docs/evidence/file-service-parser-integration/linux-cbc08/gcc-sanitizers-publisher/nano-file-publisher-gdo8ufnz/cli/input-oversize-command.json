@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/input-oversize",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/refused-oversize"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-5a534/src",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-5a534/tests",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/nano-file-binding-rhe7_nke",
+    "tests/test_nsi_file_plan.c",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/nano-file-binding-rhe7_nke/linked-nsi.o",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/nano-file-binding-rhe7_nke/linked-cJSON.o",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/nano-file-binding-rhe7_nke/linked-utf8.o",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/nano-file-binding-rhe7_nke/linked-nsi_file_plan.o",
+    "-lm",
+    "-o",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/nano-file-binding-rhe7_nke/nsi-file-plan"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-5a534",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

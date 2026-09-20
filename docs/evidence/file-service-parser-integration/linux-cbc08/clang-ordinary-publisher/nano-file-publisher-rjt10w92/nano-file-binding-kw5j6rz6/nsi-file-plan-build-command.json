@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-service-parser-cbc08/src",
+    "-I",
+    "/home/jkh/Src/nanolang-file-service-parser-cbc08/tests",
+    "-I",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/nano-file-binding-kw5j6rz6",
+    "tests/test_nsi_file_plan.c",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/nano-file-binding-kw5j6rz6/linked-nsi.o",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/nano-file-binding-kw5j6rz6/linked-cJSON.o",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/nano-file-binding-kw5j6rz6/linked-utf8.o",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/nano-file-binding-kw5j6rz6/linked-nsi_file_plan.o",
+    "-lm",
+    "-o",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/nano-file-binding-kw5j6rz6/nsi-file-plan"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

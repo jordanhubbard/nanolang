@@ -420,6 +420,10 @@ static ASTNode *ctx_guarded_union_profile(CBCtx *c, ASTNode *node, int *declarat
             if (ctx_union_variant(c, name, variant, &declaration, &selected) != owner) {
                 ctx_error(c, "I require exact declared variants for guarded C match."); return NULL;
             }
+            const char *binding = node->as.match_expr.pattern_bindings[i];
+            if (binding && !*binding && owner->as.union_def.variant_field_counts[selected] != 0) {
+                ctx_error(c, "I require a zero-field variant for an empty match binding."); return NULL;
+            }
         }
     }
     for (int v = 0; !wildcard_covers && v < owner->as.union_def.variant_count; ++v) {
@@ -1428,7 +1432,7 @@ static int emit_guarded_union_match(CBCtx *c, ASTNode *node) {
         c->indent++; ctx_push_scope(c);
         if (c->error) goto failed;
         const char *binding = node->as.match_expr.pattern_bindings ? node->as.match_expr.pattern_bindings[i] : NULL;
-        if (!wildcard && binding && strcmp(binding, "_") != 0 &&
+        if (!wildcard && binding && *binding && strcmp(binding, "_") != 0 &&
             owner->as.union_def.variant_field_counts[variant_index] > 0) {
             emit_indent(c);
             fprintf(c->out, "%spayload_%d_%d %s = %smatch_value.as.%s;\n",
@@ -1680,6 +1684,12 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
                     c->indent--; return -1;
                 }
             }
+            const char *binding = node->as.match_expr.pattern_bindings[i];
+            if (binding && !*binding &&
+                (!declaration || declaration->as.union_def.variant_field_counts[variant_index] != 0)) {
+                ctx_error(c, "I require an exact zero-field variant for an empty match binding.");
+                c->indent--; return -1;
+            }
             emit_indent(c);
             if (i == 0) fputs("if (", c->out);
             else        fputs("} else if (", c->out);
@@ -1706,6 +1716,7 @@ static int emit_stmt(CBCtx *c, ASTNode *node) {
 
             if (declaration && node->as.match_expr.pattern_bindings &&
                 node->as.match_expr.pattern_bindings[i] &&
+                node->as.match_expr.pattern_bindings[i][0] &&
                 strcmp(node->as.match_expr.pattern_bindings[i], "_") != 0 &&
                 declaration->as.union_def.variant_field_counts[variant_index] > 0) {
                 emit_indent(c);
@@ -2196,6 +2207,7 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
         ctx_error(&c, "I require hosted C library support for this C profile.");
     snprintf(c.prefix, sizeof c.prefix, "nano_cb_plan_");
     if (!root) ctx_error(&c, "I require a program AST.");
+    if (ast_has_service_declaration(root)) ctx_error(&c, "I have not resolved File service declarations for this consumer.");
     FILE *plan = NULL;
     char *text = NULL;
     if (!c.error) {

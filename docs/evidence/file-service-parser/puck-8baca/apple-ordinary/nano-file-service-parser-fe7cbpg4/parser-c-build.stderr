@@ -1,0 +1,4 @@
+/private/tmp/nanolang-file-service-parser-8baca/tests/test_file_service_parser.c:73:11: error: initializing 'char *' with an expression of type 'const char *' discards qualifiers [-Werror,-Wincompatible-pointer-types-discards-qualifiers]
+   73 |     char *saved=t[5].value;
+      |           ^     ~~~~~~~~~~
+1 error generated.

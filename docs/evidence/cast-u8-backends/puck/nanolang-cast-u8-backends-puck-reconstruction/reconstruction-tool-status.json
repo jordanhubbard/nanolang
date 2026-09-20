@@ -1,0 +1,22 @@
+{
+  "name": "reconstruction-tool",
+  "argv": [
+    "make",
+    "nvm2hl",
+    "CC=/usr/bin/clang"
+  ],
+  "bound_seconds": 300,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.33649337500000076,
+  "log": {
+    "sha256": "71feaa296a1f2db9321f0f2e2629dbeb6ffefe986d10f9422a2d9cfa356cd614",
+    "bytes": 1469,
+    "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/71feaa296a1f2db9321f0f2e2629dbeb6ffefe986d10f9422a2d9cfa356cd614"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

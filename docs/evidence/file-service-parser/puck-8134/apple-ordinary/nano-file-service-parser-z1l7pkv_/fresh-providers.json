@@ -1,0 +1,13 @@
+{
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/lexer.o": "c98d121f9988ef9bdff2e234b9ea0578bc0a0b86240d6fd4f8d405caa120607d",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/utf8.o": "4bd39ace523514f4c715fb54120838af99eb31a728805c27aabd271516f8b10b",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/env.o": "8f0f0d94aede2515c2228638f68e132a4b6c64fba3c7ff58d48ec2da2992ff5f",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/publisher-bin/nsi-file-binding": "e4f0059f7097fb38243a9c3168597b38a066f6012f9556f3f9c5c26f36c0712e",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/publisher-obj/file-binding-publisher/cJSON.o": "86442eb34fc8175b691eb49f1fcd687a4c4be5c8a8c687a81f02cd55822c441a",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/publisher-obj/file-binding-publisher/nsi.o": "9a22ce12fb112ac8d5befb6b603e7a61512ee1b1bab560c70e916285d7afaefc",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/publisher-obj/file-binding-publisher/nsi_file_binding.o": "ad125c36a6d205c8774679c5d38671fd16f6ae79d17dc34c29dbaac907cf327b",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "69e8e3e1dc4593349e40e143f21da761b24392c9c208e64259a9e7ff14f0d4c2",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/publisher-obj/file-binding-publisher/nsi_file_plan.o": "61f9efc175762869834be1c7b9615b02e9bee219379f80653e8eaa136f01f033",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/publisher-obj/file-binding-publisher/nsi_file_publish.o": "0b20b238aff54c55dbd3a1fb92d5a3df633bb0e41c8c597faeb4c90a5cb24297",
+  "/private/tmp/nanolang-file-service-parser-8134-puck/apple-ordinary/nano-file-service-parser-z1l7pkv_/publisher-obj/file-binding-publisher/utf8.o": "a1b816323ca91802a21e32142bd878af5a23fb76ab0a0e24677f732f1d4a88e7"
+}

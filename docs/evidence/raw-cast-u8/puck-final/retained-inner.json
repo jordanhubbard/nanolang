@@ -1,0 +1,252 @@
+{
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default-build-stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch-build-command.txt": {
+    "sha256": "312bdf0a5c89528987cf56f3b64e0d3d6464b4238bd7c29ae2468884066db6f3",
+    "bytes": 4096,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/312bdf0a5c89528987cf56f3b64e0d3d6464b4238bd7c29ae2468884066db6f3"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch-build-status.json": {
+    "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+    "bytes": 181,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch-build-stdout.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default-build-command.txt": {
+    "sha256": "d98cf428600db5314db011c318466bbfdc788fbe5ce93f1a81ae16f2bd3bcf18",
+    "bytes": 4073,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/d98cf428600db5314db011c318466bbfdc788fbe5ce93f1a81ae16f2bd3bcf18"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default-run-stdout.log": {
+    "sha256": "9ca0359f9a2f6e1183d7826607f0ea95e074884431d8a31e82c01ed785245286",
+    "bytes": 47,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/9ca0359f9a2f6e1183d7826607f0ea95e074884431d8a31e82c01ed785245286"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch-run-stdout.log": {
+    "sha256": "9ca0359f9a2f6e1183d7826607f0ea95e074884431d8a31e82c01ed785245286",
+    "bytes": 47,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/9ca0359f9a2f6e1183d7826607f0ea95e074884431d8a31e82c01ed785245286"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch-run-status.json": {
+    "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+    "bytes": 181,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default-build-status.json": {
+    "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+    "bytes": 181,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch-run-command.txt": {
+    "sha256": "7ca4961af58461d93381cd9a4f9eea35cb32c9d0b74206284bc6b4b885cee182",
+    "bytes": 78,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/7ca4961af58461d93381cd9a4f9eea35cb32c9d0b74206284bc6b4b885cee182"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default": {
+    "sha256": "535000ca05a95933941e9429f25bb1559712e3abe162bc7b3623599a90e718ae",
+    "bytes": 11298408,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/535000ca05a95933941e9429f25bb1559712e3abe162bc7b3623599a90e718ae"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch-build-stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default-build-stdout.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default-run-status.json": {
+    "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+    "bytes": 181,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/selection.json": {
+    "sha256": "9c3df14711e1e5857260f45935f67175498a0ef316f6687be4d3136926ef32eb",
+    "bytes": 5269,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/9c3df14711e1e5857260f45935f67175498a0ef316f6687be4d3136926ef32eb"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default-run-stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch": {
+    "sha256": "6554afbbf1958f902934154077a9c5bef34b4c071c855c7577efc0eff12d096b",
+    "bytes": 11281672,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/6554afbbf1958f902934154077a9c5bef34b4c071c855c7577efc0eff12d096b"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default-run-command.txt": {
+    "sha256": "8d77015b1a90ce867ca0ec96e8c992b1d8448b1249a23555732657577bedbd33",
+    "bytes": 79,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/8d77015b1a90ce867ca0ec96e8c992b1d8448b1249a23555732657577bedbd33"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch-run-stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default.dSYM/Contents/Info.plist": {
+    "sha256": "a938a7bb32da56c747d2476c7e2a58139ede3ac9b3eb0841af43e2b925cfe65c",
+    "bytes": 636,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/a938a7bb32da56c747d2476c7e2a58139ede3ac9b3eb0841af43e2b925cfe65c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default.dSYM/Contents/Resources/Relocations/aarch64/default.yml": {
+    "sha256": "80a142b55a5c3bf58b715b71f6268f49d41c15b38141646b665b5586033d2da6",
+    "bytes": 164,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/80a142b55a5c3bf58b715b71f6268f49d41c15b38141646b665b5586033d2da6"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/default.dSYM/Contents/Resources/DWARF/default": {
+    "sha256": "49ac6f56e5df3eb269d7fea75daaa404a157a9174595c3161bac75fe544b435a",
+    "bytes": 4506265,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/49ac6f56e5df3eb269d7fea75daaa404a157a9174595c3161bac75fe544b435a"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch.dSYM/Contents/Info.plist": {
+    "sha256": "a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e",
+    "bytes": 635,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml": {
+    "sha256": "2101a4285fdeab8d6a31397637e445efda5d714787cf1723e1a485e244ad6a0d",
+    "bytes": 163,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/2101a4285fdeab8d6a31397637e445efda5d714787cf1723e1a485e244ad6a0d"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-atmbybly/switch.dSYM/Contents/Resources/DWARF/switch": {
+    "sha256": "c034b84d95408c9e39d338831f7096335fd6ad1a04cbd1c2b11560f0484098c8",
+    "bytes": 4495074,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/c034b84d95408c9e39d338831f7096335fd6ad1a04cbd1c2b11560f0484098c8"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default-build-stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch-build-command.txt": {
+    "sha256": "fdcada4b6e3a112013cd0ca3f8e7d14f0b8a2d453e703d33b29a0a27ea36f053",
+    "bytes": 4014,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/fdcada4b6e3a112013cd0ca3f8e7d14f0b8a2d453e703d33b29a0a27ea36f053"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch-build-status.json": {
+    "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+    "bytes": 181,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch-build-stdout.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default-build-command.txt": {
+    "sha256": "851c2c1ad403fac550ce737970f32269b48455084609d9f4936ca745c468a17f",
+    "bytes": 3991,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/851c2c1ad403fac550ce737970f32269b48455084609d9f4936ca745c468a17f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default-run-stdout.log": {
+    "sha256": "9ca0359f9a2f6e1183d7826607f0ea95e074884431d8a31e82c01ed785245286",
+    "bytes": 47,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/9ca0359f9a2f6e1183d7826607f0ea95e074884431d8a31e82c01ed785245286"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch-run-stdout.log": {
+    "sha256": "9ca0359f9a2f6e1183d7826607f0ea95e074884431d8a31e82c01ed785245286",
+    "bytes": 47,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/9ca0359f9a2f6e1183d7826607f0ea95e074884431d8a31e82c01ed785245286"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch-run-status.json": {
+    "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+    "bytes": 181,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default-build-status.json": {
+    "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+    "bytes": 181,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch-run-command.txt": {
+    "sha256": "01239a8da11dc41fd3407ca3f1aad5402f219493f9d878ddddc18d0668661087",
+    "bytes": 78,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/01239a8da11dc41fd3407ca3f1aad5402f219493f9d878ddddc18d0668661087"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default": {
+    "sha256": "950bd84b73991e1308672ad9e2337d6d326b20ec8a712977d26f7df225df91eb",
+    "bytes": 10877368,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/950bd84b73991e1308672ad9e2337d6d326b20ec8a712977d26f7df225df91eb"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch-build-stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default-build-stdout.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default-run-status.json": {
+    "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+    "bytes": 181,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/selection.json": {
+    "sha256": "1f15d408862db730440d74c4d617472f0d4521a75dfe089c5b451dc0c0947724",
+    "bytes": 5166,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/1f15d408862db730440d74c4d617472f0d4521a75dfe089c5b451dc0c0947724"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default-run-stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch": {
+    "sha256": "cb8513a9e66c0f1d62b6ad8112a60108902ecd95296001c54ec3da6f14f90a5f",
+    "bytes": 10877304,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/cb8513a9e66c0f1d62b6ad8112a60108902ecd95296001c54ec3da6f14f90a5f"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default-run-command.txt": {
+    "sha256": "cf4703ff0541dec0751cddb2ad81e569241e6705a806e63e268974ec5c466337",
+    "bytes": 79,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/cf4703ff0541dec0751cddb2ad81e569241e6705a806e63e268974ec5c466337"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch-run-stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default.dSYM/Contents/Info.plist": {
+    "sha256": "a938a7bb32da56c747d2476c7e2a58139ede3ac9b3eb0841af43e2b925cfe65c",
+    "bytes": 636,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/a938a7bb32da56c747d2476c7e2a58139ede3ac9b3eb0841af43e2b925cfe65c"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default.dSYM/Contents/Resources/Relocations/aarch64/default.yml": {
+    "sha256": "d28dc7b8cb7d58ba03c549be3cab2ae92dcadcf8cc8e9c614d0dea3174823f69",
+    "bytes": 164,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/d28dc7b8cb7d58ba03c549be3cab2ae92dcadcf8cc8e9c614d0dea3174823f69"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/default.dSYM/Contents/Resources/DWARF/default": {
+    "sha256": "f6921fbfecdeed41512fec7dc7a07010b3f2b8ae5084d99026f3caa1222673cc",
+    "bytes": 4383195,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/f6921fbfecdeed41512fec7dc7a07010b3f2b8ae5084d99026f3caa1222673cc"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch.dSYM/Contents/Info.plist": {
+    "sha256": "a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e",
+    "bytes": 635,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml": {
+    "sha256": "cd17d9d2aebc859cfcb3ca49ddf10cf12c8f4903dafb5a3dbda1e16942afd5e7",
+    "bytes": 163,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/cd17d9d2aebc859cfcb3ca49ddf10cf12c8f4903dafb5a3dbda1e16942afd5e7"
+  },
+  "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-cast-u8-wre1s0iw/switch.dSYM/Contents/Resources/DWARF/switch": {
+    "sha256": "2d59736b542ddaaa5db7764a31edbb362cf1b636cab2b9a029478e3e27b67b06",
+    "bytes": 4345136,
+    "archive": "/tmp/nanolang-cast-u8-puck-final/objects/2d59736b542ddaaa5db7764a31edbb362cf1b636cab2b9a029478e3e27b67b06"
+  }
+}

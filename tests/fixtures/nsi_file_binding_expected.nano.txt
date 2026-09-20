@@ -58,9 +58,9 @@ shadow rewind {
             }
             let read: ReadResult = (read_byte &mut owned)
             match read {
-                Ok(byte) => {
-                    assert (== byte.value 255)
-                    assert (not byte.eof)
+                Ok(octet) => {
+                    assert (== octet.value 255)
+                    assert (not octet.eof)
                 }
                 Error(error) => { assert false }
             }
@@ -91,15 +91,15 @@ shadow read_byte {
             }
             let read: ReadResult = (read_byte &mut owned)
             match read {
-                Ok(byte) => {
-                    assert (== byte.value 0)
-                    assert (not byte.eof)
+                Ok(octet) => {
+                    assert (== octet.value 0)
+                    assert (not octet.eof)
                 }
                 Error(error) => { assert false }
             }
             let ended: ReadResult = (read_byte &mut owned)
             match ended {
-                Ok(byte) => { assert byte.eof assert (== byte.value 0) }
+                Ok(octet) => { assert octet.eof assert (== octet.value 0) }
                 Error(error) => { assert false }
             }
             let closed: CloseResult = (close owned)

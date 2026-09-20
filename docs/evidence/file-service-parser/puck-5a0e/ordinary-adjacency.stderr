@@ -1,0 +1,251 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2093, column 9: Unused variable 'rejected'
+Warning at line 2214, column 9: Unused variable 'rejected'
+Warning at line 2221, column 13: Unused variable 'rejected'
+Warning at line 2259, column 9: Unused variable 'rejected'
+Warning at line 2263, column 9: Unused variable 'rejected'
+Warning at line 2270, column 13: Unused variable 'rejected'
+Warning at line 5387, column 17: Unused variable 'imported'
+clang: error: no such file or directory: '/tmp/nanovm/value.o'
+clang: error: no such file or directory: '/tmp/nanovm/heap.o'
+clang: error: no such file or directory: '/tmp/nanovm/heap_cycles.o'
+clang: error: no such file or directory: '/tmp/nanovm/vm.o'
+clang: error: no such file or directory: '/tmp/nanovm/vm_ffi.o'
+clang: error: no such file or directory: '/tmp/nanovm/vm_ffi_arrays.o'
+clang: error: no such file or directory: '/tmp/nanovm/vm_builtins.o'
+clang: error: no such file or directory: '/tmp/nanovm/cop_protocol.o'
+clang: error: no such file or directory: '/tmp/nanovm/vm_callback.o'
+clang: error: no such file or directory: '/tmp/runtime/callback_runtime.o'
+clang: error: no such file or directory: '/tmp/nanovm/vm_decode.o'
+clang: error: no such file or directory: '/tmp/nanovm/vm_dispatch.o'
+clang: error: no such file or directory: '/tmp/nanoisa/isa.o'
+clang: error: no such file or directory: '/tmp/nanoisa/local_bindings.o'
+clang: error: no such file or directory: '/tmp/nanoisa/passive.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_format.o'
+clang: error: no such file or directory: '/tmp/nanoisa/affine_bytecode.o'
+clang: error: no such file or directory: '/tmp/nanoisa/affine_state.o'
+clang: error: no such file or directory: '/tmp/nanoisa/mixed_float_proof.o'
+clang: error: no such file or directory: '/tmp/nanoisa/ownership_contracts.o'
+clang: error: no such file or directory: '/tmp/nanoisa/retained_layouts.o'
+clang: error: no such file or directory: '/tmp/nanoisa/reference_places.o'
+clang: error: no such file or directory: '/tmp/nanoisa/file_flow.o'
+clang: error: no such file or directory: '/tmp/nanoisa/service_file_nominal.o'
+clang: error: no such file or directory: '/tmp/nanoisa/service_file_nominal_plan.o'
+clang: error: no such file or directory: '/tmp/nanoisa/service_bindings.o'
+clang: error: no such file or directory: '/tmp/nanoisa/service_bindings_module.o'
+clang: error: no such file or directory: '/tmp/nsi_file_plan.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_format_v2.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_v2_cursor.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_v2_constants.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_v2_signatures.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_v2_layouts.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_v2_functions.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_v2_imports.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_v2_module.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nvm_v2_convert.o'
+clang: error: no such file or directory: '/tmp/nanoisa/assembler.o'
+clang: error: no such file or directory: '/tmp/nanoisa/disassembler.o'
+clang: error: no such file or directory: '/tmp/nanoisa/verifier.o'
+clang: error: no such file or directory: '/tmp/nanoisa/managed_array_shapes.o'
+clang: error: no such file or directory: '/tmp/nanoisa/verifier_types.o'
+clang: error: no such file or directory: '/tmp/nanoisa/nanoisa_facade.o'
+clang: error: no such file or directory: '/tmp/lexer.o'
+clang: error: no such file or directory: '/tmp/parser.o'
+clang: error: no such file or directory: '/tmp/typechecker.o'
+clang: error: no such file or directory: '/tmp/transpiler.o'
+clang: error: no such file or directory: '/tmp/stdlib_runtime.o'
+clang: error: no such file or directory: '/tmp/env.o'
+clang: error: no such file or directory: '/tmp/builtins_registry.o'
+clang: error: no such file or directory: '/tmp/module.o'
+clang: error: no such file or directory: '/tmp/module_metadata.o'
+clang: error: no such file or directory: '/tmp/utf8.o'
+clang: error: no such file or directory: '/tmp/cJSON.o'
+clang: error: no such file or directory: '/tmp/toon_output.o'
+clang: error: no such file or directory: '/tmp/module_builder.o'
+clang: error: no such file or directory: '/tmp/resource_tracking.o'
+clang: error: no such file or directory: '/tmp/resource_flow.o'
+clang: error: no such file or directory: '/tmp/nominal_types.o'
+clang: error: no such file or directory: '/tmp/eval.o'
+clang: error: no such file or directory: '/tmp/interpreter_ffi.o'
+clang: error: no such file or directory: '/tmp/json_diagnostics.o'
+clang: error: no such file or directory: '/tmp/reflection.o'
+clang: error: no such file or directory: '/tmp/effects.o'
+clang: error: no such file or directory: '/tmp/coroutine.o'
+clang: error: no such file or directory: '/tmp/eval/eval_hashmap.o'
+clang: error: no such file or directory: '/tmp/eval/eval_math.o'
+clang: error: no such file or directory: '/tmp/eval/eval_string.o'
+clang: error: no such file or directory: '/tmp/eval/eval_io.o'
+clang: error: no such file or directory: '/tmp/runtime/list_int.o'
+clang: error: no such file or directory: '/tmp/runtime/list_string.o'
+clang: error: no such file or directory: '/tmp/runtime/list_LexerToken.o'
+clang: error: no such file or directory: '/tmp/runtime/list_token.o'
+clang: error: no such file or directory: '/tmp/runtime/list_CompilerDiagnostic.o'
+clang: error: no such file or directory: '/tmp/runtime/list_CompilerSourceLocation.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTNumber.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTFloat.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTString.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTBool.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTIdentifier.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTBinaryOp.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTCall.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTModuleQualifiedCall.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTArrayLiteral.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTLet.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTSet.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTStmtRef.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTIf.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTWhile.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTFor.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTReturn.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTBlock.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTUnsafeBlock.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTPrint.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTAssert.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTFunction.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTShadow.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTStruct.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTStructLiteral.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTFieldAccess.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTEnum.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTUnion.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTUnionConstruct.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTMatch.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTImport.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTOpaqueType.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTServiceDecl.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTTupleLiteral.o'
+clang: error: no such file or directory: '/tmp/runtime/list_ASTTupleIndex.o'
+clang: error: no such file or directory: '/tmp/runtime/token_helpers.o'
+clang: error: no such file or directory: '/tmp/runtime/gc.o'
+clang: error: no such file or directory: '/tmp/runtime/effect_runtime.o'
+clang: error: no such file or directory: '/tmp/runtime/dyn_array.o'
+clang: error: no such file or directory: '/tmp/runtime/gc_struct.o'
+clang: error: no such file or directory: '/tmp/runtime/nl_string.o'
+clang: error: no such file or directory: '/tmp/runtime/ffi_loader.o'
+clang: error: no such file or directory: '/tmp/runtime/module_build_dir.o'
+clang: error: no such file or directory: '/tmp/runtime/cli.o'
+clang: error: no such file or directory: '/tmp/runtime/regex.o'
+I could not publish the wrapper; I did not replace the destination
+clang: error: no such file or directory: '/tmp/nanovm/vmd_protocol.o'
+clang: error: no such file or directory: '/tmp/nanovm/vmd_client.o'
+I could not publish the wrapper; I did not replace the destination
+I could not publish the wrapper; I did not replace the destination
+........
+----------------------------------------------------------------------
+Ran 8 tests in 5.783s
+
+OK
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2093, column 9: Unused variable 'rejected'
+Warning at line 2214, column 9: Unused variable 'rejected'
+Warning at line 2221, column 13: Unused variable 'rejected'
+Warning at line 2259, column 9: Unused variable 'rejected'
+Warning at line 2263, column 9: Unused variable 'rejected'
+Warning at line 2270, column 13: Unused variable 'rejected'
+Warning at line 5387, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Hello from NanoLang!
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+=== Code Generation ===
+Generating C code for 2 functions
+=== Code Generation ===
+Generating C code for 1 functions
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_source_guard_1789912265_0/source.nano
+I will not overwrite a source file: /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_source_guard_1789912265_0/source.nano
+I cannot check source/output file identity: /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T//nano_source_guard_1789912265_0/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Options:
+  -o <file>        Output executable (default: a.out)
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native (default) or c (source output, no native compilation)
+  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → Transpile → Compile
+
+Hello from NanoLang!
+Hello from NanoLang!
+Hello from NanoLang!
+I support borrow annotations only on named parameters until ownership lowering lands
+Error at line 1, column 23: Expected ')' after parameters (got AMPERSAND)
+Error at line 1, column 24: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 32: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+I support borrow annotations only on named parameters until ownership lowering lands
+Error at line 1, column 24: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+I support borrow annotations only on named parameters until ownership lowering lands
+Error at line 1, column 25: Expected field name
+Error at line 1, column 25: Expected '}' after struct fields (got AMPERSAND)
+Error at line 1, column 26: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 30: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+...
+----------------------------------------------------------------------
+Ran 3 tests in 2.942s
+
+OK
+.
+----------------------------------------------------------------------
+Ran 1 test in 5.308s
+
+OK
+Warning: Function 'transform' is missing a shadow test
+Warning: Function 'invoke' is missing a shadow test
+Warning: Function 'factory' is missing a shadow test
+Error: /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano_mod_utf8_4225/module.json is not valid UTF-8
+Error: Invalid JSON in /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+Error: Invalid JSON in /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require unique callback adapters with a C symbol, retained_v1 ABI, and owner or worker execution: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require complete, NUL-free module metadata: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require complete, NUL-free module metadata: /private/tmp/nanolang-callback-metadata-cRxo15/module.json
+I require complete, NUL-free module metadata: /private/tmp/nanolang-callback-metadata-cRxo15/module.json

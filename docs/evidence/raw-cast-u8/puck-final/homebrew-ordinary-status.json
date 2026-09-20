@@ -1,0 +1,24 @@
+{
+  "name": "homebrew-ordinary",
+  "argv": [
+    "make",
+    "test-cast-u8",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE",
+    "LDFLAGS=-lm"
+  ],
+  "bound_seconds": 300,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 2.4533579170238227,
+  "log": {
+    "sha256": "a51dd471c1dbacd9ddb0de3eee194fa880c90200dac34faddb250918d3c145eb",
+    "bytes": 4264,
+    "archive": "/private/tmp/nanolang-cast-u8-puck-final/objects/a51dd471c1dbacd9ddb0de3eee194fa880c90200dac34faddb250918d3c145eb"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

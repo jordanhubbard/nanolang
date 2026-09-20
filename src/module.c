@@ -903,6 +903,10 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
 /* I apply an explicit module declaration before registering its import aliases. */
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     char *saved_owner = env->current_module;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];

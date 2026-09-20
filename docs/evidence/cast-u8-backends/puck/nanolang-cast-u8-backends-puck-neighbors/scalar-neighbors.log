@@ -1,0 +1,75 @@
+test_calls_loops_branch_effects_and_bool_transport (tests.test_nvm2llvm.ScalarLLVM) ... ok
+test_integer_boundaries (tests.test_nvm2llvm.ScalarLLVM) ... ok
+test_nominal_metadata_and_nonscalar_signature_refused (tests.test_nvm2llvm.ScalarLLVM) ... test_nonzero_arity_initializer_refused (tests.test_nvm2llvm.ScalarLLVM) ... ok
+test_recursive_call_and_stack_join (tests.test_nvm2llvm.ScalarLLVM) ... ok
+test_refused_profile_preserves_output (tests.test_nvm2llvm.ScalarLLVM) ... FAIL
+test_runtime_declared_result_tag (tests.test_nvm2llvm.ScalarLLVM) ... ok
+test_runtime_tag_preserved_across_call (tests.test_nvm2llvm.ScalarLLVM) ... ok
+test_scalar_tags_boolean_ops_and_argument_order (tests.test_nvm2llvm.ScalarLLVM) ... ok
+test_unused_import_refused (tests.test_nvm2llvm.ScalarLLVM) ... ok
+test_verified_implicit_entry (tests.test_nvm2llvm.ScalarLLVM) ... ok
+test_arithmetic_comparisons_and_nan (tests.test_nvm2llvm_floats.LLVMFloats) ... ok
+test_checked_integer_and_float_conversions (tests.test_nvm2llvm_floats.LLVMFloats) ... ok
+test_float_calls_locals_joins_truthiness_and_signed_zero (tests.test_nvm2llvm_floats.LLVMFloats) ... ok
+test_float_entry_is_outside_executable_contract (tests.test_nvm2llvm_floats.LLVMFloats) ... ok
+test_invalid_float_to_int_traps_before_conversion (tests.test_nvm2llvm_floats.LLVMFloats) ... ok
+test_calls_loops_branch_effects_and_bool_transport (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_checked_float_conversions (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_float_arithmetic_comparisons_and_nan (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_float_calls_locals_joins_truthiness_and_signed_zero (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_integer_boundaries (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_invalid_float_to_int_traps (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_output_and_source_preservation (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_recursive_call_and_stack_join (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_scalar_entry_result_and_custom_name (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_scalar_tags_boolean_ops_and_argument_order (tests.test_nvm2wasm.ScalarWasm) ... ok
+test_shared_profile_refusals_preserve_output (tests.test_nvm2wasm.ScalarWasm) ... test_calls_locals_branch_and_implicit_result_transport (tests.test_scalar_u8.ScalarU8) ... ok
+test_declared_byte_argument_retains_runtime_tag_guard (tests.test_scalar_u8.ScalarU8) ... ok
+test_declared_byte_result_checks_actual_return_tag (tests.test_scalar_u8.ScalarU8) ... ok
+test_exact_conversions_tags_and_unsigned_order (tests.test_scalar_u8.ScalarU8) ... ok
+test_generic_byte_order_across_scalar_backends (tests.test_scalar_u8.ScalarU8) ... ok
+test_native_byte_display_and_unused_signature (tests.test_scalar_u8.ScalarU8) ... ok
+test_typed_integer_instruction_still_checks_byte_tag (tests.test_scalar_u8.ScalarU8) ... ok
+
+======================================================================
+FAIL: test_nominal_metadata_and_nonscalar_signature_refused (tests.test_nvm2llvm.ScalarLLVM) (text='.types 1 0 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-backends-e0e85/tests/test_nvm2llvm.py", line 287, in test_nominal_metadata_and_nonscalar_signature_refused
+    self.assertIn('parameters' if '.parameters' in text else 'scalar', result.stderr)
+AssertionError: 'scalar' not found in 'I cannot establish mutable array eligibility (status 1) at function 0 offset 0: I require retained layout facts, not count-only placeholders.\nI did not publish LLVM output\n'
+
+======================================================================
+FAIL: test_nominal_metadata_and_nonscalar_signature_refused (tests.test_nvm2llvm.ScalarLLVM) (text='.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n.function unused 1 1 0 int 1\n.parameters unused array\nPUSH_I64 0\nRET\n.end\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-backends-e0e85/tests/test_nvm2llvm.py", line 285, in test_nominal_metadata_and_nonscalar_signature_refused
+    result = self.run_cmd([LLVM, module], success=False)
+  File "/private/tmp/nanolang-cast-u8-backends-e0e85/tests/test_nvm2llvm.py", line 21, in run_cmd
+    self.assertNotEqual(p.returncode, 0, str(args))
+AssertionError: 0 == 0 : [PosixPath('/private/tmp/nanolang-cast-u8-backends-e0e85/bin/nvm2llvm'), PosixPath('/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-llvm-02ihp6a4/input.nvm')]
+
+======================================================================
+FAIL: test_refused_profile_preserves_output (tests.test_nvm2llvm.ScalarLLVM)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-backends-e0e85/tests/test_nvm2llvm.py", line 263, in test_refused_profile_preserves_output
+    result = self.run_cmd([LLVM, module, '-o', output], success=False)
+  File "/private/tmp/nanolang-cast-u8-backends-e0e85/tests/test_nvm2llvm.py", line 21, in run_cmd
+    self.assertNotEqual(p.returncode, 0, str(args))
+AssertionError: 0 == 0 : [PosixPath('/private/tmp/nanolang-cast-u8-backends-e0e85/bin/nvm2llvm'), PosixPath('/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-llvm-p7weeiyn/input.nvm'), '-o', PosixPath('/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-llvm-p7weeiyn/kept.ll')]
+
+======================================================================
+FAIL: test_shared_profile_refusals_preserve_output (tests.test_nvm2wasm.ScalarWasm) (body='PUSH_STR outside\nPUSH_STR outside\nSTR_CONTAINS\nPOP\nPUSH_I64 0\nRET\n', extra='.string outside "outside profile"\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-cast-u8-backends-e0e85/tests/test_nvm2wasm.py", line 104, in test_shared_profile_refusals_preserve_output
+    self.run_cmd([WASM, module, '-o', output], success=False)
+  File "/private/tmp/nanolang-cast-u8-backends-e0e85/tests/test_nvm2llvm.py", line 21, in run_cmd
+    self.assertNotEqual(p.returncode, 0, str(args))
+AssertionError: 0 == 0 : [PosixPath('/private/tmp/nanolang-cast-u8-backends-e0e85/bin/nvm2wasm'), PosixPath('/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano wasm w4jbdlqs/input.nvm'), '-o', PosixPath('/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano wasm w4jbdlqs/prior.wasm')]
+
+----------------------------------------------------------------------
+Ran 34 tests in 20.839s
+
+FAILED (failures=4)

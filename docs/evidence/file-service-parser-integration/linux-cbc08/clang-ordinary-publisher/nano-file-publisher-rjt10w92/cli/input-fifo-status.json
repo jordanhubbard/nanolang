@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/input-fifo",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/refused-fifo"
+  ],
+  "pid": 2995854,
+  "returncode": 1,
+  "timeout": false
+}

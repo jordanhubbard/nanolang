@@ -1698,6 +1698,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
         vm_labels[OP_GC_RETAIN] = &&L_OP_GC_RETAIN;
         vm_labels[OP_GC_RELEASE] = &&L_OP_GC_RELEASE;
         vm_labels[OP_CAST_INT] = &&L_OP_CAST_INT;
+        vm_labels[OP_CAST_U8] = &&L_OP_CAST_U8;
         vm_labels[OP_CAST_FLOAT] = &&L_OP_CAST_FLOAT;
         vm_labels[OP_F64_FROM_BITS] = &&L_OP_F64_FROM_BITS;
         vm_labels[OP_F64_TO_BITS] = &&L_OP_F64_TO_BITS;
@@ -4333,6 +4334,21 @@ vm_return_values: ;
                     vm_release(&vm->heap, v);
                     stack_push(vm, val_int(0));
                     break;
+            }
+            VM_NEXT();
+        }
+
+        VM_CASE(OP_CAST_U8) {
+            NanoValue v = stack_pop(vm);
+            if (v.tag == TAG_INT) {
+                /* I use defined unsigned narrowing, including negative INTs. */
+                stack_push(vm, val_u8((uint8_t)v.as.i64));
+            } else if (v.tag == TAG_U8) {
+                stack_push(vm, v);
+            } else {
+                vm_release(&vm->heap, v);
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                    "I require int or u8 for byte conversion.");
             }
             VM_NEXT();
         }

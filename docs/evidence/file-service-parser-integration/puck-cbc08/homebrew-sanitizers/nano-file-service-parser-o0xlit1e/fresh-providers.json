@@ -1,0 +1,15 @@
+{
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/lexer.o": "c8b62881566a4f268217234f86155fd85dc14c589bfd222d1fdd8589b2f12d73",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/utf8.o": "79bc4fe9b4b42df95f7cd1480d24f3830dfd851c174647268a026411103663ec",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/env.o": "9c27197759e610a49947d6364c8b2933be74f849f992788a282155b413232d94",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/eval.o": "77b539126c4521818988eed40efe957c2e6be718b7f77ce0be60c02a4eb355ad",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/transpiler.o": "b56201b12e0cd2334bb3373072670e65a788ebdbfc7dfc14da910151c09b6371",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/publisher-bin/nsi-file-binding": "15c9e1810bb79da6f6dd34a944d4da593414bd0e5a3c0a4a4656549061abc45f",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/publisher-obj/file-binding-publisher/cJSON.o": "0892fb1a0029a21414841247696066a9e9fdaa05ec84583ac0977c6190e5a057",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/publisher-obj/file-binding-publisher/nsi.o": "5cc2cca9c28c92305cb5659fbf40b01dcf0b9e96f52ba9953141f1159c7ae037",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/publisher-obj/file-binding-publisher/nsi_file_binding.o": "fe50c1aa5f28af7366da23f47d0308c85ef843858a461954ab0df97f63878c43",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "de8b9366850b0fa92e66623e935dc2568c989f1536d56f0a943f2051b5d01d41",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/publisher-obj/file-binding-publisher/nsi_file_plan.o": "af735439d80397257815b9d4e975268ed63d08828acdff3683bf3cde19a09874",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/publisher-obj/file-binding-publisher/nsi_file_publish.o": "230e7cfbbc4f4263733633d09a431090db30a2dc6c95d80d947214916a714c95",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/publisher-obj/file-binding-publisher/utf8.o": "2030709f5a855ee091ed7f0c751ae7af415d877e5a35054cd65627eaf0436be7"
+}

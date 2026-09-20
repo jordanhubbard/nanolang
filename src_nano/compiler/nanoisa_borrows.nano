@@ -1964,6 +1964,7 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
     return false
 }
 pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> string {
+    if (> parser.services_count 0) { let _: int = (nb_fail "resolved File service declarations") return "" }
     set nb_error "" set nb_next_label 0 set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_consuming false set nb_paths [] set nb_depths []
     set nb_value_graph true set nb_functions [] set nb_any_transfer false set nb_edges []
     set nb_mixed false set nb_owner_arrays false set nb_ordinary_layouts []

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/quoted ' $(touch injected); \udcff\udcc3"
+  ],
+  "pid": 37059,
+  "returncode": 1,
+  "timeout": false
+}

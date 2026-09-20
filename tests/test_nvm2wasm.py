@@ -43,6 +43,7 @@ class ScalarWasm(unittest.TestCase):
     test_calls_loops_branch_effects_and_bool_transport = llvm_tests.ScalarLLVM.test_calls_loops_branch_effects_and_bool_transport
     test_scalar_tags_boolean_ops_and_argument_order = llvm_tests.ScalarLLVM.test_scalar_tags_boolean_ops_and_argument_order
     test_recursive_call_and_stack_join = llvm_tests.ScalarLLVM.test_recursive_call_and_stack_join
+    test_existing_predicate_and_unused_array_signature = llvm_tests.ScalarLLVM.test_existing_predicate_and_unused_array_signature
 
     program = float_tests.LLVMFloats.program
     test_float_arithmetic_comparisons_and_nan = float_tests.LLVMFloats.test_arithmetic_comparisons_and_nan
@@ -93,7 +94,6 @@ class ScalarWasm(unittest.TestCase):
 
     def test_shared_profile_refusals_preserve_output(self):
         for extra, body in (
-            ('.string outside "outside profile"\n', 'PUSH_STR outside\nPUSH_STR outside\nSTR_CONTAINS\nPOP\nPUSH_I64 0\nRET\n'),
             ('.types 1 0 0\n', 'PUSH_I64 0\nRET\n'),
             ('.import "" "get_argc" int\n', 'PUSH_I64 0\nRET\n'),
         ):

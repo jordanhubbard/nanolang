@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-service-parser-8baca/src",
+    "-c",
+    "/home/jkh/Src/nanolang-file-service-parser-8baca/src/utf8.c",
+    "-o",
+    "/tmp/nanolang-file-service-parser-8baca-linux/gcc-ordinary/nano-file-service-parser-tzl6fibp/utf8.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-8baca",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

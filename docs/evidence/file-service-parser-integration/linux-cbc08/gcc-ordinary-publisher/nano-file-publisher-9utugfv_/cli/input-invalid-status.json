@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/input-invalid",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/refused-invalid"
+  ],
+  "pid": 2981537,
+  "returncode": 1,
+  "timeout": false
+}

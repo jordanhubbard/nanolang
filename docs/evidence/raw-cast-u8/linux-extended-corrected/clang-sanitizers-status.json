@@ -1,0 +1,24 @@
+{
+  "name": "clang-sanitizers",
+  "argv": [
+    "make",
+    "test-cast-u8",
+    "CC=/usr/local/bin/clang",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -fsanitize=address,undefined -fno-omit-frame-pointer",
+    "LDFLAGS=-lm -fsanitize=address,undefined"
+  ],
+  "bound_seconds": 300,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 8.130657625035383,
+  "log": {
+    "sha256": "081914f6e8ad942c498093ae2a322c83b5189597d9b679f24361a22eae108b0e",
+    "bytes": 4161,
+    "archive": "/tmp/nanolang-cast-u8-linux-extended-corrected/objects/081914f6e8ad942c498093ae2a322c83b5189597d9b679f24361a22eae108b0e"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

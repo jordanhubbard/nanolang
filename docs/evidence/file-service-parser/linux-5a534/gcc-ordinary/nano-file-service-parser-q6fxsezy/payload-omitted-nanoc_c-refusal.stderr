@@ -1,0 +1,7 @@
+-- E001 TYPE MISMATCH --- /tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/ordinary-payload-omitted.nano
+I require an exact zero-field variant for an empty match binding.
+
+1| union Choice { None {}, Some { value: int } } fn main() -> int { match Choice.None {} { None() => { return 7 } Some() => { return 8 } } }
+                                                                    ^^^^^
+Hint: Bind this payload by name, or explicitly discard it with underscore where permitted.
+Type checking failed

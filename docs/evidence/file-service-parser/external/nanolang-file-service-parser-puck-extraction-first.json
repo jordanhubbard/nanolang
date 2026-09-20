@@ -1,0 +1,6 @@
+{
+  "status": "stopped",
+  "error": "tarfile.AbsoluteLinkError",
+  "member": "nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/existing-dangling",
+  "scope": "Python data-filter archive extraction refused expected absolute symlink fixture artifact; qualification unchanged; partial extraction retained, no retry of gates"
+}

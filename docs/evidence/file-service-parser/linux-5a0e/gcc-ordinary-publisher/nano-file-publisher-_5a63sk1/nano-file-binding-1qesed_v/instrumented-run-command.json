@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/nano-file-binding-1qesed_v/binding-instrumented",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/nano-file-binding-1qesed_v",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/nano-file-binding-1qesed_v/expected.json",
+    "/home/jkh/Src/nanolang-file-service-parser-5a0e/tests/fixtures/nsi_file_binding_expected.nano.txt"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-5a0e",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

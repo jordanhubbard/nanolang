@@ -1,0 +1,22 @@
+{
+  "name": "discovery",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "import unittest;from tests import test_cast_u8;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8);assert s.countTestCases()==1;print('I discover exactly one raw CAST_U8 method.')"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.06409239303320646,
+  "log": {
+    "sha256": "1ba5d3ddb18ed37c83e7d1723710be3e0f1484fb36ae44d3ee1d4c880e225c8d",
+    "bytes": 43,
+    "archive": "/tmp/nanolang-cast-u8-linux/objects/1ba5d3ddb18ed37c83e7d1723710be3e0f1484fb36ae44d3ee1d4c880e225c8d"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

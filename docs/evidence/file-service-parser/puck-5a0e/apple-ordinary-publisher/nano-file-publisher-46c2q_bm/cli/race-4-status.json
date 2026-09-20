@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli/raced"
+  ],
+  "pid": 83342,
+  "returncode": 1,
+  "timeout": false
+}

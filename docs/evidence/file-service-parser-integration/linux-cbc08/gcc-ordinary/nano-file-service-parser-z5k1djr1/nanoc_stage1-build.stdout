@@ -1,0 +1,221 @@
+In file included from /tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/nanoc_stage1-tmp/nano_native_1789914628_0/program.c:136:
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_17_check_function’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:19501:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:19502:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_21_reduce_emission_fail’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:22740:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_23_nb_union_expr’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30348:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30393:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_23_nb_body_statements’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30891:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30891:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30898:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30898:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_25_nisa_fail’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:32299:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_25_nisa_emit_globals’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:33871:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_25_nisa_emit_while’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36148:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36149:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36167:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36168:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36169:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_25_nisa_emit_for’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36216:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36217:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36218:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36238:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36239:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36240:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘__nano_shadow_608’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:22751:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘__nano_shadow_609’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:22759:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/modules/std/collections/collections.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+/home/jkh/Src/nanolang-file-service-parser-cbc08/modules/std/json/json.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+In file included from /tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/nanoc_stage1-tmp/nano_native_1789914628_0/program.c:134:
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_17_check_function’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:19501:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:19502:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_21_reduce_emission_fail’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:22740:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_23_nb_union_expr’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30348:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30393:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_23_nb_body_statements’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30891:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30891:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30898:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:30898:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_25_nisa_fail’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:32299:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_25_nisa_emit_globals’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:33871:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_25_nisa_emit_while’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36148:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36149:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36167:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36168:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36169:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano: In function ‘nl___nano_module_25_nisa_emit_for’:
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36216:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36217:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36218:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36238:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36239:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/file_service_parser.nano:36240:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-file-service-parser-cbc08/modules/std/collections/collections.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+/home/jkh/Src/nanolang-file-service-parser-cbc08/modules/std/json/json.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+I kept generated C in /tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary/nano-file-service-parser-z5k1djr1/nanoc_stage1-tmp/nano_native_1789914628_0/program.c

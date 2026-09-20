@@ -1,0 +1,307 @@
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:19501:9: warning: initializing 'typeof ((nl_tc_enclosing_function)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 19501 |         NL_GUARDED_WRITE(nl_tc_enclosing_function, nl_previous_function);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:19502:9: warning: initializing 'typeof ((nl_tc_enclosing_return)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 19502 |         NL_GUARDED_WRITE(nl_tc_enclosing_return, nl_previous_return);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:22740:9: warning: initializing 'typeof ((nl_reduce_emission_error)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22740 |         NL_GUARDED_WRITE(nl_reduce_emission_error, nl_message);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30348:9: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30348 |         NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30393:5: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30393 |     NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30891:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30891 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30891:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30891 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_skip);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30898:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30898 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_saved_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30898:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30898 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_saved_done);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:32299:9: warning: initializing 'typeof ((nl_nisa_err)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32299 |         NL_GUARDED_WRITE(nl_nisa_err, nl_msg);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:33871:5: warning: initializing 'typeof ((nl_nisa_ordinary_init)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 33871 |     NL_GUARDED_WRITE(nl_nisa_ordinary_init, nl___nano_module_25_nisa_ordinary_contract(nl_parser, "void", 0, nl_nisa_types));
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36148:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36148 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_l_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36149:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36149 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_l_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36167:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36167 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36168:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36168 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36169:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36169 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36216:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36216 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36217:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36217 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36218:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36218 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_index_slot);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36238:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36238 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36239:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36239 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36240:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36240 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:22751:5: warning: initializing 'typeof ((nl_reduce_emission_error)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22751 |     NL_GUARDED_WRITE(nl_reduce_emission_error, nl_saved);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:22759:5: warning: initializing 'typeof ((nl_reduce_emission_error)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22759 |     NL_GUARDED_WRITE(nl_reduce_emission_error, nl_saved);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+24 warnings generated.
+/private/tmp/nanolang-file-service-parser-5a534/modules/std/collections/collections.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+/private/tmp/nanolang-file-service-parser-5a534/modules/std/json/json.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:19501:9: warning: initializing 'typeof ((nl_tc_enclosing_function)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 19501 |         NL_GUARDED_WRITE(nl_tc_enclosing_function, nl_previous_function);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:19502:9: warning: initializing 'typeof ((nl_tc_enclosing_return)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 19502 |         NL_GUARDED_WRITE(nl_tc_enclosing_return, nl_previous_return);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:22740:9: warning: initializing 'typeof ((nl_reduce_emission_error)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 22740 |         NL_GUARDED_WRITE(nl_reduce_emission_error, nl_message);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30348:9: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30348 |         NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30393:5: warning: initializing 'typeof ((nl_nb_expression_identity)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30393 |     NL_GUARDED_WRITE(nl_nb_expression_identity, nl_authoritative);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30891:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30891 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30891:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30891 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_skip);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30898:17: warning: initializing 'typeof ((nl_nb_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30898 |                 NL_GUARDED_WRITE(nl_nb_loop_top, nl_saved_top);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:30898:17: warning: initializing 'typeof ((nl_nb_loop_done)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 30898 |                 NL_GUARDED_WRITE(nl_nb_loop_done, nl_saved_done);
+       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:32299:9: warning: initializing 'typeof ((nl_nisa_err)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 32299 |         NL_GUARDED_WRITE(nl_nisa_err, nl_msg);
+       |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:33871:5: warning: initializing 'typeof ((nl_nisa_ordinary_init)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 33871 |     NL_GUARDED_WRITE(nl_nisa_ordinary_init, nl___nano_module_25_nisa_ordinary_contract(nl_parser, "void", 0, nl_nisa_types));
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36148:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36148 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_l_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36149:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36149 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_l_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36167:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36167 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36168:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36168 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36169:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36169 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36216:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36216 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36217:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36217 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36218:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36218 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_index_slot);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36238:5: warning: initializing 'typeof ((nl_nisa_loop_top)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36238 |     NL_GUARDED_WRITE(nl_nisa_loop_top, nl_outer_top);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36239:5: warning: initializing 'typeof ((nl_nisa_loop_end)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36239 |     NL_GUARDED_WRITE(nl_nisa_loop_end, nl_outer_end);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/file_service_parser.nano:36240:5: warning: initializing 'typeof ((nl_nisa_loop_index)._v)' (aka 'char *') with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+ 36240 |     NL_GUARDED_WRITE(nl_nisa_loop_index, nl_outer_index);
+       |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nanolang-file-service-parser-5a534/src/runtime/nano_dispatch.h:51:28: note: expanded from macro 'NL_GUARDED_WRITE'
+   51 |         __typeof__((g)._v) _nl_val = (expr);                                   \
+      |                            ^         ~~~~~~
+22 warnings generated.
+/private/tmp/nanolang-file-service-parser-5a534/modules/std/collections/collections.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+/private/tmp/nanolang-file-service-parser-5a534/modules/std/json/json.c:1:9: warning: '_GNU_SOURCE' macro redefined [-Wmacro-redefined]
+    1 | #define _GNU_SOURCE
+      |         ^
+<command line>:1:9: note: previous definition is here
+    1 | #define _GNU_SOURCE 1
+      |         ^
+1 warning generated.
+I kept generated C in /private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary/nano-file-service-parser-re615e6v/nanoc_stage2-tmp/nano_native_1789909650_0/program.c
