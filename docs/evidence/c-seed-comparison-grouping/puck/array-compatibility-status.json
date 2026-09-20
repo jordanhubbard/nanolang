@@ -1,0 +1,24 @@
+{
+  "name": "array-compatibility",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_selfhost_array_compatibility"
+  ],
+  "bound_seconds": 900,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 22.8487935,
+  "log": {
+    "sha256": "941dd5e342b5ae6f836a5e63bd23526f9fb5ecd3543b2405fd2e4bde25a3aef2",
+    "bytes": 670,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/941dd5e342b5ae6f836a5e63bd23526f9fb5ecd3543b2405fd2e4bde25a3aef2"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

@@ -1,0 +1,300 @@
+{
+  "head": "b4ddc1edb5a4509e5e8888fa4834b367f8f49cc7",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "scope": "fresh Make build/bootstrap, full array compatibility module, and existing Boolean precedence through C seed/Stage1/Stage2; deleted inner temporary products are not reconstructed",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/usr/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.11961104200000006,
+      "log": {
+        "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+        "bytes": 200,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.18897425000000023,
+      "log": {
+        "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0342703339999999,
+      "log": {
+        "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/usr/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.01929000000000025,
+      "log": {
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+        "bytes": 263,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "build",
+      "argv": [
+        "make",
+        "-j2",
+        "build",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS="
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 80.035350458,
+      "log": {
+        "sha256": "9636c954426e6b67df67f447400f60019e30ef77bbd271f83dd05930070dc40a",
+        "bytes": 54555,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/9636c954426e6b67df67f447400f60019e30ef77bbd271f83dd05930070dc40a"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "bootstrap",
+      "argv": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS="
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 275.597329416,
+      "log": {
+        "sha256": "2fee2b528c24fdcc8a821d2cbd0c02ec528a570d583da3842e0c35f97e2c106e",
+        "bytes": 36469,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/2fee2b528c24fdcc8a821d2cbd0c02ec528a570d583da3842e0c35f97e2c106e"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "array-compatibility",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_selfhost_array_compatibility"
+      ],
+      "bound_seconds": 900,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 22.8487935,
+      "log": {
+        "sha256": "941dd5e342b5ae6f836a5e63bd23526f9fb5ecd3543b2405fd2e4bde25a3aef2",
+        "bytes": 670,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/941dd5e342b5ae6f836a5e63bd23526f9fb5ecd3543b2405fd2e4bde25a3aef2"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "boolean-compile-nanoc_c",
+      "argv": [
+        "/private/tmp/nanolang-comparison-grouping-b4ddc/bin/nanoc_c",
+        "tests/test_boolean_precedence.nano",
+        "-o",
+        "/private/tmp/nanolang-comparison-puck/boolean-nanoc_c",
+        "--keep-c"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.9755427919999988,
+      "log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "boolean-run-nanoc_c",
+      "argv": [
+        "/private/tmp/nanolang-comparison-puck/boolean-nanoc_c"
+      ],
+      "bound_seconds": 10,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.3008962089999727,
+      "log": {
+        "sha256": "9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef",
+        "bytes": 234,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "boolean-compile-nanoc_stage1",
+      "argv": [
+        "/private/tmp/nanolang-comparison-grouping-b4ddc/bin/nanoc_stage1",
+        "tests/test_boolean_precedence.nano",
+        "-o",
+        "/private/tmp/nanolang-comparison-puck/boolean-nanoc_stage1",
+        "--keep-c"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 2.3160155420000024,
+      "log": {
+        "sha256": "c276b775075f29c09ef0761e11eb94ec50973440bc4b06f569b9237640124a53",
+        "bytes": 341,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/c276b775075f29c09ef0761e11eb94ec50973440bc4b06f569b9237640124a53"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "boolean-run-nanoc_stage1",
+      "argv": [
+        "/private/tmp/nanolang-comparison-puck/boolean-nanoc_stage1"
+      ],
+      "bound_seconds": 10,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.28773212500004774,
+      "log": {
+        "sha256": "9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef",
+        "bytes": 234,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "boolean-compile-nanoc_stage2",
+      "argv": [
+        "/private/tmp/nanolang-comparison-grouping-b4ddc/bin/nanoc_stage2",
+        "tests/test_boolean_precedence.nano",
+        "-o",
+        "/private/tmp/nanolang-comparison-puck/boolean-nanoc_stage2",
+        "--keep-c"
+      ],
+      "bound_seconds": 60,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 2.324281374999998,
+      "log": {
+        "sha256": "93c58d68b16c4a68569a08a6ed315b2b4c90b27659a0e62fc5b664f30a4dece1",
+        "bytes": 341,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/93c58d68b16c4a68569a08a6ed315b2b4c90b27659a0e62fc5b664f30a4dece1"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "boolean-run-nanoc_stage2",
+      "argv": [
+        "/private/tmp/nanolang-comparison-puck/boolean-nanoc_stage2"
+      ],
+      "bound_seconds": 10,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.2848369170000069,
+      "log": {
+        "sha256": "9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef",
+        "bytes": 234,
+        "archive": "/private/tmp/nanolang-comparison-puck/objects/9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}
