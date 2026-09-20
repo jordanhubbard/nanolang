@@ -228,3 +228,84 @@ callback, old binary, source program, compiler or fixture was executed here.
 The deferred lease/result decision above remains proposed, not implemented in
 this tuple checkpoint. Its accepted-flow lifetime remains a qualification
 prerequisite, and its future source must include actual teardown caller ordering.
+
+### My string staging correction before execution
+
+Independent review of `b1118ad7c` found that my staging wrapper still skipped
+standalone VAL_STRING even though the graph contract includes strings. I will
+include strings in the snapshot registry and same call/aggregate staging sites.
+A binding receiving a registry string must clone rather than consume it; public
+results must clone borrowed arena strings. Reassignment must copy before release,
+including self-aliasing. String snapshots have one registry owner and live until
+Environment teardown. This does not claim cleanup of every older evaluator
+expression temporary. Explicit borrow formals remain un-copied.
+
+### My immediate async borrow argument boundary
+
+My automatic async call waits on a newly enqueued READY task in this sequential
+scheduler. Its first await iteration invokes that target through the common C
+runner, which cannot return until the target callback and its argument drop have
+unwound. Yield does not suspend; a nested cycle/error still returns through the
+same runner and drops the bundle. Early terminal state does not clear `active`.
+My automatic route copies the result and requires successful terminal release
+before returning to its caller; release refuses an active task. Any await/copy/
+release failure exits with an explicit nonzero evaluator error, so it cannot
+return normally while a queued borrowed argument outlives the caller activation.
+Failed preparation/enqueue transfers no bundle and preserves the old synchronous
+fallback after cleanup. This is a normal-return proof, not longjmp/thread safety.
+
+The bundle records ownership per argument. Explicit borrowed formals of this
+immediate-await route retain identity and are not discarded with copied arguments.
+Ordinary staged arguments own their copied graphs. Explicit deferred `spawn`
+rejects a target with borrowed formals before enqueue with
+`I cannot enqueue a deferred borrowed argument.` and exit(1); the source checker
+already restricts explicit borrow expressions to declared direct-call arguments.
+Top-level callable arguments copy their name and signature under the existing
+signature allocator's fatal failure policy; this is not a new all-metadata
+recoverable-allocation claim. Reference fields outside the record/tuple/string
+owned graph retain their separate ownership contract.
+
+### My shared-cache prerequisite
+
+The actual startup cache clears and private saved-cache swaps require more than
+local Environment preflights. I filed task_60bef9462e22d7eb1724212ad1811803 and
+recorded exact generation ownership in NANOISA_EVALUATOR_CACHE_LEASES.md before
+cache implementation. My current source does not install a global no-leases
+restriction and does not yet claim complete cache-provider lifetime. This is a
+required source/qualification dependency, not a postponed optional enhancement.
+
+### My owned scheduler source checkpoint
+
+I implement owned enqueue/cancel/release plus checked result-copy APIs alongside
+the unchanged borrowed legacy spawn/result/await APIs. Both execution routes use
+`coro_run`. Its active latch remains set through callback return, rejected-return
+result discard and detached argument drop. Release and cancellation also protect
+their cleanup with the active latch, and detach slot ownership before calling
+trusted storage hooks. Early complete clones a borrowed input; normal return
+moves its owned result; error/early completion discards the separate owned return.
+The first terminal is retained. A returned nonterminal state becomes an error.
+No cancellation or destructor executes the queued task.
+
+Evaluator bundles own staged arguments and one checked Environment lease after
+successful preparation. Failure rolls back copied arguments; successful enqueue
+transfers the bundle to scheduler cleanup. Both explicit spawn and automatic
+async calls use this route. Result copy precedes task release. Standalone callable
+arguments/results copy and release their owned name/signature metadata with a
+separate hook, because the public function-call boundary already owns those
+fields; nested callable/reference fields keep their separate borrowed contract.
+Signature copying retains its existing checked fatal allocator behavior, not a
+new allocation-prefix recovery claim for the entire metadata system.
+
+`env_require_destroyable` now runs before all audited local AST/cache teardown
+sites, including main's 21 cleanup branches, DAP/LSP, nano/nanovirt, browser,
+Stage1.5 and private module_env cleanup. Environment teardown repeats the check
+before mutation. REPL's existing Environment-first order remains, and its temporary
+Environment is checked before unlinking its parent. Shared-cache generation
+protection is still the separate, explicitly open design above.
+
+My string staging correction uses the same cumulative registry. Bindings receiving
+an arena string copy it before taking ownership. Reassignment copies string bytes
+before releasing old storage, so later-argument rebinding cannot free an earlier
+staged argument. Public arena strings copy at the escape boundary. I have not
+built, executed, qualified, or reproduced a historical faulty case in this source
+checkpoint. The cache prerequisite and independent review still block gates.

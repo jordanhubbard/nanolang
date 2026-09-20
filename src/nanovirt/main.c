@@ -155,6 +155,7 @@ int main(int argc, char **argv) {
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input)) {
         fprintf(stderr, "error: module loading failed\n");
+        env_require_destroyable(env);
         free_ast(program);
         free_environment(env);
         free_module_list(modules);
@@ -177,6 +178,7 @@ int main(int argc, char **argv) {
     if (typed) typed = type_check_shadow_scope(program, env, modules, input, test_imports);
     if (!typed) {
         fprintf(stderr, "error: type check failed\n");
+        env_require_destroyable(env);
         free_ast(program);
         free_environment(env);
         free_module_list(modules);
@@ -190,6 +192,7 @@ int main(int argc, char **argv) {
     if (!bindings || !build_ffi_modules(modules, bindings) ||
         !check_shadows(program, env, modules, input, bindings, test_imports)) {
         free_ffi_bindings(bindings, modules->count);
+        env_require_destroyable(env);
         free_ast(program);
         free_environment(env);
         free_module_list(modules);
@@ -210,6 +213,7 @@ int main(int argc, char **argv) {
     if (!cg.ok) {
         fprintf(stderr, "error: codegen failed at line %d: %s\n",
                 cg.error_line, cg.error_msg);
+        env_require_destroyable(env);
         free_ast(program);
         free_environment(env);
         free_module_list(modules);
@@ -232,6 +236,7 @@ int main(int argc, char **argv) {
             fprintf(stderr, "error: serialization failed: %s\n",
                     save_error.message);
             nvm_module_free(cg.module);
+            env_require_destroyable(env);
             free_ast(program);
             free_environment(env);
             free_module_list(modules);
@@ -251,6 +256,7 @@ int main(int argc, char **argv) {
             if (!wrapper_generate_daemon(blob, size, output, verbose)) {
                 free(blob);
                 nvm_module_free(cg.module);
+                env_require_destroyable(env);
                 free_ast(program);
                 free_environment(env);
                 free_module_list(modules);
@@ -269,6 +275,7 @@ int main(int argc, char **argv) {
                 fprintf(stderr, "error: cannot write '%s'\n", output);
                 free(blob);
                 nvm_module_free(cg.module);
+                env_require_destroyable(env);
                 free_ast(program);
                 free_environment(env);
                 free_module_list(modules);
@@ -291,6 +298,7 @@ int main(int argc, char **argv) {
                                   program, verbose)) {
                 free(blob);
                 nvm_module_free(cg.module);
+                env_require_destroyable(env);
                 free_ast(program);
                 free_environment(env);
                 free_module_list(modules);
@@ -391,6 +399,7 @@ int main(int argc, char **argv) {
 
     vm_ffi_shutdown();
     nvm_module_free(cg.module);
+    env_require_destroyable(env);
     free_ast(program);
     free_environment(env);
     free_module_list(modules);

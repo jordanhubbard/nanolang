@@ -112,7 +112,7 @@ bool env_clone_record(Value source, Value *out) {
 }
 
 bool env_value_snapshot(Environment *env, Value source, Value *out) {
-    if (!env || !out || (source.type != VAL_STRUCT && source.type != VAL_TUPLE)) return false;
+    if (!env || !out || (source.type != VAL_STRUCT && source.type != VAL_TUPLE && source.type != VAL_STRING)) return false;
     struct EnvRecordResult *entry = malloc(sizeof(*entry));
     if (!entry) return false;
     Value copy;
@@ -129,9 +129,10 @@ bool env_record_snapshot(Environment *env, Value source, Value *out) {
 }
 
 bool env_record_result_borrowed(Environment *env, Value value) {
-    if (!env || (value.type != VAL_STRUCT && value.type != VAL_TUPLE)) return false;
+    if (!env || (value.type != VAL_STRUCT && value.type != VAL_TUPLE && value.type != VAL_STRING)) return false;
     for (struct EnvRecordResult *entry = env->record_results; entry; entry = entry->next) {
         if (entry->value.type != value.type) continue;
+        if (value.type == VAL_STRING && entry->value.as.string_val == value.as.string_val) return true;
         if (value.type == VAL_STRUCT && entry->value.as.struct_val == value.as.struct_val) return true;
         if (value.type == VAL_TUPLE && entry->value.as.tuple_val == value.as.tuple_val) return true;
     }

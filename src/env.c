@@ -240,8 +240,33 @@ static void env_free_value(Value v) {
     }
 }
 
+bool env_acquire_evaluation_lease(Environment *env) {
+    if (!env || env->evaluation_leases == SIZE_MAX) return false;
+    ++env->evaluation_leases;
+    return true;
+}
+
+void env_release_evaluation_lease(Environment *env) {
+    if (!env || !env->evaluation_leases) {
+        fprintf(stderr, "I cannot release an absent evaluator lease.\n"); exit(1);
+    }
+    --env->evaluation_leases;
+}
+
+bool env_can_destroy(Environment *env) {
+    return !env || !env->evaluation_leases;
+}
+
+void env_require_destroyable(Environment *env) {
+    if (!env_can_destroy(env)) {
+        fprintf(stderr, "I cannot destroy an Environment with pending evaluator tasks.\n");
+        exit(1);
+    }
+}
+
 /* Free environment */
 void free_environment(Environment *env) {
+    env_require_destroyable(env);
     env_symbol_index_invalidate(env);
     for (int i = 0; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
@@ -439,6 +464,13 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
 
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
+    if (value.type == VAL_STRING && env_record_result_borrowed(env, value)) {
+        Value copy;
+        if (!env_clone_value_snapshot(value, &copy)) {
+            fprintf(stderr, "I cannot copy a staged string binding.\n"); exit(1);
+        }
+        value = copy;
+    }
     if ((value.type == VAL_STRUCT || value.type == VAL_TUPLE) &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
         Value copy;
@@ -602,7 +634,7 @@ void env_set_var(Environment *env, const char *name, Value value) {
     if (sym) {
         /* I copy before releasing the old binding, including self-assignment
          * and a record field borrowed from that binding. */
-        if (value.type == VAL_STRUCT || value.type == VAL_TUPLE) {
+        if (value.type == VAL_STRUCT || value.type == VAL_TUPLE || value.type == VAL_STRING) {
             Value copy;
             if (!env_clone_value_snapshot(value, &copy)) {
                 fprintf(stderr, "I cannot copy a replacement value graph.\n"); exit(1);

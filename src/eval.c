@@ -47,19 +47,101 @@ void (*g_dap_statement_hook)(ASTNode *stmt, Environment *env) = NULL;
 typedef struct {
     char *func_name;    /* Name of the async function to call */
     Value *args;        /* Argument array (malloc'd copy) */
+    bool *owned_args;   /* Immediate-await borrow formals retain caller identity. */
     int arg_count;
-    Environment *env;   /* Shared environment */
+    Environment *env;   /* One checked lease after preparation. */
+    bool leased;
 } CoroCallArgs;
 
-/* Trampoline: called by the scheduler to run a spawned async function */
+/* Top-level callable values already own metadata at the public call boundary.
+ * Nested callable/reference fields keep the separate borrowed graph contract. */
+static void eval_owned_task_drop(Value value) {
+    if (value.type == VAL_FUNCTION) {
+        free((char *)value.as.function_val.function_name);
+        free_function_signature(value.as.function_val.signature);
+    } else env_discard_value_snapshot(value);
+}
+
+static bool eval_owned_task_clone(Value source, Value *out) {
+    if (!out) return false;
+    if (source.type != VAL_FUNCTION) return env_clone_value_snapshot(source, out);
+    if (!source.as.function_val.function_name) return false;
+    char *name = strdup(source.as.function_val.function_name);
+    if (!name) return false;
+    FunctionSignature *signature = copy_function_signature(source.as.function_val.signature);
+    Value copy = {0};
+    copy.type = VAL_FUNCTION;
+    copy.as.function_val.function_name = name;
+    copy.as.function_val.signature = signature;
+    *out = copy;
+    return true;
+}
+
+static void coro_bundle_drop(void *raw) {
+    CoroCallArgs *ca = raw;
+    if (!ca) return;
+    for (int i = 0; i < ca->arg_count; ++i) {
+        if (!ca->owned_args[i]) continue;
+        Value value = ca->args[i];
+        if (value.type == VAL_FUNCTION) {
+            free((char *)value.as.function_val.function_name);
+            free_function_signature(value.as.function_val.signature);
+        } else env_discard_value_snapshot(value);
+    }
+    free(ca->args);
+    free(ca->owned_args);
+    free(ca->func_name);
+    if (ca->leased) env_release_evaluation_lease(ca->env);
+    free(ca);
+}
+
+static CoroCallArgs *coro_bundle_new(Environment *env, const char *name, int argc) {
+    if (!env || !name || argc < 0 || (size_t)argc > SIZE_MAX / sizeof(Value)) return NULL;
+    CoroCallArgs *ca = calloc(1, sizeof(*ca));
+    if (!ca) return NULL;
+    ca->env = env;
+    ca->func_name = strdup(name);
+    ca->args = calloc(argc ? (size_t)argc : 1, sizeof(Value));
+    ca->owned_args = calloc(argc ? (size_t)argc : 1, sizeof(bool));
+    if (!ca->func_name || !ca->args || !ca->owned_args) { coro_bundle_drop(ca); return NULL; }
+    ca->arg_count = argc;
+    for (int i = 0; i < argc; ++i) ca->args[i].type = VAL_VOID;
+    return ca;
+}
+
+static bool coro_bundle_argument(CoroCallArgs *ca, int index, Value value, bool borrowed) {
+    if (borrowed) { ca->args[index] = value; return true; }
+    if (!eval_owned_task_clone(value, &ca->args[index])) return false;
+    ca->owned_args[index] = true;
+    return true;
+}
+
+/* The scheduler owns cleanup after successful enqueue, including ERROR/cancel. */
 static Value coro_trampoline(void *raw_arg, int coro_id) {
     (void)coro_id;
-    CoroCallArgs *ca = (CoroCallArgs *)raw_arg;
-    extern Value call_function(const char *name, Value *args, int arg_count, Environment *env);
-    Value result = call_function(ca->func_name, ca->args, ca->arg_count, ca->env);
-    free(ca->args);
-    free(ca->func_name);
-    free(ca);
+    CoroCallArgs *ca = raw_arg;
+    return call_function(ca->func_name, ca->args, ca->arg_count, ca->env);
+}
+
+static int coro_bundle_enqueue(CoroCallArgs *ca) {
+    if (!env_acquire_evaluation_lease(ca->env)) return -1;
+    ca->leased = true;
+    return nano_coro_spawn_owned(coro_trampoline, ca, coro_bundle_drop,
+        eval_owned_task_drop, eval_owned_task_clone);
+}
+
+static Value eval_task_result(Environment *env, int id, bool await) {
+    Value result;
+    bool ok = await ? nano_coro_await_copy(id, &result) : nano_coro_result_copy(id, &result);
+    if (!ok) {
+        fprintf(stderr, "I cannot copy a completed owned task result.\n"); exit(1);
+    }
+    if (result.type == VAL_STRUCT || result.type == VAL_TUPLE) {
+        if (!env_retire_value(env, result)) {
+            env_discard_value_snapshot(result);
+            fprintf(stderr, "I cannot retain a copied task result.\n"); exit(1);
+        }
+    }
     return result;
 }
 
@@ -230,8 +312,8 @@ static void eval_scope_release(Environment *env, int first, bool functions) {
     env_symbol_index_invalidate(env);
 }
 
-static Value eval_preserve_record(Environment *env, Value value) {
-    if ((value.type != VAL_STRUCT && value.type != VAL_TUPLE) || env_record_result_borrowed(env, value)) return value;
+static Value eval_preserve_value(Environment *env, Value value) {
+    if ((value.type != VAL_STRUCT && value.type != VAL_TUPLE && value.type != VAL_STRING) || env_record_result_borrowed(env, value)) return value;
     Value copy;
     if (!env_value_snapshot(env, value, &copy)) {
         fprintf(stderr, "I cannot preserve a record result across its scope.\n");
@@ -253,7 +335,7 @@ static Value eval_staged_argument(ASTNode *expression, Environment *env,
     Value value = eval_expression(expression, env);
     if (value.is_return || value.is_break || value.is_continue ||
         formal == TYPE_BORROW_SHARED || formal == TYPE_BORROW_MUT) return value;
-    return eval_preserve_record(env, value);
+    return eval_preserve_value(env, value);
 }
 
 static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
@@ -273,7 +355,7 @@ static Value eval_scoped_block(ASTNode **statements, int count, Environment *env
             }
         }
     }
-    result = eval_preserve_record(env, result);
+    result = eval_preserve_value(env, result);
     /* Existing callable values may also borrow a local binding. */
     if (result.type == VAL_FUNCTION) {
         Value copy = create_function(result.as.function_val.function_name,
@@ -3188,26 +3270,30 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
 
         int extra_args = node->as.call.arg_count - 1;
-        Value *spawn_args = extra_args > 0
-            ? malloc(sizeof(Value) * extra_args)
-            : NULL;
-        for (int i = 0; i < extra_args; i++) {
-            spawn_args[i] = eval_expression(node->as.call.args[i + 1], env);
+        Function *deferred = env_get_function(env, async_fn_name);
+        for (int i = 0; deferred && deferred->params && i < deferred->param_count; ++i) {
+            Type type = deferred->params[i].type;
+            if (type == TYPE_BORROW_SHARED || type == TYPE_BORROW_MUT) {
+                fprintf(stderr, "I cannot enqueue a deferred borrowed argument.\n"); exit(1);
+            }
         }
-
-        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
-        ca->func_name = strdup(async_fn_name);
-        ca->args = spawn_args;
-        ca->arg_count = extra_args;
-        ca->env = env;
-
-        if (!g_scheduler.initialized) nano_scheduler_init();
-        int coro_id = nano_coro_spawn(coro_trampoline, ca);
+        CoroCallArgs *ca = coro_bundle_new(env, async_fn_name, extra_args);
+        if (!ca) { fprintf(stderr, "I cannot prepare task argument storage.\n"); exit(1); }
+        for (int i = 0; i < extra_args; ++i) {
+            Value value = eval_expression(node->as.call.args[i + 1], env);
+            if (value.is_return || value.is_break || value.is_continue) {
+                coro_bundle_drop(ca);
+                return value;
+            }
+            if (!coro_bundle_argument(ca, i, value, false)) {
+                coro_bundle_drop(ca);
+                fprintf(stderr, "I cannot copy a pending task argument.\n"); exit(1);
+            }
+        }
+        int coro_id = coro_bundle_enqueue(ca);
         if (coro_id < 0) {
-            fprintf(stderr, "Error: spawn() failed — scheduler full\n");
-            free(ca->func_name);
-            free(ca->args);
-            free(ca);
+            coro_bundle_drop(ca);
+            fprintf(stderr, "Error: spawn() failed — scheduler full or lease unavailable\n");
             return create_void();
         }
 
@@ -3239,7 +3325,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         if (node->as.call.arg_count < 1) return create_void();
         Value h = eval_expression(node->as.call.args[0], env);
         return (h.type == VAL_COROUTINE)
-            ? nano_coro_result((int)h.as.int_val)
+            ? eval_task_result(env, (int)h.as.int_val, false)
             : create_void();
     }
 
@@ -4531,23 +4617,25 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
      * When an async fn is called, spawn a coroutine and run it to completion.
      * In synchronous/test mode the behaviour is identical to before. */
     if (func->is_async && func->body != NULL) {
-        nano_scheduler_init();
-        CoroCallArgs *ca = malloc(sizeof(CoroCallArgs));
+        CoroCallArgs *ca = coro_bundle_new(env, name, node->as.call.arg_count);
         if (ca) {
-            ca->func_name = strdup(name);
-            ca->args = malloc(sizeof(Value) * (size_t)(node->as.call.arg_count > 0 ? node->as.call.arg_count : 1));
-            if (ca->args) memcpy(ca->args, args, sizeof(Value) * (size_t)node->as.call.arg_count);
-            ca->arg_count = node->as.call.arg_count;
-            ca->env = env;
-            int coro_id = nano_coro_spawn(coro_trampoline, ca);
+            bool copied = true;
+            for (int i = 0; copied && i < ca->arg_count; ++i) {
+                Type formal = func->params && i < func->param_count ? func->params[i].type : TYPE_UNKNOWN;
+                bool borrowed = formal == TYPE_BORROW_SHARED || formal == TYPE_BORROW_MUT;
+                copied = coro_bundle_argument(ca, i, args[i], borrowed);
+            }
+            int coro_id = copied ? coro_bundle_enqueue(ca) : -1;
             if (coro_id >= 0) {
-                Value result = nano_coro_await_id(coro_id);
-                (void)nano_coro_release(coro_id);
+                Value result = eval_task_result(env, coro_id, true);
+                if (!nano_coro_release(coro_id)) {
+                    fprintf(stderr, "I cannot release a completed inactive task.\n"); exit(1);
+                }
                 return result;
             }
-            free(ca->func_name); free(ca->args); free(ca);
+            coro_bundle_drop(ca);
         }
-        /* Fall through to synchronous execution if spawn failed */
+        /* I preserve the existing synchronous fallback when preparation fails. */
     }
 
     /* If built-in with no body, already handled above */
@@ -4924,7 +5012,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                             if (field_count > 0) {
                                 field_values = malloc(sizeof(Value) * field_count);
                                 for (int i = 0; i < field_count; i++) {
-                                    field_values[i] = eval_preserve_record(env, eval_expression(expr->as.struct_literal.field_values[i], env));
+                                    field_values[i] = eval_preserve_value(env, eval_expression(expr->as.struct_literal.field_values[i], env));
                                     if (field_values[i].is_return) {
                                         Value result = field_values[i];
                                         free(field_values);
@@ -4949,7 +5037,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * target type from a 'let x: T = {..base, ...}' declaration. We must
              * handle spread regardless of whether struct_name is set. */
             if (expr->as.struct_literal.spread_source) {
-                Value base_val = eval_preserve_record(env, eval_expression(expr->as.struct_literal.spread_source, env));
+                Value base_val = eval_preserve_value(env, eval_expression(expr->as.struct_literal.spread_source, env));
                 if (base_val.is_return) return base_val;
                 StructValue *base_sv = base_val.type == VAL_STRUCT ? base_val.as.struct_val : NULL;
                 int base_count = base_sv ? base_sv->field_count : 0;
@@ -4976,7 +5064,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 /* Add override/new fields */
                 for (int oi = 0; oi < over_count; oi++) {
                     merged_names[merged_count]  = expr->as.struct_literal.field_names[oi];
-                    merged_values[merged_count] = eval_preserve_record(env, eval_expression(
+                    merged_values[merged_count] = eval_preserve_value(env, eval_expression(
                         expr->as.struct_literal.field_values[oi], env));
                     if (merged_values[merged_count].is_return) {
                         Value result = merged_values[merged_count];
@@ -5019,7 +5107,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Evaluate each field value */
             for (int i = 0; i < field_count; i++) {
                 field_names[i] = expr->as.struct_literal.field_names[i];
-                field_values[i] = eval_preserve_record(env, eval_expression(expr->as.struct_literal.field_values[i], env));
+                field_values[i] = eval_preserve_value(env, eval_expression(expr->as.struct_literal.field_values[i], env));
                 if (field_values[i].is_return) {
                     Value result = field_values[i];
                     free(canonical_name);
@@ -5136,7 +5224,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 
                 for (int i = 0; i < field_count; i++) {
                     field_names[i] = expr->as.union_construct.field_names[i];
-                    field_values[i] = eval_preserve_record(env, eval_expression(expr->as.union_construct.field_values[i], env));
+                    field_values[i] = eval_preserve_value(env, eval_expression(expr->as.union_construct.field_values[i], env));
                     if (field_values[i].is_return) {
                         Value result = field_values[i];
                         free(field_names);
@@ -5264,7 +5352,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Evaluate each element */
             Value *elements = malloc(sizeof(Value) * element_count);
             for (int i = 0; i < element_count; i++) {
-                elements[i] = eval_preserve_record(env, eval_expression(expr->as.tuple_literal.elements[i], env));
+                elements[i] = eval_preserve_value(env, eval_expression(expr->as.tuple_literal.elements[i], env));
                 if (elements[i].is_return) {
                     Value result = elements[i];
                     free(elements);
@@ -5300,7 +5388,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             Value item = tv->elements[index];
             if (item.type == VAL_STRING) return create_string(item.as.string_val);
-            return eval_preserve_record(env, item);
+            return eval_preserve_value(env, item);
         }
 
         case AST_TRY_OP: {
@@ -5341,7 +5429,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (inner.is_return) return inner;
             if (inner.type == VAL_COROUTINE) {
                 int coro_id = (int)inner.as.int_val;
-                return nano_coro_await_id(coro_id);
+                return eval_task_result(env, coro_id, true);
             }
             return inner;
         }
@@ -5674,7 +5762,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                         if (result.is_return || result.is_break) break;
                         if (result.is_continue) result = create_void();
                     }
-                    result = eval_preserve_record(env, result);
+                    result = eval_preserve_value(env, result);
                     if (result.is_break) result = create_void();
                     eval_scope_release(env, first, false);
                     return result;

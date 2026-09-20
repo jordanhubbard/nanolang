@@ -85,6 +85,7 @@ int nl_run(const char *source) {
     /* Phase 4: Type-check */
     typecheck_set_current_file("<browser>");
     if (!type_check(program, env)) {
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -96,6 +97,7 @@ int nl_run(const char *source) {
     /* Phase 5: Register top-level functions / run top-level statements */
     if (!run_program(program, env)) {
         fprintf(stderr, "Error: runtime error\n");
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -112,6 +114,8 @@ int nl_run(const char *source) {
         if (result.type == VAL_INT)
             rc = (int)result.as.int_val;
     }
+
+    env_require_destroyable(env);
 
     free_ast(program);
     free_tokens(tokens, token_count);
@@ -152,6 +156,8 @@ int nl_check(const char *source) {
 
     typecheck_set_current_file("<browser>");
     int rc = type_check(program, env) ? 0 : 1;
+
+    env_require_destroyable(env);
 
     free_ast(program);
     free_tokens(tokens, token_count);

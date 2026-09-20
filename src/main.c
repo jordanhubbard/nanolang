@@ -671,6 +671,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!process_imports(program, env, modules, input_file)) {
         human_diag(NL_DIAG_IMPORT_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_IMPORT_FAILED);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -725,6 +726,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             json_diagnostics_output();
             json_diagnostics_cleanup();
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -799,6 +801,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             printf("  Load with: cuModuleLoad(&mod, \"%s\");\n", ptx_out);
             printf("  Or compile: nvcc -ptx %s -o %s.cubin\n", ptx_out, ptx_out);
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -828,6 +831,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             printf("  Load with: clCreateProgramWithSource + clBuildProgram\n");
             printf("  CPU fallback: set POCL_DEVICES=cpu (POCL required)\n");
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -857,6 +861,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             printf("✓ C source emitted to %s\n", c_out);
             printf("  Compile with: gcc -std=c11 %s -o prog\n", c_out);
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -889,6 +894,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         } else {
             fprintf(stderr, "RISC-V backend failed\n");
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -916,6 +922,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
         int bench_rc = bench_run_program(program, env, &bopts, input_file, json_out);
         if (json_out) fclose(json_out);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -933,6 +940,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             nanocore_free_trust_report(report);
         }
         /* Clean up and exit - trust report is an analysis-only mode */
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -989,6 +997,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         printf("\nSummary: %d checked, %d matched, %d warnings, %d skipped (not verified)\n",
                checked, matched, failed, skipped);
 
+        env_require_destroyable(env);
+
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1016,6 +1026,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (!emit_module_reflection(opts->reflect_output_path, program, env, name_copy)) {
             fprintf(stderr, "Error: Failed to emit module reflection\n");
             free(name_copy);
+            env_require_destroyable(env);
             free_ast(program);
             free_tokens(tokens, token_count);
             free_environment(env);
@@ -1030,6 +1041,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(name_copy);
         
         /* Clean up and exit - no need to compile when reflecting */
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1067,6 +1079,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (!emit_doc_md(md_out, program, source, name_copy)) {
             fprintf(stderr, "Error: Failed to emit Markdown docs\n");
             free(name_copy);
+            env_require_destroyable(env);
             free_ast(program);
             free_tokens(tokens, token_count);
             free_environment(env);
@@ -1078,6 +1091,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
         if (opts->verbose) printf("✓ Markdown docs written to %s\n", md_out);
         free(name_copy);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1090,6 +1104,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Phase 4.45: Emit typed AST as JSON (if requested) */
     if (opts->emit_typed_ast) {
         emit_typed_ast_json(input_file, program, env);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1106,6 +1121,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                              opts->verbose)) {
             fprintf(stderr, "Error: Failed to compile modules\n");
             diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_MOD_COMPILE);
+            env_require_destroyable(env);
             free_ast(program);
             free_tokens(tokens, token_count);
             free_environment(env);
@@ -1161,6 +1177,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!check_interpreted_shadows(program, env, modules, input_file, opts)) {
         human_diag(NL_DIAG_SHADOW_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_RUNTIME, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_SHADOW_FAILED);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1203,6 +1220,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!c_code) {
         human_diag(NL_DIAG_TRANS_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_TRANS_FAILED);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1266,6 +1284,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 nl_utf8_cstr_or_marker(temp_c_file));
         diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_C_TEMP);
         free(c_code);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1710,6 +1729,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
         diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
         free(c_code);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1740,6 +1760,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
         /* Cleanup */
         free(c_code);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1767,6 +1788,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Cleanup */
     free(c_code);
+    env_require_destroyable(env);
     free_ast(program);
     free_tokens(tokens, token_count);
     free_environment(env);

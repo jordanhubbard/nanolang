@@ -13585,3 +13585,18 @@ under task_7b805000dfda4da386b55d4691e8c647: immediate by-value record/tuple
 snapshots across all three call routes and aggregate staging must precede the
 next argument, while explicit borrow formals preserve identity. No faulty path
 was executed. This correction remains part of source review before qualification.
+
+I record the independently found top-level string staging gap in `b1118ad7c`
+under task_7b805000dfda4da386b55d4691e8c647 and its tuple escape child. A later
+argument can rebind an earlier string identifier. My same left-to-right staging
+must include strings with an Environment-owned snapshot; bindings that receive
+an arena string must copy it before taking ownership. No old case was executed.
+
+#### My exact module-cache lease prerequisite
+
+I file task_60bef9462e22d7eb1724212ad1811803 before cache source changes.
+Startup cache clearing lacks a local Environment, while private module object
+compilation temporarily owns a different cache from its saved caller. I propose
+exact generation ownership in docs/NANOISA_EVALUATOR_CACHE_LEASES.md, preserving
+legitimate isolated imports/cleanup instead of a global evaluation prohibition.
+The deferred lease source remains unqualified until this boundary is implemented.

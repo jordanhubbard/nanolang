@@ -324,6 +324,7 @@ static void cmd_reload(const char *path, Environment *env) {
         }
     }
 
+    env_require_destroyable(tmp);
     tmp->parent = NULL; /* unlink before free to avoid double-free of shared nodes */
     free_environment(tmp);
     typecheck_set_current_file("<repl>");

@@ -36,6 +36,9 @@ typedef enum {
 /* ── Coroutine entry function type ─────────────────────────────────────── */
 /* Called with (arg, coro_id); returns the coroutine's result Value */
 typedef Value (*CoroFn)(void *arg, int coro_id);
+typedef void (*CoroArgDropFn)(void *arg);
+typedef void (*CoroResultDropFn)(Value owned);
+typedef bool (*CoroResultCloneFn)(Value borrowed, Value *out);
 
 /* ── NanoCoroutine ─────────────────────────────────────────────────────── */
 #define MAX_COROUTINES   64
@@ -46,6 +49,9 @@ typedef struct NanoCoroutine {
     bool active;        /* I cannot recycle this slot until its callback returns. */
     CoroFn fn;
     void *arg;
+    CoroArgDropFn arg_drop;
+    CoroResultDropFn result_drop;
+    CoroResultCloneFn result_clone;
     Value result;        /* Result value when CORO_DONE */
     char *error_msg;     /* Error message when CORO_ERROR */
     int awaiting_id;     /* -1 = not awaiting; >= 0 = waiting for this coro */
@@ -71,10 +77,20 @@ void nano_scheduler_init(void);
 /* I return an ID or -1 for a null callback, exhausted IDs or full storage.
  * Completed handles still occupy storage until nano_coro_release succeeds. */
 int nano_coro_spawn(CoroFn fn, void *arg);
+/* Successful enqueue owns the bundle and each callback return graph. Hooks are
+ * trusted C storage operations, never NanoLang user callbacks. Failed enqueue
+ * transfers nothing. Legacy spawn keeps borrowed argument/result semantics. */
+int nano_coro_spawn_owned(CoroFn fn, void *arg, CoroArgDropFn arg_drop,
+                         CoroResultDropFn result_drop, CoroResultCloneFn result_clone);
+bool nano_coro_cancel(int coro_id);
+/* Independent copies for owned DONE tasks; output is unchanged on failure. */
+bool nano_coro_result_copy(int coro_id, Value *out);
+bool nano_coro_await_copy(int coro_id, Value *out);
 
 /* I retain completed slots until explicit release. Release fails for pending
  * or active callbacks and stale IDs. I free scheduler-owned error text, not
- * the borrowed argument or objects referenced by the result Value. */
+ * legacy borrowed argument/results. Owned tasks drop their result exactly once.
+ * Borrowed result/await views remain valid only until successful release. */
 bool nano_coro_release(int coro_id);
 
 /* Cooperative yield hint — allows other coroutines to run.

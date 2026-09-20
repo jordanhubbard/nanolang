@@ -94,6 +94,7 @@ static int interpret_file(const char *input_file, bool do_proptest,
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input_file)) {
         fprintf(stderr, "nano: module loading failed\n");
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -107,6 +108,7 @@ static int interpret_file(const char *input_file, bool do_proptest,
     typecheck_set_current_file(input_file);
     if (!type_check(program, env)) {
         fprintf(stderr, "nano: type checking failed\n");
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -152,6 +154,7 @@ static int interpret_file(const char *input_file, bool do_proptest,
     /* Phase 5: Run program (evaluates top-level lets, registers structs/enums/unions) */
     if (!run_program(program, env)) {
         fprintf(stderr, "nano: runtime error\n");
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -164,6 +167,7 @@ static int interpret_file(const char *input_file, bool do_proptest,
     /* Phase 5.5: Property-based testing mode */
     if (do_proptest) {
         int prop_rc = proptest_run_program(program, env, proptest_opts, input_file);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -188,6 +192,7 @@ static int interpret_file(const char *input_file, bool do_proptest,
     nano_scheduler_run_until_done();
 
     /* Cleanup */
+    env_require_destroyable(env);
     free_ast(program);
     free_tokens(tokens, token_count);
     free_environment(env);

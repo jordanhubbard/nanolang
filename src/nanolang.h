@@ -805,6 +805,7 @@ typedef struct {
     Symbol *symbols;
     int symbol_count;
     int symbol_capacity;
+    size_t evaluation_leases; /* Queued/active evaluator bundles prevent teardown. */
     struct EnvRecordList *record_lists; /* Evaluator-owned handles, including tombstones. */
     struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
@@ -938,6 +939,10 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
+bool env_acquire_evaluation_lease(Environment *env);
+void env_release_evaluation_lease(Environment *env);
+bool env_can_destroy(Environment *env);
+void env_require_destroyable(Environment *env);
 /* I copy record/tuple/string graphs; other reference fields stay borrowed. */
 bool env_clone_value_snapshot(Value source, Value *out);
 void env_discard_value_snapshot(Value owned);

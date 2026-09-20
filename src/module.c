@@ -1241,6 +1241,7 @@ bool compile_module_to_object(const char *module_path,
     ASTNode *module_ast = load_module_internal(module_path, module_env, true, NULL);
     if (!module_ast) {
         fprintf(stderr, "Error: Failed to load module '%s' for compilation\n", module_path);
+        env_require_destroyable(module_env);
         clear_module_cache();
         module_cache = saved_cache;
         free_environment(module_env);
@@ -1288,6 +1289,7 @@ bool compile_module_to_object(const char *module_path,
     if (!c_code) {
         fprintf(stderr, "Error: Failed to transpile module '%s'\n", module_path);
         if (meta) free_module_metadata(meta);
+        env_require_destroyable(module_env);
         clear_module_cache();
         module_cache = saved_cache;
         free_environment(module_env);
@@ -1345,6 +1347,7 @@ bool compile_module_to_object(const char *module_path,
         if (have_build_dir) rmdir(build_dir);
         free(c_code);
         /* Don't free AST - it's owned by the cache */
+        env_require_destroyable(module_env);
         clear_module_cache();
         module_cache = saved_cache;
         free_environment(module_env);
@@ -1358,6 +1361,7 @@ bool compile_module_to_object(const char *module_path,
         remove(temp_c_file);
         rmdir(build_dir);
         free(c_code);
+        env_require_destroyable(module_env);
         clear_module_cache();
         module_cache = saved_cache;
         free_environment(module_env);
@@ -1554,6 +1558,7 @@ bool compile_module_to_object(const char *module_path,
         /* Keep C file for debugging */
         fprintf(stderr, "C file kept at: %s\n", temp_c_file);
         free(c_code);
+        env_require_destroyable(module_env);
         clear_module_cache();
         module_cache = saved_cache;
         /* Don't free AST or environment - they're owned by the cache/caller */
@@ -1571,6 +1576,7 @@ bool compile_module_to_object(const char *module_path,
     }
     
     free(c_code);
+    env_require_destroyable(module_env);
     clear_module_cache();
     module_cache = saved_cache;
     /* Don't free AST or environment - they're owned by the cache/caller */
