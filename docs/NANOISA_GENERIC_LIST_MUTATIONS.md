@@ -100,3 +100,43 @@ extend a successful operation's lifetime beyond its expression.
    explicit compiler/provider scope on Linux and Darwin.
 
 This prerequisite does not close the U8 conversion task or full5.1 release.
+
+## My first production checkpoint
+
+I implement the reviewed C checker and canonical NanoISA producer boundary in
+`src/typechecker.c` and `src/nanovirt/codegen.c`. I have not built or executed it.
+The legacy parser retains `List<T>` in declaration names rather than a complete
+`TypeInfo`; I preserve that nominal evidence in local/global symbols and both
+function-parameter registration paths. I do not change the serialized AST or
+infer nominal identity from the runtime array tag. Missing identity refuses.
+
+My new checker path covers insert/remove/pop only, validates the exact declared
+record/enum and receiver identity, and retains remove/pop nominal results. Real
+functions and lexical callables keep their existing precedence. My generated
+loop has fixed instruction size; checked scratch capacity precedes argument
+lowering. Insert stages ARRAY, INT, element and INT length; remove stages ARRAY,
+INT and length; pop stages ARRAY and length. Every successful path clears those
+locals after preserving any returned value on the stack. Every failing path
+retains them for ordinary frame unwind. No runtime or authority changes occur.
+
+I keep scalar list declarations on their existing declaration/extern route;
+this checkpoint does not silently reinterpret a scalar extern as a new generic
+operation. My existing native C call builder already stages arguments in order.
+I still require the later fixture checkpoint and all producer/backend controls.
+
+During this audit I also found a separate legacy evaluator limitation:
+`src/eval.c` returns a raw INT from generic remove and distinguishes non-scalar
+get/pop by spelling rather than the actual enum/record declaration. That route
+is not measured by this producer checkpoint. I keep its ownership and nominal
+result repair as an explicit follow-up under the list task, before claiming
+complete evaluator parity; I do not execute the faulty value interpretation.
+
+My static review also found a prerequisite before this draft may qualify:
+legacy generic-list binding, assignment and call compatibility does not always
+compare T. Declared receiver metadata alone cannot prove a mismatched initializer
+or actual argument was rejected. I must extend the existing collection boundary
+checks to List<T> bindings, assignments, record fields, direct/indirect arguments
+and returns, preserving exact signature metadata and refusing missing identity.
+I must inspect all such paths, including both module passes and inferred lets,
+before treating this draft as an accepted-flow implementation. No qualification
+is authorized from this draft, and no test expectation is weakened.

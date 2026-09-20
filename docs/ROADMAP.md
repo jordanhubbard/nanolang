@@ -13520,3 +13520,15 @@ My proposed macOS CI selector step passes YAML/step-order and Bash syntax valida
 - [ ] I qualify the conversion in dependency order through applicable producers,
   runtime/backend targets and the original whole verifier corpus. Partial target
   coverage does not close my full5.1 compiler/bootstrap/release requirements.
+
+### Generic-list mutation source checkpoint
+
+- [ ] Review my checked list insert/remove/pop producer and exact nominal checker
+      checkpoint under `task_7b805000dfda4da386b55d4691e8c647`; qualify only after
+      the separate fixture review. I retain first failures and original corpus.
+- [ ] Reconcile legacy evaluator generic remove result and enum/record get/pop
+      identity under the same list task; my canonical producer checkpoint does
+      not claim evaluator parity or authorize execution of a faulty result.
+- [ ] Close the legacy List<T> nominal-flow gap before qualifying the draft new
+      mutation lowering: check initializer, reassignment, field, argument and
+      return boundaries, including function values and both registration passes.

@@ -350,6 +350,108 @@ static void check_unused_variables(TypeChecker *tc, int start_index) {
 }
 
 const char *get_struct_type_name(ASTNode *expr, Environment *env);
+/* I retain nominal evidence for checked list operations; a prefix alone is
+ * never a receiver or element type. Returned names are borrowed. */
+static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type) {
+    if (!expr) return NULL;
+    if (expr->type == AST_IDENTIFIER) {
+        Symbol *sym = env_get_var_visible_at(env, expr->as.identifier,
+                                             expr->line, expr->column);
+        return sym && sym->type == type ? sym->struct_type_name : NULL;
+    }
+    if (expr->type == AST_STRUCT_LITERAL && type == TYPE_STRUCT)
+        return get_struct_type_name(expr, env);
+    if (expr->type == AST_FIELD_ACCESS) {
+        ASTNode *object = expr->as.field_access.object;
+        if (type == TYPE_ENUM && object->type == AST_IDENTIFIER &&
+            env_get_enum(env, object->as.identifier)) return object->as.identifier;
+        const char *owner = get_struct_type_name(object, env);
+        StructDef *def = owner ? env_get_struct(env, owner) : NULL;
+        for (int i = 0; def && i < def->field_count; ++i)
+            if (!strcmp(def->field_names[i], expr->as.field_access.field_name) &&
+                (def->field_types[i] == type ||
+                 (type == TYPE_ENUM && def->field_types[i] == TYPE_STRUCT)))
+                return def->field_type_names ? def->field_type_names[i] : NULL;
+        return NULL;
+    }
+    if (expr->type == AST_CALL) {
+        if (type != TYPE_LIST_GENERIC && expr->as.call.return_struct_type_name)
+            return expr->as.call.return_struct_type_name;
+        FunctionSignature *sig = expr->as.call.checked_signature;
+        if (sig && sig->return_type == type) return sig->return_struct_name;
+        if (expr->as.call.func_expr || !expr->as.call.name ||
+            env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column))
+            return NULL;
+        Function *fn = env_get_function(env, expr->as.call.name);
+        if (fn) return fn->return_type == type ? fn->return_struct_type_name : NULL;
+        /* The existing zero-argument constructor has no return TypeInfo. */
+        const char *name = expr->as.call.name;
+        const char *suffix = strrchr(name, '_');
+        if (type == TYPE_LIST_GENERIC && !expr->as.call.arg_count && suffix && suffix > name + 5 &&
+            (!strncmp(name, "list_", 5) || !strncmp(name, "List_", 5)) &&
+            !strcmp(suffix, "_new")) {
+            size_t length = (size_t)(suffix - (name + 5));
+            for (int i = 0; i < env->struct_count; ++i)
+                if (strlen(env->structs[i].name) == length &&
+                    !memcmp(name + 5, env->structs[i].name, length))
+                    return env->structs[i].name;
+            for (int i = 0; i < env->enum_count; ++i)
+                if (strlen(env->enums[i].name) == length &&
+                    !memcmp(name + 5, env->enums[i].name, length))
+                    return env->enums[i].name;
+        }
+    }
+    if (expr->type == AST_BLOCK && expr->as.block.count)
+        return list_nominal_name(expr->as.block.statements[expr->as.block.count - 1], env, type);
+    return NULL;
+}
+
+static bool list_nominal_matches(Environment *env, const char *actual,
+                                 const char *expected, bool is_enum) {
+    if (!actual) return false;
+    return is_enum ? env_get_enum(env, actual) == env_get_enum(env, expected)
+                   : env_get_struct(env, actual) == env_get_struct(env, expected);
+}
+
+static Type check_list_mutation(ASTNode *expr, Environment *env,
+                                 const char *name, const char *operation,
+                                 bool is_enum) {
+    bool insert = !strcmp(operation, "insert");
+    bool pop = !strcmp(operation, "pop");
+    int arity = insert ? 3 : pop ? 1 : 2;
+    Type element = is_enum ? TYPE_ENUM : TYPE_STRUCT;
+    bool valid = expr->as.call.arg_count == arity;
+    Type types[3] = {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN};
+    for (int i = 0; i < expr->as.call.arg_count; ++i) {
+        Type actual = check_expression(expr->as.call.args[i], env);
+        if (i < 3) types[i] = actual;
+    }
+    if (valid) {
+        valid = types[0] == TYPE_LIST_GENERIC &&
+            list_nominal_matches(env, list_nominal_name(expr->as.call.args[0], env,
+                                                        TYPE_LIST_GENERIC), name, is_enum);
+        if (!pop) valid = valid && types[1] == TYPE_INT;
+        if (insert) valid = valid && types[2] == element &&
+            list_nominal_matches(env, list_nominal_name(expr->as.call.args[2], env,
+                                                        element), name, is_enum);
+    }
+    if (!is_enum && (is_resource_type(env, name) || has_resource_collection_payload(env, name)))
+        valid = false;
+    if (!valid) {
+        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+            "I require the exact ordinary list element type, operation arity and INT index.",
+            "Use the declared List<T> receiver and matching ordinary element type.");
+        return TYPE_UNKNOWN;
+    }
+    if (!insert) {
+        char *copy = strdup(name);
+        if (!copy) return TYPE_UNKNOWN;
+        free(expr->as.call.return_struct_type_name);
+        expr->as.call.return_struct_type_name = copy;
+    }
+    return insert ? TYPE_VOID : element;
+}
+
 static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
 
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
@@ -2969,7 +3071,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 
                 /* Special handling for generic list functions: list_TypeName_operation */
                 const char *func_name = expr->as.call.name;
-                if (func_name && strncmp(func_name, "list_", 5) == 0) {
+                if (func_name && (!strncmp(func_name, "list_", 5) || !strncmp(func_name, "List_", 5))) {
                     /* Find the last underscore to identify the operation */
                     const char *func_suffix = strrchr(func_name, '_');
                     if (func_suffix) {
@@ -2989,6 +3091,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 /* Type check based on the operation */
                                 const char *operation = func_suffix + 1;  /* Skip the '_' */
                                 
+                                if (!strcmp(operation, "insert") || !strcmp(operation, "remove") ||
+                                    !strcmp(operation, "pop")) {
+                                    Type result = check_list_mutation(expr, env, type_name, operation, edef != NULL);
+                                    free(type_name);
+                                    return result;
+                                }
+
                                 /* Type check arguments */
                                 for (int i = 0; i < expr->as.call.arg_count; i++) {
                                     check_expression(expr->as.call.args[i], env);
@@ -5227,13 +5336,15 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Set struct type name - look up symbol again to be safe */
             sym = env_get_var(tc->env, stmt->as.let.name);
             if (sym && stmt->as.let.type_name) {
-                if (original_declared_type == TYPE_STRUCT || original_declared_type == TYPE_UNION) {
+                if (original_declared_type == TYPE_STRUCT || original_declared_type == TYPE_UNION ||
+                    original_declared_type == TYPE_LIST_GENERIC) {
                     /* Use the declared type name */
                     if (sym->struct_type_name) free(sym->struct_type_name);  /* Free old value if any */
                     sym->struct_type_name = strdup(stmt->as.let.type_name);
                     
                     /* Mark as resource if the struct type is a resource */
-                    mark_variable_as_resource_if_needed(tc->env, stmt->as.let.name, stmt->as.let.type_name);
+                    if (original_declared_type != TYPE_LIST_GENERIC)
+                        mark_variable_as_resource_if_needed(tc->env, stmt->as.let.name, stmt->as.let.type_name);
                 }
             }
             
@@ -7904,9 +8015,11 @@ register_function_pass1:;
                 if (sym->struct_type_name) free(sym->struct_type_name);
                 sym->struct_type_name = NULL;
 
-                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION ||
+                    item->as.let.var_type == TYPE_LIST_GENERIC) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
-                    mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
+                    if (item->as.let.var_type != TYPE_LIST_GENERIC)
+                        mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
                 } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
                 }
@@ -8060,7 +8173,8 @@ register_function_pass1:;
                     param_sym->def_line = item->line;
                     param_sym->def_column = item->column;
 
-                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
+                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_LIST_GENERIC ||
+                         param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
@@ -8655,9 +8769,11 @@ register_function_pass2:;
                 if (sym->struct_type_name) free(sym->struct_type_name);
                 sym->struct_type_name = NULL;
 
-                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION ||
+                    item->as.let.var_type == TYPE_LIST_GENERIC) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
-                    mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
+                    if (item->as.let.var_type != TYPE_LIST_GENERIC)
+                        mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
                 } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
                 }
@@ -8827,7 +8943,8 @@ register_function_pass2:;
                     param_sym->def_line = item->line;
                     param_sym->def_column = item->column;
 
-                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
+                    if ((param_type == TYPE_STRUCT || param_type == TYPE_UNION || param_type == TYPE_LIST_GENERIC ||
+                         param_type == TYPE_ENUM || param_type == TYPE_BORROW_SHARED || param_type == TYPE_BORROW_MUT) &&
                         item->as.function.params[j].struct_type_name) {
                         param_sym->struct_type_name = strdup(item->as.function.params[j].struct_type_name);
                     }
