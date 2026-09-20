@@ -1,0 +1,37 @@
+{
+  "pin": "7791774b4cf400659c5d0369cafe22545e627e36",
+  "git_report_blobs": 34,
+  "retained_helpers": [
+    {
+      "configuration": "clang-selected",
+      "sha256": "42a3ec6f50789523fd9c22f980923599ac495f6c1450c55670356c95bef9e1b7",
+      "bytes": 72048,
+      "recorded_tests": 10,
+      "probe_from_elf": 42
+    },
+    {
+      "configuration": "gcc-parent-sanitizers",
+      "sha256": "c9e58791c2180c302cdd24c41ee586c3d7275829ebeea48c4943f93b1a05aa5b",
+      "bytes": 72128,
+      "recorded_tests": 10,
+      "probe_from_elf": 42
+    },
+    {
+      "configuration": "gcc-default",
+      "sha256": "dd245a8407180143afda00dd088baba33a29f87dbb23f360ae0f00e8e67ea396",
+      "bytes": 102632,
+      "recorded_tests": 10,
+      "probe_from_elf": null
+    },
+    {
+      "configuration": "gcc-helper-ubsan",
+      "sha256": "15a04a7c0c275452394d5396275a8acaf020fa877f372fd19639821b3bca80ae",
+      "bytes": 74328,
+      "recorded_tests": 10,
+      "probe_from_elf": 42
+    }
+  ],
+  "current_input_files": 5,
+  "before_after_equal": true,
+  "scope": "read-only Git/current hashes, raw terminals/logs and ELF initial bytes; no helper loading or test rerun"
+}

@@ -13430,3 +13430,9 @@ union, array and transport neighbors. I retain the first strict Clang formatting
 terminal, exact provider-copy attribution and a367-report/598-object seal. Full
 source/runtime goals remain open; independent review and actual merge precede
 bounded ledger reconciliation, including repair349ba.
+
+## My assembler capture build flags
+
+- [x] I repair task_befc0deb04bc4a73b4ef2931ca7b604d by carrying caller preprocessing, compiler-selection, warning and linker options into my Linux assembler capture helper. I retain its PIC/shared-library requirements and guard its local feature macro against a caller definition. This helper loads into the external assembler, so default helper flags exclude driver sanitizer switches; dedicated helper flag variables permit explicit compatible instrumentation. I qualify the real Make recipe, strict Clang GCC-selection flags and the existing capture/replay corpus before landing. My parent compiler/runtime sanitizer assertions remain unchanged.
+
+I retain [four actual Make builds and capture/replay runs](evidence/assembler-capture-flags/summary.json): default GCC, strict Clang with GCC13 selected in CFLAGS, parent sanitizer flags with the external-helper boundary, and explicit helper UBSan. Each passes all10 existing corpus tests; forced-include exported constants prove CPPFLAGS and CFLAGS both reached the built helper. Independent source review passes; publication remains through the PR.
