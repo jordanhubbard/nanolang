@@ -1,0 +1,202 @@
+{
+  "/tmp/nanolang-darwin-asan-startup-control/apple": {
+    "sha256": "ccbb04baab8afd07832ae2e5e7cbafc99ca3b21c84018026a98242d6fcca6b65",
+    "bytes": 51000
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-run.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-build-status.json": {
+    "sha256": "389ee24b66e2aab439a84485efb475c28590013c2e5fb268850718b53428527e",
+    "bytes": 95
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-run-status.json": {
+    "sha256": "b2a3f6b9398f37f25122719ed060625177c731d0a1b808bc1c1da88e9c3e38f8",
+    "bytes": 94
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-version-command.json": {
+    "sha256": "ebd1cb65c3f1989d31e211d3815198c25e197e109b203380bddeb1fdf79e0cce",
+    "bytes": 54
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-resource-dir.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-resource-dir-status.json": {
+    "sha256": "2ae9adecd29d1dccd87ebfe058b0b8eba664897030e6a3b2457840f6e175365a",
+    "bytes": 95
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/hello.c": {
+    "sha256": "bda6daf0447149d15a5baa1717b6c79abd2367e709b461aaba8c4f7ada808eb0",
+    "bytes": 72
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-build.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-libraries.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-libraries.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-resource-dir.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-version.stdout": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-resource-dir-command.json": {
+    "sha256": "c3b62a5fcb01f26ffc922fb41d90099224552cae4f421f1646a842cc5bda3494",
+    "bytes": 85
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-run-status.json": {
+    "sha256": "1f8fb8dba0e6bd1682a3a063cb2e8fbd2009e465f25b2ff2a6025255e7a722ba",
+    "bytes": 95
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-libraries-status.json": {
+    "sha256": "f944c778584856daaf9eff8b63a51053fddd8420dd3705d440f87bf81d41b8ed",
+    "bytes": 95
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-resource-dir-status.json": {
+    "sha256": "5a117b77ba7e201f20e4f1ca718330e61c0845bb94e03c53cd15414322671cdc",
+    "bytes": 96
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-build-command.json": {
+    "sha256": "9f835dd2c541820859131172f1049ac4f8080c347391b2a5b72e7779c6ba3ad2",
+    "bytes": 266
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-build.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-resource-dir.stdout": {
+    "sha256": "1fc9f364661ef3d7c9e51062b49611e5f959f76ed83833b18f023bf9241aef89",
+    "bytes": 46
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-libraries.stdout": {
+    "sha256": "1159bd65dead54de41d4b885e8d10e5c3b0dc873db1e81731d018adaa3c36045",
+    "bytes": 229
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-resource-dir-command.json": {
+    "sha256": "868b58e79ae1b6fef6e1b0428223dad3ff57cebecebeffafbb6d6d00d33b11c3",
+    "bytes": 64
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-libraries.stdout": {
+    "sha256": "c12cf47113a26bed759f043ad8bac3d64fa916d46753c4f314e6c501987e7636",
+    "bytes": 272
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-run.stdout": {
+    "sha256": "ef3fb311bc49532eb1f7a4670f6300b1b484f14625e0b75accfb737fd75a4bfd",
+    "bytes": 15
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew": {
+    "sha256": "e32951adeadc5ea28779bcfb68c187c56073c78857b9140655acd72328ef2104",
+    "bytes": 51032
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-resource-dir.stdout": {
+    "sha256": "c5fcee1a495a7ba57cb24430979f0051bc3d68e41fe8e58da5735d9c8b44056e",
+    "bytes": 96
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-build-status.json": {
+    "sha256": "598e30d5630f1d765912afd5a04c29216d0cf4962aad6a69d501870b42576339",
+    "bytes": 95
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-libraries-command.json": {
+    "sha256": "f5ccca75ad7ea74b698b08c2bbcef2b1c84e259c6c9b2db4af8408c1cc87f88b",
+    "bytes": 104
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-version-status.json": {
+    "sha256": "9a952822213299a0336a7d2b70ef740dd4a522f7e3815b27df5405d78a48fd17",
+    "bytes": 96
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-build.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-libraries-command.json": {
+    "sha256": "ae011dda3791e9c928f2c549183f5bf39817d88fcd7e7a3896d2d188c42fa386",
+    "bytes": 101
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-run-command.json": {
+    "sha256": "0d617e77dab27ba29410870e463ff81e2a60bfdb485913bf73130f0f840419dc",
+    "bytes": 77
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-run-command.json": {
+    "sha256": "888ba6d782792f4f31e318dc4375f8c4327c5e4aebe53ae5cb44ed727b17a612",
+    "bytes": 80
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-libraries-status.json": {
+    "sha256": "0356cb3a67f44220ebbc21869701cce85d9a3fdf4fc28eccbf35fd03c729997c",
+    "bytes": 95
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-version-command.json": {
+    "sha256": "b8ca65058764a2430979e94c088fadcab10424d9ba150c30dc20428569e8246b",
+    "bytes": 75
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-version-status.json": {
+    "sha256": "fc725cbd83ca6fe96dcae5a09753cc619a2a7708b018b522fe9b0161ab2fec24",
+    "bytes": 96
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple-version.stdout": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-build-command.json": {
+    "sha256": "9add7e9f00dafcb329eaa56f62deb292b11cddaa98f590733c74ce2a4f7b23c0",
+    "bytes": 290
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/environment.json": {
+    "sha256": "10a92297c61e0ac07a687083694c0b313662d475e2e0403eebcbf8fa9ce8ed08",
+    "bytes": 163
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew-build.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple.dSYM/Contents/Info.plist": {
+    "sha256": "be3613c2291f26bbc050c5add82874b3a996909a67cc319c1f0c122f039f1213",
+    "bytes": 634
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple.dSYM/Contents/Resources/DWARF/apple": {
+    "sha256": "03139dfa59ed301a7903fa7cfacddafa242c6d6c27a378e64ca68d06c6b4b8ab",
+    "bytes": 13408
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/apple.dSYM/Contents/Resources/Relocations/aarch64/apple.yml": {
+    "sha256": "dd51eba16d0cd4660bf19d18780038ffb9274017699a06e54490c82bf24b9608",
+    "bytes": 133
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew.dSYM/Contents/Info.plist": {
+    "sha256": "f783d1393d8acaf931282e7ab4d2b6fe417b8dd3b4ea1d891bee85b63fa6c6ad",
+    "bytes": 637
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew.dSYM/Contents/Resources/DWARF/homebrew": {
+    "sha256": "034faf8a0c5e5ee61e84c8dace714460a0036e38cf700efed9d0aa41240d49b7",
+    "bytes": 13309
+  },
+  "/tmp/nanolang-darwin-asan-startup-control/homebrew.dSYM/Contents/Resources/Relocations/aarch64/homebrew.yml": {
+    "sha256": "24db0c139497864d9e6e2f1c23f960848ee78264feb1412a6eaa2d9c00f87bfd",
+    "bytes": 136
+  }
+}
