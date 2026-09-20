@@ -230,3 +230,25 @@ records ORDINARY before the separate executable-consumer audit. Public v1/v2
 and peer union-only v3 outcomes remain controls. I retain every nested/generic/
 recursive/import/mixed and final execution requirement above. This is a design
 reconciliation only; no new array code or qualification exists at this checkpoint.
+
+## My retained-layout prerequisite
+
+Before implementing kind2 I inspected the actual retained-layout codec and its
+non-admitting preflight. Both currently allow forward record DAGs only when all
+leaves are scalar/string; even a structurally valid ARRAY/NO_INDEX leaf makes
+that forward path refuse. Prior-order ARRAY fields already decode structurally.
+I must reconcile those two structural paths before claiming declaration-order
+independence for array-bearing records. This is a static scope finding, not a
+measured execution failure.
+
+I will factor an explicit private retained-layout profile that additionally
+accepts ARRAY/NO_INDEX leaves in the existing iterative DAG walk. Existing public
+layout decoder and record preflight keep their current profile and decisions.
+The private ownership reader consumes that checked owned layout directly, rather
+than recursively asking a public classifier that still refuses kind2. All
+resource flags, descriptor checks, extension framing and full mixed-table
+validation remain shared; only the explicit structural and array-declaration
+profiles differ. No temporary clearing of resource flags or invented ORDINARY
+classification substitutes for this checked path. Legacy allocator/status
+ambiguities must remain UNKNOWN unless a preceding complete preflight makes
+MEMORY distinguishable. My own query allocations report MEMORY precisely.
