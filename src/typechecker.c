@@ -386,10 +386,11 @@ static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type)
         if (fn) return fn->return_type == type ? fn->return_struct_type_name : NULL;
         /* The existing zero-argument constructor has no return TypeInfo. */
         const char *name = expr->as.call.name;
-        const char *suffix = strrchr(name, '_');
-        if (type == TYPE_LIST_GENERIC && !expr->as.call.arg_count && suffix && suffix > name + 5 &&
-            (!strncmp(name, "list_", 5) || !strncmp(name, "List_", 5)) &&
-            !strcmp(suffix, "_new")) {
+        bool list_prefix = strlen(name) > 5 &&
+            (!strncmp(name, "list_", 5) || !strncmp(name, "List_", 5));
+        const char *suffix = list_prefix ? strrchr(name, '_') : NULL;
+        if (type == TYPE_LIST_GENERIC && !expr->as.call.arg_count && suffix &&
+            suffix > name + 5 && !strcmp(suffix, "_new")) {
             size_t length = (size_t)(suffix - (name + 5));
             for (int i = 0; i < env->struct_count; ++i)
                 if (strlen(env->structs[i].name) == length &&
@@ -408,9 +409,15 @@ static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type)
 
 static bool list_nominal_matches(Environment *env, const char *actual,
                                  const char *expected, bool is_enum) {
-    if (!actual) return false;
-    return is_enum ? env_get_enum(env, actual) == env_get_enum(env, expected)
-                   : env_get_struct(env, actual) == env_get_struct(env, expected);
+    if (!actual || !expected) return false;
+    if (is_enum) {
+        EnumDef *wanted = env_get_enum(env, expected);
+        EnumDef *found = env_get_enum(env, actual);
+        return wanted && found && wanted == found;
+    }
+    StructDef *wanted = env_get_struct(env, expected);
+    StructDef *found = env_get_struct(env, actual);
+    return wanted && found && wanted == found;
 }
 
 static Type check_list_mutation(ASTNode *expr, Environment *env,

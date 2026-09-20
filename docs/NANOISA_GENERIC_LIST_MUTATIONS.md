@@ -140,3 +140,58 @@ and returns, preserving exact signature metadata and refusing missing identity.
 I must inspect all such paths, including both module passes and inferred lets,
 before treating this draft as an accepted-flow implementation. No qualification
 is authorized from this draft, and no test expectation is weakened.
+
+### My nominal-flow repair contract before further implementation
+
+I use resolved, non-null declarations on both sides of every comparison. My
+constructor recognizer checks prefix and string extent before forming the
+post-prefix pointer. I retain those two source-review corrections separately
+from the still-unqualified boundary repair below.
+
+I will normalize existing metadata in checker-private queries, without inventing
+an AST schema, serialized representation or runtime tag. The legacy declaration
+`type_name`, function `return_struct_type_name`, signature `param_struct_names`
+and `return_struct_name` already retain T. A fallback signature TypeInfo may
+carry that name in `generic_name`; a complete generic TypeInfo may carry its
+single type argument. These forms must resolve to the same non-null record or
+enum declaration. Missing, conflicting or malformed metadata refuses. I will
+not compare two failed lookups as equal or compare only TYPE_LIST_GENERIC.
+
+| Flow boundary | Existing owning path I will extend |
+| --- | --- |
+| Explicit/inferred local initializer | `check_statement` AST_LET; infer T before registering the binding |
+| Both global passes | Existing collection checks and global symbol registration |
+| Reassignment | AST_SET; preserve receiver declaration and check actual T |
+| Record field construction | Existing `check_record_array_contract` call at each field |
+| Borrowed field update | AST_SET field path; retain existing borrow requirements |
+| Direct and module-qualified calls | Existing parameter collection checks; qualified calls reuse checked call processing |
+| Function-value calls | `check_indirect_call` and complete signature compatibility, including return type |
+| Explicit returns | Existing collection return check and function return metadata |
+| Value-producing blocks/conditionals/matches | Require all reachable value branches to agree on exact T; no first-arm inference |
+| Nested aggregate annotations | Refuse missing inner nominal evidence; do not erase T inside a field or signature |
+
+I remove the generic-list/INT assignment exception for these checked boundaries;
+legacy evaluator pointer storage is not source type permission. I preserve scalar
+list declarations, direct/lexical callable precedence, ordinary declaration
+visibility and module identity. Generic list new/get/push/set must also preserve
+the same element invariant: rejecting only insert would leave an unchecked push
+able to poison a receiver. I therefore audit all element-producing/mutating list
+operations and their declaration path before accepting the new mutation route.
+A real user declaration of the same name remains a real call, not a builtin.
+
+For evaluator parity I first map the existing owned record clone/discard helpers
+and list storage cleanup. I resolve enum versus record from the environment,
+validate before list effects, and preserve copied record results and strings
+across set/remove/pop/clear. I will not reinterpret an enum integer as a record
+pointer or a removed record pointer as a source INT. The evaluator's current
+raw pointer-list storage needs explicit ownership accounting for replaced,
+removed and cleared elements; any proposed representation or lifetime change
+gets a separate source checkpoint before tests. I do not claim a blanket repair
+of unrelated interpreter allocations.
+
+My next source checkpoint must show every boundary above implemented or explicitly
+refused; no accepted missing-identity path may reach the new operations. Fixtures
+will include known differently named record and enum instances through each
+boundary, legitimate aliases, discarded/returned results, callback signatures,
+module identity and side-effecting argument order. Current original source and
+bounds expectations remain unchanged, and no qualification starts yet.
