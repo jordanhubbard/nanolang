@@ -13509,3 +13509,13 @@ fixtures and all execution.
 I record root review of baefc8516 under the same f4d task before correction: the implicit result boundary is reachable from a nonempty body too. I require exact depth equal to the declared result count before both implicit and explicit result consumption in the new f641 mode. Empty-body preflight alone is insufficient. Old public behavior remains unchanged; this is static evidence, with fixtures and execution still pending source review.
 
 I record two further baef static review corrections before changing source: I reserve the shared service/File opcode rescan separately from preflight, and I enforce the five-tag flat-array boundary for every origin and content alternative, including arrays never stored in a record field. Existing graph modes remain unchanged. I audit the other shared scan charges in the consumer contract; no runtime failure or acceptance is claimed.
+
+I prepare the reviewed f641 fixture checkpoint after c4ff source approval:
+all-five-tag copied facts, full alias writes, standalone flat-origin refusals,
+implicit/explicit result guards, joins/calls/globals, old graph compatibility,
+exact internal budget callers and measured allocation-prefix cleanup/recovery.
+My linked and seven-TU instrumented runner retains strict bounded terminals and
+actual Python/compiler selection. I have not compiled or run these fixtures;
+root review precedes the seven-configuration matrix and unchanged neighbors.
+
+I save this fixture draft before the independent PR922 audit. It remains uncompiled and unexecuted, with final static coverage review pending; this draft is not a gate authorization or a completed fixture milestone.

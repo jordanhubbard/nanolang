@@ -357,3 +357,52 @@ ARRAY and STRUCT. Empty content is permitted for an empty flat array. Derived
 slices inherit only flat origins/content; the final origin check covers them too.
 Old graph APIs retain their former element and write rules. These are static
 source corrections; fixtures and gates remain pending full review.
+
+## My fixture checkpoint (not executed)
+
+I add `test_record_array_origins.c` and its bounded Python runner. The C inputs
+contain real decoded function bodies and exact version3 declaration bytes; I
+never execute them. The two fixture configurations use unchanged query source:
+linked providers and seven rebuilt allocation-owning translation units. The
+instrumented fixture includes the managed-origin TU for internal boundary checks;
+its corresponding external object is excluded. The other six instrumented TUs
+are verifier, type verifier, decoded-function owner, ownership declarations,
+layout owner and retained-record-plan owner. Other linked providers are ordinary
+objects; I do not claim whole-program allocator or sanitizer instrumentation.
+
+My controls cover all five flat element tags and interleaved unused union facts,
+original global/per-kind record identities, copied facts after input erasure/free,
+getter sentinels, aliases mutated before/after field installation, exact FLOAT
+field writes versus a packed-compatible INT write, distinct slices, field
+replacement, direct parameter/result transport, weak global facts and both
+branch alternatives. New-mode standalone nested/VOID/ENUM/record element origins
+are refused even outside fields; the unchanged old graph query still accepts
+its existing nested-array control. I retain old record/profile decisions before
+and after the new query.
+
+I test empty and nonempty missing-result bodies and explicit empty RET as real
+module refusals. Separate white-box controls drive both origin result reads with
+zero depth; these prove the added local guards rather than relying only on the
+shared verifier's earlier refusal. Exact64/65 origin cases exercise actual query
+limits. White-box calls exercise an actual analysis allocation and terminal
+transfer at the exact remaining memory/work budget and one unit beyond, with
+no allocation after a refused memory reservation. These are explicitly internal
+boundary tests, not claims that every full input fits at every individual cap.
+
+I measure requested live allocation payloads across the seven selected TUs,
+compare that observed peak with the report's conservative reserved peak, and
+sweep every measured successful-path allocation position in both one-shot and
+persistent failure modes. Every failed attempt preserves the output sentinel,
+returns to zero tracked objects/bytes and has an independent successful recovery.
+Allocator metadata and an implementation's internal realloc overlap are not
+measured. The report's conservative reservation, which includes realloc overlap,
+remains a separate bound. No failure status is relabeled successful.
+
+The runner imports the existing bounded command helper through its module, so
+only the one new TestCase is discoverable. It preserves command files, file-backed
+stdout/stderr, terminal/cleanup status, actual `sys.executable` and compiler/link
+selection. It clears LSAN_OPTIONS and retains leak detection and strict warnings.
+Every fixture change is reviewable before compilation. Planned qualification is
+seven selected Linux/Darwin compiler/sanitizer configurations plus unchanged
+ownership, union and array neighbors; public/runtime/source admission is not
+part of this checkpoint.
