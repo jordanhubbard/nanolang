@@ -1,0 +1,6277 @@
+[
+  {
+    "name": "valid",
+    "filename": "valid.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "canonical",
+    "filename": "case-0001.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reversed-object-keys",
+    "filename": "case-0002.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "escaped-slashes",
+    "filename": "case-0003.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "escaped-key-and-value-spellings",
+    "filename": "case-0004.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "legacy-default-idempotent-false",
+    "filename": "case-0005.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "maximum-document",
+    "filename": "case-0006.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "document-one-over",
+    "filename": "case-0007.json",
+    "statuses": [
+      2
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "mutate-nsi_version",
+    "filename": "case-0008.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-nsi_version",
+    "filename": "case-0009.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-interface.id",
+    "filename": "case-0010.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-interface.id",
+    "filename": "case-0011.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-interface.name",
+    "filename": "case-0012.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-interface.name",
+    "filename": "case-0013.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.id",
+    "filename": "case-0014.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.id",
+    "filename": "case-0015.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.name",
+    "filename": "case-0016.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.name",
+    "filename": "case-0017.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.idempotent",
+    "filename": "case-0018.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.idempotent",
+    "filename": "case-0019.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.params.0.id",
+    "filename": "case-0020.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.params.0.id",
+    "filename": "case-0021.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.params.0.name",
+    "filename": "case-0022.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.params.0.name",
+    "filename": "case-0023.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.params.0.type",
+    "filename": "case-0024.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.params.0.type",
+    "filename": "case-0025.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.type-nsi:core/int",
+    "filename": "case-0026.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.type-nsi:core/bool",
+    "filename": "case-0027.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.type-nsi:core/unit",
+    "filename": "case-0028.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0029.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.params.0.direction",
+    "filename": "case-0030.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.params.0.direction",
+    "filename": "case-0031.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.direction-in",
+    "filename": "case-0032.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.direction-out",
+    "filename": "case-0033.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.direction-inout",
+    "filename": "case-0034.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.params.0.ownership",
+    "filename": "case-0035.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.params.0.ownership",
+    "filename": "case-0036.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.ownership-borrow",
+    "filename": "case-0037.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.ownership-copy",
+    "filename": "case-0038.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.params.0.lifetime",
+    "filename": "case-0039.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.params.0.lifetime",
+    "filename": "case-0040.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.lifetime-call",
+    "filename": "case-0041.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.lifetime-caller",
+    "filename": "case-0042.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.lifetime-callee",
+    "filename": "case-0043.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.params.0.mutability",
+    "filename": "case-0044.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.params.0.mutability",
+    "filename": "case-0045.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.mutability-mutable",
+    "filename": "case-0046.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.params.0.optional",
+    "filename": "case-0047.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.params.0.optional",
+    "filename": "case-0048.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.0.params.0.streaming",
+    "filename": "case-0049.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.0.params.0.streaming",
+    "filename": "case-0050.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.streaming-in",
+    "filename": "case-0051.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.streaming-out",
+    "filename": "case-0052.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.0.params.0.streaming-bidi",
+    "filename": "case-0053.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.id",
+    "filename": "case-0054.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.id",
+    "filename": "case-0055.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.name",
+    "filename": "case-0056.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.name",
+    "filename": "case-0057.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.idempotent",
+    "filename": "case-0058.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.idempotent",
+    "filename": "case-0059.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.0.id",
+    "filename": "case-0060.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.0.id",
+    "filename": "case-0061.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.0.name",
+    "filename": "case-0062.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.0.name",
+    "filename": "case-0063.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.0.type",
+    "filename": "case-0064.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.0.type",
+    "filename": "case-0065.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.type-nsi:core/int",
+    "filename": "case-0066.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.type-nsi:core/bool",
+    "filename": "case-0067.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.type-nsi:core/unit",
+    "filename": "case-0068.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0069.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.0.direction",
+    "filename": "case-0070.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.0.direction",
+    "filename": "case-0071.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.direction-out",
+    "filename": "case-0072.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.direction-inout",
+    "filename": "case-0073.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.direction-return",
+    "filename": "case-0074.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.0.ownership",
+    "filename": "case-0075.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.0.ownership",
+    "filename": "case-0076.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.ownership-transfer",
+    "filename": "case-0077.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.ownership-copy",
+    "filename": "case-0078.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.0.lifetime",
+    "filename": "case-0079.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.0.lifetime",
+    "filename": "case-0080.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.lifetime-caller",
+    "filename": "case-0081.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.lifetime-callee",
+    "filename": "case-0082.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.lifetime-resource",
+    "filename": "case-0083.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.0.mutability",
+    "filename": "case-0084.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.0.mutability",
+    "filename": "case-0085.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.mutability-immutable",
+    "filename": "case-0086.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.0.optional",
+    "filename": "case-0087.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.0.optional",
+    "filename": "case-0088.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.0.streaming",
+    "filename": "case-0089.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.0.streaming",
+    "filename": "case-0090.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.streaming-in",
+    "filename": "case-0091.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.streaming-out",
+    "filename": "case-0092.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.0.streaming-bidi",
+    "filename": "case-0093.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.1.id",
+    "filename": "case-0094.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.1.id",
+    "filename": "case-0095.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.1.name",
+    "filename": "case-0096.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.1.name",
+    "filename": "case-0097.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.1.type",
+    "filename": "case-0098.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.1.type",
+    "filename": "case-0099.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.type-nsi:core/bool",
+    "filename": "case-0100.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.type-nsi:core/unit",
+    "filename": "case-0101.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0102.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.1.direction",
+    "filename": "case-0103.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.1.direction",
+    "filename": "case-0104.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.direction-out",
+    "filename": "case-0105.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.direction-inout",
+    "filename": "case-0106.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.direction-return",
+    "filename": "case-0107.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.1.ownership",
+    "filename": "case-0108.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.1.ownership",
+    "filename": "case-0109.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.ownership-borrow",
+    "filename": "case-0110.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.ownership-transfer",
+    "filename": "case-0111.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.1.lifetime",
+    "filename": "case-0112.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.1.lifetime",
+    "filename": "case-0113.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.lifetime-caller",
+    "filename": "case-0114.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.lifetime-callee",
+    "filename": "case-0115.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.lifetime-resource",
+    "filename": "case-0116.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.1.mutability",
+    "filename": "case-0117.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.1.mutability",
+    "filename": "case-0118.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.mutability-mutable",
+    "filename": "case-0119.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.1.optional",
+    "filename": "case-0120.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.1.optional",
+    "filename": "case-0121.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.1.streaming",
+    "filename": "case-0122.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.1.streaming",
+    "filename": "case-0123.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.streaming-in",
+    "filename": "case-0124.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.streaming-out",
+    "filename": "case-0125.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.1.streaming-bidi",
+    "filename": "case-0126.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.2.id",
+    "filename": "case-0127.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.2.id",
+    "filename": "case-0128.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.2.name",
+    "filename": "case-0129.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.2.name",
+    "filename": "case-0130.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.2.type",
+    "filename": "case-0131.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.2.type",
+    "filename": "case-0132.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.type-nsi:core/int",
+    "filename": "case-0133.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.type-nsi:core/bool",
+    "filename": "case-0134.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.type-nsi:core/unit",
+    "filename": "case-0135.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0136.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.2.direction",
+    "filename": "case-0137.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.2.direction",
+    "filename": "case-0138.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.direction-in",
+    "filename": "case-0139.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.direction-out",
+    "filename": "case-0140.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.direction-inout",
+    "filename": "case-0141.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.2.ownership",
+    "filename": "case-0142.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.2.ownership",
+    "filename": "case-0143.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.ownership-borrow",
+    "filename": "case-0144.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.ownership-transfer",
+    "filename": "case-0145.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.2.lifetime",
+    "filename": "case-0146.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.2.lifetime",
+    "filename": "case-0147.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.lifetime-call",
+    "filename": "case-0148.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.lifetime-callee",
+    "filename": "case-0149.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.lifetime-resource",
+    "filename": "case-0150.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.2.mutability",
+    "filename": "case-0151.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.2.mutability",
+    "filename": "case-0152.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.mutability-mutable",
+    "filename": "case-0153.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.2.optional",
+    "filename": "case-0154.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.2.optional",
+    "filename": "case-0155.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.1.params.2.streaming",
+    "filename": "case-0156.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.1.params.2.streaming",
+    "filename": "case-0157.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.streaming-in",
+    "filename": "case-0158.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.streaming-out",
+    "filename": "case-0159.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.1.params.2.streaming-bidi",
+    "filename": "case-0160.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.id",
+    "filename": "case-0161.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.id",
+    "filename": "case-0162.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.name",
+    "filename": "case-0163.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.name",
+    "filename": "case-0164.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.idempotent",
+    "filename": "case-0165.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.idempotent",
+    "filename": "case-0166.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.0.id",
+    "filename": "case-0167.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.0.id",
+    "filename": "case-0168.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.0.name",
+    "filename": "case-0169.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.0.name",
+    "filename": "case-0170.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.0.type",
+    "filename": "case-0171.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.0.type",
+    "filename": "case-0172.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.type-nsi:core/int",
+    "filename": "case-0173.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.type-nsi:core/bool",
+    "filename": "case-0174.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.type-nsi:core/unit",
+    "filename": "case-0175.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0176.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.0.direction",
+    "filename": "case-0177.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.0.direction",
+    "filename": "case-0178.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.direction-out",
+    "filename": "case-0179.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.direction-inout",
+    "filename": "case-0180.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.direction-return",
+    "filename": "case-0181.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.0.ownership",
+    "filename": "case-0182.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.0.ownership",
+    "filename": "case-0183.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.ownership-transfer",
+    "filename": "case-0184.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.ownership-copy",
+    "filename": "case-0185.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.0.lifetime",
+    "filename": "case-0186.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.0.lifetime",
+    "filename": "case-0187.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.lifetime-caller",
+    "filename": "case-0188.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.lifetime-callee",
+    "filename": "case-0189.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.lifetime-resource",
+    "filename": "case-0190.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.0.mutability",
+    "filename": "case-0191.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.0.mutability",
+    "filename": "case-0192.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.mutability-immutable",
+    "filename": "case-0193.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.0.optional",
+    "filename": "case-0194.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.0.optional",
+    "filename": "case-0195.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.0.streaming",
+    "filename": "case-0196.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.0.streaming",
+    "filename": "case-0197.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.streaming-in",
+    "filename": "case-0198.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.streaming-out",
+    "filename": "case-0199.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.0.streaming-bidi",
+    "filename": "case-0200.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.1.id",
+    "filename": "case-0201.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.1.id",
+    "filename": "case-0202.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.1.name",
+    "filename": "case-0203.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.1.name",
+    "filename": "case-0204.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.1.type",
+    "filename": "case-0205.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.1.type",
+    "filename": "case-0206.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.type-nsi:core/int",
+    "filename": "case-0207.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.type-nsi:core/bool",
+    "filename": "case-0208.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.type-nsi:core/unit",
+    "filename": "case-0209.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0210.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.1.direction",
+    "filename": "case-0211.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.1.direction",
+    "filename": "case-0212.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.direction-in",
+    "filename": "case-0213.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.direction-out",
+    "filename": "case-0214.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.direction-inout",
+    "filename": "case-0215.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.1.ownership",
+    "filename": "case-0216.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.1.ownership",
+    "filename": "case-0217.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.ownership-borrow",
+    "filename": "case-0218.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.ownership-transfer",
+    "filename": "case-0219.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.1.lifetime",
+    "filename": "case-0220.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.1.lifetime",
+    "filename": "case-0221.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.lifetime-call",
+    "filename": "case-0222.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.lifetime-callee",
+    "filename": "case-0223.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.lifetime-resource",
+    "filename": "case-0224.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.1.mutability",
+    "filename": "case-0225.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.1.mutability",
+    "filename": "case-0226.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.mutability-mutable",
+    "filename": "case-0227.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.1.optional",
+    "filename": "case-0228.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.1.optional",
+    "filename": "case-0229.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.2.params.1.streaming",
+    "filename": "case-0230.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.2.params.1.streaming",
+    "filename": "case-0231.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.streaming-in",
+    "filename": "case-0232.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.streaming-out",
+    "filename": "case-0233.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.2.params.1.streaming-bidi",
+    "filename": "case-0234.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.id",
+    "filename": "case-0235.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.id",
+    "filename": "case-0236.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.name",
+    "filename": "case-0237.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.name",
+    "filename": "case-0238.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.idempotent",
+    "filename": "case-0239.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.idempotent",
+    "filename": "case-0240.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.0.id",
+    "filename": "case-0241.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.0.id",
+    "filename": "case-0242.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.0.name",
+    "filename": "case-0243.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.0.name",
+    "filename": "case-0244.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.0.type",
+    "filename": "case-0245.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.0.type",
+    "filename": "case-0246.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.type-nsi:core/int",
+    "filename": "case-0247.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.type-nsi:core/bool",
+    "filename": "case-0248.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.type-nsi:core/unit",
+    "filename": "case-0249.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0250.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.0.direction",
+    "filename": "case-0251.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.0.direction",
+    "filename": "case-0252.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.direction-out",
+    "filename": "case-0253.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.direction-inout",
+    "filename": "case-0254.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.direction-return",
+    "filename": "case-0255.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.0.ownership",
+    "filename": "case-0256.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.0.ownership",
+    "filename": "case-0257.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.ownership-transfer",
+    "filename": "case-0258.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.ownership-copy",
+    "filename": "case-0259.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.0.lifetime",
+    "filename": "case-0260.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.0.lifetime",
+    "filename": "case-0261.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.lifetime-caller",
+    "filename": "case-0262.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.lifetime-callee",
+    "filename": "case-0263.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.lifetime-resource",
+    "filename": "case-0264.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.0.mutability",
+    "filename": "case-0265.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.0.mutability",
+    "filename": "case-0266.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.mutability-immutable",
+    "filename": "case-0267.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.0.optional",
+    "filename": "case-0268.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.0.optional",
+    "filename": "case-0269.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.0.streaming",
+    "filename": "case-0270.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.0.streaming",
+    "filename": "case-0271.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.streaming-in",
+    "filename": "case-0272.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.streaming-out",
+    "filename": "case-0273.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.0.streaming-bidi",
+    "filename": "case-0274.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.1.id",
+    "filename": "case-0275.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.1.id",
+    "filename": "case-0276.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.1.name",
+    "filename": "case-0277.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.1.name",
+    "filename": "case-0278.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.1.type",
+    "filename": "case-0279.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.1.type",
+    "filename": "case-0280.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.type-nsi:core/int",
+    "filename": "case-0281.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.type-nsi:core/bool",
+    "filename": "case-0282.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.type-nsi:core/unit",
+    "filename": "case-0283.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0284.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.1.direction",
+    "filename": "case-0285.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.1.direction",
+    "filename": "case-0286.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.direction-in",
+    "filename": "case-0287.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.direction-out",
+    "filename": "case-0288.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.direction-inout",
+    "filename": "case-0289.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.1.ownership",
+    "filename": "case-0290.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.1.ownership",
+    "filename": "case-0291.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.ownership-borrow",
+    "filename": "case-0292.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.ownership-transfer",
+    "filename": "case-0293.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.1.lifetime",
+    "filename": "case-0294.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.1.lifetime",
+    "filename": "case-0295.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.lifetime-call",
+    "filename": "case-0296.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.lifetime-callee",
+    "filename": "case-0297.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.lifetime-resource",
+    "filename": "case-0298.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.1.mutability",
+    "filename": "case-0299.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.1.mutability",
+    "filename": "case-0300.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.mutability-mutable",
+    "filename": "case-0301.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.1.optional",
+    "filename": "case-0302.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.1.optional",
+    "filename": "case-0303.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.3.params.1.streaming",
+    "filename": "case-0304.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.3.params.1.streaming",
+    "filename": "case-0305.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.streaming-in",
+    "filename": "case-0306.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.streaming-out",
+    "filename": "case-0307.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.3.params.1.streaming-bidi",
+    "filename": "case-0308.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.id",
+    "filename": "case-0309.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.id",
+    "filename": "case-0310.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.name",
+    "filename": "case-0311.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.name",
+    "filename": "case-0312.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.idempotent",
+    "filename": "case-0313.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.idempotent",
+    "filename": "case-0314.json",
+    "statuses": [
+      0
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.0.id",
+    "filename": "case-0315.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.0.id",
+    "filename": "case-0316.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.0.name",
+    "filename": "case-0317.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.0.name",
+    "filename": "case-0318.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.0.type",
+    "filename": "case-0319.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.0.type",
+    "filename": "case-0320.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.type-nsi:core/int",
+    "filename": "case-0321.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.type-nsi:core/bool",
+    "filename": "case-0322.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.type-nsi:core/unit",
+    "filename": "case-0323.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0324.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.0.direction",
+    "filename": "case-0325.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.0.direction",
+    "filename": "case-0326.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.direction-out",
+    "filename": "case-0327.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.direction-inout",
+    "filename": "case-0328.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.direction-return",
+    "filename": "case-0329.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.0.ownership",
+    "filename": "case-0330.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.0.ownership",
+    "filename": "case-0331.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.ownership-borrow",
+    "filename": "case-0332.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.ownership-copy",
+    "filename": "case-0333.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.0.lifetime",
+    "filename": "case-0334.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.0.lifetime",
+    "filename": "case-0335.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.lifetime-call",
+    "filename": "case-0336.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.lifetime-caller",
+    "filename": "case-0337.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.lifetime-resource",
+    "filename": "case-0338.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.0.mutability",
+    "filename": "case-0339.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.0.mutability",
+    "filename": "case-0340.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.mutability-mutable",
+    "filename": "case-0341.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.0.optional",
+    "filename": "case-0342.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.0.optional",
+    "filename": "case-0343.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.0.streaming",
+    "filename": "case-0344.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.0.streaming",
+    "filename": "case-0345.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.streaming-in",
+    "filename": "case-0346.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.streaming-out",
+    "filename": "case-0347.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.0.streaming-bidi",
+    "filename": "case-0348.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.1.id",
+    "filename": "case-0349.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.1.id",
+    "filename": "case-0350.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.1.name",
+    "filename": "case-0351.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.1.name",
+    "filename": "case-0352.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.1.type",
+    "filename": "case-0353.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.1.type",
+    "filename": "case-0354.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.type-nsi:core/int",
+    "filename": "case-0355.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.type-nsi:core/bool",
+    "filename": "case-0356.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.type-nsi:core/unit",
+    "filename": "case-0357.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0358.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.1.direction",
+    "filename": "case-0359.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.1.direction",
+    "filename": "case-0360.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.direction-in",
+    "filename": "case-0361.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.direction-out",
+    "filename": "case-0362.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.direction-inout",
+    "filename": "case-0363.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.1.ownership",
+    "filename": "case-0364.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.1.ownership",
+    "filename": "case-0365.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.ownership-borrow",
+    "filename": "case-0366.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.ownership-transfer",
+    "filename": "case-0367.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.1.lifetime",
+    "filename": "case-0368.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.1.lifetime",
+    "filename": "case-0369.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.lifetime-call",
+    "filename": "case-0370.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.lifetime-callee",
+    "filename": "case-0371.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.lifetime-resource",
+    "filename": "case-0372.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.1.mutability",
+    "filename": "case-0373.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.1.mutability",
+    "filename": "case-0374.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.mutability-mutable",
+    "filename": "case-0375.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.1.optional",
+    "filename": "case-0376.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.1.optional",
+    "filename": "case-0377.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-methods.4.params.1.streaming",
+    "filename": "case-0378.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-methods.4.params.1.streaming",
+    "filename": "case-0379.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.streaming-in",
+    "filename": "case-0380.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.streaming-out",
+    "filename": "case-0381.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-methods.4.params.1.streaming-bidi",
+    "filename": "case-0382.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.0.id",
+    "filename": "case-0383.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.0.id",
+    "filename": "case-0384.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.0.name",
+    "filename": "case-0385.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.0.name",
+    "filename": "case-0386.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.0.kind",
+    "filename": "case-0387.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.0.kind",
+    "filename": "case-0388.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.id",
+    "filename": "case-0389.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.id",
+    "filename": "case-0390.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.name",
+    "filename": "case-0391.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.name",
+    "filename": "case-0392.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.kind",
+    "filename": "case-0393.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.kind",
+    "filename": "case-0394.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.0.id",
+    "filename": "case-0395.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.0.id",
+    "filename": "case-0396.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.0.name",
+    "filename": "case-0397.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.0.name",
+    "filename": "case-0398.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.0.type",
+    "filename": "case-0399.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.0.type",
+    "filename": "case-0400.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.0.type-nsi:core/bool",
+    "filename": "case-0401.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.0.type-nsi:core/unit",
+    "filename": "case-0402.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0403.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.1.id",
+    "filename": "case-0404.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.1.id",
+    "filename": "case-0405.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.1.name",
+    "filename": "case-0406.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.1.name",
+    "filename": "case-0407.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.1.type",
+    "filename": "case-0408.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.1.type",
+    "filename": "case-0409.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.1.type-nsi:core/bool",
+    "filename": "case-0410.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.1.type-nsi:core/unit",
+    "filename": "case-0411.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.1.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0412.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.2.id",
+    "filename": "case-0413.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.2.id",
+    "filename": "case-0414.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.2.name",
+    "filename": "case-0415.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.2.name",
+    "filename": "case-0416.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.2.type",
+    "filename": "case-0417.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.2.type",
+    "filename": "case-0418.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.2.type-nsi:core/bool",
+    "filename": "case-0419.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.2.type-nsi:core/unit",
+    "filename": "case-0420.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.2.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0421.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.3.id",
+    "filename": "case-0422.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.3.id",
+    "filename": "case-0423.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.3.name",
+    "filename": "case-0424.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.3.name",
+    "filename": "case-0425.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.3.type",
+    "filename": "case-0426.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.3.type",
+    "filename": "case-0427.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.3.type-nsi:core/bool",
+    "filename": "case-0428.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.3.type-nsi:core/unit",
+    "filename": "case-0429.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.3.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0430.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.4.id",
+    "filename": "case-0431.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.4.id",
+    "filename": "case-0432.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.4.name",
+    "filename": "case-0433.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.4.name",
+    "filename": "case-0434.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.4.type",
+    "filename": "case-0435.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.4.type",
+    "filename": "case-0436.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.4.type-nsi:core/int",
+    "filename": "case-0437.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.4.type-nsi:core/unit",
+    "filename": "case-0438.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.4.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0439.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.5.id",
+    "filename": "case-0440.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.5.id",
+    "filename": "case-0441.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.5.name",
+    "filename": "case-0442.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.5.name",
+    "filename": "case-0443.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.5.type",
+    "filename": "case-0444.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.5.type",
+    "filename": "case-0445.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.5.type-nsi:core/int",
+    "filename": "case-0446.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.5.type-nsi:core/unit",
+    "filename": "case-0447.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.5.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0448.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.6.id",
+    "filename": "case-0449.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.6.id",
+    "filename": "case-0450.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.6.name",
+    "filename": "case-0451.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.6.name",
+    "filename": "case-0452.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.1.fields.6.type",
+    "filename": "case-0453.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.1.fields.6.type",
+    "filename": "case-0454.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.6.type-nsi:core/int",
+    "filename": "case-0455.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.6.type-nsi:core/unit",
+    "filename": "case-0456.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.1.fields.6.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0457.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.2.id",
+    "filename": "case-0458.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.2.id",
+    "filename": "case-0459.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.2.name",
+    "filename": "case-0460.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.2.name",
+    "filename": "case-0461.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.2.kind",
+    "filename": "case-0462.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.2.kind",
+    "filename": "case-0463.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.2.fields.0.id",
+    "filename": "case-0464.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.2.fields.0.id",
+    "filename": "case-0465.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.2.fields.0.name",
+    "filename": "case-0466.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.2.fields.0.name",
+    "filename": "case-0467.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.2.fields.0.type",
+    "filename": "case-0468.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.2.fields.0.type",
+    "filename": "case-0469.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.2.fields.0.type-nsi:core/bool",
+    "filename": "case-0470.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.2.fields.0.type-nsi:core/unit",
+    "filename": "case-0471.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.2.fields.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0472.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.2.fields.1.id",
+    "filename": "case-0473.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.2.fields.1.id",
+    "filename": "case-0474.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.2.fields.1.name",
+    "filename": "case-0475.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.2.fields.1.name",
+    "filename": "case-0476.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.2.fields.1.type",
+    "filename": "case-0477.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.2.fields.1.type",
+    "filename": "case-0478.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.2.fields.1.type-nsi:core/int",
+    "filename": "case-0479.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.2.fields.1.type-nsi:core/unit",
+    "filename": "case-0480.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.2.fields.1.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0481.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.3.id",
+    "filename": "case-0482.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.3.id",
+    "filename": "case-0483.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.3.name",
+    "filename": "case-0484.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.3.name",
+    "filename": "case-0485.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.3.kind",
+    "filename": "case-0486.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.3.kind",
+    "filename": "case-0487.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.3.cases.0.id",
+    "filename": "case-0488.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.3.cases.0.id",
+    "filename": "case-0489.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.3.cases.0.name",
+    "filename": "case-0490.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.3.cases.0.name",
+    "filename": "case-0491.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.3.cases.0.type",
+    "filename": "case-0492.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.3.cases.0.type",
+    "filename": "case-0493.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.3.cases.0.type-nsi:core/int",
+    "filename": "case-0494.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.3.cases.0.type-nsi:core/bool",
+    "filename": "case-0495.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.3.cases.0.type-nsi:core/unit",
+    "filename": "case-0496.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.3.cases.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0497.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.3.cases.1.id",
+    "filename": "case-0498.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.3.cases.1.id",
+    "filename": "case-0499.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.3.cases.1.name",
+    "filename": "case-0500.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.3.cases.1.name",
+    "filename": "case-0501.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.3.cases.1.type",
+    "filename": "case-0502.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.3.cases.1.type",
+    "filename": "case-0503.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.3.cases.1.type-nsi:core/int",
+    "filename": "case-0504.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.3.cases.1.type-nsi:core/bool",
+    "filename": "case-0505.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.3.cases.1.type-nsi:core/unit",
+    "filename": "case-0506.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.4.id",
+    "filename": "case-0507.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.4.id",
+    "filename": "case-0508.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.4.name",
+    "filename": "case-0509.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.4.name",
+    "filename": "case-0510.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.4.kind",
+    "filename": "case-0511.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.4.kind",
+    "filename": "case-0512.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.4.cases.0.id",
+    "filename": "case-0513.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.4.cases.0.id",
+    "filename": "case-0514.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.4.cases.0.name",
+    "filename": "case-0515.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.4.cases.0.name",
+    "filename": "case-0516.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.4.cases.0.type",
+    "filename": "case-0517.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.4.cases.0.type",
+    "filename": "case-0518.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.4.cases.0.type-nsi:core/bool",
+    "filename": "case-0519.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.4.cases.0.type-nsi:core/unit",
+    "filename": "case-0520.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.4.cases.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0521.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.4.cases.1.id",
+    "filename": "case-0522.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.4.cases.1.id",
+    "filename": "case-0523.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.4.cases.1.name",
+    "filename": "case-0524.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.4.cases.1.name",
+    "filename": "case-0525.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.4.cases.1.type",
+    "filename": "case-0526.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.4.cases.1.type",
+    "filename": "case-0527.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.4.cases.1.type-nsi:core/int",
+    "filename": "case-0528.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.4.cases.1.type-nsi:core/bool",
+    "filename": "case-0529.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.4.cases.1.type-nsi:core/unit",
+    "filename": "case-0530.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.5.id",
+    "filename": "case-0531.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.5.id",
+    "filename": "case-0532.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.5.name",
+    "filename": "case-0533.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.5.name",
+    "filename": "case-0534.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.5.kind",
+    "filename": "case-0535.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.5.kind",
+    "filename": "case-0536.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.5.cases.0.id",
+    "filename": "case-0537.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.5.cases.0.id",
+    "filename": "case-0538.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.5.cases.0.name",
+    "filename": "case-0539.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.5.cases.0.name",
+    "filename": "case-0540.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.5.cases.1.id",
+    "filename": "case-0541.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.5.cases.1.id",
+    "filename": "case-0542.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.5.cases.1.name",
+    "filename": "case-0543.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.5.cases.1.name",
+    "filename": "case-0544.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.5.cases.1.type",
+    "filename": "case-0545.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.5.cases.1.type",
+    "filename": "case-0546.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.5.cases.1.type-nsi:core/int",
+    "filename": "case-0547.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.5.cases.1.type-nsi:core/bool",
+    "filename": "case-0548.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.5.cases.1.type-nsi:core/unit",
+    "filename": "case-0549.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.6.id",
+    "filename": "case-0550.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.6.id",
+    "filename": "case-0551.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.6.name",
+    "filename": "case-0552.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.6.name",
+    "filename": "case-0553.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.6.kind",
+    "filename": "case-0554.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.6.kind",
+    "filename": "case-0555.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.6.cases.0.id",
+    "filename": "case-0556.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.6.cases.0.id",
+    "filename": "case-0557.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.6.cases.0.name",
+    "filename": "case-0558.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.6.cases.0.name",
+    "filename": "case-0559.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.6.cases.0.type",
+    "filename": "case-0560.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.6.cases.0.type",
+    "filename": "case-0561.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.6.cases.0.type-nsi:core/int",
+    "filename": "case-0562.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.6.cases.0.type-nsi:core/bool",
+    "filename": "case-0563.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.6.cases.0.type-nsi:core/unit",
+    "filename": "case-0564.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.6.cases.0.type-nsi:nanolang/filesystem#FileError",
+    "filename": "case-0565.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.6.cases.1.id",
+    "filename": "case-0566.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.6.cases.1.id",
+    "filename": "case-0567.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.6.cases.1.name",
+    "filename": "case-0568.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.6.cases.1.name",
+    "filename": "case-0569.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.6.cases.1.type",
+    "filename": "case-0570.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.6.cases.1.type",
+    "filename": "case-0571.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.6.cases.1.type-nsi:core/int",
+    "filename": "case-0572.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.6.cases.1.type-nsi:core/bool",
+    "filename": "case-0573.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.6.cases.1.type-nsi:core/unit",
+    "filename": "case-0574.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.7.id",
+    "filename": "case-0575.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.7.id",
+    "filename": "case-0576.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.7.name",
+    "filename": "case-0577.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.7.name",
+    "filename": "case-0578.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.7.kind",
+    "filename": "case-0579.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.7.kind",
+    "filename": "case-0580.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.7.cases.0.id",
+    "filename": "case-0581.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.7.cases.0.id",
+    "filename": "case-0582.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.7.cases.0.name",
+    "filename": "case-0583.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.7.cases.0.name",
+    "filename": "case-0584.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.7.cases.1.id",
+    "filename": "case-0585.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.7.cases.1.id",
+    "filename": "case-0586.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.7.cases.1.name",
+    "filename": "case-0587.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.7.cases.1.name",
+    "filename": "case-0588.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-types.7.cases.1.type",
+    "filename": "case-0589.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-types.7.cases.1.type",
+    "filename": "case-0590.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.7.cases.1.type-nsi:core/int",
+    "filename": "case-0591.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.7.cases.1.type-nsi:core/bool",
+    "filename": "case-0592.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-enum-or-type-types.7.cases.1.type-nsi:core/unit",
+    "filename": "case-0593.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-errors.0.id",
+    "filename": "case-0594.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-errors.0.id",
+    "filename": "case-0595.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-errors.0.name",
+    "filename": "case-0596.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-errors.0.name",
+    "filename": "case-0597.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-errors.0.version",
+    "filename": "case-0598.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-errors.0.version",
+    "filename": "case-0599.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-capabilities.0.id",
+    "filename": "case-0600.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-capabilities.0.id",
+    "filename": "case-0601.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "mutate-capabilities.0.name",
+    "filename": "case-0602.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "omit-capabilities.0.name",
+    "filename": "case-0603.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-methods",
+    "filename": "case-0604.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-methods",
+    "filename": "case-0605.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-methods",
+    "filename": "case-0606.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-methods.0.params",
+    "filename": "case-0607.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-methods.0.params",
+    "filename": "case-0608.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-methods.1.params",
+    "filename": "case-0609.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-methods.1.params",
+    "filename": "case-0610.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-methods.1.params",
+    "filename": "case-0611.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-methods.2.params",
+    "filename": "case-0612.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-methods.2.params",
+    "filename": "case-0613.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-methods.2.params",
+    "filename": "case-0614.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-methods.3.params",
+    "filename": "case-0615.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-methods.3.params",
+    "filename": "case-0616.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-methods.3.params",
+    "filename": "case-0617.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-methods.4.params",
+    "filename": "case-0618.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-methods.4.params",
+    "filename": "case-0619.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-methods.4.params",
+    "filename": "case-0620.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-types",
+    "filename": "case-0621.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-types",
+    "filename": "case-0622.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-types",
+    "filename": "case-0623.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-types.1.fields",
+    "filename": "case-0624.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-types.1.fields",
+    "filename": "case-0625.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-types.1.fields",
+    "filename": "case-0626.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-types.2.fields",
+    "filename": "case-0627.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-types.2.fields",
+    "filename": "case-0628.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-types.2.fields",
+    "filename": "case-0629.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-types.3.cases",
+    "filename": "case-0630.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-types.3.cases",
+    "filename": "case-0631.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-types.3.cases",
+    "filename": "case-0632.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-types.4.cases",
+    "filename": "case-0633.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-types.4.cases",
+    "filename": "case-0634.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-types.4.cases",
+    "filename": "case-0635.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-types.5.cases",
+    "filename": "case-0636.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-types.5.cases",
+    "filename": "case-0637.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-types.5.cases",
+    "filename": "case-0638.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-types.6.cases",
+    "filename": "case-0639.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-types.6.cases",
+    "filename": "case-0640.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-types.6.cases",
+    "filename": "case-0641.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-types.7.cases",
+    "filename": "case-0642.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-types.7.cases",
+    "filename": "case-0643.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "reverse-types.7.cases",
+    "filename": "case-0644.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-errors",
+    "filename": "case-0645.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-errors",
+    "filename": "case-0646.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "remove-capabilities",
+    "filename": "case-0647.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-capabilities",
+    "filename": "case-0648.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "missing-root-nsi_version",
+    "filename": "case-0649.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "missing-root-interface",
+    "filename": "case-0650.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "missing-root-methods",
+    "filename": "case-0651.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "missing-root-types",
+    "filename": "case-0652.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "missing-root-errors",
+    "filename": "case-0653.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "missing-root-capabilities",
+    "filename": "case-0654.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "allocation-shape-array",
+    "filename": "alloc-array.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "allocation-shape-callback",
+    "filename": "alloc-callback.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "allocation-shape-async",
+    "filename": "alloc-async.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "legacy-open-path-catalog",
+    "filename": "case-0658.json",
+    "statuses": [
+      1,
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "empty",
+    "filename": "case-0659.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "trailing-document",
+    "filename": "case-0660.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "trailing-garbage",
+    "filename": "case-0661.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "raw-nul",
+    "filename": "case-0662.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "counted-nul-middle",
+    "filename": "case-0663.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "raw-control-in-string",
+    "filename": "case-0664.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "invalid-utf8",
+    "filename": "case-0665.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "encoded-utf8-surrogate",
+    "filename": "case-0666.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "nul-escape-value",
+    "filename": "case-0667.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "nul-escape-key",
+    "filename": "case-0668.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "high-surrogate",
+    "filename": "case-0669.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "low-surrogate",
+    "filename": "case-0670.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "bad-surrogate-pair",
+    "filename": "case-0671.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "bad-escape",
+    "filename": "case-0672.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "unfinished-string",
+    "filename": "case-0673.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "short-unicode",
+    "filename": "case-0674.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "array-trailing-comma",
+    "filename": "case-0675.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "object-trailing-comma",
+    "filename": "case-0676.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "leading-zero",
+    "filename": "case-0677.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "missing-fraction",
+    "filename": "case-0678.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "missing-exponent",
+    "filename": "case-0679.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "non-object-root",
+    "filename": "case-0680.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "bad-close",
+    "filename": "case-0681.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "bad-literal",
+    "filename": "case-0682.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "duplicate-root-key",
+    "filename": "case-0683.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-decoded-root-key",
+    "filename": "case-0684.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "duplicate-nested-param-key",
+    "filename": "case-0685.json",
+    "statuses": [
+      1
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "escaped-literal-not-nul",
+    "filename": "case-0686.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-surrogate-pair",
+    "filename": "case-0687.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-nonascii-unknown-fact",
+    "filename": "case-0688.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "valid-control-escapes",
+    "filename": "case-0689.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "depth-64",
+    "filename": "case-0690.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "depth-65",
+    "filename": "case-0691.json",
+    "statuses": [
+      2
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "members-64",
+    "filename": "case-0692.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "members-65",
+    "filename": "case-0693.json",
+    "statuses": [
+      2
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "elements-256",
+    "filename": "case-0694.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "elements-257",
+    "filename": "case-0695.json",
+    "statuses": [
+      2
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "objects-256",
+    "filename": "case-0696.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "objects-257",
+    "filename": "case-0697.json",
+    "statuses": [
+      2
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "string-4096",
+    "filename": "case-0698.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "number-4096",
+    "filename": "case-0699.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "string-4097",
+    "filename": "case-0700.json",
+    "statuses": [
+      2
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "number-4097",
+    "filename": "case-0701.json",
+    "statuses": [
+      2
+    ],
+    "preallocation": true
+  },
+  {
+    "name": "tokens-8192",
+    "filename": "case-0702.json",
+    "statuses": [
+      4
+    ],
+    "preallocation": false
+  },
+  {
+    "name": "tokens-8193",
+    "filename": "case-0703.json",
+    "statuses": [
+      2
+    ],
+    "preallocation": true
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/pkg-config",
+    "--version"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.0028647499857470393
+}

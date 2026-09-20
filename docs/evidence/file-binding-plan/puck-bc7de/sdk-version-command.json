@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/usr/bin/xcrun",
+    "--show-sdk-version"
+  ],
+  "cwd": "/private/tmp/nanolang-file-binding-corrected-bc7de",
+  "environment": {
+    "CC": null,
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "PKG_CONFIG_PATH": null,
+    "NMS_NATIVE_CLANG_FLAGS": null,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_BINDING_CC": null,
+    "NANO_FILE_BINDING_CFLAGS": null,
+    "NANO_FILE_BINDING_SANITIZERS": null
+  }
+}

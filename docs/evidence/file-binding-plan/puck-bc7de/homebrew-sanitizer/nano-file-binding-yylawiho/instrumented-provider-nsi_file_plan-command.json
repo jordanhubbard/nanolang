@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-binding-corrected-bc7de/src",
+    "-I",
+    "/private/tmp/nanolang-file-binding-corrected-bc7de/tests",
+    "-I",
+    "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-sanitizer/nano-file-binding-yylawiho",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-include",
+    "/private/tmp/nanolang-file-binding-corrected-bc7de/tests/file_binding_hooks.h",
+    "-c",
+    "src/nsi_file_plan.c",
+    "-o",
+    "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-sanitizer/nano-file-binding-yylawiho/instrumented-nsi_file_plan.o"
+  ],
+  "cwd": "/private/tmp/nanolang-file-binding-corrected-bc7de",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

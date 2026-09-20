@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-sanitizer/nano-file-binding-yylawiho/nsi-file-plan",
+    "tests/fixtures/nsi_file_plan.json"
+  ],
+  "cwd": "/private/tmp/nanolang-file-binding-corrected-bc7de",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}
