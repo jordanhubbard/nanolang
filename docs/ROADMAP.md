@@ -13832,3 +13832,12 @@ remain required before acceptance.
   canonical runtime requests share one registry row but currently append duplicate
   final command inputs. I append only newly inserted owners, preserving first-seen
   order, and require a canonical runtime alias fixture before accepting task28cf8.
+
+I prepare the companion fixture checkpoint described in
+[NANOISA_FILE_COMPANION_FIXTURES.md](NANOISA_FILE_COMPANION_FIXTURES.md): actual
+input/snapshot/graph allocation and cleanup, complete paired original tuple/plan
+reports, all selected producer shadows, actual CLI holds and ordinary continuity,
+private native provider identity, concurrent standalone builds and actual final
+runtime-alias command observation. Fixtures remain unexecuted pending full review.
+Fresh both-host ABI/bootstrap and the seven scoped C configurations remain required;
+I do not infer full source lowering or service acceptance from this preparation.
