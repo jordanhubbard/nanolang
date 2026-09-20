@@ -40,3 +40,8 @@ bool lifetime_prepare_bundle(Environment *env, Value source, int *out) {
 Value lifetime_stage_argument(Environment *env, ASTNode *expression, const char *name) {
     return eval_staged_argument(expression, env, name, 0);
 }
+
+/* I expose the actual cleanup boundary without duplicating its implementation. */
+void lifetime_scope_release(Environment *env, int first, bool functions) {
+    eval_scope_release(env, first, functions);
+}

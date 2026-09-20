@@ -313,7 +313,8 @@ static void eval_scope_release(Environment *env, int first, bool functions) {
         }
     }
     env->symbol_count = first;
-    env_symbol_index_invalidate(env);
+    /* My index keeps numeric links and hashes, not freed names. Its next sync
+     * pops these slots before lookup or ordinary insertion reuses them. */
 }
 
 static Value eval_preserve_value(Environment *env, Value value) {

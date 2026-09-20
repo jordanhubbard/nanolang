@@ -70,6 +70,7 @@ extern bool lifetime_task_clone(Value, Value *);
 extern void lifetime_task_drop(Value);
 extern bool lifetime_prepare_bundle(Environment *, Value, int *);
 extern Value lifetime_stage_argument(Environment *, ASTNode *, const char *);
+extern void lifetime_scope_release(Environment *, int, bool);
 #define malloc owned_malloc
 #define calloc owned_calloc
 #define realloc owned_realloc
@@ -657,6 +658,50 @@ static void cache_registration_control(const char *path) {
     free_environment(a); free_environment(b); clear_module_cache();
 }
 
+/* I retain the existing numeric-link index across actual evaluator cleanup.
+ * No allocation may hide a full rebuild during pop/lookup; slot insertion still
+ * follows the normal same-file synchronization path. */
+static void evaluator_symbol_pop_controls(void) {
+    Environment *env = create_environment();
+    for (int i = 0; i < 128; ++i) {
+        char name[32]; snprintf(name, sizeof name, "outer_%d", i);
+        env_define_var(env, name, TYPE_INT, true, create_int(i));
+    }
+    int outer = env->symbol_count;
+    for (int mode = 0; mode < 2; ++mode) {
+        env_define_var(env, "outer_0", TYPE_INT, true, create_int(900));
+        int middle = env->symbol_count;
+        env_define_var(env, "temporary", TYPE_INT, true, create_int(901));
+        CHECK(env_get_var(env, "outer_0")->value.as.int_val == 900);
+        CHECK(env_get_var(env, "temporary")->value.as.int_val == 901);
+        uintptr_t identity = (uintptr_t)env->symbol_index;
+        CHECK(identity != 0);
+        begin(SIZE_MAX, false);
+        lifetime_scope_release(env, middle, mode != 0);
+        lifetime_scope_release(env, outer, mode != 0);
+        CHECK((uintptr_t)env->symbol_index == identity);
+        CHECK(!env_get_var(env, "temporary"));
+        CHECK(env_get_var(env, "outer_0")->value.as.int_val == 0);
+        CHECK(attempts == 0 && failures == 0 && live == 0);
+        end();
+        env_define_var(env, "replacement", TYPE_INT, true, create_int(902));
+        CHECK(env_get_var(env, "replacement")->value.as.int_val == 902);
+        CHECK(env_get_var(env, "outer_127")->value.as.int_val == 127);
+        lifetime_scope_release(env, outer, mode != 0);
+        /* I also insert immediately after pop, without an intervening lookup. */
+        env_define_var(env, "outer_0", TYPE_INT, true, create_int(903));
+        CHECK(!env_get_var(env, "replacement"));
+        CHECK(env_get_var(env, "outer_0")->value.as.int_val == 903);
+        lifetime_scope_release(env, outer, mode != 0);
+        CHECK(env_get_var(env, "outer_0")->value.as.int_val == 0);
+    }
+    lifetime_scope_release(env, 0, true);
+    CHECK(!env_get_var(env, "outer_0"));
+    env_define_var(env, "after_reset", TYPE_INT, false, create_int(904));
+    CHECK(env_get_var(env, "after_reset")->value.as.int_val == 904);
+    free_environment(env);
+}
+
 int main(int argc, char **argv) {
     if (argc == 4 && !strcmp(argv[1], "cache-init")) {
         cache_init_control(!strcmp(argv[2], "all") ? SIZE_MAX : (size_t)strtoul(argv[2], NULL, 10), atoi(argv[3]) != 0);
@@ -666,7 +711,7 @@ int main(int argc, char **argv) {
         cache_registration_control(argv[2]); return 0;
     }
     CHECK(argc == 1);
-    graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
+    evaluator_symbol_pop_controls(); graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
     CHECK(live == 0 && !observing);
     printf("I passed %zu checked ownership assertions.\n", checks);
     return 0;
