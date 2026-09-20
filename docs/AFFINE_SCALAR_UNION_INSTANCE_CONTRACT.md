@@ -54,6 +54,57 @@ The new table is bounded, canonical and consumed through one checked query.
 Malformed counts, offsets, names, duplicate layouts, missing concrete layouts
 and trailing bytes all refuse without partially publishing facts.
 
+## I share one version 3 extension envelope
+
+Version 3 is not a union-specific grammar. It is the single shared ownership
+extension envelope used by union-variant facts and ordinary record array-element
+authority. I retain the version-1 layout flag and function descriptor prefix
+byte for byte. The remaining version-3 bytes are:
+
+```text
+path_bytes: u32
+paths[path_bytes]
+extension_count: u32
+repeat extension_count times, in strictly increasing kind order:
+    kind: u16
+    revision: u16
+    payload_bytes: u32
+    payload[payload_bytes]
+    zero padding to four-byte alignment
+```
+
+`paths` contains the complete existing version-2 path suffix: its `path_count`
+and all path rows with their existing row alignment. Even no paths therefore
+uses four bytes containing a zero count. `path_bytes` is at least four, is a
+multiple of four and bounds a subcursor whose exact end is checked. Version 2
+does not gain `path_bytes` or extensions: its path suffix still starts directly
+after the function descriptors and must consume the whole ownership payload.
+Version 1 still ends after its function descriptors.
+
+Extension kind 1 is `UNION_VARIANTS`, revision 1. Its payload is the exact
+union table already required here: `union_count:u32`, then one row per retained
+union in increasing layout-index order. A row is `layout:u32`,
+`variant_count:u16`, zero `reserved:u16`, followed by source-order variant rows
+of `name_idx:u32`, `field_offset:u16`, `field_count:u16`. The payload must end
+exactly after the last row and must cover every retained union layout once.
+Within a validated module, `(module artifact identity, layout index)` is the
+runtime nominal identity. The producer's resolved declaration/module/type-arg
+key decides that layout index; the retained name remains advisory.
+
+Extension kind 2 is `ARRAY_FIELDS`, revision 1, owned by the ordinary
+record-array authority contract. It carries that contract's counted eight-byte
+type rows and twelve-byte layout/field bindings. Both extensions may coexist.
+The common validator validates the complete path suffix, every extension and
+all cross-references before any feature-specific query returns facts. Kinds are
+unique and mandatory-understanding: an unknown kind or revision refuses rather
+than being skipped. A version-3 producer emits at least one extension and uses
+the lowest version that represents its facts.
+
+My current `NVM_OWNERSHIP_UNION_VERSION` name and direct path-plus-union suffix
+are provisional PR893 implementation, not an accepted wire contract. I replace
+them with the shared envelope before production qualification. I do not publish
+two version-3 grammars or claim compatibility with draft-only version-3 bytes.
+
 ## I prove the selected variant before projection
 
 A constructor must agree on concrete layout, variant membership, exact arity
