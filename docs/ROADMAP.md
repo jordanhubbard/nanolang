@@ -12827,3 +12827,7 @@ merges automatically. Both original manifests (444 reports total) remain byte
 exact. This static integration adds no gate rerun or broader acceptance claim.
 The final audit/identity records are in `evidence/file-cyclic-carrier-final`;
 actual merge and bounded repair reconciliation remain pending, full15a92 open.
+
+### Generic union call match identity (2026-09-20)
+
+- [ ] I repair the shared C checker call-scrutinee metadata loss observed in PR 906/907/908 arm64 CI without weakening exact union identity or coverage (`task_a1d38d93616f4c48a3b8692b30226a82`; [contract](MATCH_CALL_UNION_IDENTITY.md)). I retain the three first terminals, review source/fixtures before execution, and qualify direct Result/Option statement/value matches plus unchanged user-guide and match-policy controls on fresh providers.
