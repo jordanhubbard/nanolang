@@ -230,6 +230,18 @@ gate as complete. My user assigned all remaining work to v5.1.0 on
 publication until these gates pass; the native map
 lifetime repair alone does not satisfy this scope. Phase 22 / 6.0 remains separate.
 
+My user reaffirmed this complete `v5.1.0` scope on 2026-09-19. I execute the
+existing acceptance rows below; I do not create a second release checklist or
+count the version rename as completion. My current publication hold is draft
+PR #522, superseding the historical PR #362 reference in my parent task.
+The [shared coordination record](https://github.com/jordanhubbard/nanolang/pull/522#issuecomment-5746266533)
+names the active array-overwrite and File call-frame qualification tasks.
+Those bounded gates precede broader ownership and File execution acceptance.
+My full compiler-source lowering, standalone native compiler, current-source
+bytecode fixed point, Phase 20 translators and equivalence, service/platform
+audits, and final release gates all remain in this release contract until
+their individual acceptance evidence closes them.
+
 ## Active Execution Queue
 
 - [x] I retain exact undeclared string builtin results for concat, trim and prefix/suffix predicates, and lower `str_trim` through VM and native C with my existing four-byte whitespace policy (`task_602f10d8e2b348eab8b7e230e12986fa`). My first integrated audio gate exposed missing direct-return builtin classification; I include that path before completion. I preserve declared function identity and test nested expressions, empty/all-space text, UTF-8 bytes, scalar refusal and current string-edge examples before full product reruns.
