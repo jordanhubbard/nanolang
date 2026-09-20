@@ -117,6 +117,26 @@ static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file)
     return NULL;
 }
 
+/* I retain checker allocations independently of mutable symbol/function slots.
+ * Every registered block is unique and shallowly freed; borrowed subgraphs are
+ * never traversed. This deliberately does not change runtime value ownership. */
+struct EnvCheckerAllocation {
+    void *allocation;
+    struct EnvCheckerAllocation *next;
+};
+void *env_own_checker_allocation(Environment *env, void *allocation) {
+    if (!allocation) return NULL;
+    struct EnvCheckerAllocation *entry = malloc(sizeof *entry);
+    if (!entry) {
+        fprintf(stderr, "I could not allocate checker ownership metadata\n");
+        exit(1);
+    }
+    entry->allocation = allocation;
+    entry->next = env->checker_allocations;
+    env->checker_allocations = entry;
+    return allocation;
+}
+
 /* Create environment */
 Environment *create_environment(void) {
     /* calloc, not malloc: every field below is set explicitly, but zeroing
@@ -403,6 +423,12 @@ void free_environment(Environment *env) {
         free(env->modules);
     }
 
+    while (env->checker_allocations) {
+        struct EnvCheckerAllocation *entry = env->checker_allocations;
+        env->checker_allocations = entry->next;
+        free(entry->allocation);
+        free(entry);
+    }
     free(env);
 }
 

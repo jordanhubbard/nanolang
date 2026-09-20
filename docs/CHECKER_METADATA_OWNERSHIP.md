@@ -48,3 +48,20 @@ pointer. Existing interpreter value and source admission semantics stay intact.
 5. I seal and publish through review. The child and parent remain open until
    actual qualified merge and explicit criterion reconciliation. This does not
    claim all compiler allocations, runtime arrays or callback ABI are repaired.
+
+## My source checkpoint
+
+I add one opaque list pointer to Environment and one explicit transfer helper.
+Every entry holds one malloc-compatible allocation and its next pointer; entries
+are freed after existing symbol, nominal, namespace and module cleanup. No entry
+consults AST or mutable symbol metadata during destruction. Callers register only
+fresh allocations and never register a block twice. NULL follows existing
+allocation behavior; allocation-failure recovery is not added.
+
+I preserve the array placeholder header/data and callback wrapper bytes. Both
+checker paths register exactly the fields described above; builtin registration,
+interpreter value destruction, Function ABI and metadata serialization do not
+change. The focused target includes the original parsed lifecycle function
+verbatim, then eight checker-path/destruction-order/slot-replacement combinations
+and stack-owned borrowed signatures plus a caller-owned runtime array control.
+The parsed body checks array element inference through at. No gates have run.

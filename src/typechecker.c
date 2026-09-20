@@ -7739,7 +7739,7 @@ register_function_pass1:;
             
             Function func = (Function){0};
             func.source_file = env_current_file(env);
-            func.name = strdup(func_name);  /* Create copy to avoid const qualifier warning */
+            func.name = env_own_checker_allocation(env, strdup(func_name));  /* Create copy to avoid const qualifier warning */
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
             func.return_type = return_type;
@@ -7773,7 +7773,7 @@ register_function_pass1:;
                         }
                     }
                     if (valid) {
-                        func.module_name = strdup(module_name_from_ast);
+                        func.module_name = env_own_checker_allocation(env, strdup(module_name_from_ast));
                     }
                     break;
                 }
@@ -7789,7 +7789,7 @@ register_function_pass1:;
                     }
                 }
                 if (valid_module_name) {
-                    func.module_name = strdup(env->current_module);
+                    func.module_name = env_own_checker_allocation(env, strdup(env->current_module));
                 }
             }
 
@@ -8041,7 +8041,7 @@ register_function_pass1:;
                 }
                 /* For function parameters, create TypeInfo with signature */
                 else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
-                    TypeInfo *type_info = malloc(sizeof(TypeInfo));
+                    TypeInfo *type_info = env_own_checker_allocation(env, malloc(sizeof(TypeInfo)));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
                     type_info->fn_sig = item->as.function.params[j].fn_sig;
@@ -8522,23 +8522,23 @@ register_function_pass2:;
             /* Register function signature */
             Function f = (Function){0};
             f.source_file = env_current_file(env);
-            f.name = strdup(func_name);
+            f.name = env_own_checker_allocation(env, strdup(func_name));
             f.param_count = item->as.function.param_count;
-            f.params = malloc(sizeof(Parameter) * f.param_count);
+            f.params = env_own_checker_allocation(env, malloc(sizeof(Parameter) * f.param_count));
             for (int j = 0; j < f.param_count; j++) {
                 /* I preserve borrowed generic/tuple metadata before copying owned names. */
                 f.params[j] = item->as.function.params[j];
-                f.params[j].name = strdup(item->as.function.params[j].name);
+                f.params[j].name = env_own_checker_allocation(env, strdup(item->as.function.params[j].name));
                 f.params[j].type = item->as.function.params[j].type;
                 f.params[j].struct_type_name = item->as.function.params[j].struct_type_name ? 
-                    strdup(item->as.function.params[j].struct_type_name) : NULL;
+                    env_own_checker_allocation(env, strdup(item->as.function.params[j].struct_type_name)) : NULL;
                 f.params[j].element_type = item->as.function.params[j].element_type;
                 f.params[j].fn_sig = item->as.function.params[j].fn_sig;
             }
             f.return_type = item->as.function.return_type;
             f.return_element_type = item->as.function.return_element_type;
             f.return_struct_type_name = item->as.function.return_struct_type_name ? 
-                strdup(item->as.function.return_struct_type_name) : NULL;
+                env_own_checker_allocation(env, strdup(item->as.function.return_struct_type_name)) : NULL;
             f.return_fn_sig = item->as.function.return_fn_sig;
             f.return_type_info = item->as.function.return_type_info;
             f.body = item->as.function.body;
@@ -8546,7 +8546,7 @@ register_function_pass2:;
             f.is_extern = item->as.function.is_extern;
             f.is_pub = item->as.function.is_pub;  /* Store visibility */
             f.is_pure = item->as.function.is_pure;  /* Propagate purity annotation */
-            f.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            f.module_name = env->current_module ? env_own_checker_allocation(env, strdup(env->current_module)) : NULL;
 
             env_define_function(env, f);
             register_native_union_context(env, f.return_type_info, 0);
@@ -8792,6 +8792,8 @@ register_function_pass2:;
                 else if (param_type == TYPE_STRING) val = create_string("");
                 else if (param_type == TYPE_ARRAY) {
                     val = create_array((ValueType)element_type, 0, 0);
+                    env_own_checker_allocation(env, val.as.array_val);
+                    env_own_checker_allocation(env, val.as.array_val->data);
                 } else if (param_type == TYPE_STRUCT) {
                     val = create_struct(item->as.function.params[j].struct_type_name, NULL, NULL, 0);
                 } else if (param_type == TYPE_UNION) {
@@ -8806,7 +8808,7 @@ register_function_pass2:;
                 }
                 /* For function parameters, create TypeInfo with signature */
                 else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
-                    TypeInfo *type_info = malloc(sizeof(TypeInfo));
+                    TypeInfo *type_info = env_own_checker_allocation(env, malloc(sizeof(TypeInfo)));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
                     type_info->fn_sig = item->as.function.params[j].fn_sig;
