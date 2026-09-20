@@ -1,0 +1,227 @@
+{
+  "28e": {
+    "root": "/tmp/nanolang-token-qualified-28e",
+    "report": "/tmp/nanolang-token-28e-puck",
+    "phase": "apple-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-28e-puck/apple-ordinary-source-after.json",
+        "report_sha256": "0bd12cd35fa5565a7aaba5195af6135bc36e28bf01fd569ac755f90e6f42774d",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-28e-puck/apple-ordinary-tools-after.json",
+        "report_sha256": "2fb43efaf044926512d92be849c802e0be92e6d4c81b78bf6f4ce9a1e4ec2581",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-28e-puck/apple-ordinary-products-after.json",
+        "report_sha256": "ad9f1bed267fbfa03285d176349894f17edc23e246f87462b3a079a6244e9184",
+        "count": 558,
+        "mismatches": []
+      }
+    }
+  },
+  "7bf": {
+    "root": "/tmp/nanolang-token-corrected-7bf",
+    "report": "/tmp/nanolang-token-7bf-puck",
+    "phase": "apple-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-7bf-puck/apple-ordinary-source-after.json",
+        "report_sha256": "240ad332881e064a946e3a99660ddb6c3a2b369419442d63eca3da071f42b17e",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-7bf-puck/apple-ordinary-tools-after.json",
+        "report_sha256": "2fb43efaf044926512d92be849c802e0be92e6d4c81b78bf6f4ce9a1e4ec2581",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-7bf-puck/apple-ordinary-products-after.json",
+        "report_sha256": "ba4b6539d05d9ac7aa791fafe5ddb9f7147effe609be15b918b560ab5a8e9eb3",
+        "count": 305,
+        "mismatches": []
+      }
+    }
+  },
+  "083": {
+    "root": "/tmp/nanolang-token-corrected-083",
+    "report": "/tmp/nanolang-token-083-puck",
+    "phase": "apple-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-083-puck/apple-ordinary-source-after.json",
+        "report_sha256": "c900abd07a4f903b4be6d2dd0905251eef3f157ba96d80792ce319c41a8aa8cb",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-083-puck/apple-ordinary-tools-after.json",
+        "report_sha256": "2fb43efaf044926512d92be849c802e0be92e6d4c81b78bf6f4ce9a1e4ec2581",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-083-puck/apple-ordinary-products-after.json",
+        "report_sha256": "1f66192423aa4155785b2304700331be8e0269b3f01d06114f1a3a1b155c7a1e",
+        "count": 323,
+        "mismatches": []
+      }
+    }
+  },
+  "ece": {
+    "root": "/tmp/nanolang-token-corrected-ece",
+    "report": "/tmp/nanolang-token-ece-puck",
+    "phase": "apple-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-ece-puck/apple-ordinary-source-after.json",
+        "report_sha256": "5bc222b9df0730d1694b475d738c955dce56097cc302f73b5fdc55efa8016ada",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-ece-puck/apple-ordinary-tools-after.json",
+        "report_sha256": "2fb43efaf044926512d92be849c802e0be92e6d4c81b78bf6f4ce9a1e4ec2581",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-ece-puck/apple-ordinary-products-after.json",
+        "report_sha256": "91f9132448db758712079d2d12e3bd152f6f23b5d745382a0f36c699de7019dc",
+        "count": 323,
+        "mismatches": []
+      }
+    }
+  },
+  "1bb": {
+    "root": "/tmp/nanolang-token-corrected-1bb",
+    "report": "/tmp/nanolang-token-1bb-puck",
+    "phase": "apple-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-1bb-puck/apple-ordinary-source-after.json",
+        "report_sha256": "afe0af0ac9ff64bad099855f6d61ef55c8a03aefcba44d960d48d77afffcb3cf",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-1bb-puck/apple-ordinary-tools-after.json",
+        "report_sha256": "2fb43efaf044926512d92be849c802e0be92e6d4c81b78bf6f4ce9a1e4ec2581",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-1bb-puck/apple-ordinary-products-after.json",
+        "report_sha256": "d7cfe46bca293fa9c740d8e70e3090eb08516bd3af3e0ad88e4bd3f2344649f9",
+        "count": 323,
+        "mismatches": []
+      }
+    }
+  },
+  "d285": {
+    "root": "/tmp/nanolang-token-corrected-d285",
+    "report": "/tmp/nanolang-token-d285-puck",
+    "phase": "apple-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-d285-puck/apple-ordinary-source-after.json",
+        "report_sha256": "cccd8d19ece92cbb9ad8412e004cc3e27db6a8e68220cab706f6741bf2350a03",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-d285-puck/apple-ordinary-tools-after.json",
+        "report_sha256": "2fb43efaf044926512d92be849c802e0be92e6d4c81b78bf6f4ce9a1e4ec2581",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-d285-puck/apple-ordinary-products-after.json",
+        "report_sha256": "80488d6e1f3394eeeda716ff21e57cd410c4790232ad72e5a1a11334f52262b5",
+        "count": 323,
+        "mismatches": []
+      }
+    }
+  },
+  "303": {
+    "root": "/tmp/nanolang-token-corrected-303",
+    "report": "/tmp/nanolang-token-303-puck",
+    "phase": "apple-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-303-puck/apple-ordinary-source-after.json",
+        "report_sha256": "8a100e87abbc6f3c7315a566c8ef94759ed86857a177bdf6979ab109024488e4",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-303-puck/apple-ordinary-tools-after.json",
+        "report_sha256": "2fb43efaf044926512d92be849c802e0be92e6d4c81b78bf6f4ce9a1e4ec2581",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-303-puck/apple-ordinary-products-after.json",
+        "report_sha256": "54a544059f8929b539a41193a84d8fb7643c12c609e8abd7159c095b73f05272",
+        "count": 326,
+        "mismatches": []
+      }
+    }
+  },
+  "ae62": {
+    "root": "/tmp/nanolang-token-corrected-ae62",
+    "report": "/tmp/nanolang-token-ae62-puck",
+    "phase": "apple-ordinary",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-ae62-puck/apple-ordinary-source-after.json",
+        "report_sha256": "ed61c322be16c2209e7e0bb4e21a92fba6bb8f071dcb6e56afdb7bfb3c2b8009",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-ae62-puck/apple-ordinary-tools-after.json",
+        "report_sha256": "2fb43efaf044926512d92be849c802e0be92e6d4c81b78bf6f4ce9a1e4ec2581",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-ae62-puck/apple-ordinary-products-after.json",
+        "report_sha256": "8c6d3e7eda64688e780790a31b36b85e2621fd78eca58b66c9217c2ff504a68f",
+        "count": 326,
+        "mismatches": []
+      }
+    }
+  },
+  "315": {
+    "root": "/tmp/nanolang-token-corrected-315",
+    "report": "/tmp/nanolang-token-315-puck",
+    "phase": "ordinary-adjacency",
+    "maps": {
+      "source": {
+        "report": "/tmp/nanolang-token-315-puck/ordinary-adjacency-source-after.json",
+        "report_sha256": "3fd19a8cfdb85d4d916474cdbfe1900230a955601e26fdb0d855a56ddf7190ca",
+        "count": 18170,
+        "mismatches": []
+      },
+      "tools": {
+        "report": "/tmp/nanolang-token-315-puck/ordinary-adjacency-tools-after.json",
+        "report_sha256": "2fb43efaf044926512d92be849c802e0be92e6d4c81b78bf6f4ce9a1e4ec2581",
+        "count": 12,
+        "mismatches": []
+      },
+      "products": {
+        "report": "/tmp/nanolang-token-315-puck/ordinary-adjacency-products-after.json",
+        "report_sha256": "53a2738b8377a0e2c3274885906ca43e1837ce3b1f2cea0ad9c8af1e85f9e2d8",
+        "count": 620,
+        "mismatches": []
+      }
+    }
+  }
+}

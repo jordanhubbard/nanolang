@@ -1,0 +1,7 @@
+{
+  "stage": "copy-proof before products or fixtures",
+  "returncode": 1,
+  "assertion": "lexer_bridge absent from entire Makefile",
+  "finding": "separate HYBRID_OBJECTS declaration contains bridge; actual compiled obj/dependencies exclude it",
+  "product_pin_unchanged": "7bf8e208a"
+}

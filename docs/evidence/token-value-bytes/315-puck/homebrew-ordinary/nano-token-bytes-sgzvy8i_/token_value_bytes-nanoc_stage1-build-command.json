@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-token-corrected-315/bin/nanoc_stage1",
+    "/private/tmp/nanolang-token-corrected-315/tests/token_value_bytes.nano",
+    "-o",
+    "/private/tmp/nanolang-token-315-puck/homebrew-ordinary/nano-token-bytes-sgzvy8i_/token_value_bytes-nanoc_stage1",
+    "--keep-c"
+  ],
+  "cwd": "/private/tmp/nanolang-token-corrected-315",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

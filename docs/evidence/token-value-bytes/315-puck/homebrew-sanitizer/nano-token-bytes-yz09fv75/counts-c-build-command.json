@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-token-corrected-315/src",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "/private/tmp/nanolang-token-corrected-315/tests/test_token_value_bytes.c",
+    "/private/tmp/nanolang-token-315-puck/homebrew-sanitizer/nano-token-bytes-yz09fv75/lexer.o",
+    "/private/tmp/nanolang-token-315-puck/homebrew-sanitizer/nano-token-bytes-yz09fv75/utf8.o",
+    "/private/tmp/nanolang-token-315-puck/homebrew-sanitizer/nano-token-bytes-yz09fv75/runtime-list_LexerToken.o",
+    "/private/tmp/nanolang-token-315-puck/homebrew-sanitizer/nano-token-bytes-yz09fv75/runtime-list_token.o",
+    "/private/tmp/nanolang-token-315-puck/homebrew-sanitizer/nano-token-bytes-yz09fv75/runtime-token_helpers.o",
+    "-o",
+    "/private/tmp/nanolang-token-315-puck/homebrew-sanitizer/nano-token-bytes-yz09fv75/counts-c"
+  ],
+  "cwd": "/private/tmp/nanolang-token-corrected-315",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}
