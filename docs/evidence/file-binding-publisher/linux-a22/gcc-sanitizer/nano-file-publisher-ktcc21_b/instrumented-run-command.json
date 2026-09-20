@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/fixture-instrumented",
+    "tests/fixtures/nsi_file_plan.json",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/api-instrumented"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-publisher-qualified-a22",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

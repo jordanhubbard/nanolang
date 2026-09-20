@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-publisher-corrected-4e828/src",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "tests/test_nsi_file_publish.c",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/nsi_file_binding.o",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/nsi_file_plan.o",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/nsi.o",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/cJSON.o",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/utf8.o",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/nsi_file_publish.o",
+    "-o",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/fixture-linked"
+  ],
+  "cwd": "/private/tmp/nanolang-file-publisher-corrected-4e828",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -12828,6 +12828,56 @@ exact. This static integration adds no gate rerun or broader acceptance claim.
 The final audit/identity records are in `evidence/file-cyclic-carrier-final`;
 actual merge and bounded repair reconciliation remain pending, full15a92 open.
 
+## I stage exclusive File binding publication after strict rendering
+
+I continue existing task8bbc and its original File/source parents; I create no
+duplicate decoder or competing source task. PR905 seal/integration remains under
+independent review. My next [publisher contract](NANOISA_FILE_BINDING_PUBLISHER.md)
+is design only, based on92726 with no publication code or execution.
+
+- [ ] I review the anchored publisher/explicit CLI API, fixed storage and exact status/commit/durability/cleanup semantics before production, including unidentified partial creation and no close retry.
+- [ ] I implement only reviewed publisher/CLI providers and explicit Make target, reusing the immutable strict plan; then review complete production and fixtures before filesystem qualification.
+- [ ] I qualify real Linux/puck exclusive directory publication, every attempted operation/fault/cleanup state, concurrent winners, unchanged sentinels and postcommit reports; retain first terminals and immutable source/tool/artifact evidence.
+- [ ] I continue paired parser/schema/lowering, generated module imports and all selected shadows/installed grants/startup and broader control-flow acceptance; successful file publication never substitutes for source execution.
+
+I retain PR905 actual merge `af8809b32850454d06d9c1881c3a27b43f4c9d9c`;
+remote main ancestry includes reviewed92726. Root independently verified905 Git
+reports,923 artifact objects,6,100 references,22 equal pairs and all three current
+13,523-source/12-tool maps ([review5748322420](https://github.com/jordanhubbard/nanolang/pull/905#issuecomment-5748322420)).
+Only strict ingestion/pure forward text is delivered. Task8bbc and full source/
+publication parents remain open; publisher183db is still a precode review.
+
+I prepare the approved183db publisher source checkpoint after actual905. My
+standalone owning transaction uses descriptor-relative creation, explicit
+exclusive rename and exact unknown-identity retention; CLI reads one bounded
+regular-file buffer and emits JSON byte-codepoint diagnostics. Strict binding
+providers and default/installed lists remain unchanged. The contract now records
+all owning descriptors/buffers and cleanup transitions. Source review precedes
+new fixtures and no publisher/CLI operation has been executed.
+
+- [ ] I correct the static8b495 publisher Make contract mismatch before fixtures: its link recipe forwards CPPFLAGS, but reused generic object compilation does not. I give this explicit tool a scoped object directory and compile recipe preserving CC/CPPFLAGS/CFLAGS, without changing default provider rules or reusing differently configured objects.
+- [ ] I reconcile the publisher EINTR wording before fixtures: current comparisons permit64 retries and make the65th interruption terminal; the contract incorrectly says64 total interruptions. I retain that bounded implementation and pin64-retry/65th-failure controls for read/write/fsync, with close never retried. No execution failure is inferred from this static finding.
+
+- [ ] I complete the statically reviewed publisher Make dependency closure: `nsi_file_plan.c` also includes `nsi_file_catalog.h` and `nsi_cap.h`, which6e39 omitted from the scoped header list. I add both before fixtures; no measured stale build or runtime failure is claimed.
+
+I prepare the publisher fixture checkpoint after reviewed74eb dependency closure:
+linked and full real-operation instrumented API/CLI controls, every baseline
+operation failure, secondary cleanup and postcommit status, exact retry/collision
+bounds, real no-replacement sentinels/concurrent processes and unchanged strict
+neighbors. Actual scoped Make compiles must prove CPPFLAGS forwarding. No build,
+publication operation or generated source has run; full fixture review is next.
+
+- [ ] I correct the measured a22 puck actual-Make first terminal before fresh gates: `getentropy` lacks its Darwin declaration. The selected Xcode SDK declares it in `sys/random.h:38`, not unistd.h/stdlib.h. I add the Apple-specific header to publisher and fixture prelude; no entropy/retry behavior changes. I preserve original Linux passes and the failed puck source/tool/compiler evidence.
+
+- [ ] I reconcile the measured5fff puck raw-filename fixture assumption before fresh gates: actual Make succeeds and CLI reaches rename, which reports IO/EILSEQ(92) for invalid UTF-8 bytes, published=false with clean rollback and exact JSON byte escaping. The fixture incorrectly requires universal successful publication for every non-NUL byte sequence. I retain that first terminal; propose an independent same-filesystem name-support probe and separate universally valid quoted-name positive, with exact raw-byte success/refusal and cleanup assertions. No publisher behavior change or filesystem support claim follows without review.
+
+I retain [the explicit publisher qualification](evidence/file-binding-publisher.md):
+seven Linux/puck ordinary/sanitizer configurations pass real Make/API/CLI/fault/
+concurrency controls and unchanged strict neighbors. Both puck first terminals
+remain immutable; Apple-header and exact-filesystem-probe corrections have their
+own reviewed pins. My1,944-report seal records24 equal input pairs and1,298
+artifact objects. Independent review/merge remain pending; generated source,
+installed compiler routing and the full File/source parents remain open.
 I record actual PR902 merge `9c90a55e1a08c79878b5219ca34b0c14a883401f`
 after independent original/supplemental seals and additive901 integration review.
 The earlier pending-merge statements are historical. Repairs1a19/c4c58 are
@@ -13033,3 +13083,12 @@ full b7ef/2d2 admission/emission/installed/compiler obligations remain open.
 - [ ] I preserve the907 restack puck pre-build terminal: SSH-selected Python rejects tarfile.extractall(filter=data) before source extraction or compilation. I explicitly select installed Homebrew Python in a fresh destination and inventory the actual driver; no runtime/fixture assertion or historical tool claim changes.
 
 I retain the907 canonical restack at3df299892 after actual906/ca0c9f6a8: fresh providers and ordinary linked cyclic VM/native O0/O2 pass on Linux/puck, all33 traces match at each optimization over23 exact modules. My [supplement](evidence/file-cyclic-dispatch-restack-910/README.md) preserves the pre-build Python terminal,93 reports,834 artifacts and8 equal pairs; original sanitizer matrices retain their pins. Root review/actual merge remain pending, full parents open.
+
+I retain PR908 publisher acceptance across actual PR907 main
+`6dd5d7a2bde2234dfeb3c21633f5426c7a83bae2`, including PR906/910.
+[My static closure comparison](evidence/file-binding-publisher-restack-910.md)
+checks44 selected inputs and all1,946 original evidence blobs unchanged; incoming
+25 source/fixture paths match canonical main. The isolated seven-provider Make
+closure excludes the changed typechecker and cyclic/Wasm providers, so I do not
+repeat unchanged gates. Both additive histories remain. Actual publisher merge
+and all broader source/publication parent acceptance remain pending.

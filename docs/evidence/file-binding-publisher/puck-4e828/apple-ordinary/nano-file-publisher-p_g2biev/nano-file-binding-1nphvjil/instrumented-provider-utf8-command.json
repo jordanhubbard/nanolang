@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-publisher-corrected-4e828/src",
+    "-I",
+    "/private/tmp/nanolang-file-publisher-corrected-4e828/tests",
+    "-I",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/apple-ordinary/nano-file-publisher-p_g2biev/nano-file-binding-1nphvjil",
+    "-include",
+    "/private/tmp/nanolang-file-publisher-corrected-4e828/tests/file_binding_hooks.h",
+    "-c",
+    "src/utf8.c",
+    "-o",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/apple-ordinary/nano-file-publisher-p_g2biev/nano-file-binding-1nphvjil/instrumented-utf8.o"
+  ],
+  "cwd": "/private/tmp/nanolang-file-publisher-corrected-4e828",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

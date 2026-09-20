@@ -5647,6 +5647,25 @@ test-file-binding-plan-sanitizers:
 # I compose target and ownership facts only through a separate private entry.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DIR)/file_indirect_flow.inc
 
+# I publish only through this explicit tool; default/install lists stay separate.
+FILE_BINDING_PUBLISH_DIR = $(OBJ_DIR)/file-binding-publisher
+FILE_BINDING_PUBLISH_NAMES = nsi_file_binding_main nsi_file_publish nsi_file_binding nsi_file_plan nsi cJSON utf8
+FILE_BINDING_PUBLISH_OBJECTS = $(addprefix $(FILE_BINDING_PUBLISH_DIR)/,$(addsuffix .o,$(FILE_BINDING_PUBLISH_NAMES)))
+FILE_BINDING_PUBLISH_HEADERS = $(addprefix $(SRC_DIR)/,nsi_file_publish.h nsi_file_binding.h nsi_file_plan.h nsi_file_catalog.h nsi_cap.h nsi_internal.h nsi.h cJSON.h utf8.h)
+.PHONY: nsi-file-binding
+nsi-file-binding: $(BIN_DIR)/nsi-file-binding
+$(BIN_DIR)/nsi-file-binding: $(FILE_BINDING_PUBLISH_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+$(FILE_BINDING_PUBLISH_DIR):
+	mkdir -p "$@"
+$(FILE_BINDING_PUBLISH_DIR)/%.o: $(SRC_DIR)/%.c $(FILE_BINDING_PUBLISH_HEADERS) | $(FILE_BINDING_PUBLISH_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c "$<" -o "$@"
+
+.PHONY: test-file-binding-publisher test-file-binding-publisher-sanitizers
+test-file-binding-publisher:
+	NANO_FILE_PUBLISH_CC="$(CC)" NANO_FILE_PUBLISH_CFLAGS="$(CFLAGS)" NANO_FILE_PUBLISH_LDFLAGS="$(LDFLAGS)" NANO_FILE_PUBLISH_SANITIZERS=0 python3 -m unittest -f -v tests.test_nsi_file_publish
+test-file-binding-publisher-sanitizers:
+	NANO_FILE_PUBLISH_CC="$(CC)" NANO_FILE_PUBLISH_CFLAGS="$(CFLAGS)" NANO_FILE_PUBLISH_LDFLAGS="$(LDFLAGS)" NANO_FILE_PUBLISH_SANITIZERS=1 python3 -m unittest -f -v tests.test_nsi_file_publish
 # I require explicit real-engine/compiler/wheel selections for this private ABI.
 .PHONY: test-portable-read-wasm
 test-portable-read-wasm:

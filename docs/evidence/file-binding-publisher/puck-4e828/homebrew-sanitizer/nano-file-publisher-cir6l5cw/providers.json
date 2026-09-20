@@ -1,0 +1,34 @@
+{
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/nsi_file_binding.o": {
+    "sha256": "3f2c42b359dcc88624fc15b27be59e6c834527fec2862ae66192e7ff972cf1fc",
+    "bytes": 168144
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/nsi_file_plan.o": {
+    "sha256": "a695581ac28de8b13714c83f07d0aae99b4002206fbc34d44cc6c0fdcb738cc5",
+    "bytes": 80072
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/nsi.o": {
+    "sha256": "6a84753ad2daabc8b576fdb284bcbaf881ad219d5165599969fe06620760f229",
+    "bytes": 266312
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/cJSON.o": {
+    "sha256": "189795c67633039beaae7851925826d2e4a1be7f9fa8cc764c0af6a137d68d98",
+    "bytes": 307832
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/utf8.o": {
+    "sha256": "ac112d9608ee73bdf922fc53dab7aa7f7c0cb922eaa1ab3e2a12320dbd824f90",
+    "bytes": 28896
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/nsi_file_publish.o": {
+    "sha256": "4704485731613318785a142d25e939919b3f531b233e7f40c79d05231af51875",
+    "bytes": 60000
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-obj/file-binding-publisher/nsi_file_binding_main.o": {
+    "sha256": "b049ad76332995c6ad0ea4f9b515ec808e935d12be0016ad3d4d81f31c262cc9",
+    "bytes": 31024
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-sanitizer/nano-file-publisher-cir6l5cw/make-bin/nsi-file-binding": {
+    "sha256": "ed67ab7992dc9859f99b1caa53c28077d84212519d847b979e1a90de089fd314",
+    "bytes": 452736
+  }
+}
