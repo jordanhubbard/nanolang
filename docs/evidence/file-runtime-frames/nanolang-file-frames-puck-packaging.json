@@ -1,0 +1,15 @@
+{
+  "artifact_entries": 3722,
+  "unique_artifacts": 511,
+  "bytes": 240133373,
+  "archives": {
+    "nanolang-file-frames-puck-artifacts.tar.gz": {
+      "bytes": 45041061,
+      "sha256": "4fbe874e5453951d26b250d1b9fe9c5edfd0399f58d5325cb16bef4ffdcd2c83"
+    },
+    "nanolang-file-frames-puck-reports.tar.gz": {
+      "bytes": 7257694,
+      "sha256": "0a79cfbcd557ca237757717d68979dfefc7e4a44dce14af3dbfb37fa3518f00f"
+    }
+  }
+}
