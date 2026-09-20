@@ -26,7 +26,7 @@ def corpus(root, work):
     add('same-module-twice',{'main.nano':'import "./dep.nano" as A\nimport "./dep.nano" as B\n','dep.nano':DECL},required=('A','B','temp'))
     add('different-module-same-catalog',{'main.nano':'import "./a.nano" as A\nimport "./b.nano" as B\n','a.nano':DECL,'b.nano':DECL},required=('A','B'))
     add('collision',{'main.nano':DECL+'fn temp() -> int { return 0 }\n'},2)
-    add('cycle',{'main.nano':DECL+'import "./dep.nano"\n','dep.nano':'import "./main.nano"\n'},5)
+    add('cycle',{'main.nano':DECL+'import "./dep.nano"\n','dep.nano':'import "./main.nano"\n'},2)
     add('metadata-unresolved',{'main.nano':DECL,'module.json':'{"name":"unknown","headers":["unknown.h"]}\n'},5)
     add('nul',{'main.nano':DECL.encode()+b'\0hidden'},2)
     add('utf8',{'main.nano':DECL.encode()+b'\xff'},2)

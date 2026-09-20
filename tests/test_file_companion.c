@@ -86,7 +86,7 @@ static void snapshot_controls(const char *module,const char *document){
  /* I prove snapshot immutability after the original file is replaced. */
  write_bytes(document,"{}",2);CHECK(!memcmp(v.original_document.data,copy,v.original_document.size));
  write_bytes(document,copy,v.original_document.size);free(copy);
- NlFileCompanionView untouched=v;CHECK(!nl_file_companions_view(set,1,&untouched));CHECK(!memcmp(&untouched,&v,sizeof(v)));
+ NlFileCompanionView untouched;memcpy(&untouched,&v,sizeof(v));CHECK(!nl_file_companions_view(set,1,&untouched));CHECK(!memcmp(&untouched,&v,sizeof(v)));
  size_t generated_size=v.generated_source.size,catalog_size=v.catalog_view.size;
  char *generated=malloc(generated_size),*catalog=malloc(catalog_size);CHECK(generated&&catalog);
  memcpy(generated,v.generated_source.data,generated_size);memcpy(catalog,v.catalog_view.data,catalog_size);

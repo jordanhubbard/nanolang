@@ -25,7 +25,7 @@ int main(int argc,char **argv){
  for(size_t i=0;i<report.services;i++){
   NlFileCompanionView v;CHECK(nl_file_source_resolution_snapshot(r,i,&v));printf("SNAPSHOT ");span(v.request.module_path);printf(" ");span(v.original_document);printf(" ");span(v.canonical_document);printf(" ");span(v.generated_source);printf(" ");span(v.catalog_view);puts("");
  }
- NlFileVisibility old;memset(&old,0x5a,sizeof(old));NlFileVisibility unchanged=old;
+ NlFileVisibility old;memset(&old,0x5a,sizeof(old));NlFileVisibility unchanged;memcpy(&unchanged,&old,sizeof(old));
  CHECK(!nl_file_source_resolution_row(r,nl_file_source_resolution_visibility(r),&old));CHECK(!memcmp(&old,&unchanged,sizeof(old)));
  nl_file_source_resolution_free(r);return 0;
 }

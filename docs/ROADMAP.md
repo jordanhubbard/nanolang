@@ -13841,3 +13841,10 @@ private native provider identity, concurrent standalone builds and actual final
 runtime-alias command observation. Fixtures remain unexecuted pending full review.
 Fresh both-host ABI/bootstrap and the seven scoped C configurations remain required;
 I do not infer full source lowering or service acceptance from this preparation.
+
+- [ ] I correct two static companion fixture defects before execution: the actual
+  C graph rejects an active cycle as INVALID(2), while my corpus expected
+  UNRESOLVED(5); Nano retains its distinct COLLECTION_REFUSED boundary. Two
+  getter-sentinel comparisons also used struct assignment before memcmp, which
+  does not promise padding-byte preservation. I initialize those sentinels with
+  memcpy and retain the exact unchanged-output assertions. No failed run occurred.
