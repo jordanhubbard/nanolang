@@ -121,10 +121,10 @@ the native/Wasm external ABI.
 
 1. Review exact binding query/API/status/limits, then implement only the private
    query. Qualify malformed and mismatched signatures, original import identity,
-   ignored extra imports, absent/denied capability facts, output atomicity and
+   refused extra imports, output atomicity and
    allocation prefixes. No file is opened by query preparation.
 2. Review the native/Wasm adapter and managed wrapper source before tests.
-   Qualify explicit host invocation with real files in isolated temporary trees
+   Qualify absent/denied host capabilities and explicit host invocation with real files in isolated temporary trees
    on Linux/Darwin, and Node plus Wasmtime. Check empty/multibyte/NUL content,
    missing paths, exact capacity/oversize, aliases, repeated reads, deny-before-
    open counters, partial/error close handling, every allocation boundary and
@@ -151,3 +151,32 @@ link solution. Required shared array/record authority15f/488 and peer union work
 remain dependencies for aggregate-returning adapters. Full compiler and
 NanoISA-only bootstrap/fixed-point gates are unchanged and unfulfilled by this
 single read-text capability. Parent2d2 remains open throughout this checkpoint.
+
+## My query implementation boundary
+
+I report exact declarations and the common structural/stack envelope, not a
+complete operand type, managed lifetime or target execution proof. My shared
+`nvm_verify` type analysis is advisory: it can skip deep stacks or allocation
+failures. I infer no type fact from its success. Reported shared allocation
+failures remain INVALID; only my own directly classified allocation reports
+MEMORY. There is no host context in this query and no capability-denial claim.
+
+I predecode without allocation and conservatively charge the common decoder's
+geometric instruction allocations, byte boundary/index arrays, stack worklists
+and at most256 type-state slots per instruction before invoking the verifier.
+The16MiB query budget counts the sum of these conservative per-function bounds
+plus my retained report; it therefore also bounds simultaneous live requests.
+Allocator bookkeeping and the caller-owned input are outside that allocation
+budget. The separate16MiB module budget counts represented table/payload bytes,
+not unused caller capacities or an original serialized container's padding.
+
+I reject retained layout/ownership/passive declarations and aggregate type
+counts in this first query, as well as linked modules, callbacks, closures,
+indirect/reference calls and reference/owned-transfer instructions. Ordinary
+scalar and STRING function signatures require explicit parameter tags; VOID
+is permitted only for zero-result functions. These are private description
+limits, not changes to existing public admission. Header and advisory metadata
+are checked in the in-memory module; original wire offsets/checksum are not
+reinterpreted as a fresh serialized image. Existing decoder, stack and operand
+checks cover every function, including unreachable helpers. My API header is
+the exact status/getter/output contract for source review before fixtures.
