@@ -198,9 +198,9 @@ static void acyclic_equivalence(void){
 }
 static void nested_cycles(void){
  NvmFileNominalBindings b;NvmModule *m=bodymodule(&b,false);Body c={0};integer(&c);one(&c,OP_STORE_LOCAL,4);
- uint32_t outer=c.n;boolean(&c);uint32_t exit=branch(&c,OP_JMP_FALSE,0);
+ uint32_t outer=c.n;boolean(&c);uint32_t outer_exit=branch(&c,OP_JMP_FALSE,0);
  uint32_t inner=c.n;boolean(&c);uint32_t done=branch(&c,OP_JMP_FALSE,0);back(&c,inner);
- target(&c,done);back(&c,outer);target(&c,exit);one(&c,OP_LOAD_LOCAL,4);op(&c,OP_RET);setbody(m,0,c);
+ target(&c,done);back(&c,outer);target(&c,outer_exit);one(&c,OP_LOAD_LOCAL,4);op(&c,OP_RET);setbody(m,0,c);
  NvmFileCyclicReport *r=cyclic_expect(m,NVM_FILE_FLOW_OK);uint16_t a,bcomponent;
  CHECK(nvm_file_cyclic_component(r,0,cyclic_index(r,0,outer),&a) && nvm_file_cyclic_component(r,0,cyclic_index(r,0,inner),&bcomponent) && a==bcomponent);
  cyclic_release(r);nvm_module_free(m);

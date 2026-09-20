@@ -12502,3 +12502,5 @@ leader exit after TERM did not prove group disappearance and Popen errors lacked
 status. My corrected unexecuted fixture uses file-backed logs, bounded independent
 group/leader cleanup on every path, actual decoded two-root swaps with held-owner
 refusal, and exact transfer/edge guard controls. Production remainsf6ee.
+
+- [ ] I preserve the first486ba cyclic query fixture compile terminal and repair only its local exit-name collision (task_1f0d53da650d42aba327852e74a9f3f7): fresh setup passes21.065s, configuration0.064s, ordinary fixture compile fails0.265s before execution. The local `exit` masks inherited CHECK macro libc exit. I retain `/tmp/nanolang-file-cyclic-486ba-linux` and `/tmp/nano-file-cyclic-3u3k0oad`, change only that identifier, then request review before fresh corrected gates. Darwin remains unrun; query production is unchanged.

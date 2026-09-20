@@ -278,3 +278,5 @@ identical held-reference case refuses before moving the observed File. I also
 exercise the exact transfer and edge counter guards with real decoded analysis
 and white-box counter initialization, preserving precise maximum values and
 cleaning the retained partial node. No production changes or executions occur.
+
+My first486ba Linux setup passes21.065s and configuration0.064s; ordinary query fixture compilation fails0.265s before execution because nested_cycles local `exit` hides libc exit in CHECK. I preserve all logs/maps/artifacts under `/tmp/nanolang-file-cyclic-486ba-linux` and `/tmp/nano-file-cyclic-3u3k0oad`. The proposed correction renames only that local to `outer_exit`; programs, assertions and production remain unchanged. Darwin has not run. Fresh corrected gates await checkpoint review.
