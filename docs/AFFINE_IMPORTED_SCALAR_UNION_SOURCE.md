@@ -63,3 +63,7 @@ Fresh Linux and Darwin qualification must record source, compiler and runtime
 identities. This slice does not close mixed `UNION_VARIANTS` plus
 `ARRAY_FIELDS`, resource-bearing union payloads, the full affine parent,
 PR522, product acceptance or release publication.
+
+My first Darwin production checkpoint and exact retained hashes are recorded
+in [the imported scalar-union evidence](evidence/affine-imported-scalar-unions.md).
+Linux qualification and every broader boundary above remain open.
