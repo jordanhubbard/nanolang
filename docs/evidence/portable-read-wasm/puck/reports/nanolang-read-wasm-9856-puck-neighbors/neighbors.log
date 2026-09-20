@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/run-wasm-read-neighbors.py", line 15, in <module>
+    assert all(p and pathlib.Path(p).is_file() for p in extra.values()),extra
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'cc': '/usr/bin/clang', 'clang': '/opt/homebrew/opt/llvm/bin/clang', 'python': '/opt/homebrew/opt/python@3.14/bin/python3.14', 'make': '/usr/bin/make', 'ld': '/usr/bin/ld', 'ar': '/usr/bin/ar', 'pkg-config': None, 'asan': '/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib', 'xcrun': '/usr/bin/xcrun'}

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/observed-O0",
+    "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/observed-O0-files"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

@@ -1,0 +1,8 @@
+{
+  "instrumented-read_query.o": {
+    "path": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/products/instrumented-read_query.o",
+    "sha256": "22c7d97fec58230256a2babd0199e933a5a4e070b688bc29bd62be37d919b9e0",
+    "bytes": 34456,
+    "archive": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/objects/22c7d97fec58230256a2babd0199e933a5a4e070b688bc29bd62be37d919b9e0"
+  }
+}

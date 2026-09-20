@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--target=wasm32-unknown-unknown",
+    "-std=c11",
+    "-O0",
+    "-ffreestanding",
+    "-fno-builtin",
+    "-fno-ident",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "-DNMS_TESTING",
+    "-S",
+    "-emit-llvm",
+    "tests/nanoisa/test_portable_read_wasm.c",
+    "-o",
+    "/tmp/nanolang-read-wasm-9856-linux/engines/products/O0-managed-observed-2.ll"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

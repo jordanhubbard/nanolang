@@ -1,0 +1,39 @@
+{
+  "tools": {
+    "cc": "/usr/bin/clang",
+    "clang": "/opt/homebrew/opt/llvm/bin/clang",
+    "python": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "make": "/usr/bin/make",
+    "ld": "/usr/bin/ld",
+    "ar": "/usr/bin/ar",
+    "pkg-config": "/opt/homebrew/bin/pkg-config",
+    "asan": "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib",
+    "xcrun": "/usr/bin/xcrun"
+  },
+  "env": {
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "PORTABLE_WASM_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+    "PORTABLE_WASM_LD": "/opt/homebrew/opt/lld/bin/wasm-ld",
+    "PORTABLE_WASM_NODE": "/opt/homebrew/bin/node",
+    "PORTABLE_WASM_PYTHON": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "PORTABLE_WASM_WHEEL": "/private/tmp/wasmtime-43.0.0-py3-none-macosx_11_0_arm64.whl",
+    "PORTABLE_WASM_FLAGS": "",
+    "PORTABLE_WASM_EXTRA_TOOLS": "{\"clang\": \"/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23\", \"linker\": \"/opt/homebrew/Cellar/lld/23.1.1/bin/lld\", \"node\": \"/opt/homebrew/Cellar/node/26.9.0/bin/node\", \"python\": \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14\", \"wheel\": \"/private/tmp/wasmtime-43.0.0-py3-none-macosx_11_0_arm64.whl\"}",
+    "PORTABLE_WASM_ARTIFACTS": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/neighbors",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "CC": "/usr/bin/clang",
+    "PORTABLE_ADAPTER_CC": "/usr/bin/clang",
+    "PORTABLE_ADAPTER_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+    "PORTABLE_ADAPTER_CFLAGS": "",
+    "PORTABLE_ADAPTER_LLVM_FLAGS": "",
+    "PORTABLE_ADAPTER_EXTRA_TOOLS": "{\"cc\": \"/usr/bin/clang\", \"clang\": \"/opt/homebrew/opt/llvm/bin/clang\", \"python\": \"/opt/homebrew/opt/python@3.14/bin/python3.14\", \"make\": \"/usr/bin/make\", \"ld\": \"/usr/bin/ld\", \"ar\": \"/usr/bin/ar\", \"pkg-config\": \"/opt/homebrew/bin/pkg-config\", \"asan\": \"/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib\", \"xcrun\": \"/usr/bin/xcrun\"}",
+    "PORTABLE_ADAPTER_ARTIFACTS": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter",
+    "PORTABLE_READ_CC": "/usr/bin/clang",
+    "PORTABLE_READ_CFLAGS": "",
+    "PORTABLE_READ_ARTIFACTS": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/query"
+  },
+  "scope": "ordinary native adapter and query; GCC/HB ASan UBSan LSan native core/module controls only; no installed CLI/package claim"
+}

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/opt/homebrew/Cellar/lld/23.1.1/bin/lld",
+    "--version"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-4ee",
+  "returncode": 1,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}
