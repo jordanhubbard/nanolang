@@ -12780,11 +12780,11 @@ I record actual native PR903 merge `0a488a1040412746566290bd93110ff76e8720dd`.
 Its private native acceptance does not close b7ef/2d2 or admit a host import.
 I continue from that canonical pin under [my concrete Wasm design](NANOISA_PORTABLE_READ_TEXT_WASM.md).
 
-- [ ] I review the exact per-instance static workspace amendment, wasm32 import,
+- [x] I review the exact per-instance static workspace amendment, wasm32 import,
   bounded module/memory envelope and real Node/Wasmtime43 APIs before source.
-- [ ] I implement and review only private guest/embedding sources, preserving
+- [x] I implement and review only private guest/embedding sources, preserving
   qualified native/runtime bytes and unchanged public selectors/providers.
-- [ ] I review fixtures then qualify actual O0/O2 guests on both real hosts and
+- [x] I review fixtures then qualify actual O0/O2 guests on both real hosts and
   engines, including copied roots/returns, memory growth/limits, pre-effect span
   refusal, real file semantics and separately attributed allocation/error cleanup.
 - [ ] I seal exact tools/packages/IR/guests and retained first terminals, integrate
@@ -12804,14 +12804,22 @@ errors, private wheel/member identity, bounded command supervision and product
 archives. Fixture/source review still precedes every build and host operation;
 public emission and b7ef/2d2 remain open.
 
-- [ ] I correct the Wasm fixture executable-spelling defect discovered in the
+- [x] I correct the Wasm fixture executable-spelling defect discovered in the
   first4ee gates: resolving wasm-ld to generic lld changes its invocation mode.
   I preserve both pre-build terminals, retain selected absolute argv spelling,
   still archive resolved tool bytes, and review the fixture correction before
   fresh qualification. No guest or production behavior was exercised.
 
-- [ ] I retain puck's first9856 neighbor preflight failure: non-login SSH PATH
+- [x] I retain puck's first9856 neighbor preflight failure: non-login SSH PATH
   omits installed Homebrew pkg-config. I select its exact absolute path and
   explicitly prepend Homebrew bin for Make's python3/pkg-config discovery,
   record that environment, and review fresh neighbor-only continuation. The
   already passed actual-engine matrix and Linux neighbors keep their own pins.
+
+I seal [my private real-engine evidence](evidence/portable-read-wasm.md): corrected
+9856 runs all eight Node/Wasmtime routes on each host, plus separately scoped
+native/query neighbors. I retain both4ee linker-discovery failures and puck's
+neighbor PATH preflight before corrections. My endpoint maps and current-input
+checks do not claim intermediate or transitive toolchain immutability. Independent
+seal/integration review and publication remain; b7ef/2d2 stay open, including real
+emitted/installed host linkage and applicable full compiler/bootstrap gates.

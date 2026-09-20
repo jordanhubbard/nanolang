@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/local/bin/clang-23",
+    "--version"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}
