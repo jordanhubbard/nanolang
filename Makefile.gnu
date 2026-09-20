@@ -441,6 +441,15 @@ $(FILE_PUBLIC_LIBRARY): $(FILE_PUBLIC_OBJECTS)
 	mv "$$file_archive_dir/runtime.a" "$@"
 $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(NANOISA_DIR)/file_native_abi.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_PUBLIC_ENGINE -c $< -o $@
+# I keep cyclic dispatch source-private and outside every default/public selector.
+FILE_CYCLIC_DISPATCH_HEADERS = $(NANOISA_DIR)/file_cyclic_dispatch.inc $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.h
+FILE_CYCLIC_PRIVATE_PROVIDERS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY_STEMS))) $(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nsi_cap.o $(OBJ_DIR)/nsi_file.o $(OBJ_DIR)/nsi_file_values.o
+FILE_CYCLIC_VM_OBJECT = $(OBJ_DIR)/nanovm/file_vm_cyclic_private.o
+FILE_CYCLIC_NATIVE_OBJECT = $(OBJ_DIR)/nanoisa/nvm2c_file_cyclic_private.o
+$(FILE_CYCLIC_VM_OBJECT): $(SRC_DIR)/nanovm/file_vm_cyclic_private.c $(SRC_DIR)/nanovm/file_vm_cyclic_private.h $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanovm
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_CYCLIC_VM_PRIVATE -std=c11 -c $(SRC_DIR)/nanovm/file_vm_cyclic_private.c -o $@
+$(FILE_CYCLIC_NATIVE_OBJECT): $(NANOISA_DIR)/nvm2c_file_cyclic_private.c $(NANOISA_DIR)/nvm2c_file_cyclic_private.h $(NANOISA_DIR)/file_cyclic_native_emit.inc $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanoisa
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_CYCLIC_NATIVE_PRIVATE -std=c11 -c $(NANOISA_DIR)/nvm2c_file_cyclic_private.c -o $@
 # I rebuild both carrier owners for private cyclic implementation changes.
 $(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_runtime_facts.inc $(NANOISA_DIR)/file_cyclic_runtime.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.inc $(SRC_DIR)/nsi_file_values_internal.h
 $(OBJ_DIR)/nsi_file_values.o: $(SRC_DIR)/nsi_file_values_internal.h
@@ -5616,6 +5625,13 @@ $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_targets.h $(NANOISA
 .PHONY: test-file-indirect-targets
 test-file-indirect-targets: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_FILE_INDIRECT_TARGETS_CC="$(CC)" NANO_FILE_INDIRECT_TARGETS_CFLAGS="$(CFLAGS)" FILE_INDIRECT_TARGETS_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_INDIRECT_TARGETS_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_targets
+
+# My matched cyclic dispatch remains source-private and opt-in.
+.PHONY: test-file-cyclic-dispatch test-file-cyclic-dispatch-sanitize
+test-file-cyclic-dispatch: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
+test-file-cyclic-dispatch-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
 
 # I prepare strict immutable File binding bytes without publishing or executing.
 .PHONY: file-binding-plan

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/tmp/nanolang-cyclic-907-puck-launch.py", line 3, in <module>
+    with tarfile.open('/tmp/nanolang-cyclic-907-restack-3df.tar') as t:t.extractall(root,filter='data')
+TypeError: extractall() got an unexpected keyword argument 'filter'

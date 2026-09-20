@@ -1,0 +1,33 @@
+{
+  "reviewed": "92b9fd67705bb058369870975d95990bfc66f86d",
+  "canonical": "ca0c9f6a823cff3bf1a7d179af2eb4bea8618f29",
+  "unchanged_private_source_fixtures": {
+    "src/nanoisa/file_cyclic_dispatch.inc": "e05e16bd9f21b0bc113afdd870c8e35691d9034ae3d2e40dd3f505393ee09731",
+    "src/nanoisa/file_cyclic_native_emit.inc": "51eae5d8994ae313b94858101d35a35ee0be589797708cca777c53381a2d98ff",
+    "src/nanoisa/file_cyclic_runtime.h": "b01969d559d1bd06e6e98f071d62c9ea1a0d06dad37ca9146c2e828e9651cad6",
+    "src/nanoisa/file_cyclic_runtime.inc": "40e55b14879247155f6de84317e83a21facd6df0514edc57746c7510bcafccd0",
+    "src/nanoisa/nvm2c_file_cyclic_private.c": "97b864d6d1c54247f7e9851569c50cbd336630e730e8fd977237ed2b8f83e011",
+    "src/nanoisa/nvm2c_file_cyclic_private.h": "57f26cfc26b55fa7ba5e91db8cbc9dd499a180d7f612d7368bc2c8be70eef6e1",
+    "src/nanovm/file_vm_cyclic_private.c": "da7cdf08260f582c182f5624d5325d24d57bd6b4cc852cc2b5e512a661fa81af",
+    "src/nanovm/file_vm_cyclic_private.h": "dda9b1f72288a8639a3c521964b53ce9a91a9829eea852ee5244eed6d951b1b7",
+    "tests/test_file_cyclic_dispatch.py": "b95d129efed3ba738d70c6458b2becb98a13098b7fa6811777fda4daa7868c1b",
+    "tests/nanoisa/test_file_cyclic_dispatch.c": "1232aaae716198d248c7b07cc54bcd54b23a66ca470d4da08c62ee73c64b8903",
+    "tests/nanoisa/file_cyclic_dispatch_hooks.h": "163b4de49634967b2567998a8f4f890aad2b7e6909d86d0fcf0cd249068bc601",
+    "tests/nanoisa/file_cyclic_dispatch_values.c": "2ba859b88afd295705d9d4d6ee41cc2ea8230501a0798531d44cc9d8f92a2925"
+  },
+  "incoming_exact": {
+    "src/nanoisa/portable_read_wasm.c": "338671e791e3c2c91c13222a4675c419e0dcf8f8a5d3aa5a022d3b4afd743fed",
+    "src/nanoisa/portable_read_wasm.h": "1301021fce4837e1f525e6e7a91cfb1b38034cef1d4184dd5ce6f0b7d01525a9",
+    "src/runtime/portable_read_node.mjs": "3da52910eac9f4561dd496ed9c0a2591d230ea76fe903924b45e666c04445f94",
+    "src/runtime/portable_read_wasmtime.py": "6838fb507d5fbcae64c2e7c2b267719aa17b8ccaab2906c9b07fa0a8a99fd9c4",
+    "src/typechecker.c": "ed642c6a04ac708d15d8acbfd9ce9f39fbadcbadc5204986742f90e7535fc53d",
+    "tests/nanoisa/portable_read_wasm_node.mjs": "ca54d3d46521cccad3d39645ef0e98cc945dea2660200ec3fac891a082e88c86",
+    "tests/nanoisa/portable_read_wasm_python.py": "a6164140971cb8b989e6cde4d9299c1281b554f76e6bc6cb268b67e8fd4b92d5",
+    "tests/nanoisa/test_portable_read_wasm.c": "d08c28b26b7db69febf3157693601fa959f2f6ff649e8780a801b0c6c04cae4a",
+    "tests/nanovm/test_vm.c": "f76bf09168e737cc6381a2a5f57dc2e3727a29e9de8afa86fde64cfa8a28332b",
+    "tests/test_cseed_match_totality.py": "ad7b38fb617cfca91bd0f6baa5dc65d1f2932792061fd9712604d397cdf6b07a",
+    "tests/test_portable_read_wasm.py": "1b7006a41437a41151bfc9a6f4b9c1b449cf283db076eb08f8cee1580d1d8ded"
+  },
+  "make_delta": "Additive five-line private Wasm target only",
+  "next_gate": "Fresh ordinary linked cyclic VM/native O0/O2, both hosts; changed common typechecker provider freshly built. Original sanitizer matrices stay at original pins."
+}

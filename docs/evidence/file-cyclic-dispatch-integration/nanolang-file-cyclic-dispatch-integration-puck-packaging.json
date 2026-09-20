@@ -1,0 +1,15 @@
+{
+  "current": [
+    {
+      "pin": "3ea2",
+      "sources": 16761,
+      "tools": 14,
+      "providers": 185,
+      "mismatches": 0
+    }
+  ],
+  "artifacts": 2645,
+  "archive": "/tmp/nanolang-file-cyclic-dispatch-integration-puck-evidence.tar.gz",
+  "sha256": "d3df40a86d5f16e8f1926766a4721af0a846aa88f2a5f53b32f965870a08e328",
+  "bytes": 93827857
+}
