@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <libgen.h>
 #include <stdio.h>
+#include <stdint.h>
 
 /* mkdtemp declaration (if not available via headers) */
 #ifndef _DARWIN_C_SOURCE
