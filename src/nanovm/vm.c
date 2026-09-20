@@ -22,6 +22,23 @@
 #include "../utf8.h"
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+#include <unistd.h>
+/* I observe a bounded private diagnostic without changing shadow bytecode. */
+static void shadow_progress(const NvmModule *module, uint32_t function,
+                            const char *event) {
+    static unsigned rows;
+    const NvmFunctionEntry *entry = &module->functions[function];
+    const char *name = nvm_get_string(module, entry->name_idx);
+    if (!name || strncmp(name, "$shadow_", 8) != 0) return;
+    if (rows == 8192 ||
+        fprintf(stderr, "[shadow-progress] %s fn=%u pc=%u name=%.64s\n",
+                event, function, entry->code_offset, name) < 0 ||
+        fflush(stderr) != 0) _exit(92);
+    ++rows;
+}
+#endif
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
@@ -2860,6 +2877,9 @@ dynamic_div:
             vm->ip = callee->code_offset;
             cur_fn = callee;
             code_end = callee->code_offset + callee->code_length;
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+            shadow_progress(vm->module, callee_idx, "enter");
+#endif
             VM_NEXT();
         }
 
@@ -3168,6 +3188,9 @@ vm_return_values: ;
             /* Save the returning function's return_ip (points to instruction
              * after the CALL in the caller) before we pop the frame */
             uint32_t ret_ip = frame->return_ip;
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+            shadow_progress(vm->module, frame->fn_idx, "leave");
+#endif
 
             vm_release(&vm->heap, frame->owned_callable);
             frame->owned_callable = val_void();
