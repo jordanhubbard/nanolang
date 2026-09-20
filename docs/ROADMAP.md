@@ -13893,3 +13893,10 @@ I preserve both additive Make targets and all File parser code from canonical.
 - [ ] I land this preparation dependency after independent evidence review, then
   continue matched VM/native/LLVM/Wasm execution and full graph/source acceptance.
   I do not close f36b/15f/488 with a copied descriptive plan.
+
+I preserve both f093 first integration terminals before correction. Fresh setup,
+configuration and discovery pass; linked C2823 and observed C6420 assertions pass,
+including93 recipes and94 one-shot/persistent allocation positions. The Python
+wrapper then still requires the old92-recipe output string. I update only that
+expected count to the independently enumerated93, retain both failures and all
+C predicates, and require fresh corrected ordinary query plus unrun neighbors.
