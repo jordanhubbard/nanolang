@@ -1,5 +1,15 @@
 # My Roadmap
 
+- [ ] I keep reconstructed scalar source within my documented 1,024-local
+  compiler ceiling (`task_96db0f763603ff315aba1fe3119a425a`). After the
+  hosted shadow-budget repair, run `35541114629` reaches the unchanged
+  unsigned-division and carry/borrow endpoint corpus on x64, ARM64 and
+  coverage; Stage 1 refuses eight generated functions as `too many locals`.
+  I preserve the ceiling, every endpoint, evaluation order, call/local and
+  multi-result snapshots, and prior-output refusals. I remove only redundant
+  pure single-result temporaries in the shared reconstructor, then require
+  C/Nano/C-seed/Stage 1/Stage 2 parity and replacement full gates.
+
 - [ ] I keep my full hosted sanitizer suite inside an explicit measured outer
   bound (`task_4477289a83667be58ce3ae1b6bf11124`). Exact replacement run
   `35541114629` reaches the unchanged `Run tests with sanitizers` step, then
