@@ -13672,3 +13672,10 @@ runtime/nl_string.h while compiling a module. I retain its status-1 log and new
 module source; all original source/tool/provider bytes match. Under timing task
 2deaad56f65c497f80546220aa1ca9d0 I correct only external layout/cwd and link a
 fresh diagnostic binary before the one still-unreached full shadow measurement.
+
+My corrected layout launcher also stopped before shadows: the Linux assembler
+capture companion was not next to the external executable. I retain status 1
+and its generated products. I inspect argv0/project-root consumers together and
+select the exact archived nano_as_capture.so with NANO_AS_CAPTURE_HELPER; I also
+provide the existing scripts/catalog paths in the external layout. This changes
+launcher prerequisites only, under the same timing task and unchanged deadlines.

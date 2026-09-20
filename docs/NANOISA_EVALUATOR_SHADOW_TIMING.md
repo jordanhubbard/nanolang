@@ -45,3 +45,13 @@ My corrected launcher places a freshly linked binary under an external bin
 directory with src and module-tree symlinks to verified frozen sources. Its cwd
 and new module products are external. I preserve the original full parser input,
 all shadows and both deadlines; I do not repeat the failed Make builds.
+
+The second launcher reached std module preparation but lacked the executable's
+nano_as_capture.so companion (module_gcc_read_capture resolves /proc/self/exe
+unless NANO_AS_CAPTURE_HELPER is set). I retain status 1 at 2.571 seconds and log
+8c8b4d5ef283f81d54c47677a533141a0bfd5829d2765fd5a0c9fa21fc30ea9a, again with
+no shadow marker. My next launcher selects the original archived helper explicitly.
+I inspect main/module/module_builder/FFI root consumers together: runtime sources
+and headers use bin/../src, generated-list fallback uses scripts relative to cwd,
+and optional catalogs use argv0-relative share paths. I preserve those source
+paths, explicit CC/helper/module/cache choices and unset competing compiler flags.
