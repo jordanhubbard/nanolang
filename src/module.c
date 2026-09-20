@@ -312,9 +312,27 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
 const char *resolve_module_path(const char *module_path, const char *current_file) {
     if (!module_path) return NULL;
     
-    /* If module_path is absolute or starts with ./, use as-is */
-    if (module_path[0] == '/' || (module_path[0] == '.' && module_path[1] == '/')) {
-        return strdup(module_path);
+    /* I preserve absolute paths and all ordinary search modes below. */
+    if (module_path[0] == '/') return strdup(module_path);
+    if (strncmp(module_path, "./", 2) == 0 || strncmp(module_path, "../", 3) == 0) {
+        if (!current_file || !*current_file) return strdup(module_path);
+        /* Both actual producers anchor at the physical declaring source. I
+         * refuse failed canonicalization rather than choosing a CWD decoy.
+         * A normal basename-only importer resolves to its CWD directory. */
+        char *origin = realpath(current_file, NULL);
+        if (!origin) return NULL;
+        const char *slash = strrchr(origin, '/');
+        if (!slash) { free(origin); return NULL; }
+        size_t parent = (size_t)(slash - origin) + 1;
+        size_t relative = strlen(module_path);
+        if (relative > SIZE_MAX - parent - 1) { free(origin); return NULL; }
+        char *joined = malloc(parent + relative + 1);
+        if (joined) {
+            memcpy(joined, origin, parent);
+            memcpy(joined + parent, module_path, relative + 1);
+        }
+        free(origin);
+        return joined;
     }
     
     /* Check if this is a project-relative path (common prefixes like std/, stdlib/, examples/, src/) */

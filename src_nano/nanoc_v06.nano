@@ -761,24 +761,25 @@ struct CollectResult {
     visited: array<string>,
     visited_set: HashMap<string, int>,
     order: array<string>,
+    sources: array<string>,
     ok: bool,
     lines_scanned: int
 }
 
-fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, visited_set: HashMap<string, int>, order: array<string>, ok: bool, max_files: int, max_lines: int, max_lines_per_file: int, lines_scanned: int, trace: bool) -> CollectResult {
-    if (not ok) {
-        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false, lines_scanned: lines_scanned }
+fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, visited_set: HashMap<string, int>, order: array<string>, sources: array<string>, ok: bool, max_files: int, max_lines: int, max_lines_per_file: int, lines_scanned: int, trace: bool) -> CollectResult {
+    if (or (not ok) (!= (array_length order) (array_length sources))) {
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, sources: sources, ok: false, lines_scanned: lines_scanned }
     } else { (print "") }
 
     # I resolve symlinks before deduplication and relative dependency lookup.
     let norm_path: string = (canonical path)
     if (== norm_path "") {
         (println (+ "I cannot resolve a source path: " path))
-        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false, lines_scanned: lines_scanned }
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, sources: sources, ok: false, lines_scanned: lines_scanned }
     }
 
     if (nlc_hashset_has_string visited_set norm_path) {
-        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: true, lines_scanned: lines_scanned }
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, sources: sources, ok: true, lines_scanned: lines_scanned }
     } else {
         let mut visited2: array<string> = (array_push visited norm_path)
         let mut visited_set2: HashMap<string, int> = visited_set
@@ -788,12 +789,13 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
             (print max_files)
             (print "): ")
             (println path)
-            return CollectResult { visited: visited2, visited_set: visited_set2, order: order, ok: false, lines_scanned: lines_scanned }
+            return CollectResult { visited: visited2, visited_set: visited_set2, order: order, sources: sources, ok: false, lines_scanned: lines_scanned }
         } else { (print "") }
         let src: string = (file_read norm_path)
         let lines: array<string> = (split_lines src)
 
         let mut order2: array<string> = order
+        let mut sources2: array<string> = sources
         let mut ok2: bool = true
         let mut i: int = 0
         let mut lines_scanned2: int = lines_scanned
@@ -808,14 +810,14 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                 (print max_lines)
                 (print ") while scanning: ")
                 (println norm_path)
-                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
+                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, sources: sources2, ok: false, lines_scanned: lines_scanned2 }
             } else { (print "") }
             if (> i max_lines_per_file) {
                 (print "Error: import scan exceeded max lines per file (")
                 (print max_lines_per_file)
                 (print ") while scanning: ")
                 (println norm_path)
-                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
+                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, sources: sources2, ok: false, lines_scanned: lines_scanned2 }
             } else { (print "") }
             if (and trace (== (% lines_scanned2 500) 0)) {
                 (print "[import] scanned lines: ")
@@ -826,7 +828,7 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
             let quoted_import: bool = (or (or (nlc_str_starts_with import_line "module \"") (nlc_str_starts_with import_line "unsafe module \"")) (or (nlc_str_starts_with import_line "import \"") (nlc_str_starts_with import_line "from \"")))
             if (and quoted_import (== imp "")) {
                 (println "I cannot use an empty, unterminated or NUL-containing import path.")
-                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
+                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, sources: sources2, ok: false, lines_scanned: lines_scanned2 }
             }
             if (!= imp "") {
                 let dep: string = (resolve_import_path norm_path imp repo_root)
@@ -836,10 +838,11 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                     set ok2 false
                 } else {
                     if (file_exists dep) {
-                        let res: CollectResult = (collect_files_dfs dep repo_root visited2 visited_set2 order2 ok2 max_files max_lines max_lines_per_file lines_scanned2 trace)
+                        let res: CollectResult = (collect_files_dfs dep repo_root visited2 visited_set2 order2 sources2 ok2 max_files max_lines max_lines_per_file lines_scanned2 trace)
                         set visited2 res.visited
                         set visited_set2 res.visited_set
                         set order2 res.order
+                        set sources2 res.sources
                         set ok2 res.ok
                         set lines_scanned2 res.lines_scanned
                     } else {
@@ -854,8 +857,9 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
 
         if ok2 {
             set order2 (array_push order2 norm_path)
+            set sources2 (array_push sources2 src)
         } else { (print "") }
-        return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: ok2, lines_scanned: lines_scanned2 }
+        return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, sources: sources2, ok: ok2, lines_scanned: lines_scanned2 }
     }
 }
 
@@ -865,13 +869,18 @@ shadow collect_files_dfs {
     if (!= directory "") {
         let path: string = (+ directory "/fixture.nano")
         unsafe { assert (== (file_write path "fn value() -> int { return 1 }") 0) }
-        let result: CollectResult = (collect_files_dfs path "" [] (nlc_hashset_new_string) [] true 10 100 100 0 false)
+        let result: CollectResult = (collect_files_dfs path "" [] (nlc_hashset_new_string) [] [] true 10 100 100 0 false)
         assert result.ok
         assert (== (array_length result.order) 1)
+        assert (== (array_length result.sources) 1)
+        assert (== (at result.sources 0) "fn value() -> int { return 1 }")
         assert (== (at result.order 0) (canonical path))
-        let again: CollectResult = (collect_files_dfs (+ directory "/./fixture.nano") "" result.visited result.visited_set result.order true 10 100 100 0 false)
+        unsafe { assert (== (file_write path "fn value() -> int { return 2 }") 0) }
+        let again: CollectResult = (collect_files_dfs (+ directory "/./fixture.nano") "" result.visited result.visited_set result.order result.sources true 10 100 100 0 false)
         assert again.ok
         assert (== (array_length again.order) 1)
+        assert (== (array_length again.sources) 1)
+        assert (== (at again.sources 0) (at result.sources 0))
         unsafe { assert (== (file_delete path) 0) assert (== (file_delete directory) 0) }
     }
 }
@@ -879,6 +888,7 @@ shadow collect_files_dfs {
 struct MergeResult {
     source: string
     files: array<string>
+    original_sources: array<string>
     file_starts: array<int>
     source_files: array<string>
     source_lines: array<int>
@@ -1079,7 +1089,7 @@ shadow bind_merged_functions {
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let tokens: List<LexerToken> = (tokenize_string source "binding.nano" diags)
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "binding.nano")
-    let merge: MergeResult = MergeResult { source: source, files: ["first.nano", "root.nano"], file_starts: [1, 2], source_files: ["first.nano", "root.nano"], source_lines: [1, 1], repo_root: "", root_line: 2 }
+    let merge: MergeResult = MergeResult { source: source, files: ["first.nano", "root.nano"], original_sources: ["fn answer() -> int { return 1 }\n", "fn answer() -> int { return 2 }\n"], file_starts: [1, 2], source_files: ["first.nano", "root.nano"], source_lines: [1, 1], repo_root: "", root_line: 2 }
     assert (bind_merged_functions parser merge)
     assert (!= (parser_get_function parser 0).name (parser_get_function parser 1).name)
     assert (== (mb_lookup 1 "answer") "answer")
@@ -1463,7 +1473,7 @@ shadow collect_module_build_flags {
 
 fn merge_with_imports(input_file: string) -> MergeResult {
     let start: string = (canonical input_file)
-    if (== start "") { return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: "", root_line: 0 } }
+    if (== start "") { return MergeResult { source: "", files: [], original_sources: [], file_starts: [], source_files: [], source_lines: [], repo_root: "", root_line: 0 } }
     let repo_root: string = (find_repo_root (nl_path_dirname start))
     let max_files: int = (parse_env_int "NANO_IMPORT_MAX_FILES" 5000)
     let max_lines: int = (parse_env_int "NANO_IMPORT_MAX_LINES" 50000)
@@ -1480,10 +1490,10 @@ fn merge_with_imports(input_file: string) -> MergeResult {
     let visited0: array<string> = []
     let visited_set0: HashMap<string, int> = (nlc_hashset_new_string)
     let order0: array<string> = []
-    let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 true max_files max_lines max_lines_per_file 0 trace)
+    let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 [] true max_files max_lines max_lines_per_file 0 trace)
     let files: array<string> = res.order
     if (not res.ok) {
-        return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
+        return MergeResult { source: "", files: [], original_sources: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
     } else { (print "") }
     # I retain source in this invocation; no other compiler can replace it.
     let mut parts: array<string> = []
@@ -1496,7 +1506,7 @@ fn merge_with_imports(input_file: string) -> MergeResult {
     while (< i (array_length files)) {
         set file_starts (array_push file_starts (+ merged_lines 1))
         if (== i (- (array_length files) 1)) { set root_line (+ merged_lines 1) }
-        let src: string = (file_read (at files i))
+        let src: string = (at res.sources i)
         let lines: array<string> = (split_lines src)
         let mut j: int = 0
         while (< j (array_length lines)) {
@@ -1518,7 +1528,7 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         }
         set i (+ i 1)
     }
-    return MergeResult { source: (cg_build parts), files: files, file_starts: file_starts, source_files: source_files, source_lines: source_lines, repo_root: repo_root, root_line: root_line }
+    return MergeResult { source: (cg_build parts), files: files, original_sources: res.sources, file_starts: file_starts, source_files: source_files, source_lines: source_lines, repo_root: repo_root, root_line: root_line }
 }
 
 shadow merge_with_imports {
@@ -1527,6 +1537,7 @@ shadow merge_with_imports {
     assert (> (array_length result.files) 0)
     assert (== result.root_line 1)
     assert (== (array_length result.file_starts) (array_length result.files))
+    assert (== (array_length result.original_sources) (array_length result.files))
     assert (== (at result.file_starts 0) 1)
 }
 

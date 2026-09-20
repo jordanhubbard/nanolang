@@ -290,3 +290,29 @@ semantics. Paired root and transitive imports must select the same actual file
 with a conflicting CWD decoy, including symlinked importer canonicalization,
 missing inputs and the unchanged search modes. Ordinary import tests remain
 required. No graph report can claim paired origin parity before this gate.
+
+### My first actual graph-retention source delta
+
+I align the shared C resolver's explicit `./` and `../` branch with my actual
+Nano collector: the declaring source is canonicalized before joining its
+directory. A symlinked root or dependency therefore resolves beside its physical
+source, not beside the symlink. A normal basename importer resolves in CWD; with
+no importer I retain the supplied relative path. Failed canonicalization of a
+supplied importer refuses rather than searching a decoy. The actual source must
+exist and remain stable, as required by graph collection. I do not change the
+absolute/bare/project/module search branches. I check join-size arithmetic and
+free the canonical temporary on every return. This is a shared producer change,
+not File spelling authority.
+
+My Nano `CollectResult` now carries source strings aligned with completed DFS
+order. Every return and recursive call preserves that alignment; duplicate
+canonical inputs reuse their retained string. `MergeResult.original_sources`
+retains these unstripped strings, and merging reads that array instead of reopening
+source files. This retains original module/opaque declarations and visibility
+for the upcoming real-parser namespace inventory. Existing traversal and
+configured limits remain unchanged. This does not yet make the line-based
+collector a complete AST import inventory, bind service origins, bound all Nano
+allocator storage, or authorize source execution. Later introspection readers
+and namespace preparation still require the retained-byte audit before the full
+production checkpoint. The existing helper shadows now check aligned retention
+and duplicate-path reuse after an input mutation; none have executed.
