@@ -79,3 +79,15 @@ source/tool/provider maps and produced bytes, including failed-run artifacts.
 Independent review and actual merge remain pending. Full indirect ownership
 runtime membership, shared fuel, matched VM/native execution, public installed
 conjunction, callable arguments/results, richer borrowing and source remain open.
+
+## My independent seal review
+
+The independent release-audit review verifies all389 committed reports,
+1456 CAS objects and complete archive,14720 references,39 endpoint pairs,
+all31 corrected phases and the exact seven configuration assertion counts.
+It rechecks both original225b and corrected5c26 source/tool/provider snapshots
+on Linux and puck and compares488 selected production/fixture inputs to their
+qualified Git pins. The [audit](file-indirect-hosted-independent-review.json)
+retains SHA256c1226f5bcae9243b7dfa10dcf0d3f6be1f46c0bd60556e344bbf2e7fc63cd1e2.
+No fixture replay or full runtime/source acceptance is claimed. Current-main
+integration and actual merge still precede task closure.
