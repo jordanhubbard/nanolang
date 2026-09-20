@@ -1,4 +1,6 @@
 import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/diagnostics.nano"
+import "src_nano/compiler/token_value_bytes.nano"
 
 fn token_count_checks() -> void {
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
@@ -30,10 +32,12 @@ fn token_count_checks() -> void {
     assert (== first.column 9)
     let grammar: string = " { rule <- \"a\\nb\" }"
     let bodies: List<LexerToken> = (list_LexerToken_new)
-    let end: int = (process_grammar_body grammar 0 (str_length grammar) bodies 1 1)
-    assert (== end (str_length grammar))
+    let grammar_bytes: int = (str_length grammar)
+    let end: int = (process_grammar_body grammar 0 grammar_bytes bodies 1 1)
+    assert (== end grammar_bytes)
     let body: LexerToken = (list_LexerToken_get bodies 0)
-    assert (== body.value_bytes (str_length body.value))
+    let body_bytes: int = (str_length body.value)
+    assert (== body.value_bytes body_bytes)
     assert (> body.value_bytes (token_literal_value_bytes body.value))
     let parts: List<LexerToken> = (tokenize_string "f\"a\\0suffix{42}é\"" "parts.nano" diagnostics)
     let mut strings: int = 0
