@@ -5706,3 +5706,8 @@ $(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ordinary_array_authorit
 
 # I rebuild the shared declaration owner for complete mixed copied facts.
 $(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ownership_declaration_projection.h $(NANOISA_DIR)/ownership_declaration_projection.inc
+
+.PHONY: test-ownership-declaration-projection
+# I qualify copied mixed declarations, not executable admission.
+test-ownership-declaration-projection: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	DECLARATION_CC="$(CC)" DECLARATION_CFLAGS="$(CFLAGS)" DECLARATION_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" DECLARATION_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_ownership_declaration_projection

@@ -137,3 +137,38 @@ record DAGs. Old public/ordinary profiles and all executable selectors remain
 unchanged. I charge both owned halves before allocating the final report and
 variant array. The staging union view is call-local and never retained in the
 published report. Production review precedes fixtures, builds or execution.
+
+## My fixture checkpoint
+
+I retain the original ordinary-array fixture unchanged and invoke its controls
+from a separate mixed fixture. The new builders place two equal-shaped unions
+around three distinct ordinary records, retain a forward record edge, bind all
+five flat element tags, and validate every copied getter before and after heap
+input destruction. Equal-shaped records and unions retain their distinct global
+indices and per-kind ordinals. Getter failures preserve full sentinel bytes.
+
+Independent corruptions cover both extension bodies, framing, ordering, sizes,
+variant slices, bindings, signature descriptors, reserved path bytes, forward
+cross-kind edges and cycles. A STRING-bearing borrowed resource records UNKNOWN
+in the new staging path, but a later malformed ARRAY_FIELDS body must return
+INVALID; the old ordinary query still stops at UNKNOWN. Old public mixed refusal,
+public union-only success, legacy incomplete union facts and ordinary-only
+success remain explicit controls. I test every nonempty truncation prefix.
+
+I construct actual mixed256-layout/65536-field-and-binding/4096-type tables and
+refuse each next count. Seven unions with256 variants each fit the conservative
+two-pass budget; eight unions exceed it before allocations. I do not claim that
+all65536 possible variant rows are reachable under the stricter work ceiling.
+The16MiB input bound receives explicit above-bound controls; accepted table
+ceilings remain well below that storage cap. Measured transient and persistent
+allocation-prefix sweeps instrument ownership_contracts.c and nvm_v2_layouts.c,
+including graph scratch storage and final report/row allocations, require zero
+tracked live pointers, and prepare a fresh successful report after each failure.
+Uninstrumented reference helper/libc allocations are not part of that hook claim.
+
+The Python runner imports the existing bounded file-backed command runner through
+a module, not a TestCase alias; discovery selects one new test. It builds both
+ordinary-linked and two-TU allocation-observed binaries with strict warnings.
+Selected sanitizer flags flow through DECLARATION_CFLAGS; common linked providers
+retain their separately inventoried instrumentation scope. No fixture has been
+compiled or executed at this checkpoint. Complete review precedes fresh gates.

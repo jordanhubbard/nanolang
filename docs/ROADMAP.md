@@ -13258,3 +13258,12 @@ and its explicit forward-layout amendment. Shared staging, exact zero union
 flags, full suffix precedence and counted/copied variants are implemented;
 old query/public profiles remain unchanged. No fixtures, builds or execution
 have run. Full production review precedes new acceptance work.
+
+I prepare the mixed declaration fixture checkpoint after root and independent
+31c68 production review. My new fixture preserves every original ordinary query
+control, adds complete copied mixed identities and malformed-half/descriptor/
+path/status controls, actual maximum tables and conservative two-pass union work
+boundaries, and measures both allocation-failure modes with fresh recovery. The
+runner retains strict diagnostics and bounded raw command evidence. Source stays
+at31c68 integrated with canonical e59 by422535929; no builds or execution occur
+before complete fixture review. Full parents and runtime admission remain open.
