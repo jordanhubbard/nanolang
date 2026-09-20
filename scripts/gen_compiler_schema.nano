@@ -304,11 +304,14 @@ shadow gen_contracts {
     (free schema)
 }
 
-# str_starts_with is now a builtin (stdlib expansion #24-26)
+# I give my prefix checks a named shadow target.
+fn schema_prefix_matches(value: string, prefix: string) -> bool {
+    return (str_starts_with value prefix)
+}
 
-shadow str_starts_with {
-    assert (str_starts_with "List<int>" "List<")
-    assert (not (str_starts_with "array<int>" "List<"))
+shadow schema_prefix_matches {
+    assert (schema_prefix_matches "List<int>" "List<")
+    assert (not (schema_prefix_matches "array<int>" "List<"))
 }
 
 # Helper: Extract content between delimiters (e.g., "List<int>" -> "int")
@@ -340,10 +343,10 @@ fn map_type_to_c(nano_type: string) -> string {
             if (== nano_type "int") {
                 return "int"
             } else {
-                if (str_starts_with nano_type "array<") {
+                if (schema_prefix_matches nano_type "array<") {
                     return "DynArray *"
                 } else {
-                    if (str_starts_with nano_type "List<") {
+                    if (schema_prefix_matches nano_type "List<") {
                         let inner: string = (extract_between nano_type "List<" ">")
                         return (+ "List_" (+ inner " *"))
                     } else {
@@ -441,7 +444,7 @@ fn gen_c(schema: Json) -> string {
             while (< j (array_size fields)) {
                 let field: Json = (get_index fields j)
                 let field_type: string = (as_string (get_index field 1))
-                if (str_starts_with field_type "List<") {
+                if (schema_prefix_matches field_type "List<") {
                     (schema_insert_name list_names (extract_between field_type "List<" ">"))
                 }
                 set j (+ j 1)
