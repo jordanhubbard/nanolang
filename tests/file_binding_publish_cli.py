@@ -68,6 +68,8 @@ for kind in ('symlink','directory','fifo','invalid','oversize'):
     elif kind=='invalid':src.write_bytes(b'{}')
     else:src.write_bytes(b' '*(1048576+1))
     r=run('input-'+kind,src,dest,1);assert not r['published'] and not dest.exists()
+existing_input_link=work/'input-existing-symlink';existing_input_link.symlink_to(source.resolve());assert existing_input_link.exists()
+r=run('input-existing-symlink',existing_input_link,work/'refused-existing-symlink',1);assert not r['published'] and not (work/'refused-existing-symlink').exists()
 odd=work/os.fsdecode(b"quoted ' $(touch injected); \xff\xc3")
 r=run('byte-path',source,odd);assert r['directory'].encode('latin1')==os.fsencode(odd);complete(odd);assert not (repo/'injected').exists()
 longname='x'*4096;r=run('long-input',longname,work/'long-refused',1);assert r['status']==2 and not r['published']
