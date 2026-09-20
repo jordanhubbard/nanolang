@@ -1,0 +1,31 @@
+{
+  "references": 8418,
+  "unique_artifacts": 2660,
+  "bytes": 673451945,
+  "current": [
+    {
+      "group": "darwin",
+      "tree": "/tmp/nanolang-file-native-4e8-corrected",
+      "sources": 9583,
+      "tools": 10,
+      "mismatches": 0
+    },
+    {
+      "group": "darwin-corrected",
+      "tree": "/tmp/nanolang-file-native-6fdb-ready",
+      "sources": 9583,
+      "tools": 10,
+      "mismatches": 0
+    }
+  ],
+  "archives": {
+    "/tmp/nanolang-file-native-puck-reports.tar.gz": {
+      "sha256": "aa7b203248cb8b3f639fa5d76b6f5c80b0074cefca8d107e6fd8374ea93a8562",
+      "bytes": 6430851
+    },
+    "/tmp/nanolang-file-native-puck-artifacts.tar.gz": {
+      "sha256": "64e2fb64eff67c4c1d4d9d38fb32c3dc3b5964259ccdb7102d8a32a3f65b0a1d",
+      "bytes": 131316867
+    }
+  }
+}

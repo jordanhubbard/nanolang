@@ -1,0 +1,21 @@
+test_destination_symlink_is_replaced_not_followed (tests.test_wrapper_publication.WrapperPublication.test_destination_symlink_is_replaced_not_followed) ... I retain wrapper artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-wrapper-safe-di7mug4r
+ok
+test_failed_compilers_preserve_existing_output (tests.test_wrapper_publication.WrapperPublication.test_failed_compilers_preserve_existing_output) ... I retain wrapper artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-wrapper-safe-wwjh24m5
+ok
+test_failed_publication_preserves_directory (tests.test_wrapper_publication.WrapperPublication.test_failed_publication_preserves_directory) ... I retain wrapper artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-wrapper-safe-f266bdim
+ok
+test_import_path_is_a_c_string_not_source (tests.test_wrapper_publication.WrapperPublication.test_import_path_is_a_c_string_not_source) ... I retain wrapper artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-wrapper-safe-v00juye_
+ok
+test_killed_compilation_leaves_output_and_ignores_orphan (tests.test_wrapper_publication.WrapperPublication.test_killed_compilation_leaves_output_and_ignores_orphan) ... I retain wrapper artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-wrapper-safe-jamxpeln
+ok
+test_literal_paths_in_both_modes (tests.test_wrapper_publication.WrapperPublication.test_literal_paths_in_both_modes) ... I retain wrapper artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-wrapper-safe-a9jqxaio
+ok
+test_long_quoted_object_alias_in_both_modes (tests.test_wrapper_publication.WrapperPublication.test_long_quoted_object_alias_in_both_modes) ... I retain wrapper artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-wrapper-safe-5x3kwkhl
+ok
+test_overlapping_failure_does_not_replace_success (tests.test_wrapper_publication.WrapperPublication.test_overlapping_failure_does_not_replace_success) ... I retain wrapper artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-wrapper-safe-jbvx8h76
+ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 6.075s
+
+OK

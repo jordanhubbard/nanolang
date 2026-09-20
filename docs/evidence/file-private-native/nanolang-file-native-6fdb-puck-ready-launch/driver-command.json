@@ -1,0 +1,5 @@
+[
+  "ssh",
+  "puck.local",
+  "env PATH=/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang CARRIER_SAN_CC=/opt/homebrew/opt/llvm/bin/clang CARRIER_PHASES=sanitizer,vm,frames,opcodes,wrapper SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk LIBRARY_PATH=/opt/homebrew/opt/openssl@3/lib NANO_FILE_RUNTIME_CFLAGS=-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi LSAN_OPTIONS= /opt/homebrew/bin/python3 /tmp/nanolang-file-native-acff-driver.py /tmp/nanolang-file-native-6fdb-ready /tmp/nanolang-file-native-6fdb-puck-ready"
+]

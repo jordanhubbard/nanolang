@@ -1,0 +1,3 @@
+{"phase": "setup", "status": 0, "seconds": 9.527}
+{"phase": "normal", "status": 0, "seconds": 36.839}
+{"phase": "sanitizer", "status": 1, "seconds": 5.094}

@@ -1,0 +1,17 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 9.527,
+    "status": 0
+  },
+  {
+    "phase": "normal",
+    "seconds": 36.839,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 5.094,
+    "status": 1
+  }
+]

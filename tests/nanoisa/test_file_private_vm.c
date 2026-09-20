@@ -44,13 +44,22 @@ static NvmFileRuntimeStatus vm_service_hook(NvmFileRuntime *c,uint32_t import,ui
 #undef nvm_file_runtime_frame_return
 #undef nvm_file_runtime_service
 #endif
+#ifndef FILE_VM_EXECUTE
+#define FILE_VM_EXECUTE nvm_file_vm_execute
+#endif
+#ifndef FILE_VM_TARGET_LABEL
+#define FILE_VM_TARGET_LABEL "actual private File VM dispatch"
+#endif
+#ifndef FILE_VM_MAIN
+#define FILE_VM_MAIN main
+#endif
 static void vb(Body *p,bool b){op(p,OP_PUSH_BOOL);op(p,b);}
 static void veq(Body *p,int64_t value){fi(p,value);op(p,OP_I64_EQ);op(p,OP_ASSERT);}
 static void varm(Body *p,unsigned expected){op(p,OP_DUP);op(p,OP_UNION_TAG);veq(p,expected);op(p,OP_POP);}
 static NvmFileRuntimeReport vrbytes(uint8_t *bytes,size_t n,NvmFileRuntimeStatus expected,uint8_t tag,int64_t value){
  NvmFileRuntimeView out;memset(&out,0xa5,sizeof out);NvmFileRuntimeView saved=out;
  unsigned loads=loader_attempts,forks=fork_attempts;
- NvmFileRuntimeReport report=nvm_file_vm_execute(bytes,n,&out);
+ NvmFileRuntimeReport report=FILE_VM_EXECUTE(bytes,n,&out);
  CHECK(report.status==expected && loads==loader_attempts && forks==fork_attempts);
  if(expected==NVM_FILE_RUNTIME_OK){
   if(out.type.tag!=tag || out.values[0]!=value)fprintf(stderr,"private VM output: expected tag=%u value=%lld; actual tag=%u value=%lld\n",(unsigned)tag,(long long)value,(unsigned)out.type.tag,(long long)out.values[0]);
@@ -183,7 +192,7 @@ static void vm_allocation_and_masks(void){
   for(unsigned prefix=0;prefix<2048;prefix++){
    NvmFileRuntimeView out;memset(&out,0xa5,sizeof out);NvmFileRuntimeView old=out;unsigned opens=open_attempts;
    size_t failures=failed_calls;allocation_budget=(int)prefix;single_failure=transient!=0;
-   NvmFileRuntimeReport r=nvm_file_vm_execute(bytes,n,&out);allocation_budget=-1;single_failure=false;
+   NvmFileRuntimeReport r=FILE_VM_EXECUTE(bytes,n,&out);allocation_budget=-1;single_failure=false;
    CHECK(tracked_bytes==baseline && tracked_live==live);empty_host();
    if(r.status==NVM_FILE_RUNTIME_OK){CHECK(out.type.tag==TAG_INT && out.values[0]==251);if(failed_calls>failures)recovered++;else{finished=true;break;}}
    else {CHECK(r.status==NVM_FILE_RUNTIME_MEMORY || r.status==NVM_FILE_RUNTIME_UNRESOLVED);CHECK(!memcmp(&out,&old,sizeof out) && open_attempts==opens);refusals++;}
@@ -203,20 +212,20 @@ static void vm_refusals(void){
  NvmFileNominalBindings b;FrameSpec s={.result=-1};fi(&s.code,3);op(&s.code,OP_RET);
  NvmModule *m=frame_module(&s,1,&b,false,-1);size_t n;uint8_t *bytes=serialize(m,&n);unsigned opens=open_attempts;
  NvmFileRuntimeView out;memset(&out,0xa5,sizeof out);NvmFileRuntimeView old=out;
- CHECK(nvm_file_vm_execute(bytes,n,NULL).status==NVM_FILE_RUNTIME_INVALID);
- CHECK(nvm_file_vm_execute(bytes,1,&out).status!=NVM_FILE_RUNTIME_OK && !memcmp(&out,&old,sizeof out));
- CHECK(nvm_file_vm_execute(NULL,n,&out).status==NVM_FILE_RUNTIME_INVALID && !memcmp(&out,&old,sizeof out));
+ CHECK(FILE_VM_EXECUTE(bytes,n,NULL).status==NVM_FILE_RUNTIME_INVALID);
+ CHECK(FILE_VM_EXECUTE(bytes,1,&out).status!=NVM_FILE_RUNTIME_OK && !memcmp(&out,&old,sizeof out));
+ CHECK(FILE_VM_EXECUTE(NULL,n,&out).status==NVM_FILE_RUNTIME_INVALID && !memcmp(&out,&old,sizeof out));
  CHECK(open_attempts==opens);free(bytes);nvm_module_free(m);
  /* A dead unsupported instruction still refuses before acquisition. */
  s.code=(Body){0};fi(&s.code,3);op(&s.code,OP_RET);op(&s.code,OP_PUSH_F64);for(unsigned i=0;i<8;i++)op(&s.code,0);op(&s.code,OP_POP);fi(&s.code,4);op(&s.code,OP_RET);
- m=frame_module(&s,1,&b,false,-1);bytes=serialize(m,&n);NvmFileRuntimeReport r=nvm_file_vm_execute(bytes,n,&out);
+ m=frame_module(&s,1,&b,false,-1);bytes=serialize(m,&n);NvmFileRuntimeReport r=FILE_VM_EXECUTE(bytes,n,&out);
  CHECK(r.status==NVM_FILE_RUNTIME_UNRESOLVED && !r.acquired && open_attempts==opens && !memcmp(&out,&old,sizeof out));free(bytes);nvm_module_free(m);
 }
-int main(void){
+int FILE_VM_MAIN(void){
  CHECK(prior_file_frames_main()==0);unsigned before=checks;
  vm_numeric();vm_control();vm_passive();vm_lifetimes();vm_refusals();
 #ifdef HOSTED_INSTRUMENT
  vm_faults();vm_allocation_and_masks();CHECK(!tracked_live && !tracked_bytes);
 #endif
- empty_host();printf("PASS %u actual private File VM dispatch checks; public File routes remain refused\n",checks-before);return 0;
+ empty_host();printf("PASS %u %s checks; public File routes remain refused\n",checks-before,FILE_VM_TARGET_LABEL);return 0;
 }
