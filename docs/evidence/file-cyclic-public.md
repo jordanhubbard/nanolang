@@ -102,3 +102,7 @@ CAS objects,54,301 references,106 source/tool equalities,53 terminal records
 including all five retained failures, and the combined archive hash. The
 [attributed root audit](file-cyclic-public-root-audit.json) records this original
 scope. Final integration review remains separate.
+
+## My independent final integration review
+
+I retain the root review in [the integration audit](file-cyclic-public-integration-root-review.json). It independently checks all251 actual Git reports, 6,834 archived objects, 20,411 references, 44 equal source/tool pairs and all22 successful phase terminals. The combined archive hash matches. Current Linux and Darwin roots each retain27,913 source files; their13/36 tools and201/203 final products match the recorded endpoints. All25 selected production, generator and fixture files remain identical to reviewed f0012fa. My Make changes retain both canonical and cyclic targets. This establishes the public cyclic integration scope; source lowering, indirect calls, richer borrows and full5.1 release acceptance remain open.

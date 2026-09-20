@@ -1,0 +1,33 @@
+{
+  "seal": "docs/evidence/file-cyclic-public-integration",
+  "reports": 251,
+  "objects": 6834,
+  "bytes": 1432127619,
+  "pairs": 44,
+  "status": "pass",
+  "refs": 20411,
+  "terminals": 22,
+  "failed": [],
+  "archive": {
+    "bytes": 268514454,
+    "path": "/tmp/nanolang-file-cyclic-public-final-artifacts.tar.gz",
+    "sha256": "be2f22990f0e798c79d7c9b7f3f36d34070a3742e683b00482bb54a3babfef74"
+  },
+  "current_linux": {
+    "sources": 27913,
+    "tools": 13,
+    "products": 201,
+    "status": "pass"
+  },
+  "current_puck": {
+    "sources": 27913,
+    "tools": 36,
+    "products": 203,
+    "status": "pass"
+  },
+  "reviewed_source_identity": {
+    "pin": "f0012faadf819fcdc21b34cac6d604fe11079ce7",
+    "unchanged_files": 25
+  },
+  "reviewer": "root independent review"
+}
