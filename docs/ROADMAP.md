@@ -12671,3 +12671,15 @@ This bounded fixture addition remains unexecuted pending review.
   owner/output assertions through the existing root-view API. Unbuffered case
   markers improve later attribution. Production and status predicates remain
   unchanged; root reviews the bounded diff before fresh corrected gates.
+
+- [ ] I retain the historical Git input for my Darwin public neighbor (`task_c4c58d627e7c4611973070666387d06d`, parent15a92). At ac877 my corrected carrier matrix and private neighbors passed; public CLI/instrumented methods passed before the linked method's fixed `git show` failed in an archive without `.git`. Root approved only that uncompleted method with verified read-only historical repository, fixed commit/blob, fresh artifacts and source/tool/provider endpoints. Original terminal and passing scopes remain distinct; no fixture or production changes.
+
+I qualify the bounded15a92 carrier protocol at ac877 with exact d407 production:
+Linux GCC/Clang and Darwin Apple/Homebrew ordinary plus supported scoped
+sanitizers pass, including retained acyclic/frame suites and new 258-iteration
+zero-project-allocation controls. Core/query/hosted/private VM/native neighbors
+pass. Linux public suite passes; Darwin public CLI/instrumented passes and its
+remaining linked method passes after verified historical Git input underc4c58.
+I preserve c5d first fixture and ac877 missing-history terminals separately.
+The evidence seal and canonical899/900 bounded integration await review/merge;
+15a92 and full control-call/source parents remain open.

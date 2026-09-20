@@ -342,3 +342,37 @@ preserved-owner predicates. I add unbuffered case-start markers so later first
 terminals identify the begun case. This is a fixture correction, not a relaxed
 runtime accessor. Fresh corrected products require reviewed fixture bytes;
 original c5d products and first-terminal attribution remain immutable.
+
+## I retain the qualified carrier scope
+
+At unchanged carrier production `d4070d672` and corrected fixture `ac8772ae8`,
+Linux GCC13/Clang ordinary and scoped sanitizer carrier gates pass. Darwin
+Apple/Homebrew ordinary and Homebrew scoped sanitizer carrier gates pass.
+Each instrumented run retains 442,427 new carrier checks, 202 measured
+creation/begin allocation attempts, and 398 creation plus six begin refusals
+with recovery. Each linked run retains 225,049 new checks. The zero-project-
+allocation loop blocks pass; neither transient preparation peak nor whole-
+program instrumentation is claimed.
+
+Core-value, cyclic query/hosted, private VM and actual generated-native neighbors
+pass on both hosts. Linux's full public suite passes. Darwin's public CLI and
+instrumented corpus pass, then its linked method's historical `git show` fails
+because the source archive has no `.git`. Under `c4c58d62`, I retain that terminal
+and qualify only the remaining linked method in a fresh artifact directory,
+using read-only `/Users/jkh/Src/nanolang/.git`, frozen ac877 worktree, exact
+`f1606e2c84e67491e9652a5bf71944d235216d95` historical commit and
+`732f38decf290ab7e3288d7f77421848aa235c24` source blob. The corrected method passes;
+its Git executable/blob and source/tool/provider endpoints remain separate.
+Public package tests rebuild providers, so their endpoint changes are recorded
+rather than described as global object immutability.
+
+The paired seal preserves both first terminals and all produced bytes. My next
+ready integration includes canonical899/900: the new private indirect query
+factors declaration/code readers with explicit false-mode wrappers for existing
+acyclic/cyclic paths. Carrier/core/VM/native/public execution sources stay exact.
+Root approved a separate bounded integration matrix with fresh affected providers,
+ordinary carrier, cyclic-hosted and indirect queries, plus public refusal/archive
+boundary controls on both hosts. Original sanitizer evidence retains its original
+ac877 attribution. No full bootstrap or repeated sanitizer matrix is inferred.
+Full cyclic dispatch, genuine generated-native loops, matched public conjunction,
+indirect/richer-borrow execution and source acceptance remain unfinished.
