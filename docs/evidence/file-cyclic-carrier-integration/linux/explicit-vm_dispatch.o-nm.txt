@@ -1,0 +1,13 @@
+                 U __snprintf_chk
+                 U calloc
+                 U free
+                 U snprintf
+0000000000000670 T vm_dispatch_advance
+00000000000000f0 T vm_dispatch_build_function
+00000000000004b0 T vm_dispatch_build_module
+0000000000000630 T vm_dispatch_current
+0000000000000020 T vm_dispatch_function_free
+0000000000000060 T vm_dispatch_module_free
+00000000000000e0 T vm_dispatch_profile_all
+00000000000000d0 T vm_dispatch_profile_none
+00000000000005d0 T vm_dispatch_seek

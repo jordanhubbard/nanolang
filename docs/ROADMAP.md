@@ -12703,3 +12703,11 @@ Fresh changed-query providers and ordinary carrier/cyclic-hosted/indirect plus
 archive-public-refusal controls will qualify this integration on both hosts,
 under the reviewed bounded plan. Original ac877 sanitizer/public evidence remains
 unchanged and does not become integrated sanitizer acceptance.
+
+I seal the approved5c71 canonical integration: both hosts pass fresh preparation,
+ordinary carrier, indirect/cyclic-hosted queries and the actual public archive
+boundary. The integration evidence retains156 reports,629 artifacts and12 equal
+source/tool phase pairs, with all prepared execution providers unchanged.
+Original ac877 sanitizer/public corpus attribution stays separate. Source and
+fixture repair children1a19/c4c58 await actual merge reconciliation; full15a92
+matched cyclic VM/native/public execution and parent goals remain open.
