@@ -270,3 +270,23 @@ I have not yet claimed complete namespaces for any graph. Both producer adapters
 must resolve these rows or return UNRESOLVED; the old ordinary driver continues
 its existing behavior. Supporting all required full source graphs remains parent
 work rather than redefining an incomplete graph as complete.
+
+## My explicit-relative import prerequisite
+
+At `cec2788d0` my existing C `resolve_module_path` returns `./...` unchanged;
+subsequent input opening and canonicalization therefore use process CWD. My Nano
+`resolve_import_path` joins both `./...` and `../...` to the importing source
+directory. I observed this in source, not an executed reproducer. I record it
+as `task_e2ac2553c26a4640b00f6aa296f6da34` before changing either implementation.
+
+I propose the same explicit-relative rule for both producers: when I have an
+importing source path, I join `./...` and `../...` to its directory before
+canonicalization; a basename-only importer uses its CWD directory. With no
+importing source path I retain the supplied relative path. I do not change
+absolute paths, bare-name/project/module search precedence, package policy or
+ordinary source visibility. I make the small C resolver correction as a reviewed
+shared prerequisite, not a special File-only resolver. I preserve existing Nano
+semantics. Paired root and transitive imports must select the same actual file
+with a conflicting CWD decoy, including symlinked importer canonicalization,
+missing inputs and the unchanged search modes. Ordinary import tests remain
+required. No graph report can claim paired origin parity before this gate.
