@@ -870,6 +870,13 @@ their individual acceptance evidence closes them.
       general tuple substitution or ownership transfer. MAC
       `task_bcd773ad3c084ce099a3da5aef682fef`.
 
+- [ ] I repeat the exact unchanged full module-metadata C fixture with fresh
+      external binary and hash-verified f7c O0 sanitizer providers, unsuppressed
+      once. This includes the original union payload substitution lifecycle and
+      callback lifecycle together; my earlier focused ownership fixtures do not
+      substitute for that exact parent00c47 gate. I preserve the qualified tree
+      and retain first terminal/source/provider maps before parent review.
+
 - [ ] I own checker-created function metadata and callback/array placeholders
       independently of borrowed AST/manual/builtin graphs and mutable symbol slots.
       I preserve the595-byte historical parsed lifecycle terminal, explicitly run
