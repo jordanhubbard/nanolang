@@ -300,3 +300,14 @@ and the0.816s terminal at /tmp/nanolang-read-adapters-corrected-linux. My propos
 one-line fixture correction applies the same flags to dumpmachine; I preserve
 strict output validation and do not filter or suppress warnings. Any concurrent
 puck acceptance remains attributed to unchanged15069, not the corrected fixture.
+
+The concurrent original15069 puck attempt also stops before adapter execution:
+strict compilation of its O0 LLVM forwarding object rejects the reported
+arm64-apple-darwin target against Clang's effective arm64-apple-macosx26.0.0.
+The retained ordinary terminal is0.613s. A separate supported
+-print-effective-triple diagnostic still reports arm64-apple-darwin25.6.0, so it
+is not a sufficient correction. I propose retaining a trivial C target probe,
+compiling it to textual LLVM IR with the exact selected compiler/flags/SDK,
+and copying its single checked target-triple declaration into my unchanged
+callback IR. This new probe performs no execution. I retain strict-Werror and
+all callback/lifetime assertions; source review precedes the corrected build.
