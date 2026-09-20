@@ -154,3 +154,52 @@ preserve the commands/status/output at
 approved fallback is private exclusive scope accounting for evaluator dispatch,
 call/scope cleanup and Environment lookup/index maintenance. That measurement
 must precede any production correction or attribution claim.
+
+
+## My exclusive scope measurement and next correction boundary
+
+I retain the single 77226ef6e full checker diagnostic in
+`evidence/exclusive-77226/seal.json`: 64 reports, 4087 unique artifacts,
+781743455 bytes and six equal command input pairs. The own-child perf preflight
+was denied by the host's existing perf_event_paranoid=4 policy; I did not change
+that policy. My fallback observer adds checked exclusive scope entry/exit clocks.
+The run returns 1 at my original ten-second shadow deadline; the 120-second outer
+bound and capacity guard do not fire. I retain 853 markers and 426 completed
+shadows, with lookup_field_type_kind the last unmatched begin.
+
+Between the first and last marker, all exclusive scope times sum exactly to
+9999172551 ns. Symbol index synchronization accounts for 4748758758 ns over
+3549172 calls; function lookup exclusive time accounts for 2942919683 ns over
+1610387 calls. These intervals include instrumentation overhead, including
+6223993 expression scope entries. They are diagnostic attribution, not original
+production timing percentages or a qualification pass. The final unmatched
+interval remains unmeasured. My list registry measurement remains too small to
+justify a new registry index.
+
+### My proposed scope-pop correction, before implementation
+
+I found that eval_scope_release lowers symbol_count and then invalidates the
+entire optional symbol index on every cleanup. My existing symbol_index_sync
+already supports precisely this operation: it pops saved numeric links and
+hashes without reading freed names, before indexing new slots. The ordinary
+insertion path calls env_get_var_same_file before writing a reused slot, which
+synchronizes the old count first. My existing test_env_symbol_index checks this
+pop-before-insert behavior, reverse-scan equivalence, cross-file metadata and
+allocation failure fallback.
+
+I propose removing only the full-index invalidation from eval_scope_release.
+The index remains Environment-owned; no borrowed name or Symbol pointer is
+retained in it. Graph retirement, all frees, final symbol_count, function result
+ownership, and error behavior remain unchanged. Module import's raw slot write
+continues to invalidate explicitly. Destruction and allocation-failure fallback
+continue to invalidate. This does not add a cache or alter declaration identity.
+
+Before executing, I will add an actual evaluator cleanup regression proving
+index identity survives an entered scope, shadowed bindings restore correctly,
+freed names are not read, insertion after pop is correct, and explicit raw-slot
+invalidation still works. I retain every old allocation/fallback control. A
+fresh unchanged full checker graph must pass its existing deadline before I
+claim timeout progress; complete bootstrap, thirteen methods, sanitizer scopes
+and whole Make acceptance remain required. Function lookup's measured cost is
+separate; I do not change its namespace/builtin/generated-list precedence in
+this first correction.

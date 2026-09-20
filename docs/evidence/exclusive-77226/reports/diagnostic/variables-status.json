@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "-f",
+    "/tmp/nanolang-exclusive-77226-linux/variables.mk",
+    "diagnostic-variables",
+    "CC=/bin/gcc"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-40870",
+  "bound": 30,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 0,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 0.9756579389795661,
+  "log": {
+    "sha256": "133ee7e53dff1b735a5b7d9c3dc7d7cf771d2371ba9569e5eacb4b15cd995568",
+    "bytes": 3750,
+    "archive": "/tmp/nanolang-exclusive-77226-linux/objects/133ee7e53dff1b735a5b7d9c3dc7d7cf771d2371ba9569e5eacb4b15cd995568"
+  },
+  "inputs_equal": true
+}

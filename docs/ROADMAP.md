@@ -13739,3 +13739,16 @@ maps/products at the original preparation roots.
   the10s child/120s outer bounds and review all added counters before execution.
 - [ ] I choose any further correction only from the measured work and preserve
   both40870 first terminals; parser progress alone is not timeout completion.
+
+
+My exclusive 77226 observer attributes 4.749s of its measured 9.999s span to
+symbol index synchronization and 2.943s to function lookup. Observer overhead
+is included, and this is not a production acceptance result. I retain the seal
+in `docs/evidence/exclusive-77226/` under timing task
+`task_2deaad56f65c497f80546220aa1ca9d0`.
+
+- [ ] I restore my existing incremental symbol-index pop path at evaluator
+  cleanup instead of discarding the full index; I first review the exact source
+  and actual cleanup regression, preserving all ownership and raw-write rules.
+- [ ] I qualify the unchanged checker graph and remaining full list/bootstrap
+  matrix after the correction; I measure any remaining lookup cost separately.

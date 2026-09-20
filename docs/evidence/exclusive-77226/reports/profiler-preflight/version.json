@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/bin/perf",
+    "--version"
+  ],
+  "returncode": 0,
+  "seconds": 0.03268861398100853
+}
