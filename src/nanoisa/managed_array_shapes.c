@@ -18,6 +18,7 @@
 #define FIELD_CELLS 65536u
 #define BIT(tag) ((uint16_t)(1u << (tag)))
 #define LEAVES (BIT(TAG_VOID)|BIT(TAG_INT)|BIT(TAG_U8)|BIT(TAG_FLOAT)|BIT(TAG_BOOL)|BIT(TAG_STRING)|BIT(TAG_ENUM))
+#define RECORD_ARRAY_LEAVES (BIT(TAG_INT)|BIT(TAG_U8)|BIT(TAG_FLOAT)|BIT(TAG_BOOL)|BIT(TAG_STRING))
 typedef struct { uint64_t origins; uint16_t tags; uint8_t unknown; } Value;
 typedef struct {
     VmDecodedFunction decoded;
@@ -224,9 +225,11 @@ static int slice_origins(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Valu
 static int check_write(Analysis *a,uint32_t fi,uint32_t pc,Value receiver,Value value) {
     if(!analysis_work(a,ORIGINS*4u))return 0;
     a->report.checked_writes++;
-    uint16_t allowed=LEAVES|(a->graph?BIT(TAG_ARRAY):0);
+    uint16_t allowed=a->structure?RECORD_ARRAY_LEAVES:LEAVES|(a->graph?BIT(TAG_ARRAY):0);
+    if(a->structure && value.origins)
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require flat scalar/string array content without heap children.");
     if(value.unknown || !value.tags || (value.tags&~allowed))
-        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,a->graph?
+        return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,a->graph && !a->structure?
             "I require proved scalar/string/array graph writes.":"I require proved scalar/string leaf writes.");
     if(a->graph && (value.tags&BIT(TAG_ARRAY)) && !value.origins)
         return stop(a,NVM_ARRAY_UNRESOLVED,fi,pc,"I require authoritative child array origins.");
@@ -630,7 +633,8 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
             }
             if(op!=OP_ARR_NEW && op!=OP_STR_SPLIT && op!=OP_ARR_LITERAL)continue;
             uint8_t declared=op==OP_STR_SPLIT?TAG_STRING:d->instruction.operands[0].u8;
-            if(!((LEAVES|(a->graph?BIT(TAG_ARRAY):0))&BIT(declared))){stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I have not qualified this declared array shape.");goto done;}
+            uint16_t allowed=a->structure?RECORD_ARRAY_LEAVES:LEAVES|(a->graph?BIT(TAG_ARRAY):0);
+            if(!(allowed&BIT(declared))){stop(a,NVM_ARRAY_UNRESOLVED,fi,d->byte_offset,"I have not qualified this declared array shape.");goto done;}
             if(a->report.origin_count==ORIGINS){stop(a,NVM_ARRAY_LIMIT,fi,d->byte_offset,"I reached my allocation-site origin limit.");goto done;}
             uint32_t origin=a->report.origin_count++;f->origins[i]=(int16_t)origin;
             a->report.origins[origin]=(NvmArrayOrigin){fi,d->byte_offset,op==OP_STR_SPLIT?BIT(TAG_STRING):0,declared,(uint8_t)packed(declared)};

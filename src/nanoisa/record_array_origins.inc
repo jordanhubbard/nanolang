@@ -73,10 +73,15 @@ static int ra_prepare_records(Analysis *a) {
     return 1;
 }
 static int ra_check_constraints(Analysis *a) {
-    if(!analysis_work(a,ORIGINS*4u))return 0;
-    for(uint32_t i=0;i<a->report.origin_count;i++)if(a->required_elements[i]) {
-        Value writes=a->all_writes[i];
-        if(writes.unknown || writes.origins || (writes.tags&~a->required_elements[i]))
+    if(!analysis_work(a,ORIGINS*16u))return 0;
+    for(uint32_t i=0;i<a->report.origin_count;i++)if(a->origin_kind[i]==NVM_HEAP_ORIGIN_ARRAY) {
+        Value writes=a->all_writes[i],children=a->children[i];
+        if(!(RECORD_ARRAY_LEAVES&BIT(a->report.origins[i].declared_tag)) ||
+           writes.unknown || writes.origins || (writes.tags&~RECORD_ARRAY_LEAVES) ||
+           children.unknown || children.origins || (children.tags&~RECORD_ARRAY_LEAVES) ||
+           (a->report.origins[i].child_tags&~RECORD_ARRAY_LEAVES))
+            return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require flat scalar/string content for every array origin.");
+        if(a->required_elements[i] && (writes.tags&~a->required_elements[i]))
             return stop(a,NVM_ARRAY_UNRESOLVED,0,0,"I require every aliased array write to preserve its exact field element type.");
     }
     return 1;

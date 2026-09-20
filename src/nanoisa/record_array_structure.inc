@@ -77,6 +77,17 @@ NvmArrayEligibilityResult nvm_record_array_structure_prepare(const NvmModule *m,
             pc+=width;
         }
     }
+    /* The shared range entry independently classifies service/File opcodes.
+     * Charge that second decode, parameter checks and pairwise range checks
+     * separately from our whitelist preflight, before invoking the helper. */
+    for(uint32_t fi=0;fi<m->function_count;fi++)
+        if(!nvm_ra_steps(b,(uint64_t)m->functions[fi].code_length+
+                            m->functions[fi].arity+m->function_count+32u))
+            return ra_result(NVM_ARRAY_LIMIT,fi,"I reached my shared structural rescan bound.");
+    /* Preflight proved absent passive/callback/import tables: both shared
+     * contract validators take their constant empty-table paths. */
+    if(!nvm_ra_steps(b,32))
+        return ra_result(NVM_ARRAY_LIMIT,0,"I reached my empty contract-check bound.");
     NvmVerifyResult r=verify_module_ranges(m);
     if(!r.ok)return ra_result(NVM_ARRAY_INVALID,0,r.error_msg);
     r=verify_module_contracts_and_imports(m);

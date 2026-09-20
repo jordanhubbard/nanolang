@@ -336,3 +336,24 @@ I add no translation unit or installed header. Explicit Make prerequisites cover
 both new includes and the private/public source headers. Source review, fixture
 review and fresh selected gates are still required; no build or module execution
 has occurred for this checkpoint.
+
+### My reviewed rescan and flat-origin corrections
+
+I separately reserve each function's code length, parameter count, function-count
+range comparisons and32 fixed units before `verify_module_ranges`. Its
+`nvm_service_execution_pending` path independently decodes every function for
+File opcodes; the prior whitelist scan does not pay for that rescan. I reserve
+another32 units before the contract helper: preflight has already proved zero
+passive data, callback contracts and imports, so these helpers take their empty
+paths. Metadata validation has its own `32*metadata_count+1` reservation;
+counted-string checks reserve lengths independently. Declaration preparation
+retains its full independent work cap; decode/operand, height, type and origin
+passes retain their separate reservations in the table above.
+
+I enforce the five declared element tags at every new-mode array allocation
+site, not only at record bindings. Every final write and every origin's complete
+content alternatives exclude unknown values, heap-child origins, VOID, ENUM,
+ARRAY and STRUCT. Empty content is permitted for an empty flat array. Derived
+slices inherit only flat origins/content; the final origin check covers them too.
+Old graph APIs retain their former element and write rules. These are static
+source corrections; fixtures and gates remain pending full review.
