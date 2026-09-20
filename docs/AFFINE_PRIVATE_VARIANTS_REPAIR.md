@@ -52,3 +52,15 @@ larger closure for the VM fixture only. No production or fixture changes, no
 failed binary replay, and no claim that the original link passed. I verify the
 frozen660 selected provider identities before corrected commands. Darwin had no
 fixture command before this correction.
+
+The corrected660 five-configuration constructor/admission matrix passes. Both
+hosts pass actual mixed admission and complete mixed query; Linux also passes
+owner authority. Darwin's old owner-authority runner then fails before execution
+because its hardcoded `-lm -lcrypto` drops the prepared OpenSSL search directory.
+I retain `/tmp/nanolang-affine-variants-660-puck-neighbors/owner-authority.log` and
+its Make2 status. Before correction I specify an optional
+`OWNED_ARRAY_AUTHORITY_LDFLAGS` override, defaulting to the exact old flags, and
+Make forwarding of its actual LDFLAGS. This changes build selection only; I keep
+all allocation, status and output assertions. Corrected Darwin continuation gets
+separate fixture/input attribution and retained products. No Linux replay is
+needed for this link-selection correction.

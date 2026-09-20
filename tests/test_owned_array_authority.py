@@ -53,7 +53,8 @@ class OwnedArrayAuthority(unittest.TestCase):
             executable = work / 'describe'
             self.command([*common, 'tests/nanoisa/test_owned_array_authority.c', *objects,
                           *shlex.split(os.environ['OWNED_ARRAY_AUTHORITY_LINK_OBJECTS']),
-                          '-lm', '-lcrypto', '-o', executable])
+                          *shlex.split(os.environ.get('OWNED_ARRAY_AUTHORITY_LDFLAGS', '-lm -lcrypto')),
+                          '-o', executable])
             result = self.command([executable])
             self.assertIn('private owner ARRAY authority checks passed; no pending module execution', result.stdout)
             print(result.stdout, end='')
