@@ -1,0 +1,8 @@
+I retain neighbor artifacts at /private/tmp/nanolang-mixed-counted-5f4f-puck/managed_array_graphs-products
+test_graph_edges_and_iterative_release_targets (tests.test_managed_array_graphs.ArrayGraphs.test_graph_edges_and_iterative_release_targets) ... ok
+test_vm_nested_identity_and_managed_translation (tests.test_managed_array_graphs.ArrayGraphs.test_vm_nested_identity_and_managed_translation) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.452s
+
+OK

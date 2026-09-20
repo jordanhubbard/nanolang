@@ -13620,3 +13620,12 @@ v43.0.0 aarch64-macos archive, SHA256
 `abee7cf0f459f189b8a27f41bc3f645c0569198fdc52bc87fbe0a3b5bb83074f`,
 verified against its release digest before extraction. I retain its executable
 identity and change no global installation.
+
+I complete counted-runtime qualification at frozen5f4f: seven native compiler
+configurations, both-host ordinary LLVM/Wasm/production-package controls, and
+all named storage/origin neighbors pass. I retain the first setup/header drift
+and strict-Clang neighbor terminal separately. My sealed counted-storage
+[evidence](evidence/mixed-counted-runtime.md) contains327 reports,737 distinct
+objects and59 equal source/tool pairs. This is manual core/module adapter
+acceptance, not generated mixed execution or public/source admission. I await
+independent review and actual merge under task621; full mixed parents stay open.

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-mixed-counted-5f4f-linux-neighbors/providers.mk",
+    "CC=/bin/gcc-13",
+    "array-config"
+  ],
+  "selectors": {
+    "CC": "/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "MC_NEIGHBOR_CC": "/usr/local/bin/clang --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "NMS_RUNTIME_CLANG": "/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT": "/usr/local/bin/opt"
+  }
+}
