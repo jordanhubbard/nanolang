@@ -870,37 +870,36 @@ their individual acceptance evidence closes them.
       general tuple substitution or ownership transfer. MAC
       `task_bcd773ad3c084ce099a3da5aef682fef`.
 
-- [ ] I repeat the exact unchanged full module-metadata C fixture with fresh
-      external binary and hash-verified f7c O0 sanitizer providers, unsuppressed
-      once. This includes the original union payload substitution lifecycle and
-      callback lifecycle together; my earlier focused ownership fixtures do not
-      substitute for that exact parent00c47 gate. I preserve the qualified tree
-      and retain first terminal/source/provider maps before parent review.
+- [x] I pass the exact unchanged full module-metadata C fixture, including
+      both original union-substitution and parsed callback lifecycles, with a
+      fresh external binary and hash-verified f7c O0 ASan/UBSan providers.
+      All 24 methods pass with unsuppressed leak detection. I preserve the
+      qualified tree and source/provider/tool maps in [my full-fixture
+      evidence](evidence/checker-metadata-ownership.md#my-original-full-fixture-supplemental-acceptance).
 
-- [ ] I own checker-created function metadata and callback/array placeholders
-      independently of borrowed AST/manual/builtin graphs and mutable symbol slots.
-      I preserve the595-byte historical parsed lifecycle terminal, explicitly run
-      that unchanged parsed test in a fresh harness, cover both checker paths and
-      truncation/redefinition, and require unsuppressed sanitizer plus metadata/
-      scoping gates before closure. Contract: [checker ownership](CHECKER_METADATA_OWNERSHIP.md).
-      MAC `task_e69bf88f5cbb49bd933b5ad7e25ae3e6`, parent00c47.
+- [x] I own checker-created function metadata and callback/array placeholders
+      independently of borrowed AST/manual/builtin graphs and mutable slots.
+      Both checker paths, destruction orders, truncation and borrowed runtime
+      array controls pass; the complete normal metadata/scoping targets pass.
+      PR884 merged at `4aa6ce063`; child `task_e69bf88f5cbb49bd933b5ad7e25ae3e6`
+      is complete. [Contract](CHECKER_METADATA_OWNERSHIP.md) and
+      [evidence](evidence/checker-metadata-ownership.md).
 
-- [ ] I release independently owned registered and extracted union metadata
-      (`task_0bae7b0426fc4c3e912ab00cfd7de136`, under `task_00c47a5d65d04c48914864ec0de553d6`).
-      My current environment owns allocated field type-name arrays, generic
-      formals and module names, while extracted metadata still borrows those
-      pointers. I first give the extracted copy independent ownership, then
-      free each owner's allocations. I require AST/environment/module lifetime
-      independence in both destruction orders, null/empty controls, a fresh
-      unsuppressed ASan/UBSan/LSan lifecycle gate and the existing normal
-      metadata suite. Import-tracker freeing is already canonical; callback
-      placeholder and other parent leaks remain separate until measured.
+- [x] I release independently owned registered and extracted union metadata.
+      PR882 gives each owner its own field type-name arrays, generic formals
+      and module name, then releases each copy. Both destruction orders,
+      nested TypeInfo and zero-length allocations pass normal and unsuppressed
+      sanitizer checks. Child `task_0bae7b0426fc4c3e912ab00cfd7de136` is complete;
+      [my evidence](evidence/union-metadata-ownership/README.md) retains the pin.
 
-- [ ] **Release legacy union metadata allocations.** My payload lifetime check
-      exposed 245 bytes retained by existing registered field-name/formal arrays
-      and the environment import tracker. I establish borrower ownership before
-      freeing these and require LeakSanitizer evidence; scoped ASan checks with
-      leak detection disabled do not satisfy this item. MAC `task_00c47a5d65d04c48914864ec0de553d6`.
+- [x] **Release legacy union metadata allocations.** The original 245-byte
+      union and later 595-byte callback reports remain preserved. Import-tracker
+      cleanup, PR882 and PR884 satisfy both original parsed lifecycle leak
+      obligations in the unchanged full fixture with leak detection enabled.
+      Actual merge ancestry and independent report/artifact review support
+      completed `task_00c47a5d65d04c48914864ec0de553d6`. This closes those recorded
+      metadata leaks; I do not claim all compiler allocations or allocation-
+      failure recovery, and full release acceptance remains open.
 
 - [x] **Adopt v5.1.0 as my full-roadmap release target.** I preserve the
       published `v5.0.0` tag and move every unreleased `v5.0.1` contract,
