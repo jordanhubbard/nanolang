@@ -1,0 +1,18 @@
+ruby icd_generator.rb --mode database --database ./ocl_interface.yaml \
+	
+ruby icd_generator.rb --mode generate --database ./ocl_interface.yaml
+/home/jkh/Src/RubyOS/build/host-ruby/lib/ruby/4.0.0/yaml.rb:3: warning: It seems your ruby installation is missing psych (for YAML output).
+To eliminate this warning, please install libyaml and reinstall your ruby.
+/home/jkh/Src/RubyOS/build/host-ruby/lib/ruby/4.0.0/yaml.rb:3: warning: It seems your ruby installation is missing psych (for YAML output).
+To eliminate this warning, please install libyaml and reinstall your ruby.
+/home/jkh/Src/RubyOS/build/host-ruby/lib/ruby/4.0.0/yaml.rb:4:in 'Kernel#require': cannot load such file -- psych (LoadError)
+	from /home/jkh/Src/RubyOS/build/host-ruby/lib/ruby/4.0.0/yaml.rb:4:in '<top (required)>'
+	from icd_generator.rb:27:in 'Kernel#require'
+	from icd_generator.rb:27:in '<main>'
+/home/jkh/Src/RubyOS/build/host-ruby/lib/ruby/4.0.0/yaml.rb:4:in 'Kernel#require': cannot load such file -- psych (LoadError)
+	from /home/jkh/Src/RubyOS/build/host-ruby/lib/ruby/4.0.0/yaml.rb:4:in '<top (required)>'
+	from icd_generator.rb:27:in 'Kernel#require'
+	from icd_generator.rb:27:in '<main>'
+make: *** [Makefile:1674: stamp-generator] Error 1
+make: *** Waiting for unfinished jobs....
+make: *** [Makefile:1696: stamp-generator-dummy] Error 1

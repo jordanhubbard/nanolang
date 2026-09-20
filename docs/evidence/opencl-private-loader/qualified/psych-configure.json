@@ -1,0 +1,13 @@
+{
+  "name": "psych-configure",
+  "argv": [
+    "/home/jkh/Src/RubyOS/build/host-ruby/bin/ruby",
+    "extconf.rb",
+    "--with-libyaml-include=/tmp/nanolang-opencl-private-7f0/yaml/usr/include",
+    "--with-libyaml-lib=/tmp/nanolang-opencl-private-7f0/yaml/usr/lib/aarch64-linux-gnu"
+  ],
+  "cwd": "/tmp/nanolang-opencl-private-7f0/psych",
+  "exit_code": 0,
+  "seconds": 0.46462974697351456,
+  "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+}

@@ -1,0 +1,226 @@
+{
+  "head": "7f0d01d4c57ffa2be734307f22aecdd684f5a761",
+  "success": true,
+  "sources_unchanged": true,
+  "tools_unchanged": true,
+  "system_libraries_unchanged": true,
+  "head_unchanged": true,
+  "rows": [
+    {
+      "name": "psych-configure",
+      "argv": [
+        "/home/jkh/Src/RubyOS/build/host-ruby/bin/ruby",
+        "extconf.rb",
+        "--with-libyaml-include=/tmp/nanolang-opencl-private-7f0/yaml/usr/include",
+        "--with-libyaml-lib=/tmp/nanolang-opencl-private-7f0/yaml/usr/lib/aarch64-linux-gnu"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-7f0/psych",
+      "exit_code": 0,
+      "seconds": 0.46462974697351456,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "psych-make",
+      "argv": [
+        "/usr/bin/make",
+        "-j2"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-7f0/psych",
+      "exit_code": 0,
+      "seconds": 0.41711479803780094,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "psych-dynamic-libraries",
+      "argv": [
+        "/usr/bin/ldd",
+        "/tmp/nanolang-opencl-private-7f0/psych/psych.so"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-7f0/psych",
+      "exit_code": 0,
+      "seconds": 0.007791529002133757,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "yaml-preflight",
+      "argv": [
+        "/home/jkh/Src/RubyOS/build/host-ruby/bin/ruby",
+        "-e",
+        "require 'yaml'; data={'gate'=>[1,true,'byte']}; abort 'YAML mismatch' unless YAML.safe_load(YAML.dump(data))==data; puts RUBY_DESCRIPTION; puts Psych::VERSION; puts $LOADED_FEATURES.grep(/psych/)"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-7f0/psych",
+      "exit_code": 0,
+      "seconds": 0.06397684500552714,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "bootstrap",
+      "argv": [
+        "./bootstrap"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-7f0/upstream",
+      "exit_code": 0,
+      "seconds": 2.920936406007968,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "configure",
+      "argv": [
+        "./configure",
+        "--prefix=/tmp/nanolang-opencl-private-7f0/install",
+        "--enable-official-khronos-headers",
+        "--disable-update-database"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-7f0/upstream",
+      "exit_code": 0,
+      "seconds": 2.269395429000724,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/usr/bin/make",
+        "-j2"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-7f0/upstream",
+      "exit_code": 0,
+      "seconds": 3.6724895020015538,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "install-private",
+      "argv": [
+        "/usr/bin/make",
+        "install"
+      ],
+      "cwd": "/tmp/nanolang-opencl-private-7f0/upstream",
+      "exit_code": 0,
+      "seconds": 0.3145965870353393,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "gcc-ordinary-build",
+      "argv": [
+        "/usr/bin/aarch64-linux-gnu-gcc-13",
+        "-std=c11",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "tests/test_opencl_identity_real.c",
+        "-ldl",
+        "-o",
+        "/tmp/nanolang-opencl-private-7f0/gcc-ordinary"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+      "exit_code": 0,
+      "seconds": 0.16426601895364001,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "gcc-ordinary-run",
+      "argv": [
+        "/tmp/nanolang-opencl-private-7f0/gcc-ordinary"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+      "exit_code": 0,
+      "seconds": 0.3648262789938599,
+      "LD_LIBRARY_PATH": "/tmp/nanolang-opencl-private-7f0/install/lib"
+    },
+    {
+      "name": "gcc-sanitizer-build",
+      "argv": [
+        "/usr/bin/aarch64-linux-gnu-gcc-13",
+        "-std=c11",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "tests/test_opencl_identity_real.c",
+        "-ldl",
+        "-o",
+        "/tmp/nanolang-opencl-private-7f0/gcc-sanitizer"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+      "exit_code": 0,
+      "seconds": 0.31443879700964317,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "gcc-sanitizer-run",
+      "argv": [
+        "/tmp/nanolang-opencl-private-7f0/gcc-sanitizer"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+      "exit_code": 0,
+      "seconds": 0.4145595660083927,
+      "LD_LIBRARY_PATH": "/tmp/nanolang-opencl-private-7f0/install/lib"
+    },
+    {
+      "name": "clang-ordinary-build",
+      "argv": [
+        "/usr/bin/clang-18",
+        "-std=c11",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "tests/test_opencl_identity_real.c",
+        "-ldl",
+        "-o",
+        "/tmp/nanolang-opencl-private-7f0/clang-ordinary"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+      "exit_code": 0,
+      "seconds": 0.16433667700039223,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "clang-ordinary-run",
+      "argv": [
+        "/tmp/nanolang-opencl-private-7f0/clang-ordinary"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+      "exit_code": 0,
+      "seconds": 0.36463733698474243,
+      "LD_LIBRARY_PATH": "/tmp/nanolang-opencl-private-7f0/install/lib"
+    },
+    {
+      "name": "clang-sanitizer-build",
+      "argv": [
+        "/usr/bin/clang-18",
+        "-std=c11",
+        "-O1",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "tests/test_opencl_identity_real.c",
+        "-ldl",
+        "-o",
+        "/tmp/nanolang-opencl-private-7f0/clang-sanitizer"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+      "exit_code": 0,
+      "seconds": 0.31475766497896984,
+      "LD_LIBRARY_PATH": "/home/linuxbrew/.linuxbrew/lib:/usr/local/lib:/home/jkh/.local/lib:/home/jkh/.local/lib:"
+    },
+    {
+      "name": "clang-sanitizer-run",
+      "argv": [
+        "/tmp/nanolang-opencl-private-7f0/clang-sanitizer"
+      ],
+      "cwd": "/home/jkh/Src/nanolang-opencl-private-loader-yaml",
+      "exit_code": 0,
+      "seconds": 0.41461529897060245,
+      "LD_LIBRARY_PATH": "/tmp/nanolang-opencl-private-7f0/install/lib"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "test-owned-array-overwrite"
+  ],
+  "status": 0,
+  "seconds": 14.159878249978647
+}

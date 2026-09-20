@@ -5631,6 +5631,21 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
     }
 }
 
+/* An identifier read borrows its environment value. A new binding owns its
+ * value, so function identifiers need the same explicit copy that call
+ * parameters and returned function values already receive. */
+static Value own_function_identifier(ASTNode *expression, Environment *env,
+                                     Value value) {
+    if (value.type != VAL_FUNCTION || !expression ||
+        expression->type != AST_IDENTIFIER) return value;
+    Symbol *source = env_get_var(env, expression->as.identifier);
+    if (!source || source->value.type != VAL_FUNCTION ||
+        source->value.as.function_val.function_name !=
+            value.as.function_val.function_name) return value;
+    return create_function(value.as.function_val.function_name,
+        copy_function_signature(value.as.function_val.signature));
+}
+
 /* Evaluate statement */
 static Value eval_statement(ASTNode *stmt, Environment *env) {
     if (!stmt) return create_void();
@@ -5665,6 +5680,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             if (value.is_return || value.is_break || value.is_continue) {
                 return value;
             }
+            value = own_function_identifier(stmt->as.let.value, env, value);
             env_define_var_with_type_info(env,
                                          stmt->as.let.name,
                                          stmt->as.let.var_type,
@@ -5704,6 +5720,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 fprintf(stderr, "I cannot resolve a borrowed field during evaluation\n");
                 return create_void();
             }
+            value = own_function_identifier(stmt->as.set.value, env, value);
             env_set_var(env, stmt->as.set.name, value);
             
             /* Trace variable assignment */

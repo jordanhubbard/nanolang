@@ -576,8 +576,8 @@ test-units: test-canonical-f64-bits
 
 .PHONY: test-canonical-f64-bits
 .PHONY: test-reconstruction-binary64-facts
-test-scalar-reconstruction: nvm2hl nanoisa_dump nano_vm nvm2c nvm2c-runtime bootstrap
-	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons tests.test_reconstructed_carry_borrow
+test-scalar-reconstruction: nvm2hl nanoisa_dump nano_virt nano_vm nvm2c nvm2c-runtime bootstrap
+	python3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons tests.test_reconstructed_carry_borrow tests.test_reconstructed_u8
 test-units: test-scalar-reconstruction
 
 .PHONY: nanoisa_emit
@@ -752,6 +752,12 @@ test-ui-array-bounds:
 	python3 -m unittest tests.test_ui_array_bounds
 
 test-units: test-ui-array-bounds
+
+.PHONY: test-sdl-text-input-events
+test-sdl-text-input-events:
+	python3 -m unittest tests.test_sdl_text_input_events
+
+test-units: test-sdl-text-input-events
 .PHONY: test-ffi-array-copyback
 test-ffi-array-copyback:
 	python3 -m unittest tests.test_ffi_array_copyback
@@ -907,13 +913,30 @@ test-selfhost-array-compatibility: bootstrap3
 
 test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls test-selfhost-rejection-gate
 
+.PHONY: test-selfhost-byte-array-identity
+test-selfhost-byte-array-identity:
+	@python3 -m unittest -v tests.test_selfhost_byte_array_identity
+
+test-units: test-selfhost-byte-array-identity
+
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop
 	@echo "Running NanoVM end-to-end integration tests..."
 	@scripts/test_nanovm_integration.sh
 
-.PHONY: test-cop-lifecycle
-test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop
+.PHONY: test-cop-lifecycle test-cop-lifecycle-harness
+$(OBJ_DIR)/test_cop_lifecycle: tests/nanovm/test_cop_lifecycle.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o $@ \
+		tests/nanovm/test_cop_lifecycle.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+test-cop-lifecycle-harness:
+	@python3 -m unittest -v tests.test_cop_lifecycle_gate
+
+test-units: test-cop-lifecycle-harness
+
+test-cop-lifecycle: nano_vm nano_virt nano_vmd nano_cop $(OBJ_DIR)/test_cop_lifecycle
 	@echo "Running co-process lifecycle tests..."
 	@scripts/test_cop_lifecycle.sh
 
@@ -4567,6 +4590,11 @@ test-selfhost-range-bounds: bootstrap
 	python3 -m unittest -v tests.test_selfhost_range_bounds
 test-units: test-selfhost-range-bounds
 
+.PHONY: test-selfhost-native-u8
+test-selfhost-native-u8: bootstrap
+	python3 -m unittest -v tests.test_selfhost_native_u8
+test-units: test-selfhost-native-u8
+
 .PHONY: test-exclusive-borrows
 test-units: test-exclusive-borrows
 test-exclusive-borrows: bootstrap nano_virt
@@ -5448,6 +5476,10 @@ test-file-runtime: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNT
 	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime
 test-file-runtime-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
 	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime
+
+.PHONY: test-owned-array-overwrite
+test-owned-array-overwrite: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	CC="$(CC)" PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_owned_array_overwrite
 
 .PHONY: test-file-runtime-frames test-file-runtime-frames-sanitizers
 test-file-runtime-frames: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o

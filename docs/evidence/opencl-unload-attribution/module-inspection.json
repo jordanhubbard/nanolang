@@ -1,0 +1,38 @@
+[
+  {
+    "argv": [
+      "dpkg-query",
+      "-W",
+      "ocl-icd-libopencl1"
+    ],
+    "exit_code": 0,
+    "stdout": "ocl-icd-libopencl1:arm64\t2.3.2-1build1\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "readelf",
+      "-n",
+      "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0"
+    ],
+    "exit_code": 0,
+    "stdout": "\nDisplaying notes found in: .note.gnu.build-id\n  Owner                Data size \tDescription\n  GNU                  0x00000014\tNT_GNU_BUILD_ID (unique build ID bitstring)\n    Build ID: d2e11dd86dc02194317b8b27a72e8ccdd08abc57\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "addr2line",
+      "-e",
+      "/usr/lib/aarch64-linux-gnu/libOpenCL.so.1.0.0",
+      "-f",
+      "0xb24c",
+      "0xb0ac",
+      "0xa8cc",
+      "0xb50c",
+      "0xc1b4"
+    ],
+    "exit_code": 0,
+    "stdout": "clSetContextDestructorCallback\n??:?\nclSetContextDestructorCallback\n??:?\nclSetContextDestructorCallback\n??:?\nclSetContextDestructorCallback\n??:?\nclGetPlatformIDs\n??:?\n",
+    "stderr": ""
+  }
+]

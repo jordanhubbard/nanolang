@@ -129,12 +129,11 @@ void nl_ui_time_display(SDL_Renderer* renderer, TTF_Font* font,
 double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                                     double progress);
 
-// Text input field - single line text input
-// I currently render read-only text and return 0; editing/Enter remain work.
-// I require a terminator within buffer_size and at least 16x12 valid geometry.
-// Invalid inputs make no drawing calls. Null fonts skip text measurement.
+/* Single-line UTF-8 input. I mutate an ELEM_U8 array up to buffer_size bytes,
+ * remove one code point on Backspace and return 1 when Enter is observed.
+ * Invalid arrays/UTF-8/geometry make no drawing or event-consumption calls. */
 int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
-                          const char* buffer, int64_t buffer_size,
+                          DynArray* buffer, int64_t buffer_size,
                           int64_t x, int64_t y, int64_t w, int64_t h,
                           int64_t is_focused);
 

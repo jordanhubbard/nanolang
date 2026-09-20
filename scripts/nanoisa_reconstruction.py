@@ -12,7 +12,7 @@ def require(condition, message):
         raise Refusal('I ' + message)
 
 
-INT, FLOAT, BOOL = 1, 3, 4
+INT, U8, FLOAT, BOOL = 1, 2, 3, 4
 COMPARE = {'I64_EQ': '==', 'I64_NE': '!=', 'I64_LT_S': '<',
            'I64_LE_S': '<=', 'I64_GT_S': '>', 'I64_GE_S': '>='}
 FLOAT_ARITHMETIC = {'F64_ADD': 'add', 'F64_SUB': 'sub',
@@ -30,7 +30,7 @@ ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 're
               'I64_DIV_U': 'div_u', 'I64_REM_U': 'rem_u',
               'I64_SHL': 'shl', 'I64_SHR_S': 'shr_s', 'I64_SHR_U': 'shr_u',
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
-SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG', 'LOAD_LOCAL', 'STORE_LOCAL',
+SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_U8', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
           'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC) | set(CARRY)
 
@@ -66,9 +66,9 @@ class Analyze:
     def __init__(self, module, index):
         self.module = module
         self.fn = module['functions'][index]
-        require(self.fn['result'] in (INT, BOOL, FLOAT) and
-                all(tag in (INT, BOOL, FLOAT) for tag in self.fn['params']),
-                'require exact int/bool/float function signatures')
+        require(self.fn['result'] in (INT, U8, BOOL, FLOAT) and
+                all(tag in (INT, U8, BOOL, FLOAT) for tag in self.fn['params']),
+                'require exact int/u8/bool/float function signatures')
         self.index = index
         self.code = self.fn['code']
         self.positions = {i['pc']: n for n, i in enumerate(self.code)}
@@ -113,6 +113,9 @@ class Analyze:
             return
         if op == 'PUSH_I64':
             expr = Expr(INT, 'constant', arg)
+        elif op == 'PUSH_U8':
+            require(0 <= arg <= 255, 'require byte constants from 0 through 255')
+            expr = Expr(U8, 'constant', arg)
         elif op == 'PUSH_F64':
             bits = ins.get('f64_bits')
             require(isinstance(bits, str) and len(bits) == 16 and
@@ -218,13 +221,18 @@ class Analyze:
         elif op in COMPARE:
             right, left = self.pop(stack, INT), self.pop(stack, INT)
             expr = Expr(BOOL, 'binary', COMPARE[op], (left, right))
-        elif op in ('CAST_BOOL', 'NOT'):
-            value = self.truth(self.pop(stack))
-            expr = value if op == 'CAST_BOOL' else Expr(BOOL, 'not', None, (value,))
+        elif op == 'CAST_BOOL':
+            value = self.pop(stack)
+            if value.tag == U8:
+                value = Expr(INT, 'u8_int', None, (value,))
+            expr = self.truth(value)
+        elif op == 'NOT':
+            expr = Expr(BOOL, 'not', None, (self.truth(self.pop(stack)),))
         elif op == 'CAST_INT':
             value = self.pop(stack)
-            require(value.tag in (INT, BOOL), 'require exact int/bool cast operands')
-            expr = value if value.tag == INT else Expr(INT, 'bool_int', None, (value,))
+            require(value.tag in (INT, U8, BOOL), 'require exact int/u8/bool cast operands')
+            expr = (value if value.tag == INT else
+                    Expr(INT, 'u8_int' if value.tag == U8 else 'bool_int', None, (value,)))
         elif op in ('AND', 'OR'):
             right, left = self.truth(self.pop(stack)), self.truth(self.pop(stack))
             expr = Expr(BOOL, 'binary', 'and' if op == 'AND' else 'or', (left, right))
@@ -363,9 +371,9 @@ class Emit:
         return f'nlr_l{slot}' + ('_' + suffix if suffix else '')
 
     def type(self, tag):
-        require(tag in (INT, BOOL, FLOAT), 'require an explicit scalar source type')
-        return ({INT: 'int64_t', BOOL: 'bool', FLOAT: 'double'} if self.language == 'c' else
-                {INT: 'int', BOOL: 'bool', FLOAT: 'float'})[tag]
+        require(tag in (INT, U8, BOOL, FLOAT), 'require an explicit scalar source type')
+        return ({INT: 'int64_t', U8: 'uint8_t', BOOL: 'bool', FLOAT: 'double'} if self.language == 'c' else
+                {INT: 'int', U8: 'u8', BOOL: 'bool', FLOAT: 'float'})[tag]
 
     def expression(self, expr):
         if expr.kind == 'float_bits':
@@ -376,6 +384,8 @@ class Emit:
         if expr.kind == 'constant':
             if expr.tag == BOOL:
                 return 'true' if expr.value else 'false'
+            if expr.tag == U8 and self.language == 'c':
+                return f'UINT8_C({expr.value})'
             if self.language == 'c':
                 return 'INT64_MIN' if expr.value == -(1 << 63) else f'INT64_C({expr.value})'
             return '(- -9223372036854775807 1)' if expr.value == -(1 << 63) else str(expr.value)
@@ -403,6 +413,8 @@ class Emit:
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
         if expr.kind == 'bool_int':
             return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(nlr_bool_int ' + args[0] + ')'
+        if expr.kind == 'u8_int':
+            return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(cast_int ' + args[0] + ')'
         if expr.kind == 'not':
             return '(!' + args[0] + ')' if self.language == 'c' else '(not ' + args[0] + ')'
         op = expr.value
@@ -463,7 +475,7 @@ class Emit:
             for slot, tag in sorted(function.locals.items()):
                 value = (f'nlr_a{slot}' if slot < len(function.params) else
                          self.expression(Expr(FLOAT, 'float_bits', 0)) if tag == FLOAT else
-                         '0' if tag == INT else 'false')
+                         '0' if tag in (INT, U8) else 'false')
                 name = self.local(slot)
                 self.line(f'{self.type(tag)} {name} = {value};' if c else f'let mut {name}: {self.type(tag)} = {value}', 1)
                 if c:

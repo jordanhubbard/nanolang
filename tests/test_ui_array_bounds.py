@@ -17,7 +17,9 @@ class UiArrayBounds(unittest.TestCase):
             output = Path(tmp) / "probe"
             built = subprocess.run([
                 *shlex.split(os.environ.get("CC", "cc")), "-std=c99", "-g",
-                "tests/test_ui_array_bounds.c", "-o", str(output),
+                "tests/test_ui_array_bounds.c", "src/runtime/dyn_array.c",
+                "src/runtime/gc.c", "src/runtime/gc_struct.c", "src/utf8.c",
+                "-o", str(output),
                 *shlex.split(flags), "-lm"], cwd=ROOT, capture_output=True, text=True, timeout=60)
             self.assertEqual(built.returncode, 0, built.stderr)
             env = dict(os.environ)
