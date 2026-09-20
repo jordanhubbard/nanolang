@@ -1,0 +1,89 @@
+{
+  "qualified": "9856fbad8",
+  "seal": "a3926ece3",
+  "canonical": "af8809b32850454d06d9c1881c3a27b43f4c9d9c",
+  "inputs": {
+    "src/nanoisa/portable_read_wasm.h": {
+      "qualified_sha256": "1301021fce4837e1f525e6e7a91cfb1b38034cef1d4184dd5ce6f0b7d01525a9",
+      "ready_sha256": "1301021fce4837e1f525e6e7a91cfb1b38034cef1d4184dd5ce6f0b7d01525a9",
+      "equal": true
+    },
+    "src/nanoisa/portable_read_wasm.c": {
+      "qualified_sha256": "338671e791e3c2c91c13222a4675c419e0dcf8f8a5d3aa5a022d3b4afd743fed",
+      "ready_sha256": "338671e791e3c2c91c13222a4675c419e0dcf8f8a5d3aa5a022d3b4afd743fed",
+      "equal": true
+    },
+    "src/runtime/portable_read_node.mjs": {
+      "qualified_sha256": "3da52910eac9f4561dd496ed9c0a2591d230ea76fe903924b45e666c04445f94",
+      "ready_sha256": "3da52910eac9f4561dd496ed9c0a2591d230ea76fe903924b45e666c04445f94",
+      "equal": true
+    },
+    "src/runtime/portable_read_wasmtime.py": {
+      "qualified_sha256": "6838fb507d5fbcae64c2e7c2b267719aa17b8ccaab2906c9b07fa0a8a99fd9c4",
+      "ready_sha256": "6838fb507d5fbcae64c2e7c2b267719aa17b8ccaab2906c9b07fa0a8a99fd9c4",
+      "equal": true
+    },
+    "src/nanoisa/managed_strings.c": {
+      "qualified_sha256": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+      "ready_sha256": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+      "equal": true
+    },
+    "src/nanoisa/managed_strings.h": {
+      "qualified_sha256": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+      "ready_sha256": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+      "equal": true
+    },
+    "src/nanoisa/portable_read_host.c": {
+      "qualified_sha256": "3d5174e498c850935bec53e3a4d5d4f861986a8f04d406a6ebf23060416a920a",
+      "ready_sha256": "3d5174e498c850935bec53e3a4d5d4f861986a8f04d406a6ebf23060416a920a",
+      "equal": true
+    },
+    "src/nanoisa/portable_read_managed.c": {
+      "qualified_sha256": "1c2aa732202913130b76832234bce2911d84d35c0d2bba8ec0cbcc87b0102420",
+      "ready_sha256": "1c2aa732202913130b76832234bce2911d84d35c0d2bba8ec0cbcc87b0102420",
+      "equal": true
+    },
+    "src/nanoisa/portable_host_plan.c": {
+      "qualified_sha256": "d42431c3af4fceaa504b08615dd6cff0c982cdaa880e25fd3d74c8a6e2e87bc6",
+      "ready_sha256": "d42431c3af4fceaa504b08615dd6cff0c982cdaa880e25fd3d74c8a6e2e87bc6",
+      "equal": true
+    },
+    "tests/nanoisa/test_portable_read_wasm.c": {
+      "qualified_sha256": "d08c28b26b7db69febf3157693601fa959f2f6ff649e8780a801b0c6c04cae4a",
+      "ready_sha256": "d08c28b26b7db69febf3157693601fa959f2f6ff649e8780a801b0c6c04cae4a",
+      "equal": true
+    },
+    "tests/nanoisa/portable_read_wasm_node.mjs": {
+      "qualified_sha256": "ca54d3d46521cccad3d39645ef0e98cc945dea2660200ec3fac891a082e88c86",
+      "ready_sha256": "ca54d3d46521cccad3d39645ef0e98cc945dea2660200ec3fac891a082e88c86",
+      "equal": true
+    },
+    "tests/nanoisa/portable_read_wasm_python.py": {
+      "qualified_sha256": "a6164140971cb8b989e6cde4d9299c1281b554f76e6bc6cb268b67e8fd4b92d5",
+      "ready_sha256": "a6164140971cb8b989e6cde4d9299c1281b554f76e6bc6cb268b67e8fd4b92d5",
+      "equal": true
+    },
+    "tests/test_portable_read_wasm.py": {
+      "qualified_sha256": "1b7006a41437a41151bfc9a6f4b9c1b449cf283db076eb08f8cee1580d1d8ded",
+      "ready_sha256": "1b7006a41437a41151bfc9a6f4b9c1b449cf283db076eb08f8cee1580d1d8ded",
+      "equal": true
+    },
+    "tests/test_portable_read_adapters.py": {
+      "qualified_sha256": "0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a",
+      "ready_sha256": "0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a",
+      "equal": true
+    },
+    "tests/test_portable_host_plan.py": {
+      "qualified_sha256": "c570f4e319bfd76225e526c213a37ed840bc705aad5a7e92144ddbd09b389f31",
+      "ready_sha256": "c570f4e319bfd76225e526c213a37ed840bc705aad5a7e92144ddbd09b389f31",
+      "equal": true
+    },
+    "Makefile.gnu": {
+      "qualified_sha256": "70b1609fe263eb4ffc27bd69172d515c355de2c3aa78d81fe773a15730992613",
+      "ready_sha256": "e8e5da5ae8cd9632be2e04e449ee5d37fb0e4010b599c134266275e8023e67e6",
+      "equal": false
+    }
+  },
+  "make": "Canonical exact bytes plus original five-line additive Wasm target. Sole conflict resolved preserving both targets; ROADMAP merged automatically.",
+  "scope": "All15 non-Make selected inputs unchanged; new common File/query providers require separate bounded declaration-query adjacency, not repeated unchanged engine/native matrix."
+}

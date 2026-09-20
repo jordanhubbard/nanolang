@@ -1,0 +1,42 @@
+{
+  "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-c9xnjwjx/case": {
+    "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+    "bytes": 14,
+    "archive": "/private/tmp/nanolang-match-call-8538-puck/totality-products/artifacts/399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f"
+  },
+  "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-c9xnjwjx/case.nano": {
+    "sha256": "8e5e766a8cd1f3415c0b7ea9100401bb7d9fb880716127773631be87bf113518",
+    "bytes": 224,
+    "archive": "/private/tmp/nanolang-match-call-8538-puck/totality-products/artifacts/8e5e766a8cd1f3415c0b7ea9100401bb7d9fb880716127773631be87bf113518"
+  },
+  "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-k62a6z1r/case": {
+    "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+    "bytes": 14,
+    "archive": "/private/tmp/nanolang-match-call-8538-puck/totality-products/artifacts/399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f"
+  },
+  "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-k62a6z1r/case.nano": {
+    "sha256": "9059a67742f021844d00065cb27e379f9fbf86b451e415085581e37647331045",
+    "bytes": 232,
+    "archive": "/private/tmp/nanolang-match-call-8538-puck/totality-products/artifacts/9059a67742f021844d00065cb27e379f9fbf86b451e415085581e37647331045"
+  },
+  "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-ke3hekli/case": {
+    "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+    "bytes": 14,
+    "archive": "/private/tmp/nanolang-match-call-8538-puck/totality-products/artifacts/399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f"
+  },
+  "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-ke3hekli/case.nano": {
+    "sha256": "83fbfd5277fb598d936f22069441d0970c79a393fae3d519f165311d8d2d52df",
+    "bytes": 231,
+    "archive": "/private/tmp/nanolang-match-call-8538-puck/totality-products/artifacts/83fbfd5277fb598d936f22069441d0970c79a393fae3d519f165311d8d2d52df"
+  },
+  "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-wsu4zubd/case": {
+    "sha256": "399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f",
+    "bytes": 14,
+    "archive": "/private/tmp/nanolang-match-call-8538-puck/totality-products/artifacts/399983caf28e4ace0eececef5319b89d0a449fd63985adcf5a7a9d200c909e3f"
+  },
+  "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-wsu4zubd/case.nano": {
+    "sha256": "d13621dd9f379ee418961d8a3013676b78bd198677c0569b7cdc700ea1afdbcd",
+    "bytes": 239,
+    "archive": "/private/tmp/nanolang-match-call-8538-puck/totality-products/artifacts/d13621dd9f379ee418961d8a3013676b78bd198677c0569b7cdc700ea1afdbcd"
+  }
+}

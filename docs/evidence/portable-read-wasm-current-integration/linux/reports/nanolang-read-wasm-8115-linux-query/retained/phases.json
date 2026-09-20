@@ -1,0 +1,8 @@
+[
+  {
+    "phase": "declaration-query",
+    "passed": true,
+    "inputs_equal": true,
+    "source_equal": true
+  }
+]

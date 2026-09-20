@@ -1,0 +1,618 @@
+{
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/bcp47.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/e4630b400fb0b1798c349ed58b9e7d1fbf2755d41aa1f61f841cfa4f98938abc",
+    "sha256": "e4630b400fb0b1798c349ed58b9e7d1fbf2755d41aa1f61f841cfa4f98938abc"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/bench.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/c2778c4221318d0b2a65b74271ae1b609e3e53bb740ebccadd5c1381fd99d519",
+    "sha256": "c2778c4221318d0b2a65b74271ae1b609e3e53bb740ebccadd5c1381fd99d519"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/bench_native.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d2f896768496d72be6c308f6c63b073e1fc084a1c95f2e9402ba47358ce09727",
+    "sha256": "d2f896768496d72be6c308f6c63b073e1fc084a1c95f2e9402ba47358ce09727"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/builtins_registry.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/59d8678bfe41f8c138dcd6469cae16c9d7e9c9d29dcd1efb8b95b3da29c4c241",
+    "sha256": "59d8678bfe41f8c138dcd6469cae16c9d7e9c9d29dcd1efb8b95b3da29c4c241"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/cJSON.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/dc3ea2a85aec5b5a48d8a2a910ebae29c83bfa003a4999975143b728b00c22a4",
+    "sha256": "dc3ea2a85aec5b5a48d8a2a910ebae29c83bfa003a4999975143b728b00c22a4"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/c_backend.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/ef5da7cf8f28eea528ac5c400986ace0d861cf51ed9766ecb7dc970217211154",
+    "sha256": "ef5da7cf8f28eea528ac5c400986ace0d861cf51ed9766ecb7dc970217211154"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/catalog.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/219f15bc2041323034bfd2a44123d22f37a32808914ce3c60448b6d1eee50bf3",
+    "sha256": "219f15bc2041323034bfd2a44123d22f37a32808914ce3c60448b6d1eee50bf3"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/channel.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/49289b1e4a9b4c74bf81e0c24795317484801e8ddc68d09dcb427470b1093954",
+    "sha256": "49289b1e4a9b4c74bf81e0c24795317484801e8ddc68d09dcb427470b1093954"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/coroutine.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/4435b986256bb9d7f0bb2e0972f4bb0840d57fbc0bd11f1d815b7e4c16646b23",
+    "sha256": "4435b986256bb9d7f0bb2e0972f4bb0840d57fbc0bd11f1d815b7e4c16646b23"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/cps_pass.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/ac7c77a47cdd7de49796c5174e1583def3a6552ad5b0dee95e97c7f6fae7cc3f",
+    "sha256": "ac7c77a47cdd7de49796c5174e1583def3a6552ad5b0dee95e97c7f6fae7cc3f"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/dce_pass.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/cd2213690818ee68a80048979600e4cda9e643d7b402ff7f7b329ebd79a53aff",
+    "sha256": "cd2213690818ee68a80048979600e4cda9e643d7b402ff7f7b329ebd79a53aff"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/diag_id.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/499ca415c30303df13efd69b8ff8a4cd6fea1097a46467d794a437ead8b90a33",
+    "sha256": "499ca415c30303df13efd69b8ff8a4cd6fea1097a46467d794a437ead8b90a33"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/docgen.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/a6e681b36ef1d0d9126f59e8844a0f7c3eb8c344e1eb5056fc037a3018b7ff57",
+    "sha256": "a6e681b36ef1d0d9126f59e8844a0f7c3eb8c344e1eb5056fc037a3018b7ff57"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/docgen_md.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/7ca913e2189f9d5da93fdd8da77ef7060ea6bd52e9707dd583de09e10f05c705",
+    "sha256": "7ca913e2189f9d5da93fdd8da77ef7060ea6bd52e9707dd583de09e10f05c705"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/dwarf_info.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/e366c2be623cf589b4e4de3172346dc1ce7468cac4658ba2fd59a4b28cd9ef60",
+    "sha256": "e366c2be623cf589b4e4de3172346dc1ce7468cac4658ba2fd59a4b28cd9ef60"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/effects.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/9f60f16cb72c55e95bf5e61689c6f8936266af3bff0c492e641c12adf066afa5",
+    "sha256": "9f60f16cb72c55e95bf5e61689c6f8936266af3bff0c492e641c12adf066afa5"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/emit_typed_ast.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/53b6ca2d563d390b2911c7bd14d629b1ce740eab778316a34f283629e15eabcd",
+    "sha256": "53b6ca2d563d390b2911c7bd14d629b1ce740eab778316a34f283629e15eabcd"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/env.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/1bfb149bc1e40594e65d64ebd2a52351f1c4b004083f234966cefe41e7d88120",
+    "sha256": "1bfb149bc1e40594e65d64ebd2a52351f1c4b004083f234966cefe41e7d88120"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/eval.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d4ccf06e9a2398c64f18928d03a8105c97d03e962eadd011879f7db799cd498c",
+    "sha256": "d4ccf06e9a2398c64f18928d03a8105c97d03e962eadd011879f7db799cd498c"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/eval/eval_hashmap.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/a2879f7955a491ac42e22938f848c5652d541ce9cc642bd0d65b245c44978bc3",
+    "sha256": "a2879f7955a491ac42e22938f848c5652d541ce9cc642bd0d65b245c44978bc3"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/eval/eval_io.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/e60c9946c9cd31549a8b98457a6f6a13cb0d2a4237ad7e8e3a90f551ddcf9ed9",
+    "sha256": "e60c9946c9cd31549a8b98457a6f6a13cb0d2a4237ad7e8e3a90f551ddcf9ed9"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/eval/eval_math.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/e2dc3b6dd1a3cae51ef415f93560f2fd49c992354d7fe5022d5da1fbfceeeb7b",
+    "sha256": "e2dc3b6dd1a3cae51ef415f93560f2fd49c992354d7fe5022d5da1fbfceeeb7b"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/eval/eval_string.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/0c53abfdf6e86c204556413aac9d02ba06342ffde900341d88f3c8e8aaf8c390",
+    "sha256": "0c53abfdf6e86c204556413aac9d02ba06342ffde900341d88f3c8e8aaf8c390"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/fmt.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/2a6ee15129a62f343465c144b0a660dc156b1e6d56e82ca582214593572fc09a",
+    "sha256": "2a6ee15129a62f343465c144b0a660dc156b1e6d56e82ca582214593572fc09a"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/fold_constants.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/92d3192b38c16e6903c1e9ddf218855a8250e7682ce3da92c3534e22d9a55514",
+    "sha256": "92d3192b38c16e6903c1e9ddf218855a8250e7682ce3da92c3534e22d9a55514"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/interpreter_ffi.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/526ce11202596902b35e650f97842ef683acde6d5074883c7a90cb8adb4b9709",
+    "sha256": "526ce11202596902b35e650f97842ef683acde6d5074883c7a90cb8adb4b9709"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/json_diagnostics.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/66344ee6d1ad29282a906e9ce9376caa7d845b66f58e64f8c3c19d1fdc91c745",
+    "sha256": "66344ee6d1ad29282a906e9ce9376caa7d845b66f58e64f8c3c19d1fdc91c745"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/lexer.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/c2ad530bd9e2778b645cc29623c51799661a2c5ab1e61ae41a4c62876db8bfe7",
+    "sha256": "c2ad530bd9e2778b645cc29623c51799661a2c5ab1e61ae41a4c62876db8bfe7"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/locale.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/c4e1a4c3a75a0d05305ed27205c03123f583b92e80a3a7f89a44c57faa6c09a0",
+    "sha256": "c4e1a4c3a75a0d05305ed27205c03123f583b92e80a3a7f89a44c57faa6c09a0"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/module.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/0086d09d8aa309b9ea602b76ff8e5e71822300adadcde6156f1b8b34f4ea61e5",
+    "sha256": "0086d09d8aa309b9ea602b76ff8e5e71822300adadcde6156f1b8b34f4ea61e5"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/module_builder.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/2360b6d7fdbc69fbc2aa3a47299e9f4456eb7608543a20c0246d8be789f510e4",
+    "sha256": "2360b6d7fdbc69fbc2aa3a47299e9f4456eb7608543a20c0246d8be789f510e4"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/module_metadata.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/0fd25054f0dc26a8af3dd0ebd2f0d81f54dcb440d575baa9930e244415b24d8d",
+    "sha256": "0fd25054f0dc26a8af3dd0ebd2f0d81f54dcb440d575baa9930e244415b24d8d"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanocore_export.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/bd87d05c85d7c634ffbde5887a0dcd847be905c1cb2600dbdec078e30c25472f",
+    "sha256": "bd87d05c85d7c634ffbde5887a0dcd847be905c1cb2600dbdec078e30c25472f"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanocore_subset.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/e6815a425a7f346296323702de155f3f20e8b66e75bc1a7b6dc5535c83355ead",
+    "sha256": "e6815a425a7f346296323702de155f3f20e8b66e75bc1a7b6dc5535c83355ead"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/affine_bytecode.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/69a97fde4b521fd1f01f5d118dffcd39a1c4c93c382107effe72ad5bf3ec718a",
+    "sha256": "69a97fde4b521fd1f01f5d118dffcd39a1c4c93c382107effe72ad5bf3ec718a"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/affine_state.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/949683a1cf9c766dee17f1acf14e6db52c7147327fe614078bbd8f21a1a33f5a",
+    "sha256": "949683a1cf9c766dee17f1acf14e6db52c7147327fe614078bbd8f21a1a33f5a"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/assembler.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/245cf6df9882a771cb3badd00c66eff8a798539a93ea8c01f7de05028686a832",
+    "sha256": "245cf6df9882a771cb3badd00c66eff8a798539a93ea8c01f7de05028686a832"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/disassembler.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d9a2b5acb8a9ac24025297a44e32515f018e6a65fe85e1705abe9d84cae6cd98",
+    "sha256": "d9a2b5acb8a9ac24025297a44e32515f018e6a65fe85e1705abe9d84cae6cd98"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/file_flow.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/b04580e7d26701426b6b34ced42e1f4b7ec487ddb530d10514bb965f87e27b2d",
+    "sha256": "b04580e7d26701426b6b34ced42e1f4b7ec487ddb530d10514bb965f87e27b2d"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/file_runtime.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/f8e365d72fa17ac01f0809e0cd66276491409564ba1e8fdfb0b7aad021fcc4f5",
+    "sha256": "f8e365d72fa17ac01f0809e0cd66276491409564ba1e8fdfb0b7aad021fcc4f5"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/frontend.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/ec2b849c019fc1310074885110cc0c2f53a4e30afe87b1dabf812586a9e8ad01",
+    "sha256": "ec2b849c019fc1310074885110cc0c2f53a4e30afe87b1dabf812586a9e8ad01"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/isa.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/0cc46ba1ec943bd0cef3b5e8dca1e4b43c11ced01011b3464d56f2ea660c7b00",
+    "sha256": "0cc46ba1ec943bd0cef3b5e8dca1e4b43c11ced01011b3464d56f2ea660c7b00"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/local_bindings.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/41a49906208edef25b63b947a6cdef20f79273bbeb93afd879788c2abc303356",
+    "sha256": "41a49906208edef25b63b947a6cdef20f79273bbeb93afd879788c2abc303356"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/managed_array_shapes.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/ab2496298f0d68a6a6d3ee9e15e79255ec4d73830e54cc6d712225ae36084b4a",
+    "sha256": "ab2496298f0d68a6a6d3ee9e15e79255ec4d73830e54cc6d712225ae36084b4a"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/mixed_float_proof.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/79a299c025d5d6195825b001b55fac97bf732dced323c84de5b707d1ed572faf",
+    "sha256": "79a299c025d5d6195825b001b55fac97bf732dced323c84de5b707d1ed572faf"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nanoisa_facade.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/5a01c4e4ca893ec0e32f2391d381515134e7f1fb1b38d61bc24e3802a8faca7b",
+    "sha256": "5a01c4e4ca893ec0e32f2391d381515134e7f1fb1b38d61bc24e3802a8faca7b"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm2c.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/a4b759cb54f3bdf8139afdaee15426c122ab89ea1cd5498760edaefeea13c7e2",
+    "sha256": "a4b759cb54f3bdf8139afdaee15426c122ab89ea1cd5498760edaefeea13c7e2"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm2c_shape.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/de815bdf516ae5ed96aad5b258352fcabaf060e323c965d3e8567d948f98a60d",
+    "sha256": "de815bdf516ae5ed96aad5b258352fcabaf060e323c965d3e8567d948f98a60d"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_format.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/90de44417669006e4040709189d9d059c4e024599894372cc70d5301a328a8b7",
+    "sha256": "90de44417669006e4040709189d9d059c4e024599894372cc70d5301a328a8b7"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_format_v2.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/1f36b198242a79f85bbebb58018c4d9a6500de50daa1b2549213a7e6e51a4ef1",
+    "sha256": "1f36b198242a79f85bbebb58018c4d9a6500de50daa1b2549213a7e6e51a4ef1"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_v2_constants.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/04ff36d98624e5e1ec05aaf5b4fd32e1630ac85797e4c87d4b6f72f0d681f02b",
+    "sha256": "04ff36d98624e5e1ec05aaf5b4fd32e1630ac85797e4c87d4b6f72f0d681f02b"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_v2_convert.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/5ef443c7f10b1ae02b5d37fd8127d0d47728ad3454ed7639fae42a875de841bf",
+    "sha256": "5ef443c7f10b1ae02b5d37fd8127d0d47728ad3454ed7639fae42a875de841bf"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_v2_cursor.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/a533f812499fc9c01f0092624745d38afb4a7096e67c8c296c8bae916321c602",
+    "sha256": "a533f812499fc9c01f0092624745d38afb4a7096e67c8c296c8bae916321c602"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_v2_functions.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/757a546485d59e0f27dfa00a743d989a8ff2b0fe347ebe3aec5e4033adf81b10",
+    "sha256": "757a546485d59e0f27dfa00a743d989a8ff2b0fe347ebe3aec5e4033adf81b10"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_v2_imports.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/475c89c50b7b06b5914e283399add09c8764d2fe274a408786732db15d723989",
+    "sha256": "475c89c50b7b06b5914e283399add09c8764d2fe274a408786732db15d723989"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_v2_layouts.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/35b5e51dda33a07b078ffe81a71409faee5f9aba8fe0d23df4cc02d8e2d776ff",
+    "sha256": "35b5e51dda33a07b078ffe81a71409faee5f9aba8fe0d23df4cc02d8e2d776ff"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_v2_module.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/87758baa991679973e916a11574bfcf9e12df356f9ba7b369cf12b3190907675",
+    "sha256": "87758baa991679973e916a11574bfcf9e12df356f9ba7b369cf12b3190907675"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/nvm_v2_signatures.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/bb6440fd877b5e7f673e92a35eac872bc95338435a25ba905f463dcb82571238",
+    "sha256": "bb6440fd877b5e7f673e92a35eac872bc95338435a25ba905f463dcb82571238"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/ownership_contracts.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/0f02b5d46d7ad9857842f2f5d2bf004f600fa3a6393c99533024978a19238dde",
+    "sha256": "0f02b5d46d7ad9857842f2f5d2bf004f600fa3a6393c99533024978a19238dde"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/passive.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/c16109451797ddb05bf1b8d60d1fdf5fabc00505102a3f8168cd45909587cf02",
+    "sha256": "c16109451797ddb05bf1b8d60d1fdf5fabc00505102a3f8168cd45909587cf02"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/reference_places.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/ff5b268e647fe2c3b119e2ded1a1f149cc746159be4b527311c6e2eb759e88b2",
+    "sha256": "ff5b268e647fe2c3b119e2ded1a1f149cc746159be4b527311c6e2eb759e88b2"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/retained_layouts.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/5bde4483caabc011bbc3919a8374d7f93ad6d2f02f2f3fef0e1694a5087c9a84",
+    "sha256": "5bde4483caabc011bbc3919a8374d7f93ad6d2f02f2f3fef0e1694a5087c9a84"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/service_bindings.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/6099cf36b2eb1b9e06c4827a2be459e1a80ab38f00077236e8976937a09342d0",
+    "sha256": "6099cf36b2eb1b9e06c4827a2be459e1a80ab38f00077236e8976937a09342d0"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/service_bindings_module.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/30959b301efa728c1182999a4aa842c38d269842aee53b1686f4c6816b4b9c93",
+    "sha256": "30959b301efa728c1182999a4aa842c38d269842aee53b1686f4c6816b4b9c93"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/service_file_nominal.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/bfe14029ed219b286fc8f7b13dbef3a49dcb6fcbc2feae4b9b0342d29e3ba16a",
+    "sha256": "bfe14029ed219b286fc8f7b13dbef3a49dcb6fcbc2feae4b9b0342d29e3ba16a"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/service_file_nominal_plan.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/877d21599d9c73abfb6765af808d595800cdec2afa2ec2bc6ba7bfa4b41e8baa",
+    "sha256": "877d21599d9c73abfb6765af808d595800cdec2afa2ec2bc6ba7bfa4b41e8baa"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/verifier.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/3bd35da9d7f287632fededbfdd6a2f45412876409c82d25ed63e1605463b7141",
+    "sha256": "3bd35da9d7f287632fededbfdd6a2f45412876409c82d25ed63e1605463b7141"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanoisa/verifier_types.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/603da3b19fa599f453fa798bfaf7de2c03c760d647c0edbdaa28438e32d4c5b4",
+    "sha256": "603da3b19fa599f453fa798bfaf7de2c03c760d647c0edbdaa28438e32d4c5b4"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovirt/wrapper_gen.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d465444e45794c5a64afd66b1c0effe4c0ba152d2dff0d6a7e19c8317b5e295d",
+    "sha256": "d465444e45794c5a64afd66b1c0effe4c0ba152d2dff0d6a7e19c8317b5e295d"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/cop_protocol.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/7f48f28f7f1d235b0b080b949358f291dce27cf2c8f720c7e4e8018a7a560b40",
+    "sha256": "7f48f28f7f1d235b0b080b949358f291dce27cf2c8f720c7e4e8018a7a560b40"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/heap.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/7e19a799ebcc794c62468d4ef4b4e6d748733f373276a2d2089e40dbf037c0e4",
+    "sha256": "7e19a799ebcc794c62468d4ef4b4e6d748733f373276a2d2089e40dbf037c0e4"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/heap_cycles.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/f2dfa4d5b50a141ff677f9d397eee1c21b01e4ffd4251956ebff66ce5a798966",
+    "sha256": "f2dfa4d5b50a141ff677f9d397eee1c21b01e4ffd4251956ebff66ce5a798966"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/value.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/8eaaa87d519fc65d061153008444efc28dd96462c291acb3d2a4a3c657df1735",
+    "sha256": "8eaaa87d519fc65d061153008444efc28dd96462c291acb3d2a4a3c657df1735"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/vm.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/3d668a91136ffce960311e9761d21aadd6c94b85c86de6baab597d9199bcf4cd",
+    "sha256": "3d668a91136ffce960311e9761d21aadd6c94b85c86de6baab597d9199bcf4cd"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/vm_builtins.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/c904de76ec0f2553fbe32693664a585a59b1dc45fc3a549400f6d616936a1aef",
+    "sha256": "c904de76ec0f2553fbe32693664a585a59b1dc45fc3a549400f6d616936a1aef"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/vm_callback.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/2b41feb7e97c3c58c36310c4b0cbc5df49fc7be77a90178a2ba99f78934b4c8e",
+    "sha256": "2b41feb7e97c3c58c36310c4b0cbc5df49fc7be77a90178a2ba99f78934b4c8e"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/vm_decode.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/9e8ce0f5247827cbb053ab51f832486a638b7f1d661f6b9f99c53791a6c8bf35",
+    "sha256": "9e8ce0f5247827cbb053ab51f832486a638b7f1d661f6b9f99c53791a6c8bf35"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/vm_dispatch.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/05f47b51af58dbc510038b354e93fbb186c81a73b29fe14d8b35fd303c9c59ac",
+    "sha256": "05f47b51af58dbc510038b354e93fbb186c81a73b29fe14d8b35fd303c9c59ac"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/vm_ffi.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d5affe0de0d1110dd79ff4d609ce052ed3549f7c8245a38b9295a3f1a7a4f40f",
+    "sha256": "d5affe0de0d1110dd79ff4d609ce052ed3549f7c8245a38b9295a3f1a7a4f40f"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/vm_ffi_arrays.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/9015b35991c32968333c3f0c96c80a13a189e9afc369fac2b77dbabd95d44c2c",
+    "sha256": "9015b35991c32968333c3f0c96c80a13a189e9afc369fac2b77dbabd95d44c2c"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/vmd_client.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/9ea0ddd4fce3e60a2df8b6a1351e82f907536b3450d4f43bbdd837c35d9f1b03",
+    "sha256": "9ea0ddd4fce3e60a2df8b6a1351e82f907536b3450d4f43bbdd837c35d9f1b03"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nanovm/vmd_protocol.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/6f9c090b81b46d1aad2bfb08909c73cf421e927649ece6ef57ebd9631ed2201a",
+    "sha256": "6f9c090b81b46d1aad2bfb08909c73cf421e927649ece6ef57ebd9631ed2201a"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nominal_types.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/3d20d3a7ca1304cf14978843fae6782136bc189efc81b565d6225360b39bc63c",
+    "sha256": "3d20d3a7ca1304cf14978843fae6782136bc189efc81b565d6225360b39bc63c"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nsi.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/19873f982458396ec530abc01ec6314395f9225e7ba20af8839cd4bf845f7580",
+    "sha256": "19873f982458396ec530abc01ec6314395f9225e7ba20af8839cd4bf845f7580"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nsi_cap.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/e3da7e5440b884dbc75d9d857ae5b16c48374a8fffa464f80e2067743c3343fc",
+    "sha256": "e3da7e5440b884dbc75d9d857ae5b16c48374a8fffa464f80e2067743c3343fc"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nsi_file.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/22a237285d89ce98c1315b45949f8be9dba1bb72c7fc50adbe0876657ab7d562",
+    "sha256": "22a237285d89ce98c1315b45949f8be9dba1bb72c7fc50adbe0876657ab7d562"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nsi_file_plan.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/11368e666e9591d2bffc6e7f957ebc0f61439f3691ff2ac874710afd94061b64",
+    "sha256": "11368e666e9591d2bffc6e7f957ebc0f61439f3691ff2ac874710afd94061b64"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/nsi_file_values.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/0f0d6d056e022b1d774d57e5cb316fb65585d5fc8f55a3d9537c4a8bdc2c8ebd",
+    "sha256": "0f0d6d056e022b1d774d57e5cb316fb65585d5fc8f55a3d9537c4a8bdc2c8ebd"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/opencl_backend.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d0498cb0ed67a8f60e1220ad196bce1554766d9a7b800f97bd22cbf175873f8f",
+    "sha256": "d0498cb0ed67a8f60e1220ad196bce1554766d9a7b800f97bd22cbf175873f8f"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/par_let_pass.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/4d07b6945f29f6cdc73000be90e1780683aab02b49f6a910b4ea7d161565e33d",
+    "sha256": "4d07b6945f29f6cdc73000be90e1780683aab02b49f6a910b4ea7d161565e33d"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/parser.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/8f0d4d7c6f70a6530dd8cca0cb899c4801be0f4c317898f2e8228b8156cd3a2e",
+    "sha256": "8f0d4d7c6f70a6530dd8cca0cb899c4801be0f4c317898f2e8228b8156cd3a2e"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/pgo_pass.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/ff0f513e691477bdd9f53ceaf67ced18f84ad2cd179f343b294fbf11f59f08ff",
+    "sha256": "ff0f513e691477bdd9f53ceaf67ced18f84ad2cd179f343b294fbf11f59f08ff"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/ptx_backend.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/f6a2b15ced0a7d42985476b797ac04c8417e00eb327d1814f5c3e32af66c713c",
+    "sha256": "f6a2b15ced0a7d42985476b797ac04c8417e00eb327d1814f5c3e32af66c713c"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/reflection.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/fe1793fca8dc0a2ab15671f0a2b6e5d09fb1f3bbc75980b00dd02f025f79ada2",
+    "sha256": "fe1793fca8dc0a2ab15671f0a2b6e5d09fb1f3bbc75980b00dd02f025f79ada2"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/resource_flow.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/2b4cd603027d2f7abf0c08cd1394a4c9840a199ef98becb6772e9b54af28329e",
+    "sha256": "2b4cd603027d2f7abf0c08cd1394a4c9840a199ef98becb6772e9b54af28329e"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/resource_tracking.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/f89a6f2d109770650785dd8d4db7074369803e3bd33ecaa19896d011ef91ae70",
+    "sha256": "f89a6f2d109770650785dd8d4db7074369803e3bd33ecaa19896d011ef91ae70"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/riscv_backend.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/6466000c8a85cb4184e4f9518dabf89a97533de396261142723878eefd1e03dd",
+    "sha256": "6466000c8a85cb4184e4f9518dabf89a97533de396261142723878eefd1e03dd"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/callback_runtime.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/105e6200455447433fa54787ca3c4a3c7d25b5cb07e7f17b002207f07e91be5f",
+    "sha256": "105e6200455447433fa54787ca3c4a3c7d25b5cb07e7f17b002207f07e91be5f"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/cli.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/8272ff0a8313aaf7c89e621e58b00196b78ade80b0a70475190b642244ccb47d",
+    "sha256": "8272ff0a8313aaf7c89e621e58b00196b78ade80b0a70475190b642244ccb47d"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/dyn_array.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/c28b23bdde0b7b9521487766ecad85e72156e42355ab57756263cc57fa958282",
+    "sha256": "c28b23bdde0b7b9521487766ecad85e72156e42355ab57756263cc57fa958282"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/effect_runtime.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/e890b2b3f1b8131371630ca94d73dcfbbc7197a538b1347844f3e2d8094dd5c4",
+    "sha256": "e890b2b3f1b8131371630ca94d73dcfbbc7197a538b1347844f3e2d8094dd5c4"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/ffi_loader.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/07e59fda275ae3f4ecf175e1dd2fc93895317ca5a1144bb937ace934df73511b",
+    "sha256": "07e59fda275ae3f4ecf175e1dd2fc93895317ca5a1144bb937ace934df73511b"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/gc.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/05f3a247b8607efe4d349dc866e7809f669f318fe20d67bf50d447b4c5da81ec",
+    "sha256": "05f3a247b8607efe4d349dc866e7809f669f318fe20d67bf50d447b4c5da81ec"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/gc_struct.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/0901aa2221456cc57ec0bb2cfe95328e3b823c1e0e56e96587e52d279d15eccf",
+    "sha256": "0901aa2221456cc57ec0bb2cfe95328e3b823c1e0e56e96587e52d279d15eccf"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTArrayLiteral.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d61e54de305fc5b0ce53d7aada93304d54ea61e7378b6aede7be40e214b410c6",
+    "sha256": "d61e54de305fc5b0ce53d7aada93304d54ea61e7378b6aede7be40e214b410c6"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTAssert.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d190032640ed277148da539cca6e91433aeab7cc04d6e74641f9a1c11a01c160",
+    "sha256": "d190032640ed277148da539cca6e91433aeab7cc04d6e74641f9a1c11a01c160"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTBinaryOp.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/78c2ce119a0562eb7fc599734b6ec8e06702421389620740e9b7ee3849eac2a9",
+    "sha256": "78c2ce119a0562eb7fc599734b6ec8e06702421389620740e9b7ee3849eac2a9"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTBlock.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/879af9c65da87e42899cb81616bc26f0c9b865c3d34b93c09ada1e2a851ccf4f",
+    "sha256": "879af9c65da87e42899cb81616bc26f0c9b865c3d34b93c09ada1e2a851ccf4f"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTBool.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/eb601da50293d52c0453d4be17a99d285e56cbf8a86908e62966804936b98945",
+    "sha256": "eb601da50293d52c0453d4be17a99d285e56cbf8a86908e62966804936b98945"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTCall.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/a2d198366e4e2a92b8cb542bc5768fcc20054f4e9cb860a26be42ca70f8f8e5e",
+    "sha256": "a2d198366e4e2a92b8cb542bc5768fcc20054f4e9cb860a26be42ca70f8f8e5e"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTEnum.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/5073eb22329113b0267d7b168c157765896f346d481a5cb0da43af46f04f7296",
+    "sha256": "5073eb22329113b0267d7b168c157765896f346d481a5cb0da43af46f04f7296"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTFieldAccess.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/f5a120a68b2756aa7e8b3efc07eaf78d5a2080a4f1ec57b68e8c4fc269fc1c1d",
+    "sha256": "f5a120a68b2756aa7e8b3efc07eaf78d5a2080a4f1ec57b68e8c4fc269fc1c1d"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTFloat.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/257a767b0cc63e978ff52e9a12104d193c05d3c68381edcd58f72011a2ede99a",
+    "sha256": "257a767b0cc63e978ff52e9a12104d193c05d3c68381edcd58f72011a2ede99a"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTFor.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/7c1dad3d60e8568560bec0090befe7c031aed768545f49af9e6e2e0503d3b8b4",
+    "sha256": "7c1dad3d60e8568560bec0090befe7c031aed768545f49af9e6e2e0503d3b8b4"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTFunction.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d782a7c426c8a3ce121be7f1329b5d4ff4e1210a2ccb12e31b95e07890fd5bb0",
+    "sha256": "d782a7c426c8a3ce121be7f1329b5d4ff4e1210a2ccb12e31b95e07890fd5bb0"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTIdentifier.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/219b21a33b095a3365f0250f6ecb62d8829a0c4366a021b73bf3bdc88570daca",
+    "sha256": "219b21a33b095a3365f0250f6ecb62d8829a0c4366a021b73bf3bdc88570daca"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTIf.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/f40dd7c41f5a284d944a9d2e93a6e25825f74a5a16c9ba8170254d573110f693",
+    "sha256": "f40dd7c41f5a284d944a9d2e93a6e25825f74a5a16c9ba8170254d573110f693"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTImport.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/03f5ac131aee5382a9612151255a36633d98fee3c6999cddcfbdf90a9b59e065",
+    "sha256": "03f5ac131aee5382a9612151255a36633d98fee3c6999cddcfbdf90a9b59e065"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTLet.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/474734860b4274162d67f0a9b08d6dbea27ce007520c5a698252a04b48b2f559",
+    "sha256": "474734860b4274162d67f0a9b08d6dbea27ce007520c5a698252a04b48b2f559"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTMatch.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/37765b128b847a42abf9e3f54bcb1168642fe5d5cc0ac72cdafed49b1d91e86b",
+    "sha256": "37765b128b847a42abf9e3f54bcb1168642fe5d5cc0ac72cdafed49b1d91e86b"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTModuleQualifiedCall.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/2afb3263359c1dd290f6ed0d8dac5df6d6e39ea424fce4e582e4fe6275a5dbbe",
+    "sha256": "2afb3263359c1dd290f6ed0d8dac5df6d6e39ea424fce4e582e4fe6275a5dbbe"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTNumber.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/f3319d53c1ce242ef64c7abb8e7798fc5eac2bae20326c9aa6f463e1d52582b1",
+    "sha256": "f3319d53c1ce242ef64c7abb8e7798fc5eac2bae20326c9aa6f463e1d52582b1"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTOpaqueType.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/3471ac6a54ee3feadef91b93bd4762bba053ad2ba98c6df2f471ee655287d659",
+    "sha256": "3471ac6a54ee3feadef91b93bd4762bba053ad2ba98c6df2f471ee655287d659"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTPrint.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/0efadb85fd2f08cf295a7c16b51ab069b53ac911225e8ddedc40e38ba5d6df20",
+    "sha256": "0efadb85fd2f08cf295a7c16b51ab069b53ac911225e8ddedc40e38ba5d6df20"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTReturn.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/7c8a3b02eaa7f115a40a785825fc11e745f99c605e53b745956a9993404399a9",
+    "sha256": "7c8a3b02eaa7f115a40a785825fc11e745f99c605e53b745956a9993404399a9"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTSet.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/4ebafc2837cf0dea3184dd2d5004d6dc719a27a11c3a6721e2eb325e4f184b80",
+    "sha256": "4ebafc2837cf0dea3184dd2d5004d6dc719a27a11c3a6721e2eb325e4f184b80"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTShadow.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/d68cd64e8718aa7baa7bc3822d63f1f6eb1b742c6dc372d3a1a30c2c68bde56f",
+    "sha256": "d68cd64e8718aa7baa7bc3822d63f1f6eb1b742c6dc372d3a1a30c2c68bde56f"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTStmtRef.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/217b6b1eb06b0491b0f29871409619d6eb95945032e390d072858426be94c032",
+    "sha256": "217b6b1eb06b0491b0f29871409619d6eb95945032e390d072858426be94c032"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTString.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/a2fba00161ef5be61e3823807a929537e8b8ba927a543513249fd4d2ce604351",
+    "sha256": "a2fba00161ef5be61e3823807a929537e8b8ba927a543513249fd4d2ce604351"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTStruct.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/e2654e2f9866b33dcc36fefee791cd6499785e180eaf14372d203e518ef85654",
+    "sha256": "e2654e2f9866b33dcc36fefee791cd6499785e180eaf14372d203e518ef85654"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTStructLiteral.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/01362c811171e2737aa9cef130d1fff55bec0bf4695d3871e7308d73ef489405",
+    "sha256": "01362c811171e2737aa9cef130d1fff55bec0bf4695d3871e7308d73ef489405"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTTupleIndex.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/33303957b4e1040445fda70fba647360865b521a5a3f9961f448426073100ee8",
+    "sha256": "33303957b4e1040445fda70fba647360865b521a5a3f9961f448426073100ee8"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTTupleLiteral.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/ae91f9bc61819ac8f5678da209b0dc31729adadad106a9094fc04ae076da3a93",
+    "sha256": "ae91f9bc61819ac8f5678da209b0dc31729adadad106a9094fc04ae076da3a93"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTUnion.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/22229a88574578c8120d922c12d7b844969348d014a34d0b35f7c5f17a5070b5",
+    "sha256": "22229a88574578c8120d922c12d7b844969348d014a34d0b35f7c5f17a5070b5"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTUnionConstruct.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/876c54bd2156f16e4a0a2b0c75299460035595ad219d9ab098e6ac2dcb869202",
+    "sha256": "876c54bd2156f16e4a0a2b0c75299460035595ad219d9ab098e6ac2dcb869202"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTUnsafeBlock.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/36625c92dfc7b242fc1b07e8febd4ad0e35a97f01b00ff4bd19ee106299a9761",
+    "sha256": "36625c92dfc7b242fc1b07e8febd4ad0e35a97f01b00ff4bd19ee106299a9761"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_ASTWhile.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/03227e63e262dc89547e7b4e36583f7029f098eb97a9f9c987e54caa41d1103b",
+    "sha256": "03227e63e262dc89547e7b4e36583f7029f098eb97a9f9c987e54caa41d1103b"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_CompilerDiagnostic.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/a316c7ea89ecdf08ec7c4c15020425ac13c89bab194be6bfd044d61557bb46a2",
+    "sha256": "a316c7ea89ecdf08ec7c4c15020425ac13c89bab194be6bfd044d61557bb46a2"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_CompilerSourceLocation.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/ed06bb5d85217e7c07905711e81b47ac7e24be77f2d88a271f71cdacb24ce881",
+    "sha256": "ed06bb5d85217e7c07905711e81b47ac7e24be77f2d88a271f71cdacb24ce881"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_LexerToken.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/84bedda915a1429b6218c51c9f61b7628b214a16db029016ad0b011f2a0be564",
+    "sha256": "84bedda915a1429b6218c51c9f61b7628b214a16db029016ad0b011f2a0be564"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_int.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/9b3ea913d8ae550eb8336077fdba80800057cb2a8d29eded3214a28c8e109040",
+    "sha256": "9b3ea913d8ae550eb8336077fdba80800057cb2a8d29eded3214a28c8e109040"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_string.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/edd104f66e371156d05f7f16fbfd01fc8181a96311e065dc9b6167dd92572f67",
+    "sha256": "edd104f66e371156d05f7f16fbfd01fc8181a96311e065dc9b6167dd92572f67"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/list_token.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/b76af6ef7df231889b5def1eebf9b669fc8fa3eb72dcd691253c4a14ede2518e",
+    "sha256": "b76af6ef7df231889b5def1eebf9b669fc8fa3eb72dcd691253c4a14ede2518e"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/module_build_dir.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/848668ec2048724aebeea308153b2eb33aac6059c0c3a3430023b506fcfdde45",
+    "sha256": "848668ec2048724aebeea308153b2eb33aac6059c0c3a3430023b506fcfdde45"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/nl_string.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/5a702924f9b7624d202cbb2dac3e544878f3b26e9de1fa99a3746d4279184a54",
+    "sha256": "5a702924f9b7624d202cbb2dac3e544878f3b26e9de1fa99a3746d4279184a54"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/regex.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/941f8911fb1365dccaf34f6aafb4b67de4449921891a594a3671b3b6adcc60d1",
+    "sha256": "941f8911fb1365dccaf34f6aafb4b67de4449921891a594a3671b3b6adcc60d1"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/runtime/token_helpers.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/9c4ff0e85dcbea4d5a6982096bd7e1981c77fb154f3d339d93a84b01b9396379",
+    "sha256": "9c4ff0e85dcbea4d5a6982096bd7e1981c77fb154f3d339d93a84b01b9396379"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/stdlib_runtime.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/f02d214420342e149b6b15531a6e4ee0c0a7a96f80fdd8473a69866c3534efd7",
+    "sha256": "f02d214420342e149b6b15531a6e4ee0c0a7a96f80fdd8473a69866c3534efd7"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/tco_pass.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/1454cad658e6c2d81727a896bc9cf6dd73fd6704a42f374d1d1243de9e91d1c0",
+    "sha256": "1454cad658e6c2d81727a896bc9cf6dd73fd6704a42f374d1d1243de9e91d1c0"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/toon_output.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/a005fb8cc93f94e77a4a4eaf1d47ac50cdf155b0d0a143617e48df03bda190e8",
+    "sha256": "a005fb8cc93f94e77a4a4eaf1d47ac50cdf155b0d0a143617e48df03bda190e8"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/transpiler.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/19825d1a88635d8f83a33eeff0018982660ab773892078abd038154a8c3dc75e",
+    "sha256": "19825d1a88635d8f83a33eeff0018982660ab773892078abd038154a8c3dc75e"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/type_infer.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/fc77bcbac5245c1d10f40cceabb385bc8b5132a13554913368fa43f931d82c67",
+    "sha256": "fc77bcbac5245c1d10f40cceabb385bc8b5132a13554913368fa43f931d82c67"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/typechecker.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/8c0871fa05c1c82874cedae1573faee278c40b8a91a47ae9eb636c606dcc5631",
+    "sha256": "8c0871fa05c1c82874cedae1573faee278c40b8a91a47ae9eb636c606dcc5631"
+  },
+  "/private/tmp/nanolang-cyclic-907-restack-3df-py314/obj/utf8.o": {
+    "artifact": "/private/tmp/nanolang-cyclic-907-restack-puck/artifacts/e804baee4ffdc49123a68ed668afe40fdedc032a1acbc2dbed4d4aa9d1eab3fc",
+    "sha256": "e804baee4ffdc49123a68ed668afe40fdedc032a1acbc2dbed4d4aa9d1eab3fc"
+  }
+}

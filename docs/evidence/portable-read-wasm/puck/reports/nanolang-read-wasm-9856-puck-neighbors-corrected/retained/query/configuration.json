@@ -1,0 +1,60 @@
+{
+  "compiler": [
+    "/usr/bin/clang"
+  ],
+  "flags": [],
+  "providers": [
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/file_flow.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/service_file_nominal.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/service_file_nominal_plan.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/service_bindings.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/service_bindings_module.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/mixed_float_proof.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/managed_array_shapes.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/local_bindings.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/affine_bytecode.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/affine_state.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/ownership_contracts.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/retained_layouts.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/reference_places.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/passive.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/isa.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_format.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_format_v2.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_v2_cursor.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_v2_constants.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_v2_signatures.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_v2_layouts.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_v2_functions.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_v2_imports.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_v2_module.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm_v2_convert.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/assembler.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/disassembler.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm2c.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nvm2c_shape.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/frontend.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanoisa/nanoisa_facade.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nanovm/vm_dispatch.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/nsi_file_plan.o",
+    "/private/tmp/nanolang-portable-read-wasm-9856/obj/utf8.o"
+  ],
+  "ldflags": [
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/opt/openssl@3/lib"
+  ],
+  "instrumented_translation_units": {
+    "read_query": "src/nanoisa/portable_host_plan.c",
+    "read_decode": "src/nanovm/vm_decode.c",
+    "read_stack": "src/nanoisa/verifier.c",
+    "read_types": "src/nanoisa/verifier_types.c"
+  },
+  "sanitizer_environment": {
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": ""
+  },
+  "limits": "I hash actual C/header/include sources and named providers/compiler/Python at phase endpoints; I do not claim all transitive system tools."
+}

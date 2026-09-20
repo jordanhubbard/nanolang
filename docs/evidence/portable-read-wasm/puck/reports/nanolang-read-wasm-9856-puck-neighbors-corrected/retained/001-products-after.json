@@ -1,0 +1,26 @@
+{
+  "observed": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/products/observed",
+    "sha256": "be9c260050df2a397953859c211b632e04a597ec194d84b6b4b4b77bed291806",
+    "bytes": 152568,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/objects/be9c260050df2a397953859c211b632e04a597ec194d84b6b4b4b77bed291806"
+  },
+  "observed.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/products/observed.dSYM/Contents/Info.plist",
+    "sha256": "a2296e4812d68394d5bad8df70d631d71e0bb860659bb51b66fde761ec5b9aeb",
+    "bytes": 637,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/objects/a2296e4812d68394d5bad8df70d631d71e0bb860659bb51b66fde761ec5b9aeb"
+  },
+  "observed.dSYM/Contents/Resources/DWARF/observed": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/products/observed.dSYM/Contents/Resources/DWARF/observed",
+    "sha256": "e3178fcb36b459ae19dd59570ced0f706cea36bb9300591d1051de12b27eac06",
+    "bytes": 137539,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/objects/e3178fcb36b459ae19dd59570ced0f706cea36bb9300591d1051de12b27eac06"
+  },
+  "observed.dSYM/Contents/Resources/Relocations/aarch64/observed.yml": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/products/observed.dSYM/Contents/Resources/Relocations/aarch64/observed.yml",
+    "sha256": "75f6504685ee523508d366808c72c85beb4a4493ef68f3f3f836962195977c0c",
+    "bytes": 174,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/objects/75f6504685ee523508d366808c72c85beb4a4493ef68f3f3f836962195977c0c"
+  }
+}

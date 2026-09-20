@@ -1,0 +1,4 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: I do not yet accept ownership-changing or terminal match guards (/tmp/nano-canonical-match-guards-1q1p9lvd/guard-owner.nano:1:198)
+  [E0036] I cannot verify ownership: branches disagree on resource ownership: h (/tmp/nano-canonical-match-guards-1q1p9lvd/guard-owner.nano:1:171)

@@ -1,0 +1,10 @@
+{
+  "scope": "current-only observation after completed gates; no historical equality claim",
+  "observed_utc": "2026-09-20T08:02:19.688400+00:00",
+  "executable": "/usr/bin/python3",
+  "resolved": "/usr/bin/python3.12",
+  "sha256": "1401f5c1ddd9e8f9d77622113a8d04b5f7ef57c0e3f40dd29db248a5aa91622e",
+  "version": "3.12.3 (main, Jul 15 2026, 23:46:41) [GCC 13.3.0]",
+  "historical_linux_driver_hash_captured": false,
+  "prospective_driver_fixed": true
+}

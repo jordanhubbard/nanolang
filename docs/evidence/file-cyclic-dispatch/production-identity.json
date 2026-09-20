@@ -1,0 +1,10 @@
+{
+  "src/nanoisa/file_cyclic_dispatch.inc": "6cd1b36bb6f9dd17fac1289919d102fb97730e5c",
+  "src/nanoisa/file_cyclic_native_emit.inc": "01f1695eac64995c394e73104d85d7dc90eb7ae6",
+  "src/nanoisa/file_cyclic_runtime.h": "cb3ff1e1df4d797cd47a72c259a43a185f90de70",
+  "src/nanoisa/file_cyclic_runtime.inc": "4d28023b6f7e05c818296b2e0d7dbb271b8b94e5",
+  "src/nanoisa/nvm2c_file_cyclic_private.c": "1c99a9dc2be0448a277b4f0a9299d77ea2f53ca3",
+  "src/nanoisa/nvm2c_file_cyclic_private.h": "5f75009c4b640fac36778be1299952f3c437d01d",
+  "src/nanovm/file_vm_cyclic_private.c": "b8ba6c63551a72ff005935b174516f5aef6b8dfd",
+  "src/nanovm/file_vm_cyclic_private.h": "057d47756313357f58952a4d5101b48cbe9f3b2d"
+}

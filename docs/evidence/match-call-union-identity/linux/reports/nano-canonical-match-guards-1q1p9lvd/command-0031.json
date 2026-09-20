@@ -1,0 +1,1 @@
+["/bin/gcc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "/tmp/nano-canonical-match-guards-1q1p9lvd/named-nanoc_stage1.c", "-lm", "-o", "/tmp/nano-canonical-match-guards-1q1p9lvd/named-nanoc_stage1-native"]

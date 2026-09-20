@@ -1,0 +1,11 @@
+2026-09-20T08:09:23.5198374Z 
+2026-09-20T08:09:23.5468713Z shadow-check: no changed NanoLang files
+2026-09-20T08:09:23.5585640Z -- E001 TYPE MISMATCH --- scripts/userguide_snippets_check.nano
+2026-09-20T08:09:23.5586200Z I require an exact known union identity before I check match coverage.
+2026-09-20T08:09:23.5586496Z 
+2026-09-20T08:09:23.5586869Z 201|     match (extract_json_from_marker "<!--nl-snippet {\"name\":\"x\"}-->") {
+2026-09-20T08:09:23.5587270Z          ^^^^^
+2026-09-20T08:09:23.5587575Z Hint: Give the scrutinee a declared union type that I can resolve here.
+2026-09-20T08:09:23.5588023Z Type checking failed
+2026-09-20T08:09:23.5594944Z make: *** [Makefile.gnu:3210: build/userguide/userguide_snippets_check] Error 1
+2026-09-20T08:09:23.5618357Z ##[error]Process completed with exit code 2.

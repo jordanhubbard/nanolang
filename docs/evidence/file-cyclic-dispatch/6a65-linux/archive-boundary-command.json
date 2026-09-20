@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_file_cyclic_hosted_integration"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc-13",
+    "FILE_CYCLIC_HOSTED_ARCHIVE": "/home/jkh/Src/nanolang-file-cyclic-dispatch-6a65/lib/libnano_file_runtime.a",
+    "FILE_CYCLIC_HOSTED_LDFLAGS": "-lm -lcrypto -lffi  -rdynamic",
+    "FILE_CYCLIC_HOSTED_OBJECTS": "obj/nanoisa/local_bindings.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_dispatch.o obj/utf8.o",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_CYCLIC_HOSTED_CC": "/usr/bin/gcc-13",
+    "NANO_FILE_CYCLIC_HOSTED_CFLAGS": "",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}

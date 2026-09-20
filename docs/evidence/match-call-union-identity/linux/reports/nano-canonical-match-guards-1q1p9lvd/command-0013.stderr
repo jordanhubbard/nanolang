@@ -1,0 +1,8 @@
+-- E035 NON-EXHAUSTIVE MATCH --- /tmp/nano-canonical-match-guards-1q1p9lvd/union-coverage.nano
+I require this match to cover every variant; I am missing: Some
+
+2| fn main() -> int { return match Choice.Some { number: 1 } { Some(p) if (> p.number 0) => p.number None(n) => 0 } } shadow main { assert true }
+                             ^^^^^
+Hint: Add unconditional arms for the missing variants or one unconditional wildcard.
+Warning at line 2, column 27: Unused variable 'n'
+Type checking failed

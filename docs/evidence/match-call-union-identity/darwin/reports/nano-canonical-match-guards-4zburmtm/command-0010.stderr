@@ -1,0 +1,7 @@
+-- E001 TYPE MISMATCH --- /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-4zburmtm/domain.nano
+I require a match to inspect an int or a known union.
+
+2| fn main() -> int { return match "text" { _ => 1 } } shadow main { assert true }
+                             ^^^^^
+Hint: Give the scrutinee an exact supported type before matching it.
+Type checking failed
