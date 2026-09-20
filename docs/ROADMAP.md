@@ -12587,6 +12587,8 @@ and actual merge remain pending; no cyclic File runtime or parent closure follow
 
 ### My paired File source and NSI publication prerequisite
 
+- [ ] I preserve d285 first generator terminals on Linux/puck: after the typed boolean correction, pre-existing generator shadows call file_delete and JSON mutator externs as statements outside unsafe blocks. I use the existing public delete/json_array_push/object_set wrappers and matching JSON constructor wrappers, preserving exact calls, ownership, shadows and four-file output checks. This is newly exercised generator qualification, not a token decoder regression; I change no global safety policy.
+
 - [ ] I preserve1bb token fixture C-seed/Stage1/Stage2 output and exact shadow selection on both hosts, then the first actual Nano schema generator typecheck refusal: eight existing nl_json_as_bool calls return int where bool is required. I import/use the existing tested std/json as_bool wrapper at those sites before fresh full schema equality; no JSON semantics or comparison weakening. I distinguish the changed generator stamp input from unchanged compiled compiler sources and canonical generated files when retaining28e bootstrap provenance.
 
 - [ ] I reconcile paired grammar keyword reservation (`task_9b6cbac8f6f941e3ad38a0c7f5ff59c9`): C-seed accepts the ece fixture local while Stage1 reserves TOKEN_GRAMMAR. I inventory intended semantics and require paired acceptance/refusal or an explicit documented language boundary before full source acceptance; the1bb fixture rename alone does not repair this frontend difference.
