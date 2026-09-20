@@ -64,6 +64,7 @@ jobs:
         run: |
           ./scripts/ci-brew-install.sh \
             gcc \
+            llvm \
             pkg-config \
             openssl \
             sdl2 \
@@ -74,6 +75,20 @@ jobs:
             glfw glew freeglut \
             readline libevent libuv bullet \
             gforth
+
+      - name: Select native sanitizer tools (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          llvm_prefix="$(brew --prefix llvm)"
+          "$llvm_prefix/bin/clang" --version
+          "$llvm_prefix/bin/opt" --version
+          {
+            printf 'NANO_NATIVE_TEST_CC=%s/bin/clang\n' "$llvm_prefix"
+            printf 'NANOLANG_GUARD_SAN_CC=%s/bin/clang\n' "$llvm_prefix"
+            printf 'NMS_RUNTIME_CLANG=%s/bin/clang\n' "$llvm_prefix"
+            printf 'NMS_RUNTIME_OPT=%s/bin/opt\n' "$llvm_prefix"
+          } >> "$GITHUB_ENV"
 
       - name: Install Python dependencies
         shell: bash

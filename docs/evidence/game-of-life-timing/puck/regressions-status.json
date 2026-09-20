@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "make",
+    "test-examples-regressions"
+  ],
+  "limit": 180,
+  "timeout": false,
+  "returncode": 0,
+  "seconds": 27.250907665933482,
+  "log_sha256": "3bd5398223a5be23c14886db28ede77a1200eb9efd1f14a159e36fa0ed214920"
+}
