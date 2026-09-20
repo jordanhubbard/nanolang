@@ -193,3 +193,32 @@ explicitly documented memory exports. Node/Wasmtime use the same byte vectors.
    helper/main shadows remain required subsequent work. The declaration query
    alone cannot supply this authority. Linked-module/compiler/array/recursive
    capabilities and all original2d2/bootstrap/fixed-point gates stay open.
+
+## My first native source checkpoint
+
+I add only four private files: portable_read_host.h/.c and
+portable_read_managed.h/.c. There are no Make/default-provider, profile, emitter,
+CLI, managed runtime or query changes. No new fixture, compile or host read has
+run at this checkpoint. Wasm thunk and embedding source are still pending.
+
+My real context's one calloc request is sizeof(NprFileHost), containing count,
+active flag and64 inline NprStoredPath rows. Each row contains a uint32 length
+and4097 bytes; there are no hidden per-path allocations. My wrapper's one malloc
+request is sizeof(NprScratch):4097 path bytes,1048576 destination bytes, and an
+aligned uint32 length cell including compiler padding. The real callback uses
+4097 stack bytes for a terminated path and four small checked address ranges;
+its project allocation count is zero. libc buffering and nms_create's existing
+managed byte/slot/workspace allocations are separate domains, not omitted from
+future scoped failure and lifetime controls. Query allocations do not occur in
+a direct adapter call, and no query report is treated as a runtime permit.
+
+I validate the complete fixed allowlist before its allocation and publish its
+pointer after every copy. The callback validates four pairwise-disjoint regions
+before changing its active flag. Ordinary fopen/read/close failure yields empty
+only while host status remains OK; a probe byte sets LIMIT before fclose and
+retains it. All admitted opens reach exactly one fclose. The managed wrapper
+initializes all result fields, explicitly checks disposed/active, copies the
+bounded effective path before callback, validates status/length/content and
+frees scratch after nms_create regardless of its result. It never changes the
+caller's argument ownership. Native callers remain responsible for valid C
+storage and serialized context/runtime use.
