@@ -1216,9 +1216,147 @@ shadow remap_diagnostics {
 }
 
 struct ModuleBuildFlags {
-    compile_flags: string
-    link_flags: string
+    compile_flags: string, link_flags: string, compiler: string,
+    runtime_sources: array<string>, objects: array<string>, ok: bool, first_status: int
 }
+struct NativeProvider {
+    source: string, compiler: string, language: string, profile: string, runtime: bool
+}
+struct NativeProviderSet { rows: array<NativeProvider>, ok: bool }
+fn native_build_empty() -> ModuleBuildFlags {
+    return ModuleBuildFlags { compile_flags: "", link_flags: "", compiler: "",
+        runtime_sources: [], objects: [], ok: false, first_status: 1 }
+}
+shadow native_build_empty { assert (not (native_build_empty).ok) }
+# Every successful append retains its exact count; I do not silently truncate OOM.
+fn native_profile_append(a: string, b: string) -> string {
+    let an: int = (str_length a)
+    let bn: int = (str_length b)
+    if (or (> an 1048576) (> bn (- 1048576 an))) { return "" }
+    let value: string = (+ a b)
+    let size: int = (str_length value)
+    if (!= size (+ an bn)) { return "" }
+    return value
+}
+shadow native_profile_append { assert (== (native_profile_append " -DX=1" " -UX") " -DX=1 -UX") }
+fn native_provider_add(input: NativeProviderSet, value: NativeProvider) -> NativeProviderSet {
+    let mut result: NativeProviderSet = input
+    if (not result.ok) { return result }
+    if (or (== value.source "") (or (== value.compiler "") (or (== value.language "") (== value.profile "")))) {
+        set result.ok false return result
+    }
+    let mut i: int = 0
+    while (< i (array_length result.rows)) {
+        let old: NativeProvider = (at result.rows i)
+        if (== old.source value.source) {
+            if (or (!= old.compiler value.compiler) (or (!= old.language value.language) (!= old.profile value.profile))) {
+                set result.ok false
+            }
+            return result
+        }
+        set i (+ i 1)
+    }
+    if (>= (array_length result.rows) 50128) { set result.ok false return result }
+    set result.rows (array_push result.rows value)
+    return result
+}
+shadow native_provider_add {
+    let empty: NativeProviderSet = NativeProviderSet { rows: [], ok: true }
+    let value: NativeProvider = NativeProvider { source: "/a/x.c", compiler: "cc", language: "c99", profile: " -DA", runtime: true }
+    let first: NativeProviderSet = (native_provider_add empty value)
+    let again: NativeProviderSet = (native_provider_add first value)
+    assert again.ok
+    assert (== (array_length again.rows) 1)
+    let conflict: NativeProviderSet = (native_provider_add again (NativeProvider { source: "/a/x.c", compiler: "cc", language: "c99", profile: " -DB", runtime: false }))
+    assert (not conflict.ok)
+}
+struct NativeRuntimeInputs { sources: array<string>, includes: string }
+fn native_runtime_inputs(repo_root: string, files: array<string>) -> NativeRuntimeInputs {
+    let relative: array<string> = [
+        "src/runtime/list_int.c",
+        "src/runtime/list_string.c",
+        "src/runtime/list_LexerToken.c",
+        "src/runtime/list_token.c",
+        "src/runtime/list_CompilerDiagnostic.c",
+        "src/runtime/list_CompilerSourceLocation.c",
+        "src/runtime/token_helpers.c",
+        "src/runtime/gc.c",
+        "src/runtime/dyn_array.c",
+        "src/runtime/hashmap_bootstrap.c",
+        "src/runtime/gc_struct.c",
+        "src/runtime/nl_string.c",
+        "src/utf8.c",
+        "src/runtime/cli.c",
+        "src/runtime/regex.c",
+        "src/runtime/list_ASTLet.c",
+        "src/runtime/list_ASTFunction.c",
+        "src/runtime/list_ASTNumber.c",
+        "src/runtime/list_ASTFloat.c",
+        "src/runtime/list_ASTString.c",
+        "src/runtime/list_ASTBool.c",
+        "src/runtime/list_ASTIdentifier.c",
+        "src/runtime/list_ASTBinaryOp.c",
+        "src/runtime/list_ASTCall.c",
+        "src/runtime/list_ASTModuleQualifiedCall.c",
+        "src/runtime/list_ASTArrayLiteral.c",
+        "src/runtime/list_ASTStmtRef.c",
+        "src/runtime/list_ASTBlock.c",
+        "src/runtime/list_ASTUnsafeBlock.c",
+        "src/runtime/list_ASTPrint.c",
+        "src/runtime/list_ASTAssert.c",
+        "src/runtime/list_ASTFieldAccess.c",
+        "src/runtime/list_ASTSet.c",
+        "src/runtime/list_ASTIf.c",
+        "src/runtime/list_ASTWhile.c",
+        "src/runtime/list_ASTFor.c",
+        "src/runtime/list_ASTReturn.c",
+        "src/runtime/list_ASTShadow.c",
+        "src/runtime/list_ASTStruct.c",
+        "src/runtime/list_ASTStructLiteral.c",
+        "src/runtime/list_ASTEnum.c",
+        "src/runtime/list_ASTUnion.c",
+        "src/runtime/list_ASTUnionConstruct.c",
+        "src/runtime/list_ASTMatch.c",
+        "src/runtime/list_ASTImport.c",
+        "src/runtime/list_ASTOpaqueType.c",
+        "src/runtime/list_ASTServiceDecl.c",
+        "src/runtime/list_ASTTupleLiteral.c",
+        "src/runtime/list_ASTTupleIndex.c",
+        "modules/std/fs.c",
+        "modules/std/process.c",
+        "modules/std/collections/collections.c",
+        "modules/std/json/json.c",
+        "src/cJSON.c"
+    ]
+    let mut sources: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length relative)) {
+        set sources (array_push sources (nl_path_join repo_root (at relative i)))
+        set i (+ i 1)
+    }
+    let mut includes: string = (+ " -I" (native_shell_quote (nl_path_join repo_root "modules/std/collections")))
+    set includes (+ includes (+ " -I" (native_shell_quote (nl_path_join repo_root "modules/std/json"))))
+    let mut uses_peg2: bool = false
+    set i 0
+    while (< i (array_length files)) {
+        if (> (nlc_str_index_of (at files i) "peg2") -1) { set uses_peg2 true }
+        set i (+ i 1)
+    }
+    if uses_peg2 {
+        set sources (array_push sources (nl_path_join repo_root "modules/std/peg2/peg2.c"))
+        set includes (+ includes (+ " -I" (native_shell_quote (nl_path_join repo_root "modules/std/peg2"))))
+    }
+    return NativeRuntimeInputs { sources: sources, includes: includes }
+}
+shadow native_runtime_inputs {
+    let ordinary: NativeRuntimeInputs = (native_runtime_inputs "/repo" [])
+    let peg: NativeRuntimeInputs = (native_runtime_inputs "/repo" ["/repo/modules/std/peg2/peg2.nano"])
+    assert (== (at ordinary.sources 0) "/repo/src/runtime/list_int.c")
+    assert (== (at ordinary.sources (- (array_length ordinary.sources) 1)) "/repo/src/cJSON.c")
+    assert (== (array_length peg.sources) (+ (array_length ordinary.sources) 1))
+    assert (== (at peg.sources (- (array_length peg.sources) 1)) "/repo/modules/std/peg2/peg2.c")
+}
+
 
 fn json_extract_string_array(text: string, key: string) -> array<string> {
     let mut result: array<string> = []
@@ -1322,22 +1460,38 @@ shadow collect_module_dirs {
     assert (== 1 1)
 }
 
-# My native driver already compiles this runtime source into every output.
-fn native_source_already_linked(source: string, runtime_json: string) -> bool {
-    return (and (!= source "") (== source runtime_json))
+struct NativeCapturedFlags { value: string, ok: bool }
+fn native_decode_flags(output: string) -> NativeCapturedFlags {
+    let marker: string = "\n__NANO_PROVIDER_FLAGS_OK__"
+    let size: int = (str_length output)
+    let marker_size: int = (str_length marker)
+    if (or (< size marker_size) (>= size 65535)) { return NativeCapturedFlags { value: "", ok: false } }
+    if (!= (str_substring output (- size marker_size) marker_size) marker) {
+        return NativeCapturedFlags { value: "", ok: false }
+    }
+    return NativeCapturedFlags { value: (nlc_str_trim (str_substring output 0 (- size marker_size))), ok: true }
 }
-shadow native_source_already_linked {
-    assert (native_source_already_linked "/repo/src/cJSON.c" "/repo/src/cJSON.c")
-    assert (not (native_source_already_linked "/other/cJSON.c" "/repo/src/cJSON.c"))
-    assert (not (native_source_already_linked "" ""))
+shadow native_decode_flags {
+    let empty: NativeCapturedFlags = (native_decode_flags "\n__NANO_PROVIDER_FLAGS_OK__")
+    assert empty.ok assert (== empty.value "")
+    assert (not (native_decode_flags "-DMISSING").ok)
 }
+fn native_capture_flags(command: string) -> NativeCapturedFlags {
+    if (or (== command "") (> (str_length command) 1048000)) { return NativeCapturedFlags { value: "", ok: false } }
+    let checked: string = (+ command " && printf '\\n__NANO_PROVIDER_FLAGS_OK__'")
+    return (native_decode_flags (nl_exec_capture checked))
+}
+shadow native_capture_flags { assert (not (native_capture_flags "").ok) }
 
-fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: bool) -> ModuleBuildFlags {
-    let module_dirs: array<string> = (collect_module_dirs files repo_root)
+fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_root: string, native_dir: string, verbose: bool) -> ModuleBuildFlags {
+    if (== native_dir "") { return (native_build_empty) }
+    let mut module_dirs: array<string> = (collect_module_dirs files repo_root)
     let mut cflags: string = ""
     let mut ldflags: string = ""
-    let mut objects: string = ""
-    let runtime_json: string = (canonical (nl_path_join repo_root "src/cJSON.c"))
+    if (> (array_length module_dirs) 5000) { return (native_build_empty) }
+    let selected_compiler: string = (resolve_cc_binary)
+    if (or (== selected_compiler "") (> (str_length selected_compiler) 1048576)) { return (native_build_empty) }
+    let mut requests: array<NativeProvider> = []
     let mut processed_pkgs: array<string> = []
 
     let mut i: int = 0
@@ -1346,6 +1500,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
         let json_path: string = (nl_path_join dir "module.json")
         if (file_exists json_path) {
             let json_text: string = (file_read json_path)
+            if (> (str_length json_text) 1048576) { return (native_build_empty) }
             let mod_name: string = (json_extract_string json_text "name")
             if verbose {
                 (print "  [module] ")
@@ -1368,10 +1523,13 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
                 }
                 if (not already) {
                     set processed_pkgs (array_push processed_pkgs pkg)
-                    let cflags_cmd: string = (+ "pkg-config --cflags " (+ pkg " 2>/dev/null"))
-                    let pkg_cflags: string = (nlc_str_trim (nl_exec_capture cflags_cmd))
+                    let cflags_cmd: string = (+ "pkg-config --cflags " (native_shell_quote pkg))
+                    let captured_cflags: NativeCapturedFlags = (native_capture_flags cflags_cmd)
+                    if (not captured_cflags.ok) { return (native_build_empty) }
+                    let pkg_cflags: string = captured_cflags.value
                     if (> (str_length pkg_cflags) 0) {
-                        set cflags (+ cflags (+ " " pkg_cflags))
+                        set cflags (native_profile_append cflags (+ " " pkg_cflags))
+                        if (== cflags "") { return (native_build_empty) }
                         if verbose {
                             (print "    pkg-config --cflags ")
                             (print pkg)
@@ -1379,10 +1537,13 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
                             (println pkg_cflags)
                         } else { (print "") }
                     } else { (print "") }
-                    let ldflags_cmd: string = (+ "pkg-config --libs " (+ pkg " 2>/dev/null"))
-                    let pkg_ldflags: string = (nlc_str_trim (nl_exec_capture ldflags_cmd))
+                    let ldflags_cmd: string = (+ "pkg-config --libs " (native_shell_quote pkg))
+                    let captured_ldflags: NativeCapturedFlags = (native_capture_flags ldflags_cmd)
+                    if (not captured_ldflags.ok) { return (native_build_empty) }
+                    let pkg_ldflags: string = captured_ldflags.value
                     if (> (str_length pkg_ldflags) 0) {
-                        set ldflags (+ ldflags (+ " " pkg_ldflags))
+                        set ldflags (native_profile_append ldflags (+ " " pkg_ldflags))
+                        if (== ldflags "") { return (native_build_empty) }
                         if verbose {
                             (print "    pkg-config --libs ")
                             (print pkg)
@@ -1398,7 +1559,8 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
             let mod_ldflags: array<string> = (json_extract_string_array json_text "ldflags")
             let mut li: int = 0
             while (< li (array_length mod_ldflags)) {
-                set ldflags (+ ldflags (+ " " (at mod_ldflags li)))
+                set ldflags (native_profile_append ldflags (+ " " (at mod_ldflags li)))
+                if (== ldflags "") { return (native_build_empty) }
                 set li (+ li 1)
             }
 
@@ -1406,7 +1568,8 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
             let sys_libs: array<string> = (json_extract_string_array json_text "system_libs")
             let mut si: int = 0
             while (< si (array_length sys_libs)) {
-                set ldflags (+ ldflags (+ " -l" (at sys_libs si)))
+                set ldflags (native_profile_append ldflags (+ " -l" (at sys_libs si)))
+                if (== ldflags "") { return (native_build_empty) }
                 set si (+ si 1)
             }
 
@@ -1414,7 +1577,8 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
             let frameworks: array<string> = (json_extract_string_array json_text "frameworks")
             let mut fi: int = 0
             while (< fi (array_length frameworks)) {
-                set ldflags (+ ldflags (+ " -framework " (at frameworks fi)))
+                set ldflags (native_profile_append ldflags (+ " -framework " (at frameworks fi)))
+                if (== ldflags "") { return (native_build_empty) }
                 set fi (+ fi 1)
             }
 
@@ -1425,9 +1589,11 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
                 let flag: string = (at mod_cflags ci)
                 if (nlc_str_starts_with flag "-I") {
                     let rel_path: string = (str_substring flag 2 (- (str_length flag) 2))
-                    set cflags (+ cflags (+ " -I" (nl_path_join repo_root rel_path)))
+                    set cflags (native_profile_append cflags (+ " -I" (native_shell_quote (nl_path_join repo_root rel_path))))
+                    if (== cflags "") { return (native_build_empty) }
                 } else {
-                    set cflags (+ cflags (+ " " flag))
+                    set cflags (native_profile_append cflags (+ " " flag))
+                    if (== cflags "") { return (native_build_empty) }
                 }
                 set ci (+ ci 1)
             }
@@ -1436,116 +1602,156 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: 
             let inc_dirs: array<string> = (json_extract_string_array json_text "include_dirs")
             let mut ii: int = 0
             while (< ii (array_length inc_dirs)) {
-                set cflags (+ cflags (+ " -I" (nl_path_join repo_root (at inc_dirs ii))))
+                set cflags (native_profile_append cflags (+ " -I" (native_shell_quote (nl_path_join repo_root (at inc_dirs ii)))))
+                if (== cflags "") { return (native_build_empty) }
                 set ii (+ ii 1)
             }
 
             /* Always add the module dir itself as an include path */
-            set cflags (+ cflags (+ " -I" dir))
+            set cflags (native_profile_append cflags (+ " -I" (native_shell_quote dir)))
+            if (== cflags "") { return (native_build_empty) }
 
-            /* c_sources: compile to .o files */
-            let c_sources: array<string> = (json_extract_string_array json_text "c_sources")
-            if (> (array_length c_sources) 0) {
-                let c_compiler: string = (json_extract_string json_text "c_compiler")
-                let mut cc_bin: string = (resolve_cc_binary)
-                if (== c_compiler "c++") {
-                    set cc_bin "c++"
-                } else { (print "") }
-                let build_dir: string = (nl_path_join repo_root "obj/nano_modules")
-                let _mk: int = (nl_exec_shell (+ "mkdir -p " build_dir))
-                let mut csi: int = 0
-                while (< csi (array_length c_sources)) {
-                    let csrc: string = (nl_path_join dir (at c_sources csi))
-                    if (native_source_already_linked (canonical csrc) runtime_json) {
-                        set csi (+ csi 1)
-                        continue
-                    }
-                    let base: string = (nlc_path_basename csrc)
-                    let blen: int = (str_length base)
-                    let stem: string = (str_substring base 0 (- blen 2))
-                    let obj: string = (nl_path_join build_dir (+ stem ".o"))
-                    let mut compile_cmd: string = (+ cc_bin " -c -std=c99")
-                    if (== c_compiler "c++") {
-                        set compile_cmd (+ cc_bin " -c -std=c++11")
-                    } else { (print "") }
-                    set compile_cmd (+ compile_cmd cflags)
-                    set compile_cmd (+ compile_cmd (+ " -I" (nl_path_join repo_root "src")))
-                    set compile_cmd (+ compile_cmd (+ " " csrc))
-                    set compile_cmd (+ compile_cmd (+ " -o " obj))
-                    set compile_cmd (+ compile_cmd " 2>&1")
-                    if verbose {
-                        (print "    Compiling: ")
-                        (println csrc)
-                    } else { (print "") }
-                    let cr: int = (nl_exec_shell compile_cmd)
-                    if (== cr 0) {
-                        set objects (+ objects (+ " " obj))
-                    } else {
-                        (print "    Warning: failed to compile module source: ")
-                        (println csrc)
-                    }
-                    set csi (+ csi 1)
-                }
-            } else { (print "") }
+            # I retain requests now; every compilation waits for the final profile.
+            let mut c_sources: array<string> = (json_extract_string_array json_text "c_sources")
+            let shared_sources: array<string> = (json_extract_string_array json_text "shared_c_sources")
+            if (> (+ (array_length c_sources) (array_length shared_sources)) (- 50000 (array_length requests))) { return (native_build_empty) }
+            let mut shared_index: int = 0
+            while (< shared_index (array_length shared_sources)) {
+                set c_sources (array_push c_sources (at shared_sources shared_index))
+                set shared_index (+ shared_index 1)
+            }
+            let c_compiler: string = (json_extract_string json_text "c_compiler")
+            if (and (!= c_compiler "") (!= c_compiler "c++")) { return (native_build_empty) }
+            let mut compiler: string = selected_compiler
+            let mut language: string = "c99"
+            if (== c_compiler "c++") { set compiler "c++" set language "c++11" }
+            let mut csi: int = 0
+            while (< csi (array_length c_sources)) {
+                if (>= (array_length requests) 50000) { return (native_build_empty) }
+                let source: string = (canonical (nl_path_join dir (at c_sources csi)))
+                if (== source "") { return (native_build_empty) }
+                set requests (array_push requests (NativeProvider { source: source, compiler: compiler,
+                    language: language, profile: "", runtime: false }))
+                set csi (+ csi 1)
+            }
 
-            /* dependencies: process recursively by finding their module dirs */
+            # Missing dependency modules join the queue immediately after this
+            # owner, in manifest order; already selected modules retain their order.
             let deps: array<string> = (json_extract_string_array json_text "dependencies")
+            let mut pending: array<string> = []
             let mut di: int = 0
             while (< di (array_length deps)) {
-                let dep_dir: string = (nl_path_join repo_root (+ "modules/" (at deps di)))
-                let dep_json: string = (nl_path_join dep_dir "module.json")
-                if (file_exists dep_json) {
-                    let mut dep_already: bool = false
-                    let mut dai: int = 0
-                    while (< dai (array_length module_dirs)) {
-                        if (== (at module_dirs dai) dep_dir) { set dep_already true } else { (print "") }
-                        set dai (+ dai 1)
-                    }
-                    if (not dep_already) {
-                        if verbose {
-                            (print "    dependency: ")
-                            (println (at deps di))
-                        } else { (print "") }
-                        let dep_json_text: string = (file_read dep_json)
-                        let dep_pkgs: array<string> = (json_extract_string_array dep_json_text "pkg_config")
-                        let mut dpi: int = 0
-                        while (< dpi (array_length dep_pkgs)) {
-                            let dpkg: string = (at dep_pkgs dpi)
-                            let mut dp_already: bool = false
-                            let mut dpai: int = 0
-                            while (< dpai (array_length processed_pkgs)) {
-                                if (== (at processed_pkgs dpai) dpkg) { set dp_already true } else { (print "") }
-                                set dpai (+ dpai 1)
-                            }
-                            if (not dp_already) {
-                                set processed_pkgs (array_push processed_pkgs dpkg)
-                                let dc_cmd: string = (+ "pkg-config --cflags " (+ dpkg " 2>/dev/null"))
-                                let dc_flags: string = (nlc_str_trim (nl_exec_capture dc_cmd))
-                                if (> (str_length dc_flags) 0) { set cflags (+ cflags (+ " " dc_flags)) } else { (print "") }
-                                let dl_cmd: string = (+ "pkg-config --libs " (+ dpkg " 2>/dev/null"))
-                                let dl_flags: string = (nlc_str_trim (nl_exec_capture dl_cmd))
-                                if (> (str_length dl_flags) 0) { set ldflags (+ ldflags (+ " " dl_flags)) } else { (print "") }
-                            } else { (print "") }
-                            set dpi (+ dpi 1)
-                        }
-                        let dep_ldflags: array<string> = (json_extract_string_array dep_json_text "ldflags")
-                        let mut dli: int = 0
-                        while (< dli (array_length dep_ldflags)) {
-                            set ldflags (+ ldflags (+ " " (at dep_ldflags dli)))
-                            set dli (+ dli 1)
-                        }
-                    } else { (print "") }
-                } else { (print "") }
+                let dep_dir: string = (canonical (nl_path_join repo_root (+ "modules/" (at deps di))))
+                if (or (== dep_dir "") (not (file_exists (nl_path_join dep_dir "module.json")))) { return (native_build_empty) }
+                let mut seen: bool = false
+                let mut j: int = 0
+                while (< j (array_length module_dirs)) {
+                    if (== (at module_dirs j) dep_dir) { set seen true }
+                    set j (+ j 1)
+                }
+                set j 0
+                while (< j (array_length pending)) {
+                    if (== (at pending j) dep_dir) { set seen true }
+                    set j (+ j 1)
+                }
+                if (not seen) {
+                    if (>= (+ (array_length module_dirs) (array_length pending)) 5000) { return (native_build_empty) }
+                    set pending (array_push pending dep_dir)
+                }
                 set di (+ di 1)
+            }
+            if (> (array_length pending) 0) {
+                let mut extended: array<string> = []
+                let mut j: int = 0
+                while (<= j i) { set extended (array_push extended (at module_dirs j)) set j (+ j 1) }
+                let mut k: int = 0
+                while (< k (array_length pending)) { set extended (array_push extended (at pending k)) set k (+ k 1) }
+                while (< j (array_length module_dirs)) { set extended (array_push extended (at module_dirs j)) set j (+ j 1) }
+                set module_dirs extended
             }
         } else { (print "") }
         set i (+ i 1)
     }
-    return ModuleBuildFlags { compile_flags: cflags, link_flags: (+ objects ldflags) }
+    let runtime: NativeRuntimeInputs = (native_runtime_inputs runtime_root files)
+    let base: string = (+ " -I" (+ (native_shell_quote (nl_path_join runtime_root "src"))
+        (+ " -I" (native_shell_quote (nl_path_join runtime_root "modules/std")))))
+    let mut profile: string = (native_profile_append base cflags)
+    if (== profile "") { return (native_build_empty) }
+    let extra: string = (getenv "NANO_CFLAGS")
+    if (!= extra "") {
+        set profile (native_profile_append profile (+ " " extra))
+        if (== profile "") { return (native_build_empty) }
+    }
+    set profile (native_profile_append profile runtime.includes)
+    if (== profile "") { return (native_build_empty) }
+    let mut result: ModuleBuildFlags = (native_build_empty)
+    set result.compiler selected_compiler
+    set result.compile_flags profile
+    let mut registry: NativeProviderSet = NativeProviderSet { rows: [], ok: true }
+    set i 0
+    while (< i (array_length runtime.sources)) {
+        let source: string = (canonical (at runtime.sources i))
+        if (== source "") { return result }
+        set registry (native_provider_add registry (NativeProvider { source: source, compiler: selected_compiler,
+            language: "c99", profile: profile, runtime: true }))
+        if (not registry.ok) { return result }
+        set result.runtime_sources (array_push result.runtime_sources source)
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length requests)) {
+        let request: NativeProvider = (at requests i)
+        set registry (native_provider_add registry (NativeProvider { source: request.source, compiler: request.compiler,
+            language: request.language, profile: profile, runtime: false }))
+        if (not registry.ok) { (println "I cannot share conflicting native provider requests.") return result }
+        set i (+ i 1)
+    }
+    let mut objects: string = ""
+    set i 0
+    while (< i (array_length registry.rows)) {
+        let provider: NativeProvider = (at registry.rows i)
+        if (not provider.runtime) {
+            let index_text: string = (int_to_string i)
+            if (== index_text "") { return result }
+            let name: string = (native_profile_append "/provider_" index_text)
+            if (== name "") { return result }
+            let suffix: string = (native_profile_append name ".o")
+            if (== suffix "") { return result }
+            let object: string = (native_profile_append native_dir suffix)
+            if (== object "") { return result }
+            # I own partial output before starting its compiler.
+            set result.objects (array_push result.objects object)
+            let mut command: string = (native_profile_append provider.compiler (+ " -c -std=" provider.language))
+            if (== command "") { return result }
+            set command (native_profile_append command provider.profile)
+            if (== command "") { return result }
+            set command (native_profile_append command (+ " " (native_shell_quote provider.source)))
+            if (== command "") { return result }
+            set command (native_profile_append command (+ " -o " (+ (native_shell_quote object) " 2>&1")))
+            if (== command "") { return result }
+            if verbose { (println (+ "    Provider command: " command)) }
+            let status: int = (nl_exec_shell command)
+            if (!= status 0) {
+                set result.first_status status
+                (println (+ "I could not compile required native provider: " provider.source))
+                return result
+            }
+            if (not (file_exists object)) { return result }
+            set objects (native_profile_append objects (+ " " (native_shell_quote object)))
+            if (== objects "") { return result }
+        }
+        set i (+ i 1)
+    }
+    set result.link_flags (native_profile_append objects ldflags)
+    if (and (== result.link_flags "") (or (!= objects "") (!= ldflags ""))) { return result }
+    set result.ok true set result.first_status 0
+    return result
 }
 
 shadow collect_module_build_flags {
-    assert (== 1 1)
+    let refused: ModuleBuildFlags = (collect_module_build_flags [] "" "" "" false)
+    assert (not refused.ok)
+    assert (== (array_length refused.objects) 0)
 }
 
 fn merge_with_imports_mode(input_file: string, strict_source: bool) -> MergeResult {
@@ -1892,6 +2098,23 @@ fn bytecode_shadow_cleanup(directory: string) -> void {
     }
 }
 shadow bytecode_shadow_cleanup { (bytecode_shadow_cleanup "") }
+
+# My paths were created only beneath this invocation's owned private directory.
+fn native_provider_cleanup(flags: ModuleBuildFlags) -> bool {
+    let mut ok: bool = true
+    let mut i: int = 0
+    while (< i (array_length flags.objects)) {
+        let path: string = (at flags.objects i)
+        if (file_exists path) {
+            let mut status: int = 0
+            unsafe { set status (file_delete path) }
+            if (!= status 0) { set ok false (println (+ "I could not remove my native provider object: " path)) }
+        }
+        set i (+ i 1)
+    }
+    return ok
+}
+shadow native_provider_cleanup { assert (native_provider_cleanup (native_build_empty)) }
 
 fn native_cleanup(directory: string, keep_c: bool) -> void {
     if (== directory "") { return }
@@ -2348,7 +2571,13 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             } else { (print "") }
             let mut module_root: string = merge_repo_root
             if (== module_root "") { set module_root repo_root }
-            let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files module_root verbose)
+            let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files module_root repo_root native_dir verbose)
+            if (not mod_flags.ok) {
+                (println (+ "I stopped native provider preparation with status " (int_to_string mod_flags.first_status)))
+                (native_provider_cleanup mod_flags)
+                (native_cleanup native_dir keep_c)
+                return 1
+            }
 
             if verbose {
                 (println "[5/5] Compiling C to executable...")
@@ -2361,198 +2590,112 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
              * We must link with the runtime C sources to provide these implementations.
              * This matches what the C compiler does in src/main.c line 461.
              */
-            let cc_bin: string = (resolve_cc_binary)
-            /* Use absolute paths for includes and runtime sources */
-            let include_src: string = (nl_path_join repo_root "src")
-            let include_modules: string = (nl_path_join repo_root "modules/std")
-            let mut cc_cmd: string = (+ cc_bin " -std=c99 -I")
-            set cc_cmd (+ cc_cmd include_src)
-            set cc_cmd (+ cc_cmd " -I")
-            set cc_cmd (+ cc_cmd include_modules)
-            /* Module compile flags (include paths from pkg-config, module cflags) */
-            if (> (str_length mod_flags.compile_flags) 0) {
-                set cc_cmd (+ cc_cmd mod_flags.compile_flags)
-            } else { (print "") }
-            set cc_cmd (+ cc_cmd " ")
-            let extra_cflags: string = (getenv "NANO_CFLAGS")
-            if (!= extra_cflags "") {
-                set cc_cmd (+ cc_cmd extra_cflags)
-                set cc_cmd (+ cc_cmd " ")
-            } else {
-                (print "")
-            }
-            set cc_cmd (+ cc_cmd (native_shell_quote c_file))
-            /* Add runtime library sources with absolute paths */
-            let runtime_dir: string = (nl_path_join repo_root "src/runtime")
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_int.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_string.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_LexerToken.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_token.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_CompilerDiagnostic.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_CompilerSourceLocation.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "token_helpers.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "gc.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "dyn_array.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "hashmap_bootstrap.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "gc_struct.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "nl_string.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/utf8.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "cli.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "regex.c"))
-            /* Add AST list runtime sources for compiler support */
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTLet.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFunction.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTNumber.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFloat.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTString.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBool.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTIdentifier.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBinaryOp.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTCall.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTModuleQualifiedCall.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTArrayLiteral.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTStmtRef.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBlock.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTUnsafeBlock.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTPrint.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTAssert.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFieldAccess.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTSet.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTIf.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTWhile.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFor.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTReturn.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTShadow.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTStruct.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTStructLiteral.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTEnum.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTUnion.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTUnionConstruct.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTMatch.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTImport.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTOpaqueType.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTServiceDecl.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTTupleLiteral.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTTupleIndex.c"))
-
-            /* std/fs provides fs_walkdir + file_* used by modules/std/fs.nano */
-            let modules_std: string = (nl_path_join repo_root "modules/std")
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "fs.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "process.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections/collections.c"))
-            set cc_cmd (+ cc_cmd " -I")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "json/json.c"))
-            set cc_cmd (+ cc_cmd " -I")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "json"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/cJSON.c"))
-            /* Conditionally link peg2.c if the program imports modules/std/peg2 */
-            let mut uses_peg2: bool = false
-            let mut peg2_fi: int = 0
-            while (< peg2_fi (array_length merged_files)) {
-                let peg2_f: string = (at merged_files peg2_fi)
-                if (> (nlc_str_index_of peg2_f "peg2") -1) { set uses_peg2 true } else { (print "") }
-                set peg2_fi (+ peg2_fi 1)
-            }
-            if uses_peg2 {
-                set cc_cmd (+ cc_cmd " ")
-                set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2/peg2.c"))
-                set cc_cmd (+ cc_cmd " -I")
-                set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2"))
-            } else { (print "") }
-            set cc_cmd (+ cc_cmd " -lm")
-            let abi_platform: string = (nlc_str_trim (nl_exec_capture "uname -s"))
-            if (== abi_platform "") {
-                (println "I could not identify the host for native array ABI linking")
+            let mut cc_cmd: string = (native_profile_append mod_flags.compiler " -std=c99")
+            if (== cc_cmd "") {
+                (native_provider_cleanup mod_flags)
                 (native_cleanup native_dir keep_c)
                 return 1
             }
-            set cc_cmd (+ cc_cmd (native_array_abi_link_flags abi_platform))
+            set cc_cmd (native_profile_append cc_cmd mod_flags.compile_flags)
+            if (== cc_cmd "") {
+                (native_provider_cleanup mod_flags)
+                (native_cleanup native_dir keep_c)
+                return 1
+            }
+            set cc_cmd (native_profile_append cc_cmd (+ " " (native_shell_quote c_file)))
+            if (== cc_cmd "") {
+                (native_provider_cleanup mod_flags)
+                (native_cleanup native_dir keep_c)
+                return 1
+            }
+            let mut runtime_index: int = 0
+            while (< runtime_index (array_length mod_flags.runtime_sources)) {
+                set cc_cmd (native_profile_append cc_cmd (+ " " (native_shell_quote (at mod_flags.runtime_sources runtime_index))))
+                if (== cc_cmd "") {
+                    (native_provider_cleanup mod_flags)
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
+                set runtime_index (+ runtime_index 1)
+            }
+            set cc_cmd (native_profile_append cc_cmd " -lm")
+            if (== cc_cmd "") {
+                (native_provider_cleanup mod_flags)
+                (native_cleanup native_dir keep_c)
+                return 1
+            }
+            let abi_platform: string = (nlc_str_trim (nl_exec_capture "uname -s"))
+            if (== abi_platform "") {
+                (println "I could not identify the host for native array ABI linking")
+                (native_provider_cleanup mod_flags)
+                (native_cleanup native_dir keep_c)
+                return 1
+            }
+            set cc_cmd (native_profile_append cc_cmd (native_array_abi_link_flags abi_platform))
+            if (== cc_cmd "") {
+                (native_provider_cleanup mod_flags)
+                (native_cleanup native_dir keep_c)
+                return 1
+            }
             /* Module link flags (pkg-config --libs, -l, -framework, .o files) */
             if (> (str_length mod_flags.link_flags) 0) {
-                set cc_cmd (+ cc_cmd mod_flags.link_flags)
+                set cc_cmd (native_profile_append cc_cmd mod_flags.link_flags)
+                if (== cc_cmd "") {
+                    (native_provider_cleanup mod_flags)
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
             } else { (print "") }
             let extra_ldflags: string = (getenv "NANO_LDFLAGS")
             if (!= extra_ldflags "") {
-                set cc_cmd (+ cc_cmd " ")
-                set cc_cmd (+ cc_cmd extra_ldflags)
+                set cc_cmd (native_profile_append cc_cmd " ")
+                if (== cc_cmd "") {
+                    (native_provider_cleanup mod_flags)
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
+                set cc_cmd (native_profile_append cc_cmd extra_ldflags)
+                if (== cc_cmd "") {
+                    (native_provider_cleanup mod_flags)
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
             } else {
                 (print "")
             }
             if has_shadows {
                 let test_file: string = (+ native_dir "/shadows")
-                let test_cmd: string = (+ cc_cmd (+ " -o " (+ (native_shell_quote test_file) " 2>&1")))
+                let test_cmd: string = (native_profile_append cc_cmd (+ " -o " (+ (native_shell_quote test_file) " 2>&1")))
+                if (== test_cmd "") {
+                    (native_provider_cleanup mod_flags)
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
                 if (!= (nl_exec_shell test_cmd) 0) {
                     (println "I could not compile native shadows")
+                    (native_provider_cleanup mod_flags)
                     (native_cleanup native_dir keep_c)
                     return 1
                 }
                 if (!= (nl_exec_shell (native_shell_quote test_file)) 0) {
                     (println "I will not publish native output after failed shadows")
+                    (native_provider_cleanup mod_flags)
                     (native_cleanup native_dir keep_c)
                     return 1
                 }
                 if (!= (file_write c_file c_code) 0) {
                     (println "I could not stage production C after checking shadows")
+                    (native_provider_cleanup mod_flags)
                     (native_cleanup native_dir keep_c)
                     return 1
                 }
             }
-            set cc_cmd (+ cc_cmd (+ " -o " (+ (native_shell_quote output_file) " 2>&1")))
+            set cc_cmd (native_profile_append cc_cmd (+ " -o " (+ (native_shell_quote output_file) " 2>&1")))
+            if (== cc_cmd "") {
+                (native_provider_cleanup mod_flags)
+                (native_cleanup native_dir keep_c)
+                return 1
+            }
             
             if verbose {
                 (print "  Command: ")
@@ -2564,6 +2707,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             let cc_result: int = (nl_exec_shell cc_cmd)
             if (!= cc_result 0) {
                 (println "Error: C compilation failed")
+                (native_provider_cleanup mod_flags)
                 (native_cleanup native_dir keep_c)
                 return 1
             } else {
@@ -2581,7 +2725,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
+            let provider_clean: bool = (native_provider_cleanup mod_flags)
             (native_cleanup native_dir keep_c)
+            if (not provider_clean) { return 1 }
             
             if (not (== llm_diags_json_path "")) {
                 (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)

@@ -13811,3 +13811,13 @@ Root reviews the complete source before fixtures; no bootstrap, File service,
 shadow or new public execution has run for this checkpoint.
 
 - [ ] I resolve task_28cf8f795b2a410d8bd015d2a4545018 before the File graph bootstrap: newly co-imported file_source_catalog/nanoisa/companion manifests repeat canonical C providers, while the actual Nano driver appends basename-only object paths without provider-context identity. I preserve this as a static closure finding, not an executed linker failure. A reviewed source/compiler/effective-flags ownership policy and same-basename collision control must precede complete qualification; I do not drop standalone providers or silently select first/last compilation.
+
+I prepare the reviewed be24 native-provider source correction for task28cf8:
+full ordered metadata precedes compilation, actual runtime inventory owns matching
+canonical sources, and every unique provider object belongs to the existing private
+native directory. I explicitly include required dependency/shared providers,
+checked profile/command extents and first-failure cleanup. The allocation/work table
+in NANOISA_FILE_NATIVE_PROVIDER_CLOSURE.md separates logical caps from inherited
+runtime/process allocation and supervision limits. This is unexecuted source for
+review; paired fresh bootstrap and complete default/standalone/concurrency fixtures
+remain required before acceptance.

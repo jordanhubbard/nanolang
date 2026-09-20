@@ -96,3 +96,49 @@ output sentinel and complete known-object cleanup; and concurrent invocations wi
 distinct private directories and profiles. I retain actual compiler commands and
 provider/source/artifact maps. Passing this prerequisite does not complete File
 source lowering or any of its required generated behavior shadows/runtime grants.
+
+## My prepared production and storage boundary
+
+I prepare this source without running a compiler or fixture. My single runtime
+helper retains the old54 unconditional paths in exact order and the old conditional
+peg2 path. Static extraction against be24 confirms that ordered identity. The
+same helper supplies actual final commands and canonical registry owners.
+
+I now visit previously unselected manifest dependencies immediately after their
+owner, in declared order; already selected directories retain their order. This
+intentionally replaces the old dependency-only pkg-config/link subset with full
+metadata and required-provider preparation. I append `shared_c_sources` after
+`c_sources` and subject both to the same canonical identity checks. Thus shared
+UTF-8/cJSON requests agree with actual runtime owners rather than disappearing
+because of their spelling. Missing dependency metadata refuses. A selected source
+module without a manifest retains the existing no-manifest behavior. My inherited
+metadata string extractor is not a new strict JSON validator; manifests and flag
+fragments remain trusted, stable compiler inputs.
+
+| Storage or work | Owner, overlap and limit |
+| --- | --- |
+| Module queue | At most5000 directories; dependency insertion temporarily retains old queue, pending queue and replacement queue. Exact string references/copies follow the existing Nano runtime. |
+| Provider requests | At most50000 rows, including repeated and shared requests; retained throughout registry preparation and compilation. |
+| Registry | At most50128 rows, covering all requests plus54/55 actual runtime sources. Exact-source scans are bounded by request count times registry count. Each row retains compiler, language and final profile facts. |
+| Metadata | Each inherited `file_read` result is checked at1MiB after reading. Decoded arrays, package deduplication, dependency scans and queue rebuilding remain bounded by the selected manifests and their byte/count caps; this is not a preallocation or total-heap guarantee. |
+| Strings | Final profiles, object paths, object link arguments and compiler commands have a1MiB checked append limit. Appends temporarily overlap old and new strings; runtime allocator/object headers and inherited path/quote helpers are outside a total-memory claim. |
+| Objects | Known paths enter the returned owner list before compiler invocation; successful and partial objects are removed on every subsequent normal/error exit. Private directory ownership prevents cross-invocation registry-index collisions. |
+| Failure | `ok=false` and `first_status=1` describe preparation refusal; a measured provider compiler failure retains its actual nonzero status. Cleanup does not replace it. Successful final linking followed by failed object cleanup returns failure with output already present. |
+
+I capture pkg-config output with the existing bounded capture helper, appending a
+success marker only after a zero shell status. I require that exact trailing marker
+and fewer than65535 captured bytes; legitimate empty flags remain valid. This is
+framing for a trusted command, not an adversarial subprocess protocol. Inherited
+capture ignores the raw child terminal and has no internal deadline; a missing or
+truncated marker refuses, and external qualification retains bounded group cleanup.
+I do not claim that this change supervises arbitrary compiler children or recovers
+all Nano allocation failures. Exact append-count checks detect failed copies at
+those boundaries; inherited constructors, path helpers, metadata reads and arrays
+retain their existing allocation behavior. No snapshot64MiB claim applies here.
+
+My cleanup checks known object existence before deletion using the existing file
+API. Stable accessible invocation-owned directories and cooperative compiler
+behavior remain preconditions; I do not claim hostile filesystem identity safety
+or distinguish every possible lookup error from absence. Existing generated-C
+cleanup remains separate. Complete producer, standalone, conflict, failure,
+concurrency and ordered-profile fixtures still precede acceptance.
