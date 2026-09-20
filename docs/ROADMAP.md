@@ -12840,3 +12840,5 @@ I keep these independent of PR910's generic-call identity and VM fixture repair.
 - [ ] For emitter-shadow task4931, I prepare and review the private macro-only bounded entry/exit observer in `EMITTER_SHADOW_PROGRESS_DIAGNOSTIC.md`, preserve my ten-second shadow policy, then retain one fresh original-command diagnostic before any repair.
 
 - [ ] For task4931, I review and run the separate exact two-input owned-pattern probe with monotonic diagnostic observations, retaining the original selected-shadow failure and making no full-suite timing claim.
+
+- [ ] For task4931, I review macro-only aggregate admission timing and ASSERT-trap counts, then compare admission time with cumulative shadow elapsed time under the unchanged deadline before proposing any authority-preserving optimization.
