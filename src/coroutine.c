@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <stdint.h>
 
 /* ── Global scheduler instance ─────────────────────────────────────────── */
 NanoScheduler g_scheduler = { .initialized = false };
@@ -108,7 +109,14 @@ static void coro_drop_argument(NanoCoroutine *coro) {
 
 static void coro_fail(NanoCoroutine *coro, const char *message) {
     coro->status = CORO_ERROR;
-    coro->error_msg = message ? strdup(message) : NULL;
+    coro->error_msg = NULL;
+    if (message) {
+        size_t length = strlen(message);
+        if (length < SIZE_MAX) {
+            coro->error_msg = malloc(length + 1);
+            if (coro->error_msg) memcpy(coro->error_msg, message, length + 1);
+        }
+    }
 }
 
 bool nano_coro_release(int id) {
