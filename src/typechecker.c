@@ -926,8 +926,12 @@ static bool nominal_array_requires_identity(Environment *env, const TypeInfo *in
         info->base_type != TYPE_FUNCTION) return false;
     if (info->base_type != TYPE_STRUCT) return true;
     const char *name = info->generic_name;
-    if (name && (is_type_variable_name(name) || env_get_union(env, name) || env_get_opaque_type(env, name) ||
-        env_nominal_identity(env, name, owner, TYPE_ENUM).ordinal)) return false;
+    if (env_nominal_identity(env, name, owner, TYPE_STRUCT).ordinal) return true;
+    /* Only actual declarations in this owner can select the existing enum or
+     * union policy. Global opaque entries and name-shaped guesses cannot erase
+     * an ordinary-record array obligation. Formal substitutions are explicit. */
+    if (env_nominal_identity(env, name, owner, TYPE_ENUM).ordinal ||
+        env_nominal_identity(env, name, owner, TYPE_UNION).ordinal) return false;
     return true;
 }
 static bool nominal_array_matches_context(Environment *env, const TypeInfo *expected,

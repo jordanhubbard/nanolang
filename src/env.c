@@ -734,6 +734,17 @@ static bool namespace_owned_by(const ModuleNamespace *ns, const char *owner) {
            (ns->owner_module && owner && strcmp(ns->owner_module, owner) == 0);
 }
 
+/* Only these registry-created objects carry intrinsic identity. A bodyless
+ * extern declaration or a copied Function structure is not one of them. */
+static Function builtin_function_cache[256];
+static bool builtin_function_initialized[256];
+bool env_function_is_builtin(const Function *function) {
+    if (!function) return false;
+    for (size_t i = 0; i < sizeof builtin_function_cache / sizeof *builtin_function_cache; ++i)
+        if (builtin_function_initialized[i] && function == &builtin_function_cache[i]) return true;
+    return false;
+}
+
 /* Get function */
 Function *env_get_function(Environment *env, const char *name) {
     if (!name) {
@@ -798,21 +809,17 @@ Function *env_get_function(Environment *env, const char *name) {
     for (int i = 0; i < builtin_registry_count; i++) {
         if (!(builtin_registry[i].flags & BUILTIN_LANG)) continue;
         if (safe_strcmp(builtin_registry[i].name, name) == 0) {
-            /* Create static function objects for built-ins */
-            static Function func_cache[256];
-            static bool initialized[256] = {false};
-
-            if (!initialized[i]) {
-                func_cache[i].name = (char *)builtin_registry[i].name;
-                func_cache[i].param_count = builtin_registry[i].arity;
-                func_cache[i].return_type = builtin_registry[i].return_type;
-                func_cache[i].params = NULL;  /* Built-ins don't need param names */
-                func_cache[i].body = NULL;
-                func_cache[i].shadow_test = NULL;
-                initialized[i] = true;
+            if ((size_t)i >= sizeof builtin_function_cache / sizeof *builtin_function_cache) return NULL;
+            if (!builtin_function_initialized[i]) {
+                builtin_function_cache[i].name = (char *)builtin_registry[i].name;
+                builtin_function_cache[i].param_count = builtin_registry[i].arity;
+                builtin_function_cache[i].return_type = builtin_registry[i].return_type;
+                builtin_function_cache[i].params = NULL;  /* Built-ins don't need param names */
+                builtin_function_cache[i].body = NULL;
+                builtin_function_cache[i].shadow_test = NULL;
+                builtin_function_initialized[i] = true;
             }
-
-            return &func_cache[i];
+            return &builtin_function_cache[i];
         }
     }
 
@@ -865,7 +872,7 @@ Function *env_get_function(Environment *env, const char *name) {
 bool env_array_push_is_builtin(Environment *env, int line, int column) {
     if (env_get_var_visible_at(env, "array_push", line, column)) return false;
     Function *function = env_get_function(env, "array_push");
-    return !function || !function->body;
+    return env_function_is_builtin(function);
 }
 
 /* Value creation functions */

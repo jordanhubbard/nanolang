@@ -980,6 +980,7 @@ void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
 bool env_array_push_is_builtin(Environment *env, int line, int column);
+bool env_function_is_builtin(const Function *function);
 bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);

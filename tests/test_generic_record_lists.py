@@ -40,9 +40,12 @@ class GenericRecordLists(unittest.TestCase):
         cls.owned = cls.work / 'owned-lifetimes'
         cls.programs = cls.work / 'parsed-lifetimes'
         cls.coroutine_errors = cls.work / 'coroutine-errors'
+        cls.array_identity = cls.work / 'array-identity'
         common = [*cls.cc, *cls.flags, '-std=c99', '-Wall', '-Wextra', '-Werror', '-I', ROOT / 'src']
         cls.command('coroutine-error-build', [*common, ROOT / 'tests/test_coroutine_error_allocation.c',
             *cls.links, '-o', cls.coroutine_errors])
+        cls.command('array-identity-build', [*common, ROOT / 'tests/test_nominal_array_identity.c',
+            *[p for p in cls.objects if p.name != 'typechecker.o'], *cls.links, '-o', cls.array_identity])
         cls.command('owned-build', [*common, '-DEVALUATOR_ALLOCATION_HOOKS', ROOT / 'tests/test_evaluator_owned_lifetimes.c',
             ROOT / 'tests/test_evaluator_lifetime_eval.c', ROOT / 'tests/test_evaluator_lifetime_module.c',
             *[p for p in cls.objects if p.name not in ('env.o', 'eval.o', 'module.o')], *cls.links, '-o', cls.owned])
@@ -130,6 +133,9 @@ class GenericRecordLists(unittest.TestCase):
     def test_parsed_evaluator_and_public_escape(self):
         for name in ('mutations', 'staging', 'imported', 'escape', 'async'):
             self.command('evaluator-' + name, [self.programs, 'escape' if name == 'escape' else 'program', FIXTURES / (name + '.nano')])
+
+    def test_array_intrinsic_and_declaration_identity(self):
+        self.command('array-identity', [self.array_identity])
 
     def test_deferred_foreign_declarations(self):
         self.command('foreign-identity-facts', [self.programs, 'foreign-facts'])

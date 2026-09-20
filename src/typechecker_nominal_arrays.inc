@@ -43,7 +43,7 @@ static bool nominal_array_builtin(ASTNode *expr, Environment *env, const char *n
         strcmp(expr->as.call.name, name) || expr->as.call.arg_count != arity ||
         env_get_var_visible_at(env, name, expr->line, expr->column)) return false;
     Function *function = env_get_function(env, name);
-    return !function || !function->body;
+    return env_function_is_builtin(function);
 }
 static bool nominal_value_view(ASTNode *expr, Environment *env, unsigned depth, NominalView *out) {
     if (!expr || depth > 128 || !out) return false;
