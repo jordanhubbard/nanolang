@@ -1,0 +1,13 @@
+{
+  "providers": [
+    "src/nsi_file_binding.c",
+    "src/nsi_file_plan.c",
+    "src/nsi.c",
+    "src/cJSON.c",
+    "src/utf8.c"
+  ],
+  "source_cases": 704,
+  "instrumentation": "all malloc/calloc/realloc/free/strdup references in the five fresh providers; fixture/libc internal allocations excluded",
+  "sanitizer_scope": "fresh selected providers, binding fixture and unchanged NSI/generator/descriptor neighbors",
+  "generated_source": "exact retained forward text only; no parser, service, publication or shadow execution"
+}

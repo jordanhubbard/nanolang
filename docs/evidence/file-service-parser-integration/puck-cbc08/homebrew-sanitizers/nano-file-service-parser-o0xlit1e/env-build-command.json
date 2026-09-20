@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-cbc08/src",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-include",
+    "/private/tmp/nanolang-file-service-parser-cbc08/tests/file_service_parser_free_hooks.h",
+    "-DNANO_FILE_SERVICE_PARSER_OBSERVE_FREE=1",
+    "-c",
+    "/private/tmp/nanolang-file-service-parser-cbc08/src/env.c",
+    "-o",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers/nano-file-service-parser-o0xlit1e/env.o"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

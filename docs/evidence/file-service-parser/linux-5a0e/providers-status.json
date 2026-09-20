@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/bin/make",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "nano_virt",
+    "obj/nanovm/vmd_protocol.o",
+    "obj/nanovm/vmd_client.o"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.3648594570113346
+}

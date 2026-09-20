@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/local/bin/clang --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "CFLAGS=-std=c99 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -Wall -Wextra -Werror -g -O1 -I /home/jkh/Src/nanolang-file-service-parser-5a0e/src",
+    "LDFLAGS=-lm -lcrypto -lffi -rdynamic",
+    "OBJ_DIR=/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-obj",
+    "BIN_DIR=/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-bin",
+    "nsi-file-binding"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-5a0e",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=60); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode==7 else 1)",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary/nano-file-service-parser-16bfdful/zero-nanoc_stage1-run.json",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary/nano-file-service-parser-16bfdful/ordinary-zero-nanoc_stage1"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

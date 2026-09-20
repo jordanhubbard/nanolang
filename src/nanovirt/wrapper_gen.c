@@ -337,7 +337,7 @@ static bool build_obj_list(char **buf, const char *obj_dir, bool daemon) {
         "runtime/list_ASTFieldAccess.o", "runtime/list_ASTEnum.o",
         "runtime/list_ASTUnion.o", "runtime/list_ASTUnionConstruct.o",
         "runtime/list_ASTMatch.o", "runtime/list_ASTImport.o",
-        "runtime/list_ASTOpaqueType.o", "runtime/list_ASTTupleLiteral.o",
+        "runtime/list_ASTOpaqueType.o", "runtime/list_ASTServiceDecl.o", "runtime/list_ASTTupleLiteral.o",
         "runtime/list_ASTTupleIndex.o",
         "runtime/token_helpers.o", "runtime/gc.o", "runtime/effect_runtime.o", "runtime/dyn_array.o",
         "runtime/gc_struct.o", "runtime/nl_string.o", "runtime/ffi_loader.o",

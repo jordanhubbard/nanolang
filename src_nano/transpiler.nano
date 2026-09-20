@@ -3811,6 +3811,7 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "#include \"runtime/list_ASTMatch.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTImport.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTOpaqueType.h\"\n")
+    set parts (cg_append parts "#include \"runtime/list_ASTServiceDecl.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTTupleLiteral.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTModuleQualifiedCall.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTTupleIndex.h\"\n")
@@ -4513,6 +4514,7 @@ shadow parser_has_guarded_globals {
 
 /* Generate complete C program with module forward declarations */
 fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
+    if (> parser.services_count 0) { set reduce_emission_error "I have not resolved File service declarations for this consumer." return "" }
     let mut sb: array<string> = []
 
     set sb (cg_append sb (gen_c_includes))
@@ -7338,6 +7340,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
         set ui (+ ui 1)
     }
 
+    if (and (== binding "") (not found)) {
+        if (== reduce_emission_error "") { set reduce_emission_error "I require an exact zero-field variant for an empty match binding." }
+        return ""
+    }
     if (not found) {
         /* Fallback: old struct behaviour */
         let mut parts: array<string> = []
@@ -7372,6 +7378,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
         set vi (+ vi 1)
     }
 
+    if (and (== binding "") (== variant_idx -1)) {
+        if (== reduce_emission_error "") { set reduce_emission_error "I require an exact zero-field variant for an empty match binding." }
+        return ""
+    }
     if (== variant_idx -1) {
         /* Variant not found — fallback */
         let mut parts: array<string> = []
@@ -7389,6 +7399,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
     } else { (print "") }
 
     let fcount: int = (at found_u.variant_field_counts variant_idx)
+    if (and (== binding "") (!= fcount 0)) {
+        if (== reduce_emission_error "") { set reduce_emission_error "I require an exact zero-field variant for an empty match binding." }
+        return ""
+    }
 
     if (== fcount 0) {
         /* Unit variant — no binding */
@@ -8553,6 +8567,7 @@ shadow parser_has_peg2_import {
 
 fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     set reduce_emission_error ""
+    if (> parser.services_count 0) { set reduce_emission_error "I have not resolved File service declarations for this consumer." return "" }
     (build_module_alias_map parser)
     (reset_fn_types)
 

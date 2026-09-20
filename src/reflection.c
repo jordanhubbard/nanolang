@@ -259,6 +259,7 @@ static void emit_constant_json(FILE *out, ASTNode *node, bool *first) {
 
 /* Main reflection function - emit module exports as JSON */
 bool emit_module_reflection(const char *output_path, ASTNode *program, Environment *env, const char *module_name) {
+    if (ast_has_service_declaration(program)) { fprintf(stderr, "I have not resolved File service declarations for this consumer.\n"); return false; }
     FILE *out = fopen(output_path, "w");
     if (!out) {
         fprintf(stderr, "Error: Could not open output file for reflection: %s\n", output_path);

@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-service-parser-5a0e/src",
+    "-I",
+    "/home/jkh/Src/nanolang-file-service-parser-5a0e/tests",
+    "-I",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-c",
+    "src/nsi_file_plan.c",
+    "-o",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/linked-nsi_file_plan.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-5a0e",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

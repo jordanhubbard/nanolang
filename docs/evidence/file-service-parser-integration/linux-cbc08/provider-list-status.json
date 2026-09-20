@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/bin/make",
+    "-f",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/providers.mk",
+    "CC=/usr/bin/gcc",
+    "parser-provider-list"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.11414808104746044
+}

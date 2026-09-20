@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/make-bin/nsi-file-binding",
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/input-fifo",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/refused-fifo"
+  ],
+  "pid": 84163,
+  "returncode": 1,
+  "timeout": false
+}

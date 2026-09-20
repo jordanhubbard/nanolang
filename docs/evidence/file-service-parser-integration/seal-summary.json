@@ -1,0 +1,177 @@
+{
+  "final_source": "cbc08b5b4499cc9d8a1c86d6d302c4c618bd5fe1",
+  "scopes": {
+    "linux-cbc08": "/tmp/nanolang-file-service-parser-cbc08-linux",
+    "puck-cbc08": "/tmp/nanolang-file-service-parser-cbc08-puck-retained/nanolang-file-service-parser-cbc08-puck",
+    "current-linux": "/tmp/nanolang-file-service-parser-cbc08-current-linux",
+    "current-puck": "/tmp/nanolang-file-service-parser-cbc08-puck-retained/nanolang-file-service-parser-cbc08-current-puck"
+  },
+  "equal_source_tool_pairs": [
+    "linux-cbc08/bootstrap-source-before.json",
+    "linux-cbc08/bootstrap-tools-before.json",
+    "linux-cbc08/clang-ordinary-publisher-source-before.json",
+    "linux-cbc08/clang-ordinary-publisher-tools-before.json",
+    "linux-cbc08/clang-ordinary-source-before.json",
+    "linux-cbc08/clang-ordinary-tools-before.json",
+    "linux-cbc08/clang-sanitizers-publisher-source-before.json",
+    "linux-cbc08/clang-sanitizers-publisher-tools-before.json",
+    "linux-cbc08/clang-sanitizers-source-before.json",
+    "linux-cbc08/clang-sanitizers-tools-before.json",
+    "linux-cbc08/gcc-ordinary-publisher-source-before.json",
+    "linux-cbc08/gcc-ordinary-publisher-tools-before.json",
+    "linux-cbc08/gcc-ordinary-source-before.json",
+    "linux-cbc08/gcc-ordinary-tools-before.json",
+    "linux-cbc08/gcc-sanitizers-publisher-source-before.json",
+    "linux-cbc08/gcc-sanitizers-publisher-tools-before.json",
+    "linux-cbc08/gcc-sanitizers-source-before.json",
+    "linux-cbc08/gcc-sanitizers-tools-before.json",
+    "linux-cbc08/ordinary-adjacency-source-before.json",
+    "linux-cbc08/ordinary-adjacency-tools-before.json",
+    "linux-cbc08/providers-source-before.json",
+    "linux-cbc08/providers-tools-before.json",
+    "puck-cbc08/apple-ordinary-publisher-source-before.json",
+    "puck-cbc08/apple-ordinary-publisher-tools-before.json",
+    "puck-cbc08/apple-ordinary-source-before.json",
+    "puck-cbc08/apple-ordinary-tools-before.json",
+    "puck-cbc08/bootstrap-source-before.json",
+    "puck-cbc08/bootstrap-tools-before.json",
+    "puck-cbc08/homebrew-ordinary-publisher-source-before.json",
+    "puck-cbc08/homebrew-ordinary-publisher-tools-before.json",
+    "puck-cbc08/homebrew-ordinary-source-before.json",
+    "puck-cbc08/homebrew-ordinary-tools-before.json",
+    "puck-cbc08/homebrew-sanitizers-publisher-source-before.json",
+    "puck-cbc08/homebrew-sanitizers-publisher-tools-before.json",
+    "puck-cbc08/homebrew-sanitizers-source-before.json",
+    "puck-cbc08/homebrew-sanitizers-tools-before.json",
+    "puck-cbc08/ordinary-adjacency-source-before.json",
+    "puck-cbc08/ordinary-adjacency-tools-before.json",
+    "puck-cbc08/providers-source-before.json",
+    "puck-cbc08/providers-tools-before.json"
+  ],
+  "special_files_not_followed": [
+    {
+      "path": "linux-cbc08/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/existing-dangling",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/absent"
+    },
+    {
+      "path": "linux-cbc08/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/existing-symlink",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/published"
+    },
+    {
+      "path": "linux-cbc08/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/input-existing-symlink",
+      "mode": 41471,
+      "target": "/home/jkh/Src/nanolang-file-service-parser-cbc08/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-cbc08/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/input-fifo",
+      "mode": 4532,
+      "target": null
+    },
+    {
+      "path": "linux-cbc08/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/input-symlink",
+      "mode": 41471,
+      "target": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-cbc08/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli/parent-link",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/clang-ordinary-publisher/nano-file-publisher-rjt10w92/cli"
+    },
+    {
+      "path": "linux-cbc08/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/existing-dangling",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/absent"
+    },
+    {
+      "path": "linux-cbc08/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/existing-symlink",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/published"
+    },
+    {
+      "path": "linux-cbc08/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/input-existing-symlink",
+      "mode": 41471,
+      "target": "/home/jkh/Src/nanolang-file-service-parser-cbc08/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-cbc08/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/input-fifo",
+      "mode": 4532,
+      "target": null
+    },
+    {
+      "path": "linux-cbc08/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/input-symlink",
+      "mode": 41471,
+      "target": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-cbc08/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/parent-link",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli"
+    },
+    {
+      "path": "linux-cbc08/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/existing-dangling",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/absent"
+    },
+    {
+      "path": "linux-cbc08/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/existing-symlink",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/published"
+    },
+    {
+      "path": "linux-cbc08/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/input-existing-symlink",
+      "mode": 41471,
+      "target": "/home/jkh/Src/nanolang-file-service-parser-cbc08/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-cbc08/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/input-fifo",
+      "mode": 4532,
+      "target": null
+    },
+    {
+      "path": "linux-cbc08/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/input-symlink",
+      "mode": 41471,
+      "target": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-cbc08/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli/parent-link",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-ordinary-publisher/nano-file-publisher-9utugfv_/cli"
+    },
+    {
+      "path": "linux-cbc08/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/existing-dangling",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/absent"
+    },
+    {
+      "path": "linux-cbc08/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/existing-symlink",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/published"
+    },
+    {
+      "path": "linux-cbc08/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/input-existing-symlink",
+      "mode": 41471,
+      "target": "/home/jkh/Src/nanolang-file-service-parser-cbc08/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-cbc08/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/input-fifo",
+      "mode": 4532,
+      "target": null
+    },
+    {
+      "path": "linux-cbc08/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/input-symlink",
+      "mode": 41471,
+      "target": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-cbc08/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli/parent-link",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/cli"
+    }
+  ],
+  "artifacts": 2122,
+  "artifact_references": 4105,
+  "artifact_bytes": 6822194020,
+  "scope": "Fresh integrated actual paired parser/AST qualification; no File source execution or general lifetime claim."
+}

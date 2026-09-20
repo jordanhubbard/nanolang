@@ -206,7 +206,8 @@ static bool visit(TCO *ctx, ASTNode *node) {
             int *saved = save_bindings(ctx);
             bool ok = true;
             if (node->as.match_expr.pattern_bindings &&
-                node->as.match_expr.pattern_bindings[i])
+                node->as.match_expr.pattern_bindings[i] &&
+                node->as.match_expr.pattern_bindings[i][0])
                 ok = bind_name(ctx, &node->as.match_expr.pattern_bindings[i]);
             if (ok && node->as.match_expr.guard_exprs)
                 ok = visit(ctx, node->as.match_expr.guard_exprs[i]);

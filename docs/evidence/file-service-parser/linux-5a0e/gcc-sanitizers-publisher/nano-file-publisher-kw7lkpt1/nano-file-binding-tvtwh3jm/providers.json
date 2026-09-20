@@ -1,0 +1,42 @@
+{
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/linked-nsi_file_binding.o": {
+    "sha256": "8792598fd78d77e85e4db7d8b959b455b15e7c3698700907eb39f14d0fb2387d",
+    "bytes": 299024
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/linked-nsi_file_plan.o": {
+    "sha256": "0624ff3e58c6742892664d54924a9344a66e94216149c7604981957cadefac4f",
+    "bytes": 131872
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/linked-nsi.o": {
+    "sha256": "3bf42983ac9613e0fb9d28ed6ff87c74d5f43d521ba6ac2f674658a76f512c16",
+    "bytes": 550648
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/linked-cJSON.o": {
+    "sha256": "30722ecc183f7df626138fa2aedd93f7da8a6525a30f3d4a4e4ed0292ea79f4b",
+    "bytes": 639312
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/linked-utf8.o": {
+    "sha256": "3649e76fd23837bd9bdeab217ce63cd289d3f5001e87f15696f9f93265f30a26",
+    "bytes": 49736
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/instrumented-nsi_file_binding.o": {
+    "sha256": "2678b7d2d6a5c572b854968910ee748a60fb1560aa9f9286ffc46a56ef9f1346",
+    "bytes": 294872
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/instrumented-nsi_file_plan.o": {
+    "sha256": "7ee31369d9fb696ed73ee9173235aeca5b5a246e8b6e3b7ccd7079471404ae92",
+    "bytes": 132032
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/instrumented-nsi.o": {
+    "sha256": "cc9db427a86cce0556f4a27df5b147579a063eb9f2977179e9c4b80b0ac9880d",
+    "bytes": 546488
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/instrumented-cJSON.o": {
+    "sha256": "0f3c73fa785196b0c4b09127350e1b9bf1071f6f87a1ab6b0e448292f6fb8983",
+    "bytes": 639528
+  },
+  "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/nano-file-binding-tvtwh3jm/instrumented-utf8.o": {
+    "sha256": "0b1ef5a0c5e1c6016a0e7d597f28ba5cc4c97d173bc18ad6ca6c851346307bfd",
+    "bytes": 49832
+  }
+}

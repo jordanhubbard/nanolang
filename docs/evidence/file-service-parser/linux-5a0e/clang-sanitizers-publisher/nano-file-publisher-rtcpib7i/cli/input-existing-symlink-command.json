@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/input-existing-symlink",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/refused-existing-symlink"
+  ]
+}

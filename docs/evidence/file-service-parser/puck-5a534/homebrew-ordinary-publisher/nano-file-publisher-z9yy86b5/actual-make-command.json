@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "CPPFLAGS=-DFILE_PUBLISH_CPPFLAGS_PRESENT",
+    "CFLAGS=-std=c99 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -Wall -Wextra -Werror -g -O1 -I /private/tmp/nanolang-file-service-parser-5a534/src -include /private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/required-cppflags.h",
+    "LDFLAGS=-lm -lcrypto -L/opt/homebrew/Cellar/libffi/3.8.0/lib -lffi -L/opt/homebrew/opt/openssl@3/lib",
+    "OBJ_DIR=/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-obj",
+    "BIN_DIR=/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-bin",
+    "nsi-file-binding"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-5a534",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

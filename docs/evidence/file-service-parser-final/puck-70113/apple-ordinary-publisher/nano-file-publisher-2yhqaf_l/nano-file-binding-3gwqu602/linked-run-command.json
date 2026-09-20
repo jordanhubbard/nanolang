@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/binding-linked",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/expected.json",
+    "/private/tmp/nanolang-file-service-parser-70113/tests/fixtures/nsi_file_binding_expected.nano.txt"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-70113",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

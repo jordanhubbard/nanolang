@@ -1,0 +1,39 @@
+{
+  "archive": "/tmp/nanolang-file-service-parser-70113-puck-evidence.tar.gz",
+  "sha256": "01c928e9b8dc9e2b94bd9f1691497fc5525863ee0817b2a2faa0f51b531ae191",
+  "bytes": 58923492,
+  "seconds": 1.8198448929470032,
+  "members": 2574,
+  "special_not_materialized": [
+    {
+      "path": "nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/cli/existing-dangling",
+      "type": "2",
+      "linkname": "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/cli/absent"
+    },
+    {
+      "path": "nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/cli/existing-symlink",
+      "type": "2",
+      "linkname": "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/cli/published"
+    },
+    {
+      "path": "nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/cli/input-existing-symlink",
+      "type": "2",
+      "linkname": "/private/tmp/nanolang-file-service-parser-70113/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/cli/input-fifo",
+      "type": "6",
+      "linkname": ""
+    },
+    {
+      "path": "nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/cli/input-symlink",
+      "type": "2",
+      "linkname": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/cli/parent-link",
+      "type": "2",
+      "linkname": "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/cli"
+    }
+  ]
+}

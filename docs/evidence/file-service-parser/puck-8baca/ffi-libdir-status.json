@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/pkg-config",
+    "--variable=libdir",
+    "libffi"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.005686625023372471
+}

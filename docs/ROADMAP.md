@@ -13665,3 +13665,103 @@ and strict-Clang neighbor terminal separately. My sealed counted-storage
 objects and59 equal source/tool pairs. This is manual core/module adapter
 acceptance, not generated mixed execution or public/source admission. I await
 independent review and actual merge under task621; full mixed parents stay open.
+
+- [ ] I implement the actual paired generated File source route under existing task_8bbc1cf5295b4b59b314640ef57c725f, following [my concrete source design](NANOISA_FILE_SOURCE_IMPLEMENTATION.md), after review. I base it on actual token911 merge cf238dfd1. In dependency order I integrate primary AST/schema and real parsers; bounded companion snapshots and complete namespace resolution; independent C/Nano typed checking and File byte lowering; then actual selected shadows, explicit grant routing and staged installed publication. Each source/fixture checkpoint is reviewed before execution. I require fresh C-seed/Stage1/Stage2, all helper/module shadows and full paired product gates on Linux/Darwin. Cyclic/indirect/richer-borrow source acceptance remains mandatory, not closed by the first acyclic slice.
+- [x] I record and correct a documentation-only result-name mismatch before the source design: the immutable catalog, renderer and descriptive plans name rewind's result PositionResult; my older paired-source table said RewindResult. I change the table to the existing identity without changing any catalog, source or runtime behavior.
+
+I begin the reviewed44b39 first actual File parser checkpoint: append a dedicated
+schema/AST declaration with counted text and unresolved origin sentinel, retain
+it in both real parsers and all Parser copies, and refuse service graphs in
+unimplemented checking/export/emission consumers. I regenerate canonical schema
+artifacts without executing new fixtures. Complete source review precedes gates;
+companion snapshot/resolution and executable lowering remain later checkpoints.
+
+- [ ] I audit and close complete C parser allocation failure handling before claiming whole generated-File-source recoverable OOM/publication cleanup under8bbc. Static review of the first service parser finds legacy create_node and unrelated expression/lambda-hoist allocations can still be unchecked. The new service node/clone/program buffers retain ownership on failure; that bounded fact does not establish whole-parser recovery. I require explicit allocation-domain coverage or supervised process-failure cleanup before full source acceptance.
+
+- [ ] I correct two first-service-parser review gaps before fixtures: decoded-length equality alone does not prove UTF-8, so both real service parsers must explicitly reject malformed UTF-8; final lambda hoisting must check item-table multiplication/growth and free both already moved roots and remaining lambda roots on failure. I retain whole-parser OOM limits separately and review these source corrections before any gate.
+
+I prepare the actual File parser fixture checkpoint without executing it:
+complete freshly published binding bytes, C allocation/lifetime/clone/hoist and
+consumer refusal, paired counted grammar/UTF-8 cases, five new real parser helper
+shadows, all imported shadows and independent full four-file schema parity.
+Fresh ABI bootstrap and selected-provider sanitizer scope stay explicit; review
+precedes all gates and full File source lowering remains open.
+
+- [ ] I repair the static prelaunch ASTServiceDecl runtime-list closure omission before File parser qualification: C's AST-prefix selector requires a dedicated list provider, but40a omitted its source/header and Make/C-driver/Nano-emitter manifests. I add the standard existing AST list implementation with canonical generated element layout, audit installed runtime/source link paths, and request source review. No40a fixture/bootstrap ran and no failed terminal is invented.
+
+- [ ] I correct the4d290 first Linux bootstrap production omission before fresh qualification: infer_expr's exhaustive AST switch lacks AST_SERVICE_DECL and strict GCC stops at src/type_infer.c:970. I retain rc2/15.151s, source/tool before-after maps and intermediate products; no fixture ran and puck4d290 is unrun. Static AST-switch inventory finds this sole AST-bearing no-default omission. I add explicit internal inference refusal, preserving all public guards, then request review before fresh corrected bootstrap.
+
+- [ ] I correct thebc5 fresh bootstrap source spelling error before another run: my UTF-8 helper uses local name byte, which the C seed tokenizes as TYPE_U8. I retain first line8177 variable-name diagnostic and rc2/21.165s with complete maps/products. C compilation completed, but Stage1/module parsing failed before fixtures. I rename only this helper's local identifier to lead_code, preserving every RFC3629 predicate. Puckbc5 remains unexecuted; no old binary replay.
+
+- [ ] I correct the8baca fixture-only const mismatch after both fresh bootstraps pass (Linux293.479s, puck282.696s): parser-c-build rejects saving Token.value, a const char pointer, into char * at test_file_service_parser.c:73. I retain both strict compiler terminals before any fixture execution and preserve every predicate and token restoration. I change only the saved pointer qualifier, then qualify fresh fixture/module products with exact proven8baca compiler/provider provenance; no repeated bootstrap or new bootstrap claim.
+
+- [ ] I close the paired zero-binding match grammar gap exposed by3936 full publisher parsing: unchanged CloseResult shadows contain Ok(), but both real match parsers require an identifier. Both corrected fixtures compile, execute earlier grammar/allocation/clone/hoist controls, then abort at the complete binding parse; I preserve both terminals. Before source edits I audit zero-payload representation and all arity/type/refinement/emission consumers, retain empty binding distinctly from wildcard discard, and require ordinary zero/payload mismatch controls in both frontends. I preserve the complete publisher bytes and all five shadows; semantic production review precedes fixtures.
+
+- [ ] I correct the77ad helper-shadow qualification typo after its first Linux bootstrap terminal: the new parse_match shadow calls unqualified diag_list_new although parser imports that module as Diagnostics. Stage1 completes; Stage2 native-shadow linking fails with undefined nl_diag_list_new (rc2/279.000s), before fixtures. I retain the first logs/products and qualify only that reference as Diagnostics.diag_list_new, matching the existing service shadow and exact same allocator wrapper. I preserve all predicates and start fresh corrected bootstrap; the independent puck77ad attempt retains its own terminal.
+
+- [ ] I correct the18334 fixture tracking closure after both fresh bootstraps pass: the first ordinary union case reaches final !live_count and aborts on each host. Static ownership tracing finds parser.c allocates payload TypeInfo under hooks while env.c free_payload_type_info frees it outside the observer. I do not infer the unprinted retained count or claim a measured product leak. I add a free-only observer to a freshly compiled actual env.c, retain real destructor recursion/frees and final zero assertion, and inventory env+parser+lexer+UTF8 as the selected sanitizer scope. Review precedes fresh fixtures; original bootstrap provenance and both first terminals remain separate.
+
+- [ ] I correct the actual renderer local identifier exposed by8134 full publisher parsing: generated Ok(byte) and byte.value/byte.eof use the reserved byte type keyword. Both original first terminals are retained after ordinary match/cleanup controls return, without a full fixture PASS claim. I rename only that local to octet in the actual renderer and independent golden, preserve catalog fields and all five shadow predicates, then require fresh strict document/publisher adjacency as well as complete paired parser qualification. I do not rewrite the published file inside a fixture or broaden keyword grammar.
+
+- [ ] I repair generated C comparison operand grouping under full 5.1 task_f8dc08d9daf14e43b4f469cf77b5136b: the78aac Linux C seed executes all947 selected shadows, then strict GCC rejects two boolean equality operands containing relational comparisons. I retain the generated C and first terminal. Before fixture edits I record an independent compiler follow-up; explicit typed bool locals preserve the exact two predicates and assertions but do not close this compiler defect or establish full native acceptance. Puck retains its independently observed outcome.
+
+- [ ] I correct the78aac puck fixture diagnostic-stream assumption: Stage1 rejects the ordinary payload-omitted case with status1 and no executable, and emits the exact zero-field diagnostic on stdout; C seed emits it on stderr. I retain both streams separately and the first assertion terminal after all three paired parser outputs/shadow selections passed. Before editing I require combined-stream substring checks only, preserving returncodes, no-output and no-service-masking assertions. I do not impose or claim a uniform diagnostic stream; the already running14ca Linux attempt retains its own terminal.
+
+- [ ] I repair ordinary match cleanup under task_63edb399b8cd44ef82eaffa99328a22e: the5a534 puck Homebrew sanitizer completes all parser/publisher assertions, then reports162bytes in12 allocations from a fresh union match temporary, interpreted binding metadata and restored native binding metadata. I retain the exact trace and stop; static tracing finds direct symbol-count resets and no union temporary destruction. I require ownership/alias/result-escape and metadata-lifetime review before production edits, preserving all ordinary execution assertions and strict leak detection. This is a measured cleanup failure, distinct from the earlier missing observer boundary.
+
+I complete the bounded actual parser/retention qualification at5a0e9b896:
+fresh Linux and puck C-seed/Stage1/Stage2 bootstrap, actual paired publisher
+parsing/shadow selections/schema bytes, seven scoped C sanitizer/ordinary
+configurations, seven affected strict publisher configurations and both ordinary
+parser/module/wrapper closures pass. I preserve17 earlier first terminals and
+all corrected source identities in [my seal](evidence/file-service-parser.md).
+My final current maps verify26455 sources and12 selected tools on each host.
+I retain the measured empty-literal/metadata cleanup scope and explicit general
+union lifetime and whole-parser OOM limits. Review and actual merge remain
+pending; full8bbc resolution, lowering and generated behavior acceptance stay
+open. I do not close the root-owned compiler grouping follow-up with these
+fixture results.
+
+I prepare the separate PR927 ready integration from actual PR925 merge302f129df.
+I retain both additive Make/roadmap records and the exact frozen5a0e parser and
+cleanup source. Incoming canonical ownership/common providers and the actual
+PR923 iterative grouping repair require fresh C-seed/Stage1/Stage2 bootstrap
+and the same focused seven configurations, paired/schema/publisher and neighbor
+gates on Linux and puck. I preserve the original seal and source pins; no
+integrated execution begins before source-delta review. Full8bbc remains open.
+
+- [ ] I correct evidence checkout portability under task_5a8b7cad748c42068cf3c865fdd01bd9 before integrated parser gates: five retained Linux publisher reports have intentionally invalid UTF-8 pathname bytes which APFS refuses. I preserve their original byte-path identities and exact bytes/hashes in manifests and CAS, normalize only Git storage names, and verify unchanged source/fixture blobs. No integrated fixture has run; both platforms must retain complete source inventories at the corrected pin.
+
+I complete the fresh integrated parser matrix atcbc08b5b4 after portable evidence
+storage correction: both new bootstraps, the same seven scoped parser/provider
+configurations, full paired outputs/shadows/schema comparisons, seven affected
+publisher configurations and ordinary parser/module/wrapper neighbors pass.
+I verify all46083 source paths and12 selected tools unchanged on each host,
+retaining961 Linux and718 puck final products. My [supplemental seal](evidence/file-service-parser-integration.md)
+keeps the original5a0e acceptance and17 first terminals distinct. Source lowering,
+resolution, full generated service behavior and whole-parser/union ownership
+acceptance remain open; root review and actual merge still precede closure.
+
+I preserve the first external integration-sealer terminal before correction:
+its adapted script omits summary construction and raises NameError while writing
+seal-summary.json after copying reports/CAS. I restore that manifest construction
+and rerun packaging only. All measured gate reports and qualified inputs remain
+unchanged; I do not rerun qualification or classify this as a parser defect.
+
+I prepare PR927 final canonical integration against actual PR929 mergea2c32d186.
+The incoming six NanoISA/VM files add counted allocator test hooks and raw
+CAST_U8 handling; C/Nano producer and File parser/cleanup/fixture bytes are
+unchanged. I retain the frozenCBC full matrix and resolve only additive
+Make/roadmap appends. Source/dependency review determines any bounded ordinary
+provider/refusal checks before execution; I do not replay bootstrap or claim
+new integrated sanitizer acceptance from static identity alone.
+
+I complete the approved final PR927 ordinary refresh at 7011339a against actual
+PR929 a2c32d186. Both hosts pass fresh affected providers, complete paired parser
+and ownership/refusal controls, actual publisher and wrapper checks. I retain
+exact CBC compiler binaries with per-phase before/after hashes, copy no provider
+or module cache, and keep the original bootstrap and sanitizer claims separate.
+Current checks verify all 54,637 sources and 12 selected tools on each host,
+plus 482 Linux and 431 puck products. My [final supplemental seal](evidence/file-service-parser-final.md)
+records this bounded acceptance; full File source resolution/lowering and the
+8bbc parent remain open pending their complete required gates.

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_file_service_parser"
+  ],
+  "timeout": false,
+  "returncode": 1,
+  "cleanup_errors": [],
+  "child_returncode": 1,
+  "group_absent": true,
+  "seconds": 300.23389346303884
+}

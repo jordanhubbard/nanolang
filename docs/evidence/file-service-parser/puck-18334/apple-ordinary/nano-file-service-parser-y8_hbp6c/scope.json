@@ -1,0 +1,11 @@
+{
+  "parser": "included and allocation-hooked",
+  "fresh_selected": [
+    "lexer",
+    "utf8"
+  ],
+  "common_providers": "ordinary retained exact list",
+  "publisher": "fresh seven-provider actual Make closure",
+  "service_execution": false,
+  "bootstrap": "required fresh outer prerequisite"
+}

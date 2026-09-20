@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary-publisher/nano-file-publisher-0lybrwta/cli/existing-symlink"
+  ],
+  "pid": 56286,
+  "returncode": 1,
+  "timeout": false
+}

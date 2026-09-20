@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-70113/src",
+    "tests/test_nsi_file_publish.c",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/make-obj/file-binding-publisher/nsi_file_binding.o",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/make-obj/file-binding-publisher/nsi_file_plan.o",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/make-obj/file-binding-publisher/nsi.o",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/make-obj/file-binding-publisher/cJSON.o",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/make-obj/file-binding-publisher/utf8.o",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/make-obj/file-binding-publisher/nsi_file_publish.o",
+    "-lm",
+    "-lcrypto",
+    "-L/opt/homebrew/Cellar/libffi/3.8.0/lib",
+    "-lffi",
+    "-L/opt/homebrew/opt/openssl@3/lib",
+    "-o",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/fixture-linked"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-70113",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -1,0 +1,34 @@
+{
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-obj/file-binding-publisher/nsi_file_binding.o": {
+    "sha256": "203dc91cd2f4cef2950a6d7d6d500de588079c2913624e7634036f9442449b71",
+    "bytes": 44424
+  },
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-obj/file-binding-publisher/nsi_file_plan.o": {
+    "sha256": "8ae1b0012534e05d78fb0d309a8a7e80dbdef828afd6ac46d1b759d5b1065b42",
+    "bytes": 25632
+  },
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-obj/file-binding-publisher/nsi.o": {
+    "sha256": "b946a381de7bd3a83b0926301dc34f971b724608aa3edc4b30f08fa144caf14b",
+    "bytes": 61160
+  },
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-obj/file-binding-publisher/cJSON.o": {
+    "sha256": "3a59bc285a4a22e3fe4227d7c98144b64aa90aa51bb99ca94dbd54fb4c7072c2",
+    "bytes": 81376
+  },
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-obj/file-binding-publisher/utf8.o": {
+    "sha256": "8200d9559d41b3dba94265d3ce5725391d9273b1f5a2c53e1d92ecb967bd52b2",
+    "bytes": 10376
+  },
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-obj/file-binding-publisher/nsi_file_publish.o": {
+    "sha256": "6587d228e3c97ebf86b1e01b5fbda7c0af50cad48814e3935ff65bbe2a13eff7",
+    "bytes": 23680
+  },
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-obj/file-binding-publisher/nsi_file_binding_main.o": {
+    "sha256": "4f46b0cd50f3ae8f149b877c0fd8a587b11a68010b604f376475d6f9e35ddda4",
+    "bytes": 16544
+  },
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/make-bin/nsi-file-binding": {
+    "sha256": "3935c0e4cb8ed8a172e05800ad9d7938b0b7946932142e8a19a2f9402a5cb0da",
+    "bytes": 125520
+  }
+}

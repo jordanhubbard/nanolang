@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-j2",
+    "CC=/usr/bin/clang",
+    "test-wrapper-gen"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 7.936702625011094
+}
