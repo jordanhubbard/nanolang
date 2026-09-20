@@ -1,0 +1,42 @@
+[
+  {
+    "label": "gcc-linked-replay",
+    "status": 0,
+    "seconds": 0.665
+  },
+  {
+    "label": "gcc-linked-capture",
+    "status": 0,
+    "seconds": 0.765
+  },
+  {
+    "label": "gcc-instrumented-replay",
+    "status": 0,
+    "seconds": 1.167
+  },
+  {
+    "label": "gcc-instrumented-capture",
+    "status": 0,
+    "seconds": 1.116
+  },
+  {
+    "label": "clang-linked-replay",
+    "status": 0,
+    "seconds": 0.816
+  },
+  {
+    "label": "clang-linked-capture",
+    "status": 0,
+    "seconds": 0.816
+  },
+  {
+    "label": "clang-instrumented-replay",
+    "status": 0,
+    "seconds": 1.517
+  },
+  {
+    "label": "clang-instrumented-capture",
+    "status": 0,
+    "seconds": 1.518
+  }
+]

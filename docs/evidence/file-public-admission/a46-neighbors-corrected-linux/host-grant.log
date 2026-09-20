@@ -1,0 +1,7 @@
+test_c99_consumers_share_c11_gate (tests.test_file_host_grant.FileHostGrant.test_c99_consumers_share_c11_gate) ... I retain grant artifacts at /tmp/nano-file-host-grant-_k5ve638
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.354s
+
+OK

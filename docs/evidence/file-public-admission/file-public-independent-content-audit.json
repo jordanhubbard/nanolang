@@ -1,0 +1,9 @@
+{
+  "reports": 417,
+  "unique_artifacts": 16409,
+  "bytes": 4324821877,
+  "errors": [],
+  "seconds": 2.2772891521453857,
+  "report_manifest_sha256": "9166ca37ab076471162ca366c8b477746bfea632650cbc445ad4fb69c05a02fc",
+  "artifact_manifest_sha256": "00af7f33ab7e331dfc068d219516cd3a5e8ac177714237f48a95236835a4d349"
+}

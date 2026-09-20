@@ -50,6 +50,9 @@ static NvmFileRuntimeStatus vm_service_hook(NvmFileRuntime *c,uint32_t import,ui
 #ifndef FILE_VM_TARGET_LABEL
 #define FILE_VM_TARGET_LABEL "actual private File VM dispatch"
 #endif
+#ifndef FILE_VM_BOUNDARY_LABEL
+#define FILE_VM_BOUNDARY_LABEL "public File routes remain refused"
+#endif
 #ifndef FILE_VM_MAIN
 #define FILE_VM_MAIN main
 #endif
@@ -227,5 +230,5 @@ int FILE_VM_MAIN(void){
 #ifdef HOSTED_INSTRUMENT
  vm_faults();vm_allocation_and_masks();CHECK(!tracked_live && !tracked_bytes);
 #endif
- empty_host();printf("PASS %u %s checks; public File routes remain refused\n",checks-before,FILE_VM_TARGET_LABEL);return 0;
+ empty_host();printf("PASS %u %s checks; %s\n",checks-before,FILE_VM_TARGET_LABEL,FILE_VM_BOUNDARY_LABEL);return 0;
 }

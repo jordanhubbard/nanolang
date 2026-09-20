@@ -1,0 +1,6 @@
+{
+  "PATH": "/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/usr/local/cuda/bin:/opt/bin/:/home/jkh/.codex/tmp/arg0/codex-arg0q1IvSc:/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/home/jkh/.local/share/pnpm:/home/jkh/gocode/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/cuda/bin:/snap/bin:/home/jkh/.cargo/bin:/home/jkh/.ghcup/bin:/home/jkh/.local/bin:/home/jkh/.local/bin:/sbin:/usr/sbin:/bin:/usr/bin:/home/jkh/Bin:.",
+  "PUBLIC_CC": "/usr/bin/gcc",
+  "PUBLIC_CLANG": "/usr/local/bin/clang",
+  "PUBLIC_EXTRA_TOOLS": "{\"libcrypto\":\"/usr/lib/aarch64-linux-gnu/libcrypto.so.3\",\"libffi\":\"/usr/lib/aarch64-linux-gnu/libffi.so.8\",\"ffi_header\":\"/usr/include/aarch64-linux-gnu/ffi.h\",\"ffi_target_header\":\"/usr/include/aarch64-linux-gnu/ffitarget.h\"}"
+}
