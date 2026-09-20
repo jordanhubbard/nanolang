@@ -12476,3 +12476,12 @@ I supplement private VMe105 with frozen42838153c/current8c959 provider integrati
     terminal and equal source/tool maps, and add validated native-only selection
     flags without warning suppression or wasm32 flag changes. Corrected fresh
     preparation and gates remain pending review.
+
+  - [ ] I correct the stale scalar-global array refusal under
+    `task_a8bc9b4d35294a848c38cfe47f1e3a91`. My retained971b Linux neighbors
+    stop after four passing tests when `ARR_NEW 5; STORE_GLOBAL 0` successfully
+    translates. Mutable-array admission already qualified this operation. I
+    preserve that exact program as a positive VM/LLVM/Wasm execution and
+    output-replacement control, retain the other three refusal sentinels, and
+    require review before fresh Linux/Darwin neighboring gates. The original
+    failed terminal remains at `/tmp/nanolang-managed-string-971b-linux-neighbors`.

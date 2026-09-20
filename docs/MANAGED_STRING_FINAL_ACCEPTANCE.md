@@ -201,3 +201,18 @@ must not contaminate the wasm32 toolchain. This selects a real installation;
 it does not suppress the warning. The external preparation driver uses the same
 selection for its native Make commands. Independent review precedes corrected
 execution; no compiler, runtime or test assertion changes here.
+
+## I preserve the stale neighbor failure before correction
+
+The971b Linux neighbor phase stops at its fifth test: four pass, then the
+scalar-global fixture expects rejection of `ARR_NEW 5; STORE_GLOBAL 0`, but
+translation succeeds. I retain its terminal, exact source and generated
+artifact in `/tmp/nanolang-managed-string-971b-linux-neighbors`. Existing
+mutable-array admission already permits this program; this is a stale fixture,
+not evidence for new admission. Before editing I record task_a8bc9b4d35294a848c38cfe47f1e3a91.
+I will execute the exact program through VM, original/optimized LLVM, sanitized
+native code and Wasmtime, and explicitly replace sentinel outputs through both
+translators. The initializer-arity, missing type-authority and import refusals
+keep their original output-preservation checks. Independent review precedes
+fresh neighbor gates. Production and the separately qualified string phases
+remain byte-identical.
