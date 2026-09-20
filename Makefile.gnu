@@ -420,8 +420,13 @@ FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/f
 FILE_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY_STEMS))) \
 	$(OBJ_DIR)/nanoisa/file_host_grant.o $(OBJ_DIR)/nanoisa/file_runtime_public.o \
 	$(OBJ_DIR)/nanoisa/file_public_native.o $(OBJ_DIR)/nanovm/file_public_vm.o \
+	$(OBJ_DIR)/nanoisa/file_cyclic_public_native.o $(OBJ_DIR)/nanovm/file_cyclic_public_vm.o \
+	$(OBJ_DIR)/nanoisa/file_cyclic_public_abi.o \
 	$(OBJ_DIR)/nsi_cap.o $(OBJ_DIR)/nsi_file.o $(OBJ_DIR)/nsi_file_values.o
 FILE_PUBLIC_HEADERS = nanoisa/file_public.h nanoisa/file_public_internal.h \
+	nanoisa/file_cyclic_public.h nanoisa/file_cyclic_report.h nanoisa/file_cyclic_public_internal.h \
+	nanoisa/file_cyclic_native_public.h nanoisa/file_cyclic_native_abi.h \
+	nanoisa/file_cyclic_runtime.h nanoisa/file_cyclic_hosted.h nanoisa/file_cyclic.h \
 	nanoisa/file_native_public.h nanoisa/file_native_abi.h \
 	nanoisa/file_host_grant.h nanoisa/file_host_grant_internal.h \
 	nanoisa/file_body.h nanoisa/file_code.h nanoisa/file_flow.h nanoisa/file_hosted.h \
@@ -440,23 +445,25 @@ $(FILE_PUBLIC_LIBRARY): $(FILE_PUBLIC_OBJECTS)
 	$(AR) rcs "$$file_archive_dir/runtime.a" $^; \
 	mv "$$file_archive_dir/runtime.a" "$@"
 $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(NANOISA_DIR)/file_native_abi.h | $(OBJ_DIR)/nanoisa
-	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_PUBLIC_ENGINE -c $< -o $@
-# I keep cyclic dispatch source-private and outside every default/public selector.
-FILE_CYCLIC_DISPATCH_HEADERS = $(NANOISA_DIR)/file_cyclic_dispatch.inc $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_PUBLIC_ENGINE -c $(NANOISA_DIR)/file_runtime.c -o $@
+# I keep private cyclic entrypoints macro-only; public selection is explicit.
+FILE_CYCLIC_DISPATCH_HEADERS = $(NANOISA_DIR)/file_cyclic_report.h $(NANOISA_DIR)/file_cyclic_native_abi.h $(NANOISA_DIR)/file_cyclic_dispatch.inc $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.h
 FILE_CYCLIC_PRIVATE_PROVIDERS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY_STEMS))) $(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nsi_cap.o $(OBJ_DIR)/nsi_file.o $(OBJ_DIR)/nsi_file_values.o
 FILE_CYCLIC_VM_OBJECT = $(OBJ_DIR)/nanovm/file_vm_cyclic_private.o
 FILE_CYCLIC_NATIVE_OBJECT = $(OBJ_DIR)/nanoisa/nvm2c_file_cyclic_private.o
-$(FILE_CYCLIC_VM_OBJECT): $(SRC_DIR)/nanovm/file_vm_cyclic_private.c $(SRC_DIR)/nanovm/file_vm_cyclic_private.h $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanovm
+$(FILE_CYCLIC_VM_OBJECT): $(SRC_DIR)/nanovm/file_vm_cyclic_private.c $(SRC_DIR)/nanovm/file_vm_cyclic_private.h $(SRC_DIR)/nanovm/file_vm_cyclic_engine.inc $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanovm
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_CYCLIC_VM_PRIVATE -std=c11 -c $(SRC_DIR)/nanovm/file_vm_cyclic_private.c -o $@
 $(FILE_CYCLIC_NATIVE_OBJECT): $(NANOISA_DIR)/nvm2c_file_cyclic_private.c $(NANOISA_DIR)/nvm2c_file_cyclic_private.h $(NANOISA_DIR)/file_cyclic_native_emit.inc $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanoisa
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_CYCLIC_NATIVE_PRIVATE -std=c11 -c $(NANOISA_DIR)/nvm2c_file_cyclic_private.c -o $@
-# I rebuild both carrier owners for private cyclic implementation changes.
-$(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_runtime_facts.inc $(NANOISA_DIR)/file_cyclic_runtime.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.inc $(SRC_DIR)/nsi_file_values_internal.h
+$(OBJ_DIR)/nanovm/file_cyclic_public_vm.o: $(SRC_DIR)/nanovm/file_vm_cyclic_engine.inc $(FILE_CYCLIC_DISPATCH_HEADERS)
+$(OBJ_DIR)/nanoisa/file_cyclic_public_native.o: $(NANOISA_DIR)/file_cyclic_native_emit.inc $(FILE_CYCLIC_DISPATCH_HEADERS)
+# I rebuild both carrier owners for cyclic implementation changes.
+$(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_cyclic_report.h $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_runtime_facts.inc $(NANOISA_DIR)/file_cyclic_runtime.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.inc $(SRC_DIR)/nsi_file_values_internal.h
 $(OBJ_DIR)/nsi_file_values.o: $(SRC_DIR)/nsi_file_values_internal.h
 $(OBJ_DIR)/nanovm/file_public_vm.o: $(SRC_DIR)/nanovm/file_vm_engine.inc $(NANOISA_DIR)/file_public_internal.h
 $(OBJ_DIR)/nanoisa/file_public_native.o: $(NANOISA_DIR)/file_native_emit.inc $(NANOISA_DIR)/file_native_public.h
 $(OBJ_DIR)/nanoisa/file_cli.o: $(NANOISA_DIR)/file_cli.h $(NANOISA_DIR)/file_hosted.h
-$(OBJ_DIR)/nanoisa/nvm2c_main.o $(OBJ_DIR)/nanovm/main.o: $(NANOISA_DIR)/file_public.h $(NANOISA_DIR)/file_cli.h
+$(OBJ_DIR)/nanoisa/nvm2c_main.o $(OBJ_DIR)/nanovm/main.o: $(NANOISA_DIR)/file_public.h $(NANOISA_DIR)/file_cyclic_public.h $(NANOISA_DIR)/file_cyclic_report.h $(NANOISA_DIR)/file_cli.h
 
 # My retained service ABI and immutable catalog participate in incremental builds.
 $(NANOISA_OBJECTS): $(NANOISA_DIR)/file_hosted.h $(NANOISA_DIR)/file_hosted.inc $(NANOISA_DIR)/file_body.h $(NANOISA_DIR)/file_body.inc $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h

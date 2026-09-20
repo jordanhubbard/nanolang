@@ -12985,3 +12985,13 @@ Contract: [explicit cyclic public admission](NANOISA_FILE_CYCLIC_PUBLIC_ADMISSIO
 - [ ] I seal and independently review the bounded public conjunction, merge it,
   then reconcile only its measured milestone. Full15a92 source/shadows,
   closed-indirect/richer-borrow work and full72556/6931 remain required/open.
+
+
+I have root approval for the4a79 public cyclic design and prepare its complete
+production checkpoint on a separate branch. I retain the exact report value
+layout and shared private VM/native operations, add only explicit granted cyclic
+entries and CLI selection, and enumerate the30-header installed closure. Static
+identity/include inspection passes; no build, execution, installed acceptance or
+canonical activation is claimed. PR907 actual merge and independent complete
+production/fixture review still precede gates. Parent15a92 and its source,
+closed-indirect and richer-reference obligations remain open.

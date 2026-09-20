@@ -303,3 +303,30 @@ an exit-status claim. No output artifact or scalar is published on refusal.
    terminals. Independent review and actual canonical merge close only this
    bounded public milestone. Paired File source/shadows, indirect execution,
    richer references and full15a92/72556/6931 remain open and required.
+
+
+## I submit the public production checkpoint before gates
+
+I implement the approved interface in a separate tree based on the reviewed
+PR907 head, preserving its qualified trees. My value header extracts both
+existing option/report typedefs byte-for-byte. The VM engine moves unchanged
+except for its static internal entry name; both private and granted wrappers
+call it. Native numeric/control/service operations and full fact-agreement
+emission remain byte-identical source blocks. Only an explicit checked surface
+selects the installed generated header, static engine and new granted export.
+
+The installed manifest contains30 headers. Its new members are
+`file_cyclic_public.h`, `file_cyclic_report.h`, `file_cyclic_public_internal.h`,
+`file_cyclic_native_public.h`, `file_cyclic_native_abi.h`,
+`file_cyclic_runtime.h`, `file_cyclic_hosted.h` and `file_cyclic.h` beneath the
+existing `nanoisa/` directory. A static include walk finds every quoted include
+inside that explicit manifest. Three new archive objects own the public VM,
+public emitter and public ABI-size query separately; none owns another grant.
+I name the carrier source explicitly in its owning build recipe so accumulated
+header prerequisites cannot change what it compiles.
+
+My static source audit compares the VM extraction, report typedefs, native
+operation/agreement blocks and nine unchanged acyclic/core files against4a12.
+It does not prove a build, link closure, installed ABI or runtime acceptance.
+Those checks await source/fixture review and the required canonical private
+merge. I have not run a build or newly admitted module for this checkpoint.

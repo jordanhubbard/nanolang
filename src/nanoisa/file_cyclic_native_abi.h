@@ -1,0 +1,6 @@
+#ifndef NANOISA_FILE_CYCLIC_NATIVE_ABI_H
+#define NANOISA_FILE_CYCLIC_NATIVE_ABI_H
+#include "file_cyclic_runtime.h"
+#define NVM_FILE_CYCLIC_NATIVE_ABI 1u
+#define NVM_FILE_CYCLIC_NATIVE_OUTPUT_BYTES (128u*1024u*1024u)
+#endif
