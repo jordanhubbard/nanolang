@@ -13144,3 +13144,12 @@ records its interpreter and PyYAML files while keeping the3.14 driver unchanged.
   lets the bounded cyclic gate continue; it does not repair the recipe's omitted
   CFLAGS. I preserve strict warnings and review the intended target flag policy
   before a separate Make change and meaningful shared-library acceptance.
+
+- [ ] I retain the414c-config Darwin Homebrew ordinary first terminal14.478s
+  after complete Apple ordinaryPASS58.074s (task_b29ce2ae0308458a9bedd62a802a1bb7).
+  Native replay increments a public VM-bridge counter whose existing read is
+  capture-only; strict Homebrew Clang reports the unused written global. I add
+  an actual zero-bridge-call assertion after native corpus replay, retaining the
+  capture count predicate and all warnings. Production stays unchanged. Exact
+  fixture review precedes fresh affected/unrun qualification; earlier passes
+  and first terminals keep their own source/compiler attribution.
