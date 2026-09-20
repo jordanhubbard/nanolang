@@ -14125,3 +14125,14 @@ providers and final products. I retain the helper and its exact canonical shadow
 NANOISA_FILE_COMPANION_INTEGRATION.json records the source identity assessment.
 The approved examples recipe now uses its exact36-source list for prerequisites
 and compilation. All new source/fixtures remain unqualified pending fresh gates.
+
+- [ ] I correct the demonstrated148eb native record-width prerequisite before
+  companion qualification can continue. Fresh Puck bootstrap passed, then actual
+  opted-in Stage1 publisher preparation aborted while inserting488-byte
+  ParsedDeclarations into the native ABI1 array's one-byte element-width field.
+  The existing crash report and matching-binary static disassembly establish this
+  limit without a rerun. FileParsedOrigin also embeds that oversized record. I
+  propose the complete native width/ABI correction in NATIVE_ARRAY_RECORD_WIDTH.md,
+  with all foreign consumers, staging/overflow/failure controls and fresh paired
+  bootstrap required. I preserve the real publisher/AST corpus and do not replace
+  it with a reduced representation or accept SIGABRT as a normal refusal.
