@@ -1,0 +1,62 @@
+{
+  "16767/source": {
+    "entries": 3700,
+    "map": "/tmp/nanolang-record-execution-16767-linux/ordinary-source-after.json",
+    "sha256": "118f922c621967bd6e055e884d973e27ef6111d84095088652845ca11770a90d"
+  },
+  "16767/tools": {
+    "entries": 10,
+    "map": "/tmp/nanolang-record-execution-16767-linux/ordinary-tools-after.json",
+    "sha256": "d4ca5d827a5ddbab45dcde2e6fd1a0838afb0487550fd161859db731e6794083"
+  },
+  "16767/providers-and-last-fixture-artifacts": {
+    "entries": 247,
+    "map": "/tmp/nanolang-record-execution-16767-linux/ordinary-artifacts.json",
+    "sha256": "ce2f6467c60308709f133d7195517b3d11b9def3b8380a2dd5431bfe37e88769"
+  },
+  "16767/source-archive": {
+    "sha256": "1fce831ff917e879dfcf2aeee5f0c1538b3bb515cb375632d10f16e128c4f87c",
+    "bytes": 15152326,
+    "artifact": "/tmp/nanolang-record-execution-linux-seal/objects/1fce831ff917e879dfcf2aeee5f0c1538b3bb515cb375632d10f16e128c4f87c"
+  },
+  "429da/source": {
+    "entries": 3700,
+    "map": "/tmp/nanolang-record-execution-429da-linux/ordinary-source-after.json",
+    "sha256": "4825615d642a54d1a56b0c76c30965f4b713ca3be40c139b376b1bab453609e3"
+  },
+  "429da/tools": {
+    "entries": 10,
+    "map": "/tmp/nanolang-record-execution-429da-linux/ordinary-tools-after.json",
+    "sha256": "d4ca5d827a5ddbab45dcde2e6fd1a0838afb0487550fd161859db731e6794083"
+  },
+  "429da/providers-and-last-fixture-artifacts": {
+    "entries": 242,
+    "map": "/tmp/nanolang-record-execution-429da-linux/ordinary-artifacts.json",
+    "sha256": "07b9b70ed9f658dab49c75d46b2dd795f6861bbf3a0df14eadd7509e781b1a22"
+  },
+  "429da/source-archive": {
+    "sha256": "605cd6a911bf6ddade790b6ca603cc4fe622fa524d85e6c0dd40ffd35c62c68e",
+    "bytes": 15154502,
+    "artifact": "/tmp/nanolang-record-execution-linux-seal/objects/605cd6a911bf6ddade790b6ca603cc4fe622fa524d85e6c0dd40ffd35c62c68e"
+  },
+  "c032c/source": {
+    "entries": 3700,
+    "map": "/tmp/nanolang-record-execution-c032c-linux/complete-declarations-source-after.json",
+    "sha256": "e2dab5ef2ac640733f81ce83fcd7540c6addb9617362232add34d99f8562ecf1"
+  },
+  "c032c/tools": {
+    "entries": 10,
+    "map": "/tmp/nanolang-record-execution-c032c-linux/complete-declarations-tools-after.json",
+    "sha256": "d4ca5d827a5ddbab45dcde2e6fd1a0838afb0487550fd161859db731e6794083"
+  },
+  "c032c/providers-and-last-fixture-artifacts": {
+    "entries": 191,
+    "map": "/tmp/nanolang-record-execution-c032c-linux/complete-declarations-artifacts.json",
+    "sha256": "6cc5944a792b7e12c3104bab37e3187e1f20fee8de9395673ade2504b00383d1"
+  },
+  "c032c/source-archive": {
+    "sha256": "2b0a1551cca162f8fe05c194f4ae22f24ec5c5d02d7d8b4083292dfc7581fe70",
+    "bytes": 15154689,
+    "artifact": "/tmp/nanolang-record-execution-linux-seal/objects/2b0a1551cca162f8fe05c194f4ae22f24ec5c5d02d7d8b4083292dfc7581fe70"
+  }
+}

@@ -13742,3 +13742,12 @@ must rename the new exported symbol as well as its existing aliases.
 
 
 I retain both429da host first terminals: setup/config/discovery and linked2792 checks pass, then the instrumented fixture fails strict compilation because direct mixed-layout controls omitted ownership_layouts_private.h. Production providers compile. I add only the defining private header to the fixture; no prototype invention, warning suppression, predicate change or runtime result is inferred. Fresh corrected gate remains required.
+
+I finish the copied non-admitting execution-plan qualification at frozen c032c:
+all seven selected compiler configurations and both hosts' named neighbors pass.
+Linked2792/observed6377 controls include94 exact-MEMORY allocation positions with
+one-shot/persistent cleanup and independent recovery. I preserve first16767
+UNRESOLVED and both429da missing-header compile terminals. The cumulative seal
+retains577 reports/1240 objects/19073 references/114 equal source-tool pairs.
+This is a preparation milestone only; runtime/public/source parents remain open.
+I submit committed evidence for independent audit before integration/merge.
