@@ -8169,6 +8169,41 @@ shadow parse_shadow {
     assert (== 1 1)
 }
 
+# I validate RFC3629 bytes independently, after exact decoded extent checks.
+fn parser_service_utf8(text: string) -> bool {
+    let size: int = (str_length text)
+    let mut i: int = 0
+    while (< i size) {
+        let byte: int = (char_at text i)
+        if (<= byte 127) { set i (+ i 1) }
+        else {
+            let mut need: int = 0
+            let mut low: int = 128
+            let mut high: int = 191
+            if (and (>= byte 194) (<= byte 223)) { set need 2 }
+            else if (== byte 224) { set need 3 set low 160 }
+            else if (and (>= byte 225) (<= byte 236)) { set need 3 }
+            else if (== byte 237) { set need 3 set high 159 }
+            else if (or (== byte 238) (== byte 239)) { set need 3 }
+            else if (== byte 240) { set need 4 set low 144 }
+            else if (and (>= byte 241) (<= byte 243)) { set need 4 }
+            else if (== byte 244) { set need 4 set high 143 }
+            else { return false }
+            if (> need (- size i)) { return false }
+            let first: int = (char_at text (+ i 1))
+            if (or (< first low) (> first high)) { return false }
+            let mut k: int = 2
+            while (< k need) {
+                let continuation: int = (char_at text (+ i k))
+                if (or (< continuation 128) (> continuation 191)) { return false }
+                set k (+ k 1)
+            }
+            set i (+ i need)
+        }
+    }
+    return true
+}
+
 fn parse_service_declaration(p: Parser) -> Parser {
     let start: LexerToken = (parser_current p)
     if (>= (+ p.position 5) p.token_count) { return (parser_with_error p true) }
@@ -8201,6 +8236,7 @@ fn parse_service_declaration(p: Parser) -> Parser {
     let interface_size: int = (str_length interface_id)
     let path_size: int = (str_length document_path)
     if (or (!= interface_size interface_token.value_bytes) (!= path_size path_token.value_bytes)) { return (parser_with_error p true) }
+    if (or (not (parser_service_utf8 interface_id)) (not (parser_service_utf8 document_path))) { return (parser_with_error p true) }
     if (!= interface_id "nsi:nanolang/filesystem") { return (parser_with_error p true) }
     if (str_starts_with document_path "/") { return (parser_with_error p true) }
     let next: Parser = (parser_with_position p (+ p.position 6))

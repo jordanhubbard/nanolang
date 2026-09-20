@@ -279,3 +279,37 @@ actual paths and retain the whole-source publication failure obligation.
 I have not run a compiler, fixture, bootstrap or service gate at this source
 checkpoint. Mandatory new helper/parser shadows belong to the next reviewed
 fixture checkpoint; none may be omitted from eventual full selected shadows.
+
+### My focused source-review corrections
+
+I add explicit strict UTF-8 checking after complete decoded extent equality. C
+uses `nl_utf8_validate`; Nano independently checks the same RFC3629 lead-byte,
+continuation, overlong, surrogate, truncation and U+10FFFF boundaries. Its
+`char_at` is an unsigned byte operation in the current interpreter, generated C
+and nl_cstr runtime, not a code-point iterator. This does not add Unicode escape
+syntax. The forthcoming paired fixture must include malformed direct token
+bytes as well as actual source input, because the C CLI already validates input
+UTF-8 and cannot alone prove the reusable parser's refusal.
+
+I also bound final lambda-hoist table growth. A failed allocation keeps the old
+items pointer; cleanup frees all items (including previously moved lambdas),
+then only the still-unmoved lambda suffix, then both pointer tables. Size overflow
+uses the same cleanup. Root allocation failure occurs after all lambda roots
+have moved, so it frees items once. Earlier lambda creation allocations remain
+part of the separately recorded whole-parser audit.
+
+I audit the declaration-presence helper against actual parser-produced ASTs:
+service construction is reachable only from parse_program; function/block
+parsers never construct this tag. AST_MODULE_DECL contains a name and no nested
+body. Imported modules are separate cached AST_PROGRAM roots; load_module calls
+process_imports on that root before type checking/cache publication. Root and
+imported service declarations therefore meet the same refusal. The helper is
+not a structural validator for caller-forged service nodes hidden in arbitrary
+expression trees, and it makes no such claim. The later resolver must preserve
+this invariant while binding module origins.
+
+My clone's checked calloc has exactly create_node's successful initialization:
+zero the complete ASTNode, then set type, line and column. The service case copies
+scalar fields and duplicates both strings; it never shares their ownership.
+There are no additional hidden create_node initializers. I retain no execution
+or whole-parser failure-recovery claim from this source inspection.

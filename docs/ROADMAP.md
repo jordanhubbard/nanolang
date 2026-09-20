@@ -13237,3 +13237,5 @@ artifacts without executing new fixtures. Complete source review precedes gates;
 companion snapshot/resolution and executable lowering remain later checkpoints.
 
 - [ ] I audit and close complete C parser allocation failure handling before claiming whole generated-File-source recoverable OOM/publication cleanup under8bbc. Static review of the first service parser finds legacy create_node and unrelated expression/lambda-hoist allocations can still be unchecked. The new service node/clone/program buffers retain ownership on failure; that bounded fact does not establish whole-parser recovery. I require explicit allocation-domain coverage or supervised process-failure cleanup before full source acceptance.
+
+- [ ] I correct two first-service-parser review gaps before fixtures: decoded-length equality alone does not prove UTF-8, so both real service parsers must explicitly reject malformed UTF-8; final lambda hoisting must check item-table multiplication/growth and free both already moved roots and remaining lambda roots on failure. I retain whole-parser OOM limits separately and review these source corrections before any gate.

@@ -2,6 +2,7 @@
 #include "colors.h"
 #include "diag_id.h"
 #include "string_literal_decode.h"
+#include "utf8.h"
 #include <stdarg.h>
 #include <stdint.h>
 #include <limits.h>
@@ -5476,7 +5477,9 @@ static ASTNode *parse_shadow(Stage1Parser *p) {
 }
 
 /* Parse top-level program */
-/* I retain syntax only; an unresolved service never grants execution. */
+/* I inspect valid parser roots: service declarations occur only at program
+ * scope. Module declarations hold names, not child ASTs; imported programs are
+ * separately checked by process_imports. I do not validate arbitrary forged ASTs. */
 bool ast_has_service_declaration(const ASTNode *program) {
     if (!program) return false;
     if (program->type == AST_SERVICE_DECL) return true;
@@ -5517,7 +5520,8 @@ static ASTNode *parse_service_declaration(Stage1Parser *p) {
             goto invalid;
         decoded[i] = nl_decode_string_literal(texts[i]->value);
         if (!decoded[i]) goto invalid;
-        if (strlen(decoded[i]) != (size_t)texts[i]->value_bytes) goto invalid;
+        if (strlen(decoded[i]) != (size_t)texts[i]->value_bytes ||
+            !nl_utf8_validate(decoded[i], (size_t)texts[i]->value_bytes, NULL)) goto invalid;
     }
     if (strcmp(decoded[0], "nsi:nanolang/filesystem") || decoded[1][0] == '/') goto invalid;
     ASTNode *node = calloc(1, sizeof(*node));
@@ -5890,8 +5894,20 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     /* Hoist lambda functions collected during expression parsing to program scope */
     for (int li = 0; li < parser.lambda_count; li++) {
         if (count >= capacity) {
+            ASTNode **grown = NULL;
+            if (capacity <= INT_MAX / 2 && (size_t)capacity <= SIZE_MAX / (2 * sizeof(*items)))
+                grown = realloc(items, sizeof(*items) * (size_t)capacity * 2);
+            if (!grown) {
+                parser_error(&parser, 0, 0, "I cannot grow this hoisted declaration table.\n");
+                /* Earlier lambda roots have moved to items; the remaining ones have not. */
+                for (int i = 0; i < count; ++i) free_ast(items[i]);
+                for (int i = li; i < parser.lambda_count; ++i) free_ast(parser.lambda_functions[i]);
+                free(items);
+                free(parser.lambda_functions);
+                return NULL;
+            }
             capacity *= 2;
-            items = realloc(items, sizeof(ASTNode*) * capacity);
+            items = grown;
         }
         items[count++] = parser.lambda_functions[li];
     }
