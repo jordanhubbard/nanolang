@@ -77,3 +77,37 @@ name freshly instrumented changed interpreter/transpiler providers, retaining
 ordinary common-provider limits. Source and fixtures require review before
 execution. Existing successful5a534 ordinary/source/generator/publisher facts
 remain at their original pin; neither failed sanitizer is relabeled.
+
+## I audit the production checkpoint's allocation and retained pointers
+
+| Boundary | Allocation or retained reference | Retirement |
+| --- | --- | --- |
+| `eval_expression`, dotted `AST_STRUCT_LITERAL` union branch | With zero fields I call `create_union` directly after exact variant arity checking; no child expression is evaluated | New match predicate checks literal kind, zero supplied/actual fields and both null arrays |
+| `eval_expression`, `AST_UNION_CONSTRUCT` | With zero fields both local arrays remain null and I call `create_union` once | Same predicate; every nonliteral scrutinee is excluded |
+| `create_union` in `env.c` | `malloc(sizeof(UnionValue))`, `strdup(union_name)`, `strdup(variant_name)`; zero-field arrays are explicitly null | Three frees only, unless the exact pointer escapes as a union result |
+| `env_define_var_with_type_info` | Duplicated symbol name and possibly duplicated inherited nominal name | Interpreted match metadata pop frees those names; value/type facts are untouched |
+| `restore_native_match_binding` | New nominal name plus the environment's duplicated binding name | Native function metadata pop after complete statement emission |
+| Native ordinary parameters and emitted locals | Parameter nominal `strdup`, local owned nominal `strdup`, environment-owned names | Same pop; saved preexisting symbols remain live |
+| Native generic parameters | Environment-owned name/optional inherited nominal, copied scalar type fields | Pop after generic body emission; no value destructor |
+| Open-record stub parameters | Same ordinary parameter ownership, but no body work list | Pop after stub text append |
+
+My two constructor routes allocate fresh headers through `create_union`; they
+never reuse an input union pointer. Its legacy allocation-failure handling is
+unchanged and is not qualified as recoverable by this correction.
+
+`emit_literal`, formatted work items and GC-release work items retain their own
+strings. `scope_add_var` duplicates names. `transpile_statement_iterative`
+processes the work list, frees it, and frees its scope stack before returning.
+The output StringBuilder has copied text at all three pop sites. Function and
+tuple registries retain signatures/type facts, not the popped symbol's name or
+nominal string; those signatures and type facts remain owned by declarations.
+Effect capture arrays are used during nested emission and restored to their
+outer context before function emission returns; the function-level pop does
+not run during a live nested work list. This audit does not repair the separate
+effect-parameter metadata reset inside the iterative emitter.
+
+I leave runtime Values, `type_info`, `def_file`, source positions and preexisting
+symbols untouched. I null the two retired metadata pointers before lowering
+the count. My environment index uses slot indices and hashes, so it needs no
+freed name when synchronizing a shorter count. No allocator is added to the
+new cleanup path, and no native storage or ABI field changes.

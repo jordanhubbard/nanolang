@@ -200,6 +200,40 @@ static Value eval_match_invariant_failure(const char *reason) {
     return create_void();
 }
 
+/* I own only a directly constructed empty union, never an alias or payload. */
+static bool eval_match_owns_empty_literal(const ASTNode *scrutinee, Value value) {
+    if (!scrutinee || value.type != VAL_UNION || !value.as.union_val)
+        return false;
+    bool literal =
+        (scrutinee->type == AST_STRUCT_LITERAL &&
+         scrutinee->as.struct_literal.field_count == 0) ||
+        (scrutinee->type == AST_UNION_CONSTRUCT &&
+         scrutinee->as.union_construct.field_count == 0);
+    UnionValue *u = value.as.union_val;
+    return literal && u->field_count == 0 &&
+           !u->field_names && !u->field_values;
+}
+
+static void eval_match_release_empty_literal(Value value, bool owned, Value result) {
+    if (!owned || (result.type == VAL_UNION &&
+                   result.as.union_val == value.as.union_val)) return;
+    UnionValue *u = value.as.union_val;
+    free(u->union_name);
+    free(u->variant_name);
+    free(u);
+}
+
+/* I retire only owned names; values and declaration type facts are separate. */
+static void eval_match_pop_metadata(Environment *env, int first) {
+    for (int i = first; i < env->symbol_count; ++i) {
+        free(env->symbols[i].name);
+        free(env->symbols[i].struct_type_name);
+        env->symbols[i].name = NULL;
+        env->symbols[i].struct_type_name = NULL;
+    }
+    env->symbol_count = first;
+}
+
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
 static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
     int first = env->symbol_count;
@@ -5347,6 +5381,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (match_val.type == VAL_UNION && !match_val.as.union_val)
                 return eval_match_invariant_failure("a union match received no value");
 
+            bool owns_empty = eval_match_owns_empty_literal(
+                expr->as.match_expr.expr, match_val);
+
             /* Every pattern, including a wildcard, participates in source order. */
             for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
                 const char *pattern_variant = expr->as.match_expr.pattern_variants[i];
@@ -5389,25 +5426,29 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 if (guard) {
                     Value guard_value = eval_expression(guard, env);
                     if (guard_value.is_return || guard_value.is_break || guard_value.is_continue) {
-                        env->symbol_count = saved_symbol_count;
+                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_match_release_empty_literal(match_val, owns_empty, guard_value);
                         return guard_value;
                     }
                     if (guard_value.type != VAL_BOOL) {
-                        env->symbol_count = saved_symbol_count;
+                        eval_match_pop_metadata(env, saved_symbol_count);
+                        eval_match_release_empty_literal(match_val, owns_empty, create_void());
                         return eval_match_invariant_failure(
                             "a checked match guard did not produce bool");
                     }
                     if (!guard_value.as.bool_val) {
-                        env->symbol_count = saved_symbol_count;
+                        eval_match_pop_metadata(env, saved_symbol_count);
                         continue;
                     }
                 }
 
                 Value result = eval_expression(expr->as.match_expr.arm_bodies[i], env);
-                env->symbol_count = saved_symbol_count;
+                eval_match_pop_metadata(env, saved_symbol_count);
+                eval_match_release_empty_literal(match_val, owns_empty, result);
                 return result;
             }
 
+            eval_match_release_empty_literal(match_val, owns_empty, create_void());
             return eval_match_invariant_failure(
                 "a checked match reached no successful arm");
         }

@@ -3631,6 +3631,17 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
 
 /* Functions for stdlib runtime generation moved to stdlib_runtime.c */
 
+/* I pop generated-function metadata after all emitted work owns its text. */
+static void pop_native_function_metadata(Environment *env, int first) {
+    for (int i = first; i < env->symbol_count; ++i) {
+        free(env->symbols[i].name);
+        free(env->symbols[i].struct_type_name);
+        env->symbols[i].name = NULL;
+        env->symbols[i].struct_type_name = NULL;
+    }
+    env->symbol_count = first;
+}
+
 /* Emit implementation for one generic function instance (must appear after transpile_statement macro) */
 static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
                                           const GenericFuncInstance *inst,
@@ -3679,7 +3690,7 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
 
     transpile_statement(sb, orig->as.function.body, 0, env, fn_registry);
     sb_append(sb, "\n");
-    env->symbol_count = saved_sym_count;
+    pop_native_function_metadata(env, saved_sym_count);
 }
 
 /* Generate function implementations from program AST */
@@ -3917,7 +3928,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 if (ret == TYPE_VOID)        sb_append(sb, "{ /* row-poly: interpreter-only */ }\n");
                 else if (ret == TYPE_STRING) sb_append(sb, "{ return NULL; /* row-poly */ }\n");
                 else                         sb_append(sb, "{ return 0; /* row-poly */ }\n");
-                env->symbol_count = saved_symbol_count;
+                pop_native_function_metadata(env, saved_symbol_count);
                 sb_append(sb, "\n");
                 g_current_function = NULL;
                 continue;
@@ -3943,13 +3954,8 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             g_current_function = NULL;  /* Clear context */
             sb_append(sb, "\n");
 
-            /* Restore environment (remove parameters) */
-            /* Note: We intentionally don't free the symbol names here because:
-             * 1. They will be freed by free_environment() at program end
-             * 2. Some symbol metadata might still be referenced during transpilation
-             * 3. This is a short-lived compiler process, not a long-running server
-             * The memory leak is acceptable for this use case. */
-            env->symbol_count = saved_symbol_count;
+            /* I preserve shared type facts and retire only owned symbol names. */
+            pop_native_function_metadata(env, saved_symbol_count);
         }
     }
 
