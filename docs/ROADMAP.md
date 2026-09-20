@@ -10520,12 +10520,17 @@ Other translators:
       [predicate contract](NANOISA_MANAGED_STRING_PREDICATES.md) and
       [paired evidence](evidence/managed-string-predicates.md) retain
       all other full-coverage and platform obligations.
-- [ ] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
+- [x] I define and implement managed string lifetime, allocator and Wasm linkage before computed strings, including aliases, failure cleanup, instance teardown and bounded live-storage tests.
       MAC `task_51da49b39230468784da3481b893563b`; allocator, lifetime
       and failure ABI in `docs/NANOISA_MANAGED_STRINGS.md`. Core, emitted
       cleanup, concat, substring and portable conversions are implemented in
-      the checked children above. Darwin managed acceptance7ba and broader
-      required target coverage remain open; old design prose is historical.
+      the checked children above. Darwin managed acceptance7ba is complete.
+      PR896 qualifies original/O2/core/package/neighbor acceptance on Linux and
+      Darwin, including failed-initializer cleanup and current integration.
+      My [original-criterion reconciliation](MANAGED_STRING_PARENT_RECONCILIATION.md)
+      closes only this bounded string parent; aggregate488, host linkage2d2 and
+      full applicable-language/release coverage remain open. Old design prose
+      is historical.
 - [ ] I establish explicit managed slot kinds and shared-table string-array
       ownership: transactional create/append, retained get/length, alias mutation,
       string-only acyclic children and complete teardown. MAC `task_83a671a98d724de2b219e75dcad39c8b`; I qualify the standalone core with native LLVM sanitizers and import-free Wasm; opcode/frame admission remains open ([evidence](evidence/managed-string-array-core.md)).
