@@ -1,6 +1,11 @@
 #include "owned_array_admission.h"
+#include "service_classification_private.h"
 NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
-    if(!m || nvm_service_execution_pending(m))return NVM_OWNER_ARRAY_NOT_SELECTED;
+    return nvm_owned_array_route_classified(m, NULL);
+}
+NvmOwnedArrayRoute nvm_owned_array_route_classified(
+    const NvmModule *m, const NvmServiceClassification *facts) {
+    if(!m || nvm_service_pending_classified(m,facts))return NVM_OWNER_ARRAY_NOT_SELECTED;
     if(!m->ownership_data && !m->ownership_size)return NVM_OWNER_ARRAY_NOT_SELECTED;
     if(!m->ownership_data || !m->ownership_size)
         return NVM_OWNER_ARRAY_INVALID;

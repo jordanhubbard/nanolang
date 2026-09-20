@@ -1,6 +1,7 @@
 /* I live inside verifier.c so my structural delegation cannot be requested by
  * a public caller. Only a freshly completed private composition reaches it. */
 #include "mixed_samples_internal.h"
+#include "service_classification_private.h"
 struct NvmMixedSamplesPlan {
     NvmMixedSamplesProof *proof;
     NvmMixedSignature functions[8];
@@ -146,7 +147,11 @@ const NvmMixedSamplesProof *nvm_mixed_samples_obligations(const NvmMixedSamplesP
 /* I inspect only bounded transport bytes, without allocating or claiming their
  * validity. The full descriptor reader and independent analyses remain mandatory. */
 bool nvm_mixed_samples_candidate(const NvmModule *module) {
-    if(!module || nvm_service_execution_pending(module) ||
+    return nvm_mixed_samples_candidate_classified(module, NULL);
+}
+bool nvm_mixed_samples_candidate_classified(
+    const NvmModule *module, const NvmServiceClassification *facts) {
+    if(!module || nvm_service_pending_classified(module,facts) ||
        !module->ownership_data || !module->layout_data)return false;
     NvmV2Cursor c;uint32_t version,count,layout_count;const uint8_t *flags;
     nvm_v2_cursor_init(&c,module->ownership_data,module->ownership_size);
