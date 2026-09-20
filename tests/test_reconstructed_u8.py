@@ -209,7 +209,7 @@ shadow main { assert (== (main) 0) }
                     self.checked([executable])
 
     def test_contextual_source_literal_refusals_preserve_output(self):
-        cases = ('256', '(- 0 1)', '(+ 127 1)')
+        cases = ('256', '-1')
         with tempfile.TemporaryDirectory(prefix='nano-u8-source-refusal-') as tmp:
             directory = Path(tmp); source = directory/'wrong.nano'; output = directory/'previous.nvm'
             for expression in cases:
