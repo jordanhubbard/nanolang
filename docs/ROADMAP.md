@@ -12462,3 +12462,10 @@ I supplement private VMe105 with frozen42838153c/current8c959 provider integrati
   content-addressed overwritten artifacts, retained Python CLI temporary
   products, and bounded process-group cleanup. The runner and two reviewed
   fixture changes require independent review before any fresh qualification.
+
+  - [ ] I qualify the reviewed579222 retention correction: root found an
+    unbounded post-SIGKILL wait and excessive historical-evidence/LLVM-alias
+    rehashing in6c310 before any execution. My corrected runner bounds both
+    waits and records unconfirmed cleanup as failure; stat-keyed command maps
+    retain complete product archives while fresh phase endpoint hashes retain
+    exact input evidence. The existing fixture assertions stay unchanged.

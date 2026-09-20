@@ -137,13 +137,21 @@ For example, after reviewed preparation I invoke a phase with:
 I intercept direct fixture `subprocess.run` calls before importing the test
 modules. Every supported call captures separate file-backed stdout/stderr,
 argv, selected environment, status and duration. A bounded process group gets
-TERM, a ten-second wait, then KILL for surviving descendants, even when its
-leader has exited. A phase deadline and TERM handler pass through the same
+TERM, a five-second wait, then KILL and a separate five-second final wait,
+even when its leader has exited. I bound group-disappearance polling at two
+seconds, retain the exact cleanup outcome, and refuse an unconfirmed cleanup. A phase deadline and TERM handler pass through the same
 cleanup. An unexpected subprocess calling convention fails closed.
 
-Before and after each direct fixture command I hash every tracked source,
-prepared bin/obj file, selected tool and retained temporary product into a
-content-addressed store. Every overwritten IR/C/object/binary version seen at
+At phase entry and exit I freshly hash all tracked non-documentation inputs,
+the acceptance contract/roadmap, prepared bin/obj files and selected tools into
+a content-addressed store. I retain the full tracked path list and explicitly
+list excluded documentation, including historical docs/evidence artifacts; no
+participating compiler, build or fixture source is omitted. Per-command maps
+use a digest cache keyed by resolved path, device, inode, size, mtime_ns and
+ctime_ns, checking those fields again after a fresh read. Alias paths share one
+read of the same resolved file. Changed identities trigger fresh hashes; phase
+endpoint hashing clears the cache. Product maps use the same identity cache,
+with a forced fresh final product map, and preserve all archived bytes. Every overwritten IR/C/object/binary version seen at
 these boundaries stays available before fixture assertions run. I preserve
 fixture TemporaryDirectory products. A private sitecustomize hook inherited
 by nvm2wasm copies CLI intermediates into a separate archive directory before
@@ -154,10 +162,22 @@ traces for every transitive compiler process. The CLI's copied intermediates ret
 and appear in the outer command's post-map. A child killed before cleanup
 leaves its original directory under the retained fixture directory instead.
 
-Per-command and phase endpoint maps reject changed source/provider/tool
-bytes. They establish equality at measured boundaries, not continuous
-observation between them. Generated test products are separate from immutable
+Per-command maps reject changed source/provider/tool identities or content.
+They combine stat observations with previously measured digests; they are not
+independent byte reads on every command. Fresh phase endpoint maps establish
+byte equality at those endpoints, not continuous observation between them. Generated test products are separate from immutable
 inputs. I record failures before propagating them, preserve the original
 phase, and use a new output directory for any reviewed correction. Final
 report digests seal maps/logs/statuses; product maps name archived content by
 SHA-256. This is a runner checkpoint only: no build or qualification has run.
+
+## I correct the runner review findings before any gate
+
+Root review of6c310 found an unbounded final wait after SIGKILL and excessive
+repeated hashing of historical evidence plus repeated LLVM aliases. I replace
+the wait with the bounded, explicitly reported cleanup above and introduce the
+stat-keyed per-command cache with fresh phase-boundary hashing. An unconfirmed
+cleanup cannot pass. I preserve all product boundary snapshots and archive
+bytes; this corrects retention machinery without changing the two fixtures or
+any compiler/runtime source. No failed build or fixture exists for this static
+review finding, and no qualification has yet run.

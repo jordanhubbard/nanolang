@@ -40,20 +40,41 @@ def write_json(path, value):
 
 
 def stop_group(process):
-    # I kill descendants even if their original parent has already exited.
+    # I bound both waits and report an unconfirmed cleanup as failure.
+    outcome = {'pid': process.pid, 'errors': [], 'reaped': False, 'group_gone': False}
+    def send(sig):
+        try:
+            os.killpg(process.pid, sig)
+        except ProcessLookupError:
+            pass
+        except OSError as error:
+            outcome['errors'].append(repr(error))
+    send(signal.SIGTERM)
     try:
-        os.killpg(process.pid, signal.SIGTERM)
-    except ProcessLookupError:
-        pass
-    try:
-        process.wait(timeout=10)
+        process.wait(timeout=5)
     except subprocess.TimeoutExpired:
-        pass
+        outcome['term_wait_expired'] = True
+    send(signal.SIGKILL)
     try:
-        os.killpg(process.pid, signal.SIGKILL)
-    except ProcessLookupError:
-        pass
-    process.wait()
+        process.wait(timeout=5)
+        outcome['reaped'] = True
+    except subprocess.TimeoutExpired:
+        outcome['kill_wait_expired'] = True
+    until = time.monotonic() + 2
+    while True:
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            outcome['group_gone'] = True
+            break
+        except OSError as error:
+            outcome['errors'].append(repr(error))
+            break
+        if time.monotonic() >= until:
+            break
+        time.sleep(0.02)
+    outcome['confirmed'] = outcome['reaped'] and outcome['group_gone'] and not outcome['errors']
+    return outcome
 
 
 class Retention:
@@ -66,6 +87,8 @@ class Retention:
         self.temporary.mkdir()
         self.counter = 0
         self.commands = []
+        self.digest_cache = {}
+        self.retention_failures = []
         self.raw_temporary = tempfile.TemporaryDirectory
         self.raw_run = subprocess.run
 
@@ -76,20 +99,33 @@ class Retention:
             if not path.is_file():
                 result[str(path)] = {'missing': True}
                 continue
-            data = path.read_bytes()
-            digest = hashlib.sha256(data).hexdigest()
-            archive = self.store / digest
-            if not archive.exists():
-                archive.write_bytes(data)
-            result[str(path)] = {'sha256': digest, 'bytes': len(data),
-                                 'object': 'objects/' + digest,
-                                 'resolved': str(path.resolve())}
+            resolved = path.resolve()
+            stat = resolved.stat()
+            identity = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+            key = (str(resolved), *identity)
+            if key not in self.digest_cache:
+                data = resolved.read_bytes()
+                after = resolved.stat()
+                if identity != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
+                    raise RuntimeError('I observed an input changing while hashing: ' + str(path))
+                digest = hashlib.sha256(data).hexdigest()
+                archive = self.store / digest
+                if not archive.exists():
+                    archive.write_bytes(data)
+                self.digest_cache[key] = {'sha256': digest, 'bytes': len(data),
+                    'object': 'objects/' + digest, 'resolved': str(resolved),
+                    'stat_identity': list(identity)}
+            result[str(path)] = self.digest_cache[key]
         return result
 
-    def products(self):
+    def products(self, fresh=False):
+        if fresh:
+            self.digest_cache.clear()
         return self.file_map(p for p in self.temporary.rglob('*') if p.is_file())
 
-    def inputs(self):
+    def inputs(self, fresh=False):
+        if fresh:
+            self.digest_cache.clear()
         providers = [p for directory in ('bin', 'obj')
                      for p in (ROOT / directory).rglob('*') if p.is_file()]
         return {'sources': self.file_map(self.sources),
@@ -128,6 +164,7 @@ class Retention:
         allowed = {'capture_output', 'text', 'universal_newlines', 'timeout',
                    'env', 'cwd', 'check', 'input', 'encoding', 'errors'}
         if set(kwargs) - allowed or not kwargs.get('capture_output') or isinstance(args, (str, bytes)):
+            self.retention_failures.append(str(directory) + ': unsupported subprocess contract')
             write_json(directory / 'status.json', {'error': 'unsupported subprocess contract'})
             raise ValueError('I require an explicit captured argv subprocess')
         before = self.inputs()
@@ -144,6 +181,7 @@ class Retention:
         process = None
         problem = None
         code = None
+        cleanup = None
         try:
             with (directory / 'stdout').open('wb') as stdout, (directory / 'stderr').open('wb') as stderr:
                 process = subprocess.Popen(list(map(str, args)), cwd=kwargs.get('cwd'), env=env,
@@ -158,14 +196,12 @@ class Retention:
                 code = process.returncode
         except BaseException as error:
             problem = error
-            if process is not None:
-                stop_group(process)
-                code = process.returncode
         finally:
             if process is not None:
-                stop_group(process)
+                cleanup = stop_group(process)
+                code = process.returncode
             write_json(directory / 'status.json', {'returncode': code,
-                'seconds': time.monotonic() - started,
+                'seconds': time.monotonic() - started, 'cleanup': cleanup,
                 'exception': None if problem is None else repr(problem),
                 'timed_out': isinstance(problem, (subprocess.TimeoutExpired, TimeoutError))})
             write_json(directory / 'products-after.json', self.products())
@@ -173,8 +209,13 @@ class Retention:
             write_json(directory / 'inputs-after.json', after)
             write_json(directory / 'input-equality.json', {'equal': before == after})
         if problem is not None:
+            self.retention_failures.append(str(directory) + ': ' + repr(problem))
             raise problem
+        if cleanup is not None and not cleanup['confirmed']:
+            self.retention_failures.append(str(directory) + ': unconfirmed cleanup')
+            raise RuntimeError('I could not confirm bounded command cleanup')
         if before != after:
+            self.retention_failures.append(str(directory) + ': immutable input drift')
             raise RuntimeError('I detected source/provider/tool changes; I stop this gate')
         stdout = (directory / 'stdout').read_bytes()
         stderr = (directory / 'stderr').read_bytes()
@@ -232,18 +273,28 @@ def main():
             except BaseException as caught:
                 error = caught
             finally:
-                stop_group(child)
-                write_json(output / (name + '.json'), {'args': command, 'returncode': child.returncode,
+                cleanup = stop_group(child)
+                write_json(output / (name + '.json'), {'args': command, 'returncode': child.returncode, 'cleanup': cleanup,
                            'exception': repr(error) if error else None})
             if error:
                 raise error
+            if not cleanup['confirmed']:
+                raise RuntimeError('I could not confirm bounded metadata cleanup')
             if child.returncode:
                 raise RuntimeError('I could not retain ' + name)
         return (output / (name + '.stdout')).read_bytes()
     tracked = git_metadata('tracked-paths', ['ls-files', '-z'])
     git_metadata('head', ['rev-parse', 'HEAD'])
     git_metadata('worktree-status', ['status', '--porcelain=v1'])
-    sources = [ROOT / os.fsdecode(p) for p in tracked.split(b'\0') if p]
+    tracked_names = [os.fsdecode(p) for p in tracked.split(b'\0') if p]
+    # Documentation archives are not compiler/fixture inputs. All other tracked
+    # paths remain covered, plus the exact acceptance contract and roadmap.
+    sources = [ROOT / p for p in tracked_names if not p.startswith('docs/') or
+               p in ('docs/MANAGED_STRING_FINAL_ACCEPTANCE.md', 'docs/ROADMAP.md')]
+    included_names = {str(p.relative_to(ROOT)) for p in sources}
+    write_json(output / 'source-scope.json', {'included': sorted(included_names),
+        'excluded_documentation': [p for p in tracked_names if p not in included_names],
+        'policy': 'all tracked non-docs paths plus acceptance contract and roadmap'})
     aliases = output / 'tool-bin'
     aliases.mkdir()
     for name, path in executables.items():
@@ -292,8 +343,10 @@ tempfile.TemporaryDirectory = _Retained
     write_json(output / 'selection.json', selection)
     write_json(output / 'host.json', {'uname': list(platform.uname()), 'python': sys.version,
                'phase': options.phase, 'command_seconds': options.command_seconds,
-               'phase_seconds': options.phase_seconds})
-    before = retention.inputs()
+               'phase_seconds': options.phase_seconds,
+               'input_maps': 'phase endpoints freshly hashed; command maps stat-keyed cache',
+               'cache_key': 'resolved path, device, inode, size, mtime_ns, ctime_ns'})
+    before = retention.inputs(fresh=True)
     write_json(output / 'inputs-before.json', before)
     retention.install()
     result = None
@@ -326,17 +379,17 @@ tempfile.TemporaryDirectory = _Retained
         signal.signal(signal.SIGALRM, previous)
         signal.signal(signal.SIGTERM, previous_term)
         retention.restore()
-        after = retention.inputs()
+        after = retention.inputs(fresh=True)
         write_json(output / 'inputs-after.json', after)
-        write_json(output / 'products-final.json', retention.products())
+        write_json(output / 'products-final.json', retention.products(fresh=True))
         passed = bool(result and result.wasSuccessful() and not result.skipped and
-                      not result.expectedFailures and not failure and before == after)
+                      not result.expectedFailures and not failure and not retention.retention_failures and before == after)
         write_json(output / 'status.json', {'passed': passed, 'seconds': time.monotonic() - started,
             'tests_run': result.testsRun if result else 0, 'exception': failure,
             'failures': len(result.failures) if result else None,
             'errors': len(result.errors) if result else None,
             'skipped': result.skipped if result else [], 'inputs_equal': before == after,
-            'commands': retention.counter})
+            'commands': retention.counter, 'retention_failures': retention.retention_failures})
         reports = {str(p.relative_to(output)): hashlib.sha256(p.read_bytes()).hexdigest()
                    for p in output.rglob('*') if p.is_file() and
                    p.parts[len(output.parts)] not in ('objects', 'temporary', 'tool-bin')}
