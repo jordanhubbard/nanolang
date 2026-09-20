@@ -16,4 +16,10 @@ NvmV2Result nvm_ownership_layouts_private_decode(const uint8_t *,size_t,NvmV2Lay
 /* I additionally validate scalar-union nodes beside forward record DAGs.
  * Only the complete mixed declaration query selects this private grammar. */
 NvmV2Result nvm_ownership_mixed_layouts_private_decode(const uint8_t *,size_t,NvmV2Layouts *);
+/* I preserve the legacy result and failure-atomic layout output, but separately
+ * report an observed allocation refusal. The optional detail sink is set false
+ * at entry, true only for failed items/fields/forward-workspace allocations.
+ * It is disjoint from input and output storage. No allocation order changes. */
+NvmV2Result nvm_ownership_mixed_layouts_private_decode_detailed(const uint8_t *,size_t,
+                                                             NvmV2Layouts *,bool *allocation_failed);
 #endif

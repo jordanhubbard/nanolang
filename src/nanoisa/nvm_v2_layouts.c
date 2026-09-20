@@ -28,7 +28,7 @@ static void free_fields(NvmV2Layout *items, uint32_t n) {
 }
 
 /* I qualify only exact scalar/string/record DAGs on the extended path. */
-static NvmV2Result forward_record_graph(const NvmV2Layout *items, uint32_t count, bool array_leaves, bool mixed_unions) {
+static NvmV2Result forward_record_graph(const NvmV2Layout *items, uint32_t count, bool array_leaves, bool mixed_unions, bool *allocation_failed) {
     for (uint32_t i = 0; i < count; i++) {
         const NvmV2Layout *layout = &items[i];
         if (layout->kind != NVM_V2_LAYOUT_STRUCT &&
@@ -50,7 +50,7 @@ static NvmV2Result forward_record_graph(const NvmV2Layout *items, uint32_t count
     typedef struct { uint32_t layout, next; } Frame;
     uint8_t *colors = calloc(count, 1);
     Frame *stack = calloc(count, sizeof *stack);
-    if (!colors || !stack) { free(colors); free(stack); return NVM_V2_ERR_TRUNCATED; }
+    if (!colors || !stack) { if(allocation_failed)*allocation_failed=true; free(colors); free(stack); return NVM_V2_ERR_TRUNCATED; }
     NvmV2Result result = NVM_V2_OK;
     for (uint32_t root = 0; root < count; root++) {
         if (colors[root]) continue;
@@ -74,7 +74,7 @@ done:
 }
 
 static NvmV2Result layouts_decode_profile(const uint8_t *data, size_t size,
-                                           NvmV2Layouts *out, bool array_leaves, bool mixed_unions) {
+                                           NvmV2Layouts *out, bool array_leaves, bool mixed_unions, bool *allocation_failed) {
     out->items = NULL;
     out->count = 0;
 
@@ -90,7 +90,7 @@ static NvmV2Result layouts_decode_profile(const uint8_t *data, size_t size,
         return NVM_V2_ERR_TRUNCATED;
 
     NvmV2Layout *items = calloc(count, sizeof *items);
-    if (!items) return NVM_V2_ERR_TRUNCATED;
+    if (!items) { if(allocation_failed)*allocation_failed=true; return NVM_V2_ERR_TRUNCATED; }
 
     uint32_t built = 0;
     bool forward = false;
@@ -120,7 +120,7 @@ static NvmV2Result layouts_decode_profile(const uint8_t *data, size_t size,
             goto fail;
         }
         NvmV2LayoutField *fields = calloc(field_count, sizeof *fields);
-        if (!fields) { r = NVM_V2_ERR_TRUNCATED; goto fail; }
+        if (!fields) { if(allocation_failed)*allocation_failed=true; r = NVM_V2_ERR_TRUNCATED; goto fail; }
         items[i].fields = fields;
 
         for (uint16_t f = 0; f < field_count; f++) {
@@ -148,7 +148,7 @@ static NvmV2Result layouts_decode_profile(const uint8_t *data, size_t size,
         }
     }
 
-    if (forward && (r = forward_record_graph(items, count, array_leaves, mixed_unions)) != NVM_V2_OK) goto fail;
+    if (forward && (r = forward_record_graph(items, count, array_leaves, mixed_unions, allocation_failed)) != NVM_V2_OK) goto fail;
 
     out->items = items;
     out->count = count;
@@ -162,13 +162,14 @@ fail:
 
 NvmV2Result nvm_v2_layouts_decode(const uint8_t *data, size_t size,
                                   NvmV2Layouts *out) {
-    return layouts_decode_profile(data,size,out,false,false);
+    return layouts_decode_profile(data,size,out,false,false,NULL);
 }
 
 /* I bound the private numeric copy before allocating. Semantic shape checks and
  * iterative cycle rejection remain the common decoder's responsibility. */
 static NvmV2Result ownership_layouts_private_decode(const uint8_t *data,size_t size,
-                                                 NvmV2Layouts *out,bool mixed_unions) {
+                                                 NvmV2Layouts *out,bool mixed_unions,bool *allocation_failed) {
+    if(allocation_failed)*allocation_failed=false;
     if(!out || !data || !size)return NVM_V2_ERR_SECTION_RANGE;
     if(size>NVM_OWNERSHIP_LAYOUTS_PRIVATE_MAX_BYTES)return NVM_V2_ERR_INDEX_RANGE;
     NvmV2Cursor c;nvm_v2_cursor_init(&c,data,size);
@@ -185,16 +186,21 @@ static NvmV2Result ownership_layouts_private_decode(const uint8_t *data,size_t s
     }
     if(c.pos!=c.size)return NVM_V2_ERR_SECTION_RANGE;
     NvmV2Layouts owned={0};
-    result=layouts_decode_profile(data,size,&owned,true,mixed_unions);
+    result=layouts_decode_profile(data,size,&owned,true,mixed_unions,allocation_failed);
     if(result!=NVM_V2_OK)return result;
     *out=owned;return NVM_V2_OK;
 }
 
 NvmV2Result nvm_ownership_layouts_private_decode(const uint8_t *data,size_t size,NvmV2Layouts *out) {
-    return ownership_layouts_private_decode(data,size,out,false);
+    return ownership_layouts_private_decode(data,size,out,false,NULL);
 }
 NvmV2Result nvm_ownership_mixed_layouts_private_decode(const uint8_t *data,size_t size,NvmV2Layouts *out) {
-    return ownership_layouts_private_decode(data,size,out,true);
+    return ownership_layouts_private_decode(data,size,out,true,NULL);
+}
+
+NvmV2Result nvm_ownership_mixed_layouts_private_decode_detailed(const uint8_t *data,size_t size,
+                                                               NvmV2Layouts *out,bool *allocation_failed) {
+    return ownership_layouts_private_decode(data,size,out,true,allocation_failed);
 }
 
 void nvm_v2_layouts_free(NvmV2Layouts *l) {

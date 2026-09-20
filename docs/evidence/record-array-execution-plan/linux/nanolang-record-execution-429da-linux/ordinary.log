@@ -1,0 +1,40 @@
+I retain query artifacts at /tmp/nano-record-array-execution-fxn_arnm
+test_complete_plan_and_allocation_controls (tests.test_record_array_execution.RecordArrayExecution.test_complete_plan_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 788 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+PASS 2792 record-array execution-plan checks; no runtime admission
+FAIL
+
+======================================================================
+FAIL: test_complete_plan_and_allocation_controls (tests.test_record_array_execution.RecordArrayExecution.test_complete_plan_and_allocation_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-execution-qualified-429da/tests/test_record_array_execution.py", line 53, in test_complete_plan_and_allocation_controls
+    self.command(mode + '-build', [*self.cc, *self.flags,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *(['-DRA_WHITEBOX'] if observed else []),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/test_record_array_execution.c',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/record_array_alloc.c', *products, *self.objects,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *self.ldflags, '-o', str(exe)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/nanolang-record-execution-qualified-429da/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 3.829s
+
+FAILED (failures=1)
