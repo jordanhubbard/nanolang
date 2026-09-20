@@ -1,0 +1,27 @@
+[
+  {
+    "phase": "clang",
+    "seconds": 70.39,
+    "status": 0
+  },
+  {
+    "phase": "vm",
+    "seconds": 6.731,
+    "status": 0
+  },
+  {
+    "phase": "frames",
+    "seconds": 6.382,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.023,
+    "status": 0
+  },
+  {
+    "phase": "wrapper",
+    "seconds": 3.02,
+    "status": 0
+  }
+]
