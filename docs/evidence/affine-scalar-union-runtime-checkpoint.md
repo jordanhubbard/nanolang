@@ -228,6 +228,47 @@ d49a6b4b1dc1f35029923ca283557ee013b61d70bed9d9c42caaaa42e45d663e  /tmp/nanolang-
 3353008c44f756c56a2960d26a5992b31238ce191a970db1d41ec97b0e2e0d46  /tmp/nanolang-pr893-bb5d744b.mYM3aX/verifier-nvm2c-corrected.log
 ```
 
+## Current-main integration after PR910
+
+Canonical main advanced to `ca0c9f6a8` while the preceding gates ran. That
+history includes the generic-return match repair in merged PR910 and the
+portable read-text Wasm work. I merged it without conflicts at
+`84625401cdaf0bff52ebef92360d2243a16e0a66`. The merge changed none of this
+checkpoint's producer, affine-analysis or focused-test files; their SHA-256
+values remained:
+
+```text
+156547084b021e77b98667289a01a3e8a9a39187e7ec4f3689260d743ab85089  src_nano/compiler/nanoisa_borrows.nano
+1a2b381e40022a3ca2b7f9920c17fbf650cc11b983927ddbb5356151add6837a  src/nanoisa/affine_bytecode.c
+0f16fbab71e2b5f6d89368cdc079582dd709c98abea079e96db3f9dd43ca3bb6  tests/nanoisa/test_affine_bytecode.c
+```
+
+I nevertheless rebuilt and reran the complete bounded qualification at that
+exact integrated head on both platforms. Fresh Darwin bootstrap passed in
+330.45 seconds and the tools built in 90.09 seconds. Fresh Linux bootstrap
+passed in 267.40 seconds and the tools built in 27.44 seconds. Both platforms
+then passed 546 ordinary plus 856 allocation-path affine checks, VM/native
+sanitizer execution, the simultaneous-instance source route, ownership
+contracts, 184 ordinary plus 275 allocation-path transfers, 96 verifier checks,
+1,365 shape constraints and all 2,422 structured nvm2c checks. Both source
+indexes were clean afterward. The current-head logs are:
+
+```text
+9782e2747598e93056fc67b34a26e6e9c77323378aa0b6139f6d9a802a4e4c9e  /private/tmp/nanolang-pr893-84625401-darwin-bootstrap.log
+f0ac9e395af2fbd169c0864d4cca1e8eea36cd9a93cb885d8dba2906114142ee  /private/tmp/nanolang-pr893-84625401-darwin-tools.log
+4538cf23d4677ac1364b206b3ee3b2c1546e660cbf77f7c7a22239a502359759  /private/tmp/nanolang-pr893-84625401-darwin-runtime.log
+9f975901e3b9e1e5d76564e4aa6ffd139a1ffa9e805438c9dec892ca40b8dabd  /private/tmp/nanolang-pr893-84625401-darwin-source.log
+460364d342f9e2b59a818ad2b3c38b6582821b247eb1e3319a0999b3c9774121  /private/tmp/nanolang-pr893-84625401-darwin-adjacent.log
+e602705c75429db096e4faffe8afdc16ff83cf5bf962c65eabab1735a24d4695  /private/tmp/nanolang-pr893-84625401-darwin-verifier-nvm2c.log
+
+b38111b88dda9784183893f299f48e2b41015cf0e18f34f2b06591404f9f2106  /tmp/nanolang-pr893-bb5d744b.mYM3aX/current-bootstrap.log
+e9d4e73b0bb45703159ce8b09e363378aadbbd4e7636077b2498f5e1bf9b9088  /tmp/nanolang-pr893-bb5d744b.mYM3aX/current-tools.log
+b8e65f9521bbed707aa441cb4cf17f6138882c9bf10f6b7ee2e35382072e8e13  /tmp/nanolang-pr893-bb5d744b.mYM3aX/current-runtime.log
+8fcc7f0934c276f56420fb10b9fbf85066c3e3fcbe6169015826f635b3e7e7b0  /tmp/nanolang-pr893-bb5d744b.mYM3aX/current-source.log
+d59170b338f8f11b4234108600263331c8fed44faf533fc9ceca1a729502aadd  /tmp/nanolang-pr893-bb5d744b.mYM3aX/current-adjacent.log
+ab7c086173af223b3ec48076c5ad6d6f9777495bbb59e4e3b3b698e080fd6653  /tmp/nanolang-pr893-bb5d744b.mYM3aX/current-verifier-nvm2c.log
+```
+
 ## What remains
 
 I still require the complete statement/value match matrix, precise
