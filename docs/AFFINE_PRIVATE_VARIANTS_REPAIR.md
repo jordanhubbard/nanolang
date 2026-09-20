@@ -107,3 +107,11 @@ only, explicitly inventory the selected optimizer, and continue separate public
 trees. There is no product/fixture change or ordinary-gate repetition. I record
 that some setup products already exist and may be completed/rebuilt; only source
 and tool immutability is claimed during these actual setup/install phases.
+
+My first corrected Darwin launch then fails in external preflight before any
+command: SSH shell quoting removed the JSON quotes around CARRIER_EXTRA_TOOLS.
+I retain its exact environment and JSONDecodeError, with observed SSH status1,
+at the corrected-puck report/log paths. Linux's corrected setup is unaffected.
+I replace shell construction with a retained Python launcher that uses
+json.dumps and an explicit environment mapping. This changes no source, fixture,
+tool selection or deadline; it makes the already reviewed configuration exact.
