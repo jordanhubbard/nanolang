@@ -1,0 +1,25 @@
+{
+  "name": "full-test",
+  "argv": [
+    "make",
+    "test",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS="
+  ],
+  "bound_seconds": 5400,
+  "status": 2,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 998.7620694580255,
+  "log": {
+    "sha256": "7308248e089d2745e08d98481f98bdab70ed6dac1ad19395352307f1a7298bdd",
+    "bytes": 478901,
+    "archive": "/private/tmp/nanolang-layout-fixture-e761-puck/objects/7308248e089d2745e08d98481f98bdab70ed6dac1ad19395352307f1a7298bdd"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

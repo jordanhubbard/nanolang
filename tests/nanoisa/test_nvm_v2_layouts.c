@@ -24,12 +24,16 @@ static void *layout_calloc(size_t n,size_t width) {
 #define nvm_v2_layouts_free fault_layout_free
 #define nvm_v2_layouts_encode fault_layout_encode
 #define nvm_v2_layouts_encoded_size fault_layout_size
+#define nvm_ownership_layouts_private_decode fault_ownership_layout_decode
+#define nvm_ownership_mixed_layouts_private_decode fault_ownership_mixed_layout_decode
 #include "../../src/nanoisa/nvm_v2_layouts.c"
 #undef calloc
 #undef nvm_v2_layouts_decode
 #undef nvm_v2_layouts_free
 #undef nvm_v2_layouts_encode
 #undef nvm_v2_layouts_encoded_size
+#undef nvm_ownership_layouts_private_decode
+#undef nvm_ownership_mixed_layouts_private_decode
 
 static int g_pass = 0, g_fail = 0;
 
