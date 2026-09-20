@@ -1,0 +1,6 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+int64_t probe(int64_t nl_x){return ({ int64_t _m = nl_x; int64_t _out = {0}; int _matched = 0; if (!_matched && (_m == 1)) { if (1) { _matched = 1;
+_out = 7; } } if (!_matched) { fprintf(stderr, "I reached no successful checked match arm\n"); abort(); } _out; });}
+int main(int argc,char **argv){(void)argv;return (int)(probe(argc==1?1:2)-7);}

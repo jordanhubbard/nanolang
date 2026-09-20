@@ -1,0 +1,15 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-_g22f9_0/case.nano
+I require a match guard to have type bool.
+
+4|  match choice { Some(payload) if 1 => { assert true } None(empty) => { assert true } }
+                                    ^
+Hint: Give this guard an exact bool type before I select an arm.
+-- E035 NON-EXHAUSTIVE MATCH --- /private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-_g22f9_0/case.nano
+I require this match to cover every variant; I am missing: Some
+
+4|  match choice { Some(payload) if 1 => { assert true } None(empty) => { assert true } }
+    ^^^^^
+Hint: Add unconditional arms for the missing variants or one unconditional wildcard.
+Warning at line 4, column 2: Unused variable 'payload'
+Warning at line 4, column 2: Unused variable 'empty'
+Type checking failed
