@@ -1,0 +1,47 @@
+{
+  "qualified": "dee968861ae828edf3ee29cf0174d28ae00540be",
+  "canonical": "5f98a27a0565da92539dfc7bd242aa01f6c16d8e",
+  "inputs": {
+    "src/nanoisa/portable_host_plan.c": {
+      "sha256": "d42431c3af4fceaa504b08615dd6cff0c982cdaa880e25fd3d74c8a6e2e87bc6",
+      "qualified_equal": true
+    },
+    "src/nanoisa/portable_host_plan.h": {
+      "sha256": "7c5ea7161d188cd008a37b9d4c2df689355f1ccbb0ab70f5a169244d1df01250",
+      "qualified_equal": true
+    },
+    "tests/nanoisa/test_portable_host_plan.c": {
+      "sha256": "afc67e36e76475a9ffa5f0c21aecf5880bb865a234189e1a88b1de100d9750b2",
+      "qualified_equal": true
+    },
+    "tests/test_portable_host_plan.py": {
+      "sha256": "c570f4e319bfd76225e526c213a37ed840bc705aad5a7e92144ddbd09b389f31",
+      "qualified_equal": true
+    },
+    "docs/evidence/portable-read-query/report-sha256.json": {
+      "sha256": "7dfdc6414183bf8cda78832c6374d78e01c831e2eadbc47bc567774e1462904d",
+      "qualified_equal": true
+    },
+    "src/nanoisa/verifier.c": {
+      "sha256": "5160ad3f3a7b8a3731b79ee2a491bf34d2759f9062e4e9de9517207f9c95da5c",
+      "qualified_equal": true
+    },
+    "src/nanoisa/verifier_types.c": {
+      "sha256": "48679e06bb669f55d10851b94bff5265283fd90feddaaf2dbcd96bc9ae9f4ada",
+      "qualified_equal": true
+    },
+    "src/nanoisa/nvm_format.c": {
+      "sha256": "0da678f419f8bfbeafc2d9eb45a24b51127a987c622a9d746fba8ef69c80ffe7",
+      "qualified_equal": true
+    },
+    "src/nanoisa/service_bindings_module.c": {
+      "sha256": "df384b502ffafd807ce33e58ae41ad8d0f27d7a19d0a69f0eb1b1052581d497c",
+      "qualified_equal": true
+    },
+    "src/nanovm/vm_decode.c": {
+      "sha256": "f1010e77efcfddb827fb1cdf4716a3f0c9cfa68d9a18b6b25164f114d0974671",
+      "qualified_equal": true
+    }
+  },
+  "Makefile.gnu": "ad732834e8e4421f46be5fe560fb035d9bd0f7c94d84333deffcde71ec7e8957"
+}
