@@ -111,7 +111,7 @@ not turn an unvalidated document into a catalog. The interface/version must agre
 with the parsed declaration. I never reopen the companion during checking or
 lowering. Identical document contents in two modules do not unify their types.
 
-I cap simultaneous project-requested snapshot storage at64MiB. Before each open
+I cap simultaneous project-requested snapshot heap storage at64MiB. Before each open
 I reserve a fixed input buffer of MAX_BYTES+1 and descriptor/path bookkeeping;
 there is no unaccounted realloc overlap. Before strict preparation I reserve its
 nonallocating `nl_file_binding_allocation_bound` result alongside all retained
@@ -119,8 +119,10 @@ prior snapshots and live input/path buffers. That nested bound already contains
 the strict plan's peak: I count it once. Once preparation returns, I replace its
 reservation with `nl_file_binding_storage_size` while retaining exact source
 bytes and all copied catalog/path storage. Any additional copy is charged before
-allocation while both old/new storage coexist. Fixed stack scratch has a separate
-explicit bound; libc/kernel/allocator overhead is not project heap measurement.
+allocation while both old/new storage coexist. I report named automatic buffers
+separately; actual compiler stack
+frames, nested strict-reader stack, libc/kernel/allocator overhead are not
+project heap measurement.
 A following request can fail LIMIT without changing a previously published set,
 because publication occurs only once after all requests and close operations.
 
@@ -216,7 +218,7 @@ those remain the next required parts of this same reviewed dependency. The
 standalone `file-companion-plan` Make target compiles seven actual providers with
 caller CPPFLAGS/CFLAGS. No default compiler/provider list or public guard changes.
 The opaque set API fixes counted requests/views and status/stage/request/errno,
-secondary close error, peak and work report fields. It returns reports by value
+secondary close error, heap peak/work and named automatic buffer report fields. It returns reports by value
 and leaves the output set pointer unchanged on all failures.
 
 | Owning allocation/reservation | Lifetime and accounting |
@@ -225,11 +227,11 @@ and leaves the output set pointer unchanged on all failures.
 | Three request strings per row, each at most4095 bytes plus NUL | Validated and copied before any filesystem operation; charged including terminators |
 | MAX_BYTES+1 input buffer per request | Reserved before any open; retained at full capacity, never shrunk or reallocated |
 | One strict binding preparation | Full nonallocating bound reserved alongside all existing rows; replaced by exact retained owning size after successful return |
-|16KiB automatic scratch reservation | Includes the4KiB parent pathname and this wrapper's call-local fields; strict nested scratch remains governed by its original contract |
+| Named automatic buffers, outside heap cap | Parent array4096 bytes; owning-TU query reports sizeof(CatalogText)+32 for formatter buffers. These are not total C stack bounds |
 | Views | Borrow only completed immutable set storage; no allocation or source reopening |
 
-I cap the combined conservative requested-memory reservation at64MiB. This is not
-allocator/kernel/process memory. My wrapper charges every counted validation,
+I cap conservative project-requested heap reservations at64MiB. Automatic
+objects, compiler stack frames and allocator/kernel/libc storage are excluded. My wrapper charges every counted validation,
 copy, path scan and observed read, plus bounded fixed catalog/row bookkeeping.
 For each strict preparation I reserve
 `8 * MAX_TOKENS * MAX_LEXEME * (MAX_DEPTH + MAX_MEMBERS + MAX_ELEMENTS + 16)`

@@ -25,7 +25,9 @@ typedef struct {
  NlFileCompanionStage stage;
  uint32_t request;
  int system_error, close_error;
- uint64_t peak_bytes_reserved, work_reserved;
+ /* Heap only; explicit automatic buffers below are separate, not total stack. */
+ uint64_t peak_heap_bytes_reserved, work_reserved;
+ uint64_t catalog_buffer_bytes, parent_buffer_bytes;
 } NlFileCompanionReport;
 typedef struct {
  NlFileCompanionRequest request;

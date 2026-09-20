@@ -13784,3 +13784,5 @@ module.json/header constants, metadata-derived declarations and generated generi
 helpers. Unresolved external/generated namespace contributions must refuse a
 complete report; skipping module build/FFI preparation cannot mean an empty
 namespace. The first snapshot source checkpoint precedes fixtures or execution.
+
+- [ ] I correct task_1f23ad131a8a3f0fdd46b5edefa3f488 before companion fixtures: independent02cce source review finds the formatter's32KiB automatic CatalogText overlaps my set while I reserved only16KiB wrapper scratch. The strict binding allocation bound excludes stack too. I separate the64MiB project-heap cap from explicitly sized catalog/parent automatic buffers, remove the combined-stack claim, and retain actual full-stack/allocator/kernel memory as unmeasured. I expose the formatter buffer query in its owning translation unit; no qualification has executed.

@@ -46,4 +46,7 @@ int64_t nl_file_source_catalog_number(int64_t,int64_t,int64_t,int64_t);
  * Size-only is out=NULL/capacity=0. Failure preserves out and *needed; output
  * and needed must be disjoint. No descriptor/document validation is implied. */
 bool nl_file_source_catalog_view(char *out,size_t capacity,size_t *needed);
+/* Explicit formatter buffers only: CatalogText plus largest nested text buffer.
+ * No allocation; excludes scalar locals, compiler call frames and libc. */
+size_t nl_file_source_catalog_buffer_bytes(void);
 #endif

@@ -58,16 +58,18 @@ int64_t nl_file_source_catalog_number(int64_t k,int64_t i,int64_t f,int64_t j) {
  return -1;
 }
 typedef struct { char bytes[32768];size_t used;bool ok; } CatalogText;
+typedef char CatalogNumberText[32];
+size_t nl_file_source_catalog_buffer_bytes(void) { return sizeof(CatalogText)+sizeof(CatalogNumberText); }
 static void catalog_text(CatalogText *b,const char *s) {
  size_t n=strlen(s);if(!b->ok || n>=sizeof b->bytes-b->used){b->ok=false;return;}
  memcpy(b->bytes+b->used,s,n);b->used+=n;b->bytes[b->used]=0;
 }
 static void catalog_number(CatalogText *b,int64_t n) {
- char text[32];int rc=snprintf(text,sizeof text,"#%" PRId64 ";",n);
+ CatalogNumberText text;int rc=snprintf(text,sizeof text,"#%" PRId64 ";",n);
  if(rc<0 || (size_t)rc>=sizeof text){b->ok=false;return;}catalog_text(b,text);
 }
 static void catalog_string(CatalogText *b,const char *s) {
- char text[32];int rc=snprintf(text,sizeof text,"%zu:",strlen(s));
+ CatalogNumberText text;int rc=snprintf(text,sizeof text,"%zu:",strlen(s));
  if(rc<0 || (size_t)rc>=sizeof text){b->ok=false;return;}
  catalog_text(b,text);catalog_text(b,s);catalog_text(b,";");
 }

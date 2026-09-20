@@ -40,7 +40,7 @@ static bool fc_reserve(NlFileCompanionSet *s,uint64_t n) {
   s->report.status=NL_FILE_COMPANION_LIMIT;return false;
  }
  s->bytes+=n;
- if(s->bytes>s->report.peak_bytes_reserved)s->report.peak_bytes_reserved=s->bytes;
+ if(s->bytes>s->report.peak_heap_bytes_reserved)s->report.peak_heap_bytes_reserved=s->bytes;
  return true;
 }
 static void *fc_allocate(NlFileCompanionSet *s,size_t n) {
@@ -162,18 +162,20 @@ done:
 }
 NlFileCompanionReport nl_file_companions_prepare(const NlFileCompanionRequest *requests,size_t count,
                                                 NlFileCompanionSet **out) {
- NlFileCompanionReport invalid={NL_FILE_COMPANION_INVALID,NL_FILE_COMPANION_INPUT,UINT32_MAX,0,0,0,0};
+ NlFileCompanionReport invalid={NL_FILE_COMPANION_INVALID,NL_FILE_COMPANION_INPUT,UINT32_MAX,0,0,0,0,0,0};
  if(!out || !requests || !count)return invalid;
  if(count>NL_FILE_SOURCE_REQUESTS){invalid.status=NL_FILE_COMPANION_LIMIT;return invalid;}
- if(sizeof(NlFileCompanionSet)+16384u>NL_FILE_COMPANION_BYTES) {
+ if(sizeof(NlFileCompanionSet)>NL_FILE_COMPANION_BYTES) {
   invalid.status=NL_FILE_COMPANION_LIMIT;return invalid;
  }
  NlFileCompanionSet *s=calloc(1,sizeof *s);
  if(!s){invalid.status=NL_FILE_COMPANION_MEMORY;return invalid;}
  s->report=invalid;s->report.status=NL_FILE_COMPANION_OK;s->count=count;
- /* My owning size and fixed automatic scratch are known before allocation.
-  * I retain reservations for every live input and strict reader overlap. */
- if(!fc_reserve(s,sizeof *s+16384u) || !fc_work(s,sizeof *s+16384u))goto fail;
+ /* My cap covers project-requested heap, including strict-reader overlap.
+  * Named automatic buffers are reported separately; they are not total stack. */
+ s->report.catalog_buffer_bytes=nl_file_source_catalog_buffer_bytes();
+ s->report.parent_buffer_bytes=NL_FILE_COMPANION_PATH+1u;
+ if(!fc_reserve(s,sizeof *s) || !fc_work(s,sizeof *s+16384u))goto fail;
  size_t catalog_size;
  if(!fc_work(s,sizeof s->catalog*4u))goto fail;
  if(!nl_file_source_catalog_view(s->catalog,sizeof s->catalog,&catalog_size)) {
