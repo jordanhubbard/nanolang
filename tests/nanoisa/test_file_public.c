@@ -206,7 +206,7 @@ int main(int argc,char **argv){
 int main(void){
  (void)public_vm_bridge;(void)public_emit_bridge;
  CHECK(nvm_file_host_grant_create_temporary_files(&public_grant)==NVM_FILE_HOST_OK);
- CHECK(public_prior_main()==0);public_boundaries();
+ CHECK(public_prior_main()==0);CHECK(public_calls==0);public_boundaries();
  CHECK(nvm_file_host_grant_destroy(&public_grant)==NVM_FILE_HOST_OK);
  puts("PASS public generated-native corpus and shared gate");return 0;
 }
