@@ -1,0 +1,32 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 22.07,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.114,
+    "status": 0
+  },
+  {
+    "phase": "carrier",
+    "seconds": 8.735,
+    "status": 0
+  },
+  {
+    "phase": "indirect",
+    "seconds": 2.419,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 7.032,
+    "status": 0
+  },
+  {
+    "phase": "archive-boundary",
+    "seconds": 0.515,
+    "status": 0
+  }
+]

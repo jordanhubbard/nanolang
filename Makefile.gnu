@@ -441,6 +441,9 @@ $(FILE_PUBLIC_LIBRARY): $(FILE_PUBLIC_OBJECTS)
 	mv "$$file_archive_dir/runtime.a" "$@"
 $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(NANOISA_DIR)/file_native_abi.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_PUBLIC_ENGINE -c $< -o $@
+# I rebuild both carrier owners for private cyclic implementation changes.
+$(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_runtime_facts.inc $(NANOISA_DIR)/file_cyclic_runtime.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.inc $(SRC_DIR)/nsi_file_values_internal.h
+$(OBJ_DIR)/nsi_file_values.o: $(SRC_DIR)/nsi_file_values_internal.h
 $(OBJ_DIR)/nanovm/file_public_vm.o: $(SRC_DIR)/nanovm/file_vm_engine.inc $(NANOISA_DIR)/file_public_internal.h
 $(OBJ_DIR)/nanoisa/file_public_native.o: $(NANOISA_DIR)/file_native_emit.inc $(NANOISA_DIR)/file_native_public.h
 $(OBJ_DIR)/nanoisa/file_cli.o: $(NANOISA_DIR)/file_cli.h $(NANOISA_DIR)/file_hosted.h
@@ -5547,6 +5550,12 @@ test-file-runtime-frames: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS)
 	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime_frames
 test-file-runtime-frames-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
 	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime_frames
+
+.PHONY: test-file-cyclic-runtime test-file-cyclic-runtime-sanitizers
+test-file-cyclic-runtime: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_runtime
+test-file-cyclic-runtime-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
+	LSAN_OPTIONS= FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_runtime
 
 .PHONY: test-file-private-vm test-file-private-vm-sanitizers
 test-file-private-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
