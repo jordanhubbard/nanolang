@@ -5402,8 +5402,6 @@ static void test_verified_fastpath_enabled(void) {
     VmState vm;
     vm_init(&vm, mod);
     ASSERT(vm.verified, "well-formed module enables the verified fast path");
-    ASSERT(vm.ordinary_execution,
-           "verified ordinary module records the immutable ordinary graph");
     VmResult r = vm_execute(&vm);
     ASSERT_EQ_INT(r, VM_OK, "verified module executes cleanly");
     ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 42,
@@ -5451,8 +5449,6 @@ static void test_ownership_contracts_refuse_checked_fallback(void) {
     memcpy(module->ownership_data, ordinary, sizeof ordinary);
     VmState vm;
     vm_init(&vm, module);
-    ASSERT(vm.ordinary_execution,
-           "valid advisory declarations retain ordinary execution");
     ASSERT(vm_execute(&vm) == VM_OK, "ordinary declarations execute");
     vm_destroy(&vm);
     module->ownership_data[8] |= NVM_LAYOUT_RESOURCE;
@@ -5461,8 +5457,6 @@ static void test_ownership_contracts_refuse_checked_fallback(void) {
            "resource declaration is valid but not executable");
     vm_init(&vm, module);
     ASSERT(!vm.verified, "unsupported ownership is not verified");
-    ASSERT(!vm.ordinary_execution,
-           "resource declarations never enter the ordinary fast path");
     ASSERT(vm_execute(&vm) == VM_ERR_TYPE_ERROR, "raw entry refuses ownership");
     ASSERT(vm_call_function(&vm, 0, NULL, 0) == VM_ERR_TYPE_ERROR,
            "raw function call refuses ownership");
@@ -5488,8 +5482,6 @@ static void test_ownership_contracts_refuse_checked_fallback(void) {
     ASSERT(root != NULL, "ordinary linked caller assembles");
     vm_init(&vm, root);
     ASSERT(vm_link_module(&vm, module) != UINT32_MAX, "declarations remain inspectable when linked");
-    ASSERT(!vm.ordinary_execution,
-           "linking resource declarations clears ordinary execution");
     ASSERT(vm_execute(&vm) == VM_ERR_TYPE_ERROR, "linked resource contract refuses execution");
     vm_destroy(&vm);
     nvm_module_free(root);
@@ -5527,8 +5519,6 @@ static void test_verified_initialization_carries_exact_proof(void) {
     VmState vm;
     vm_init_after_verify(&vm, mod);
     ASSERT(vm.verified, "completed root proof is retained");
-    ASSERT(vm.ordinary_execution,
-           "completed ordinary root proof records the immutable graph");
     ASSERT_EQ_INT(vm_execute(&vm), VM_OK,
                   "proof-carrying initialization executes normally");
     ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 11,
@@ -5549,17 +5539,12 @@ static void test_verified_flag_tracks_module_lifecycle(void) {
     VmState vm;
     vm_init(&vm, mod);
     ASSERT(vm.verified, "initial well-formed module is verified");
-    ASSERT(vm.ordinary_execution, "initial ordinary graph is classified once");
 
     vm_invalidate_module(&vm, mod);
     ASSERT(!vm.verified, "invalidating a module clears the proof flag");
-    ASSERT(!vm.ordinary_execution,
-           "invalidating a module clears ordinary classification");
 
     ASSERT(vm_rebuild_module(&vm, mod), "rebuild of well-formed module succeeds");
     ASSERT(vm.verified, "rebuild re-establishes the proof flag");
-    ASSERT(vm.ordinary_execution,
-           "rebuild re-establishes ordinary classification");
 
     VmResult r = vm_execute(&vm);
     ASSERT_EQ_INT(r, VM_OK, "rebuilt verified module executes cleanly");

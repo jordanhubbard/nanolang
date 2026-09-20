@@ -258,6 +258,8 @@ jobs:
 
       - name: Build every available example strictly
         timeout-minutes: 40
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         run: make examples EXAMPLES_TIMEOUT=2400
 
   docs:
