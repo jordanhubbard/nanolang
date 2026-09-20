@@ -64,8 +64,10 @@ fn ordinary_bindings() -> void {
             if (== i 2) { assert (== (at matched.arm_bindings 1) "") }
             else { assert (== (at matched.arm_bindings 1) "v") }
         }
-        assert (== (typecheck_phase p "ordinary-zero.nano").had_error (>= i 2))
-        assert (== (nisa_match_coverage p matched (parser_get_union p 0)) (< i 2))
+        let expected_error: bool = (>= i 2)
+        let expected_coverage: bool = (< i 2)
+        assert (== (typecheck_phase p "ordinary-zero.nano").had_error expected_error)
+        assert (== (nisa_match_coverage p matched (parser_get_union p 0)) expected_coverage)
         if (< i 2) {
             let emitted: string = (transpile_parser p)
             assert (!= emitted "")
