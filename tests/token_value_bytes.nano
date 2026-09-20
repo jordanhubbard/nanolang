@@ -18,7 +18,9 @@ fn token_count_checks() -> void {
     for i in (range 0 33) { (list_LexerToken_push copies copied) }
     (list_LexerToken_insert copies 1 copied)
     (list_LexerToken_set copies 2 copied)
-    let removed: LexerToken = (list_LexerToken_remove copies 1)
+    (list_LexerToken_remove copies 1)
+    assert (== (list_LexerToken_length copies) 33)
+    let removed: LexerToken = (list_LexerToken_get copies 1)
     let popped: LexerToken = (list_LexerToken_pop copies)
     assert (== removed.value_bytes 1099511627776)
     assert (== popped.value_bytes 1099511627776)
