@@ -13679,3 +13679,10 @@ and its generated products. I inspect argv0/project-root consumers together and
 select the exact archived nano_as_capture.so with NANO_AS_CAPTURE_HELPER; I also
 provide the existing scripts/catalog paths in the external layout. This changes
 launcher prerequisites only, under the same timing task and unchanged deadlines.
+
+My one reached timing diagnostic completed 202 shadows, then timed out inside
+parse_block_recursive. The completed 1.989-second interval contains 1.634 seconds
+of borrowed-root lookup and 353,202,393 visited entries; the final interval is
+unmeasured. I seal exact scope in docs/evidence/evaluator-lifetime-diagnostic.
+I file task_c2e9d2f19f1b4a359e841edcceda4abd for a reviewed transactional exact
+root index; no ownership policy or shadow deadline changes follow from timing.

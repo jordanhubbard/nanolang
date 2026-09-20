@@ -1,0 +1,26 @@
+{
+  "name": "build",
+  "argv": [
+    "make",
+    "-j2",
+    "build",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS="
+  ],
+  "bound_seconds": 1800,
+  "status": 2,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 31.927940000000003,
+  "log": {
+    "sha256": "f063925feb1e18fd03e5ac90eca71c00a844861f760b5fd817e872426e45b506",
+    "bytes": 53654,
+    "archive": "/private/tmp/nanolang-record-lists-cc606-puck-prepare/objects/f063925feb1e18fd03e5ac90eca71c00a844861f760b5fd817e872426e45b506"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

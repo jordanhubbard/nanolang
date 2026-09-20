@@ -55,3 +55,30 @@ I inspect main/module/module_builder/FFI root consumers together: runtime source
 and headers use bin/../src, generated-list fallback uses scripts relative to cwd,
 and optional catalogs use argv0-relative share paths. I preserve those source
 paths, explicit CC/helper/module/cache choices and unset competing compiler flags.
+
+## My measured interval
+
+The corrected 192ef launcher ran the original full parser graph once. It exited
+1 after 19.934 seconds total, with my unchanged ten-second shadow deadline.
+I retain 405 markers: 202 completed shadows, then parse_block_recursive without
+an end marker. The first begin through that final begin spans 1.988659339 seconds.
+Within that measured interval borrowed-root lookup consumed 1.633750426 seconds,
+visiting 353,202,393 entries in 28,655 calls. Cloning consumed 0.032518385 seconds.
+I observed 1,147,757 graph allocation attempts, 28,284 cumulative published roots
+and 9,069 retirement attempts. I cannot attribute the remaining killed interval
+from these markers. Instrumentation overhead remains part of these observations.
+
+My diagnostic seal is docs/evidence/evaluator-lifetime-diagnostic/seal.json:
+99 retained reports, 4,064 unique archived objects (757,097,052 bytes), and 11
+equal command input pairs. Three diagnostic-launch commands exited 1: two before
+shadows and one at the original deadline. All selected source/tool/provider bytes
+match their before maps. The CAS is /tmp/nanolang-evaluator-lifetime-diagnostic-artifacts.
+Large report copies are compressed with both raw and stored digests. I also retain
+the four original Make logs/statuses; their complete preparation maps remain at
+the original local/Puck roots and are not represented as fully copied by this seal.
+Intermediate files deleted inside compiler/module helpers were not reconstructed;
+my endpoint product maps retain surviving module sources, captures and binaries.
+
+This supports an exact Environment-owned root index as a candidate under
+task_c2e9d2f19f1b4a359e841edcceda4abd. It does not establish total timeout cause
+or passing production acceptance. My original full graph and all gates remain.

@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/bin/gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-DNANO_EVALUATOR_LIFETIME_TIMING",
+    "-ffp-contract=off",
+    "-fno-fast-math",
+    "-c",
+    "/home/jkh/Src/nanolang-generic-list-mutations/src/eval.c",
+    "-o",
+    "/tmp/nanolang-evaluator-lifetime-c1df-linux/eval.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-cc606",
+  "bound": 120,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 0,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 2.6323861030396074,
+  "log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-evaluator-lifetime-c1df-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
