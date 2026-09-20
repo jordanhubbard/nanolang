@@ -1,0 +1,163 @@
+{
+  "report_files": 538,
+  "unique_objects": 554,
+  "object_bytes": 422877654,
+  "references": 10894,
+  "pairs": [
+    {
+      "before": "/tmp/nanolang-read-adapters-corrected-linux/ordinary-source-before.json",
+      "after": "/tmp/nanolang-read-adapters-corrected-linux/ordinary-source-after.json",
+      "count": 12086
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-corrected-linux/ordinary-tools-before.json",
+      "after": "/tmp/nanolang-read-adapters-corrected-linux/ordinary-tools-after.json",
+      "count": 14
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-corrected-linux/ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-read-adapters-corrected-linux/ordinary/inputs-after.json",
+      "count": 489
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary-source-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary-source-after.json",
+      "count": 12093
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer-tools-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer-tools-after.json",
+      "count": 14
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary-tools-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary-tools-after.json",
+      "count": 14
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary-tools-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary-tools-after.json",
+      "count": 14
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/clang-sanitizer-tools-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/clang-sanitizer-tools-after.json",
+      "count": 14
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/clang-sanitizer-source-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/clang-sanitizer-source-after.json",
+      "count": 12093
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer-source-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer-source-after.json",
+      "count": 12093
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary-source-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary-source-after.json",
+      "count": 12093
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/inputs-after.json",
+      "count": 489
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/inputs-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/inputs-after.json",
+      "count": 489
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/inputs-after.json",
+      "count": 489
+    },
+    {
+      "before": "/tmp/nanolang-read-adapters-b9ba-linux/clang-sanitizer/inputs-before.json",
+      "after": "/tmp/nanolang-read-adapters-b9ba-linux/clang-sanitizer/inputs-after.json",
+      "count": 489
+    }
+  ],
+  "current_files_verified": 24193,
+  "terminals": [
+    {
+      "path": "/tmp/nanolang-read-adapters-15069-linux/preflight-terminal.json",
+      "status": {
+        "returncode": 1,
+        "phase": "external-tool-inventory-before-build",
+        "error": "AssertionError: pathlib.Path(p).is_file()",
+        "driver_sha256": "b678feeab2863ed68e3ee074d024be27b638a3fc6b7a6484827f46179dff3999",
+        "observed_diagnostic_outputs": {
+          "libasan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libasan.so",
+          "libubsan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libubsan.so",
+          "cc1": "cc1",
+          "collect2": "collect2"
+        },
+        "qualification_commands_launched": 0,
+        "attribution": "The original assertion did not print its loop variable; subsequent diagnostic queries show both executable helper basenames unresolved."
+      }
+    },
+    {
+      "path": "/tmp/nanolang-read-adapters-corrected-linux/ordinary-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 1,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 0.816
+      }
+    },
+    {
+      "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 0,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 5.476
+      }
+    },
+    {
+      "path": "/tmp/nanolang-read-adapters-b9ba-linux/ordinary-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 0,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 3.077
+      }
+    },
+    {
+      "path": "/tmp/nanolang-read-adapters-b9ba-linux/clang-sanitizer-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 0,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 5.827
+      }
+    },
+    {
+      "path": "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 0,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 3.323
+      }
+    }
+  ]
+}

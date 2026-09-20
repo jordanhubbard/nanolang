@@ -1,0 +1,12 @@
+[
+  {
+    "phase": "clang-sanitizer",
+    "timeout": false,
+    "errors": [],
+    "signals": [],
+    "returncode": 0,
+    "leader_reaped": true,
+    "group_disappeared": true,
+    "seconds": 5.633
+  }
+]

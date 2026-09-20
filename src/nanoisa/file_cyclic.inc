@@ -33,6 +33,16 @@ typedef struct {
     uint16_t todo[NVM_FILE_CODE_FUNCTION_INSTRUCTIONS];
 } FileCyclicWorkspace;
 
+/* Only my new private composition constructs this internal extension. Existing
+ * cyclic entries pass NULL and retain their original storage and transfers. */
+typedef struct {
+    size_t extra_bytes;
+    const uint64_t *graph;
+    void *context;
+    NvmFileFlowStatus (*transfer)(void *,NvmFileBodyReport *,NvmFileFlowState *,
+                                  const NvmFileCodeInstruction *,NvmFileBodyInstruction *);
+} FileCyclicExtension;
+
 static bool file_cyclic_room(NvmFileCyclicReport *r,size_t count,size_t width) {
     size_t bytes=r->summary.storage_peak;
     if(!file_code_budget(&bytes,count,width) || bytes>NVM_FILE_CYCLIC_BYTES)return false;
@@ -176,7 +186,7 @@ static void file_cyclic_components(NvmFileCyclicReport *r,FileCyclicWorkspace *w
     }
 }
 static NvmFileFlowStatus file_cyclic_function_analyze(NvmFileCyclicReport *r,FileCyclicWorkspace *w,
-                                                    NvmFileFlowDeclarations *scratch,uint32_t f) {
+                                                    NvmFileFlowDeclarations *scratch,uint32_t f,const FileCyclicExtension *extension) {
     w->head=w->tail=0;file_cyclic_components(r,w,f);
     memset(&w->canonical,0,sizeof w->canonical);
     const NvmFileFlowFunction *fn=&r->plan->functions[f].declaration;
@@ -203,7 +213,9 @@ static NvmFileFlowStatus file_cyclic_function_analyze(NvmFileCyclicReport *r,Fil
         NvmFileBodyInstruction *fact=&node->fact.body;
         fact->reachable=true;fact->input_stack=w->transfer.stack_count;
         fact->cleanup_local=NVM_FILE_FLOW_NO_REFERENCE;fact->pending_checks=NVM_FILE_FLOW_CHECK_CLEANUP;
-        status=file_body_transfer(&w->body,&w->transfer,in,fact);if(status!=NVM_FILE_FLOW_OK)return status;
+        status=extension?extension->transfer(extension->context,&w->body,&w->transfer,in,fact):
+                         file_body_transfer(&w->body,&w->transfer,in,fact);
+        if(status!=NVM_FILE_FLOW_OK)return status;
         fact->output_stack=w->transfer.stack_count;returned|=fact->exit_checked;
         status=file_cyclic_canonicalize(w);if(status!=NVM_FILE_FLOW_OK)return status;
         node->fact.output=w->canonical.info;
@@ -262,20 +274,40 @@ static bool file_cyclic_complete(const NvmFileCyclicReport *r) {
     }
     return count==r->summary.variants && count==r->summary.transfers;
 }
-NvmFileFlowStatus nvm_file_cyclic_analyze(const NvmModule *m,NvmFileCyclicReport **out) {
-    if(!out)return NVM_FILE_FLOW_INVALID;
-    uint32_t instructions;size_t bytes;
-    NvmFileFlowStatus status=file_code_preflight(m,&instructions,&bytes);
+static NvmFileFlowStatus file_cyclic_budget(const NvmModule *m,size_t extra,
+                                             uint32_t *instructions,size_t *bytes,
+                                             size_t *declaration_bytes) {
+    NvmFileFlowStatus status=file_code_preflight(m,instructions,bytes);
     if(status!=NVM_FILE_FLOW_OK)return status;
     size_t locals=0;
     for(uint32_t i=0;i<m->function_count;i++)locals+=m->functions[i].local_count;
-    size_t declaration_bytes=sizeof(NvmFileFlowDeclarations)+locals*sizeof(NvmFileFlowDeclaration);
-    if(!file_code_budget(&bytes,1,sizeof(NvmFileCyclicReport)) ||
-       !file_code_budget(&bytes,instructions,sizeof(FileCyclicSite)) ||
-       !file_code_budget(&bytes,1,sizeof(FileCyclicWorkspace)) ||
-       !file_code_budget(&bytes,1,declaration_bytes) || bytes>NVM_FILE_CYCLIC_BYTES)return NVM_FILE_FLOW_LIMIT;
-    NvmFileCodePlan *p=NULL;status=file_code_prepare_mode(m,&p,false);
+    *declaration_bytes=sizeof(NvmFileFlowDeclarations)+locals*sizeof(NvmFileFlowDeclaration);
+    if(!file_code_budget(bytes,1,sizeof(NvmFileCyclicReport)) ||
+       !file_code_budget(bytes,*instructions,sizeof(FileCyclicSite)) ||
+       !file_code_budget(bytes,1,sizeof(FileCyclicWorkspace)) ||
+       !file_code_budget(bytes,1,*declaration_bytes) ||
+       !file_code_budget(bytes,1,extra) || *bytes>NVM_FILE_CYCLIC_BYTES)return NVM_FILE_FLOW_LIMIT;
+    return NVM_FILE_FLOW_OK;
+}
+static NvmFileFlowStatus file_cyclic_analyze_extended(const NvmModule *m,NvmFileCyclicReport **out,
+                                                      const FileCyclicExtension *extension) {
+    if(!out)return NVM_FILE_FLOW_INVALID;
+    uint32_t instructions;size_t bytes,declaration_bytes;
+    NvmFileFlowStatus status=file_cyclic_budget(m,extension?extension->extra_bytes:0,
+                                               &instructions,&bytes,&declaration_bytes);
     if(status!=NVM_FILE_FLOW_OK)return status;
+    NvmFileCodePlan *p=NULL;status=file_code_prepare_profile(m,&p,false,extension!=NULL);
+    if(status!=NVM_FILE_FLOW_OK)return status;
+    if(extension) {
+        uint64_t done=0;
+        for(uint32_t rank=0;rank<p->count;rank++) {
+            uint32_t f;
+            for(f=0;f<p->count;f++)
+                if(!(done&(UINT64_C(1)<<f)) && !(extension->graph[f]&~done))break;
+            if(f==p->count){nvm_file_code_free(p);return NVM_FILE_FLOW_UNRESOLVED;}
+            p->function_order[rank]=f;done|=UINT64_C(1)<<f;
+        }
+    }
     NvmFileCyclicReport *r=calloc(1,sizeof *r);
     if(!r){nvm_file_code_free(p);return NVM_FILE_FLOW_MEMORY;}
     r->plan=p;r->summary=(NvmFileCyclicSummary){NVM_FILE_CYCLIC_REVISION,p->count,instructions,0,0,0,bytes,false};
@@ -286,7 +318,7 @@ NvmFileFlowStatus nvm_file_cyclic_analyze(const NvmModule *m,NvmFileCyclicReport
     memcpy(scratch,p->declarations,declaration_bytes);scratch->references=1;
     w->body.plan=p;
     for(uint32_t rank=0;rank<p->count;rank++) {
-        status=file_cyclic_function_analyze(r,w,scratch,p->function_order[rank]);
+        status=file_cyclic_function_analyze(r,w,scratch,p->function_order[rank],extension);
         if(status!=NVM_FILE_FLOW_OK)break;
     }
     if(status==NVM_FILE_FLOW_OK && !file_cyclic_complete(r))status=NVM_FILE_FLOW_INVALID;
@@ -295,6 +327,9 @@ done:
     free(scratch);free(w);
     if(status!=NVM_FILE_FLOW_OK){nvm_file_cyclic_free(r);return status;}
     *out=r;return NVM_FILE_FLOW_OK;
+}
+NvmFileFlowStatus nvm_file_cyclic_analyze(const NvmModule *m,NvmFileCyclicReport **out) {
+    return file_cyclic_analyze_extended(m,out,NULL);
 }
 static const FileCyclicSite *file_cyclic_site(const NvmFileCyclicReport *r,uint32_t f,uint16_t i) {
     if(!r || f>=r->plan->count || i>=r->plan->functions[f].instruction_count)return NULL;

@@ -5614,6 +5614,11 @@ test-file-cyclic-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 test-portable-read-plan: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	PORTABLE_READ_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/verifier.o $(OBJ_DIR)/nanoisa/verifier_types.o $(VM_DECODE_OBJECT),$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" PORTABLE_READ_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_portable_host_plan
 
+# I build private adapter objects afresh; no profile or default provider changes.
+.PHONY: test-portable-read-adapters
+test-portable-read-adapters:
+	PORTABLE_ADAPTER_CC="$(CC)" PORTABLE_ADAPTER_CFLAGS="$(CFLAGS)" python3 -m unittest -f -v tests.test_portable_read_adapters
+
 # I keep private indirect target facts in the qualified File declaration unit.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_targets.h $(NANOISA_DIR)/file_indirect_targets.inc
 
@@ -5627,3 +5632,17 @@ test-file-cyclic-dispatch: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS
 	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
 test-file-cyclic-dispatch-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
 	LSAN_OPTIONS= NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
+
+# I prepare strict immutable File binding bytes without publishing or executing.
+.PHONY: file-binding-plan
+file-binding-plan: $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi_file_plan.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/cJSON.o
+$(OBJ_DIR)/nsi_file_binding.o: $(SRC_DIR)/nsi_file_binding.h $(SRC_DIR)/nsi_internal.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi.h $(SRC_DIR)/cJSON.h $(SRC_DIR)/utf8.h
+$(OBJ_DIR)/nsi.o: $(SRC_DIR)/nsi_internal.h
+
+.PHONY: test-file-binding-plan test-file-binding-plan-sanitizers
+test-file-binding-plan:
+	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" NANO_FILE_BINDING_SANITIZERS=0 python3 -m unittest -f -v tests.test_nsi_file_binding
+test-file-binding-plan-sanitizers:
+	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" NANO_FILE_BINDING_SANITIZERS=1 python3 -m unittest -f -v tests.test_nsi_file_binding
+# I compose target and ownership facts only through a separate private entry.
+$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DIR)/file_indirect_flow.inc

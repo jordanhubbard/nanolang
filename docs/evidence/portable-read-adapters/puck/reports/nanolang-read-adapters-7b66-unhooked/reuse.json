@@ -1,0 +1,51 @@
+{
+  "original_products_map": "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/017-products-after.json",
+  "original_config": {
+    "cc": [
+      "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23"
+    ],
+    "flags": [],
+    "clang": [
+      "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23"
+    ],
+    "llvm_flags": [],
+    "extra_tools": {
+      "ordinary": "/usr/bin/clang",
+      "llvm": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+      "python": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+      "ld": "/usr/bin/ld",
+      "ar": "/usr/bin/ar",
+      "asan": "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib",
+      "xcrun": "/usr/bin/xcrun"
+    },
+    "rebuilt_sources": [
+      "src/nanoisa/portable_read_host.c",
+      "src/nanoisa/portable_read_managed.c",
+      "src/nanoisa/managed_strings.c"
+    ],
+    "allocator_hooks": [
+      "src/nanoisa/portable_read_host.c",
+      "src/nanoisa/portable_read_managed.c",
+      "src/nanoisa/managed_strings.c"
+    ],
+    "io_hooks": "src/nanoisa/portable_read_host.c",
+    "unhooked_comparison": "All three TUs rebuilt without hooks.",
+    "environment": {
+      "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+      "LSAN_OPTIONS": ""
+    },
+    "scope": "Direct C and LLVM ABI forwarding only; no NanoISA emission or public profile. Inventoried phase endpoint bytes, not all transitive system tools."
+  },
+  "fixture": "/private/tmp/portable-read-adapters-7b66.c",
+  "fixture_sha256": "cc2db12f085dd1045d1bb7ee6f20230690ea206473b4e3b0a8038526369a9660",
+  "baseline_files_verified": 482,
+  "objects_verified": {
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/unhooked-0.o": "a0d0e447d7ff3116c2106845d427d76bdd17940eddbe3de69c1027645c32da36",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/unhooked-1.o": "808d5ecff89b231d54d10c098fa402d803327c242bcc194f4f906875162e9452",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/unhooked-2.o": "a5bd2b2fd63c4962ed20f8482938957b711fbc3c9b8411be8cb17a3b7e50caf8",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/typed-O0.o": "8149c5c7ca812238c688780b5663cd41921e0029a32f04e5dd7846350cb7d9ed",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/clang-ordinary/products/typed-O2.o": "b0187380709f83f015405b6580d9ed933f1cc92053bdb0bf8bc9628aee2056d8"
+  },
+  "scope": "Only previously unrun Homebrew ordinary unhooked C/O0/O2 routes; original observed passes unchanged."
+}

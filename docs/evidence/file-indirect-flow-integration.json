@@ -1,0 +1,21 @@
+{
+  "qualified_seal": "84e0037d8",
+  "integration_commit": "d233a6d8ac3622e59c4cf505a603a3a3b2a90e12",
+  "canonical_parent": "0a488a104",
+  "identical_files": {
+    "src/nanoisa/file_indirect_flow.h": "0b3cc7e14d8036344d691780d21cfa316149236665e5454f5a058db73a476d33",
+    "src/nanoisa/file_indirect_flow.inc": "963e9482b9b7e24e4aae0f4722358be649a0f128061c8437b3820ec878ff4892",
+    "src/nanoisa/file_cyclic.inc": "bcb9be656bf3239d1102f35c6a4f1c632ae874821621f61c04f88077320ac90b",
+    "src/nanoisa/file_flow.c": "2e043598bb325b1ce32ec360f26f41a8d564c89f04cd0a46f2366efcf8d38714",
+    "tests/nanoisa/test_file_indirect_flow.c": "abba1ad48273be2a0520806ef7afc9fa76da07fbde9690b605716ea52db3d673",
+    "tests/test_file_indirect_flow.py": "3b56351f21523a42c412e36527d2608a9ec3155bbbd116d3f0210c3722a2081c",
+    "tests/nanoisa/test_file_cyclic.c": "e4c123048c2cf2485337a7313f759ed46a7e02ac6602b45e74a00761f9f44684",
+    "docs/evidence/file-indirect-flow/report-sha256.json": "84e700588f8939a1c89a0761a2c6718283bc071f886ddcfc175dd183fe146ab8"
+  },
+  "changed_existing_source": [
+    "src/nanoisa/file_runtime.c",
+    "src/nanoisa/file_runtime_frames.inc",
+    "src/nsi_file_values.c"
+  ],
+  "scope": "Source identity review only; no new execution or baseline qualification. Changed physical runtime providers are outside the ISA-only query link closure. Additive Make targets and runtime dependencies preserve NANOISA_OBJECTS."
+}

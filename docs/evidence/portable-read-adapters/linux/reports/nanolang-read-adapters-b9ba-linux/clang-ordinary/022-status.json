@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/products/unhooked-O2",
+    "/tmp/nanolang-read-adapters-b9ba-linux/clang-ordinary/products/unhooked-O2-files"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-adapters-b9ba",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}
