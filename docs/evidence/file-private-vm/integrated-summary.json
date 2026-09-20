@@ -1,0 +1,142 @@
+{
+  "additional_artifact_entries": 3743,
+  "canonical_base": "8c959439d",
+  "crossplatform_source_equality": 9432,
+  "equal_inventory_pairs": [
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "normal",
+      "sources": 9432,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "opcodes",
+      "sources": 9432,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "wrapper",
+      "sources": 9432,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "frames",
+      "sources": 9432,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "setup",
+      "sources": 9432,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "integrated-darwin",
+      "phase": "normal",
+      "sources": 9432,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "integrated-darwin",
+      "phase": "opcodes",
+      "sources": 9432,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "integrated-darwin",
+      "phase": "wrapper",
+      "sources": 9432,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "integrated-darwin",
+      "phase": "frames",
+      "sources": 9432,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "integrated-darwin",
+      "phase": "setup",
+      "sources": 9432,
+      "tools": 14
+    }
+  ],
+  "fixture": "cfb2a9903",
+  "native_lowering": false,
+  "phases": {
+    "integrated-darwin": [
+      {
+        "phase": "setup",
+        "seconds": 9.325,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 5.751,
+        "status": 0
+      },
+      {
+        "phase": "frames",
+        "seconds": 5.259,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 4.494,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 7.201,
+        "status": 0
+      }
+    ],
+    "integrated-linux": [
+      {
+        "phase": "setup",
+        "seconds": 20.836,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 6.846,
+        "status": 0
+      },
+      {
+        "phase": "frames",
+        "seconds": 6.315,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.154,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 3.161,
+        "status": 0
+      }
+    ]
+  },
+  "private_vm_dispatch": true,
+  "production": "bdc8d29f3",
+  "public_dispatch": false,
+  "qualified_integration": "42838153c",
+  "total_artifact_entries": 9351,
+  "unique_artifacts": 1603,
+  "unique_bytes": 1149431287
+}

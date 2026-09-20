@@ -1,0 +1,14 @@
+[
+  {
+    "root": "/home/jkh/Src/nanolang-file-private-vm-qualified",
+    "report": "/tmp/nanolang-file-private-vm-ec54-linux",
+    "source": "normal-source-before.json",
+    "tools": "normal-tools-before.json"
+  },
+  {
+    "root": "/home/jkh/Src/nanolang-file-private-vm-corrected",
+    "report": "/tmp/nanolang-file-private-vm-cfb-linux",
+    "source": "normal-source-before.json",
+    "tools": "normal-tools-before.json"
+  }
+]

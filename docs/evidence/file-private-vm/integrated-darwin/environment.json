@@ -1,0 +1,11 @@
+{
+  "CARRIER_EXTRA_TOOLS": "{\"pkg-config\": \"/opt/homebrew/bin/pkg-config\", \"ffi.h\": \"/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi/ffi.h\", \"ffitarget.h\": \"/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi/ffitarget.h\", \"libffi-link-stub\": \"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libffi.tbd\"}",
+  "CARRIER_PHASES": "setup,normal,frames,opcodes,wrapper",
+  "CARRIER_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+  "LSAN_OPTIONS": "",
+  "NANO_FILE_RUNTIME_CFLAGS": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+  "PATH": "/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+}
