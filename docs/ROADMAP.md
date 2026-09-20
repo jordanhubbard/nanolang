@@ -13765,3 +13765,14 @@ Current checks verify all 54,637 sources and 12 selected tools on each host,
 plus 482 Linux and 431 puck products. My [final supplemental seal](evidence/file-service-parser-final.md)
 records this bounded acceptance; full File source resolution/lowering and the
 8bbc parent remain open pending their complete required gates.
+
+### My paired File companion resolution prerequisite
+
+I retain actual PR927 merge8ed0a0ff6 under full task_8bbc1cf5295b4b59b314640ef57c725f
+(publication evidence ev_c771f678def34a6e94d1a0f0ad2ae179). Root reconciles only
+bounded cleanup63ed and portable-storage5a8b. The parser milestone does not close
+companion resolution, nominal typing, independent lowering or source execution.
+
+- [ ] I review and implement [invocation-owned companion snapshots and paired original-module resolution](NANOISA_FILE_COMPANION_RESOLUTION.md), factoring actual parse/import collection before effectful module preparation; complete catalog/namespace facts precede IDs and aliases. No implementation begins before root plan review.
+- [ ] I review complete allocation/provider/ownership source, then fixtures for exact declaring origins, all catalog facts, transitive aliases/collisions, immutable input lifetime and I/O/allocation failures; qualify actual C-seed/Stage1/Stage2 helper/module shadows on both hosts with existing service refusals retained.
+- [ ] I separately review explicit nominal type propagation and all copy/equality/export paths before independent C/Nano File lowering, complete generated behavior shadows, runtime grants and installed publication. Full8bbc and original File/mixed/control-flow/source parents remain open.
