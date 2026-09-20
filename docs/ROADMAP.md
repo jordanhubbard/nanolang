@@ -12723,3 +12723,5 @@ failures and unchanged NSI/generator/File-plan neighbors. The retained runner
 uses durable files and bounded cleanup with no leak suppression. Forward shadows
 are text only; no source/service execution or file publication is qualified.
 Full fixture review precedes fresh both-host ordinary/sanitizer gates.
+
+- [ ] I correct the measured23bed puck Homebrew linked-fixture compile refusal: `fail_hits` is set but only read by instrumented fault sweeps, so strict `-Wunused-but-set-global` rejects the linked form. I preserve the first compiler terminal and prior Apple/Linux ordinary passes. I assert zero injected failures in the linked-only branch without suppressing diagnostics or changing production; review precedes fresh affected gates.
