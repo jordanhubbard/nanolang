@@ -13821,3 +13821,9 @@ in NANOISA_FILE_NATIVE_PROVIDER_CLOSURE.md separates logical caps from inherited
 runtime/process allocation and supervision limits. This is unexecuted source for
 review; paired fresh bootstrap and complete default/standalone/concurrency fixtures
 remain required before acceptance.
+
+- [ ] I correct the paired qualifier boundary found by root before execution:
+  my Nano `fsr_join_qualifier` charges a separator even when either side is empty,
+  unlike C. A4096-byte qualifier therefore falsely refuses only Nano. I retain
+  the4096-byte cap, charge a dot only between two nonempty sides, and require
+  empty-side, exact-limit and over-limit paired controls before acceptance.

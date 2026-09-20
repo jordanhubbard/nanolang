@@ -89,12 +89,28 @@ shadow fsr_qualifier {
 fn fsr_join_qualifier(a: string, b: string) -> string {
     let an: int = (str_length a)
     let bn: int = (str_length b)
-    if (> (+ (+ an bn) 1) 4096) { return "" }
+    let mut separator: int = 0
+    if (and (> an 0) (> bn 0)) { set separator 1 }
+    if (or (> an 4096) (> bn (- 4096 an))) { return "" }
+    if (> separator (- 4096 (+ an bn))) { return "" }
     if (== a "") { return b }
     if (== b "") { return a }
     return (+ a (+ "." b))
 }
-shadow fsr_join_qualifier { assert (== (fsr_join_qualifier "Outer" "Inner") "Outer.Inner") }
+shadow fsr_join_qualifier {
+    assert (== (fsr_join_qualifier "Outer" "Inner") "Outer.Inner")
+    let mut boundary: string = "A"
+    let mut i: int = 0
+    while (< i 12) { set boundary (+ boundary boundary) set i (+ i 1) }
+    assert (== (str_length boundary) 4096)
+    assert (== (fsr_join_qualifier boundary "") boundary)
+    assert (== (fsr_join_qualifier "" boundary) boundary)
+    assert (== (fsr_join_qualifier boundary "B") "")
+    assert (== (fsr_join_qualifier (+ boundary "A") "") "")
+    let exact: string = (fsr_join_qualifier (str_substring boundary 0 4094) "B")
+    assert (== (str_length exact) 4096)
+    assert (== (str_substring exact 4094 2) ".B")
+}
 fn fsr_namespace_suffix(qualifier: string, name: string) -> bool {
     let a: int = (str_length qualifier)
     let b: int = (str_length name)
