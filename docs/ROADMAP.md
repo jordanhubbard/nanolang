@@ -13115,3 +13115,13 @@ installed C++11 header fails the same missing-field initializer diagnostic. Appl
 Clang accepts the old assertion spelling as an extension; GCC reports both defects.
 Neither host reaches later configurations. Correction97a3866 changes only the
 three reviewed header/generator files; fresh qualification awaits source review.
+
+I retain a distinct414c Darwin schema prerequisite terminal under c8da07:
+Homebrew Python3.14.7 cannot import PyYAML, so the new consistency command exits1
+in0.043 seconds before setup or compilation. Linux's generator and33 schema
+methods pass independently. Read-only discovery finds existing Python3.13 with
+PyYAML in my user's3.13 site packages. I propose selecting that interpreter only
+for the two schema commands, recording its executable and every PyYAML source/
+extension file, while keeping the existing3.14 driver and its bounded cleanup.
+Fresh paths and review precede continuation; no global installation, source or
+assertion change is needed, and no failed public artifact was executed.
