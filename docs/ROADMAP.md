@@ -12504,3 +12504,11 @@ group/leader cleanup on every path, actual decoded two-root swaps with held-owne
 refusal, and exact transfer/edge guard controls. Production remainsf6ee.
 
 - [ ] I preserve the first486ba cyclic query fixture compile terminal and repair only its local exit-name collision (task_1f0d53da650d42aba327852e74a9f3f7): fresh setup passes21.065s, configuration0.064s, ordinary fixture compile fails0.265s before execution. The local `exit` masks inherited CHECK macro libc exit. I retain `/tmp/nanolang-file-cyclic-486ba-linux` and `/tmp/nano-file-cyclic-3u3k0oad`, change only that identifier, then request review before fresh corrected gates. Darwin remains unrun; query production is unchanged.
+
+I seal task243a's bounded private cyclic query acceptance in
+[my platform evidence](evidence/file-cyclic-query.md): corrected04d58 passes
+ordinary/sanitizer query and unchanged CODE/body/flow/hosted/refusal neighbors on
+Linux and puck. I preserve first486ba fixture compile failure and corrected-only
+execution,247 reports,782 unique artifacts,24 equal source/tool pairs and exact
+prepared-provider identities. Productionf6ee is unchanged. Independent review
+and actual merge remain pending; no cyclic File runtime or parent closure follows.
