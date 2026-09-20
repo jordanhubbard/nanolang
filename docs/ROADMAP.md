@@ -12848,3 +12848,18 @@ on one line. Native replay had not run. Before correction I specify only a
 newline between those fixture-generated statements; no assertion or production
 change. Puck's independently running100c gate remains separately attributed.
 I keep repair78437 open and request exact correction review before fresh runs.
+
+I completed the frozen private matched cyclic dispatch matrix at production
+4a12: Linux fixture6a65 has15 passing phases; Darwin fixture100c has14. All seven
+new ordinary/sanitizer configurations and old carrier/core/query/hosted/private
+VM/native/public/archive neighbors passed. The fixture revisions differ only in
+registry formatting;22 emitted instrumented programs are byte-identical.
+I seal537 reports,9917 unique artifacts,36997 references and49 source/tool pairs
+in `docs/evidence/file-cyclic-dispatch`, retaining every earlier compile/runtime
+fixture terminal and the launcher sequencing failure. Instrumentation remains
+scoped; public/source/indirect/richer-borrow admission is not granted. Parent15a92
+and repair78437 remain open pending independent review/integration/actual merge.
+My next ready tree integrates canonical904 query factoring and905 binding code,
+then rebuilds fresh affected providers and runs ordinary matched dispatch,
+cyclic/hosted/indirect queries and public/archive controls on both hosts. Original
+sanitizer evidence keeps its frozen source attribution; no bootstrap is implied.

@@ -1,0 +1,29 @@
+I retain cyclic dispatch artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-cyclic-dispatch-qfkmepen
+test_instrumented_matched_cyclic_dispatch (tests.test_file_cyclic_dispatch.FileCyclicDispatch.test_instrumented_matched_cyclic_dispatch) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_matched_cyclic_dispatch (tests.test_file_cyclic_dispatch.FileCyclicDispatch.test_instrumented_matched_cyclic_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-file-cyclic-dispatch-9284/tests/test_file_cyclic_dispatch.py", line 206, in test_instrumented_matched_cyclic_dispatch
+    self.qualify('instrumented', True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-file-cyclic-dispatch-9284/tests/test_file_cyclic_dispatch.py", line 111, in qualify
+    self.command(f'{name}-capture-build', [*self.compiler, *self.flags, '-O1', *mode,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '-DFILE_CYCLIC_CAPTURE', fixture, 'tests/nanoisa/test_file_cyclic_native_buffer.c',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        *objects, *self.objects, *self.ldflags, '-o', str(capture)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-file-cyclic-dispatch-9284/tests/test_file_cyclic_dispatch.py", line 52, in command
+    return cyclic_runner.FileCyclic.command(self, name, args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-file-cyclic-dispatch-9284/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 2.173s
+
+FAILED (failures=1)
