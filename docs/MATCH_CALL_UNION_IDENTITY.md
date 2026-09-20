@@ -73,3 +73,20 @@ case coordinates before a status assertion fails.
 I require source review before fresh corrected VM/full-test gates. I reuse
 only retained providers with verified hashes; I do not repeat passing
 bootstrap, totality or user-guide phases for a fixture-only change.
+
+## Darwin sanitizer selection terminal
+
+At corrected fixture `c1409c5b5`, both hosts pass 274570 VM checks plus
+substring/callback/heap/stack neighbors. Darwin's full `make test` next stops
+after 473.474 seconds: all eight reference-evaluator transport methods abort
+with `AddressSanitizer: detect_leaks is not supported on this platform.`
+That fixture reads `NANO_NATIVE_TEST_CC`, defaulting to `cc`, independently
+of my ordinary Apple `CC` and canonical-guard sanitizer selector.
+
+I retain the first terminal at
+`/private/tmp/nanolang-match-call-vm-c140-puck`. My proposed external-only
+correction selects the already inventoried Homebrew Clang through
+`NANO_NATIVE_TEST_CC`, preserving `detect_leaks=1` and all fixture assertions.
+I will retain its new command/provider maps separately. This is a demonstrated
+tool-selection mismatch; I do not call it an unexplained infrastructure event
+or claim the aborted transport controls passed.
