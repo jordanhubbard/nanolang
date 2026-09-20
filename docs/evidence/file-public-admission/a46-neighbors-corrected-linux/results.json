@@ -1,0 +1,30 @@
+[
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "ordinary-neighbor-setup",
+    "seconds": 22.571,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "opcode-refusal",
+    "seconds": 3.071,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "host-grant",
+    "seconds": 0.415,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "ordinary-wrapper",
+    "seconds": 3.121,
+    "status": 0
+  }
+]

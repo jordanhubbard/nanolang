@@ -1,0 +1,16 @@
+[
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "setup",
+    "seconds": 18.459,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "gcc-normal",
+    "seconds": 64.615,
+    "status": 0
+  }
+]

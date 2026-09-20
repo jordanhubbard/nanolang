@@ -1,0 +1,8 @@
+{
+  "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+  "PATH": "/opt/homebrew/bin:/opt/homebrew/opt/llvm/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "PUBLIC_CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "PUBLIC_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+  "PUBLIC_EXTRA_TOOLS": "{\"libcrypto\":\"/opt/homebrew/opt/openssl@3/lib/libcrypto.dylib\",\"ffi_header\":\"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi/ffi.h\",\"ffi_target_header\":\"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi/ffitarget.h\",\"sdk_settings\":\"/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/SDKSettings.json\",\"sdk_linker\":\"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld\"}",
+  "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk"
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "setup",
+    "seconds": 18.961,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "clang-normal",
+    "seconds": 0.765,
+    "status": 1
+  }
+]

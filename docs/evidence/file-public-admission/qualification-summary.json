@@ -1,0 +1,605 @@
+{
+  "artifact_bytes": 4324821877,
+  "artifact_references": 46791,
+  "compile_only": {
+    "a46-preflight-linux": {
+      "artifacts": {
+        "clang-instrumented-capture.o": "9a17cc2f156168313fa8fb99ca608c1cfa6dd14b5697a955596ec9673b09e242",
+        "clang-instrumented-replay.o": "c3a840766234bd054a9b187ad960cccb0811f0e0813771c29c13c8bbc7b77601",
+        "clang-linked-capture.o": "11eefe41c8e1275d815cbb8c9c80300aa2a742237c108e7312c94d2bd1ac5cfb",
+        "clang-linked-replay.o": "03e228a7ed18d14149a8933a27adad8d7ef308f6ba9c3bc1a87e5e8e590616e5",
+        "gcc-instrumented-capture.o": "4206d38d16f7efaf021d8814c5eac002dfece22e1fc4404efda9ba87cf9c6a85",
+        "gcc-instrumented-replay.o": "0797cc8a950df16ad5445c14eaea4605ba5889aa1270681da83648e2ae3da75d",
+        "gcc-linked-capture.o": "f2aafed18d46deebfb1eea4b8da3618317ac62da12886676e2ca4b1ad05e44f5",
+        "gcc-linked-replay.o": "12638fc4b3811e258fd50b5d15d9fed5f7a8fdcedf11d48aef51b9566691697a"
+      },
+      "results": [
+        {
+          "label": "gcc-linked-replay",
+          "seconds": 0.665,
+          "status": 0
+        },
+        {
+          "label": "gcc-linked-capture",
+          "seconds": 0.765,
+          "status": 0
+        },
+        {
+          "label": "gcc-instrumented-replay",
+          "seconds": 1.167,
+          "status": 0
+        },
+        {
+          "label": "gcc-instrumented-capture",
+          "seconds": 1.116,
+          "status": 0
+        },
+        {
+          "label": "clang-linked-replay",
+          "seconds": 0.816,
+          "status": 0
+        },
+        {
+          "label": "clang-linked-capture",
+          "seconds": 0.816,
+          "status": 0
+        },
+        {
+          "label": "clang-instrumented-replay",
+          "seconds": 1.517,
+          "status": 0
+        },
+        {
+          "label": "clang-instrumented-capture",
+          "seconds": 1.518,
+          "status": 0
+        }
+      ],
+      "sources": 10015
+    },
+    "a46-preflight-puck": {
+      "artifacts": {
+        "apple-instrumented-capture.o": "fcf6f99051d9f86420f89e66d30b09f10e779a77a2986f4f3962403177cc5eb3",
+        "apple-instrumented-replay.o": "1945600917e1a55fa8e4a89a252500090397516aac544b8f46ebfb33f58669e6",
+        "apple-linked-capture.o": "8bfef9378ffd62e26740d31e1c9e7a6b62acc33639d6239ac364d78fdf1eadec",
+        "apple-linked-replay.o": "f50cc27d3fb0dda8ab08de9f22d61548db14a26775122d54bbc02d1d5e1e7b56",
+        "homebrew-instrumented-capture.o": "5e74cc83e272064b1e9d3189a1c8fa6e08ff996935e2d5959295d6ff55ef59b1",
+        "homebrew-instrumented-replay.o": "09326e32179e80ad20d6b811b9b85019ea29e11da04144a2855f6d92dc51006e",
+        "homebrew-linked-capture.o": "b9637c0e51ab76f1b3ae331f4e9247d79ddfee981cdbd9d69af989e771159f08",
+        "homebrew-linked-replay.o": "4906d5372cbb5116c484d8767b8067952357fb34f6affc62775af4efcf95e9fd"
+      },
+      "results": [
+        {
+          "label": "apple-linked-replay",
+          "seconds": 0.5,
+          "status": 0
+        },
+        {
+          "label": "apple-linked-capture",
+          "seconds": 0.492,
+          "status": 0
+        },
+        {
+          "label": "apple-instrumented-replay",
+          "seconds": 0.906,
+          "status": 0
+        },
+        {
+          "label": "apple-instrumented-capture",
+          "seconds": 0.946,
+          "status": 0
+        },
+        {
+          "label": "homebrew-linked-replay",
+          "seconds": 0.721,
+          "status": 0
+        },
+        {
+          "label": "homebrew-linked-capture",
+          "seconds": 0.429,
+          "status": 0
+        },
+        {
+          "label": "homebrew-instrumented-replay",
+          "seconds": 0.776,
+          "status": 0
+        },
+        {
+          "label": "homebrew-instrumented-capture",
+          "seconds": 0.841,
+          "status": 0
+        }
+      ],
+      "sources": 10015
+    }
+  },
+  "crossplatform_final_sources": 10015,
+  "equal_inventory_pairs": [
+    {
+      "equal": true,
+      "group": "01fd-linux",
+      "phase": "gcc-normal",
+      "sources": 10015,
+      "tools": 11
+    },
+    {
+      "equal": true,
+      "group": "01fd-linux",
+      "phase": "setup",
+      "sources": 10015,
+      "tools": 11
+    },
+    {
+      "equal": true,
+      "group": "389-linux",
+      "phase": "gcc-normal",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "389-linux",
+      "phase": "setup",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "dd401-linux",
+      "phase": "gcc-normal",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "dd401-linux",
+      "phase": "setup",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "dd401-linux-remaining",
+      "phase": "gcc-sanitizer",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "dd401-linux-remaining",
+      "phase": "clang-normal",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "9bac-linux",
+      "phase": "setup",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "9bac-linux",
+      "phase": "clang-normal",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "a46-linux",
+      "phase": "clang-sanitizer",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "a46-linux",
+      "phase": "setup",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "a46-linux",
+      "phase": "clang-normal",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "a46-neighbors-linux",
+      "phase": "ordinary-neighbor-setup",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "a46-neighbors-corrected-linux",
+      "phase": "opcode-refusal",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "a46-neighbors-corrected-linux",
+      "phase": "host-grant",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "a46-neighbors-corrected-linux",
+      "phase": "ordinary-neighbor-setup",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "a46-neighbors-corrected-linux",
+      "phase": "ordinary-wrapper",
+      "sources": 10015,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "389-puck",
+      "phase": "apple-normal",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "389-puck",
+      "phase": "setup",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "dd401-puck",
+      "phase": "apple-normal",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "dd401-puck",
+      "phase": "setup",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "dd401-puck-remaining",
+      "phase": "clang-normal",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "9bac-puck",
+      "phase": "setup",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "9bac-puck",
+      "phase": "clang-normal",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "a46-puck",
+      "phase": "clang-sanitizer",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "a46-puck",
+      "phase": "setup",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "a46-puck",
+      "phase": "clang-normal",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "a46-neighbors-puck",
+      "phase": "opcode-refusal",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "a46-neighbors-puck",
+      "phase": "host-grant",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "a46-neighbors-puck",
+      "phase": "ordinary-neighbor-setup",
+      "sources": 10015,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "a46-neighbors-puck",
+      "phase": "ordinary-wrapper",
+      "sources": 10015,
+      "tools": 16
+    }
+  ],
+  "loops_indirect_richer_borrows": false,
+  "passing_clang_fixture": "a46a34e2e",
+  "passing_gcc_apple_fixture": "dd401e5ea",
+  "phases": {
+    "01fd-linux": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 18.819,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "gcc-normal",
+        "seconds": 9.887,
+        "status": 1
+      }
+    ],
+    "389-linux": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 18.657,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "gcc-normal",
+        "seconds": 17.304,
+        "status": 1
+      }
+    ],
+    "389-puck": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 9.083,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "apple-normal",
+        "seconds": 0.132,
+        "status": 1
+      }
+    ],
+    "9bac-linux": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 18.961,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "clang-normal",
+        "seconds": 0.765,
+        "status": 1
+      }
+    ],
+    "9bac-puck": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 7.919,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "clang-normal",
+        "seconds": 25.512,
+        "status": 1
+      }
+    ],
+    "a46-linux": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 18.457,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "clang-normal",
+        "seconds": 53.403,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "clang-sanitizer",
+        "seconds": 96.202,
+        "status": 0
+      }
+    ],
+    "a46-neighbors-corrected-linux": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "ordinary-neighbor-setup",
+        "seconds": 22.571,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "opcode-refusal",
+        "seconds": 3.071,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "host-grant",
+        "seconds": 0.415,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "ordinary-wrapper",
+        "seconds": 3.121,
+        "status": 0
+      }
+    ],
+    "a46-neighbors-linux": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "ordinary-neighbor-setup",
+        "seconds": 0.916,
+        "status": 2
+      }
+    ],
+    "a46-neighbors-puck": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "ordinary-neighbor-setup",
+        "seconds": 9.653,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "opcode-refusal",
+        "seconds": 3.566,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "host-grant",
+        "seconds": 1.308,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "ordinary-wrapper",
+        "seconds": 6.281,
+        "status": 0
+      }
+    ],
+    "a46-puck": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 7.753,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "clang-normal",
+        "seconds": 44.361,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "clang-sanitizer",
+        "seconds": 75.924,
+        "status": 0
+      }
+    ],
+    "dd401-linux": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 18.459,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "gcc-normal",
+        "seconds": 64.615,
+        "status": 0
+      }
+    ],
+    "dd401-linux-remaining": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "gcc-sanitizer",
+        "seconds": 338.691,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "clang-normal",
+        "seconds": 0.716,
+        "status": 1
+      }
+    ],
+    "dd401-puck": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 9.031,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "apple-normal",
+        "seconds": 48.417,
+        "status": 0
+      }
+    ],
+    "dd401-puck-remaining": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "clang-normal",
+        "seconds": 14.969,
+        "status": 1
+      }
+    ]
+  },
+  "production": "a6862f732",
+  "public_byte_api": true,
+  "public_native_package": true,
+  "source_language_acceptance": false,
+  "unique_artifacts": 16409
+}

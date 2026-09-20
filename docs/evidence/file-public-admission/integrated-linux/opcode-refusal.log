@@ -1,0 +1,10 @@
+I retain File encoding artifacts at /tmp/nano-file-opcodes-gh836cfk
+test_instrumented_encoding_transport_and_refusal (tests.test_file_opcodes.FileOpcodes.test_instrumented_encoding_transport_and_refusal) ... PASS 1374 File encoding/refusal checks; no service handler or CFG certificate
+ok
+test_linked_encoding_transport_and_refusal (tests.test_file_opcodes.FileOpcodes.test_linked_encoding_transport_and_refusal) ... PASS 1374 File encoding/refusal checks; no service handler or CFG certificate
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.076s
+
+OK
