@@ -92,3 +92,10 @@ pins. The [preceding independent integration audit](passive-internal-cfg-integra
 verified every report, artifact, selected Git input and current endpoint for6ae;
 it does not claim to cover this later933 integration. Full release gates remain
 open, including the still-observed compiler shadow deadline.
+
+I retain the [independent933 audit](passive-internal-cfg-union-integration-review.json):
+every Git report, CAS object, artifact reference, endpoint pair and actual
+terminal matches. Current source/tool/product maps also match on both hosts.
+All fourteen incoming source/fixture paths match canonical0dc588; all2444 selected
+production/schema/test inputs per host match frozen933. This is scoped test
+evidence, not full-product acceptance or a formal proof.
