@@ -80,3 +80,14 @@ separately from their corrected runs. My sealed reports and artifact references
 are in `docs/evidence/cast-u8-backends/`; historical objects remain in the named
 local content-addressed stores. The public source conversion and reconstruction
 work under task_c6b2a040c1434fc784a9d46c02a4981e remains open.
+
+I integrate current File parser main at `afdbb2fe` with no byte production or
+fixture delta. Fresh affected providers and all five conversion methods pass on
+both hosts; 36 scalar and 23 managed neighbors pass. The first Darwin integration
+neighbor run selected Apple Clang for an always-sanitized existing guard, which
+refused unsupported leak detection before reaching the invariant. I retain that
+terminal, then use inventoried Homebrew Clang for the corrected neighbors with
+unchanged assertions and leak detection. The integrated reports live separately
+in `docs/evidence/cast-u8-backends-integration/`. Earlier sanitizer results retain
+their original production and provider identities; this refresh is ordinary
+generated conversion plus the neighbors' own selected instrumentation.
