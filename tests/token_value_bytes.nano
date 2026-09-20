@@ -30,10 +30,10 @@ fn token_count_checks() -> void {
     assert (== first.value_bytes 1099511627776)
     assert (== first.line 7)
     assert (== first.column 9)
-    let grammar: string = " { rule <- \"a\\nb\" }"
+    let grammar_input: string = " { rule <- \"a\\nb\" }"
     let bodies: List<LexerToken> = (list_LexerToken_new)
-    let grammar_bytes: int = (str_length grammar)
-    let end: int = (process_grammar_body grammar 0 grammar_bytes bodies 1 1)
+    let grammar_bytes: int = (str_length grammar_input)
+    let end: int = (process_grammar_body grammar_input 0 grammar_bytes bodies 1 1)
     assert (== end grammar_bytes)
     let body: LexerToken = (list_LexerToken_get bodies 0)
     let body_bytes: int = (str_length body.value)
