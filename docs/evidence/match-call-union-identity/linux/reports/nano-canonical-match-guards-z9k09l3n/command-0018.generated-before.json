@@ -1,0 +1,122 @@
+{
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/ast_shared.o": {
+    "sha256": "eebe5b690de499df35e7e13a25c538548bfd91a53dbf69a0c08babfcf9ec9231",
+    "bytes": 401920,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/eebe5b690de499df35e7e13a25c538548bfd91a53dbf69a0c08babfcf9ec9231"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/binary64_arithmetic_runtime.o": {
+    "sha256": "de65d00bdebb3e3f0b20293c515c5337f557a0ddda926286396918cb4df2f88e",
+    "bytes": 181424,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/de65d00bdebb3e3f0b20293c515c5337f557a0ddda926286396918cb4df2f88e"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/binary64_format_runtime.o": {
+    "sha256": "f9639eff26468f248087ac2f217c133f733bb48f9c3ea550a5501b7285c03a67",
+    "bytes": 181104,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/f9639eff26468f248087ac2f217c133f733bb48f9c3ea550a5501b7285c03a67"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/compiler_ast.o": {
+    "sha256": "2b0dc668e49ffd9450c1c6a18e877bfba27e8b1fa44c5c24862fc15b40489987",
+    "bytes": 401928,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/2b0dc668e49ffd9450c1c6a18e877bfba27e8b1fa44c5c24862fc15b40489987"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/compiler_contracts.o": {
+    "sha256": "633ab8da0c71178a279b4cabb1152d68202f84040b2f2f1c125ffa21571c2f2f",
+    "bytes": 206408,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/633ab8da0c71178a279b4cabb1152d68202f84040b2f2f1c125ffa21571c2f2f"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/compiler_schema.o": {
+    "sha256": "c65741dab90d38f36857054e7d50a0284ba152b5eda2334b7c91620f375af203",
+    "bytes": 191368,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/c65741dab90d38f36857054e7d50a0284ba152b5eda2334b7c91620f375af203"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/declaration_ownership.o": {
+    "sha256": "424467c4f489de68cb85aa446eb503ec7877f20f813b66018a0431cc0f8b0bcc",
+    "bytes": 1072576,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/424467c4f489de68cb85aa446eb503ec7877f20f813b66018a0431cc0f8b0bcc"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/diagnostics.o": {
+    "sha256": "25700b3e87207f7de4c7f0b730b5e20e1ae6d2e43b3298c88205b49718721876",
+    "bytes": 473344,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/25700b3e87207f7de4c7f0b730b5e20e1ae6d2e43b3298c88205b49718721876"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/error_messages.o": {
+    "sha256": "cbf7b75d1c3e1b76c8289550c5b27e6b2818eedf655985dcd7542cb9efc69ec0",
+    "bytes": 546328,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/cbf7b75d1c3e1b76c8289550c5b27e6b2818eedf655985dcd7542cb9efc69ec0"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/ir.o": {
+    "sha256": "4aca08b8a014b87848ef088ab19a383847d11f540c0d21164053b259df2702db",
+    "bytes": 401904,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/4aca08b8a014b87848ef088ab19a383847d11f540c0d21164053b259df2702db"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/lexer.o": {
+    "sha256": "316daf1b247a56f49201dcd9e72b39cdf6138160ebdbf27cb0d52a57e70004d6",
+    "bytes": 586072,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/316daf1b247a56f49201dcd9e72b39cdf6138160ebdbf27cb0d52a57e70004d6"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/module_bindings.o": {
+    "sha256": "e61132abab9c14a7e40ae63995e8d073606d02755dba3b354c07eb347911a71e",
+    "bytes": 205184,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/e61132abab9c14a7e40ae63995e8d073606d02755dba3b354c07eb347911a71e"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/nominal_bindings.o": {
+    "sha256": "47f00512e93f67db01315ad185224a1bbc73531591b0e0fc80651cfb83a5e647",
+    "bytes": 1124648,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/47f00512e93f67db01315ad185224a1bbc73531591b0e0fc80651cfb83a5e647"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/parser.o": {
+    "sha256": "4b0af9c6224003c335b3b8184aef92f159c82d3ddc4dd3209493bfc7c71d971f",
+    "bytes": 1421472,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/4b0af9c6224003c335b3b8184aef92f159c82d3ddc4dd3209493bfc7c71d971f"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/passive_graph.o": {
+    "sha256": "3519cbed3808bab52fa97b2e004cd2557fd1a7c3894799b418d40f055bf71024",
+    "bytes": 1077160,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/3519cbed3808bab52fa97b2e004cd2557fd1a7c3894799b418d40f055bf71024"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/passive_purity.o": {
+    "sha256": "c2bfe515da7078b595aadef9004dfaca8401c888f71daff248e99405d87cc548",
+    "bytes": 1127440,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/c2bfe515da7078b595aadef9004dfaca8401c888f71daff248e99405d87cc548"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/purity_intrinsics.o": {
+    "sha256": "9f73fac494c5f43cb37d113d284b24a1b3124de89c36e9c424ae85da5c936e83",
+    "bytes": 195104,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/9f73fac494c5f43cb37d113d284b24a1b3124de89c36e9c424ae85da5c936e83"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/std_json_nano_json.o": {
+    "sha256": "29f0dabb9ff3aa897437a0811c6cfd5be47c63da2de5b50a06cdf22e500cc594",
+    "bytes": 278664,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/29f0dabb9ff3aa897437a0811c6cfd5be47c63da2de5b50a06cdf22e500cc594"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/std_nano_fs.o": {
+    "sha256": "9136b91bcb17be5dab45be946dab596062293b85874a45593e7fd090c9c4b805",
+    "bytes": 239744,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/9136b91bcb17be5dab45be946dab596062293b85874a45593e7fd090c9c4b805"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/std_nano_process.o": {
+    "sha256": "a1c6ab526db9a3882c329669e3762ed4a83822a79c41da977193346fc8c0debc",
+    "bytes": 212384,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/a1c6ab526db9a3882c329669e3762ed4a83822a79c41da977193346fc8c0debc"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/std_nano_result.o": {
+    "sha256": "49b45e45c9e7f33e30c85bacff9055a1c14d23a06aa6bd21c4cf9416bf9aede9",
+    "bytes": 178048,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/49b45e45c9e7f33e30c85bacff9055a1c14d23a06aa6bd21c4cf9416bf9aede9"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/transpiler.o": {
+    "sha256": "2ff399eece288065425df54d618e7190f09b3b43bf22842d09d07015e666945d",
+    "bytes": 2029544,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/2ff399eece288065425df54d618e7190f09b3b43bf22842d09d07015e666945d"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/type_substitution.o": {
+    "sha256": "9aeb759f21328db0bad72ec292c67c431ad334fe7ee5c3b30347a36f2b3fbd21",
+    "bytes": 185760,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/9aeb759f21328db0bad72ec292c67c431ad334fe7ee5c3b30347a36f2b3fbd21"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/typecheck.o": {
+    "sha256": "45b0ee3f7746fff681d6805f615fed5f9b1aea121d96b95c819fd6c2e0dd1414",
+    "bytes": 2093376,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/45b0ee3f7746fff681d6805f615fed5f9b1aea121d96b95c819fd6c2e0dd1414"
+  }
+}

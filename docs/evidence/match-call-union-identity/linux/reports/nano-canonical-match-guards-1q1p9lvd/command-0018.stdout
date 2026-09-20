@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E002] I cannot prove a closed empty effect summary for this pure fn (/tmp/nano-canonical-match-guards-1q1p9lvd/guard-purity.nano:3:6)

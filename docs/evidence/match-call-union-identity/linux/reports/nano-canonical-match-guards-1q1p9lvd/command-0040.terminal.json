@@ -1,0 +1,9 @@
+{
+  "timed_out": false,
+  "timeout_seconds": 15,
+  "elapsed_seconds": 0.001571,
+  "returncode": 0,
+  "status": 0,
+  "cleanup": [],
+  "leader_reaped": true
+}
