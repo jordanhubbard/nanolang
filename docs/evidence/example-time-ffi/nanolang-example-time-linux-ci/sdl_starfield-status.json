@@ -1,0 +1,24 @@
+{
+  "name": "sdl_starfield",
+  "argv": [
+    "/home/jkh/Src/nanolang-example-time-qualification-corrected/bin/nanoc_c",
+    "examples/graphics/sdl_starfield.nano",
+    "-o",
+    "/tmp/nanolang-example-time-linux-ci/sdl_starfield",
+    "--keep-c"
+  ],
+  "bound_seconds": 120,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 2.7198487889254466,
+  "log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

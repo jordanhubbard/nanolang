@@ -1,0 +1,202 @@
+{
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain": {
+    "sha256": "cb031e3c1de1a72eb4066ed027ade06aaf7b99a7bba981cf51ad1ab051cbb2c0",
+    "bytes": 8708000,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/cb031e3c1de1a72eb4066ed027ade06aaf7b99a7bba981cf51ad1ab051cbb2c0"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain-products-after.json": {
+    "sha256": "daab97d8a65076e3e851beda61cb80b470e8e53245bcd104966c7e8eed8f1cec",
+    "bytes": 366745,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/daab97d8a65076e3e851beda61cb80b470e8e53245bcd104966c7e8eed8f1cec"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain-products-before.json": {
+    "sha256": "7fa27543965e1af6ff07847e177664806977595653f54484aafdfba728981c22",
+    "bytes": 363835,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/7fa27543965e1af6ff07847e177664806977595653f54484aafdfba728981c22"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain-sources-after.json": {
+    "sha256": "c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde",
+    "bytes": 1216319,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain-sources-before.json": {
+    "sha256": "c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde",
+    "bytes": 1216319,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain-status.json": {
+    "sha256": "ffdd00059d59830994cb5e2990e7d5c09421d301ed7fbaf8a082bf493639301d",
+    "bytes": 719,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/ffdd00059d59830994cb5e2990e7d5c09421d301ed7fbaf8a082bf493639301d"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain-tools-after.json": {
+    "sha256": "fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8",
+    "bytes": 3873,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain-tools-before.json": {
+    "sha256": "fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8",
+    "bytes": 3873,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain.c": {
+    "sha256": "dad6190a3cb462523e860cdf5699fd82f025326862de7e89cf68c21d084cf986",
+    "bytes": 80621,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/dad6190a3cb462523e860cdf5699fd82f025326862de7e89cf68c21d084cf986"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/ncurses_matrix_rain.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence": {
+    "sha256": "8793cc53549ae3150c5501a0fa3fd827eec16349d6245ae8631201c179c67636",
+    "bytes": 8744848,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/8793cc53549ae3150c5501a0fa3fd827eec16349d6245ae8631201c179c67636"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence-products-after.json": {
+    "sha256": "4e05bd9544da068d8375deb3fbeeeb49ab42e13f7fe3bb7d6fc6fbd265add3d0",
+    "bytes": 355108,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/4e05bd9544da068d8375deb3fbeeeb49ab42e13f7fe3bb7d6fc6fbd265add3d0"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence-products-before.json": {
+    "sha256": "c51c6908e0a4d739f816f7a536f5742f04efc3eaea88e085621bbf145b2e3c6b",
+    "bytes": 350152,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c51c6908e0a4d739f816f7a536f5742f04efc3eaea88e085621bbf145b2e3c6b"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence-sources-after.json": {
+    "sha256": "c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde",
+    "bytes": 1216319,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence-sources-before.json": {
+    "sha256": "c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde",
+    "bytes": 1216319,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence-status.json": {
+    "sha256": "e1f389d9b4d46a2d241f76454f7ee7d931a064025a9d757660dca5e1ef4ffb45",
+    "bytes": 716,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/e1f389d9b4d46a2d241f76454f7ee7d931a064025a9d757660dca5e1ef4ffb45"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence-tools-after.json": {
+    "sha256": "fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8",
+    "bytes": 3873,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence-tools-before.json": {
+    "sha256": "fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8",
+    "bytes": 3873,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence.c": {
+    "sha256": "8734b3dece5e2248d172843ac8163c596fd50b04076be26ea4205128506c632c",
+    "bytes": 80491,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/8734b3dece5e2248d172843ac8163c596fd50b04076be26ea4205128506c632c"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/nl_random_sentence.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire": {
+    "sha256": "bf2125fd4cc0456efa0393e7476ff967f7d3bfd3464c9ef4d65f9dafdaea7f3c",
+    "bytes": 8710248,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/bf2125fd4cc0456efa0393e7476ff967f7d3bfd3464c9ef4d65f9dafdaea7f3c"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire-products-after.json": {
+    "sha256": "7fa27543965e1af6ff07847e177664806977595653f54484aafdfba728981c22",
+    "bytes": 363835,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/7fa27543965e1af6ff07847e177664806977595653f54484aafdfba728981c22"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire-products-before.json": {
+    "sha256": "4e05bd9544da068d8375deb3fbeeeb49ab42e13f7fe3bb7d6fc6fbd265add3d0",
+    "bytes": 355108,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/4e05bd9544da068d8375deb3fbeeeb49ab42e13f7fe3bb7d6fc6fbd265add3d0"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire-sources-after.json": {
+    "sha256": "c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde",
+    "bytes": 1216319,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire-sources-before.json": {
+    "sha256": "c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde",
+    "bytes": 1216319,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire-status.json": {
+    "sha256": "896f9af584c30945d3e0fc7262df78522c6972b206ed7e54775be2cf2f9de664",
+    "bytes": 687,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/896f9af584c30945d3e0fc7262df78522c6972b206ed7e54775be2cf2f9de664"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire-tools-after.json": {
+    "sha256": "fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8",
+    "bytes": 3873,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire-tools-before.json": {
+    "sha256": "fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8",
+    "bytes": 3873,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire.c": {
+    "sha256": "c16326c8c096ca2efcf5d3f7850c37ff83c7683a852b868f224dbb4b76018d56",
+    "bytes": 82991,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c16326c8c096ca2efcf5d3f7850c37ff83c7683a852b868f224dbb4b76018d56"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_fire.log": {
+    "sha256": "d407c063a1a8f3799faf28be79b0fa1b8b78eac8e1667ce3858bb4e669d70368",
+    "bytes": 66,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/d407c063a1a8f3799faf28be79b0fa1b8b78eac8e1667ce3858bb4e669d70368"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield": {
+    "sha256": "9ac10ac88e4fd514441a0cbbe651d4fbf0d42d6d8cc9e2700ffc97709839d7dc",
+    "bytes": 8710752,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/9ac10ac88e4fd514441a0cbbe651d4fbf0d42d6d8cc9e2700ffc97709839d7dc"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield-products-after.json": {
+    "sha256": "7fa27543965e1af6ff07847e177664806977595653f54484aafdfba728981c22",
+    "bytes": 363835,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/7fa27543965e1af6ff07847e177664806977595653f54484aafdfba728981c22"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield-products-before.json": {
+    "sha256": "7fa27543965e1af6ff07847e177664806977595653f54484aafdfba728981c22",
+    "bytes": 363835,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/7fa27543965e1af6ff07847e177664806977595653f54484aafdfba728981c22"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield-sources-after.json": {
+    "sha256": "c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde",
+    "bytes": 1216319,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield-sources-before.json": {
+    "sha256": "c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde",
+    "bytes": 1216319,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/c38d96bf7357e49be381274edb26697e2444385f35657e4886f61eb4d4a24dde"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield-status.json": {
+    "sha256": "f7a204bd8ae7099fe7ef45f2ab94826f2173f74d1c4d36b8f73353afa5c950cd",
+    "bytes": 693,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/f7a204bd8ae7099fe7ef45f2ab94826f2173f74d1c4d36b8f73353afa5c950cd"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield-tools-after.json": {
+    "sha256": "fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8",
+    "bytes": 3873,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield-tools-before.json": {
+    "sha256": "fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8",
+    "bytes": 3873,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/fb6f503258914bc235eea4b0cc3c461adcff210e73b648c5c0f06b205d267fa8"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield.c": {
+    "sha256": "27cf45f34e239c8436d5f6cbfe823297ccf8a9b844eccbd1cde59d3a027778a6",
+    "bytes": 87433,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/27cf45f34e239c8436d5f6cbfe823297ccf8a9b844eccbd1cde59d3a027778a6"
+  },
+  "/private/tmp/nanolang-example-time-puck-ci/sdl_starfield.log": {
+    "sha256": "d407c063a1a8f3799faf28be79b0fa1b8b78eac8e1667ce3858bb4e669d70368",
+    "bytes": 66,
+    "archive": "/private/tmp/nanolang-example-time-puck-ci/objects/d407c063a1a8f3799faf28be79b0fa1b8b78eac8e1667ce3858bb4e669d70368"
+  }
+}

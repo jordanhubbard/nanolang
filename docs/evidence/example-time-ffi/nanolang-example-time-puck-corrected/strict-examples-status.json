@@ -1,0 +1,26 @@
+{
+  "name": "strict-examples",
+  "argv": [
+    "make",
+    "examples",
+    "EXAMPLES_TIMEOUT=2400",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS="
+  ],
+  "bound_seconds": 2500,
+  "status": 2,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 133.60799554099998,
+  "log": {
+    "sha256": "ae29bf2ea4fa499588303dd1e83d87791a8428fdf681df804498d9988f088f11",
+    "bytes": 55004,
+    "archive": "/private/tmp/nanolang-example-time-puck-corrected/objects/ae29bf2ea4fa499588303dd1e83d87791a8428fdf681df804498d9988f088f11"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

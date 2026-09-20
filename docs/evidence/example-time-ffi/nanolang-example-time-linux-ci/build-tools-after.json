@@ -1,0 +1,62 @@
+{
+  "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14": {
+    "sha256": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8",
+    "bytes": 133264,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8"
+  },
+  "/usr/bin/aarch64-linux-gnu-ar": {
+    "sha256": "f4583a612510e038dbc1ae8afb5eae5f0445c435bdd7c4c28e78acc7e757d2b1",
+    "bytes": 67824,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/f4583a612510e038dbc1ae8afb5eae5f0445c435bdd7c4c28e78acc7e757d2b1"
+  },
+  "/usr/bin/aarch64-linux-gnu-g++-13": {
+    "sha256": "fc02363794280f404c6ca6f5da1c8fe469be902e9de140d35d8573bb3393f53b",
+    "bytes": 990040,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/fc02363794280f404c6ca6f5da1c8fe469be902e9de140d35d8573bb3393f53b"
+  },
+  "/usr/bin/aarch64-linux-gnu-gcc-13": {
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+    "bytes": 990040,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d"
+  },
+  "/usr/bin/aarch64-linux-gnu-ld.bfd": {
+    "sha256": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c",
+    "bytes": 1710520,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c"
+  },
+  "/usr/bin/git": {
+    "sha256": "aa6540695d076182256dd6e96c8b302e4d56381e3000bbfd5c71bbdfe94a4942",
+    "bytes": 4003072,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/aa6540695d076182256dd6e96c8b302e4d56381e3000bbfd5c71bbdfe94a4942"
+  },
+  "/usr/bin/make": {
+    "sha256": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0",
+    "bytes": 267672,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0"
+  },
+  "/usr/bin/perl": {
+    "sha256": "e134a46a291a0a503940c7ac26c58438b180fed8147d3b6cb8a3747627c99c37",
+    "bytes": 3942240,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/e134a46a291a0a503940c7ac26c58438b180fed8147d3b6cb8a3747627c99c37"
+  },
+  "/usr/local/bin/clang-23": {
+    "sha256": "3679c26d7a60727b11acba72366337f0e35853c9cd3cd342a463aa2f8fe10c9e",
+    "bytes": 234969072,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/3679c26d7a60727b11acba72366337f0e35853c9cd3cd342a463aa2f8fe10c9e"
+  },
+  "/usr/local/bin/llc": {
+    "sha256": "60ba46cb763326061e2ad6798590f368881b4f3f9a38cf8748923722eabf3395",
+    "bytes": 154970744,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/60ba46cb763326061e2ad6798590f368881b4f3f9a38cf8748923722eabf3395"
+  },
+  "/usr/local/bin/lli": {
+    "sha256": "d3704ee76eb48ff9ca85d40f1728ce0d9a5d41d57af6ee4ea459c29680a4c076",
+    "bytes": 53673064,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/d3704ee76eb48ff9ca85d40f1728ce0d9a5d41d57af6ee4ea459c29680a4c076"
+  },
+  "/usr/local/bin/opt": {
+    "sha256": "69721109ba7cd92fdad474486fd326722b642430e4bbc0defbe3ecc8ebf3a6db",
+    "bytes": 160515456,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/69721109ba7cd92fdad474486fd326722b642430e4bbc0defbe3ecc8ebf3a6db"
+  }
+}

@@ -1,0 +1,4 @@
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/ffi_bindgen.c -o obj/ffi_bindgen.o
+✓ Compiler: bin/nanoc -> bin/nanoc_c (C reference)
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -o bin/nanoc-ffi obj/ffi_bindgen.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic
+✓ Stage 1 complete (C reference binaries)

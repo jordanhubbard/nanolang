@@ -1,0 +1,25 @@
+{
+  "name": "strict-examples",
+  "argv": [
+    "make",
+    "examples",
+    "EXAMPLES_TIMEOUT=2400",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 2500,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 194.57288526603952,
+  "log": {
+    "sha256": "3a5578d76bcfad06d22d8fdd32fd6674547a2d9d62f6608cf9dca5128bcd4e72",
+    "bytes": 20498,
+    "archive": "/tmp/nanolang-example-time-linux-ci/objects/3a5578d76bcfad06d22d8fdd32fd6674547a2d9d62f6608cf9dca5128bcd4e72"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}
