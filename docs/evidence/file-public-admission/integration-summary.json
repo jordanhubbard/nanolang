@@ -1,0 +1,131 @@
+{
+  "added_references": 11982,
+  "canonical": "5d1d3d39f",
+  "crossplatform_sources": 10896,
+  "equal_pairs": [
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "ordinary-integrated",
+      "sources": 10896,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "opcode-refusal",
+      "sources": 10896,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "setup",
+      "sources": 10896,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "integrated-linux",
+      "phase": "cyclic-query",
+      "sources": 10896,
+      "tools": 15
+    },
+    {
+      "equal": true,
+      "group": "integrated-puck",
+      "phase": "ordinary-integrated",
+      "sources": 10896,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "integrated-puck",
+      "phase": "opcode-refusal",
+      "sources": 10896,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "integrated-puck",
+      "phase": "setup",
+      "sources": 10896,
+      "tools": 16
+    },
+    {
+      "equal": true,
+      "group": "integrated-puck",
+      "phase": "cyclic-query",
+      "sources": 10896,
+      "tools": 16
+    }
+  ],
+  "phases": {
+    "integrated-linux": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 20.342,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "ordinary-integrated",
+        "seconds": 64.916,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "cyclic-query",
+        "seconds": 2.32,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "opcode-refusal",
+        "seconds": 3.171,
+        "status": 0
+      }
+    ],
+    "integrated-puck": [
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "setup",
+        "seconds": 9.115,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "ordinary-integrated",
+        "seconds": 44.612,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "cyclic-query",
+        "seconds": 2.331,
+        "status": 0
+      },
+      {
+        "cleanup_errors": [],
+        "exception": null,
+        "phase": "opcode-refusal",
+        "seconds": 3.621,
+        "status": 0
+      }
+    ]
+  },
+  "pin": "58eccb93e",
+  "prior_sanitizer_pins_unchanged": true,
+  "production_integration": "c3631ecf2",
+  "public_configuration": "ordinary only",
+  "total_artifact_bytes": 4918529704,
+  "total_unique_artifacts": 20144
+}

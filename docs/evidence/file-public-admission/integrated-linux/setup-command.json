@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-file-public-integrated-linux/providers.mk",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "public-providers",
+    "nvm2c",
+    "nvm2llvm",
+    "nvm2hl"
+  ],
+  "environment": {
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "LSAN_OPTIONS": "",
+    "PUBLIC_CC": "/usr/bin/gcc",
+    "PUBLIC_CLANG": "/usr/local/bin/clang",
+    "PUBLIC_EXTRA_TOOLS": "{\"libcrypto\":\"/usr/lib/aarch64-linux-gnu/libcrypto.so.3\",\"libffi\":\"/usr/lib/aarch64-linux-gnu/libffi.so.8\",\"ffi_header\":\"/usr/include/aarch64-linux-gnu/ffi.h\",\"ffi_target_header\":\"/usr/include/aarch64-linux-gnu/ffitarget.h\"}",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  }
+}

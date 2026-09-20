@@ -52,8 +52,16 @@ I do not replay failed binaries or reinterpret these compilation terminals as ex
 
 ## Retention and scope
 
-My [report manifest](file-public-admission/report-sha256.json) seals 417 reports. The [summary](file-public-admission/qualification-summary.json) records 32 equal source/tool before/after pairs and 46,791 artifact references. My [artifact store](file-public-admission/artifact-store.json) retains 16,409 unique files, 4,324,821,877 bytes, including the compile-only objects. External artifacts live at `/tmp/nanolang-file-public-artifacts`; all hashes are verified during sealing. Compressed remote transfers and their byte/hash manifests are retained separately.
+My original seal contains 417 reports. The final [report manifest](file-public-admission/report-sha256.json) contains 510 reports, including independent audit and integrated qualification. The [summary](file-public-admission/qualification-summary.json) records 32 equal source/tool before/after pairs and 46,791 artifact references. My [artifact store](file-public-admission/artifact-store.json) retains 16,409 unique files, 4,324,821,877 bytes, including the compile-only objects. External artifacts live at `/tmp/nanolang-file-public-artifacts`; all hashes are verified during sealing. Compressed remote transfers and their byte/hash manifests are retained separately.
 
 Each frozen source inventory contains 10,015 tracked files. Final a46 Linux/Darwin source maps are exactly equal. The current-map reports rehash each retained source tree and actual compiler/tool paths. Intermediate output binaries can be replaced by later configurations in the same frozen tree; their exact earlier contents remain in the content-addressed store. I do not claim that every intermediate output pathname still names its earlier binary.
 
 My source trees are `/home/jkh/Src/nanolang-file-public-qualified-{01fd,389,dd401,9bac,a46}` and puck.local `/private/tmp/nanolang-file-public-{389,dd401,9bac,a46}`. Reports preserve exact full pins and selected tools. Final publication still requires independent evidence review and canonical integration assessment. Task dfa149 and the broader File parents remain open at this checkpoint.
+
+## Canonical integration
+
+I merge actual canonical `5d1d3d39f` in separate ready checkpoint `c3631ecf2`; additive Make target conflict resolution retains both public and cyclic recipes. Every public production/fixture blob remains identical. The canonical private cyclic query factors preparation but the existing public path still calls `nvm_file_code_prepare` with acyclic=true. The exact identity map is retained.
+
+I freeze `58eccb93e` for fresh integration gates. Linux setup/public ordinary/cyclic query/opcode refusal pass in 20.342/64.916/2.320/3.171 seconds; puck passes in 9.115/44.612/2.331/3.621 seconds. Public ordinary qualification again executes all three methods, generated O0/O2 and actual installed/uninstalled package controls. I make no new integrated sanitizer claim.
+
+Eight additional phase pairs preserve 10,896 current tracked sources on each host, with equal cross-host maps; 15 Linux and 16 puck tool entries match current files. The integrated archived inputs/outputs add 11,982 references. The final store has 20,144 unique files and 4,918,529,704 bytes. All earlier reports/artifacts and failure scopes remain preserved; full File source/control-flow parents remain open.

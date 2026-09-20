@@ -1,0 +1,29 @@
+{
+  "qualified": "54a98b7c1",
+  "integrated": "c3631ecf2",
+  "canonical": "5d1d3d39f",
+  "public_production": {
+    "src/nanoisa/file_cli.c": "228defe55f41fc42c336fc6fcabaf752ca7e657b",
+    "src/nanoisa/file_cli.h": "ff81dc8134d348b0c685bf2dd5b20916f3139ba2",
+    "src/nanoisa/file_native_abi.h": "da2417f42109b0aa40e55bd058f5ef845c013770",
+    "src/nanoisa/file_native_emit.inc": "7610f064b9bbc7c4863dfa3beaa2363253c21dcb",
+    "src/nanoisa/file_native_public.h": "018b18d306b9fb8103257d7a21be7616d3c6571d",
+    "src/nanoisa/file_public.h": "ae73950f5ebeb8f2677156b260dfb167144fb375",
+    "src/nanoisa/file_public_internal.h": "a7ec474fc62eb1a14ba34de71c54c6ce59f349d4",
+    "src/nanoisa/file_public_native.c": "d395d147cf6c11c4db5d72cfb2926f08b36b3641",
+    "src/nanoisa/file_runtime.c": "ae40d52f1b10fbbc64ae3c70107a9082f8b5e041",
+    "src/nanoisa/nvm2c_file_private.c": "01037bd09cb7f8ca52e56bcf2a4eaa32a0df6e99",
+    "src/nanoisa/nvm2c_file_private.h": "4443e92987b571e4378e9dd353249a4dd7056d9b",
+    "src/nanoisa/nvm2c_main.c": "c3c8c166ece40cd220d6671fbe4309d23fb8b094",
+    "src/nanovm/file_public_vm.c": "8b4667cc7c7f0c629cb4dd6231ba93c26d09d828",
+    "src/nanovm/file_vm_engine.inc": "3d9a08e39f740cdbb9b0cf97add18d094806c5fc",
+    "src/nanovm/file_vm_private.c": "d92a65f052207f2ca04b30b40e6e486d31954906",
+    "src/nanovm/file_vm_private.h": "4233f9b3e313cd01082b18c7f5dcf1cd13a3c746",
+    "src/nanovm/main.c": "9fed0f2ce7252f5b93c35946a89fe38f11af2b2c"
+  },
+  "fixtures": {
+    "tests/nanoisa/test_file_public.c": "fdda0edd0ef96f537ad6101f6d2eb221e7c4605d",
+    "tests/nanoisa/test_file_public_cli.c": "dcdae1fdb6936d5fe2efda538189110b17deb3ce",
+    "tests/test_file_public.py": "fb53baccb497ee67d0362c2d18c0920d3e9cc55a"
+  }
+}
