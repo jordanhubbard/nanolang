@@ -12908,3 +12908,5 @@ I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5
 - [ ] I correct the new fixture main-loop indentation after retaining the firstedd51 strict GCC compilation terminal under task_4931a66f39c04b1a96981a4e00d43646; no fixture executed. I preserve strict warnings, all assertions and original provider/source evidence, review the tiny correction, then run a fresh corrected fixture.
 
 I retain the ordinary-admission neighbor preflight path-resolution failure under task_4931a66f39c04b1a96981a4e00d43646. The reviewed external driver correction changes only provider path resolution and existence checks; all focused qualification remains attributed to8d731, and the fresh neighbor phases remain required.
+
+I also retain both ordinary-admission neighbor build-only LLVM selection terminals under task_4931a66f39c04b1a96981a4e00d43646. The reviewed external selectors pin actual clang/opt and Linux native-only GCC13 selection; production, fixtures and strict warnings remain unchanged. Unreached neighbor/emitter qualification remains required.
