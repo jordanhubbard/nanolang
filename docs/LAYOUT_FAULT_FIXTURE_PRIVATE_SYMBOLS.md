@@ -29,3 +29,12 @@ Original reports: `/tmp/nanolang-canonical-full-ca377-linux` and puck
 `/tmp/nanolang-canonical-full-ca377-puck`. Their manifests retain commands,
 file-backed logs, bounded process-group cleanup and source/tool/product maps.
 Deleted temporary files from unchanged inner runners are not reconstructed.
+
+My first external product-copy helper failed before tests on both hosts: it
+created `bin/nanoc` before its relative symlink target, then immediately tried to
+hash that unresolved copy. Both observed tool terminals returned1. I retain the
+first helper and partial destinations; the original output is in the agent tool
+transcript, not a separately captured historical log. I do not fabricate one.
+The corrected helper copies regular files before symlinks and archives itself
+before checks. Fresh corrected destinations and file-backed preflight logs keep
+the original roots unchanged. This does not change the fixture checkpoint.
