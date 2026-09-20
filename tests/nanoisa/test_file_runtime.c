@@ -28,6 +28,9 @@ static int close_error[4];static unsigned close_index;
 static NvmFileRuntime *reenter;
 static unsigned reentries;
 static void nested_entry(void){
+#ifdef FILE_RUNTIME_NESTED_EXTRA
+ FILE_RUNTIME_NESTED_EXTRA();
+#endif
  if(!reenter)return;
  NvmFileRuntime *saved=reenter;NvmFileRuntimeView out;memset(&out,0xa5,sizeof out);NvmFileRuntimeView before=out;
  CHECK(nvm_file_runtime_begin(saved)==NVM_FILE_RUNTIME_BUSY);

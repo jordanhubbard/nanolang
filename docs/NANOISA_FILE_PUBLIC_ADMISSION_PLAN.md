@@ -252,3 +252,73 @@ At this checkpoint I have performed static source comparison, transitive-header
 closure inspection and whitespace checks only. I have not compiled this new
 source, prepared public fixtures or executed a service. Complete production
 review precedes fixture preparation; complete fixture review precedes gates.
+
+## My first complete public fixture checkpoint
+
+I retain every original private VM/native corpus assertion. Small defaulted
+fixture selectors route the new public suite through the actual public scalar
+API or exact-byte registered generated native functions; old suites keep their
+original paths. The bridge checks the public scalar sentinel before reconstructing
+the passive view expected by inherited assertions. Manual carrier/frame controls
+remain labeled as manual. The old grant-less route checks remain refusals.
+
+My new controls include null/revoked grants, incompatible internal ABI/catalog,
+malformed/truncated/version1/required-feature/catalog bytes, unsupported startup
+signatures, output preservation, all identifier length/character boundaries,
+16 deterministic contending threads and synchronous reentry during real service
+operations. A held gate is shared by actual VM, native program and nonexecuting
+emitter calls; failed entrants cannot release it. Existing allocation-prefix,
+transient, generation, partial-service, initializer suppression and first/secondary
+cleanup assertions run through the public adapters. The grant is created outside
+the per-invocation allocation ledger; its complete allocation/lifecycle controls
+remain the separately qualified grant neighbor, and sanitizer leak detection
+covers its actual lifetime here.
+
+I build the real `make -B -j2 install` package once per selected configuration,
+with C99 consumer flags and the explicit C11 grant recipe checked in the actual
+command log. My package controls use the installed commands, all22 installed
+headers and the actual installed archive from a directory outside the repository.
+Two named native programs share one grant and gate, execute the real temporary
+file/write/rewind/read/close path, retain scalar sentinels on refusal, and leave
+no additional observed descriptors in the scanned0..1023 range. Native-only
+symbol inspection rejects extraction of either File VM entry or generic VM
+execution. Duplicate names must fail an actual link with a duplicate-symbol
+message. Separate generated ABI/fact mutations refuse before acquisition and
+then permit an unchanged second program with the same grant.
+
+Installed CLI controls cover absent opt-in, incompatible modes/guest arguments,
+invalid names, bounded/empty inputs, earlier-output preservation, failed rename
+with no staged file, and an actual read-only stdout descriptor producing a checked
+write failure. A separate C99 CLI fixture performs real I/O while modeling
+allocation, partial-write, flush, close, rename and fdopen errors; it checks saved
+primary errors, exact pointer/length sentinels, staged-file cleanup and real close
+observations. Modeled post-close/post-I/O reporting remains explicitly distinct
+from arbitrary host libc failure behavior.
+
+For private generated-byte parity I freshly compile the exact emitter source
+from actual888 `f1606e2c84e67491e9652a5bf71944d235216d95`, under a distinct test
+symbol. I compare and retain its C output against the factored private emitter
+for every accepted linked capture case. I do not execute any old retained binary.
+The new public generated corpus compiles as C99 at both O0 and O2. The fixtures
+retain source, commands, stdout/stderr, status and bounded process-group cleanup
+records, and clear inherited LSAN_OPTIONS while requiring leak detection1.
+
+After independent fixture review my frozen configuration order is Linux GCC
+ordinary/strict sanitizer and Clang ordinary/strict sanitizer, then isolated
+puck AppleClang ordinary and HomebrewClang ordinary/strict sanitizer. Every
+configuration has fresh provider objects and a fresh installed archive; compiler,
+SDK, libffi/crypto, source and tool identities and all intermediate binaries are
+retained. Sanitizer scope is the actual compiled command closure, not a claim
+about uninstrumented external libraries. The old host-grant, File opcode/service
+refusal and ordinary wrapper/ISA neighbors remain required adjacent gates.
+Source/provider before/after maps distinguish the fresh install rebuild from
+previously prepared fixture providers. All advertised seal reports must be
+committed Git blobs. I preserve the first terminal and require a reviewed
+correction before any demonstrated failure is retried.
+
+No C build or fixture has run at this checkpoint. Python AST parsing and diff
+whitespace inspection are static preparation only. The initially reported
+missing-C11 review finding was retracted: the inherited explicit grant rule is
+present, and a standalone Make dry run confirmed that its recipe-bearing source
+prerequisite remains `$<`. No production correction or build-defect claim follows
+from that disproven suspicion.
