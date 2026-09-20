@@ -12643,3 +12643,14 @@ coverage, nonwrapping existing physical lifetimes, shared fuel/open-instruction
 protocol and distinct report/cleanup. Invalid options return create status only;
 later adapters own their failure reports. I hold all builds/fixtures/execution
 for source review and retain public acyclic APIs/refusals and full later goals.
+
+I prepare the next15a92 carrier fixture after complete `d4070d672` source review:
+manual cyclic protocol controls retain the old carrier/frame corpus, exact
+fuel/physical identity/owned and borrowed call semantics, 258 slot reuse,
+pre-disposal owner coverage, and measured allocation-failure prefixes. The
+runner retains bounded file-backed terminals and clears leak suppressions.
+[NANOISA_FILE_CYCLIC_CARRIER_PLAN.md](NANOISA_FILE_CYCLIC_CARRIER_PLAN.md)
+records the exact fixture and neighbor scope. This checkpoint is unexecuted;
+fixture review precedes fresh Linux/Darwin qualification. Matched cyclic VM,
+real generated-native, public conjunction, indirect/richer borrowing and source
+requirements remain open under15a92/72556/6931.

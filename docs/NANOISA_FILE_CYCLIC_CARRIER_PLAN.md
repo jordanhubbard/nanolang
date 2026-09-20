@@ -261,3 +261,56 @@ The Make dependency addition covers both carrier object owners and the private
 value validator header. I have only reviewed source and checked whitespace;
 no fixture, compilation or cyclic/service execution occurs at this checkpoint.
 Root source review precedes fixture preparation and fresh qualification.
+
+## I prepare my carrier fixture before execution
+
+Root reviewed the complete carrier source at `d4070d672`. I now add a fixture
+checkpoint, without building or running it. I retain the entire old manual
+carrier and frame corpus, then manually drive decoded, prepared instruction
+sites through the new cyclic protocol. Selecting VM/native arena storage is
+not cyclic VM or generated-native execution; those matched adapters remain a
+later dependency.
+
+My new cases cover both arena modes and permuted nominal identities, copied
+input independence, zero and 258 loop iterations, exact instruction counts,
+zero fuel and exhaustion before service/after rooted results/inside borrowed
+helper frames, direct entry and initializer completion, nested borrowed calls,
+owned arguments/results, and two physical owners swapped through an empty local.
+I check the exhausted function/byte offset, first-error persistence, no host
+acquisition at an uncharged service, and cleanup failures secondary to fuel.
+A held borrow prevents moving its owner. Positive completion checks empty core
+owner/borrow masks and empty frame/region state before terminal disposal.
+
+Instrumented cases retain actual core owners while forging only the carrier's
+same-slot generation or borrow epoch, poison a variant or idle staging slot,
+create an unrooted core owner, and choose the wrong actual OpenResult arm.
+I restore deliberate fixture corruption before cleanup when necessary; refusal
+must already have occurred. Separate core-owning fixture helpers seed valid
+handle/slot pairs at generation and borrow-epoch exhaustion, retire empty slots,
+and check carrier region exhaustion. I keep capability-generation and context
+identity overflow in the unchanged `test-nsi-file-values` neighbor, rather than
+claiming the new carrier fixture independently repeats those controls.
+
+I measure the allocation-attempt count of successful creation plus begin, then
+inject every persistent and single-failure prefix through that measured count.
+Both creation and begin must expose failures, failed publication keeps its
+sentinel, and each prefix restores the retained allocation baseline and host
+state before a fresh recovery context. This scope instruments the rebuilt query,
+carrier and private core providers; ordinary linked common objects are not a
+whole-program sanitizer claim. Linked mode uses separately compiled production
+providers, while instrumented mode includes the real carrier/core owning source
+for physical assertions and boundary-counter setup.
+
+My runner reuses the reviewed cyclic-query command driver: file-backed output,
+240-second command bound, bounded TERM/KILL group cleanup even after leader
+exit, launch/cleanup errors and terminal JSON retained. I explicitly clear
+`LSAN_OPTIONS`; strict supported sanitizer runs retain leak detection. No
+historical failing binary is replayed. Before gates I freeze the complete
+source/provider/tool inputs and obtain fixture review. Planned Linux GCC/Clang
+and Darwin Apple/Homebrew ordinary and supported sanitizer configurations retain
+their exact compiler flags, SDK and partial-instrumentation attribution.
+Unchanged acyclic carrier/frame, core-value, private VM/native and public
+refusal/positive neighbors remain required alongside the cyclic query/hosted
+neighbors. I preserve the first unexpected terminal before any correction.
+No installed ABI, public admission, cyclic dispatcher or generated-native
+execution is added by this fixture checkpoint.
