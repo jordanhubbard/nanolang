@@ -1,0 +1,7 @@
+{
+  "Makefile.gnu": "e0fcfb9970288b6e315b48617e9c32a0dcefd1af3da04339f02621a150346d9a",
+  "Makefile": "6044c1cdf25c85506a9ab1e614cd7fd95761293efafb3ee53d58a8552d0036a2",
+  "src/runtime/assembler_capture.c": "2bae37c534232adea3eb585c6f2783ce98363fb2305ee83a477d89d77249296f",
+  "src/runtime/assembler_capture.h": "6d65b56dbb7a0cc4f420b58547e8cb0f94425b68cb89034074116d0555628783",
+  "tests/test_assembler_capture_records.py": "db19bb6c9d7265a9bac20ce225b0f0e06496eb238bae6fa90f5cd07d45f012a0"
+}

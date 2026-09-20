@@ -1,0 +1,49 @@
+I retain native artifacts at /tmp/nano-file-public-xuu2oe0t
+test_cli_staging_faults (tests.test_file_public.FilePublic.test_cli_staging_faults) ... PASS real CLI staging and modeled I/O/allocation failure cleanup
+ok
+test_instrumented_native_corpus (tests.test_file_public.FilePublic.test_instrumented_native_corpus) ... I retain 436 allocation refusals and 0 recovered complete carriers
+PASS 84511 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch
+PASS 42381 manual private File frame transfer checks; no opcode dispatcher
+private VM allocation refusals=478 recovered=0
+PASS 182788 actual private File VM dispatch checks; legacy grant-less File routes remain refused
+PASS native emission allocation refusals=334
+PASS native capture: 73 exact modules, 71 emitted, 2 refused before host
+PASS public VM corpus, shared grant and scalar boundary
+I retain 436 allocation refusals and 0 recovered complete carriers
+PASS 84509 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch
+PASS 42381 manual private File frame transfer checks; no opcode dispatcher
+private VM allocation refusals=478 recovered=0
+PASS 182075 actual generated-native File dispatch checks; legacy grant-less File routes remain refused
+PASS private generated-native replay: 567 calls, unchanged original corpus assertions
+PASS public generated-native corpus and shared gate
+I retain 436 allocation refusals and 0 recovered complete carriers
+PASS 84509 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch
+PASS 42381 manual private File frame transfer checks; no opcode dispatcher
+private VM allocation refusals=478 recovered=0
+PASS 182075 actual generated-native File dispatch checks; legacy grant-less File routes remain refused
+PASS private generated-native replay: 567 calls, unchanged original corpus assertions
+PASS public generated-native corpus and shared gate
+ok
+test_linked_native_corpus_and_isolated_refusals (tests.test_file_public.FilePublic.test_linked_native_corpus_and_isolated_refusals) ... PASS 11940 manual private File carrier checks; 0 acquisition attempts, 0 real opens, 0 real closes, 0 I/O attempts, 0 nested refusal observations; no File CODE/frame dispatch
+PASS 15469 manual private File frame transfer checks; no opcode dispatcher
+PASS 17374 actual private File VM dispatch checks; legacy grant-less File routes remain refused
+PASS native capture: 69 exact modules, 67 emitted, 2 refused before host
+PASS public VM corpus, shared grant and scalar boundary
+PASS 11938 manual private File carrier checks; 0 acquisition attempts, 0 real opens, 0 real closes, 0 I/O attempts, 0 nested refusal observations; no File CODE/frame dispatch
+PASS 15469 manual private File frame transfer checks; no opcode dispatcher
+PASS 17163 actual generated-native File dispatch checks; legacy grant-less File routes remain refused
+PASS private generated-native replay: 73 calls, unchanged original corpus assertions
+PASS public generated-native corpus and shared gate
+PASS 11938 manual private File carrier checks; 0 acquisition attempts, 0 real opens, 0 real closes, 0 I/O attempts, 0 nested refusal observations; no File CODE/frame dispatch
+PASS 15469 manual private File frame transfer checks; no opcode dispatcher
+PASS 17163 actual generated-native File dispatch checks; legacy grant-less File routes remain refused
+PASS private generated-native replay: 73 calls, unchanged original corpus assertions
+PASS public generated-native corpus and shared gate
+PASS outside-tree two-program C99 native package
+PASS outside-tree two-program C99 native package
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 65.066s
+
+OK

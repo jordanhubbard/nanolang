@@ -1,0 +1,17 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 22.163,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.114,
+    "status": 0
+  },
+  {
+    "phase": "linux-native-counter",
+    "seconds": 51.684,
+    "status": 0
+  }
+]

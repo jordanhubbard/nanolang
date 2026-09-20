@@ -64,3 +64,23 @@ Make forwarding of its actual LDFLAGS. This changes build selection only; I keep
 all allocation, status and output assertions. Corrected Darwin continuation gets
 separate fixture/input attribution and retained products. No Linux replay is
 needed for this link-selection correction.
+
+## My canonical914/915 integration
+
+I integrate actual main99f390264b7e860ffad659a3852c9b66cbd73399 in a separate
+ready tree after the sealed660/033 acceptance. The sole textual conflict is the
+additive roadmap tail; I retain both histories. My constructor/admission
+production and fixtures retain their qualified bytes. Incoming914 adds explicit
+public cyclic File engines, opt-in CLI branches, package providers and header
+compatibility changes. Ordinary CLI selection remains the existing branch.
+Incoming915 changes the assembler-capture Make recipe to forward real caller
+flags, with its documented separate external-assembler sanitizer boundary; I use
+that actual canonical recipe, not an older copied recipe.
+
+I prepare fresh providers and CLIs on both hosts, run ordinary constructor and
+switch/computed-goto admission controls, actual callback/FFI/mixed/owner/shared
+neighbors, public cyclic package controls and the unchanged full imported emitter.
+I retain earlier sanitizer acceptance at660; unchanged source identity does not
+relabel it as integration-pin sanitizer acceptance. Full-suite qualification waits
+for the separately reviewed projected/tuple native-compiler-selector correction;
+this scoped integration neither closes nor weakens that requirement.

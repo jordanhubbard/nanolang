@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_assembler_capture_records"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-capture-flags",
+  "selected_environment": {
+    "NANO_AS_CAPTURE_TEST_HELPER": "/tmp/nanolang-capture-flags-qualified/gcc-default/nano_as_capture.so",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "objects": 3716,
+  "bytes": 707660859,
+  "references": 10290,
+  "current": [
+    {
+      "group": "darwin-integration",
+      "root": "/private/tmp/nanolang-file-cyclic-public-final",
+      "last": "archive-boundary",
+      "sources": 27913,
+      "tools": 36,
+      "products": 203,
+      "mismatches": 0
+    }
+  ],
+  "reports_archive": {
+    "path": "/tmp/nanolang-file-cyclic-public-final-puck-reports.tar.gz",
+    "sha256": "74fc06908c21a8ed29770ed42fff8d50ab466735ac58e7aa383c0e8310a42597",
+    "bytes": 18822247
+  },
+  "artifacts_archive": {
+    "path": "/tmp/nanolang-file-cyclic-public-final-puck-artifacts.tar.gz",
+    "sha256": "db6857b555405cb344d07b6e658ef032de6e65e8b6683d17382d86d09d1c69d9",
+    "bytes": 128360845
+  }
+}

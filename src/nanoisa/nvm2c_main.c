@@ -11,6 +11,7 @@
 #include "nanoisa.h"
 #include "nvm2c.h"
 #include "file_public.h"
+#include "file_cyclic_public.h"
 #include "file_cli.h"
 
 #include <stdio.h>
@@ -23,6 +24,7 @@ static void usage(FILE *out) {
             "I do not embed nano_vm. I am not a NanoLang compiler phase.\n"
             "Usage: nvm2c <file.nvm> [-o out.c]\n"
             "       nvm2c --file-temporary --entry-name IDENT <file.nvm> [-o out.c]\n"
+            "       nvm2c --file-temporary --file-cyclic --entry-name IDENT <file.nvm> [-o out.c]\n"
             "       nvm2c --help\n"
             "Without -o I write C to stdout.\n"
             "For native array/GC artifact imports, link bin/nano_aot_runtime.o\n"
@@ -36,6 +38,7 @@ int main(int argc, char **argv) {
     const char *out = NULL;
     const char *file_entry = NULL;
     bool file_temporary = false;
+    bool file_cyclic = false;
     int i;
     NanoisaErr err;
     NvmModule *mod;
@@ -50,6 +53,11 @@ int main(int argc, char **argv) {
         if (strcmp(argv[i], "--file-temporary") == 0) {
             if (file_temporary) { usage(stderr); return 2; }
             file_temporary = true;
+            continue;
+        }
+        if (strcmp(argv[i], "--file-cyclic") == 0) {
+            if (file_cyclic) { usage(stderr); return 2; }
+            file_cyclic = true;
             continue;
         }
         if (strcmp(argv[i], "--entry-name") == 0 && i + 1 < argc) {
@@ -77,7 +85,7 @@ int main(int argc, char **argv) {
         return 2;
     }
 
-    if (file_temporary != (file_entry != NULL)) {
+    if (file_temporary != (file_entry != NULL) || (file_cyclic && !file_temporary)) {
         fprintf(stderr,"I require --file-temporary and --entry-name together.\n");
         return 2;
     }
@@ -90,8 +98,9 @@ int main(int argc, char **argv) {
             fprintf(stderr,"%s\n",emit_err);
             return 1;
         }
-        NvmFileRuntimeStatus status = nvm2c_emit_file_bytes(bytes,size,file_entry,
-                                                          &c,emit_err,sizeof emit_err);
+        NvmFileRuntimeStatus status = file_cyclic
+            ? nvm2c_emit_file_cyclic_bytes(bytes,size,file_entry,&c,emit_err,sizeof emit_err)
+            : nvm2c_emit_file_bytes(bytes,size,file_entry,&c,emit_err,sizeof emit_err);
         free(bytes);
         if (status != NVM_FILE_RUNTIME_OK) {
             fprintf(stderr,"I cannot emit the File profile (%u): %s\n",(unsigned)status,emit_err);
