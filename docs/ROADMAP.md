@@ -14013,3 +14013,11 @@ original88ae stopped VM corpus remains unchanged and unaccepted.
   alias/copy fixture already tests this ordering. I preserve both first raw
   terminals and correct only the expected identity, adding explicit origin-kind
   controls. Query source and the original VM programs remain unchanged.
+
+My correctedb575 global query now passes all seven selected compiler forms on
+Linux/puck: linked360/observed1352 checks,59 measured one-shot/persistent failure
+positions with exact MEMORY and fresh recovery, and every named unchanged
+neighbor. `docs/evidence/record-array-global-flow.md` retains622 reports,
+1112 CAS artifacts and114 source/tool pairs, including bothfa222 first fixture
+failures. This is only the prerequisite for the unchanged private VM corpus;
+I do not close its runtime or full mixed-parent requirements from query evidence.

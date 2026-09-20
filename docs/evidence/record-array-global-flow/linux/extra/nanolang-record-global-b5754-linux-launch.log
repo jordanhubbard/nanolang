@@ -1,0 +1,26 @@
+{"pin": "b5754844254e19763de6d9b44cd098e832ba725b", "source_files": 3727, "root": "/tmp/nanolang-record-global-qualified-b5754", "sdk": null}
+{"phase": "setup", "status": 0, "seconds": 20.613}
+{"phase": "configuration", "status": 0, "seconds": 0.114}
+{"phase": "discovery", "status": 0, "seconds": 0.064}
+{"phase": "ordinary", "status": 0, "seconds": 3.722}
+{"phase": "clang-ordinary", "status": 0, "seconds": 3.923}
+{"phase": "sanitizer", "status": 0, "seconds": 12.644}
+{"phase": "clang-sanitizer", "status": 0, "seconds": 11.592}
+{"phase": "ownership_contracts-build", "status": 0, "seconds": 0.164}
+{"phase": "ownership_contracts-run", "status": 0, "seconds": 0.004}
+{"phase": "ordinary_record_authority-build", "status": 0, "seconds": 0.365}
+{"phase": "ordinary_record_authority-run", "status": 0, "seconds": 0.002}
+{"phase": "nvm_v2_layouts-build", "status": 0, "seconds": 0.164}
+{"phase": "nvm_v2_layouts-run", "status": 0, "seconds": 0.002}
+{"phase": "ownership_layouts_private-build", "status": 0, "seconds": 0.114}
+{"phase": "ownership_layouts_private-run", "status": 0, "seconds": 0.004}
+{"phase": "nvm_v2_convert-build", "status": 0, "seconds": 0.165}
+{"phase": "nvm_v2_convert-run", "status": 0, "seconds": 0.004}
+{"phase": "nvm_v2_endtoend-build", "status": 0, "seconds": 0.164}
+{"phase": "nvm_v2_endtoend-run", "status": 0, "seconds": 0.001}
+{"phase": "old-array", "status": 0, "seconds": 0.816}
+{"phase": "affine-union", "status": 0, "seconds": 1.016}
+{"phase": "ownership-public", "status": 0, "seconds": 0.616}
+{"phase": "complete-declarations", "status": 0, "seconds": 1.116}
+{"phase": "record_array_origins", "status": 0, "seconds": 3.673}
+{"phase": "record_array_execution", "status": 0, "seconds": 4.024}
