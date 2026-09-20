@@ -75,3 +75,20 @@ artifact references and 48 equal source/tool endpoint pairs. I retain the
 Darwin archive identity in that seal and do not relabel earlier measurements.
 This repairs the bounded passive gate; the compiler shadow deadline and separate
 Darwin native timeouts still require their own evidence before release.
+
+## My affine-union integration
+
+At `933aa91eab7092b238805f772b4fd3564997ae19`, I integrate actual PR893
+merge `0dc58835ffd2183f6c35f90a4d02bd2da18e4a19`. The passive implementation,
+new fixtures and optional generated-parser reference remain unchanged; the
+shared ownership/affine providers change, so I rebuild them in separate fresh
+trees on Linux and puck. All twelve phases pass on each host with the same
+26 methods, 273 direct checks, exact output and comparison assertions.
+
+My [new supplement](passive-internal-cfg-union-integration/summary.json)
+retains 239 reports, 493 artifact objects totaling 212243248 bytes, 9205
+references and 48 equal endpoint pairs. Original evidence remains at its own
+pins. The [preceding independent integration audit](passive-internal-cfg-integration-review.json)
+verified every report, artifact, selected Git input and current endpoint for6ae;
+it does not claim to cover this later933 integration. Full release gates remain
+open, including the still-observed compiler shadow deadline.
