@@ -32,7 +32,7 @@ class FilePrivateVm(unittest.TestCase):
 
     def command(self, name, args, run=False):
         (self.artifacts / f'{name}-command.txt').write_text(shlex.join(args) + '\n')
-        env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        env = dict(os.environ, LSAN_OPTIONS='', ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
                    UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
         result = subprocess.run(args, cwd=ROOT, env=env, capture_output=True,
                                 text=True, timeout=180)

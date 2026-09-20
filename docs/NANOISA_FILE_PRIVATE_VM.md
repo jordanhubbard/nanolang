@@ -247,3 +247,10 @@ I freeze source/tools before Linux ordinary/GCC/Clang and puck ordinary/explicit
 Homebrew sanitizer phases. I run required unchanged frame/opcode/wrapper neighbors
 with fresh affected provider linkage, retaining actual phase artifacts and first
 terminals. Root and independent fixture review precede the first service run.
+
+Before freezing I explicitly clear inherited LSAN_OPTIONS in the private VM
+runner and gate environment, retaining detect_leaks=1 and strict sanitizer
+errors. Sanitizer claims cover the selected rebuilt thirteen hosted providers,
+three NSI cores, carrier, private adapter and vm_ffi sentinel provider plus
+fixture translation units. Reused common/compiler/VM objects are identified
+separately and do not gain a whole-program sanitizer claim from linking.
