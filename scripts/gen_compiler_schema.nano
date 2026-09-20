@@ -3,7 +3,7 @@
 # Replaces gen_compiler_schema.py for Python-free bootstrap
 
 from "std/fs.nano" import read, write, join, file_delete
-from "modules/std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, object_has, keys
+from "modules/std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, as_bool, object_has, keys
 
 let HEADER_COMMENT: string = "/* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */"
 let C_GUARD: string = "NANOLANG_GENERATED_COMPILER_SCHEMA_H"
@@ -115,7 +115,7 @@ fn gen_nano_ast(schema: Json) -> string {
         while (< i enum_count) {
             let enum_obj: Json = (get_index enums i)
             let is_contract: bool = (cond
-                ((object_has enum_obj "contracts") (nl_json_as_bool (get enum_obj "contracts")))
+                ((object_has enum_obj "contracts") (as_bool (get enum_obj "contracts")))
                 (else false)
             )
             if is_contract {
@@ -153,7 +153,7 @@ fn gen_nano_ast(schema: Json) -> string {
         while (< i struct_count) {
             let struct_obj: Json = (get_index structs i)
             let is_contract: bool = (cond
-                ((object_has struct_obj "contracts") (nl_json_as_bool (get struct_obj "contracts")))
+                ((object_has struct_obj "contracts") (as_bool (get struct_obj "contracts")))
                 (else false)
             )
             if is_contract {
@@ -167,7 +167,7 @@ fn gen_nano_ast(schema: Json) -> string {
                 let prefix: string = (cond
                     ((object_has struct_obj "emit_c") 
                         (cond
-                            ((nl_json_as_bool (get struct_obj "emit_c")) "extern ")
+                            ((as_bool (get struct_obj "emit_c")) "extern ")
                             (else "")
                         )
                     )
@@ -218,7 +218,7 @@ fn gen_contracts(schema: Json) -> string {
         while (< i enum_count) {
             let enum_obj: Json = (get_index enums i)
             let is_contract: bool = (cond
-                ((object_has enum_obj "contracts") (nl_json_as_bool (get enum_obj "contracts")))
+                ((object_has enum_obj "contracts") (as_bool (get enum_obj "contracts")))
                 (else false)
             )
             if is_contract {
@@ -255,7 +255,7 @@ fn gen_contracts(schema: Json) -> string {
         while (< i struct_count) {
             let struct_obj: Json = (get_index structs i)
             let is_contract: bool = (cond
-                ((object_has struct_obj "contracts") (nl_json_as_bool (get struct_obj "contracts")))
+                ((object_has struct_obj "contracts") (as_bool (get struct_obj "contracts")))
                 (else false)
             )
             if is_contract {
@@ -266,7 +266,7 @@ fn gen_contracts(schema: Json) -> string {
                 let prefix: string = (cond
                     ((object_has struct_obj "emit_c")
                         (cond
-                            ((nl_json_as_bool (get struct_obj "emit_c")) "extern ")
+                            ((as_bool (get struct_obj "emit_c")) "extern ")
                             (else "")
                         )
                     )
@@ -470,7 +470,7 @@ fn gen_c(schema: Json) -> string {
         while (< i enum_count) {
             let enum_obj: Json = (get_index enums i)
             if (object_has enum_obj "emit_c") {
-                let emit_c: bool = (nl_json_as_bool (get enum_obj "emit_c"))
+                let emit_c: bool = (as_bool (get enum_obj "emit_c"))
                 if emit_c {
                     let enum_name: string = (as_string (get enum_obj "name"))
                     let values: Json = (get enum_obj "values")
@@ -548,7 +548,7 @@ fn gen_c(schema: Json) -> string {
         while (< i struct_count) {
             let struct_obj: Json = (get_index structs i)
             if (object_has struct_obj "emit_c") {
-                let emit_c: bool = (nl_json_as_bool (get struct_obj "emit_c"))
+                let emit_c: bool = (as_bool (get struct_obj "emit_c"))
                 if emit_c {
                     let struct_name: string = (as_string (get struct_obj "name"))
                     let c_struct_name: string = (+ "nl_" struct_name)
