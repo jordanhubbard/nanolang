@@ -1,0 +1,41 @@
+{
+  "head": "eafcd1e52651996b1960a21ef5a3af57baf7a3b1",
+  "phases": [
+    {
+      "name": "shared-policy",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_shared_match_policy_docs",
+        "tests.test_cseed_match_totality"
+      ],
+      "status": 0,
+      "seconds": 2.816,
+      "timeout": false,
+      "cleanup": [],
+      "fixed_equal": true,
+      "source_equal": true
+    },
+    {
+      "name": "owned-refusals",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_selected_variant_ownership.SelectedVariantOwnership.test_guarded_owned_match_remains_rejected",
+        "tests.test_generic_selected_ownership.GenericSelectedOwnership.test_guarded_generic_match_remains_rejected"
+      ],
+      "status": 0,
+      "seconds": 0.891,
+      "timeout": false,
+      "cleanup": [],
+      "fixed_equal": true,
+      "source_equal": true
+    }
+  ],
+  "prior": "/private/tmp/nanolang-guards-eaf-darwin/manifest.json",
+  "repeated_prior_phases": false
+}
