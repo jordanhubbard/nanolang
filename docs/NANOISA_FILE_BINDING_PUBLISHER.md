@@ -1,8 +1,8 @@
 # I publish an already validated File binding directory exclusively
 
 I continue `task_8bbc1cf5295b4b59b314640ef57c725f` and the open6fc/72556/6931/d03c
-parents. My base is reviewed PR905 integration `92726e161`; its pure binding
-seal remains separate and actual merge remains pending. This is a design
+parents. My base is actual PR905 merge `af8809b32850454d06d9c1881c3a27b43f4c9d9c`;
+its reviewed92726 integration and pure binding seal remain separate. This is a design
 checkpoint, not implementation or measured publication. I reuse
 `nl_file_binding_prepare` and its immutable output views. I add no second NSI
 parser, catalog validator or source renderer.
@@ -175,7 +175,10 @@ options and stdout-output modes refuse before opening anything. A positional
 INPUT beginning with `-` is still a literal filename in the exact three-argument
 form; no stdin alias exists. DIRECTORY is validated before any staging mutation.
 The command emits a fixed machine-readable JSON report to stderr, never rendered
-source to stdout. Path/staging bytes are escaped safely; first status/errno,
+source to stdout. Path/staging bytes use a JSON byte representation: ASCII printable bytes retain
+their spelling except quoted escapes, and every control/non-ASCII byte is
+`\u00XX`. A consumer recovers bytes from code points0..255, not by UTF-8
+encoding them. Thus arbitrary filename bytes never emit invalid UTF-8. First status/errno,
 published/durable/cleanup_pending are present. Exit0 means statusOK; exit2 is
 usage, and exit1 is any preparation/publication/IO failure. No exit code encodes
 absence or authorizes an automatic overwrite retry.
