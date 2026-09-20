@@ -12938,3 +12938,20 @@ matched dispatch, cyclic query, cyclic hosted, indirect ownership, public, and
 actual linked-archive boundary. No bootstrap or repeated sanitizer claim follows.
 The external integration driver is adapted from the sealed bounded runner with
 only phase selection, ordinary selectors and the indirect query invocation.
+
+Independent review of original31f42 found a Linux runner provenance gap: commands
+invoke `/usr/bin/python3` through `sys.executable`, but tools() inventories only
+PATH-resolved `python3` (Homebrew). I retain the actual argv and all test results,
+compiler/provider/source hashes and original sealed maps; I have no historical
+hash for the actual Linux interpreter. This also applies to the completed3ea2
+Linux supplement. Darwin's actual interpreter matches its recorded tool. I do
+not infer a product defect or retroactively certify interpreter immutability.
+Before changing the external driver I specify an additional `sys.executable`
+identity entry for future runs. Repair78437 tracks this measured limitation;
+root decides bounded prospective supplementation before any gate repetition.
+
+Root reviewed this attribution gap and requires no gate replay solely for it.
+Compiled C results and measured source/compiler/provider identities remain
+valid. I capture the actual interpreter's current hash as current-only evidence
+and correct future driver inventory; neither recovers a missing historical
+measurement nor supports whole-toolchain immutability.
