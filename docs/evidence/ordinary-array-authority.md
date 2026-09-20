@@ -82,3 +82,22 @@ The original Darwin Apple tool map hashes the `/usr/bin/clang` launcher and
 records Xcode17's installed directory and SDK26.2. It does not hash the complete
 selected Xcode compiler/SDK contents. I retain that attribution limit rather
 than treating the launcher hash as a complete toolchain identity.
+
+## My canonical affine-union integration
+
+I integrate actual PR893 main0dc588 at
+`d74a643f0d490c8f2227d467155d29af438cdb63`. Both Make and roadmap histories
+remain intact. All array query, shared ownership reader, private decoder and
+fixture sources remain byte-identical to reviewed7f610. Fresh providers on Linux
+and puck pass the ordinary query (463 linked and2397 instrumented checks with
+all8 allocation positions), repaired ordinary authority (252 checks including
+14 decoder and8 authority allocation positions), conversion and end-to-end
+neighbors. Each host completes all nine phases without failure.
+
+My [integration seal](ordinary-array-authority-integration/summary.json)
+retains194 reports,357 artifact objects totaling103174064 bytes,5542 artifact
+references and36 equal source/tool endpoint pairs. Original seven-configuration
+qualification remains attributed to its earlier pins. Declaration decoding does
+not authorize storage or execution. Mixed whole-envelope projection, array
+origin/mutation proofs and source/runtime acceptance remain full5.1 obligations.
+Independent integration audit and actual merge remain pending.
