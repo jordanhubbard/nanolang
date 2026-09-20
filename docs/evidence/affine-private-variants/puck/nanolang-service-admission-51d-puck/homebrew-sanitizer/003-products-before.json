@@ -1,0 +1,32 @@
+{
+  "service_bindings_module_observed.c": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/products/service_bindings_module_observed.c",
+    "sha256": "0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79",
+    "bytes": 15627,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/objects/0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79"
+  },
+  "switch": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/products/switch",
+    "sha256": "efdfaea6bf263f733376843a120d261e1591c3a342500465b657746736747abd",
+    "bytes": 11363720,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/objects/efdfaea6bf263f733376843a120d261e1591c3a342500465b657746736747abd"
+  },
+  "switch.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/products/switch.dSYM/Contents/Info.plist",
+    "sha256": "a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e",
+    "bytes": 635,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/objects/a9be0ec0658f1206d93d08cd2de523a336a73200a877b92790c1c1c3a904174e"
+  },
+  "switch.dSYM/Contents/Resources/DWARF/switch": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/products/switch.dSYM/Contents/Resources/DWARF/switch",
+    "sha256": "5cd692eb8722b151fa1968b1ecfe0ed35f8a5c9caa8e3d6b06f13dd6810d0307",
+    "bytes": 4485802,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/objects/5cd692eb8722b151fa1968b1ecfe0ed35f8a5c9caa8e3d6b06f13dd6810d0307"
+  },
+  "switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml": {
+    "path": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/products/switch.dSYM/Contents/Resources/Relocations/aarch64/switch.yml",
+    "sha256": "81106b01611e8a992bc4ef7d8a5b4328dbd5a280269b664302767afbfeb5eb63",
+    "bytes": 169,
+    "archive": "/private/tmp/nanolang-service-admission-51d-puck/homebrew-sanitizer/objects/81106b01611e8a992bc4ef7d8a5b4328dbd5a280269b664302767afbfeb5eb63"
+  }
+}

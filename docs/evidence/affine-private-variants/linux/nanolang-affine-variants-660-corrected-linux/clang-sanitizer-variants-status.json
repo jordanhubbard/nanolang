@@ -1,0 +1,14 @@
+{
+  "label": "clang-sanitizer-variants",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_affine_private_variants"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 3.5728997229598463
+}

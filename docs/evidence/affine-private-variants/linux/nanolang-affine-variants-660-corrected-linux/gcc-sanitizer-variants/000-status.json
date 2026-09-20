@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-UNDEBUG",
+    "-Isrc/nanoisa",
+    "-Dmalloc=variants_test_malloc",
+    "-Dcalloc=variants_test_calloc",
+    "-Dfree=variants_test_free",
+    "-c",
+    "src/nanoisa/nvm_v2_layouts.c",
+    "-o",
+    "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer-variants/products/nvm_v2_layouts.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-affine-variants-qualified-660",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

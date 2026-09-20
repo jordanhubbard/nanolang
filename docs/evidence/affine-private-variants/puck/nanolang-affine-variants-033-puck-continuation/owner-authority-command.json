@@ -1,0 +1,12 @@
+{
+  "label": "owner-authority",
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/tmp/run_owned_array_authority_033.py",
+    "/tmp/test_owned_array_authority_033.py",
+    "/private/tmp/nanolang-affine-variants-qualified-660"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

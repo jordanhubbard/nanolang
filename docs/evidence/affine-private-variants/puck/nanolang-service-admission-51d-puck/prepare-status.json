@@ -1,0 +1,15 @@
+{
+  "label": "prepare",
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "/private/tmp/nanolang-service-admission-51d-puck/prepare.mk",
+    "-j4",
+    "CC=/usr/bin/clang",
+    "admission-prepare"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 4.6484300419688225
+}

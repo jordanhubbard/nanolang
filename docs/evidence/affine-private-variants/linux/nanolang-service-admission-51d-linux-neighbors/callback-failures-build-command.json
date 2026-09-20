@@ -1,0 +1,30 @@
+{
+  "label": "callback-failures-build",
+  "argv": [
+    "/bin/gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-UNDEBUG",
+    "-pthread",
+    "-Isrc/nanovm",
+    "-Isrc/nanoisa",
+    "tests/nanovm/test_callback_failures.c",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic",
+    "-o",
+    "/tmp/nanolang-service-admission-51d-linux-neighbors/products/callback-failures"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

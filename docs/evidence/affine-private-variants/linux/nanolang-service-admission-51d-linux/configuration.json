@@ -1,0 +1,30 @@
+{
+  "platform": "linux",
+  "configs": [
+    [
+      "gcc-ordinary",
+      "/bin/gcc",
+      []
+    ],
+    [
+      "gcc-sanitizer",
+      "/bin/gcc",
+      [
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    ],
+    [
+      "clang-sanitizer",
+      "/usr/local/bin/clang",
+      [
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    ]
+  ],
+  "source_scope": "all tracked files excluding historical docs/evidence",
+  "tools_scope": "named compiler, runtimes/subtools, Python, Make, Git, ar, ld; not complete transitive system tools",
+  "sanitizers": "included VM, exact observed service TU and fixture; other providers ordinary"
+}

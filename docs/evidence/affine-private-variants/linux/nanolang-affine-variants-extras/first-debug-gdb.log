@@ -1,0 +1,31 @@
+gdb: /home/linuxbrew/.linuxbrew/lib/libncursesw.so.6: no version information available (required by gdb)
+gdb: /home/linuxbrew/.linuxbrew/lib/libncursesw.so.6: no version information available (required by gdb)
+gdb: /home/linuxbrew/.linuxbrew/lib/libncursesw.so.6: no version information available (required by gdb)
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) [answered N; input not from terminal]
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+
+Program received signal SIGSEGV, Segmentation fault.
+__memcpy_generic () at ../sysdeps/aarch64/multiarch/../memcpy.S:96
+warning: 96	../sysdeps/aarch64/multiarch/../memcpy.S: No such file or directory
+#0  __memcpy_generic () at ../sysdeps/aarch64/multiarch/../memcpy.S:96
+#1  0x0000fffff77f89bc in __GI___memcpy_chk (dstpp=dstpp@entry=0xaaaaab5236f0, srcpp=<optimized out>, len=<optimized out>, dstlen=dstlen@entry=8) at ./debug/memcpy_chk.c:29
+#2  0x0000aaaaaab16608 in memcpy (__len=<optimized out>, __src=<optimized out>, __dest=0xaaaaab5236f0) at /usr/include/aarch64-linux-gnu/bits/string_fortified.h:29
+#3  nvm_affine_state_clone (s=0xaaaaab528470) at src/nanoisa/affine_state.c:152
+#4  0x0000aaaaaab16710 in mc_frame_clone (f=f@entry=0xfffffff3b7c0, locals=locals@entry=4) at src/nanoisa/mixed_samples.inc:137
+#5  0x0000aaaaaab17020 in mc_join (a=0xaaaaab5397a0, a@entry=0xaaaaaaacaec8 <nvm_mixed_samples_prepare+72>, index=<optimized out>, from=0xfffffff3b7c0, from@entry=0xfffffff3eaa0) at src/nanoisa/mixed_samples.inc:153
+#6  0x0000aaaaaab1a508 in nvm_analyze_mixed_samples (module=module@entry=0xaaaaab524650, out=0xfffff7ffdb58 <_rtld_global_ro>, out@entry=0xfffffff3e8a0) at src/nanoisa/mixed_samples.inc:486
+#7  0x0000aaaaaaacaec8 in nvm_mixed_samples_prepare (module=module@entry=0xaaaaab524650, out=out@entry=0xfffffff3ea98) at src/nanoisa/mixed_samples_prepare.inc:87
+#8  0x0000aaaaaaacb4fc in nvm_mixed_samples_prepare (module=0xaaaaab524650, out=0xfffffff3ea98) at src/nanoisa/mixed_samples_prepare.inc:118
+#9  0x0000aaaaaaacb5dc in nvm_mixed_samples_admit (out=0xfffffff3eb18, module=0xaaaaab524650) at src/nanoisa/mixed_samples_prepare.inc:185
+#10 nvm_mixed_samples_admit (module=0xaaaaab524650, out=0xfffffff3eb18) at src/nanoisa/mixed_samples_prepare.inc:180
+#11 0x0000aaaaaaacb734 in verify_mixed_samples (module=module@entry=0xaaaaab524650, function=function@entry=0, out_max_stack=out_max_stack@entry=0x0) at src/nanoisa/mixed_samples_prepare.inc:203
+#12 0x0000aaaaaaacd2e4 in nvm_verify (mod=mod@entry=0xaaaaab524650) at src/nanoisa/verifier.c:1064
+#13 0x0000aaaaaaacd4bc in nvm_verify (mod=mod@entry=0xaaaaab524650) at src/nanoisa/verifier.c:1063
+#14 0x0000aaaaaaac5b64 in main () at tests/nanoisa/test_mixed_samples_admission.c:9
+pc             0xfffff77a197c      0xfffff77a197c <__memcpy_generic+60>

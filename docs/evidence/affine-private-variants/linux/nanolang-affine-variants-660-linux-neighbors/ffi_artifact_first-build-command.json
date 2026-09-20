@@ -1,0 +1,29 @@
+{
+  "label": "ffi_artifact_first-build",
+  "argv": [
+    "/bin/gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-fPIC",
+    "-shared",
+    "-DARTIFACT_ANSWER=42",
+    "tests/nanovm/ffi_artifact_fixture.c",
+    "-o",
+    "/home/jkh/Src/nanolang-affine-variants-qualified-660/obj/ffi_artifact_first.so",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

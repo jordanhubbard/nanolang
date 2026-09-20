@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/tmp/nanolang-affine-variants-660-corrected-linux/clang-sanitizer/products/threaded"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-affine-variants-qualified-660",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

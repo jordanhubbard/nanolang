@@ -1,0 +1,26 @@
+OWNED_ARRAY_AUTHORITY_LINK_OBJECTS="obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/ownership_contracts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o" python3 -m unittest -v tests.test_owned_array_authority
+test_authority_and_failure_atomicity (tests.test_owned_array_authority.OwnedArrayAuthority.test_authority_and_failure_atomicity) ... FAIL
+
+======================================================================
+FAIL: test_authority_and_failure_atomicity (tests.test_owned_array_authority.OwnedArrayAuthority.test_authority_and_failure_atomicity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-affine-variants-qualified-660/tests/test_owned_array_authority.py", line 54, in test_authority_and_failure_atomicity
+    self.command([*common, 'tests/nanoisa/test_owned_array_authority.c', *objects,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *shlex.split(os.environ['OWNED_ARRAY_AUTHORITY_LINK_OBJECTS']),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  '-lm', '-lcrypto', '-o', executable])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-affine-variants-qualified-660/tests/test_owned_array_authority.py", line 33, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ld: library 'crypto' not found
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.782s
+
+FAILED (failures=1)
+make: *** [test-owned-array-authority] Error 1

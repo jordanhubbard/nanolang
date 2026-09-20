@@ -1,0 +1,32 @@
+{
+  "constructors": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/products/constructors",
+    "sha256": "b7dc60f3261933567a0df7a7d38bcccc39cbf7380e85de3d66c23485cfd2111b",
+    "bytes": 1303152,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/b7dc60f3261933567a0df7a7d38bcccc39cbf7380e85de3d66c23485cfd2111b"
+  },
+  "constructors.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/products/constructors.dSYM/Contents/Info.plist",
+    "sha256": "fac92072d8de9c23c2d7a612d2402f625ce2c4cfc9fa4dbb1473a9f956252d18",
+    "bytes": 641,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/fac92072d8de9c23c2d7a612d2402f625ce2c4cfc9fa4dbb1473a9f956252d18"
+  },
+  "constructors.dSYM/Contents/Resources/DWARF/constructors": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/products/constructors.dSYM/Contents/Resources/DWARF/constructors",
+    "sha256": "c2d47552bec2918b2979b0c1c84c925951ddcab884842d3aa6cbaac7e47aad04",
+    "bytes": 1365840,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/c2d47552bec2918b2979b0c1c84c925951ddcab884842d3aa6cbaac7e47aad04"
+  },
+  "constructors.dSYM/Contents/Resources/Relocations/aarch64/constructors.yml": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/products/constructors.dSYM/Contents/Resources/Relocations/aarch64/constructors.yml",
+    "sha256": "21467e13b047fe668f7367767e592b7084c3019385e58e5e9a2d74f4a31d73cc",
+    "bytes": 182,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/21467e13b047fe668f7367767e592b7084c3019385e58e5e9a2d74f4a31d73cc"
+  },
+  "nvm_v2_layouts.o": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/products/nvm_v2_layouts.o",
+    "sha256": "0598c5e34e0d3881a41ea3a5a867efead1a3f338b9e21cdd04bb3a93069cf7ee",
+    "bytes": 61208,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/homebrew-sanitizer-variants/objects/0598c5e34e0d3881a41ea3a5a867efead1a3f338b9e21cdd04bb3a93069cf7ee"
+  }
+}

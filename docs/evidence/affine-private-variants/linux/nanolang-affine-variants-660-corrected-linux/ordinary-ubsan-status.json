@@ -1,0 +1,11 @@
+{
+  "label": "ordinary-ubsan",
+  "argv": [
+    "/bin/gcc",
+    "-print-file-name=libubsan.so"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.0014205750776454806
+}

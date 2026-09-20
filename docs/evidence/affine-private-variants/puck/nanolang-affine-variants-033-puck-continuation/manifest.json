@@ -1,0 +1,82 @@
+[
+  {
+    "label": "owner-authority",
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "/tmp/run_owned_array_authority_033.py",
+      "/tmp/test_owned_array_authority_033.py",
+      "/private/tmp/nanolang-affine-variants-qualified-660"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 1.3429280000273138
+  },
+  {
+    "label": "mixed-runtime",
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-fv",
+      "tests.test_mixed_samples_runtime"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 21.88419975002762
+  },
+  {
+    "label": "owner-array-public",
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-fv",
+      "tests.test_private_owned_array_runtime"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 12.356054874951951
+  },
+  {
+    "label": "ownership-contracts",
+    "argv": [
+      "/usr/bin/make",
+      "CC=/usr/bin/clang",
+      "test-ownership-contracts"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 1.313275916967541
+  },
+  {
+    "label": "affine-bytecode",
+    "argv": [
+      "/usr/bin/make",
+      "CC=/usr/bin/clang",
+      "test-affine-bytecode"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 1.0697862920351326
+  },
+  {
+    "label": "emitter",
+    "argv": [
+      "/private/tmp/nanolang-affine-variants-qualified-660/bin/nano_virt",
+      "src_nano/nanoisa_emit.nano",
+      "--emit-nvm",
+      "--strip-debug",
+      "-o",
+      "/private/tmp/nanolang-affine-variants-033-puck-continuation/products/emitter.nvm"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 16.087963707977906
+  }
+]

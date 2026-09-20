@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-D_GNU_SOURCE",
+    "-UNDEBUG",
+    "-Isrc",
+    "-Isrc/nanoisa",
+    "-iquote",
+    "/private/tmp/nanolang-service-admission-integrated/src/nanoisa",
+    "-DNANO_NO_COMPUTED_GOTO",
+    "-dM",
+    "-E",
+    "tests/nanovm/test_ordinary_admission.c"
+  ],
+  "cwd": "/private/tmp/nanolang-service-admission-integrated",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

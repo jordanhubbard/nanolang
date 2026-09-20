@@ -1,0 +1,5 @@
+{
+  "NMS_RUNTIME_CLANG": "/usr/local/bin/clang",
+  "NMS_RUNTIME_OPT": "/usr/local/bin/opt",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+}
