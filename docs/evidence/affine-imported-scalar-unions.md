@@ -80,7 +80,10 @@ emission. I retain that first terminal and track it separately as
 `task_b46f55c35c72bd063b9a27eaf93a4816`. The corrected sanitizer harness
 disables LSan only while parsing and type checking, re-enables it before every
 call to NanoVirt code generation and keeps ASan/UBSan enabled throughout. It
-does not suppress contract allocations or close the checker task.
+does not suppress contract allocations or close the checker task. This scope
+is selected only by `NANOVIRT_TEST_CONTRACT_LSAN_SCOPE` in the explicit
+Homebrew LLVM qualification; ordinary Apple-ASan builds do not infer LSan
+support or change their behavior.
 
 The corrected Darwin checkpoint also passes:
 
@@ -92,9 +95,9 @@ The corrected Darwin checkpoint also passes:
 | Retained input or log | SHA-256 |
 | --- | --- |
 | `src/nanovirt/borrow_codegen.inc` | `62d427145126aa89625a4413d7b6d50571056de658346732b1518e8759395eaa` |
-| `tests/nanovirt/test_borrow_contract_allocation.c` | `1d5a13fbe6aa779bc07e6345f5067f0947ad18208e496baffbcc3f8570c04e2a` |
+| `tests/nanovirt/test_borrow_contract_allocation.c` | `97607f4859cfa69b21269dea21ebab2147141095535a352641d0f86dc2bc2645` |
 | `Makefile.gnu` | `16d44cef5aec796f7a5ee1ae3be0f34eebf9d0fc3f6e62c846346ec68deb85b5` |
-| `/private/tmp/nanolang-affine-union-backpatch-sanitizer.log` | `b867eb7c25224f7cbdf1c8d87c35fff77203e92518b92fe23bbd7dda89c99d37` |
+| `/private/tmp/nanolang-affine-union-backpatch-sanitizer-final.log` | `4b5a7b281f514e3ff6179b47a36f0bdbe13b363c22955143fbd0a3d35af14b88` |
 | `/private/tmp/nanolang-affine-union-backpatch-nanovirt90.log` | `aabcf1a54c161c88fc594c59a6b0eabb8643a39a02b5ad2c6595257034e8f09d` |
 | `/private/tmp/nanolang-affine-union-backpatch-source.log` | `2b2f2c47044e720524915c46ff50e4e1a1cb91bbd43c68a6d8cf72201d0a2412` |
 | `/private/tmp/nanolang-affine-union-backpatch-adjacent.log` | `1c0fe60280ff4353ba4c4c90c93429305c74ccc43e60f88dc8a3253b5a6f9676` |
