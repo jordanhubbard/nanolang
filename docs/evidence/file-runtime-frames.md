@@ -76,7 +76,7 @@ recorded in the contract/ROADMAP and never executed a fixture.
 
 ## I seal the measured identities
 
-[My manifest](file-runtime-frames/report-sha256.json) seals249 reports,
+My initial4162483ad manifest seals249 reports,
 23 equal source/tool before-after pairs and8,303 artifact references to1,082
 unique content-addressed files (688,071,220 bytes). The artifact store is
 `/tmp/nanolang-file-frames-artifacts`; every entry was rehashed. Downloaded puck
@@ -93,3 +93,37 @@ this ready evidence tree for any frozen qualification tree.
 Canonical integration after this seal is reported separately. The private
 carrier/frame milestone does not complete runtime82ff, hosted6fc, File72556/6931,
 File/Socket/GPU d03c, or the full5.1 roadmap.
+
+
+## I qualify the canonical integration separately
+
+I freeze1525adfd0 after integrating canonical4fbca3578. The seven frame
+production/fixture paths remain byte-identical to8644219d8. The incoming compiler
+and provider closure changes justify fresh setup and bounded ordinary controls;
+I preserve the earlier sanitizer qualification at864 rather than relabel it.
+
+| Gate at1525adfd0 | Linux | Darwin puck |
+|---|---:|---:|
+| Fresh provider setup | PASS20.836s | PASS11.464s |
+| Ordinary linked and instrumented frames | PASS6.464s | PASS5.597s |
+| File opcode/public refusal | PASS3.065s | PASS3.855s |
+| Ordinary wrapper publication | PASS3.082s | PASS7.585s |
+
+Both outer drivers exit0. Eight additional source/tool before-after pairs match.
+Both current source maps contain8,993 identical files; all9 Linux and14 Darwin
+tool labels match their retained inventories. The measured roots are
+`/home/jkh/Src/nanolang-file-frames-integrated` and puck.local's
+`/tmp/nanolang-file-frames-152`. I retain every phase's actual artifacts.
+
+[My combined manifest](file-runtime-frames/report-sha256.json) now seals341
+reports and31 total equal inventory pairs. Its11,070 artifact references resolve
+to1,646 unique files (1,085,099,995 bytes) in the same content-addressed store.
+The independent audit JSON covers the original249-report seal,23 pairs and1,082
+artifacts. Its author's separate current-map recheck passed but was stdout-only;
+I do not claim a new retained independent current-map report.
+
+Later canonical PR877 at2cf1b4fd4 changes only `src_nano/parser.nano` in production,
+with its fixture/evidence updates. That later parser input is not part of my1525
+measurement. I do not claim a new source bootstrap or repeat private C gates for
+that disjoint change. My manual frame evidence still grants no public File
+execution authority.
