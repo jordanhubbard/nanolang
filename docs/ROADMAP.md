@@ -13676,6 +13676,16 @@ runtime/source admission and does not close full f36/15f/488 parents.
   `tests/test_u8_basic.nano`: my corrected canonical full Make run passes the
   original90 methods, then rejects `let c: u8 = (+ b 1)` while compiling shadows.
   MAC `task_c6b2a040c1434fc784a9d46c02a4981e` retains the first verifier terminal.
+- [ ] I preserve the declared U8 element type through `array_pop` before applying
+  the checked U8 destination conversion. My first integrated conversion reaches
+  line23 of the unchanged fixture, then falls back to INT despite the receiver's
+  `array<u8>` symbol metadata; I will use the existing exact array-element query,
+  retain argument checking, and qualify both the original pop and non-U8 controls.
+- [ ] I remove the duplicate builtin-registry `Type` enumeration that drifted
+  when `TYPE_OPEN_RECORD` was added. Its private `TYPE_UNKNOWN` value is now read
+  as `TYPE_OPEN_RECORD` by the checker, hiding the contextual `array_pop` result;
+  the registry will use the canonical type declaration and a checked builtin
+  placeholder will still yield to a real source declaration.
 - [ ] I restore the required `list_LexerToken_insert` binding for
   `tests/token_value_bytes.nano` without deleting insert/set/remove or exact-byte
   assertions. MAC `task_7b805000dfda4da386b55d4691e8c647` retains the independent

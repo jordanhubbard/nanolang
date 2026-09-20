@@ -939,6 +939,107 @@ static int32_t named_scalar_callback(CG *cg, ASTNode *call, bool reduce) {
 }
 
 /* Handle built-in function calls. Returns true if handled, false if not a builtin. */
+/* I lower checked ordinary list mutations using existing array ownership.
+ * All arguments are rooted before observing length; scratch roots are cleared
+ * after the result is on the stack, or owned by frame unwind on failure. */
+static void compile_list_mutation(CG *cg, ASTNode *node, const char *operation) {
+    bool insert = !strcmp(operation, "insert");
+    bool pop = !strcmp(operation, "pop");
+    int argc = insert ? 3 : pop ? 1 : 2;
+    Type result = check_expression(node, cg->env);
+    if (node->as.call.arg_count != argc ||
+        (insert ? result != TYPE_VOID : result != TYPE_STRUCT && result != TYPE_ENUM)) {
+        cg_error(cg, node->line, "I require a checked ordinary list mutation");
+        return;
+    }
+    /* Reserve before child expressions can add their own scratch locals. */
+    uint16_t slots[4];
+    int count = argc + 1;
+    if (cg->local_count > MAX_LOCALS - count ||
+        cg->local_binding_count > MAX_LOCALS - count) {
+        cg_error(cg, node->line, "I cannot reserve list mutation locals");
+        return;
+    }
+    for (int i = 0; i < count; ++i) slots[i] = local_add(cg, "", node->line);
+    uint16_t array = slots[0], length = slots[argc];
+    for (int i = 0; i < argc; ++i) {
+        compile_expr(cg, node->as.call.args[i]);
+        emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+    }
+    emit_op(cg, OP_LOAD_LOCAL, (int)array);
+    emit_op(cg, OP_ARR_LEN);
+    emit_op(cg, OP_STORE_LOCAL, (int)length);
+    if (pop) {
+        emit_op(cg, OP_LOAD_LOCAL, (int)length);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_I64_GT_S);
+        emit_op(cg, OP_ASSERT);
+        emit_op(cg, OP_LOAD_LOCAL, (int)array);
+        emit_op(cg, OP_ARR_POP);
+    } else {
+        uint16_t index = slots[1];
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_I64_GE_S);
+        emit_op(cg, OP_ASSERT);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_LOAD_LOCAL, (int)length);
+        emit_op(cg, insert ? OP_I64_LE_S : OP_I64_LT_S);
+        emit_op(cg, OP_ASSERT);
+        if (insert) {
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)slots[2]);
+            emit_op(cg, OP_ARR_PUSH);
+            emit_op(cg, OP_POP);
+            /* length doubles as the descending destination index. */
+            uint32_t top = cg->code_size;
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_I64_GT_S);
+            uint32_t done = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_PUSH_I64, (int64_t)1);
+            emit_op(cg, OP_I64_SUB);
+            emit_op(cg, OP_ARR_GET);
+            emit_op(cg, OP_ARR_SET);
+            emit_op(cg, OP_POP);
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_PUSH_I64, (int64_t)1);
+            emit_op(cg, OP_I64_SUB);
+            emit_op(cg, OP_STORE_LOCAL, (int)length);
+            uint32_t again = emit_op(cg, OP_JMP, (int32_t)0);
+            if (cg->had_error) return;
+            /* This generated loop is fixed size, independent of input length. */
+            if ((uint64_t)cg->code_size - top > INT32_MAX) {
+                cg_error(cg, node->line, "I cannot encode the list mutation branch");
+                return;
+            }
+            patch_jump(cg, again + 1, again, top);
+            patch_jump(cg, done + 1, done, cg->code_size);
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_LOAD_LOCAL, (int)slots[2]);
+            emit_op(cg, OP_ARR_SET);
+            emit_op(cg, OP_POP);
+        } else {
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_ARR_GET); /* Retained result survives removal. */
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_ARR_REMOVE);
+            emit_op(cg, OP_POP);
+        }
+    }
+    for (int i = 0; i < count; ++i) {
+        emit_op(cg, OP_PUSH_VOID);
+        emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+    }
+}
+
 static bool compile_builtin_call(CG *cg, ASTNode *node) {
     const char *name = node->as.call.name;
     int argc = node->as.call.arg_count;
@@ -1940,6 +2041,13 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* Find the operation suffix */
         const char *suffix = strrchr(name, '_');
         if (suffix) {
+            if (!strcmp(suffix, "_insert") || !strcmp(suffix, "_remove") ||
+                !strcmp(suffix, "_pop")) {
+                /* Real declarations, including externs, retain call precedence. */
+                if (env_get_function(cg->env, name)) return false;
+                compile_list_mutation(cg, node, suffix + 1);
+                return true;
+            }
             if (strcmp(suffix, "_new") == 0 && argc == 0) {
                 /* list_T_new() -> create empty array */
                 emit_op(cg, OP_ARR_NEW, (int)list_element_tag(cg, name, suffix));
