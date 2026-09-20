@@ -13786,3 +13786,5 @@ I complete this generated-byte milestone in PR932 after both-host integration qu
 - [ ] I preserve captured lexical binding precedence over same-spelled globals during NanoISA assignment (task_fd77704bbf3747e980cceb5888bf2ab7). Static review found AST_SET tries globals before outer lexical captures. I must resolve captured storage first, retain its declared destination type and qualify actual mutation/shadowing and once-only effects. No runtime result is claimed yet.
 
 The same task_fd77704bbf3747e980cceb5888bf2ab7 also covers identifier reads: static AST_IDENTIFIER lookup tries globals and function names before captured lexical bindings. I correct reads and writes together before qualification.
+
+- [ ] I correct static byte-source fixture blockers under task_c6b2a040c1434fc784a9d46c02a4981e before discovery: imported TestCase exposes five unintended methods; captured assignment must change its observable byte; the unchanged original byte program narrows only in its separately executed shadow and must not require a CAST_U8 in production main. I retain seven intended methods, original shadow policy and unchanged original source bytes.
