@@ -13615,3 +13615,19 @@ My callable task-snapshot correction adds a checked complete signature/annotatio
 clone with depth/count/product checks, partial rollback and atomic output. This
 addresses the recorded task_f8b5ecacb7e4bcc1542712b4652308ad source finding only;
 legacy compiler metadata allocation and full qualification remain separate.
+
+#### My evaluator/list fixture prerequisites
+
+Before changing the existing generated-list poison fixture, I record that its
+undeclared MetadataItem bypass is intentionally refused by my reviewed exact
+record registration. I will declare that record and require successful concrete
+registration while retaining every original poisoned optional-metadata assertion.
+This is a fixture setup migration under task_7b805000dfda4da386b55d4691e8c647,
+not removal of the declaration check. No old fixture has been run.
+
+I checkpoint the complete nominal-list/evaluator fixture and retained gate plan
+in docs/NANOISA_EVALUATOR_LIST_FIXTURES.md before builds. My measured-prefix
+controls will cover checked snapshots, callable metadata, bundles, list mutations
+and provider edges; fatal cache initialization and modeled private compiler
+failures are separate. The unchanged LexerToken program and full make test remain
+required. All list/tuple/deferred/cache tasks stay open pending actual gates.

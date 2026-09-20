@@ -1,0 +1,18 @@
+struct Inner { text: string, number: int }
+struct Outer { child: Inner }
+fn identity(value: Inner) -> Inner { return value }
+shadow identity { assert (== (identity Inner { text: "one", number: 1 }).number 1) }
+fn capture() -> (Inner, string) {
+    let local: Inner = Inner { text: "retained", number: 41 }
+    return (local, "tail")
+}
+shadow capture { let value: (Inner, string) = (capture) assert (== value.1 "tail") }
+fn main() -> int {
+    let value: (Inner, string) = (capture)
+    assert (== value.0.text "retained")
+    let call: fn(Inner) -> Inner = identity
+    let copy: Inner = (call value.0)
+    assert (== copy.number 41)
+    return 0
+}
+shadow main { assert (== (main) 0) }

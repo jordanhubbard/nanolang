@@ -5745,3 +5745,11 @@ test-ownership-declaration-projection: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 
 # I rebuild evaluator storage with its owning translation unit.
 $(OBJ_DIR)/env.o: $(SRC_DIR)/env_record_lists.inc $(SRC_DIR)/env_provider_leases.inc $(SRC_DIR)/env_signature_snapshot.inc
+
+.PHONY: test-evaluator-owned-lifetimes test-generic-record-lists
+# I require a separately recorded fresh bootstrap for the paired source methods.
+test-evaluator-owned-lifetimes: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_LIST_CC="$(CC)" NANO_LIST_CFLAGS="$(CFLAGS)" NANO_LIST_OBJECTS="$(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" NANO_LIST_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes
+
+test-generic-record-lists: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_LIST_CC="$(CC)" NANO_LIST_CFLAGS="$(CFLAGS)" NANO_LIST_OBJECTS="$(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" NANO_LIST_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_generic_record_lists
