@@ -5697,3 +5697,10 @@ $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_hosted.h $(NANOISA_
 # I query copied indirect plans; no callable or service executes.
 test-file-indirect-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_FILE_INDIRECT_HOSTED_CC="$(CC)" NANO_FILE_INDIRECT_HOSTED_CFLAGS="$(CFLAGS)" FILE_INDIRECT_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_INDIRECT_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_hosted
+
+# I require fresh schema ABI products before actual paired service parser gates.
+.PHONY: test-file-service-parser test-file-service-parser-sanitizers
+test-file-service-parser: bootstrap3 nano_virt
+	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o,$(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" python3 -m unittest -f -v tests.test_file_service_parser
+test-file-service-parser-sanitizers: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o,$(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" NANO_SERVICE_PARSER_SANITIZERS=1 python3 -m unittest -f -v tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal

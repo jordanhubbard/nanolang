@@ -313,3 +313,40 @@ zero the complete ASTNode, then set type, line and column. The service case copi
 scalar fields and duplicates both strings; it never shares their ownership.
 There are no additional hidden create_node initializers. I retain no execution
 or whole-parser failure-recovery claim from this source inspection.
+
+## My unexecuted parser fixture checkpoint
+
+I add five meaningful mandatory shadows to the actual parser's new UTF-8,
+store, declaration and getter helpers. I retain existing shadows unchanged. The
+paired product fixture imports this real parser and parses freshly published
+complete binding text, all five behavior-shadow ASTs, malformed grammar/counts/
+NUL/UTF-8, and exact EOF/comment/later-definition retention. It does not execute
+the parsed File shadows or claim resolved source authority.
+
+My C fixture includes the actual parser with four allocation hooks plus strdup,
+links freshly compiled lexer/UTF-8, and retains the exact ordinary common/runtime
+provider list. It frees original tokens before reading retained declarations,
+checks clone lifetime after source destruction, sweeps every measured allocation
+in a33-declaration program with transient and persistent refusal plus recovery,
+and targets final lambda-hoist item growth with a real lambda-bearing program.
+It distinguishes moved roots from the remaining suffix and requires zero tracked
+live allocations. This does not inject every older expression-construction site.
+
+I run actual C-seed/Stage1/Stage2 generated parser fixtures and compare their
+canonical retained summary. I reuse the complete token/generator gate, including
+all four generated files from all three compiled generators plus Python, with
+isolated output directories and exact selected-shadow multisets. I also invoke
+all three actual compilers and nano_virt on the complete publisher file and
+require unresolved-service refusal and no executable output. Root helper shadows
+and imported parser/helper shadows are all selected; their names and source
+hashes are retained, without count-only or substring selection acceptance.
+
+The Make target requires bootstrap3/nano_virt; the outer orchestrator must start
+fresh with the changed Parser ABI. Supported sanitizer phases rebuild the included
+parser and selected lexer/UTF-8 TUs with strict leak settings; common/runtime
+objects remain ordinary and explicitly inventoried. Actual publisher setup
+freshly builds its seven-provider recipe under selected flags. The reused runner
+retains file-backed output, first status, launch failures and bounded process
+group cleanup, clearing inherited LSAN_OPTIONS. No fixture or new compiler has
+been executed at this checkpoint; Linux/Darwin ordinary and supported sanitizer
+configs await review, with source/tool/product seals and first terminals required.

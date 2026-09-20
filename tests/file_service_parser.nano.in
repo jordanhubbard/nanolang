@@ -1,0 +1,66 @@
+# I parse the actual publisher bytes without executing their service shadows.
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/diagnostics.nano"
+import "src_nano/generated/compiler_ast.nano"
+
+fn service_parse(source: string) -> Parser {
+    let tokens: List<LexerToken> = (tokenize_string source "binding.nano" (diag_list_new))
+    return (parse_program tokens (list_LexerToken_length tokens) "binding.nano")
+}
+shadow service_parse {
+    let p: Parser = (service_parse "service \"nsi:nanolang/filesystem\" catalog 1 from \"interface.nsi.json\"")
+    assert (not (parser_has_error p))
+    assert (== p.services_count 1)
+}
+fn service_cases() -> void {
+    let bad: array<string> = ["service", "pub service \"nsi:nanolang/filesystem\" catalog 1 from \"x\"", "service \"nsi:nanolang/filesystem\" catalog 01 from \"x\"", "service \"nsi:nanolang/filesystem\" catalog 1.0 from \"x\"", "service \"nsi:nanolang/filesystem\" catalog 2 from \"x\"", "service \"nsi:nanolang/filesystem\" catalog 1 from \"\"", "service \"nsi:nanolang/filesystem\" catalog 1 from \"/x\"", "service \"nsi:nanolang/filesystem\" catalog 1 from \"a\\0suffix\"", "service \"nsi:nanolang/filesystem\" catalog 1 from \"x\" extra", "service \"nsi:nanolang/filesystem\"\ncatalog 1 from \"x\""]
+    for i in (range 0 (array_length bad)) {
+        let p: Parser = (service_parse (at bad i))
+        assert (parser_has_error p)
+    }
+    let declaration: string = "service \"nsi:nanolang/filesystem\" catalog 1 from \"interface.nsi.json\""
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string declaration "counts.nano" diagnostics)
+    let original: LexerToken = (list_LexerToken_get tokens 5)
+    let invalid: array<int> = [-1,0,17,19,1048577]
+    for i in (range 0 (array_length invalid)) {
+        let changed: LexerToken = LexerToken { token_type: original.token_type, value: original.value, line: original.line, column: original.column, value_bytes: (at invalid i) }
+        (list_LexerToken_set tokens 5 changed)
+        let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "counts.nano")
+        assert (parser_has_error p)
+    }
+    let raws: array<string> = [(+ (string_from_char 192) (string_from_char 128)), (+ (string_from_char 237) (+ (string_from_char 160) (string_from_char 128))), (+ (string_from_char 244) (+ (string_from_char 144) (+ (string_from_char 128) (string_from_char 128)))), (+ (string_from_char 226) (string_from_char 130)), (string_from_char 128)]
+    for i in (range 0 (array_length raws)) {
+        let raw: string = (at raws i)
+        let size: int = (str_length raw)
+        let changed: LexerToken = LexerToken { token_type: original.token_type, value: raw, line: original.line, column: original.column, value_bytes: size }
+        (list_LexerToken_set tokens 5 changed)
+        let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "utf8.nano")
+        assert (parser_has_error p)
+    }
+    let good: LexerToken = LexerToken { token_type: original.token_type, value: "é", line: original.line, column: original.column, value_bytes: 2 }
+    (list_LexerToken_set tokens 5 good)
+    let accepted: Parser = (parse_program tokens (list_LexerToken_length tokens) "utf8.nano")
+    assert (not (parser_has_error accepted))
+}
+shadow service_cases { (service_cases) }
+fn publisher_parse() -> void {
+    let p: Parser = (service_parse @PUBLISHER_SOURCE@)
+    assert (not (parser_has_error p))
+    assert (== p.services_count 1)
+    assert (== p.shadows_count 5)
+    let declaration: ASTServiceDecl = (parser_get_service p 0)
+    assert (== declaration.interface_id "nsi:nanolang/filesystem")
+    assert (== declaration.document_path "interface.nsi.json")
+    assert (== declaration.interface_bytes 23)
+    assert (== declaration.path_bytes 18)
+    assert (== declaration.origin_index -1)
+}
+shadow publisher_parse { (publisher_parse) }
+fn main() -> int {
+    (service_cases)
+    (publisher_parse)
+    (println "publisher:1:5:retained")
+    return 0
+}

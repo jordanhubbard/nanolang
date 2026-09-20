@@ -9622,3 +9622,61 @@ shadow parse_phase_run {
     assert (not named_guard_out.had_error)
     assert (== (list_CompilerDiagnostic_length named_guard_out.diagnostics) 0)
 }
+
+shadow parser_service_utf8 {
+    assert (parser_service_utf8 "")
+    assert (parser_service_utf8 "é")
+    assert (parser_service_utf8 "😀")
+    let surrogate: string = (+ (string_from_char 237) (+ (string_from_char 160) (string_from_char 128)))
+    let overlong: string = (+ (string_from_char 192) (string_from_char 128))
+    let truncated: string = (+ (string_from_char 226) (string_from_char 130))
+    let excessive: string = (+ (string_from_char 244) (+ (string_from_char 144) (+ (string_from_char 128) (string_from_char 128))))
+    assert (not (parser_service_utf8 surrogate))
+    assert (not (parser_service_utf8 overlong))
+    assert (not (parser_service_utf8 truncated))
+    assert (not (parser_service_utf8 excessive))
+    assert (not (parser_service_utf8 (string_from_char 128)))
+}
+
+shadow parser_store_service {
+    let initial: Parser = (parser_init_ast_lists)
+    let stored: Parser = (parser_store_service initial "nsi:nanolang/filesystem" 23 "interface.nsi.json" 18 7 9)
+    let positioned: Parser = (parser_with_position stored 0)
+    let copied: Parser = (parser_with_error positioned false)
+    assert (== copied.services_count 1)
+    let node: ASTServiceDecl = (list_ASTServiceDecl_get copied.services 0)
+    assert (== node.interface_bytes 23)
+    assert (== node.path_bytes 18)
+    assert (== node.origin_index -1)
+    assert (== node.line 7)
+    assert (== node.column 9)
+}
+
+shadow parse_service_declaration {
+    let source: string = "service \"nsi:nanolang/filesystem\" catalog 1 from \"interface.nsi.json\" # retained\nfn later() -> int { return 1 }\nshadow later { assert true }\n"
+    let tokens: List<LexerToken> = (tokenize_string source "binding.nano" (Diagnostics.diag_list_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "binding.nano")
+    assert (not (parser_has_error parsed))
+    assert (== parsed.services_count 1)
+    assert (== parsed.functions_count 1)
+    assert (== parsed.shadows_count 1)
+    let node: ASTServiceDecl = (list_ASTServiceDecl_get parsed.services 0)
+    assert (== node.document_path "interface.nsi.json")
+    assert (== node.catalog_version 1)
+}
+
+shadow parser_get_service_count {
+    let p: Parser = (parser_init_ast_lists)
+    assert (== (parser_get_service_count p) 0)
+    let q: Parser = (parser_store_service p "nsi:nanolang/filesystem" 23 "x" 1 1 1)
+    assert (== (parser_get_service_count q) 1)
+}
+
+shadow parser_get_service {
+    let p: Parser = (parser_store_service (parser_init_ast_lists) "nsi:nanolang/filesystem" 23 "x" 1 2 3)
+    let node: ASTServiceDecl = (parser_get_service p 0)
+    assert (== node.interface_id "nsi:nanolang/filesystem")
+    assert (== node.document_path "x")
+    assert (== node.line 2)
+    assert (== node.column 3)
+}
