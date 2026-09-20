@@ -70,7 +70,7 @@ static void grammar(void) {
     for(size_t i=0;i<sizeof(invalid)/sizeof(*invalid);i++){reset();t[5].value_bytes=invalid[i];assert(!parse_program(t,n));assert(!live_count);}
     t[5].value_bytes=original;
     const unsigned char invalid_utf8[][5]={{0xc0,0x80,0},{0xed,0xa0,0x80,0},{0xf4,0x90,0x80,0x80,0},{0xe2,0x82,0},{0x80,0}};
-    char *saved=t[5].value;
+    const char *saved=t[5].value;
     for(size_t i=0;i<sizeof(invalid_utf8)/sizeof(*invalid_utf8);i++){
         t[5].value=(char*)invalid_utf8[i];t[5].value_bytes=(int64_t)strlen(t[5].value);reset();assert(!parse_program(t,n));assert(!live_count);
     }
