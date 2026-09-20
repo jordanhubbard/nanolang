@@ -271,3 +271,44 @@ selected shadows and final validation succeed.
    is still a private prerequisite; no source-visible fuel option or broadened
    public ABI is selected by this design. Passing the bounded acyclic source
    corpus cannot close the full File/Socket/GPU parent.
+
+## I pin the first decoder allocation and work budget
+
+Before allocation I scan the complete JSON grammar with a64-container recursion
+limit and at most8192 tokens,256 objects,64 members per object,256 array elements
+and4096 raw bytes per string/number. Decoded strings cannot exceed their raw
+extent. With B=1MiB and T=8192, cJSON allocates at most(T+1) nodes, B+2T bytes of
+retained decoded key/value strings, and4097 bytes of one numeric scratch buffer.
+My own terminated snapshot costs B+1. NSI copies charge B+2T string bytes,
+sizeof(NlNsi),256 times the sum of every NSI element struct size, and257 ID
+pointers for uniqueness scratch. Each NSI element corresponds to a distinct
+validated JSON object; fields are copied once, not once per reference. I add the
+actual owning File-plan size from its nonallocating owning-TU query.
+
+The published binding is one allocation of its header plus the two bounded
+outputs and terminators. I free the first decoder/NSI/descriptor phase before
+canonical validation; the peak upper bound is this entire published allocation
+plus the conservative decoder bound above. I check every sum/product and refuse
+above16MiB. The bound excludes caller input, C stack, allocator overhead and
+libc internals; it includes every project-requested dynamic allocation.
+Getters expose both exact published allocation and conservative peak bound.
+
+My recursive lexical/tree/cJSON/delete paths are bounded by64 containers, not
+input length. Duplicate-key checks are at most64*63/2 comparisons per object,
+at most256 objects, and at most4097 bytes per comparison. Existing NSI ID checks
+are at most257*256/2 bounded-string comparisons, with other reference lookups
+bounded by the same object cap. I retain these finite work limits rather than
+claim linear-time parsing. No custom global cJSON allocator hook is installed;
+callers must externally serialize against cJSON global hook mutation, and this
+API does not establish cJSON thread safety. Allocating cJSON/shared decoder
+failure remains conservative UNRESOLVED; owned snapshot/plan/descriptor OOM is
+precise MEMORY. Canonical validation is one lower-level decode call, with no
+recursive preparation/rendering.
+
+Root reports the peer's reviewed-in-progress envelope acknowledgement at
+`8fadd11fd6280738540bab24d242ccfe652c5c6a`, design90e6fe7b: v3 path_bytes
+contains an exact v2 substream and unique ordered TLVs, kind1 UNION_VARIANTS
+revision1, reserved/refused kind2 ARRAY_FIELDS revision1. I do not treat that
+unmerged checkpoint as canonical source acceptance. Later paired parser/schema
+work must integrate the actually reviewed producer/consumer rules and required
+unknown-kind refusal; this strict NSI checkpoint assigns no shared numeric slot.
