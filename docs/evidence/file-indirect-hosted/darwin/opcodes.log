@@ -1,0 +1,10 @@
+I retain File encoding artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-opcodes-y1eg4b11
+test_instrumented_encoding_transport_and_refusal (tests.test_file_opcodes.FileOpcodes.test_instrumented_encoding_transport_and_refusal) ... PASS 1374 File encoding/refusal checks; no service handler or CFG certificate
+ok
+test_linked_encoding_transport_and_refusal (tests.test_file_opcodes.FileOpcodes.test_linked_encoding_transport_and_refusal) ... PASS 1374 File encoding/refusal checks; no service handler or CFG certificate
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.436s
+
+OK

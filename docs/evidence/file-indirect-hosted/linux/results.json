@@ -1,0 +1,82 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 22.47,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 7.383,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 7.734,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 53.554,
+    "status": 0
+  },
+  {
+    "phase": "clang-sanitizer",
+    "seconds": 22.821,
+    "status": 0
+  },
+  {
+    "phase": "cyclic",
+    "seconds": 10.992,
+    "status": 0
+  },
+  {
+    "phase": "code",
+    "seconds": 8.785,
+    "status": 0
+  },
+  {
+    "phase": "body",
+    "seconds": 8.685,
+    "status": 0
+  },
+  {
+    "phase": "flow",
+    "seconds": 8.038,
+    "status": 0
+  },
+  {
+    "phase": "hosted",
+    "seconds": 22.571,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.222,
+    "status": 0
+  },
+  {
+    "phase": "cyclic-hosted",
+    "seconds": 36.353,
+    "status": 0
+  },
+  {
+    "phase": "indirect_targets",
+    "seconds": 8.934,
+    "status": 0
+  },
+  {
+    "phase": "indirect_flow",
+    "seconds": 10.537,
+    "status": 0
+  }
+]

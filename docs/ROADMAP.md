@@ -12841,3 +12841,11 @@ bounded runner, without FLOW_INSTRUMENT or runtime dispatch. Fixture review
 precedes frozen Linux/Darwin qualification; no acceptance is claimed here.
 
 - [ ] I repair task_ff730d2cf69d4b6998f66bdcc66e66d1 before new indirect-hosted gates. I preserve225b's Linux line303 baseline failure and Darwin line310 final-zero failure (Darwin reached409 persistent and409 transient refusals). Both fresh setups/discovery passed; neither complete method passed. My arity fixture frees the tracked bodymodule ownership buffer through ordinary free, bypassing the tracker. I pair its replacement allocation/free under HOSTED hooks, add a pre-sweep zero-live checkpoint and diagnostic counts, then request review before fresh full qualification. I change no production or assertion and do not replay old binaries.
+
+I retain the [indirect-hosted qualification seal](evidence/file-indirect-hosted.md)
+at corrected5c26: all7 compiler configurations and unchanged query neighbors
+passed on Linux/Darwin,31 corrected phases total. Both225b tracker failures remain
+sealed separately; no production source changed. I verify39 source/tool pairs,
+existing provider identities and current sources/tools before sealing389 reports
+and1,456 content-addressed artifacts. Bounded independent review/actual merge and
+ff730 reconciliation remain pending; full2c135/runtime/public/source remain open.
