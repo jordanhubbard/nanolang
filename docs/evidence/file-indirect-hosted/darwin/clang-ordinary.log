@@ -1,0 +1,67 @@
+I retain indirect hosted artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-indirect-hosted-ist53lro
+test_full_chain_allocations_and_all_variants (tests.test_file_indirect_hosted.FileIndirectHosted.test_full_chain_allocations_and_all_variants) ... I retain 435 transient refusals and 0 complete recovered plans after one allocation failure
+I retain 55 precise MEMORY and 380 ambiguous UNRESOLVED allocation prefixes
+PASS 597902 private serialized File hosted-plan checks; no handler or public admission
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I checked indirect hosted allocation prefixes 409 and transient refusals 409, complete recoveries 0/0
+PASS 1901740 private indirect hosted checks; no runtime or service execution
+ok
+test_linked_copied_indirect_hosted_facts (tests.test_file_indirect_hosted.FileIndirectHosted.test_linked_copied_indirect_hosted_facts) ... PASS 2519 private serialized File hosted-plan checks; no handler or public admission
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+I compared full hosted variants: service mask 3, calls 1, borrowed calls 0
+PASS 770427 private indirect hosted checks; no runtime or service execution
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 6.085s
+
+OK

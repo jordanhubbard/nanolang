@@ -1,0 +1,126 @@
+{
+  "seal": "c9640689b02c9885a3033f01906acd753600f0f4",
+  "pin": "72e3be01c2d46291c3d23ff0ded74f285a0f654e",
+  "git_reports": 277,
+  "cas": 807,
+  "bytes": 298548221,
+  "artifact_refs": 10407,
+  "pairs": 56,
+  "terminals": [
+    "nanolang-indirect-72e-linux/setup",
+    "nanolang-indirect-72e-linux/configuration",
+    "nanolang-indirect-72e-linux/discovery",
+    "nanolang-indirect-72e-linux/ordinary",
+    "nanolang-indirect-72e-linux/cyclic",
+    "nanolang-indirect-72e-linux/code",
+    "nanolang-indirect-72e-linux/body",
+    "nanolang-indirect-72e-linux/flow",
+    "nanolang-indirect-72e-linux/hosted",
+    "nanolang-indirect-72e-linux/opcodes",
+    "nanolang-indirect-72e-linux/cyclic-hosted",
+    "nanolang-indirect-72e-linux/indirect_targets",
+    "nanolang-indirect-72e-linux/indirect_flow",
+    "nanolang-indirect-72e-puck/setup",
+    "nanolang-indirect-72e-puck/configuration",
+    "nanolang-indirect-72e-puck/discovery",
+    "nanolang-indirect-72e-puck/ordinary",
+    "nanolang-indirect-72e-puck/cyclic",
+    "nanolang-indirect-72e-puck/code",
+    "nanolang-indirect-72e-puck-corrected/configuration",
+    "nanolang-indirect-72e-puck-corrected/code",
+    "nanolang-indirect-72e-puck-corrected/body",
+    "nanolang-indirect-72e-puck-corrected/flow",
+    "nanolang-indirect-72e-puck-corrected/hosted",
+    "nanolang-indirect-72e-puck-corrected/opcodes",
+    "nanolang-indirect-72e-puck-corrected/cyclic-hosted",
+    "nanolang-indirect-72e-puck-corrected/indirect_targets",
+    "nanolang-indirect-72e-puck-corrected/indirect_flow"
+  ],
+  "incoming_canonical_paths": [
+    "src/nanoisa/affine_bytecode.c",
+    "src/nanoisa/affine_state.c",
+    "src/nanoisa/affine_state.h",
+    "src/nanoisa/nvm2c_owned.h",
+    "src/nanoisa/owned_array_admit.inc",
+    "src/nanoisa/ownership_contracts.c",
+    "src/nanoisa/ownership_contracts.h",
+    "src/nanoisa/verifier.c",
+    "src_nano/compiler/nanoisa_borrows.nano",
+    "tests/nanoisa/fixtures/affine_scalar_union_instances.nano",
+    "tests/nanoisa/test_affine_bytecode.c",
+    "tests/nanoisa/test_ownership_contracts.c",
+    "tests/test_affine_scalar_union_runtime.py",
+    "tests/test_affine_scalar_union_source.py"
+  ],
+  "make_only_additive": true,
+  "archive_sha256": "647443abd4b05b2818678517835fa849c07fd518578321af328cbdebcdcd8326",
+  "logs": {
+    "nanolang-indirect-72e-linux": {
+      "ordinary.log": "ts: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nPASS 770427 private indirect hosted checks; no runtime or service execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 7.303s\n\nOK\n",
+      "cyclic.log": "I retain cyclic query artifacts at /tmp/nano-file-cyclic-7_vdvaj2\ntest_instrumented_cyclic_query (tests.test_file_cyclic.FileCyclic.test_instrumented_cyclic_query) ... PASS 9508 private acyclic File body checks; no hosted stack ABI or execution authority\nI checked 47 allocation prefixes and 47 transient query failures\nPASS 124339 private cyclic query checks; no pending module execution\nok\ntest_linked_cyclic_query (tests.test_file_cyclic.FileCyclic.test_linked_cyclic_query) ... PASS 3663 private acyclic File body checks; no hosted stack ABI or execution authority\nPASS 108837 private cyclic query checks; no pending module execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 2.933s\n\nOK\n",
+      "code.log": "I retain File CODE artifacts at /tmp/nano-file-code-h0m3kjeh\ntest_instrumented_preparation_allocation_recovery (tests.test_file_code.FileCode.test_instrumented_preparation_allocation_recovery) ... PASS 2409 private File CODE preparation checks; no transfer/body certificate or execution\nok\ntest_linked_decode_graphs_lifetimes_and_refusal (tests.test_file_code.FileCode.test_linked_decode_graphs_lifetimes_and_refusal) ... PASS 1817 private File CODE preparation checks; no transfer/body certificate or execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 8.754s\n\nOK\n",
+      "body.log": "I retain File body artifacts at /tmp/nano-file-body-mlnjm03h\ntest_instrumented_body_allocation_recovery (tests.test_file_body.FileBody.test_instrumented_body_allocation_recovery) ... PASS 9507 private acyclic File body checks; no hosted stack ABI or execution authority\nok\ntest_linked_bodies_lifetimes_and_refusal (tests.test_file_body.FileBody.test_linked_bodies_lifetimes_and_refusal) ... PASS 3662 private acyclic File body checks; no hosted stack ABI or execution authority\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 8.949s\n\nOK\n",
+      "flow.log": "I retain File flow artifacts at /tmp/nano-file-flow-rl9t2c22\ntest_instrumented_flow_transactions_and_allocation (tests.test_file_flow.FileFlow.test_instrumented_flow_transactions_and_allocation) ... PASS 3293 private File flow checks; no CODE, public admission or host service execution\nok\ntest_linked_flow_lifetimes_and_old_boundaries (tests.test_file_flow.FileFlow.test_linked_flow_lifetimes_and_old_boundaries) ... PASS 3164 private File flow checks; no CODE, public admission or host service execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 8.600s\n\nOK\n",
+      "hosted.log": "I retain hosted-plan artifacts at /tmp/nano-file-hosted-fa07gedu\ntest_full_chain_allocation_prefix_and_transient_recovery (tests.test_file_hosted.FileHosted.test_full_chain_allocation_prefix_and_transient_recovery) ... I retain 435 transient refusals and 0 complete recovered plans after one allocation failure\nI retain 55 precise MEMORY and 380 ambiguous UNRESOLVED allocation prefixes\nPASS 597901 private serialized File hosted-plan checks; no handler or public admission\nok\ntest_linked_serialized_startup_bounds_and_refusal (tests.test_file_hosted.FileHosted.test_linked_serialized_startup_bounds_and_refusal) ... PASS 2518 private serialized File hosted-plan checks; no handler or public admission\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 5.399s\n\nOK\n",
+      "opcodes.log": "I retain File encoding artifacts at /tmp/nano-file-opcodes-brxrvtt0\ntest_instrumented_encoding_transport_and_refusal (tests.test_file_opcodes.FileOpcodes.test_instrumented_encoding_transport_and_refusal) ... PASS 1374 File encoding/refusal checks; no service handler or CFG certificate\nok\ntest_linked_encoding_transport_and_refusal (tests.test_file_opcodes.FileOpcodes.test_linked_encoding_transport_and_refusal) ... PASS 1374 File encoding/refusal checks; no service handler or CFG certificate\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 3.127s\n\nOK\n",
+      "cyclic-hosted.log": "ls 0, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI checked cyclic hosted allocation prefixes 376 and transient refusals 376, complete recoveries 0/0\nPASS 1279978 private cyclic hosted checks; no runtime or service execution\nok\ntest_linked_copied_cyclic_hosted_facts (tests.test_file_cyclic_hosted.FileCyclicHosted.test_linked_copied_cyclic_hosted_facts) ... PASS 2519 private serialized File hosted-plan checks; no handler or public admission\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nPASS 237053 private cyclic hosted checks; no runtime or service execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 7.335s\n\nOK\n",
+      "indirect_targets.log": "I retain indirect target query artifacts at /tmp/nano-file-indirect_targets-tnod7kpc\ntest_instrumented_indirect_targets_query (tests.test_file_indirect_targets.FileIndirectTargets.test_instrumented_indirect_targets_query) ... PASS 2726 private indirect target checks; no pending module execution\nok\ntest_linked_indirect_targets_query (tests.test_file_indirect_targets.FileIndirectTargets.test_linked_indirect_targets_query) ... PASS 2067 private indirect target checks; no pending module execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 2.511s\n\nOK\n",
+      "indirect_flow.log": "I retain indirect ownership query artifacts at /tmp/nano-file-indirect_flow-wq7zvfh6\ntest_instrumented_indirect_flow_query (tests.test_file_indirect_flow.FileIndirectFlow.test_instrumented_indirect_flow_query) ... I begin scalar composition.\nI begin owned composition.\nI begin ownership refusals.\nI begin allocation and bound controls.\nI checked 41 allocating preparation sites in both failure modes.\nPASS 10277 private indirect ownership checks; no File execution\nok\ntest_linked_indirect_flow_query (tests.test_file_indirect_flow.FileIndirectFlow.test_linked_indirect_flow_query) ... I begin scalar composition.\nI begin owned composition.\nI begin ownership refusals.\nI begin allocation and bound controls.\nPASS 3724 private indirect ownership checks; no File execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 2.616s\n\nOK\n"
+    },
+    "nanolang-indirect-72e-puck": {
+      "ordinary.log": "ts: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nI compared full hosted variants: service mask 3, calls 1, borrowed calls 0\nPASS 770427 private indirect hosted checks; no runtime or service execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 6.214s\n\nOK\n",
+      "cyclic.log": "I retain cyclic query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-cyclic-fqgc956d\ntest_instrumented_cyclic_query (tests.test_file_cyclic.FileCyclic.test_instrumented_cyclic_query) ... PASS 9508 private acyclic File body checks; no hosted stack ABI or execution authority\nI checked 47 allocation prefixes and 47 transient query failures\nPASS 124339 private cyclic query checks; no pending module execution\nok\ntest_linked_cyclic_query (tests.test_file_cyclic.FileCyclic.test_linked_cyclic_query) ... PASS 3663 private acyclic File body checks; no hosted stack ABI or execution authority\nPASS 108837 private cyclic query checks; no pending module execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 2.689s\n\nOK\n",
+      "code.log": "I retain File CODE artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-code-smxq1t9r\ntest_instrumented_preparation_allocation_recovery (tests.test_file_code.FileCode.test_instrumented_preparation_allocation_recovery) ... FAIL\n\n======================================================================\nFAIL: test_instrumented_preparation_allocation_recovery (tests.test_file_code.FileCode.test_instrumented_preparation_allocation_recovery)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/tmp/nanolang-indirect-72e-puck-source/tests/test_file_code.py\", line 42, in test_instrumented_preparation_allocation_recovery\n    self.qualify(\"instrumented\", True)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/tmp/nanolang-indirect-72e-puck-source/tests/test_file_code.py\", line 36, in qualify\n    self.assertEqual(result.returncode, 0, (args, result.stdout, result.stderr))\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: -6 != 0 : (['/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-code-smxq1t9r/instrumented'], '', '==86989==AddressSanitizer: detect_leaks is not supported on this platform.\\n')\n\n----------------------------------------------------------------------\nRan 1 test in 2.999s\n\nFAILED (failures=1)\n"
+    },
+    "nanolang-indirect-72e-puck-corrected": {
+      "code.log": "I retain File CODE artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-code-e8gsf9n_\ntest_instrumented_preparation_allocation_recovery (tests.test_file_code.FileCode.test_instrumented_preparation_allocation_recovery) ... PASS 2409 private File CODE preparation checks; no transfer/body certificate or execution\nok\ntest_linked_decode_graphs_lifetimes_and_refusal (tests.test_file_code.FileCode.test_linked_decode_graphs_lifetimes_and_refusal) ... PASS 1817 private File CODE preparation checks; no transfer/body certificate or execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 5.684s\n\nOK\n",
+      "body.log": "I retain File body artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-body-ntoa3xl6\ntest_instrumented_body_allocation_recovery (tests.test_file_body.FileBody.test_instrumented_body_allocation_recovery) ... PASS 9507 private acyclic File body checks; no hosted stack ABI or execution authority\nok\ntest_linked_bodies_lifetimes_and_refusal (tests.test_file_body.FileBody.test_linked_bodies_lifetimes_and_refusal) ... PASS 3662 private acyclic File body checks; no hosted stack ABI or execution authority\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 5.931s\n\nOK\n",
+      "flow.log": "I retain File flow artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-flow-exv_wwfu\ntest_instrumented_flow_transactions_and_allocation (tests.test_file_flow.FileFlow.test_instrumented_flow_transactions_and_allocation) ... PASS 3293 private File flow checks; no CODE, public admission or host service execution\nok\ntest_linked_flow_lifetimes_and_old_boundaries (tests.test_file_flow.FileFlow.test_linked_flow_lifetimes_and_old_boundaries) ... PASS 3164 private File flow checks; no CODE, public admission or host service execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 5.673s\n\nOK\n",
+      "hosted.log": "I retain hosted-plan artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-hosted-nk_ur1_m\ntest_full_chain_allocation_prefix_and_transient_recovery (tests.test_file_hosted.FileHosted.test_full_chain_allocation_prefix_and_transient_recovery) ... I retain 435 transient refusals and 0 complete recovered plans after one allocation failure\nI retain 55 precise MEMORY and 380 ambiguous UNRESOLVED allocation prefixes\nPASS 597901 private serialized File hosted-plan checks; no handler or public admission\nok\ntest_linked_serialized_startup_bounds_and_refusal (tests.test_file_hosted.FileHosted.test_linked_serialized_startup_bounds_and_refusal) ... PASS 2518 private serialized File hosted-plan checks; no handler or public admission\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 4.176s\n\nOK\n",
+      "opcodes.log": "I retain File encoding artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-opcodes-i_xjvz74\ntest_instrumented_encoding_transport_and_refusal (tests.test_file_opcodes.FileOpcodes.test_instrumented_encoding_transport_and_refusal) ... PASS 1374 File encoding/refusal checks; no service handler or CFG certificate\nok\ntest_linked_encoding_transport_and_refusal (tests.test_file_opcodes.FileOpcodes.test_linked_encoding_transport_and_refusal) ... PASS 1374 File encoding/refusal checks; no service handler or CFG certificate\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 3.432s\n\nOK\n",
+      "cyclic-hosted.log": "ls 0, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI checked cyclic hosted allocation prefixes 376 and transient refusals 376, complete recoveries 0/0\nPASS 1279978 private cyclic hosted checks; no runtime or service execution\nok\ntest_linked_copied_cyclic_hosted_facts (tests.test_file_cyclic_hosted.FileCyclicHosted.test_linked_copied_cyclic_hosted_facts) ... PASS 2519 private serialized File hosted-plan checks; no handler or public admission\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 31, calls 2, borrowed calls 1\nI compared full hosted variants: service mask 2, calls 0, borrowed calls 0\nPASS 237053 private cyclic hosted checks; no runtime or service execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 5.682s\n\nOK\n",
+      "indirect_targets.log": "I retain indirect target query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-indirect_targets-t1u87gnl\ntest_instrumented_indirect_targets_query (tests.test_file_indirect_targets.FileIndirectTargets.test_instrumented_indirect_targets_query) ... PASS 2726 private indirect target checks; no pending module execution\nok\ntest_linked_indirect_targets_query (tests.test_file_indirect_targets.FileIndirectTargets.test_linked_indirect_targets_query) ... PASS 2067 private indirect target checks; no pending module execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 2.305s\n\nOK\n",
+      "indirect_flow.log": "I retain indirect ownership query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-indirect_flow-ptixv1bx\ntest_instrumented_indirect_flow_query (tests.test_file_indirect_flow.FileIndirectFlow.test_instrumented_indirect_flow_query) ... I begin scalar composition.\nI begin owned composition.\nI begin ownership refusals.\nI begin allocation and bound controls.\nI checked 41 allocating preparation sites in both failure modes.\nPASS 10277 private indirect ownership checks; no File execution\nok\ntest_linked_indirect_flow_query (tests.test_file_indirect_flow.FileIndirectFlow.test_linked_indirect_flow_query) ... I begin scalar composition.\nI begin owned composition.\nI begin ownership refusals.\nI begin allocation and bound controls.\nPASS 3724 private indirect ownership checks; no File execution\nok\n\n----------------------------------------------------------------------\nRan 2 tests in 2.484s\n\nOK\n"
+    }
+  },
+  "current_pending": false,
+  "current": {
+    "linux": [
+      {
+        "label": "nanolang-indirect-72e-linux",
+        "root": "/tmp/nanolang-indirect-72e-linux-source",
+        "counts": {
+          "source": 22921,
+          "tools": 10,
+          "final_provider_artifacts": 173
+        },
+        "mismatches": [],
+        "frozen_git_inputs": 2447
+      }
+    ],
+    "puck": [
+      {
+        "label": "nanolang-indirect-72e-puck",
+        "root": "/private/tmp/nanolang-indirect-72e-puck-source",
+        "counts": {
+          "source": 22921,
+          "tools": 15
+        },
+        "mismatches": [],
+        "frozen_git_inputs": 2447
+      },
+      {
+        "label": "nanolang-indirect-72e-puck-corrected",
+        "root": "/private/tmp/nanolang-indirect-72e-puck-source",
+        "counts": {
+          "source": 22921,
+          "tools": 13,
+          "final_provider_artifacts": 172
+        },
+        "mismatches": [],
+        "frozen_git_inputs": 2447
+      }
+    ]
+  },
+  "verdict": "PASS scoped72e integration; Apple unsupported-leak first terminal retained; eight corrected Homebrew neighbors pass with unchanged source/assertions. No fixture reruns."
+}
