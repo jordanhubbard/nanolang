@@ -2,8 +2,8 @@
 # Generate shared compiler schema artifacts for NanoLang
 # Replaces gen_compiler_schema.py for Python-free bootstrap
 
-from "std/fs.nano" import read, write, join, file_delete
-from "modules/std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, as_bool, object_has, keys
+from "std/fs.nano" import read, write, join, delete
+from "modules/std/json/json.nano" import parse, free, get, is_string, is_object, is_array, array_size, get_index, as_string, as_int, as_bool, object_has, keys, new_object, new_array, new_string, object_set, json_array_push
 
 let HEADER_COMMENT: string = "/* AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY. */"
 let C_GUARD: string = "NANOLANG_GENERATED_COMPILER_SCHEMA_H"
@@ -23,7 +23,7 @@ shadow write_if_changed {
     assert (== (write_if_changed test_path content) 0)
     let content2: string = "different"
     assert (== (write_if_changed test_path content2) 0)
-    (file_delete test_path)
+    (delete test_path)
 }
 
 # Get token count
@@ -32,7 +32,7 @@ fn get_token_count(tokens_json: Json) -> int {
 }
 
 shadow get_token_count {
-    let empty: Json = (nl_json_new_array)
+    let empty: Json = (new_array)
     let count: int = (get_token_count empty)
     assert (== count 0)
     (free empty)
@@ -87,13 +87,13 @@ fn gen_nano_schema(schema: Json) -> string {
 
 shadow gen_nano_schema {
     # Test with minimal schema
-    let schema: Json = (nl_json_new_object)
-    let tokens: Json = (nl_json_new_array)
-    (nl_json_array_push tokens (nl_json_new_string "TOKEN_EOF"))
-    (nl_json_object_set schema "tokens" tokens)
-    let nodes: Json = (nl_json_new_array)
-    (nl_json_array_push nodes (nl_json_new_string "NODE_EXPR"))
-    (nl_json_object_set schema "parse_nodes" nodes)
+    let schema: Json = (new_object)
+    let tokens: Json = (new_array)
+    (json_array_push tokens (new_string "TOKEN_EOF"))
+    (object_set schema "tokens" tokens)
+    let nodes: Json = (new_array)
+    (json_array_push nodes (new_string "NODE_EXPR"))
+    (object_set schema "parse_nodes" nodes)
     
     let result: string = (gen_nano_schema schema)
     assert (> (str_length result) 0)
@@ -198,7 +198,7 @@ fn gen_nano_ast(schema: Json) -> string {
 }
 
 shadow gen_nano_ast {
-    let schema: Json = (nl_json_new_object)
+    let schema: Json = (new_object)
     let result: string = (gen_nano_ast schema)
     assert (> (str_length result) 0)
     (free schema)
@@ -298,7 +298,7 @@ fn gen_contracts(schema: Json) -> string {
 }
 
 shadow gen_contracts {
-    let schema: Json = (nl_json_new_object)
+    let schema: Json = (new_object)
     let result: string = (gen_contracts schema)
     assert (> (str_length result) 0)
     (free schema)
@@ -598,13 +598,13 @@ fn gen_c(schema: Json) -> string {
 }
 
 shadow gen_c {
-    let schema: Json = (nl_json_new_object)
-    let tokens: Json = (nl_json_new_array)
-    (nl_json_array_push tokens (nl_json_new_string "TOKEN_EOF"))
-    (nl_json_object_set schema "tokens" tokens)
-    let nodes: Json = (nl_json_new_array)
-    (nl_json_array_push nodes (nl_json_new_string "NODE_EXPR"))
-    (nl_json_object_set schema "parse_nodes" nodes)
+    let schema: Json = (new_object)
+    let tokens: Json = (new_array)
+    (json_array_push tokens (new_string "TOKEN_EOF"))
+    (object_set schema "tokens" tokens)
+    let nodes: Json = (new_array)
+    (json_array_push nodes (new_string "NODE_EXPR"))
+    (object_set schema "parse_nodes" nodes)
     
     let result: string = (gen_c schema)
     assert (> (str_length result) 0)
