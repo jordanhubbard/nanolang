@@ -12587,6 +12587,8 @@ and actual merge remain pending; no cyclic File runtime or parent closure follow
 
 ### My paired File source and NSI publication prerequisite
 
+- [ ] I reconcile paired grammar keyword reservation (`task_9b6cbac8f6f941e3ad38a0c7f5ff59c9`): C-seed accepts the ece fixture local while Stage1 reserves TOKEN_GRAMMAR. I inventory intended semantics and require paired acceptance/refusal or an explicit documented language boundary before full source acceptance; the1bb fixture rename alone does not repair this frontend difference.
+
 - [ ] I preserve ece465 first paired terminals on Linux/puck: C-seed passes76 shadows and exact fixture output, then Stage1 refuses the local identifier grammar at line33 because my Nano lexer reserves TOKEN_GRAMMAR. I rename only that fixture local and its two references before fresh affected qualification; literal bytes, assertions, full generator parity and shadow selection remain unchanged. I do not claim Stage1/Stage2 acceptance from the C-seed pass.
 
 - [ ] I complete native accepted-transitive declaration closure (`task_784f64db9b7443c888242a3b52b9dbe5`) and integer string-length comparison semantics (`task_50f624351db54305ac31a918e9874010`) under full5.1 source publication, with the083 first diagnostics and paired strict native gates; explicit fixture imports/locals do not close either child. I record that083 final temporary C was automatically removed; future producer commands use --keep-c and report-owned TMPDIR, without replaying083 or claiming its missing file is retained.
