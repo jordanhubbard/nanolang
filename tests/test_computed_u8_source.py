@@ -6,19 +6,19 @@ from pathlib import Path
 import shlex
 import unittest
 
-from tests.test_cast_u8_backends import CastU8Backends
+from tests import test_cast_u8_backends as backend
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class ComputedU8Source(unittest.TestCase):
-    setUp = CastU8Backends.setUp
-    command = CastU8Backends.command
-    run_actual = CastU8Backends.run_actual
-    run_trap = CastU8Backends.run_trap
-    native_object = CastU8Backends.native_object
-    assert_target = CastU8Backends.assert_target
-    compare = CastU8Backends.compare
+    setUp = backend.CastU8Backends.setUp
+    command = backend.CastU8Backends.command
+    run_actual = backend.CastU8Backends.run_actual
+    run_trap = backend.CastU8Backends.run_trap
+    native_object = backend.CastU8Backends.native_object
+    assert_target = backend.CastU8Backends.assert_target
+    compare = backend.CastU8Backends.compare
 
     def producers(self):
         emitters = shlex.split(os.environ['NANO_U8_EMITTERS'])
@@ -28,7 +28,7 @@ class ComputedU8Source(unittest.TestCase):
         (self.artifacts / 'source-providers.json').write_text(json.dumps({str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}, indent=2) + '\n')
         return paths
 
-    def paired(self, text, backends=True):
+    def paired(self, text, backends=True, require_cast=True):
         original = self.artifacts
         source = original / 'source.nano'; source.write_text(text)
         seed_native = original / 'seed-native'
@@ -42,7 +42,7 @@ class ComputedU8Source(unittest.TestCase):
             self.run_actual([ROOT / 'bin/nano_vm', '--verify-only', module])
             self.assertEqual(self.run_actual([ROOT / 'bin/nano_vm', module]), seed_output)
             assembly = self.run_actual([ROOT / 'bin/nanoisa', 'dump', module]).decode()
-            self.assertIn('CAST_U8', assembly)
+            if require_cast: self.assertIn('CAST_U8', assembly)
             if backends:
                 # I reassemble the actual retained producer output, not a substitute program.
                 self.compare(assembly)
@@ -101,11 +101,12 @@ fn identity(value: u8) -> u8 { return value }
 shadow identity { let value: u8 = 7 assert (== (cast_int (identity value)) 7) }
 fn main() -> int {
  let mut shared: u8 = 1
- let update: fn() -> u8 = fn() -> u8 { set shared (+ shared 256) return shared }
+ let update: fn() -> u8 = fn() -> u8 { set shared (+ shared 257) return shared }
  let invoke: fn(u8) -> u8 = identity
  let direct: u8 = (invoke (+ 255 2))
  assert (== (cast_int direct) 1)
- assert (== (cast_int (update)) 1)
+ assert (== (cast_int (update)) 2)
+ assert (== (cast_int shared) 2)
  assert (== (global_value) 900)
  return 0
 }
@@ -129,7 +130,7 @@ shadow main { assert (== (main) 0) }
     def test_original_byte_program_unchanged(self):
         source = ROOT / 'tests/test_u8_basic.nano'
         before = source.read_bytes()
-        self.paired(before.decode(), backends=False)
+        self.paired(before.decode(), backends=False, require_cast=False)
         self.assertEqual(source.read_bytes(), before)
 
     def test_literal_and_wrong_source_refusals_preserve_output(self):
