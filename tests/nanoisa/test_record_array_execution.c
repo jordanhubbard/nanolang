@@ -1,5 +1,6 @@
 /* I inspect copied preparation facts. I do not execute an admitted graph. */
 #include "../../src/nanoisa/managed_record_array_execution.h"
+#include "../../src/nanoisa/ownership_layouts_private.h"
 #define main record_array_origin_controls
 #include "test_record_array_origins.c"
 #undef main
