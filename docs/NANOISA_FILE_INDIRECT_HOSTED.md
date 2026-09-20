@@ -102,3 +102,17 @@ locals+input_stack-1-supplied+staging+candidate.vm_value_slots. Indirect borrowe
 formals remain refused, so the256 operand ceiling limits indirect parameters to
 255; staging therefore stays within257 and the existing64*769 total bound.
 I do not allocate258 slots for an impossible256-parameter indirect call.
+
+## My first production checkpoint
+
+I implement the distinct plan in file_indirect_hosted.h/.inc, within the existing
+File flow translation unit after its two indirect queries. A fixed original-site
+candidate map avoids rescanning the entire target table for each alternative.
+It is charged as part of the fixed plan before allocation. I reuse the unchanged
+cyclic obligation helper only for ordinary/direct/service instructions, then
+check every indirect candidate's declaration and normalized obligation separately.
+No old query, runtime selector, public header or installed manifest changes.
+The new accessors return copied facts and never a cyclic plan pointer.
+
+This source checkpoint has not been compiled or executed. Complete independent
+review and separately reviewed fixtures precede qualification.
