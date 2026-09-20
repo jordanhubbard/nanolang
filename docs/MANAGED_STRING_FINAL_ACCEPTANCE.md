@@ -83,3 +83,81 @@ the same implementation without missing aliases. An external retained runner
 archives each command's overwritten outputs before any assertion, as well as
 actual statuses/timeouts and original TemporaryDirectory products. Keeping
 only the final directory would lose earlier subcase IR and is insufficient.
+
+## I retain a direct, prepared-provider runner
+
+My review checkpoint includes `scripts/qualify_managed_strings.py`. I prepare
+providers separately before freezing a phase; this runner invokes no Make,
+bootstrap or implicit provider rebuild. It requires my five public CLIs,
+`obj/binary64_parser_vm`, `obj/scalar_global_lifetime`,
+`obj/literal_string_aliases`, `obj/generic_numeric_bits`, and
+`obj/test_verifier_profiles`. Their current Make recipes define preparation;
+this checkpoint does not claim preparation has happened on either host.
+
+I select exactly four direct unittest phases:
+
+- `original`: the complete string, decimal, scalar-format, binary64-format and
+  binary64-parse modules, with the original emitted IR route.
+- `O2`: those same five modules with `default<O2>` applied by the reviewed
+  common helper; tests which compile their own C retain their existing flags.
+- `core-package`: the complete core and runtime-package modules, including
+  strict core leak checking and actual package generation inside retained
+  directories. I do not silently substitute all aggregate Make dependencies
+  for this bounded string acceptance.
+- `neighbors`: complete scalar-global, literal-string, enum-scalar,
+  generic-numeric and verifier-profile modules. These remain unoptimized
+  neighbor controls, not an additional O2 claim.
+
+I retain the discovered unittest IDs, actual counts and skips; a skip or
+expected-failure result cannot qualify a phase. I stop after the first failed
+test (including its unittest cleanup), while expected negative subprocess
+statuses remain required assertions within their methods.
+
+An explicit JSON selection provides absolute executable paths for `clang`,
+`cc`, `opt`, `llc`, `llvm-as`, `lli`, `wasm-ld`, `node`, `wasmtime`, and `python3`, plus absolute paths to the
+actual selected sanitizer/runtime libraries under `libraries`. I launch with
+that exact Python. My private PATH aliases preserve the fixtures' literal tool
+names; CC and the runtime/core selectors select the supplied Clang. The
+selection may include other tools. I pin the scalar helper CLI environment
+overrides to this checkout rather than inheriting another checkout. Host preparation records
+SDK and actual compiler resource/library resolution before this phase; a list
+of hashed libraries alone is not proof that a loader selected each one. The
+runner hashes the aliases, actual executables and explicit libraries and
+retains version commands. It does not claim every transitive system tool is
+inventoried. I clear LSAN_OPTIONS and select detect_leaks=1 on both hosts.
+
+For example, after reviewed preparation I invoke a phase with:
+
+```
+/absolute/selected/python3 scripts/qualify_managed_strings.py \
+  --phase original --tools /absolute/host-tools.json \
+  --output /absolute/new-evidence-directory --phase-seconds 14400
+```
+
+I intercept direct fixture `subprocess.run` calls before importing the test
+modules. Every supported call captures separate file-backed stdout/stderr,
+argv, selected environment, status and duration. A bounded process group gets
+TERM, a ten-second wait, then KILL for surviving descendants, even when its
+leader has exited. A phase deadline and TERM handler pass through the same
+cleanup. An unexpected subprocess calling convention fails closed.
+
+Before and after each direct fixture command I hash every tracked source,
+prepared bin/obj file, selected tool and retained temporary product into a
+content-addressed store. Every overwritten IR/C/object/binary version seen at
+these boundaries stays available before fixture assertions run. I preserve
+fixture TemporaryDirectory products. A private sitecustomize hook inherited
+by nvm2wasm copies CLI intermediates into a separate archive directory before
+performing its normal cleanup; the unchanged refusal tests still require no
+`.nano-wasm-*` leftovers. Inner CLI/compiler subprocess
+commands retain the outer command's output/status; I do not claim separate
+traces for every transitive compiler process. The CLI's copied intermediates retain their original path in an origin record
+and appear in the outer command's post-map. A child killed before cleanup
+leaves its original directory under the retained fixture directory instead.
+
+Per-command and phase endpoint maps reject changed source/provider/tool
+bytes. They establish equality at measured boundaries, not continuous
+observation between them. Generated test products are separate from immutable
+inputs. I record failures before propagating them, preserve the original
+phase, and use a new output directory for any reviewed correction. Final
+report digests seal maps/logs/statuses; product maps name archived content by
+SHA-256. This is a runner checkpoint only: no build or qualification has run.

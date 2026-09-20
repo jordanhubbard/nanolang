@@ -12455,3 +12455,10 @@ I supplement private VMe105 with frozen42838153c/current8c959 provider integrati
 - [ ] I qualify my original managed-string lifetime and before/after LLVM optimization acceptance under `task_5792220dc3654ddcbe7e47ec0253f8ea`, parent51da. Static review finds only verification/ASan/llc in the emitted fixture; C harness -O1 does not optimize its input IR. My [preimplementation acceptance contract](MANAGED_STRING_FINAL_ACCEPTANCE.md) retains every existing semantic, lifetime, failure and publication assertion, adds an explicit test-only O2 route, and requires fresh Linux/Darwin original and optimized evidence before original-parent reconciliation. Aggregate/cycle488, host linkage2d2 and full release remain separate.
 
   I retain independent-review acceptance findings for579222 before code: the selected optimized Wasm and default-main paths need explicit selection; original string fixtures lack a failed managed initializer; Darwin core defaults to disabled leak checking; copied fixture methods and overwritten subcase products need exact handling. The amended contract adds those original-criterion controls and strict supported-compiler qualification without widening product admission.
+
+  I prepare the retained direct runner for579222 before gates: exact original
+  and O2 emitted-module phases, strict core/package and scalar/literal/verifier
+  neighbors, explicit host tools, per-command source/provider/product maps,
+  content-addressed overwritten artifacts, retained Python CLI temporary
+  products, and bounded process-group cleanup. The runner and two reviewed
+  fixture changes require independent review before any fresh qualification.
