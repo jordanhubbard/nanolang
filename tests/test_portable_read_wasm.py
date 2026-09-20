@@ -30,7 +30,7 @@ class PortableReadWasm(unittest.TestCase):
         self.assertTrue(argv, name)
         found = shutil.which(argv[0])
         self.assertIsNotNone(found, name)
-        argv[0] = str(Path(found).resolve())
+        argv[0] = str(Path(found).absolute())
         return argv
 
     def test_real_private_wasm_embeddings(self):
