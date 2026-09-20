@@ -142,6 +142,11 @@ NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang \
 make -j8 test-ownership-contracts test-owned-transfers
   PASS: ownership contract Python control
   PASS: 184 ordinary and 275 allocation-path owned-transfer checks
+
+make -j8 test-verifier test-nvm2c
+  PASS: 96 verifier checks
+  PASS: 1,365 shape constraints
+  PASS: 2,422 structured nvm2c checks, 0 failed
 ```
 
 The source index was clean before qualification and after the final command.
@@ -158,6 +163,7 @@ e7feda8dd8688be8f914e6c6e4f3ad04c6329403bceed9617bd1b578a0148b03  /private/tmp/n
 740d56b846a83ef4c576a2d94d460ad6ae0fc2653886fb374949bdbcc88ac552  /private/tmp/nanolang-pr893-19c7573e-runtime.log
 94c3cf1d571110a2ece5a2ac87a2c64f440e3eed95945fb79987d8a57b307036  /private/tmp/nanolang-pr893-19c7573e-source.log
 0590ffbe33cfebe0f4c8b0432e5ddf8f0bdd53a5c4a74e181555bc6d78989bf9  /private/tmp/nanolang-pr893-19c7573e-adjacent.log
+900e234dd550791d95330664079a192c7bdf6bfa155fb51f7ae42852901bd3fc  /private/tmp/nanolang-pr893-19c7573e-verifier-nvm2c.log
 ```
 
 ## What remains
