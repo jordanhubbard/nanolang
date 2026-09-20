@@ -1,0 +1,203 @@
+{
+  "pin": "84e0037d8",
+  "scope": "read-only evidence audit; no execution",
+  "git_reports": 298,
+  "artifacts": 676,
+  "artifact_bytes": 345374869,
+  "equal_pairs": 58,
+  "terminals": [
+    {
+      "host": "linux/original",
+      "phase": "cyclic-neighbor-terminal.json",
+      "status": 1
+    },
+    {
+      "host": "linux/original",
+      "phase": "body-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "setup-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "code-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "hosted-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "configuration-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "opcodes-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "clang-sanitizer-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "clang-ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "flow-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/original",
+      "phase": "sanitizer-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/neighbors",
+      "phase": "indirect-target-neighbor-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/neighbors",
+      "phase": "cyclic-neighbor-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux/neighbors",
+      "phase": "configuration-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "cyclic-neighbor-terminal.json",
+      "status": 1
+    },
+    {
+      "host": "puck/original",
+      "phase": "body-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "setup-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "code-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "hosted-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "configuration-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "opcodes-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "clang-ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "flow-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/original",
+      "phase": "sanitizer-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/neighbors",
+      "phase": "indirect-target-neighbor-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/neighbors",
+      "phase": "cyclic-neighbor-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck/neighbors",
+      "phase": "configuration-terminal.json",
+      "status": 0
+    }
+  ],
+  "archive": {
+    "bytes": 56058853,
+    "path": "/tmp/nanolang-file-indirect-flow-puck-evidence.tar.gz",
+    "sha256": "8f43fe44b266b746e6f851ab27bdfc92cd96637031a90b89ce927b943608a80b"
+  },
+  "references": 5576,
+  "archive_members": {
+    "artifacts": 543,
+    "reports": 146,
+    "other": 0
+  },
+  "seven_configs": {
+    "linux/ordinary": true,
+    "linux/sanitizer": true,
+    "linux/clang-ordinary": true,
+    "linux/clang-sanitizer": true,
+    "puck/ordinary": true,
+    "puck/sanitizer": true,
+    "puck/clang-ordinary": true
+  },
+  "linux_source_delta": [
+    "docs/ROADMAP.md",
+    "tests/nanoisa/test_file_cyclic.c"
+  ],
+  "products_equal": {
+    "linux": 172,
+    "puck": 171
+  },
+  "puck_source_delta": [
+    "docs/ROADMAP.md",
+    "tests/nanoisa/test_file_cyclic.c"
+  ],
+  "linux_current": {
+    "original_sources": 12320,
+    "original_tools": 6,
+    "original_input_files": 172,
+    "neighbors_sources": 12320,
+    "neighbors_tools": 6,
+    "neighbors_input_files": 172
+  },
+  "puck_current": {
+    "original_sources": 12320,
+    "original_tools": 9,
+    "original_input_files": 171,
+    "neighbors_sources": 12320,
+    "neighbors_tools": 9,
+    "neighbors_input_files": 171
+  }
+}

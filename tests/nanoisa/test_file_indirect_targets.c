@@ -116,4 +116,7 @@ static void allocation_failures(void){
  free(code);nvm_module_free(m);
 #endif
 }
-int main(void){target_sets();refusals();categories_and_bounds();allocation_failures();printf("PASS %u private indirect target checks; no pending module execution\n",checks);return 0;}
+#ifndef FILE_INDIRECT_TARGET_MAIN
+#define FILE_INDIRECT_TARGET_MAIN main
+#endif
+int FILE_INDIRECT_TARGET_MAIN(void){target_sets();refusals();categories_and_bounds();allocation_failures();printf("PASS %u private indirect target checks; no pending module execution\n",checks);return 0;}

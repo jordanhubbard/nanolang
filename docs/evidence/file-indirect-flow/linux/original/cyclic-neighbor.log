@@ -1,0 +1,22 @@
+I retain cyclic query artifacts at /tmp/nano-file-cyclic-q7xbwxbo
+test_instrumented_cyclic_query (tests.test_file_cyclic.FileCyclic.test_instrumented_cyclic_query) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_cyclic_query (tests.test_file_cyclic.FileCyclic.test_instrumented_cyclic_query)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-indirect-flow-qualified-293/tests/test_file_cyclic.py", line 102, in test_instrumented_cyclic_query
+    self.qualify("instrumented", True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-indirect-flow-qualified-293/tests/test_file_cyclic.py", line 96, in qualify
+    self.command(f"{name}-build", command)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-indirect-flow-qualified-293/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.166s
+
+FAILED (failures=1)

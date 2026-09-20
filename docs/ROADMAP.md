@@ -12731,6 +12731,12 @@ The evidence seal and canonical899/900 bounded integration await review/merge;
 
 - [x] I qualify the first private indirect-target query at5acd1b370 on Linux/puck with seven ordinary/sanitizer configurations and separate code/body/flow/hosted/opcode/cyclic neighbors. [Retained evidence](evidence/file-indirect-targets.md) records all target-query limits; candidate ownership/runtime/source and full task2c135 remain open.
 
+- [ ] I compose every checked indirect target with complete cyclic File ownership under task2c135 after actual PR900: review [the new distinct report and every-candidate transition](NANOISA_FILE_INDIRECT_FLOW.md), implement and review shared internal callable mode without changing old entries, qualify owned arguments/results/borrow/cleanup/all-candidate refusals and faults on Linux/puck; then separately compose hosted execution and matched VM/native dispatch. No target facts or new ownership report alone grants execution.
+
+- [x] I repair the old cyclic allocation fixture's direct internal call after the reviewed indirect extension added its explicit context argument. At293e9c131, all four Linux indirect ownership configurations and code/body/flow/hosted/opcode neighbors pass, then cyclic-neighbor compilation refuses a missing fifth argument at test_file_cyclic.c:308. I retain `/tmp/nanolang-file-indirect-flow-293-linux/cyclic-neighbor-terminal.json` and `/tmp/nano-file-cyclic-q7xbwxbo/instrumented-build-stderr.log`; no cyclic-neighbor execution occurred. I pass explicit NULL to retain the original cyclic mode and predicate, review that fixture-only change, then run corrected cyclic and previously unreached indirect-target neighbors. New ownership production and its qualified fixtures remain unchanged.
+
+- [x] I qualify private every-target indirect File ownership composition at5687cf13c/293e9c131 in seven Linux/Darwin configurations, with all41 measured preparation allocation faults, selected lifetime/sentinel/budget controls and separate old neighbors. [Retained evidence](evidence/file-indirect-flow.md) includes both first cyclic fixture compile failures and the reviewed7d4c explicit-NULL correction; corrected cyclic and previously unreached target neighbors pass with unchanged production. Full task2c135 and hosted/runtime/public/source continuation remain open.
+
 I prepare a separate cyclic-carrier ready integration onto canonical8b84b9cd0
 (899/900). Only the additive roadmap tail conflicts; I retain both histories.
 Thirteen exact carrier/core/fixture/runner/archive-boundary paths match ac877.
