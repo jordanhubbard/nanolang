@@ -1,0 +1,153 @@
+# My first portable host linkage checkpoint
+
+I scope task2d2 after merged managed-string acceptance896/898 at462c98e2d.
+The parent requires exact host signatures, result ownership and real native LLVM
+and Wasm adapters. Filesystem/compiler operations remain applicable requirements.
+This design neither reuses an arbitrary C symbol as authority nor duplicates
+my public temporary-File service, cyclic File lane or peer union implementation.
+No production or qualification is authorized by this proposal alone.
+
+## My concrete existing operation and gap
+
+The first operation is the existing ordinary `file_read` family: empty-namespace
+FFI imports `file_read`, `vm_file_read`, `nl_os_file_read`, exactly one STRING
+parameter and one STRING result. `src/nanoisa/nvm2c.c` already maps these exact
+names to nhost_file_read. `src/nanovm/vm_builtins.c:vm_file_read` delegates to
+`src/runtime/file_text.h` / `file_bytes.h`: read and close a stream, discard
+partial bytes on read/close error, return empty text for missing files or file
+content containing NUL. Allocation failure is distinct from an empty result.
+The argument's C-string prefix before the first NUL is the current path meaning.
+I must preserve that behavior rather than silently choose byte-file semantics.
+
+`nvm_verify_profile` currently refuses imports in the closed LLVM profiles;
+`nvm2llvm.c` emits no reviewed CALL_EXTERN host contract. `scripts/nvm2wasm.py`
+links without arbitrary unresolved symbols. `NvmV2Import` already retains module,
+symbol, kind and signature index; the common signature table carries exact tags.
+These bytes provide declaration identity, not permission to call host functions.
+I require an explicit supplied host context in addition to exact catalog match.
+No ownership-envelope version is needed for this STRING-only checkpoint.
+
+## My first production proposal: non-admitting binding query
+
+I propose `portable_host_plan.h/.c`, a private owned plan for one immutable
+module. It validates the existing complete module/import/signature envelope,
+then resolves only the three exact empty-namespace FFI spellings above to one
+READ_TEXT revision1 catalog entry. It copies original import indices, namespace/
+symbol bytes and exact parameter/result tags; it never uses dlsym or path names
+as trusted artifact contracts. Embedded NUL in import identifiers, wrong kind,
+namespace, signature, unknown aliases or unavailable typed parameter facts refuse.
+A missing explicit executable entry, invalid unused function or call operand
+still refuses through normal structure checks. Presence of pending File service
+operations/metadata refuses before host selection. CALL_MODULE, callbacks,
+artifact imports, reference/passive and owned nominal routes remain unsupported
+in this first plan. A checked read declaration does not discharge their work.
+
+Proposed API is `nvm_portable_read_plan(const NvmModule *, NvmPortableReadPlan **)`
+returning a result with status PREPARED/NOT_SELECTED/INVALID/UNSUPPORTED/LIMIT/
+MEMORY, original function/pc/import or NO_INDEX, and static diagnostic. Only
+PREPARED publishes. Report getters copy original import and catalog facts; all
+failure outputs stay unchanged. Free(NULL) is valid. Plan storage owns all facts,
+remains valid after input destruction and exposes no executable-trust boolean.
+Independent limits are64 imports,256 functions,65536 decoded instructions,
+16MiB module bytes and16MiB total retained/transient query allocations, with
+checked count arithmetic and no recursion through public profile selection.
+No shared profile or translator accepts the plan until later reviewed composition.
+
+## My concrete adapter ABI proposal
+
+I separate host text bytes from NmsHandle, VmString and legacy char-pointer
+ownership. The host owns no managed handle. Proposed native revision1 callback:
+
+```c
+typedef int32_t (*NvmReadTextHostV1)(
+    void *context, const uint8_t *path, uint32_t path_length,
+    uint8_t *destination, uint32_t capacity, uint32_t *length_out);
+```
+
+Status values are OK0, DENIED1, LIMIT2, MEMORY3, INVALID4. A null context or missing
+callback is unavailable, never ambient permission. The context contains a fixed
+application-supplied allowlist of exact path bytes and explicitly selected real
+reader; it is immutable for an invocation, serial and not thread-safe. This is
+an authority boundary, not a filesystem sandbox or a race-free file identity
+claim. No path normalization, symlink containment or process-global permission
+is inferred. The callback borrows input and destination synchronously and may
+not retain them or reenter the same instance. It preserves length_out on error;
+on success it writes exactly the returned number of initialized bytes, no NUL
+terminator required. Failed destination bytes are scratch, never language-visible.
+
+The wrapper computes the effective path prefix ending before the first NUL;
+the exact allowlist comparison and both host adapters use that same prefix.
+The native production adapter checks the allowlist before opening a file, uses
+actual bounded stream reads, checks read and close status and closes exactly once.
+Missing/open/read/close failure yields successful empty text to match existing
+file_read; permission refusal, bounds and allocation failure remain terminal host
+statuses, not fabricated empty strings. Embedded-NUL content also becomes empty.
+A bounded diagnostic records the host failure category separately if required by
+the surrounding checked interface; it does not change the source return type.
+The fixed first implementation capacity is1MiB, path bytes4096; an input exceeding
+these limits refuses explicitly. Reading one excess byte detects a growing file
+instead of accepting a truncated prefix. No writes, compiler launch or deletion
+is permitted by this READ_TEXT context.
+
+For wasm32 I propose the exact import `nanolang_host_v1.read_text` with core type
+`(i32 path_offset, i32 path_length, i32 destination_offset, i32 capacity,
+i32 length_offset) -> i32`. The instance-bound host object supplies its own
+allowlist/context; there is no native pointer or global integer grant in Wasm.
+The host validates all unsigned offset/length ranges against the current memory
+using subtraction-safe bounds, the four-byte little-endian output length and
+nonoverlap with input/output regions before host I/O. It reacquires the current
+memory view for the call, does not retain views and cannot grow/reenter guest
+memory while writing. Both Node and Wasmtime adapters must use real file reads
+with byte-path behavior, exact NUL/text rules and actual close handling. Test
+stubs alone do not qualify this adapter. A browser without this declared host
+capability must refuse instantiation/execution; that is not a blanket claim that
+portable file/compiler features are inapplicable to Wasm.
+
+The compiler-owned wrapper borrows the rooted argument through the host call,
+keeps caller/result/global roots live, and uses a separately allocated bounded
+scratch destination plus disjoint length cell. Scratch allocation occurs before
+host effects. It validates returned status/length and calls nms_create to make
+one instance-owned string root; it always releases scratch. It publishes only
+that new managed root after successful creation. Allocation failure after the
+read discards scratch and unwinds with the existing managed failure protocol;
+other aliases and previously committed globals survive. Generated CALL_EXTERN
+consumes its argument root exactly once on success or failure after the wrapper
+borrow ends. No borrowed C snapshot escapes; returned aliases cannot outlive a
+host buffer because the managed result is copied. Empty success is still the
+runtime's valid owned empty-string representation. No NmsRuntime layout crosses
+the native/Wasm external ABI.
+
+## My ordered implementation and acceptance boundaries
+
+1. Review exact binding query/API/status/limits, then implement only the private
+   query. Qualify malformed and mismatched signatures, original import identity,
+   ignored extra imports, absent/denied capability facts, output atomicity and
+   allocation prefixes. No file is opened by query preparation.
+2. Review the native/Wasm adapter and managed wrapper source before tests.
+   Qualify explicit host invocation with real files in isolated temporary trees
+   on Linux/Darwin, and Node plus Wasmtime. Check empty/multibyte/NUL content,
+   missing paths, exact capacity/oversize, aliases, repeated reads, deny-before-
+   open counters, partial/error close handling, every allocation boundary and
+   no live handle/byte drift after failure and disposal. Modeled I/O errors are
+   labeled separately from real successful filesystem effects.
+3. Review an explicit opt-in LLVM host profile and emitted callback context,
+   real native linked adapter and exact allowlisted Wasm import packaging. The
+   old closed profile remains unchanged. No `--allow-undefined` blanket escape:
+   inspect actual module imports against the exact reviewed ABI. Complete fresh
+   preparation precedes each execution/emission; failure never falls back to a
+   looser profile. Emission and CLI output publication remain atomic.
+4. Qualify actual ordinary source producers' selected extern declarations and
+   full helper/main shadows, VM/native LLVM/Wasm result equivalence, before/after
+   optimization, sanitizer scopes, default refusal and installed real host links.
+   No adapter-only check closes this source or packaging obligation.
+
+I retain the full2d2 continuation: filesystem write/metadata/directory and byte
+array results; process/environment/arguments; compiler_support's actual
+`nlc_module_artifact` build-and-snapshot lifetime; exact artifact ABI and foreign
+release contracts; linked NanoISA module graphs with original CALL_MODULE
+identity and shared instance cleanup; aggregate/recursive/callback values and
+full compiler capabilities. I do not flatten dependency modules as an implicit
+link solution. Required shared array/record authority15f/488 and peer union work
+remain dependencies for aggregate-returning adapters. Full compiler and
+NanoISA-only bootstrap/fixed-point gates are unchanged and unfulfilled by this
+single read-text capability. Parent2d2 remains open throughout this checkpoint.

@@ -10576,6 +10576,9 @@ Other translators:
 
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
       MAC `task_2d2e9eb552394f6e84e90f5aa08484e2`.
+      - [ ] I review the [portable read-text linkage proposal](NANOISA_PORTABLE_READ_TEXT_LINKAGE.md), task_b7ef4d216a4948c58f7a710feacc4251: exact existing STRING→STRING imports, native callback and Wasm offset/length ABI, copied managed results and real allowlisted filesystem adapters.
+      - [ ] I qualify its private non-admitting binding query, then separately review/qualify adapters, opt-in lowering/publication and paired source/installed host links. Query preparation issues no host calls; old closed profiles remain unchanged.
+      - [ ] I retain the full parent continuation for byte/aggregate results, remaining filesystem/process/compiler capabilities and exact linked-module identities. This first read-text step does not close2d2, replace15f/488 authority or narrow compiler/bootstrap/fixed-point gates.
 - [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full
