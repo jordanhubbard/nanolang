@@ -1,0 +1,356 @@
+✓ Bootstrap Stage 0: C reference compiler ready
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+✓ Stage 1 compiler created: bin/nanoc_stage1
+
+Testing stage 1 compiler...
+Hello from NanoLang!
+✓ Stage 1 compiler works!
+
+==========================================
+Bootstrap Stage 2: Recompilation
+==========================================
+Compiling nanoc_v06.nano with stage 1 compiler...
+In file included from /tmp/nano_native_1789893399_0/program.c:135:
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___16_check_function’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:19110:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:19111:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___20_reduce_emission_fail’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:22345:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___22_nb_body_statements’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:30374:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:30374:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:30381:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:30381:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___24_nisa_fail’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:31498:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___24_nisa_emit_globals’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33069:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___24_nisa_emit_while’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35346:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35347:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35365:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35366:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35367:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___24_nisa_emit_for’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35414:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35415:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35416:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35436:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35437:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35438:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘__nano_shadow_602’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:22356:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘__nano_shadow_603’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:22364:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/modules/std/collections/collections.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+/home/jkh/Src/nanolang-match-call-union-identity/modules/std/json/json.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+=== Code Generation ===
+Generating C code for 2 functions
+=== Code Generation ===
+Generating C code for 1 functions
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /tmp/nano_source_guard_1789893408_0/source.nano
+I will not overwrite a source file: /tmp/nano_source_guard_1789893408_0/source.nano
+I cannot check source/output file identity: /tmp/nano_source_guard_1789893408_0/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Options:
+  -o <file>        Output executable (default: a.out)
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native (default) or c (source output, no native compilation)
+  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → Transpile → Compile
+
+In file included from /tmp/nano_native_1789893399_0/program.c:133:
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___16_check_function’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:19110:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:19111:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___20_reduce_emission_fail’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:22345:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___22_nb_body_statements’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:30374:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:30374:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:30381:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:30381:17: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___24_nisa_fail’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:31498:9: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___24_nisa_emit_globals’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:33069:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___24_nisa_emit_while’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35346:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35347:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35365:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35366:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35367:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+src_nano/nanoc_v06.nano: In function ‘nl___nano_module___24_nisa_emit_for’:
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35414:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35415:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35416:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35436:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35437:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/src/runtime/nano_dispatch.h:74:54: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 | #define NL_GUARDED_WRITE(g, expr)        do { (g)._v = (expr); } while (0)
+      |                                                      ^
+src_nano/nanoc_v06.nano:35438:5: note: in expansion of macro ‘NL_GUARDED_WRITE’
+/home/jkh/Src/nanolang-match-call-union-identity/modules/std/collections/collections.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+/home/jkh/Src/nanolang-match-call-union-identity/modules/std/json/json.c:1: warning: "_GNU_SOURCE" redefined
+    1 | #define _GNU_SOURCE
+      | 
+<command-line>: note: this is the location of the previous definition
+✓ Stage 2 compiler created: bin/nanoc_stage2
+
+Testing stage 2 compiler...
+Hello from NanoLang!
+✓ Stage 2 compiler works!
+
+==========================================
+Bootstrap Stage 3: Verification
+==========================================
+Comparing stage 1 and stage 2 binaries...
+
+-rwxrwxr-x 1 jkh jkh 17M Sep 20 01:33 bin/nanoc_stage1
+-rwxrwxr-x 1 jkh jkh 11M Sep 20 01:36 bin/nanoc_stage2
+
+⚠️  Bootstrap verification: Binaries differ
+
+Stage 1 size: 17539728
+Stage 2 size: 11426752
+
+I have not diagnosed the difference. These causes remain hypotheses:
+  - Embedded timestamps or other native artifact metadata
+  - Non-deterministic code generation
+  - Different compiler optimizations
+
+Both stages passed the configured smoke test; that is not a correctness proof.
+Canonical NanoISA artifact equality remains a separate 5.0 gate.
+
+==========================================
+Installing Self-Hosted Compiler
+==========================================
+Updating bin/nanoc to use self-hosted compiler...
+✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)
+
+Smoke test: installed bin/nanoc compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ installed compiler works
+
+Verifying bin/nanoc does not depend on bin/nanoc_c...
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+All subsequent builds (test, examples) will use the self-hosted compiler!
+
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+make[1]: Entering directory '/home/jkh/Src/nanolang-match-call-union-identity'
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+make[1]: Leaving directory '/home/jkh/Src/nanolang-match-call-union-identity'
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+

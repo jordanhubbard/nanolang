@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c11",
+    "-D_DEFAULT_SOURCE",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "-Dmalloc=read_types_malloc",
+    "-Dcalloc=read_types_calloc",
+    "-Drealloc=read_types_realloc",
+    "-Dfree=read_types_free",
+    "-c",
+    "src/nanoisa/verifier_types.c",
+    "-o",
+    "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/query/products/instrumented-read_types.o"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0
+}

@@ -1,0 +1,22 @@
+I retain cyclic dispatch artifacts at /tmp/nano-file-cyclic-dispatch-iwf1jtiu
+test_instrumented_matched_cyclic_dispatch (tests.test_file_cyclic_dispatch.FileCyclicDispatch.test_instrumented_matched_cyclic_dispatch) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_matched_cyclic_dispatch (tests.test_file_cyclic_dispatch.FileCyclicDispatch.test_instrumented_matched_cyclic_dispatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-cyclic-dispatch-100c/tests/test_file_cyclic_dispatch.py", line 206, in test_instrumented_matched_cyclic_dispatch
+    self.qualify('instrumented', True)
+  File "/home/jkh/Src/nanolang-file-cyclic-dispatch-100c/tests/test_file_cyclic_dispatch.py", line 142, in qualify
+    self.command(f'{name}-{opt[1:]}-link', [*self.compiler, *self.flags, opt, *mode,
+  File "/home/jkh/Src/nanolang-file-cyclic-dispatch-100c/tests/test_file_cyclic_dispatch.py", line 52, in command
+    return cyclic_runner.FileCyclic.command(self, name, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-cyclic-dispatch-100c/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 11.465s
+
+FAILED (failures=1)

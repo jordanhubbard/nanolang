@@ -1,0 +1,9 @@
+{
+  "blob": "732f38decf290ab7e3288d7f77421848aa235c24",
+  "commit": "f1606e2c84e67491e9652a5bf71944d235216d95",
+  "git": {
+    "path": "/opt/homebrew/Cellar/git/2.55.0/bin/git",
+    "sha256": "5f0351f649aa1321345229d5256fc8043517778b134a3b4571ecdc3818f124b2"
+  },
+  "git_dir": "/Users/jkh/Src/nanolang/.git"
+}

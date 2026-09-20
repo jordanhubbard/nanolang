@@ -1,0 +1,7 @@
+-- E035 NON-EXHAUSTIVE MATCH --- /private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-m4izwdsj/case.nano
+I require this match to cover every variant; I am missing: None
+
+4|  match choice { Some(payload) => { assert (== payload.number 7) } }
+    ^^^^^
+Hint: Add unconditional arms for the missing variants or one unconditional wildcard.
+Type checking failed

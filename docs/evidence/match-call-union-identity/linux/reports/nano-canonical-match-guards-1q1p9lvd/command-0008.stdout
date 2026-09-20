@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E036] I cannot reach an arm after an unconditional wildcard (/tmp/nano-canonical-match-guards-1q1p9lvd/unreachable.nano:2:27)

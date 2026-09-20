@@ -1,0 +1,14 @@
+{
+  "instrumented-read_decode.o": {
+    "path": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/products/instrumented-read_decode.o",
+    "sha256": "c73366baf3e76d021fb97f03217e9897a926331df1e8132048b14f09f2b91008",
+    "bytes": 39712,
+    "archive": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/objects/c73366baf3e76d021fb97f03217e9897a926331df1e8132048b14f09f2b91008"
+  },
+  "instrumented-read_query.o": {
+    "path": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/products/instrumented-read_query.o",
+    "sha256": "411573daf41f92a807e8df675b4f8bdbfd1f37445e370972a3d2722ce28fc4f9",
+    "bytes": 63896,
+    "archive": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/objects/411573daf41f92a807e8df675b4f8bdbfd1f37445e370972a3d2722ce28fc4f9"
+  }
+}

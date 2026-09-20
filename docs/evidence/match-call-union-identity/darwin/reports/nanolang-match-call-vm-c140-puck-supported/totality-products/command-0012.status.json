@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/harness",
+    "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/input.sexpr",
+    "-",
+    "once"
+  ],
+  "returncode": 0,
+  "seconds": 0.41761845897417516,
+  "timeout": 30
+}

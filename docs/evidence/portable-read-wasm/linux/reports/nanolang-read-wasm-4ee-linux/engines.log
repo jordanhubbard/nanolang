@@ -1,0 +1,19 @@
+test_real_private_wasm_embeddings (tests.test_portable_read_wasm.PortableReadWasm.test_real_private_wasm_embeddings) ... I retain private Wasm reader artifacts at /tmp/nanolang-read-wasm-4ee-linux/engines
+FAIL
+
+======================================================================
+FAIL: test_real_private_wasm_embeddings (tests.test_portable_read_wasm.PortableReadWasm.test_real_private_wasm_embeddings)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-portable-read-wasm-qualified-4ee/tests/test_portable_read_wasm.py", line 97, in test_real_private_wasm_embeddings
+    self.command([*argv, '--version'])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-portable-read-wasm-qualified-4ee/tests/test_portable_read_adapters.py", line 101, in command
+    self.assertEqual(status['returncode'], 0, (status, log.read_text(errors='replace')))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ({'argv': ['/usr/local/bin/lld', '--version'], 'cwd': '/home/jkh/Src/nanolang-portable-read-wasm-qualified-4ee', 'returncode': 1, 'timeout': False, 'leader_reaped': True, 'group_disappeared': True, 'signals': [], 'errors': []}, 'lld is a generic driver.\nInvoke ld.lld (Unix), ld64.lld (macOS), lld-link (Windows), wasm-ld (WebAssembly) instead\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 1.191s
+
+FAILED (failures=1)

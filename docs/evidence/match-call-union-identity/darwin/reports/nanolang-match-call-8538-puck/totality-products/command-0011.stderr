@@ -1,0 +1,9 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-8o2uuain/case.nano
+Let binding expects int but got string.
+
+4| fn main() -> int { let value: int = match (source) { Some(item) => item.value None(item) => "" } return 0 }
+                      ^
+Hint: Ensure the assigned expression matches the declared type.
+Warning at line 4, column 37: Unused variable 'item'
+Warning at line 4, column 20: Unused variable 'value'
+Type checking failed

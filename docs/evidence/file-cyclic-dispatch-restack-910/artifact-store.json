@@ -1,0 +1,3338 @@
+{
+  "fb58dda9790dbc4003be86c7a76f93f7d7011181d364a2b211d3c8440fc6aa19": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fb58dda9790dbc4003be86c7a76f93f7d7011181d364a2b211d3c8440fc6aa19",
+    "bytes": 27384
+  },
+  "2d7e6cfd4472babffa6ec4f1e577bdc942d9bf5f3c222dc27c28a38338246676": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2d7e6cfd4472babffa6ec4f1e577bdc942d9bf5f3c222dc27c28a38338246676",
+    "bytes": 68944
+  },
+  "4035486b23456df55c62302591e217399f0520cbe45c5a53ec9c1be01130897b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4035486b23456df55c62302591e217399f0520cbe45c5a53ec9c1be01130897b",
+    "bytes": 39344
+  },
+  "c3e19d27d5433e83717e403a89e024a93e5fc9ace0243e39911c9d9341c8fc6b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c3e19d27d5433e83717e403a89e024a93e5fc9ace0243e39911c9d9341c8fc6b",
+    "bytes": 27464
+  },
+  "317fd078205bd999adc84750a79e933e664e0abfa7f42ae268d36faf7fb1abfd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/317fd078205bd999adc84750a79e933e664e0abfa7f42ae268d36faf7fb1abfd",
+    "bytes": 208064
+  },
+  "59e27a82045b5f6bf4d314d75627b9c2b81a290c3d553cebc077ee69570600c0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/59e27a82045b5f6bf4d314d75627b9c2b81a290c3d553cebc077ee69570600c0",
+    "bytes": 490624
+  },
+  "ae071e598f2233bd448972af7363f76fba605dfac8389dd1c82dc37a0daecfdf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ae071e598f2233bd448972af7363f76fba605dfac8389dd1c82dc37a0daecfdf",
+    "bytes": 54088
+  },
+  "320473cd833bd2ecf7b3d7d187821d1e9b6315f0c0ca8d62db6251a59c97529b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/320473cd833bd2ecf7b3d7d187821d1e9b6315f0c0ca8d62db6251a59c97529b",
+    "bytes": 20960
+  },
+  "73b1154bd5314dcfea06f9511076928b56175a8871777169e95a08204968137e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/73b1154bd5314dcfea06f9511076928b56175a8871777169e95a08204968137e",
+    "bytes": 37360
+  },
+  "2ad05991a13bb566882a1ff5408cfc45c612b65201197e3673cf4e4b834a882c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2ad05991a13bb566882a1ff5408cfc45c612b65201197e3673cf4e4b834a882c",
+    "bytes": 39456
+  },
+  "8cf43ba6bc96dbc05f29db76fba31b03064b18ee6f05c84f5ef9b5239732d2ab": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8cf43ba6bc96dbc05f29db76fba31b03064b18ee6f05c84f5ef9b5239732d2ab",
+    "bytes": 56208
+  },
+  "fa548b8cf795fd19601dc472e4eb67ec8e83d826e1170e0f2ce2910ffbc48cbc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fa548b8cf795fd19601dc472e4eb67ec8e83d826e1170e0f2ce2910ffbc48cbc",
+    "bytes": 7584
+  },
+  "c4cc3a64cbd51f04de1fe82f1ab49be29a43254dd8b119d8c0b47ddd5ece8a79": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c4cc3a64cbd51f04de1fe82f1ab49be29a43254dd8b119d8c0b47ddd5ece8a79",
+    "bytes": 130240
+  },
+  "92afd2824443565d1a5ce89ce4cd0dc6ed8145516c2c9c8d8398ad4602d28f5a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/92afd2824443565d1a5ce89ce4cd0dc6ed8145516c2c9c8d8398ad4602d28f5a",
+    "bytes": 96896
+  },
+  "5831a479c171ec88d871b70bc6a314d2f139ada66b90d623182179d85af975bb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5831a479c171ec88d871b70bc6a314d2f139ada66b90d623182179d85af975bb",
+    "bytes": 41664
+  },
+  "f3b0268560c696a04f5b267f0b5f0dfd99197c8be44b5b6906b6879f016fe447": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f3b0268560c696a04f5b267f0b5f0dfd99197c8be44b5b6906b6879f016fe447",
+    "bytes": 107080
+  },
+  "bbf733843de2db9f170ea0705430e1d4aa75f6fea1c3c6bf9c52b0aa5bbb6fed": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bbf733843de2db9f170ea0705430e1d4aa75f6fea1c3c6bf9c52b0aa5bbb6fed",
+    "bytes": 161848
+  },
+  "223cc05c502e335c4e2e18d96ffbbe918e104e86be602a9feb62a467e9141aeb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/223cc05c502e335c4e2e18d96ffbbe918e104e86be602a9feb62a467e9141aeb",
+    "bytes": 292696
+  },
+  "eaee0d0a5ceba387878d76abac3a69e8269ad94e6e5920bf2954db9f63a3d89f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/eaee0d0a5ceba387878d76abac3a69e8269ad94e6e5920bf2954db9f63a3d89f",
+    "bytes": 880792
+  },
+  "0d554b464c136699a30858d3b832798e6a9426e5db5ba2192c8aa6a8fa1cfe6c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0d554b464c136699a30858d3b832798e6a9426e5db5ba2192c8aa6a8fa1cfe6c",
+    "bytes": 28496
+  },
+  "a0143cababdf56f77ec30cb9314791aa2eed0caf91e333a2d1a06b176bdfc1fb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a0143cababdf56f77ec30cb9314791aa2eed0caf91e333a2d1a06b176bdfc1fb",
+    "bytes": 156264
+  },
+  "fd71baa72578d31f97475f0b7d0bc6ea4495d0af74af89c4a17f0469b6944eca": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fd71baa72578d31f97475f0b7d0bc6ea4495d0af74af89c4a17f0469b6944eca",
+    "bytes": 35440
+  },
+  "eaf96f457020b573d33a525c25f02ddbf27864f48d61d46ba038ef35f1c878ab": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/eaf96f457020b573d33a525c25f02ddbf27864f48d61d46ba038ef35f1c878ab",
+    "bytes": 61624
+  },
+  "65aa4f070ada99bcd45742a6d1a176815670c87ad2fb2cf77031cd4cb8a40da6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/65aa4f070ada99bcd45742a6d1a176815670c87ad2fb2cf77031cd4cb8a40da6",
+    "bytes": 43872
+  },
+  "2f7dd0d9adf9090c9ba5b1bae2a6453815d19214921011b13544596d522c6b1f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2f7dd0d9adf9090c9ba5b1bae2a6453815d19214921011b13544596d522c6b1f",
+    "bytes": 67904
+  },
+  "129d039f0821f92f46666f25547703e03c3c6eb453fc5789857aeb31781a5d5d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/129d039f0821f92f46666f25547703e03c3c6eb453fc5789857aeb31781a5d5d",
+    "bytes": 85424
+  },
+  "0a4b942455166d4f25f7125770535d96b867dfacc8449d2e5f1abca62f322ef3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0a4b942455166d4f25f7125770535d96b867dfacc8449d2e5f1abca62f322ef3",
+    "bytes": 42984
+  },
+  "7c6bf290966fd7a7033958fcfbbf712c85dcea75041374c5ddf9d943d396cb2c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7c6bf290966fd7a7033958fcfbbf712c85dcea75041374c5ddf9d943d396cb2c",
+    "bytes": 91504
+  },
+  "536e4c2ff094d8eab82667d9e1155d923a254a6ffbcbc745631b076e56bb72f2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/536e4c2ff094d8eab82667d9e1155d923a254a6ffbcbc745631b076e56bb72f2",
+    "bytes": 20408
+  },
+  "e7465c96eaf8b21a506e9e80a31406db91153d38bf3ffbedee009249ccd5f6a8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e7465c96eaf8b21a506e9e80a31406db91153d38bf3ffbedee009249ccd5f6a8",
+    "bytes": 317272
+  },
+  "a594a4ad83d44d60a371bc6e01751569daf17e77418f7a5ea6c6ad0dde511403": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a594a4ad83d44d60a371bc6e01751569daf17e77418f7a5ea6c6ad0dde511403",
+    "bytes": 1246464
+  },
+  "4f0d1cdbaef466af0710f4c9917b9477b3a067ef6c2b0375555810c6203c4d93": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4f0d1cdbaef466af0710f4c9917b9477b3a067ef6c2b0375555810c6203c4d93",
+    "bytes": 242440
+  },
+  "d89917df31afe0bd43c6821ac611539ffeb44cae511765e14732fa91c89ef88e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d89917df31afe0bd43c6821ac611539ffeb44cae511765e14732fa91c89ef88e",
+    "bytes": 117576
+  },
+  "c40a60b65870650ea2b73ede48b5639093f07e5154ff750ae61a0c332d9c90e7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c40a60b65870650ea2b73ede48b5639093f07e5154ff750ae61a0c332d9c90e7",
+    "bytes": 82288
+  },
+  "ee687cd6212e9979c087348ebb5c980bc66e48d04f5a34a33416c09d3cf43c7a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ee687cd6212e9979c087348ebb5c980bc66e48d04f5a34a33416c09d3cf43c7a",
+    "bytes": 98200
+  },
+  "7e66719592e2cebc11a435dce1eca617f4055a2179d3384ac7bb7d4539821011": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7e66719592e2cebc11a435dce1eca617f4055a2179d3384ac7bb7d4539821011",
+    "bytes": 365416
+  },
+  "4245a7c29d4d51431482488666fc7e4e54f37bdecabb316547015798388fcc69": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4245a7c29d4d51431482488666fc7e4e54f37bdecabb316547015798388fcc69",
+    "bytes": 238648
+  },
+  "ab535e5ad2f0ab43e160a5f205b8c49d5c4956bf75d9849eb422a58ad33f0d55": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ab535e5ad2f0ab43e160a5f205b8c49d5c4956bf75d9849eb422a58ad33f0d55",
+    "bytes": 95416
+  },
+  "71f9dc7d8cab430dd4db1063156db102e573cf68942f7205a22dc3f989ebad2d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/71f9dc7d8cab430dd4db1063156db102e573cf68942f7205a22dc3f989ebad2d",
+    "bytes": 576840
+  },
+  "2adedd013422cd3c3e7d98ec823ce0b678f2a48de74d1e4f435e82333dccc5af": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2adedd013422cd3c3e7d98ec823ce0b678f2a48de74d1e4f435e82333dccc5af",
+    "bytes": 395064
+  },
+  "dfae1cee0b4de618549714576bbd52679379d87914cd4ee8128e5d2b67b654d9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dfae1cee0b4de618549714576bbd52679379d87914cd4ee8128e5d2b67b654d9",
+    "bytes": 53952
+  },
+  "82c65b0e2f218957bf2f5b2e58e5c547cd0303ef3a56334e6f7de10bb2b348bb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/82c65b0e2f218957bf2f5b2e58e5c547cd0303ef3a56334e6f7de10bb2b348bb",
+    "bytes": 50352
+  },
+  "2e920e7373dadd9d7c42bd71fe874bf5bc5822abf96488de159536ae2754205d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2e920e7373dadd9d7c42bd71fe874bf5bc5822abf96488de159536ae2754205d",
+    "bytes": 43176
+  },
+  "60dd889f715655e5204f14eb281d9980cbaa70d8d260c981f436e04306434668": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/60dd889f715655e5204f14eb281d9980cbaa70d8d260c981f436e04306434668",
+    "bytes": 163288
+  },
+  "67004c972923677f2f2ab2242b439002ec9e2d2775d33a56d0b39b91d5184df9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/67004c972923677f2f2ab2242b439002ec9e2d2775d33a56d0b39b91d5184df9",
+    "bytes": 154216
+  },
+  "7d29d2fb27ad0c5f37afd09ebdb096d7e8f9ae6d1146ca16c1b84bec9329599b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7d29d2fb27ad0c5f37afd09ebdb096d7e8f9ae6d1146ca16c1b84bec9329599b",
+    "bytes": 116712
+  },
+  "73492ca342f6d7759e80631368528425944955ea0cd819a8b50ba8a2a0e83a17": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/73492ca342f6d7759e80631368528425944955ea0cd819a8b50ba8a2a0e83a17",
+    "bytes": 1299968
+  },
+  "7ae046a9476348942681c8a23d04deb917460d378982bfe08f8a3d16dd936ab5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7ae046a9476348942681c8a23d04deb917460d378982bfe08f8a3d16dd936ab5",
+    "bytes": 64616
+  },
+  "8f3287d2a9366949ba88e4518efbaea4eec6b55c2951f5b948b63520465dcb94": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8f3287d2a9366949ba88e4518efbaea4eec6b55c2951f5b948b63520465dcb94",
+    "bytes": 112752
+  },
+  "bd6da3ddc13b2eb1cf7a81bb8b028c4cb2b33797c80b4fe27e9a9d1a7deda4c0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bd6da3ddc13b2eb1cf7a81bb8b028c4cb2b33797c80b4fe27e9a9d1a7deda4c0",
+    "bytes": 31424
+  },
+  "34dc42550d0a24f751d908340b9d726976fd852f3f0a115f5ec657c91b6df1b3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/34dc42550d0a24f751d908340b9d726976fd852f3f0a115f5ec657c91b6df1b3",
+    "bytes": 19360
+  },
+  "06422299dda4d1238bbd7849f9f99806dd2977db344fabb8551b6495cd6e5cb3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/06422299dda4d1238bbd7849f9f99806dd2977db344fabb8551b6495cd6e5cb3",
+    "bytes": 86976
+  },
+  "f40b8e5dee88b9d78d3d37fe72d150d663b7b575e96558e8ee8502dc36a3df39": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f40b8e5dee88b9d78d3d37fe72d150d663b7b575e96558e8ee8502dc36a3df39",
+    "bytes": 13112
+  },
+  "a3b1d5fea882e206e31a7e92894776329ec40975333c62e769df3e17d3ebead6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a3b1d5fea882e206e31a7e92894776329ec40975333c62e769df3e17d3ebead6",
+    "bytes": 26512
+  },
+  "006f34750ce6755e579af7a3ed81cfed175a2b1ea7772711cd0c4205c85fe6c1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/006f34750ce6755e579af7a3ed81cfed175a2b1ea7772711cd0c4205c85fe6c1",
+    "bytes": 45864
+  },
+  "30ca38282ad6720e343e54ad333113b24e13b10a7a06493fe693204b7b35bec0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/30ca38282ad6720e343e54ad333113b24e13b10a7a06493fe693204b7b35bec0",
+    "bytes": 26984
+  },
+  "fa7f882108408583fdf1c9594302fb38c8de02f62856d4cd4baa8002b457909e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fa7f882108408583fdf1c9594302fb38c8de02f62856d4cd4baa8002b457909e",
+    "bytes": 67736
+  },
+  "91acffe59900701ba0b02f0412bb9bcb46cdac3b70511fdc997f5534e54cdf2c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/91acffe59900701ba0b02f0412bb9bcb46cdac3b70511fdc997f5534e54cdf2c",
+    "bytes": 22960
+  },
+  "eebfe6ca5b2bf245ea4cbd4eaa839c244290a156b8ff93bce80001cbf70c51d3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/eebfe6ca5b2bf245ea4cbd4eaa839c244290a156b8ff93bce80001cbf70c51d3",
+    "bytes": 42424
+  },
+  "d8acd0a0fd26116aeba523163afcec1dfe788110c11f86488af3f89194f99788": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d8acd0a0fd26116aeba523163afcec1dfe788110c11f86488af3f89194f99788",
+    "bytes": 78616
+  },
+  "da08f3b38c9719d55261c8ac37267aa6923f8c156a4be2c14a2dfb31288b8b5f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/da08f3b38c9719d55261c8ac37267aa6923f8c156a4be2c14a2dfb31288b8b5f",
+    "bytes": 21376
+  },
+  "c355e1d49458708cb494609fa2296b3cb0495fa5fc3c4f6b0a6a0ea3305baf05": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c355e1d49458708cb494609fa2296b3cb0495fa5fc3c4f6b0a6a0ea3305baf05",
+    "bytes": 280232
+  },
+  "694d85e650ef7489542ce7a03eb413594d5374169b1d2b5b1c0dfc06a3b254b4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/694d85e650ef7489542ce7a03eb413594d5374169b1d2b5b1c0dfc06a3b254b4",
+    "bytes": 15456
+  },
+  "778cac6dd933bd233f8d2ff848b1a0d14049c145d58e4cfec7e07996c320135b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/778cac6dd933bd233f8d2ff848b1a0d14049c145d58e4cfec7e07996c320135b",
+    "bytes": 66856
+  },
+  "b0f82a6ab723aada0fa05bfecd31a64b4e9024c13ce021ddadb1cfef3286b543": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b0f82a6ab723aada0fa05bfecd31a64b4e9024c13ce021ddadb1cfef3286b543",
+    "bytes": 20032
+  },
+  "77c1a63675c4a0a0aa10ad9effe84fe51d2550867eadbd9b26bf8d6ad34569b7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/77c1a63675c4a0a0aa10ad9effe84fe51d2550867eadbd9b26bf8d6ad34569b7",
+    "bytes": 58384
+  },
+  "94b0a1a3e4b9fd141b0a59cbda57ba41c0c1199de4b82b59b4aca2ffe6e03d92": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/94b0a1a3e4b9fd141b0a59cbda57ba41c0c1199de4b82b59b4aca2ffe6e03d92",
+    "bytes": 230808
+  },
+  "0bd2be70dcd4115d37223298b1a5a55cee76242a59fb1eed17114326e6c59248": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0bd2be70dcd4115d37223298b1a5a55cee76242a59fb1eed17114326e6c59248",
+    "bytes": 48272
+  },
+  "d84a166bfa12b1ed73bf279dfe80df9695be811786386d09957cb855356a5274": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d84a166bfa12b1ed73bf279dfe80df9695be811786386d09957cb855356a5274",
+    "bytes": 176856
+  },
+  "d1e831a5b8bceb27fd90dc13469d5dc073499d02604cca587b0f9561315684d7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d1e831a5b8bceb27fd90dc13469d5dc073499d02604cca587b0f9561315684d7",
+    "bytes": 133568
+  },
+  "f0deedad646ec91d0dd4ad7395e8f730575ea8d034b52a07a4f01bc63b8a394c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f0deedad646ec91d0dd4ad7395e8f730575ea8d034b52a07a4f01bc63b8a394c",
+    "bytes": 94112
+  },
+  "2c04ee8d7b7b9f3806adace8861afd8416201da0ebeda6754c27c01d2dbfe939": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2c04ee8d7b7b9f3806adace8861afd8416201da0ebeda6754c27c01d2dbfe939",
+    "bytes": 76160
+  },
+  "5152ef231c0a86ad513ffe1489786dcd1d6d40dcbf73ac46e5ebc47f403fc912": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5152ef231c0a86ad513ffe1489786dcd1d6d40dcbf73ac46e5ebc47f403fc912",
+    "bytes": 46632
+  },
+  "2c878ca265d44942491502dca64829d7586629930a9dcd8b8d3d131b38ded7ac": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2c878ca265d44942491502dca64829d7586629930a9dcd8b8d3d131b38ded7ac",
+    "bytes": 891136
+  },
+  "43c0ba72649e4db19ead760cddc093eda935cd50b1ac1127d86fca260c037b3e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/43c0ba72649e4db19ead760cddc093eda935cd50b1ac1127d86fca260c037b3e",
+    "bytes": 84192
+  },
+  "bfe571a020650807d3c534f37cd735b73d6e67fb1f900a204b1c1ac487c9ec57": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bfe571a020650807d3c534f37cd735b73d6e67fb1f900a204b1c1ac487c9ec57",
+    "bytes": 47032
+  },
+  "d78cc6bf7af6000fde729b35fdc0d6e92fd32f0fa7744819299bd16b35b0ef5f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d78cc6bf7af6000fde729b35fdc0d6e92fd32f0fa7744819299bd16b35b0ef5f",
+    "bytes": 46504
+  },
+  "a686db4f08dd3583e759ea291d400fdc60e2b523f3936bb68ac2e7495097bfff": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a686db4f08dd3583e759ea291d400fdc60e2b523f3936bb68ac2e7495097bfff",
+    "bytes": 48320
+  },
+  "76942079d136762852f788a95e66581a6cdf75d0427950769202ff7cc62885be": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/76942079d136762852f788a95e66581a6cdf75d0427950769202ff7cc62885be",
+    "bytes": 314432
+  },
+  "fbd866634948b3c8bb19bd21066dcac1ca498c68b5e872d570f6ed3cb1b31db4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fbd866634948b3c8bb19bd21066dcac1ca498c68b5e872d570f6ed3cb1b31db4",
+    "bytes": 58176
+  },
+  "db84cc0169d4aebdf7a7ffabee3759a1067e8884f9f8a17f4e7a9b2fecc31913": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/db84cc0169d4aebdf7a7ffabee3759a1067e8884f9f8a17f4e7a9b2fecc31913",
+    "bytes": 35672
+  },
+  "e5a6da55692780dd28bfe801531304c50e70ff1a97dffd2da167bc112807a3d4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e5a6da55692780dd28bfe801531304c50e70ff1a97dffd2da167bc112807a3d4",
+    "bytes": 21064
+  },
+  "f5b298155793f6c1d21ff8a08cc79e4836746c003a46315ace3990a2f4d0e226": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f5b298155793f6c1d21ff8a08cc79e4836746c003a46315ace3990a2f4d0e226",
+    "bytes": 98248
+  },
+  "63fb2b5ec5d7fa559251105f28b0f7b2f2fd92a6a6aa4d0e41ad91bffa3f7bdf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/63fb2b5ec5d7fa559251105f28b0f7b2f2fd92a6a6aa4d0e41ad91bffa3f7bdf",
+    "bytes": 120936
+  },
+  "d4bb42224d2e824fbdb5b8f61cd78c14a02b04f1d740a552e36d34c03c7e02f6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d4bb42224d2e824fbdb5b8f61cd78c14a02b04f1d740a552e36d34c03c7e02f6",
+    "bytes": 120240
+  },
+  "072bcfe678a0dd4bd0541b7b0aa98b1dd0b707981e68df2f918d8a41eb2d47b6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/072bcfe678a0dd4bd0541b7b0aa98b1dd0b707981e68df2f918d8a41eb2d47b6",
+    "bytes": 59408
+  },
+  "162c69b739599d3cbcc1d6fc06557faa930702574a3259a6765276639cdfb5e3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/162c69b739599d3cbcc1d6fc06557faa930702574a3259a6765276639cdfb5e3",
+    "bytes": 37992
+  },
+  "9a4f54bd011105bedc13d323c7c9a4d29c12d9ff1a04d9272f39725e494a3d01": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9a4f54bd011105bedc13d323c7c9a4d29c12d9ff1a04d9272f39725e494a3d01",
+    "bytes": 73136
+  },
+  "e2f587c8bc44ad85a0a953ab28c1b4302e57dd71139c727b3d85c4a0e228d530": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e2f587c8bc44ad85a0a953ab28c1b4302e57dd71139c727b3d85c4a0e228d530",
+    "bytes": 97672
+  },
+  "1d74828437b08dd7ca59bfe71cc6bfd7ad4cdf1db58aa7824f4295fcc85cfd7b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1d74828437b08dd7ca59bfe71cc6bfd7ad4cdf1db58aa7824f4295fcc85cfd7b",
+    "bytes": 36680
+  },
+  "bc2a0982c5ed3271f862200ce4a5d7abdad283762e8f21e00789cb40868efa88": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bc2a0982c5ed3271f862200ce4a5d7abdad283762e8f21e00789cb40868efa88",
+    "bytes": 736056
+  },
+  "8fb94111752a7b4100505519a6fe2a2478fe51f56ebdc725ed1d211634ab3602": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8fb94111752a7b4100505519a6fe2a2478fe51f56ebdc725ed1d211634ab3602",
+    "bytes": 68792
+  },
+  "5b580ac3048157b95fe5bbe2f1c5388d850e91a1b239c10fd3e55b5927a30a92": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5b580ac3048157b95fe5bbe2f1c5388d850e91a1b239c10fd3e55b5927a30a92",
+    "bytes": 101936
+  },
+  "2e7d41c5239043ba6688170b966ae754a187522127b400dc08a7c97c870fb08f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2e7d41c5239043ba6688170b966ae754a187522127b400dc08a7c97c870fb08f",
+    "bytes": 98456
+  },
+  "c939fc531c75bcdfd09fb8d2c5e7d1e3a43eb2cc85cbaa83042a7d427ec2b2b8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c939fc531c75bcdfd09fb8d2c5e7d1e3a43eb2cc85cbaa83042a7d427ec2b2b8",
+    "bytes": 290400
+  },
+  "608776589de53de649540d174c288f91995f614f15c3404e63b16e448b9351a4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/608776589de53de649540d174c288f91995f614f15c3404e63b16e448b9351a4",
+    "bytes": 126752
+  },
+  "122959065a4965c5199297d8291a3ffa99e70f7007bed969104708e000a490eb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/122959065a4965c5199297d8291a3ffa99e70f7007bed969104708e000a490eb",
+    "bytes": 80928
+  },
+  "31d8e47cd3b772fb7cb513f4132fe99a1ef6195afd75b863156e47d742961b07": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/31d8e47cd3b772fb7cb513f4132fe99a1ef6195afd75b863156e47d742961b07",
+    "bytes": 42208
+  },
+  "45d4faf254e5744aa4f696a71d0af49a9b0663b0c32a014f4c0f0cfeb84e62b1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/45d4faf254e5744aa4f696a71d0af49a9b0663b0c32a014f4c0f0cfeb84e62b1",
+    "bytes": 7448
+  },
+  "0384a6b088edd67e0a3bab29cb6c9620a2e85ea2cb1e67fb4566f1bd7b082fec": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0384a6b088edd67e0a3bab29cb6c9620a2e85ea2cb1e67fb4566f1bd7b082fec",
+    "bytes": 97864
+  },
+  "9f41f3cf16bca1f7fad30e4481d6b304542640426998f4d8419177c737f3107b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9f41f3cf16bca1f7fad30e4481d6b304542640426998f4d8419177c737f3107b",
+    "bytes": 5336
+  },
+  "8075556ac9af6357eea2346db4ca379db731bf9bd4eaefe699c7595038d6b34d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8075556ac9af6357eea2346db4ca379db731bf9bd4eaefe699c7595038d6b34d",
+    "bytes": 57400
+  },
+  "53719f5ae61c66429ede2147c7025d4018b0b5b9a07da53ac2b37bdd64b39761": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/53719f5ae61c66429ede2147c7025d4018b0b5b9a07da53ac2b37bdd64b39761",
+    "bytes": 8427200
+  },
+  "3ac7d35509263e30441866e4aa81fa40c1fe5971848b7d4b87cfdeb1482fd291": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3ac7d35509263e30441866e4aa81fa40c1fe5971848b7d4b87cfdeb1482fd291",
+    "bytes": 24696
+  },
+  "e630529ef00b5e20dfc2732611327fc89481fb68749cf581d606c38e1dcd74dd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e630529ef00b5e20dfc2732611327fc89481fb68749cf581d606c38e1dcd74dd",
+    "bytes": 29144
+  },
+  "8a1c9934ed98ed8e94c4291a7df35c2d7113d006c2fd6bf14a4e9a677b5289bc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8a1c9934ed98ed8e94c4291a7df35c2d7113d006c2fd6bf14a4e9a677b5289bc",
+    "bytes": 29120
+  },
+  "0e318bc286971590fc523bb72da850b37c38518ba6e2321331b50e6b2b32147f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0e318bc286971590fc523bb72da850b37c38518ba6e2321331b50e6b2b32147f",
+    "bytes": 27512
+  },
+  "cb28390279def3f67301be926111d583182d7fa9c35013386facd9a4ff289199": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cb28390279def3f67301be926111d583182d7fa9c35013386facd9a4ff289199",
+    "bytes": 28968
+  },
+  "dd6e61470033874ff43b3a48d1a24a16ac9bf135602ee43719ae848451290ff5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dd6e61470033874ff43b3a48d1a24a16ac9bf135602ee43719ae848451290ff5",
+    "bytes": 29256
+  },
+  "f339763bb835056b65bd1cfab1360ef4fd22c43fac35944c6b4c0d130b648f73": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f339763bb835056b65bd1cfab1360ef4fd22c43fac35944c6b4c0d130b648f73",
+    "bytes": 28928
+  },
+  "e6055c9d7ee27405c7a45b90b9d89790955fa0506b2e01e3cf96d1efd1eb82f8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e6055c9d7ee27405c7a45b90b9d89790955fa0506b2e01e3cf96d1efd1eb82f8",
+    "bytes": 28216
+  },
+  "14091fd795fa4d2156ae4356d07e8d8ce34afad1eed43234f1aa0a3dfff187bf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/14091fd795fa4d2156ae4356d07e8d8ce34afad1eed43234f1aa0a3dfff187bf",
+    "bytes": 29096
+  },
+  "adbcab10df75043bfdb448e3cd3c6def658f0c85646b00bb504b9f0ff94fd887": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/adbcab10df75043bfdb448e3cd3c6def658f0c85646b00bb504b9f0ff94fd887",
+    "bytes": 28968
+  },
+  "003826b45c78c5253459c0ee2b971e4d41e63613949d165cac41c12cf27dc7ba": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/003826b45c78c5253459c0ee2b971e4d41e63613949d165cac41c12cf27dc7ba",
+    "bytes": 27192
+  },
+  "ae76f783362ad8737049ba6e1bee30552fd185dd7b465e37a902d79dff169c88": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ae76f783362ad8737049ba6e1bee30552fd185dd7b465e37a902d79dff169c88",
+    "bytes": 27440
+  },
+  "abb23f212a13e700f905a1150322b7345014a08ef6e9cb7f9d7a2eea1a6798f1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/abb23f212a13e700f905a1150322b7345014a08ef6e9cb7f9d7a2eea1a6798f1",
+    "bytes": 29152
+  },
+  "5f687e1b37ac2cc5e19ee9032421d1d269b4e62dd99c191ddf1e5d2ed53ce58f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5f687e1b37ac2cc5e19ee9032421d1d269b4e62dd99c191ddf1e5d2ed53ce58f",
+    "bytes": 28944
+  },
+  "b070aef6e887c76dbfa90888f797430d3d507275798704cc35763d72dad0a0b0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b070aef6e887c76dbfa90888f797430d3d507275798704cc35763d72dad0a0b0",
+    "bytes": 28552
+  },
+  "99b54b7d1925f618e9e9c7b58442a8aaed11a905075f6ab3d781400d2aa87f96": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/99b54b7d1925f618e9e9c7b58442a8aaed11a905075f6ab3d781400d2aa87f96",
+    "bytes": 28448
+  },
+  "2e86faa15a9e2c88f28d6540c54ec42caf5ceef94577d80e4c0e4d3ead6f6a7b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2e86faa15a9e2c88f28d6540c54ec42caf5ceef94577d80e4c0e4d3ead6f6a7b",
+    "bytes": 28560
+  },
+  "cdc6788c3fe6ccfa09e5975c260b433aabc5bc6145e8dc9b4ae3e5d50130ca4d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cdc6788c3fe6ccfa09e5975c260b433aabc5bc6145e8dc9b4ae3e5d50130ca4d",
+    "bytes": 27768
+  },
+  "d58ba07aea4e0e5b3b5e985eb895660d53ca853df28e381ce9960a5e33c329c2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d58ba07aea4e0e5b3b5e985eb895660d53ca853df28e381ce9960a5e33c329c2",
+    "bytes": 29000
+  },
+  "d4f68ce9ff1378c3f439d8861a610104396983ea9126d235780c054e9b3bac52": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d4f68ce9ff1378c3f439d8861a610104396983ea9126d235780c054e9b3bac52",
+    "bytes": 29152
+  },
+  "1be47536200b8c29fd7efde2dc2e913d89fb235d225af3af529178540bd58357": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1be47536200b8c29fd7efde2dc2e913d89fb235d225af3af529178540bd58357",
+    "bytes": 29072
+  },
+  "747d0b7c4d835dfa9bf82c5a53ff35ae3e505359238e960c73e05eb50a325470": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/747d0b7c4d835dfa9bf82c5a53ff35ae3e505359238e960c73e05eb50a325470",
+    "bytes": 29112
+  },
+  "44a0f965fd5f9f63b775c478bd838d78ab099b7466f81979398e2aa8dbfa07aa": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/44a0f965fd5f9f63b775c478bd838d78ab099b7466f81979398e2aa8dbfa07aa",
+    "bytes": 27184
+  },
+  "bc13f51b21774ae6c50188d4b25a352fd63359fc3a537f53c083b9cd9a31b4df": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bc13f51b21774ae6c50188d4b25a352fd63359fc3a537f53c083b9cd9a31b4df",
+    "bytes": 28872
+  },
+  "2eb3b4e93323dd03b76497402242769a886e076ce5d64d1c856700b2d37efdb8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2eb3b4e93323dd03b76497402242769a886e076ce5d64d1c856700b2d37efdb8",
+    "bytes": 28936
+  },
+  "5b3de97dd96879454ea4f322778fe5901962965b86bdc66d14752e6186c4f99c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5b3de97dd96879454ea4f322778fe5901962965b86bdc66d14752e6186c4f99c",
+    "bytes": 29000
+  },
+  "8378a3f6ed4e0f8ff9c5378c3bbc3ccccdd1c4875d121b6af4040b6f96c9dcee": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8378a3f6ed4e0f8ff9c5378c3bbc3ccccdd1c4875d121b6af4040b6f96c9dcee",
+    "bytes": 28496
+  },
+  "4f717db0e267b5357710377a7240319e3d92c96950789acc64f164c51609dd08": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4f717db0e267b5357710377a7240319e3d92c96950789acc64f164c51609dd08",
+    "bytes": 28656
+  },
+  "4cfa00a9ab4df854337edff52d29b030ad504ab7c69415d7aa06dbf8ac02ecf1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4cfa00a9ab4df854337edff52d29b030ad504ab7c69415d7aa06dbf8ac02ecf1",
+    "bytes": 29296
+  },
+  "c7374098cdaa8ea805432f927dcfcf177130bca031ede74a269f28fb1d1ffccd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c7374098cdaa8ea805432f927dcfcf177130bca031ede74a269f28fb1d1ffccd",
+    "bytes": 28472
+  },
+  "a0a481937b523e492c4b0d6f345edce1b6b0a582189aa8654998ce7c68427f2d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a0a481937b523e492c4b0d6f345edce1b6b0a582189aa8654998ce7c68427f2d",
+    "bytes": 28528
+  },
+  "973c7a161ce5dfab01398bc010b25287d952b45c51106c9a7c9d22b48499830d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/973c7a161ce5dfab01398bc010b25287d952b45c51106c9a7c9d22b48499830d",
+    "bytes": 28680
+  },
+  "1be79259395cfbccc296b43b35cab3b4d1b382bb1e79cabb64e28139bcb1cd07": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1be79259395cfbccc296b43b35cab3b4d1b382bb1e79cabb64e28139bcb1cd07",
+    "bytes": 29272
+  },
+  "3d868284c19c8a4fafa63acb8d201c86c725b0f0719a73ff34f6b5ad023ced7d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3d868284c19c8a4fafa63acb8d201c86c725b0f0719a73ff34f6b5ad023ced7d",
+    "bytes": 29120
+  },
+  "1d3643cd9140411445bc6aa19b4264eec7a4e3754ecaeeb400018dcaede64021": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1d3643cd9140411445bc6aa19b4264eec7a4e3754ecaeeb400018dcaede64021",
+    "bytes": 27816
+  },
+  "05b75159f99893e055c15d7d27d3537a50cf0685f3b3e60bd5d620404731a825": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/05b75159f99893e055c15d7d27d3537a50cf0685f3b3e60bd5d620404731a825",
+    "bytes": 29672
+  },
+  "20ee23f3ecaf31a616a0160eece5e1b67da8a97994cfc341e3893669177429dd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/20ee23f3ecaf31a616a0160eece5e1b67da8a97994cfc341e3893669177429dd",
+    "bytes": 29032
+  },
+  "98d2423fbef380dc3ef76031e805e89f02436e9931d4b0f619b0e5aacb8ea9a1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/98d2423fbef380dc3ef76031e805e89f02436e9931d4b0f619b0e5aacb8ea9a1",
+    "bytes": 28560
+  },
+  "48e452e2e8c69397d5091aa7856cc6d9f6f830612aec830dbfc501676cc18bc2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/48e452e2e8c69397d5091aa7856cc6d9f6f830612aec830dbfc501676cc18bc2",
+    "bytes": 31400
+  },
+  "bfcdd0dc869f05555b93b7d6bc61630dd7619b2e4503a691363d053d45691d8f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bfcdd0dc869f05555b93b7d6bc61630dd7619b2e4503a691363d053d45691d8f",
+    "bytes": 28848
+  },
+  "6a7b8afbf1fb79002260d96eab03c4d568b2d83c49ad477aaa73c037792eed58": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6a7b8afbf1fb79002260d96eab03c4d568b2d83c49ad477aaa73c037792eed58",
+    "bytes": 19808
+  },
+  "fba309a1d5c8d35631732c155084be069080a144a1112593dde19de9cecf97f7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fba309a1d5c8d35631732c155084be069080a144a1112593dde19de9cecf97f7",
+    "bytes": 41936
+  },
+  "39821304820476ceb61acb0980c19c74acce68e1692004420a022eb763724679": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/39821304820476ceb61acb0980c19c74acce68e1692004420a022eb763724679",
+    "bytes": 28112
+  },
+  "4def2cbd208f3277e12532906b5572d8fa970522de653474fb07d62c8926f86c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4def2cbd208f3277e12532906b5572d8fa970522de653474fb07d62c8926f86c",
+    "bytes": 8248
+  },
+  "166f779f805010e33443a9d5444af923ada4827267a4ef48a7268922ea9b230c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/166f779f805010e33443a9d5444af923ada4827267a4ef48a7268922ea9b230c",
+    "bytes": 373032
+  },
+  "54bcaed8338594b46310641e47e064f750b0c08ec5e60509de53ea638ca8bf50": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/54bcaed8338594b46310641e47e064f750b0c08ec5e60509de53ea638ca8bf50",
+    "bytes": 120728
+  },
+  "1e349a311d384d87a7b541d603ec396d0bc2b20e9e78de08616838bce3ed20e1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1e349a311d384d87a7b541d603ec396d0bc2b20e9e78de08616838bce3ed20e1",
+    "bytes": 30896
+  },
+  "01580cac8c76976b2711b8373c8908f1f575d0e1ef32e0926297185eafb66431": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/01580cac8c76976b2711b8373c8908f1f575d0e1ef32e0926297185eafb66431",
+    "bytes": 1101104
+  },
+  "ed7d804ef967a6d34a5340da90ada25a4628041c737f651c3429a5aa53871843": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ed7d804ef967a6d34a5340da90ada25a4628041c737f651c3429a5aa53871843",
+    "bytes": 260648
+  },
+  "6ccddb7fe989d8b680c5aae7a4ec83db57c1b5debe51c50aad411dd3451be559": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6ccddb7fe989d8b680c5aae7a4ec83db57c1b5debe51c50aad411dd3451be559",
+    "bytes": 891712
+  },
+  "bd58401113dd11a5438d3cf2573f9cad7dade2868e4223d95aa2816339b9685b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bd58401113dd11a5438d3cf2573f9cad7dade2868e4223d95aa2816339b9685b",
+    "bytes": 18672
+  },
+  "a820b7a9f98f268e5723b7eaea4d39c9b6ac909427dec0b7c3dbdc6436d59d17": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a820b7a9f98f268e5723b7eaea4d39c9b6ac909427dec0b7c3dbdc6436d59d17",
+    "bytes": 5901
+  },
+  "79f084761a51933670cc69efbd7d770650c9a27a6150309e9f6e3b87bc222dbd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/79f084761a51933670cc69efbd7d770650c9a27a6150309e9f6e3b87bc222dbd",
+    "bytes": 601
+  },
+  "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+    "bytes": 181
+  },
+  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "8b1063d71c592dd274e4eace88aef94c04787a40d79ed33e22e666866b386e24": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8b1063d71c592dd274e4eace88aef94c04787a40d79ed33e22e666866b386e24",
+    "bytes": 82504
+  },
+  "e334a2f125a681fb96b1d6e2095c15dd534a021dbda331795bd4c560650a9cfb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e334a2f125a681fb96b1d6e2095c15dd534a021dbda331795bd4c560650a9cfb",
+    "bytes": 601
+  },
+  "38303a99306e2d47cb0de1acc2e24fe7e907d6cdcfda2dc8db607aaebabc6d6e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/38303a99306e2d47cb0de1acc2e24fe7e907d6cdcfda2dc8db607aaebabc6d6e",
+    "bytes": 102704
+  },
+  "42f47b0338c98c2a9a29ad7f1ceec2cb9430dfa4320e86e69c591f3083d4823b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/42f47b0338c98c2a9a29ad7f1ceec2cb9430dfa4320e86e69c591f3083d4823b",
+    "bytes": 603
+  },
+  "1726f5b414f46f906b8db943d1f0b9abe524b35e9ec8e786dd02279104427514": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1726f5b414f46f906b8db943d1f0b9abe524b35e9ec8e786dd02279104427514",
+    "bytes": 235280
+  },
+  "fe616bfeb021325aee2942af0f4a51279a46a4d7a98731848a3a1708df3dd68c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fe616bfeb021325aee2942af0f4a51279a46a4d7a98731848a3a1708df3dd68c",
+    "bytes": 603
+  },
+  "14f2674b2eefee781826f97918b06303a051247394f6faf08328ae6d4c2369e4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/14f2674b2eefee781826f97918b06303a051247394f6faf08328ae6d4c2369e4",
+    "bytes": 235280
+  },
+  "20e408dc7f4c69ee9cdc8e53dd857695633f8cc8f72419873495db961bc76880": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/20e408dc7f4c69ee9cdc8e53dd857695633f8cc8f72419873495db961bc76880",
+    "bytes": 603
+  },
+  "c7876cc9788fb502a53ec90fc083ad422ebb809a824acff4b9278147ecc4a0e6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c7876cc9788fb502a53ec90fc083ad422ebb809a824acff4b9278147ecc4a0e6",
+    "bytes": 235280
+  },
+  "8acd5b92eed157c7169b77bae0ea2c36fca6a0bbc9899201ecde328962526ad1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8acd5b92eed157c7169b77bae0ea2c36fca6a0bbc9899201ecde328962526ad1",
+    "bytes": 603
+  },
+  "8a350e476cdb3a7b28f8d38c74ba60eb9d06dd5cda41b167da6688d480fdf3c3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8a350e476cdb3a7b28f8d38c74ba60eb9d06dd5cda41b167da6688d480fdf3c3",
+    "bytes": 143648
+  },
+  "1b7c0087e1626359447456cc79a8f5a4f7da4938df45be49a2f7434bce5ed5a2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1b7c0087e1626359447456cc79a8f5a4f7da4938df45be49a2f7434bce5ed5a2",
+    "bytes": 603
+  },
+  "f4ee169474eecb99886606befc04f37c5232013ca903cedefdeda4a834040ede": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f4ee169474eecb99886606befc04f37c5232013ca903cedefdeda4a834040ede",
+    "bytes": 114792
+  },
+  "ceae014d3faa3432e58da15d93c99fdbc8250977e5187322645fdfa98826e636": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ceae014d3faa3432e58da15d93c99fdbc8250977e5187322645fdfa98826e636",
+    "bytes": 603
+  },
+  "24780b8e0d869df60ffc86a0d99ce1660fb664dd492e3c71f843a0d3f80ee6e0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/24780b8e0d869df60ffc86a0d99ce1660fb664dd492e3c71f843a0d3f80ee6e0",
+    "bytes": 186272
+  },
+  "05c2a24c83aace8a03156e44e420b96f41c59d0c3ec22de5b969db710355d889": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/05c2a24c83aace8a03156e44e420b96f41c59d0c3ec22de5b969db710355d889",
+    "bytes": 603
+  },
+  "11c97ce4edb4673bdf63a982908c193b7e515e31096b37c5457e36fe66dd0832": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/11c97ce4edb4673bdf63a982908c193b7e515e31096b37c5457e36fe66dd0832",
+    "bytes": 186272
+  },
+  "d61426fa086d40f7002a430d0c5fa7dcaec4cc0a0d8326f5e56a045cbbd0c889": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d61426fa086d40f7002a430d0c5fa7dcaec4cc0a0d8326f5e56a045cbbd0c889",
+    "bytes": 603
+  },
+  "fbde1e8d1ac2c08284d5cf8f241f0521c0dd8199055a3ad82663d13cfd380ae5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fbde1e8d1ac2c08284d5cf8f241f0521c0dd8199055a3ad82663d13cfd380ae5",
+    "bytes": 211144
+  },
+  "e21359e8eb41fb22bd11331007a80215b44691e3f55fdc97490383aeacf6d1f7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e21359e8eb41fb22bd11331007a80215b44691e3f55fdc97490383aeacf6d1f7",
+    "bytes": 603
+  },
+  "aa13ad5c4d76b0f6983ef33c9cc7965d23d8089fa2b5e8ed9947ed0590055c6e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/aa13ad5c4d76b0f6983ef33c9cc7965d23d8089fa2b5e8ed9947ed0590055c6e",
+    "bytes": 188968
+  },
+  "4d79ae4a806d6ee120b7e87db36aa7033010d8d64bc0aee8c2a97372addfb9fd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4d79ae4a806d6ee120b7e87db36aa7033010d8d64bc0aee8c2a97372addfb9fd",
+    "bytes": 603
+  },
+  "444dab68635d178ffcd1ae03f1ce9ec53bb6d2caf5b8ef247065d4f3ca5aef5f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/444dab68635d178ffcd1ae03f1ce9ec53bb6d2caf5b8ef247065d4f3ca5aef5f",
+    "bytes": 221496
+  },
+  "1f7209c2d18db9d61b96fb2d066d4064fb024af17b67d431583a2e7cdf4096e1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1f7209c2d18db9d61b96fb2d066d4064fb024af17b67d431583a2e7cdf4096e1",
+    "bytes": 601
+  },
+  "221fbb830d1dbee09b0004113381c384e52b12ad89fecd7c632ef63d85a2ddac": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/221fbb830d1dbee09b0004113381c384e52b12ad89fecd7c632ef63d85a2ddac",
+    "bytes": 292928
+  },
+  "cdd3b161b6187209dc6a830c16eeb14fa200d8f1674be1ad9d06e2132b1583ba": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cdd3b161b6187209dc6a830c16eeb14fa200d8f1674be1ad9d06e2132b1583ba",
+    "bytes": 603
+  },
+  "862f12259fc91142326259a4447bc6739d0421c3adc1aa1cd465c19e57e49e1c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/862f12259fc91142326259a4447bc6739d0421c3adc1aa1cd465c19e57e49e1c",
+    "bytes": 235280
+  },
+  "3118a21fb443062503218652c816802a6be6a0b85b3f7d652f4ba9bae7815568": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3118a21fb443062503218652c816802a6be6a0b85b3f7d652f4ba9bae7815568",
+    "bytes": 603
+  },
+  "c7eb2c42426bba5f8e440dcc2f894eba3721db13a68d7e573c3b366812f60a35": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c7eb2c42426bba5f8e440dcc2f894eba3721db13a68d7e573c3b366812f60a35",
+    "bytes": 81248
+  },
+  "a5cc4026c69ebd1536d40ab1469ea061b3aa975a65e7f0ee56ae265b5bd96306": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a5cc4026c69ebd1536d40ab1469ea061b3aa975a65e7f0ee56ae265b5bd96306",
+    "bytes": 601
+  },
+  "1066c2afc8510f7e9d90b45988f3772137b96ab281d62b81b9dba99d18b77084": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1066c2afc8510f7e9d90b45988f3772137b96ab281d62b81b9dba99d18b77084",
+    "bytes": 292928
+  },
+  "24ea6df34a61a047e97f94526ced22f5865c5b7f5e320557b846fdc03be037a9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/24ea6df34a61a047e97f94526ced22f5865c5b7f5e320557b846fdc03be037a9",
+    "bytes": 601
+  },
+  "3056609e5736a82c4b820462e39d5e388918dd3510c4260eeddc688a4af6f121": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3056609e5736a82c4b820462e39d5e388918dd3510c4260eeddc688a4af6f121",
+    "bytes": 102896
+  },
+  "ffa7111847a39598f6a2267df761d6b5a1aba04f3c03987f2e47fa6d5c730c1c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ffa7111847a39598f6a2267df761d6b5a1aba04f3c03987f2e47fa6d5c730c1c",
+    "bytes": 601
+  },
+  "ac7def1b61f7dc1e8f2412db3aa6f8a647f68e84d20801fd46f25a537349cd2d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ac7def1b61f7dc1e8f2412db3aa6f8a647f68e84d20801fd46f25a537349cd2d",
+    "bytes": 235272
+  },
+  "8837b9e6e1d2ee58cbba26d94f93654f593f9b12d219d1c9ae764edce66423a5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8837b9e6e1d2ee58cbba26d94f93654f593f9b12d219d1c9ae764edce66423a5",
+    "bytes": 601
+  },
+  "6e76039f188891d8091cc41e66e91ed51a8bf81523ba05cdba43c4e5fd988574": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6e76039f188891d8091cc41e66e91ed51a8bf81523ba05cdba43c4e5fd988574",
+    "bytes": 235272
+  },
+  "48cfe7fc03e6dd3c77c72f0f4619eef48f8e6e3affc33cbb4985212596c9346a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/48cfe7fc03e6dd3c77c72f0f4619eef48f8e6e3affc33cbb4985212596c9346a",
+    "bytes": 601
+  },
+  "d984cd844d3cdf1e6a8d2bab2031bc195919979cc7c4260e9a7d3410179c2cf2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d984cd844d3cdf1e6a8d2bab2031bc195919979cc7c4260e9a7d3410179c2cf2",
+    "bytes": 235272
+  },
+  "4cc00d41ce09c1a0cfd937b3ea9eb35e8f8d574410837739ede064930c9b7ca0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4cc00d41ce09c1a0cfd937b3ea9eb35e8f8d574410837739ede064930c9b7ca0",
+    "bytes": 601
+  },
+  "5f47460912969a14b56ca02af884ab5dd0dcbaadc6d4b4dbd6a46c594418b707": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5f47460912969a14b56ca02af884ab5dd0dcbaadc6d4b4dbd6a46c594418b707",
+    "bytes": 235272
+  },
+  "a94cf69f9bdb10950c0d42a18d18b41542f411a04a111ff88d182f4d1c66f787": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a94cf69f9bdb10950c0d42a18d18b41542f411a04a111ff88d182f4d1c66f787",
+    "bytes": 601
+  },
+  "a8c0b1d2b7f36962350c4d130aa43d8e8b8a2265b1f797a13520ead433262b25": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a8c0b1d2b7f36962350c4d130aa43d8e8b8a2265b1f797a13520ead433262b25",
+    "bytes": 235272
+  },
+  "a0d280f4946a4cd0aebd94e5b7db27983a876899590494720347196f6904cba2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a0d280f4946a4cd0aebd94e5b7db27983a876899590494720347196f6904cba2",
+    "bytes": 5982
+  },
+  "4f05645bcfb4a7d3b7983ef588491f9da1e2aa303255002d14a8cd549df759f6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4f05645bcfb4a7d3b7983ef588491f9da1e2aa303255002d14a8cd549df759f6",
+    "bytes": 22060928
+  },
+  "c588d6358bf3bdf8d186c9412061f440c7f1ec16802b573e4d9a02c86ef336b2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c588d6358bf3bdf8d186c9412061f440c7f1ec16802b573e4d9a02c86ef336b2",
+    "bytes": 57
+  },
+  "4a21c5a7065847cf81f0e7918e6dfe16c1d9ea48bbc956ed1beff83ef07dea46": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4a21c5a7065847cf81f0e7918e6dfe16c1d9ea48bbc956ed1beff83ef07dea46",
+    "bytes": 23948
+  },
+  "0bd81933ce8538a8dbab08b48d145a1bc36aea7f1edf7624530ddd5748f73c54": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0bd81933ce8538a8dbab08b48d145a1bc36aea7f1edf7624530ddd5748f73c54",
+    "bytes": 601
+  },
+  "eebc7bd5f92a0433859005df9dfbbfbf58df5d0823dba5ab37e8e6286a05d69d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/eebc7bd5f92a0433859005df9dfbbfbf58df5d0823dba5ab37e8e6286a05d69d",
+    "bytes": 59384
+  },
+  "e42c21f9fcf60dc57422b523ffcceaa7d34cf78c005d0827b20a19cdf0622032": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e42c21f9fcf60dc57422b523ffcceaa7d34cf78c005d0827b20a19cdf0622032",
+    "bytes": 601
+  },
+  "523be8196eee625c4fcfe094edb4a5cbd694afab56c1277ac018a489413e8025": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/523be8196eee625c4fcfe094edb4a5cbd694afab56c1277ac018a489413e8025",
+    "bytes": 87936
+  },
+  "f7445957c9650bd0b39372eca516af02e25aed499ea7fa0186925b23cf361df7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f7445957c9650bd0b39372eca516af02e25aed499ea7fa0186925b23cf361df7",
+    "bytes": 603
+  },
+  "e073d8961bd8af584bab30809563e70526bab3b44db42829f86e14a765ba6298": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e073d8961bd8af584bab30809563e70526bab3b44db42829f86e14a765ba6298",
+    "bytes": 342824
+  },
+  "f2de8573f438eba8d59c7c764ccade30ceda3ea28fb2275d9daa787d117e6d1f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f2de8573f438eba8d59c7c764ccade30ceda3ea28fb2275d9daa787d117e6d1f",
+    "bytes": 603
+  },
+  "8c169e14462dcb8b5c952f7cb6411b4444a61b559c4044c39a67580dc6e10b62": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8c169e14462dcb8b5c952f7cb6411b4444a61b559c4044c39a67580dc6e10b62",
+    "bytes": 342824
+  },
+  "eec9869829a8fb032ee52d22aec81171ac074d389972083a1ade05bca83c71fa": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/eec9869829a8fb032ee52d22aec81171ac074d389972083a1ade05bca83c71fa",
+    "bytes": 603
+  },
+  "4ebfdc06ba40533defb4945c2a7412bb1ec8afbe64d95191b35bef4241d08c7f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4ebfdc06ba40533defb4945c2a7412bb1ec8afbe64d95191b35bef4241d08c7f",
+    "bytes": 342824
+  },
+  "97cd3a4c0b51c13926864bafe09ddc6ebc4e91bed46ec79dab5b3510bea1c957": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/97cd3a4c0b51c13926864bafe09ddc6ebc4e91bed46ec79dab5b3510bea1c957",
+    "bytes": 603
+  },
+  "e7abe8fb607bd9f40cfea4b9e2347214f58d3b3b216d964867eba42435131ade": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e7abe8fb607bd9f40cfea4b9e2347214f58d3b3b216d964867eba42435131ade",
+    "bytes": 159120
+  },
+  "5545ee37fe9b5b8a8dfe72ade8fac488304b9093f2c33b563089b666ea00a838": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5545ee37fe9b5b8a8dfe72ade8fac488304b9093f2c33b563089b666ea00a838",
+    "bytes": 603
+  },
+  "6f3d76db4e7390e304527e11d76547cc13ad7f3560108677072e1b457c075928": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6f3d76db4e7390e304527e11d76547cc13ad7f3560108677072e1b457c075928",
+    "bytes": 117624
+  },
+  "b829e126ffacba16d91f43c240abf911bc0a387dfef23e9e348c5b8334b6285c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b829e126ffacba16d91f43c240abf911bc0a387dfef23e9e348c5b8334b6285c",
+    "bytes": 603
+  },
+  "64a2536aae9d793534bec79c15f8aeaedb4b34eccaaeacda66d8ad8eca9ce0d0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/64a2536aae9d793534bec79c15f8aeaedb4b34eccaaeacda66d8ad8eca9ce0d0",
+    "bytes": 265168
+  },
+  "efe10baf2604298f6589f4b3ecf3af6c2efd66c2dd605edb3c88807aca11236f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/efe10baf2604298f6589f4b3ecf3af6c2efd66c2dd605edb3c88807aca11236f",
+    "bytes": 603
+  },
+  "56d11f0bcd399540e5925f935e5c45f35bbebc98641c180e7d3c251bab42fc20": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/56d11f0bcd399540e5925f935e5c45f35bbebc98641c180e7d3c251bab42fc20",
+    "bytes": 264440
+  },
+  "4807a390b6a29a4dd061352910c1cf1b2e99b265aa6d8b1bf50835d3038dcd58": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4807a390b6a29a4dd061352910c1cf1b2e99b265aa6d8b1bf50835d3038dcd58",
+    "bytes": 603
+  },
+  "dbebb31545d6d1ae54ce5912f21264d15afd65415149ec8ad70c890d6926e67c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dbebb31545d6d1ae54ce5912f21264d15afd65415149ec8ad70c890d6926e67c",
+    "bytes": 316680
+  },
+  "94f7e60a2773772a99200a6b0a9a391bade1a24129f9c2fd9eedb32e8efe9e10": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/94f7e60a2773772a99200a6b0a9a391bade1a24129f9c2fd9eedb32e8efe9e10",
+    "bytes": 603
+  },
+  "c4b2a613841425ab0686e8e9a701daa0d3259fe903c67314e69235d60bbb684a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c4b2a613841425ab0686e8e9a701daa0d3259fe903c67314e69235d60bbb684a",
+    "bytes": 270304
+  },
+  "fa5191a064f62e19878bb48cc4bc3b81c2a20e7e68fde117d0ea6b257e732a27": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fa5191a064f62e19878bb48cc4bc3b81c2a20e7e68fde117d0ea6b257e732a27",
+    "bytes": 603
+  },
+  "754a3e39cbd86745e827c234cf5dd844c140e4965cda160f74baac4ba375aeb1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/754a3e39cbd86745e827c234cf5dd844c140e4965cda160f74baac4ba375aeb1",
+    "bytes": 340464
+  },
+  "70a55d21d4b66539c2e7968b63193b2b876cab0f2d6529f6bf046f2e1d743d39": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/70a55d21d4b66539c2e7968b63193b2b876cab0f2d6529f6bf046f2e1d743d39",
+    "bytes": 601
+  },
+  "a35724e9f89f43cb6028ee26bc34a4e3f0686469fd9e1b6e544322f6eb20e9e8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a35724e9f89f43cb6028ee26bc34a4e3f0686469fd9e1b6e544322f6eb20e9e8",
+    "bytes": 397232
+  },
+  "ffb717f156e32474ebed735bf98c160ddd82e0a512692a4c05ebce67d071a3ce": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ffb717f156e32474ebed735bf98c160ddd82e0a512692a4c05ebce67d071a3ce",
+    "bytes": 603
+  },
+  "7501634fda66f98e51f4313cb182310ff00f16d16150aa292be66d8dd53af465": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7501634fda66f98e51f4313cb182310ff00f16d16150aa292be66d8dd53af465",
+    "bytes": 342952
+  },
+  "1f3145fb77dd9ad1178f588a7569c2e7e0ee7114214fcdc43595c8491c6f5e34": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1f3145fb77dd9ad1178f588a7569c2e7e0ee7114214fcdc43595c8491c6f5e34",
+    "bytes": 603
+  },
+  "a50a6c9a2d35f95f07ffcbfe72553d52259d622ebefc9f76eeadfbf2ba25f715": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a50a6c9a2d35f95f07ffcbfe72553d52259d622ebefc9f76eeadfbf2ba25f715",
+    "bytes": 57520
+  },
+  "163fb3122131cb63379c4fc001857ebd16972fc3fc36c6282af48c025c493d15": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/163fb3122131cb63379c4fc001857ebd16972fc3fc36c6282af48c025c493d15",
+    "bytes": 601
+  },
+  "0da9cb89e232a6685fb0f488c03fd887e13ebcf45f55b3eb7abdb21f5660b0ea": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0da9cb89e232a6685fb0f488c03fd887e13ebcf45f55b3eb7abdb21f5660b0ea",
+    "bytes": 397224
+  },
+  "9c9eef3a7ccad6c4a9a2eb156ceb998639f308e76e1d0c1dc31714a46768d59e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9c9eef3a7ccad6c4a9a2eb156ceb998639f308e76e1d0c1dc31714a46768d59e",
+    "bytes": 601
+  },
+  "2d7ff028fc21617344e48436283cc5e8e60e4d5e56e53c9336a8fb8e1344ee15": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2d7ff028fc21617344e48436283cc5e8e60e4d5e56e53c9336a8fb8e1344ee15",
+    "bytes": 90672
+  },
+  "9ba5902372adbe79a1f860874ec48a250fd0dc759c6fe85a429a5681d063a3d6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9ba5902372adbe79a1f860874ec48a250fd0dc759c6fe85a429a5681d063a3d6",
+    "bytes": 601
+  },
+  "fc5b1a29cc25ee85f0796aa035052c1f6d671ec5f79264bacf58334b14c6677e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fc5b1a29cc25ee85f0796aa035052c1f6d671ec5f79264bacf58334b14c6677e",
+    "bytes": 342952
+  },
+  "a4b4153d061ddeea1aa6186d8e54135dc7bccfb654208b416be4b16424c69138": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a4b4153d061ddeea1aa6186d8e54135dc7bccfb654208b416be4b16424c69138",
+    "bytes": 601
+  },
+  "7733a944b52c85cc856b7f94ba7b34f09e1476c3c07f4a9edccc4de5e157b4e1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7733a944b52c85cc856b7f94ba7b34f09e1476c3c07f4a9edccc4de5e157b4e1",
+    "bytes": 342952
+  },
+  "c4465b4819b19c70e8d337c3c80727f8b9b66a26d096ccd3db97b7595c2bcd27": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c4465b4819b19c70e8d337c3c80727f8b9b66a26d096ccd3db97b7595c2bcd27",
+    "bytes": 601
+  },
+  "5f712ad621f6a997bd02b0cab947f351ee4afa5223fcc952a832f04a04b810db": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5f712ad621f6a997bd02b0cab947f351ee4afa5223fcc952a832f04a04b810db",
+    "bytes": 342952
+  },
+  "c7652eacc8f4266b7aa80ec639261d60f83134735c01c16a9c30b3c581bf5b6e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c7652eacc8f4266b7aa80ec639261d60f83134735c01c16a9c30b3c581bf5b6e",
+    "bytes": 601
+  },
+  "f86b4285ad4bb4437e990a99fce43ad3c69b200f54051c34720966ef03e9378b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f86b4285ad4bb4437e990a99fce43ad3c69b200f54051c34720966ef03e9378b",
+    "bytes": 342960
+  },
+  "c71e54032a5d2ce54164cf4374557e3816da144c1c190203f5ff90443800fe59": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c71e54032a5d2ce54164cf4374557e3816da144c1c190203f5ff90443800fe59",
+    "bytes": 601
+  },
+  "cbf37838d484a5a40ea4c406e16322ce2186e4571d5d379ffcfd707f8991e02f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cbf37838d484a5a40ea4c406e16322ce2186e4571d5d379ffcfd707f8991e02f",
+    "bytes": 342832
+  },
+  "f010fb1706f3ae9c07761c8677414d039e190c1bb66b947b7c8f685e6290d6db": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f010fb1706f3ae9c07761c8677414d039e190c1bb66b947b7c8f685e6290d6db",
+    "bytes": 5982
+  },
+  "fa046bdb8a3f485d9d8dce32d98c37ed0c7de976da5f0370134dac5f97b1c012": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fa046bdb8a3f485d9d8dce32d98c37ed0c7de976da5f0370134dac5f97b1c012",
+    "bytes": 23451712
+  },
+  "487e6c99a5b3894edfe534aa58c2f644181e45c45a61383724bd82b0cc0e3146": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/487e6c99a5b3894edfe534aa58c2f644181e45c45a61383724bd82b0cc0e3146",
+    "bytes": 57
+  },
+  "6cfb0cc0a332a8f6c31d337188a0ac818d256618f40478f93aa285d31ccef3e2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6cfb0cc0a332a8f6c31d337188a0ac818d256618f40478f93aa285d31ccef3e2",
+    "bytes": 1826176
+  },
+  "8fb09cffb83c994d4df48ca8001c7c62afdd03d998444cc2e1d7e832574a3b51": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8fb09cffb83c994d4df48ca8001c7c62afdd03d998444cc2e1d7e832574a3b51",
+    "bytes": 1911
+  },
+  "5fc498625cdf0853eef2841676df2d145439a9bc324ba3ab9bcb8ceebe0f2806": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5fc498625cdf0853eef2841676df2d145439a9bc324ba3ab9bcb8ceebe0f2806",
+    "bytes": 63
+  },
+  "8b8c473e319e627228633735e0d7b040b8a8b22f6737b0baeee665614aa05643": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8b8c473e319e627228633735e0d7b040b8a8b22f6737b0baeee665614aa05643",
+    "bytes": 66
+  },
+  "790d10415e4516ad42b05cc65a20de792bdec5b1a31c43999b5d7c069d5ba8bd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/790d10415e4516ad42b05cc65a20de792bdec5b1a31c43999b5d7c069d5ba8bd",
+    "bytes": 31078
+  },
+  "32d2b06a7ef5ee74959bf15e2a11801075fce2401f3c6c42c49e7050b2840d8d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/32d2b06a7ef5ee74959bf15e2a11801075fce2401f3c6c42c49e7050b2840d8d",
+    "bytes": 1829856
+  },
+  "e8fc59926b05effd986345cc3c3bdac914fec75510bb2d0d6acd4bd21974f73f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e8fc59926b05effd986345cc3c3bdac914fec75510bb2d0d6acd4bd21974f73f",
+    "bytes": 1911
+  },
+  "5095d3116c3421432b80becbd6932836f9d9c13b24b635476687953dc6127755": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5095d3116c3421432b80becbd6932836f9d9c13b24b635476687953dc6127755",
+    "bytes": 63
+  },
+  "123626a231a0380a7210c6cbfd986695e58993ecc213a5b0fc95a653f2815df3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/123626a231a0380a7210c6cbfd986695e58993ecc213a5b0fc95a653f2815df3",
+    "bytes": 66
+  },
+  "a524e0c5a66d92b76eff8e1251c4a566f0161c6e5b11c4b43f1849164ba734f1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a524e0c5a66d92b76eff8e1251c4a566f0161c6e5b11c4b43f1849164ba734f1",
+    "bytes": 30605
+  },
+  "fbf5e9379d7194e97d4224cdf908ddaeb7de6e87a2e76c0a1bffaa26be61ee9f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fbf5e9379d7194e97d4224cdf908ddaeb7de6e87a2e76c0a1bffaa26be61ee9f",
+    "bytes": 1001
+  },
+  "20fe3a069f4f1e8a1c7390039c9f9b7aabd4c4fcb485b4ac09b34f5511b0f57e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/20fe3a069f4f1e8a1c7390039c9f9b7aabd4c4fcb485b4ac09b34f5511b0f57e",
+    "bytes": 25858
+  },
+  "8b7336cdf4d71f4329df40deb75c463b57353348fe45359f4d39f2236ec0fd9a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8b7336cdf4d71f4329df40deb75c463b57353348fe45359f4d39f2236ec0fd9a",
+    "bytes": 1826160
+  },
+  "dc60dc75ac26f60a0a4bbdba6c074caf583321d45600fedd5e5772b8825e9747": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dc60dc75ac26f60a0a4bbdba6c074caf583321d45600fedd5e5772b8825e9747",
+    "bytes": 1899
+  },
+  "8ecb0a059846ab13136ba32f9987cacd18dd0ea9514ae044f95f749ef50ea3e7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8ecb0a059846ab13136ba32f9987cacd18dd0ea9514ae044f95f749ef50ea3e7",
+    "bytes": 59
+  },
+  "17bb6a1c1a59e8265face193ff6a4dd16257a2edee5dd1ec3e7ff53b2a41fa92": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/17bb6a1c1a59e8265face193ff6a4dd16257a2edee5dd1ec3e7ff53b2a41fa92",
+    "bytes": 62
+  },
+  "58c29aba2df0e26e84b23580ce3ef574946bf24e5ea034173e9e115cceaa5294": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/58c29aba2df0e26e84b23580ce3ef574946bf24e5ea034173e9e115cceaa5294",
+    "bytes": 1829840
+  },
+  "8797f43317042d015fc43776381e243a725f1f8c2a667a49d8f7f27010e17d80": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8797f43317042d015fc43776381e243a725f1f8c2a667a49d8f7f27010e17d80",
+    "bytes": 1899
+  },
+  "51079f2ece99b03c15d8cff8cb335ee0b9d5f75fbd8deca8a252d611bd5e177a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/51079f2ece99b03c15d8cff8cb335ee0b9d5f75fbd8deca8a252d611bd5e177a",
+    "bytes": 59
+  },
+  "584f0189efe2473813e061163fe35fbfa3ea07c6b32740f3a03e8500e754772d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/584f0189efe2473813e061163fe35fbfa3ea07c6b32740f3a03e8500e754772d",
+    "bytes": 62
+  },
+  "ff531469dbbc642be7bfd6607c7e7d5d74ee4c97971974269ef26c1c4a69fb4c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ff531469dbbc642be7bfd6607c7e7d5d74ee4c97971974269ef26c1c4a69fb4c",
+    "bytes": 25860
+  },
+  "4e8f4e28aaafba6ef83e6651654ed2417eab6e2ce5a2d54d9c3ce0749359d8d8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4e8f4e28aaafba6ef83e6651654ed2417eab6e2ce5a2d54d9c3ce0749359d8d8",
+    "bytes": 18880352
+  },
+  "4b5cfbbb50f96c73c86e8714a9456de256b8be0e26f29fa4acc5ddf6d5f54407": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4b5cfbbb50f96c73c86e8714a9456de256b8be0e26f29fa4acc5ddf6d5f54407",
+    "bytes": 4791
+  },
+  "1707129a048ba3c5646da6dfce277c811a251db94b9685cb264ccd2068b46698": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1707129a048ba3c5646da6dfce277c811a251db94b9685cb264ccd2068b46698",
+    "bytes": 108
+  },
+  "5e494b931d036230353bd4a06ef07d1cda2f99b644962fa43337c3218c3c9b99": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5e494b931d036230353bd4a06ef07d1cda2f99b644962fa43337c3218c3c9b99",
+    "bytes": 23931
+  },
+  "fef16cf0a7c0da8110923ec6708213e0e214f53df437430359c9ef840ccc6411": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fef16cf0a7c0da8110923ec6708213e0e214f53df437430359c9ef840ccc6411",
+    "bytes": 25858
+  },
+  "4b97fdff9b67adc5f59dcde6b674e1cf1c220303fd092f67d3ce4ef86f117fa0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4b97fdff9b67adc5f59dcde6b674e1cf1c220303fd092f67d3ce4ef86f117fa0",
+    "bytes": 2496
+  },
+  "f82396b980de1e4b6f94d1e1f0e1d70144cde243fbe4d76d3ea26a7b83702104": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f82396b980de1e4b6f94d1e1f0e1d70144cde243fbe4d76d3ea26a7b83702104",
+    "bytes": 48212
+  },
+  "0d81798ad6152cceddcf54c3435baa2286badfe7ee414795d22f496271d878d7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0d81798ad6152cceddcf54c3435baa2286badfe7ee414795d22f496271d878d7",
+    "bytes": 2524
+  },
+  "d1f5a88cd88af602c22240f3c53a16d75ae6df2c73000531dae1e255325dd359": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d1f5a88cd88af602c22240f3c53a16d75ae6df2c73000531dae1e255325dd359",
+    "bytes": 266293
+  },
+  "29dd94a63d631cbf2cbc9f83ebddca0fbc9657d0544e4dfafcef0d46d6044726": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/29dd94a63d631cbf2cbc9f83ebddca0fbc9657d0544e4dfafcef0d46d6044726",
+    "bytes": 2680
+  },
+  "b99067a41bcafde09d76f797b4a9331be9e8bb004096a307a32b20729aaaec61": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b99067a41bcafde09d76f797b4a9331be9e8bb004096a307a32b20729aaaec61",
+    "bytes": 266295
+  },
+  "c4bbdd1de71000bab0f67c85eaa8b14d069c71b4468ecb134428db58bc05dbc7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c4bbdd1de71000bab0f67c85eaa8b14d069c71b4468ecb134428db58bc05dbc7",
+    "bytes": 2680
+  },
+  "687e2cbf5ae55cd97a0b3c0c70dca188163de0e8c22d5a0bd0eaa0d6dfd1029b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/687e2cbf5ae55cd97a0b3c0c70dca188163de0e8c22d5a0bd0eaa0d6dfd1029b",
+    "bytes": 49021
+  },
+  "f9ccce3b6255708b990831a2f23c966c2b851fb90a2020439bfa55f4c7556e40": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f9ccce3b6255708b990831a2f23c966c2b851fb90a2020439bfa55f4c7556e40",
+    "bytes": 2632
+  },
+  "452aa1858ddf49739b39e9ea94b8b6051d562965ecc11c872bbe51eb38cffe12": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/452aa1858ddf49739b39e9ea94b8b6051d562965ecc11c872bbe51eb38cffe12",
+    "bytes": 195810
+  },
+  "c88934e470c965bd867402a4c691e86cf041956ede44b2c2859464e1074bba74": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c88934e470c965bd867402a4c691e86cf041956ede44b2c2859464e1074bba74",
+    "bytes": 2648
+  },
+  "320639340a29c32977e375755288941f79176175b004913dba73a86bce5236b1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/320639340a29c32977e375755288941f79176175b004913dba73a86bce5236b1",
+    "bytes": 195811
+  },
+  "d13369593ea53ce204232d5c8b99c9dfd5011674793efc6f3a8d9a3bbad0d68e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d13369593ea53ce204232d5c8b99c9dfd5011674793efc6f3a8d9a3bbad0d68e",
+    "bytes": 2648
+  },
+  "b155e85d8ce300ee1e3c9b8f444fb7e40aeb3ae979c3aec07a22c3be0ccf7c2e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b155e85d8ce300ee1e3c9b8f444fb7e40aeb3ae979c3aec07a22c3be0ccf7c2e",
+    "bytes": 195808
+  },
+  "f44082fcb17a6e80de3053713d396da8b1dc673c0de31e39eb749736a637a1ea": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f44082fcb17a6e80de3053713d396da8b1dc673c0de31e39eb749736a637a1ea",
+    "bytes": 2648
+  },
+  "895477121545e65a0374eecd97cd057924828d814e2b7279e52afb31381d826f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/895477121545e65a0374eecd97cd057924828d814e2b7279e52afb31381d826f",
+    "bytes": 195812
+  },
+  "d1f6ad02cedf2310007aeed62d99567dcd58c8c2de59e5af3675620ca3ca421a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d1f6ad02cedf2310007aeed62d99567dcd58c8c2de59e5af3675620ca3ca421a",
+    "bytes": 2648
+  },
+  "29858a177230f5c640485442591f6317c9918dc2dd0f1df2cbe98a62d6103e79": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/29858a177230f5c640485442591f6317c9918dc2dd0f1df2cbe98a62d6103e79",
+    "bytes": 195809
+  },
+  "d2bebc94855476896cf14a4047b09bf9c2f7a436bf33d8754ae31742c9a87931": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d2bebc94855476896cf14a4047b09bf9c2f7a436bf33d8754ae31742c9a87931",
+    "bytes": 2648
+  },
+  "ad8d78c1b8d7a26926a797233a70124243ce8d52fd929d4981749e0b99e1d5cf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ad8d78c1b8d7a26926a797233a70124243ce8d52fd929d4981749e0b99e1d5cf",
+    "bytes": 195809
+  },
+  "4119bf685fe6f3b61b51d6afd1fd295b9f997e2ea7757d755bc81f5af14d8c93": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4119bf685fe6f3b61b51d6afd1fd295b9f997e2ea7757d755bc81f5af14d8c93",
+    "bytes": 2648
+  },
+  "986575c1f02f88172a750add34d775711b98acb79c74818e9528866ceacf8428": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/986575c1f02f88172a750add34d775711b98acb79c74818e9528866ceacf8428",
+    "bytes": 195808
+  },
+  "86e9bc086df465ae4765658853e6397ebc82ed740cd61edbcf986a535631d7fe": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/86e9bc086df465ae4765658853e6397ebc82ed740cd61edbcf986a535631d7fe",
+    "bytes": 2648
+  },
+  "b3530c24c212ff3e203a876061c19b9f786a30230e3e925af713fcc3752acb13": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b3530c24c212ff3e203a876061c19b9f786a30230e3e925af713fcc3752acb13",
+    "bytes": 195815
+  },
+  "7dcd1d70eedbaa1c1028674c269479d0f5dbb90147d7a3a2582a0b1feab3e77b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7dcd1d70eedbaa1c1028674c269479d0f5dbb90147d7a3a2582a0b1feab3e77b",
+    "bytes": 2648
+  },
+  "691a6de1dfa62fa7d0be51a6d1f0d2e2a9bd957e0131d862fe7082f52b7844d6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/691a6de1dfa62fa7d0be51a6d1f0d2e2a9bd957e0131d862fe7082f52b7844d6",
+    "bytes": 94251
+  },
+  "890e6985c29af84b7bb9e26e6d796f66941a4dc4bb0c09753d63d5e58d44b8ce": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/890e6985c29af84b7bb9e26e6d796f66941a4dc4bb0c09753d63d5e58d44b8ce",
+    "bytes": 2564
+  },
+  "7b431be6a2f59ec7ba5f0cd6a99819da87bcd2c0d4c7e39a867bd1f95274b4eb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7b431be6a2f59ec7ba5f0cd6a99819da87bcd2c0d4c7e39a867bd1f95274b4eb",
+    "bytes": 61101
+  },
+  "fb688c979b64f81b6cdf1ef9d1d92d76b5ec39d8cf0b7a82382738d6a9346bdd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fb688c979b64f81b6cdf1ef9d1d92d76b5ec39d8cf0b7a82382738d6a9346bdd",
+    "bytes": 2612
+  },
+  "7fe6312ee8123f9f5e48f0e13f5ccd495d6aecd11725d5595e96b34d899e6d76": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7fe6312ee8123f9f5e48f0e13f5ccd495d6aecd11725d5595e96b34d899e6d76",
+    "bytes": 140830
+  },
+  "02cb6cccd903d01407c31ee6e59b82f2ef67f2795e469ecdc84e0b7a64cef176": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/02cb6cccd903d01407c31ee6e59b82f2ef67f2795e469ecdc84e0b7a64cef176",
+    "bytes": 2728
+  },
+  "fd67f235db09931d5084478d428312786035a619d301b87bcbc02b09c807c060": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fd67f235db09931d5084478d428312786035a619d301b87bcbc02b09c807c060",
+    "bytes": 140834
+  },
+  "b893744bd41f9beb567d71c25f895c5f493d9644de0337fd50ac43d4fd3e8aec": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b893744bd41f9beb567d71c25f895c5f493d9644de0337fd50ac43d4fd3e8aec",
+    "bytes": 2728
+  },
+  "899d2ad610978995d9b6b26485216b67fec1f3c9bf7fb73e06f38395263986db": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/899d2ad610978995d9b6b26485216b67fec1f3c9bf7fb73e06f38395263986db",
+    "bytes": 168577
+  },
+  "7b92058a2459861ffccfb94b5decb361bcaef7fe92344a28ab99d560f6bf23e5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7b92058a2459861ffccfb94b5decb361bcaef7fe92344a28ab99d560f6bf23e5",
+    "bytes": 2624
+  },
+  "68673fe7c79f57e4b18c2763de20b4cda1a42e7bd0753b3761035ec15f39126d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/68673fe7c79f57e4b18c2763de20b4cda1a42e7bd0753b3761035ec15f39126d",
+    "bytes": 143977
+  },
+  "3c1acf292ea4cef338751aee976616ef2f5b1292a2283ba09a26239511ea87b7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3c1acf292ea4cef338751aee976616ef2f5b1292a2283ba09a26239511ea87b7",
+    "bytes": 2608
+  },
+  "b9e106a0b76d8339a57eb300c46cd73dabbaa33d5735fd36a9572c9d4d373c98": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b9e106a0b76d8339a57eb300c46cd73dabbaa33d5735fd36a9572c9d4d373c98",
+    "bytes": 180121
+  },
+  "4774519e9a26f7b919cebbbac0e0866cf7cf71bffaf5c70b5984a0b4fdc5004c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4774519e9a26f7b919cebbbac0e0866cf7cf71bffaf5c70b5984a0b4fdc5004c",
+    "bytes": 2624
+  },
+  "4cf79d6b270bdceda1ed430223034579cfb15ddb3762d6ec0f5f2cbe5d2089b2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4cf79d6b270bdceda1ed430223034579cfb15ddb3762d6ec0f5f2cbe5d2089b2",
+    "bytes": 195810
+  },
+  "c791c1770fbb48387d1980cd936e36c1738b2cf4c19301ad233bfed6faf7e796": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c791c1770fbb48387d1980cd936e36c1738b2cf4c19301ad233bfed6faf7e796",
+    "bytes": 2648
+  },
+  "7b1bc602459946aba185d5cebd9e90f9600985c853d376c48b95c5f2023fe47c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7b1bc602459946aba185d5cebd9e90f9600985c853d376c48b95c5f2023fe47c",
+    "bytes": 24549
+  },
+  "7653d05463bc720b1395d283547033f4d40687208c1c717fa89aad015420185e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7653d05463bc720b1395d283547033f4d40687208c1c717fa89aad015420185e",
+    "bytes": 2496
+  },
+  "1df031c51ff2e02722aa70bda59682520735c8b4a7a2de15368a0482d81de19b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1df031c51ff2e02722aa70bda59682520735c8b4a7a2de15368a0482d81de19b",
+    "bytes": 2496
+  },
+  "97267452532b054a2ae22d5328a522bacc9fe627c9dbb0eabde7c544c6c7fe22": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/97267452532b054a2ae22d5328a522bacc9fe627c9dbb0eabde7c544c6c7fe22",
+    "bytes": 220
+  },
+  "787fe4d6b9c2f7976d95cfc95f7fc28f4f0cdd7f6cbed7a48a0b70773ae38dde": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/787fe4d6b9c2f7976d95cfc95f7fc28f4f0cdd7f6cbed7a48a0b70773ae38dde",
+    "bytes": 1825544
+  },
+  "fbc5647aa8c53af198d43702b3db54d57602dc0d848a6ad5541cdc9ef75d2781": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fbc5647aa8c53af198d43702b3db54d57602dc0d848a6ad5541cdc9ef75d2781",
+    "bytes": 1905
+  },
+  "865214894a2777d42fdce473023a3578dd13217be4a5089d8df7ba14b880e51b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/865214894a2777d42fdce473023a3578dd13217be4a5089d8df7ba14b880e51b",
+    "bytes": 61
+  },
+  "39bad46dfb3adbebfbcac0d8fc2977501bba3e725a5c7d7ded5b268a7fc7ce71": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/39bad46dfb3adbebfbcac0d8fc2977501bba3e725a5c7d7ded5b268a7fc7ce71",
+    "bytes": 64
+  },
+  "2c40726b9f72e93d789d46679ed811e54ed5bd45ca7c2c28add41824a2eda1ab": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2c40726b9f72e93d789d46679ed811e54ed5bd45ca7c2c28add41824a2eda1ab",
+    "bytes": 31078
+  },
+  "bff0aec9c6b05f742558100307e5b41ba9ef0f561f0187a939bc39f3892199eb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bff0aec9c6b05f742558100307e5b41ba9ef0f561f0187a939bc39f3892199eb",
+    "bytes": 1828352
+  },
+  "4430dc756577df7b9192fe9e59a10f4703d1ecdb9c21148fd96fc63a73f122b2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4430dc756577df7b9192fe9e59a10f4703d1ecdb9c21148fd96fc63a73f122b2",
+    "bytes": 1905
+  },
+  "e0a6a4af5c41af06abd8b7eeec1dca8cf1616bc697bd88193a10849d8aa8e262": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e0a6a4af5c41af06abd8b7eeec1dca8cf1616bc697bd88193a10849d8aa8e262",
+    "bytes": 61
+  },
+  "4e1a0b6864a5db9810bd009cc373b5ea959a38a820ae59e1b8ed137e64f05728": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4e1a0b6864a5db9810bd009cc373b5ea959a38a820ae59e1b8ed137e64f05728",
+    "bytes": 64
+  },
+  "fcd61b47ef9f2be226d5ee90a5ce7427dbda6527d72b859f0af3717d2758dedb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fcd61b47ef9f2be226d5ee90a5ce7427dbda6527d72b859f0af3717d2758dedb",
+    "bytes": 30605
+  },
+  "4c5f3988500de2e47ffba30ad9643017cf60f0bb81b36a006f8a460a24f0adb2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4c5f3988500de2e47ffba30ad9643017cf60f0bb81b36a006f8a460a24f0adb2",
+    "bytes": 995
+  },
+  "cd026f489a3666246081ea736c15afd6af46398d50d14177328468fac0068acb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cd026f489a3666246081ea736c15afd6af46398d50d14177328468fac0068acb",
+    "bytes": 25858
+  },
+  "44510a22baa833cb08903adc299ee4bbdd8a0114739f08d0d259079732d188c0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/44510a22baa833cb08903adc299ee4bbdd8a0114739f08d0d259079732d188c0",
+    "bytes": 1899280
+  },
+  "d4ba953160e9665984cb83a0506bb2eb35d0c19905fbcfef4682ce555810828f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d4ba953160e9665984cb83a0506bb2eb35d0c19905fbcfef4682ce555810828f",
+    "bytes": 1887
+  },
+  "c603877651756cdad83f54e34efae43648f6580f58808e9e96495bb9221a5b18": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c603877651756cdad83f54e34efae43648f6580f58808e9e96495bb9221a5b18",
+    "bytes": 55
+  },
+  "e3ba2df1df89a1b299ece720f24f92cbf2e5f9a2fb5f10330510f4e977e586ee": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e3ba2df1df89a1b299ece720f24f92cbf2e5f9a2fb5f10330510f4e977e586ee",
+    "bytes": 58
+  },
+  "b845da6ef513618b327eb82c87e27cbe83fc286adf61e63f8584b5d14e884c8f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b845da6ef513618b327eb82c87e27cbe83fc286adf61e63f8584b5d14e884c8f",
+    "bytes": 31078
+  },
+  "b101eb24da2480929fe75bf838f8316e48bac9da880d1beae124ba49be84213e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b101eb24da2480929fe75bf838f8316e48bac9da880d1beae124ba49be84213e",
+    "bytes": 1837344
+  },
+  "172907d09f8052bd52fa19cdf187d229e621f3a8486c19ca4ea2f731d639df9f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/172907d09f8052bd52fa19cdf187d229e621f3a8486c19ca4ea2f731d639df9f",
+    "bytes": 1887
+  },
+  "20683d000eec6cc6e5ad9356d0c893a66ba255fdffc20a07b6891b0d3422f528": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/20683d000eec6cc6e5ad9356d0c893a66ba255fdffc20a07b6891b0d3422f528",
+    "bytes": 55
+  },
+  "0d6ac83651d632b7098ef563e8ac9b27d6de8b36806a05f93407dfc957f5636b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0d6ac83651d632b7098ef563e8ac9b27d6de8b36806a05f93407dfc957f5636b",
+    "bytes": 58
+  },
+  "1bc92c0b995f67d1fb93a2abf5d173593a6cb24a5663b22f1c61e3b9e1d6a019": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1bc92c0b995f67d1fb93a2abf5d173593a6cb24a5663b22f1c61e3b9e1d6a019",
+    "bytes": 30638
+  },
+  "aa05257757cf40a0675bce8b4d00fc2b4de3c73670aa70fbb5bb2f119578b7ea": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/aa05257757cf40a0675bce8b4d00fc2b4de3c73670aa70fbb5bb2f119578b7ea",
+    "bytes": 48212
+  },
+  "fc0e8e24944cc3716325c2383c530cb1b42f04486e1e4492d58f6bfc4d57a8af": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fc0e8e24944cc3716325c2383c530cb1b42f04486e1e4492d58f6bfc4d57a8af",
+    "bytes": 244
+  },
+  "24b568d2583b18d0e5383dc3f52ce00ea1f8c03dc008e76acc8b6ed0c77911be": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/24b568d2583b18d0e5383dc3f52ce00ea1f8c03dc008e76acc8b6ed0c77911be",
+    "bytes": 450376
+  },
+  "be096b3a806903a0c5d1a5ef08800dacca73f2b3062927fa410e3ba9c67a0e12": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/be096b3a806903a0c5d1a5ef08800dacca73f2b3062927fa410e3ba9c67a0e12",
+    "bytes": 250
+  },
+  "c2e1c7e84fa769d2e88081b037ab856cf0bf537463acda63cc42ae093b7a5d6b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c2e1c7e84fa769d2e88081b037ab856cf0bf537463acda63cc42ae093b7a5d6b",
+    "bytes": 222088
+  },
+  "2459e8f7b2c29eaedfd61cc31d3b82970a4af5c7a0baaf546d921546b36a4212": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2459e8f7b2c29eaedfd61cc31d3b82970a4af5c7a0baaf546d921546b36a4212",
+    "bytes": 548
+  },
+  "7949d4a4530e3b8c33901078798ab498269d6e28389dd16dbf944a1474695879": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7949d4a4530e3b8c33901078798ab498269d6e28389dd16dbf944a1474695879",
+    "bytes": 72328
+  },
+  "ea2cc80278da2078a10b9c36aa3fa723a7852258a3ac644921e2cda9f7196afc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ea2cc80278da2078a10b9c36aa3fa723a7852258a3ac644921e2cda9f7196afc",
+    "bytes": 3016
+  },
+  "78ba9c40671f273ede56d8e37762c7de697a5ad5f1853a4432ad6c1f07a66335": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/78ba9c40671f273ede56d8e37762c7de697a5ad5f1853a4432ad6c1f07a66335",
+    "bytes": 1688
+  },
+  "9a15246c27a61abcea6c12f88bec71413c63bf22d853b703dd625e38f86f1679": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9a15246c27a61abcea6c12f88bec71413c63bf22d853b703dd625e38f86f1679",
+    "bytes": 1899320
+  },
+  "a9d2b8df06f86d1395e7befeb283f3e4824a3ae367ae88e9e087cf388d301224": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a9d2b8df06f86d1395e7befeb283f3e4824a3ae367ae88e9e087cf388d301224",
+    "bytes": 1914
+  },
+  "261a2c2f97529a6beb44b2106979dddc92c6b479061b9c4226c4ea4c48db65fa": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/261a2c2f97529a6beb44b2106979dddc92c6b479061b9c4226c4ea4c48db65fa",
+    "bytes": 64
+  },
+  "a3c721dbfef134c54b14cf3d2af1af279de62c2dfd7dff2990b71e69b3ef8adf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a3c721dbfef134c54b14cf3d2af1af279de62c2dfd7dff2990b71e69b3ef8adf",
+    "bytes": 67
+  },
+  "f020583ff03f3644ee36a20879ff8ea2e8a046752f66f1ef241eb8eae1ddeee2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f020583ff03f3644ee36a20879ff8ea2e8a046752f66f1ef241eb8eae1ddeee2",
+    "bytes": 1837344
+  },
+  "1419e57dfa572da4c492fa3171bd738a48fd81388e3f53a1a7ba7d95cd4cdd19": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1419e57dfa572da4c492fa3171bd738a48fd81388e3f53a1a7ba7d95cd4cdd19",
+    "bytes": 1914
+  },
+  "8faa56762d137b3803d929dc6fbc04e189b1cbf9e1dff20619d8e3297a854f28": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8faa56762d137b3803d929dc6fbc04e189b1cbf9e1dff20619d8e3297a854f28",
+    "bytes": 64
+  },
+  "9c71d0875f0d9381abf5a8c64522147f8752c4930779995f515be4743c521f2c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9c71d0875f0d9381abf5a8c64522147f8752c4930779995f515be4743c521f2c",
+    "bytes": 67
+  },
+  "d708db455049658ff2770b12425355d435f8c4f9f12ea296eda3fdbc3871b5c4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d708db455049658ff2770b12425355d435f8c4f9f12ea296eda3fdbc3871b5c4",
+    "bytes": 30638
+  },
+  "ff95f1cb32f50ee390b07800edbd03c9f61b50d1422c28922f458d7bef6714c5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ff95f1cb32f50ee390b07800edbd03c9f61b50d1422c28922f458d7bef6714c5",
+    "bytes": 48212
+  },
+  "ede2df7b8e2f16c971a320517d8e68b5e26184b419221320c35db49582e752e9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ede2df7b8e2f16c971a320517d8e68b5e26184b419221320c35db49582e752e9",
+    "bytes": 232
+  },
+  "c8197699b9ffcbb502c7656db2b63e7e57869767299b8289f91359e0057786e8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c8197699b9ffcbb502c7656db2b63e7e57869767299b8289f91359e0057786e8",
+    "bytes": 46248
+  },
+  "b9fe5d65a83cbc3ecc6f28e5b4f839a6b2d595638a89584bda4593954a682ae5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b9fe5d65a83cbc3ecc6f28e5b4f839a6b2d595638a89584bda4593954a682ae5",
+    "bytes": 304
+  },
+  "9414d05321d4001d3367ac63c77a4f3b5dd98a6e41d2694e7e67a6e05e1b372b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9414d05321d4001d3367ac63c77a4f3b5dd98a6e41d2694e7e67a6e05e1b372b",
+    "bytes": 39312
+  },
+  "6e0dda81d814afccfdcbc492763ed65831cea887ab7fb9c57fdf6136e74ef593": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6e0dda81d814afccfdcbc492763ed65831cea887ab7fb9c57fdf6136e74ef593",
+    "bytes": 248
+  },
+  "0a3353a3dfb146c3f18e5a914fd2e2c1af55e57a81e9de14968f46e550f4d56d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0a3353a3dfb146c3f18e5a914fd2e2c1af55e57a81e9de14968f46e550f4d56d",
+    "bytes": 46384
+  },
+  "1dea860b248e87c1dfe6f8fd2fae6dd7e6b22e10577d1c1204b632c1fa614847": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1dea860b248e87c1dfe6f8fd2fae6dd7e6b22e10577d1c1204b632c1fa614847",
+    "bytes": 276
+  },
+  "466bec192a85f662294e3ed8f8d92db0f52ad6c57c0cec82e93308fee0f52009": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/466bec192a85f662294e3ed8f8d92db0f52ad6c57c0cec82e93308fee0f52009",
+    "bytes": 121272
+  },
+  "d70bc2fcdb58e611a399a90bc7651cd61ab434ab230422b73300ee0a7a292a73": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d70bc2fcdb58e611a399a90bc7651cd61ab434ab230422b73300ee0a7a292a73",
+    "bytes": 246
+  },
+  "5dd750fdcdbccb7bad58bf6d84357f5e5e2d9eb28990fbb70d5feceba006670e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5dd750fdcdbccb7bad58bf6d84357f5e5e2d9eb28990fbb70d5feceba006670e",
+    "bytes": 104016
+  },
+  "4fc2fd40a283eb6da121a61f03417bec356e98c7ceb14902151bce5029389542": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4fc2fd40a283eb6da121a61f03417bec356e98c7ceb14902151bce5029389542",
+    "bytes": 258
+  },
+  "9be6d205b99ec89ed7b31fc846efd3c653ed80ff8fd768c2a9f14f8206bf0ada": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9be6d205b99ec89ed7b31fc846efd3c653ed80ff8fd768c2a9f14f8206bf0ada",
+    "bytes": 18424
+  },
+  "b504ee5bbc8ba5c1efc39c3487387c3d1ad38bf4a3c62d78f03e4978a1f4afbb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b504ee5bbc8ba5c1efc39c3487387c3d1ad38bf4a3c62d78f03e4978a1f4afbb",
+    "bytes": 254
+  },
+  "ef3359fa6ead5da7574412b1025a457f3d28a9895dfec60e7cd27f469bfaff3f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ef3359fa6ead5da7574412b1025a457f3d28a9895dfec60e7cd27f469bfaff3f",
+    "bytes": 81360
+  },
+  "dd18a2c09f95d302e959da738b7e3cbedb3bc62201928d32efc6a97a9616f124": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dd18a2c09f95d302e959da738b7e3cbedb3bc62201928d32efc6a97a9616f124",
+    "bytes": 258
+  },
+  "0376befc600d4ee3721ee039bcee7fed8e076c071c444930a646a8eda9b8a58c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0376befc600d4ee3721ee039bcee7fed8e076c071c444930a646a8eda9b8a58c",
+    "bytes": 26048
+  },
+  "b844026ec65028a0849734a2353bd366c0810c2b614e99e5952721166910f5e8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b844026ec65028a0849734a2353bd366c0810c2b614e99e5952721166910f5e8",
+    "bytes": 254
+  },
+  "0f62066a56b0d2a551b192684d10785c35678242a9ca5d639fad44455f466367": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0f62066a56b0d2a551b192684d10785c35678242a9ca5d639fad44455f466367",
+    "bytes": 40144
+  },
+  "6c92e1b6e4363d5b27a9d3f54e743df1af8497f8e341b826675d8fa011762012": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6c92e1b6e4363d5b27a9d3f54e743df1af8497f8e341b826675d8fa011762012",
+    "bytes": 254
+  },
+  "4f57f851e7aebf8657dacc7d48f81f73c7d5640cf30663929551af834540075b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4f57f851e7aebf8657dacc7d48f81f73c7d5640cf30663929551af834540075b",
+    "bytes": 26904
+  },
+  "1cbd2cb96575c2ae4fe3286742cc8bf1f6e68a97b79182da12e6b2417952c002": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1cbd2cb96575c2ae4fe3286742cc8bf1f6e68a97b79182da12e6b2417952c002",
+    "bytes": 252
+  },
+  "a4143175717c7ccbc4b2b38527c600611707c3fd29b34db41f3aa64e903e4720": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a4143175717c7ccbc4b2b38527c600611707c3fd29b34db41f3aa64e903e4720",
+    "bytes": 60584
+  },
+  "28c699886511859912ceb03d679376cfbbfa4cbb753fd397e1d58876b7fae714": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/28c699886511859912ceb03d679376cfbbfa4cbb753fd397e1d58876b7fae714",
+    "bytes": 260
+  },
+  "b3efd2d8c3b943d78ebbe31e10be0eeeb75372ef6c5399ba21dea86765949b33": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b3efd2d8c3b943d78ebbe31e10be0eeeb75372ef6c5399ba21dea86765949b33",
+    "bytes": 21816
+  },
+  "d9acb20e04d262553b02045a9187776e52c9aa44face8be73e92f89ebed1250f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d9acb20e04d262553b02045a9187776e52c9aa44face8be73e92f89ebed1250f",
+    "bytes": 264
+  },
+  "40584c9dcaf1a7a1b1701bdf7351dcae8802392e1bc30223e9c60d248cbad6c4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/40584c9dcaf1a7a1b1701bdf7351dcae8802392e1bc30223e9c60d248cbad6c4",
+    "bytes": 41080
+  },
+  "8258d9d9602c8b41b736223affc95cc02f80842889e35d2392b861392a4a4eb0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8258d9d9602c8b41b736223affc95cc02f80842889e35d2392b861392a4a4eb0",
+    "bytes": 1826232
+  },
+  "10be05ec5b8ae70ca075f55ce47c044fd644455a54dfb76dacc446812d732f24": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/10be05ec5b8ae70ca075f55ce47c044fd644455a54dfb76dacc446812d732f24",
+    "bytes": 1890
+  },
+  "6549fd12a847b7a275d02b9f4cfa70878cac59ecb77ac8b52f8503f688cdb5d6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6549fd12a847b7a275d02b9f4cfa70878cac59ecb77ac8b52f8503f688cdb5d6",
+    "bytes": 56
+  },
+  "945cbfcc86a5ec8a230f1c36c34fa3e8eb7f2a604fc1231b940191e7b7cc4fbb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/945cbfcc86a5ec8a230f1c36c34fa3e8eb7f2a604fc1231b940191e7b7cc4fbb",
+    "bytes": 59
+  },
+  "14dd317af8ec6d9159e4699ca46611ffc8424ada66382b8b6cec818d192c801c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/14dd317af8ec6d9159e4699ca46611ffc8424ada66382b8b6cec818d192c801c",
+    "bytes": 31078
+  },
+  "38c6bf8a093149bb736c7c6f0b0ca50267a2159b77698c3685e5b68d8b2f5c37": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/38c6bf8a093149bb736c7c6f0b0ca50267a2159b77698c3685e5b68d8b2f5c37",
+    "bytes": 1829824
+  },
+  "36b02f515188b99e9c3922248bd74a91518c273300153acaa4b3ffa743c54e3c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/36b02f515188b99e9c3922248bd74a91518c273300153acaa4b3ffa743c54e3c",
+    "bytes": 1890
+  },
+  "0d21b678859e014a4b6810de2040e1d518f7ef33827d1e47c2fc8b9b3c004bbd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0d21b678859e014a4b6810de2040e1d518f7ef33827d1e47c2fc8b9b3c004bbd",
+    "bytes": 56
+  },
+  "d2180ac2f1f5ffe27c876ee5449355c6b9b422c7566b36714abf40e64c6d32c6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d2180ac2f1f5ffe27c876ee5449355c6b9b422c7566b36714abf40e64c6d32c6",
+    "bytes": 59
+  },
+  "a705e909cfc2b296af115cb8753cd6ac70c4652b670e7be2f9dee52007eab37b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a705e909cfc2b296af115cb8753cd6ac70c4652b670e7be2f9dee52007eab37b",
+    "bytes": 30605
+  },
+  "79f02d73466e977ac39fd06f7c49e38ccd75a490ce8a9b63b0093ddea7fe3925": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/79f02d73466e977ac39fd06f7c49e38ccd75a490ce8a9b63b0093ddea7fe3925",
+    "bytes": 985
+  },
+  "8f8e359004e8995f45ad03797420372085a23c852ac319108da95dc74acc46c1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8f8e359004e8995f45ad03797420372085a23c852ac319108da95dc74acc46c1",
+    "bytes": 2013696
+  },
+  "97d07c40ced5e6ba1b33a4021bd83a9cfd035075df94e88e4037fe1c4c8af170": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/97d07c40ced5e6ba1b33a4021bd83a9cfd035075df94e88e4037fe1c4c8af170",
+    "bytes": 1902
+  },
+  "0e3189a4cfe1bc42a951dccb98a9f23c4f8b6de0be2660ca35d21003191c26e3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0e3189a4cfe1bc42a951dccb98a9f23c4f8b6de0be2660ca35d21003191c26e3",
+    "bytes": 60
+  },
+  "be448c7f78f9863ca184a13e71d3123ca02c9e759aa690448d2cb9edf316c123": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/be448c7f78f9863ca184a13e71d3123ca02c9e759aa690448d2cb9edf316c123",
+    "bytes": 63
+  },
+  "36269ce20c640a53000e7a7d5f34ea27790b45831af4ead558f182db317b5baf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/36269ce20c640a53000e7a7d5f34ea27790b45831af4ead558f182db317b5baf",
+    "bytes": 31078
+  },
+  "d0586cb6075f2eb5ade1fedd4be4af0d82c796257b2e34373ddf6d3e48f563b7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d0586cb6075f2eb5ade1fedd4be4af0d82c796257b2e34373ddf6d3e48f563b7",
+    "bytes": 2039488
+  },
+  "216ce871d65a38b7ad9cc62e301e874b71b895b61aa20910797b72e84882ae96": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/216ce871d65a38b7ad9cc62e301e874b71b895b61aa20910797b72e84882ae96",
+    "bytes": 1902
+  },
+  "17b84bcbebc67d01b7718b19974e7d7219cccf2b996a4c94349d3f76b56ba901": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/17b84bcbebc67d01b7718b19974e7d7219cccf2b996a4c94349d3f76b56ba901",
+    "bytes": 60
+  },
+  "8adb5571792109e21e6dfa7578c80abaa5fcd6e0676c238a92b1d9bf07d05541": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8adb5571792109e21e6dfa7578c80abaa5fcd6e0676c238a92b1d9bf07d05541",
+    "bytes": 63
+  },
+  "ab3f98741b551bb5ccc69e803c4c8b55c32850a03622441b02e819cc9757ac38": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ab3f98741b551bb5ccc69e803c4c8b55c32850a03622441b02e819cc9757ac38",
+    "bytes": 30667
+  },
+  "053b83fb25302f8bb1140eafa9519986caa99cc7f82135a7f4d402885f57ea16": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/053b83fb25302f8bb1140eafa9519986caa99cc7f82135a7f4d402885f57ea16",
+    "bytes": 195810
+  },
+  "0ad88d33c458d870ae2bbcb360beb9bff29720e32f89ec625f138ab095027b01": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0ad88d33c458d870ae2bbcb360beb9bff29720e32f89ec625f138ab095027b01",
+    "bytes": 182152
+  },
+  "0d77edb15f7b5c7a48a8469cba650b83a5545608e04758ef01ac740ac5a01bd2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0d77edb15f7b5c7a48a8469cba650b83a5545608e04758ef01ac740ac5a01bd2",
+    "bytes": 258
+  },
+  "a1ad33581e7c05ae98ae829f8d29e27e1bb7e732787cb14ae03fa94550b44971": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a1ad33581e7c05ae98ae829f8d29e27e1bb7e732787cb14ae03fa94550b44971",
+    "bytes": 240288
+  },
+  "b7ff8c9d9227a619475721b87213e7e14dcdc67f888f8a3bdfc110ff27b58bda": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b7ff8c9d9227a619475721b87213e7e14dcdc67f888f8a3bdfc110ff27b58bda",
+    "bytes": 272
+  },
+  "568d783d5debe05bb9792f32e5cbce38b0f3ed00e82ddd7bab7c6b8c551c0a26": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/568d783d5debe05bb9792f32e5cbce38b0f3ed00e82ddd7bab7c6b8c551c0a26",
+    "bytes": 63552
+  },
+  "1dad1de870b55c96562e0887acee129a3d9edaa870c08a3723a579680455e42a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1dad1de870b55c96562e0887acee129a3d9edaa870c08a3723a579680455e42a",
+    "bytes": 276
+  },
+  "50cb0f12e9d42fc11b6fdc12b51cbf752dd08583c8cdb95948f1c43f877c5aed": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/50cb0f12e9d42fc11b6fdc12b51cbf752dd08583c8cdb95948f1c43f877c5aed",
+    "bytes": 51984
+  },
+  "1d4b666e1e41244c90631c6c2b9b5240e12a4b3783601a21c2f0dcddf72bc6e7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1d4b666e1e41244c90631c6c2b9b5240e12a4b3783601a21c2f0dcddf72bc6e7",
+    "bytes": 348
+  },
+  "949082a1a824c0c61f073c27ba3877c17e12df5520298a94ee76ec6a9d9bca34": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/949082a1a824c0c61f073c27ba3877c17e12df5520298a94ee76ec6a9d9bca34",
+    "bytes": 309648
+  },
+  "e4630b400fb0b1798c349ed58b9e7d1fbf2755d41aa1f61f841cfa4f98938abc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e4630b400fb0b1798c349ed58b9e7d1fbf2755d41aa1f61f841cfa4f98938abc",
+    "bytes": 11872
+  },
+  "c2778c4221318d0b2a65b74271ae1b609e3e53bb740ebccadd5c1381fd99d519": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c2778c4221318d0b2a65b74271ae1b609e3e53bb740ebccadd5c1381fd99d519",
+    "bytes": 36208
+  },
+  "d2f896768496d72be6c308f6c63b073e1fc084a1c95f2e9402ba47358ce09727": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d2f896768496d72be6c308f6c63b073e1fc084a1c95f2e9402ba47358ce09727",
+    "bytes": 20352
+  },
+  "59d8678bfe41f8c138dcd6469cae16c9d7e9c9d29dcd1efb8b95b3da29c4c241": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/59d8678bfe41f8c138dcd6469cae16c9d7e9c9d29dcd1efb8b95b3da29c4c241",
+    "bytes": 31784
+  },
+  "dc3ea2a85aec5b5a48d8a2a910ebae29c83bfa003a4999975143b728b00c22a4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dc3ea2a85aec5b5a48d8a2a910ebae29c83bfa003a4999975143b728b00c22a4",
+    "bytes": 93448
+  },
+  "ef5da7cf8f28eea528ac5c400986ace0d861cf51ed9766ecb7dc970217211154": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ef5da7cf8f28eea528ac5c400986ace0d861cf51ed9766ecb7dc970217211154",
+    "bytes": 228272
+  },
+  "219f15bc2041323034bfd2a44123d22f37a32808914ce3c60448b6d1eee50bf3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/219f15bc2041323034bfd2a44123d22f37a32808914ce3c60448b6d1eee50bf3",
+    "bytes": 26712
+  },
+  "49289b1e4a9b4c74bf81e0c24795317484801e8ddc68d09dcb427470b1093954": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/49289b1e4a9b4c74bf81e0c24795317484801e8ddc68d09dcb427470b1093954",
+    "bytes": 12488
+  },
+  "4435b986256bb9d7f0bb2e0972f4bb0840d57fbc0bd11f1d815b7e4c16646b23": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4435b986256bb9d7f0bb2e0972f4bb0840d57fbc0bd11f1d815b7e4c16646b23",
+    "bytes": 21368
+  },
+  "ac7c77a47cdd7de49796c5174e1583def3a6552ad5b0dee95e97c7f6fae7cc3f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ac7c77a47cdd7de49796c5174e1583def3a6552ad5b0dee95e97c7f6fae7cc3f",
+    "bytes": 20656
+  },
+  "cd2213690818ee68a80048979600e4cda9e643d7b402ff7f7b329ebd79a53aff": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cd2213690818ee68a80048979600e4cda9e643d7b402ff7f7b329ebd79a53aff",
+    "bytes": 28048
+  },
+  "499ca415c30303df13efd69b8ff8a4cd6fea1097a46467d794a437ead8b90a33": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/499ca415c30303df13efd69b8ff8a4cd6fea1097a46467d794a437ead8b90a33",
+    "bytes": 11608
+  },
+  "a6e681b36ef1d0d9126f59e8844a0f7c3eb8c344e1eb5056fc037a3018b7ff57": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a6e681b36ef1d0d9126f59e8844a0f7c3eb8c344e1eb5056fc037a3018b7ff57",
+    "bytes": 68504
+  },
+  "7ca913e2189f9d5da93fdd8da77ef7060ea6bd52e9707dd583de09e10f05c705": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7ca913e2189f9d5da93fdd8da77ef7060ea6bd52e9707dd583de09e10f05c705",
+    "bytes": 43984
+  },
+  "e366c2be623cf589b4e4de3172346dc1ce7468cac4658ba2fd59a4b28cd9ef60": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e366c2be623cf589b4e4de3172346dc1ce7468cac4658ba2fd59a4b28cd9ef60",
+    "bytes": 13928
+  },
+  "9f60f16cb72c55e95bf5e61689c6f8936266af3bff0c492e641c12adf066afa5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9f60f16cb72c55e95bf5e61689c6f8936266af3bff0c492e641c12adf066afa5",
+    "bytes": 57368
+  },
+  "53b6ca2d563d390b2911c7bd14d629b1ce740eab778316a34f283629e15eabcd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/53b6ca2d563d390b2911c7bd14d629b1ce740eab778316a34f283629e15eabcd",
+    "bytes": 59176
+  },
+  "1bfb149bc1e40594e65d64ebd2a52351f1c4b004083f234966cefe41e7d88120": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1bfb149bc1e40594e65d64ebd2a52351f1c4b004083f234966cefe41e7d88120",
+    "bytes": 120928
+  },
+  "d4ccf06e9a2398c64f18928d03a8105c97d03e962eadd011879f7db799cd498c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d4ccf06e9a2398c64f18928d03a8105c97d03e962eadd011879f7db799cd498c",
+    "bytes": 404040
+  },
+  "a2879f7955a491ac42e22938f848c5652d541ce9cc642bd0d65b245c44978bc3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a2879f7955a491ac42e22938f848c5652d541ce9cc642bd0d65b245c44978bc3",
+    "bytes": 18080
+  },
+  "e60c9946c9cd31549a8b98457a6f6a13cb0d2a4237ad7e8e3a90f551ddcf9ed9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e60c9946c9cd31549a8b98457a6f6a13cb0d2a4237ad7e8e3a90f551ddcf9ed9",
+    "bytes": 73480
+  },
+  "e2dc3b6dd1a3cae51ef415f93560f2fd49c992354d7fe5022d5da1fbfceeeb7b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e2dc3b6dd1a3cae51ef415f93560f2fd49c992354d7fe5022d5da1fbfceeeb7b",
+    "bytes": 14832
+  },
+  "0c53abfdf6e86c204556413aac9d02ba06342ffde900341d88f3c8e8aaf8c390": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0c53abfdf6e86c204556413aac9d02ba06342ffde900341d88f3c8e8aaf8c390",
+    "bytes": 26576
+  },
+  "2a6ee15129a62f343465c144b0a660dc156b1e6d56e82ca582214593572fc09a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2a6ee15129a62f343465c144b0a660dc156b1e6d56e82ca582214593572fc09a",
+    "bytes": 25872
+  },
+  "92d3192b38c16e6903c1e9ddf218855a8250e7682ce3da92c3534e22d9a55514": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/92d3192b38c16e6903c1e9ddf218855a8250e7682ce3da92c3534e22d9a55514",
+    "bytes": 27280
+  },
+  "526ce11202596902b35e650f97842ef683acde6d5074883c7a90cb8adb4b9709": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/526ce11202596902b35e650f97842ef683acde6d5074883c7a90cb8adb4b9709",
+    "bytes": 43816
+  },
+  "66344ee6d1ad29282a906e9ce9376caa7d845b66f58e64f8c3c19d1fdc91c745": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/66344ee6d1ad29282a906e9ce9376caa7d845b66f58e64f8c3c19d1fdc91c745",
+    "bytes": 18344
+  },
+  "c2ad530bd9e2778b645cc29623c51799661a2c5ab1e61ae41a4c62876db8bfe7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c2ad530bd9e2778b645cc29623c51799661a2c5ab1e61ae41a4c62876db8bfe7",
+    "bytes": 46072
+  },
+  "c4e1a4c3a75a0d05305ed27205c03123f583b92e80a3a7f89a44c57faa6c09a0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c4e1a4c3a75a0d05305ed27205c03123f583b92e80a3a7f89a44c57faa6c09a0",
+    "bytes": 11064
+  },
+  "0086d09d8aa309b9ea602b76ff8e5e71822300adadcde6156f1b8b34f4ea61e5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0086d09d8aa309b9ea602b76ff8e5e71822300adadcde6156f1b8b34f4ea61e5",
+    "bytes": 151256
+  },
+  "2360b6d7fdbc69fbc2aa3a47299e9f4456eb7608543a20c0246d8be789f510e4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2360b6d7fdbc69fbc2aa3a47299e9f4456eb7608543a20c0246d8be789f510e4",
+    "bytes": 512576
+  },
+  "0fd25054f0dc26a8af3dd0ebd2f0d81f54dcb440d575baa9930e244415b24d8d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0fd25054f0dc26a8af3dd0ebd2f0d81f54dcb440d575baa9930e244415b24d8d",
+    "bytes": 89112
+  },
+  "bd87d05c85d7c634ffbde5887a0dcd847be905c1cb2600dbdec078e30c25472f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bd87d05c85d7c634ffbde5887a0dcd847be905c1cb2600dbdec078e30c25472f",
+    "bytes": 78000
+  },
+  "e6815a425a7f346296323702de155f3f20e8b66e75bc1a7b6dc5535c83355ead": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e6815a425a7f346296323702de155f3f20e8b66e75bc1a7b6dc5535c83355ead",
+    "bytes": 39352
+  },
+  "69a97fde4b521fd1f01f5d118dffcd39a1c4c93c382107effe72ad5bf3ec718a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/69a97fde4b521fd1f01f5d118dffcd39a1c4c93c382107effe72ad5bf3ec718a",
+    "bytes": 54304
+  },
+  "949683a1cf9c766dee17f1acf14e6db52c7147327fe614078bbd8f21a1a33f5a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/949683a1cf9c766dee17f1acf14e6db52c7147327fe614078bbd8f21a1a33f5a",
+    "bytes": 194888
+  },
+  "245cf6df9882a771cb3badd00c66eff8a798539a93ea8c01f7de05028686a832": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/245cf6df9882a771cb3badd00c66eff8a798539a93ea8c01f7de05028686a832",
+    "bytes": 115184
+  },
+  "d9a2b5acb8a9ac24025297a44e32515f018e6a65fe85e1705abe9d84cae6cd98": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d9a2b5acb8a9ac24025297a44e32515f018e6a65fe85e1705abe9d84cae6cd98",
+    "bytes": 38496
+  },
+  "b04580e7d26701426b6b34ced42e1f4b7ec487ddb530d10514bb965f87e27b2d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b04580e7d26701426b6b34ced42e1f4b7ec487ddb530d10514bb965f87e27b2d",
+    "bytes": 294328
+  },
+  "f8e365d72fa17ac01f0809e0cd66276491409564ba1e8fdfb0b7aad021fcc4f5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f8e365d72fa17ac01f0809e0cd66276491409564ba1e8fdfb0b7aad021fcc4f5",
+    "bytes": 164920
+  },
+  "ec2b849c019fc1310074885110cc0c2f53a4e30afe87b1dabf812586a9e8ad01": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ec2b849c019fc1310074885110cc0c2f53a4e30afe87b1dabf812586a9e8ad01",
+    "bytes": 28304
+  },
+  "0cc46ba1ec943bd0cef3b5e8dca1e4b43c11ced01011b3464d56f2ea660c7b00": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0cc46ba1ec943bd0cef3b5e8dca1e4b43c11ced01011b3464d56f2ea660c7b00",
+    "bytes": 39688
+  },
+  "41a49906208edef25b63b947a6cdef20f79273bbeb93afd879788c2abc303356": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/41a49906208edef25b63b947a6cdef20f79273bbeb93afd879788c2abc303356",
+    "bytes": 16112
+  },
+  "ab2496298f0d68a6a6d3ee9e15e79255ec4d73830e54cc6d712225ae36084b4a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ab2496298f0d68a6a6d3ee9e15e79255ec4d73830e54cc6d712225ae36084b4a",
+    "bytes": 77904
+  },
+  "79a299c025d5d6195825b001b55fac97bf732dced323c84de5b707d1ed572faf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/79a299c025d5d6195825b001b55fac97bf732dced323c84de5b707d1ed572faf",
+    "bytes": 63696
+  },
+  "5a01c4e4ca893ec0e32f2391d381515134e7f1fb1b38d61bc24e3802a8faca7b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5a01c4e4ca893ec0e32f2391d381515134e7f1fb1b38d61bc24e3802a8faca7b",
+    "bytes": 49840
+  },
+  "a4b759cb54f3bdf8139afdaee15426c122ab89ea1cd5498760edaefeea13c7e2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a4b759cb54f3bdf8139afdaee15426c122ab89ea1cd5498760edaefeea13c7e2",
+    "bytes": 649920
+  },
+  "de815bdf516ae5ed96aad5b258352fcabaf060e323c965d3e8567d948f98a60d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/de815bdf516ae5ed96aad5b258352fcabaf060e323c965d3e8567d948f98a60d",
+    "bytes": 36152
+  },
+  "90de44417669006e4040709189d9d059c4e024599894372cc70d5301a328a8b7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/90de44417669006e4040709189d9d059c4e024599894372cc70d5301a328a8b7",
+    "bytes": 50448
+  },
+  "1f36b198242a79f85bbebb58018c4d9a6500de50daa1b2549213a7e6e51a4ef1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1f36b198242a79f85bbebb58018c4d9a6500de50daa1b2549213a7e6e51a4ef1",
+    "bytes": 13400
+  },
+  "04ff36d98624e5e1ec05aaf5b4fd32e1630ac85797e4c87d4b6f72f0d681f02b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/04ff36d98624e5e1ec05aaf5b4fd32e1630ac85797e4c87d4b6f72f0d681f02b",
+    "bytes": 10752
+  },
+  "5ef443c7f10b1ae02b5d37fd8127d0d47728ad3454ed7639fae42a875de841bf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5ef443c7f10b1ae02b5d37fd8127d0d47728ad3454ed7639fae42a875de841bf",
+    "bytes": 37200
+  },
+  "a533f812499fc9c01f0092624745d38afb4a7096e67c8c296c8bae916321c602": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a533f812499fc9c01f0092624745d38afb4a7096e67c8c296c8bae916321c602",
+    "bytes": 7608
+  },
+  "757a546485d59e0f27dfa00a743d989a8ff2b0fe347ebe3aec5e4033adf81b10": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/757a546485d59e0f27dfa00a743d989a8ff2b0fe347ebe3aec5e4033adf81b10",
+    "bytes": 12800
+  },
+  "475c89c50b7b06b5914e283399add09c8764d2fe274a408786732db15d723989": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/475c89c50b7b06b5914e283399add09c8764d2fe274a408786732db15d723989",
+    "bytes": 23984
+  },
+  "35b5e51dda33a07b078ffe81a71409faee5f9aba8fe0d23df4cc02d8e2d776ff": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/35b5e51dda33a07b078ffe81a71409faee5f9aba8fe0d23df4cc02d8e2d776ff",
+    "bytes": 15408
+  },
+  "87758baa991679973e916a11574bfcf9e12df356f9ba7b369cf12b3190907675": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/87758baa991679973e916a11574bfcf9e12df356f9ba7b369cf12b3190907675",
+    "bytes": 34912
+  },
+  "bb6440fd877b5e7f673e92a35eac872bc95338435a25ba905f463dcb82571238": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bb6440fd877b5e7f673e92a35eac872bc95338435a25ba905f463dcb82571238",
+    "bytes": 11640
+  },
+  "0f02b5d46d7ad9857842f2f5d2bf004f600fa3a6393c99533024978a19238dde": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0f02b5d46d7ad9857842f2f5d2bf004f600fa3a6393c99533024978a19238dde",
+    "bytes": 23808
+  },
+  "c16109451797ddb05bf1b8d60d1fdf5fabc00505102a3f8168cd45909587cf02": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c16109451797ddb05bf1b8d60d1fdf5fabc00505102a3f8168cd45909587cf02",
+    "bytes": 39824
+  },
+  "ff5b268e647fe2c3b119e2ded1a1f149cc746159be4b527311c6e2eb759e88b2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ff5b268e647fe2c3b119e2ded1a1f149cc746159be4b527311c6e2eb759e88b2",
+    "bytes": 10320
+  },
+  "5bde4483caabc011bbc3919a8374d7f93ad6d2f02f2f3fef0e1694a5087c9a84": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5bde4483caabc011bbc3919a8374d7f93ad6d2f02f2f3fef0e1694a5087c9a84",
+    "bytes": 133688
+  },
+  "6099cf36b2eb1b9e06c4827a2be459e1a80ab38f00077236e8976937a09342d0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6099cf36b2eb1b9e06c4827a2be459e1a80ab38f00077236e8976937a09342d0",
+    "bytes": 7560
+  },
+  "30959b301efa728c1182999a4aa842c38d269842aee53b1686f4c6816b4b9c93": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/30959b301efa728c1182999a4aa842c38d269842aee53b1686f4c6816b4b9c93",
+    "bytes": 41376
+  },
+  "bfe14029ed219b286fc8f7b13dbef3a49dcb6fcbc2feae4b9b0342d29e3ba16a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bfe14029ed219b286fc8f7b13dbef3a49dcb6fcbc2feae4b9b0342d29e3ba16a",
+    "bytes": 23416
+  },
+  "877d21599d9c73abfb6765af808d595800cdec2afa2ec2bc6ba7bfa4b41e8baa": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/877d21599d9c73abfb6765af808d595800cdec2afa2ec2bc6ba7bfa4b41e8baa",
+    "bytes": 29848
+  },
+  "3bd35da9d7f287632fededbfdd6a2f45412876409c82d25ed63e1605463b7141": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3bd35da9d7f287632fededbfdd6a2f45412876409c82d25ed63e1605463b7141",
+    "bytes": 120224
+  },
+  "603da3b19fa599f453fa798bfaf7de2c03c760d647c0edbdaa28438e32d4c5b4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/603da3b19fa599f453fa798bfaf7de2c03c760d647c0edbdaa28438e32d4c5b4",
+    "bytes": 22976
+  },
+  "d465444e45794c5a64afd66b1c0effe4c0ba152d2dff0d6a7e19c8317b5e295d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d465444e45794c5a64afd66b1c0effe4c0ba152d2dff0d6a7e19c8317b5e295d",
+    "bytes": 78024
+  },
+  "7f48f28f7f1d235b0b080b949358f291dce27cf2c8f720c7e4e8018a7a560b40": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7f48f28f7f1d235b0b080b949358f291dce27cf2c8f720c7e4e8018a7a560b40",
+    "bytes": 62456
+  },
+  "7e19a799ebcc794c62468d4ef4b4e6d748733f373276a2d2089e40dbf037c0e4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7e19a799ebcc794c62468d4ef4b4e6d748733f373276a2d2089e40dbf037c0e4",
+    "bytes": 51224
+  },
+  "f2dfa4d5b50a141ff677f9d397eee1c21b01e4ffd4251956ebff66ce5a798966": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f2dfa4d5b50a141ff677f9d397eee1c21b01e4ffd4251956ebff66ce5a798966",
+    "bytes": 28016
+  },
+  "8eaaa87d519fc65d061153008444efc28dd96462c291acb3d2a4a3c657df1735": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8eaaa87d519fc65d061153008444efc28dd96462c291acb3d2a4a3c657df1735",
+    "bytes": 20264
+  },
+  "3d668a91136ffce960311e9761d21aadd6c94b85c86de6baab597d9199bcf4cd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3d668a91136ffce960311e9761d21aadd6c94b85c86de6baab597d9199bcf4cd",
+    "bytes": 399928
+  },
+  "c904de76ec0f2553fbe32693664a585a59b1dc45fc3a549400f6d616936a1aef": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c904de76ec0f2553fbe32693664a585a59b1dc45fc3a549400f6d616936a1aef",
+    "bytes": 43424
+  },
+  "2b41feb7e97c3c58c36310c4b0cbc5df49fc7be77a90178a2ba99f78934b4c8e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2b41feb7e97c3c58c36310c4b0cbc5df49fc7be77a90178a2ba99f78934b4c8e",
+    "bytes": 26256
+  },
+  "9e8ce0f5247827cbb053ab51f832486a638b7f1d661f6b9f99c53791a6c8bf35": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9e8ce0f5247827cbb053ab51f832486a638b7f1d661f6b9f99c53791a6c8bf35",
+    "bytes": 21160
+  },
+  "05f47b51af58dbc510038b354e93fbb186c81a73b29fe14d8b35fd303c9c59ac": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/05f47b51af58dbc510038b354e93fbb186c81a73b29fe14d8b35fd303c9c59ac",
+    "bytes": 23936
+  },
+  "d5affe0de0d1110dd79ff4d609ce052ed3549f7c8245a38b9295a3f1a7a4f40f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d5affe0de0d1110dd79ff4d609ce052ed3549f7c8245a38b9295a3f1a7a4f40f",
+    "bytes": 175768
+  },
+  "9015b35991c32968333c3f0c96c80a13a189e9afc369fac2b77dbabd95d44c2c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9015b35991c32968333c3f0c96c80a13a189e9afc369fac2b77dbabd95d44c2c",
+    "bytes": 20544
+  },
+  "9ea0ddd4fce3e60a2df8b6a1351e82f907536b3450d4f43bbdd837c35d9f1b03": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9ea0ddd4fce3e60a2df8b6a1351e82f907536b3450d4f43bbdd837c35d9f1b03",
+    "bytes": 17656
+  },
+  "6f9c090b81b46d1aad2bfb08909c73cf421e927649ece6ef57ebd9631ed2201a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6f9c090b81b46d1aad2bfb08909c73cf421e927649ece6ef57ebd9631ed2201a",
+    "bytes": 14216
+  },
+  "3d20d3a7ca1304cf14978843fae6782136bc189efc81b565d6225360b39bc63c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3d20d3a7ca1304cf14978843fae6782136bc189efc81b565d6225360b39bc63c",
+    "bytes": 45744
+  },
+  "19873f982458396ec530abc01ec6314395f9225e7ba20af8839cd4bf845f7580": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/19873f982458396ec530abc01ec6314395f9225e7ba20af8839cd4bf845f7580",
+    "bytes": 64080
+  },
+  "e3da7e5440b884dbc75d9d857ae5b16c48374a8fffa464f80e2067743c3343fc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e3da7e5440b884dbc75d9d857ae5b16c48374a8fffa464f80e2067743c3343fc",
+    "bytes": 32696
+  },
+  "22a237285d89ce98c1315b45949f8be9dba1bb72c7fc50adbe0876657ab7d562": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/22a237285d89ce98c1315b45949f8be9dba1bb72c7fc50adbe0876657ab7d562",
+    "bytes": 21896
+  },
+  "11368e666e9591d2bffc6e7f957ebc0f61439f3691ff2ac874710afd94061b64": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/11368e666e9591d2bffc6e7f957ebc0f61439f3691ff2ac874710afd94061b64",
+    "bytes": 25800
+  },
+  "0f0d6d056e022b1d774d57e5cb316fb65585d5fc8f55a3d9537c4a8bdc2c8ebd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0f0d6d056e022b1d774d57e5cb316fb65585d5fc8f55a3d9537c4a8bdc2c8ebd",
+    "bytes": 29120
+  },
+  "d0498cb0ed67a8f60e1220ad196bce1554766d9a7b800f97bd22cbf175873f8f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d0498cb0ed67a8f60e1220ad196bce1554766d9a7b800f97bd22cbf175873f8f",
+    "bytes": 54928
+  },
+  "4d07b6945f29f6cdc73000be90e1780683aab02b49f6a910b4ea7d161565e33d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4d07b6945f29f6cdc73000be90e1780683aab02b49f6a910b4ea7d161565e33d",
+    "bytes": 19248
+  },
+  "8f0d4d7c6f70a6530dd8cca0cb899c4801be0f4c317898f2e8228b8156cd3a2e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8f0d4d7c6f70a6530dd8cca0cb899c4801be0f4c317898f2e8228b8156cd3a2e",
+    "bytes": 347376
+  },
+  "ff0f513e691477bdd9f53ceaf67ced18f84ad2cd179f343b294fbf11f59f08ff": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ff0f513e691477bdd9f53ceaf67ced18f84ad2cd179f343b294fbf11f59f08ff",
+    "bytes": 36880
+  },
+  "f6a2b15ced0a7d42985476b797ac04c8417e00eb327d1814f5c3e32af66c713c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f6a2b15ced0a7d42985476b797ac04c8417e00eb327d1814f5c3e32af66c713c",
+    "bytes": 56296
+  },
+  "fe1793fca8dc0a2ab15671f0a2b6e5d09fb1f3bbc75980b00dd02f025f79ada2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fe1793fca8dc0a2ab15671f0a2b6e5d09fb1f3bbc75980b00dd02f025f79ada2",
+    "bytes": 40760
+  },
+  "2b4cd603027d2f7abf0c08cd1394a4c9840a199ef98becb6772e9b54af28329e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2b4cd603027d2f7abf0c08cd1394a4c9840a199ef98becb6772e9b54af28329e",
+    "bytes": 105432
+  },
+  "f89a6f2d109770650785dd8d4db7074369803e3bd33ecaa19896d011ef91ae70": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f89a6f2d109770650785dd8d4db7074369803e3bd33ecaa19896d011ef91ae70",
+    "bytes": 40528
+  },
+  "6466000c8a85cb4184e4f9518dabf89a97533de396261142723878eefd1e03dd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6466000c8a85cb4184e4f9518dabf89a97533de396261142723878eefd1e03dd",
+    "bytes": 47776
+  },
+  "105e6200455447433fa54787ca3c4a3c7d25b5cb07e7f17b002207f07e91be5f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/105e6200455447433fa54787ca3c4a3c7d25b5cb07e7f17b002207f07e91be5f",
+    "bytes": 23240
+  },
+  "8272ff0a8313aaf7c89e621e58b00196b78ade80b0a70475190b642244ccb47d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8272ff0a8313aaf7c89e621e58b00196b78ade80b0a70475190b642244ccb47d",
+    "bytes": 4656
+  },
+  "c28b23bdde0b7b9521487766ecad85e72156e42355ab57756263cc57fa958282": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c28b23bdde0b7b9521487766ecad85e72156e42355ab57756263cc57fa958282",
+    "bytes": 61656
+  },
+  "e890b2b3f1b8131371630ca94d73dcfbbc7197a538b1347844f3e2d8094dd5c4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e890b2b3f1b8131371630ca94d73dcfbbc7197a538b1347844f3e2d8094dd5c4",
+    "bytes": 3360
+  },
+  "07e59fda275ae3f4ecf175e1dd2fc93895317ca5a1144bb937ace934df73511b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/07e59fda275ae3f4ecf175e1dd2fc93895317ca5a1144bb937ace934df73511b",
+    "bytes": 28792
+  },
+  "05f3a247b8607efe4d349dc866e7809f669f318fe20d67bf50d447b4c5da81ec": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/05f3a247b8607efe4d349dc866e7809f669f318fe20d67bf50d447b4c5da81ec",
+    "bytes": 8410672
+  },
+  "0901aa2221456cc57ec0bb2cfe95328e3b823c1e0e56e96587e52d279d15eccf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0901aa2221456cc57ec0bb2cfe95328e3b823c1e0e56e96587e52d279d15eccf",
+    "bytes": 16552
+  },
+  "d61e54de305fc5b0ce53d7aada93304d54ea61e7378b6aede7be40e214b410c6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d61e54de305fc5b0ce53d7aada93304d54ea61e7378b6aede7be40e214b410c6",
+    "bytes": 13504
+  },
+  "d190032640ed277148da539cca6e91433aeab7cc04d6e74641f9a1c11a01c160": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d190032640ed277148da539cca6e91433aeab7cc04d6e74641f9a1c11a01c160",
+    "bytes": 13344
+  },
+  "78c2ce119a0562eb7fc599734b6ec8e06702421389620740e9b7ee3849eac2a9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/78c2ce119a0562eb7fc599734b6ec8e06702421389620740e9b7ee3849eac2a9",
+    "bytes": 13480
+  },
+  "879af9c65da87e42899cb81616bc26f0c9b865c3d34b93c09ada1e2a851ccf4f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/879af9c65da87e42899cb81616bc26f0c9b865c3d34b93c09ada1e2a851ccf4f",
+    "bytes": 13312
+  },
+  "eb601da50293d52c0453d4be17a99d285e56cbf8a86908e62966804936b98945": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/eb601da50293d52c0453d4be17a99d285e56cbf8a86908e62966804936b98945",
+    "bytes": 13200
+  },
+  "a2d198366e4e2a92b8cb542bc5768fcc20054f4e9cb860a26be42ca70f8f8e5e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a2d198366e4e2a92b8cb542bc5768fcc20054f4e9cb860a26be42ca70f8f8e5e",
+    "bytes": 13280
+  },
+  "5073eb22329113b0267d7b168c157765896f346d481a5cb0da43af46f04f7296": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5073eb22329113b0267d7b168c157765896f346d481a5cb0da43af46f04f7296",
+    "bytes": 14136
+  },
+  "f5a120a68b2756aa7e8b3efc07eaf78d5a2080a4f1ec57b68e8c4fc269fc1c1d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f5a120a68b2756aa7e8b3efc07eaf78d5a2080a4f1ec57b68e8c4fc269fc1c1d",
+    "bytes": 13456
+  },
+  "257a767b0cc63e978ff52e9a12104d193c05d3c68381edcd58f72011a2ede99a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/257a767b0cc63e978ff52e9a12104d193c05d3c68381edcd58f72011a2ede99a",
+    "bytes": 13264
+  },
+  "7c1dad3d60e8568560bec0090befe7c031aed768545f49af9e6e2e0503d3b8b4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7c1dad3d60e8568560bec0090befe7c031aed768545f49af9e6e2e0503d3b8b4",
+    "bytes": 13280
+  },
+  "d782a7c426c8a3ce121be7f1329b5d4ff4e1210a2ccb12e31b95e07890fd5bb0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d782a7c426c8a3ce121be7f1329b5d4ff4e1210a2ccb12e31b95e07890fd5bb0",
+    "bytes": 13488
+  },
+  "219b21a33b095a3365f0250f6ecb62d8829a0c4366a021b73bf3bdc88570daca": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/219b21a33b095a3365f0250f6ecb62d8829a0c4366a021b73bf3bdc88570daca",
+    "bytes": 13440
+  },
+  "f40dd7c41f5a284d944a9d2e93a6e25825f74a5a16c9ba8170254d573110f693": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f40dd7c41f5a284d944a9d2e93a6e25825f74a5a16c9ba8170254d573110f693",
+    "bytes": 13256
+  },
+  "03f5ac131aee5382a9612151255a36633d98fee3c6999cddcfbdf90a9b59e065": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/03f5ac131aee5382a9612151255a36633d98fee3c6999cddcfbdf90a9b59e065",
+    "bytes": 14320
+  },
+  "474734860b4274162d67f0a9b08d6dbea27ce007520c5a698252a04b48b2f559": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/474734860b4274162d67f0a9b08d6dbea27ce007520c5a698252a04b48b2f559",
+    "bytes": 14248
+  },
+  "37765b128b847a42abf9e3f54bcb1168642fe5d5cc0ac72cdafed49b1d91e86b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/37765b128b847a42abf9e3f54bcb1168642fe5d5cc0ac72cdafed49b1d91e86b",
+    "bytes": 14360
+  },
+  "2afb3263359c1dd290f6ed0d8dac5df6d6e39ea424fce4e582e4fe6275a5dbbe": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2afb3263359c1dd290f6ed0d8dac5df6d6e39ea424fce4e582e4fe6275a5dbbe",
+    "bytes": 13816
+  },
+  "f3319d53c1ce242ef64c7abb8e7798fc5eac2bae20326c9aa6f463e1d52582b1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f3319d53c1ce242ef64c7abb8e7798fc5eac2bae20326c9aa6f463e1d52582b1",
+    "bytes": 13296
+  },
+  "3471ac6a54ee3feadef91b93bd4762bba053ad2ba98c6df2f471ee655287d659": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3471ac6a54ee3feadef91b93bd4762bba053ad2ba98c6df2f471ee655287d659",
+    "bytes": 13440
+  },
+  "0efadb85fd2f08cf295a7c16b51ab069b53ac911225e8ddedc40e38ba5d6df20": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0efadb85fd2f08cf295a7c16b51ab069b53ac911225e8ddedc40e38ba5d6df20",
+    "bytes": 13288
+  },
+  "7c8a3b02eaa7f115a40a785825fc11e745f99c605e53b745956a9993404399a9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7c8a3b02eaa7f115a40a785825fc11e745f99c605e53b745956a9993404399a9",
+    "bytes": 13320
+  },
+  "4ebafc2837cf0dea3184dd2d5004d6dc719a27a11c3a6721e2eb325e4f184b80": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4ebafc2837cf0dea3184dd2d5004d6dc719a27a11c3a6721e2eb325e4f184b80",
+    "bytes": 13264
+  },
+  "d68cd64e8718aa7baa7bc3822d63f1f6eb1b742c6dc372d3a1a30c2c68bde56f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d68cd64e8718aa7baa7bc3822d63f1f6eb1b742c6dc372d3a1a30c2c68bde56f",
+    "bytes": 13272
+  },
+  "217b6b1eb06b0491b0f29871409619d6eb95945032e390d072858426be94c032": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/217b6b1eb06b0491b0f29871409619d6eb95945032e390d072858426be94c032",
+    "bytes": 13200
+  },
+  "a2fba00161ef5be61e3823807a929537e8b8ba927a543513249fd4d2ce604351": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a2fba00161ef5be61e3823807a929537e8b8ba927a543513249fd4d2ce604351",
+    "bytes": 13296
+  },
+  "e2654e2f9866b33dcc36fefee791cd6499785e180eaf14372d203e518ef85654": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e2654e2f9866b33dcc36fefee791cd6499785e180eaf14372d203e518ef85654",
+    "bytes": 14320
+  },
+  "01362c811171e2737aa9cef130d1fff55bec0bf4695d3871e7308d73ef489405": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/01362c811171e2737aa9cef130d1fff55bec0bf4695d3871e7308d73ef489405",
+    "bytes": 14512
+  },
+  "33303957b4e1040445fda70fba647360865b521a5a3f9961f448426073100ee8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/33303957b4e1040445fda70fba647360865b521a5a3f9961f448426073100ee8",
+    "bytes": 13472
+  },
+  "ae91f9bc61819ac8f5678da209b0dc31729adadad106a9094fc04ae076da3a93": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ae91f9bc61819ac8f5678da209b0dc31729adadad106a9094fc04ae076da3a93",
+    "bytes": 14376
+  },
+  "22229a88574578c8120d922c12d7b844969348d014a34d0b35f7c5f17a5070b5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/22229a88574578c8120d922c12d7b844969348d014a34d0b35f7c5f17a5070b5",
+    "bytes": 14352
+  },
+  "876c54bd2156f16e4a0a2b0c75299460035595ad219d9ab098e6ac2dcb869202": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/876c54bd2156f16e4a0a2b0c75299460035595ad219d9ab098e6ac2dcb869202",
+    "bytes": 14504
+  },
+  "36625c92dfc7b242fc1b07e8febd4ad0e35a97f01b00ff4bd19ee106299a9761": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/36625c92dfc7b242fc1b07e8febd4ad0e35a97f01b00ff4bd19ee106299a9761",
+    "bytes": 13520
+  },
+  "03227e63e262dc89547e7b4e36583f7029f098eb97a9f9c987e54caa41d1103b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/03227e63e262dc89547e7b4e36583f7029f098eb97a9f9c987e54caa41d1103b",
+    "bytes": 13328
+  },
+  "a316c7ea89ecdf08ec7c4c15020425ac13c89bab194be6bfd044d61557bb46a2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a316c7ea89ecdf08ec7c4c15020425ac13c89bab194be6bfd044d61557bb46a2",
+    "bytes": 13824
+  },
+  "ed06bb5d85217e7c07905711e81b47ac7e24be77f2d88a271f71cdacb24ce881": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ed06bb5d85217e7c07905711e81b47ac7e24be77f2d88a271f71cdacb24ce881",
+    "bytes": 13672
+  },
+  "84bedda915a1429b6218c51c9f61b7628b214a16db029016ad0b011f2a0be564": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/84bedda915a1429b6218c51c9f61b7628b214a16db029016ad0b011f2a0be564",
+    "bytes": 13376
+  },
+  "9b3ea913d8ae550eb8336077fdba80800057cb2a8d29eded3214a28c8e109040": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9b3ea913d8ae550eb8336077fdba80800057cb2a8d29eded3214a28c8e109040",
+    "bytes": 12824
+  },
+  "edd104f66e371156d05f7f16fbfd01fc8181a96311e065dc9b6167dd92572f67": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/edd104f66e371156d05f7f16fbfd01fc8181a96311e065dc9b6167dd92572f67",
+    "bytes": 14512
+  },
+  "b76af6ef7df231889b5def1eebf9b669fc8fa3eb72dcd691253c4a14ede2518e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b76af6ef7df231889b5def1eebf9b669fc8fa3eb72dcd691253c4a14ede2518e",
+    "bytes": 13152
+  },
+  "848668ec2048724aebeea308153b2eb33aac6059c0c3a3430023b506fcfdde45": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/848668ec2048724aebeea308153b2eb33aac6059c0c3a3430023b506fcfdde45",
+    "bytes": 10800
+  },
+  "5a702924f9b7624d202cbb2dac3e544878f3b26e9de1fa99a3746d4279184a54": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5a702924f9b7624d202cbb2dac3e544878f3b26e9de1fa99a3746d4279184a54",
+    "bytes": 21912
+  },
+  "941f8911fb1365dccaf34f6aafb4b67de4449921891a594a3671b3b6adcc60d1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/941f8911fb1365dccaf34f6aafb4b67de4449921891a594a3671b3b6adcc60d1",
+    "bytes": 14440
+  },
+  "9c4ff0e85dcbea4d5a6982096bd7e1981c77fb154f3d339d93a84b01b9396379": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9c4ff0e85dcbea4d5a6982096bd7e1981c77fb154f3d339d93a84b01b9396379",
+    "bytes": 4096
+  },
+  "f02d214420342e149b6b15531a6e4ee0c0a7a96f80fdd8473a69866c3534efd7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f02d214420342e149b6b15531a6e4ee0c0a7a96f80fdd8473a69866c3534efd7",
+    "bytes": 288480
+  },
+  "1454cad658e6c2d81727a896bc9cf6dd73fd6704a42f374d1d1243de9e91d1c0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1454cad658e6c2d81727a896bc9cf6dd73fd6704a42f374d1d1243de9e91d1c0",
+    "bytes": 47864
+  },
+  "a005fb8cc93f94e77a4a4eaf1d47ac50cdf155b0d0a143617e48df03bda190e8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a005fb8cc93f94e77a4a4eaf1d47ac50cdf155b0d0a143617e48df03bda190e8",
+    "bytes": 13744
+  },
+  "19825d1a88635d8f83a33eeff0018982660ab773892078abd038154a8c3dc75e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/19825d1a88635d8f83a33eeff0018982660ab773892078abd038154a8c3dc75e",
+    "bytes": 654200
+  },
+  "fc77bcbac5245c1d10f40cceabb385bc8b5132a13554913368fa43f931d82c67": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fc77bcbac5245c1d10f40cceabb385bc8b5132a13554913368fa43f931d82c67",
+    "bytes": 108688
+  },
+  "8c0871fa05c1c82874cedae1573faee278c40b8a91a47ae9eb636c606dcc5631": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8c0871fa05c1c82874cedae1573faee278c40b8a91a47ae9eb636c606dcc5631",
+    "bytes": 465744
+  },
+  "e804baee4ffdc49123a68ed668afe40fdedc032a1acbc2dbed4d4aa9d1eab3fc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e804baee4ffdc49123a68ed668afe40fdedc032a1acbc2dbed4d4aa9d1eab3fc",
+    "bytes": 13368
+  },
+  "7d1ad3770fff18024f11feddc94b34bd25fb16426556ac264e79eaea830c6035": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7d1ad3770fff18024f11feddc94b34bd25fb16426556ac264e79eaea830c6035",
+    "bytes": 6195
+  },
+  "686f72b330d631cff82c5e4dcc40df7b9dbb55e649c2edd0bd84235e02af42bc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/686f72b330d631cff82c5e4dcc40df7b9dbb55e649c2edd0bd84235e02af42bc",
+    "bytes": 813
+  },
+  "8f874001509950151138120862c37f95ce739d96ae04bb9e5cb8d69368757b73": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8f874001509950151138120862c37f95ce739d96ae04bb9e5cb8d69368757b73",
+    "bytes": 33744
+  },
+  "be87ed9bb09c85d8c9f20a43b0d317aad60bb2eb16db6080397224b8f30b824e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/be87ed9bb09c85d8c9f20a43b0d317aad60bb2eb16db6080397224b8f30b824e",
+    "bytes": 813
+  },
+  "51045cbae5e532ef149a72f8db4a8e97476d888993d59206dd1f200e1986d207": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/51045cbae5e532ef149a72f8db4a8e97476d888993d59206dd1f200e1986d207",
+    "bytes": 54288
+  },
+  "68825224881b43b098c89ba0368202a050e6e8958cbb0cbd0085eda2f60c38b8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/68825224881b43b098c89ba0368202a050e6e8958cbb0cbd0085eda2f60c38b8",
+    "bytes": 815
+  },
+  "21f326ddc762451be1935c7e9d15b795522fbd131f1e0622898221b124c837d2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/21f326ddc762451be1935c7e9d15b795522fbd131f1e0622898221b124c837d2",
+    "bytes": 192000
+  },
+  "d1fadbeec1096fc1a43787fca3d5f287a223a99a8f9f5ec039ec5aed713e5f86": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d1fadbeec1096fc1a43787fca3d5f287a223a99a8f9f5ec039ec5aed713e5f86",
+    "bytes": 815
+  },
+  "d7c97d97125942e2fdeb65f4e82d6086f174579dbd6b181841a8c6845cca1355": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d7c97d97125942e2fdeb65f4e82d6086f174579dbd6b181841a8c6845cca1355",
+    "bytes": 192000
+  },
+  "13026d3998f69ff5e434ce2b710f6e244a6bfd1ba9100f07655583b295102d8c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/13026d3998f69ff5e434ce2b710f6e244a6bfd1ba9100f07655583b295102d8c",
+    "bytes": 815
+  },
+  "8e9f35981d6d575e43bb1e5f9436223dde8a39af60c277f3e3715cca3b326b95": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8e9f35981d6d575e43bb1e5f9436223dde8a39af60c277f3e3715cca3b326b95",
+    "bytes": 192000
+  },
+  "dea38996990fc7755455ed7da60a6a06ba21d84a740533e103c8b5e6402d8f16": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dea38996990fc7755455ed7da60a6a06ba21d84a740533e103c8b5e6402d8f16",
+    "bytes": 815
+  },
+  "ccc655546c2daa520c394b7fc55d3aadc943592c50b704e82e56f5b11ff29e6d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ccc655546c2daa520c394b7fc55d3aadc943592c50b704e82e56f5b11ff29e6d",
+    "bytes": 98864
+  },
+  "bf7249eefcb7612c4a2a1b3b30e1ad5a892a8c46af8da3a3065439579418133b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bf7249eefcb7612c4a2a1b3b30e1ad5a892a8c46af8da3a3065439579418133b",
+    "bytes": 815
+  },
+  "bbf8975c89f44de231c887008d32817ba9b467be40e7d2526d330a29496e1546": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bbf8975c89f44de231c887008d32817ba9b467be40e7d2526d330a29496e1546",
+    "bytes": 68664
+  },
+  "16840cda888624ac139de9b2054be97567e74d81dc54ec4e9eaecf5aeafe6c02": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/16840cda888624ac139de9b2054be97567e74d81dc54ec4e9eaecf5aeafe6c02",
+    "bytes": 815
+  },
+  "4ca8af8dbf23f962e9f3b205bb3772baea70911a577fb6a7139b76acfbedc7ea": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4ca8af8dbf23f962e9f3b205bb3772baea70911a577fb6a7139b76acfbedc7ea",
+    "bytes": 139704
+  },
+  "1f77e7c4fab04f72bbb7a9c782a75bc43855b87dfdbd677cdfe80fcac856dabd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1f77e7c4fab04f72bbb7a9c782a75bc43855b87dfdbd677cdfe80fcac856dabd",
+    "bytes": 815
+  },
+  "1fd360f4268c2ce993c9ae6c81e4e82a9fd3db50eea0a5803c530763ae4e326e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1fd360f4268c2ce993c9ae6c81e4e82a9fd3db50eea0a5803c530763ae4e326e",
+    "bytes": 139704
+  },
+  "b06916fd59e78fda2d1626cff3aedc3db2d33612ddbfcd8d03523fb404ef60db": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b06916fd59e78fda2d1626cff3aedc3db2d33612ddbfcd8d03523fb404ef60db",
+    "bytes": 815
+  },
+  "151dcf989692d6e3f45309f36480367d45b743e7d47d0b0fe2cd4d948b385b4f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/151dcf989692d6e3f45309f36480367d45b743e7d47d0b0fe2cd4d948b385b4f",
+    "bytes": 177984
+  },
+  "99d32b2f92c7d32a50b4dfc6543bb58ea3dbafe0d28b7b49c116b6818f053f51": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/99d32b2f92c7d32a50b4dfc6543bb58ea3dbafe0d28b7b49c116b6818f053f51",
+    "bytes": 815
+  },
+  "35a088f4c6e05eb0b0eda4645d211615078e7ed3e8633ecba2ed27fb3fd4459a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/35a088f4c6e05eb0b0eda4645d211615078e7ed3e8633ecba2ed27fb3fd4459a",
+    "bytes": 152272
+  },
+  "e495d90a50607b56e841361bc2d15d147c704c6ad5e86da2e5b1bbc9a8ee7c63": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e495d90a50607b56e841361bc2d15d147c704c6ad5e86da2e5b1bbc9a8ee7c63",
+    "bytes": 815
+  },
+  "f754b1ad6b6b9bbad8f4893fe02ee9dfd899b4b1abe0025c7daa8abecb8e31d4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f754b1ad6b6b9bbad8f4893fe02ee9dfd899b4b1abe0025c7daa8abecb8e31d4",
+    "bytes": 189600
+  },
+  "00ea84143a441a0644229b8adb32508b75cc7ab93034f145ef7736789c2c5508": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/00ea84143a441a0644229b8adb32508b75cc7ab93034f145ef7736789c2c5508",
+    "bytes": 813
+  },
+  "9875e7acc4d41d8ea8f90005f8787cd0d1c75848f240fd86230d957b271010aa": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9875e7acc4d41d8ea8f90005f8787cd0d1c75848f240fd86230d957b271010aa",
+    "bytes": 276264
+  },
+  "07075a5e43b696aa15ed446c3dd95061d6edc667102de6f640e329c9ce0ed2c5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/07075a5e43b696aa15ed446c3dd95061d6edc667102de6f640e329c9ce0ed2c5",
+    "bytes": 815
+  },
+  "fa89b794c57209d2a628f3996660a05ab946877cafbc058a5e5352c6b8d79f4d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fa89b794c57209d2a628f3996660a05ab946877cafbc058a5e5352c6b8d79f4d",
+    "bytes": 192000
+  },
+  "6ed60b030cac73d826b6ad1dc5d7f51bfe213980c2f7a5c3333cfaf7c09a9975": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6ed60b030cac73d826b6ad1dc5d7f51bfe213980c2f7a5c3333cfaf7c09a9975",
+    "bytes": 815
+  },
+  "b08aead316490c86de08699ea02cfaff54cdafeb59c1d87f61043417b471c031": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b08aead316490c86de08699ea02cfaff54cdafeb59c1d87f61043417b471c031",
+    "bytes": 32560
+  },
+  "be53d0fa068b4a4d6dbbb57a71e7540407f1d474842d3769dd57e8d19cbfb7b1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/be53d0fa068b4a4d6dbbb57a71e7540407f1d474842d3769dd57e8d19cbfb7b1",
+    "bytes": 813
+  },
+  "c3768d6c57810e02b1af171ccf7d9759b92e1fca52066d2ecfddf8751070e1c9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c3768d6c57810e02b1af171ccf7d9759b92e1fca52066d2ecfddf8751070e1c9",
+    "bytes": 276272
+  },
+  "c665b5d0774a0608647dde1e41b2ff16f4f35440c99eeea6ab5986fcb7e0458a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c665b5d0774a0608647dde1e41b2ff16f4f35440c99eeea6ab5986fcb7e0458a",
+    "bytes": 813
+  },
+  "bd81e9977992c05447a6ee8f82d323a7fc6348818cf9364dfced2893b7e428df": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bd81e9977992c05447a6ee8f82d323a7fc6348818cf9364dfced2893b7e428df",
+    "bytes": 56160
+  },
+  "a6472610785f953d0e36bfb62fd13a7820b6a53d1e212be4ef16d988127abfcc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a6472610785f953d0e36bfb62fd13a7820b6a53d1e212be4ef16d988127abfcc",
+    "bytes": 813
+  },
+  "5c81b68aa1015a923d614a37e584e5f8798ba7ed52d6682ae096aae741311d4f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5c81b68aa1015a923d614a37e584e5f8798ba7ed52d6682ae096aae741311d4f",
+    "bytes": 191992
+  },
+  "3a77ceaf7d1db45f898081dec57a7e6600214766f3a246b383d5b2cf1657c2e8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3a77ceaf7d1db45f898081dec57a7e6600214766f3a246b383d5b2cf1657c2e8",
+    "bytes": 813
+  },
+  "aceb02bca870e9ebafbf0f894e6451574f0c631ebc8a906a7e77c5c9f6cc1dc4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/aceb02bca870e9ebafbf0f894e6451574f0c631ebc8a906a7e77c5c9f6cc1dc4",
+    "bytes": 191992
+  },
+  "156da6ccd2379d00fd37e357c6042cf6ecda9767ec7e7750b4efaea569c57295": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/156da6ccd2379d00fd37e357c6042cf6ecda9767ec7e7750b4efaea569c57295",
+    "bytes": 813
+  },
+  "34232199a49f01a4a2bce12cffb9d032add5b0664c3ebd02331ed605f14a4a64": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/34232199a49f01a4a2bce12cffb9d032add5b0664c3ebd02331ed605f14a4a64",
+    "bytes": 191992
+  },
+  "3c81352789a6e192541569414246886f38c53f042d49ced1451cd86b1d1f3670": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3c81352789a6e192541569414246886f38c53f042d49ced1451cd86b1d1f3670",
+    "bytes": 813
+  },
+  "71bff5ef9c3c935cad73f71dd25abacce191f21de0733cab2b412992c480c407": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/71bff5ef9c3c935cad73f71dd25abacce191f21de0733cab2b412992c480c407",
+    "bytes": 191992
+  },
+  "55475554b6ded154143a0eca685c2c54f1edeaff7eb3abbf664813cd83c20d62": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/55475554b6ded154143a0eca685c2c54f1edeaff7eb3abbf664813cd83c20d62",
+    "bytes": 813
+  },
+  "2a5ee65ece0110a66fc78218726c381b708356b2f01329f0c3a3543cfd86e952": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2a5ee65ece0110a66fc78218726c381b708356b2f01329f0c3a3543cfd86e952",
+    "bytes": 191992
+  },
+  "d7cbd06aacd3a3b1f983d926d3e22b827cae7362fe0d84539d3a85f9710dd144": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d7cbd06aacd3a3b1f983d926d3e22b827cae7362fe0d84539d3a85f9710dd144",
+    "bytes": 8106
+  },
+  "3e3c0290bd3aa9c007ef7e622a48ff84e7daa3359db379895e9b7aaa70003223": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3e3c0290bd3aa9c007ef7e622a48ff84e7daa3359db379895e9b7aaa70003223",
+    "bytes": 13133520
+  },
+  "1073e699f5503cea118d034c6edbbe1b2d640181f91a41f0d2f05c12ebf463f3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1073e699f5503cea118d034c6edbbe1b2d640181f91a41f0d2f05c12ebf463f3",
+    "bytes": 645
+  },
+  "7ef0186a57508fb89abb6d011dd4d1082b9e82d4030f959b2752ddbf465b8c22": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7ef0186a57508fb89abb6d011dd4d1082b9e82d4030f959b2752ddbf465b8c22",
+    "bytes": 5475400
+  },
+  "129fefe43d6cdc931903e94ff4374429d741a3d429161c46f7004e8ce0a6ea55": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/129fefe43d6cdc931903e94ff4374429d741a3d429161c46f7004e8ce0a6ea55",
+    "bytes": 186
+  },
+  "f3f6e70f92ac6739ef072c91d5b7743dd1e17632bbc1babc00799e34cc36e7fd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f3f6e70f92ac6739ef072c91d5b7743dd1e17632bbc1babc00799e34cc36e7fd",
+    "bytes": 101
+  },
+  "b9bd1dcbdd6cace6b595167c3387ee17f3b2eb18c5a03adb4cc605b376dc7f93": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b9bd1dcbdd6cace6b595167c3387ee17f3b2eb18c5a03adb4cc605b376dc7f93",
+    "bytes": 813
+  },
+  "b5f64ca935fa3c57ee4dee66a3cc69d49ab110f6ca2b9deb39321748e03bbfa2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b5f64ca935fa3c57ee4dee66a3cc69d49ab110f6ca2b9deb39321748e03bbfa2",
+    "bytes": 30136
+  },
+  "46b562acda232722b6afe7b4be997a119af59ec7b3ac2c56bfe6e787706b77cf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/46b562acda232722b6afe7b4be997a119af59ec7b3ac2c56bfe6e787706b77cf",
+    "bytes": 813
+  },
+  "163e61757cc8771c12b9971ac04072017c6e2a0a24cdf01918146590a2c484dd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/163e61757cc8771c12b9971ac04072017c6e2a0a24cdf01918146590a2c484dd",
+    "bytes": 42808
+  },
+  "77a12c58f936bec094a8242953c029e7108a108dafb0231782fa54fa0984e5e9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/77a12c58f936bec094a8242953c029e7108a108dafb0231782fa54fa0984e5e9",
+    "bytes": 815
+  },
+  "d70ee6ba862a322c81529fe3d332049eb5952ce910f25f4400b347a62c4985ac": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d70ee6ba862a322c81529fe3d332049eb5952ce910f25f4400b347a62c4985ac",
+    "bytes": 145848
+  },
+  "ebe749bb86226494d86fbf61cfbee898644471a6ea27809bb1b5fc2298c05838": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ebe749bb86226494d86fbf61cfbee898644471a6ea27809bb1b5fc2298c05838",
+    "bytes": 815
+  },
+  "383717335be1dbd13ca8b6d753021f9afd08b2ab47067e85de5c348edf1add2d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/383717335be1dbd13ca8b6d753021f9afd08b2ab47067e85de5c348edf1add2d",
+    "bytes": 145848
+  },
+  "89b8d274bec614245331006039a772cd831588ba0a7f8efee30434c48a421d90": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/89b8d274bec614245331006039a772cd831588ba0a7f8efee30434c48a421d90",
+    "bytes": 815
+  },
+  "02490824ac7a54f0a737f075209466893d1ef34c8019e95ecf3bf03519935575": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/02490824ac7a54f0a737f075209466893d1ef34c8019e95ecf3bf03519935575",
+    "bytes": 145848
+  },
+  "89e5d82cf5efc3995f049440af0aff7c826580d2753b9a640789f2ec292ed5cc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/89e5d82cf5efc3995f049440af0aff7c826580d2753b9a640789f2ec292ed5cc",
+    "bytes": 815
+  },
+  "8ac599afaf0ac1f0da6e13fec1b78d780787c3d7bf24e1fc007912b8dd7612a5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8ac599afaf0ac1f0da6e13fec1b78d780787c3d7bf24e1fc007912b8dd7612a5",
+    "bytes": 73168
+  },
+  "0bdbc25edd61c352edb6108e0f48dacd916e35fc2a79103311ba583d2cd4a174": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0bdbc25edd61c352edb6108e0f48dacd916e35fc2a79103311ba583d2cd4a174",
+    "bytes": 815
+  },
+  "95666d1bbc8135f46b8884a9e73a1249ce38c414d32a38456abfb62d72ae32bc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/95666d1bbc8135f46b8884a9e73a1249ce38c414d32a38456abfb62d72ae32bc",
+    "bytes": 51232
+  },
+  "eb27964bdb214ab45935878a0e403abe1e3e62ae3207d69d22497b580ecf586a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/eb27964bdb214ab45935878a0e403abe1e3e62ae3207d69d22497b580ecf586a",
+    "bytes": 815
+  },
+  "dfc68d35c764eeb8fa71c7850bf3d19d53adccac22d799061ef237a2dc0ea253": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dfc68d35c764eeb8fa71c7850bf3d19d53adccac22d799061ef237a2dc0ea253",
+    "bytes": 104648
+  },
+  "a8d8ad531c501ae38e24fc21771b64f58ce5ba50b9cabe1b11d884f036264c3d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a8d8ad531c501ae38e24fc21771b64f58ce5ba50b9cabe1b11d884f036264c3d",
+    "bytes": 815
+  },
+  "4131dd1974c01693144ec5b9097017b0b99ae7494ff68a198f194f82c7db8ebb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4131dd1974c01693144ec5b9097017b0b99ae7494ff68a198f194f82c7db8ebb",
+    "bytes": 104664
+  },
+  "3bccf1b2413a6f8bc84202255cc92e831d529960a9fdc4d03300dda0721f2415": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3bccf1b2413a6f8bc84202255cc92e831d529960a9fdc4d03300dda0721f2415",
+    "bytes": 815
+  },
+  "4e916babe0c217251fd6c02a54de69aa62b01846a168b7392c8a7177d4a17d2b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4e916babe0c217251fd6c02a54de69aa62b01846a168b7392c8a7177d4a17d2b",
+    "bytes": 128056
+  },
+  "5bd6352b827dd503cb036c17be9202539ee6be2cb85aad2da9d4aadcd09f7517": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5bd6352b827dd503cb036c17be9202539ee6be2cb85aad2da9d4aadcd09f7517",
+    "bytes": 815
+  },
+  "dd13b53e739929e399be18416eef0e61abda556854e30c70867cbc2b576c9cad": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dd13b53e739929e399be18416eef0e61abda556854e30c70867cbc2b576c9cad",
+    "bytes": 108856
+  },
+  "04f7a1afbf9c9d0c2c8ccde4b4a23852d93beb2bbb9f702f9b645515027ae9ca": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/04f7a1afbf9c9d0c2c8ccde4b4a23852d93beb2bbb9f702f9b645515027ae9ca",
+    "bytes": 815
+  },
+  "ab2bb6d8a40b3a73981a2399ead70a5eb922c70a61ce71b4c858c2bc346a0aaa": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ab2bb6d8a40b3a73981a2399ead70a5eb922c70a61ce71b4c858c2bc346a0aaa",
+    "bytes": 136880
+  },
+  "b0bcc1a21f9aabe8f57f51830437b0c0c42b900795436a3f6815ebd8087d11c7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b0bcc1a21f9aabe8f57f51830437b0c0c42b900795436a3f6815ebd8087d11c7",
+    "bytes": 813
+  },
+  "bdcc0b919e7bb7073adbcc61192246909058d6351f7a33866bc995e696703792": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bdcc0b919e7bb7073adbcc61192246909058d6351f7a33866bc995e696703792",
+    "bytes": 186424
+  },
+  "b603a4b1172d187cc1aad14f51bc5f9825954211681e12f51ddb5c3f3aa82fd1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b603a4b1172d187cc1aad14f51bc5f9825954211681e12f51ddb5c3f3aa82fd1",
+    "bytes": 815
+  },
+  "4052910b5007e1bed79b9bde9f46b5295b92d6dce34e9959048b8f1cbffa1db4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4052910b5007e1bed79b9bde9f46b5295b92d6dce34e9959048b8f1cbffa1db4",
+    "bytes": 145848
+  },
+  "b72319b0a406eafb2f9feee30fbdfdec791ad4a1334cfb226aabaf242a8ec417": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b72319b0a406eafb2f9feee30fbdfdec791ad4a1334cfb226aabaf242a8ec417",
+    "bytes": 815
+  },
+  "68c1c41695570ddef1f6780054967d883a0fbc2e1d705093aa49b63ae90d37a6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/68c1c41695570ddef1f6780054967d883a0fbc2e1d705093aa49b63ae90d37a6",
+    "bytes": 29248
+  },
+  "ef9d73b464072ad49a75fe7d67f4477a2b4cee4e350aaba0d8ae7a30c4ac54a0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ef9d73b464072ad49a75fe7d67f4477a2b4cee4e350aaba0d8ae7a30c4ac54a0",
+    "bytes": 813
+  },
+  "d254310f509910ce2b85ad4efa93a8301385dd07c05194acb0c4e9d3e3948203": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d254310f509910ce2b85ad4efa93a8301385dd07c05194acb0c4e9d3e3948203",
+    "bytes": 186424
+  },
+  "1e3278614e4391e49840f212f653e3b2898af501363f308b9b330e8662b3c483": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1e3278614e4391e49840f212f653e3b2898af501363f308b9b330e8662b3c483",
+    "bytes": 813
+  },
+  "2774a012640138df6bf0852f7804a495adfef4f0ed57cd04b51df7b88c3ea73c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2774a012640138df6bf0852f7804a495adfef4f0ed57cd04b51df7b88c3ea73c",
+    "bytes": 42640
+  },
+  "f873150647f615dcc498ccc0f51904e52efea102c569a968979390f148802ee3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f873150647f615dcc498ccc0f51904e52efea102c569a968979390f148802ee3",
+    "bytes": 813
+  },
+  "6e51a1174f81a3d0a49943832ebd08feb90d2a532e483778b8f2e29995db9627": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6e51a1174f81a3d0a49943832ebd08feb90d2a532e483778b8f2e29995db9627",
+    "bytes": 145848
+  },
+  "b23cf72e52f2621f89c837e7547648b98f885917df4b7d4db659cde1944b467b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b23cf72e52f2621f89c837e7547648b98f885917df4b7d4db659cde1944b467b",
+    "bytes": 813
+  },
+  "1be343ab255e518b424cf3ea1bfbbb7842f0742f7b3b3186c46b836ad1f3c4fe": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1be343ab255e518b424cf3ea1bfbbb7842f0742f7b3b3186c46b836ad1f3c4fe",
+    "bytes": 145848
+  },
+  "773df82a4d8c7bed211a773e86ef244a747eda968c152d9de2ac423e1eafa19b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/773df82a4d8c7bed211a773e86ef244a747eda968c152d9de2ac423e1eafa19b",
+    "bytes": 813
+  },
+  "d3d92c59a1b2bfa2fc5d49ec07579ebfe8ae7794150c353550e7a0fd4c435048": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d3d92c59a1b2bfa2fc5d49ec07579ebfe8ae7794150c353550e7a0fd4c435048",
+    "bytes": 145848
+  },
+  "5a77657429746e882aecad7da0f0c4d007cdfa7b1a0492e8fe1dd53dd6780f0f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5a77657429746e882aecad7da0f0c4d007cdfa7b1a0492e8fe1dd53dd6780f0f",
+    "bytes": 813
+  },
+  "b9ecb6f0cbc944b0bdf13e29f5e2cc5c90fa1481885fe3ff8d91f35998fc9ffe": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b9ecb6f0cbc944b0bdf13e29f5e2cc5c90fa1481885fe3ff8d91f35998fc9ffe",
+    "bytes": 145848
+  },
+  "861cfbd782b2323562884180bb43a44787b4a406412ecf91eeb106502e176d8b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/861cfbd782b2323562884180bb43a44787b4a406412ecf91eeb106502e176d8b",
+    "bytes": 813
+  },
+  "e7994c5e4185b1dd18d6a8439c870e8243e02876e44075a3de87297f090ceb55": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/e7994c5e4185b1dd18d6a8439c870e8243e02876e44075a3de87297f090ceb55",
+    "bytes": 145848
+  },
+  "fd31d22a92fae9512e25c0c3f5b301e7166f7721d60176226d9ec4d17e75283d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fd31d22a92fae9512e25c0c3f5b301e7166f7721d60176226d9ec4d17e75283d",
+    "bytes": 8106
+  },
+  "81ed631f77d8666c138f32fb94318d3f82bc72839b1277929e21613946727f0b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/81ed631f77d8666c138f32fb94318d3f82bc72839b1277929e21613946727f0b",
+    "bytes": 12038960
+  },
+  "86d603bb80a9c339e69918ffeb31ea1a214a9dabb310e95aaa20c5202c7b3674": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/86d603bb80a9c339e69918ffeb31ea1a214a9dabb310e95aaa20c5202c7b3674",
+    "bytes": 645
+  },
+  "11d362bdd4cd0f3b1107d8ebf9d7839c6373759ef9525fa901315e027a3de273": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/11d362bdd4cd0f3b1107d8ebf9d7839c6373759ef9525fa901315e027a3de273",
+    "bytes": 5595736
+  },
+  "523650f54f67beaec3503004a7a653bdb096de2c75f4062aac6d9386440f5395": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/523650f54f67beaec3503004a7a653bdb096de2c75f4062aac6d9386440f5395",
+    "bytes": 186
+  },
+  "26cff83623a36687a3d8599f007ab49912ed4f8f2c2b6793cc65c6a91e626af7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/26cff83623a36687a3d8599f007ab49912ed4f8f2c2b6793cc65c6a91e626af7",
+    "bytes": 101
+  },
+  "3776267c775650ac74cd5188d348a7fc4d06088335fa41c81448d29b51b5c82f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3776267c775650ac74cd5188d348a7fc4d06088335fa41c81448d29b51b5c82f",
+    "bytes": 469992
+  },
+  "f0a3dbaa38bb5628d9088f5e359a8d6ffda05ef22da2b34b25a2bcd0fffc14cc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f0a3dbaa38bb5628d9088f5e359a8d6ffda05ef22da2b34b25a2bcd0fffc14cc",
+    "bytes": 2979
+  },
+  "34b3abfb4286ecfd8821b31daaef0f772b6ab5ca94ccabb8e81acde89e24efaf": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/34b3abfb4286ecfd8821b31daaef0f772b6ab5ca94ccabb8e81acde89e24efaf",
+    "bytes": 107
+  },
+  "06b28668a76dcb7d1b0c6beffd1260fa32d52948a8dfaa7fd77a7ef6d1dae87a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/06b28668a76dcb7d1b0c6beffd1260fa32d52948a8dfaa7fd77a7ef6d1dae87a",
+    "bytes": 110
+  },
+  "fb0ac8e48b1e30cb04a30c61c23dbe97becaea211fbfcee806798a02b32bcbc4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fb0ac8e48b1e30cb04a30c61c23dbe97becaea211fbfcee806798a02b32bcbc4",
+    "bytes": 29270
+  },
+  "37e4ec8f8d7d585392aad5fe84fbaacf7b59346622138d833ea8c80b8ccbfba0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/37e4ec8f8d7d585392aad5fe84fbaacf7b59346622138d833ea8c80b8ccbfba0",
+    "bytes": 651
+  },
+  "6d8619fe472fb79a2f5667094c7a5369359c73243c9e829fd2ce9d73e6c63213": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6d8619fe472fb79a2f5667094c7a5369359c73243c9e829fd2ce9d73e6c63213",
+    "bytes": 886080
+  },
+  "066803d788d9ec6d12b989f988903011ec94a633bf643622d23c11b49079f0e6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/066803d788d9ec6d12b989f988903011ec94a633bf643622d23c11b49079f0e6",
+    "bytes": 192
+  },
+  "9ee7e14a7bcbb36223027edec46f79c484c9c0ab05e7d97cdaf323f62a6660d4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9ee7e14a7bcbb36223027edec46f79c484c9c0ab05e7d97cdaf323f62a6660d4",
+    "bytes": 469464
+  },
+  "631e5521f77067d74ede62b740a425318082708e39fa73e34da7612626e67149": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/631e5521f77067d74ede62b740a425318082708e39fa73e34da7612626e67149",
+    "bytes": 2979
+  },
+  "2e6b7202cf53a3e7b637d2906ae486fb65f5bc64f8fea5307644fa290c5a8d7c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2e6b7202cf53a3e7b637d2906ae486fb65f5bc64f8fea5307644fa290c5a8d7c",
+    "bytes": 107
+  },
+  "180e3ebc310bd4946cdd8c2cbc4a280b210f836499965886c8dc76040fb16c15": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/180e3ebc310bd4946cdd8c2cbc4a280b210f836499965886c8dc76040fb16c15",
+    "bytes": 110
+  },
+  "1070fa4e42b7a15785ffb32be2d49ccf24d63cd8fa29f255260166f40d90e6ba": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1070fa4e42b7a15785ffb32be2d49ccf24d63cd8fa29f255260166f40d90e6ba",
+    "bytes": 29124
+  },
+  "19f63fefc65126d4df7a718353f88462b513cc6dda9328f5c208ec4d92114966": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/19f63fefc65126d4df7a718353f88462b513cc6dda9328f5c208ec4d92114966",
+    "bytes": 651
+  },
+  "cf153b38a5cfeb43c48bcc17df4724e899b07cce7b7f65a40ed5351e56e3bb23": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cf153b38a5cfeb43c48bcc17df4724e899b07cce7b7f65a40ed5351e56e3bb23",
+    "bytes": 886920
+  },
+  "84ed2a54da6cb0609ef38192333731093fd3ba109e67a4d274f9c83bed7eca23": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/84ed2a54da6cb0609ef38192333731093fd3ba109e67a4d274f9c83bed7eca23",
+    "bytes": 192
+  },
+  "f9fe934936c40ae8a63bc42719e1eba51894797b7d49848a80197fc0e651400f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f9fe934936c40ae8a63bc42719e1eba51894797b7d49848a80197fc0e651400f",
+    "bytes": 469968
+  },
+  "ca9f761aa012983cd02e79ada2c98ef52c1933e0efe927caed66cb645439b515": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ca9f761aa012983cd02e79ada2c98ef52c1933e0efe927caed66cb645439b515",
+    "bytes": 2967
+  },
+  "4225dc558f8c521b868098f8153ba75433e9c0387094ae691db281e89376dcd6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4225dc558f8c521b868098f8153ba75433e9c0387094ae691db281e89376dcd6",
+    "bytes": 103
+  },
+  "9ce6bbb5c4ed64d95aa4439157f4f666e112d59e86219a013bea461fe3108d2b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9ce6bbb5c4ed64d95aa4439157f4f666e112d59e86219a013bea461fe3108d2b",
+    "bytes": 106
+  },
+  "c9a88512a25c0938bfc84e8298fcfa703a30a1ce259f7a744376e78dcc57605c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c9a88512a25c0938bfc84e8298fcfa703a30a1ce259f7a744376e78dcc57605c",
+    "bytes": 647
+  },
+  "cadc88d70ac04a0cab4b8cb78ba60cd510fcdfca8c862dcf90fe8c3889a8124e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cadc88d70ac04a0cab4b8cb78ba60cd510fcdfca8c862dcf90fe8c3889a8124e",
+    "bytes": 886064
+  },
+  "37e0bece354d45f4ccab6158fc624f002e420119b8b2529b577b79a406432563": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/37e0bece354d45f4ccab6158fc624f002e420119b8b2529b577b79a406432563",
+    "bytes": 188
+  },
+  "09b7d151c159430a07be856e23e0bdd24383d6b777c2d3e427407cc064a94ed4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/09b7d151c159430a07be856e23e0bdd24383d6b777c2d3e427407cc064a94ed4",
+    "bytes": 469440
+  },
+  "6cb8785cecea6ee8417cf73d7e0913182418323efe066d628793fd6a39aebf40": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6cb8785cecea6ee8417cf73d7e0913182418323efe066d628793fd6a39aebf40",
+    "bytes": 2967
+  },
+  "4ea68894e0c353f7a4be501304ac0748b76fa8edb0c4887946a3ca2f6a01bfaa": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4ea68894e0c353f7a4be501304ac0748b76fa8edb0c4887946a3ca2f6a01bfaa",
+    "bytes": 103
+  },
+  "c1bdbcd8c0403407bcfec1a8f07db51a94b4c7c13dbe3de2f5d97c626fc7f8f1": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c1bdbcd8c0403407bcfec1a8f07db51a94b4c7c13dbe3de2f5d97c626fc7f8f1",
+    "bytes": 106
+  },
+  "0817661220b9e3d47afcae9c18db9cef100ce3aaf7d3889e077086a9aa75d6fd": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0817661220b9e3d47afcae9c18db9cef100ce3aaf7d3889e077086a9aa75d6fd",
+    "bytes": 29124
+  },
+  "47f9678a19ddc12f3b61a2973f8da9738b1b84c66f42cf90998490b8bfa1adf8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/47f9678a19ddc12f3b61a2973f8da9738b1b84c66f42cf90998490b8bfa1adf8",
+    "bytes": 647
+  },
+  "95a26de7c14d4cda1238f840351d4ede49b1c516a6fe6e55ff3d4f728f09581e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/95a26de7c14d4cda1238f840351d4ede49b1c516a6fe6e55ff3d4f728f09581e",
+    "bytes": 886884
+  },
+  "3e09b3f94997819f6329fa0e1a4e2b07638b19f7499130ff8a1c48a8ac903d43": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3e09b3f94997819f6329fa0e1a4e2b07638b19f7499130ff8a1c48a8ac903d43",
+    "bytes": 188
+  },
+  "5be0b3ad08df06114b3fb890f6a7c9e7a4c14afa20d1abd71542324d121daee7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5be0b3ad08df06114b3fb890f6a7c9e7a4c14afa20d1abd71542324d121daee7",
+    "bytes": 11102944
+  },
+  "5f57f88cca479363adee733a409abf157913b30108aa3895d74627e94dc44980": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5f57f88cca479363adee733a409abf157913b30108aa3895d74627e94dc44980",
+    "bytes": 5903
+  },
+  "80646aa7b45007c3af79fd68f12c73293e9e0391bc5974d639734322bece26a2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/80646aa7b45007c3af79fd68f12c73293e9e0391bc5974d639734322bece26a2",
+    "bytes": 196
+  },
+  "8262c765ceb2ed1ed9dd420cf4f6e6eb5f10134584fdcd44c21cfd83ba19b7f0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8262c765ceb2ed1ed9dd420cf4f6e6eb5f10134584fdcd44c21cfd83ba19b7f0",
+    "bytes": 643
+  },
+  "53d17a4baa7dd40a7e68c7b3bd4f747fe79f172c73a3ec4f7aaf434cab48f577": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/53d17a4baa7dd40a7e68c7b3bd4f747fe79f172c73a3ec4f7aaf434cab48f577",
+    "bytes": 4484908
+  },
+  "0ee3e5b435e66553d20f4e07364e8fb44405547fe9ffc7ed7535fafac8647f38": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0ee3e5b435e66553d20f4e07364e8fb44405547fe9ffc7ed7535fafac8647f38",
+    "bytes": 184
+  },
+  "9303a5c0ecce5678730ec2ae9360b8b692d08aaf755b0a7751081a7376ee591a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9303a5c0ecce5678730ec2ae9360b8b692d08aaf755b0a7751081a7376ee591a",
+    "bytes": 469992
+  },
+  "d3ecda7d7561f9641efea79425d3266f8f4861f672cd1133f4f152556047a248": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d3ecda7d7561f9641efea79425d3266f8f4861f672cd1133f4f152556047a248",
+    "bytes": 2973
+  },
+  "19f31d9c5a5f8a90a6c8d5078b2c895df20c9afcf2e5497d5a251d37c7a522a8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/19f31d9c5a5f8a90a6c8d5078b2c895df20c9afcf2e5497d5a251d37c7a522a8",
+    "bytes": 105
+  },
+  "dd462cbbeaf8dfe9bdba09b1de1fd7d7ca06ad44ae3ea1677e6b134d77d61cd7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dd462cbbeaf8dfe9bdba09b1de1fd7d7ca06ad44ae3ea1677e6b134d77d61cd7",
+    "bytes": 108
+  },
+  "2b36621c6607f766783a2de4eeef6c92d5bcf35556b27db60110a9b3416d5667": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2b36621c6607f766783a2de4eeef6c92d5bcf35556b27db60110a9b3416d5667",
+    "bytes": 29270
+  },
+  "6e8cc0cfd7250af237f759f87978ab4073a866a73bbb2d542544bcb7919e984b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6e8cc0cfd7250af237f759f87978ab4073a866a73bbb2d542544bcb7919e984b",
+    "bytes": 649
+  },
+  "c7ca3920b0aa2865b7af81cc8a89948d6f4f9f5ec0020e9a40ad8c814168dc21": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c7ca3920b0aa2865b7af81cc8a89948d6f4f9f5ec0020e9a40ad8c814168dc21",
+    "bytes": 885608
+  },
+  "81687bbcf4140ae81e50b4751ae0546e54057726eff2a38de17b64ae6f42df3c": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/81687bbcf4140ae81e50b4751ae0546e54057726eff2a38de17b64ae6f42df3c",
+    "bytes": 190
+  },
+  "d02fd54626a4a74cc253c996e76b731f5c770feffe450729f72add6b400f43af": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d02fd54626a4a74cc253c996e76b731f5c770feffe450729f72add6b400f43af",
+    "bytes": 469368
+  },
+  "31a0b3a57b4521bdbed85c9392ee938d5cd06ea5e9ed1d4c11a9a6e55fc65af6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/31a0b3a57b4521bdbed85c9392ee938d5cd06ea5e9ed1d4c11a9a6e55fc65af6",
+    "bytes": 2973
+  },
+  "01839b07619226eb127b07b61f324d0fb713a6a69b73f6c240ac75d445f1bf90": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/01839b07619226eb127b07b61f324d0fb713a6a69b73f6c240ac75d445f1bf90",
+    "bytes": 105
+  },
+  "64456f104f87ab35749e0cd5acedc92fad22a314303519e68ae12b513762efa9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/64456f104f87ab35749e0cd5acedc92fad22a314303519e68ae12b513762efa9",
+    "bytes": 108
+  },
+  "52eff1bc2d6fdb619226f20c91d75314dc33ce8b4227bfdb60eb74e0a0b9a165": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/52eff1bc2d6fdb619226f20c91d75314dc33ce8b4227bfdb60eb74e0a0b9a165",
+    "bytes": 29090
+  },
+  "c3e2acc68deb8f52cdc4efce83f7cca8a49ea03c8caa3d51400e445888d7d09b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c3e2acc68deb8f52cdc4efce83f7cca8a49ea03c8caa3d51400e445888d7d09b",
+    "bytes": 649
+  },
+  "ddd38b683374d173c3851817dd736a037394afa0f83ace5f873abf5aac5216c8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ddd38b683374d173c3851817dd736a037394afa0f83ace5f873abf5aac5216c8",
+    "bytes": 885984
+  },
+  "737cfdb8c9f6ba371e990654616f955e0d6be35827b5a65d0f5d3e0fa123b45f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/737cfdb8c9f6ba371e990654616f955e0d6be35827b5a65d0f5d3e0fa123b45f",
+    "bytes": 190
+  },
+  "6b1dad62e1d16a585aefaa53eb4586318466ab1d1a255674be2097c0168f8113": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6b1dad62e1d16a585aefaa53eb4586318466ab1d1a255674be2097c0168f8113",
+    "bytes": 486496
+  },
+  "53c5865f2a40d92427768e89ae3741a2c49334c1e933c213e96fd2b9f8138f57": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/53c5865f2a40d92427768e89ae3741a2c49334c1e933c213e96fd2b9f8138f57",
+    "bytes": 2955
+  },
+  "2cd33398baab1f49c86bb0e388180d45b010393fda48edefc2b037e14a16993b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2cd33398baab1f49c86bb0e388180d45b010393fda48edefc2b037e14a16993b",
+    "bytes": 99
+  },
+  "35c9f85c0320abc6ae20647defd15f854bf95e934d308e2a2d33a99e9b056ca8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/35c9f85c0320abc6ae20647defd15f854bf95e934d308e2a2d33a99e9b056ca8",
+    "bytes": 102
+  },
+  "6e3a5810afe09326dbdb6b8c77343e3f3d3b0a14da81fe91b9ee5c2adbe777eb": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6e3a5810afe09326dbdb6b8c77343e3f3d3b0a14da81fe91b9ee5c2adbe777eb",
+    "bytes": 29270
+  },
+  "fb04bbf029c74209b38675bfbb88e12724a767e57e2a59b6ac19df237984689b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fb04bbf029c74209b38675bfbb88e12724a767e57e2a59b6ac19df237984689b",
+    "bytes": 643
+  },
+  "962e3e11e10957869cd055687924fa4b09c3c43549e80c9e52db953de0f2829a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/962e3e11e10957869cd055687924fa4b09c3c43549e80c9e52db953de0f2829a",
+    "bytes": 892876
+  },
+  "f90ed98b9804930388a1beba7f333add5ac60199f90bc2d9aba5e5d911746d6f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f90ed98b9804930388a1beba7f333add5ac60199f90bc2d9aba5e5d911746d6f",
+    "bytes": 184
+  },
+  "d90d171a7d20c0522f32aea2f4f96b47f45fa9e1abfbf6d3d049a8c1b9c65339": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d90d171a7d20c0522f32aea2f4f96b47f45fa9e1abfbf6d3d049a8c1b9c65339",
+    "bytes": 469424
+  },
+  "a714f79400b0724416e21f43ef09772909381f53c6a4ed091e6d2b9c04c217ca": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a714f79400b0724416e21f43ef09772909381f53c6a4ed091e6d2b9c04c217ca",
+    "bytes": 2955
+  },
+  "bcd2c7edd234753aecafb812aa9f9f39f2bdabb0e612e5a4c2fbdbc6e8a4ae77": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bcd2c7edd234753aecafb812aa9f9f39f2bdabb0e612e5a4c2fbdbc6e8a4ae77",
+    "bytes": 99
+  },
+  "f8ac5f27d874410230cc0db0ce4e71e2ede28470e2f1ee241b8468f8c9c9bf87": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f8ac5f27d874410230cc0db0ce4e71e2ede28470e2f1ee241b8468f8c9c9bf87",
+    "bytes": 102
+  },
+  "5ad5451fdf3ce557971c46b42a4c232bd429cfa71419fe3957a0c6bfc46b58f3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5ad5451fdf3ce557971c46b42a4c232bd429cfa71419fe3957a0c6bfc46b58f3",
+    "bytes": 29124
+  },
+  "cfaabe72f2beec35d1a6a260ac2c33aa5e5937e7b2b95d679fea427fd71251ca": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cfaabe72f2beec35d1a6a260ac2c33aa5e5937e7b2b95d679fea427fd71251ca",
+    "bytes": 643
+  },
+  "cc88d976f5fa12b8e895f549cf1171a732bca9fd2eb40e4c0b50c8a380150e64": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cc88d976f5fa12b8e895f549cf1171a732bca9fd2eb40e4c0b50c8a380150e64",
+    "bytes": 893104
+  },
+  "04f5bce31a7e9b2a9c92b181f789ed8b48e1c0e87f0d353be2d3eea0871616c4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/04f5bce31a7e9b2a9c92b181f789ed8b48e1c0e87f0d353be2d3eea0871616c4",
+    "bytes": 184
+  },
+  "a966858a689a949c79878e032dec639288bbc5ca39499e76d1a8a0eabe3056f2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a966858a689a949c79878e032dec639288bbc5ca39499e76d1a8a0eabe3056f2",
+    "bytes": 412
+  },
+  "d9a20248268b5dba60fc454424a231841ce23ebf49e3773ba6b8eb848a4d06fe": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d9a20248268b5dba60fc454424a231841ce23ebf49e3773ba6b8eb848a4d06fe",
+    "bytes": 276616
+  },
+  "56b30889e6f967bf6b651b7384a14f976cbdd9c2955d53870f1feb7ea17a6b98": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/56b30889e6f967bf6b651b7384a14f976cbdd9c2955d53870f1feb7ea17a6b98",
+    "bytes": 418
+  },
+  "656f15744004ce9e18157213f59c1811f765c0c5cb5a0af4fa10445cf466bdac": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/656f15744004ce9e18157213f59c1811f765c0c5cb5a0af4fa10445cf466bdac",
+    "bytes": 169504
+  },
+  "5f22ddcb827fdb40fcac4bb63bc4c9b5fa00d91794c1cf04b74c33e0c508e04f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5f22ddcb827fdb40fcac4bb63bc4c9b5fa00d91794c1cf04b74c33e0c508e04f",
+    "bytes": 716
+  },
+  "a98f31ca0570fe49529a2f9ca650e052c733ac057b93a5cc559d526878ec764d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a98f31ca0570fe49529a2f9ca650e052c733ac057b93a5cc559d526878ec764d",
+    "bytes": 42808
+  },
+  "7683bd904fe56704f356c210452277cc8c137fcf0fafa2bc75218d5265201d6b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7683bd904fe56704f356c210452277cc8c137fcf0fafa2bc75218d5265201d6b",
+    "bytes": 3984
+  },
+  "9ffff3837826def32c8e943afc78c4baec73af4fd20506267272688c631eb332": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9ffff3837826def32c8e943afc78c4baec73af4fd20506267272688c631eb332",
+    "bytes": 2436
+  },
+  "2847ef11b1030ef41fee863d3b1b9e4e9280cbd5a9accb53c669a0cb00bc9d25": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2847ef11b1030ef41fee863d3b1b9e4e9280cbd5a9accb53c669a0cb00bc9d25",
+    "bytes": 486536
+  },
+  "56dee736728f249c4302bfd5769545e0c792a643021aca4b0a6dfa89a05b7277": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/56dee736728f249c4302bfd5769545e0c792a643021aca4b0a6dfa89a05b7277",
+    "bytes": 2982
+  },
+  "bf465bcc43388d86b6aa2b56e4b247a7875d7acccd99824e97e00ac227b29840": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bf465bcc43388d86b6aa2b56e4b247a7875d7acccd99824e97e00ac227b29840",
+    "bytes": 108
+  },
+  "7cfcfea1671233bb4172bd81ce83db0ee40c4494a957dff5bb809fe75a338a00": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7cfcfea1671233bb4172bd81ce83db0ee40c4494a957dff5bb809fe75a338a00",
+    "bytes": 111
+  },
+  "b22e79190c24f9e77429b4caea933b7a2ef35153d71d1b8ef182f53e10a9811d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b22e79190c24f9e77429b4caea933b7a2ef35153d71d1b8ef182f53e10a9811d",
+    "bytes": 652
+  },
+  "d3a04411b31e3b1ff559bbfe6bbf1928b7e760adfea5889514e5508834b0e7c4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d3a04411b31e3b1ff559bbfe6bbf1928b7e760adfea5889514e5508834b0e7c4",
+    "bytes": 892912
+  },
+  "6e7e3c679696797b8a3889107d98ba776107e64341545ca81d563de0e60d45c8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6e7e3c679696797b8a3889107d98ba776107e64341545ca81d563de0e60d45c8",
+    "bytes": 193
+  },
+  "50116e15cdcda4e4f8861717c539153ac6cb59de3ec3d53898dfc9a107069f3f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/50116e15cdcda4e4f8861717c539153ac6cb59de3ec3d53898dfc9a107069f3f",
+    "bytes": 469464
+  },
+  "4fb533b85ef7f386bc930c487852db99675f2a04b7b4021a38f465992db68ca6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4fb533b85ef7f386bc930c487852db99675f2a04b7b4021a38f465992db68ca6",
+    "bytes": 2982
+  },
+  "cca8f47533000c1681121903065e8531ebe3785543489ae9e0dad4a74ce8993e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cca8f47533000c1681121903065e8531ebe3785543489ae9e0dad4a74ce8993e",
+    "bytes": 108
+  },
+  "76bc3843b7b8e2022a65df1f3b13c7955fc4991597c4945b0e989131c3db8821": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/76bc3843b7b8e2022a65df1f3b13c7955fc4991597c4945b0e989131c3db8821",
+    "bytes": 111
+  },
+  "4704a0a19554fa8a07f5072b659a91e169d33ede7951377160ebfbb585f7c6ab": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4704a0a19554fa8a07f5072b659a91e169d33ede7951377160ebfbb585f7c6ab",
+    "bytes": 29124
+  },
+  "a2b14bfce51b49b0acefcd124c57537e6aa3a160f216e9115edad564ef246083": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a2b14bfce51b49b0acefcd124c57537e6aa3a160f216e9115edad564ef246083",
+    "bytes": 652
+  },
+  "595d909e2538a7402f6025bcb45459cce7ad1d411e0d711c325065193405e5af": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/595d909e2538a7402f6025bcb45459cce7ad1d411e0d711c325065193405e5af",
+    "bytes": 893140
+  },
+  "cd6ddbdd79661a69cbf7a542f96bda838257095625213bf640694584b5240ed3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/cd6ddbdd79661a69cbf7a542f96bda838257095625213bf640694584b5240ed3",
+    "bytes": 193
+  },
+  "4ca39368449da7d5f3a22a2b6225bdd33d264b9fb7de19dfe4bf7f383aafcfac": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4ca39368449da7d5f3a22a2b6225bdd33d264b9fb7de19dfe4bf7f383aafcfac",
+    "bytes": 400
+  },
+  "ad0ab57e7193fb34ca12ad0d95e7f831d9c366d1e7446ffe548a578f066f5c7b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ad0ab57e7193fb34ca12ad0d95e7f831d9c366d1e7446ffe548a578f066f5c7b",
+    "bytes": 27424
+  },
+  "da4d208f75e0991d6b2d6f19df1222f065d478101977e8034d9a81dd28c6f8d9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/da4d208f75e0991d6b2d6f19df1222f065d478101977e8034d9a81dd28c6f8d9",
+    "bytes": 472
+  },
+  "4d1e88753564fb050eb8d4f6fe7947ed2e3438695508b09cecd3b30b93448a65": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4d1e88753564fb050eb8d4f6fe7947ed2e3438695508b09cecd3b30b93448a65",
+    "bytes": 21032
+  },
+  "f07f4d92a695735ab9b3d2cc22c235a9a79a4cf737256b8dfb5f387144571a97": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f07f4d92a695735ab9b3d2cc22c235a9a79a4cf737256b8dfb5f387144571a97",
+    "bytes": 416
+  },
+  "439fe5724caf7df029d813e7558a777771d0698bddf150cd572c6392d45b4a23": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/439fe5724caf7df029d813e7558a777771d0698bddf150cd572c6392d45b4a23",
+    "bytes": 30416
+  },
+  "16fef6afe765e8c62570455a6b095a623e6126717f228380e9fb97c5a985970b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/16fef6afe765e8c62570455a6b095a623e6126717f228380e9fb97c5a985970b",
+    "bytes": 444
+  },
+  "7c305d38acc4ac115e86937bc7234aabe83648dc27fdf66135fe19be6372d6d9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7c305d38acc4ac115e86937bc7234aabe83648dc27fdf66135fe19be6372d6d9",
+    "bytes": 89024
+  },
+  "1560894768c7197955f555cc7651729ebc57f2a4f29d8de52fa69e965b89b974": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1560894768c7197955f555cc7651729ebc57f2a4f29d8de52fa69e965b89b974",
+    "bytes": 414
+  },
+  "199bc304bb4cfcf45e3d0d91f803e06c92f9816f1ace7454d4885f677842b9b5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/199bc304bb4cfcf45e3d0d91f803e06c92f9816f1ace7454d4885f677842b9b5",
+    "bytes": 47608
+  },
+  "4d87bdbc887c1b952d7490260d966a6857b4e7fd2c7a55c3e5ddeaeab29dc3d9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4d87bdbc887c1b952d7490260d966a6857b4e7fd2c7a55c3e5ddeaeab29dc3d9",
+    "bytes": 426
+  },
+  "654ec11c0bab6d86f34869b6b26207173f6bd1a08ee68cb535675dac72c9988f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/654ec11c0bab6d86f34869b6b26207173f6bd1a08ee68cb535675dac72c9988f",
+    "bytes": 9136
+  },
+  "fd0614dd896c2c0c77a9078e215b413f5275c4323115d87540ff92180bf48709": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fd0614dd896c2c0c77a9078e215b413f5275c4323115d87540ff92180bf48709",
+    "bytes": 422
+  },
+  "f05eedba8c275984989fd57d85bc524cd3c1c0cabd00cdaea5aee3bdef68afa5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f05eedba8c275984989fd57d85bc524cd3c1c0cabd00cdaea5aee3bdef68afa5",
+    "bytes": 36816
+  },
+  "9cd3fb17eef51cea77adac49a8943a307170a2a20b131eb05c6d0762e36da2d2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/9cd3fb17eef51cea77adac49a8943a307170a2a20b131eb05c6d0762e36da2d2",
+    "bytes": 426
+  },
+  "df3e474220aa54e5f3781ead79c7b4fd50c59504ae3cd6e1f2cc308370fe712d": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/df3e474220aa54e5f3781ead79c7b4fd50c59504ae3cd6e1f2cc308370fe712d",
+    "bytes": 12896
+  },
+  "d3ab0f8a2c7ace9d107aa6af0047b7b74499e6cba3065ddec8827f715907e6f5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d3ab0f8a2c7ace9d107aa6af0047b7b74499e6cba3065ddec8827f715907e6f5",
+    "bytes": 422
+  },
+  "962059a32a748d87b89b9f7a1b8441560d2e30ad2e7af4721a12dd8e8b91e53a": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/962059a32a748d87b89b9f7a1b8441560d2e30ad2e7af4721a12dd8e8b91e53a",
+    "bytes": 23064
+  },
+  "8ffd1efc456c4dcf4f4ed21ab49df0829d585a2fede2bdec38cb692723330e41": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8ffd1efc456c4dcf4f4ed21ab49df0829d585a2fede2bdec38cb692723330e41",
+    "bytes": 422
+  },
+  "04335a871858ac7f0e16b71da3a25b3d768e041669763a2a03104e24c6e56bd4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/04335a871858ac7f0e16b71da3a25b3d768e041669763a2a03104e24c6e56bd4",
+    "bytes": 13264
+  },
+  "bb6ec5ec6f268b72598959e7e86287f2f8659fa4804328faae210df8bb3a89d6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bb6ec5ec6f268b72598959e7e86287f2f8659fa4804328faae210df8bb3a89d6",
+    "bytes": 420
+  },
+  "6ba69d32a7235d8ae57d6ab15e81444f8afe76456e8663b51c4c77b40b7000e5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6ba69d32a7235d8ae57d6ab15e81444f8afe76456e8663b51c4c77b40b7000e5",
+    "bytes": 31744
+  },
+  "a92d591370ed81f9680ff1abd00466acc391140827774c2f0d49325466cdfef7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a92d591370ed81f9680ff1abd00466acc391140827774c2f0d49325466cdfef7",
+    "bytes": 428
+  },
+  "defaf8c709d82f0e826ca658e6b4334f93d5ce076135f6598e7da734baf019a3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/defaf8c709d82f0e826ca658e6b4334f93d5ce076135f6598e7da734baf019a3",
+    "bytes": 11040
+  },
+  "0d8ce081251461fdfcf20e1efb9d55534c76890f081147a08c4d5bfed4e22ece": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0d8ce081251461fdfcf20e1efb9d55534c76890f081147a08c4d5bfed4e22ece",
+    "bytes": 432
+  },
+  "bbd2120fd690cdf76e672955e4b7a8cf3ef635623e23e29a394824e40db01440": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/bbd2120fd690cdf76e672955e4b7a8cf3ef635623e23e29a394824e40db01440",
+    "bytes": 22456
+  },
+  "ea310896fe7e5b9efd3a6caf15d226ccf9dc8013832b0c9c0671fc78cbac08e4": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ea310896fe7e5b9efd3a6caf15d226ccf9dc8013832b0c9c0671fc78cbac08e4",
+    "bytes": 469952
+  },
+  "a06a8da70652a53b686bec72076aa55e78cd4937e16636cd1a43eee105f12bc2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a06a8da70652a53b686bec72076aa55e78cd4937e16636cd1a43eee105f12bc2",
+    "bytes": 2958
+  },
+  "4804d3c747f66e13803470df76eae7f0475e3729757a51300524b7490f9ec298": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4804d3c747f66e13803470df76eae7f0475e3729757a51300524b7490f9ec298",
+    "bytes": 100
+  },
+  "447dcd82fa1ddf8b84d9d5ef845fb615aadeb0ac16c5afa07755ab7ab151cdc6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/447dcd82fa1ddf8b84d9d5ef845fb615aadeb0ac16c5afa07755ab7ab151cdc6",
+    "bytes": 103
+  },
+  "5551dc83e31746e9ee21d94b0aaefc590de47ac5a4e8d111bde31335e0320ba8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/5551dc83e31746e9ee21d94b0aaefc590de47ac5a4e8d111bde31335e0320ba8",
+    "bytes": 29270
+  },
+  "0df35ad30aea8f8352e20d1963ae2dac8f01fe5671c83bb5e3e1300e26e7f3b8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0df35ad30aea8f8352e20d1963ae2dac8f01fe5671c83bb5e3e1300e26e7f3b8",
+    "bytes": 644
+  },
+  "6ea4aeb7caecc5ebe9efe81d071dd389a0f83c53b14dbdbcef59b570954c6366": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6ea4aeb7caecc5ebe9efe81d071dd389a0f83c53b14dbdbcef59b570954c6366",
+    "bytes": 886072
+  },
+  "042f542cf0655f4c0fa11b8b9d8b29b3bd5ce92333652c06e259e00333277376": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/042f542cf0655f4c0fa11b8b9d8b29b3bd5ce92333652c06e259e00333277376",
+    "bytes": 185
+  },
+  "c43a0b6208eb661abfb55a9fd3efd914f45253a0634ab1fb6700fe509d9fad43": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c43a0b6208eb661abfb55a9fd3efd914f45253a0634ab1fb6700fe509d9fad43",
+    "bytes": 469424
+  },
+  "d7ad861057ac8c03d4d0d75fd880636337095eaa74792a0d41179ef83a0977a7": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d7ad861057ac8c03d4d0d75fd880636337095eaa74792a0d41179ef83a0977a7",
+    "bytes": 2958
+  },
+  "4bcad70f18591de85ec7266abe4cce95c81fbf50da7235fd98f325fec4540980": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4bcad70f18591de85ec7266abe4cce95c81fbf50da7235fd98f325fec4540980",
+    "bytes": 100
+  },
+  "fe50d3a3af2cc3802503c29115645fb7fc80c2573f9a3e05c1f54f536b837161": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/fe50d3a3af2cc3802503c29115645fb7fc80c2573f9a3e05c1f54f536b837161",
+    "bytes": 103
+  },
+  "8cc9f00d8d578e0814a8d009e2a15c5af9303bddbc13f4192660ee8a860dcdf2": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8cc9f00d8d578e0814a8d009e2a15c5af9303bddbc13f4192660ee8a860dcdf2",
+    "bytes": 29124
+  },
+  "4cdb35b28cf6e7937551032f294626011acf18f9052532edb5f5a7578d1372a5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/4cdb35b28cf6e7937551032f294626011acf18f9052532edb5f5a7578d1372a5",
+    "bytes": 644
+  },
+  "0a90e385bc6d2265578b9901fa24e57daed8053c64aedaf7b2538e84d7fb9bfc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/0a90e385bc6d2265578b9901fa24e57daed8053c64aedaf7b2538e84d7fb9bfc",
+    "bytes": 886796
+  },
+  "c4f14786dc44ff4c4caf1c06e9bd9e1212558783ae35b94209e6bd58af856f7f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c4f14786dc44ff4c4caf1c06e9bd9e1212558783ae35b94209e6bd58af856f7f",
+    "bytes": 185
+  },
+  "3b836b0e7fded9de68964b9a46352faedb413527cf51490bc2f9308892d80824": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/3b836b0e7fded9de68964b9a46352faedb413527cf51490bc2f9308892d80824",
+    "bytes": 569072
+  },
+  "8d9a33186f47073c1490222c9417a8991f77b47a0485d0639b5f95be9213db16": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8d9a33186f47073c1490222c9417a8991f77b47a0485d0639b5f95be9213db16",
+    "bytes": 2970
+  },
+  "b0ca68320940fc8bec5934eb56ef573a799f372c0e1bcbb80341dd87034eaca5": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b0ca68320940fc8bec5934eb56ef573a799f372c0e1bcbb80341dd87034eaca5",
+    "bytes": 104
+  },
+  "05910b9bc5be94f2137c64618c443c8a93f5dd82249977eceafd09c0e8e96989": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/05910b9bc5be94f2137c64618c443c8a93f5dd82249977eceafd09c0e8e96989",
+    "bytes": 107
+  },
+  "1c5e6fa1e28714d4d469dc93f961e8515474b4d2aaa59d172c304a82451d3e7f": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1c5e6fa1e28714d4d469dc93f961e8515474b4d2aaa59d172c304a82451d3e7f",
+    "bytes": 29270
+  },
+  "a4a3bd99cd684f59c1c57caa9813e3259c5dc989eee91f9316693d993e63c271": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a4a3bd99cd684f59c1c57caa9813e3259c5dc989eee91f9316693d993e63c271",
+    "bytes": 648
+  },
+  "a6e465e0fef6e586700c80db69207fd376af31dc28e8f61feaf78f3f24c3e8f0": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/a6e465e0fef6e586700c80db69207fd376af31dc28e8f61feaf78f3f24c3e8f0",
+    "bytes": 939372
+  },
+  "99f187d5554c1e0dc051b5a56f3057852e794aef7d2f8120682442a4b86636fc": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/99f187d5554c1e0dc051b5a56f3057852e794aef7d2f8120682442a4b86636fc",
+    "bytes": 189
+  },
+  "6c4aacf818cad9fd0d94d7b6934f2754474171dffecf8366152d64c8b7359968": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6c4aacf818cad9fd0d94d7b6934f2754474171dffecf8366152d64c8b7359968",
+    "bytes": 519104
+  },
+  "1058906f8e3b9d317338541069494d4760b251183056ae667dbc79b7c6271bd3": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/1058906f8e3b9d317338541069494d4760b251183056ae667dbc79b7c6271bd3",
+    "bytes": 2970
+  },
+  "aa7630d87f90bcf31fe65943c87ed583b0697e72ff5d2c6e74b56db3b54c8b2b": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/aa7630d87f90bcf31fe65943c87ed583b0697e72ff5d2c6e74b56db3b54c8b2b",
+    "bytes": 104
+  },
+  "f8aa6f07d9495358357391ede3fa117d781a69a7d573a77f775c34ecf3a44b40": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/f8aa6f07d9495358357391ede3fa117d781a69a7d573a77f775c34ecf3a44b40",
+    "bytes": 107
+  },
+  "8b6d6e7e475408ce00854edc754b5de14bdadd5709875418a9e280fec65e6264": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8b6d6e7e475408ce00854edc754b5de14bdadd5709875418a9e280fec65e6264",
+    "bytes": 29154
+  },
+  "c952cdbe0be0311422a1d575d09133348e561e8fe3fdd3b0f5c435b71065f35e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/c952cdbe0be0311422a1d575d09133348e561e8fe3fdd3b0f5c435b71065f35e",
+    "bytes": 648
+  },
+  "7f826f0098080ea57248d1dbb5202d0498e43e8cde6f22de54fbcb5fe56c9805": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/7f826f0098080ea57248d1dbb5202d0498e43e8cde6f22de54fbcb5fe56c9805",
+    "bytes": 944356
+  },
+  "b31e3f1f440679633f341e5516a7af94e5657ad1ea10171fec45957e0116d475": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/b31e3f1f440679633f341e5516a7af94e5657ad1ea10171fec45957e0116d475",
+    "bytes": 189
+  },
+  "8a47c6a2e5ea924344c358cef2fa44fc1e1251716a65a1508b255cc1176bae23": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/8a47c6a2e5ea924344c358cef2fa44fc1e1251716a65a1508b255cc1176bae23",
+    "bytes": 426
+  },
+  "d5f2915d886f631b4b24cfea630230791b3f7c1f3890e95768baf929496124c8": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/d5f2915d886f631b4b24cfea630230791b3f7c1f3890e95768baf929496124c8",
+    "bytes": 129416
+  },
+  "dca447583e8947b4a4665065a8b8d8866660021ef05df92d9742da1dcacf2ad6": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/dca447583e8947b4a4665065a8b8d8866660021ef05df92d9742da1dcacf2ad6",
+    "bytes": 440
+  },
+  "79c41e4bf685ec312db1dd54e2f7cef1dd6fcb2639d261549ea9da8db21108ea": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/79c41e4bf685ec312db1dd54e2f7cef1dd6fcb2639d261549ea9da8db21108ea",
+    "bytes": 34744
+  },
+  "2d00b15b29bba5111d47eae3e8347180c46fc1e46deb499c2b12896a8a834f21": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2d00b15b29bba5111d47eae3e8347180c46fc1e46deb499c2b12896a8a834f21",
+    "bytes": 444
+  },
+  "6c1950f392bf3098686fcbac2d88413d93359ec58054fa6d48c081277aeaaa9e": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/6c1950f392bf3098686fcbac2d88413d93359ec58054fa6d48c081277aeaaa9e",
+    "bytes": 29416
+  },
+  "ce5e0a323dd46362ba7b120c1623a484e0dd6784aa8e5bbabe6113082d6e8936": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/ce5e0a323dd46362ba7b120c1623a484e0dd6784aa8e5bbabe6113082d6e8936",
+    "bytes": 516
+  },
+  "2e9410c72060dc3d3aa9a6511b1e64f68c62371aafd5b75bb713f0c8a82015a9": {
+    "path": "/tmp/nanolang-cyclic-907-restack-artifacts/2e9410c72060dc3d3aa9a6511b1e64f68c62371aafd5b75bb713f0c8a82015a9",
+    "bytes": 186024
+  }
+}

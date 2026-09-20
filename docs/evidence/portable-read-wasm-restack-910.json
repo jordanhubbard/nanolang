@@ -1,0 +1,81 @@
+{
+  "reviewed_head": "6825961f726dc828907dc02fafa96c1ed4425720",
+  "canonical": "6b86de83d970d74ba6dbc031ca8ac5bcdc1abff9",
+  "selected_unchanged": {
+    "src/nanoisa/portable_read_wasm.h": {
+      "reviewed": "1301021fce4837e1f525e6e7a91cfb1b38034cef1d4184dd5ce6f0b7d01525a9",
+      "integrated": "1301021fce4837e1f525e6e7a91cfb1b38034cef1d4184dd5ce6f0b7d01525a9"
+    },
+    "src/nanoisa/portable_read_wasm.c": {
+      "reviewed": "338671e791e3c2c91c13222a4675c419e0dcf8f8a5d3aa5a022d3b4afd743fed",
+      "integrated": "338671e791e3c2c91c13222a4675c419e0dcf8f8a5d3aa5a022d3b4afd743fed"
+    },
+    "src/runtime/portable_read_node.mjs": {
+      "reviewed": "3da52910eac9f4561dd496ed9c0a2591d230ea76fe903924b45e666c04445f94",
+      "integrated": "3da52910eac9f4561dd496ed9c0a2591d230ea76fe903924b45e666c04445f94"
+    },
+    "src/runtime/portable_read_wasmtime.py": {
+      "reviewed": "6838fb507d5fbcae64c2e7c2b267719aa17b8ccaab2906c9b07fa0a8a99fd9c4",
+      "integrated": "6838fb507d5fbcae64c2e7c2b267719aa17b8ccaab2906c9b07fa0a8a99fd9c4"
+    },
+    "src/nanoisa/managed_strings.c": {
+      "reviewed": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+      "integrated": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d"
+    },
+    "src/nanoisa/managed_strings.h": {
+      "reviewed": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+      "integrated": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699"
+    },
+    "src/nanoisa/portable_read_host.c": {
+      "reviewed": "3d5174e498c850935bec53e3a4d5d4f861986a8f04d406a6ebf23060416a920a",
+      "integrated": "3d5174e498c850935bec53e3a4d5d4f861986a8f04d406a6ebf23060416a920a"
+    },
+    "src/nanoisa/portable_read_managed.c": {
+      "reviewed": "1c2aa732202913130b76832234bce2911d84d35c0d2bba8ec0cbcc87b0102420",
+      "integrated": "1c2aa732202913130b76832234bce2911d84d35c0d2bba8ec0cbcc87b0102420"
+    },
+    "src/nanoisa/portable_host_plan.c": {
+      "reviewed": "d42431c3af4fceaa504b08615dd6cff0c982cdaa880e25fd3d74c8a6e2e87bc6",
+      "integrated": "d42431c3af4fceaa504b08615dd6cff0c982cdaa880e25fd3d74c8a6e2e87bc6"
+    },
+    "tests/nanoisa/test_portable_read_wasm.c": {
+      "reviewed": "d08c28b26b7db69febf3157693601fa959f2f6ff649e8780a801b0c6c04cae4a",
+      "integrated": "d08c28b26b7db69febf3157693601fa959f2f6ff649e8780a801b0c6c04cae4a"
+    },
+    "tests/nanoisa/portable_read_wasm_node.mjs": {
+      "reviewed": "ca54d3d46521cccad3d39645ef0e98cc945dea2660200ec3fac891a082e88c86",
+      "integrated": "ca54d3d46521cccad3d39645ef0e98cc945dea2660200ec3fac891a082e88c86"
+    },
+    "tests/nanoisa/portable_read_wasm_python.py": {
+      "reviewed": "a6164140971cb8b989e6cde4d9299c1281b554f76e6bc6cb268b67e8fd4b92d5",
+      "integrated": "a6164140971cb8b989e6cde4d9299c1281b554f76e6bc6cb268b67e8fd4b92d5"
+    },
+    "tests/test_portable_read_wasm.py": {
+      "reviewed": "1b7006a41437a41151bfc9a6f4b9c1b449cf283db076eb08f8cee1580d1d8ded",
+      "integrated": "1b7006a41437a41151bfc9a6f4b9c1b449cf283db076eb08f8cee1580d1d8ded"
+    },
+    "tests/test_portable_read_adapters.py": {
+      "reviewed": "0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a",
+      "integrated": "0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a"
+    },
+    "tests/test_portable_host_plan.py": {
+      "reviewed": "c570f4e319bfd76225e526c213a37ed840bc705aad5a7e92144ddbd09b389f31",
+      "integrated": "c570f4e319bfd76225e526c213a37ed840bc705aad5a7e92144ddbd09b389f31"
+    },
+    "Makefile.gnu": {
+      "reviewed": "e8e5da5ae8cd9632be2e04e449ee5d37fb0e4010b599c134266275e8023e67e6",
+      "integrated": "e8e5da5ae8cd9632be2e04e449ee5d37fb0e4010b599c134266275e8023e67e6"
+    }
+  },
+  "incoming_exact": {
+    "src/typechecker.c": "ed642c6a04ac708d15d8acbfd9ce9f39fbadcbadc5204986742f90e7535fc53d",
+    "tests/nanovm/test_vm.c": "f76bf09168e737cc6381a2a5f57dc2e3727a29e9de8afa86fde64cfa8a28332b",
+    "tests/test_cseed_match_totality.py": "ad7b38fb617cfca91bd0f6baa5dc65d1f2932792061fd9712604d397cdf6b07a"
+  },
+  "unchanged_manifests": {
+    "docs/evidence/portable-read-wasm/report-sha256.json": "e00ff71818ffcb94ac679484b36f58d46449a1e8729c9900443e4070e24b9f1a",
+    "docs/evidence/portable-read-wasm-current-integration/report-sha256.json": "676762877bd999d37d4a0a21aa33c77772076df5e7e099af79bb7992e03f86ab"
+  },
+  "qualification_replayed": false,
+  "scope": "Only C checker and its/VM test updates arrive; private direct Wasm/native/query compile/link closure unchanged. Prior broad inventories retain original pins."
+}

@@ -1,0 +1,74 @@
+{
+  "observed-0.o": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/observed-0.o",
+    "sha256": "6de5e7f23b380a52a093ce5a37e853a752e00578b8c909862f7578c2240206c1",
+    "bytes": 11136,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/6de5e7f23b380a52a093ce5a37e853a752e00578b8c909862f7578c2240206c1"
+  },
+  "observed-1.o": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/observed-1.o",
+    "sha256": "1c087be37071e77491c6c138006e90a5e132c1423272d294303d2f64ed3a5365",
+    "bytes": 7160,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/1c087be37071e77491c6c138006e90a5e132c1423272d294303d2f64ed3a5365"
+  },
+  "observed-2.o": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/observed-2.o",
+    "sha256": "1d7620bfcf6db24b1a2de16192b380d7b13802bd15e27df487bfe5ef5e9afa5d",
+    "bytes": 138064,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/1d7620bfcf6db24b1a2de16192b380d7b13802bd15e27df487bfe5ef5e9afa5d"
+  },
+  "observed-C": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/observed-C",
+    "sha256": "9ab0fd0eaecba8f11c2c8d98815139bcc02be33df27d178355774ff0190a913e",
+    "bytes": 125048,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/9ab0fd0eaecba8f11c2c8d98815139bcc02be33df27d178355774ff0190a913e"
+  },
+  "observed-C.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/observed-C.dSYM/Contents/Info.plist",
+    "sha256": "53b488c057a8f7fae07f828438097076aedaaf4d0a120b573609ef085a4644c4",
+    "bytes": 639,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/53b488c057a8f7fae07f828438097076aedaaf4d0a120b573609ef085a4644c4"
+  },
+  "observed-C.dSYM/Contents/Resources/DWARF/observed-C": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/observed-C.dSYM/Contents/Resources/DWARF/observed-C",
+    "sha256": "681dbef67e05eb84fd16642053c835ed33d5c62ba2ee9819ba09aed24ab35564",
+    "bytes": 154696,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/681dbef67e05eb84fd16642053c835ed33d5c62ba2ee9819ba09aed24ab35564"
+  },
+  "observed-C.dSYM/Contents/Resources/Relocations/aarch64/observed-C.yml": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/observed-C.dSYM/Contents/Resources/Relocations/aarch64/observed-C.yml",
+    "sha256": "9d7d53c799c542e40811bf2c7818fe49da6422bc8ea2c88e1687254c6a65debc",
+    "bytes": 191,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/9d7d53c799c542e40811bf2c7818fe49da6422bc8ea2c88e1687254c6a65debc"
+  },
+  "target-probe.c": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/target-probe.ll",
+    "sha256": "66caa698e0eb6829c93037891574b8dcc9309dfbe21765a768cc4b84af7533b6",
+    "bytes": 1247,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/66caa698e0eb6829c93037891574b8dcc9309dfbe21765a768cc4b84af7533b6"
+  },
+  "typed-O0.o": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/typed-O0.o",
+    "sha256": "8149c5c7ca812238c688780b5663cd41921e0029a32f04e5dd7846350cb7d9ed",
+    "bytes": 736,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/8149c5c7ca812238c688780b5663cd41921e0029a32f04e5dd7846350cb7d9ed"
+  },
+  "typed-O2.o": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/typed-O2.o",
+    "sha256": "b0187380709f83f015405b6580d9ed933f1cc92053bdb0bf8bc9628aee2056d8",
+    "bytes": 560,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/b0187380709f83f015405b6580d9ed933f1cc92053bdb0bf8bc9628aee2056d8"
+  },
+  "typed-read.ll": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/products/typed-read.ll",
+    "sha256": "a18558c75e3f457606b8cbb9aed53a8868148977883cc2c33555ceb712891a58",
+    "bytes": 501,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/objects/a18558c75e3f457606b8cbb9aed53a8868148977883cc2c33555ceb712891a58"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/private/tmp/run-wasm-read-neighbors-puck.py",
+    "/private/tmp/nanolang-portable-read-wasm-9856",
+    "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "env": {
+    "PORTABLE_WASM_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+    "PORTABLE_WASM_LD": "/opt/homebrew/opt/lld/bin/wasm-ld",
+    "PORTABLE_WASM_NODE": "/opt/homebrew/bin/node",
+    "PORTABLE_WASM_PYTHON": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "PORTABLE_WASM_WHEEL": "/private/tmp/wasmtime-43.0.0-py3-none-macosx_11_0_arm64.whl",
+    "PORTABLE_WASM_FLAGS": "",
+    "PORTABLE_WASM_EXTRA_TOOLS": "{\"clang\": \"/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23\", \"linker\": \"/opt/homebrew/Cellar/lld/23.1.1/bin/lld\", \"node\": \"/opt/homebrew/Cellar/node/26.9.0/bin/node\", \"python\": \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14\", \"wheel\": \"/private/tmp/wasmtime-43.0.0-py3-none-macosx_11_0_arm64.whl\"}",
+    "PORTABLE_WASM_ARTIFACTS": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/neighbors",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

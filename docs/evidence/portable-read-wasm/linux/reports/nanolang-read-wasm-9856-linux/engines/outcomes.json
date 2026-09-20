@@ -1,0 +1,66 @@
+[
+  {
+    "guest": "O0-ordinary",
+    "engine": "Node",
+    "checks": 336,
+    "realVectors": 8,
+    "modeled": 16,
+    "scope": "private direct Wasm adapter; no NanoISA admission"
+  },
+  {
+    "guest": "O0-ordinary",
+    "engine": "Wasmtime43",
+    "checks": 336,
+    "realVectors": 8,
+    "modeled": 16,
+    "scope": "private direct Wasm adapter; no NanoISA admission"
+  },
+  {
+    "guest": "O0-managed-observed",
+    "engine": "Node",
+    "checks": 362,
+    "realVectors": 8,
+    "modeled": 19,
+    "scope": "private direct Wasm adapter; no NanoISA admission"
+  },
+  {
+    "guest": "O0-managed-observed",
+    "engine": "Wasmtime43",
+    "checks": 362,
+    "realVectors": 8,
+    "modeled": 19,
+    "scope": "private direct Wasm adapter; no NanoISA admission"
+  },
+  {
+    "guest": "O2-ordinary",
+    "engine": "Node",
+    "checks": 336,
+    "realVectors": 8,
+    "modeled": 16,
+    "scope": "private direct Wasm adapter; no NanoISA admission"
+  },
+  {
+    "guest": "O2-ordinary",
+    "engine": "Wasmtime43",
+    "checks": 336,
+    "realVectors": 8,
+    "modeled": 16,
+    "scope": "private direct Wasm adapter; no NanoISA admission"
+  },
+  {
+    "guest": "O2-managed-observed",
+    "engine": "Node",
+    "checks": 362,
+    "realVectors": 8,
+    "modeled": 19,
+    "scope": "private direct Wasm adapter; no NanoISA admission"
+  },
+  {
+    "guest": "O2-managed-observed",
+    "engine": "Wasmtime43",
+    "checks": 362,
+    "realVectors": 8,
+    "modeled": 19,
+    "scope": "private direct Wasm adapter; no NanoISA admission"
+  }
+]

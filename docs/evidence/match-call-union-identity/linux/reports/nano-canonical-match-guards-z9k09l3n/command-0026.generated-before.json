@@ -1,0 +1,127 @@
+{
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/ast_shared.o": {
+    "sha256": "cf16825e9b20d723317b2bf134b0db58a5d56de45cb2f2461933e2bd247a3bf6",
+    "bytes": 401920,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/cf16825e9b20d723317b2bf134b0db58a5d56de45cb2f2461933e2bd247a3bf6"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/binary64_arithmetic_runtime.o": {
+    "sha256": "323dda1f45fcfda7b76ce57f1a40c9f1a7c3465f687fd24aa80d468143a4838c",
+    "bytes": 181424,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/323dda1f45fcfda7b76ce57f1a40c9f1a7c3465f687fd24aa80d468143a4838c"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/binary64_format_runtime.o": {
+    "sha256": "2f1cde5b3fe3c4cadcb45006fd5f59f205b4a61a658a55ee23b6bec435d5d712",
+    "bytes": 181104,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/2f1cde5b3fe3c4cadcb45006fd5f59f205b4a61a658a55ee23b6bec435d5d712"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/compiler_ast.o": {
+    "sha256": "64bb6110e562071d014262f5ffba246f6abc07c8f57f8781ac367a8ebd1ec1d3",
+    "bytes": 401928,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/64bb6110e562071d014262f5ffba246f6abc07c8f57f8781ac367a8ebd1ec1d3"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/compiler_contracts.o": {
+    "sha256": "6c273ac2a660a2631844d714b0ab62ad42e54e10232a9fb84cc640025667e632",
+    "bytes": 206408,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/6c273ac2a660a2631844d714b0ab62ad42e54e10232a9fb84cc640025667e632"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/compiler_schema.o": {
+    "sha256": "17c0ecdf603b17211c4ca591244f830c825f1437d6603161826f7b67dbe08500",
+    "bytes": 191368,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/17c0ecdf603b17211c4ca591244f830c825f1437d6603161826f7b67dbe08500"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/declaration_ownership.o": {
+    "sha256": "102b52041677a1c30830da20dfa056403001a6afcf5564a6ec179b50ec151fc3",
+    "bytes": 1072576,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/102b52041677a1c30830da20dfa056403001a6afcf5564a6ec179b50ec151fc3"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/diagnostics.o": {
+    "sha256": "4047a533c3f7ca653a427dbf753ba61c0a65b9509fe559b301a61366a38dac51",
+    "bytes": 473344,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/4047a533c3f7ca653a427dbf753ba61c0a65b9509fe559b301a61366a38dac51"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/error_messages.o": {
+    "sha256": "cbf7b75d1c3e1b76c8289550c5b27e6b2818eedf655985dcd7542cb9efc69ec0",
+    "bytes": 546328,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/cbf7b75d1c3e1b76c8289550c5b27e6b2818eedf655985dcd7542cb9efc69ec0"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/ir.o": {
+    "sha256": "6c4a1f75b4d9f4a64cf03d1df7273e4a5375469bb9cbef03c45014608c2ad97a",
+    "bytes": 401904,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/6c4a1f75b4d9f4a64cf03d1df7273e4a5375469bb9cbef03c45014608c2ad97a"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/lexer.o": {
+    "sha256": "b99b3c7a3e56363bb24532ecee77c72894ddd22f2e7467e593967762888c909d",
+    "bytes": 586072,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/b99b3c7a3e56363bb24532ecee77c72894ddd22f2e7467e593967762888c909d"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/module_bindings.o": {
+    "sha256": "0af97d5d36c598177fdc2ec5f93681b13e6d4b7b5e3dec9c7766dc7dc8168b44",
+    "bytes": 205184,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/0af97d5d36c598177fdc2ec5f93681b13e6d4b7b5e3dec9c7766dc7dc8168b44"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/nominal_bindings.o": {
+    "sha256": "5ff8fd88504a5357ed9b6dc785645bd05e66e8518947fc90ddf1586876a9c108",
+    "bytes": 1124648,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/5ff8fd88504a5357ed9b6dc785645bd05e66e8518947fc90ddf1586876a9c108"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/parser.o": {
+    "sha256": "366bab513f62eed4fad5f588c41f4f5c7523e5cfbc413709c936d6dce636e3b0",
+    "bytes": 1421472,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/366bab513f62eed4fad5f588c41f4f5c7523e5cfbc413709c936d6dce636e3b0"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/passive_graph.o": {
+    "sha256": "082add939251fd8a1be8d278f38b6664bb98348d63ece2bf6d6bfe5e987bf86d",
+    "bytes": 1077160,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/082add939251fd8a1be8d278f38b6664bb98348d63ece2bf6d6bfe5e987bf86d"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/passive_purity.o": {
+    "sha256": "c2bfe515da7078b595aadef9004dfaca8401c888f71daff248e99405d87cc548",
+    "bytes": 1127440,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/c2bfe515da7078b595aadef9004dfaca8401c888f71daff248e99405d87cc548"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/purity_intrinsics.o": {
+    "sha256": "9f73fac494c5f43cb37d113d284b24a1b3124de89c36e9c424ae85da5c936e83",
+    "bytes": 195104,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/9f73fac494c5f43cb37d113d284b24a1b3124de89c36e9c424ae85da5c936e83"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/std_json_nano_json.o": {
+    "sha256": "29f0dabb9ff3aa897437a0811c6cfd5be47c63da2de5b50a06cdf22e500cc594",
+    "bytes": 278664,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/29f0dabb9ff3aa897437a0811c6cfd5be47c63da2de5b50a06cdf22e500cc594"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/std_nano_env.o": {
+    "sha256": "a176627549b13f82851746b26fb5da7a4c462b111cb0698b78156692e52da038",
+    "bytes": 195840,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/a176627549b13f82851746b26fb5da7a4c462b111cb0698b78156692e52da038"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/std_nano_fs.o": {
+    "sha256": "15b1fde70f6f0d91c4cf26b92c13c424272999a513401eecb19e5bbb5e8c3cce",
+    "bytes": 239744,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/15b1fde70f6f0d91c4cf26b92c13c424272999a513401eecb19e5bbb5e8c3cce"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/std_nano_process.o": {
+    "sha256": "a1c6ab526db9a3882c329669e3762ed4a83822a79c41da977193346fc8c0debc",
+    "bytes": 212384,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/a1c6ab526db9a3882c329669e3762ed4a83822a79c41da977193346fc8c0debc"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/std_nano_result.o": {
+    "sha256": "49b45e45c9e7f33e30c85bacff9055a1c14d23a06aa6bd21c4cf9416bf9aede9",
+    "bytes": 178048,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/49b45e45c9e7f33e30c85bacff9055a1c14d23a06aa6bd21c4cf9416bf9aede9"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/transpiler.o": {
+    "sha256": "6e3ecee314f8a1a9c0cf38e1dc391e93309c516399c8fe0cd146afec901803fd",
+    "bytes": 2029544,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/6e3ecee314f8a1a9c0cf38e1dc391e93309c516399c8fe0cd146afec901803fd"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/type_substitution.o": {
+    "sha256": "fcaf3c42a78866373fb6be168aa01408364cb088aea0825af6a96095fc051a31",
+    "bytes": 185760,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/fcaf3c42a78866373fb6be168aa01408364cb088aea0825af6a96095fc051a31"
+  },
+  "/home/jkh/Src/nanolang-match-call-union-identity/obj/nano_modules/typecheck.o": {
+    "sha256": "45b0ee3f7746fff681d6805f615fed5f9b1aea121d96b95c819fd6c2e0dd1414",
+    "bytes": 2093376,
+    "archive": "/tmp/nano-canonical-match-guards-z9k09l3n/generated-artifacts/45b0ee3f7746fff681d6805f615fed5f9b1aea121d96b95c819fd6c2e0dd1414"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "commands": 2,
+  "inputs_equal": true,
+  "instrumentation": "NMS_TESTING guest core only; host fault hooks separate; engines not sanitizer rebuilt"
+}

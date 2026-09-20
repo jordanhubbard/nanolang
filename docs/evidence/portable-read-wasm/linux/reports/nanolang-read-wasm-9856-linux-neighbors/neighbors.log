@@ -1,0 +1,3 @@
+{"phase": "managed-native", "passed": true, "inputs_equal": true, "source_equal": true}
+{"phase": "native-adapter", "passed": true, "inputs_equal": true, "source_equal": true}
+{"phase": "declaration-query", "passed": true, "inputs_equal": true, "source_equal": true}
