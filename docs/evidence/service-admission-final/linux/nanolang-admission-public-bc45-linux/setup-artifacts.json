@@ -1,0 +1,58 @@
+{
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanoisa/file_cli.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/05317a93830a4a8be60ebdc556d44ef0f7469bcf40505ab0ee385e6bea7272d4",
+    "sha256": "05317a93830a4a8be60ebdc556d44ef0f7469bcf40505ab0ee385e6bea7272d4"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanoisa/file_cyclic_public_abi.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/699e804f69042989e6170f50de0845381b83cd7dd50a32d00b4ebb14c07dee19",
+    "sha256": "699e804f69042989e6170f50de0845381b83cd7dd50a32d00b4ebb14c07dee19"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanoisa/file_cyclic_public_native.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/c0716ba000e1827a0b7bb4d41570aa90e349d431a0f8adafc97a9a858032b792",
+    "sha256": "c0716ba000e1827a0b7bb4d41570aa90e349d431a0f8adafc97a9a858032b792"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanoisa/file_host_grant.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/ee48f98b9d5161687514315e3e8ab7a9d0a9c22fddeed23150f5e61e59a91372",
+    "sha256": "ee48f98b9d5161687514315e3e8ab7a9d0a9c22fddeed23150f5e61e59a91372"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanoisa/file_public_native.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/63b4cbe77f43945bdbc95f0a397b3d0dff8c97f83430a700ceeac3ea4ff5f4d9",
+    "sha256": "63b4cbe77f43945bdbc95f0a397b3d0dff8c97f83430a700ceeac3ea4ff5f4d9"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanoisa/file_runtime.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/50a38272878ac47118e77bd4af1e91fbe8f6c9bdbd96c958d4b98f86af45bc91",
+    "sha256": "50a38272878ac47118e77bd4af1e91fbe8f6c9bdbd96c958d4b98f86af45bc91"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanoisa/file_runtime_public.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/2b44336a7d8413e82316b3e7f6b2c6eb1bd22258ea9e1f8ef99287cde0a208e3",
+    "sha256": "2b44336a7d8413e82316b3e7f6b2c6eb1bd22258ea9e1f8ef99287cde0a208e3"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanoisa/nvm2c_main.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/5022ae469b6858e34d3960900e2a1ba646f0bf0aef70e7e5460abe45f29b989d",
+    "sha256": "5022ae469b6858e34d3960900e2a1ba646f0bf0aef70e7e5460abe45f29b989d"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanoisa/nvm2llvm_main.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/b0d00e89539b8040c1d294da250c8208752aecb7622879ec2cfe8344992ca175",
+    "sha256": "b0d00e89539b8040c1d294da250c8208752aecb7622879ec2cfe8344992ca175"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanovirt/main.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/2b9654794214d09e16776e0190c0984246b6f5b0be3bfc2c692bd49797fd1e3d",
+    "sha256": "2b9654794214d09e16776e0190c0984246b6f5b0be3bfc2c692bd49797fd1e3d"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanovm/file_cyclic_public_vm.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/98f3dd8227014a503583e028d3164c156c245da964a9635cca30e86283d7d0cd",
+    "sha256": "98f3dd8227014a503583e028d3164c156c245da964a9635cca30e86283d7d0cd"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanovm/file_public_vm.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/1802d38fae674a948a5ff4c936c85521b2844d6f9ced620f26d534ed71e26bb3",
+    "sha256": "1802d38fae674a948a5ff4c936c85521b2844d6f9ced620f26d534ed71e26bb3"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanovm/vmd_client.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/4c98e9b648f6d8cb3aec51704ad35fbe47ecc24fadb53db4f23bc7c11312f3be",
+    "sha256": "4c98e9b648f6d8cb3aec51704ad35fbe47ecc24fadb53db4f23bc7c11312f3be"
+  },
+  "/home/jkh/Src/nanolang-admission-public-qualified-bc45/obj/nanovm/vmd_protocol.o": {
+    "artifact": "/tmp/nanolang-admission-public-bc45-linux/artifacts/436c7ee66b1a37fa4f062db8eab434138607c9bae00a1294dc495787ee829e84",
+    "sha256": "436c7ee66b1a37fa4f062db8eab434138607c9bae00a1294dc495787ee829e84"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-cyclic-public-final/bin/nanoisa",
+    "asm",
+    "/tmp/nanolang-darwin-projected-selected/nano-projected-global-iy5tfsyi/store-first.nasm",
+    "-o",
+    "/tmp/nanolang-darwin-projected-selected/nano-projected-global-iy5tfsyi/store-first.nvm"
+  ],
+  "cwd": "/private/tmp/nanolang-file-cyclic-public-final",
+  "timeout": 120
+}

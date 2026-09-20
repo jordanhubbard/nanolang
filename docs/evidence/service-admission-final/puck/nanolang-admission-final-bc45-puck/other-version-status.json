@@ -1,0 +1,11 @@
+{
+  "label": "other-version",
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "--version"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.023932209005579352
+}

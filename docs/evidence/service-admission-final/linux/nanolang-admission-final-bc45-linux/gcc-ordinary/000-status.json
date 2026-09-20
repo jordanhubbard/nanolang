@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-D_GNU_SOURCE",
+    "-UNDEBUG",
+    "-Isrc",
+    "-Isrc/nanoisa",
+    "-iquote",
+    "/home/jkh/Src/nanolang-admission-final-qualified-bc45/src/nanoisa",
+    "-DNANO_NO_COMPUTED_GOTO",
+    "-dM",
+    "-E",
+    "tests/nanovm/test_ordinary_admission.c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-admission-final-qualified-bc45",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

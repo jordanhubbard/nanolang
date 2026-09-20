@@ -1,0 +1,237 @@
+{
+  "archives": {
+    "diagnostic": {
+      "bytes": 131886,
+      "sha256": "394070dc2322a888f06ec06324fc5b508ff85089e65d4c6b6b7cf07fd5ba1f56"
+    },
+    "selected": {
+      "bytes": 1608537,
+      "sha256": "f7d0fbbecb1c94b442279bf82fe1bc4ac65b719f3c4db8cde1899a0687742b24"
+    }
+  },
+  "audit_script_sha256": "5520eb68537aa27bcd6318bf1ba4da4e804271f6c238a9f63beb283c7d621f14",
+  "diagnosis": {
+    "live_sample_in_apple_asan_initialization": true,
+    "minimal_apple_timeout_seconds": 10,
+    "minimal_homebrew_stdout": "I entered main\n",
+    "projected_timeout_seconds_each": 120
+  },
+  "limits": [
+    "Four selected methods only, not the whole 90-method suite.",
+    "Historical deleted binaries remain unattributed; fresh reproducible Apple startup diagnostics do not retroactively prove every prior timeout cause.",
+    "Tuple Darwin retains its existing detect_leaks=0 policy; no Darwin tuple LSan acceptance inferred.",
+    "Frozen compiler/provider selection, not current canonical bootstrap or all transitive toolchain files.",
+    "Read-only artifact audit; no test reruns."
+  ],
+  "production_pin": "3ef5d2261826a55941e399a155cb5bb178b821c3",
+  "runs": [
+    {
+      "commands": 12,
+      "equal_pairs": [
+        {
+          "count": 10,
+          "kind": "inputs"
+        }
+      ],
+      "failures": {},
+      "manifest_files_verified": 59,
+      "root": "/tmp/nanolang-linux-projected-selected",
+      "selected_native_runs": [
+        {
+          "asan_options": null,
+          "binary": "/tmp/nanolang-linux-projected-selected/nano-projected-global-3_yiklgm/main-first",
+          "status": {
+            "group_disappeared": true,
+            "leader_reaped": true,
+            "returncode": 0,
+            "seconds": 0.01584120304323733,
+            "timeout": false
+          }
+        },
+        {
+          "asan_options": null,
+          "binary": "/tmp/nanolang-linux-projected-selected/nano-projected-global-3_yiklgm/store-first",
+          "status": {
+            "group_disappeared": true,
+            "leader_reaped": true,
+            "returncode": 0,
+            "seconds": 0.01565924903843552,
+            "timeout": false
+          }
+        }
+      ]
+    },
+    {
+      "commands": 17,
+      "equal_pairs": [
+        {
+          "count": 958,
+          "kind": "inputs"
+        },
+        {
+          "count": 37,
+          "kind": "providers"
+        }
+      ],
+      "failures": {},
+      "manifest_files_verified": 83,
+      "root": "/tmp/nanolang-linux-tuple-selected",
+      "selected_native_runs": [
+        {
+          "asan_options": "detect_leaks=1",
+          "binary": "/tmp/nanolang-linux-tuple-selected/nano-tuple-values-beevlg0g/seed.native",
+          "status": {
+            "group_disappeared": true,
+            "leader_reaped": true,
+            "returncode": 0,
+            "seconds": 0.01576450001448393,
+            "timeout": false
+          }
+        },
+        {
+          "asan_options": "detect_leaks=1",
+          "binary": "/tmp/nanolang-linux-tuple-selected/nano-tuple-values-beevlg0g/source.native",
+          "status": {
+            "group_disappeared": true,
+            "leader_reaped": true,
+            "returncode": 0,
+            "seconds": 0.0077755769016221166,
+            "timeout": false
+          }
+        }
+      ]
+    },
+    {
+      "commands": 17,
+      "equal_pairs": [
+        {
+          "count": 958,
+          "kind": "inputs"
+        },
+        {
+          "count": 37,
+          "kind": "providers"
+        }
+      ],
+      "failures": {},
+      "manifest_files_verified": 89,
+      "root": "/tmp/nanolang-native-selector-independent/selected/nanolang-darwin-tuple-selected",
+      "selected_native_runs": [
+        {
+          "asan_options": "detect_leaks=0",
+          "binary": "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/seed.native",
+          "status": {
+            "group_disappeared": true,
+            "leader_reaped": true,
+            "returncode": 0,
+            "seconds": 0.26786304195411503,
+            "timeout": false
+          }
+        },
+        {
+          "asan_options": "detect_leaks=0",
+          "binary": "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.native",
+          "status": {
+            "group_disappeared": true,
+            "leader_reaped": true,
+            "returncode": 0,
+            "seconds": 0.2610991250257939,
+            "timeout": false
+          }
+        }
+      ]
+    },
+    {
+      "commands": 12,
+      "equal_pairs": [
+        {
+          "count": 10,
+          "kind": "inputs"
+        }
+      ],
+      "failures": {},
+      "manifest_files_verified": 65,
+      "root": "/tmp/nanolang-native-selector-independent/selected/nanolang-darwin-projected-selected",
+      "selected_native_runs": [
+        {
+          "asan_options": null,
+          "binary": "/tmp/nanolang-darwin-projected-selected/nano-projected-global-iy5tfsyi/main-first",
+          "status": {
+            "group_disappeared": true,
+            "leader_reaped": true,
+            "returncode": 0,
+            "seconds": 0.3119073329726234,
+            "timeout": false
+          }
+        },
+        {
+          "asan_options": null,
+          "binary": "/tmp/nanolang-darwin-projected-selected/nano-projected-global-iy5tfsyi/store-first",
+          "status": {
+            "group_disappeared": true,
+            "leader_reaped": true,
+            "returncode": 0,
+            "seconds": 0.32445250009186566,
+            "timeout": false
+          }
+        }
+      ]
+    },
+    {
+      "commands": 12,
+      "equal_pairs": [
+        {
+          "count": 7,
+          "kind": "inputs"
+        }
+      ],
+      "failures": {
+        "005-status.json": {
+          "group_disappeared": true,
+          "leader_reaped": true,
+          "returncode": -9,
+          "seconds": 120.00322124990635,
+          "timeout": true
+        },
+        "011-status.json": {
+          "group_disappeared": true,
+          "leader_reaped": true,
+          "returncode": -9,
+          "seconds": 120.00765070796479,
+          "timeout": true
+        }
+      },
+      "manifest_files_verified": 66,
+      "root": "/tmp/nanolang-native-selector-independent/diagnostic/nanolang-darwin-projected-diagnosis",
+      "selected_native_runs": []
+    },
+    {
+      "commands": 10,
+      "equal_pairs": [],
+      "failures": {
+        "apple-run-status.json": {
+          "group_disappeared": true,
+          "returncode": -9,
+          "seconds": 10.005928625003435,
+          "timeout": true
+        }
+      },
+      "manifest_files_verified": 50,
+      "root": "/tmp/nanolang-native-selector-independent/diagnostic/nanolang-darwin-asan-startup-control",
+      "selected_native_runs": []
+    }
+  ],
+  "source": [
+    {
+      "path": "tests/test_nanoisa_flat_records.py",
+      "selector_only_change": true,
+      "sha256": "4d0c12b92c65f48fa7958dc28867ccc9a7e799aa102f1c02ba6c98e3c54f5193"
+    },
+    {
+      "path": "tests/test_nanoisa_tuple_values.py",
+      "selector_only_change": true,
+      "sha256": "996e7484cd266bffdc9fab6c50877fa9d82ab2b7de26da40c533d85158b678e0"
+    }
+  ],
+  "status": "PASS_WITH_SCOPE_LIMITS"
+}

@@ -1,0 +1,32 @@
+{
+  "constructors": {
+    "path": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/products/constructors",
+    "sha256": "457e2f0135edad869474c75ea266acdcbac9e78e7a60445eb007d01c67a20ebe",
+    "bytes": 835728,
+    "archive": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/objects/457e2f0135edad869474c75ea266acdcbac9e78e7a60445eb007d01c67a20ebe"
+  },
+  "constructors.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/products/constructors.dSYM/Contents/Info.plist",
+    "sha256": "fac92072d8de9c23c2d7a612d2402f625ce2c4cfc9fa4dbb1473a9f956252d18",
+    "bytes": 641,
+    "archive": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/objects/fac92072d8de9c23c2d7a612d2402f625ce2c4cfc9fa4dbb1473a9f956252d18"
+  },
+  "constructors.dSYM/Contents/Resources/DWARF/constructors": {
+    "path": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/products/constructors.dSYM/Contents/Resources/DWARF/constructors",
+    "sha256": "70abfcd6c227f94100dc4a6d715dfddeb0a62e863d92ab06a088722c89f59b6a",
+    "bytes": 1173968,
+    "archive": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/objects/70abfcd6c227f94100dc4a6d715dfddeb0a62e863d92ab06a088722c89f59b6a"
+  },
+  "constructors.dSYM/Contents/Resources/Relocations/aarch64/constructors.yml": {
+    "path": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/products/constructors.dSYM/Contents/Resources/Relocations/aarch64/constructors.yml",
+    "sha256": "53223dc1d450778fd745b2df209a5075f6f1fe47e1269c5b95ac08c869ce6adb",
+    "bytes": 179,
+    "archive": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/objects/53223dc1d450778fd745b2df209a5075f6f1fe47e1269c5b95ac08c869ce6adb"
+  },
+  "nvm_v2_layouts.o": {
+    "path": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/products/nvm_v2_layouts.o",
+    "sha256": "676b3486772204946e6e2636a2707f33462315f348b9d604b08bee0a6454bbf3",
+    "bytes": 16544,
+    "archive": "/private/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/objects/676b3486772204946e6e2636a2707f33462315f348b9d604b08bee0a6454bbf3"
+  }
+}

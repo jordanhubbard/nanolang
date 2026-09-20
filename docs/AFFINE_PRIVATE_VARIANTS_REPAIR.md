@@ -134,3 +134,11 @@ Make-emitted cflags.txt, including its exact Xcode26.2 SDK ffi and Homebrew Open
 include paths, with all strict warning flags intact. No production/fixture edit
 is needed. I rerun only read-only configuration/discovery and the Darwin public
 corpus; its completed setup and Linux complete pass remain attributed separately.
+
+After bc45 qualification and before final publication I integrate actual main918
+merge367476f0caa83b847d1856b248a70289f80a3aa9. Its only non-document changes are the
+two reviewed native test compiler selectors in flat-record and tuple fixtures.
+They are exact3ef bytes, not part of the earlier ordinary/package gate selection.
+No production, provider recipe or qualified fixture changes; I retain the bc45
+attribution. Fresh complete90-method canonical acceptance remains required after
+actual merge, with supported selected native compilers and unchanged deadlines.

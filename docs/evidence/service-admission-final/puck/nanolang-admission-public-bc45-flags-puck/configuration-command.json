@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-admission-public-bc45-flags-puck/providers.mk",
+    "carrier-config",
+    "CC=/usr/bin/clang"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_RUNTIME_CFLAGS": "-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include",
+    "NMS_NATIVE_CLANG_FLAGS": ""
+  }
+}

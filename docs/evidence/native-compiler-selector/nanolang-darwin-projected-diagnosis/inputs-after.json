@@ -1,0 +1,30 @@
+{
+  "/private/tmp/nanolang-file-cyclic-public-final/tests/test_nanoisa_flat_records.py": {
+    "sha256": "359153d0b7ad796884a01801af5ef2913ca0ae1fa0de120681ea65c5b1c99949",
+    "bytes": 111024
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/bin/nanoisa": {
+    "sha256": "4636e743ddede0f607a359dfd2e241b862186c0f07837567b34e84e0366eaf88",
+    "bytes": 1054776
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/bin/nano_vm": {
+    "sha256": "78e79d2450077aa3fa97cd942e2e00e97dccd7b1d5663650e326e186072b6f7c",
+    "bytes": 11730824
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/bin/nvm2c": {
+    "sha256": "0a591c835be1738f62382b5a13c8ebec756b793879d7914668f75fa3b0433827",
+    "bytes": 1126360
+  },
+  "/usr/bin/cc": {
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+    "bytes": 118640
+  },
+  "/opt/homebrew/opt/python@3.14/bin/python3.14": {
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634",
+    "bytes": 34640
+  },
+  "/tmp/nanolang-darwin-projected-diagnosis.py": {
+    "sha256": "09d4dc83df74c3f6c26a9d151f54a4b0bd5bb20f1bfd051222dc253d6ab6e068",
+    "bytes": 2822
+  }
+}

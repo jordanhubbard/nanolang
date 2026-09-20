@@ -1,0 +1,13 @@
+{
+  "platform": "linux",
+  "configs": [
+    [
+      "gcc-ordinary",
+      "/bin/gcc",
+      []
+    ]
+  ],
+  "source_scope": "all tracked files excluding historical docs/evidence",
+  "tools_scope": "named compiler, runtimes/subtools, Python, Make, Git, ar, ld; not complete transitive system tools",
+  "sanitizers": "constructor fixture includes affine TU plus rebuilt layout decoder; admission fixture includes VM plus observed service TU; other providers ordinary"
+}

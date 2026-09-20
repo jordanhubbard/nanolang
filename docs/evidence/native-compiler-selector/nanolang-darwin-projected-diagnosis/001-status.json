@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "timeout": false,
+  "seconds": 0.31309249997138977,
+  "leader_reaped": true,
+  "group_disappeared": true
+}

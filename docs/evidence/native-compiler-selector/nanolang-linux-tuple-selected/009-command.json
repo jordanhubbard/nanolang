@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85/bin/nvm2c",
+    "/tmp/nanolang-linux-tuple-selected/nano-tuple-values-beevlg0g/seed.nvm",
+    "-o",
+    "/tmp/nanolang-linux-tuple-selected/nano-tuple-values-beevlg0g/seed.c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85",
+  "timeout": 120,
+  "selected_ASAN_OPTIONS": null
+}

@@ -1,0 +1,11 @@
+{
+  "CARRIER_EXTRA_TOOLS": "{llvm_opt:/opt/homebrew/opt/llvm/bin/opt}",
+  "CARRIER_PHASES": "setup,configuration,discovery,ordinary",
+  "CARRIER_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "CC": "/usr/bin/clang",
+  "LSAN_OPTIONS": "",
+  "NMS_NATIVE_CLANG_FLAGS": "",
+  "NMS_RUNTIME_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+  "NMS_RUNTIME_OPT": "/opt/homebrew/opt/llvm/bin/opt",
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+}

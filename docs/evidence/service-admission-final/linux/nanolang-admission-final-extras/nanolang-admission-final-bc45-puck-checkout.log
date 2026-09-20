@@ -1,0 +1,9 @@
+Cloning into '/tmp/nanolang-admission-final-qualified-bc45'...
+done.
+error: Could not read c3631ecf26219be5d15c89d4fc9c741b4373a238
+error: Could not read ad7bc3a08da0b52d45ec9bb413be0b22112132c2
+error: Could not read cd01855c794404f7aa874fbcbff8a1af342e6519
+From github.com:jordanhubbard/nanolang
+ * branch                fix/vm-service-admission-final -> FETCH_HEAD
+Previous HEAD position was 52b06a6a7 Integrate public cyclic and capture flag providers for admission acceptance
+HEAD is now at bc45eeae4 Integrate complete declaration reader before fresh admission gates
