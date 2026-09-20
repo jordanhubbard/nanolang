@@ -1,0 +1,22 @@
+{
+  "clang": [
+    "/usr/local/bin/clang"
+  ],
+  "linker": [
+    "/usr/local/bin/wasm-ld"
+  ],
+  "node": [
+    "/home/linuxbrew/.linuxbrew/bin/node"
+  ],
+  "python": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14"
+  ],
+  "flags": [],
+  "environment": {
+    "PYTHONPATH": "/tmp/nanolang-read-wasm-9856-linux/engines/products/private-binding",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": ""
+  }
+}

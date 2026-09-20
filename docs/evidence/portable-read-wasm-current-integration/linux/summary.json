@@ -1,0 +1,48 @@
+{
+  "report_files": 77,
+  "unique_objects": 585,
+  "object_bytes": 298899113,
+  "references": 2270,
+  "pairs": [
+    {
+      "before": "/tmp/nanolang-read-wasm-8115-linux-query/neighbors-tools-before.json",
+      "after": "/tmp/nanolang-read-wasm-8115-linux-query/neighbors-tools-after.json",
+      "count": 5
+    },
+    {
+      "before": "/tmp/nanolang-read-wasm-8115-linux-query/neighbors-source-before.json",
+      "after": "/tmp/nanolang-read-wasm-8115-linux-query/neighbors-source-after.json",
+      "count": 17242
+    },
+    {
+      "before": "/tmp/nanolang-read-wasm-8115-linux-query/retained/declaration-query-source-before.json",
+      "after": "/tmp/nanolang-read-wasm-8115-linux-query/retained/declaration-query-source-after.json",
+      "count": 17242
+    },
+    {
+      "before": "/tmp/nanolang-read-wasm-8115-linux-query/retained/declaration-query-inputs-before.json",
+      "after": "/tmp/nanolang-read-wasm-8115-linux-query/retained/declaration-query-inputs-after.json",
+      "count": 501
+    },
+    {
+      "before": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/inputs-before.json",
+      "after": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/inputs-after.json",
+      "count": 524
+    }
+  ],
+  "current_files_verified": 17291,
+  "terminals": [
+    {
+      "path": "/tmp/nanolang-read-wasm-8115-linux-query/neighbors-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 0,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 14.899
+      }
+    }
+  ]
+}

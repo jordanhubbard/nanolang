@@ -1,0 +1,76 @@
+{
+  "head": "8538faadf0e4b97168187245909fa0cffab2ef36",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "phases": [
+    {
+      "name": "selfhost-bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 0,
+      "seconds": 264.145,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "5ea90a22e77553f57f74eff7aee91d482182eba216234b518bcd926313a62420"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_canonical_match_guards"
+      ],
+      "status": 0,
+      "seconds": 95.75,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "log_sha256": "1b111dd0e421e514ac2c4dd6fcbac63a8ab28ab8f5e01dba0ac90e7c05e39412"
+    },
+    {
+      "name": "userguide",
+      "command": [
+        "make",
+        "userguide-check",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 0,
+      "seconds": 171.69,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "43ca6011a80f33f633aa3c01ab9013e935532bfc87a175276df16c582cd4ea3a"
+    },
+    {
+      "name": "full-test",
+      "command": [
+        "make",
+        "test",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 2,
+      "seconds": 21.829,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "9a56ada82d63283f390d6d7823cac79dd9081d0b41fd02b2fff9021e1021e734"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}

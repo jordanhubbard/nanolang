@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/cli/existing-file"
+  ],
+  "pid": 470204,
+  "returncode": 1,
+  "timeout": false
+}

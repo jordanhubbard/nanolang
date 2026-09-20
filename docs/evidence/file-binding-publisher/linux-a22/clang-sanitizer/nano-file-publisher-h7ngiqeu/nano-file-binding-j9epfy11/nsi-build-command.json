@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-publisher-qualified-a22/src",
+    "-I",
+    "/home/jkh/Src/nanolang-file-publisher-qualified-a22/tests",
+    "-I",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "tests/test_nsi.c",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/linked-nsi.o",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/linked-cJSON.o",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/linked-utf8.o",
+    "-lm",
+    "-o",
+    "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/nsi"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-publisher-qualified-a22",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

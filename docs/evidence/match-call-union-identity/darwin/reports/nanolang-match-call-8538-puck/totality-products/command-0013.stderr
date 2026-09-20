@@ -1,0 +1,9 @@
+Warning at line 34, column 2: Unused variable 'item'
+Warning at line 44, column 20: Unused variable 'item'
+Warning at line 48, column 2: Unused variable 'item'
+Warning at line 53, column 23: Unused variable 'item'
+Warning at line 57, column 2: Unused variable 'item'
+Warning at line 57, column 2: Unused variable 'item'
+Warning at line 35: contract condition is always false
+Warning at line 49: contract condition is always false
+Warning at line 58: contract condition is always false

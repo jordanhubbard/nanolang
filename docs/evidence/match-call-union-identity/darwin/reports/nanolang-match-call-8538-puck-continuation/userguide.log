@@ -1,0 +1,46 @@
+✓ Stage 1 complete (C reference binaries)
+
+==========================================
+Stage 2: Building Self-Hosted Components
+==========================================
+Compiling components with bin/nanoc...
+
+  Building parser...
+    ✓ parser compiled successfully
+
+  Building typecheck...
+    ✓ typecheck compiled successfully
+
+  Building transpiler...
+    ✓ transpiler compiled successfully
+
+✓ Stage 2: 3/3 components built successfully
+
+==========================================
+Stage 3: Bootstrap Validation
+==========================================
+Validating self-hosted components...
+
+  Checking parser entry assertions...
+    ✓ parser entry assertions passed
+  Checking typecheck entry assertions...
+    ✓ typecheck entry assertions passed
+  Checking transpiler entry assertions...
+    ✓ transpiler entry assertions passed
+
+✓ Stage 3: 3/3 component entry checks passed; imported shadows are separate
+
+==========================================
+✅ Build Complete (3-Stage Bootstrap)
+==========================================
+Build Status:
+
+  ✅ Stage 1: C reference compiler (bin/nanoc)
+  ✅ Stage 2: Self-hosted components compiled
+    • parser
+    • typecheck
+    • transpiler
+  ✅ Stage 3: Bootstrap validated
+
+
+userguide-check: 40 snippet(s) passed

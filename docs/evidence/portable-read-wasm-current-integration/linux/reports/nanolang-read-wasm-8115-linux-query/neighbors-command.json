@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "/tmp/run-wasm-read-integrated-query.py",
+    "/home/jkh/Src/nanolang-portable-read-wasm-qualified-8115",
+    "/tmp/nanolang-read-wasm-8115-linux-query/retained"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-8115",
+  "env": {
+    "PORTABLE_WASM_CLANG": "/usr/local/bin/clang",
+    "PORTABLE_WASM_LD": "/usr/local/bin/wasm-ld",
+    "PORTABLE_WASM_NODE": "/home/linuxbrew/.linuxbrew/bin/node",
+    "PORTABLE_WASM_PYTHON": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "PORTABLE_WASM_WHEEL": "/tmp/nanolang-wasmtime-43-design/wasmtime-43.0.0-py3-none-manylinux2014_aarch64.whl",
+    "PORTABLE_WASM_FLAGS": "",
+    "PORTABLE_WASM_EXTRA_TOOLS": "{\"clang\": \"/usr/local/bin/clang-23\", \"linker\": \"/usr/local/bin/lld\", \"node\": \"/home/linuxbrew/.linuxbrew/Cellar/node/26.0.0/bin/node\", \"python\": \"/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14\", \"wheel\": \"/tmp/nanolang-wasmtime-43-design/wasmtime-43.0.0-py3-none-manylinux2014_aarch64.whl\"}",
+    "PORTABLE_WASM_ARTIFACTS": "/tmp/nanolang-read-wasm-8115-linux-query/neighbors",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": ""
+  }
+}

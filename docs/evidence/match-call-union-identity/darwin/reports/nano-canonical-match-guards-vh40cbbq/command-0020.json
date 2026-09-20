@@ -1,0 +1,1 @@
+["/opt/homebrew/opt/llvm/bin/clang", "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-vh40cbbq/backstop-expression.c", "-o", "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-vh40cbbq/backstop-expression"]

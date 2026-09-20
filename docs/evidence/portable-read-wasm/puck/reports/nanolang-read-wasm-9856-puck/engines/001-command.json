@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/lld/bin/wasm-ld",
+    "--version"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

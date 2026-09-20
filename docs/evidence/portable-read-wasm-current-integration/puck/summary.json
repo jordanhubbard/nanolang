@@ -1,0 +1,48 @@
+{
+  "report_files": 78,
+  "unique_objects": 581,
+  "object_bytes": 35779494,
+  "references": 2266,
+  "pairs": [
+    {
+      "before": "/private/tmp/nanolang-read-wasm-8115-puck-query/neighbors-source-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-8115-puck-query/neighbors-source-after.json",
+      "count": 17242
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-8115-puck-query/neighbors-tools-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-8115-puck-query/neighbors-tools-after.json",
+      "count": 5
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/declaration-query-inputs-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/declaration-query-inputs-after.json",
+      "count": 499
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/declaration-query-source-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/declaration-query-source-after.json",
+      "count": 17242
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/inputs-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/inputs-after.json",
+      "count": 524
+    }
+  ],
+  "current_files_verified": 17290,
+  "terminals": [
+    {
+      "path": "/private/tmp/nanolang-read-wasm-8115-puck-query/neighbors-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 0,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 9.103
+      }
+    }
+  ]
+}

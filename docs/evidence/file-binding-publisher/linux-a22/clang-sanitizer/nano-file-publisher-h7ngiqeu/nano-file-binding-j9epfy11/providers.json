@@ -1,0 +1,42 @@
+{
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/linked-nsi_file_binding.o": {
+    "sha256": "247e71cfee1e245789f4813ef7cd246cbf710230185604fe8ea018ce73247b19",
+    "bytes": 252952
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/linked-nsi_file_plan.o": {
+    "sha256": "a439385ec5dd15b72cf2a7925a97266f6719a391c203a1549a7ef3c0d7c1f562",
+    "bytes": 137888
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/linked-nsi.o": {
+    "sha256": "5bc77835290172e61c8d0cadac8d3e38816624698adc78162773e5f62dae5dc6",
+    "bytes": 401944
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/linked-cJSON.o": {
+    "sha256": "330596110ad3ac9e94acfeaa1de93147703ceab85f8ef71de3ad12c076ff8794",
+    "bytes": 438088
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/linked-utf8.o": {
+    "sha256": "42bf286d825f5516fcbb8a6841901857d2185c42fab08b79d5f59a0b89a0198b",
+    "bytes": 42400
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/instrumented-nsi_file_binding.o": {
+    "sha256": "e264671a55a53b62077eb60d9df99dced31e0f108363e773d0599febab92998a",
+    "bytes": 253040
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/instrumented-nsi_file_plan.o": {
+    "sha256": "e4a49e6646b2c5aecdc4f24cedaac8f982ae632d9c91505aae2a2c4eb70f5648",
+    "bytes": 137960
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/instrumented-nsi.o": {
+    "sha256": "7e35c9f11ee70425731959dcc28efacf4b7d36db49e49e90bb337c80fc5e70fe",
+    "bytes": 400336
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/instrumented-cJSON.o": {
+    "sha256": "d500f3231bac21885f851f5274f58197651012354d15673b8f15420f1f68939d",
+    "bytes": 438136
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/clang-sanitizer/nano-file-publisher-h7ngiqeu/nano-file-binding-j9epfy11/instrumented-utf8.o": {
+    "sha256": "42bf286d825f5516fcbb8a6841901857d2185c42fab08b79d5f59a0b89a0198b",
+    "bytes": 42400
+  }
+}

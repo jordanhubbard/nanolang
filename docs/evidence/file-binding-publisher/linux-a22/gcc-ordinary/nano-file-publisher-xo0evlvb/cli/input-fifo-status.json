@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/cli/input-fifo",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/cli/refused-fifo"
+  ],
+  "pid": 458045,
+  "returncode": 1,
+  "timeout": false
+}

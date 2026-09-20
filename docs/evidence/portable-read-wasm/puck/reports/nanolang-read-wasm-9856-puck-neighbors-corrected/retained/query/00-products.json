@@ -1,0 +1,8 @@
+{
+  "instrumented-read_query.o": {
+    "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/query/products/instrumented-read_query.o",
+    "sha256": "bfcde761618d5ea055cecf0d0d9f20fb6c730bf46ba1c0851973bb96507991b5",
+    "bytes": 34456,
+    "archive": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/query/objects/bfcde761618d5ea055cecf0d0d9f20fb6c730bf46ba1c0851973bb96507991b5"
+  }
+}

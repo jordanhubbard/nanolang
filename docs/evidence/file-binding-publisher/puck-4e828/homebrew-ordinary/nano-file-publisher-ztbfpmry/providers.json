@@ -1,0 +1,34 @@
+{
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-obj/file-binding-publisher/nsi_file_binding.o": {
+    "sha256": "0d3b983f703a0125ea432a7fb3dd9df440fda00fe04c9e23dcc31c9c667c91b5",
+    "bytes": 44440
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-obj/file-binding-publisher/nsi_file_plan.o": {
+    "sha256": "35cde35a402d40c1298e3ed163128f12e7894ab4953da1ea2d3fe7650bb0ef30",
+    "bytes": 25632
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-obj/file-binding-publisher/nsi.o": {
+    "sha256": "5785ed7ed884a6a435b078c386a4eb65f1794714415d2bae6e1e8bfb6d519732",
+    "bytes": 61176
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-obj/file-binding-publisher/cJSON.o": {
+    "sha256": "fffd7a9129e47bb9510e26732032425532a80d411c17345088ecd6d2b5678c54",
+    "bytes": 81392
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-obj/file-binding-publisher/utf8.o": {
+    "sha256": "f87c997495e9a1ba30b11dd879f46653ca772f0c6a547c448a4e0d322d645aac",
+    "bytes": 10384
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-obj/file-binding-publisher/nsi_file_publish.o": {
+    "sha256": "491cac287556eef547b547eb619ab0de5e47a27565b8f83676e1f0968f35e775",
+    "bytes": 23680
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-obj/file-binding-publisher/nsi_file_binding_main.o": {
+    "sha256": "603dd5eee48b290978e6bd27911f47037d6fd0d028c7fd33f7236d92305d92f7",
+    "bytes": 16552
+  },
+  "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-bin/nsi-file-binding": {
+    "sha256": "56922041a410c56ce3b0f1caf7393fb77a73f923476a5151cc6072f1d02291bc",
+    "bytes": 125440
+  }
+}

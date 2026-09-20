@@ -1,0 +1,4 @@
+mkdir -p "obj/file-binding-publisher"
+mkdir -p bin
+/usr/bin/clang  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c "src/nsi_file_binding_main.c" -o "obj/file-binding-publisher/nsi_file_binding_main.o"
+/usr/bin/clang  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c "src/nsi_file_publish.c" -o "obj/file-binding-publisher/nsi_file_publish.o"
