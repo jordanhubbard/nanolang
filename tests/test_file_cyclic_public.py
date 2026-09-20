@@ -53,7 +53,7 @@ class FileCyclicPublic(unittest.TestCase):
             'SDKROOT':os.environ.get('SDKROOT'),'LSAN_OPTIONS':'',
             'cleared_include_environment':['CPATH','C_INCLUDE_PATH','CPLUS_INCLUDE_PATH','OBJC_INCLUDE_PATH'],
             'driver_python':str(executable),'driver_python_sha256':hashlib.sha256(executable.read_bytes()).hexdigest(),
-            'instrumentation':'listed rebuilt providers/generated C only; ordinary common objects separately inventoried'}, indent=2))
+            'instrumentation':'allocation hooks cover listed rebuilt providers/generated C; full install also rebuilds common objects with selected flags, recorded separately per phase'}, indent=2))
 
     # I reuse the bounded file-backed runner through its module, never importing
     # another TestCase into discovery. It records launch failures and group cleanup.

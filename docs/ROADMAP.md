@@ -13013,3 +13013,12 @@ and complete trace comparison, actual public native O0/O2, installed-only archiv
 and CLI controls. Static Python parsing and diff checks pass; no unittest setup,
 compiler, install or module has run. I retain the canonical907 and independent
 fixture-review prerequisites before freezing new gate inputs.
+
+
+I prepare a bounded prospective driver while canonical907 remains held. Fresh
+full install rebuilds common objects using each selected configuration; I record
+those phase-specific provider changes and do not claim unchanged ordinary common
+objects. The public module phase has a proposed3600-second outer bound (its
+individual install commands retain900-second bounds); setup and each retained
+neighbor keep1800 seconds. No driver is launched before dependency and gate
+approval.

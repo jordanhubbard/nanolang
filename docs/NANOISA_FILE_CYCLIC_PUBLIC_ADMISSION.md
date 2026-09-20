@@ -342,7 +342,10 @@ new runner first captures that private corpus, then the public VM corpus, checks
 identical serialized cases and every report/host trace, and compares real public
 native O0/O2 replays to the same private reference. The retained pre-disposal core
 root checks and zero-project-allocation execution budget apply to these public
-routes; common ordinary objects remain outside the scoped provider hooks.
+routes; common objects remain outside the scoped allocation hooks. Fresh full
+install also rebuilds common objects with the selected compiler/sanitizer flags;
+provider maps preserve these phase-specific changes rather than asserting
+ordinary or unchanged common objects across the matrix.
 
 Additional controls use invalid addresses while the owning gate is held to prove
 BUSY precedes all argument inspection. Real service callbacks test both cyclic
@@ -366,3 +369,19 @@ inspection, and delegates bounded file-backed process/group handling to the
 already reviewed runner. Actual unittest discovery and all compilation/execution
 remain pending independent fixture review and canonical907. Its inventory records
 `sys.executable` and clears LSAN_OPTIONS and ambient include-path overrides.
+
+
+The prospective external driver is retained at
+`/tmp/nanolang-file-cyclic-public-driver.py` (SHA256
+`2760675959fecc7806de5a0fbd5d03c2e626f235a1d325f71af63ad77e37f6fd`).
+It inventories the actual Python executable and, on Darwin, the resolved Xcode
+clang/linker as well as invocation launchers. All selected tools and source paths
+are frozen around each phase; produced/changed provider bytes are retained, not
+assumed immutable across fresh package installs. I clear LSAN_OPTIONS and ambient
+include-path overrides. The proposed matrix remains four Linux and three Darwin
+configurations; unchanged private dispatch/carrier/core/query/hosted/acyclic
+public and exact archive-boundary neighbors follow separately. The new public
+module phase has a3600-second outer deadline; each install has900 seconds and
+all other outer phases retain1800 seconds. These are proposed bounds pending
+root gate approval, not measured results. No source/self-host bootstrap is claimed
+from this C-provider/package preparation.
