@@ -1,0 +1,10 @@
+{
+  "cleanup": {
+    "confirmed": true,
+    "errors": [],
+    "group_gone": true
+  },
+  "error": null,
+  "returncode": 2,
+  "seconds": 0.11484052403829992
+}

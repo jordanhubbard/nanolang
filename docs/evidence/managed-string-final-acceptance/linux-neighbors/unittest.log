@@ -1,0 +1,47 @@
+test_admitted_array_global_executes_and_replaces_output (tests.test_llvm_scalar_globals.ScalarGlobals.test_admitted_array_global_executes_and_replaces_output) ... ok
+test_exact_tags_and_last_write (tests.test_llvm_scalar_globals.ScalarGlobals.test_exact_tags_and_last_write) ... ok
+test_first_initializer_is_selected (tests.test_llvm_scalar_globals.ScalarGlobals.test_first_initializer_is_selected) ... ok
+test_functions_share_branch_selected_writes (tests.test_llvm_scalar_globals.ScalarGlobals.test_functions_share_branch_selected_writes) ... ok
+test_initial_void_and_highest_slot (tests.test_llvm_scalar_globals.ScalarGlobals.test_initial_void_and_highest_slot) ... ok
+test_initializer_and_authority_refusals_preserve_output (tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_and_authority_refusals_preserve_output) ... ok
+test_initializer_equal_to_entry_runs_twice (tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_equal_to_entry_runs_twice) ... ok
+test_initializer_failure_prevents_entry (tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_failure_prevents_entry) ... ok
+test_initializer_precedes_entry_and_discards_result (tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_precedes_entry_and_discards_result) ... ok
+test_repeated_entry_reruns_initializer (tests.test_llvm_scalar_globals.ScalarGlobals.test_repeated_entry_reruns_initializer) ... ok
+test_repeated_entry_retains_globals (tests.test_llvm_scalar_globals.ScalarGlobals.test_repeated_entry_retains_globals) ... ok
+test_unreached_function_still_contributes_storage (tests.test_llvm_scalar_globals.ScalarGlobals.test_unreached_function_still_contributes_storage) ... ok
+test_call_return_local_branch_and_global_aliases (tests.test_llvm_literal_strings.LiteralStrings.test_call_return_local_branch_and_global_aliases) ... ok
+test_distinct_pool_identities_compare_by_bytes (tests.test_llvm_literal_strings.LiteralStrings.test_distinct_pool_identities_compare_by_bytes) ... ok
+test_empty_truthiness_and_mixed_tags (tests.test_llvm_literal_strings.LiteralStrings.test_empty_truthiness_and_mixed_tags) ... ok
+test_implicit_string_return (tests.test_llvm_literal_strings.LiteralStrings.test_implicit_string_return) ... ok
+test_instance_lifetime_and_initializer_result (tests.test_llvm_literal_strings.LiteralStrings.test_instance_lifetime_and_initializer_result) ... ok
+test_lengths_content_and_unsigned_byte_order (tests.test_llvm_literal_strings.LiteralStrings.test_lengths_content_and_unsigned_byte_order) ... ok
+test_managed_string_operations_and_array_conversion (tests.test_llvm_literal_strings.LiteralStrings.test_managed_string_operations_and_array_conversion) ... ok
+test_nonstring_string_operations_keep_runtime_errors (tests.test_llvm_literal_strings.LiteralStrings.test_nonstring_string_operations_keep_runtime_errors) ... ok
+test_string_handles_never_become_numeric_operands (tests.test_llvm_literal_strings.LiteralStrings.test_string_handles_never_become_numeric_operands) ... ok
+test_comparison_cast_and_truthiness_compatibility (tests.test_llvm_enum_scalars.EnumScalars.test_comparison_cast_and_truthiness_compatibility) ... ok
+test_declared_enum_result_checks_actual_tag (tests.test_llvm_enum_scalars.EnumScalars.test_declared_enum_result_checks_actual_tag) ... ok
+test_distinct_declarations_preserve_vm_ordinal_contract (tests.test_llvm_enum_scalars.EnumScalars.test_distinct_declarations_preserve_vm_ordinal_contract) ... ok
+test_exact_refusals (tests.test_llvm_enum_scalars.EnumScalars.test_exact_refusals) ... ok
+test_generic_arithmetic_matrix (tests.test_llvm_enum_scalars.EnumScalars.test_generic_arithmetic_matrix) ... ok
+test_generic_enum_rounding_zero_and_nan_boundaries (tests.test_llvm_enum_scalars.EnumScalars.test_generic_enum_rounding_zero_and_nan_boundaries) ... ok
+test_globals_initializer_calls_returns_and_joins (tests.test_llvm_enum_scalars.EnumScalars.test_globals_initializer_calls_returns_and_joins) ... ok
+test_literal_profile_preserves_enum_tag_order (tests.test_llvm_enum_scalars.EnumScalars.test_literal_profile_preserves_enum_tag_order) ... ok
+test_managed_conversions_execute_and_replace_output (tests.test_llvm_enum_scalars.EnumScalars.test_managed_conversions_execute_and_replace_output) ... ok
+test_original_producer_tags (tests.test_llvm_enum_scalars.EnumScalars.test_original_producer_tags) ... ok
+test_profile_refusals_preserve_output (tests.test_llvm_enum_scalars.EnumScalars.test_profile_refusals_preserve_output) ... ok
+test_typed_binary_matrix (tests.test_llvm_enum_scalars.EnumScalars.test_typed_binary_matrix) ... ok
+test_typed_wrapping_and_zero (tests.test_llvm_enum_scalars.EnumScalars.test_typed_wrapping_and_zero) ... ok
+test_argument_evaluation_remains_eager (tests.test_llvm_generic_numeric.GenericNumeric.test_argument_evaluation_remains_eager) ... ok
+test_calls_and_dynamic_join_preserve_tags (tests.test_llvm_generic_numeric.GenericNumeric.test_calls_and_dynamic_join_preserve_tags) ... ok
+test_float_and_mixed_promotion_both_orders (tests.test_llvm_generic_numeric.GenericNumeric.test_float_and_mixed_promotion_both_orders) ... ok
+test_integer_wrap_and_total_arithmetic (tests.test_llvm_generic_numeric.GenericNumeric.test_integer_wrap_and_total_arithmetic) ... ok
+test_invalid_scalar_tags_still_fail_at_runtime (tests.test_llvm_generic_numeric.GenericNumeric.test_invalid_scalar_tags_still_fail_at_runtime) ... ok
+test_nan_infinity_and_total_float_division (tests.test_llvm_generic_numeric.GenericNumeric.test_nan_infinity_and_total_float_division) ... ok
+test_signed_zero_bits (tests.test_llvm_generic_numeric.GenericNumeric.test_signed_zero_bits) ... ok
+test_shared_admission_and_publication (tests.test_verifier_profiles.VerifierProfiles.test_shared_admission_and_publication) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 422.997s
+
+OK

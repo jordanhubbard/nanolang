@@ -1,0 +1,25 @@
+{
+  "executables": {
+    "ar": "/usr/bin/ar",
+    "cc": "/opt/homebrew/opt/llvm/bin/clang",
+    "clang": "/opt/homebrew/opt/llvm/bin/clang",
+    "ld": "/usr/bin/ld",
+    "llc": "/opt/homebrew/opt/llvm/bin/llc",
+    "lli": "/opt/homebrew/opt/llvm/bin/lli",
+    "llvm-as": "/opt/homebrew/opt/llvm/bin/llvm-as",
+    "make": "/usr/bin/make",
+    "node": "/opt/homebrew/bin/node",
+    "opt": "/opt/homebrew/opt/llvm/bin/opt",
+    "python3": "/opt/homebrew/bin/python3",
+    "wasm-ld": "/opt/homebrew/bin/wasm-ld",
+    "wasmtime": "/private/tmp/nanolang-managed-string-wasmtime-darwin"
+  },
+  "libraries": [
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_abi_osx.a",
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib",
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.lsan_osx_dynamic.dylib",
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.ubsan_minimal_osx.a",
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.ubsan_minimal_osx_dynamic.dylib",
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib"
+  ]
+}

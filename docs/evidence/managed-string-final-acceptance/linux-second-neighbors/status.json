@@ -1,0 +1,12 @@
+{
+  "commands": 284,
+  "errors": 0,
+  "exception": null,
+  "failures": 1,
+  "inputs_equal": true,
+  "passed": false,
+  "retention_failures": [],
+  "seconds": 58.04150653904071,
+  "skipped": [],
+  "tests_run": 19
+}

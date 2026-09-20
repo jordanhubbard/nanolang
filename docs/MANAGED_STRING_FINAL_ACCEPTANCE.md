@@ -28,8 +28,10 @@ ASan. I keep the explicit ASan pass and checks for actual instrumentation.
 Native allocation controls continue to replace only generated-module malloc;
 the instrumented C harness and linked engine scope remain accurately distinct.
 Wasm stays import-free and uses the same runtime exports, bounded memory and
-actual Node/Wasmtime controls. No expected failure becomes a success, and no
-publication sentinel, lifetime counter or page bound is removed.
+actual Node/Wasmtime controls. I preserve supported negative controls,
+publication sentinels, lifetime counters and page bounds. The measured stale
+neighbor refusals documented below become exact positive execution controls
+only where earlier merged production already admits their programs.
 
 I qualify the original11 emitted string methods and the existing decimal and
 portable float-format conversion methods in both modes. The unchanged core,

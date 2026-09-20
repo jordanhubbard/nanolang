@@ -1,0 +1,18 @@
+{
+  "args": [
+    "git",
+    "-C",
+    "/home/jkh/Src/nanolang-managed-string-971b-linux",
+    "rev-parse",
+    "HEAD"
+  ],
+  "cleanup": {
+    "confirmed": true,
+    "errors": [],
+    "group_gone": true,
+    "pid": 3561380,
+    "reaped": true
+  },
+  "exception": null,
+  "returncode": 0
+}
