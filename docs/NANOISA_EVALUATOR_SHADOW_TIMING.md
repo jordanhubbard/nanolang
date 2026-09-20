@@ -135,3 +135,26 @@ bounds, exact frozen40870 providers outside three freshly built diagnostic TUs,
 and the capacity guard. I emit only the same8192-bounded shadow markers; the
 last unmatched interval remains unmeasured. No implementation behavior, handle
 validation, ownership, lifetime or allocation result changes.
+
+## My exclusive scope accounting fallback
+
+I retain the denied perf own-child preflight and use the approved diagnostic
+fallback. An8192-entry private stack records evaluator expression, statement,
+call dispatch, named call, and scope release, plus Environment function lookup,
+symbol lookup, visible lookup, binding definition, assignment and index sync.
+On every scope transition I charge the elapsed monotonic interval to the prior
+top scope, or to outside when no selected scope is active. I flush that accounting
+at the exact marker timestamp. These exclusive scope deltas partition the measured
+marker interval; they include observer overhead and time in any uninstrumented
+callee within the active scope. They do not identify that callee's internal cost.
+
+Wrapper bodies forward the exact original arguments/results and cover early
+returns. Recursive selected calls enter the same checked stack. A depth overflow,
+misnested return, clock error or counter overflow exits92 rather than fabricating
+a timing result. This is a single-threaded full checker shadow diagnostic, not
+thread-safe production profiling. I do not change expression evaluation order,
+lookup policy, index invalidation, ownership, allocation failures or deadlines.
+
+One static lead is the unconditional symbol-index invalidation in scope release,
+while the existing symbol-index synchronizer already describes saved-link
+truncation. I measure its actual cost before proposing any lifecycle change.

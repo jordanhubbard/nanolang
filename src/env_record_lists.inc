@@ -31,6 +31,35 @@ void nano_lifetime_elapsed(enum NanoLifetimeCounter counter, uint64_t start) {
     if (end < start) { fputs("I observed a diagnostic clock reversal.\n", stderr); exit(92); }
     nano_lifetime_add(counter, end - start);
 }
+static enum NanoLifetimeScope lifetime_scope_stack[8192];
+static unsigned lifetime_scope_depth;
+static uint64_t lifetime_scope_clock;
+static const enum NanoLifetimeCounter lifetime_scope_calls[SCOPE_COUNT] = {LIFE_SCOPE_EXPR_CALLS, LIFE_SCOPE_STMT_CALLS, LIFE_SCOPE_CALL_CALLS, LIFE_SCOPE_NAMED_CALL_CALLS, LIFE_SCOPE_RELEASE_CALLS, LIFE_SCOPE_FUNCTION_CALLS, LIFE_SCOPE_SYMBOL_CALLS, LIFE_SCOPE_VISIBLE_CALLS, LIFE_SCOPE_DEFINE_CALLS, LIFE_SCOPE_SET_CALLS, LIFE_SCOPE_SYNC_CALLS};
+static const enum NanoLifetimeCounter lifetime_scope_time[SCOPE_COUNT] = {LIFE_SCOPE_EXPR_NS, LIFE_SCOPE_STMT_NS, LIFE_SCOPE_CALL_NS, LIFE_SCOPE_NAMED_CALL_NS, LIFE_SCOPE_RELEASE_NS, LIFE_SCOPE_FUNCTION_NS, LIFE_SCOPE_SYMBOL_NS, LIFE_SCOPE_VISIBLE_NS, LIFE_SCOPE_DEFINE_NS, LIFE_SCOPE_SET_NS, LIFE_SCOPE_SYNC_NS};
+static void lifetime_scope_flush(uint64_t now) {
+    if (lifetime_scope_clock) {
+        if (now < lifetime_scope_clock) { fputs("I observed a scope clock reversal.\n", stderr); exit(92); }
+        enum NanoLifetimeCounter target = lifetime_scope_depth
+            ? lifetime_scope_time[lifetime_scope_stack[lifetime_scope_depth - 1]] : LIFE_SCOPE_OUTSIDE_NS;
+        nano_lifetime_add(target, now - lifetime_scope_clock);
+    }
+    lifetime_scope_clock = now;
+}
+void nano_lifetime_scope_enter(enum NanoLifetimeScope scope) {
+    if ((unsigned)scope >= SCOPE_COUNT || lifetime_scope_depth >= 8192) {
+        fputs("I exceeded my diagnostic scope bound.\n", stderr); exit(92);
+    }
+    lifetime_scope_flush(nano_lifetime_now());
+    nano_lifetime_add(lifetime_scope_calls[scope], 1);
+    lifetime_scope_stack[lifetime_scope_depth++] = scope;
+}
+void nano_lifetime_scope_exit(enum NanoLifetimeScope scope) {
+    if (!lifetime_scope_depth || lifetime_scope_stack[lifetime_scope_depth - 1] != scope) {
+        fputs("I observed a misnested diagnostic scope.\n", stderr); exit(92);
+    }
+    lifetime_scope_flush(nano_lifetime_now());
+    --lifetime_scope_depth;
+}
 void nano_evaluator_lifetime_marker(const char *phase, const char *name) {
     static const char *const names[LIFE_COUNTER_COUNT] = {
         "graph_allocations", "clone_nodes", "clone_ns", "retirements", "roots",
@@ -38,10 +67,24 @@ void nano_evaluator_lifetime_marker(const char *phase, const char *name) {
         "view_calls", "view_ns", "view_copies", "view_wrap_allocations",
         "checked_metadata_allocations", "legacy_metadata_allocations",
         "list_calls", "list_visits", "list_hits", "list_ns",
-        "publication_calls", "publication_ns", "discard_nodes", "discard_ns"
+        "publication_calls", "publication_ns", "discard_nodes", "discard_ns",
+        "scope_expr_calls", "scope_expr_ns",
+        "scope_stmt_calls", "scope_stmt_ns",
+        "scope_call_calls", "scope_call_ns",
+        "scope_named_call_calls", "scope_named_call_ns",
+        "scope_release_calls", "scope_release_ns",
+        "scope_function_calls", "scope_function_ns",
+        "scope_symbol_calls", "scope_symbol_ns",
+        "scope_visible_calls", "scope_visible_ns",
+        "scope_define_calls", "scope_define_ns",
+        "scope_set_calls", "scope_set_ns",
+        "scope_sync_calls", "scope_sync_ns",
+        "scope_outside_ns"
     };
     if (lifetime_markers++ >= 8192) { fputs("I exceeded my diagnostic marker bound.\n", stderr); exit(92); }
-    if (fprintf(stderr, "LIFETIME %s %.160s ns=%" PRIu64, phase, name, nano_lifetime_now()) < 0) exit(92);
+    uint64_t timestamp = nano_lifetime_now();
+    lifetime_scope_flush(timestamp);
+    if (fprintf(stderr, "LIFETIME %s %.160s ns=%" PRIu64, phase, name, timestamp) < 0) exit(92);
     for (unsigned i = 0; i < LIFE_COUNTER_COUNT; ++i)
         if (fprintf(stderr, " %s=%" PRIu64, names[i], lifetime_counters[i]) < 0) exit(92);
     if (fputc('\n', stderr) == EOF || fflush(stderr)) exit(92);
