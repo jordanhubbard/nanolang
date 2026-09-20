@@ -3811,6 +3811,7 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "#include \"runtime/list_ASTMatch.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTImport.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTOpaqueType.h\"\n")
+    set parts (cg_append parts "#include \"runtime/list_ASTServiceDecl.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTTupleLiteral.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTModuleQualifiedCall.h\"\n")
     set parts (cg_append parts "#include \"runtime/list_ASTTupleIndex.h\"\n")

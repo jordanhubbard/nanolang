@@ -350,3 +350,29 @@ retains file-backed output, first status, launch failures and bounded process
 group cleanup, clearing inherited LSAN_OPTIONS. No fixture or new compiler has
 been executed at this checkpoint; Linux/Darwin ordinary and supported sanitizer
 configs await review, with source/tool/product seals and first terminals required.
+
+### My prelaunch runtime-list closure correction
+
+I found the missing provider statically before any40a build or fixture run.
+`is_schema_list_type` classifies every AST-prefixed element as a dedicated runtime
+list, so generic fallback cannot provide ASTServiceDecl. I specialize the existing
+ASTOpaqueType source/header by identifier substitution only. Its checked capacity,
+process-OOM behavior, shallow element copying, index checks and free behavior are
+unchanged. It includes the canonical generated compiler_schema.h element layout;
+I add no independent struct definition or bespoke list ABI.
+
+I add the provider to Make RUNTIME_SOURCES, the C driver's explicit runtime source
+array, the actual nanoc_v06 runtime source command, the Nano transpiler's schema
+header list, and the normal/daemon wrapper's runtime object list. C emission's
+existing AST-prefix header rule now resolves the real file. The common Make object
+rule already depends on the canonical schema header and emits dependency files.
+New parser fixtures inherit the complete RUNTIME_OBJECTS through their explicit
+provider list, so the new object is inventoried rather than hidden.
+
+I checked the current install target: it installs compiler binaries and the
+separate explicit File byte-runtime archive/header package; it does not install
+ordinary compiler runtime source files. I do not add an internal AST list to the
+public File runtime ABI or pretend this is standalone relocatable source support.
+The existing C/Nano driver resolves ordinary runtime sources from its selected
+project root. Full outside-tree source support/install acceptance remains the
+later parent gate; this checkpoint proves fresh in-tree ABI closure only.
