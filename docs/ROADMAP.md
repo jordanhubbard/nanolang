@@ -13483,3 +13483,15 @@ I reproduced both projected native timeouts on puck with the unchanged120-second
   retaining the real provider and every existing assertion.
 - [ ] I qualify the corrected layout target and complete Make test on Linux and
   puck with verified provider reuse, unchanged deadlines and retained terminals.
+
+### Complete verifier corpus after canonical admission repair (2026-09-20)
+
+- [ ] I diagnose and repair the exact typed-U8 addition refusal in
+  `tests/test_u8_basic.nano`: my corrected canonical full Make run passes the
+  original90 methods, then rejects `let c: u8 = (+ b 1)` while compiling shadows.
+  MAC `task_c6b2a040c1434fc784a9d46c02a4981e` retains the first verifier terminal.
+- [ ] I restore the required `list_LexerToken_insert` binding for
+  `tests/token_value_bytes.nano` without deleting insert/set/remove or exact-byte
+  assertions. MAC `task_7b805000dfda4da386b55d4691e8c647` retains the independent
+  undefined-function terminal. Linux selected176, verified174, failed2 and
+  skipped0; I do not call that complete verifier-corpus acceptance.
