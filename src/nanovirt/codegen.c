@@ -59,6 +59,7 @@ typedef struct {
     char *name;
     uint16_t slot;
     CgLocalName *advisory;
+    Type declared_type; /* Checked lexical destination, independent of shared Environment. */
     char *struct_type;  /* Struct type name for field resolution (NULL if not a struct) */
 } Local;
 
@@ -108,6 +109,7 @@ typedef struct {
 typedef struct {
     char *name;
     uint16_t slot;
+    Type declared_type;
 } GlobalVar;
 
 typedef struct {
@@ -123,6 +125,7 @@ typedef struct {
     char *name;              /* Variable name */
     uint16_t parent_slot;    /* Slot in parent's locals (or parent's upvalues) */
     bool is_local;           /* true = parent local, false = parent upvalue */
+    Type declared_type;
 } Upvalue;
 
 typedef struct CgPassive {
@@ -286,6 +289,7 @@ static uint16_t local_add(CG *cg, const char *name, int line) {
     binding->slot = slot;
     binding->struct_type = NULL;
     binding->advisory = NULL;
+    binding->declared_type = TYPE_UNKNOWN;
     cg->local_count++;
     return slot;
 }
@@ -302,6 +306,8 @@ static uint8_t ordinary_slot_tag(Type type) {
     }
 }
 static void local_name_begin(CG *cg,uint16_t slot,const char *name,Type type,int line) {
+    for (int i = cg->local_binding_count - 1; i >= 0; --i)
+        if (cg->locals[i].slot == slot) { cg->locals[i].declared_type = type; break; }
     if(cg->struct_count && cg->names_enabled && !cg->had_error) {
         CgAuthoritySlot *fact=malloc(sizeof *fact);
         if(!fact){cg_error(cg,line,"I cannot retain a declared local tag");return;}
@@ -382,6 +388,14 @@ static int16_t upvalue_add(CG *cg, const char *name, uint16_t parent_slot, bool 
     cg->upvalues[idx].name = (char *)name;
     cg->upvalues[idx].parent_slot = parent_slot;
     cg->upvalues[idx].is_local = is_local;
+    cg->upvalues[idx].declared_type = TYPE_UNKNOWN;
+    if (is_local) {
+        for (int i = cg->parent->local_binding_count - 1; i >= 0; --i)
+            if (cg->parent->locals[i].slot == parent_slot) {
+                cg->upvalues[idx].declared_type = cg->parent->locals[i].declared_type;
+                break;
+            }
+    } else cg->upvalues[idx].declared_type = cg->parent->upvalues[parent_slot].declared_type;
     cg->upvalue_count++;
     return idx;
 }
@@ -825,8 +839,8 @@ static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
     if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
 }
 
-/* An integer literal acquires the byte tag only from an exact checked
- * destination. I do not turn arbitrary integer expressions into bytes. */
+/* I narrow computed INT only at an exact checked byte destination. Literal
+ * range policy remains independent of this explicit runtime conversion. */
 static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
     if (tag == TAG_U8) {
         if (node && node->type == AST_NUMBER) {
@@ -837,7 +851,13 @@ static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
             emit_op(cg, OP_PUSH_U8, (uint8_t)node->as.number);
             return;
         }
-        if (check_expression(node, cg->env) != TYPE_U8) {
+        Type actual = check_expression(node, cg->env);
+        if (actual == TYPE_INT) {
+            compile_expr(cg, node);
+            emit_op(cg, OP_CAST_U8);
+            return;
+        }
+        if (actual != TYPE_U8) {
             cg_error(cg, node ? node->line : 0, "I require the declared byte value type");
             return;
         }
@@ -2555,7 +2575,11 @@ static void compile_expr(CG *cg, ASTNode *node) {
             else emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
             uint16_t saved_callee = local_add(cg, "", node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)saved_callee);
-            for (int i = 0; i < argc; i++) compile_expr(cg, node->as.call.args[i]);
+            const FunctionSignature *signature = node->as.call.checked_signature;
+            for (int i = 0; i < argc; i++)
+                compile_expected_tag(cg, node->as.call.args[i],
+                    signature && signature->param_types && i < signature->param_count &&
+                    signature->param_types[i] == TYPE_U8 ? TAG_U8 : TAG_COUNT);
             emit_op(cg, OP_LOAD_LOCAL, (int)saved_callee);
             emit_op(cg, OP_CALL_INDIRECT, argc,
                     check_expression(node, cg->env) == TYPE_VOID ? 0 : 1);
@@ -2624,15 +2648,15 @@ static void compile_expr(CG *cg, ASTNode *node) {
         const char *func_name = node->as.module_qualified_call.function_name;
         int argc = node->as.module_qualified_call.arg_count;
 
-        /* Emit arguments left-to-right */
-        for (int i = 0; i < argc; i++) {
-            compile_expr(cg, node->as.module_qualified_call.args[i]);
-        }
-
-        /* Try qualified name "Module.function" in bytecode functions first */
+        /* I resolve the same qualified declaration before contextual arguments. */
         char qname[512];
         snprintf(qname, sizeof(qname), "%s.%s", mod_alias, func_name);
         int32_t fn_idx = fn_find(cg, qname);
+        if (fn_idx < 0) fn_idx = fn_find(cg, func_name);
+        uint8_t *tags = fn_idx >= 0 ? cg->module->function_param_types[fn_idx] : NULL;
+        for (int i = 0; i < argc; i++)
+            compile_expected_tag(cg, node->as.module_qualified_call.args[i],
+                tags && i < cg->module->functions[fn_idx].arity ? tags[i] : TAG_COUNT);
         if (fn_idx >= 0) {
             emit_op(cg, OP_CALL, (uint32_t)fn_idx);
         } else {
@@ -3638,9 +3662,12 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         }
         int16_t slot = local_find(cg, node->as.set.name);
         if (slot >= 0) {
-            Symbol *binding = env_get_var_visible_at(cg->env, node->as.set.name,
-                                                     node->line, node->column);
-            if (binding && binding->type == TYPE_U8)
+            Type destination = TYPE_UNKNOWN;
+            for (int i = cg->local_binding_count - 1; i >= 0; --i)
+                if (cg->locals[i].slot == (uint16_t)slot) {
+                    destination = cg->locals[i].declared_type; break;
+                }
+            if (destination == TYPE_U8)
                 compile_expected_tag(cg, node->as.set.value, TAG_U8);
             else
                 compile_stored_expr(cg, node->as.set.value);
@@ -3648,13 +3675,17 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         } else {
             int16_t gslot = global_find(cg, node->as.set.name);
             if (gslot >= 0) {
-                compile_stored_expr(cg, node->as.set.value);
+                if (cg->globals[gslot].declared_type == TYPE_U8)
+                    compile_expected_tag(cg, node->as.set.value, TAG_U8);
+                else compile_stored_expr(cg, node->as.set.value);
                 emit_op(cg, OP_STORE_GLOBAL, (uint32_t)gslot);
             } else {
                 /* Check upvalues for captured mutable variables */
                 int16_t uv = upvalue_resolve(cg, node->as.set.name);
                 if (uv >= 0) {
-                    compile_stored_expr(cg, node->as.set.value);
+                    if (cg->upvalues[uv].declared_type == TYPE_U8)
+                        compile_expected_tag(cg, node->as.set.value, TAG_U8);
+                    else compile_stored_expr(cg, node->as.set.value);
                     emit_op(cg, OP_STORE_UPVALUE, 0, (int)uv);
                 } else {
                     cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
@@ -4498,6 +4529,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         }
                         if (!dup) {
                             cg.globals[cg.global_count].name = mitem->as.let.name;
+                            cg.globals[cg.global_count].declared_type = mitem->as.let.var_type;
                             cg.globals[cg.global_count].slot = cg.global_count;
                             cg.global_count++;
                         }
@@ -4554,6 +4586,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         /* Register top-level let bindings as globals */
         if (item->type == AST_LET && cg.global_count < MAX_GLOBALS) {
             cg.globals[cg.global_count].name = item->as.let.name;
+                            cg.globals[cg.global_count].declared_type = item->as.let.var_type;
             cg.globals[cg.global_count].slot = cg.global_count;
             cg.global_count++;
         }
@@ -4676,6 +4709,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     }
                     if (!dup) {
                         cg.globals[cg.global_count].name = mitem->as.let.name;
+                            cg.globals[cg.global_count].declared_type = mitem->as.let.var_type;
                         cg.globals[cg.global_count].slot = cg.global_count;
                         cg.global_count++;
                     }
@@ -4736,7 +4770,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 for (int m = 0; m < mod_ast->as.program.count; m++) {
                     ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
                     if (mitem->type == AST_LET) {
-                        compile_expr(&cg, mitem->as.let.value);
+                        compile_expected_tag(&cg, mitem->as.let.value,
+                            mitem->as.let.var_type == TYPE_U8 ? TAG_U8 : TAG_COUNT);
                         int16_t gslot = global_find(&cg, mitem->as.let.name);
                         if (gslot >= 0) {
                             emit_op(&cg, OP_STORE_GLOBAL, (uint32_t)gslot);
@@ -4749,7 +4784,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = bytecode_declaration(program->as.program.items[i]);
             if (item->type == AST_LET) {
-                compile_expr(&cg, item->as.let.value);
+                compile_expected_tag(&cg, item->as.let.value,
+                            item->as.let.var_type == TYPE_U8 ? TAG_U8 : TAG_COUNT);
                 int16_t gslot = global_find(&cg, item->as.let.name);
                 if (gslot >= 0) {
                     emit_op(&cg, OP_STORE_GLOBAL, (uint32_t)gslot);

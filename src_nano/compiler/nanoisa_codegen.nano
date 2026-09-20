@@ -2993,7 +2993,11 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
             if (or (< literal 0) (> literal 255)) { return (nisa_fail "I require a byte literal from 0 through 255") }
             return (nisa_line_imm "PUSH_U8" (int_to_string literal))
         }
-        if (!= (nisa_expr_type parser node_id node_type) "u8") {
+        let actual: string = (nisa_expr_type parser node_id node_type)
+        if (== actual "int") {
+            return (+ (nisa_emit_expr parser node_id node_type) (nisa_line "CAST_U8"))
+        }
+        if (!= actual "u8") {
             return (nisa_fail "I require the declared byte value type")
         }
     }
@@ -3077,6 +3081,13 @@ shadow nisa_emit_expected_expr {
     let tuple_block: ASTBlock = (parser_get_block tuple_parser tuple_function.body)
     let tuple_statement: ASTStmtRef = (list_ASTStmtRef_get tuple_block.statements 0)
     let tuple_return: ASTReturn = (parser_get_return tuple_parser tuple_statement.node_id)
+    let narrow_source: string = (+ "f" "n narrow() -> u8 { return (+ 255 2) }")
+    let narrow_tokens: List<LexerToken> = (tokenize_string narrow_source "narrow.nano" diagnostics)
+    let narrow_parser: Parser = (parse_program narrow_tokens (list_LexerToken_length narrow_tokens) "narrow.nano")
+    let narrow_return: ASTReturn = (parser_get_return narrow_parser 0)
+    let narrow_text: string = (nisa_emit_expected_expr narrow_parser narrow_return.value narrow_return.value_type "u8")
+    assert (str_contains narrow_text "I64_ADD")
+    assert (str_ends_with narrow_text "  CAST_U8\n")
     let tuple_text: string = (nisa_emit_expected_expr tuple_parser tuple_return.value tuple_return.value_type "(int,string)")
     assert (str_contains tuple_text "AGG_PACK 2 0 0 2")
 }

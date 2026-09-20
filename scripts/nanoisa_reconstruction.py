@@ -32,7 +32,7 @@ ARITHMETIC = {'ADD': 'add', 'SUB': 'sub', 'MUL': 'mul', 'DIV': 'div', 'MOD': 're
               'I64_AND': 'band', 'I64_OR': 'bor', 'I64_XOR': 'bxor', 'I64_INVERT': 'invert'}
 SIMPLE = {'NOP', 'PUSH_I64', 'PUSH_U8', 'PUSH_BOOL', 'PUSH_F64', 'F64_FROM_BITS', 'F64_TO_BITS', 'F64_NEG', 'LOAD_LOCAL', 'STORE_LOCAL',
           'DUP', 'POP', 'SWAP', 'ROT3', 'PICK', 'ROLL', 'BOOL_AND', 'BOOL_OR', 'BOOL_NOT', 'CALL',
-          'CAST_INT', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC) | set(CARRY)
+          'CAST_INT', 'CAST_U8', 'CAST_BOOL', 'AND', 'OR', 'NOT', 'I64_MUL_WIDE_S', 'I64_MUL_WIDE_U'} | set(COMPARE) | set(ARITHMETIC) | set(UNSIGNED_COMPARE) | set(GENERIC_COMPARE) | set(FLOAT_COMPARE) | set(FLOAT_ARITHMETIC) | set(CARRY)
 
 
 @dataclass(frozen=True)
@@ -228,6 +228,10 @@ class Analyze:
             expr = self.truth(value)
         elif op == 'NOT':
             expr = Expr(BOOL, 'not', None, (self.truth(self.pop(stack)),))
+        elif op == 'CAST_U8':
+            value = self.pop(stack)
+            require(value.tag in (INT, U8), 'require exact int/u8 byte conversion operands')
+            expr = value if value.tag == U8 else Expr(U8, 'int_u8', None, (value,))
         elif op == 'CAST_INT':
             value = self.pop(stack)
             require(value.tag in (INT, U8, BOOL), 'require exact int/u8/bool cast operands')
@@ -413,6 +417,8 @@ class Emit:
             return name + '(' + ', '.join(args) + ')' if self.language == 'c' else '(' + ' '.join([name] + args) + ')'
         if expr.kind == 'bool_int':
             return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(nlr_bool_int ' + args[0] + ')'
+        if expr.kind == 'int_u8':
+            return '((uint8_t)' + args[0] + ')' if self.language == 'c' else '(nlr_int_u8 ' + args[0] + ')'
         if expr.kind == 'u8_int':
             return '((int64_t)' + args[0] + ')' if self.language == 'c' else '(cast_int ' + args[0] + ')'
         if expr.kind == 'not':
@@ -467,6 +473,7 @@ class Emit:
                 self.line(self.signature(index) + ';')
         else:
             self.line('# I reconstruct executable scalar regions; original shadows are not retained.')
+        self.byte_helpers()
         self.float_helpers()
         self.arithmetic_helpers()
         for index, function in enumerate(self.functions):
@@ -491,6 +498,19 @@ class Emit:
         self.line(f'return (int){self.name(entry)}();' if c else f'return ({self.name(entry)})', 1)
         self.line('}')
         return '\n'.join(self.lines) + '\n'
+
+    def byte_helpers(self):
+        def contains(node):
+            if isinstance(node, Expr):
+                return node.kind == 'int_u8' or any(contains(arg) for arg in node.args)
+            return isinstance(node, (tuple, list)) and any(contains(child) for child in node)
+        if self.language == 'nano' and any(contains(function.body) for function in self.functions):
+            # Generated function names use nlr_f<index>_; this helper is disjoint.
+            self.line('''fn nlr_int_u8(value: int) -> u8 { return value }
+shadow nlr_int_u8 {
+    assert (== (cast_int (nlr_int_u8 257)) 1)
+    assert (== (cast_int (nlr_int_u8 (- 0 1))) 255)
+}''')
 
     def float_helpers(self):
         def uses_arithmetic(node):
