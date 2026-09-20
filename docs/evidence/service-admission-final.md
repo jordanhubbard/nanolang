@@ -59,6 +59,9 @@ Final source review restored only unrelated Make comments damaged by merge-marke
 cleanup; every noncomment/nonblank line remains identical to bc45. I then merged
 actual918 main367476f0, whose only non-document delta is the two native test
 compiler selectors, exact3ef bytes. Neither change relabels earlier execution.
-The ready-input map records these boundaries. Independent supplemental review,
-actual merge, and fresh complete90-method canonical acceptance with supported
-selectors remain required. Full roadmap and task2f criteria stay open.
+The ready-input map records these boundaries. My [independent supplemental audit](service-admission-final-independent-audit.json)
+passed at5a9764e4c: all692 committed reports,8100 objects,397131 archived
+references and74 endpoint pairs were verified, along with the actual logs and
+current ordinary/public input maps. Actual merge and fresh complete90-method
+canonical acceptance with supported selectors remain required. Full roadmap and
+task2f criteria stay open.
