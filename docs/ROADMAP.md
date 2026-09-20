@@ -12660,3 +12660,14 @@ allocation execution block across entered cyclic instructions, witness checks,
 backedges and return in both arena modes. I retain all prior fault predicates
 and distinguish retained creation bytes from an unmeasured preparation peak.
 This bounded fixture addition remains unexecuted pending review.
+
+- [ ] I repair carrier fixture post-refusal root inspection (`1a19c4ff`, parent
+  `15a92`). Frozen `c5d048` Linux setup/configuration passed; its first ordinary
+  gate compiled, passed the retained 84,506 carrier and 42,381 frame checks, then
+  failed the inherited `frame_local` helper. I preserve the complete terminal
+  and artifacts. Static inspection finds the held-owner case asks an active
+  frame accessor after expected BORROWED; the later generation-LIMIT case has
+  the same mismatch. I snapshot stable root IDs before refusal and retain the
+  owner/output assertions through the existing root-view API. Unbuffered case
+  markers improve later attribution. Production and status predicates remain
+  unchanged; root reviews the bounded diff before fresh corrected gates.

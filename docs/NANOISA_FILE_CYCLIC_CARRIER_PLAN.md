@@ -322,3 +322,23 @@ refusal/positive neighbors remain required alongside the cyclic query/hosted
 neighbors. I preserve the first unexpected terminal before any correction.
 No installed ABI, public admission, cyclic dispatcher or generated-native
 execution is added by this fixture checkpoint.
+
+## I preserve my first carrier fixture terminal
+
+At frozen `c5d048fd8`, fresh Linux setup passed in 21.569 seconds and configuration
+passed in 0.114 seconds. The first ordinary fixture compiled, passed the complete
+retained carrier (84,506 checks) and frame (42,381 checks) suites, then failed at
+the inherited `frame_local` helper. I retain the 4.424-second failed phase under
+`/tmp/nanolang-file-cyclic-carrier-c5d-linux` and the original produced bytes under
+`/tmp/nano-file-cyclic-runtime-ehwku8ns`. No later phase or Darwin gate ran.
+
+The terminal does not print its new-case name. Static inspection identifies the
+earliest matching misuse: the held-owner test expects BORROWED, then requests
+its local root through `frame_local`; that active-frame query correctly rejects
+a non-OK report. The later generation-LIMIT test repeats the same misuse.
+Under repair child `1a19c4ff`, I snapshot each exact local root before refusal,
+then use the existing root-value view afterward. I retain both the error and
+preserved-owner predicates. I add unbuffered case-start markers so later first
+terminals identify the begun case. This is a fixture correction, not a relaxed
+runtime accessor. Fresh corrected products require reviewed fixture bytes;
+original c5d products and first-terminal attribution remain immutable.

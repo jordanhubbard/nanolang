@@ -200,9 +200,9 @@ static void held_owner_refusal(void){
  for(unsigned mode=0;mode<2;mode++){
   NvmFileNominalBindings b;NvmFileRuntime *c=ccreate(cnested(&b,false),(NvmFileRuntimeMode)mode,100,true);
   cservice(c,0);cstore(c,true);cbranch(c,false);ctake(c);cstore(c,true);cregion(c,true);cborrow(c);
-  cent(c,OP_CALL_REF);uint32_t dst=fv(c).staging_base;
-  CHECK(nvm_file_runtime_move(c,fl(c,1),dst)==NVM_FILE_RUNTIME_BORROWED);
-  CHECK(view(c,fl(c,1)).owning && !view(c,dst).initialized);
+  cent(c,OP_CALL_REF);uint32_t dst=fv(c).staging_base,src=fl(c,1);
+  CHECK(nvm_file_runtime_move(c,src,dst)==NVM_FILE_RUNTIME_BORROWED);
+  CHECK(view(c,src).owning && !view(c,dst).initialized);
   CHECK(!cfinish(&c,NVM_FILE_RUNTIME_BORROWED,0).fuel_exhausted);
  }
 }
@@ -241,7 +241,7 @@ static void forged_boundaries(void){
 }
 static void counter_boundaries(void){
  NvmFileNominalBindings b;NvmFileRuntime *c=ccreate(cloop(&b,false,1),NVM_FILE_RUNTIME_VM,100,true);cpush(c,1);cstore(c,false);cheader(c,false);cservice(c,0);cstore(c,true);near_limit(c,fl(c,1),UINT64_MAX);cbranch(c,false);cent(c,OP_FILE_RESULT_TAKE);
- CHECK(nvm_file_runtime_take(c,fl(c,1),NVM_FILE_FLOW_ARM_OK,fout(c,0))==NVM_FILE_RUNTIME_LIMIT);CHECK(view(c,fl(c,1)).owning);CHECK(!cfinish(&c,NVM_FILE_RUNTIME_LIMIT,0).fuel_exhausted);
+ uint32_t root=fl(c,1);CHECK(nvm_file_runtime_take(c,root,NVM_FILE_FLOW_ARM_OK,fout(c,0))==NVM_FILE_RUNTIME_LIMIT);CHECK(view(c,root).owning);CHECK(!cfinish(&c,NVM_FILE_RUNTIME_LIMIT,0).fuel_exhausted);
  c=ccreate(cloop(&b,false,1),NVM_FILE_RUNTIME_VM,100,true);cpush(c,1);cstore(c,false);cheader(c,false);cservice(c,0);cstore(c,true);cbranch(c,false);ctake(c);cstore(c,true);c->next_region=UINT64_MAX;cent(c,OP_REGION_BEGIN);
  CHECK(nvm_file_runtime_frame_region_begin(c)==NVM_FILE_RUNTIME_LIMIT && !c->region_count);CHECK(!cfinish(&c,NVM_FILE_RUNTIME_LIMIT,0).fuel_exhausted);
  NlFileValues *core=NULL;CHECK(nl_file_values_create(&core)==NL_FILE_VALUE_OK);NlFileValue open={0},file={0};CHECK(nl_file_values_temp(core,&open)==NL_FILE_VALUE_OK);CHECK(nl_file_open_take_ok(core,&open,&file)==NL_FILE_VALUE_OK);
@@ -274,10 +274,15 @@ static void allocation_failures(void){
  CHECK(create_failures && begin_failures);printf("PASS %u create and %u begin allocation refusals with fresh recovery\n",create_failures,begin_failures);free(wire);
 }
 #endif
+#define CYCLIC_CASE(name) do { printf("I begin cyclic carrier case %s\n",#name);name(); } while(0)
 int main(void){
- CHECK(prior_file_frames_main()==0);unsigned before=checks;invalid_options();reverse_kind_guard();fuel_and_lifecycle();nested_borrows();cyclic_owner_calls();swapped_roots();held_owner_refusal();service_fuel_and_error();loops();
+ CHECK(setvbuf(stdout,NULL,_IONBF,0)==0);
+ printf("I begin retained acyclic carrier/frame corpus\n");CHECK(prior_file_frames_main()==0);unsigned before=checks;
+ CYCLIC_CASE(invalid_options);CYCLIC_CASE(reverse_kind_guard);CYCLIC_CASE(fuel_and_lifecycle);
+ CYCLIC_CASE(nested_borrows);CYCLIC_CASE(cyclic_owner_calls);CYCLIC_CASE(swapped_roots);
+ CYCLIC_CASE(held_owner_refusal);CYCLIC_CASE(service_fuel_and_error);CYCLIC_CASE(loops);
 #ifdef HOSTED_INSTRUMENT
- forged_boundaries();counter_boundaries();allocation_failures();CHECK(!tracked_live && !tracked_bytes);
+ CYCLIC_CASE(forged_boundaries);CYCLIC_CASE(counter_boundaries);CYCLIC_CASE(allocation_failures);CHECK(!tracked_live && !tracked_bytes);
 #endif
  empty_host();printf("PASS %u manual cyclic carrier/fuel checks; no cyclic opcode dispatcher\n",checks-before);return 0;
 }
