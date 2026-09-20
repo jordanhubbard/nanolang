@@ -13961,3 +13961,10 @@ independent recovery. Its nominal release-depth control explicitly separates
 control. I statically corrected the new zero-field fixture's extension size
 word before execution. All acceptance boxes above remain open until frozen
 both-host qualification and independent evidence review.
+
+- [ ] Before private VM fixture execution I preserve exact input object bytes
+  in the immutability snapshot (`task_83a5bc6351ba4319805082daffc08b38`). Root
+  static review found `Input before=*c` followed by whole-object `memcmp`;
+  structure assignment does not promise padding-byte preservation. I use
+  `memcpy` for this fixture snapshot, retaining the same comparison and all
+  semantic assertions. No failing test or product defect is claimed.

@@ -37,7 +37,7 @@ static void scalar_variant(Input *c,uint8_t tag) {
     else arg32(c,OP_PUSH_STR,1);
 }
 static VmRecordArrayPrivate *instance(Input *c) {
-    Input before=*c;VmRecordArrayPrivate *p=(void *)(uintptr_t)1;
+    Input before;memcpy(&before,c,sizeof before);VmRecordArrayPrivate *p=(void *)(uintptr_t)1;
     NvmArrayEligibilityResult result=vm_record_array_private_create(&c->m,&p);
     if(result.status!=NVM_ARRAY_ELIGIBLE)fprintf(stderr,"I could not prepare private VM: %u %s\n",result.status,result.message);
     CHECK(result.status==NVM_ARRAY_ELIGIBLE&&p!=(void *)(uintptr_t)1&&!memcmp(c,&before,sizeof before));
