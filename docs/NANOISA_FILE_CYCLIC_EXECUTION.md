@@ -295,3 +295,27 @@ imply full-runtime instrumentation. A new Make target names this fixture only.
 Unchanged cyclic-query/body/flow/CODE/refusal neighbors remain separate gates.
 I have not compiled or executed this fixture; complete fixture review precedes
 frozen Linux/Darwin ordinary and supported sanitizer qualification.
+
+## I preserve the public acyclic boundary after integration
+
+My first query-only seal is4af2 at qualified46912. Canonical PR895 then merges
+97546742af995329967df630a20c4c72dd3f6dd4, adding the public acyclic archive,
+APIs, shared engine factoring and CLI/install package. The separate ready merge
+b75f05817 is automatic: old hosted/cyclic query source and my qualified hosted
+production/fixtures retain exact bytes. No original sanitizer result is relabeled
+as this integration, and no compiler bootstrap is needed for these C providers.
+
+I propose fresh ordinary setup plus the unchanged hosted suite on Linux/puck
+and an additional linked-archive conjunction driver. That driver includes
+source-private query/fixture headers and links the actual built public runtime
+archive; it does not claim an installed cyclic API. The same cyclic wire must
+prepare through my private hosted query yet fail public VM and native emission
+before invocation acquisition, preserving scalar/source sentinels and leaving
+the gate reusable. An acyclic scalar-only control then executes successfully
+with the same grant; revocation still refuses. No cyclic module or File service
+instruction executes. Its runner retains source, linked-input/archive hashes,
+raw terminals and the already reviewed bounded process-group cleanup.
+
+I request review of this exact driver before supplemental execution. Qualified
+46912 Linux/Darwin trees and seals stay immutable. Integration evidence remains
+separate; no full sanitizer/public package matrix is repeated or inferred.

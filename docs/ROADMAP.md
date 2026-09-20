@@ -12561,3 +12561,11 @@ retains230 reports,945 unique artifacts,23 equal source/tool pairs and all
 allocation/output controls. No correction or cyclic service execution occurs.
 Independent review and merge are pending;15a92 and all later runtime/public/
 source obligations remain open.
+
+I assess canonical895/97546742a in a separate15a92 ready tree. The automatic
+b75f merge preserves qualified hosted/query bytes and adds only already reviewed
+public package/engine changes. Before ordinary integration gates I prepare a
+linked-archive conjunction fixture: private cyclic-hosted success plus public
+VM/emitter refusal and output preservation, then an acyclic scalar control.
+This uses source-private headers, not a newly installed cyclic API. Root reviews
+this fixture first; original46912 sanitizer attribution stays unchanged.
