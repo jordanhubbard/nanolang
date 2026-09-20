@@ -290,3 +290,13 @@ the original driver and first terminal. The two-line driver correction queries
 these executable helpers with `-print-prog-name`; actual ASan/UBSan libraries
 continue to use `-print-file-name`. Source15069 and all fixtures are unchanged.
 No qualification pass is inferred from corrected source review.
+
+The corrected external driver reaches the first15069 Linux fixture, which stops
+before compilation while validating Clang's target triple. Its dumpmachine
+probe omitted the configured LLVM_FLAGS, so GCC14 discovery warning text joined
+the retained stdout/stderr before the exact triple regex. Compilation commands
+already use the explicit GCC13 selection. I retain all three tool-probe commands
+and the0.816s terminal at /tmp/nanolang-read-adapters-corrected-linux. My proposed
+one-line fixture correction applies the same flags to dumpmachine; I preserve
+strict output validation and do not filter or suppress warnings. Any concurrent
+puck acceptance remains attributed to unchanged15069, not the corrected fixture.

@@ -12638,3 +12638,4 @@ review/actual merge, while cyclic carrier/fuel/VM/native/public and source
 requirements remain open.
 
 - [ ] I correct the native read-text qualification driver's executable-helper discovery under b7ef: my first15069 Linux attempt stops before build when file-name queries return cc1/collect2 basenames. I retain the exact driver/terminal in [preflight evidence](evidence/portable-read-adapter-preflight/preflight-terminal.json), use supported program-name queries for executables only, and require a fresh source-identical matrix after review. No product failure or adapter acceptance is inferred.
+- [ ] I preserve the15069 Linux precompile triple-probe terminal and consistently pass configured LLVM_FLAGS to dumpmachine under b7ef. The existing exact triple regex, combined-output retention and strict compile flags remain; corrected Linux acceptance requires a fresh fixture checkpoint, while any unaffected puck15069 results keep their original attribution.
