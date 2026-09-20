@@ -13505,3 +13505,18 @@ My Game of Life timing repair at69208feac passes fresh C-seed builds, all five u
 - [ ] I select a supported native sanitizer compiler in my macOS hosted build (`task_0843b8e173511d75050d15c77d42e5fe`). PR918 job106076903795 fails eight reference transport controls because Apple ASan rejects enabled leak detection. I install Homebrew LLVM and set my existing explicit sanitizer/managed-runtime selectors, retaining ordinary CC, assertions, flags and deadlines. I require workflow validation, actual selected transport checks and observed hosted progress before closing this CI scope; full5.1 remains open.
 
 My proposed macOS CI selector step passes YAML/step-order and Bash syntax validation. Executing that exact step on puck selects Homebrew LLVM and all eight unchanged reference transport tests pass in6.802 seconds with leak detection retained. I preserve the [hosted failure and local result](evidence/macos-ci-native-compiler/source-log.json); actual hosted acceptance remains open under task_0843b8e173511d75050d15c77d42e5fe.
+
+### Checked list mutation and computed-byte semantics (2026-09-20)
+
+- [ ] I review [generic-list mutation semantics](NANOISA_GENERIC_LIST_MUTATIONS.md)
+  for exact receiver/result identities, once-only staging, pre-mutation bounds,
+  alias cleanup and unchanged token byte-count assertions before implementing
+  MAC `task_7b805000dfda4da386b55d4691e8c647`.
+- [ ] I qualify the reviewed list producer/checker checkpoint and original token
+  source across its actual producers and runtime targets, retaining all failures.
+- [ ] I review [computed U8 conversion semantics](NANOISA_COMPUTED_U8_CONVERSION.md)
+  and the complete opcode/consumer dependency plan before implementing MAC
+  `task_c6b2a040c1434fc784a9d46c02a4981e`; exact-tag and literal refusal checks stay.
+- [ ] I qualify the conversion in dependency order through applicable producers,
+  runtime/backend targets and the original whole verifier corpus. Partial target
+  coverage does not close my full5.1 compiler/bootstrap/release requirements.
