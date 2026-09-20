@@ -1,0 +1,15 @@
+test_corruption_and_copy_substitution_fail (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_corruption_and_copy_substitution_fail) ... ok
+test_descriptor_spelling_does_not_replace_primary_identity (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_descriptor_spelling_does_not_replace_primary_identity) ... ok
+test_existing_capture_is_not_overwritten (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_existing_capture_is_not_overwritten) ... ok
+test_expected_input_is_required_and_checked (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_expected_input_is_required_and_checked) ... ok
+test_partial_capture_cannot_replay (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_partial_capture_cannot_replay) ... ok
+test_path_bytes_survive_the_sealed_format (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_path_bytes_survive_the_sealed_format) ... ok
+test_real_assembler_sealed_replay (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_real_assembler_sealed_replay) ... ok
+test_repeated_and_failed_opens_are_ordered (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_repeated_and_failed_opens_are_ordered) ... ok
+test_search_macro_and_auxiliary_modes_replay_without_originals (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_search_macro_and_auxiliary_modes_replay_without_originals) ... ok
+test_source_symlink_is_captured_but_fifo_is_rejected (tests.test_assembler_capture_records.AssemblerCaptureRecords.test_source_symlink_is_captured_but_fifo_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.181s
+
+OK

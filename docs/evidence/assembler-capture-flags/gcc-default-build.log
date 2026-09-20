@@ -1,0 +1,2 @@
+mkdir -p /tmp/nanolang-capture-flags-qualified/gcc-default
+cc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -fPIC -shared -o /tmp/nanolang-capture-flags-qualified/gcc-default/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -lffi -rdynamic -ldl

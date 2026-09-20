@@ -1,0 +1,2 @@
+mkdir -p /tmp/nanolang-capture-flags-qualified/clang-selected
+/usr/local/bin/clang -DNANO_CAPTURE_CPP_PROBE=17 -include /tmp/nanolang-capture-flags-qualified/flag-probe.h -Wall -Wextra -Werror -std=c99 -O2 -D_GNU_SOURCE -DNANO_CAPTURE_C_PROBE=25 --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -fPIC -shared -o /tmp/nanolang-capture-flags-qualified/clang-selected/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -lffi -rdynamic -ldl

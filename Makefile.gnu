@@ -2798,9 +2798,13 @@ test-assembler-capture-records:
 	@python3 -m unittest tests.test_assembler_capture_records
 
 ifeq ($(UNAME_S),Linux)
+# I load this helper into an external assembler, outside my compiler's
+# sanitizer process. Explicit helper flags can select compatible instrumentation.
+NANO_AS_CAPTURE_CFLAGS ?= $(filter-out -fsanitize=%,$(CFLAGS))
+NANO_AS_CAPTURE_LDFLAGS ?= $(filter-out -fsanitize=%,$(LDFLAGS))
 $(COMPILER_C) nano_virt $(OBJ_DIR)/test_module_generation_probe: $(BIN_DIR)/nano_as_capture.so
 $(BIN_DIR)/nano_as_capture.so: $(RUNTIME_DIR)/assembler_capture.c $(RUNTIME_DIR)/assembler_capture.h | $(BIN_DIR)
-	$(CC) -std=c99 -O2 -Wall -Wextra -Werror -fPIC -shared -o $@ $< -ldl
+	$(CC) $(CPPFLAGS) $(NANO_AS_CAPTURE_CFLAGS) -fPIC -shared -o $@ $< $(NANO_AS_CAPTURE_LDFLAGS) -ldl
 endif
 
 MODULE_GENERATION_PROBE_OBJECTS = $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(OBJ_DIR)/runtime/ffi_loader.o
