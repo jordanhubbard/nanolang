@@ -12685,3 +12685,19 @@ equal input pairs and698 artifacts; original701 sanitizer and32ade bootstrap
 claims remain distinct. Root independently verifies the original892-report seal.
 Final supplemental review/actual merge remain pending; full8bbc/source parents
 stay open and no source publication or File execution follows.
+
+## I continue actual File binding publication after the descriptive milestone
+
+I retain PR901 actual merge `ec51690f7028fc788145d4d84e630627a07df668` as only
+the paired nonexecuting plan milestone of `task_8bbc1cf5295b4b59b314640ef57c725f`.
+Root verified892+293 actual report blobs,1352+698 retained artifact objects,
+26+8 equal input pairs and18 producer outputs with exactly75 selected shadows.
+I preserve all first failures and distinct bootstrap/sanitizer/integration pins.
+No optional hosted-check success is inferred. Full8bbc/6fc/72556/6931/d03c remain
+open; no duplicate source task replaces their original acceptance.
+
+- [ ] I review [my concrete next binding/source design](NANOISA_FILE_BINDING_PUBLICATION_NEXT.md) before production: strict actual NSI snapshot, pure exact catalog renderer, no-replacement companion directory, paired source declaration/identity and full mandatory later lowering/shadow/publication requirements.
+- [ ] I correct the statically discovered strict-ingestion prerequisite before the new publisher: existing `nl_nsi_load_path` reads an unbounded path and uses non-complete-consumption `cJSON_Parse`; `keys_allowed` does not reject duplicate keys and C-string NSI fields do not retain decoded NUL extents. I establish a bounded counted-byte path with exact decoded-key/string/full-document validation and reuse the existing exact File catalog validator. Legacy acceptance remains separate; no malformed-input execution or product correction is claimed yet.
+- [ ] I review/qualify the pure binding plan's complete allocation/output/lifetime and canonical roundtrip behavior, then separately review/qualify atomic no-replacement directory publication and actual explicit CLI on Linux/puck. I retain first/secondary cleanup and postcommit durability states; no source/service execution follows from generated text alone.
+- [ ] I settle the peer-owned shared schema coexistence policy before paired parser/AST/clone changes, then retain all C-seed/Nano helper/module shadows and exact identity comparisons. I reserve no competing schema version or numeric slot.
+- [ ] I review/qualify complete paired lowering, selected shadows/fresh grants/VOID startup, installed generated binding consumers, actual VM/direct native source and full original platform/product gates. Cyclic/indirect/richer-borrow source acceptance remains mandatory under the open parents.
