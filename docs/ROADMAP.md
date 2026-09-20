@@ -13827,3 +13827,8 @@ remain required before acceptance.
   unlike C. A4096-byte qualifier therefore falsely refuses only Nano. I retain
   the4096-byte cap, charge a dot only between two nonempty sides, and require
   empty-side, exact-limit and over-limit paired controls before acceptance.
+
+- [ ] I correct the runtime-vector ownership gap found in f029 source review:
+  canonical runtime requests share one registry row but currently append duplicate
+  final command inputs. I append only newly inserted owners, preserving first-seen
+  order, and require a canonical runtime alias fixture before accepting task28cf8.

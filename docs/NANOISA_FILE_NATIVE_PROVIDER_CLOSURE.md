@@ -142,3 +142,10 @@ behavior remain preconditions; I do not claim hostile filesystem identity safety
 or distinguish every possible lookup error from absence. Existing generated-C
 cleanup remains separate. Complete producer, standalone, conflict, failure,
 concurrency and ordered-profile fixtures still precede acceptance.
+
+I append a canonical runtime source to the final command vector only when its
+request inserts a new registry row. Distinct inventory paths resolving to the same
+canonical file therefore share the first owner and its original order, just like
+module requests. My fixtures must supply an actual canonical runtime alias and
+observe one final compiler input; a registry-only duplicate unit control is not
+sufficient for this corrected boundary.

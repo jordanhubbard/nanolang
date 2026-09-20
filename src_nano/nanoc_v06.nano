@@ -1692,10 +1692,13 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
     while (< i (array_length runtime.sources)) {
         let source: string = (canonical (at runtime.sources i))
         if (== source "") { return result }
+        let prior_count: int = (array_length registry.rows)
         set registry (native_provider_add registry (NativeProvider { source: source, compiler: selected_compiler,
             language: "c99", profile: profile, runtime: true }))
         if (not registry.ok) { return result }
-        set result.runtime_sources (array_push result.runtime_sources source)
+        if (> (array_length registry.rows) prior_count) {
+            set result.runtime_sources (array_push result.runtime_sources source)
+        }
         set i (+ i 1)
     }
     set i 0
