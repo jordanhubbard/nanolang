@@ -12826,3 +12826,15 @@ not yet created. No driver/setup/test ran in that invocation. The record is
 preparation and exact source/archive identity before the corrected launch; puck
 also waits for successful transfer before its verified launcher. This is a
 launcher sequencing failure, not a product result. Frozen7913 remains unchanged.
+
+I retain frozen7913 first runtime terminals: Linux setup21.972s and puck
+setup9.698s/configuration/two-test discovery passed. Their first ordinary phases
+failed4.675s/3.914s on case0 before acquisition/fuel: expectedOK, actualINVALID.
+The fixture constructed `PUSH_I64 17; RET; NOP`; existing all-instruction CFG
+validation correctly refuses the final NOP fallthrough outside the body, even
+when unreachable. Both raw logs, binaries and maps remain under7913 reports.
+Before correction I specify an unreachable RET after that NOP, retaining the
+zero-variant instruction2 native forced-entry refusal and unchanged2-instruction
+positive path. The unsupported-op control will replace that penultimate NOP
+with PRINT while preserving final RET. No production/query rule changes; root
+reviews this fixture-only delta before fresh gates. Repair78437 remains open.
