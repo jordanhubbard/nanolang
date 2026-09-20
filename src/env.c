@@ -2,6 +2,7 @@
 #include "builtins_registry.h"
 #include "runtime/gc.h"
 #include <string.h>
+#include "env_record_lists.inc"
 
 typedef struct {
     uint64_t hash;
@@ -225,23 +226,7 @@ static void env_free_value(Value v) {
      * GC cycle collection will clean them up when the program ends.
      * Compiled code handles opaque lifetimes correctly via scope-based cleanup. */
     if (v.type == VAL_STRUCT) {
-        StructValue *sv = v.as.struct_val;
-        if (!sv) return;
-        free(sv->struct_name);
-        for (int j = 0; j < sv->field_count; j++) {
-            free(sv->field_names[j]);
-            if (sv->field_values[j].type == VAL_STRING) {
-                /* Release GC-managed strings in struct fields */
-                if (gc_is_managed(sv->field_values[j].as.string_val)) {
-                    gc_release(sv->field_values[j].as.string_val);
-                } else {
-                    free(sv->field_values[j].as.string_val);
-                }
-            }
-        }
-        free(sv->field_names);
-        free(sv->field_values);
-        free(sv);
+        env_discard_record(v.as.struct_val);
         return;
     }
     if (v.type == VAL_FUNCTION) {
@@ -267,6 +252,7 @@ void free_environment(Environment *env) {
             env_free_value(env->symbols[i].value);
     }
     free(env->symbols);
+    env_record_storage_free(env);
     if (env->import_tracker) {
         free(env->import_tracker->imports);
         free(env->import_tracker);
@@ -656,7 +642,7 @@ static bool module_string_list_contains(char **items, int count, const char *nam
     return false;
 }
 
-static NominalIdentity generated_list_element(Environment *env, const Function *function) {
+NominalIdentity env_generated_list_element(Environment *env, const Function *function) {
     for (int i = 0; env && function && i < env->generic_instance_count; ++i) {
         GenericInstantiation *inst = &env->generic_instances[i];
         if (!inst->list_element.ordinal) continue;
@@ -670,7 +656,7 @@ static NominalIdentity generated_list_element(Environment *env, const Function *
 }
 
 const char *env_function_signature_owner(Environment *env, const Function *function) {
-    NominalIdentity element = generated_list_element(env, function);
+    NominalIdentity element = env_generated_list_element(env, function);
     return element.ordinal ? env_nominal_owner(env, element) : function ? function->module_name : NULL;
 }
 
@@ -792,12 +778,12 @@ Function *env_get_function(Environment *env, const char *name) {
     bool generated_name = false;
     for (int i = 0; i < env->function_count; ++i)
         if (env->functions[i].name && !strcmp(env->functions[i].name, name) &&
-            generated_list_element(env, &env->functions[i]).ordinal) generated_name = true;
+            env_generated_list_element(env, &env->functions[i]).ordinal) generated_name = true;
     if (generated_name) {
         Function *fallback = NULL;
         for (int i = 0; i < env->function_count; ++i) {
             Function *fn = &env->functions[i];
-            if (!fn->name || strcmp(fn->name, name) || generated_list_element(env, fn).ordinal) continue;
+            if (!fn->name || strcmp(fn->name, name) || env_generated_list_element(env, fn).ordinal) continue;
             if ((!fn->module_name && !env->current_module) ||
                 (fn->module_name && env->current_module && !strcmp(fn->module_name, env->current_module))) return fn;
             if (!fallback) fallback = fn;
@@ -929,37 +915,19 @@ Value create_array(ValueType elem_type, int length, int capacity) {
 }
 
 Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count) {
-    Value v;
-    v.type = VAL_STRUCT;
-    v.is_return = false;
-    v.is_break = false;
-    v.is_continue = false;
-    v.as.struct_val = malloc(sizeof(StructValue));
-    v.as.struct_val->struct_name = strdup(struct_name);
-    v.as.struct_val->field_count = field_count;
-    
-    /* Allocate and copy field names */
-    v.as.struct_val->field_names = malloc(sizeof(char*) * field_count);
-    for (int i = 0; i < field_count; i++) {
-        v.as.struct_val->field_names[i] = strdup(field_names[i]);
+    StructValue source = {0};
+    source.struct_name = (char *)struct_name;
+    source.field_names = field_names;
+    source.field_values = field_values;
+    source.field_count = field_count;
+    Value input = create_void(), result;
+    input.type = VAL_STRUCT;
+    input.as.struct_val = &source;
+    if (!env_clone_record(input, &result)) {
+        fprintf(stderr, "I cannot copy record storage.\n");
+        exit(1);
     }
-    
-    /* Allocate and copy field values */
-    v.as.struct_val->field_values = malloc(sizeof(Value) * field_count);
-    for (int i = 0; i < field_count; i++) {
-        if (field_values[i].type == VAL_STRING) {
-            const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
-            v.as.struct_val->field_values[i] = create_string(src);
-        } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
-            StructValue *nested = field_values[i].as.struct_val;
-            v.as.struct_val->field_values[i] = create_struct(nested->struct_name,
-                nested->field_names, nested->field_values, nested->field_count);
-        } else {
-            v.as.struct_val->field_values[i] = field_values[i];
-        }
-    }
-    
-    return v;
+    return result;
 }
 
 Value create_union(const char *union_name, int variant_index, const char *variant_name, 

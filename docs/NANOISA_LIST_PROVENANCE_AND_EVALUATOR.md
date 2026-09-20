@@ -310,3 +310,89 @@ that cannot represent a nested callable/array annotation does not become proof b
 matching another equally incomplete shape; completing such source transport
 remains required rather than silently admitting it. No enum ABI, opcode, evaluator
 storage or test expectation changes accompany this correction.
+
+### My evaluator consumer correction before qualification
+
+My storage audit found two additional consumers of the same lifetime contract.
+Both uppercase generated-list call paths currently bypass the lowercase storage;
+I will use their exact registered generated-function association and the same
+registry, preserving actual user declarations. My C and NanoISA loops both
+capture the initial length, so my record evaluator loop will do likewise and
+check each current index rather than adopt the scalar evaluator's live length.
+
+Borrowed record-field assignment currently stores an incoming Value directly.
+That can install a borrowed list-result record/string inside an owning record.
+Before adding recursive cleanup I must stage a record/string copy, replace only
+after success, and discard the old owned field. This is part of the record
+consumer audit; it does not add ownership of array/function reference fields.
+My block-result path must preserve returned nested records before releasing
+owned local records. My public call boundary must copy any arena-backed result
+that could otherwise escape its Environment. I have not executed these old paths.
+
+### My binding retirement rule
+
+Before changing truncation, I record a single ownership transfer. I allocate a
+retirement entry while the symbol still owns its record. Failure leaves that
+symbol and output unchanged and follows the evaluator's fatal allocation path.
+After successful registration I clear the symbol Value, then release its name
+and truncate its slot. I reject duplicate registration. Environment teardown
+releases each retired record through the same recursive discard exactly once.
+This retains pointers already borrowed by a tuple or pending callback within the
+Environment's lifetime. It does not make those values safe after teardown.
+
+My cumulative storage now includes retired binding records as well as result
+snapshots and live list slots. I do not claim expression-bounded reclamation or
+constant memory per loop. I preserve old function/reference-field borrowing and
+do not release function values at scopes that did not previously release them.
+
+I discovered two distinct escape requirements and filed them before implementing
+either: `task_c3e8419dec9b8ccbcd6e1f99e5dbe5ec` for tuple/record result ownership,
+and `task_f8b5ecacb7e4bcc1542712b4652308ad` for deferred Environment leases. Their
+proposal is in `NANOISA_EVALUATOR_ESCAPE_LIFETIME.md`. My list storage source is
+reviewable independently; it is not yet a qualification candidate without these
+accepted-flow lifetime boundaries.
+
+### My evaluator storage source checkpoint
+
+My implementation lives in `src/env_record_lists.inc`, included by `env.c` so
+standalone Environment users gain no new dependency on `eval.o`. `env.o` has an
+explicit include prerequisite in addition to the existing generated dependencies.
+Environment zero-initialization starts both lists empty; teardown discards my
+registry after symbols and before definitions/checker metadata.
+
+| Source API | Ownership and failure |
+| --- | --- |
+| `env_clone_record` / `env_discard_record` | Checked recursive record/string snapshot; output unchanged on failure; other reference fields borrowed |
+| `env_record_snapshot` | Staged clone becomes an Environment-owned result only after complete success |
+| `env_retire_record` | Unique owned record transfers after node allocation succeeds; caller clears the symbol only after true |
+| `env_record_list_identity` | Lookup by integer equality before dereference; live entry and output required |
+| `env_record_list_apply` | Exact record identity/live state/arity/kinds/bounds; stage before mutation; unchanged output on failure |
+| `env_generated_list_element` | Existing generated-function ordinal association, now shared with evaluator dispatch |
+
+My slots use embedded List_int headers in nonmoving registry entries. Vector
+reallocation uses a temporary pointer and checked INT_MAX/size bounds. `free`
+clears records/vector and retains the header as a tombstone; no arbitrary integer
+becomes a dereferenceable handle. `with_capacity` and `is_empty` are matched as
+whole suffixes, not split at their final underscore. Both generated uppercase
+paths use the same registry; actual declared functions keep precedence. The
+ordinary literal path copies the selected canonical name before evaluating
+fields, which may move definition tables.
+
+`get`, `remove`, and `pop` publish independent snapshots; mutation discards only
+slot-owned records. Both function return paths copy records into the result arena
+before scope truncation, preserving enclosing-handler return markers. Public
+`call_function` copies a top-level arena record into caller-owned storage.
+Tuple-containing escape remains the explicitly unimplemented dependency above.
+Scope truncation retires owned record bindings exactly once. Field replacement
+clones records/strings before installing them and discards the prior owned field.
+No symbol-owned clone is also registered while that symbol owns it.
+
+My static array/dynamic-array record insertion, slicing and reading paths already
+copy via `create_struct`; they now use the same checked clone. Array/list/function
+reference fields remain borrowed. Tuple construction and deferred spawn were the
+exceptions found in this audit, recorded in separate preimplementation tasks.
+I preserve existing function-value cleanup scope; this is not a blanket fix for
+all interpreter allocations. The current clone bound is 128 record nodes along
+a path, with cumulative list results and retired bindings retained until teardown.
+No build, source execution, fixture qualification or historical reproduction was
+performed for this checkpoint. Only source review and whitespace checks apply.

@@ -5742,3 +5742,6 @@ $(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ownership_declaration_p
 # I qualify copied mixed declarations, not executable admission.
 test-ownership-declaration-projection: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	DECLARATION_CC="$(CC)" DECLARATION_CFLAGS="$(CFLAGS)" DECLARATION_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" DECLARATION_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_ownership_declaration_projection
+
+# I rebuild evaluator storage with its owning translation unit.
+$(OBJ_DIR)/env.o: $(SRC_DIR)/env_record_lists.inc

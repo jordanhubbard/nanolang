@@ -805,6 +805,8 @@ typedef struct {
     Symbol *symbols;
     int symbol_count;
     int symbol_capacity;
+    struct EnvRecordList *record_lists; /* Evaluator-owned handles, including tombstones. */
+    struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
     Function *functions;
@@ -936,6 +938,17 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
+/* I copy only record/string storage; other reference fields stay borrowed. */
+bool env_clone_record(Value source, Value *out);
+void env_discard_record(StructValue *record);
+bool env_record_snapshot(Environment *env, Value source, Value *out);
+bool env_record_result_borrowed(Environment *env, Value value);
+bool env_retire_record(Environment *env, Value owned);
+bool env_record_list_identity(Environment *env, Value handle, NominalIdentity *out);
+bool env_record_list_apply(Environment *env, NominalIdentity element,
+                           const char *operation, const Value *args, int argc, Value *out);
+NominalIdentity env_generated_list_element(Environment *env, const Function *function);
+
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);

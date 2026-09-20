@@ -201,6 +201,49 @@ static Value eval_match_invariant_failure(const char *reason) {
 }
 
 /* I restore lexical bindings on every exit, retaining a yielded local string. */
+/* I release only binding-owned storage. Registry result snapshots are never
+ * installed directly into an owning record binding. Borrow formals stay borrowed. */
+static void eval_scope_release(Environment *env, int first, bool functions) {
+    for (int i = first; i < env->symbol_count; ++i) {
+        Symbol *symbol = &env->symbols[i];
+        bool borrowed = symbol->type == TYPE_BORROW_SHARED || symbol->type == TYPE_BORROW_MUT;
+        Value value = symbol->value;
+        if (!borrowed && value.type == VAL_STRUCT && value.as.struct_val) {
+            if (!env_retire_record(env, value)) {
+                fprintf(stderr, "I cannot retire an owned record binding.\n"); exit(1);
+            }
+            symbol->value = create_void();
+        }
+        free(symbol->name);
+        free(symbol->struct_type_name);
+        if (borrowed) continue;
+        if (value.type == VAL_STRUCT) { /* Its unique owner is now my retirement entry. */ }
+        else if (value.type == VAL_STRING) {
+            if (gc_is_managed(value.as.string_val)) gc_release(value.as.string_val);
+            else free(value.as.string_val);
+        } else if (functions && value.type == VAL_FUNCTION) {
+            free((char *)value.as.function_val.function_name);
+            free_function_signature(value.as.function_val.signature);
+        }
+    }
+    env->symbol_count = first;
+    env_symbol_index_invalidate(env);
+}
+
+static Value eval_preserve_record(Environment *env, Value value) {
+    if (value.type != VAL_STRUCT || env_record_result_borrowed(env, value)) return value;
+    Value copy;
+    if (!env_record_snapshot(env, value, &copy)) {
+        fprintf(stderr, "I cannot preserve a record result across its scope.\n");
+        exit(1);
+    }
+    copy.is_return = value.is_return;
+    copy.return_target = value.return_target;
+    copy.is_break = value.is_break;
+    copy.is_continue = value.is_continue;
+    return copy;
+}
+
 static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
     int first = env->symbol_count;
     Value result = create_void();
@@ -218,16 +261,16 @@ static Value eval_scoped_block(ASTNode **statements, int count, Environment *env
             }
         }
     }
-    for (int i = first; i < env->symbol_count; ++i) {
-        Symbol *symbol = &env->symbols[i];
-        free(symbol->name);
-        free(symbol->struct_type_name);
-        if (symbol->value.type == VAL_STRING) {
-            if (gc_is_managed(symbol->value.as.string_val)) gc_release(symbol->value.as.string_val);
-            else free(symbol->value.as.string_val);
-        }
+    result = eval_preserve_record(env, result);
+    /* Existing callable values may also borrow a local binding. */
+    if (result.type == VAL_FUNCTION) {
+        Value copy = create_function(result.as.function_val.function_name,
+            copy_function_signature(result.as.function_val.signature));
+        copy.is_return = result.is_return;
+        copy.return_target = result.return_target;
+        result = copy;
     }
-    env->symbol_count = first;
+    eval_scope_release(env, first, false);
     return result;
 }
 static Value create_dyn_array(DynArray *arr);
@@ -2979,6 +3022,42 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
     return create_void();
 }
 
+/* I select only my generated declaration or an undeclared lowercase operation.
+ * User functions retain precedence. A spelling alone never identifies a handle. */
+static bool eval_record_list_call(const char *name, Value *args, int argc,
+                                 Environment *env, Value *out) {
+    if (!name || (strncmp(name, "list_", 5) && strncmp(name, "List_", 5))) return false;
+    Function *function = env_get_function(env, name);
+    NominalIdentity element = env_generated_list_element(env, function);
+    if (function && !element.ordinal) return false;
+    if (!element.ordinal && strncmp(name, "list_", 5)) return false;
+    static const char *operations[] = {"with_capacity", "is_empty", "new", "push", "pop",
+        "get", "set", "insert", "remove", "length", "capacity", "clear", "free"};
+    const char *operation = NULL;
+    size_t length = strlen(name), type_length = 0;
+    for (size_t i = 0; i < sizeof(operations) / sizeof(operations[0]); ++i) {
+        size_t n = strlen(operations[i]);
+        if (length > 6 + n && name[length - n - 1] == '_' &&
+            !strcmp(name + length - n, operations[i])) {
+            operation = operations[i];
+            type_length = length - n - 6;
+            break;
+        }
+    }
+    if (!operation) return false;
+    if (!element.ordinal) {
+        char *type_name = strndup(name + 5, type_length);
+        if (!type_name) { fprintf(stderr, "I cannot allocate list declaration metadata.\n"); exit(1); }
+        element = env_nominal_identity(env, type_name, env->current_module, TYPE_STRUCT);
+        free(type_name);
+    }
+    if (!element.ordinal || !env_record_list_apply(env, element, operation, args, argc, out)) {
+        fprintf(stderr, "I cannot perform '%s': I require a live matching record list, valid arguments and bounds, and available snapshot storage.\n", name);
+        exit(1);
+    }
+    return true;
+}
+
 static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_name);
 
 /* I retain the invoking source node while native builtins call back into me. */
@@ -3889,161 +3968,9 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return create_void();
     }
 
-    /* Generic list functions: list_TypeName_operation for user-defined types */
-    /* Pattern: list_ASTNumber_new, list_Point_push, etc. */
-    /* For interpreter/shadow tests, we use a simple generic list that stores pointers */
-    if (strncmp(name, "list_", 5) == 0 && !env_get_function(env, name)) {
-        /* Extract the operation: list_TypeName_op -> op */
-        const char *last_underscore = strrchr(name, '_');
-        if (last_underscore && last_underscore > name + 5) {
-            const char *operation = last_underscore + 1;
-            char *element_name = strndup(name + 5, (size_t)(last_underscore - name - 5));
-            if (!element_name) {
-                fprintf(stderr, "I cannot allocate generic-list declaration metadata\n");
-                exit(1);
-            }
-            bool enum_element = env_get_enum(env, element_name) != NULL;
-            free(element_name);
-            if (enum_element) {
-                fprintf(stderr, "I do not yet interpret implicit enum-list operations\n");
-                exit(1);
-            }
-            /* Use list_int as the underlying implementation (stores pointers as int64) */
-            if (strcmp(operation, "new") == 0) {
-                List_int *list = list_int_new();  /* Generic list stores pointers */
-                return create_int((long long)list);
-            }
-            if (strcmp(operation, "with_capacity") == 0) {
-                List_int *list = list_int_with_capacity(args[0].as.int_val);
-                return create_int((long long)list);
-            }
-            if (strcmp(operation, "push") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                /* Handle different value types */
-                if (args[1].type == VAL_STRUCT) {
-                    /* Allocate struct on heap and store pointer */
-                    StructValue *sv_copy = malloc(sizeof(StructValue));
-                    sv_copy->struct_name = strdup(args[1].as.struct_val->struct_name);
-                    sv_copy->field_count = args[1].as.struct_val->field_count;
-                    sv_copy->field_names = malloc(sizeof(char*) * sv_copy->field_count);
-                    sv_copy->field_values = malloc(sizeof(Value) * sv_copy->field_count);
-                    for (int i = 0; i < sv_copy->field_count; i++) {
-                        sv_copy->field_names[i] = strdup(args[1].as.struct_val->field_names[i]);
-                        sv_copy->field_values[i] = args[1].as.struct_val->field_values[i];
-                        /* Deep-copy strings so they outlive the caller's stack frame */
-                        if (sv_copy->field_values[i].type == VAL_STRING && sv_copy->field_values[i].as.string_val) {
-                            sv_copy->field_values[i].as.string_val = strdup(sv_copy->field_values[i].as.string_val);
-                        }
-                    }
-                    list_int_push(list, (int64_t)sv_copy);
-                } else {
-                    /* For non-struct types, store as int */
-                    list_int_push(list, args[1].as.int_val);
-                }
-                return create_void();
-            }
-            if (strcmp(operation, "pop") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                int64_t stored_val = list_int_pop(list);
-                
-                /* Extract type name to determine if this is a struct list */
-                const char *type_start = name + 5;  /* Skip "list_" */
-                int type_name_len = (int)(last_underscore - type_start);
-                char *type_name = malloc(type_name_len + 1);
-                strncpy(type_name, type_start, type_name_len);
-                type_name[type_name_len] = '\0';
-                
-                /* Check if this is a struct type */
-                if (strcmp(type_name, "int") != 0 && 
-                    strcmp(type_name, "string") != 0 && 
-                    strcmp(type_name, "token") != 0 &&
-                    strcmp(type_name, "Token") != 0) {
-                    /* Struct type */
-                    StructValue *sv = (StructValue*)stored_val;
-                    Value result;
-                    result.type = VAL_STRUCT;
-                    result.is_return = false;
-                    result.is_break = false;
-                    result.is_continue = false;
-                    result.as.struct_val = sv;
-                    free(type_name);
-                    return result;
-                } else {
-                    free(type_name);
-                    return create_int(stored_val);
-                }
-            }
-            if (strcmp(operation, "get") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                int64_t stored_val = list_int_get(list, args[1].as.int_val);
-                
-                /* Determine if this list stores structs by checking the type name in the function */
-                /* Extract type name: list_TypeName_get -> TypeName */
-                const char *type_start = name + 5;  /* Skip "list_" */
-                int type_name_len = (int)(last_underscore - type_start);
-                char *type_name = malloc(type_name_len + 1);
-                strncpy(type_name, type_start, type_name_len);
-                type_name[type_name_len] = '\0';
-                
-                /* Check if this type name is a struct (not int/string/token) */
-                if (strcmp(type_name, "int") != 0 && 
-                    strcmp(type_name, "string") != 0 && 
-                    strcmp(type_name, "token") != 0 &&
-                    strcmp(type_name, "Token") != 0) {
-                    /* This is a struct type - stored value is a pointer to StructValue */
-                    StructValue *sv = (StructValue*)stored_val;
-                    Value result;
-                    result.type = VAL_STRUCT;
-                    result.is_return = false;
-                    result.is_break = false;
-                    result.is_continue = false;
-                    result.as.struct_val = sv;
-                    free(type_name);
-                    return result;
-                } else {
-                    /* This is a primitive type */
-                    free(type_name);
-                    return create_int(stored_val);
-                }
-            }
-            if (strcmp(operation, "set") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                list_int_set(list, args[1].as.int_val, args[2].as.int_val);
-                return create_void();
-            }
-            if (strcmp(operation, "insert") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                list_int_insert(list, args[1].as.int_val, args[2].as.int_val);
-                return create_void();
-            }
-            if (strcmp(operation, "remove") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                return create_int(list_int_remove(list, args[1].as.int_val));
-            }
-            if (strcmp(operation, "length") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                return create_int(list_int_length(list));
-            }
-            if (strcmp(operation, "capacity") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                return create_int(list_int_capacity(list));
-            }
-            if (strcmp(operation, "is_empty") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                return create_bool(list_int_is_empty(list));
-            }
-            if (strcmp(operation, "clear") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                list_int_clear(list);
-                return create_void();
-            }
-            if (strcmp(operation, "free") == 0) {
-                List_int *list = (List_int*)args[0].as.int_val;
-                list_int_free(list);
-                return create_void();
-            }
-        }
-    }
+    Value record_list_result;
+    if (eval_record_list_call(name, args, node->as.call.arg_count, env, &record_list_result))
+        return record_list_result;
 
     /* External C library functions - provide interpreter implementations */
     if (strcmp(name, "rand") == 0) {
@@ -4583,88 +4510,6 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         }
     }
     
-    /* Check if this is a generic list function (List_TypeName_new, List_TypeName_push, etc.) */
-    /* This check happens before checking func->body because generic list functions are registered as extern */
-    if (!func || (func->is_extern && func->body == NULL && strncmp(name, "List_", 5) == 0)) {
-        if (strncmp(name, "List_", 5) == 0) {
-            /* Extract element type name and operation from function name */
-            /* Format: List_TypeName_new, List_TypeName_push, List_TypeName_get, List_TypeName_length */
-            const char *type_start = name + 5;  /* Skip "List_" */
-            const char *func_suffix = strrchr(name, '_');
-            if (func_suffix && func_suffix > type_start) {
-                func_suffix++;  /* Skip '_' */
-                int type_name_len = (int)(func_suffix - type_start - 1);
-                char *type_name = malloc(type_name_len + 1);
-                strncpy(type_name, type_start, type_name_len);
-                type_name[type_name_len] = '\0';
-                
-                /* Check which operation */
-                if (strcmp(func_suffix, "new") == 0) {
-                    /* List_TypeName_new() -> List<TypeName> */
-                    /* Use DynArray with ELEM_INT to store struct pointers as int64_t */
-                    DynArray *list = dyn_array_new(ELEM_INT);
-                    free(type_name);
-                    return create_int((long long)list);
-                } else if (strcmp(func_suffix, "push") == 0) {
-                    /* List_TypeName_push(list, value) -> void */
-                    if (node->as.call.arg_count < 2) {
-                        fprintf(stderr, "Error: %s requires 2 arguments\n", name);
-                        free(type_name);
-                        return create_void();
-                    }
-                    DynArray *list = (DynArray*)args[0].as.int_val;
-                    /* Store struct value as pointer (int64_t) */
-                    /* args[1] should be a struct value */
-                    if (args[1].type != VAL_STRUCT) {
-                        fprintf(stderr, "Error: %s_push expects struct value\n", name);
-                        free(type_name);
-                        return create_void();
-                    }
-                    int64_t value_ptr = (int64_t)args[1].as.struct_val;  /* Store StructValue* as int64_t */
-                    dyn_array_push_int(list, value_ptr);
-                    free(type_name);
-                    return create_void();
-                } else if (strcmp(func_suffix, "get") == 0) {
-                    /* List_TypeName_get(list, index) -> TypeName */
-                    if (node->as.call.arg_count < 2) {
-                        fprintf(stderr, "Error: %s requires 2 arguments\n", name);
-                        free(type_name);
-                        return create_void();
-                    }
-                    DynArray *list = (DynArray*)args[0].as.int_val;
-                    int index = (int)args[1].as.int_val;
-                    if (index < 0 || index >= list->length) {
-                        fprintf(stderr, "Error: Index %d out of bounds\n", index);
-                        free(type_name);
-                        return create_void();
-                    }
-                    int64_t value_ptr = dyn_array_get_int(list, index);
-                    /* Cast back to StructValue* and return as struct value */
-                    StructValue *sv = (StructValue*)value_ptr;
-                    Value result;
-                    result.type = VAL_STRUCT;
-                    result.is_return = false;
-                    result.is_break = false;
-                    result.is_continue = false;
-                    result.as.struct_val = sv;
-                    free(type_name);
-                    return result;
-                } else if (strcmp(func_suffix, "length") == 0) {
-                    /* List_TypeName_length(list) -> int */
-                    if (node->as.call.arg_count < 1) {
-                        fprintf(stderr, "Error: %s requires 1 argument\n", name);
-                        free(type_name);
-                        return create_void();
-                    }
-                    DynArray *list = (DynArray*)args[0].as.int_val;
-                    free(type_name);
-                    return create_int(list->length);
-                }
-                free(type_name);
-            }
-        }
-    }
-    
     if (!func) {
         fprintf(stderr, "Error: Undefined function '%s'\n", name);
         return create_void();
@@ -4694,7 +4539,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     }
 
     /* If built-in with no body, already handled above */
-    if (func->body == NULL && !(func->is_extern && strncmp(name, "List_", 5) == 0)) {
+    if (func->body == NULL) {
         /* Try FFI for extern functions */
         if (func->is_extern) {
             Value result = eval_foreign_call(func, args, node->as.call.arg_count,
@@ -4779,29 +4624,10 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         FunctionSignature *sig_copy = copy_function_signature(result.as.function_val.signature);
         return_value = create_function(result.as.function_val.function_name, sig_copy);
     } else if (result.type == VAL_STRUCT && result.as.struct_val) {
-        StructValue *src = result.as.struct_val;
-        StructValue *dst = malloc(sizeof(StructValue));
-        if (!dst) {
-            fprintf(stderr, "Error: Out of memory copying struct return value\n");
+        if (!env_record_snapshot(env, result, &return_value)) {
+            fprintf(stderr, "I cannot copy a returned record.\n");
             exit(1);
         }
-        dst->struct_name = strdup(src->struct_name);
-        dst->field_count = src->field_count;
-        dst->field_names = malloc(sizeof(char*) * dst->field_count);
-        dst->field_values = malloc(sizeof(Value) * dst->field_count);
-        for (int i = 0; i < dst->field_count; i++) {
-            dst->field_names[i] = strdup(src->field_names[i]);
-            dst->field_values[i] = src->field_values[i];
-            if (dst->field_values[i].type == VAL_STRING && dst->field_values[i].as.string_val) {
-                dst->field_values[i].as.string_val = strdup(dst->field_values[i].as.string_val);
-            }
-        }
-
-        return_value.type = VAL_STRUCT;
-        return_value.is_return = false;
-        return_value.is_break = false;
-        return_value.is_continue = false;
-        return_value.as.struct_val = dst;
     }
 
     /* I consume only returns addressed to this call, not an enclosing handler owner. */
@@ -4811,28 +4637,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     return_value.is_break = false;
     return_value.is_continue = false;
 
-    /* Clean up parameter strings and restore environment */
-    for (int i = old_symbol_count; i < env->symbol_count; i++) {
-        free(env->symbols[i].name);
-        if (env->symbols[i].value.type == VAL_STRING) {
-            /* Release GC-managed string if applicable */
-            if (gc_is_managed(env->symbols[i].value.as.string_val)) {
-                gc_release(env->symbols[i].value.as.string_val);
-            } else {
-                free(env->symbols[i].value.as.string_val);
-            }
-        }
-        if (env->symbols[i].value.type == VAL_FUNCTION) {
-            /* Free function value - both function_name and signature */
-            if (env->symbols[i].value.as.function_val.function_name) {
-                free((char*)env->symbols[i].value.as.function_val.function_name);
-            }
-            if (env->symbols[i].value.as.function_val.signature) {
-                free_function_signature(env->symbols[i].value.as.function_val.signature);
-            }
-        }
-    }
-    env->symbol_count = old_symbol_count;
+    eval_scope_release(env, old_symbol_count, true);
 
     return return_value;
 }
@@ -4840,20 +4645,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
 /* I discard only record/string storage cloned by create_struct. Arrays and
  * other referenced fields remain borrowed, as in that constructor. */
 static void discard_literal_record(StructValue *record) {
-    if (!record) return;
-    for (int i = 0; i < record->field_count; i++) {
-        Value field = record->field_values[i];
-        if (field.type == VAL_STRUCT) discard_literal_record(field.as.struct_val);
-        else if (field.type == VAL_STRING) {
-            if (gc_is_managed(field.as.string_val)) gc_release(field.as.string_val);
-            else free(field.as.string_val);
-        }
-        free(record->field_names[i]);
-    }
-    free(record->field_names);
-    free(record->field_values);
-    free(record->struct_name);
-    free(record);
+    env_discard_record(record);
 }
 
 static void discard_partial_owned_array(Array *array, int initialized) {
@@ -5187,7 +4979,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                  * produce a struct named T rather than whatever base's type was. */
                 const char *res_name = struct_name ? struct_name
                                      : (base_sv ? base_sv->struct_name : NULL);
-                Value result = create_struct(res_name ? res_name : "anonymous",
+                NominalIdentity spread_identity = env_nominal_identity(env, res_name,
+                    env->current_module, TYPE_STRUCT);
+                const char *spread_name = env_nominal_name(env, spread_identity);
+                Value result = create_struct(spread_name ? spread_name : res_name ? res_name : "anonymous",
                                              merged_names, merged_values, merged_count);
                 free(merged_names);
                 free(merged_values);
@@ -5202,6 +4997,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
             
             
+            char *canonical_name = strdup(struct_def->name);
+            if (!canonical_name) { fprintf(stderr, "I cannot retain record declaration identity.\n"); exit(1); }
             /* Allocate arrays for field names and values */
             char **field_names = malloc(sizeof(char*) * field_count);
             Value *field_values = malloc(sizeof(Value) * field_count);
@@ -5213,6 +5010,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
                 if (field_values[i].is_return) {
                     Value result = field_values[i];
+                    free(canonical_name);
                     free(field_names);
                     free(field_values);
                     return result;
@@ -5221,10 +5019,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             
             /* Create struct value */
-            Value result = create_struct(struct_name, field_names, field_values, field_count);
+            Value result = create_struct(canonical_name, field_names, field_values, field_count);
             
             
             /* Free temporary arrays (create_struct makes copies) */
+            free(canonical_name);
             free(field_names);
             free(field_values);
             
@@ -5722,7 +5521,24 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     StructValue *record = owner->value.as.struct_val;
                     for (int i = 0; i < record->field_count; ++i) {
                         if (!strcmp(record->field_names[i], stmt->as.set.field_name)) {
-                            record->field_values[i] = value;
+                            Value staged = value;
+                            if (value.type == VAL_STRUCT) {
+                                if (!env_clone_record(value, &staged)) {
+                                    fprintf(stderr, "I cannot copy a replacement record field.\n"); exit(1);
+                                }
+                            } else if (value.type == VAL_STRING) {
+                                staged.as.string_val = strdup(value.as.string_val ? value.as.string_val : "");
+                                if (!staged.as.string_val) {
+                                    fprintf(stderr, "I cannot copy a replacement string field.\n"); exit(1);
+                                }
+                            }
+                            Value previous = record->field_values[i];
+                            record->field_values[i] = staged;
+                            if (previous.type == VAL_STRUCT) env_discard_record(previous.as.struct_val);
+                            else if (previous.type == VAL_STRING) {
+                                if (gc_is_managed(previous.as.string_val)) gc_release(previous.as.string_val);
+                                else free(previous.as.string_val);
+                            }
                             return create_void();
                         }
                     }
@@ -5816,9 +5632,42 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     iterable_sym = env_get_var(env, range_expr->as.identifier);
                 }
 
+                Type list_type = iterable_sym ? iterable_sym->type : TYPE_UNKNOWN;
                 Value iter_val = eval_expression(range_expr, env);
                 if (iter_val.is_return) return iter_val;
-                Type list_type = iterable_sym ? iterable_sym->type : TYPE_UNKNOWN;
+                NominalIdentity element;
+                if (env_record_list_identity(env, iter_val, &element)) {
+                    Value length, list_arg[] = {iter_val};
+                    if (!env_record_list_apply(env, element, "length", list_arg, 1, &length)) {
+                        fprintf(stderr, "I cannot read a record-list iteration length.\n"); exit(1);
+                    }
+                    int first = env->symbol_count;
+                    env_define_var(env, loop_var, TYPE_STRUCT, true, create_void());
+                    env->symbols[first].struct_type_name = strdup(env_nominal_name(env, element));
+                    if (!env->symbols[first].struct_type_name) {
+                        fprintf(stderr, "I cannot retain loop element identity.\n"); exit(1);
+                    }
+                    env->symbols[first].nominal_owner = env_nominal_owner(env, element);
+                    Value result = create_void();
+                    for (long long index = 0; index < length.as.int_val; ++index) {
+                        Value args[] = {iter_val, create_int(index)}, item;
+                        if (!env_record_list_apply(env, element, "get", args, 2, &item)) {
+                            fprintf(stderr, "I cannot read this record-list iteration index.\n"); exit(1);
+                        }
+                        /* env_set_var clones; my loop binding never owns an arena result. */
+                        env_set_var(env, loop_var, item);
+                        result = eval_statement(stmt->as.for_stmt.body, env);
+                        if (result.is_return || result.is_break) break;
+                        if (result.is_continue) result = create_void();
+                    }
+                    result = eval_preserve_record(env, result);
+                    if (result.is_break) result = create_void();
+                    eval_scope_release(env, first, false);
+                    return result;
+                }
+                if (list_type == TYPE_LIST_GENERIC) {
+                    fprintf(stderr, "I require a live record-list handle for iteration.\n"); exit(1);
+                }
 
                 int loop_var_index = env->symbol_count;
                 env_define_var(env, loop_var, TYPE_INT, true, create_void());
@@ -6372,85 +6221,10 @@ bool run_program(ASTNode *program, Environment *env) {
 /* Call a function by name with arguments */
 static Value call_function_at(const char *name, Value *args, int arg_count,
                              Environment *env, int line, int column) {
-    /* Check if this is a generic list function (List_TypeName_new, List_TypeName_push, etc.) */
-    if (strncmp(name, "List_", 5) == 0) {
-        /* Extract element type name and operation from function name */
-        /* Format: List_TypeName_new, List_TypeName_push, List_TypeName_get, List_TypeName_length */
-        const char *type_start = name + 5;  /* Skip "List_" */
-        const char *func_suffix = strrchr(name, '_');
-        if (func_suffix && func_suffix > type_start) {
-            func_suffix++;  /* Skip '_' */
-            int type_name_len = (int)(func_suffix - type_start - 1);
-            char *type_name = malloc(type_name_len + 1);
-            strncpy(type_name, type_start, type_name_len);
-            type_name[type_name_len] = '\0';
-            
-            /* Check which operation */
-            if (strcmp(func_suffix, "new") == 0) {
-                /* List_TypeName_new() -> List<TypeName> */
-                /* Use DynArray with ELEM_INT to store struct pointers as int64_t */
-                DynArray *list = dyn_array_new(ELEM_INT);
-                free(type_name);
-                return create_int((long long)list);
-            } else if (strcmp(func_suffix, "push") == 0) {
-                /* List_TypeName_push(list, value) -> void */
-                if (arg_count < 2) {
-                    fprintf(stderr, "Error: %s requires 2 arguments\n", name);
-                    free(type_name);
-                    return create_void();
-                }
-                DynArray *list = (DynArray*)args[0].as.int_val;
-                /* Store struct value as pointer (int64_t) */
-                /* args[1] should be a struct value */
-                if (args[1].type != VAL_STRUCT) {
-                    fprintf(stderr, "Error: %s_push expects struct value\n", name);
-                    free(type_name);
-                    return create_void();
-                }
-                int64_t value_ptr = (int64_t)args[1].as.struct_val;  /* Store StructValue* as int64_t */
-                dyn_array_push_int(list, value_ptr);
-                free(type_name);
-                return create_void();
-            } else if (strcmp(func_suffix, "get") == 0) {
-                /* List_TypeName_get(list, index) -> TypeName */
-                if (arg_count < 2) {
-                    fprintf(stderr, "Error: %s requires 2 arguments\n", name);
-                    free(type_name);
-                    return create_void();
-                }
-                DynArray *list = (DynArray*)args[0].as.int_val;
-                int index = (int)args[1].as.int_val;
-                if (index < 0 || index >= list->length) {
-                    fprintf(stderr, "Error: Index %d out of bounds\n", index);
-                    free(type_name);
-                    return create_void();
-                }
-                int64_t value_ptr = dyn_array_get_int(list, index);
-                /* Cast back to StructValue* and return as struct value */
-                StructValue *sv = (StructValue*)value_ptr;
-                Value result;
-                result.type = VAL_STRUCT;
-                result.is_return = false;
-                result.is_break = false;
-                result.is_continue = false;
-                result.as.struct_val = sv;
-                free(type_name);
-                return result;
-            } else if (strcmp(func_suffix, "length") == 0) {
-                /* List_TypeName_length(list) -> int */
-                if (arg_count < 1) {
-                    fprintf(stderr, "Error: %s requires 1 argument\n", name);
-                    free(type_name);
-                    return create_void();
-                }
-                DynArray *list = (DynArray*)args[0].as.int_val;
-                free(type_name);
-                return create_int(list->length);
-            }
-            free(type_name);
-        }
-    }
-    
+    Value record_list_result;
+    if (eval_record_list_call(name, args, arg_count, env, &record_list_result))
+        return record_list_result;
+
     Function *func = env_get_function(env, name);
     if (!func) {
         fprintf(stderr, "Error: Function '%s' not found\n", name);
@@ -6480,6 +6254,10 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
             param_value = create_string(args[i].as.string_val);
         }
 
+        if (param_value.type == VAL_FUNCTION) {
+            param_value = create_function(param_value.as.function_val.function_name,
+                copy_function_signature(param_value.as.function_val.signature));
+        }
         env_define_var(env, func->params[i].name, func->params[i].type, false, param_value);
     }
 
@@ -6493,12 +6271,21 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     g_eval_return_target = saved_return_target;
     env->current_module = saved_module_context;
 
-    /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
+    /* I copy records recursively before dropping parameters, including returns
+     * addressed to an enclosing handler. My Environment owns this snapshot. */
     Value return_value = result;
     if (result.type == VAL_STRING) {
         return_value = create_string(result.as.string_val);
+    } else if (result.type == VAL_STRUCT) {
+        if (!env_record_snapshot(env, result, &return_value)) {
+            fprintf(stderr, "I cannot copy a returned record.\n");
+            exit(1);
+        }
+    } else if (result.type == VAL_FUNCTION) {
+        return_value = create_function(result.as.function_val.function_name,
+            copy_function_signature(result.as.function_val.signature));
     }
-    
+
     /* I consume only this activation's return, after preserving its value. */
     return_value.is_return = result.is_return && result.return_target &&
         result.return_target != &return_boundary;
@@ -6506,28 +6293,26 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     return_value.is_break = false;
     return_value.is_continue = false;
 
-    /* Clean up parameter strings and restore environment */
-    for (int i = original_symbol_count; i < env->symbol_count; i++) {
-        free(env->symbols[i].name);
-        if (env->symbols[i].value.type == VAL_STRING) {
-            /* Release GC-managed string if applicable */
-            if (gc_is_managed(env->symbols[i].value.as.string_val)) {
-                gc_release(env->symbols[i].value.as.string_val);
-            } else {
-                free(env->symbols[i].value.as.string_val);
-            }
-        }
-    }
-    env->symbol_count = original_symbol_count;
+    eval_scope_release(env, original_symbol_count, false);
 
     return return_value;
 }
 
 Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
     /* A builtin callback inherits its invoking call. Host calls have no location. */
-    return call_function_at(name, args, arg_count, env,
+    Value result = call_function_at(name, args, arg_count, env,
                             g_eval_call_site ? g_eval_call_site->line : 0,
                             g_eval_call_site ? g_eval_call_site->column : 0);
+    /* Only this public boundary publishes an independently owned record. Both
+     * internal call paths and direct generated operations use my result arena. */
+    if (env_record_result_borrowed(env, result)) {
+        Value copy;
+        if (!env_clone_record(result, &copy)) { fprintf(stderr, "I cannot copy an escaping record.\n"); exit(1); }
+        copy.is_return = result.is_return;
+        copy.return_target = result.return_target;
+        result = copy;
+    }
+    return result;
 }
 
 /* ============================================================================

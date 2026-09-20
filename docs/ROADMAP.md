@@ -13562,3 +13562,20 @@ My proposed macOS CI selector step passes YAML/step-order and Bash syntax valida
       TypeInfo child and flattened tuple/row nominal field with its own declaring
       owner, rejecting unresolved leaves and preserving complete annotation facts
       before evaluator implementation or qualification under the list task.
+
+#### My generic record-list evaluator consumer checkpoint
+
+I retain task_7b805000dfda4da386b55d4691e8c647 for the two generated uppercase
+call paths, fixed-initial-length iteration, scope/public result preservation,
+and staged borrowed-field replacement discovered during my storage audit.
+These source corrections require review before fixtures or qualification. I do
+not infer enum-list parity or a complete interpreter leak-free lifetime proof.
+
+#### My evaluator escape dependencies
+
+Before implementing either boundary, I file
+`task_c3e8419dec9b8ccbcd6e1f99e5dbe5ec` for recursive tuple/record escape copies
+and `task_f8b5ecacb7e4bcc1542712b4652308ad` for queued-task Environment leases.
+Both belong to my required 5.1 list/evaluator acceptance. My proposal is in
+`docs/NANOISA_EVALUATOR_ESCAPE_LIFETIME.md`; neither retirement nor a green
+insert-only test closes them. I retain enum parity and the full imported graph.
