@@ -12827,3 +12827,15 @@ merges automatically. Both original manifests (444 reports total) remain byte
 exact. This static integration adds no gate rerun or broader acceptance claim.
 The final audit/identity records are in `evidence/file-cyclic-carrier-final`;
 actual merge and bounded repair reconciliation remain pending, full15a92 open.
+
+## I stage exclusive File binding publication after strict rendering
+
+I continue existing task8bbc and its original File/source parents; I create no
+duplicate decoder or competing source task. PR905 seal/integration remains under
+independent review. My next [publisher contract](NANOISA_FILE_BINDING_PUBLISHER.md)
+is design only, based on92726 with no publication code or execution.
+
+- [ ] I review the anchored publisher/explicit CLI API, fixed storage and exact status/commit/durability/cleanup semantics before production, including unidentified partial creation and no close retry.
+- [ ] I implement only reviewed publisher/CLI providers and explicit Make target, reusing the immutable strict plan; then review complete production and fixtures before filesystem qualification.
+- [ ] I qualify real Linux/puck exclusive directory publication, every attempted operation/fault/cleanup state, concurrent winners, unchanged sentinels and postcommit reports; retain first terminals and immutable source/tool/artifact evidence.
+- [ ] I continue paired parser/schema/lowering, generated module imports and all selected shadows/installed grants/startup and broader control-flow acceptance; successful file publication never substitutes for source execution.
