@@ -276,3 +276,20 @@ v2-only max_stack member on the in-memory function entry. Both syntax checks
 refused before execution. I removed that assignment; the service bridge supplies
 the intended derived wire bound. Corrected linked/instrumented strict C11
 syntax checks and Python parsing pass. These checks execute no fixture.
+
+## I retain exact refusal precedence
+
+My first56bb Linux normal frame run stops at the fixture expectation for a
+CALL_REF callee with two borrowed formals. The retained log establishes that
+`INVALID` was not returned, but does not print the actual enum. Static inspection
+establishes the earlier boundary: `file_code_operands` in `file_code.inc`
+requires exactly one borrowed formal for CALL_REF and returns `UNRESOLVED`
+otherwise. Only admitted calls can reach the logical flow's repeated-origin
+`INVALID` check. My current encoding is still one-reference only.
+
+I correct this fixture to require exactly `UNRESOLVED`, preserving the original
+output pointer sentinel and unchanged host-attempt counter. I do not accept a
+set of possible statuses, change production, execute preserved artifacts, or
+claim that the original log measured the replacement status. Fresh corrected
+qualification must establish that result. The initial native Clang setup
+failure and its corrected11.405s setup remain separate retained terminals.
