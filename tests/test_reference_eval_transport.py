@@ -9,6 +9,24 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def native_compiler():
+    selected = os.environ.get('NANO_NATIVE_TEST_CC')
+    if selected:
+        return shlex.split(selected)
+    homebrew = Path('/opt/homebrew/opt/llvm/bin/clang')
+    if platform.system() == 'Darwin' and homebrew.is_file():
+        return [str(homebrew)]
+    return shlex.split(os.environ.get('CC', 'cc'))
+
+
+def leak_detection_for(identity):
+    if sys.platform == 'darwin' and 'Apple clang version' in identity:
+        return '0'
+    return '1'
+
+
 HARNESS = r'''
 #include "nanocore_export.h"
 #include <errno.h>
@@ -149,7 +167,15 @@ class ReferenceTransport(unittest.TestCase):
         source = cls.base/'harness.c'; source.write_text(HARNESS)
         cls.binary = cls.base/'harness'
         linker = '-Wl,-dead_strip' if platform.system() == 'Darwin' else '-Wl,--gc-sections'
-        flags = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC','cc')) + [
+        cls.compiler = native_compiler()
+        identity = subprocess.run(cls.compiler + ['--version'], capture_output=True,
+                                  text=True, timeout=30)
+        if identity.returncode:
+            raise RuntimeError(identity.stdout + identity.stderr)
+        cls.leak_detection = leak_detection_for(identity.stdout + identity.stderr)
+        print(f'reference transport sanitizer compiler={" ".join(cls.compiler)} '
+              f'detect_leaks={cls.leak_detection}')
+        flags = cls.compiler + [
             '-std=c11','-D_POSIX_C_SOURCE=200809L','-O2','-Wall','-Wextra','-Werror',
             '-ffunction-sections','-fdata-sections','-fsanitize=address,undefined',
             '-fno-sanitize-recover=all','-I'+str(ROOT/'src')]
@@ -175,7 +201,7 @@ class ReferenceTransport(unittest.TestCase):
 
     def run_eval(self, text, compiler, mode='once', path=None, success=True, fail_grow=False):
         source=self.base/'input.sexpr';source.write_text(text)
-        env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:abort_on_error=1'}
+        env={**os.environ,'ASAN_OPTIONS':f'detect_leaks={self.leak_detection}:abort_on_error=1'}
         if path is not None:env['PATH']=str(path)
         if fail_grow:env['NANO_TEST_REF_REJECT_GROW']='1'
         result=subprocess.run([self.binary,source,str(compiler),mode],capture_output=True,

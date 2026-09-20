@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -9,6 +10,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get("NANOC", ROOT / "bin/nanoc_c")).resolve()
+ARTIFACT_LINK_FLAGS = shlex.split(os.environ.get("NANO_ARTIFACT_LDFLAGS", ""))
 
 
 class ArtifactImports(unittest.TestCase):
@@ -150,7 +152,7 @@ class ArtifactImports(unittest.TestCase):
             c_source, binary = directory / "out.c", directory / "native"
             self.command(ROOT / "bin/nvm2c", module, "-o", c_source)
             self.command("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
-                         ROOT / "bin/nano_aot_runtime.o", "-lm",
+                         ROOT / "bin/nano_aot_runtime.o", *ARTIFACT_LINK_FLAGS, "-lm",
                          *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
                          "-o", binary)
             self.command(binary)
@@ -193,7 +195,7 @@ class ArtifactImports(unittest.TestCase):
             c_source, binary = directory / "out.c", directory / "native"
             self.command(ROOT / "bin/nvm2c", module, "-o", c_source)
             self.command("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
-                         ROOT / "bin/nano_aot_runtime.o", "-lm",
+                         ROOT / "bin/nano_aot_runtime.o", *ARTIFACT_LINK_FLAGS, "-lm",
                          *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
                          "-o", binary)
             self.command(binary)
@@ -271,7 +273,7 @@ class ArtifactImports(unittest.TestCase):
             c_source, binary = directory/'module.c', directory/'native'
             self.command(ROOT/'bin/nvm2c', module, '-o', c_source)
             self.command('cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
-                         ROOT/'bin/nano_aot_runtime.o', '-lm',
+                         ROOT/'bin/nano_aot_runtime.o', *ARTIFACT_LINK_FLAGS, '-lm',
                          *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []), '-o', binary)
             for command in ((ROOT/'bin/nano_vm', module), (binary,)):
                 original.write_text('before')
