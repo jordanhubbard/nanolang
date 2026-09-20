@@ -293,3 +293,59 @@ publication. Slice rollback releases only successfully retained elements. All
 constructors and mutations validate exact physical record layout/field shape and
 flat element tags before touching an edge. These changes are instance-local;
 ordinary heaps preserve their historical reference and collection behavior.
+
+## My private fixture checkpoint
+
+I keep the complete fixture unexecuted until source review. My two Python
+methods build linked and allocation-observed variants in both actual VM
+instruction dispatch modes, retaining compiler commands, preprocessor selection,
+executables, file-backed output and bounded process-group cleanup. Every VM
+layout-dependent provider is rebuilt with the private heap macro; I separately
+label the ordinary common-provider objects. The selected query, decoder,
+dispatch and VM allocations are observed, not every allocation in common code.
+
+My independent literal table covers all93 recipe/obligation rows and every
+numeric opcode. An observed VM instruction profile must report every one of
+those93 operations retired by the actual runtime corpus. I independently alter
+non-first copied facts, decoded boundaries, signature and dispatch mappings;
+these altered preparations are checked and restored without executing them.
+My scalar family cases use actual heap operands and require exact TYPE_ERROR,
+unchanged retained heap counts and a clean second failure; this qualifies the
+reviewed tag-preflight repair, never the unfixed historical source.
+
+My graph cases cover all five flat element tags, counted embedded-NUL strings,
+interleaved union/record declarations, global and owner-field aliases, distinct
+array slices, append/set/pop, both aggregate constructor/get/set spellings and
+the zero-field NEW control. Original input buffers are overwritten and freed
+before execution. I check first-success result replacement, first-error scalar
+and heap-result retention, committed globals and an intentionally visible
+mutation through a retained result alias. Heap arguments transfer through a
+real helper CALL/RET. Initializer success leaves an owned result prefix for
+entry cleanup; initializer assertion failure never enters main.
+
+The recursion fixtures keep a real heap local in every helper frame. Root plus
+1023 helpers succeeds at1024 active frames, with and without an initializer
+prefix; one more call must report CALL_DEPTH and dispose every live frame root.
+I also check explicit VOID and implicit nonvoid results, preparation refusal of
+missing result operands, wrong-thread/busy/epoch boundaries and retain overflow.
+
+All256 nominal rows form a checked DAG. Actual bytecode constructs63 record
+levels plus a flat string array, preserving the original64-origin query limit.
+A separately labeled heap-layer case uses the same checked256-row descriptors
+to construct256 records plus the array/string tail and releases it with all
+project allocations denied. This checks maximum iterative release depth; it
+does not claim bytecode admission beyond64 origins or general cyclic graphs.
+
+For every measured required preparation allocation and every measured runtime
+allocation in the retained graph transaction I inject both a single failure and
+persistent failure. Preparation requires exact MEMORY with output untouched;
+runtime requires exact MEMORY with the prior result still owned. Each refusal
+is followed by complete disposal, zero observed live objects/bytes and an
+independent fresh success. The measured requested-payload peak is compared with
+the combined reserved preparation bound; allocator metadata and common-provider
+allocations are outside this measurement. Exact private byte/work ceilings and
+overflow checks must refuse without an allocation attempt.
+
+My pre-run static wire audit corrected the zero-field fixture's extension size
+offset: the48-byte tail has an8-byte header, so the size field is at end minus44,
+not at its kind/revision word. No malformed fixture was executed or qualified.

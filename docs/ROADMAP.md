@@ -13951,3 +13951,13 @@ collector acceptance remains required, not inferred from this bounded route.
   audit all93 actual handlers and require exact private input-tag preflights
   where needed, leaving ordinary behavior unchanged. I review the correction
   and meaningful cleanup controls before any execution; e181 is not accepted.
+
+My next private VM fixture checkpoint retains two methods, both dispatch forms,
+all93 actual retired operations, scalar wrong-tag cleanup, exact1024-frame
+success/1025-call refusal, initializer roots, prior scalar/heap results and
+committed aliases, copied input destruction and finite allocation failures with
+independent recovery. Its nominal release-depth control explicitly separates
+63-level bytecode graphs within64 origins from a256-level checked heap-layer
+control. I statically corrected the new zero-field fixture's extension size
+word before execution. All acceptance boxes above remain open until frozen
+both-host qualification and independent evidence review.
