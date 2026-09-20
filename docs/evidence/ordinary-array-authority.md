@@ -109,3 +109,9 @@ inputs. These declaration/container checks do not evaluate passive CFGs or
 emit the changed optional numeric helper. I retain d74 measurements at their
 actual pin; public ARRAY_FIELDS refusal and complete mixed validation limits
 remain unchanged.
+
+I integrate actual PR913 at325d8d86e. Its new private indirect-hosted plan
+is an additive file_flow include and explicit Make target; it does not enter
+my declaration-query call graph or change the eight selected reader/decoder/
+fixture inputs listed above. I compared those exact Git blobs against d74 and
+retained both additive roadmap histories. Earlier gate pins remain unchanged.
