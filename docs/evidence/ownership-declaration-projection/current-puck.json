@@ -1,0 +1,11 @@
+[
+  {
+    "group": "darwin-corrected",
+    "root": "/private/tmp/nanolang-mixed-declaration-5a367",
+    "last": "ownership-public",
+    "sources": 28172,
+    "tools": 15,
+    "products": 183,
+    "mismatches": 0
+  }
+]

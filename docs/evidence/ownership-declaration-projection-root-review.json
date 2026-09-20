@@ -1,0 +1,53 @@
+{
+  "seal": "docs/evidence/ownership-declaration-projection",
+  "reports": 367,
+  "objects": 598,
+  "bytes": 234593121,
+  "pairs": 74,
+  "status": "pass",
+  "refs": 12269,
+  "phase_refs": 12106,
+  "terminals": 37,
+  "failed": [
+    "linux-first/clang-ordinary-terminal.json"
+  ],
+  "archive": {
+    "bytes": 70874090,
+    "path": "/tmp/nanolang-mixed-declaration-artifacts.tar.gz",
+    "sha256": "73b3a047fe2c0e014d46899f14e51e10b67daa6a59589c080f2f96f6ecdabf72"
+  },
+  "current": {
+    "first": {
+      "sources": 28172,
+      "tools": 10,
+      "products": 167,
+      "status": "pass"
+    },
+    "linux": {
+      "sources": 28172,
+      "tools": 10,
+      "products": 171,
+      "status": "pass"
+    },
+    "puck": {
+      "sources": 28172,
+      "tools": 15,
+      "products": 183,
+      "status": "pass"
+    }
+  },
+  "canonical_integration": {
+    "base": "99f390264b7e860ffad659a3852c9b66cbd73399",
+    "selected_inputs_unchanged": [
+      "src/nanoisa/nvm_v2_layouts.c",
+      "src/nanoisa/ordinary_array_authority.inc",
+      "src/nanoisa/ownership_contracts.c",
+      "src/nanoisa/ownership_declaration_projection.h",
+      "src/nanoisa/ownership_declaration_projection.inc",
+      "src/nanoisa/ownership_layouts_private.h",
+      "tests/nanoisa/test_ownership_declaration_projection.c",
+      "tests/test_ownership_declaration_projection.py"
+    ],
+    "inspection": "Only incoming capture helper/Make rule and documentation; query/provider execution closure unchanged."
+  }
+}
