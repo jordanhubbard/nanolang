@@ -118,3 +118,14 @@ cleanup. Native code must dispatch directly to generated functions, not an
 interpreter or foreign-call fallback. Callable arguments/results, richer borrowed
 calls, public grants/installed archives and paired source with full mandatory
 shadows remain required within5.1. This report alone closes none of those gates.
+
+## My preproduction review refinements
+
+The independent cyclic-carrier review found no scoped design blocker. I copy
+and reset the entire obligation array/count and cleanup state, not merely the
+owner fields or next-identity counter. Equality compares semantic fields rather
+than C padding. The emitted instruction fact records the original indirect-call
+input stack including its callable; the candidate's direct-call transition sees
+the staged stack after that callable is consumed. Output counts refer to the
+actual post-call stack. I account for every additional scratch/fact allocation
+before it occurs under both ownership and combined bounds.
