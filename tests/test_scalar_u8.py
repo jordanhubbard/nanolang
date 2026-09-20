@@ -1,4 +1,6 @@
 """I preserve byte identity and exact unsigned conversions across scalar backends."""
+import os
+import shlex
 import signal
 import unittest
 from tests import test_nvm2llvm as llvm
@@ -73,7 +75,8 @@ class ScalarU8(unittest.TestCase):
         self.run_cmd(['wasmtime', 'run', '--invoke', 'nano_entry', target], success=False)
         c, native = self.work/'wrong.c', self.work/'wrong-native'
         self.run_cmd([llvm.C, module, '-o', c])
-        self.run_cmd(['cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+        self.run_cmd([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', 'cc')),
+                      '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                       c, '-o', native])
         refusal = self.run_cmd([native], success=False)
