@@ -174,3 +174,61 @@ No result here closes public/source File acceptance, richer control-flow/borrow
 clauses, full runtime82ff or the complete 5.1 release merely from a private native
 gate. I review any needed shared helper change before implementation and preserve
 the separate private VM owner's qualified tree and evidence.
+
+## My first production checkpoint
+
+I integrate the approved contract into fresh canonical PR885 `d416b2456`, which
+also includes PR884's checker registry/common-provider changes. My original
+qualified VM trees remain untouched. Native qualification must build its own
+current providers; old common objects are not current integration evidence.
+
+My concrete private API is `nvm2c_file_private_emit(bytes,size,out,err,err_size)`.
+I bound generated source, including the terminator, to 128MiB and preserve output
+on every failure. This is an output bound, not a claim that transient realloc
+storage plus the hosted plan fits in 128MiB. Both the emitter and generated entry
+exist only under `NVM_FILE_NATIVE_PRIVATE`; no default Make/provider or public
+selector changes are needed. Private fixtures will explicitly compile the new
+emitter and flagged runtime with their checked dependencies.
+
+My semantic ABI revision is 1. Generated C fixes that literal revision and checks
+it against the linked carrier TU through `nvm_file_runtime_native_abi`, including
+view/frame/report sizes. The owning carrier TU exports the check only under the
+private macro. Any incompatible carrier/frame/catalog/operation semantics must
+bump the revision and repeat qualification; sizes alone are not semantic proof.
+Generated prebegin agreement then compares every meaningful startup/function/
+local/type/instruction/body/obligation field and each used import identity with
+the actual newly prepared plan. Exact serialized bytes stay embedded and owned;
+no padding or hash collision is used as authority. Labels validate the current
+NATIVE function/instruction and expected input stack before any operation.
+
+| Opcode family | Generated execution | Pending runtime obligation |
+| --- | --- | --- |
+| NOP, JMP | Checked next plus static goto | Physical stack/selected successor |
+| PUSH_I64/BOOL/VOID | Reserve exact empty root, scalar construct | Exact tag/domain |
+| DUP, POP, LOAD_LOCAL | Copy/drop after carrier category checks | No implicit owner or formal copy/loss |
+| STORE_LOCAL, OWN_STORE_LOCAL | Existing checked frame store then next | Exact declared local and occupied-root policy |
+| OWN_MOVE_LOCAL | Exact owner observation then carrier move | Unique owner/live source |
+| REGION_BEGIN/END, BORROW_LOCAL_EXCLUSIVE, FILE_END_BORROW | Existing checked frame transitions | Region floor, live exclusive origin, balanced formals |
+| FILE_DROP_LOCAL/STACK | Carrier drop at exact root | First error and secondary cleanup |
+| FILE_RESULT_BRANCH/TAKE | Actual live arm, checked take, direct edge | Arm refinement and generation/root validity |
+| FILE_SERVICE | Exact import; checked reference/input; scratch then output move | Binding, invocation, liveness, rights, borrow, byte, Result and cleanup |
+| CALL/CALL_REF | Frame staging, direct generated callee, static continuation | Exact parameter/Result identity and aliases; partial transfer roots |
+| RET | Frame return, C status return | Exit obligations and rooted return publication |
+| ASSERT, JMP_TRUE/FALSE | Exact BOOL, drop predicate, C conditional | Real assertion/selected edge |
+| ADD/SUB/MUL/NEG and typed I64 equivalents | Unsigned arithmetic then memcpy bit conversion | Matching INT, no signed overflow |
+| DIV/MOD and typed I64 equivalents | Explicit zero and MIN/-1 branches | Existing total integer policy |
+| EQ/NE, signed relational and typed I64 comparisons | Fixed C scalar expression | Exact INT or BOOL only for generic EQ/NE |
+| AND/OR/NOT | Fixed normalized BOOL expression | Exact BOOL inputs |
+| AGG_PACK/UNION_CONSTRUCT | Ordered root indices, exact catalog constructor | Passive fields, ordinal/arm identity |
+| AGG_GET/UNION_FIELD, AGG_TAG/UNION_TAG | Carrier projection or actual scalar-Result arm | Exact passive category; no owner copying |
+
+I compare all unused function and dead instruction facts before begin, but a dead
+label body refuses if reached unexpectedly. Such labels are syntactically
+referenced through constant-false branches to keep strict unused-label checks;
+they are not admitted execution paths. All generated functions have prototypes,
+and direct static references retain complete unused-function coverage without
+an interpreter dispatch table. Integer operations are selected at emission time.
+
+I have not built the emitter or executed generated C at this checkpoint. The
+complete source review precedes fixtures and their independent review; no test
+result is claimed by this source inspection.
