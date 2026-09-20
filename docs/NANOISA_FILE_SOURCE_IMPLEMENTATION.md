@@ -447,3 +447,24 @@ These cases contain no service declaration, so unresolved-service guards cannot
 substitute for ordinary arity checks. Full publisher bytes, all five service
 shadows, seven C configurations and independent four-file generator equality
 remain required. No File service handler is executed by this checkpoint.
+
+### My actual metadata destructor observation boundary
+
+Both18334 fresh bootstraps pass. Each first ordinary parser fixture reaches its
+zero-live assertion after the first union case, then aborts. The old terminal
+prints neither a retained pointer nor a count; I do not invent either. Static
+tracing establishes one missing observer boundary: parser.c allocates payload
+TypeInfo, while the actual recursive destructor in env.c releases it outside
+the included-parser allocation tracker.
+
+I compile the actual env.c afresh with a scoped free-only hook header. The hook
+forwards every free to the existing tracker removal and real libc free. I do not
+copy or simulate its recursive ownership rules, hook env allocations into the
+parser's failure-prefix domain, reset live_count, or remove the final assertion.
+The selected ordinary env.o is excluded from the fixture link, and the new env
+object is inventoried beside lexer/UTF8. Sanitizer scope now explicitly covers
+the included parser plus fresh env, lexer and UTF8; other common/runtime and
+NanoISA providers remain ordinary. This is a fixture/provider correction only;
+actual compiler/runtime sources and retained18334 bootstrap inputs are unchanged.
+Fresh corrected fixtures and module products still require source/product
+identity proof before reusing those exact bootstrap binaries.

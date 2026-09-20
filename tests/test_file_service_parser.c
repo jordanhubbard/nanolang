@@ -1,5 +1,6 @@
 /* I exercise actual parser ownership, not service execution. */
 #include "nanolang.h"
+#include "file_service_parser_free_hooks.h"
 #include "emit_typed_ast.h"
 #include "reflection.h"
 #include "type_infer.h"
@@ -22,6 +23,7 @@ static void forget(void *p) { for(size_t i=0;i<live_count;i++)if(live[i]==p){liv
 static void *pmalloc(size_t n) { if(rejected())return NULL;void*p=malloc(n);remember(p);if(attempt==2)items_pointer=p;return p; }
 static void *pcalloc(size_t n,size_t z) { if(rejected())return NULL;void*p=calloc(n,z);remember(p);return p; }
 static void pfree(void *p) { forget(p);free(p); }
+void file_service_parser_observe_free(void *p) { pfree(p); }
 static void *prealloc(void *p,size_t n) {
     if(rejected())return NULL;
     if(fail_items && p==items_pointer){hits++;return NULL;}
@@ -132,7 +134,9 @@ static void ordinary_bindings(void) {
                 emitted=codegen_compile(p,env,NULL,"ordinary-bad-zero.nano");assert(!emitted.ok&&!emitted.module);assert(strstr(emitted.error_msg,"zero-field"));
             }
         }
-        free_environment(env);free_ast(p);assert(!live_count);
+        free_environment(env);free_ast(p);
+        if(live_count)fprintf(stderr,"ordinary case %zu retains %zu observed parser allocations\n",i,live_count);
+        assert(!live_count);
     }
     puts("ordinary-bindings:zero:named:discard:payload-refused:unknown-refused:backends-checked");
 }

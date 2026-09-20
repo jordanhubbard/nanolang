@@ -1,7 +1,7 @@
 """I qualify retained declaration syntax, not File source execution.
 
 I require a fresh bootstrap/ABI closure supplied by the outer gate. Sanitizers
-cover the included parser fixture plus freshly compiled lexer/UTF8 providers;
+cover the included parser fixture plus freshly compiled env/lexer/UTF8 providers;
 all named common/runtime providers are retained ordinary objects.
 """
 from pathlib import Path
@@ -30,13 +30,14 @@ class FileServiceParser(unittest.TestCase):
         if os.environ.get('NANO_SERVICE_PARSER_SANITIZERS','0')=='1':
             cls.flags+=['-fsanitize=address,undefined','-fno-omit-frame-pointer']
         cls.common=[Path(p).resolve() for p in shlex.split(os.environ['NANO_SERVICE_PARSER_OBJECTS'])]
-        if not cls.common or any(p.name in ('parser.o','lexer.o','utf8.o','main.o') for p in cls.common):
+        if not cls.common or any(p.name in ('parser.o','env.o','lexer.o','utf8.o','main.o') for p in cls.common):
             raise AssertionError('I require exact ordinary common/runtime objects excluding selected rebuilt TUs')
         cls.before={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in cls.common}
         (cls.work/'ordinary-providers-before.json').write_text(json.dumps(cls.before,indent=2)+'\n')
         cls.selected=[]
-        for provider in ('lexer','utf8'):
-            obj=cls.work/(provider+'.o');cls.command(provider+'-build',[*cls.cc,*cls.flags,'-c',ROOT/'src'/(provider+'.c'),'-o',obj]);cls.selected.append(obj)
+        for provider in ('lexer','utf8','env'):
+            observer=['-include',str(ROOT/'tests/file_service_parser_free_hooks.h'),'-DNANO_FILE_SERVICE_PARSER_OBSERVE_FREE=1'] if provider=='env' else []
+            obj=cls.work/(provider+'.o');cls.command(provider+'-build',[*cls.cc,*cls.flags,*observer,'-c',ROOT/'src'/(provider+'.c'),'-o',obj]);cls.selected.append(obj)
         # I build and invoke the actual installed-tool source recipe, not a copied golden renderer.
         cls.publisher=cls.work/'publisher-bin/nsi-file-binding'
         cls.command('publisher-make',[shutil.which('make'),'-f','Makefile.gnu','-j2','CC='+shlex.join(cls.cc),
@@ -48,7 +49,7 @@ class FileServiceParser(unittest.TestCase):
             raise AssertionError('actual publisher source differs from retained complete golden')
         fresh=cls.selected+[cls.publisher]+sorted((cls.work/'publisher-obj').rglob('*.o'))
         (cls.work/'fresh-providers.json').write_text(json.dumps({str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in fresh},indent=2)+'\n')
-        (cls.work/'scope.json').write_text(json.dumps({'parser':'included and allocation-hooked','fresh_selected':['lexer','utf8'],
+        (cls.work/'scope.json').write_text(json.dumps({'parser':'included and allocation-hooked','fresh_selected':['lexer','utf8','env'], 'env_observer':'actual owning-TU free only; all real frees execute; env allocations are not parser failure-prefix hooks',
             'common_providers':'ordinary retained exact list','publisher':'fresh seven-provider actual Make closure',
             'service_execution':False,'bootstrap':'required fresh outer prerequisite'},indent=2)+'\n')
     @classmethod
