@@ -13248,3 +13248,5 @@ Fresh ABI bootstrap and selected-provider sanitizer scope stay explicit; review
 precedes all gates and full File source lowering remains open.
 
 - [ ] I repair the static prelaunch ASTServiceDecl runtime-list closure omission before File parser qualification: C's AST-prefix selector requires a dedicated list provider, but40a omitted its source/header and Make/C-driver/Nano-emitter manifests. I add the standard existing AST list implementation with canonical generated element layout, audit installed runtime/source link paths, and request source review. No40a fixture/bootstrap ran and no failed terminal is invented.
+
+- [ ] I correct the4d290 first Linux bootstrap production omission before fresh qualification: infer_expr's exhaustive AST switch lacks AST_SERVICE_DECL and strict GCC stops at src/type_infer.c:970. I retain rc2/15.151s, source/tool before-after maps and intermediate products; no fixture ran and puck4d290 is unrun. Static AST-switch inventory finds this sole AST-bearing no-default omission. I add explicit internal inference refusal, preserving all public guards, then request review before fresh corrected bootstrap.

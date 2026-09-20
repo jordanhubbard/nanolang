@@ -968,6 +968,10 @@ static HMType *infer_expr(InferCtx *ctx, HMEnv *env, ASTNode *node) {
     if (!node) return hm_con_type(ctx, "void");
 
     switch (node->type) {
+        case AST_SERVICE_DECL:
+            ctx->has_error = true;
+            fprintf(stderr, "I have not resolved File service declarations for inference.\n");
+            return hm_tv_fresh(ctx);
 
         /* ── Literals ─────────────────────────────────────────────────── */
         case AST_NUMBER: return hm_con_type(ctx, "int");
