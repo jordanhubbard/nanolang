@@ -153,6 +153,7 @@ static void allocation_faults(void){
  printf("I checked %zu measured call allocations in persistent and transient modes.\n",measured);
 #else
  CHECK(!failures&&!live_count&&!live_bytes);
+ CHECK(!active_refusals&&!opens&&!closes&&!successful_opens&&last_fd==-1);
 #endif
 }
 int main(int argc,char **argv){CHECK(argc==2);CHECK(strlen(argv[1])<sizeof directory);strcpy(directory,argv[1]);real_vectors();context_and_ranges();copied_allowlist_and_filename();managed_boundaries();io_faults();allocation_faults();CHECK(!live_count&&!live_bytes);printf("I passed %u private read-text adapter checks; no bytecode admission.\n",checks);return 0;}
