@@ -1,0 +1,24 @@
+{
+  "name": "array-compatibility",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_selfhost_array_compatibility"
+  ],
+  "bound_seconds": 900,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 28.67816888890229,
+  "log": {
+    "sha256": "bddc41c903a930140d329b948eb084b13ee926e28bc965ceb13690678d2d9e40",
+    "bytes": 833,
+    "archive": "/tmp/nanolang-comparison-linux/objects/bddc41c903a930140d329b948eb084b13ee926e28bc965ceb13690678d2d9e40"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

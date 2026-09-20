@@ -1,0 +1,358 @@
+{
+  "/tmp/nanolang-darwin-tuple-selected/005.stdout": {
+    "sha256": "cee9fcb2355cc7752be51817f8f3676e39ef5aac516ba018c57e182123bf728f",
+    "bytes": 73
+  },
+  "/tmp/nanolang-darwin-tuple-selected/inputs-after.json": {
+    "sha256": "e90d42f19edc4e55f096ee957aa42353ff7c5562ff8a5349fb5cc758b227b5e6",
+    "bytes": 179155
+  },
+  "/tmp/nanolang-darwin-tuple-selected/007-status.json": {
+    "sha256": "9f7848423bfcaaca4d4a6fcb8766dac38e698e938cfccb600d4619d4a1e65256",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-tuple-selected/009.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/001.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/013.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/012-status.json": {
+    "sha256": "e7a189459edc3a625283d9ca2626a71252bc38d837a35e8dadecd9f639147638",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nanoisa_emit.c": {
+    "sha256": "dc7698f06ffc146e4087397b62d97a6413caa1cbe49a42aa6d3c8bd36b6f2e02",
+    "bytes": 141444
+  },
+  "/tmp/nanolang-darwin-tuple-selected/011.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/003.stderr": {
+    "sha256": "62dc1a88a54303233c8e6ea57adb2c0d63685f70eb5243430b2d9cb6b9ba3aaa",
+    "bytes": 85
+  },
+  "/tmp/nanolang-darwin-tuple-selected/providers.mk": {
+    "sha256": "64b59d7fad75eaaccde2f1ae479a349a4a1788cf61d2b610014a64c7cb3c3fab",
+    "bytes": 88
+  },
+  "/tmp/nanolang-darwin-tuple-selected/015.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/002-status.json": {
+    "sha256": "fb3ac4f624348ecaef6988882c9f40f1ec9f856c7c6ed302e4380cd8e4ad731a",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-tuple-selected/007.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/providers-after.json": {
+    "sha256": "26f71adb5f3626268a7fb7e483ae34df10abb79d0e4748df4790ca56c035605e",
+    "bytes": 5470
+  },
+  "/tmp/nanolang-darwin-tuple-selected/007.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/006-command.json": {
+    "sha256": "14dfb76fa10b5c0e310db50a42aef4cb8aa03807f1fe0cac2bc2501dc87af6cb",
+    "bytes": 379
+  },
+  "/tmp/nanolang-darwin-tuple-selected/015.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/001-command.json": {
+    "sha256": "987300c846b3e075ac287198b981917f88bd96cc8e7bf6bac1d5fa0a5d14db79",
+    "bytes": 275
+  },
+  "/tmp/nanolang-darwin-tuple-selected/001-status.json": {
+    "sha256": "c2ad8ff099ea905e6b372aed008f455fc6101bdfdcab13419baaf1e9127f39e5",
+    "bytes": 128
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nanoisa_emit": {
+    "sha256": "f4be93e76952d02cdad4e56c4a2cd1597e0ce78c7e4933d0dd585f913a2b8931",
+    "bytes": 10978272
+  },
+  "/tmp/nanolang-darwin-tuple-selected/014-command.json": {
+    "sha256": "5a115e232839843e432b8c5ac17d22b4f89f025bdc14755869ca7fb424bffac0",
+    "bytes": 363
+  },
+  "/tmp/nanolang-darwin-tuple-selected/013-command.json": {
+    "sha256": "2f4b7b701fe0d2fd9c90af39dbadd85f011769b7b3014b9bf872133b5ed44f6b",
+    "bytes": 276
+  },
+  "/tmp/nanolang-darwin-tuple-selected/test_nanoisa_src_nano": {
+    "sha256": "65ebf4b5bbe90c68451d165d30fd923c3d0ca43d2c6e9840a1129961b956a72a",
+    "bytes": 1087304
+  },
+  "/tmp/nanolang-darwin-tuple-selected/014-status.json": {
+    "sha256": "3c0969f2ec59330ec5f040d75a3ac531683aa13374449401ce0870699b917b7a",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-tuple-selected/008-status.json": {
+    "sha256": "63c3bfc933a65efa2ace1abce5f60930d83f2d28627306a6d9513987c33c9002",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-tuple-selected/003.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/011.stdout": {
+    "sha256": "7b5154a22677c91cfa4c8c0699dd323cf4ce4afe9af85b9d1e2d37e14ac5fa8b",
+    "bytes": 28
+  },
+  "/tmp/nanolang-darwin-tuple-selected/011-status.json": {
+    "sha256": "c19de5d05e24652bbbe2d63b474f753489311660a7a92d9599f86574e2dfdb7e",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-tuple-selected/012-command.json": {
+    "sha256": "c915693459513eedd8ec14504f8efd18a2f45a04544866f867e092c8ad9b02e5",
+    "bytes": 297
+  },
+  "/tmp/nanolang-darwin-tuple-selected/015-command.json": {
+    "sha256": "bbc5b032a9212ca1dcc6b3c3ebe1eb58a1740370f04c620046286a3967dc8114",
+    "bytes": 522
+  },
+  "/tmp/nanolang-darwin-tuple-selected/013.stdout": {
+    "sha256": "7b5154a22677c91cfa4c8c0699dd323cf4ce4afe9af85b9d1e2d37e14ac5fa8b",
+    "bytes": 28
+  },
+  "/tmp/nanolang-darwin-tuple-selected/000-command.json": {
+    "sha256": "ace1d3a7328148f949623659aae66a31c567317a0b1622cae0f8aa0ead836fd6",
+    "bytes": 311
+  },
+  "/tmp/nanolang-darwin-tuple-selected/001.stdout": {
+    "sha256": "dd28ddca48b895febdaff7f542bc918e13244b8a6978450f31452016dc25b37e",
+    "bytes": 1080
+  },
+  "/tmp/nanolang-darwin-tuple-selected/007-command.json": {
+    "sha256": "5bd5126e2c48ad97724aee7329f74914fae00a2f8311bf57e2cce3a002ee1479",
+    "bytes": 295
+  },
+  "/tmp/nanolang-darwin-tuple-selected/009.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/005.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/004-status.json": {
+    "sha256": "9af91140a2a985cbbcc090d00a8a6893df6b1940450dfb24aec216f34ba72fd6",
+    "bytes": 129
+  },
+  "/tmp/nanolang-darwin-tuple-selected/010-command.json": {
+    "sha256": "00b8a248721e06620eeb14149c15fb53ce6c235b52a8c6ecf55879f88edd3cdd",
+    "bytes": 518
+  },
+  "/tmp/nanolang-darwin-tuple-selected/000.stderr": {
+    "sha256": "d036b2c4db9d6638fddaccb4c6db723d62cb86e90b59682a9a33ead91c6e5ca1",
+    "bytes": 1003
+  },
+  "/tmp/nanolang-darwin-tuple-selected/012.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/005-command.json": {
+    "sha256": "15d1dd9107a838d31fc644778eaad0acdf0d02b7d2f22297609600553b4aa0fd",
+    "bytes": 502
+  },
+  "/tmp/nanolang-darwin-tuple-selected/002-command.json": {
+    "sha256": "f2363d1ed9641dde7cae34c9ae1e8fe31982cc7f224dad45bf8c274defd43dc5",
+    "bytes": 3490
+  },
+  "/tmp/nanolang-darwin-tuple-selected/inputs-before.json": {
+    "sha256": "e90d42f19edc4e55f096ee957aa42353ff7c5562ff8a5349fb5cc758b227b5e6",
+    "bytes": 179155
+  },
+  "/tmp/nanolang-darwin-tuple-selected/003-status.json": {
+    "sha256": "2178f918174ec912fddaab48fcbb2744c19f799f3771b1a68df09c403c13ca44",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-tuple-selected/016-status.json": {
+    "sha256": "5751fafbb9fad7dfcf51d1cfb748902cf6f74b5e577301412e4230df1e0ac02e",
+    "bytes": 129
+  },
+  "/tmp/nanolang-darwin-tuple-selected/004.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/008.stdout": {
+    "sha256": "7b5154a22677c91cfa4c8c0699dd323cf4ce4afe9af85b9d1e2d37e14ac5fa8b",
+    "bytes": 28
+  },
+  "/tmp/nanolang-darwin-tuple-selected/016.stdout": {
+    "sha256": "7b5154a22677c91cfa4c8c0699dd323cf4ce4afe9af85b9d1e2d37e14ac5fa8b",
+    "bytes": 28
+  },
+  "/tmp/nanolang-darwin-tuple-selected/003-command.json": {
+    "sha256": "249d74326a3464a9754767fcb38358c3e699b72839bae2a0d3125b75059cab8c",
+    "bytes": 420
+  },
+  "/tmp/nanolang-darwin-tuple-selected/004-command.json": {
+    "sha256": "ab522bc3a81b2d2b8bd7bbfb67f8cba5b44c9cc079de0eab0024069530e194a8",
+    "bytes": 372
+  },
+  "/tmp/nanolang-darwin-tuple-selected/013-status.json": {
+    "sha256": "9280981eed39d1b92b035d1358544a231ff8278c2158f9450eb9f22923c7f406",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-tuple-selected/011-command.json": {
+    "sha256": "ee4f72598732e27b736eba8bd674b96f304c6c9a525b99989dffca9cbbfef587",
+    "bytes": 223
+  },
+  "/tmp/nanolang-darwin-tuple-selected/014.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/016-command.json": {
+    "sha256": "72f994e23c8d50fa0816ee748a32c393d9d72787923d2b3741aa1cd69c8ca883",
+    "bytes": 225
+  },
+  "/tmp/nanolang-darwin-tuple-selected/006.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/010.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/002.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/006-status.json": {
+    "sha256": "a155b02f57d9383f373a5f34d5db9852752f0d5bf21e6cc4fe89bfdfb31b9d24",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-tuple-selected/002.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/005-status.json": {
+    "sha256": "de48850b99175f99b86c9c6243e7f87be65b259f510caf13e6884d575532d43d",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-tuple-selected/010.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/006.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/010-status.json": {
+    "sha256": "a735f80efff69d220ba876140abb8f51961db467a26ebfd7db168746d63ed688",
+    "bytes": 130
+  },
+  "/tmp/nanolang-darwin-tuple-selected/009-command.json": {
+    "sha256": "3a65578f61dce19f44cd62e78e3271b8992321e46eb3e8c8e0aa4f38f4f1698c",
+    "bytes": 359
+  },
+  "/tmp/nanolang-darwin-tuple-selected/014.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/009-status.json": {
+    "sha256": "940030e585699436e87c32856e04d709ea85af99d1d6dba7c441697572d6ad8e",
+    "bytes": 131
+  },
+  "/tmp/nanolang-darwin-tuple-selected/008.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/016.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/004.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/015-status.json": {
+    "sha256": "95ac459d2a52b6e8fef26e73bd1c7e2d78861049a42b3a64ce9a558962d99c46",
+    "bytes": 129
+  },
+  "/tmp/nanolang-darwin-tuple-selected/008-command.json": {
+    "sha256": "7a5d3b17fd4988ed450b018c6ee8329775a7811decd765f1b2b33c9373a099bb",
+    "bytes": 274
+  },
+  "/tmp/nanolang-darwin-tuple-selected/012.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/000-status.json": {
+    "sha256": "836899884c5d0b7f0992a1a38037143d856a8ddb28bd920316e81ac68d75c0b3",
+    "bytes": 129
+  },
+  "/tmp/nanolang-darwin-tuple-selected/000.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/tmp/nanolang-darwin-tuple-selected/providers-before.json": {
+    "sha256": "26f71adb5f3626268a7fb7e483ae34df10abb79d0e4748df4790ca56c035605e",
+    "bytes": 5470
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.native": {
+    "sha256": "832bd74ef6a83e702b960c564e8e7811b90e669f52b7ba64797726de4d743124",
+    "bytes": 56544
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/seed.c": {
+    "sha256": "6e07c3372b4910dad5f78ad14e6668e5d6238cfedf1602429a550c69fa0a45d9",
+    "bytes": 48511
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/seed.nvm": {
+    "sha256": "c1731c124bbb93bcc69135aba313cc03cd5ba122e9c45e5ba67a2b259df46b6f",
+    "bytes": 1068
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.c": {
+    "sha256": "6e07c3372b4910dad5f78ad14e6668e5d6238cfedf1602429a550c69fa0a45d9",
+    "bytes": 48511
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.nasm": {
+    "sha256": "228cd65a2596ba005f9381cda05b549fad97ce97e1892a18b59117f8037e81e6",
+    "bytes": 961
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.nvm": {
+    "sha256": "5f68d61a8188349f6edee00b6a53afd6d5fb88b384c511afb86a1fc7e3e88565",
+    "bytes": 972
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/seed.native": {
+    "sha256": "3ec708c215439580eedd199250ef55673c6cb503a2d492338b11d94b11197fc3",
+    "bytes": 56536
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/seed.native.dSYM/Contents/Info.plist": {
+    "sha256": "7f8b6bc5dfb5b1d305fa7c61a7b687b9872ff48749645ccd0edd4daeb5044e94",
+    "bytes": 640
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/seed.native.dSYM/Contents/Resources/DWARF/seed.native": {
+    "sha256": "c8ff11eebe70fd01abfd551223f5938d3b484e4e6a147ea40b20ce158dbe5827",
+    "bytes": 34433
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/seed.native.dSYM/Contents/Resources/Relocations/aarch64/seed.native.yml": {
+    "sha256": "8f6ecff84b1f0f74d80e9d932ead257e4b969d622850fc03ef1433ce6bfe55c3",
+    "bytes": 160
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.native.dSYM/Contents/Info.plist": {
+    "sha256": "9448bcee5154e00fa3cfc52c43e1c989fd19e7d3d7c4739ce0d22000a278a993",
+    "bytes": 642
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.native.dSYM/Contents/Resources/DWARF/source.native": {
+    "sha256": "43b1593a064f292decb049a018cb606c0311e13dcc005ea4a5597749db81013b",
+    "bytes": 34437
+  },
+  "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.native.dSYM/Contents/Resources/Relocations/aarch64/source.native.yml": {
+    "sha256": "18501bba89bf00c653335c5f065294b3323d6b4400a489511e9a7085aa635d0e",
+    "bytes": 162
+  }
+}

@@ -1,0 +1,3834 @@
+{
+  "/tmp/nanolang-darwin-aggregate-selectors/tests/test_nanoisa_tuple_values.py": {
+    "sha256": "996e7484cd266bffdc9fab6c50877fa9d82ab2b7de26da40c533d85158b678e0",
+    "bytes": 5621
+  },
+  "/tmp/nanolang-darwin-tuple-selected.py": {
+    "sha256": "af57ae6fd0759f966d0e1d88a44008c86b01a8c094fc6db751d2b380538e9d82",
+    "bytes": 4445
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/bin/nanoc_c": {
+    "sha256": "da898ae2a1ae0d3397aa1f25f50717f6519233924c579401f45a0d04e753f937",
+    "bytes": 11832584
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/bin/nano_virt": {
+    "sha256": "1c6de403911628ead3855275cb38b2b52ae47bd622fbb75ca652ed7d9cd82670",
+    "bytes": 11781368
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/bin/nano_vm": {
+    "sha256": "78e79d2450077aa3fa97cd942e2e00e97dccd7b1d5663650e326e186072b6f7c",
+    "bytes": 11730824
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/bin/nanoisa": {
+    "sha256": "4636e743ddede0f607a359dfd2e241b862186c0f07837567b34e84e0366eaf88",
+    "bytes": 1054776
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/bin/nvm2c": {
+    "sha256": "0a591c835be1738f62382b5a13c8ebec756b793879d7914668f75fa3b0433827",
+    "bytes": 1126360
+  },
+  "/opt/homebrew/opt/python@3.14/bin/python3.14": {
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634",
+    "bytes": 34640
+  },
+  "/opt/homebrew/opt/llvm/bin/clang": {
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+    "bytes": 138440
+  },
+  "/opt/homebrew/opt/llvm/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib": {
+    "sha256": "d6d39a8772ba124ea3a79a5f84463024242e63083dbe84d9f5ae0bf37647b439",
+    "bytes": 3966896
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_socket.h": {
+    "sha256": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+    "bytes": 2351
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/json_diagnostics.c": {
+    "sha256": "6dd8c1728feeac4828d0e231493c93c7fe49ed1dc6a503e2df19b0a18f91df74",
+    "bytes": 6993
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/stdlib_runtime.h": {
+    "sha256": "a6d5cbd9170a980e8f6e50596469c9fb6e7f6ff91d1ad5b8cf4d83d0e3ed6562",
+    "bytes": 5924
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/emit_typed_ast.h": {
+    "sha256": "bf0bab1b223664d1c45bc6b624ded30f86df05ce64667f983fe56a4b3bbf656f",
+    "bytes": 435
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_cap.h": {
+    "sha256": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+    "bytes": 2672
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/par_let_pass.c": {
+    "sha256": "85f4e2a349c7675aa891da6f5f51ef7a0ad59bb4bf6feec1ec6b98b53eb3fb05",
+    "bytes": 6706
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nominal_types.c": {
+    "sha256": "b7bb172c3b02acbbee2933d57a0cc8882825dbded4fb72c04e4ab2de3f52bd77",
+    "bytes": 16263
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file.h": {
+    "sha256": "4b76d8e23f366ee5311ffcc2bc38f183a71df5d3318459cb76292898e706613f",
+    "bytes": 2645
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_values_internal.h": {
+    "sha256": "a5fd923a8b222ad1cd027ce9889540adeb5ef71c66dc5fa123386fa427a0cbf8",
+    "bytes": 547
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/eval.c": {
+    "sha256": "6ad79837473f7ca736610476a9f9e1b5bc17e735d14a68365a45ac9e914f7187",
+    "bytes": 281030
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_gen.c": {
+    "sha256": "07a484dfa6c67cbd07766856810e35f59ffbe1681f29917588cc47bdbd486bd8",
+    "bytes": 12530
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanocore_export.h": {
+    "sha256": "d04fae783b6400280b06cade8e73775d90e3f4a0d0efea9101065351d1d8a1b3",
+    "bytes": 648
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/module_metadata.c": {
+    "sha256": "21f69bbca17955f132d05223a7993f252c6ba96ef32f44226a842b1aa510e646",
+    "bytes": 29303
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/binary64_bits.h": {
+    "sha256": "d106a6bdbf7d10a75256bf07b0bcebcebbb50a5a8845acee306a0e20d61d00bb",
+    "bytes": 1179
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/module_symbol.h": {
+    "sha256": "8586b9ce998dda548548fea2d5b828db19983a42edb2fbaa363a29f71b8c9341",
+    "bytes": 2983
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanolang.h": {
+    "sha256": "b03e6ef9078384a9672308073d4cdfc50e0af1c64ef9cb73add28e32f1229b99",
+    "bytes": 56640
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/transpiler.c": {
+    "sha256": "7a87ffd642fdeee532eb4b5ab86fda8244835b5c583a41329bf53e79fe2f31c9",
+    "bytes": 240607
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/lexer_bridge.c": {
+    "sha256": "0ca16b2926c46001e5dd44b392eb41ed0fc00ba4d3908419da4d0b57652a6d3e",
+    "bytes": 2462
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/channel.h": {
+    "sha256": "ad1f0665410f1882b71a0541495b16b6ac9281333398af2a8424b8b1296cfa45",
+    "bytes": 6706
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/docs_main.c": {
+    "sha256": "3aa0ab6919501c9c85734f4b6f9d549368ebcf37b57f26e1b1d53c9c85d4d1cb",
+    "bytes": 14360
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/ptx_backend.h": {
+    "sha256": "6d3bffee0ec4c44200df73e90db623b886a4bb8b1f681a6e1848e5e531ed4441",
+    "bytes": 1384
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/docgen.h": {
+    "sha256": "485d5cb3a506319f5aaeb9da5c860fbbfd1a21c5970e58d275b3e8d293047f9c",
+    "bytes": 630
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nano_main.c": {
+    "sha256": "cd04668371842c94e13a7f5d69fcf4f2a9df54eef218f353db056bd32adc3e60",
+    "bytes": 8707
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi.c": {
+    "sha256": "ec1e9aa45aa93088871b184d339913c72d7351d10b82412e63739766b817afba",
+    "bytes": 32591
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/dce_pass.h": {
+    "sha256": "1ec47d2ee3b5d0e96f9b3538827ad82281291c4b352f454961435d172d4eb97c",
+    "bytes": 956
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/version.h": {
+    "sha256": "8c293ba8cef20920af6941baa8e77b43052a3fdd108bd78880a0b9eb9396d686",
+    "bytes": 330
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/fold_constants.h": {
+    "sha256": "348ec1f71b11d9db079c9dc63eaf180ffaed749bef8657844fa827b8df5dbea0",
+    "bytes": 1051
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/docgen_md.c": {
+    "sha256": "a1b71c8878c25438eb65a8ab7d550b29ba61217bfded10a171ca46b8a18f4cfc",
+    "bytes": 22287
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/string_literal_decode.h": {
+    "sha256": "2c21b279bb0a07c614d9c10acfab3502658594909ad65d240ae25b7b0c212a2d",
+    "bytes": 1454
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_plan.c": {
+    "sha256": "66cc890caeb1e20628bf3a9696a5a6c6d409f70aff8296c82720a24b098d35bc",
+    "bytes": 7317
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/tco_pass.c": {
+    "sha256": "7c18305bb1e53172654cfd5cf30cfe2726efe3e78440a7991d33fbcb50b82b2b",
+    "bytes": 21952
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/dwarf_info.c": {
+    "sha256": "eae03f4e6404c236ee9aa71fe835b95af2f39661c89ebc2ed0f59e2cf97d4a12",
+    "bytes": 9637
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_runtime.c": {
+    "sha256": "1b6fe2bd1d692e0e203f447e90be32f2e858e27db8d78e680962ccbf8d1f5dea",
+    "bytes": 23955
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_cap_private.h": {
+    "sha256": "63d678efc51176823a3c9ddfabddabd9ba5b25232d9e451e77d442f1a25a8fc5",
+    "bytes": 1225
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/main_stage1_5.c": {
+    "sha256": "e252eea32f7ace2549e40349f62f713751bb9e7f57a5f5865a82562dca310188",
+    "bytes": 8067
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/wasm_profiler_rt.c": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/builtins_registry.c": {
+    "sha256": "3921e5026efaedc98addef6db3540634d3bbe350a1230ead526bbc81c342df46",
+    "bytes": 19593
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/resource_tracking.h": {
+    "sha256": "8ce0ff4940a9cf19566269649237b3214c6c8355e7c9320507a053cc5a52bb45",
+    "bytes": 1675
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/locale.h": {
+    "sha256": "63c41ba62c9bd44aa0e74025fe391895f09c65f78ea18372a8f08a896f63a3ee",
+    "bytes": 960
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/bcp47.h": {
+    "sha256": "5222771e3a8570211bc46dc17f6a1b0fb615b66a56fd54cb239d4dd4582c3f4f",
+    "bytes": 1204
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_values.c": {
+    "sha256": "13b505b04ec37ae78380c5633ed00f48c601ec9f855f1e23293c5fdc53da9fa2",
+    "bytes": 12918
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_publish.c": {
+    "sha256": "a62a2abcb22488bb4c896bb0561a030e1fe40d629345abcabc087b7b56954e6d",
+    "bytes": 12390
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/pgo_pass.c": {
+    "sha256": "af2be35f9b7613f1fe2ab898006ab50c47336916bd2d5308687c582f1c128fdf",
+    "bytes": 23092
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/cJSON.h": {
+    "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+    "bytes": 16394
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/effects.c": {
+    "sha256": "6157b0ec5d9a740487fb7857baa6ac795b12df3b9ddea10375ac1f8830f8db1c",
+    "bytes": 20954
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/diag_id.c": {
+    "sha256": "af0382246528a518aab16b162455bf68aeb520719622829bf7005540979c810f",
+    "bytes": 1800
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/module_link_response.h": {
+    "sha256": "b496551a57e0260b69b7a47976ea0bf0d3972b7fd21b959e71ec40a1ad684a9b",
+    "bytes": 2785
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_gpu.h": {
+    "sha256": "d354cdc00a8194f6727c6522d433d1aa74502f87f007b897406a928fbb2c8802",
+    "bytes": 3538
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_manifest.c": {
+    "sha256": "76ab15dd95848ab77088a7df95c5f2529cd384dcd6bc64ecf487e1dac849efd6",
+    "bytes": 7823
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_binding.c": {
+    "sha256": "15f1db30f9046d9b478019ae5abd221637af70d8c7f48f123162e2dbf5217c3f",
+    "bytes": 18682
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/bench.h": {
+    "sha256": "8d50641ac3403f4b8b86ed149652e32c34f2b3e2312ab442cbb51851f1a825a1",
+    "bytes": 4022
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_fabric.c": {
+    "sha256": "64f7010c70ac4ac77dc85ecddd18e51bfda5758a9c4c8c9922fcd7d101d5250e",
+    "bytes": 24013
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/module.c": {
+    "sha256": "eb8ee62c999942563382a8a0fe27335d5fb5a27657cda69f9cc4c308e1dd534d",
+    "bytes": 112618
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanocore_subset.h": {
+    "sha256": "60493735c009414cda52c6b18e905ffd3272d5ba91637baeb34bbbb4affe08c6",
+    "bytes": 1492
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/wasm_interface.c": {
+    "sha256": "813f93bfa4dcb8125ddbec5f62876865ac38c1e23ecc2923cd25f76f502cdd17",
+    "bytes": 5134
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/bench_native.c": {
+    "sha256": "30e1e4668d626b1751ce8c79767f297518618224443e8d3f6769e467844508f7",
+    "bytes": 493
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/c_backend.c": {
+    "sha256": "3d0ccb774604ada975e8cf090b9229191dfe75e3c07604718d47988645fc1810",
+    "bytes": 103891
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/module_builder.c": {
+    "sha256": "d91953a1f90c7fc197419fa5d230dc59cbfbb537a47516722f5417246b0d3439",
+    "bytes": 288829
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/repl.c": {
+    "sha256": "a2346379ca0511d9e6654cba545cb1864b8db3022831a153c44f83d2f23c55cb",
+    "bytes": 17402
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/shell_path.h": {
+    "sha256": "1ce8379627a4d1debe312831bcd54ed29c7177bdae0f4d6458935c40f7251885",
+    "bytes": 2469
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/binary64_arithmetic_source.h": {
+    "sha256": "a10c6f741cdd4806ca57bf4a2abc676bc1d3869e4ec894c642cdb7768e95ba4c",
+    "bytes": 2698
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_policy.c": {
+    "sha256": "c16c33503d497c85b956c4d920378160594218e8e041a42257429349bf3e8200",
+    "bytes": 11996
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/lexer.c": {
+    "sha256": "1ce754d298bf62c4475f489ede37c7f09dcef09928efbe6cba1e2ac861919645",
+    "bytes": 28054
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_binding_main.c": {
+    "sha256": "4149f2e198e965349b82370d88985dd0267f5891767a523f844634c6c39283cc",
+    "bytes": 5148
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_obs.h": {
+    "sha256": "5eb01e7f3b5d074e4b48beb1cf0f508ca05fb7f5749ed7219852618fd05fb305",
+    "bytes": 1463
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/toon_output.c": {
+    "sha256": "c68e09156bcdc0403fcc2a7465ae450ca306e1a77ba580043541a82e58eb711b",
+    "bytes": 4864
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/typechecker_passive.c": {
+    "sha256": "06dbd0aa5b69411f06bf820da156095c888d12d050435c1158fa5206ca51447c",
+    "bytes": 5660
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/proptest.c": {
+    "sha256": "db3620f60e56bdbe9ae893ad9d1b82adfbb86277d1470db15f67754ea70a522c",
+    "bytes": 14633
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/riscv_backend.c": {
+    "sha256": "3a4bb4d5ae3334dca6d2612821c906478e0ad3a6913dddfdf089d752264be188",
+    "bytes": 21781
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/coroutine.h": {
+    "sha256": "50a3a6c97172367abb5698ad542b34b953e54f76e98edb4afeca63b4cb60fe38",
+    "bytes": 5189
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/interpreter_ffi.h": {
+    "sha256": "cf457b6317831222036f1cf79774b875d4f67d07f06db004d8bb83c7012fe77c",
+    "bytes": 3470
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/opencl_backend.h": {
+    "sha256": "e4eaf54c91853b4bd98167501647d43492b7b3261cac12474cf2cfe9ac5393aa",
+    "bytes": 1648
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/utf8.c": {
+    "sha256": "58ce385be488846c402e24e67b885dd39bb373360cacb3f521ddb9fcfd708b4c",
+    "bytes": 5485
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/tracing.c": {
+    "sha256": "363141ffa72293a63883d9d1cd6f95f0279be66d295afd2036f34ab4da5614f0",
+    "bytes": 16733
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/colors.h": {
+    "sha256": "2cb189ddf9fab50db538487e3363e2c4b71fbaea37bf30bc56a9234cd07cde9b",
+    "bytes": 2457
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/generate_module_index.c": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/cps_pass.c": {
+    "sha256": "23961e5bdd79b893ba25ce204c8a93684d353093d0ef06b0c976435154056b25",
+    "bytes": 7159
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_journal.c": {
+    "sha256": "4458fc2787fe6160d4e60d4209bf34bf2b9e7db9d5cd4b94a219ae70b114c33f",
+    "bytes": 13133
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/catalog.h": {
+    "sha256": "857957fd203e061ab29e001529f3e76f2814e80b18d6115d3dfebf5c9d5fde8d",
+    "bytes": 1027
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/fmt.h": {
+    "sha256": "e24f0425c3e46eb5144acad85eb88d9a040ada03899610ac5c1db66e4c7be21d",
+    "bytes": 1636
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/reflection.c": {
+    "sha256": "7160ca722f4951846c94b01bb2298a1cb6879bcb6ffb7b21d8d5d2845f92562b",
+    "bytes": 10928
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/resource_flow.c": {
+    "sha256": "f5698c1e01167f3a7fa935b82ae78abcd28ffcf71ec33621a4092051204caaaa",
+    "bytes": 49887
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_shm.h": {
+    "sha256": "2f7dd50816fd45df0d8b7162f33de38ed6acd90759391bc8264cd1d57f72ca08",
+    "bytes": 1411
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_catalog.h": {
+    "sha256": "95ab2277fc3dd7993f1130617591a4cc06bde8e2158de6f023dc47c1c2006a35",
+    "bytes": 403
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/type_infer.c": {
+    "sha256": "6b38b5994027bcd2b71a71967f5c95696e95e400530f5fe42e4df93a8a7c035e",
+    "bytes": 70642
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/llm_pattern_suggestions.c": {
+    "sha256": "c2987c31e9905409e54c4730cb6455a23990ed5f148989226a3bf9a083e74de4",
+    "bytes": 8933
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/channel.c": {
+    "sha256": "84faa9c3ec72d4ec6e06680d2c57bcd66de50c3f257efbcf476dc2a73d5f6c0c",
+    "bytes": 6636
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/lsp_server.c": {
+    "sha256": "c62efa27cd55ef192fc8baf3f2aa6ad8fd87edd5099912afe5c7c875a190e161",
+    "bytes": 43463
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/dce_pass.c": {
+    "sha256": "463658e536ae6cbd34b2fb9a55ffabfca94c272df4e65ce6dba30f008f05660e",
+    "bytes": 16555
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi.h": {
+    "sha256": "2e063bc54582e7999fc431a419e429b9e3e610ff9fc92e91556dc5c3a1708118",
+    "bytes": 2957
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/docgen.c": {
+    "sha256": "a3d75a103c35bf482abee572cd4b4fe93c33f4288d4c89c5312b7333a301547d",
+    "bytes": 28440
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/ptx_backend.c": {
+    "sha256": "2c47fc269a37255628a1f0f3f81b48b8405d5290abd91c421ba05c605dbdee21",
+    "bytes": 22828
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/binary64_arithmetic.h": {
+    "sha256": "97a282226c07249d2c2c28f4e14f4bed3a07a838267534928e36f889d26a67d5",
+    "bytes": 2188
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/transpiler_iterative_v3_twopass.c": {
+    "sha256": "18325853bb3651f0c3c67e33c76d9da464410a39b299df0686a08fec12bd9d53",
+    "bytes": 242962
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanocore_export.c": {
+    "sha256": "06ac429e8317f0774996fb9ebbac44d15350b75746ce1a111aef693c5f11f335",
+    "bytes": 24956
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/typechecker.c": {
+    "sha256": "ed642c6a04ac708d15d8acbfd9ce9f39fbadcbadc5204986742f90e7535fc53d",
+    "bytes": 438114
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file.c": {
+    "sha256": "87b11bff744dc0cda8b8d6341917543df106717e0d4e7b3163d189dc8c0a88de",
+    "bytes": 9975
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/par_let_pass.h": {
+    "sha256": "dc0d716ecf6cc670ed4348589fce376cd586e84f6a8aedc41b811f343416f9d5",
+    "bytes": 967
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/env.c": {
+    "sha256": "47cf5d8f36ccf6f45b0efc5b727cc9d2d2f9b99db5b80ac10cf662a3b344a4a1",
+    "bytes": 84965
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_gen.h": {
+    "sha256": "969c40fe06a6084c49f9d94b8dddf981401d9634daaaa8f19b5280d595d2d9a2",
+    "bytes": 900
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/emit_typed_ast.c": {
+    "sha256": "ea6e376c31b92478a06baca48f483b28b25221488f06ca85ef6ad4b30d6e47e8",
+    "bytes": 10188
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/main.c": {
+    "sha256": "141ee544e4b8e303402e4bcb86f84e61ba1c6c6123ccf0fab6d3c75ac4050b2a",
+    "bytes": 95415
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/stdlib_runtime.c": {
+    "sha256": "cbe142aed219b6619b0249ecfee8596edae14006823d9373ce2a4bd0ab137590",
+    "bytes": 134224
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/json_diagnostics.h": {
+    "sha256": "ad8d195c91302f59722755d04facaf6339d50b830ebadb49b0891ddf925e3154",
+    "bytes": 2460
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_socket.c": {
+    "sha256": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+    "bytes": 12137
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_cap.c": {
+    "sha256": "a94dfd27cce4a112d018d541c32ca5cc41927efb0dd7b622b84ef2e787abc353",
+    "bytes": 13397
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/effects.h": {
+    "sha256": "6a7c2570706fe05504d4e5b947658c45a8d79a6ffe6a5ca55c9d9ddba86a9725",
+    "bytes": 6885
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/cJSON.c": {
+    "sha256": "e3b9e8902dfd7472fb65cca9ab275d5da03dffe4e5d2ecb0b3586fd5f2f4e248",
+    "bytes": 80517
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/pgo_pass.h": {
+    "sha256": "4e60defb409442757b814c9e5423fbebf25ec213c7ef2470e7d5bba05035c47b",
+    "bytes": 3671
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/bcp47.c": {
+    "sha256": "d46dbed24e240aa9f3d8d5509e7713ad660ed799c6aea97fc051d8e2c848c13e",
+    "bytes": 5729
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/locale.c": {
+    "sha256": "6d74c4796ad87b72269ac3e356ac283dcf4f50591b6e28ebc820c85f4b8241f1",
+    "bytes": 3544
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/repl_main.c": {
+    "sha256": "6ec44c729e74b59143c3e68758d1ffe7cb99a24be7c0ba8b8a08a7f8b8acc7c0",
+    "bytes": 1653
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_publish.h": {
+    "sha256": "a418999d6a58554b091c9486c1dbb883f3e4d484fe9163453f077d381115554f",
+    "bytes": 1325
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_values.h": {
+    "sha256": "e9859db60cfa1fa352e96244cc3fc6dd026f7eabe7a0972b67a49f6e32fd3bf1",
+    "bytes": 4400
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/resource_tracking.c": {
+    "sha256": "08b896d02a8c7c531e20ce3bae224792ff8d3638d0513ef9780511e59412819d",
+    "bytes": 11960
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/builtins_registry.h": {
+    "sha256": "998b28de7452beb1af5e9233365e57a21af8bd0f725ecabfb8736a258e0efb72",
+    "bytes": 1702
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/wasm_profiler_rt.h": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_plan.h": {
+    "sha256": "dd9d995fb119ff5f8712aac2f1d907d45ed7fd0a98082260ade1fc0204b25203",
+    "bytes": 2455
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/docgen_md.h": {
+    "sha256": "c0650e23350d79c85856ed08033e3ee85f2e160d242145137c5118dc80abf067",
+    "bytes": 640
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/fold_constants.c": {
+    "sha256": "060417fd928d371ae8c8bef9491ee295515bbb2500b30e3c4351a4027ae0458a",
+    "bytes": 11992
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_runtime.h": {
+    "sha256": "a988b37d36b56d660fce9b3f2fabd6525b4176b573ce90020156d199f7a51f99",
+    "bytes": 2336
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/dwarf_info.h": {
+    "sha256": "f7753e68e136c76e170601ef79edd1f05b49cad59b3995b1d176dc74d53d3018",
+    "bytes": 2519
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/tco_pass.h": {
+    "sha256": "fe6c2b50f9f676aa2d53b43b3967577e4ce4d678452275ba5b605a70f889a208",
+    "bytes": 1970
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_policy.h": {
+    "sha256": "643724adbf9e80e952090fa5cf5cab5e0a90eaa9ad0baa384bbfe1bd26a8747e",
+    "bytes": 1939
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/ffi_bindgen.c": {
+    "sha256": "d7408d08512474427d6faed0f9265f64af3604628b1849ae55739b11a0455ecf",
+    "bytes": 17200
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/dap_server.c": {
+    "sha256": "55c30d3ae96e60c3069e38d8c22bda5c31c21ccae9ec55c64b6b15199a46c92e",
+    "bytes": 37817
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/toon_output.h": {
+    "sha256": "0f80db4721e9bbd52c11d52567a4c2c81965bf3003392b7112838132099f0430",
+    "bytes": 2363
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_obs.c": {
+    "sha256": "fa43a97aa25b3e7e41035a7a078e30724ed7a226e086313dd103e2232d1403ad",
+    "bytes": 4818
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanocore_subset.c": {
+    "sha256": "2235b0df5ca03d7d99876433602376e3211464c9490440320e407779367db22f",
+    "bytes": 21856
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/module_builder.h": {
+    "sha256": "72b5defdc29bac3bf13930419cbef385cbbe2fcf4171d80589dc16e5e8ee83c5",
+    "bytes": 5745
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/c_backend.h": {
+    "sha256": "61959cfcaf4ec943e830adbbe89797ce7979ab843cf40710f8966e34d20c5079",
+    "bytes": 2775
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_manifest.h": {
+    "sha256": "94ac8189b0cb4d1235fd22ef21f8c5bdc652f1e59c05ea931da9bc1d4cdae38b",
+    "bytes": 720
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_gpu.c": {
+    "sha256": "1a9c81bd05e44d79357b5e089f4db8eb357558983beaf4439001c22282f3d444",
+    "bytes": 22209
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_fabric.h": {
+    "sha256": "5f169f4579497e9c11467c7f3cfd10fd58a37047a6641c3bef34efa418fbe6b7",
+    "bytes": 4422
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/bench.c": {
+    "sha256": "6e65137f62603adf2c543c459962820158f87a9c4950561bf0a981d14e74fd3f",
+    "bytes": 9448
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_file_binding.h": {
+    "sha256": "00feca07258be973ff3a050736f2dcea54f83722a8af7aeee9ce32165db80d8a",
+    "bytes": 2071
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/diag_id.h": {
+    "sha256": "32486611b35a4bec269e58a6be7868695df45678efbf1f7d86eb735a9d449592",
+    "bytes": 1420
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/parser.c": {
+    "sha256": "3676713df00069c45f1957aba4b97f8a7636296b3fe54e66bbab85ac7706d54e",
+    "bytes": 269688
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/type_infer.h": {
+    "sha256": "c11729f4564bca466529bff1dc8df492f580664116ce00d956fcf2421217ec9a",
+    "bytes": 8744
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/llm_pattern_suggestions.h": {
+    "sha256": "061494fbe97f0661a9174cf9108d53607dee5a47f603b413cda47ceec3038fbf",
+    "bytes": 1976
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_shm.c": {
+    "sha256": "514bae98a479180c8cd1c405d0cfccfc7a3d62d94f86175ca224436fcfc5380f",
+    "bytes": 7021
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/checked_loop_binding.h": {
+    "sha256": "870f91085443de1d6570624930a5f5045d322d2c0994c6b2068d2e1159df1501",
+    "bytes": 1660
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/fmt_main.c": {
+    "sha256": "810f9cca6dd67eaf66fe2ee3f57be99e0ccefa2fe089d6ae3e6af0487ed0a6d0",
+    "bytes": 4108
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/fmt.c": {
+    "sha256": "73acccf00a9d8413bcb5f4fcff87ab30ff9193d7461b60e3b9676a4f4ddbb0c7",
+    "bytes": 15089
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_journal.h": {
+    "sha256": "4c8d96ff0ab0bb28373b890a568cc04a58a2d2c534eac28cd74b063b9a13f3df",
+    "bytes": 2415
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/typechecker_purity.c": {
+    "sha256": "4a2094df801d4f83f2f47948ba67189f3fe6b5cff582277c64f857538433e9bf",
+    "bytes": 11330
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/c_backend_values.inc": {
+    "sha256": "3f0350891c7bb732cf2268a473357e39ce4dbc056bbd4b9ee4780dda57351532",
+    "bytes": 20945
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/catalog.c": {
+    "sha256": "5e48652e52aa4aa135f6e10e60fe02d3d91d24ed2b5ab9df42833e873fcba300",
+    "bytes": 12024
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/cps_pass.h": {
+    "sha256": "b746f7486bd0a2fa66195365cd6c057a9c718e12e99b46b96921a9c59ccc9b2e",
+    "bytes": 678
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/binary64_format.h": {
+    "sha256": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+    "bytes": 1882
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/reflection.h": {
+    "sha256": "eb117310e66e233b91461edf434a1b88b8511908d6bd2f9ade24284b28ac87fc",
+    "bytes": 330
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/utf8.h": {
+    "sha256": "a03bc4dfa283b7acee20f108015690ebdc372c6be81c9e9c825c2d229c885e33",
+    "bytes": 1231
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/opencl_backend.c": {
+    "sha256": "89d7e64a178cca80b75d03b54a38d4b831d08a2d497124f3588887aebe234a0f",
+    "bytes": 25292
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/interpreter_ffi.c": {
+    "sha256": "2bff426acabe980984eef32160bd91d04c50f3a46549ddea7a88e7e79814c53b",
+    "bytes": 15569
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nsi_internal.h": {
+    "sha256": "0860dacc5571bd821036c03f517798083c2c3836b5c01d9e78923c503bb53def",
+    "bytes": 367
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/tracing.h": {
+    "sha256": "6ac06b35ff9a89bcf84a4593c854284adfc67267e0dcfab3eb424d3d13b4d901",
+    "bytes": 3445
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/coroutine.c": {
+    "sha256": "88519396cae3dd299a229ad19aac45a6ba5053dff0142774a3468dce6af21230",
+    "bytes": 10910
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/riscv_backend.h": {
+    "sha256": "cd0370d7ec6df4e450f1a3e3f744d34692274ba44d97679a0a82bd8d72c0ff87",
+    "bytes": 969
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/proptest.h": {
+    "sha256": "9a9fefa710b09688cefa74165a0b61622aac40e5016523b35582eabf327f0081",
+    "bytes": 2757
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/generated/compiler_schema.h": {
+    "sha256": "82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456",
+    "bytes": 23716
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/generated/purity_intrinsics.h": {
+    "sha256": "01963cb323743f8b5901b344307624a8b7b7dbde953e63c64bb109023b365797",
+    "bytes": 2360
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/scheme/scheme.h": {
+    "sha256": "cc143718480c0ebae4485db3e7c1a1f824e1fb482166caf2f12a8b42f3fa3939",
+    "bytes": 1376
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/scheme/scheme.c": {
+    "sha256": "ba6e08e496ca57d14ed1ec5c0ed7450889b8c24c02c6057f73752d790f777218",
+    "bytes": 45067
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/dataflow/dataflow.c": {
+    "sha256": "fdca222709d0ab300c674412a872be1d265a92fb712a449f4d691b8c7e00cca8",
+    "bytes": 30986
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/dataflow/dataflow.h": {
+    "sha256": "fe2a1345b3763516dde80dc91bb3013de35be8023a1f3ea9a28e21cde8f46f94",
+    "bytes": 982
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovirt/codegen.c": {
+    "sha256": "e90010639415a72e8eca53b05d8eac7021654ffc36357abfcd2572fb69cfc7c5",
+    "bytes": 215388
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovirt/borrow_codegen.inc": {
+    "sha256": "ba6c22e3c2e6a1b56c1b2f0b185987fd8e32f5b2db6dff11d3f49d4db80b8016",
+    "bytes": 68768
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovirt/shadow_runner.c": {
+    "sha256": "bda245b197b31c15d28e4f5feb892f3d34d71388e044ab91d024e04b1ca354a9",
+    "bytes": 13132
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovirt/wrapper_gen.h": {
+    "sha256": "5a081e2e752d65e558944ad4c25f1fea2e1695b5c53b04e1dbb7b08aa9812174",
+    "bytes": 1651
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovirt/codegen.h": {
+    "sha256": "8d4f23f9c0ef39f9699893920da965a05bad6eef9462e75a40cd51e82e0aa0cb",
+    "bytes": 2093
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovirt/main.c": {
+    "sha256": "01a7b3643a63c0e6bdf2bebd616eac696b2c52c3c95053d049a62fa60a198570",
+    "bytes": 14362
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovirt/wrapper_gen.c": {
+    "sha256": "a018f5736dfe382ff3fd999a74d16bf1bb716c74e4268a3a142460511e7a13de",
+    "bytes": 25483
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovirt/shadow_runner.h": {
+    "sha256": "692cc29b1f946c2edc7be9ea2fc08d6c017648189b92f67c4e81389981d8fa02",
+    "bytes": 825
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovirt/ordinary_authority.inc": {
+    "sha256": "a35fd232610e6f6bd1593bdce04409995f0c8e68f61fdcd561188b9fd887368e",
+    "bytes": 6623
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/shell/shell.h": {
+    "sha256": "3e096a144326d14dde7d8f3d847495138b5a2abec2b122be887978446ee34464",
+    "bytes": 956
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/shell/shell.c": {
+    "sha256": "6453a00af2c53c8838d11741dca97cf193fcf28e89cbe0ed4fe04717b9192975",
+    "bytes": 28404
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/token_helpers.c": {
+    "sha256": "de893399a56488dee2160a49d6e0218d99288f45f5d0aa7cb7d036373560e61a",
+    "bytes": 1004
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/module_build_dir.c": {
+    "sha256": "809f93df26add898b89218f22658608d7cc872a61198b83a7a5b899a27870d61",
+    "bytes": 2877
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTBinaryOp.h": {
+    "sha256": "2a9836206e527c3f64f1250911db015d39310e1fa222b9c5f222e760c7b9af09",
+    "bytes": 2046
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/nl_string.h": {
+    "sha256": "e5d8a8713ded1996b40df8e8e3c69467c745d6feb69b9db2213626339cba5031",
+    "bytes": 6124
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTArrayLiteral.h": {
+    "sha256": "347f8a17859dc2d6e2292547e456712dc5b7023772e112dcee02fa72cb829107",
+    "bytes": 2210
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/assembler_capture.h": {
+    "sha256": "6d65b56dbb7a0cc4f420b58547e8cb0f94425b68cb89034074116d0555628783",
+    "bytes": 4956
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/hashmap_bootstrap.h": {
+    "sha256": "2faf592ef256a70a59ef6b748fa0c0541ad3b011ed9f7a9a3aa81aefb5f757b0",
+    "bytes": 2351
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/refcount_gc.h": {
+    "sha256": "ef4b1637c6f873cadac3fe1dd13bc6643f2114c3c15b527795c8ba58b3456aad",
+    "bytes": 17822
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTFunction.h": {
+    "sha256": "97305278306379743bc6424db4c58b34cb2118de176454a423c5898a9c1b7ff7",
+    "bytes": 2046
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTWhile.h": {
+    "sha256": "9edb4aeb823c0b1db34a752aec7d1c873a9d7ba9e8c668c4f9bb4bfce9643264",
+    "bytes": 1923
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTMatch.h": {
+    "sha256": "45b7bd391fc76a88c1b5804719379d2a72a1591782257c8ea34349743ad89ddc",
+    "bytes": 1923
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/cli.c": {
+    "sha256": "b7236a9f0fa169586f02b4e273a7264f541c266f4d51edfa2892584533112bc6",
+    "bytes": 1313
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/nano_dispatch.h": {
+    "sha256": "848a7efd027b221c32a7d9fcd19f0bf49c5bdec4713f6e1f9c56cef54f3098e7",
+    "bytes": 3618
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTStmtRef.h": {
+    "sha256": "9c7e92fe1823cf63316504660cfbb92d6576bb7e1dc659255086d67898f40ef8",
+    "bytes": 2005
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTShadow.h": {
+    "sha256": "72e6f310a2885de599aed1546f561825f8843ac4c89baa262b9d4e2d465b8f11",
+    "bytes": 1964
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_LexerToken.h": {
+    "sha256": "3aa720e8402cd1d3ec9bf26efa3308b74eebe4689d6d0abd43ce9fba85935af9",
+    "bytes": 2005
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/callback_runtime.c": {
+    "sha256": "329921a38b6c4ac8958ace75933a57864315a096a54f9d8fd879aac495244bfc",
+    "bytes": 9078
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTOpaqueType.h": {
+    "sha256": "360d1c090384fb97924ca91d92352f11c7b97686fb3815dc3c2318d3d4d224f5",
+    "bytes": 2128
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTSet.h": {
+    "sha256": "ee7040b3073a39058f82232ce8066bbd7d7df94bc8fa2e82bf6af242258ddc38",
+    "bytes": 1841
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTPrint.h": {
+    "sha256": "fcd91596a81734e404ebb10273c01b9d263623ab108c89ef328bcaa4cb8d972c",
+    "bytes": 1923
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTEnum.c": {
+    "sha256": "d97d0d480af941bbc556237a1293c93ae3d976edbe48ffcd9c10150203dd2505",
+    "bytes": 4751
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/path_normalize.h": {
+    "sha256": "f6197f9ecbacc05ec9beb09c0dc247a9fa2d3a7ef73ef335864b2daf12e2028d",
+    "bytes": 1792
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_CompilerDiagnostic.c": {
+    "sha256": "a6017a477c1fb31fda0dc4c47a207be942d2179dd3361aa1225c7cab0e33f566",
+    "bytes": 5145
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTFloat.c": {
+    "sha256": "35b4b7a57711bc2dba586890432220ca52433fe0813d0f8550f5cf9bc2e83633",
+    "bytes": 4798
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTUnionConstruct.h": {
+    "sha256": "995523f7855dcb5693546c2fa26f092cc8a98b42d78fb3053333fe41715d48bf",
+    "bytes": 2292
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTBlock.h": {
+    "sha256": "b8e24727d1192985308c0ac839471ef453a77ac10657fb802a5070536232c087",
+    "bytes": 1923
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_string.h": {
+    "sha256": "7893c9b334c9ee61524e8c1ef89ea36b6307d36959254dfb3158d4d6db040df2",
+    "bytes": 1050
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_CompilerSourceLocation.c": {
+    "sha256": "45d332459e1be301d3a541daca70999706d8e95d3df929fafd0a3906bafa52be",
+    "bytes": 5456
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTTupleLiteral.h": {
+    "sha256": "55caca21e48b6919362fc6669661ed4e8a611baec6453185ab00bf466f1b2054",
+    "bytes": 2210
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/dyn_array.c": {
+    "sha256": "c9882f408cfa7f7f1ca059914469cd659aeff7bdf09ab2c26dfeb6fc20c043a4",
+    "bytes": 22275
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTFieldAccess.c": {
+    "sha256": "64c93ce832a10dec40efc2a7ff438433e9b041de32b49911aaf7ab8f6c7f5e8f",
+    "bytes": 5080
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/string_edges.h": {
+    "sha256": "f952091a6154f4466a623cb48d1cd5cdc2c0407a5dc3f8b79b639f615826ab15",
+    "bytes": 1193
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTBool.c": {
+    "sha256": "51f81633a543a148fdc206855b01a6c71ca668ba8d6878df245101f98c2ffa25",
+    "bytes": 4751
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTIdentifier.h": {
+    "sha256": "e1ba0537d7dd743db971e41fc9fffe8b3ba6d774d5ad70489973c57ea1a8e161",
+    "bytes": 2128
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/file_write.h": {
+    "sha256": "349cec872b1fe30ba0d2b4dff02c74074461810096428ef9ef1cf7bd28a3dd60",
+    "bytes": 687
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTNumber.h": {
+    "sha256": "ca31f3300a08056650e8b9faead1e72cb23ede0e3795989301e7e8ac898b4748",
+    "bytes": 1964
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/ffi_loader.h": {
+    "sha256": "ffdb56d5b793388c1b64166be6de7b18092ed423c7ac38de499d5d3aa3fd80eb",
+    "bytes": 5170
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTImport.h": {
+    "sha256": "9adaac9250421a1c90346fef8df9bda4ca02405d3fbdd691609902b9cc97513b",
+    "bytes": 1964
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTTupleIndex.c": {
+    "sha256": "7ba7e0afd9754e78509c57dc412267f2fe3a3bdd0135c7c52f01557f234520c2",
+    "bytes": 4915
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/process_capture.h": {
+    "sha256": "cd4e18b0edbfaad1982944d037103bac0783d40001cbb6f8ce53ede8e4f79a81",
+    "bytes": 3936
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTStructLiteral.c": {
+    "sha256": "8df30a7d2577afeb4856f866812308f0257e4dfbf339407446158d2bb98bb675",
+    "bytes": 5174
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/gc.h": {
+    "sha256": "5a5a7638abaafa2df8fb73a800ef5ddefd8bfc0bb21b6a0da6b6f257ab090649",
+    "bytes": 3651
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTString.h": {
+    "sha256": "aed7befbebfbc0f2e6796d87efb021c8f5d0ade521f3a17fe85d9687bb62e04a",
+    "bytes": 1964
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/gc_struct.c": {
+    "sha256": "8b41aacd791db9dd674ae03efda98753555ae86f2c6f12cd04071b5a022616c7",
+    "bytes": 4896
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTReturn.c": {
+    "sha256": "f8d86af8370cfe20be2a04052e582f3dde55e71ed0467c4d65a67f7cd08e61fa",
+    "bytes": 4845
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/effect_runtime.c": {
+    "sha256": "ff41892bed47a33a21aa9378d5a8eb6814b642e987f84a7646db4345f098477c",
+    "bytes": 166
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTUnsafeBlock.c": {
+    "sha256": "51ab3c2bc060ccd8f904e29f3176d77ade0110d9d128c1c18cb22c773cf19fd1",
+    "bytes": 5080
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTUnion.h": {
+    "sha256": "0e45d1bd01374eeced3d870a12384126c69141c3b5ca691804ecfa2ae14a10f1",
+    "bytes": 1923
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_int.c": {
+    "sha256": "1c52dad2c4788638bc4671b1e9ab42570e2c56d8119baef0d2841fe4d8698d69",
+    "bytes": 4293
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_token.h": {
+    "sha256": "aeb907d7e9f1f4ac6b4764bdcf6cc01197833a3d30f3fcb812509ba901774b03",
+    "bytes": 1910
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTModuleQualifiedCall.h": {
+    "sha256": "f9a7c15b5ec1480248e8e6a3c22f0872ea9bf0d48d906fb257e36af549c82e4a",
+    "bytes": 2497
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTIf.c": {
+    "sha256": "3cbf39af0432b2b7a675df973498a60ce49879a5cbbb155e870e70265030ee69",
+    "bytes": 4657
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTFor.c": {
+    "sha256": "81f220b25f5bb4c78b2bde443867de3bc6cfe56e56bcb3b77181120899304068",
+    "bytes": 4704
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTCall.c": {
+    "sha256": "224a51e510d5f3249b577951c284ebc780c7b8307aef1e4c8dacd616da726f1a",
+    "bytes": 4751
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTAssert.h": {
+    "sha256": "0f7526de05d90bc3bdc87043b039cdc61f50afb038adc90edacd0948a73a28e1",
+    "bytes": 1964
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/nano_callback.h": {
+    "sha256": "c556aa7284a51f11bf4e75d203fe669e16491baabe3a70d50db7e5a16a120661",
+    "bytes": 1805
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/directory_walk.h": {
+    "sha256": "dd136324b4f4bb7adaa09a4551e4f7f93470e70725b6a1f25f8ac61401799823",
+    "bytes": 3421
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTLet.c": {
+    "sha256": "bd4674c6d4b50930776ad4d4fe60cdcb89782853535bf4343463bb853094c796",
+    "bytes": 4704
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTStruct.c": {
+    "sha256": "07ad89efdb82e8db6f3bbcecb6d10b69b53a842c1e9c08795fb042e62812738b",
+    "bytes": 4845
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTFunction.c": {
+    "sha256": "7826f0afa37cf94f10cc4e4e8b3230b883f5f83b0982a4156b9ed8752cb99659",
+    "bytes": 4939
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/file_bytes.h": {
+    "sha256": "36bef5a7c379ddcabb8bcad99bc54f94ae06fb55fd35e710289eebb9e74dc110",
+    "bytes": 844
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/native_array_abi.h": {
+    "sha256": "0cf0cc24bb953eb7f38ab9133ef72654dfbe084365faec5bd0a70eae46a89619",
+    "bytes": 1307
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTMatch.c": {
+    "sha256": "3a484f258961c2d0b33009bd4825ed06506973033d20870b640b1e763c2cbc32",
+    "bytes": 4798
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTWhile.c": {
+    "sha256": "49a5bcd2201a93e147d3a7136aeae30d0ef25f14f1eeb56300e16a38e2fe2f0f",
+    "bytes": 4798
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/hashmap_bootstrap.c": {
+    "sha256": "bb41b76742dd4515bd0cf5b6b0c282d8a909b956e67eea0faaf4729a6561c004",
+    "bytes": 6972
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/assembler_capture.c": {
+    "sha256": "2cd685b58f3a898da78437fba6c9401e2057c8db95d2fd5314b52b1250c573fc",
+    "bytes": 7437
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/nl_string.c": {
+    "sha256": "24717176b115c3955efff83d7dea887c1199af96bf7912945d216c76d9aacaab",
+    "bytes": 12175
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/shadow_timeout.h": {
+    "sha256": "3c84a327a9fa85838a1b288a8c1c0b31bf4a0b613271389d05344083370c636d",
+    "bytes": 800
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTArrayLiteral.c": {
+    "sha256": "e1ac14d5d7be71e8af78ea40abea200ea3e533001178e0333726fc76abd68be7",
+    "bytes": 5127
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTBinaryOp.c": {
+    "sha256": "a3d03c9516fe435db67128f5e13c7f7a4e1699aa5479099859f21bacca6be994",
+    "bytes": 4939
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/module_build_dir.h": {
+    "sha256": "8ae343121a4450afea4b194b1f004c47057243beb8d1f55c29fa156a5aaaebc6",
+    "bytes": 873
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/token_helpers.h": {
+    "sha256": "fc68de323b721a597931239ecdfc1ca0f0922ae4ca2b48a71330706619ee4bdb",
+    "bytes": 665
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTUnionConstruct.c": {
+    "sha256": "828b3b85e7c16a91c8d2bf9aed0834a2e2bfa5ba9b2f878ceeae39e30617e52e",
+    "bytes": 5221
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/schema_lists.c": {
+    "sha256": "c0beec66d99f17c194466fdf50fe02978bfcb316ec1530c1eedb5b7c817c2f61",
+    "bytes": 142
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_string.c": {
+    "sha256": "aab4f96aeec85e720c76bf10091bb6d8249e70139e3e9a7fb80a8420697c98a7",
+    "bytes": 5040
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTBlock.c": {
+    "sha256": "064be1030b8f4f5db9b2ff8d02f4f573b1ace44a75bc111bd3bf86622828c0c1",
+    "bytes": 4798
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTPrint.c": {
+    "sha256": "99a7db5f0e248696aaeb03220948da820208b526cf51a6ab6ef396614c8ad3a4",
+    "bytes": 4798
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTEnum.h": {
+    "sha256": "d1bc205571a3ef4b20415017fd80a0025edf99a269471d83c142b6b099acd13e",
+    "bytes": 1882
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTFloat.h": {
+    "sha256": "a86211cb2f48754fd6d2a7c9fdc9d67e2c15cf4f78876f96870d528433d18089",
+    "bytes": 1923
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_CompilerDiagnostic.h": {
+    "sha256": "d5566c2e4394d56b1452f64953fbc4dd0f5217b142b7b8364b42d946c7865a4e",
+    "bytes": 2333
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTSet.c": {
+    "sha256": "75fa5790eda47261fa62a912a3777e58b9ca4347c51adfadd4d36d676bb882e2",
+    "bytes": 4704
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTOpaqueType.c": {
+    "sha256": "957a1fe8b11bd32c096db38e7106b422791f43b4ac57ba6c070dd6759e3e3d57",
+    "bytes": 5033
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_capacity.h": {
+    "sha256": "d95b9838d57a60e4e17175e76d777c36be8bc1dea6e13a4879b0d9beffb3b34a",
+    "bytes": 1318
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTStmtRef.c": {
+    "sha256": "22b250358b701b5808f17a5de4ee32d6fcef518e16899050dec6b87d02c642df",
+    "bytes": 4892
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/callback_runtime.h": {
+    "sha256": "15c8cbbfc08dfaaa8071416f9426bd355477a9895f348b0fe5020661320e5add",
+    "bytes": 1543
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_LexerToken.c": {
+    "sha256": "e056601070afa5ccd519373345a8abdbb69ee2dbae42bacc06445c3ca6a13614",
+    "bytes": 4892
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTShadow.c": {
+    "sha256": "1f2d80818a5cfdde05fd60483e6320cf4b809f41feb820a73496e8d87fc65389",
+    "bytes": 4845
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTTupleIndex.h": {
+    "sha256": "ce9b5b88660dfd83abfa6666dac7756916fb280ed6120d1b36689ca5e0b241a4",
+    "bytes": 2128
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTImport.c": {
+    "sha256": "310930848ff58271c43307bd639732352a20250c12a5d659abc78db29a47500e",
+    "bytes": 4845
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/ffi_loader.c": {
+    "sha256": "274915c5429441f087beb48804ed0c6d052d7086e93e0712692423ceda7d2a22",
+    "bytes": 16273
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/file_text.h": {
+    "sha256": "42c3324c03180e4d2ce6868575f2b8d30af9e129076e13bdb184c209aa08d94a",
+    "bytes": 873
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/binary64_parse.h": {
+    "sha256": "c041d05fc9d8d41d411575d489f8460b1ac249d9e295e29c8e0bf7ddf53ab726",
+    "bytes": 999
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTNumber.c": {
+    "sha256": "f7b6c6eaaae4fe4c0295c6caeb58c8b00a8fd5bce605a3d8a040de4b3f220112",
+    "bytes": 4845
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTIdentifier.c": {
+    "sha256": "5c99058bcf9ea5bdcb47df74835ba1411b22dce578ba3ed5659bb570c3f730f5",
+    "bytes": 5033
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTBool.h": {
+    "sha256": "d559c333bdb2c04cacaefad11c48cfd46d5e5164286882d87c5a7e9b22fd0547",
+    "bytes": 1882
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTFieldAccess.h": {
+    "sha256": "2eb560204c70b97666205c0912728c41e37a1c58adf6a51bfd4def909a561ff4",
+    "bytes": 2169
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTTupleLiteral.c": {
+    "sha256": "88ad3d2e34a10201f2030b609e34e6082d58af6c7216d27987b2e1427a4f743e",
+    "bytes": 5127
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_CompilerSourceLocation.h": {
+    "sha256": "d66de2bc19557b46eafb234f98c15111e42921de3f4e1e6f562972796fb17e96",
+    "bytes": 2497
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/dyn_array.h": {
+    "sha256": "8128594503c2891b7cd5dcf53056c58bfd53c95e38012a10bd822d217c5b4d42",
+    "bytes": 5717
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTCall.h": {
+    "sha256": "4295a6793d7b317c13767c9049de0004da5953a7cbb5f429d1464b4230eab311",
+    "bytes": 1882
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTFor.h": {
+    "sha256": "fc4b926ba4fdfb3c6fb82663c433b82f82d946d9ad62efca429cd1de0c4099b9",
+    "bytes": 1841
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTStruct.h": {
+    "sha256": "0ffaad8d06eaa6f4ebc771841686132ea7765060a8fde36c590ac73b41c61109",
+    "bytes": 1964
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTLet.h": {
+    "sha256": "fc44429c5d30cb479a1aa1f5d9c49f883c82b72fe272aab49ab35d341dcc5922",
+    "bytes": 1841
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/sdl_helpers.c": {
+    "sha256": "7f6b5fad176bfe886ed7516b9ea0870d1ce2d6766bf0c12049e40241b499920e",
+    "bytes": 700
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/shadow_runner.h": {
+    "sha256": "414a7c2928f5c52da8ccfae12aa1d9f8a78590684bf8e43b599a1cf3b1fa9304",
+    "bytes": 2959
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTAssert.c": {
+    "sha256": "57a12f4fd25520bca7d0a65f5c373aab2f24e99e133f0525d26d921375a6bfbe",
+    "bytes": 4845
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/diagnostics_fwd.h": {
+    "sha256": "f82056a9647b8b936016592d8a13bdba5507eb25f3304b86b434facd8afba6be",
+    "bytes": 636
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_token.c": {
+    "sha256": "619de5a293a16891bdf516565069c0405086bebf6e44b0319d9d1d5ff51413d2",
+    "bytes": 4696
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_int.h": {
+    "sha256": "23333246a08bf56f9efdb62fd504225886448119e86c7a21093b56a367b2fe7e",
+    "bytes": 1493
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTUnion.c": {
+    "sha256": "21b7f15effabf7f83e384553931848e220fb3fdc61399c9423d65a2a64d0fff0",
+    "bytes": 4798
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTUnsafeBlock.h": {
+    "sha256": "a6bbef22cf51429fe7053a1cefcce0cec308fe45a5df441ff15b4df68a621f51",
+    "bytes": 2169
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTIf.h": {
+    "sha256": "30d04d7b50fd89991ae128b7508c25eb8f42eeebd34e1f9d7eef9e911819e788",
+    "bytes": 1800
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTModuleQualifiedCall.c": {
+    "sha256": "d41e9e1b24d7d36c5c0e05d6cbbec97ae25c3b35cb5f87abbd4723d1de84a59c",
+    "bytes": 5456
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/string_search.h": {
+    "sha256": "db63b8f6754f2a414895e8f05ec19b89109458827fb60d46669770dfae0d9a16",
+    "bytes": 892
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/gc_struct.h": {
+    "sha256": "857ddb6af5dfe45e735953b87306b48d4c7aa0e3583e1a488d394d37b359848c",
+    "bytes": 1706
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/gc.c": {
+    "sha256": "4251552bf53aefc58572d634ad1a9679b81b76cc1a228bfddc140e4cee9a10e2",
+    "bytes": 14399
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTString.c": {
+    "sha256": "1172bc414d55b0178d51076f5f6b013513e56b5ce0fb35ec0aeda5eedcf76a17",
+    "bytes": 4845
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTStructLiteral.h": {
+    "sha256": "cba70f8f3da470ef05f66ddb3ac80a2c5e7fe34a40d1fdb19824fac3ef2fbd75",
+    "bytes": 2251
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/effect_runtime.h": {
+    "sha256": "143016ea90326ab2e56bb24a79c64c342d7172b37c18088012781e285852a774",
+    "bytes": 3237
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/list_ASTReturn.h": {
+    "sha256": "630187b7e06b403c9b01d72a60061f33672a92436a2d107cc1a7f48f610b79a2",
+    "bytes": 1964
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/runtime/regex.c": {
+    "sha256": "18095f85de51e3ca79ad63d01e64f9dfd00a8c8f099ff1b64cdaec1d9c9b1c2c",
+    "bytes": 6643
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/logic/logic.c": {
+    "sha256": "463220111dd28dd43dfdfd534bb04799d57035baa9bd5dfa82f181f91715887a",
+    "bytes": 18278
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/logic/logic.h": {
+    "sha256": "ed3db33e534a268d422351cec656bfc09ef2e36b2d5fa7094ed88af7f0f98650",
+    "bytes": 722
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vmd_server.c": {
+    "sha256": "815562a9362af9b429002efb232fa3304a6c2581f96b9983fba300ac2c27badf",
+    "bytes": 13775
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/file_vm_cyclic_engine.inc": {
+    "sha256": "40dd4dbcfebd46a0df6c69a17ce8c9fa1367b670191f66cadb8112a8acf8c8eb",
+    "bytes": 11207
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/cop_protocol.c": {
+    "sha256": "f80e2cc8d1b39f6d860c59489bf102a2d83054383e041621d365dae44eb95e8e",
+    "bytes": 30536
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_ffi_arrays.h": {
+    "sha256": "acc42aba68836240186cd7c9e947a0125294c9881642338924532c2bb01c2bb5",
+    "bytes": 894
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_dispatch.c": {
+    "sha256": "83738c0e87f720f34c6db4046295d996572f62f3cdaf5ba80542ea10640475fc",
+    "bytes": 10865
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_decode.h": {
+    "sha256": "70747de3339b07321136ab2962cb178c8651c90b9c3221415bcfae8aa9f6392a",
+    "bytes": 1969
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/ffi_dispatch_generated.h": {
+    "sha256": "1f3c2680f3a41215e7bd71ddefbe4e4a304e35f1a741ca9b19c0aa12c1a329e4",
+    "bytes": 39670
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_ffi.c": {
+    "sha256": "2c4cb8c18cc73df23aea54e1e91929b6aa77a4929627aefaa3f2228dd2298355",
+    "bytes": 69275
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/heap.c": {
+    "sha256": "38eaa2551ddeb42deec5bdb162b3764b5f224d2f06559fcacbce5075667cb1cd",
+    "bytes": 31935
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/cop_main.c": {
+    "sha256": "c680c5994c27be2d4349af6f164da21c50a5638fcda302b72252479677256ba2",
+    "bytes": 5193
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_builtins.c": {
+    "sha256": "616dfffe58362ff8a94bf583a43136e4a9c3801ea1e03d972bce94692aefd215",
+    "bytes": 12534
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/file_vm_engine.inc": {
+    "sha256": "1e2c5e4eeae686e49c898d639dcc50497953fd7241111fe897ed809cbf966802",
+    "bytes": 15579
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm.c": {
+    "sha256": "cd17e3cfb2875ee199608214f8185af7c4bd167592f4d43317aded4f7eca1481",
+    "bytes": 234511
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_callback.c": {
+    "sha256": "284e3d9b043639fa0981b4595a4cc0655c46fa36b5448a2763dd28e010e4f954",
+    "bytes": 5520
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/file_vm_private.c": {
+    "sha256": "29051a21278234089b8e398f7aabe5bcfca77a7f06ad5ede1ff2d97815ab4e29",
+    "bytes": 294
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vmd_protocol.h": {
+    "sha256": "1b468888c72f06660628785a8bf3df29fbda07591a50dcb9d38d929545ba1c79",
+    "bytes": 3754
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vmd_client.h": {
+    "sha256": "94e5b06804d39c622993cf536b5290b3caa6da3941eee21d509926744407d3c6",
+    "bytes": 1171
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/file_vm_cyclic_private.c": {
+    "sha256": "0c07aa1ca9b70e8164c6ba63ef55ebbd5e5e2d019f355ae5e88aabfa828aca61",
+    "bytes": 343
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/owned_array_runtime_private.h": {
+    "sha256": "7e7302e704bece199bd3c7e16054c8671592c6294e4cb5238896eed00197d5cc",
+    "bytes": 455
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/value.h": {
+    "sha256": "b71d9c1f12887db20324286d841ceabe8ea04d42fd453d3902a7371c38c147a1",
+    "bytes": 6073
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vmd_main.c": {
+    "sha256": "e55c07ffbbb1a75e6d8b4be0e61509adf8192392a2814163a92b08a1932a9ad0",
+    "bytes": 1776
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/heap_cycles.c": {
+    "sha256": "5fe9ba89e07a0907ac9d1ed6f403b13d227a0035af06337fb2db16b836ff710f",
+    "bytes": 17109
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_decode.c": {
+    "sha256": "f1010e77efcfddb827fb1cdf4716a3f0c9cfa68d9a18b6b25164f114d0974671",
+    "bytes": 7699
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_ffi_arrays.c": {
+    "sha256": "86ad159793e18844fd90b35436ea7d42096296721cd2f92229fdf722366825c9",
+    "bytes": 8311
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/cop_protocol.h": {
+    "sha256": "76b4a633c95a8c3fea0d2584a87a51b4585e0dc5749b6185a56c558dc7375d0a",
+    "bytes": 9192
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_dispatch.h": {
+    "sha256": "b1cc0c60d2a628187043059635b3c49fedfdba7495a5019131f124f446378255",
+    "bytes": 7270
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/main.c": {
+    "sha256": "1db8da7bd1d17714a5e5c05a1a8e3824db3c7fdbd34ef0566f00b23e9504dac9",
+    "bytes": 15779
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vmd_server.h": {
+    "sha256": "bcee4e90d62760a45229bb9fbebc760aab9d2cc1c63e399e665e0894584aa1e8",
+    "bytes": 1157
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_builtins.h": {
+    "sha256": "9acbe7128e504b80268b56beff93e9cb27e0cc64a47927365fbd1d9fa7771a89",
+    "bytes": 1954
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/heap.h": {
+    "sha256": "ad518751582c23650df52c9817f234630e6d9c11d093bdd8a0f278012a5aede2",
+    "bytes": 10771
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm_ffi.h": {
+    "sha256": "883f5b2c69f38c4570e348d2dc6ccc0b644f62ba824424057d0612fbb0ad9e44",
+    "bytes": 3455
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vmd_protocol.c": {
+    "sha256": "72e1a55cf99dfa7efc222309a56b37781c848fb81514ce3f61509405735280c6",
+    "bytes": 4711
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/file_public_vm.c": {
+    "sha256": "d90c9bbc74328faba32c16440a1af56bd15e5ddc408842bf71170eb3b8e4d844",
+    "bytes": 808
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/file_vm_private.h": {
+    "sha256": "67ab3dc045573223954fe16acc3d0607b3386a711bba95bbbc8e7a462323a2bb",
+    "bytes": 693
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vm.h": {
+    "sha256": "6521b84e0a2f3d6dfe0a3b585455eabd8b47cad98950bafaafffc97f6862ccbb",
+    "bytes": 16577
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/file_cyclic_public_vm.c": {
+    "sha256": "0caa607ac62f74dd11cc004d51324d182f0163df1fb830b728ab4f0f3ce404e7",
+    "bytes": 1138
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/value.c": {
+    "sha256": "5d18b054b3e173162d5b5dff8e40aa5b6b032a5e110fd8c4f1dccfe2e6b94210",
+    "bytes": 8785
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/file_vm_cyclic_private.h": {
+    "sha256": "dda9b1f72288a8639a3c521964b53ce9a91a9829eea852ee5244eed6d951b1b7",
+    "bytes": 454
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanovm/vmd_client.c": {
+    "sha256": "c14224ebbcb6018bd27e3e1c88a6fafa658a417e303e8493bf8ca08b8b035e6a",
+    "bytes": 9251
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/object/object.c": {
+    "sha256": "d5d0ae09952b5126dad18a80e8356f20bb5b7f97a84ab34b25f0759c1011b6eb",
+    "bytes": 38777
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/object/object.h": {
+    "sha256": "179bac48be7987306fde77bf93adc228bcf3ac707f4f8e71985f00cae6a3b16e",
+    "bytes": 912
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/ml/ml.c": {
+    "sha256": "557f68c5c2ab8132c88bc5764f02deae7cace243215d5f85ce4bc7ea4060d488",
+    "bytes": 64854
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/ml/ml.h": {
+    "sha256": "4b4dd3e2bf1658f0e7ad15b224dda8d3b4009f5ec920424055ee5270e552250f",
+    "bytes": 1180
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/stdlib/stdlib.h": {
+    "sha256": "dc8a0663eb5e04b8717483e2ce8a4ac40bc55d9bafa5d68c2de271c8b2da34a3",
+    "bytes": 263
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/eval/eval_io.c": {
+    "sha256": "9a295767de018174675471e4d0905cefafff8a3f95d1e7a1f7fddbb33351ad4f",
+    "bytes": 15770
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/eval/eval_math.c": {
+    "sha256": "b0b4d20ff36dd0c8b0a9d7ba1af6f9389d0e4c9acedc7ccf541a49d9e8ba1987",
+    "bytes": 5692
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/eval/eval_string.c": {
+    "sha256": "faec58696ada5dbde080308fca607da4810a5abef6475eff2a1b14234386e04c",
+    "bytes": 9469
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/eval/eval_hashmap.c": {
+    "sha256": "561382e7d5abb05ee0ccbc84f3cf8d0fe8ba1fb2edb4ca2ec3b5914e14f2fd9f",
+    "bytes": 6654
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/eval/eval_math.h": {
+    "sha256": "f818cb026ca2f3ebf421558067b0f3581d8c161b30027e16b7725f64bd28fd8f",
+    "bytes": 515
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/eval/eval_io.h": {
+    "sha256": "b778df9a586568fdabba6f74be5cc4b79b86a331a2ef9c8bbb5372ea71cd643d",
+    "bytes": 1949
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/eval/eval_string.h": {
+    "sha256": "eb91c3f12defb6d8d2b9d61beaccdb0b5400b32b47dd003e8228dc8ae747b79d",
+    "bytes": 758
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/eval/eval_hashmap.h": {
+    "sha256": "9a35f20898e7c3614d621ca4e197383c3f644f306bb740e39a9efff43374f444",
+    "bytes": 1583
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_layouts.inc": {
+    "sha256": "018a1e735fbe0917a537542d10c439266eda7a2176f28fb5b78efd412366e6ab",
+    "bytes": 11305
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/reference_places.c": {
+    "sha256": "1b2cbc43c6bf73cbc5a998119b788297f311b07e9b745f12b8c68d686c14854c",
+    "bytes": 4696
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/hl_facts_main.c": {
+    "sha256": "79bc131e0c8ebaf258a46a3fffe8d8abf1483382316925c6f4aa069e1817fcb5",
+    "bytes": 4974
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_host_grant.c": {
+    "sha256": "5be5fa8fe2942421ea3889118e5d865d9640ee6ad6e07849f63a1d965a7bec4d",
+    "bytes": 3552
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_format.h": {
+    "sha256": "a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34",
+    "bytes": 15573
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_owned.h": {
+    "sha256": "db0ff8b8b061a1506beb2a2ac4f5c8cfe3b1d50e070dbe9fa22efd4d179da9b6",
+    "bytes": 38692
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_native_public.h": {
+    "sha256": "88e25738034fbdb98ff5f34d03f7c5b6489833b552b43291edd0ad71dc8cf691",
+    "bytes": 434
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/portable_read_managed.h": {
+    "sha256": "5c12ad95295d04f9a2bf50cb2f20f22ffa999db4dd9dc51e687bc043b94073fd",
+    "bytes": 756
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/affine_state.h": {
+    "sha256": "cc5e638513eda6b6b76e1a150f50190e01363c3ba7dc57f605877285bea3a4b6",
+    "bytes": 7170
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/assembler.h": {
+    "sha256": "213d5742beb5229264c4bb7d76b049eb65dcea8148e74ee7a1f9528d50c7af28",
+    "bytes": 2553
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/ownership_layouts_private.h": {
+    "sha256": "022d44bafbeb81c44b23045027159a3a4c67500c28628a930b0c6ead418997dc",
+    "bytes": 1030
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_body.inc": {
+    "sha256": "4ecb4d41efa7ce946475d1472d448c14118cbf469f8011b3c790c77fa3928623",
+    "bytes": 12635
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_runtime_facts.inc": {
+    "sha256": "6cb8be8583f9ce6401afd1447bc538fa33a8caa6dd635bb081c55c94e3df6536",
+    "bytes": 5489
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/frontend.c": {
+    "sha256": "c4d9a3749ddb7feea95eeb7037595d3d5eae667569f5886702d081be87a5920d",
+    "bytes": 10568
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cli.h": {
+    "sha256": "75760db6b29076aeceff826d0180c962a33d68ef47a2b0f98f613c8aa2af3e34",
+    "bytes": 435
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_v2_convert.c": {
+    "sha256": "b6f68ab3d79f29de4c543c631a95527c713ef6088624abfe12313056d0665660",
+    "bytes": 27402
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/isa.h": {
+    "sha256": "8c0eda1bedfcc54aa357b4f92734519c1b22e5f462755ae42aebbcec1e5d31f1",
+    "bytes": 18783
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/affine_bytecode.h": {
+    "sha256": "446e948b49ad19e3ee2651b481c2c028d568f3a0579a132dd793a906077b413a",
+    "bytes": 1102
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_public_native.c": {
+    "sha256": "4e643cd028bb9ee575474bc1c988bb1694d5e4ba6fd42d4782f92e1de9fb7612",
+    "bytes": 1392
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/local_bindings.c": {
+    "sha256": "6f66037c8b02c1d2b68f76de49e76aef05e559b97a82ee820f742a815b85b1f5",
+    "bytes": 4347
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/service_file_nominal.h": {
+    "sha256": "f7e8a3bbcb98442125b987f97299f9eab39fa834c6a2c5d615476970a0de29b8",
+    "bytes": 2746
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_admit.inc": {
+    "sha256": "7ee5ab0ab65e85f5e84d3a21bcfcb9f5c47d041e5f437416049cad4a1b3eb6dc",
+    "bytes": 8092
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/mixed_layout_view.h": {
+    "sha256": "228141f446a0ee362a3e35bdc00516dab5e8d0701b7f9940dfad1db249cb8d1c",
+    "bytes": 1148
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/portable_read_wasm.c": {
+    "sha256": "338671e791e3c2c91c13222a4675c419e0dcf8f8a5d3aa5a022d3b4afd743fed",
+    "bytes": 2696
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/disassembler.h": {
+    "sha256": "d8baff98ab34084c607eaac7518f49edf8c7b7c4f740e4d8ee20a2adbac44d49",
+    "bytes": 1505
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/service_bindings.h": {
+    "sha256": "e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79",
+    "bytes": 1572
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/ownership_array_fields.inc": {
+    "sha256": "d430c7cf44f7559bac9383afc85f295ac3b48240d343f996909b4e552734e488",
+    "bytes": 5673
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_hosted.inc": {
+    "sha256": "7ebdf8bdc7c37a85565469257136e7c39c6536e3b61ce0a654036af5e63b4af0",
+    "bytes": 17692
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2llvm.h": {
+    "sha256": "2509f8edfd1afea099fa06ffca9c9fdd291c5a48569f38f1954bbc2199c6766d",
+    "bytes": 599
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_file_private.h": {
+    "sha256": "ef5d18ed1d83ca3ecf5048d29c60487556b08b24cef426f26d208f15d4ff69d8",
+    "bytes": 580
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/service_file_nominal_plan.c": {
+    "sha256": "54a0edad2862ebe79726b6f159bc19a11d9c8166b2f88f2d95022dfc072921e7",
+    "bytes": 11749
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic.inc": {
+    "sha256": "bcb9be656bf3239d1102f35c6a4f1c632ae874821621f61c04f88077320ac90b",
+    "bytes": 21604
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/managed_array_shapes.c": {
+    "sha256": "4f35e1b74d72e4e529f485acd8b5ea493ee6e9fbb012bbf34b8a722aeb65303f",
+    "bytes": 37183
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_public_abi.c": {
+    "sha256": "aa5f9a1bb24eff1ccfed66dc87801fcb9e8486c7c6991addc10deb64881e49c7",
+    "bytes": 347
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_runtime.h": {
+    "sha256": "66c9673d83f87262fac3a73d281471f0773e0258d58f8ab30e6a76768f369105",
+    "bytes": 1566
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_shape.c": {
+    "sha256": "5be17da5caaf077aa434fdf38bd9ba6237543b54d3fb01273bfa5ccd0ed2d994",
+    "bytes": 15015
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_native_emit.inc": {
+    "sha256": "58bc19652468eb3ba6661f1c258af39de5b5982bffb19c3920ca81af15f04a4a",
+    "bytes": 30451
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/verifier.h": {
+    "sha256": "72dac5c5480c1c7f0d1f221de0510c4c6c0d8125ee5c2772fd6129f57677872a",
+    "bytes": 6061
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_flow.h": {
+    "sha256": "2e29fc4d25830afcaa253e67568e437097318d7d9da069537ff8beb1716e7f8f",
+    "bytes": 7541
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/ownership_contracts.h": {
+    "sha256": "3c0dba6242a9bbfd559f07a5b9b4e48ea5786c0286e91a85378889f0fa929135",
+    "bytes": 3017
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/managed_strings.h": {
+    "sha256": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+    "bytes": 7837
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/passive.h": {
+    "sha256": "0bdc1d7deb3289d96a442a1a98eef1a5876c87bf3a54c7d4d7b5cbd49a251d98",
+    "bytes": 289
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/mixed_samples.h": {
+    "sha256": "90340653ab2f7d32993874520225be5a56ad88be4c5d101358724f279e6d4e6a",
+    "bytes": 1427
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_runtime.h": {
+    "sha256": "8c500c063e4c0439981c9090cd04d42d72c268a4d8b7378abe256cc5bcc70b78",
+    "bytes": 4912
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_public.h": {
+    "sha256": "b5ff8662cb1063f634192e0d304d308ac0422627050a155d8f8368f02706408b",
+    "bytes": 977
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_file_cyclic_private.h": {
+    "sha256": "aa604ae907edbe1e07675c76e336865f9f7ed8fe9fa19f46696d0e83a97aa2ce",
+    "bytes": 547
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_code.inc": {
+    "sha256": "faf12de9c7e0a4348b2bb6a85e25a86b100bbe702bb6d229b0f36c2c2aa6b25f",
+    "bytes": 16179
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/portable_host_plan.h": {
+    "sha256": "7c5ea7161d188cd008a37b9d4c2df689355f1ccbb0ab70f5a169244d1df01250",
+    "bytes": 3272
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_public_internal.h": {
+    "sha256": "9ce448523b93a2ec69646250e52ba59a30446d3d0a825a305882bf9714479e98",
+    "bytes": 882
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic.h": {
+    "sha256": "654eec19f56172747242152bc90e3f95054f6879171a1528187e51c4721eb1ad",
+    "bytes": 3114
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/managed_record_plan.h": {
+    "sha256": "c30beccb47c344e6cd47621a3a13d2a130070c3b1f5d7f0ac94079da9b6c8461",
+    "bytes": 1645
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_source_plan.h": {
+    "sha256": "2a7539d90113c3cfee83420129cbeacf45ee0b738ee8c82623104f899c8e9ee3",
+    "bytes": 2826
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_authority.h": {
+    "sha256": "35a2b5cc5f7afdbb20065e31193795e3805d9c82409172588abc2907ab7cd1cd",
+    "bytes": 1859
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2llvm_managed.inc": {
+    "sha256": "6b5c8f676c56f634b38ca2b53c4a5bfd69b908ceb577a081c034680f831663ad",
+    "bytes": 33085
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_indirect_flow.h": {
+    "sha256": "0b3cc7e14d8036344d691780d21cfa316149236665e5454f5a058db73a476d33",
+    "bytes": 2742
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_layouts.h": {
+    "sha256": "f3b1e15fa1448ae4f86f7df77b4c668b645a81a82a5b1ff112bc8431bd95e490",
+    "bytes": 2220
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_native_abi.h": {
+    "sha256": "fc9600ff4b1eecdcba4eb2eb091ae22da3fe96c0b6e07e340796f5f8634b887a",
+    "bytes": 223
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_v2_module.c": {
+    "sha256": "e62dcbee2d359c91b09ce227bfc0fa3e6e7e017ea0fa929a94ceb0b01392f959",
+    "bytes": 20670
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_hosted.inc": {
+    "sha256": "9942e7e0fba50418202ca88b45ba43f1bd8ae1024335d3da6f7bfbfd1b32c65e",
+    "bytes": 17556
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c.c": {
+    "sha256": "4ddf6268c2162f0f765dbec9eed7d45924ad23e9f4863e23e278575d15cd4cd9",
+    "bytes": 352963
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/service_bindings_module.h": {
+    "sha256": "5a06e11b1d795e519c1ea08327338d8c885ac274c02a97c06c036c892131160e",
+    "bytes": 1840
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/portable_read_host.c": {
+    "sha256": "3d5174e498c850935bec53e3a4d5d4f861986a8f04d406a6ebf23060416a920a",
+    "bytes": 4249
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/retained_layouts.h": {
+    "sha256": "f2150b5b1c1826b23bb4dad57ec54c4b148d45c7e02850bd8d53bfc927158a41",
+    "bytes": 711
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_runtime_private.h": {
+    "sha256": "af684d55d843b75876c9133676080a7ace1991d4b722250658930d933fc3585f",
+    "bytes": 618
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/managed_native_source.h": {
+    "sha256": "49e3ae2fe8ff5e0f9766d89339c6f1bea19ff3235f96ecadf6927e98d93b016a",
+    "bytes": 90728
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_public.h": {
+    "sha256": "a00a1fd7fca59f4e5fac944d5c453cd928191ff291bfce8d125fd42e7e404604",
+    "bytes": 912
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/ordinary_array_authority.inc": {
+    "sha256": "f1d4663ffc4fc34af4777bba4ec18f005dbca68976150632a07c80b6a436a1de",
+    "bytes": 6744
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/mixed_float_proof.c": {
+    "sha256": "59d8e3fc50c1c08106ceb462735e9e3ade984325d4e4896090c5ed4cbd3d5205",
+    "bytes": 30917
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_format_v2.c": {
+    "sha256": "5da5b993a802a745e27f339b93f2d630c1b639e51b3c1924fbbb0c680fcfaaae",
+    "bytes": 10126
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_hosted.h": {
+    "sha256": "7cf539f4d7cb575f2bec0ea150606c40bd0123121578456ec7026c6aa671c103",
+    "bytes": 3752
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_runtime.inc": {
+    "sha256": "40e55b14879247155f6de84317e83a21facd6df0514edc57746c7510bcafccd0",
+    "bytes": 15776
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_source_catalog.c": {
+    "sha256": "8bd339ead65bb17a33acd0a53a186244653e3bb22eebc05438601a0ec3325b7e",
+    "bytes": 4636
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cli.c": {
+    "sha256": "46b4811f582b74aee2dbf4c8c433b9b15a5b034e512051053dbe7dc53aa8599b",
+    "bytes": 3182
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_public_native.c": {
+    "sha256": "c58acc259bf8f52e6751354cbf39c4d6aac32a64593d7e233fd1ec5fe11368bc",
+    "bytes": 1352
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/frontend.h": {
+    "sha256": "3f7b849153f6d32672d75d436f37d6453dd27b4772f6f3ba5ef9116965528467",
+    "bytes": 2524
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_admission.h": {
+    "sha256": "81a845ba68f31ac6d2d39dda881744d83c8f1f08cf613698d18146fb26e5275e",
+    "bytes": 758
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_origins.inc": {
+    "sha256": "dd930fa29386e9f655d7ab0e1731fba3c4554c26607259ecb74d3c6f293512d2",
+    "bytes": 39339
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_v2_imports.c": {
+    "sha256": "ebf9789e3e1a8c744e2a98bccd83f386e5424ce78cf3f299a12ed5f108a1fc13",
+    "bytes": 12433
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/passive_calls.inc": {
+    "sha256": "ffb05fc00586a37a1f7b237073eb9b7d81999638ef8a65e99100390615935b57",
+    "bytes": 6809
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/mixed_layout_view.inc": {
+    "sha256": "55c3bf72dbe18fece62809463967d84082d8fc3df071aa4365c9d01963c70dcb",
+    "bytes": 9752
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/assembler.c": {
+    "sha256": "68bf1a1207342c94ce8baee817abf193b14ca7693c3e1ad1746f835ada60712a",
+    "bytes": 67055
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/affine_state.c": {
+    "sha256": "fa11ac27b98d17ba7c43d9a3ee8446cc890177f37bac5eaa1492928800258854",
+    "bytes": 34473
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/portable_read_managed.c": {
+    "sha256": "1c2aa732202913130b76832234bce2911d84d35c0d2bba8ec0cbcc87b0102420",
+    "bytes": 2320
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_map_runtime.inc": {
+    "sha256": "2c3f8eae322b419035751de72f4abea6ad6aaab0a949f60353a33738136af651",
+    "bytes": 6254
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2llvm_main.c": {
+    "sha256": "a12459b560dd1131cdafd97d326350e631b2c00962572ce7b9b6930884f1ecc4",
+    "bytes": 3753
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/reference_places.h": {
+    "sha256": "394d7b616dc377c6ccd8829716f57557c508b66c218d77dd9d21102c5b0478bc",
+    "bytes": 2021
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/mixed_samples_prepare.inc": {
+    "sha256": "d89e6d010b7dd3f1605f3d10684b604b2fc74bc3b66a2e1b99e25a1a0297f69a",
+    "bytes": 12036
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/managed_record_shapes.h": {
+    "sha256": "b5920e095fbc468450a0d390b6c1cfe0ab9ef8665a9662639bea323472e686c8",
+    "bytes": 2013
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_format.c": {
+    "sha256": "0da678f419f8bfbeafc2d9eb45a24b51127a987c622a9d746fba8ef69c80ffe7",
+    "bytes": 43067
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_v2_functions.c": {
+    "sha256": "1e361492ba68833f9d4621b1423188f7789c136ea0af2bced4eeb3180bab5df7",
+    "bytes": 6537
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_host_grant.h": {
+    "sha256": "8b7f524daa47bd6f2d2118f58cacd0405e937bcc0605bb12def7d4ea5fe455ac",
+    "bytes": 1409
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_indirect_hosted.h": {
+    "sha256": "76ee83575c653e83d56d9faba0cc4a3f17717d58c007ae0eeafbea58bbaf1c87",
+    "bytes": 3972
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_shape.h": {
+    "sha256": "77e1007aceaa9a5828ae8ebf9fd1ef598e22086acb742bdca11d21a368f43df8",
+    "bytes": 2423
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_body.h": {
+    "sha256": "5d7d6d08a229b50d263639232b9c99381932f43a4a169ff20151255521c9720a",
+    "bytes": 1588
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_public_internal.h": {
+    "sha256": "9b6783d0936406e8b0ad18200d0b5f2e2a21ba6c3470ddf41129c3f37c32e7e4",
+    "bytes": 2114
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_main.c": {
+    "sha256": "783f2b0773911678fcd29d676e81b057ab51f48abb92ad349108caaf60f3be6f",
+    "bytes": 4837
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/managed_array_shapes.h": {
+    "sha256": "2ca7c20170e31c133544830ceb604a83f130a30f812f4864282e3e2552991e47",
+    "bytes": 2064
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/verifier_types.c": {
+    "sha256": "48679e06bb669f55d10851b94bff5265283fd90feddaaf2dbcd96bc9ae9f4ada",
+    "bytes": 15475
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_code.h": {
+    "sha256": "f19203d91a1116f86c380a371cbaeb0dfdbe7c6a36660a38efa647f77f9f9da5",
+    "bytes": 2083
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_hosted.h": {
+    "sha256": "45f1c219d5395b69e613c8890b8ddbd0b490a2b4db08ecb9e489eb4c390819b0",
+    "bytes": 2007
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_v2_constants.c": {
+    "sha256": "2645c1a4e5773088158353f71461f2865a02436c9cd8b4b88bca3344947b07ae",
+    "bytes": 4261
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_v2_signatures.c": {
+    "sha256": "7f1bee030349ac740c74bdbe30851def005d95915a43ea821dd619b8f4a727f8",
+    "bytes": 4812
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_file_private.c": {
+    "sha256": "2c240ce25df05b5b60d4c6e1c1361782dd05654fb3023360efebf81725374e6b",
+    "bytes": 309
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2llvm.c": {
+    "sha256": "52eb87b350b6a6bb849a7670f1a7fb9a2826bc20c196e7cd95133a9700f60850",
+    "bytes": 48801
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/mixed_samples.inc": {
+    "sha256": "72fa013577a94b0720edd3f16a983157f346f2c1e42b80c9ba3871725e615f84",
+    "bytes": 32834
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_indirect_flow.inc": {
+    "sha256": "963e9482b9b7e24e4aae0f4722358be649a0f128061c8437b3820ec878ff4892",
+    "bytes": 10437
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_report.h": {
+    "sha256": "d9b85b87c1b61a3a72ee6322c5b924979412b1c1b024574aaba32cae89ba7655",
+    "bytes": 684
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_native_public.h": {
+    "sha256": "7071ce61cc5a875675c079954a1c2dc8ccf89b13a7ed5a3845dc2fdba6823c2c",
+    "bytes": 308
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/binary64_parse_source.h": {
+    "sha256": "2ca32a258bf8e831a4a645320c213a034de4ea2c75403e4c4cfb1492fb26021f",
+    "bytes": 12540
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/disassembler.c": {
+    "sha256": "6c89f9becbaf02ebfdaacc97db33ac8aeda0ebc681bf17a5568521e6d8ff6a4f",
+    "bytes": 20807
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/service_bindings.c": {
+    "sha256": "c7599125a5ac23ffdbf61b02ba01932c12e2dee09e0a1912ca10c86c6df34ed7",
+    "bytes": 3006
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/affine_bytecode.c": {
+    "sha256": "1a2b381e40022a3ca2b7f9920c17fbf650cc11b983927ddbb5356151add6837a",
+    "bytes": 34083
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/isa.c": {
+    "sha256": "4d77cf7e8f951f388218432e596f9dd7279727438f612be53b9f7fadd5b6eb59",
+    "bytes": 9852
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/portable_read_wasm.h": {
+    "sha256": "1301021fce4837e1f525e6e7a91cfb1b38034cef1d4184dd5ce6f0b7d01525a9",
+    "bytes": 503
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/service_file_nominal.c": {
+    "sha256": "d24a0c9008505977bee4fa8e7402d048e9993fd69ae7284bfc2c5aef180bf32d",
+    "bytes": 3102
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/local_bindings.h": {
+    "sha256": "39b7b9cdc4de50b00827adb4b684b3546954a846c228b43ceb82286db10961ec",
+    "bytes": 750
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_source_plan.c": {
+    "sha256": "07c29b82481ec5a8343583d3ccf303858db614ad929f5d185f3f9d2306c69f54",
+    "bytes": 6084
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_v2_cursor.c": {
+    "sha256": "d84b11478f6034fd8bca29d63746abae67c9700a1e571d220de285f2c49748fb",
+    "bytes": 2099
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_prepare.inc": {
+    "sha256": "341c03c2f7636aefcf6786177e167cc8d43086bf51e383428ed38105f77c50f6",
+    "bytes": 3195
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_map_roots.inc": {
+    "sha256": "d5a413c7da1eeca3770a69b21fe7717207553d5308322ba8c35cd48fc720e058",
+    "bytes": 6312
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_indirect_targets.inc": {
+    "sha256": "37477dc80ff97d0d2355213c9887ba0694f3828412443b75e42de42d5d9ac862",
+    "bytes": 19835
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/binary64_parse.h": {
+    "sha256": "bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5",
+    "bytes": 11057
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c_file_cyclic_private.c": {
+    "sha256": "93be29673507c4832a4fa316673558505ae3ef965fd1dfa95dfab715895ecff3",
+    "bytes": 348
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/portable_host_plan.c": {
+    "sha256": "d42431c3af4fceaa504b08615dd6cff0c982cdaa880e25fd3d74c8a6e2e87bc6",
+    "bytes": 14212
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_v2_layouts.c": {
+    "sha256": "91ccaed95d17ba63eda88c926b9427ce10df85d4a95cbb0801c5a4bb6ecd1efd",
+    "bytes": 9546
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/passive.c": {
+    "sha256": "bbc8e90572be5d271399310284facaf54f7c6afa0c07f363b05ffc970058ebff",
+    "bytes": 16477
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_indirect_hosted.inc": {
+    "sha256": "a0c176b01de910950110d8a3b6cc2cc8453b3b2abf64c658aaedc51827d00325",
+    "bytes": 17417
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/generated_schema.h": {
+    "sha256": "3f06d667539a9193a1ae520db3ad1d46cec100fb4389651ec3b9511eccb3527c",
+    "bytes": 26747
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_runtime.c": {
+    "sha256": "ba7fe545f0ebc865151420a0c65e9f8f47ffbc03338f91e237301700731dd854",
+    "bytes": 34630
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/mixed_samples_internal.h": {
+    "sha256": "9e0c6107b305e16850d53132fad8c40a70a66808f7cbd56b5340a7de86e6f6a1",
+    "bytes": 2667
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/verifier.c": {
+    "sha256": "9ab7d1ac989615ff7172b01e158db145445e2fac13ccb82ef8ef34ef43046fbf",
+    "bytes": 64932
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_v2_sections.h": {
+    "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+    "bytes": 18955
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/managed_strings.c": {
+    "sha256": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+    "bytes": 63934
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/ownership_contracts.c": {
+    "sha256": "50223521bad673e739642f60a4f81c860e39d098ffa71082e346fcd6d706c88e",
+    "bytes": 23922
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_flow.c": {
+    "sha256": "4b59aef1102d612c573f95ec63b7ac4f9560a66d8d3c6304a000dcbec5e60def",
+    "bytes": 36277
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/ordinary_array_authority.h": {
+    "sha256": "8e8b342a6c8cd07486ca558f82ba4bbd963481e642c4c74908690f279bff0677",
+    "bytes": 1437
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_authority_internal.h": {
+    "sha256": "3287409b5d15561e5590e3527833eab6f1851b7bc3cb0d84353a57c5b880e1cc",
+    "bytes": 739
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm_format_v2.h": {
+    "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+    "bytes": 5599
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/mixed_float_proof.h": {
+    "sha256": "fe97d297b8343c0cc94b8b6b5299b289ae37d39484e443f33626c8ecba7b5487",
+    "bytes": 1848
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_native_emit.inc": {
+    "sha256": "a2557d7955247d924ed6d3fd1efed40514f8225dc157b87327e79f76f4a58ef7",
+    "bytes": 28570
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_authority.inc": {
+    "sha256": "42e2be0e14314d230ba0ab5e65853bd0b2a6afc4609178c800377052d2d84c7b",
+    "bytes": 30344
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/managed_module.c": {
+    "sha256": "f8e6fe2d4ce7bf53404290c0706cad61efa4bd35b362df30517dc377ee126e52",
+    "bytes": 13980
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_cyclic_dispatch.inc": {
+    "sha256": "73911b1318b8cd427fce6465f057f5b0214f01c1e654fc1d48f6cffc045bcee3",
+    "bytes": 6374
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_host_grant_internal.h": {
+    "sha256": "752b0c38ccd91c1d22a5d9b9423b95a2aad62876d0e9b3da7d8ef93b0af1fb45",
+    "bytes": 811
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_runtime_frames.inc": {
+    "sha256": "94fcfc75e4a134ebdea1d62ae339d183486607ecad7345ca10958e50aec0f049",
+    "bytes": 20401
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/retained_layouts.c": {
+    "sha256": "a44a3327e9301c32683ea16a4ed8a39fdd61bde25550d79de977e5bd1ac61a5d",
+    "bytes": 15222
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_runtime_frames.h": {
+    "sha256": "13e5e17b6954dfcb28814019c89b624908f202b12152e6d172ea912ad85583b7",
+    "bytes": 2489
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/portable_read_host.h": {
+    "sha256": "b6be464836821234122f5422745590ebdea8fd3c0ce082573220736e168d07c1",
+    "bytes": 1427
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/service_bindings_module.c": {
+    "sha256": "df384b502ffafd807ce33e58ae41ad8d0f27d7a19d0a69f0eb1b1052581d497c",
+    "bytes": 15043
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/nvm2c.h": {
+    "sha256": "2b007f627b6482e3c1a07e69ddb97c450014ac911b8f1c10e7d6ac89ed70ae35",
+    "bytes": 4044
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_indirect_targets.h": {
+    "sha256": "c27137d7d7650886d0d539c8df1e30cf2e37023230961fcef056669e74a5c39c",
+    "bytes": 1836
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/file_native_abi.h": {
+    "sha256": "5a43f4ee61279663a2ead77aafc210134819c8eb38872141fd88b053c1745b8b",
+    "bytes": 486
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/nanoisa/owned_array_origins.h": {
+    "sha256": "487b9e2b2ffe11779b35007479af83a988c2c5709ae13a7b63275b939f969fc0",
+    "bytes": 2343
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/forth/forth_session.c": {
+    "sha256": "5bffa1e9423b920a4438a4ef6d30ffcb2d6180d8d861643e27cd19cc87c55293",
+    "bytes": 336349
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/forth/forth_repl.c": {
+    "sha256": "0d9c8aae397ecd552bb618a35a389b5a6a20f47853ba0b64bc5551d83a5e59ad",
+    "bytes": 1925
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/forth/forth_session.h": {
+    "sha256": "5134ab6e502443bad3e2622bca769a16e7c68eabe5f4c12376a0bdc02c3339c8",
+    "bytes": 7395
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/actor/actor.c": {
+    "sha256": "583d4144ed3e0fcfad3c3762967fc7cb632134bb94c856d98c297a7d490ffc7d",
+    "bytes": 44988
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src/actor/actor.h": {
+    "sha256": "fb50504ae5a7951151f2da05cb5a0588c5a4e87677e64ad4edec03ed57518502",
+    "bytes": 810
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/parser.nano": {
+    "sha256": "34d679fbabfd18ae2eac6051449ea318a24bb00bb92d2b290cbc10090c3cde3e",
+    "bytes": 405465
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/nanoc_integrated.nano": {
+    "sha256": "c2d5bd5869d8405fdd177321b70f1d4c41d52de7620a862ef59d04771ff79dc3",
+    "bytes": 193289
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/parser_driver.nano": {
+    "sha256": "f5b4d222d33733d52d252a0a652261bfb2599e84f5617364621158436c010ea5",
+    "bytes": 1479
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/nanoc_stage1.nano": {
+    "sha256": "37395ffdb90a1fe9d8a6389be5f24c0c3d719f746ba78b4a42477fbbec5ce10a",
+    "bytes": 7960
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/typecheck.nano": {
+    "sha256": "29cc6902fa96350ae8ff493b12a7e3553d5595fd60ead91d9a1655a5da8f4d13",
+    "bytes": 368943
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/typecheck_driver.nano": {
+    "sha256": "49bc5dfae3814680dee5fd484e541cbdedea944e1931bdefe53acb5608bf26d0",
+    "bytes": 1303
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/driver_minimal.nano": {
+    "sha256": "aafc85dabe4482a8c5924d095a7def13c80a4f2ddfd95a29d1036238468e5f0e",
+    "bytes": 675
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/nanoc_stage0.nano": {
+    "sha256": "fd866a44452b5216421de796078f8a469baf719f0a6caac462eddff8b4599472",
+    "bytes": 3519
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/lexer_main.nano": {
+    "sha256": "aecff8fd1a3fb96f19a07e3ec03b606667b5c2cf8d334f97b6347d23de4060dc",
+    "bytes": 1376
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/ast_shared.nano": {
+    "sha256": "abdbe08761ff5805ae31a8eccbd84bbe9362ecf06905917795502a9aafd012c9",
+    "bytes": 579
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler.nano": {
+    "sha256": "daf1a09435c19501cba38c87c227681380e5fcc97b4f04f4ee8312c3793d9a31",
+    "bytes": 6227
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/nanoc_v04.nano": {
+    "sha256": "6a6da87efbb7228f8f2c9690e07b3c65d52f4a11a7f936cff8831c1c2647956e",
+    "bytes": 6410
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/file_io.nano": {
+    "sha256": "f6f707ac4820075d796248a61724e5cf9d167539fecaf87878d89bca60376187",
+    "bytes": 962
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/transpiler_driver.nano": {
+    "sha256": "bb62116e039ae2d4eb4091f4f008d789819de26d57b33d674403139ef7524163",
+    "bytes": 1147
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/driver.nano": {
+    "sha256": "df2559b828ab6246207a125a525bbd7f0df1993906cb4989e94306a296d96bec",
+    "bytes": 25494
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/typecheck_nanoc.nano": {
+    "sha256": "40bfd8f438d132b6af175297866af5d063fcdb1cef31a73267c05e144d9f1f29",
+    "bytes": 1456
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/nanoc.nano": {
+    "sha256": "d313d1e6eb78fc682f0e07920d4ff90173080b8e33a72061e415ce7ecd408857",
+    "bytes": 3026
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/nanoc_v06.nano": {
+    "sha256": "0e1efab347e0e5f6363046be7b45790faa540094f52535d5bc32601616bcf80c",
+    "bytes": 107660
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/nanoc_selfhost.nano": {
+    "sha256": "11ef057e7cf75a38824cafcf5afbf160de60ea6cf40ca3a2b875f797b8c1c2fd",
+    "bytes": 2883
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/parse_nanoc.nano": {
+    "sha256": "2022000be756392ef453d7f8bf8f7beb62c72e932a4c948adef1bf1b727eb1b2",
+    "bytes": 1392
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/nanoisa_emit.nano": {
+    "sha256": "b895ab0c65f914d916ea9252207e1e3582008e836f723f430ecc4cbe1c2bc42d",
+    "bytes": 3670
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/nanoc_modular.nano": {
+    "sha256": "fca386e69671cf6ef5a98bf51300c871fb180a0a437146f55f5679dceb9c23d4",
+    "bytes": 7148
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/cli_args.nano": {
+    "sha256": "9c80491a8987ac78f64ab859762552129eb90f26c0519b80b546df89e5debd60",
+    "bytes": 783
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/transpiler.nano": {
+    "sha256": "bebbd8218b976ac002c690168803603ba699127e61a02d8fd9fbb5b3dae06b71",
+    "bytes": 437192
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler_simple.nano": {
+    "sha256": "5dbfb3dd1aabaa5d69d5f430f961a84018baf39141aa8c0acda5e8f17fd0fbd2",
+    "bytes": 1142
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler_modular.nano": {
+    "sha256": "ad4f77a6c88b31209a8547601da44b8dff1eef15afbeba2b468b1f7bf2002e2f",
+    "bytes": 7910
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/generated/compiler_ast.nano": {
+    "sha256": "54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95",
+    "bytes": 8408
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/generated/compiler_contracts.nano": {
+    "sha256": "24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416",
+    "bytes": 1610
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/generated/compiler_schema.nano": {
+    "sha256": "a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060",
+    "bytes": 3146
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/generated/purity_intrinsics.nano": {
+    "sha256": "3169bb090d033a265ff3eca3fa7c7484b8a63f159d177e41ec879b87b15a2b7e",
+    "bytes": 6048
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/module_introspection.nano": {
+    "sha256": "3dec16ee5c91a1dd51c6a328095457eb80490ff154d054f06cbcb3925637f800",
+    "bytes": 7841
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/passive_graph.nano": {
+    "sha256": "5beaebbb220d2d0fcc9a20cb6593892c6f767009bf5081e5fc829b797cc379e5",
+    "bytes": 5124
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/declaration_ownership.nano": {
+    "sha256": "6e0d1165ac1af81a068f010a129161929c01d50eab3905acdaa3f14d9b336b20",
+    "bytes": 2619
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/nanoisa_borrows.nano": {
+    "sha256": "156547084b021e77b98667289a01a3e8a9a39187e7ec4f3689260d743ab85089",
+    "bytes": 137375
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/nominal_bindings.nano": {
+    "sha256": "9101c7cd3396615dd7403ddd4b4007e72ccba279e22e4ed5c94c7a1156b61ae4",
+    "bytes": 12404
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/type_substitution.nano": {
+    "sha256": "b579a3633b557095c2120bd5fa96fb6385cf01427e06b1e5148bdba9bfd90074",
+    "bytes": 1802
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/nanoisa_codegen.nano": {
+    "sha256": "4908407b4c9066d1f92ab8c712ec6c7cd646b9386185bb6858b2d4f29f81fbf5",
+    "bytes": 284059
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/lexer.nano": {
+    "sha256": "25cd72d1113349d30dc166c6ce3c0c3098f2637200fbd969c39d2ce89afe5e9c",
+    "bytes": 49441
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/owner_selection.nano": {
+    "sha256": "a4aadfbe10160599b2b2f25e6adab2a08d954778044639d45d54b8cc036710ba",
+    "bytes": 14028
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/token_value_bytes.nano": {
+    "sha256": "20acb072e9f4b082b7039d28f47e5cd511eed6c76e9b39c31fb60ee97d9d1158",
+    "bytes": 1121
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/file_source_plan.nano": {
+    "sha256": "3e5fc338b7ca3c663151dcb030f45d11593e111bc836ed489cb189bdfc48b8f4",
+    "bytes": 13491
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/module_bindings.nano": {
+    "sha256": "9973b30187a1c57442c6296fcec187db82223004dd99bc83cff2a5075e71b7bc",
+    "bytes": 5129
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/diagnostics.nano": {
+    "sha256": "45f6f1454e35debf417eb8b2ccc66105a3a52fdf4976a897980d33fe1833d771",
+    "bytes": 14232
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/module_loader.nano": {
+    "sha256": "d69a104d60f33f98746c578edbc78f18d2472413f513598ce1319f55635fad13",
+    "bytes": 20512
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/passive_purity.nano": {
+    "sha256": "08ed1faf0bfa7d497d6b32e82035a791d516992c738de7d3a702802125d56b84",
+    "bytes": 9786
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/serialize.nano": {
+    "sha256": "bc1105d20d9347ebc25a10c435d8926c3814f2f1f3678ef2d58c629818c3ed6a",
+    "bytes": 7390
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/error_messages.nano": {
+    "sha256": "fc56eb048731fb0e24d622b9741ad73f448f7ec2627b689cac2f3e094447a1e7",
+    "bytes": 25124
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/binary64_arithmetic_runtime.nano": {
+    "sha256": "e69fa68e0dad46363655a7eeb7f0f343b4b27207cd9cfbe33a3831937d1cc5de",
+    "bytes": 2590
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/binary64_format_runtime.nano": {
+    "sha256": "f921163e41a1a36de7d6c0d08aca686882b1d71c7021329d9db0407148657ef7",
+    "bytes": 2309
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/result.nano": {
+    "sha256": "e1774f8b2fb42c31ac1148041908a21a3f0de41e7cf87c3f526809f07e458d0a",
+    "bytes": 10658
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/src_nano/compiler/ir.nano": {
+    "sha256": "7653770323b30a7739443faf5f4f17cb3a803fa2345c2f7ad7411b917ca8b506",
+    "bytes": 387
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/vector2d/module.manifest.json": {
+    "sha256": "84d1eacb9ae1ecd489428d793b1564e9ebdaefd5fd107b43bbf2b1a7d7a5c11e",
+    "bytes": 1280
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/vector2d/vector2d.nano": {
+    "sha256": "efef70631117a2eb0f0b88ef89448b88d27f0ab830ca5ffe51f8f7ebf52d8291",
+    "bytes": 6428
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/vector2d/module.json": {
+    "sha256": "dcabd749991cf7f6205a8b19f313a68ff32ae3d86dae78d7b5ebcae095b837fb",
+    "bytes": 111
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/vector2d/mvp.nano": {
+    "sha256": "0c1689974d0e9d7ae5130cdd520f498b8656643855f918d1b1bba8b4a7706263",
+    "bytes": 300
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/libc/libc_impl.c": {
+    "sha256": "dd4f39294a5c5c1428a88d7a8f662e74239795e5c9b57ea99de0398e01db9202",
+    "bytes": 926
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/libc/libc.nano": {
+    "sha256": "5901ec89e72bd6ae1724d0acf1f9cc405261ac8db87b10978e094e03efebe2d2",
+    "bytes": 1648
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/libc/module.json": {
+    "sha256": "fcf169446c5d4d185b8bf3dfb5963eff4700cd08e39e5acf6438460d367c8085",
+    "bytes": 588
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/preferences/preferences.nano": {
+    "sha256": "e15aa56d23c1dd39f1ae1f7339c504c5ee3a89052b56fcd853ba069420f38019",
+    "bytes": 908
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/preferences/module.manifest.json": {
+    "sha256": "1a6b04c5aff7c2c566ead1fd1722e01aadb018ac15e5c466d0b518b1fbaa6569",
+    "bytes": 1167
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/preferences/preferences.h": {
+    "sha256": "f1d6edda9f7e2c821862bc676e0cf033f1450ce3b7dcdaa183295dc63a344c7a",
+    "bytes": 1036
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/preferences/module.json": {
+    "sha256": "341ef82e97b4e33ef38fef11ad89169898ab828568cf032457e0901b2a214518",
+    "bytes": 213
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/preferences/preferences.c": {
+    "sha256": "67ed47e2ccf56ec52b73bb8ac1e2635e9968e9b35a396d54e51325c1522ee768",
+    "bytes": 3522
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/preferences/mvp.nano": {
+    "sha256": "8fab43dd923719f4c180dfe3c0e81f84e6a13252763b9bb9cb12829458afd687",
+    "bytes": 380
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/websocket/websocket_helpers.c": {
+    "sha256": "0c9177f342a5f3619d4115807c2913b59638916bd0483c5960ac9c9413ad9137",
+    "bytes": 13444
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/websocket/websocket.nano": {
+    "sha256": "e0fc66dcfebbcd3e07fd577545b9ff31331f4abd80c59dd68b225fea8e3dbf72",
+    "bytes": 2531
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/websocket/websocket_helpers.h": {
+    "sha256": "f6224dff2e871c27efc4685135dec0bd6e6e560f8f0500c3cefc1c19156f36f7",
+    "bytes": 1086
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/websocket/module.json": {
+    "sha256": "f1db9c6b965f3aa1371e04b79e6d920561f414f6cd9437cf40169c8122524c2d",
+    "bytes": 383
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_helpers/audio_helpers.nano": {
+    "sha256": "b98182ec000dc804f020721089364b8aa0784b6f054e860e59c12a2047c2a7e2",
+    "bytes": 239
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_helpers/module.manifest.json": {
+    "sha256": "b3bc2fb39fd22aadf7802daceb75320b619f4196047a4c660c2a25cd529324e6",
+    "bytes": 1239
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_helpers/audio_helpers.c": {
+    "sha256": "0878716fe56be37f75f097d7241408e0466851bdb282688a018a65cd459d68d4",
+    "bytes": 2609
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_helpers/module.json": {
+    "sha256": "7d16181f796440d4e31a21eda94ead1a852d664e888d6c51700c3d8c6eb8c026",
+    "bytes": 208
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_helpers/mvp.nano": {
+    "sha256": "9b8ce7f8d65bbb1468e17d88f2161e0b0e40323d13f6747cbe41bf7db942884e",
+    "bytes": 257
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/tools/module.manifest.json": {
+    "sha256": "404ac7e3bf13a8e92cf7fc558fa58b424185a225a63198bd9c24207e77ff18ec",
+    "bytes": 1061
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/tools/dep_locator.nano": {
+    "sha256": "d41141245383a9d3997e061cdde6ecb608184af3679c81063f2641d5200480ab",
+    "bytes": 4515
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/tools/mvp.nano": {
+    "sha256": "751167ad8a4b260bea09b22da6cc2b8fa8e73dd036a5b8697d41a62a9fbb407d",
+    "bytes": 69
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/gpu/gpu.nano": {
+    "sha256": "f5a102970bc353976fe230e2b47ea7844c9ad2cad2b03729ffdc6e0997d9b356",
+    "bytes": 8616
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/gpu/opencl_runtime.c": {
+    "sha256": "b27fa3803b864ed69a68e92a265bf9f6ee056af148cd4425aba477d1970746df",
+    "bytes": 36757
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/gpu/module.json": {
+    "sha256": "fd61950d0eb2d9c56e10b48ed7e9c504286d98cb3f5d7b55c309254c723ba1ce",
+    "bytes": 416
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/gpu/cuda_runtime.c": {
+    "sha256": "8a91e85a78281c57477fa872ea54c4a50568ed428731ac11d7563fcb4109c613",
+    "bytes": 15364
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_state/module.manifest.json": {
+    "sha256": "5e66626131f4eb940846fd494022d566f93ecca938eb05bc37e55e0cb49f9e13",
+    "bytes": 1111
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_state/module.json": {
+    "sha256": "f2d7f801bfce34ca8f6b992bd00e3bacd227886afd1d4d08cb97553e4a617e24",
+    "bytes": 207
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_state/mvp.nano": {
+    "sha256": "82fd55b602346c4b8fa0b00d70130b7aad6b532ea90a6155856f81f6302af227",
+    "bytes": 327
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_state/pt2_state.c": {
+    "sha256": "2a5430e9658a87a8eb5b8a66e9a99778f8b9de0946923f950efc400a069e23a6",
+    "bytes": 5665
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_state/pt2_state.nano": {
+    "sha256": "c635457cc94f6f58b2dc8c381b4bfef02e4eef8d85a9eb72d469264220988aff",
+    "bytes": 2131
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ncurses/ncurses.nano": {
+    "sha256": "88fd05cc6d61b6022445f6a53398b0d98b8ee46f73a0075630d331b0b27d1cd4",
+    "bytes": 3120
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ncurses/ncurses_helpers.c": {
+    "sha256": "595b74763b0f4bb5a05c098a9c07c391889576f7fc3f1899318683d5e3cc9ea3",
+    "bytes": 3372
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ncurses/module.manifest.json": {
+    "sha256": "a4a40dfc262c19e7f59fe5e5f97680c1724c62f06c72e2f96ab10fd199fd4087",
+    "bytes": 1926
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ncurses/ncurses_helpers.h": {
+    "sha256": "1d8c19641c44d7c9ad2de713379cb15a1ccdee4513cd54232926a4f878150751",
+    "bytes": 1370
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ncurses/module.json": {
+    "sha256": "71ad60761d8fc8fac5d66f7dfd6c67a7b1deba29b12e31690198e4a22d0dee3b",
+    "bytes": 346
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ncurses/mvp.nano": {
+    "sha256": "d74de95b10598dda8e7b4259aa3dd35188275a129a4db12672869b796e0d5698",
+    "bytes": 233
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/unicode/module.manifest.json": {
+    "sha256": "9c36e0348e1657a63195cc88a6ff859eb356759adb23d2f3c928b94447e1924f",
+    "bytes": 1057
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/unicode/unicode_ffi.c": {
+    "sha256": "2a6de79183d2d6ca19c6c40e2660aa14dd8486206042d997a39cf736061721ef",
+    "bytes": 9742
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/unicode/unicode.nano": {
+    "sha256": "bc5692a72c3322da2ef11c7da21c386ebe23c68fa87f7f3941511e99d20d651c",
+    "bytes": 1198
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/unicode/module.json": {
+    "sha256": "a5ea504117fdd8a8f7bd45d3e6d9d94b944e0ff574cd970dc443160174c4e25c",
+    "bytes": 2760
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/unicode/mvp.nano": {
+    "sha256": "84bd28a00ad0a51fa7776d123864cd6e274aae1b183efabf4c010b859b9fd0bf",
+    "bytes": 365
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pty/pty.h": {
+    "sha256": "f0bde0a01699dd8e0581d750046f244dc91523ff225ed23cff8056ce9e7e18c1",
+    "bytes": 1498
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pty/module.manifest.json": {
+    "sha256": "e50507b5c7080ae31c5117edb97c4fc22d279fad53c5c8269e7392014aaa7e0e",
+    "bytes": 1523
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pty/pty.c": {
+    "sha256": "b60fd07b475642dae6c30acfcd965f5c8ef15b4eff3319834ec1732c0ee45ed6",
+    "bytes": 5268
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pty/pty.nano": {
+    "sha256": "154b3d4de799a35584f6619c8056c444291b78548675cb5920479346dd5da1df",
+    "bytes": 1922
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pty/module.json": {
+    "sha256": "b6e74bafb34b79ad3fb9109628fa8f9e16c709dcf2baa49a485b20c4dfff2b7c",
+    "bytes": 300
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pty/mvp.nano": {
+    "sha256": "048c7e58bad87355c585f93a867b745f5657fff8b2bbea2cb585acdb2ff9348f",
+    "bytes": 1100
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_warp/module.manifest.json": {
+    "sha256": "9c911e383cc3472af973a40b3c8b3b20a298f1a6dd43cb3766d40a230645460c",
+    "bytes": 1425
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_warp/pybridge_warp.c": {
+    "sha256": "d95044f43cae5cfb6131d25ecc8115a36fe947169294cf08695bb1d33cafb1f4",
+    "bytes": 9281
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_warp/module.json": {
+    "sha256": "27da2c1b5ee006548b0f34cf89fa7bfb4a0330b093a4b5177289ff8246a2cfe1",
+    "bytes": 225
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_warp/mvp.nano": {
+    "sha256": "8d678e1ef6cc24b1b4cc778708336f0526e7748c2bca96409ad2ee250a8bc380",
+    "bytes": 418
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_warp/pybridge_warp.nano": {
+    "sha256": "7f89e34d762a76b1308193dfeeebb80eb1011b152d061e92a6f47c3d116542d1",
+    "bytes": 1174
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/math_ext/module.manifest.json": {
+    "sha256": "93bb3f179c91b9bfa14578e708bb98f1987da764e46c8c57aa681286358c786f",
+    "bytes": 1465
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/math_ext/math_ext.nano": {
+    "sha256": "5ebdd9cf3054c0bbe4ef9ed911e1a9b5bd8273b813006d42e4a2c61c4a12c769",
+    "bytes": 908
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/math_ext/module.json": {
+    "sha256": "7229b7a4f043eaa20017c58b2178bca172b28d510cfe44b40fdc10275383d786",
+    "bytes": 217
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/math_ext/mvp.nano": {
+    "sha256": "ac3cf81dae05a9f4b06c68cc4eb6af3150056488cf057246083e662e4627b865",
+    "bytes": 195
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_hpc.h": {
+    "sha256": "4c92c062b30349b16b38306d567c41dc869cc67f4aeaf43bf8ac302ba0306b9a",
+    "bytes": 556
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_unicode.h": {
+    "sha256": "4d24df6f75b4d0ea9adb4adcf45b92a2559473a91a21da55a930f76c3abfca78",
+    "bytes": 130
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_module_saver.h": {
+    "sha256": "f9c770a96c8abd907da01eac43b108df6127a9fc4673974bb0a31b9b69dff065",
+    "bytes": 199
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_palette.h": {
+    "sha256": "77dd4a76cc174e9c3b20709720398c458ca44043eb52f7c6828cd166475e050b",
+    "bytes": 122
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_module.nano": {
+    "sha256": "493c616f71a2dfba059033c50dca8f52a1a070886ceb6ec7092fe9497e8eead3",
+    "bytes": 1090
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_structs.h": {
+    "sha256": "07f15defb7b681ce9d4900d88ca6a799a5cf96d0b877a20fb2af814f4c2a62c9",
+    "bytes": 9158
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/module.manifest.json": {
+    "sha256": "c4b36055212897636f256d1d49c0e67cec5a2bcf4b55f414b14e9fb6c4efaabd",
+    "bytes": 1095
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_paula.h": {
+    "sha256": "2cd32c1d4ed3d825d4cd4b878a6a09a1c74b8b5bbdf984fc0feb67b031072aa5",
+    "bytes": 951
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_module_api.c": {
+    "sha256": "6a5de5917958460ee3407ca8e8718d0f123b2dfde7d1c9fef223b1a556a65e6c",
+    "bytes": 3157
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_header.h": {
+    "sha256": "801cc492876793fd7e5415af3fdfdbc6c2f61775f2217977d77b890d271fc831",
+    "bytes": 3210
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_config.h": {
+    "sha256": "79ccc7297b6d9c5ebf21bafef8cffea6da2f3c828172f86f78603afb5e693d24",
+    "bytes": 868
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_module_loader.c": {
+    "sha256": "081652c2b163b3d597ec2f6dc4cc7a4aebdf4d170bddec25e86d55ee1d0eec14",
+    "bytes": 4765
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_module_saver.c": {
+    "sha256": "48f41c586ab48664d59802e522d72e19c3d3e21e991f5294f47844c12b3b3b82",
+    "bytes": 170
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/module.json": {
+    "sha256": "dfe5579413de6b36de351f3193f924b6f902225c7f8ec6d8d786b38d7bd502a0",
+    "bytes": 320
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/mvp.nano": {
+    "sha256": "b1bcaf9b319db5624dd7210f3ae0f8e11342566d900e0b14dbd5851a7f688d0a",
+    "bytes": 343
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_module/pt2_module_loader.h": {
+    "sha256": "739dfafe026b329c4aaa748e1d07f2427b6ea5486be4e40a3349f7bc4a03f20b",
+    "bytes": 1173
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_image/module.manifest.json": {
+    "sha256": "91f2478fa429fc4aff74a004061d9fb4f6a8b4fed44a872e51db03782dfaed46",
+    "bytes": 1973
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_image/sdl_image_helpers.h": {
+    "sha256": "ea0f7552fd0654369dc0d439ee32dbc8cd94f6f25f47a15e6fdfa34c6859edb0",
+    "bytes": 1957
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_image/sdl_image_arrays.c": {
+    "sha256": "c76f93c207e3f2dbc69ed317b99e72173796c27f75a8ae6c6a01db7cea584430",
+    "bytes": 2481
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_image/sdl_image.nano": {
+    "sha256": "09e04fd9e7c9c20a9cd8790899f4ea22848d5c2e464c98947bd71af7998ca275",
+    "bytes": 11084
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_image/sdl_image_safe.nano": {
+    "sha256": "303a0e5de8006ff4e5e16e9f26ed33e1b716e3a1087d2899e1a428e095c26190",
+    "bytes": 3728
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_image/module.json": {
+    "sha256": "2ec80615dbf11f4b9247ab368a62c5507fbf544faf09cb292d3be1683bdef6f6",
+    "bytes": 494
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_image/mvp.nano": {
+    "sha256": "0e96af0cf5a4a41f0fb683794bc8db9326fc1c7d5e35ea58fff31cb371c0bd90",
+    "bytes": 214
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_image/sdl_image_helpers.c": {
+    "sha256": "b50e488f40c93087007ac79c578283524fa86fc7d7b2635676024c936620f15a",
+    "bytes": 8774
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/dispatch/dispatch.c": {
+    "sha256": "d2ba0e0a7257dd332e38312709264e58f3830d8470c7223e6506ae2e023b7f63",
+    "bytes": 10429
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/dispatch/dispatch.nano": {
+    "sha256": "629012bc05e664a8545e7182461ac99da34ca7f3ed7f2f15fe12f3d1c517c1e5",
+    "bytes": 8637
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/dispatch/dispatch.h": {
+    "sha256": "f339b52aaf63914d5676a94225f9377162209f4f5f1e2cf8f4e5d017da03e3ea",
+    "bytes": 2846
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/dispatch/module.json": {
+    "sha256": "69842212427c2e69d509ce282e85f3914ee3e27c7676d7c78c013064fd583e0a",
+    "bytes": 1538
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/readline/readline_helpers.h": {
+    "sha256": "57877d00f9e8f663135529360baebcf50f3be9d62f4e541e58bd29af95c5116f",
+    "bytes": 1377
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/readline/module.manifest.json": {
+    "sha256": "8b1379f5ef763cd9443ad37dc5a234c4db35f2f28eb3106920f9d3ba5dec661b",
+    "bytes": 2065
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/readline/readline_helpers.c": {
+    "sha256": "2482484b180558a6afa0cd0ae91e25987f98e0f7a0e1d59f7a8ad08e39d89ed3",
+    "bytes": 4995
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/readline/module.json": {
+    "sha256": "c0c7990287ab4a019214bd0ab144244c3b064d4af6d687452f34e29996cf03f8",
+    "bytes": 566
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/readline/mvp.nano": {
+    "sha256": "4491a7177661c2d0f7f0b2aee88ab516feb0536fabe04a98d44086e1207216dd",
+    "bytes": 1595
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/readline/readline.nano": {
+    "sha256": "0c963a834b08c38acebafdf47c90aee5aaa9a27cece3b1e45700986a6df50e6f",
+    "bytes": 5264
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/mujoco/module.manifest.json": {
+    "sha256": "21d0e741e17b1caaf6392baffd7f2d7c89a699c04c9c2d0dd8ca0fa4cb719e51",
+    "bytes": 1968
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/mujoco/mujoco.c": {
+    "sha256": "66b49450f9e77d387fb1632019195ecbd954d8ca81a08759f622244cd43fd0b9",
+    "bytes": 21174
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/mujoco/module.json": {
+    "sha256": "3dd7d952d38abfcee4bf7b04dbad75c2ffc02d2ad8d0240780c42889b244627f",
+    "bytes": 865
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/mujoco/mujoco.h": {
+    "sha256": "ebdf65f360cb752d57851cb1266668f8c91f78cfde9464f95f9997732f282ee2",
+    "bytes": 2500
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/mujoco/mvp.nano": {
+    "sha256": "e321a2a3d4fe82fb9db58a60849629d65e3629284ab8a37d40929eca9ad37641",
+    "bytes": 275
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/mujoco/mujoco.nano": {
+    "sha256": "f94396c06ecaf619efef950dcb1e1b0f65b7b131fb2f1210b2861210fbf99092",
+    "bytes": 6821
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/file_source_catalog/file_source_catalog.h": {
+    "sha256": "a9ea72b5477355154328822beda5e632ece0350d6ef16deb8ac0e19b30ea8aed",
+    "bytes": 135
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/file_source_catalog/module.json": {
+    "sha256": "80a64754edcfff0c1b0dc3f14705da06d4b2c3dac44ead5785a29aab4ed9b837",
+    "bytes": 286
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/file_source_catalog/file_source_catalog.nano": {
+    "sha256": "2330a6065219ded36edb3ed4925d282f70625b973927d5d9c72aff9a4e4463fa",
+    "bytes": 815
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval.h": {
+    "sha256": "c5726f5b35e3fe485acb462ec1405abc0c0bbb6d3aea39e53cb0a34d67a7867e",
+    "bytes": 1238
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval_freeze.c": {
+    "sha256": "a06687b8fe2d4938ac6762d2e3f9492356f2758f606867eb804ee378b4cb89c9",
+    "bytes": 6036
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval_ipc.c": {
+    "sha256": "e3b8af5ea9d2aa76beb7ec6ced2eeae859608d2f3804302561634806bed8b8ff",
+    "bytes": 9361
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/module.manifest.json": {
+    "sha256": "3a58d5413cab947aac96ef5513bb048432065d7db9322fe77d12e29f58d3e016",
+    "bytes": 1278
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval_stubs.c": {
+    "sha256": "470215c09d48668955ceded8d780a518d75bbc3bda8722ed771dc30fa4a84f37",
+    "bytes": 154
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval_bridge.c": {
+    "sha256": "513e69c382eb8f2599d356c79bde3f6bd4e230a3a6f23034b24e344c5d6945ca",
+    "bytes": 10854
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_emacs_worker.c": {
+    "sha256": "2220457073e7b190443b8fe4952bdaee782e744e45139c6024d0b8e28a6be4da",
+    "bytes": 3766
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval.c": {
+    "sha256": "08efe1cd8040e0df7a29425c0a5bca6b6d2fd87b574686d73ac78f740a73d0cf",
+    "bytes": 10158
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval_ipc.h": {
+    "sha256": "334aaa134815bb8e5d7ef8901a92e268b64b8bb88716f03bd93057b46d5794b4",
+    "bytes": 1285
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval_freeze.h": {
+    "sha256": "c7fac16e88b9d643566c5ca5f59660b2591d483f69f5ea4dea2ec410729fedca",
+    "bytes": 218
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/module.json": {
+    "sha256": "1013343847512cb2f8ad0f9debb5a161458d974b1228d811cc49cb3658064421",
+    "bytes": 338
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval.nano": {
+    "sha256": "b31aeae7c45333ed0bc48683c393b89356e90cf314a011c08a81d06df63b2410",
+    "bytes": 1286
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_eval/nano_eval_bridge.h": {
+    "sha256": "b655f6e239c9866aea57cf05538c779d70f26e99eb4acaa5e52e70d3b42d525f",
+    "bytes": 86
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/binary.nano": {
+    "sha256": "d2af9434e6c33c4a97326342583e3aeaf673a817ffc2f9e85eca33a72c0e3515",
+    "bytes": 6648
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/lib.nano": {
+    "sha256": "8b2cc001d3454d2151c01f370e233591096ac1a76e2e5fb6e4fe52f5e6e2247f",
+    "bytes": 1065
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/process.nano": {
+    "sha256": "b4282da8a5e27657fada45a38b2e37b40f9794262867b9400db346c83caee9e0",
+    "bytes": 5039
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/process.c": {
+    "sha256": "4b1ad3526647c633f1ca80df1ef81c8a33db5f15c04ab0f1c1f0017343ad863f",
+    "bytes": 6421
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/module.manifest.json": {
+    "sha256": "9d9f8f287e02a522b6ea0702b981d7d3e047eb292820f84a10fad91258b44e50",
+    "bytes": 1528
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/fs.c": {
+    "sha256": "8a54e1d0b2f452f7c4f000338b569559a8e6da214a3743579208bb463dc2fda1",
+    "bytes": 11838
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/fs.nano": {
+    "sha256": "880b6f90a43f5ac903736af74fd0ceccdf07ebb92a839eabd54c7fb62e8ead43",
+    "bytes": 11174
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/diagnostics.nano": {
+    "sha256": "2e051efac75361f5538f9f11d35cc5823a287fa4b32aeeb91495efa13f2cc8db",
+    "bytes": 1214
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/env.nano": {
+    "sha256": "94b713a6979b8b710682ddf3322a489125a42679c64efdab8c46d403bc771420",
+    "bytes": 2230
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/process.h": {
+    "sha256": "0aacd983ed02bd351e74603f6f3de6dbfcf166b1f02be791ef164cd47029d12b",
+    "bytes": 1873
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/module.json": {
+    "sha256": "8acab9598e801508b4216ee5fdb8f1a01747de4e323ee7e432ba57235604c2c1",
+    "bytes": 162
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/result.nano": {
+    "sha256": "23cef541a5279381087a646825aed5f7e29697d3cb10ce8584ee6c11428a4518",
+    "bytes": 285
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/fs.h": {
+    "sha256": "bf76a1c1bcf523c60d6fa7678aee05e8946c5d41ca786f2a2cad115bfac05196",
+    "bytes": 4040
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/filesystem/filesystem.h": {
+    "sha256": "92f53c8ae81dc80e162190296baa3a4c68d131b95648ed0ef3963fa282f56414",
+    "bytes": 1354
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/filesystem/module.manifest.json": {
+    "sha256": "6bf183efc33fbb1715683c6318bd043e159741128fe65025ca186c84458fface",
+    "bytes": 1274
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/filesystem/filesystem.nano": {
+    "sha256": "efc280c181dd9972ecc8c3b0201f3b3430fc14fb17fad70f5cceceb6ded479b6",
+    "bytes": 1617
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/filesystem/filesystem.c": {
+    "sha256": "b8a842f0ae10bc0844f984a6abfd9867e4abb5258daccebaff791d3e939c2919",
+    "bytes": 5732
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/filesystem/module.json": {
+    "sha256": "0f0adb8a583989b2754ffb3e256a4d9cb11e1a816e89daed0278c4bad4fceafc",
+    "bytes": 209
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/filesystem/mvp.nano": {
+    "sha256": "bc8fa1248cdaf9ff3175b65feeab0bc72496c1a01c2b459b1bb6f5d3a144747e",
+    "bytes": 386
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ui_widgets/ui_widgets.c": {
+    "sha256": "37d3da576a4b1341fa5914a60c77c1d7a65572f933acfb8cb21aca695b0f42ca",
+    "bytes": 77455
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ui_widgets/module.manifest.json": {
+    "sha256": "85af799e0075b1eb0a21b9895d51029d07c00fd408a6194e0c090c03c84ee4f6",
+    "bytes": 1321
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ui_widgets/ui_widgets.h": {
+    "sha256": "4edf7c347401ce413be12337b993d6d6071aea6e4d1b27fb25d939063bbcbed3",
+    "bytes": 11088
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ui_widgets/ui_widgets.nano": {
+    "sha256": "732b540dea2fb951f4e18a7a24d665f1a980f153356a2a7c678ed6283f6f09ad",
+    "bytes": 13474
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ui_widgets/module.json": {
+    "sha256": "6572e27fbc2e1da9befad9be0e2d22bb087332731894584b217ddf158c039f4b",
+    "bytes": 496
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/ui_widgets/mvp.nano": {
+    "sha256": "f9095c05f12c6dc738ca8b98824fea0be9963ce80e958683a3c7368ea09fab27",
+    "bytes": 166
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sqlite/module.manifest.json": {
+    "sha256": "1a35750681b4b0d889ac297c1eb28984751c2438515104c72d1b9e045e4b814d",
+    "bytes": 1926
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sqlite/sqlite_helpers.c": {
+    "sha256": "7b35ac11e864a16cb9d4df636eb72f772c67e3e3aaa971ebbf9688119f3deb31",
+    "bytes": 6891
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sqlite/sqlite.nano": {
+    "sha256": "cbc58ea22a0b6b2440bba4cb24e688f3592d118c1a54c18968b08b6227733472",
+    "bytes": 12906
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sqlite/module.json": {
+    "sha256": "9407302f5eeb4b8433e0acd267d74183ceaf9fb2c7a46b8b0d1b623a87b4b8b1",
+    "bytes": 542
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sqlite/mvp.nano": {
+    "sha256": "4327815b0ce021a1e13f7fefdd1ba197d45532ebf81c9ae1d024dbaac5bf4ef6",
+    "bytes": 243
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_ttf/module.manifest.json": {
+    "sha256": "7a4378c896f57fc4b4cf9d1267bb08d716f5ad8ef3d055a87ebf044946eecbaa",
+    "bytes": 1534
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_ttf/sdl_ttf_helpers.h": {
+    "sha256": "58ce40b016f32d8d34949df16743d84c6c72c491771998164e3d42ba12bd8098",
+    "bytes": 817
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_ttf/sdl_ttf_helpers.nano": {
+    "sha256": "591c36579ff50a38fdacc1f9dadf201b9a15741f82bdfe8d74a4536406468093",
+    "bytes": 1216
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_ttf/module.json": {
+    "sha256": "2010944958d5ada451207cfc3d4d41c92973f4101ad2b1cd01e9808c6cda721e",
+    "bytes": 435
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_ttf/mvp.nano": {
+    "sha256": "c91d9fbbb8d4839f9dde49001ea1371a10b10fbdc0e3b1427cc88472b7ac3964",
+    "bytes": 178
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_ttf/sdl_ttf.nano": {
+    "sha256": "cf13d3e4f32c76928f34489485f8ebb52f78db7f3f3f5cba786fe4a367338cfd",
+    "bytes": 2726
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_ttf/sdl_ttf_helpers.c": {
+    "sha256": "f03548d3f6661ff5e081d03bb6131ecebc128228733151d288052e6e54e17374",
+    "bytes": 6288
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/uv/uv.nano": {
+    "sha256": "f83c8d549086b8fa320a12adcf18b9d4582cc3c4fdb75ee6094cb93c9292efcf",
+    "bytes": 2337
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/uv/module.manifest.json": {
+    "sha256": "f8ad17c228e6b6ef7a0030ca5e400122fa75e9b8eda62d82965342e9fb0a3eb1",
+    "bytes": 1338
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/uv/uv_helpers.h": {
+    "sha256": "a9bf4c5b55a3a5849e231432d35abf880cd8739ceb4131015c2bf2d1047d6374",
+    "bytes": 1019
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/uv/module.json": {
+    "sha256": "03e06770f10c0d73ad855dc811666b86616623b796d38ab39ed1eefd1cc9dcf1",
+    "bytes": 466
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/uv/mvp.nano": {
+    "sha256": "986874bba6b981a7f969986b8c4e6b89d1c8363c32a39dca9d06f8a043c7f5f1",
+    "bytes": 197
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/uv/uv_helpers.c": {
+    "sha256": "675047ecdf58e1e9b7fc6748168d89418a2a1ccc2bef72f00d2415e90bc9c213",
+    "bytes": 5165
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/curl/module.manifest.json": {
+    "sha256": "4a13dbad22848d69169d48f9015671feb4c841bedfe1b84ae0ee205d6011a1db",
+    "bytes": 1709
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/curl/curl_helpers.c": {
+    "sha256": "8cf928c22fb893a067405d441fabb652393e7609269e5781912082e8b2127a93",
+    "bytes": 6466
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/curl/module.json": {
+    "sha256": "c53d064b362ac71dd589c4bb10dd6b895892d0707b638d8a0d7f55c7444d1b61",
+    "bytes": 475
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/curl/curl.nano": {
+    "sha256": "f52a0b37aeb6789824883626c556d478a312255a63d5840e4ed19172fe5e3691",
+    "bytes": 3112
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/curl/mvp.nano": {
+    "sha256": "036ae605e645438da9a4efca77c67eb7f0a9ce1674da0848ac1fc673fb8b2ac1",
+    "bytes": 383
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge/module.manifest.json": {
+    "sha256": "6611ed6a1a930ad0817666add1f9353900510f0e8a17ed750244453018c70494",
+    "bytes": 1277
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge/pybridge.h": {
+    "sha256": "f187e20c8c0ca1d223796dc25fba1cb64e8b5598d5b044eefcc6188b4c46f9c5",
+    "bytes": 761
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge/module.json": {
+    "sha256": "77498f9012ebe71d4aa0d9109819efcc3bede78eafd783592734ca4101deef86",
+    "bytes": 259
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge/mvp.nano": {
+    "sha256": "d7b52931824da5185702d64974ecfb8587f5c3cdc7dd6b22729669df52061f47",
+    "bytes": 344
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge/pybridge.nano": {
+    "sha256": "d268780627a44cd4af3c7758b0fd0125f2642ea844532bb31b3d3142ffaa88cd",
+    "bytes": 5749
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge/pybridge.c": {
+    "sha256": "75f0a001beb719427dffa5abbd160762baaf03c24615506b5cdbd534013d9ad4",
+    "bytes": 16986
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_highlight/module.manifest.json": {
+    "sha256": "26ae8ca937f76ce972ae0bf26d673d54a5b3df4ca0854a8eb83354a3aa62ac8d",
+    "bytes": 1008
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_highlight/nano_highlight.nano": {
+    "sha256": "8579fa1d5fbdd31614616bb2565be0b751aa28b2185b077f06160e517b8df885",
+    "bytes": 14359
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_highlight/module.json": {
+    "sha256": "9dffb186408f83eb80779f3bb17b7bd98bc5b49e977b45655927550109770104",
+    "bytes": 165
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_highlight/mvp.nano": {
+    "sha256": "4e20f45df0be968ebbcf4c31e60e5855ff50824ac08ff1a42817795999b78f0c",
+    "bytes": 225
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glut/glut_helpers.nano": {
+    "sha256": "b08f9aab3dcb08c9292d92a24898b3e7df3657ff80e301674113250069c13fb0",
+    "bytes": 1941
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glut/glut_init.c": {
+    "sha256": "06a13ff98fd30dcbef040120baca3f4a40a79c64b21885a3f4bfd5f93772e0b5",
+    "bytes": 2015
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glut/module.manifest.json": {
+    "sha256": "b5c45f6d9b259c523aa632095d4ab47c37e0eac19291fae8aa0bdf18c5fbf26b",
+    "bytes": 1379
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glut/glut_init.h": {
+    "sha256": "098e81c4c49f79cb5cca61cd37219cdf77c7e5c520f2c29ce0ab8cf56baac64c",
+    "bytes": 711
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glut/module.json": {
+    "sha256": "77b171fe1679f9adffa8f2b81b916e331b3f37a9f08a807e2684f2f0d3986fe3",
+    "bytes": 506
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glut/mvp.nano": {
+    "sha256": "33630064e1431058f878683836d1b2bac1b260e3c08923a5547fe5cd4ece85c4",
+    "bytes": 228
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glut/glut.nano": {
+    "sha256": "ca4c5cdfd43ee9b13af67f0abfa4e9fd315d42b93b87106d28a8409fd0d44c04",
+    "bytes": 4658
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glut/glut_platform.h": {
+    "sha256": "5adcce8fca85e27179f0ecafcf2362050410b9d2d22e9504938b060128e024f8",
+    "bytes": 468
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/stdio/module.manifest.json": {
+    "sha256": "d3f94442707c56796f316e3189d1d01f430bd078bfdfa8f9699859f87b0b85d3",
+    "bytes": 1286
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/stdio/stdio.c": {
+    "sha256": "126e1416e90277d25bf7ec477b4568575ca1e7f2c652ae32e33441c9a9461fb4",
+    "bytes": 2339
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/stdio/stdio.nano": {
+    "sha256": "b029fb3f155ed16461dece92b3349a2258cf223cfa88bf88231fe36bbd9654bc",
+    "bytes": 3647
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/stdio/module.json": {
+    "sha256": "ccf6f9d8cad92cb2791511b9ceb29e50491a7c0b7485566a448a25ff01cbaaff",
+    "bytes": 105
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/stdio/mvp.nano": {
+    "sha256": "c0822b860934bb585cee430ab2c4361968a7454c3c62982eac0897fef31d9ca9",
+    "bytes": 288
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_matplotlib/module.manifest.json": {
+    "sha256": "339de7157437b05329ca76f23568c9bd25bb99c7f23f248ac3a0540b7c3f3b4f",
+    "bytes": 1113
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_matplotlib/pybridge_matplotlib.c": {
+    "sha256": "1b8435b1fb3715b3d5d146d7cddf394b8b32ea9ca776fb09f81546db36905988",
+    "bytes": 2373
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_matplotlib/module.json": {
+    "sha256": "9e44727a2ae0b36801c57c235373d3dea21e595e0d79c1670e29c62042c6bcc6",
+    "bytes": 214
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_matplotlib/mvp.nano": {
+    "sha256": "d479e3e323d78cdff41ca56e0950cc2c1b9e990c2818258e6d6034c6acb9650c",
+    "bytes": 241
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pybridge_matplotlib/pybridge_matplotlib.nano": {
+    "sha256": "d94ff8750e28b68cfe38bbe010a98bb5f7a192ef2d4e4b25e6058eb99336bbf2",
+    "bytes": 146
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/github/github.nano": {
+    "sha256": "508dfdabe4ca29d194469c6d70b74d0d7cc8c5b16cabf274831b547fd6f028b9",
+    "bytes": 5433
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/github/github.c": {
+    "sha256": "74efc610a2d5bf17d48ff74483af2b644917dae01c0e3b81c15bc07f2b4a5ac5",
+    "bytes": 10327
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/github/module.manifest.json": {
+    "sha256": "8b0f2556e7ab18961b0903f3fcbcfc9f1b06bba3ba902d8ecd25c5a57b8d4e38",
+    "bytes": 2080
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/github/github.h": {
+    "sha256": "d4fb7b2c74e555afc4a42edb577bbc12dd1bcf33836d946aa9bbd0277a0b37ba",
+    "bytes": 1484
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/github/module.json": {
+    "sha256": "28dcac82f8e47cfefa304cdd1b7fc273acbc0aa8b478d0d928981f2e2a17e97c",
+    "bytes": 327
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/http_server/module.manifest.json": {
+    "sha256": "1d16fc957956687b8134a88c4fad9cd5bb8ebea84d8116a92c3db320c38f19ce",
+    "bytes": 1861
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/http_server/http_server.c": {
+    "sha256": "e7c4d229bf61f9049b4c463ac417b4f4ecd256c9b5d46a2c6f05d3f64232b361",
+    "bytes": 25320
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/http_server/module.json": {
+    "sha256": "89bff1ed2f876a4e528497eacf4e53d9e93351b2ef25b0cff6599e9e7e91cae5",
+    "bytes": 913
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/http_server/http_server.nano": {
+    "sha256": "77d4b5efe876cd9cf4d3aed58c1f8bc30f94d32f4888a6beef73898b84fe929f",
+    "bytes": 6580
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/http_server/mvp.nano": {
+    "sha256": "1f24a91f32905897c8804eaff13df09c96747634b2eb3e5956490aa48c50e9b1",
+    "bytes": 279
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/http_server/http_server.h": {
+    "sha256": "f09a3fa84f9e0674d58cf1ae32ef0bed944bc3bfb0333fc9a4185c9888026637",
+    "bytes": 248
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl/module.manifest.json": {
+    "sha256": "c33ef09505ad70c311c56d3a4a5601b08229dc6c8e02adcfdd30dd020554fc13",
+    "bytes": 2788
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl/sdl.nano": {
+    "sha256": "e014448b6c623f7f42b3059aaf09fa8f6a87a166e43a68a48468496209b929d0",
+    "bytes": 4706
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl/module.json": {
+    "sha256": "5eb35e2f105de3dbbcd9da668568fb9f75a6a668bfad9633d12e47e115915837",
+    "bytes": 278
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl/mvp.nano": {
+    "sha256": "4b4ef5b1717c7eefce11bb1dc8274018cb4266fe70ef4c692469dd4970f2c231",
+    "bytes": 172
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl/sdl_anchor.c": {
+    "sha256": "58a6263781cc59db15de431904cc1e89bfba0d1ab3a19e496ffc1fd25331a4ff",
+    "bytes": 165
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/examples/examples_io.h": {
+    "sha256": "a6c5c054d83223bfb4da821d52abdfb9c99e1fd7024744f517113012b94ad215",
+    "bytes": 390
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/examples/meta.nano": {
+    "sha256": "9f2d5eb0d4d3e4a1ea3da8a092bdfe0169e042ca07a53fc996a6d960f1635074",
+    "bytes": 10532
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/examples/runner.nano": {
+    "sha256": "1d06bfd0ed7b9dfde6851d1e34f67e3598059a771ed71e9035f44f6007c68778",
+    "bytes": 12671
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/examples/diag.nano": {
+    "sha256": "eb67ddf58bd98ee4afc0b23b00631f155fca24760476c9905009df0231c0e1f3",
+    "bytes": 3224
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/examples/examples_io.c": {
+    "sha256": "5d39a4d39f1cd9949b8b40f0d63c646bcef1470f3ed08683e08a15ea71fa5699",
+    "bytes": 1170
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/examples/module.json": {
+    "sha256": "eb72a693dd918cf7e383990ddb47398ff7ff220ad72cfb987a1a5da6ad21de20",
+    "bytes": 245
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/bullet/bullet_ffi.c": {
+    "sha256": "feb93ac9d2825d8dcee06182b349bc975e9e027a0b3a94c9dad257f149ac99b5",
+    "bytes": 14156
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/bullet/module.manifest.json": {
+    "sha256": "9e3adbaf5068f4b41dd7e2bd7e4620411cbd22a4e5043d075ece362b3a2b0f1e",
+    "bytes": 1445
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/bullet/bullet_bindings.h": {
+    "sha256": "3ec7435d9eb0701f2b8c5d3b806b52242eafe069bab8bcd8117cead478664006",
+    "bytes": 2006
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/bullet/bullet.nano": {
+    "sha256": "82ae14da8a1377c96c4d6fa2db3f5d12ef05e31da6e8372c992f7da9967d32df",
+    "bytes": 2079
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/bullet/module.json": {
+    "sha256": "872328eb6da5b31ee66d91f405893c7dad762cfc7545170309dbba88bbb8cf1f",
+    "bytes": 711
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/bullet/mvp.nano": {
+    "sha256": "10c7bc1df44b17d9775d64f40fa641d5e35d38610f229c67936a8ae07f9550df",
+    "bytes": 394
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_viz/audio_viz.nano": {
+    "sha256": "31d7dce0bd254c9fd119c4746eec7da82f5912932467bda172e8ec876c01f8f9",
+    "bytes": 952
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_viz/audio_viz.c": {
+    "sha256": "e794ba768222b06bf7e93bdfd7481e1e3913976c3a5f9cc05592b880faf77a06",
+    "bytes": 4256
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_viz/module.manifest.json": {
+    "sha256": "1d87782c5fda3810ab0519d293471f7dc4016a0608ad949c903e9bfcb79ec5cc",
+    "bytes": 1301
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_viz/audio_viz.h": {
+    "sha256": "719f997593374a314a516923582768ebefd289532c08f975c0db197abb1c8a8c",
+    "bytes": 631
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_viz/module.json": {
+    "sha256": "67dfc0b38cbea2e3b90c5004776b68e0f7cb7679ff798719160d4faa94fafc37",
+    "bytes": 329
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/audio_viz/mvp.nano": {
+    "sha256": "dcb295ca0254c895b62a6b160b61e062622a6c0adfd66b890489c5b160f2bf9d",
+    "bytes": 368
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/stdlib/checked_math.nano": {
+    "sha256": "a677fdd66fd3b1c1b9b070695768e54a55f3be9bd209acccdb43b819369ac565",
+    "bytes": 9798
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/stdlib/module.manifest.json": {
+    "sha256": "e8d9ded2d49e420ccf67a946073afff0722729762dd0e83621343856f5f19f4e",
+    "bytes": 907
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glew/module.manifest.json": {
+    "sha256": "61a78aa2fea78475bcd5d4326a484065cfe20b435e2ca916f41c033858e20447",
+    "bytes": 1205
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glew/glew.c": {
+    "sha256": "ef9ee7eba562149cff0877bacfc505795b4e057276bf0dae4a49cb0163664c3f",
+    "bytes": 10374
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glew/glew_arrays.c": {
+    "sha256": "9c3c43a268833e446ae50887990775932511b0dd0a2f9ec3a7227bdf7f3a46b3",
+    "bytes": 1985
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glew/glew.nano": {
+    "sha256": "af2b3bad9c57dbc206267048b588269166efb68450978eac43597164dfb35199",
+    "bytes": 8995
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glew/module.json": {
+    "sha256": "ecf99ae56218ead458ae12cb5fffb1b2bd9b1772df82653dfe3a85d7f9153515",
+    "bytes": 567
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glew/mvp.nano": {
+    "sha256": "e6529dacf28faec3e0eac9391532f9c0e2754aece9b5d533155f04e900b66992",
+    "bytes": 230
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glew/glew_wrappers.h": {
+    "sha256": "1275c1e1cb6f3a0d0dbdeb46e0b7fd4d41c60f5ad1817faa0360084268931fbc",
+    "bytes": 3692
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_audio.nano": {
+    "sha256": "6618b114b1d1d56c572003b288fb2027c851ca25ae8d6b2e602b8e5ae838d1e3",
+    "bytes": 457
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_replayer.c": {
+    "sha256": "a83d3d64be3ffc562b372ffc13a452368565662c2808a7e64fc18443b276eff9",
+    "bytes": 43068
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_hpc.h": {
+    "sha256": "4c92c062b30349b16b38306d567c41dc869cc67f4aeaf43bf8ac302ba0306b9a",
+    "bytes": 556
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_unicode.h": {
+    "sha256": "8a5123848caebf00a39eb2afc5f4ccbbd2519717d4fb973dcbd4c821cf2467f6",
+    "bytes": 178
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_palette.h": {
+    "sha256": "4960a8a65cb32247d4f124dd6220cbd539cad412037a7fb7996b8dc905da3c23",
+    "bytes": 146
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_structs.h": {
+    "sha256": "07f15defb7b681ce9d4900d88ca6a799a5cf96d0b877a20fb2af814f4c2a62c9",
+    "bytes": 9158
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_blep.h": {
+    "sha256": "a4576b03b2bbf133cea5c55eafc4be6c810717bb24ece8c966d853f770119b88",
+    "bytes": 1284
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/module.manifest.json": {
+    "sha256": "7408aea124cd4073bd5ef5b873b4fe138f9b80bea15ffbbc50d2e427cf167b5f",
+    "bytes": 1296
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_paula.h": {
+    "sha256": "2cd32c1d4ed3d825d4cd4b878a6a09a1c74b8b5bbdf984fc0feb67b031072aa5",
+    "bytes": 951
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_rcfilters.h": {
+    "sha256": "42b7f69581f1b1d02ab1d3d7a1b4b2cf0fed79986065013eba37a4e48164d9b4",
+    "bytes": 958
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_header.h": {
+    "sha256": "3c3917c30d43e471e7e830e4fd0b080ecbd53887c271f79684a3d02a95d23d9f",
+    "bytes": 3321
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_config.h": {
+    "sha256": "79ccc7297b6d9c5ebf21bafef8cffea6da2f3c828172f86f78603afb5e693d24",
+    "bytes": 868
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_replayer.h": {
+    "sha256": "9d0eaabea6718eaf4f49dd706f1f5cc396f7fbdcf8244b969a418db653a3da1f",
+    "bytes": 957
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_math.h": {
+    "sha256": "68b6b36e6d2171204f07dc6ffdb760dabd8629165bf72b79aae4ce4b9540b1ee",
+    "bytes": 346
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_blep.c": {
+    "sha256": "c192cb132269b6c658d94e6729608403fc01bdec2c86f265ad57b65668e85a03",
+    "bytes": 9016
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_paula.c": {
+    "sha256": "41a00e598b6ae33cee258dbdb43f873990270fde2e5698eb6d676e77b24d7402",
+    "bytes": 10451
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/module.json": {
+    "sha256": "1ad41930fdf46f3a9e21e60a94edcda4159d663e18ff6d5e8ad337f2e646e06c",
+    "bytes": 624
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/mvp.nano": {
+    "sha256": "75c628071f85ab9c77e8ec55eec570ef3b5ab485c1142deb46c990dc49ffeee3",
+    "bytes": 271
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_rcfilters.c": {
+    "sha256": "b42d4070d78362c7a4fda344c4ff4d10a850b38da41acbb49e779ba404179316",
+    "bytes": 3033
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/pt2_audio/pt2_audio_wrapper.c": {
+    "sha256": "a8e636d2a6a6fd7b3039bbf3b953e4c5c5ca428a3a2f0d1e074a876e383afccb",
+    "bytes": 10348
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/forth_see/forth_see.h": {
+    "sha256": "ad6d763f99a0a8f768620fc4f458ae25a1da267ede591f96679c84aedff22a1d",
+    "bytes": 542
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/forth_see/module.manifest.json": {
+    "sha256": "47bd72c12da75075f9bb2eb62a27f2766311324f9f7979814caba553e35e4cb5",
+    "bytes": 1111
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/forth_see/forth_see.c": {
+    "sha256": "75a98c2754ca7198f9455319976df1bce83c9d1c9bb25563f90d74b6865bd381",
+    "bytes": 6299
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/forth_see/module.json": {
+    "sha256": "71216f8cbad3be4252d016a3b3c1e5c40681e927c178f04f71937b6da3aaf452",
+    "bytes": 1792
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/forth_see/forth_see.nano": {
+    "sha256": "bcf3f58df76a45e1a363275c987ba523dca85a2ed0f4f92a9285c4b548fa0a26",
+    "bytes": 462
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/compiler_support/compiler_support.c": {
+    "sha256": "9e7a8c8390c5e2a4a8766a4039c65d1778ea1ee66ed2322c2a8758b64b2436bd",
+    "bytes": 2188
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/compiler_support/compiler_support.h": {
+    "sha256": "0de4203d786d1b67c8140286c42b021f55fa86adb453a307e1819b4b49304a8f",
+    "bytes": 269
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/compiler_support/compiler_support.nano": {
+    "sha256": "421f7b7f0d9488306509873832a5add4ca74ab71f596cc388e33460bcc2268ed",
+    "bytes": 275
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/compiler_support/module.json": {
+    "sha256": "42357fcfb5ae026eb03690f56d228462865fe5e4e3d6bb53f737ac65b99eaa23",
+    "bytes": 468
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glfw/module.manifest.json": {
+    "sha256": "86ed62d2068a3bd3126f418dcf4ac0795d1da366786dc088ca202427e842cd93",
+    "bytes": 1585
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glfw/module.json": {
+    "sha256": "1925d3833858722c9177895071191efaba19239d3cf53ac5ca19bbc9845c5567",
+    "bytes": 431
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glfw/mvp.nano": {
+    "sha256": "e5a341a6cd0a34fda47ba716b734df7c43c437da92e23d82b5e1ece99825a667",
+    "bytes": 240
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/glfw/glfw.nano": {
+    "sha256": "f3434b6cacfb26809690a5354c7220bbda3945870a4014e7d2e8cd661db11532",
+    "bytes": 3663
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nanoisa/nanoisa.c": {
+    "sha256": "ce9c9f29750edeb43893f20c21ae82dabf5271e6e324c006560c5d3ac6b342f8",
+    "bytes": 18987
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nanoisa/module.manifest.json": {
+    "sha256": "e9ad090be5094a6c269a76aaea2f84ccddc98e85872f41f542d3dd29d2a67bf5",
+    "bytes": 1127
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nanoisa/nanoisa.h": {
+    "sha256": "78a0a59fa32eaa589cf0680f7158974ce90e41763abe163256e1970a7ff9f410",
+    "bytes": 1928
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nanoisa/nanoisa.nano": {
+    "sha256": "d5059fe21d9bf59198053aef4d2ab80f5b67ff903ded81ae030d97c724dbaa03",
+    "bytes": 4091
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nanoisa/module.json": {
+    "sha256": "46a6d8cedf88576abe9bcf43ac398629f63a12101f38b2d53e280c4b6129b4b4",
+    "bytes": 1619
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nanoisa/mvp.nano": {
+    "sha256": "5239f07478123db35b4d84a0f15c50172ccfcd015b4b5a7aeaf664fa04a5d0b6",
+    "bytes": 240
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nanoisa/dump_main.c": {
+    "sha256": "ce1c267c6363995805cbe8fbabbd4dd3a3780ae3bc0d9542f01e96b3e57315fc",
+    "bytes": 3052
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_term/module.manifest.json": {
+    "sha256": "df983be7bdfa89c0d2b0b5c44a7dd77c6762408b4f1da351844aedc0d4d406ee",
+    "bytes": 1837
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_term/tmt.h": {
+    "sha256": "f98a11ff7de3ff7483b631ef0601522a67ae63b04b2d50e8a26e68d8add60e4d",
+    "bytes": 4185
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_term/sdl_term.c": {
+    "sha256": "8f686c14f5c47ec8c5190a7443fc9458760c0c5e78dd0810847b4bbd20402353",
+    "bytes": 11343
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_term/sdl_term.nano": {
+    "sha256": "369353eacd3a857eca2cdc50b559ac086b5c8378f0a13c8e30e113edd1c7fc19",
+    "bytes": 2673
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_term/module.json": {
+    "sha256": "f26ea4c38821368bb15ca8cdb6711f261d4d7e2094d9816b7e3018ebd3483c69",
+    "bytes": 433
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_term/sdl_term.h": {
+    "sha256": "f57bd73caa716f743fa1b8cd23665ceff49e6473631466ca30cbc5d37c7945e6",
+    "bytes": 3162
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_term/mvp.nano": {
+    "sha256": "653e96fe3ef522630a21141571440188a8fd69fee03358a2436930d8dc5abb84",
+    "bytes": 585
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_term/tmt.c": {
+    "sha256": "79f44bade7989c1a88c3771da2c196efb7b3537205887ae83d9ec62aa69e2a20",
+    "bytes": 16064
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/event/event_helpers.h": {
+    "sha256": "d74ef20b4ef845a0bb0a76db9add0aed15a291659191b600c65b752698753696",
+    "bytes": 869
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/event/module.manifest.json": {
+    "sha256": "309ec5ffc252269a8b37495aedf930674d2209ea6b0cd9df7c7b744e044824dd",
+    "bytes": 1004
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/event/event_helpers.c": {
+    "sha256": "672293bd4fb810c036610734f6a94f09bbd5c19830d6c7e0623a4d53f5178697",
+    "bytes": 4808
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/event/event.nano": {
+    "sha256": "2886fa5d240c61b103c3a086696c260a033c24679c5a5c05413fa8cf0aa06ca9",
+    "bytes": 1983
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/event/module.json": {
+    "sha256": "153370349ed38d2d3194b159002e0da2a1b095d17dc6b6f0c8f9cb6a52b98ad9",
+    "bytes": 521
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/event/mvp.nano": {
+    "sha256": "b1160b7d6c534cd8098446a544f84edaa181a24da93df18b7f117f42cdd43c74",
+    "bytes": 283
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_tools/nano_tools.nano": {
+    "sha256": "46a7be7665c14a88a203b17fa593f3d7bbeb20d8a0658390c0179150d8c4585d",
+    "bytes": 14643
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_tools/module.manifest.json": {
+    "sha256": "afcb9395054f1db048d50b510ba29e3c5835ad63e63a9bd952d4fd356a6c42c6",
+    "bytes": 1062
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_tools/nano_tools.c": {
+    "sha256": "1e32b34c6c1637addb341ca1e5db8ee4f50c85f056a06d8241b6a15dae237453",
+    "bytes": 7163
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_tools/nano_tools.h": {
+    "sha256": "a415e106619a18d004b9f9ef05ffacfbf8a9b91c13190111263050721fbcb8f0",
+    "bytes": 306
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_tools/module.json": {
+    "sha256": "b43fa2e2685e7b54a7587f770e828beefe214d3294c0d2b96892e939d6630cd0",
+    "bytes": 228
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/nano_tools/mvp.nano": {
+    "sha256": "834b11ef77566aab6305c0eb18a4f978962dbaff7dea502be264af956aa59d04",
+    "bytes": 814
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_helpers/module.manifest.json": {
+    "sha256": "b38f06a8a7c5fd710ccc5f2a80ec4872af96dc01ea64e235e13f24898fe7319b",
+    "bytes": 1576
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_helpers/stb_image_write.h": {
+    "sha256": "c02157679b93299fa92b8c2fa2c6a561733b770764227d89fc6cb159299e99ae",
+    "bytes": 15991
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_helpers/sdl_helpers.h": {
+    "sha256": "fabf3fd33df8c6b3f1eeea25eb2cc0e809e658556a0eb3c640e6300870750726",
+    "bytes": 2928
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_helpers/module.json": {
+    "sha256": "c45d0ea6c1ea76c426daeea4ba3d0271075526469c2c0786b42c81655afbded1",
+    "bytes": 337
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_helpers/mvp.nano": {
+    "sha256": "f77f721e177b15d3e212e9b6bca1d459a00e9a99147426448997b4c6ff88e13b",
+    "bytes": 269
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_helpers/sdl_helpers.nano": {
+    "sha256": "fd82daf8e03bbb29d68039e315722104eb61e13d8ba9986fcc5f923400339032",
+    "bytes": 4600
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_helpers/sdl_helpers.c": {
+    "sha256": "2ac0d1bcac90d4a18bee35eb02303b4f3132119df24e180b135b0b51ddcbde29",
+    "bytes": 19715
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/proptest/module.manifest.json": {
+    "sha256": "d398b3e22d06100a3428783b582181f19a36053eec90b72508a292736364e3bf",
+    "bytes": 1204
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/proptest/proptest.nano": {
+    "sha256": "5ecfb4128b121ab267c2b60845c58178f5280f134ba8f8e849f31c0b46141e3c",
+    "bytes": 32276
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/proptest/module.json": {
+    "sha256": "d37d3c7c8239bd2895eadef06ea2de290af9cf52296fb7f9dffcff72efaf7b29",
+    "bytes": 208
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/proptest/mvp.nano": {
+    "sha256": "45639690ffa710cce3d6e09f1adb92687c8ec7a444e8283421ddec44e5854558",
+    "bytes": 234
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/openai/module.manifest.json": {
+    "sha256": "ae57130131414c7c90f979026d9f7c86efe8b66fcec01ec897c951f97bbbf1b9",
+    "bytes": 2098
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/openai/openai.h": {
+    "sha256": "15c536dec495ca5a5437015c3e2799ed1b90fab5c43db1637266baf9947d1cac",
+    "bytes": 1232
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/openai/openai.c": {
+    "sha256": "9da70609e3d4e8f5a2013fea0a90e2ed89d798067e695574964bae379d983db4",
+    "bytes": 7379
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/openai/module.json": {
+    "sha256": "e6fcd09335b6f0093ad78eaeb9b6493fcd27339c314510551771f4d931ba7afe",
+    "bytes": 502
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/openai/openai.nano": {
+    "sha256": "f97f41534c598ffefc57ffd79dd66ba450f0e8af2666b3031a879fd4b9a22293",
+    "bytes": 6037
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/opengl/module.manifest.json": {
+    "sha256": "d90a42daaef440caaf43e3b0a830e1fae1379ae8229b613cdb79c84e430bab2c",
+    "bytes": 1473
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/opengl/opengl.nano": {
+    "sha256": "71db78539f2a652bb43ef4f9c82a4f180c52f3d33d784e76c9df588422e40b71",
+    "bytes": 2188
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/opengl/mvp.nano": {
+    "sha256": "66528980426fc42e9f8170ebf4b0d5b5d542d64cc0dc8c5098202126eb71d25d",
+    "bytes": 178
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/module.manifest.json": {
+    "sha256": "4ac00caa737bc8498d52379267a2aac1e8d1daf69b292cec76ce8778689d6e02",
+    "bytes": 1440
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/sdl_mixer_helpers.nano": {
+    "sha256": "d49021f8169117f4bfa2025e7d78b286dffbf0cbc908b77107e0e8816eed422e",
+    "bytes": 4098
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/sdl_mixer_callbacks.c": {
+    "sha256": "8bbb5c4520de37f06ed69d276e6b8fb40076fddfa8252524c6f91251ff369c13",
+    "bytes": 3678
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/sdl_mixer_operations.h": {
+    "sha256": "0c8ce993a8fe7d5e1b393a1f58714a86eb4ceb99c6364af09ebbc837744720a2",
+    "bytes": 3819
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/sdl_mixer_helpers.c": {
+    "sha256": "f01cb5a7a1dc92cb07ea2ac0df0bd1d57457df8e3729926c06962f1977eb56fa",
+    "bytes": 3700
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/module.json": {
+    "sha256": "23bde879e88fa8be54c3728a092c3cdeb3a21ba43f9fa3c02377e38b223d5f8d",
+    "bytes": 3878
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/mvp.nano": {
+    "sha256": "c9dfcf407882681e4542e42ccec167fc576f6b57a8a367febbb9ebcb539a2446",
+    "bytes": 184
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/sdl_mixer.nano": {
+    "sha256": "fc138a111a742adcd3991cdbd5a941c6e7294f1fcb79c9bca6cf9b97cadd1c93",
+    "bytes": 5235
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/sdl_mixer_anchor.c": {
+    "sha256": "7513206f8bfff5948dcb14e44d42c1af7f5c2b5479362f1d3ae165f7c2ff325e",
+    "bytes": 183
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/sdl_mixer_operations.c": {
+    "sha256": "80b6dc04854b68b31063cfdf31eab178d460007c9122bb7b658a0bf52d0b00d6",
+    "bytes": 9578
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/sdl_mixer/sdl_mixer_callbacks.h": {
+    "sha256": "ae7856c7fcf3abdccfbffd642553d07a8edd81c021ca7a5224c8d3dfe07daf5c",
+    "bytes": 585
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/peg2/peg2.h": {
+    "sha256": "ff8ef393960414666c5ae3be11bda6632ab3ee8453b4e2d46faadc18f1766960",
+    "bytes": 1981
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/peg2/peg2.nano": {
+    "sha256": "f36e5490c9b2c6fcc2f7e79015bc537af3b088a03118c0c961b704211195e99c",
+    "bytes": 7935
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/peg2/module.json": {
+    "sha256": "52b428463638d64e042c3252eed427e3b2f0035f8f3c49db39deb2fb6c6f16a8",
+    "bytes": 275
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/peg2/peg2.c": {
+    "sha256": "85c8e8d8f1a4915089fce2b2c43b2df2e8b7ca6ae2bb1a7db42e666bf8b6ea70",
+    "bytes": 39251
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/crypto/sha256.nano": {
+    "sha256": "dc22590e24970c83e5e1a3af30c97a5dbbf0770a8706e2209869c3fa388f93e6",
+    "bytes": 19113
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/mathx/mathx.nano": {
+    "sha256": "5f56c095c0cad8f42518e58076a6a598c3a5618af14a1f301d38b9848068e8c2",
+    "bytes": 3412
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/graphx/graphx.nano": {
+    "sha256": "e3fc47e881a49fb2bac9fab3f7ac4bb83b6974c0209ce5d39185da3677cb49d4",
+    "bytes": 11295
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/io/stdio.c": {
+    "sha256": "bb6a511670fb83053a780cb38704da94d51757247e575a04a75786be13aae36f",
+    "bytes": 2342
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/io/stdio.nano": {
+    "sha256": "d570d5f43fa5251ea883552ddcc37b6df24bd9fff095dc200fbff021720f78e9",
+    "bytes": 6544
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/io/module.json": {
+    "sha256": "c7cf667e5df74651a00a72e0a81a285c876bab9e23d860405ecd4170ae468b6d",
+    "bytes": 169
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/math/array_ops.nano": {
+    "sha256": "4e823e1a6260f39d5f7a0a43ff0de3e22b1efb1ff58c793aad6c36290a957095",
+    "bytes": 9644
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/math/vector2d.nano": {
+    "sha256": "57242fa86f446ad01517262eae2af9f4adbd2b6ffd4f98b911917dd69a1ad212",
+    "bytes": 9032
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/math/vector4d.nano": {
+    "sha256": "55b3eb908c99d0888abd4d5eaa5c7aaefd35433b36a0fe1d88bac7c395995f47",
+    "bytes": 4389
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/math/vector3d.nano": {
+    "sha256": "bb4c0f30c9fede63b26a69d3c989f719a3a0c3fa706a5c014d9e1c1129471601",
+    "bytes": 5374
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/math/matrix4.nano": {
+    "sha256": "469322562d8af91e218cb1f02e75a98fb5e77180dc065e9c20fd0af97d0b4bb9",
+    "bytes": 6678
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/math/quaternion.nano": {
+    "sha256": "28f92a78042b9d0cec2eba8e933d7e629a9263bd04e723ec845abcda6de5595c",
+    "bytes": 4070
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/math/complex.nano": {
+    "sha256": "614c626c6ff34bb83c6642358b3a75bd0ad61f18ab685e60e56783075f970771",
+    "bytes": 3794
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/math/extended.nano": {
+    "sha256": "d24f8a2ac16f7dd8615497ce5455e09cdfd0372a096bc6e9f2eb483997990d2b",
+    "bytes": 6687
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/peg/peg.h": {
+    "sha256": "0102d03509fab5e286ddbef79d78862b1e639a07c6a144e09cb61457298fa61f",
+    "bytes": 660
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/peg/peg.nano": {
+    "sha256": "6169da3f402173f28b041277b3ccd2c3712cc952104a00c3c3b98b46b12f893f",
+    "bytes": 1567
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/peg/peg.c": {
+    "sha256": "2bc723e971e4cdddc1756bf9001f5f8089a8f1ca9f54b3f8c70af49fd35d1219",
+    "bytes": 17966
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/peg/module.json": {
+    "sha256": "7cc0cea7f3656519440055553040030a3cc8ef1259f0a94221af1a81573dfb3f",
+    "bytes": 209
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/regex_nfa/regex_nfa.nano": {
+    "sha256": "bf5472eb6118adf1ed2c36f08ff10074ef35c9942873cb7ac8cc3df80a68f9cc",
+    "bytes": 18741
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/json/json.c": {
+    "sha256": "02d77e019714db01707ba187cb17b0ed2d8fe01efa49cab10d598e682e4f2406",
+    "bytes": 6659
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/json/json.nano": {
+    "sha256": "6a17c98bd5725c3430027fa6581b134e42d4d3df2da4923e7e2c573b202379fb",
+    "bytes": 9102
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/json/json.h": {
+    "sha256": "d68d728ebc469dcc4321e4ad36f23b653c1c527b2c89ec6af9528e5b46528128",
+    "bytes": 1569
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/json/module.json": {
+    "sha256": "a3d00f1daf6e8644e8289c6303afcf298a47c35bae0234530c930b6ff4a7ecf6",
+    "bytes": 298
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/log/log.c": {
+    "sha256": "4fe2d25c314df36d3e74aec696b363ce7220c34cd3009db748d0b37f3283005d",
+    "bytes": 7237
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/log/module.manifest.json": {
+    "sha256": "a95d68a09bb88216eeaf268f2504821b7096065471669396003f59c95a50ec23",
+    "bytes": 2320
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/log/log.nano": {
+    "sha256": "7538b4eeafa8779cd0a45e3173b4716aaf52271106fe77f01d1669becd53beed",
+    "bytes": 9130
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/log/log.h": {
+    "sha256": "8ddb292aad7ce93f6465957603d02282a66b8736c63a39dedfbf5f25f31951c5",
+    "bytes": 1072
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/log/module.json": {
+    "sha256": "06bd648c6472218325f8c853ab59faf59bfc61e0ae46a7ade7a9c61a0ba48b42",
+    "bytes": 144
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/collections/hashmap.nano": {
+    "sha256": "23814245940bd3b5f0c2a0fc4fc9f5e4975c634554f8b0a0fa11dd8eebe56758",
+    "bytes": 6605
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/collections/stringbuilder.nano": {
+    "sha256": "e238e3caf1fb954d8b6b85ef7550129e1840ed91a1c3bf56b7d3d958292ffa36",
+    "bytes": 7155
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/collections/collections.c": {
+    "sha256": "3a27620822e7b640597abe6fc736f3e6c203b1be64592db93afed7198cea39b5",
+    "bytes": 10672
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/collections/module.json": {
+    "sha256": "f9004bdc93d49c689b3cd210a69d84e2b3926238ab7a1953b3be7cbd5a0f03af",
+    "bytes": 301
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/collections/set.nano": {
+    "sha256": "0812ec0716da846f2da4a4710222a866d6415a1fd429188cc990c07919609ce5",
+    "bytes": 2717
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/collections/array_utils.nano": {
+    "sha256": "45340097222684b248039c8ffbd1ba32f13d48f42453b67ad5421e78319213c2",
+    "bytes": 1630
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/collections/collections.h": {
+    "sha256": "b5f7fc2cdaaa17fba8016e74b27575a0ac4b40c45adbb4b480c143bc2991e545",
+    "bytes": 1375
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/collections/.build/source_hashes.json": {
+    "sha256": "f751b00ecf73663046a08268c6bcd9cdd1015b382c81fdef27689fff0852b8db",
+    "bytes": 75
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/json/.build/source_hashes.json": {
+    "sha256": "194fe94c0d7052c74fdb4bcc83682a956a41610c27ea6dec4f1fd1bd5a073947",
+    "bytes": 684
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/modules/std/peg/.build/source_hashes.json": {
+    "sha256": "3a733d36d40768fb0f2e5fb50696840c06cd5939d886f9c77931141031542345",
+    "bytes": 67
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/stdlib/ast.nano": {
+    "sha256": "5d6f77383efed5348a0c7cda3d173464fac14d14fef5c651bb9c11528af065ed",
+    "bytes": 8779
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/stdlib/tidy.nano": {
+    "sha256": "9297c61458102df6ac52d1a60fd14c741fb9caee8dfd74a7337f560622cfcbb2",
+    "bytes": 4868
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/stdlib/coverage.nano": {
+    "sha256": "88f0b490cd6ddcce586ac3048665983a5fee778576fa592c765b584c5ccf2ead",
+    "bytes": 11750
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/stdlib/mac.nano": {
+    "sha256": "c9cb2507114a3e56f326e699e5dc1fe70c97249e9c34bb2aae45ca28f153bbaa",
+    "bytes": 20722
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/stdlib/tidy_cli.nano": {
+    "sha256": "922657eb793b9ccb010c8e9c7189f6438ae81e712ff80560879a1fe85ee90846",
+    "bytes": 475
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/stdlib/log.nano": {
+    "sha256": "3a54a21f7e6b2f34cc6dd573c8e5a359a74d3864696f40586f8e4b56e1192050",
+    "bytes": 4304
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/stdlib/timing.nano": {
+    "sha256": "3b730b37fcd2ff865519b07054add97f60f14d8a7bf97a4c2552ec4210e79151",
+    "bytes": 3282
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/compiler_schema.json": {
+    "sha256": "d62d89358d089872b5cf745d7aa6e198b098b839c1af303eb729a45310b3d1a6",
+    "bytes": 29440
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/effect_map.v0.json": {
+    "sha256": "c69dd89a597872275ad3d95b5188f80ded13548d1b848cf0ba406047c2d0ed2d",
+    "bytes": 1052
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/inventory.json": {
+    "sha256": "d455ae90c4002858fb6e17f4f53db29d32af924af48a84ceec33a9d6c30b2f07",
+    "bytes": 22569
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/examples/log.nsi.json": {
+    "sha256": "ba1427cbc1081a4b638f7561bd5ea267e81c0db7dd7bd99ed6e0b714671959ce",
+    "bytes": 1517
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/examples/types.nsi.json": {
+    "sha256": "892b0cf8257a86bd3ec5c4c723ea9d71e97d912a42997d8e86e57e3b0fa01342",
+    "bytes": 1591
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/modules/audio.nsi.json": {
+    "sha256": "e419a5b8e35c68878c9e1836c186399e912066cb2ae81d81539e5380cdbb24d2",
+    "bytes": 1275
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/modules/filesystem.nsi.json": {
+    "sha256": "9c9c84a0b08574f427cec064ec195dcefec2725959fcac2ed916a29e6886b337",
+    "bytes": 1271
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/modules/gpu.nsi.json": {
+    "sha256": "c1d3a92ffeb27309862e48ad6983c23d58b4a55a2f9e21aa87c9ed9d1d65538a",
+    "bytes": 1223
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/modules/graphics.nsi.json": {
+    "sha256": "7f24f5c789e28d5274d078cd7e6788f48d242d35aa8d8a54497f5abdd3650dc5",
+    "bytes": 1281
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/modules/pure.nsi.json": {
+    "sha256": "fd4c017c7f90e46326d99789daf0d2ff51fad412ecd90c177a97afc22e06f024",
+    "bytes": 349
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/modules/process.nsi.json": {
+    "sha256": "1bc79584189a09dbe986156c83dc1a3d81b5b3377e544eede75b99c2e53b97fb",
+    "bytes": 1253
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/modules/vector2d.nsi.json": {
+    "sha256": "c87232c4e846e638a82aaf1826e82a48332cc4c9f3fe8ccd324218db517379af",
+    "bytes": 1383
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/modules/python.nsi.json": {
+    "sha256": "cb4ffeb413d5579ccce61ed7990abc69ee781e91ea0cf3451bce809b95874c97",
+    "bytes": 1245
+  },
+  "/private/tmp/nanolang-file-cyclic-public-final/schema/nsi/modules/net.nsi.json": {
+    "sha256": "8118549f3686a99d282e8c46451b1c013d0671e8783b4d743e168184c2bc5a01",
+    "bytes": 1234
+  }
+}

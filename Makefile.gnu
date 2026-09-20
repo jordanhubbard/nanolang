@@ -420,8 +420,13 @@ FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/f
 FILE_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY_STEMS))) \
 	$(OBJ_DIR)/nanoisa/file_host_grant.o $(OBJ_DIR)/nanoisa/file_runtime_public.o \
 	$(OBJ_DIR)/nanoisa/file_public_native.o $(OBJ_DIR)/nanovm/file_public_vm.o \
+	$(OBJ_DIR)/nanoisa/file_cyclic_public_native.o $(OBJ_DIR)/nanovm/file_cyclic_public_vm.o \
+	$(OBJ_DIR)/nanoisa/file_cyclic_public_abi.o \
 	$(OBJ_DIR)/nsi_cap.o $(OBJ_DIR)/nsi_file.o $(OBJ_DIR)/nsi_file_values.o
 FILE_PUBLIC_HEADERS = nanoisa/file_public.h nanoisa/file_public_internal.h \
+	nanoisa/file_cyclic_public.h nanoisa/file_cyclic_report.h nanoisa/file_cyclic_public_internal.h \
+	nanoisa/file_cyclic_native_public.h nanoisa/file_cyclic_native_abi.h \
+	nanoisa/file_cyclic_runtime.h nanoisa/file_cyclic_hosted.h nanoisa/file_cyclic.h \
 	nanoisa/file_native_public.h nanoisa/file_native_abi.h \
 	nanoisa/file_host_grant.h nanoisa/file_host_grant_internal.h \
 	nanoisa/file_body.h nanoisa/file_code.h nanoisa/file_flow.h nanoisa/file_hosted.h \
@@ -440,23 +445,25 @@ $(FILE_PUBLIC_LIBRARY): $(FILE_PUBLIC_OBJECTS)
 	$(AR) rcs "$$file_archive_dir/runtime.a" $^; \
 	mv "$$file_archive_dir/runtime.a" "$@"
 $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(NANOISA_DIR)/file_native_abi.h | $(OBJ_DIR)/nanoisa
-	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_PUBLIC_ENGINE -c $< -o $@
-# I keep cyclic dispatch source-private and outside every default/public selector.
-FILE_CYCLIC_DISPATCH_HEADERS = $(NANOISA_DIR)/file_cyclic_dispatch.inc $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_PUBLIC_ENGINE -c $(NANOISA_DIR)/file_runtime.c -o $@
+# I keep private cyclic entrypoints macro-only; public selection is explicit.
+FILE_CYCLIC_DISPATCH_HEADERS = $(NANOISA_DIR)/file_cyclic_report.h $(NANOISA_DIR)/file_cyclic_native_abi.h $(NANOISA_DIR)/file_cyclic_dispatch.inc $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.h
 FILE_CYCLIC_PRIVATE_PROVIDERS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY_STEMS))) $(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nsi_cap.o $(OBJ_DIR)/nsi_file.o $(OBJ_DIR)/nsi_file_values.o
 FILE_CYCLIC_VM_OBJECT = $(OBJ_DIR)/nanovm/file_vm_cyclic_private.o
 FILE_CYCLIC_NATIVE_OBJECT = $(OBJ_DIR)/nanoisa/nvm2c_file_cyclic_private.o
-$(FILE_CYCLIC_VM_OBJECT): $(SRC_DIR)/nanovm/file_vm_cyclic_private.c $(SRC_DIR)/nanovm/file_vm_cyclic_private.h $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanovm
+$(FILE_CYCLIC_VM_OBJECT): $(SRC_DIR)/nanovm/file_vm_cyclic_private.c $(SRC_DIR)/nanovm/file_vm_cyclic_private.h $(SRC_DIR)/nanovm/file_vm_cyclic_engine.inc $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanovm
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_CYCLIC_VM_PRIVATE -std=c11 -c $(SRC_DIR)/nanovm/file_vm_cyclic_private.c -o $@
 $(FILE_CYCLIC_NATIVE_OBJECT): $(NANOISA_DIR)/nvm2c_file_cyclic_private.c $(NANOISA_DIR)/nvm2c_file_cyclic_private.h $(NANOISA_DIR)/file_cyclic_native_emit.inc $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanoisa
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_CYCLIC_NATIVE_PRIVATE -std=c11 -c $(NANOISA_DIR)/nvm2c_file_cyclic_private.c -o $@
-# I rebuild both carrier owners for private cyclic implementation changes.
-$(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_runtime_facts.inc $(NANOISA_DIR)/file_cyclic_runtime.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.inc $(SRC_DIR)/nsi_file_values_internal.h
+$(OBJ_DIR)/nanovm/file_cyclic_public_vm.o: $(SRC_DIR)/nanovm/file_vm_cyclic_engine.inc $(FILE_CYCLIC_DISPATCH_HEADERS)
+$(OBJ_DIR)/nanoisa/file_cyclic_public_native.o: $(NANOISA_DIR)/file_cyclic_native_emit.inc $(FILE_CYCLIC_DISPATCH_HEADERS)
+# I rebuild both carrier owners for cyclic implementation changes.
+$(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_cyclic_report.h $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_runtime_facts.inc $(NANOISA_DIR)/file_cyclic_runtime.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.inc $(SRC_DIR)/nsi_file_values_internal.h
 $(OBJ_DIR)/nsi_file_values.o: $(SRC_DIR)/nsi_file_values_internal.h
 $(OBJ_DIR)/nanovm/file_public_vm.o: $(SRC_DIR)/nanovm/file_vm_engine.inc $(NANOISA_DIR)/file_public_internal.h
 $(OBJ_DIR)/nanoisa/file_public_native.o: $(NANOISA_DIR)/file_native_emit.inc $(NANOISA_DIR)/file_native_public.h
 $(OBJ_DIR)/nanoisa/file_cli.o: $(NANOISA_DIR)/file_cli.h $(NANOISA_DIR)/file_hosted.h
-$(OBJ_DIR)/nanoisa/nvm2c_main.o $(OBJ_DIR)/nanovm/main.o: $(NANOISA_DIR)/file_public.h $(NANOISA_DIR)/file_cli.h
+$(OBJ_DIR)/nanoisa/nvm2c_main.o $(OBJ_DIR)/nanovm/main.o: $(NANOISA_DIR)/file_public.h $(NANOISA_DIR)/file_cyclic_public.h $(NANOISA_DIR)/file_cyclic_report.h $(NANOISA_DIR)/file_cli.h
 
 # My retained service ABI and immutable catalog participate in incremental builds.
 $(NANOISA_OBJECTS): $(NANOISA_DIR)/file_hosted.h $(NANOISA_DIR)/file_hosted.inc $(NANOISA_DIR)/file_body.h $(NANOISA_DIR)/file_body.inc $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
@@ -2791,9 +2798,13 @@ test-assembler-capture-records:
 	@python3 -m unittest tests.test_assembler_capture_records
 
 ifeq ($(UNAME_S),Linux)
+# I load this helper into an external assembler, outside my compiler's
+# sanitizer process. Explicit helper flags can select compatible instrumentation.
+NANO_AS_CAPTURE_CFLAGS ?= $(filter-out -fsanitize=%,$(CFLAGS))
+NANO_AS_CAPTURE_LDFLAGS ?= $(filter-out -fsanitize=%,$(LDFLAGS))
 $(COMPILER_C) nano_virt $(OBJ_DIR)/test_module_generation_probe: $(BIN_DIR)/nano_as_capture.so
 $(BIN_DIR)/nano_as_capture.so: $(RUNTIME_DIR)/assembler_capture.c $(RUNTIME_DIR)/assembler_capture.h | $(BIN_DIR)
-	$(CC) -std=c99 -O2 -Wall -Wextra -Werror -fPIC -shared -o $@ $< -ldl
+	$(CC) $(CPPFLAGS) $(NANO_AS_CAPTURE_CFLAGS) -fPIC -shared -o $@ $< $(NANO_AS_CAPTURE_LDFLAGS) -ldl
 endif
 
 MODULE_GENERATION_PROBE_OBJECTS = $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(OBJ_DIR)/runtime/ffi_loader.o
@@ -4753,7 +4764,7 @@ test-ordinary-record-producers: bootstrap nano_virt nano_vm nanoisa_dump nvm2was
 .PHONY: test-ordinary-record-authority
 test-units: test-ordinary-record-authority
 test-ordinary-record-authority: nvm2wasm nanoisa_dump nano_vm nvm2c
-	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
+	NOA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_ordinary_record_authority
 
 .PHONY: test-ownership-contracts
 test-units: test-ownership-contracts
@@ -4847,6 +4858,9 @@ test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
 
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_origins.h $(NANOISA_DIR)/record_array_origins.inc $(NANOISA_DIR)/record_array_structure_private.h
+$(OBJ_DIR)/nanoisa/verifier.o: $(NANOISA_DIR)/record_array_structure_private.h $(NANOISA_DIR)/record_array_structure.inc
+$(OBJ_DIR)/nanoisa/verifier_types.o: $(NANOISA_DIR)/record_array_structure_private.h
 
 .PHONY: test-verifier-profiles
 test-units: test-verifier-profiles
@@ -5488,7 +5502,7 @@ test-file-nominal-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS)
 .PHONY: test-owned-array-authority
 test-units: test-owned-array-authority
 test-owned-array-authority: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
-	OWNED_ARRAY_AUTHORITY_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_authority
+	OWNED_ARRAY_AUTHORITY_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" OWNED_ARRAY_AUTHORITY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_owned_array_authority
 
 .PHONY: test-file-flow test-file-flow-sanitizers
 test-file-flow: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -5659,6 +5673,12 @@ test-file-binding-plan-sanitizers:
 # I compose target and ownership facts only through a separate private entry.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DIR)/file_indirect_flow.inc
 
+
+.PHONY: test-file-cyclic-public test-file-cyclic-public-sanitize
+test-file-cyclic-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public
+test-file-cyclic-public-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public
 # I publish only through this explicit tool; default/install lists stay separate.
 FILE_BINDING_PUBLISH_DIR = $(OBJ_DIR)/file-binding-publisher
 FILE_BINDING_PUBLISH_NAMES = nsi_file_binding_main nsi_file_publish nsi_file_binding nsi_file_plan nsi cJSON utf8
@@ -5690,6 +5710,14 @@ test-token-value-bytes-sanitizers:
 test-portable-read-wasm:
 	python3 -m unittest -f -v tests.test_portable_read_wasm
 
+# I keep the ordinary admission observer inside its own VM translation unit.
+.PHONY: test-vm-ordinary-admission
+test-vm-ordinary-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	ORDINARY_ADMISSION_CC='$(CC)' \
+	ORDINARY_ADMISSION_OBJECTS='$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(filter-out $(OBJ_DIR)/nanoisa/service_bindings_module.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)' \
+	ORDINARY_ADMISSION_LDFLAGS='$(LDFLAGS)' \
+	python3 -m unittest tests.test_vm_ordinary_admission
+
 # I rebuild the owning query TU for the private indirect hosted conjunction.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_hosted.h $(NANOISA_DIR)/file_indirect_hosted.inc
 
@@ -5697,6 +5725,31 @@ $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_hosted.h $(NANOISA_
 # I query copied indirect plans; no callable or service executes.
 test-file-indirect-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_FILE_INDIRECT_HOSTED_CC="$(CC)" NANO_FILE_INDIRECT_HOSTED_CFLAGS="$(CFLAGS)" FILE_INDIRECT_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_INDIRECT_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_hosted
+
+# I keep private array declaration decoding separate from public layout policy.
+$(OBJ_DIR)/nanoisa/nvm_v2_layouts.o: $(NANOISA_DIR)/ownership_layouts_private.h
+
+# I rebuild my shared reader for private array grammar changes.
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ordinary_array_authority.h $(NANOISA_DIR)/ownership_array_fields.inc $(NANOISA_DIR)/ordinary_array_authority.inc $(NANOISA_DIR)/ownership_layouts_private.h
+
+# I exercise private constructors without exposing new production APIs.
+.PHONY: test-affine-private-variants
+test-affine-private-variants: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	AFFINE_VARIANTS_CC='$(CC)' AFFINE_VARIANTS_CFLAGS='$(CFLAGS)' \
+	AFFINE_VARIANTS_OBJECTS='$(filter-out $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)' \
+	AFFINE_VARIANTS_LDFLAGS='$(LDFLAGS)' python3 -m unittest -v tests.test_affine_private_variants
+# I rebuild the shared declaration owner for complete mixed copied facts.
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ownership_declaration_projection.h $(NANOISA_DIR)/ownership_declaration_projection.inc
+
+.PHONY: test-ownership-declaration-projection
+# I qualify copied mixed declarations, not executable admission.
+test-ownership-declaration-projection: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	DECLARATION_CC="$(CC)" DECLARATION_CFLAGS="$(CFLAGS)" DECLARATION_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/ownership_contracts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" DECLARATION_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_ownership_declaration_projection
+
+.PHONY: test-record-array-origins
+# I inspect private mixed origins; this target never executes a module.
+test-record-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_origins
 
 # I require fresh schema ABI products before actual paired service parser gates.
 .PHONY: test-file-service-parser test-file-service-parser-sanitizers

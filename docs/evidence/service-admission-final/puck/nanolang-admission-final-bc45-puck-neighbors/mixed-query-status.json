@@ -1,0 +1,12 @@
+{
+  "label": "mixed-query",
+  "argv": [
+    "/usr/bin/make",
+    "CC=/usr/bin/clang",
+    "test-mixed-samples"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 1.4476112079573795
+}

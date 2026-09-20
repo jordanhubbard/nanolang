@@ -1,0 +1,32 @@
+{
+  "label": "ffi_callback_fixture-build",
+  "argv": [
+    "/usr/bin/clang",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi",
+    "-I/opt/homebrew/opt/openssl@3/include",
+    "-fPIC",
+    "-dynamiclib",
+    "-pthread",
+    "tests/nanovm/ffi_callback_fixture.c",
+    "-o",
+    "/private/tmp/nanolang-affine-variants-qualified-660/obj/ffi_callback_fixture.so",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/opt/openssl@3/lib"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.08752350008580834
+}

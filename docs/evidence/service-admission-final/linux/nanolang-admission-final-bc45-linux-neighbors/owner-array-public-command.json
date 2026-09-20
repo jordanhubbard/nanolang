@@ -1,0 +1,13 @@
+{
+  "label": "owner-array-public",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-fv",
+    "tests.test_private_owned_array_runtime"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

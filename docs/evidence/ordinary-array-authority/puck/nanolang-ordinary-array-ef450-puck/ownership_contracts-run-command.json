@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-ordinary-array-ef450-puck/controls/ownership_contracts"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": "",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

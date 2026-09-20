@@ -1,0 +1,5 @@
+{
+  "path": "/tmp/nanolang-affine-variants-660-source.tar",
+  "sha256": "4a19d9a398eef1a2919417b98d609df7d6d88aa5ca622324c3bd9ea788da7d98",
+  "scope": "local source archive; remote uses isolated clone with current tracked-byte inventories, not this archive"
+}

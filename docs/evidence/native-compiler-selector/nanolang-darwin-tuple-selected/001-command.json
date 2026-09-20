@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-darwin-tuple-selected/providers.mk",
+    "root-tuple-providers"
+  ],
+  "cwd": "/private/tmp/nanolang-file-cyclic-public-final",
+  "timeout": 120,
+  "selected_ASAN_OPTIONS": null
+}

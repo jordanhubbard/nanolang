@@ -95,9 +95,11 @@ static NvmAffineState *mc_checked_state(MCAnalysis *a,uint32_t function) {
             f->count=locals;f->params=params;f->result=result;
             f->locals=calloc(locals?locals:1,sizeof *f->locals);
             s->live=calloc(locals?locals:1,sizeof *s->live);
+            s->variants=malloc((locals?locals:1)*sizeof *s->variants);
             /* No references are admitted, but clones retain their normal storage contract. */
             s->refs=calloc(1,sizeof *s->refs);
-            if(!f->locals || !s->live || !s->refs)goto fail;
+            if(!f->locals || !s->live || !s->variants || !s->refs)goto fail;
+            for(uint16_t local=0;local<locals;local++)s->variants[local]=NVM_AFFINE_UNKNOWN_VARIANT;
         }
         for(uint16_t local=0;local<locals;local++) {
             Slot slot;if(!slot_read(&c,&slot))goto fail;

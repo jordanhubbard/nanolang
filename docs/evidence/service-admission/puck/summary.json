@@ -1,0 +1,322 @@
+{
+  "roots": [
+    "/tmp/nanolang-service-admission-1f9-puck",
+    "/tmp/nanolang-service-admission-1f9-puck-neighbors"
+  ],
+  "artifacts": 4409,
+  "artifact_bytes": 286130564,
+  "references": 152098,
+  "pairs": [
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck/prepare-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck/prepare-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3615,
+      "after_count": 3615
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck/apple-ordinary-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck/apple-ordinary-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3759,
+      "after_count": 3759
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3759,
+      "after_count": 3759
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/inputs-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer/inputs-after.json",
+      "equal": true,
+      "before_count": 152,
+      "after_count": 152
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck/apple-ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck/apple-ordinary/inputs-after.json",
+      "equal": true,
+      "before_count": 152,
+      "after_count": 152
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/mixed-admission-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/mixed-admission-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/mixed-runtime-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/mixed-runtime-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/ffi_callback_fixture-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/ffi_callback_fixture-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/vm-ffi-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/vm-ffi-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/ffi_artifact_first-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/ffi_artifact_first-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/prepare-clis-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/prepare-clis-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3762,
+      "after_count": 3762
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/ffi_artifact_second-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/ffi_artifact_second-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-failures-run-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-failures-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-failures-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-failures-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-runtime-run-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-runtime-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/owner-array-public-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/owner-array-public-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/vm-ffi-run-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/vm-ffi-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-allocation-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-allocation-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-runtime-build-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-runtime-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    },
+    {
+      "before": "/tmp/nanolang-service-admission-1f9-puck-neighbors/emitter-before.json",
+      "after": "/tmp/nanolang-service-admission-1f9-puck-neighbors/emitter-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3769,
+      "after_count": 3769
+    }
+  ],
+  "terminals": [
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/sdk-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.012036915984936059
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/homebrew-sanitizer-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 6.22209399996791
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/prepare-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 4.4150622909655795
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/other-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.1978543329751119
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/apple-ordinary-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 2.9436349170282483
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/other-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.023937582969665527
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/head-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.005795874982140958
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/ordinary-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.047829708899371326
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/sdk-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.011793749989010394
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck/host-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0037072080885991454
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-allocation-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.681746874935925
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-runtime-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.15023362508509308
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/emitter-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 15.651358459028415
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-runtime-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.742441707989201
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/owner-array-public-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 12.397011458058842
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/vm-ffi-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.0612360830418766
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-failures-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.2626804580213502
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/callback-failures-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.14408808294683695
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/ffi_artifact_second-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.08588079200126231
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/ffi_artifact_first-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.09009566600434482
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/prepare-clis-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.2002119579119608
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/ffi_callback_fixture-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0903260410996154
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/vm-ffi-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.33079287491273135
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/mixed-admission-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.6594174159690738
+    },
+    {
+      "path": "/tmp/nanolang-service-admission-1f9-puck-neighbors/mixed-runtime-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 21.408517416915856
+    }
+  ],
+  "scope": "focused VM and exact observed service predicate plus modeled hooks; separate unchanged actual host/ownership neighbors and original emitter; statuses in terminals"
+}

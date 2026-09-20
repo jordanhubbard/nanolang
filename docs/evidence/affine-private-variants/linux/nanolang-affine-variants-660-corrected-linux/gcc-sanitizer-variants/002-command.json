@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer-variants/products/constructors"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-affine-variants-qualified-660",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

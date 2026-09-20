@@ -1,0 +1,11 @@
+{
+  "label": "sdk",
+  "argv": [
+    "xcrun",
+    "--show-sdk-path"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.0124087919248268
+}

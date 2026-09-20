@@ -1,0 +1,22 @@
+{
+  "qualified_pin": "2e9faf477168d62022b2d917596cf806c6ebc475",
+  "canonical_merge": "4b2422ffbee8ed3a621846b868ed9982407f3457",
+  "original_base": "ca3779e08b9cfc92414719a27e5e1456245dcfac",
+  "exact_selected_paths": {
+    "Makefile.gnu": "328da9d334422acb9b6692cd24e907bf458240ab170c100ddc447cb26820c9b2",
+    "src/nanoisa/managed_array_shapes.c": "8f2f7bdde3ec4761374b18cc3bd53ee04689fcaa9f4e4b1538d0cf128404b460",
+    "src/nanoisa/managed_record_array_origins.h": "9e8ae568481942b1229952b03caf73bcf05433f2136351be2f68a55987d68604",
+    "src/nanoisa/record_array_origins.inc": "2b348e7cefaf3da002a788e97a1e4b7b99eb6816ad76771d36b79fdc52d2e629",
+    "src/nanoisa/record_array_structure.inc": "75f3f37c7edb9ccf7f7831a1f49d832d1b3570e8100fd756403aea8f77445577",
+    "src/nanoisa/record_array_structure_private.h": "353b30e8e988a38bdfe7963ddc77322038367f11ee14ea10b3cc404488a18a80",
+    "src/nanoisa/verifier.c": "c376db01a1f5d16299207b2053247bcd97b3571f20b791527365d3bb870a6343",
+    "src/nanoisa/verifier_types.c": "db33f9958cb1c8a2806e833a88442d5c1b8da0834275c4facdd9dd2c9fcc12b4",
+    "tests/nanoisa/record_array_alloc.c": "a8d2fac4d1475c2324d747d44a0afd1f36c932e95d42982adf398bc493a729d5",
+    "tests/nanoisa/record_array_alloc.h": "090e55d5183ec1abb4b7ca463562888b40ffe04a7ca88c973d746c91e9134edf",
+    "tests/nanoisa/test_record_array_origins.c": "4faa4b26029671846b9a14b4c12451068e8ddd6b35fa3d0d93f25ddc225b9dc0",
+    "tests/test_record_array_origins.py": "a26473706c34b585b6cc8ea2c57d201ff6192f6e64c27a726964efb2abd4c4a5"
+  },
+  "incoming_provider_delta": false,
+  "resolution": "additive ROADMAP tail, both histories retained",
+  "qualification_repeated": false
+}

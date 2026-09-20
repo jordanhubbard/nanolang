@@ -1,0 +1,20 @@
+{
+  "service_bindings_module_observed.c": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer/products/service_bindings_module_observed.c",
+    "sha256": "0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79",
+    "bytes": 15627,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer/objects/0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79"
+  },
+  "switch": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer/products/switch",
+    "sha256": "e399261c26e473fa9138d6779cd89058be821e1ac9cebb150c1078ec5f080714",
+    "bytes": 20255024,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer/objects/e399261c26e473fa9138d6779cd89058be821e1ac9cebb150c1078ec5f080714"
+  },
+  "threaded": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer/products/threaded",
+    "sha256": "9261396e8296b6a5cb13c95c0d8476c13b7cdf0d217a1da5c448984fbab84350",
+    "bytes": 20355320,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer/objects/9261396e8296b6a5cb13c95c0d8476c13b7cdf0d217a1da5c448984fbab84350"
+  }
+}

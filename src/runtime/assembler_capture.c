@@ -1,6 +1,8 @@
 /* I interpose the tested GNU-as stdio input boundary. I am not a sandbox.
  * The builder must separately identify the assembler and validate its exit. */
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include "assembler_capture.h"
 #include <dlfcn.h>
 #include <errno.h>

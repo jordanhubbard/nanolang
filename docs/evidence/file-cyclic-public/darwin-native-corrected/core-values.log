@@ -1,0 +1,10 @@
+I retain File value artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-values-im8txeh8
+test_instrumented_owner_faults_and_cleanup (tests.test_nsi_file_values.FileValues.test_instrumented_owner_faults_and_cleanup) ... PASS 1989 File value checks; 270 real opens and 270 real closes; no live resources
+ok
+test_linked_real_file_value_lifetimes (tests.test_nsi_file_values.FileValues.test_linked_real_file_value_lifetimes) ... PASS 1289 ordinary linked File value checks
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.753s
+
+OK

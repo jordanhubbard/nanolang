@@ -1,0 +1,40 @@
+mkdir -p obj/nanoisa
+mkdir -p obj
+mkdir -p obj/nanovm
+mkdir -p obj/build_bootstrap
+mkdir -p obj/nanovirt
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_protocol.c -o obj/nanovm/vmd_protocol.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vmd_client.c -o obj/nanovm/vmd_client.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_runtime.c -o obj/nanoisa/file_runtime.o
+python3 scripts/embed_binary64_parser.py --check
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c src/nanoisa/nvm2c_main.c -o obj/nanoisa/nvm2c_main.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cli.c -o obj/nanoisa/file_cli.o
+/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -std=c11 -c src/nanoisa/file_host_grant.c -o obj/nanoisa/file_host_grant.o
+/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -DNVM_FILE_PUBLIC_ENGINE -c src/nanoisa/file_runtime.c -o obj/nanoisa/file_runtime_public.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_public_native.c -o obj/nanoisa/file_public_native.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/file_public_vm.c -o obj/nanovm/file_public_vm.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cyclic_public_native.c -o obj/nanoisa/file_cyclic_public_native.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/file_cyclic_public_vm.c -o obj/nanovm/file_cyclic_public_vm.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_cyclic_public_abi.c -o obj/nanoisa/file_cyclic_public_abi.o
+mkdir -p bin
+python3 scripts/embed_managed_runtime.py --clang "clang" --opt "opt" --header obj/nanoisa/managed_runtime_ir.h --manifest obj/nanoisa/managed_runtime_ir.json
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c src/nanoisa/nvm2llvm_main.c -o obj/nanoisa/nvm2llvm_main.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/main.c -o obj/nanovirt/main.o
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-admission-public-qualified-bc45/scripts/embed_managed_runtime.py", line 88, in <module>
+    main()
+    ~~~~^^
+  File "/home/jkh/Src/nanolang-admission-public-qualified-bc45/scripts/embed_managed_runtime.py", line 79, in main
+    header, manifest, _ = generate(shlex.split(args.clang), shlex.split(args.opt))
+                          ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-admission-public-qualified-bc45/scripts/embed_managed_runtime.py", line 42, in generate
+    invoke(clang + flags + [SOURCE, '-o', str(output)])
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-admission-public-qualified-bc45/scripts/embed_managed_runtime.py", line 23, in invoke
+    raise RuntimeError('I could not build or verify runtime IR: '+
+                       shlex.join(args)+'\n'+result.stdout+result.stderr)
+RuntimeError: I could not build or verify runtime IR: clang -std=c11 -O2 -ffreestanding -fno-builtin -fno-ident -Wall -Wextra -Werror -S -emit-llvm src/nanoisa/managed_module.c -o /tmp/nano-runtime-ir-d0dilm5b/native.ll
+clang: error: future releases of the clang compiler will prefer GCC installations containing libstdc++ include directories; '/usr/lib/gcc/aarch64-linux-gnu/13' would be chosen over '/usr/lib/gcc/aarch64-linux-gnu/14' [-Werror,-Wgcc-install-dir-libstdcxx]
+
+make: *** [Makefile.gnu:4868: managed-runtime-package] Error 1
+make: *** Waiting for unfinished jobs....

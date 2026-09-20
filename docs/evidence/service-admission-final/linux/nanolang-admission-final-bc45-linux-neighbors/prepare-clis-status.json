@@ -1,0 +1,19 @@
+{
+  "label": "prepare-clis",
+  "argv": [
+    "/bin/make",
+    "-j4",
+    "CC=/bin/gcc",
+    "nano_virt",
+    "nano_vm",
+    "nvm2c",
+    "nvm2llvm",
+    "nvm2wasm",
+    "nvm2hl",
+    "mixed-samples-runtime-fixture"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 3.1729981070384383
+}

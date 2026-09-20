@@ -1,0 +1,108 @@
+{
+  "bytes": 103174064,
+  "darwin_archive": {
+    "path": "/tmp/nanolang-array-d74-puck-evidence.tar.gz",
+    "sha256": "d370d6d01073fbb6ce1a0dbb674898297f46b34e288c81f579b7e3bcc095d97c"
+  },
+  "main": "0dc58835ffd2183f6c35f90a4d02bd2da18e4a19",
+  "objects": 357,
+  "pairs": 36,
+  "phases": {
+    "nanolang-array-d74-linux": [
+      {
+        "phase": "setup",
+        "seconds": 20.52,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.114,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 0.816,
+        "status": 0
+      },
+      {
+        "phase": "ordinary_record_authority-ordinary-build",
+        "seconds": 0.315,
+        "status": 0
+      },
+      {
+        "phase": "ordinary_record_authority-ordinary-run",
+        "seconds": 0.003,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_convert-ordinary-build",
+        "seconds": 0.164,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_convert-ordinary-run",
+        "seconds": 0.004,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_endtoend-ordinary-build",
+        "seconds": 0.164,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_endtoend-ordinary-run",
+        "seconds": 0.002,
+        "status": 0
+      }
+    ],
+    "nanolang-array-d74-puck": [
+      {
+        "phase": "setup",
+        "seconds": 8.32,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.141,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 1.223,
+        "status": 0
+      },
+      {
+        "phase": "ordinary_record_authority-ordinary-build",
+        "seconds": 0.249,
+        "status": 0
+      },
+      {
+        "phase": "ordinary_record_authority-ordinary-run",
+        "seconds": 0.254,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_convert-ordinary-build",
+        "seconds": 0.14,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_convert-ordinary-run",
+        "seconds": 0.258,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_endtoend-ordinary-build",
+        "seconds": 0.153,
+        "status": 0
+      },
+      {
+        "phase": "nvm_v2_endtoend-ordinary-run",
+        "seconds": 0.259,
+        "status": 0
+      }
+    ]
+  },
+  "pin": "d74a643f0d490c8f2227d467155d29af438cdb63",
+  "references": 5542
+}

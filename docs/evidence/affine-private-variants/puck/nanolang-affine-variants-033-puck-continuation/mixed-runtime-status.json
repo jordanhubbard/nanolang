@@ -1,0 +1,14 @@
+{
+  "label": "mixed-runtime",
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-fv",
+    "tests.test_mixed_samples_runtime"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 21.88419975002762
+}

@@ -1,4 +1,5 @@
 #include "../nanoisa/service_bindings_module.h"
+#include "../nanoisa/service_classification_private.h"
 #include "../nanoisa/affine_state.h"
 #include "../nanoisa/mixed_samples_internal.h"
 #include "../nanoisa/owned_array_authority.h"
@@ -206,11 +207,12 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
 /* I distinguish valid advisory declarations from instructions that actually
  * require my private owned-transfer execution path. Every public entry uses
  * this classification before it asks whether instantiated constants are ready. */
-static bool vm_module_ownership_required(const NvmModule *module, bool *required) {
+static bool vm_module_ownership_required(const NvmModule *module, bool *required,
+                                          const NvmServiceClassification *facts) {
     if (required) *required=false;
-    if (!module || !required || nvm_service_execution_pending(module)) return false;
-    if(nvm_owned_array_route(module)!=NVM_OWNER_ARRAY_NOT_SELECTED){*required=true;return true;}
-    if(nvm_mixed_samples_candidate(module)){*required=true;return true;}
+    if (!module || !required || nvm_service_pending_classified(module,facts)) return false;
+    if(nvm_owned_array_route_classified(module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED){*required=true;return true;}
+    if(nvm_mixed_samples_candidate_classified(module,facts)){*required=true;return true;}
     if (!module->ownership_data && !module->ownership_size) return true;
     bool needs=false;
     if (nvm_ownership_contracts_validate(module,&needs)!=NVM_V2_OK) return false;
@@ -218,16 +220,17 @@ static bool vm_module_ownership_required(const NvmModule *module, bool *required
     return true;
 }
 
-static bool vm_module_ownership_supported(const NvmModule *module, bool standalone) {
-    if (nvm_service_execution_pending(module)) return false;
-    if(nvm_owned_array_route(module)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+static bool vm_module_ownership_supported(const NvmModule *module, bool standalone,
+                                           const NvmServiceClassification *facts) {
+    if (nvm_service_pending_classified(module,facts)) return false;
+    if(nvm_owned_array_route_classified(module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
         if(!standalone)return false;
         NvmOwnedArrayPlan *plan=NULL;
         NvmOwnerAuthorityResult result=nvm_owned_array_admit(module,&plan);
         nvm_owned_array_plan_free(plan);
         return result.status==NVM_OWNER_AUTH_PREPARED;
     }
-    if(nvm_mixed_samples_candidate(module)) {
+    if(nvm_mixed_samples_candidate_classified(module,facts)) {
         if(!standalone)return false;
         NvmMixedSamplesPlan *plan=NULL;
         NvmMixedShapeResult result=nvm_mixed_samples_admit(module,&plan);
@@ -235,18 +238,35 @@ static bool vm_module_ownership_supported(const NvmModule *module, bool standalo
         return result.status==NVM_MIXED_SHAPE_PROVED;
     }
     bool required=false;
-    return vm_module_ownership_required(module,&required) &&
+    return vm_module_ownership_required(module,&required,facts) &&
         (!required || (standalone && nvm_verify_owned_module(module).ok));
 }
 
-static bool vm_ownership_supported(const VmState *vm) {
+static bool vm_ownership_supported_scoped(const VmState *vm,
+                                           const NvmServiceClassification *facts) {
     if (!vm) return false;
     bool standalone=vm->linked_module_count==0 && vm->module==vm->root_module;
-    if (!vm_module_ownership_supported(vm->module,standalone) ||
-        !vm_module_ownership_supported(vm->root_module,standalone)) return false;
-    for (uint32_t i=0;i<vm->linked_module_count;i++)
-        if (!vm_module_ownership_supported(vm->linked_modules[i],false)) return false;
+    if (!vm_module_ownership_supported(vm->module,standalone,facts)) return false;
+    NvmServiceClassification root_facts;
+    const NvmServiceClassification *root=facts;
+    if (facts && facts->module!=vm->root_module) {
+        root_facts=nvm_service_classify(vm->root_module);
+        root=&root_facts;
+    }
+    if (!vm_module_ownership_supported(vm->root_module,standalone,root)) return false;
+    for (uint32_t i=0;i<vm->linked_module_count;i++) {
+        NvmServiceClassification linked_facts;
+        const NvmServiceClassification *linked=NULL;
+        if (facts) {
+            linked_facts=nvm_service_classify(vm->linked_modules[i]);
+            linked=&linked_facts;
+        }
+        if (!vm_module_ownership_supported(vm->linked_modules[i],false,linked)) return false;
+    }
     return true;
+}
+static bool vm_ownership_supported(const VmState *vm) {
+    return vm_ownership_supported_scoped(vm,NULL);
 }
 
 /* I keep this proof only on one synchronous public invocation's C stack.
@@ -268,6 +288,25 @@ static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationPro
         !vm->callbacks && !vm->opcode_trace;
 }
 
+/* I retain ordinary classification only between synchronous ASSERT resumes.
+ * This is not an owned proof and never enables owned execution handlers. */
+typedef struct {
+    const VmState *vm;
+    const NvmModule *module;
+    bool valid;
+} VmOrdinaryAdmission;
+
+static bool vm_ordinary_admission_eligible(const VmState *vm) {
+    return vm && vm->module && vm->module==vm->root_module &&
+        !vm->linked_module_count && !vm->callbacks && !vm->opcode_trace;
+}
+
+static bool vm_ordinary_admission_matches(const VmState *vm,
+                                          const VmOrdinaryAdmission *ordinary) {
+    return ordinary && ordinary->valid && ordinary->vm==vm &&
+        vm_ordinary_admission_eligible(vm) && ordinary->module==vm->module;
+}
+
 static bool vm_owned_constants_ready(const VmState *vm) {
     if (!vm || !vm->module) return false;
     const VmModuleConstants *constants = NULL;
@@ -283,11 +322,16 @@ static bool vm_owned_constants_ready(const VmState *vm) {
     return true;
 }
 
-static bool vm_owned_runtime_ready(const VmState *vm, bool *required) {
+static bool vm_owned_runtime_ready_scoped(const VmState *vm, bool *required,
+                                          const NvmServiceClassification *facts) {
     if (required) *required=false;
     if (!vm || !required ||
-        !vm_module_ownership_required(vm->module,required)) return false;
+        !vm_module_ownership_required(vm->module,required,facts)) return false;
     return !*required || vm_owned_constants_ready(vm);
+}
+
+static bool vm_owned_runtime_ready(const VmState *vm, bool *required) {
+    return vm_owned_runtime_ready_scoped(vm,required,NULL);
 }
 
 /* I prepare fresh immutable facts for one C-stack invocation. Direct core
@@ -1402,25 +1446,38 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
     return VM_OK;
 }
 
-static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof) {
+static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof,
+                                      VmOrdinaryAdmission *ordinary) {
     VmOwnedInvocationProof resumed;
-    if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED && !vm_owned_proof_matches(vm,proof))
-        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a synchronous owner ARRAY root invocation before execution.");
-    if(vm && nvm_mixed_samples_candidate(vm->module) && !vm_owned_proof_matches(vm,proof)) {
-        if(!vm_mixed_invocation_prepare(vm,&resumed,true))
-            return trap_error(vm,resumed.refusal?resumed.refusal:VM_ERR_TYPE_ERROR,"%s",
-                              resumed.reason?resumed.reason:VM_OWNERSHIP_REQUIRED);
-        proof=&resumed;
+    bool admitted=false, required=false;
+    bool reuse=vm_ordinary_admission_matches(vm,ordinary);
+    if (ordinary) ordinary->valid=false;
+    if (!reuse) {
+        /* These service facts expire at the end of this classification block.
+         * No host callback or bytecode dispatch occurs while they are live. */
+        NvmServiceClassification service;
+        const NvmServiceClassification *facts=NULL;
+        if (vm && vm->module) {
+            service=nvm_service_classify(vm->module);
+            facts=&service;
+        }
+        if(vm && nvm_owned_array_route_classified(vm->module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED && !vm_owned_proof_matches(vm,proof))
+            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a synchronous owner ARRAY root invocation before execution.");
+        if(vm && nvm_mixed_samples_candidate_classified(vm->module,facts) && !vm_owned_proof_matches(vm,proof)) {
+            if(!vm_mixed_invocation_prepare(vm,&resumed,true))
+                return trap_error(vm,resumed.refusal?resumed.refusal:VM_ERR_TYPE_ERROR,"%s",
+                                  resumed.reason?resumed.reason:VM_OWNERSHIP_REQUIRED);
+            proof=&resumed;
+        }
+        admitted=vm_owned_proof_matches(vm,proof);
+        if (admitted && proof->owner_arrays) {
+            required=true;
+            if(!vm_owned_constants_ready(vm))return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete owner ARRAY constants.");
+        } else if (!vm_owned_runtime_ready_scoped(vm,&required,facts))
+            return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+        if (!admitted && !vm_ownership_supported_scoped(vm,facts))
+            return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     }
-    bool admitted=vm_owned_proof_matches(vm,proof);
-    bool required=false;
-    if (admitted && proof->owner_arrays) {
-        required=true;
-        if(!vm_owned_constants_ready(vm))return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete owner ARRAY constants.");
-    } else if (!vm_owned_runtime_ready(vm,&required))
-        return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
-    if (!admitted && !vm_ownership_supported(vm))
-        return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     const bool owned_execution = admitted || required;
     const bool mixed_execution = admitted && (proof->mixed || proof->owner_arrays);
     if (owned_execution) {
@@ -1442,6 +1499,14 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I exhausted reference activation identities");
             vm->references.generation=++vm->reference_generation;
         }
+    }
+    /* Only ordinary classification is reused. The owned frame/reference
+     * checks above and all dispatch/stack checks below remain on every entry.
+     * Ordinary CALL/RET/effect transitions do not change module declarations. */
+    if (ordinary && !admitted && !required && vm_ordinary_admission_eligible(vm)) {
+        ordinary->vm=vm;
+        ordinary->module=vm->module;
+        ordinary->valid=true;
     }
     /* Derive code_end from current function */
     const NvmFunctionEntry *cur_fn = &vm->module->functions[vm->current_fn];
@@ -4472,6 +4537,8 @@ vm_return_values: ;
         VM_CASE(OP_MEM_STORE16)
         VM_CASE(OP_MEM_STORE32)
         VM_CASE(OP_MEM_STORE64) {
+            /* Caller-provided linear memory need not be disjoint from inputs. */
+            if (ordinary) ordinary->valid=false;
             NanoValue value = stack_pop(vm);
             NanoValue address = stack_pop(vm);
             if (address.tag != TAG_INT || value.tag != TAG_INT || address.as.i64 < 0)
@@ -4521,7 +4588,7 @@ VmTrap vm_core_execute(VmState *vm) {
     }
     bool mixed=vm && nvm_mixed_samples_candidate(vm->module);
     uint32_t base=mixed && vm->frame_count?vm->frames[0].stack_base:0;
-    VmTrap trap=vm_core_execute_scoped(vm,NULL);
+    VmTrap trap=vm_core_execute_scoped(vm,NULL,NULL);
     if(mixed && (trap.type==TRAP_ERROR ||
        (trap.type==TRAP_ASSERT && !val_truthy(trap.data.assert_check.condition)))) {
         while(vm->stack_size>base)vm_release(&vm->heap,stack_pop(vm));
@@ -4690,6 +4757,8 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     vm->current_fn = fn_idx;
     vm->ip = fn->code_offset;
 
+    /* Each public or nested invocation starts without ordinary authority. */
+    VmOrdinaryAdmission ordinary={0};
     /* Run the core in a loop, handling traps */
     bool pump_at_boundary = false;
     for (;;) {
@@ -4697,6 +4766,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
          * callback executes its first instruction. Nested native waits pump
          * explicitly; pure execution gets its own bounded safe points. */
         if (pump_at_boundary && vm->callbacks) {
+            ordinary.valid=false;
             proof->module=NULL;
             vm_callback_pump(vm, false);
         }
@@ -4704,7 +4774,10 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
         if (vm->callback_error != VM_OK)
             return vm_error(vm, vm->callback_error, "%s", vm->callback_error_msg);
         if (!vm_owned_proof_matches(vm,proof)) proof->module=NULL;
-        VmTrap trap = vm_core_execute_scoped(vm,proof);
+        VmTrap trap = vm_core_execute_scoped(vm,proof,&ordinary);
+        /* Invalidate before any host effect, yield, completion or error.
+         * Only a successful assertion and its closed heap release may resume. */
+        if (trap.type!=TRAP_ASSERT) ordinary.valid=false;
 
         switch (trap.type) {
         case TRAP_YIELD:
@@ -4725,6 +4798,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
 
         case TRAP_ASSERT:
             if (!val_truthy(trap.data.assert_check.condition)) {
+                ordinary.valid=false;
                 vm_release(&vm->heap, trap.data.assert_check.condition);
                 VmResult result = vm_error(vm, VM_ERR_ASSERT_FAILED, "Assertion failed");
                 if (vm->debug_mode || (vm->module->header.flags & NVM_FLAG_DEBUG_INFO)) {

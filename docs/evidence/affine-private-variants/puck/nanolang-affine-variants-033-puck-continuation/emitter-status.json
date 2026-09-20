@@ -1,0 +1,15 @@
+{
+  "label": "emitter",
+  "argv": [
+    "/private/tmp/nanolang-affine-variants-qualified-660/bin/nano_virt",
+    "src_nano/nanoisa_emit.nano",
+    "--emit-nvm",
+    "--strip-debug",
+    "-o",
+    "/private/tmp/nanolang-affine-variants-033-puck-continuation/products/emitter.nvm"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 16.087963707977906
+}

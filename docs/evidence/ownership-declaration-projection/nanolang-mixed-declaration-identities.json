@@ -1,0 +1,19 @@
+{
+  "src/generated/compiler_schema.h": true,
+  "src/lexer.c": true,
+  "src/lexer_bridge.c": true,
+  "src/nanoisa/nvm_v2_layouts.c": true,
+  "src/nanoisa/ordinary_array_authority.inc": true,
+  "src/nanoisa/ownership_contracts.c": true,
+  "src/nanoisa/ownership_declaration_projection.h": true,
+  "src/nanoisa/ownership_declaration_projection.inc": true,
+  "src/nanoisa/ownership_layouts_private.h": true,
+  "src/runtime/token_helpers.c": true,
+  "src/runtime/token_helpers.h": true,
+  "src/string_literal_decode.h": true,
+  "tests/nanoisa/test_ownership_declaration_projection.c": true,
+  "tests/test_ownership_declaration_projection.py": true,
+  "tests/test_token_value_bytes.c": true,
+  "tests/test_token_value_bytes.py": true,
+  "tests/token_value_bytes.nano": true
+}

@@ -1,0 +1,7 @@
+{
+  "original_job": "https://github.com/jordanhubbard/nanolang/actions/runs/35510297351/job/106076903795",
+  "full_log_path": "/tmp/nanolang-pr918-build-darwin.log",
+  "full_log_sha256": "8b2ab64e9af9513ae16111b3cb589f031a21a157bea3424749d2f0f75f6d9656",
+  "excerpt": "Exact reference-transport phase through full Make stop; preceding timestamp excluded from first excerpt line.",
+  "local_acceptance": "Actual generated workflow selector shell on puck; eight unchanged tests passed in6.802s against69208feac source, same transport source asfcff. Not hosted job acceptance."
+}

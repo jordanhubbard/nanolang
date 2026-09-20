@@ -1,0 +1,6 @@
+test_private_vm_native (tests.test_private_owned_array_runtime.PrivateOwnedArrayRuntime.test_private_vm_native) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 11.486s
+
+OK

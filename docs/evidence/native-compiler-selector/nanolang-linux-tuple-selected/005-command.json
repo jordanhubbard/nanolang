@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/nanolang-linux-tuple-selected/test_nanoisa_src_nano",
+    "/tmp/nanolang-linux-tuple-selected/nano-tuple-values-beevlg0g/seed.nvm",
+    "/tmp/nanolang-linux-tuple-selected/nano-tuple-values-beevlg0g/source.nasm",
+    "first_value",
+    "second_value",
+    "third_value",
+    "make_tuple",
+    "relay_tuple",
+    "forward_tuple",
+    "tuple_score",
+    "main"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85",
+  "timeout": 120,
+  "selected_ASAN_OPTIONS": null
+}

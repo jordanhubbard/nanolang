@@ -1,0 +1,17 @@
+I retain mixed declaration artifacts at /tmp/nano-ownership-declaration-7di0vk2o
+test_owned_declarations_and_failures (tests.test_ownership_declaration_projection.OwnershipDeclarationProjection.test_owned_declarations_and_failures) ... FAIL
+
+======================================================================
+FAIL: test_owned_declarations_and_failures (tests.test_ownership_declaration_projection.OwnershipDeclarationProjection.test_owned_declarations_and_failures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-mixed-declaration-dd5a/tests/test_ownership_declaration_projection.py", line 25, in test_owned_declarations_and_failures
+    self.command(mode+'-build',[*self.cc,*self.flags,*(['-DOAA_INSTRUMENT'] if observed else []),*sources,*self.objects,*self.ldflags,'-o',str(exe)])
+  File "/home/jkh/Src/nanolang-mixed-declaration-dd5a/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.316s
+
+FAILED (failures=1)

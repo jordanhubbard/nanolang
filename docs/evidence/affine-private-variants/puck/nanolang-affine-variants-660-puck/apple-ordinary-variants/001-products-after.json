@@ -1,0 +1,32 @@
+{
+  "constructors": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/products/constructors",
+    "sha256": "934214b8c446d26bb60e918d1b83a956e00b0bbc5c27e53a36832794258ba356",
+    "bytes": 834192,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/objects/934214b8c446d26bb60e918d1b83a956e00b0bbc5c27e53a36832794258ba356"
+  },
+  "constructors.dSYM/Contents/Info.plist": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/products/constructors.dSYM/Contents/Info.plist",
+    "sha256": "fac92072d8de9c23c2d7a612d2402f625ce2c4cfc9fa4dbb1473a9f956252d18",
+    "bytes": 641,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/objects/fac92072d8de9c23c2d7a612d2402f625ce2c4cfc9fa4dbb1473a9f956252d18"
+  },
+  "constructors.dSYM/Contents/Resources/DWARF/constructors": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/products/constructors.dSYM/Contents/Resources/DWARF/constructors",
+    "sha256": "6ca6814f09b9dec98f3cf9ee8521dc0bbcc441daabac07d107fba1f5f3b9ffba",
+    "bytes": 1163624,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/objects/6ca6814f09b9dec98f3cf9ee8521dc0bbcc441daabac07d107fba1f5f3b9ffba"
+  },
+  "constructors.dSYM/Contents/Resources/Relocations/aarch64/constructors.yml": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/products/constructors.dSYM/Contents/Resources/Relocations/aarch64/constructors.yml",
+    "sha256": "889e8a879ee51beed6d243a10f02669dad886e8ae50c90f3f4005767e772e552",
+    "bytes": 178,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/objects/889e8a879ee51beed6d243a10f02669dad886e8ae50c90f3f4005767e772e552"
+  },
+  "nvm_v2_layouts.o": {
+    "path": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/products/nvm_v2_layouts.o",
+    "sha256": "2d76b271ca2f352002be463a5310da641d6f7338563f4bdbf639fd192fa0f620",
+    "bytes": 15640,
+    "archive": "/private/tmp/nanolang-affine-variants-660-puck/apple-ordinary-variants/objects/2d76b271ca2f352002be463a5310da641d6f7338563f4bdbf639fd192fa0f620"
+  }
+}

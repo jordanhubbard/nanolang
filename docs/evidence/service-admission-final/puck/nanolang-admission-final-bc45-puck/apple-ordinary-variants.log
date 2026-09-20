@@ -1,0 +1,6 @@
+test_constructors_and_allocation_failures (tests.test_affine_private_variants.AffinePrivateVariants.test_constructors_and_allocation_failures) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.016s
+
+OK

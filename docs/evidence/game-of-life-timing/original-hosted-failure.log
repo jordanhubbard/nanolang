@@ -1,0 +1,824 @@
+﻿2026-09-20T12:32:40.2140700Z Current runner version: '2.337.0'
+2026-09-20T12:32:40.2156500Z ##[group]Runner Image Provisioner
+2026-09-20T12:32:40.2157040Z Hosted Compute Agent
+2026-09-20T12:32:40.2157460Z Version: 20260828.587
+2026-09-20T12:32:40.2157880Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-20T12:32:40.2158360Z Build Date: 2026-08-28T16:44:25Z
+2026-09-20T12:32:40.2158890Z Worker ID: {aaf8fb95-86e8-4984-974f-50ffd698d05d}
+2026-09-20T12:32:40.2159370Z Azure Region: westus
+2026-09-20T12:32:40.2159970Z ##[endgroup]
+2026-09-20T12:32:40.2160940Z ##[group]Operating System
+2026-09-20T12:32:40.2161430Z macOS
+2026-09-20T12:32:40.2162270Z 14.8.9
+2026-09-20T12:32:40.2162680Z 23J631
+2026-09-20T12:32:40.2163040Z ##[endgroup]
+2026-09-20T12:32:40.2163400Z ##[group]Runner Image
+2026-09-20T12:32:40.2163860Z Image: macos-14-arm64
+2026-09-20T12:32:40.2164240Z Version: 20260831.0302.1
+2026-09-20T12:32:40.2165170Z Included Software: https://github.com/actions/runner-images/blob/macos-14-arm64/20260831.0302/images/macos/macos-14-arm64-Readme.md
+2026-09-20T12:32:40.2166330Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-14-arm64%2F20260831.0302
+2026-09-20T12:32:40.2167020Z ##[endgroup]
+2026-09-20T12:32:40.2167870Z ##[group]GITHUB_TOKEN Permissions
+2026-09-20T12:32:40.2169130Z Contents: read
+2026-09-20T12:32:40.2169540Z Metadata: read
+2026-09-20T12:32:40.2170110Z ##[endgroup]
+2026-09-20T12:32:40.2171540Z Secret source: Actions
+2026-09-20T12:32:40.2172110Z Cache mode: write
+2026-09-20T12:32:40.2172560Z Prepare workflow directory
+2026-09-20T12:32:40.2521710Z Prepare all required actions
+2026-09-20T12:32:40.2563690Z Getting action download info
+2026-09-20T12:32:40.6806690Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-20T12:32:41.1410740Z Complete job name: Strict examples (arm64)
+2026-09-20T12:32:41.2071800Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-20T12:32:41.2078860Z ##[group]Run actions/checkout@v4
+2026-09-20T12:32:41.2079350Z with:
+2026-09-20T12:32:41.2079680Z   repository: jordanhubbard/nanolang
+2026-09-20T12:32:41.2082590Z   token: ***
+2026-09-20T12:32:41.2082900Z   ssh-strict: true
+2026-09-20T12:32:41.2083220Z   ssh-user: git
+2026-09-20T12:32:41.2083550Z   persist-credentials: true
+2026-09-20T12:32:41.2083910Z   clean: true
+2026-09-20T12:32:41.2084240Z   sparse-checkout-cone-mode: true
+2026-09-20T12:32:41.2084630Z   fetch-depth: 1
+2026-09-20T12:32:41.2084950Z   fetch-tags: false
+2026-09-20T12:32:41.2085270Z   show-progress: true
+2026-09-20T12:32:41.2085600Z   lfs: false
+2026-09-20T12:32:41.2085950Z   submodules: false
+2026-09-20T12:32:41.2086300Z   set-safe-directory: true
+2026-09-20T12:32:41.2086670Z   allow-unsafe-pr-checkout: false
+2026-09-20T12:32:41.2087200Z ##[endgroup]
+2026-09-20T12:32:41.3981960Z Syncing repository: jordanhubbard/nanolang
+2026-09-20T12:32:41.3986410Z ##[group]Getting Git version info
+2026-09-20T12:32:41.3987590Z Working directory is '/Users/runner/work/nanolang/nanolang'
+2026-09-20T12:32:41.3994770Z [command]/opt/homebrew/bin/git version
+2026-09-20T12:32:41.4566080Z git version 2.55.0
+2026-09-20T12:32:41.4589530Z ##[endgroup]
+2026-09-20T12:32:41.4601350Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/e7ad0533-d767-472a-97ae-6eda54c85fe6/.gitconfig'
+2026-09-20T12:32:41.4611210Z Temporarily overriding HOME='/Users/runner/work/_temp/e7ad0533-d767-472a-97ae-6eda54c85fe6' before making global git config changes
+2026-09-20T12:32:41.4614030Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-20T12:32:41.4616920Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/nanolang/nanolang
+2026-09-20T12:32:41.4744320Z Deleting the contents of '/Users/runner/work/nanolang/nanolang'
+2026-09-20T12:32:41.4752830Z ##[group]Initializing the repository
+2026-09-20T12:32:41.4760940Z [command]/opt/homebrew/bin/git init /Users/runner/work/nanolang/nanolang
+2026-09-20T12:32:41.5062910Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-20T12:32:41.5077750Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-20T12:32:41.5079020Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-20T12:32:41.5079790Z hint: call:
+2026-09-20T12:32:41.5080240Z hint:
+2026-09-20T12:32:41.5080740Z hint: 	git config --global init.defaultBranch <name>
+2026-09-20T12:32:41.5085450Z hint:
+2026-09-20T12:32:41.5086300Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-20T12:32:41.5090510Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-20T12:32:41.5091200Z hint:
+2026-09-20T12:32:41.5091560Z hint: 	git branch -m <name>
+2026-09-20T12:32:41.5092000Z hint:
+2026-09-20T12:32:41.5092550Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-20T12:32:41.5093380Z Initialized empty Git repository in /Users/runner/work/nanolang/nanolang/.git/
+2026-09-20T12:32:41.5094820Z [command]/opt/homebrew/bin/git remote add origin https://github.com/jordanhubbard/nanolang
+2026-09-20T12:32:41.5183150Z ##[endgroup]
+2026-09-20T12:32:41.5184540Z ##[group]Disabling automatic garbage collection
+2026-09-20T12:32:41.5185380Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-09-20T12:32:41.5266520Z ##[endgroup]
+2026-09-20T12:32:41.5267220Z ##[group]Setting up auth
+2026-09-20T12:32:41.5276950Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-20T12:32:41.5331990Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-20T12:32:41.6461880Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-20T12:32:41.6513860Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-20T12:32:41.7477970Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-20T12:32:41.7564730Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-20T12:32:41.8584930Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-20T12:32:41.8860340Z ##[endgroup]
+2026-09-20T12:32:41.8861020Z ##[group]Fetching the repository
+2026-09-20T12:32:41.8866950Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +becc2637bb829e53d69bd08947401f1bbf42b965:refs/remotes/pull/919/merge
+2026-09-20T12:32:46.9816660Z From https://github.com/jordanhubbard/nanolang
+2026-09-20T12:32:46.9817920Z  * [new ref]           becc2637bb829e53d69bd08947401f1bbf42b965 -> pull/919/merge
+2026-09-20T12:32:46.9820360Z ##[endgroup]
+2026-09-20T12:32:46.9821190Z ##[group]Determining the checkout info
+2026-09-20T12:32:46.9822120Z ##[endgroup]
+2026-09-20T12:32:46.9825930Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-09-20T12:32:46.9890790Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-20T12:32:46.9960050Z ##[group]Checking out the ref
+2026-09-20T12:32:46.9962780Z [command]/opt/homebrew/bin/git checkout --progress --force refs/remotes/pull/919/merge
+2026-09-20T12:32:48.2123850Z Updating files:   7% (2212/31377)
+2026-09-20T12:32:48.3240920Z Updating files:   8% (2511/31377)
+2026-09-20T12:32:48.4366180Z Updating files:   9% (2824/31377)
+2026-09-20T12:32:48.5374270Z Updating files:  10% (3138/31377)
+2026-09-20T12:32:48.5935360Z Updating files:  11% (3452/31377)
+2026-09-20T12:32:48.6519560Z Updating files:  12% (3766/31377)
+2026-09-20T12:32:48.7190080Z Updating files:  13% (4080/31377)
+2026-09-20T12:32:48.7716620Z Updating files:  14% (4393/31377)
+2026-09-20T12:32:48.8191530Z Updating files:  15% (4707/31377)
+2026-09-20T12:32:48.9010640Z Updating files:  16% (5021/31377)
+2026-09-20T12:32:49.0318450Z Updating files:  17% (5335/31377)
+2026-09-20T12:32:49.0725260Z Updating files:  17% (5600/31377)
+2026-09-20T12:32:49.3281390Z Updating files:  18% (5648/31377)
+2026-09-20T12:32:49.7455120Z Updating files:  19% (5962/31377)
+2026-09-20T12:32:50.0327980Z Updating files:  20% (6276/31377)
+2026-09-20T12:32:50.0420820Z Updating files:  20% (6580/31377)
+2026-09-20T12:32:50.2332380Z Updating files:  21% (6590/31377)
+2026-09-20T12:32:50.3695560Z Updating files:  22% (6903/31377)
+2026-09-20T12:32:50.8303160Z Updating files:  23% (7217/31377)
+2026-09-20T12:32:51.0321560Z Updating files:  24% (7531/31377)
+2026-09-20T12:32:51.0447620Z Updating files:  24% (7819/31377)
+2026-09-20T12:32:51.2282640Z Updating files:  25% (7845/31377)
+2026-09-20T12:32:51.3037240Z Updating files:  26% (8159/31377)
+2026-09-20T12:32:51.5096740Z Updating files:  27% (8472/31377)
+2026-09-20T12:32:51.8812930Z Updating files:  28% (8786/31377)
+2026-09-20T12:32:52.0324080Z Updating files:  29% (9100/31377)
+2026-09-20T12:32:52.1444120Z Updating files:  29% (9254/31377)
+2026-09-20T12:32:52.3021380Z Updating files:  30% (9414/31377)
+2026-09-20T12:32:52.3874930Z Updating files:  31% (9727/31377)
+2026-09-20T12:32:52.5263250Z Updating files:  32% (10041/31377)
+2026-09-20T12:32:52.6681060Z Updating files:  33% (10355/31377)
+2026-09-20T12:32:52.8274340Z Updating files:  34% (10669/31377)
+2026-09-20T12:32:52.9572760Z Updating files:  35% (10982/31377)
+2026-09-20T12:32:53.0345150Z Updating files:  36% (11296/31377)
+2026-09-20T12:32:53.0814460Z Updating files:  36% (11487/31377)
+2026-09-20T12:32:53.2449370Z Updating files:  37% (11610/31377)
+2026-09-20T12:32:53.3437550Z Updating files:  38% (11924/31377)
+2026-09-20T12:32:53.4222240Z Updating files:  39% (12238/31377)
+2026-09-20T12:32:53.5098250Z Updating files:  40% (12551/31377)
+2026-09-20T12:32:53.5786360Z Updating files:  41% (12865/31377)
+2026-09-20T12:32:53.6578000Z Updating files:  42% (13179/31377)
+2026-09-20T12:32:53.7598670Z Updating files:  43% (13493/31377)
+2026-09-20T12:32:53.9248050Z Updating files:  44% (13806/31377)
+2026-09-20T12:32:53.9766550Z Updating files:  45% (14120/31377)
+2026-09-20T12:32:54.0319200Z Updating files:  46% (14434/31377)
+2026-09-20T12:32:54.0545110Z Updating files:  46% (14682/31377)
+2026-09-20T12:32:54.1506620Z Updating files:  47% (14748/31377)
+2026-09-20T12:32:54.2080580Z Updating files:  48% (15061/31377)
+2026-09-20T12:32:54.2487840Z Updating files:  49% (15375/31377)
+2026-09-20T12:32:54.3209820Z Updating files:  50% (15689/31377)
+2026-09-20T12:32:54.4132760Z Updating files:  51% (16003/31377)
+2026-09-20T12:32:54.5316880Z Updating files:  52% (16317/31377)
+2026-09-20T12:32:54.5817120Z Updating files:  53% (16630/31377)
+2026-09-20T12:32:54.6374050Z Updating files:  54% (16944/31377)
+2026-09-20T12:32:55.0343420Z Updating files:  55% (17258/31377)
+2026-09-20T12:32:55.0347660Z Updating files:  55% (17566/31377)
+2026-09-20T12:32:55.2335920Z Updating files:  56% (17572/31377)
+2026-09-20T12:32:55.3699740Z Updating files:  57% (17885/31377)
+2026-09-20T12:32:55.4298790Z Updating files:  58% (18199/31377)
+2026-09-20T12:32:55.4873490Z Updating files:  59% (18513/31377)
+2026-09-20T12:32:55.5593930Z Updating files:  60% (18827/31377)
+2026-09-20T12:32:55.6467890Z Updating files:  61% (19140/31377)
+2026-09-20T12:32:56.0255880Z Updating files:  62% (19454/31377)
+2026-09-20T12:32:56.0370980Z Updating files:  63% (19768/31377)
+2026-09-20T12:32:56.4506040Z Updating files:  63% (19770/31377)
+2026-09-20T12:32:56.9273300Z Updating files:  64% (20082/31377)
+2026-09-20T12:32:57.0324660Z Updating files:  65% (20396/31377)
+2026-09-20T12:32:57.5462840Z Updating files:  65% (20428/31377)
+2026-09-20T12:32:57.6663110Z Updating files:  66% (20709/31377)
+2026-09-20T12:32:57.7280600Z Updating files:  67% (21023/31377)
+2026-09-20T12:32:57.8045450Z Updating files:  68% (21337/31377)
+2026-09-20T12:32:57.8869130Z Updating files:  69% (21651/31377)
+2026-09-20T12:32:57.9222900Z Updating files:  70% (21964/31377)
+2026-09-20T12:32:58.0359820Z Updating files:  71% (22278/31377)
+2026-09-20T12:32:58.0755040Z Updating files:  71% (22494/31377)
+2026-09-20T12:32:58.1357340Z Updating files:  72% (22592/31377)
+2026-09-20T12:32:58.2166400Z Updating files:  73% (22906/31377)
+2026-09-20T12:32:58.2901110Z Updating files:  74% (23219/31377)
+2026-09-20T12:32:58.3835050Z Updating files:  75% (23533/31377)
+2026-09-20T12:32:58.4935850Z Updating files:  76% (23847/31377)
+2026-09-20T12:32:58.6622970Z Updating files:  77% (24161/31377)
+2026-09-20T12:32:58.8675980Z Updating files:  78% (24475/31377)
+2026-09-20T12:32:58.9968320Z Updating files:  79% (24788/31377)
+2026-09-20T12:32:59.0906960Z Updating files:  80% (25102/31377)
+2026-09-20T12:32:59.1466790Z Updating files:  80% (25172/31377)
+2026-09-20T12:32:59.2532000Z Updating files:  81% (25416/31377)
+2026-09-20T12:32:59.4400630Z Updating files:  82% (25730/31377)
+2026-09-20T12:32:59.5715050Z Updating files:  83% (26043/31377)
+2026-09-20T12:32:59.6921250Z Updating files:  84% (26357/31377)
+2026-09-20T12:32:59.7942840Z Updating files:  85% (26671/31377)
+2026-09-20T12:32:59.9041380Z Updating files:  86% (26985/31377)
+2026-09-20T12:32:59.9909600Z Updating files:  87% (27298/31377)
+2026-09-20T12:33:00.0337680Z Updating files:  88% (27612/31377)
+2026-09-20T12:33:00.0868020Z Updating files:  88% (27727/31377)
+2026-09-20T12:33:00.2168790Z Updating files:  89% (27926/31377)
+2026-09-20T12:33:00.2812670Z Updating files:  90% (28240/31377)
+2026-09-20T12:33:00.3220310Z Updating files:  91% (28554/31377)
+2026-09-20T12:33:00.3793920Z Updating files:  92% (28867/31377)
+2026-09-20T12:33:00.4657300Z Updating files:  93% (29181/31377)
+2026-09-20T12:33:00.5281590Z Updating files:  94% (29495/31377)
+2026-09-20T12:33:00.5864540Z Updating files:  95% (29809/31377)
+2026-09-20T12:33:00.6436050Z Updating files:  96% (30122/31377)
+2026-09-20T12:33:00.7032320Z Updating files:  97% (30436/31377)
+2026-09-20T12:33:00.7649130Z Updating files:  98% (30750/31377)
+2026-09-20T12:33:00.8173410Z Updating files:  99% (31064/31377)
+2026-09-20T12:33:00.8183030Z Updating files: 100% (31377/31377)
+2026-09-20T12:33:00.8184410Z Updating files: 100% (31377/31377), done.
+2026-09-20T12:33:00.8549760Z HEAD is now at becc2637 Merge 8b735018f83280647433184ab005c5a9c8a18a9b into 367476f0caa83b847d1856b248a70289f80a3aa9
+2026-09-20T12:33:00.8682910Z ##[endgroup]
+2026-09-20T12:33:00.8882440Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-09-20T12:33:00.8953040Z becc2637bb829e53d69bd08947401f1bbf42b965
+2026-09-20T12:33:00.9504600Z ##[group]Run # Already satisfied on some images; skip rather than fight the
+2026-09-20T12:33:00.9505280Z [36;1m# Already satisfied on some images; skip rather than fight the[0m
+2026-09-20T12:33:00.9505620Z [36;1m# environment. Where pip refuses under PEP 668[0m
+2026-09-20T12:33:00.9506030Z [36;1m# (externally-managed-environment, seen on the arm64 runners), retry[0m
+2026-09-20T12:33:00.9506450Z [36;1m# with --break-system-packages: this is a throwaway CI environment,[0m
+2026-09-20T12:33:00.9506780Z [36;1m# not a system Python worth protecting.[0m
+2026-09-20T12:33:00.9507090Z [36;1mpython3 -c 'import yaml' 2>/dev/null && exit 0[0m
+2026-09-20T12:33:00.9507450Z [36;1mpython3 -m pip install --user --upgrade pyyaml \[0m
+2026-09-20T12:33:00.9507910Z [36;1m  || python3 -m pip install --user --break-system-packages --upgrade pyyaml[0m
+2026-09-20T12:33:00.9508290Z [36;1mpython3 -c 'import yaml'[0m
+2026-09-20T12:33:01.0487950Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-20T12:33:01.0488240Z ##[endgroup]
+2026-09-20T12:33:02.9411330Z error: externally-managed-environment
+2026-09-20T12:33:02.9411670Z 
+2026-09-20T12:33:02.9413140Z × This environment is externally managed
+2026-09-20T12:33:02.9423260Z ╰─> To install Python packages system-wide, try brew install
+2026-09-20T12:33:02.9423940Z     xyz, where xyz is the package you are trying to
+2026-09-20T12:33:02.9424320Z     install.
+2026-09-20T12:33:02.9424520Z     
+2026-09-20T12:33:02.9424930Z     If you wish to install a Python library that isn't in Homebrew,
+2026-09-20T12:33:02.9425280Z     use a virtual environment:
+2026-09-20T12:33:02.9425550Z     
+2026-09-20T12:33:02.9425790Z     python3 -m venv path/to/venv
+2026-09-20T12:33:02.9426150Z     source path/to/venv/bin/activate
+2026-09-20T12:33:02.9426470Z     python3 -m pip install xyz
+2026-09-20T12:33:02.9426860Z     
+2026-09-20T12:33:02.9427260Z     If you wish to install a Python application that isn't in Homebrew,
+2026-09-20T12:33:02.9427780Z     it may be easiest to use 'pipx install xyz', which will manage a
+2026-09-20T12:33:02.9428230Z     virtual environment for you. You can install pipx with
+2026-09-20T12:33:02.9428540Z     
+2026-09-20T12:33:02.9428780Z     brew install pipx
+2026-09-20T12:33:02.9429030Z     
+2026-09-20T12:33:02.9429340Z     You may restore the old behavior of pip by passing
+2026-09-20T12:33:02.9429770Z     the '--break-system-packages' flag to pip, or by adding
+2026-09-20T12:33:02.9430220Z     'break-system-packages = true' to your pip.conf file. The latter
+2026-09-20T12:33:02.9430560Z     will permanently disable this error.
+2026-09-20T12:33:02.9430880Z     
+2026-09-20T12:33:02.9431290Z     If you disable this error, we STRONGLY recommend that you additionally
+2026-09-20T12:33:02.9431820Z     pass the '--user' flag to pip, or set 'user = true' in your pip.conf
+2026-09-20T12:33:02.9451010Z     file. Failure to do this can result in a broken Homebrew installation.
+2026-09-20T12:33:02.9451950Z     
+2026-09-20T12:33:02.9452920Z     Read more about this behavior here: <https://peps.python.org/pep-0668/>
+2026-09-20T12:33:02.9453680Z 
+2026-09-20T12:33:02.9455170Z note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+2026-09-20T12:33:02.9457350Z hint: See PEP 668 for the detailed specification.
+2026-09-20T12:33:03.5020950Z Collecting pyyaml
+2026-09-20T12:33:03.5418710Z   Downloading pyyaml-6.0.3-cp314-cp314-macosx_11_0_arm64.whl.metadata (2.4 kB)
+2026-09-20T12:33:03.5596350Z Downloading pyyaml-6.0.3-cp314-cp314-macosx_11_0_arm64.whl (173 kB)
+2026-09-20T12:33:03.6828240Z Installing collected packages: pyyaml
+2026-09-20T12:33:03.7362240Z Successfully installed pyyaml-6.0.3
+2026-09-20T12:33:03.8487060Z ##[group]Run ./scripts/ci-brew-install.sh \
+2026-09-20T12:33:03.8487410Z [36;1m./scripts/ci-brew-install.sh \[0m
+2026-09-20T12:33:03.8487610Z [36;1m  gcc \[0m
+2026-09-20T12:33:03.8487810Z [36;1m  pkg-config \[0m
+2026-09-20T12:33:03.8487980Z [36;1m  openssl \[0m
+2026-09-20T12:33:03.8488160Z [36;1m  sdl2 \[0m
+2026-09-20T12:33:03.8488390Z [36;1m  sdl2_image \[0m
+2026-09-20T12:33:03.8488560Z [36;1m  sdl2_mixer \[0m
+2026-09-20T12:33:03.8488760Z [36;1m  sdl2_ttf \[0m
+2026-09-20T12:33:03.8488950Z [36;1m  readline \[0m
+2026-09-20T12:33:03.8489100Z [36;1m  libevent \[0m
+2026-09-20T12:33:03.8489270Z [36;1m  libuv \[0m
+2026-09-20T12:33:03.8489430Z [36;1m  bullet \[0m
+2026-09-20T12:33:03.8489610Z [36;1m  glfw \[0m
+2026-09-20T12:33:03.8489760Z [36;1m  glew \[0m
+2026-09-20T12:33:03.8489940Z [36;1m  freeglut[0m
+2026-09-20T12:33:03.8556210Z shell: /bin/bash -e {0}
+2026-09-20T12:33:03.8556600Z ##[endgroup]
+2026-09-20T12:33:03.8870350Z note: no timeout binary found; relying on the job timeout
+2026-09-20T12:33:06.2031230Z brew install attempt 1/3 (timeout 600s): gcc
+2026-09-20T12:33:07.6015680Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:07.6183160Z ✔︎ Bottle Manifest gcc (16.2.0)
+2026-09-20T12:33:07.6186810Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:07.6187420Z gcc
+2026-09-20T12:33:07.7038420Z [32m==>[0m [1mFetching downloads for: [32mgcc[39m[0m
+2026-09-20T12:33:13.0596350Z ✔︎ Bottle gcc (16.2.0)
+2026-09-20T12:33:13.1035860Z [34m==>[0m [1mPouring gcc--16.2.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:19.2051000Z 🍺  /opt/homebrew/Cellar/gcc/16.2.0: 1,707 files, 500.3MB
+2026-09-20T12:33:19.2312550Z brew install succeeded on attempt 1: gcc
+2026-09-20T12:33:19.8200360Z brew: pkg-config already installed; skipping
+2026-09-20T12:33:20.2181840Z brew: openssl already installed; skipping
+2026-09-20T12:33:20.6092670Z brew install attempt 1/3 (timeout 600s): sdl2
+2026-09-20T12:33:21.6457090Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:21.6611220Z ✔︎ Bottle Manifest sdl2-compat (2.32.70)
+2026-09-20T12:33:21.6612430Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:21.6613300Z sdl2-compat
+2026-09-20T12:33:21.7053420Z [34m==>[0m [1mWould install 1 dependency for sdl2-compat:[0m
+2026-09-20T12:33:21.7054340Z sdl3
+2026-09-20T12:33:21.7160330Z [32m==>[0m [1mFetching downloads for: [32msdl2-compat[39m[0m
+2026-09-20T12:33:21.9624330Z ✔︎ Bottle sdl2-compat (2.32.70)
+2026-09-20T12:33:21.9807330Z ✔︎ Bottle Manifest sdl3 (3.4.14)
+2026-09-20T12:33:22.0131200Z ✔︎ Bottle sdl3 (3.4.14)
+2026-09-20T12:33:22.0180880Z [32m==>[0m [1mInstalling sdl2-compat dependency: [32msdl3[39m[0m
+2026-09-20T12:33:22.0254370Z [34m==>[0m [1mPouring sdl3--3.4.14.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:22.1982890Z 🍺  /opt/homebrew/Cellar/sdl3/3.4.14: 103 files, 6.3MB
+2026-09-20T12:33:22.1986020Z [32m==>[0m [1mInstalling [32msdl2-compat[39m[0m
+2026-09-20T12:33:22.1987980Z [34m==>[0m [1mPouring sdl2-compat--2.32.70.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:22.2580440Z 🍺  /opt/homebrew/Cellar/sdl2-compat/2.32.70: 117 files, 3.2MB
+2026-09-20T12:33:22.2653120Z brew install succeeded on attempt 1: sdl2
+2026-09-20T12:33:22.7049400Z brew install attempt 1/3 (timeout 600s): sdl2_image
+2026-09-20T12:33:23.7678640Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:23.7869310Z ✔︎ Bottle Manifest sdl2_image (2.8.12_1)
+2026-09-20T12:33:23.7871370Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:23.7873470Z sdl2_image
+2026-09-20T12:33:23.9356250Z [34m==>[0m [1mWould install 10 dependencies for sdl2_image:[0m
+2026-09-20T12:33:23.9356820Z highway
+2026-09-20T12:33:23.9357330Z imath
+2026-09-20T12:33:23.9357760Z libdeflate
+2026-09-20T12:33:23.9357960Z openjph
+2026-09-20T12:33:23.9358260Z openexr
+2026-09-20T12:33:23.9358450Z jpeg-xl
+2026-09-20T12:33:23.9359340Z libvmaf
+2026-09-20T12:33:23.9359500Z aom
+2026-09-20T12:33:23.9360820Z dav1d
+2026-09-20T12:33:23.9361350Z libavif
+2026-09-20T12:33:24.3017380Z [32m==>[0m [1mFetching downloads for: [32msdl2_image[39m[0m
+2026-09-20T12:33:24.4355210Z ✔︎ Bottle sdl2_image (2.8.12_1)
+2026-09-20T12:33:24.4479420Z ✔︎ Bottle Manifest highway (1.4.0)
+2026-09-20T12:33:24.4480010Z ✔︎ Bottle Manifest imath (3.2.3)
+2026-09-20T12:33:24.4918930Z ✔︎ Bottle highway (1.4.0)
+2026-09-20T12:33:24.7085720Z ✔︎ Bottle Manifest libdeflate (1.26)
+2026-09-20T12:33:24.7387950Z ✔︎ Bottle imath (3.2.3)
+2026-09-20T12:33:24.7512340Z ✔︎ Bottle libdeflate (1.26)
+2026-09-20T12:33:24.7676830Z ✔︎ Bottle Manifest openjph (0.31.0)
+2026-09-20T12:33:24.7677420Z ✔︎ Bottle openjph (0.31.0)
+2026-09-20T12:33:24.7677890Z ✔︎ Bottle Manifest openexr (3.4.15)
+2026-09-20T12:33:24.7678390Z ✔︎ Bottle Manifest jpeg-xl (0.12.0)
+2026-09-20T12:33:24.7805600Z ✔︎ Bottle Manifest libvmaf (3.2.0)
+2026-09-20T12:33:24.8393700Z ✔︎ Bottle Manifest aom (3.14.1)
+2026-09-20T12:33:24.8495250Z ✔︎ Bottle openexr (3.4.15)
+2026-09-20T12:33:24.8619600Z ✔︎ Bottle Manifest dav1d (1.5.4)
+2026-09-20T12:33:24.8838830Z ✔︎ Bottle Manifest libavif (1.4.2)
+2026-09-20T12:33:24.8982890Z ✔︎ Bottle dav1d (1.5.4)
+2026-09-20T12:33:24.9375780Z ✔︎ Bottle libavif (1.4.2)
+2026-09-20T12:33:24.9379790Z ✔︎ Bottle jpeg-xl (0.12.0)
+2026-09-20T12:33:24.9548570Z ✔︎ Bottle libvmaf (3.2.0)
+2026-09-20T12:33:24.9555460Z ✔︎ Bottle aom (3.14.1)
+2026-09-20T12:33:25.0331070Z [32m==>[0m [1mInstalling dependencies for sdl2_image:[0m [32mhighway[39m, [32mimath[39m, [32mlibdeflate[39m, [32mopenjph[39m, [32mopenexr[39m, [32mjpeg-xl[39m, [32mlibvmaf[39m, [32maom[39m, [32mdav1d[39m and [32mlibavif[39m[0m
+2026-09-20T12:33:25.0345380Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mhighway[39m[0m
+2026-09-20T12:33:25.0366370Z [34m==>[0m [1mPouring highway--1.4.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:25.1402310Z 🍺  /opt/homebrew/Cellar/highway/1.4.0: 87 files, 5.2MB
+2026-09-20T12:33:25.1403970Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mimath[39m[0m
+2026-09-20T12:33:25.1440030Z [34m==>[0m [1mPouring imath--3.2.3.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:25.1700320Z 🍺  /opt/homebrew/Cellar/imath/3.2.3: 50 files, 977.2KB
+2026-09-20T12:33:25.1703800Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mlibdeflate[39m[0m
+2026-09-20T12:33:25.1819790Z [34m==>[0m [1mPouring libdeflate--1.26.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:25.2064680Z 🍺  /opt/homebrew/Cellar/libdeflate/1.26: 17 files, 317KB
+2026-09-20T12:33:25.2066840Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mopenjph[39m[0m
+2026-09-20T12:33:25.2555570Z [34m==>[0m [1mPouring openjph--0.31.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:25.2911080Z 🍺  /opt/homebrew/Cellar/openjph/0.31.0: 25 files, 601.0KB
+2026-09-20T12:33:25.2912390Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mopenexr[39m[0m
+2026-09-20T12:33:25.3473330Z [34m==>[0m [1mPouring openexr--3.4.15.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:25.4545280Z 🍺  /opt/homebrew/Cellar/openexr/3.4.15: 212 files, 4.4MB
+2026-09-20T12:33:25.4547020Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mjpeg-xl[39m[0m
+2026-09-20T12:33:25.5689570Z [34m==>[0m [1mPouring jpeg-xl--0.12.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:26.0131100Z 🍺  /opt/homebrew/Cellar/jpeg-xl/0.12.0: 65 files, 33.1MB
+2026-09-20T12:33:26.0132970Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mlibvmaf[39m[0m
+2026-09-20T12:33:26.0217630Z [34m==>[0m [1mPouring libvmaf--3.2.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:26.0914800Z 🍺  /opt/homebrew/Cellar/libvmaf/3.2.0: 243 files, 8.2MB
+2026-09-20T12:33:26.0919030Z [32m==>[0m [1mInstalling sdl2_image dependency: [32maom[39m[0m
+2026-09-20T12:33:26.1128770Z [34m==>[0m [1mPouring aom--3.14.1.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:26.1660860Z 🍺  /opt/homebrew/Cellar/aom/3.14.1: 30 files, 10.5MB
+2026-09-20T12:33:26.1663230Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mdav1d[39m[0m
+2026-09-20T12:33:26.1763300Z [34m==>[0m [1mPouring dav1d--1.5.4.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:26.2338270Z 🍺  /opt/homebrew/Cellar/dav1d/1.5.4: 16 files, 976KB
+2026-09-20T12:33:26.2340950Z [32m==>[0m [1mInstalling sdl2_image dependency: [32mlibavif[39m[0m
+2026-09-20T12:33:26.2931350Z [34m==>[0m [1mPouring libavif--1.4.2.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:26.3493720Z 🍺  /opt/homebrew/Cellar/libavif/1.4.2: 22 files, 1MB
+2026-09-20T12:33:26.3510840Z [32m==>[0m [1mInstalling [32msdl2_image[39m[0m
+2026-09-20T12:33:26.3511950Z [34m==>[0m [1mPouring sdl2_image--2.8.12_1.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:26.4241430Z 🍺  /opt/homebrew/Cellar/sdl2_image/2.8.12_1: 15 files, 384.0KB
+2026-09-20T12:33:26.4380120Z brew install succeeded on attempt 1: sdl2_image
+2026-09-20T12:33:26.7960490Z brew install attempt 1/3 (timeout 600s): sdl2_mixer
+2026-09-20T12:33:27.7299780Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:27.7465190Z ✔︎ Bottle Manifest sdl2_mixer (2.8.2)
+2026-09-20T12:33:27.7468100Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:27.7468850Z sdl2_mixer
+2026-09-20T12:33:27.8577150Z [34m==>[0m [1mWould install 13 dependencies for sdl2_mixer:[0m
+2026-09-20T12:33:27.8577730Z libogg
+2026-09-20T12:33:27.8577970Z flac
+2026-09-20T12:33:27.8578180Z mpg123
+2026-09-20T12:33:27.8578350Z lame
+2026-09-20T12:33:27.8578600Z libvorbis
+2026-09-20T12:33:27.8578830Z opus
+2026-09-20T12:33:27.8579170Z libsndfile
+2026-09-20T12:33:27.8579470Z portaudio
+2026-09-20T12:33:27.8580590Z fluid-synth
+2026-09-20T12:33:27.8580900Z game-music-emu
+2026-09-20T12:33:27.8581180Z libxmp
+2026-09-20T12:33:27.8581360Z opusfile
+2026-09-20T12:33:27.8581620Z wavpack
+2026-09-20T12:33:28.0091950Z [32m==>[0m [1mFetching downloads for: [32msdl2_mixer[39m[0m
+2026-09-20T12:33:28.8024070Z ✔︎ Bottle Manifest libogg (1.3.6)
+2026-09-20T12:33:28.8308330Z ✔︎ Bottle libogg (1.3.6)
+2026-09-20T12:33:28.8506160Z ✔︎ Bottle sdl2_mixer (2.8.2)
+2026-09-20T12:33:28.8514820Z ✔︎ Bottle Manifest flac (1.5.0)
+2026-09-20T12:33:28.8515520Z ✔︎ Bottle Manifest mpg123 (1.33.7)
+2026-09-20T12:33:28.8833610Z ✔︎ Bottle Manifest lame (4.0)
+2026-09-20T12:33:28.8834110Z ✔︎ Bottle Manifest libvorbis (1.3.7)
+2026-09-20T12:33:28.8834410Z ✔︎ Bottle Manifest opus (1.6.1)
+2026-09-20T12:33:28.9038560Z ✔︎ Bottle mpg123 (1.33.7)
+2026-09-20T12:33:28.9163530Z ✔︎ Bottle flac (1.5.0)
+2026-09-20T12:33:28.9179950Z ✔︎ Bottle Manifest libsndfile (1.2.2_1)
+2026-09-20T12:33:28.9249380Z ✔︎ Bottle Manifest portaudio (19.7.0)
+2026-09-20T12:33:28.9428890Z ✔︎ Bottle lame (4.0)
+2026-09-20T12:33:28.9454430Z ✔︎ Bottle opus (1.6.1)
+2026-09-20T12:33:28.9484220Z ✔︎ Bottle Manifest fluid-synth (2.6.0)
+2026-09-20T12:33:28.9485490Z ✔︎ Bottle Manifest game-music-emu (0.6.5)
+2026-09-20T12:33:28.9668560Z ✔︎ Bottle portaudio (19.7.0)
+2026-09-20T12:33:28.9671310Z ✔︎ Bottle Manifest libxmp (4.7.2)
+2026-09-20T12:33:28.9843500Z ✔︎ Bottle game-music-emu (0.6.5)
+2026-09-20T12:33:28.9875170Z ✔︎ Bottle Manifest opusfile (0.12_1)
+2026-09-20T12:33:28.9876660Z ✔︎ Bottle Manifest wavpack (5.9.0)
+2026-09-20T12:33:28.9877500Z ✔︎ Bottle fluid-synth (2.6.0)
+2026-09-20T12:33:28.9878550Z ✔︎ Bottle libvorbis (1.3.7)
+2026-09-20T12:33:28.9879600Z ✔︎ Bottle libsndfile (1.2.2_1)
+2026-09-20T12:33:28.9893340Z ✔︎ Bottle libxmp (4.7.2)
+2026-09-20T12:33:28.9893710Z ✔︎ Bottle opusfile (0.12_1)
+2026-09-20T12:33:28.9960540Z ✔︎ Bottle wavpack (5.9.0)
+2026-09-20T12:33:29.0547220Z [32m==>[0m [1mInstalling dependencies for sdl2_mixer:[0m [32mlibogg[39m, [32mflac[39m, [32mmpg123[39m, [32mlame[39m, [32mlibvorbis[39m, [32mopus[39m, [32mlibsndfile[39m, [32mportaudio[39m, [32mfluid-synth[39m, [32mgame-music-emu[39m, [32mlibxmp[39m, [32mopusfile[39m and [32mwavpack[39m[0m
+2026-09-20T12:33:29.0548510Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibogg[39m[0m
+2026-09-20T12:33:29.0580330Z [34m==>[0m [1mPouring libogg--1.3.6.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.1722170Z 🍺  /opt/homebrew/Cellar/libogg/1.3.6: 103 files, 531.9KB
+2026-09-20T12:33:29.1725000Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mflac[39m[0m
+2026-09-20T12:33:29.1840160Z [34m==>[0m [1mPouring flac--1.5.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.2336600Z 🍺  /opt/homebrew/Cellar/flac/1.5.0: 40 files, 1.9MB
+2026-09-20T12:33:29.2337920Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mmpg123[39m[0m
+2026-09-20T12:33:29.2362140Z [34m==>[0m [1mPouring mpg123--1.33.7.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.2885800Z 🍺  /opt/homebrew/Cellar/mpg123/1.33.7: 34 files, 2.0MB
+2026-09-20T12:33:29.2910250Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlame[39m[0m
+2026-09-20T12:33:29.3002340Z [34m==>[0m [1mPouring lame--4.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.3393620Z 🍺  /opt/homebrew/Cellar/lame/4.0: 29 files, 1.9MB
+2026-09-20T12:33:29.3395560Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibvorbis[39m[0m
+2026-09-20T12:33:29.3493980Z [34m==>[0m [1mPouring libvorbis--1.3.7.arm64_sonoma.bottle.1.tar.gz[0m
+2026-09-20T12:33:29.4116100Z 🍺  /opt/homebrew/Cellar/libvorbis/1.3.7: 157 files, 2.4MB
+2026-09-20T12:33:29.4119470Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mopus[39m[0m
+2026-09-20T12:33:29.4138590Z [34m==>[0m [1mPouring opus--1.6.1.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.4432710Z 🍺  /opt/homebrew/Cellar/opus/1.6.1: 16 files, 1MB
+2026-09-20T12:33:29.4438720Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibsndfile[39m[0m
+2026-09-20T12:33:29.4848370Z [34m==>[0m [1mPouring libsndfile--1.2.2_1.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.5476650Z 🍺  /opt/homebrew/Cellar/libsndfile/1.2.2_1: 55 files, 1.8MB
+2026-09-20T12:33:29.5484140Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mportaudio[39m[0m
+2026-09-20T12:33:29.5512380Z [34m==>[0m [1mPouring portaudio--19.7.0.arm64_sonoma.bottle.1.tar.gz[0m
+2026-09-20T12:33:29.5826810Z 🍺  /opt/homebrew/Cellar/portaudio/19.7.0: 33 files, 520.1KB
+2026-09-20T12:33:29.5832170Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mfluid-synth[39m[0m
+2026-09-20T12:33:29.6474970Z [34m==>[0m [1mPouring fluid-synth--2.6.0.arm64_sonoma.bottle.1.tar.gz[0m
+2026-09-20T12:33:29.6968380Z 🍺  /opt/homebrew/Cellar/fluid-synth/2.6.0: 43 files, 3.2MB
+2026-09-20T12:33:29.6969820Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mgame-music-emu[39m[0m
+2026-09-20T12:33:29.6996130Z [34m==>[0m [1mPouring game-music-emu--0.6.5.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.7228130Z 🍺  /opt/homebrew/Cellar/game-music-emu/0.6.5: 13 files, 760.7KB
+2026-09-20T12:33:29.7230710Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mlibxmp[39m[0m
+2026-09-20T12:33:29.7243990Z [34m==>[0m [1mPouring libxmp--4.7.2.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.7529840Z 🍺  /opt/homebrew/Cellar/libxmp/4.7.2: 15 files, 1.2MB
+2026-09-20T12:33:29.7531560Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mopusfile[39m[0m
+2026-09-20T12:33:29.7772690Z [34m==>[0m [1mPouring opusfile--0.12_1.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.8148600Z 🍺  /opt/homebrew/Cellar/opusfile/0.12_1: 17 files, 315.8KB
+2026-09-20T12:33:29.8149570Z [32m==>[0m [1mInstalling sdl2_mixer dependency: [32mwavpack[39m[0m
+2026-09-20T12:33:29.8164340Z [34m==>[0m [1mPouring wavpack--5.9.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.8492310Z 🍺  /opt/homebrew/Cellar/wavpack/5.9.0: 26 files, 1MB
+2026-09-20T12:33:29.8494000Z [32m==>[0m [1mInstalling [32msdl2_mixer[39m[0m
+2026-09-20T12:33:29.8497190Z [34m==>[0m [1mPouring sdl2_mixer--2.8.2.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:29.8980870Z 🍺  /opt/homebrew/Cellar/sdl2_mixer/2.8.2: 25 files, 528.9KB
+2026-09-20T12:33:29.9089420Z brew install succeeded on attempt 1: sdl2_mixer
+2026-09-20T12:33:30.2985610Z brew install attempt 1/3 (timeout 600s): sdl2_ttf
+2026-09-20T12:33:31.3559000Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:31.3755620Z ✔︎ Bottle Manifest sdl2_ttf (2.24.0)
+2026-09-20T12:33:31.3764880Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:31.3766740Z sdl2_ttf
+2026-09-20T12:33:31.5958720Z [32m==>[0m [1mFetching downloads for: [32msdl2_ttf[39m[0m
+2026-09-20T12:33:31.8506950Z ✔︎ Bottle sdl2_ttf (2.24.0)
+2026-09-20T12:33:31.9517990Z [34m==>[0m [1mPouring sdl2_ttf--2.24.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:32.0694230Z 🍺  /opt/homebrew/Cellar/sdl2_ttf/2.24.0: 13 files, 247.7KB
+2026-09-20T12:33:32.0762500Z brew install succeeded on attempt 1: sdl2_ttf
+2026-09-20T12:33:32.4073560Z brew: readline already installed; skipping
+2026-09-20T12:33:32.8806750Z brew install attempt 1/3 (timeout 600s): libevent
+2026-09-20T12:33:34.1812410Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:34.1972740Z ✔︎ Bottle Manifest libevent (2.1.13)
+2026-09-20T12:33:34.1974630Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:34.1975100Z libevent
+2026-09-20T12:33:34.2639330Z [32m==>[0m [1mFetching downloads for: [32mlibevent[39m[0m
+2026-09-20T12:33:34.5428370Z ✔︎ Bottle libevent (2.1.13)
+2026-09-20T12:33:34.5490660Z [34m==>[0m [1mPouring libevent--2.1.13.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:34.6843160Z 🍺  /opt/homebrew/Cellar/libevent/2.1.13: 58 files, 2.2MB
+2026-09-20T12:33:34.6949600Z brew install succeeded on attempt 1: libevent
+2026-09-20T12:33:35.1685140Z brew: libuv already installed; skipping
+2026-09-20T12:33:35.6334260Z brew install attempt 1/3 (timeout 600s): bullet
+2026-09-20T12:33:36.9908530Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:37.0181090Z ✔︎ Bottle Manifest bullet (3.25)
+2026-09-20T12:33:37.0182710Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:37.0183710Z bullet
+2026-09-20T12:33:37.0650110Z [32m==>[0m [1mFetching downloads for: [32mbullet[39m[0m
+2026-09-20T12:33:37.9236640Z ✔︎ Bottle bullet (3.25)
+2026-09-20T12:33:37.9432920Z [34m==>[0m [1mPouring bullet--3.25.arm64_sonoma.bottle.4.tar.gz[0m
+2026-09-20T12:33:38.6711790Z 🍺  /opt/homebrew/Cellar/bullet/3.25: 1,533 files, 49MB
+2026-09-20T12:33:38.6813920Z brew install succeeded on attempt 1: bullet
+2026-09-20T12:33:39.1587430Z brew install attempt 1/3 (timeout 600s): glfw
+2026-09-20T12:33:40.2400280Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:40.2536590Z ✔︎ Bottle Manifest glfw (3.5.1)
+2026-09-20T12:33:40.2539370Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:40.2540620Z glfw
+2026-09-20T12:33:40.2769850Z [32m==>[0m [1mFetching downloads for: [32mglfw[39m[0m
+2026-09-20T12:33:40.5977400Z ✔︎ Bottle glfw (3.5.1)
+2026-09-20T12:33:40.6007220Z [34m==>[0m [1mPouring glfw--3.5.1.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:40.6983160Z 🍺  /opt/homebrew/Cellar/glfw/3.5.1: 16 files, 853.5KB
+2026-09-20T12:33:40.7083030Z brew install succeeded on attempt 1: glfw
+2026-09-20T12:33:41.1510790Z brew install attempt 1/3 (timeout 600s): glew
+2026-09-20T12:33:42.3032280Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:42.3435020Z ✔︎ Bottle Manifest glew (2.3.1)
+2026-09-20T12:33:42.3435490Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:42.3536850Z glew
+2026-09-20T12:33:42.3738810Z [32m==>[0m [1mFetching downloads for: [32mglew[39m[0m
+2026-09-20T12:33:42.6090630Z ✔︎ Bottle glew (2.3.1)
+2026-09-20T12:33:42.6111540Z [34m==>[0m [1mPouring glew--2.3.1.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:42.7385320Z 🍺  /opt/homebrew/Cellar/glew/2.3.1: 39 files, 3.3MB
+2026-09-20T12:33:42.7480860Z brew install succeeded on attempt 1: glew
+2026-09-20T12:33:43.2354450Z brew install attempt 1/3 (timeout 600s): freeglut
+2026-09-20T12:33:44.4259540Z [32m==>[0m [1mDownloading bottle manifests[0m
+2026-09-20T12:33:44.4504240Z ✔︎ Bottle Manifest freeglut (3.8.0)
+2026-09-20T12:33:44.4504720Z [34m==>[0m [1mWould install 1 formula:[0m
+2026-09-20T12:33:44.4506160Z freeglut
+2026-09-20T12:33:44.6214750Z [34m==>[0m [1mWould install 12 dependencies for freeglut:[0m
+2026-09-20T12:33:44.6217410Z libxfixes
+2026-09-20T12:33:44.6218200Z libxi
+2026-09-20T12:33:44.6218770Z libxrandr
+2026-09-20T12:33:44.6219210Z libxxf86vm
+2026-09-20T12:33:44.6220790Z libclc
+2026-09-20T12:33:44.6221310Z z3
+2026-09-20T12:33:44.6221820Z llvm
+2026-09-20T12:33:44.6222360Z spirv-llvm-translator
+2026-09-20T12:33:44.6222860Z spirv-tools
+2026-09-20T12:33:44.6223380Z xcb-util-keysyms
+2026-09-20T12:33:44.6223850Z molten-vk
+2026-09-20T12:33:44.6224330Z mesa
+2026-09-20T12:33:45.1849330Z [32m==>[0m [1mFetching downloads for: [32mfreeglut[39m[0m
+2026-09-20T12:33:45.1855000Z ✔︎ Bottle freeglut (3.8.0)
+2026-09-20T12:33:45.1855550Z ✔︎ Bottle Manifest libxfixes (6.0.2)
+2026-09-20T12:33:45.1860010Z ✔︎ Bottle libxfixes (6.0.2)
+2026-09-20T12:33:45.9833950Z ✔︎ Bottle Manifest libxi (1.8.3)
+2026-09-20T12:33:46.0506610Z ✔︎ Bottle libxi (1.8.3)
+2026-09-20T12:33:46.1688840Z ✔︎ Bottle Manifest libxrandr (1.5.5)
+2026-09-20T12:33:46.2039490Z ✔︎ Bottle libxrandr (1.5.5)
+2026-09-20T12:33:46.2150650Z ✔︎ Bottle Manifest libxxf86vm (1.1.7)
+2026-09-20T12:33:46.2465270Z ✔︎ Bottle libxxf86vm (1.1.7)
+2026-09-20T12:33:46.2467170Z ✔︎ Bottle Manifest libclc (22.1.8)
+2026-09-20T12:33:46.2468870Z ✔︎ Bottle Manifest z3 (5.1.0)
+2026-09-20T12:33:46.2849360Z ✔︎ Bottle Manifest llvm (23.1.0)
+2026-09-20T12:33:46.2851530Z ✔︎ Bottle Manifest spirv-llvm-translator (23.1.0)
+2026-09-20T12:33:46.3220710Z ✔︎ Bottle spirv-llvm-translator (23.1.0)
+2026-09-20T12:33:46.4340170Z ✔︎ Bottle z3 (5.1.0)
+2026-09-20T12:33:46.4457830Z ✔︎ Bottle Manifest spirv-tools (1.4.357.0)
+2026-09-20T12:33:46.4947670Z ✔︎ Bottle spirv-tools (1.4.357.0)
+2026-09-20T12:33:46.4968970Z ✔︎ Bottle Manifest xcb-util-keysyms (0.4.1)
+2026-09-20T12:33:46.5195180Z ✔︎ Bottle xcb-util-keysyms (0.4.1)
+2026-09-20T12:33:46.5266920Z ✔︎ Bottle Manifest molten-vk (1.4.2)
+2026-09-20T12:33:46.5309890Z ✔︎ Bottle libclc (22.1.8)
+2026-09-20T12:33:46.5519800Z ✔︎ Bottle Manifest mesa (26.2.1_1)
+2026-09-20T12:33:47.2102040Z ✔︎ Bottle mesa (26.2.1_1)
+2026-09-20T12:33:47.2203850Z ✔︎ Bottle molten-vk (1.4.2)
+2026-09-20T12:33:55.4620340Z ✔︎ Bottle llvm (23.1.0)
+2026-09-20T12:33:55.5478890Z [32m==>[0m [1mInstalling dependencies for freeglut:[0m [32mlibxfixes[39m, [32mlibxi[39m, [32mlibxrandr[39m, [32mlibxxf86vm[39m, [32mlibclc[39m, [32mz3[39m, [32mllvm[39m, [32mspirv-llvm-translator[39m, [32mspirv-tools[39m, [32mxcb-util-keysyms[39m, [32mmolten-vk[39m and [32mmesa[39m[0m
+2026-09-20T12:33:55.5482570Z [32m==>[0m [1mInstalling freeglut dependency: [32mlibxfixes[39m[0m
+2026-09-20T12:33:55.6025570Z [34m==>[0m [1mPouring libxfixes--6.0.2.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:55.7759400Z 🍺  /opt/homebrew/Cellar/libxfixes/6.0.2: 13 files, 127.6KB
+2026-09-20T12:33:55.7771030Z [32m==>[0m [1mInstalling freeglut dependency: [32mlibxi[39m[0m
+2026-09-20T12:33:55.8878720Z [34m==>[0m [1mPouring libxi--1.8.3.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:56.0155290Z 🍺  /opt/homebrew/Cellar/libxi/1.8.3: 86 files, 695.2KB
+2026-09-20T12:33:56.0161060Z [32m==>[0m [1mInstalling freeglut dependency: [32mlibxrandr[39m[0m
+2026-09-20T12:33:56.0866900Z [34m==>[0m [1mPouring libxrandr--1.5.5.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:56.1473810Z 🍺  /opt/homebrew/Cellar/libxrandr/1.5.5: 27 files, 218.0KB
+2026-09-20T12:33:56.1475370Z [32m==>[0m [1mInstalling freeglut dependency: [32mlibxxf86vm[39m[0m
+2026-09-20T12:33:56.2155800Z [34m==>[0m [1mPouring libxxf86vm--1.1.7.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:56.2727880Z 🍺  /opt/homebrew/Cellar/libxxf86vm/1.1.7: 34 files, 132.2KB
+2026-09-20T12:33:56.2729690Z [32m==>[0m [1mInstalling freeglut dependency: [32mlibclc[39m[0m
+2026-09-20T12:33:56.2841550Z [34m==>[0m [1mPouring libclc--22.1.8.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:56.3282970Z 🍺  /opt/homebrew/Cellar/libclc/22.1.8: 135 files, 63.4MB
+2026-09-20T12:33:56.3284550Z [32m==>[0m [1mInstalling freeglut dependency: [32mz3[39m[0m
+2026-09-20T12:33:56.3379690Z [34m==>[0m [1mPouring z3--5.1.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:33:56.6946460Z 🍺  /opt/homebrew/Cellar/z3/5.1.0: 122 files, 35.3MB
+2026-09-20T12:33:56.7046390Z [32m==>[0m [1mInstalling freeglut dependency: [32mllvm[39m[0m
+2026-09-20T12:33:56.7547730Z [34m==>[0m [1mPouring llvm--23.1.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:34:12.7126560Z 🍺  /opt/homebrew/Cellar/llvm/23.1.0: 9,390 files, 1.9GB
+2026-09-20T12:34:12.7226780Z [32m==>[0m [1mInstalling freeglut dependency: [32mspirv-llvm-translator[39m[0m
+2026-09-20T12:34:12.7987200Z [34m==>[0m [1mPouring spirv-llvm-translator--23.1.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:34:12.8874220Z 🍺  /opt/homebrew/Cellar/spirv-llvm-translator/23.1.0: 12 files, 4.2MB
+2026-09-20T12:34:12.8880860Z [32m==>[0m [1mInstalling freeglut dependency: [32mspirv-tools[39m[0m
+2026-09-20T12:34:12.8944070Z [34m==>[0m [1mPouring spirv-tools--1.4.357.0.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:34:13.0980110Z 🍺  /opt/homebrew/Cellar/spirv-tools/1.4.357.0: 52 files, 10.4MB
+2026-09-20T12:34:13.0981830Z [32m==>[0m [1mInstalling freeglut dependency: [32mxcb-util-keysyms[39m[0m
+2026-09-20T12:34:13.1517360Z [34m==>[0m [1mPouring xcb-util-keysyms--0.4.1.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:34:13.2106590Z 🍺  /opt/homebrew/Cellar/xcb-util-keysyms/0.4.1: 11 files, 71.9KB
+2026-09-20T12:34:13.2109010Z [32m==>[0m [1mInstalling freeglut dependency: [32mmolten-vk[39m[0m
+2026-09-20T12:34:13.2150700Z [34m==>[0m [1mPouring molten-vk--1.4.2.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:34:13.3715720Z 🍺  /opt/homebrew/Cellar/molten-vk/1.4.2: 84 files, 87.6MB
+2026-09-20T12:34:13.3734280Z [32m==>[0m [1mInstalling freeglut dependency: [32mmesa[39m[0m
+2026-09-20T12:34:13.6304980Z [34m==>[0m [1mPouring mesa--26.2.1_1.arm64_sonoma.bottle.tar.gz[0m
+2026-09-20T12:34:14.4553990Z 🍺  /opt/homebrew/Cellar/mesa/26.2.1_1: 66 files, 71.4MB
+2026-09-20T12:34:14.4557380Z [32m==>[0m [1mInstalling [32mfreeglut[39m[0m
+2026-09-20T12:34:14.4560780Z [34m==>[0m [1mPouring freeglut--3.8.0.arm64_sonoma.bottle.1.tar.gz[0m
+2026-09-20T12:34:14.6101970Z 🍺  /opt/homebrew/Cellar/freeglut/3.8.0: 108 files, 1.3MB
+2026-09-20T12:34:14.6420990Z brew install succeeded on attempt 1: freeglut
+2026-09-20T12:34:14.6608640Z ##[group]Run make stage1
+2026-09-20T12:34:14.6610970Z [36;1mmake stage1[0m
+2026-09-20T12:34:14.7017110Z shell: /bin/bash -e {0}
+2026-09-20T12:34:14.7017440Z ##[endgroup]
+2026-09-20T12:34:17.9082800Z mkdir -p obj/build_bootstrap
+2026-09-20T12:34:17.9216620Z [schema] Generating compiler schema artifacts...
+2026-09-20T12:34:17.9266350Z [schema] Using Python version (bootstrap)...
+2026-09-20T12:34:18.0782760Z mkdir -p obj/runtime
+2026-09-20T12:34:18.0858460Z mkdir -p obj/eval
+2026-09-20T12:34:18.0939850Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/bcp47.c -o obj/bcp47.o
+2026-09-20T12:34:18.6567060Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/bench.c -o obj/bench.o
+2026-09-20T12:34:18.8244260Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/bench_native.c -o obj/bench_native.o
+2026-09-20T12:34:18.8925630Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/builtins_registry.c -o obj/builtins_registry.o
+2026-09-20T12:34:18.9607500Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/cJSON.c -o obj/cJSON.o
+2026-09-20T12:34:19.3832750Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/c_backend.c -o obj/c_backend.o
+2026-09-20T12:34:20.3809620Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/catalog.c -o obj/catalog.o
+2026-09-20T12:34:20.5787730Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/channel.c -o obj/channel.o
+2026-09-20T12:34:20.7133800Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/coroutine.c -o obj/coroutine.o
+2026-09-20T12:34:20.8415470Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/cps_pass.c -o obj/cps_pass.o
+2026-09-20T12:34:20.9257180Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/dce_pass.c -o obj/dce_pass.o
+2026-09-20T12:34:21.0549580Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/diag_id.c -o obj/diag_id.o
+2026-09-20T12:34:21.1108530Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/docgen.c -o obj/docgen.o
+2026-09-20T12:34:21.3587570Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/docgen_md.c -o obj/docgen_md.o
+2026-09-20T12:34:21.5482830Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/dwarf_info.c -o obj/dwarf_info.o
+2026-09-20T12:34:21.6338430Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/effects.c -o obj/effects.o
+2026-09-20T12:34:21.8112580Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/emit_typed_ast.c -o obj/emit_typed_ast.o
+2026-09-20T12:34:21.9910250Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/env.c -o obj/env.o
+2026-09-20T12:34:22.5319910Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+2026-09-20T12:34:24.3929270Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/eval/eval_hashmap.c -o obj/eval/eval_hashmap.o
+2026-09-20T12:34:24.5244380Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/eval/eval_io.c -o obj/eval/eval_io.o
+2026-09-20T12:34:24.7688720Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/eval/eval_math.c -o obj/eval/eval_math.o
+2026-09-20T12:34:24.8749510Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/eval/eval_string.c -o obj/eval/eval_string.o
+2026-09-20T12:34:24.9878500Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/fmt.c -o obj/fmt.o
+2026-09-20T12:34:25.1121750Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/fold_constants.c -o obj/fold_constants.o
+2026-09-20T12:34:25.2138360Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/interpreter_ffi.c -o obj/interpreter_ffi.o
+2026-09-20T12:34:25.3143780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/json_diagnostics.c -o obj/json_diagnostics.o
+2026-09-20T12:34:25.3876860Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/lexer.c -o obj/lexer.o
+2026-09-20T12:34:25.6266700Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/locale.c -o obj/locale.o
+2026-09-20T12:34:25.6977300Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/main.c -o obj/main.o
+2026-09-20T12:34:26.0884890Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/module.c -o obj/module.o
+2026-09-20T12:34:26.6278820Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/module_builder.c -o obj/module_builder.o
+2026-09-20T12:34:28.7903960Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/module_metadata.c -o obj/module_metadata.o
+2026-09-20T12:34:29.4555510Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanocore_export.c -o obj/nanocore_export.o
+2026-09-20T12:34:29.6008130Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanocore_subset.c -o obj/nanocore_subset.o
+2026-09-20T12:34:29.7131370Z mkdir -p obj/nanoisa
+2026-09-20T12:34:29.7268680Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+2026-09-20T12:34:29.9600830Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+2026-09-20T12:34:31.1193050Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o
+2026-09-20T12:34:31.5987190Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o
+2026-09-20T12:34:31.7595290Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+2026-09-20T12:34:33.6245120Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o
+2026-09-20T12:34:33.7485780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+2026-09-20T12:34:33.8436560Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o obj/nanoisa/local_bindings.o
+2026-09-20T12:34:33.9992950Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+2026-09-20T12:34:34.4773180Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+2026-09-20T12:34:34.8323460Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o
+2026-09-20T12:34:35.0351380Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+2026-09-20T12:34:37.5871970Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+2026-09-20T12:34:37.8919800Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+2026-09-20T12:34:38.2191640Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+2026-09-20T12:34:38.3293940Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+2026-09-20T12:34:38.4365810Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+2026-09-20T12:34:38.6400470Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+2026-09-20T12:34:38.6945300Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+2026-09-20T12:34:38.7690000Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+2026-09-20T12:34:38.8924920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+2026-09-20T12:34:39.0408260Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+2026-09-20T12:34:39.2135980Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+2026-09-20T12:34:39.3383170Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+2026-09-20T12:34:39.6912240Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+2026-09-20T12:34:40.0671100Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+2026-09-20T12:34:40.1661420Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+2026-09-20T12:34:40.7571760Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o obj/nanoisa/service_bindings.o
+2026-09-20T12:34:40.8381780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o obj/nanoisa/service_bindings_module.o
+2026-09-20T12:34:41.0293880Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o obj/nanoisa/service_file_nominal.o
+2026-09-20T12:34:41.1335710Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+2026-09-20T12:34:41.2977930Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+2026-09-20T12:34:41.7582720Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+2026-09-20T12:34:41.9129540Z mkdir -p obj/nanovirt
+2026-09-20T12:34:41.9200170Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+2026-09-20T12:34:43.8301520Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+2026-09-20T12:34:44.0611040Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/opt/openssl@3/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+2026-09-20T12:34:44.2557820Z mkdir -p obj/nanovm
+2026-09-20T12:34:44.2963110Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o
+2026-09-20T12:34:44.7154120Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+2026-09-20T12:34:45.0364690Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/heap_cycles.c -o obj/nanovm/heap_cycles.o
+2026-09-20T12:34:45.1670790Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/value.c -o obj/nanovm/value.o
+2026-09-20T12:34:45.2704370Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+2026-09-20T12:34:47.1599960Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/vm_builtins.c -o obj/nanovm/vm_builtins.o
+2026-09-20T12:34:47.3498710Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/vm_callback.c -o obj/nanovm/vm_callback.o
+2026-09-20T12:34:47.4850270Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+2026-09-20T12:34:47.5887830Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/vm_dispatch.c -o obj/nanovm/vm_dispatch.o
+2026-09-20T12:34:47.6803950Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o
+2026-09-20T12:34:48.2464640Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o obj/nanovm/vm_ffi_arrays.o
+2026-09-20T12:34:48.3617070Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nominal_types.c -o obj/nominal_types.o
+2026-09-20T12:34:48.5666970Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/nsi_file_plan.c -o obj/nsi_file_plan.o
+2026-09-20T12:34:48.6864270Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/opencl_backend.c -o obj/opencl_backend.o
+2026-09-20T12:34:48.8955200Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/par_let_pass.c -o obj/par_let_pass.o
+2026-09-20T12:34:48.9879120Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/parser.c -o obj/parser.o
+2026-09-20T12:34:50.4959740Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/pgo_pass.c -o obj/pgo_pass.o
+2026-09-20T12:34:50.6522290Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/ptx_backend.c -o obj/ptx_backend.o
+2026-09-20T12:34:50.8328580Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/reflection.c -o obj/reflection.o
+2026-09-20T12:34:50.9514390Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/resource_flow.c -o obj/resource_flow.o
+2026-09-20T12:34:51.3781510Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/resource_tracking.c -o obj/resource_tracking.o
+2026-09-20T12:34:51.5411010Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/riscv_backend.c -o obj/riscv_backend.o
+2026-09-20T12:34:51.6799350Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/callback_runtime.c -o obj/runtime/callback_runtime.o
+2026-09-20T12:34:51.8031920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/cli.c -o obj/runtime/cli.o
+2026-09-20T12:34:51.8663660Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/dyn_array.c -o obj/runtime/dyn_array.o
+2026-09-20T12:34:52.0158900Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/effect_runtime.c -o obj/runtime/effect_runtime.o
+2026-09-20T12:34:52.0747170Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/ffi_loader.c -o obj/runtime/ffi_loader.o
+2026-09-20T12:34:52.2041780Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/gc.c -o obj/runtime/gc.o
+2026-09-20T12:34:52.3282970Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/gc_struct.c -o obj/runtime/gc_struct.o
+2026-09-20T12:34:52.4097580Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTArrayLiteral.c -o obj/runtime/list_ASTArrayLiteral.o
+2026-09-20T12:34:52.5005380Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTAssert.c -o obj/runtime/list_ASTAssert.o
+2026-09-20T12:34:52.5884070Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTBinaryOp.c -o obj/runtime/list_ASTBinaryOp.o
+2026-09-20T12:34:52.6786420Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTBlock.c -o obj/runtime/list_ASTBlock.o
+2026-09-20T12:34:52.7701160Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTBool.c -o obj/runtime/list_ASTBool.o
+2026-09-20T12:34:52.8553860Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTCall.c -o obj/runtime/list_ASTCall.o
+2026-09-20T12:34:52.9573350Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTEnum.c -o obj/runtime/list_ASTEnum.o
+2026-09-20T12:34:53.0284330Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTFieldAccess.c -o obj/runtime/list_ASTFieldAccess.o
+2026-09-20T12:34:53.1144670Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTFloat.c -o obj/runtime/list_ASTFloat.o
+2026-09-20T12:34:53.1907950Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTFor.c -o obj/runtime/list_ASTFor.o
+2026-09-20T12:34:53.2600420Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTFunction.c -o obj/runtime/list_ASTFunction.o
+2026-09-20T12:34:53.3408510Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTIdentifier.c -o obj/runtime/list_ASTIdentifier.o
+2026-09-20T12:34:53.4235990Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTIf.c -o obj/runtime/list_ASTIf.o
+2026-09-20T12:34:53.4975330Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTImport.c -o obj/runtime/list_ASTImport.o
+2026-09-20T12:34:53.5782860Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTLet.c -o obj/runtime/list_ASTLet.o
+2026-09-20T12:34:53.6732200Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTMatch.c -o obj/runtime/list_ASTMatch.o
+2026-09-20T12:34:53.7572270Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTModuleQualifiedCall.c -o obj/runtime/list_ASTModuleQualifiedCall.o
+2026-09-20T12:34:53.8692600Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTNumber.c -o obj/runtime/list_ASTNumber.o
+2026-09-20T12:34:53.9649740Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTOpaqueType.c -o obj/runtime/list_ASTOpaqueType.o
+2026-09-20T12:34:54.0510220Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTPrint.c -o obj/runtime/list_ASTPrint.o
+2026-09-20T12:34:54.1323220Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTReturn.c -o obj/runtime/list_ASTReturn.o
+2026-09-20T12:34:54.2190610Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTSet.c -o obj/runtime/list_ASTSet.o
+2026-09-20T12:34:54.2966530Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTShadow.c -o obj/runtime/list_ASTShadow.o
+2026-09-20T12:34:54.3698960Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTStmtRef.c -o obj/runtime/list_ASTStmtRef.o
+2026-09-20T12:34:54.4407490Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTString.c -o obj/runtime/list_ASTString.o
+2026-09-20T12:34:54.5141610Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTStruct.c -o obj/runtime/list_ASTStruct.o
+2026-09-20T12:34:54.5907930Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTStructLiteral.c -o obj/runtime/list_ASTStructLiteral.o
+2026-09-20T12:34:54.6866770Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTTupleIndex.c -o obj/runtime/list_ASTTupleIndex.o
+2026-09-20T12:34:54.7626910Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTTupleLiteral.c -o obj/runtime/list_ASTTupleLiteral.o
+2026-09-20T12:34:54.8501130Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTUnion.c -o obj/runtime/list_ASTUnion.o
+2026-09-20T12:34:54.9477980Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTUnionConstruct.c -o obj/runtime/list_ASTUnionConstruct.o
+2026-09-20T12:34:55.0424220Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTUnsafeBlock.c -o obj/runtime/list_ASTUnsafeBlock.o
+2026-09-20T12:34:55.1249920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_ASTWhile.c -o obj/runtime/list_ASTWhile.o
+2026-09-20T12:34:55.2319030Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_CompilerDiagnostic.c -o obj/runtime/list_CompilerDiagnostic.o
+2026-09-20T12:34:55.3152210Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_CompilerSourceLocation.c -o obj/runtime/list_CompilerSourceLocation.o
+2026-09-20T12:34:55.3909080Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_LexerToken.c -o obj/runtime/list_LexerToken.o
+2026-09-20T12:34:55.4665510Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_int.c -o obj/runtime/list_int.o
+2026-09-20T12:34:55.5485920Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_string.c -o obj/runtime/list_string.o
+2026-09-20T12:34:55.6554670Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/list_token.c -o obj/runtime/list_token.o
+2026-09-20T12:34:55.7557350Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/module_build_dir.c -o obj/runtime/module_build_dir.o
+2026-09-20T12:34:55.8634480Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/nl_string.c -o obj/runtime/nl_string.o
+2026-09-20T12:34:55.9779020Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/regex.c -o obj/runtime/regex.o
+2026-09-20T12:34:56.0748250Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/runtime/token_helpers.c -o obj/runtime/token_helpers.o
+2026-09-20T12:34:56.1408680Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/stdlib_runtime.c -o obj/stdlib_runtime.o
+2026-09-20T12:34:56.3355230Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/tco_pass.c -o obj/tco_pass.o
+2026-09-20T12:34:56.6763560Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/toon_output.c -o obj/toon_output.o
+2026-09-20T12:34:56.7585650Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/transpiler.c -o obj/transpiler.o
+2026-09-20T12:34:59.2039180Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/type_infer.c -o obj/type_infer.o
+2026-09-20T12:34:59.5700950Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/typechecker.c -o obj/typechecker.o
+2026-09-20T12:35:01.6777630Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/utf8.c -o obj/utf8.o
+2026-09-20T12:35:01.7992280Z mkdir -p bin
+2026-09-20T12:35:01.8599520Z Stage 1: Building C reference compiler...
+2026-09-20T12:35:03.6998480Z ✓ C Compiler: bin/nanoc_c
+2026-09-20T12:35:03.7132150Z ✓ Compiler: bin/nanoc -> bin/nanoc_c (C reference)
+2026-09-20T12:35:03.7138580Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/ffi_bindgen.c -o obj/ffi_bindgen.o
+2026-09-20T12:35:03.9150710Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nanoc-ffi obj/ffi_bindgen.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+2026-09-20T12:35:04.0165200Z ✓ Stage 1 complete (C reference binaries)
+2026-09-20T12:35:04.0569920Z ##[group]Run make test-examples-regressions
+2026-09-20T12:35:04.0570900Z [36;1mmake test-examples-regressions[0m
+2026-09-20T12:35:04.0782690Z shell: /bin/bash -e {0}
+2026-09-20T12:35:04.0783550Z ##[endgroup]
+2026-09-20T12:35:04.4744380Z Compiling examples/graphics/sdl_game_of_life.nano...
+2026-09-20T12:35:10.1229200Z   ✗ examples/graphics/sdl_game_of_life.nano (exit 1)
+2026-09-20T12:35:10.1235080Z     examples/graphics/sdl_game_of_life.nano:193:58: error: incompatible integer to pointer conversion passing 'long long' to parameter of type 'time_t *' (aka 'long *') [-Wint-conversion]
+2026-09-20T12:35:10.1238030Z         int64_t t = ({ __auto_type __nl_arg_19_0 = 0LL; time(__nl_arg_19_0); });
+2026-09-20T12:35:10.1239180Z                                                              ^~~~~~~~~~~~~
+2026-09-20T12:35:10.1243180Z     /Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/time.h:118:21: note: passing argument to parameter here
+2026-09-20T12:35:10.1245170Z     time_t time(time_t *);
+2026-09-20T12:35:10.1245820Z                         ^
+2026-09-20T12:35:10.1246470Z     1 error generated.
+2026-09-20T12:35:10.1247050Z     C compilation failed
+2026-09-20T12:35:10.1247780Z Compiling examples/audio/sdl_nanoamp.nano...
+2026-09-20T12:35:18.8718570Z   ✓ examples/audio/sdl_nanoamp.nano
+2026-09-20T12:35:18.8803410Z Compiling audio/sdl_nanoamp.nano...
+2026-09-20T12:35:30.0556720Z   ✓ audio/sdl_nanoamp.nano
+2026-09-20T12:35:30.0557960Z Compiling examples/opl/opl_cli.nano...
+2026-09-20T12:35:34.9831290Z   ✓ examples/opl/opl_cli.nano
+2026-09-20T12:35:34.9832380Z Compiling opl/opl_cli.nano...
+2026-09-20T12:35:39.0270270Z   ✓ opl/opl_cli.nano
+2026-09-20T12:35:39.0270980Z ERROR: 1 example regression(s) failed
+2026-09-20T12:35:39.0305890Z make: *** [test-examples-regressions] Error 1
+2026-09-20T12:35:39.0358380Z ##[error]Process completed with exit code 2.
+2026-09-20T12:35:39.0574580Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-20T12:35:39.0576040Z Post job cleanup.
+2026-09-20T12:35:39.4734570Z [command]/opt/homebrew/bin/git version
+2026-09-20T12:35:39.4929960Z git version 2.55.0
+2026-09-20T12:35:39.4955190Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/d32c3e06-50ca-49d3-a94a-7cf44557e63d/.gitconfig'
+2026-09-20T12:35:39.4963640Z Temporarily overriding HOME='/Users/runner/work/_temp/d32c3e06-50ca-49d3-a94a-7cf44557e63d' before making global git config changes
+2026-09-20T12:35:39.4964570Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-20T12:35:39.4967150Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/nanolang/nanolang
+2026-09-20T12:35:39.5070550Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-20T12:35:39.5122310Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-20T12:35:39.5910450Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-20T12:35:39.5953040Z http.https://github.com/.extraheader
+2026-09-20T12:35:39.5959100Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-20T12:35:39.6021950Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-20T12:35:39.6636790Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-20T12:35:39.6683840Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-20T12:35:39.7950110Z Cleaning up orphan processes
+2026-09-20T12:35:40.2975900Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

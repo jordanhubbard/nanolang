@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-linux-tuple-selected/providers.mk",
+    "root-tuple-providers"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85",
+  "timeout": 120,
+  "selected_ASAN_OPTIONS": null
+}

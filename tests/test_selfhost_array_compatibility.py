@@ -45,12 +45,15 @@ fn main() -> int {
 }
 shadow main { assert (== (main) 0) }
 ''')
-            run = subprocess.run([str(ROOT / "bin/nanoc_stage2"), str(source),
-                                  "-o", str(output)], cwd=ROOT,
-                                 capture_output=True, timeout=60)
-            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
-            ran = subprocess.run([str(output)], capture_output=True, timeout=10)
-            self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+            for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
+                with self.subTest(compiler=compiler):
+                    output = Path(d) / compiler
+                    run = subprocess.run([str(ROOT / "bin" / compiler), str(source),
+                                          "-o", str(output), "--keep-c"], cwd=ROOT,
+                                         capture_output=True, timeout=60)
+                    self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+                    ran = subprocess.run([str(output)], capture_output=True, timeout=10)
+                    self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
 
     def test_scalar_mismatches(self):
         self.check_mismatches(SCALARS)

@@ -1,0 +1,10 @@
+I retain private layout artifacts at /tmp/nano-ownership-layouts-1x9z4p8z
+test_structural_profiles_and_failures (tests.test_ownership_layouts_private.OwnershipLayoutsPrivate.test_structural_profiles_and_failures) ... PASS 42 private layout structure checks; no array authority
+I checked 5 allocating sites in both failure modes.
+PASS 486 private layout structure checks; no array authority
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 7.123s
+
+OK

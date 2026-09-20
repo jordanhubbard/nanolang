@@ -1543,7 +1543,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                                        op == TOKEN_AND || op == TOKEN_OR);
 
                     if (needs_parens) emit_literal(list, "(");
+                    /* I preserve each operand's source grouping, including
+                     * nested comparisons, as my Nano emitter does. */
+                    emit_literal(list, "(");
                     build_expr(list, expr->as.prefix_op.args[0], env);
+                    emit_literal(list, ")");
 
                     const char *op_str = NULL;
                     switch (op) {
@@ -1563,7 +1567,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         default: op_str = " OP "; break;
                     }
                     emit_literal(list, op_str);
+                    emit_literal(list, "(");
                     build_expr(list, expr->as.prefix_op.args[1], env);
+                    emit_literal(list, ")");
                     if (needs_parens) emit_literal(list, ")");
                 }
             } else if (arg_count == 1) {

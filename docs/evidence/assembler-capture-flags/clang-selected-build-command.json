@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "make",
+    "-B",
+    "/tmp/nanolang-capture-flags-qualified/clang-selected/nano_as_capture.so",
+    "BIN_DIR=/tmp/nanolang-capture-flags-qualified/clang-selected",
+    "CC=/usr/local/bin/clang",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -O2 -D_GNU_SOURCE -DNANO_CAPTURE_C_PROBE=25 --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "CPPFLAGS=-DNANO_CAPTURE_CPP_PROBE=17 -include /tmp/nanolang-capture-flags-qualified/flag-probe.h"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-capture-flags",
+  "selected_environment": {}
+}

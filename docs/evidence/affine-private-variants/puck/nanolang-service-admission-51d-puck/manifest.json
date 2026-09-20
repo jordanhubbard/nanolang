@@ -1,0 +1,123 @@
+[
+  {
+    "label": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.003135959035716951
+  },
+  {
+    "label": "head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.009867958026006818
+  },
+  {
+    "label": "ordinary-version",
+    "argv": [
+      "/usr/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.02052224997896701
+  },
+  {
+    "label": "other-version",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.18521270900964737
+  },
+  {
+    "label": "sdk",
+    "argv": [
+      "xcrun",
+      "--show-sdk-path"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.009753332938998938
+  },
+  {
+    "label": "sdk-version",
+    "argv": [
+      "xcrun",
+      "--show-sdk-version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.01103275001514703
+  },
+  {
+    "label": "other-asan",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.034164833021350205
+  },
+  {
+    "label": "prepare",
+    "argv": [
+      "/usr/bin/make",
+      "-f",
+      "/private/tmp/nanolang-service-admission-51d-puck/prepare.mk",
+      "-j4",
+      "CC=/usr/bin/clang",
+      "admission-prepare"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 4.6484300419688225
+  },
+  {
+    "label": "apple-ordinary",
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_vm_ordinary_admission"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 2.8943693339824677
+  },
+  {
+    "label": "homebrew-sanitizer",
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_vm_ordinary_admission"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 6.519145541009493
+  }
+]

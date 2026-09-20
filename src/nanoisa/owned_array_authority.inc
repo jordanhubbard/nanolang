@@ -81,7 +81,9 @@ static NvmAffineState *la_checked_state(LAAnalysis *a,uint32_t function) {
             facts->count=locals;facts->params=params;facts->result=result;
             facts->locals=calloc(locals?locals:1,sizeof *facts->locals);
             s->live=calloc(locals?locals:1,sizeof *s->live);s->refs=calloc(1,sizeof *s->refs);
-            if(!facts->locals || !s->live || !s->refs)goto fail;
+            s->variants=malloc((locals?locals:1)*sizeof *s->variants);
+            if(!facts->locals || !s->live || !s->variants || !s->refs)goto fail;
+            for(uint16_t local=0;local<locals;local++)s->variants[local]=NVM_AFFINE_UNKNOWN_VARIANT;
         }
         for(uint16_t n=0;n<locals;n++) {
             Slot slot;if(!slot_read(&c,&slot))goto fail;

@@ -1,0 +1,183 @@
+[
+  {
+    "label": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.00155203090980649
+  },
+  {
+    "label": "head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0085793430916965
+  },
+  {
+    "label": "ordinary-version",
+    "argv": [
+      "/bin/gcc",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.001509278081357479
+  },
+  {
+    "label": "other-version",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.01570241793524474
+  },
+  {
+    "label": "ordinary-asan",
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libasan.so"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.001619311049580574
+  },
+  {
+    "label": "ordinary-ubsan",
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libubsan.so"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0015372460475191474
+  },
+  {
+    "label": "ordinary-cc1",
+    "argv": [
+      "/bin/gcc",
+      "-print-prog-name=cc1"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0019545949762687087
+  },
+  {
+    "label": "ordinary-collect2",
+    "argv": [
+      "/bin/gcc",
+      "-print-prog-name=collect2"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0015494379913434386
+  },
+  {
+    "label": "other-asan",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.so"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.015727553982287645
+  },
+  {
+    "label": "other-asan-static",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.015767154982313514
+  },
+  {
+    "label": "other-asan-preinit",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan-preinit.a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.01580432301852852
+  },
+  {
+    "label": "other-ubsan-static",
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.ubsan_standalone.a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.015815970953553915
+  },
+  {
+    "label": "prepare",
+    "argv": [
+      "/bin/make",
+      "-f",
+      "/tmp/nanolang-admission-final-bc45-linux/prepare.mk",
+      "-j4",
+      "CC=/bin/gcc",
+      "admission-prepare"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 9.743813754059374
+  },
+  {
+    "label": "gcc-ordinary-variants",
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_affine_private_variants"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.8659561249660328
+  },
+  {
+    "label": "gcc-ordinary",
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_vm_ordinary_admission"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 3.7226187869673595
+  }
+]

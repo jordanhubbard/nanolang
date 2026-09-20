@@ -1,0 +1,12 @@
+{
+  "label": "affine-bytecode",
+  "argv": [
+    "/bin/make",
+    "CC=/bin/gcc",
+    "test-affine-bytecode"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.8158407049486414
+}

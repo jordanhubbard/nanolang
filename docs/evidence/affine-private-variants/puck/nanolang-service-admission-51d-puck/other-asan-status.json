@@ -1,0 +1,11 @@
+{
+  "label": "other-asan",
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.034164833021350205
+}

@@ -94,12 +94,21 @@ NvmFileCyclicExecutionReport dispatch_destroy(NvmFileRuntime **address,NvmFileRu
 #undef nvm_file_runtime_service
 #undef nvm_file_runtime_cyclic_destroy
 #endif
+#ifndef FILE_CYCLIC_VM_EXECUTE
+#define FILE_CYCLIC_VM_EXECUTE nvm_file_vm_cyclic_execute
+#endif
+#ifndef FILE_CYCLIC_EMIT
+#define FILE_CYCLIC_EMIT nvm2c_file_cyclic_private_emit
+#endif
+#ifndef FILE_CYCLIC_DISPATCH_MAIN
+#define FILE_CYCLIC_DISPATCH_MAIN main
+#endif
 #ifdef FILE_CYCLIC_CAPTURE
 static struct {uint8_t *bytes;size_t size;} captured[128];static unsigned captured_count;
 static NvmFileCyclicExecutionReport execute(const uint8_t *bytes,size_t size,const NvmFileCyclicOptions *options,NvmFileRuntimeView *out){
  if(bytes && size){unsigned i=0;for(;i<captured_count;i++)if(captured[i].size==size && !memcmp(captured[i].bytes,bytes,size))break;
   if(i==captured_count){CHECK(i<128);captured[i].bytes=malloc(size);CHECK(captured[i].bytes);memcpy(captured[i].bytes,bytes,size);captured[i].size=size;captured_count++;}}
- return nvm_file_vm_cyclic_execute(bytes,size,options,out);
+ return FILE_CYCLIC_VM_EXECUTE(bytes,size,options,out);
 }
 #else
 NvmFileCyclicExecutionReport file_cyclic_registered(const uint8_t *,size_t,const NvmFileCyclicOptions *,NvmFileRuntimeView *);
@@ -260,13 +269,13 @@ static void emit_cases(const char *directory){
    printf("I begin allocation prefix%u transient%u\n",prefix,transient);
    char *out=(char *)(uintptr_t)1;char error[256];unsigned opens=open_attempts;
    allocation_budget=(int)prefix;single_failure=transient!=0;failed_calls=0;
-   NvmFileRuntimeStatus status=nvm2c_file_cyclic_private_emit(captured[0].bytes,captured[0].size,&out,error,sizeof error);
+   NvmFileRuntimeStatus status=FILE_CYCLIC_EMIT(captured[0].bytes,captured[0].size,&out,error,sizeof error);
    allocation_budget=-1;single_failure=false;CHECK(open_attempts==opens);
    if(status==NVM_FILE_RUNTIME_OK){CHECK(out!=(char *)(uintptr_t)1);file_test_free(out);if(!failed_calls)complete=true;}
    else {CHECK(failed_calls && out==(char *)(uintptr_t)1);CHECK(status==NVM_FILE_RUNTIME_MEMORY || status==NVM_FILE_RUNTIME_UNRESOLVED);refusals++;}
    CHECK(tracked_live==live && tracked_bytes==bytes);
    char *recovered=(char *)(uintptr_t)1;size_t failures=failed_calls;
-   ROK(nvm2c_file_cyclic_private_emit(captured[0].bytes,captured[0].size,&recovered,error,sizeof error));
+   ROK(FILE_CYCLIC_EMIT(captured[0].bytes,captured[0].size,&recovered,error,sizeof error));
    CHECK(recovered && recovered!=(char *)(uintptr_t)1 && recovered[0] && !error[0]);
    CHECK(open_attempts==opens && failed_calls==failures);file_test_free(recovered);
    CHECK(tracked_live==live && tracked_bytes==bytes);if(complete)break;
@@ -280,7 +289,7 @@ static void emit_cases(const char *directory){
   CHECK(snprintf(path,sizeof path,"%s/case-%03u.nvm",directory,i)>0);FILE *file=fopen(path,"wb");CHECK(file);
   CHECK(fwrite(captured[i].bytes,1,captured[i].size,file)==captured[i].size && !fclose(file));
   char *text=(char *)(uintptr_t)1;char error[256];unsigned opens=open_attempts;
-  NvmFileRuntimeStatus status=nvm2c_file_cyclic_private_emit(captured[i].bytes,captured[i].size,&text,error,sizeof error);CHECK(open_attempts==opens);
+  NvmFileRuntimeStatus status=FILE_CYCLIC_EMIT(captured[i].bytes,captured[i].size,&text,error,sizeof error);CHECK(open_attempts==opens);
   if(status==NVM_FILE_RUNTIME_OK){CHECK(snprintf(path,sizeof path,"%s/case-%03u.c",directory,i)>0);file=fopen(path,"w");CHECK(file);size_t n=strlen(text);CHECK(fwrite(text,1,n,file)==n && !fclose(file));release_wire(text);}
   else CHECK(text==(char *)(uintptr_t)1 && status==NVM_FILE_RUNTIME_UNRESOLVED);
   CHECK(fprintf(manifest,"%u\t%u\t%zu\n",i,status,captured[i].size)>0);free(captured[i].bytes);
@@ -288,7 +297,7 @@ static void emit_cases(const char *directory){
  CHECK(!fclose(manifest));CHECK(captured_count>=15);
  printf("PASS cyclic VM capture: %u exact modules\n",captured_count);
 }
-int main(int argc,char **argv){CHECK(argc==2);CHECK(!setvbuf(stdout,NULL,_IONBF,0));
+int FILE_CYCLIC_DISPATCH_MAIN(int argc,char **argv){CHECK(argc==2);CHECK(!setvbuf(stdout,NULL,_IONBF,0));
  (void)retained_cyclic_carrier_main;corpus();refusal_controls();prepare_faults();emit_cases(argv[1]);empty_host();
 #ifdef HOSTED_INSTRUMENT
  CHECK(!tracked_live && !tracked_bytes);
@@ -296,7 +305,7 @@ int main(int argc,char **argv){CHECK(argc==2);CHECK(!setvbuf(stdout,NULL,_IONBF,
  return 0;
 }
 #else
-int main(void){CHECK(!setvbuf(stdout,NULL,_IONBF,0));(void)retained_cyclic_carrier_main;
+int FILE_CYCLIC_DISPATCH_MAIN(void){CHECK(!setvbuf(stdout,NULL,_IONBF,0));(void)retained_cyclic_carrier_main;
  corpus();refusal_controls();prepare_faults();empty_host();
 #ifdef HOSTED_INSTRUMENT
  CHECK(!tracked_live && !tracked_bytes);

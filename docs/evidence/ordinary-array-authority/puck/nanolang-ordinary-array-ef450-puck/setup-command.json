@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-ordinary-array-ef450-puck/providers.mk",
+    "-j2",
+    "CC=/usr/bin/clang",
+    "array-providers",
+    "nano_vm",
+    "nvm2c"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": "",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

@@ -12926,8 +12926,8 @@ reconciled COMPLETED through actual merge evidence; dependency2 is measured
 private carrier acceptance only. Task15a92 remains OPEN. Optional queued hosted
 checks are not claimed passed.
 
-- [ ] I review and implement my [private cyclic VM/native dispatch plan](NANOISA_FILE_CYCLIC_DISPATCH_PLAN.md) under15a92: exact all-variant coverage, original identities, one carrier fuel budget, real generated functions/labels and explicit semantic ABI/fact agreement.
-- [ ] I review the complete shared-wire fixtures, then qualify Linux/puck VM/native O0/O2, fuel/host/fault/cleanup and unchanged acyclic/public-refusal neighbors with retained first terminals and source/tool/provider seals.
+- [x] I review and implement my [private cyclic VM/native dispatch plan](NANOISA_FILE_CYCLIC_DISPATCH_PLAN.md) under15a92: exact all-variant coverage, original identities, one carrier fuel budget, real generated functions/labels and explicit semantic ABI/fact agreement.
+- [x] I review the complete shared-wire fixtures, then qualify Linux/puck VM/native O0/O2, fuel/host/fault/cleanup and unchanged acyclic/public-refusal neighbors with retained first terminals and source/tool/provider seals.
 - [ ] I review a separate matched public conjunction after private dispatch qualification; closed-indirect, richer-borrow and paired source/shadows remain required, with no old acyclic plan reinterpretation.
 
 I prepare the first reviewed-design27b972 private cyclic dispatch source: distinct
@@ -13055,6 +13055,64 @@ and exact native/VM trace controls; its only finding is the explicitly retained
 Linux interpreter historical-hash omission above. No runtime/source public
 activation follows this private checkpoint. Parent15a92 stays open; repair78437
 requires actual merge reconciliation.
+
+### I join explicit public grants to matched cyclic File execution
+
+I prepare the next dependency of `task_15a92c930af7433e9e25b41c7c5c761f`
+from reviewed PR907 head92b9. The private dispatch qualification is sealed;
+its actual canonical merge and this design's review precede production.
+Contract: [explicit cyclic public admission](NANOISA_FILE_CYCLIC_PUBLIC_ADMISSION.md).
+
+- [ ] I review exact installed option/report types, new explicit public VM/native
+  entries, grant/gate precedence, complete fresh report agreement and fuel/error
+  semantics while preserving the existing acyclic API and selectors.
+- [ ] I factor the qualified private engines without semantic drift, implement
+  the matched public wrappers and exact installed archive/header closure, and
+  submit complete production plus fixtures for independent review before gates.
+- [ ] I qualify explicit installed CLI/API selection, deterministic fuel and
+  cleanup/publication, busy/revoked grants, disagreement before acquisition,
+  multi-unit native linking and old refusals on Linux/Darwin with exact actual
+  interpreter/compiler/provider inventories and retained first terminals.
+- [ ] I seal and independently review the bounded public conjunction, merge it,
+  then reconcile only its measured milestone. Full15a92 source/shadows,
+  closed-indirect/richer-borrow work and full72556/6931 remain required/open.
+
+
+I have root approval for the4a79 public cyclic design and prepare its complete
+production checkpoint on a separate branch. I retain the exact report value
+layout and shared private VM/native operations, add only explicit granted cyclic
+entries and CLI selection, and enumerate the30-header installed closure. Static
+identity/include inspection passes; no build, execution, installed acceptance or
+canonical activation is claimed. PR907 actual merge and independent complete
+production/fixture review still precede gates. Parent15a92 and its source,
+closed-indirect and richer-reference obligations remain open.
+
+
+I prepare public cyclic fixtures after root source review4578. I retain the
+entire original private corpus through default-preserving fixture entry/emit/main
+selectors, compare complete reports and host traces with private capture, and
+exercise explicit grant/options/package/CLI boundaries. My existing acyclic
+installed-package assertion must count30 headers after the approved eight-header
+addition; no behavioral assertion is removed. The public report header labels
+its historical DEFAULT constant as private legacy only. Source/fixture review
+and canonical907 still precede every new gate.
+
+
+I submit the complete public cyclic fixture checkpoint with unchanged private
+corpus source reconstructed under its default selectors, identical-byte corpus
+and complete trace comparison, actual public native O0/O2, installed-only archive
+and CLI controls. Static Python parsing and diff checks pass; no unittest setup,
+compiler, install or module has run. I retain the canonical907 and independent
+fixture-review prerequisites before freezing new gate inputs.
+
+
+I prepare a bounded prospective driver while canonical907 remains held. Fresh
+full install rebuilds common objects using each selected configuration; I record
+those phase-specific provider changes and do not claim unchanged ordinary common
+objects. The public module phase has a proposed3600-second outer bound (its
+individual install commands retain900-second bounds); setup and each retained
+neighbor keep1800 seconds. No driver is launched before dependency and gate
+approval.
 ## My real Wasm read-text host checkpoint (b7ef under2d2)
 
 I record actual native PR903 merge `0a488a1040412746566290bd93110ff76e8720dd`.
@@ -13119,12 +13177,109 @@ full b7ef/2d2 admission/emission/installed/compiler obligations remain open.
 
 - [x] I correct the general VM underflow fixture's stale expectation for bare `FILE_DROP_STACK`, retain both first full-test terminals, assert service-first refusal with untouched caller/frame state, and preserve ordinary handler underflow checks (`task_c2807d311e5d46938d5193b394bb6840`; [contract](MATCH_CALL_UNION_IDENTITY.md)).
 
+
+### My synchronous ordinary-admission prerequisite
+
+I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5.1 gates. My reviewed86c758 diagnostic measured98.6604percent completed-admission time between matched markers; evidence538251ed preserves the unchanged timeout. `docs/VM_SYNCHRONOUS_ADMISSION.md` records my proposed narrow assertion-resume certificate and all mutation/reentry exclusions.
+
+- [ ] I independently review the segment lifetime, every trap/host/memory-write invalidation, and the exact private production diff before builds.
+- [ ] I review and qualify counter-based ordinary/assertion/refusal/mutation/reentry controls under both dispatch forms, preserving owned and callback paths.
+- [ ] I freshly execute the unchanged full imported emitter shadow gate with its original ten-second policy, then relevant VM/callback/service/profile adjacency; I retain failures without extending deadlines.
+- [ ] I seal evidence and obtain actual merge before reconciling this bounded task; passive and Darwin native timeout tasks remain separate.
+
+### My ordinary-admission fixture indentation prerequisite
+
+- [x] I correct the new fixture main-loop indentation after retaining the firstedd51 strict GCC compilation terminal under task_4931a66f39c04b1a96981a4e00d43646; no fixture executed. I preserve strict warnings, all assertions and original provider/source evidence, review the tiny correction, then run a fresh corrected fixture.
+
+- [x] I remove duplicate service scans only within one synchronous core-admission transaction under `docs/VM_SERVICE_ADMISSION_TRANSACTION.md` and task_4931a66f39c04b1a96981a4e00d43646; explicit stack facts expire before dispatch, public classifiers remain fresh, and all authority/invalidation/deadline gates remain required.
+
+### My transaction-scoped service facts pass the unchanged emitter gate
+
+I qualified c95c2366e with fixture 1f9d29625: five Linux/puck focused configurations in switch/computed-goto form, actual callback/FFI, mixed and public owner ARRAY neighbors, and the original full imported emitter ten-second shadow gate all passed. `docs/evidence/service-admission.md` seals exact input/provider/tool maps and artifacts with the modeled/instrumented scope distinguished. I retain prior failures and keep task_4931a66f39c04b1a96981a4e00d43646 open pending independent review and canonical ownership integration; this does not close wider compiler/release criteria.
+
 - [x] I correct the full-test driver’s separate `NANO_NATIVE_TEST_CC` selection on Darwin, retain the eight-method unsupported Apple leak-sanitizer terminal, and qualify the unchanged transport/full-test path with explicit supported Homebrew Clang and leak detection intact (`task_a1d38d93616f4c48a3b8692b30226a82`).
 
 - [x] I preserve the907 restack puck pre-build terminal: SSH-selected Python rejects tarfile.extractall(filter=data) before source extraction or compilation. I explicitly select installed Homebrew Python in a fresh destination and inventory the actual driver; no runtime/fixture assertion or historical tool claim changes.
 
 I retain the907 canonical restack at3df299892 after actual906/ca0c9f6a8: fresh providers and ordinary linked cyclic VM/native O0/O2 pass on Linux/puck, all33 traces match at each optimization over23 exact modules. My [supplement](evidence/file-cyclic-dispatch-restack-910/README.md) preserves the pre-build Python terminal,93 reports,834 artifacts and8 equal pairs; original sanitizer matrices retain their pins. Root review/actual merge remain pending, full parents open.
 
+### I preserve strict C++ inclusion of my installed cyclic File headers
+
+- [ ] I repair the installed-header prerequisite exposed by the first frozen
+  aff3c8956 Linux ordinary public run (`task_c8da07ba2f7547be8baf3625eace784a`).
+  Setup/discovery and the instrumented corpus pass; linked installed C++11
+  compilation fails on three C-only ISA assertions and the generated empty
+  opcode sentinel's partial initializer. I retain the99.907-second two-method
+  terminal and all artifacts before correction; Darwin's independent outcome
+  retains its own evidence. This is not a cyclic runtime failure.
+- [ ] I select the language's assertion spelling without removing any predicate,
+  and generate complete extended-opcode initializers from the canonical generator.
+  Its nonempty extended rows also omit the final two zero-valued fields; I make
+  those existing implicit zeros explicit. No schema values/opcode behavior change.
+  I review the complete diff before fresh gates, retain C99/C11/C++11/C++17
+  -Werror and all existing public/installed assertions, then seal exact outcomes.
+  Parent15a92/public acceptance and source/indirect/richer-borrow work stay open.
+
+I also retain the independent aff3 Darwin first ordinary terminal: two methods
+run57.171 seconds, with the instrumented public corpus passing before the linked
+installed C++11 header fails the same missing-field initializer diagnostic. Apple
+Clang accepts the old assertion spelling as an extension; GCC reports both defects.
+Neither host reaches later configurations. Correction97a3866 changes only the
+three reviewed header/generator files; fresh qualification awaits source review.
+
+I retain a distinct414c Darwin schema prerequisite terminal under c8da07:
+Homebrew Python3.14.7 cannot import PyYAML, so the new consistency command exits1
+in0.043 seconds before setup or compilation. Linux's generator and33 schema
+methods pass independently. Read-only discovery finds existing Python3.13 with
+PyYAML in my user's3.13 site packages. I propose selecting that interpreter only
+for the two schema commands, recording its executable and every PyYAML source/
+extension file, while keeping the existing3.14 driver and its bounded cleanup.
+Fresh paths and review precede continuation; no global installation, source or
+assertion change is needed, and no failed public artifact was executed.
+
+Corrected414c Linux ordinary passes both complete public methods in99.671 seconds,
+including installed C99/C11/C++11/C++17. Its next Clang ordinary phase stops during
+package build: the hardcoded nano_as_capture.so recipe does not use CFLAGS, so
+my CFLAGS-only GCC13 discovery option never reaches that compiler invocation.
+Clang's future-GCC-selection diagnostic becomes an error under unchanged -Werror.
+I retain that0.616-second driver terminal and propose putting the same exact
+GCC13 option in the selected compiler command itself; no diagnostic suppression,
+Make/product change or passed ordinary replay follows. Fresh corrected paths
+will run the affected Clang phase and previously unrun phases with precise
+414c source attribution. The approved Darwin schema-only Python3.13 correction
+records its interpreter and PyYAML files while keeping the3.14 driver unchanged.
+
+- [ ] I repair and qualify caller flag propagation in the assembler capture
+  build recipe as a distinct full5.1 build-system follow-up
+  (`task_befc0deb04bc4a73b4ef2931ca7b604d`). My approved compiler-command selection
+  lets the bounded cyclic gate continue; it does not repair the recipe's omitted
+  CFLAGS. I preserve strict warnings and review the intended target flag policy
+  before a separate Make change and meaningful shared-library acceptance.
+
+- [ ] I retain the414c-config Darwin Homebrew ordinary first terminal14.478s
+  after complete Apple ordinaryPASS58.074s (task_b29ce2ae0308458a9bedd62a802a1bb7).
+  Native replay increments a public VM-bridge counter whose existing read is
+  capture-only; strict Homebrew Clang reports the unused written global. I add
+  an actual zero-bridge-call assertion after native corpus replay, retaining the
+  capture count predicate and all warnings. Production stays unchanged. Exact
+  fixture review precedes fresh affected/unrun qualification; earlier passes
+  and first terminals keep their own source/compiler attribution.
+
+I reconcile only those two bounded private dispatch checkboxes through actual
+PR907 merge `6dd5d7a2bde2234dfeb3c21633f5426c7a83bae2`, after the independent
+original/supplemental audits and root canonical restack review. Their earlier
+pending-merge paragraphs are historical. The separate public conjunction,
+closed-indirect/richer-borrow/paired-source requirements and parent15a92 remain
+open; current public qualification still requires its own integration and merge.
+
+I finish the cumulative public cyclic matrix with exact attribution: all seven
+compiler/sanitizer configurations pass, all required neighbors pass on each host,
+and the fresh Linux a11c single linked/install method passes51.578 seconds.
+[My public candidate evidence](evidence/file-cyclic-public.md) preserves five
+unexpected terminals, the53 phase endpoint sets, all provider rebuild deltas
+and the separate native-counter assertion. I do not close the public milestone
+or its parents: independent seal review, current-main integration and actual
+merge remain required. I keep the capture recipe flag-propagation follow-up open.
 I retain PR908 publisher acceptance across actual PR907 main
 `6dd5d7a2bde2234dfeb3c21633f5426c7a83bae2`, including PR906/910.
 [My static closure comparison](evidence/file-binding-publisher-restack-910.md)
@@ -13176,7 +13331,7 @@ No full File/source parent closes from this prerequisite.
 ### Full-suite passive-flow and emitter-shadow attribution (2026-09-20)
 
 - [x] I resolve `task_4c107eb5835743dd9e8c0683eadd78ea`: my unchanged passive-flow source is rejected during shadow bytecode verification in the retained Linux c140 full-suite run. I first compare fresh canonical af8809 and repaired compiler builds, retain exact artifacts, and review any branch-validation repair before execution. My [internal CFG contract](NANOISA_PASSIVE_INTERNAL_CFG.md) requires bounded forward edges, exact stack joins, a shared terminal result store and unchanged dependency/input authority.
-- [ ] I resolve `task_4931a66f39c04b1a96981a4e00d43646`: compiling my bytecode emitter reaches the ten-second shadow deadline in that same run. I distinguish slow finite work from nontermination without raising the deadline or weakening tests.
+- [x] I resolve `task_4931a66f39c04b1a96981a4e00d43646`: compiling my bytecode emitter reaches the ten-second shadow deadline in that same run. I distinguish slow finite work from nontermination without raising the deadline or weakening tests.
 
 I keep these independent of PR910's generic-call identity and VM fixture repair. The original 90-method suite completed with 88 passes and two failures. Its temporary module paths were deleted by the existing test cleanup; I retain the command/log rather than claiming recovered historical binaries. These clauses remain full 5.1 acceptance work.
 
@@ -13225,6 +13380,217 @@ Stage1/2 are retained with exact product and507-input/selected-graph proof; no
 bootstrap or sanitizer replay is claimed. My253-report seal has12 equal pairs
 and current26,190-source/12-tool equality on each host. Original full source
 requirements stay open; root reviews evidence before actual PR911 merge.
+
+- [ ] I implement the private ordinary record-array authority query under task_f36b179a0f2b4a1b99c29ccd2af66f99 using the agreed shared v3 envelope at peer8fadd11f: [reconciled reader contract](NANOISA_ORDINARY_RECORD_ARRAY_AUTHORITY.md). I preserve public ARRAY_FIELDS refusal until the separate consumer audit, validate whole mixed envelopes before private projection, review source then fixtures, and qualify limits/faults/copied lifetime on Linux/Darwin. Flat declaration facts do not close full15f/488 or grant executable admission.
+
+- [ ] I reconcile private forward retained-record DAG validation with ARRAY/NO_INDEX leaves before the ordinary array query claims declaration-order independence. The existing public decoder and record preflight both restrict forward leaves to scalar/string; I preserve those entry decisions and add an explicit private checked profile, complete graph/size preflight and shared ownership validation against its owned layouts. I do not clear resource flags or treat ambiguous legacy allocation failure as proved malformed input. This prerequisite belongs to task_f36b179a0f2b4a1b99c29ccd2af66f99 and the [shared envelope contract](NANOISA_ORDINARY_RECORD_ARRAY_AUTHORITY.md).
+
+- [x] I correct the private layout fixture's pre-execution runner import: peer8fadd's dependent branch contains the retained FileCyclic command helper, not the newer root FileIndirectFlow helper. Static review found the absent import before any build/test. I reuse FileCyclic.command without changing its file-backed timeout/group-cleanup protocol; no production delta or execution failure is claimed.
+
+- [x] I isolate private-layout unittest discovery from the imported FileCyclic TestCase. Independent static review found that the class import would discover unrelated cyclic tests and require their provider environment. I record this before correction, import the helper module instead, and check discovery before qualification; production remains unchanged.
+
+- [x] I qualify the private structural decoder prerequisite at f4200bff5/83b04f11c in all seven Linux/Darwin compiler configurations, with independent evidence review. [Retained evidence](evidence/private-layout.md) records42 linked/486 instrumented checks each and every measured allocation failure. The whole ARRAY_FIELDS authority query, public consumers and full15f/488 remain open.
+
+- [ ] I implement the reviewed whole-envelope ordinary-array query after the qualified structural prerequisite, preserving public decisions and reporting ambiguous legacy decode failure as UNKNOWN. The [implementation checkpoint](NANOISA_ORDINARY_RECORD_ARRAY_AUTHORITY.md) records common-reader factoring, complete extension validation, copied ownership and conservative work/heap bounds before code.
+
+- [ ] I refuse a partial service claim in the private ordinary-array query: independent review of8750 found that a nonnull service_data pointer with zero service_size escaped the conservative UNKNOWN predicate. I add the missing pointer check before fixtures; this query never grants execution.
+
+- [ ] I repair inherited ordinary-authority allocation injection: both ef450 query matrices pass, but its old fixture expects a query-TU allocation that the peer baseline no longer makes. Baseline83b reproduces the stale assertion with a nonexecuting allocator-symbol reference. I retain those failures and retarget the fixture to real layout decoder allocations, exact legacy error stages, unchanged outputs and fresh recovery before rerunning adjacent ordinary/transport controls. No public production behavior changes. The corrected cdd600 allocation sweep passes and reaches another stale expectation: direct resource STRING declarations are already accepted by baseline83b; the identical later assertion fails against that baseline. I retain both terminals and replace those obsolete declaration refusals with exact RESOURCE classification, verifier-required and managed ordinary-plan refusal checks; unsupported execution is not inferred from descriptive acceptance. Qualification at2a30 now passes252 ordinary/sanitized authority checks on both hosts, plus365 conversion and20 transport checks; I retain the original seven query passes separately in `docs/evidence/ordinary-array-authority.md`. Independent review and canonical integration remain pending.
+
+- [ ] I correct task_b5dfc0f04d2b49b4ec6b01ab46771f22 before publishing PR909: independent review found nine retained Darwin dSYM files listed by my integration manifest but absent from Git because ignored. Their working bytes match the recorded hashes. I explicitly commit those exact files, then verify all194 actual Git report blobs; source, tests, original evidence and gate outcomes stay at their existing pins.
+
+- [ ] I diagnose the first integrated51d `test_mixed_samples_admission` segmentation fault on both Linux/puck under task_0924394710ff4dbc9a762b26b1eebf34, preserving the successful focused/host checks and first Make2 terminals. I inspect actual allocation-hook and canonical ownership dependencies with bounded debugger observation before attribution or correction; I do not replay the whole gate or relabel original1f9 acceptance.
+
+- [ ] I restore variant-storage invariants in both private affine-state constructors under task_0924394710ff4dbc9a762b26b1eebf34 and `docs/AFFINE_PRIVATE_VARIANTS_REPAIR.md`. I retain the observed mixed clone crash before fault injection and the statically identified owner ARRAY constructor gap, review production then fixtures, and qualify corrected paths without expanding authority.
+
+- [ ] I preserve the first660 Darwin owner-authority neighbor link failure before fixture execution: its old Python runner hardcodes `-lm -lcrypto` and drops my prepared OpenSSL search path. Under task_0924394710ff4dbc9a762b26b1eebf34 I forward exact caller link flags through Make/environment, preserving the old default and all assertions, before continuing only the unreached Darwin controls. Linux's unchanged owner-authority pass remains attributed to660.
+## My complete mixed declaration projection
+
+- [ ] I review the [whole-envelope projection contract](NANOISA_MIXED_DECLARATION_PROJECTION.md) under existing f36b/15f/488 before implementation. Both UNION_VARIANTS and ARRAY_FIELDS must validate before either copied projection escapes; existing public and executable selectors retain their decisions.
+- [ ] I factor shared owned declaration staging, add the bounded complete mixed plan and exact copied getters, then review all production before fixtures. I retain the existing ordinary-only query and all resource/unsupported/limit distinctions.
+- [ ] I qualify mixed identities, independent malformed halves, input destruction, unchanged sentinels, work/storage limits and every allocation prefix on both hosts with original ownership/union/array neighbors.
+- [ ] I audit public consumers and add origin/mutation/alias/runtime proofs before paired source publication and full generic/imported/nested graph acceptance. Full5.1 remains open until those gates pass.
+
+- [ ] I add the explicit mixed private forward-layout profile required by the projection contract before using it: static review found the current array profile intentionally requires all forward-table layouts to be STRUCT. I preserve that old profile and qualify shared bounded graph traversal for scalar unions beside forward record DAGs, rejecting cross-kind record edges and cycles. This is part of existing f36b/15f, not new executable authority.
+
+I prepare the mixed declaration production checkpoint after reviewed228b design
+and its explicit forward-layout amendment. Shared staging, exact zero union
+flags, full suffix precedence and counted/copied variants are implemented;
+old query/public profiles remain unchanged. No fixtures, builds or execution
+have run. Full production review precedes new acceptance work.
+
+I prepare the mixed declaration fixture checkpoint after root and independent
+31c68 production review. My new fixture preserves every original ordinary query
+control, adds complete copied mixed identities and malformed-half/descriptor/
+path/status controls, actual maximum tables and conservative two-pass union work
+boundaries, and measures both allocation-failure modes with fresh recovery. The
+runner retains strict diagnostics and bounded raw command evidence. Source stays
+at31c68 integrated with canonical e59 by422535929; no builds or execution occur
+before complete fixture review. Full parents and runtime admission remain open.
+### Final public cyclic integration after merged compiler/query prerequisites
+
+I preserve my original public cyclic seven-configuration seal at `f0012faad` and integrate actual main `e59fc09b591db977e53e4fef549d7615ad34e114` in a separate tree. My 25 public source, header, generator and fixture files remain byte-identical. I retain both additive Make targets and roadmap histories. Incoming token byte-count ABI, affine/ordinary array readers, passive preparation and separate indirect hosted query require fresh common/compiler/query providers; they do not change my public cyclic API or fuel protocol.
+
+- [x] I inspect the incoming provider/header changes and preserve exact qualified public source and fixture identities.
+- [x] I build fresh providers and compiler/package tools on Linux and Darwin, then run ordinary public cyclic installed-package/native controls, matched private dispatch, cyclic hosted, indirect hosted, old acyclic public and archive boundary neighbors with endpoint maps and first-terminal retention. All11 selected phases pass on each host at `4c85e7984`. My installed checks retain C99/C11/C++11/C++17 and native O0/O2.
+- [x] I seal this ordinary integration separately in251 reports with6,834 artifacts and22 phase endpoint sets; original sanitizer results retain their original pins. Independent review and actual merge remain pending. I keep source publication, indirect execution, richer borrows and the full parent open.
+
+I integrate the reviewed mixed query and849a fixtures with actual public914 merge
+`f219fa6c500d5b3e2b20ccd300399ba69940b478` before fresh qualification. All query
+and fixture bytes stay exact. I retain both roadmap histories and additive Make
+prerequisites. My planned seven compiler configurations rebuild the two query
+translation units with selected strict and sanitizer flags; other linked providers
+are inventoried ordinary setup. I retain old ownership, affine-union, ordinary-array
+and transport neighbors and stop on the first unexpected terminal. No result from
+this non-admitting query establishes runtime or source mixed-graph authority.
+
+- [ ] I preserve task_349ba67236c448e0aa92f206632c3557 first mixed-fixture Clang terminal at `dd5a3ab63`: line164 places cleanup after a nested-loop closing brace on the same line, triggering strict misleading-indentation. Linux GCC ordinary passes1,814 linked/10,960 instrumented checks and13 allocation positions; Darwin was transferred but unrun. I separate only that statement, retain all predicates and production, then qualify corrected/unrun phases with fresh fixture products and exact provider reuse evidence. I do not repeat the unaffected GCC pass or execute a failed output.
+
+My [mixed declaration qualification](evidence/ownership-declaration-projection.md)
+now passes all seven compiler configurations cumulatively: original dd5a GCC
+ordinary and corrected5a367 remaining Linux/Darwin modes. Each reports1,814
+linked/10,960 observed checks and13 mixed allocation positions in both failure
+modes. Corrected15 Linux and17 Darwin phases include unchanged ownership, affine
+union, array and transport neighbors. I retain the first strict Clang formatting
+terminal, exact provider-copy attribution and a367-report/598-object seal. Full
+source/runtime goals remain open; independent review and actual merge precede
+bounded ledger reconciliation, including repair349ba.
+
+## My assembler capture build flags
+
+- [x] I repair task_befc0deb04bc4a73b4ef2931ca7b604d by carrying caller preprocessing, compiler-selection, warning and linker options into my Linux assembler capture helper. I retain its PIC/shared-library requirements and guard its local feature macro against a caller definition. This helper loads into the external assembler, so default helper flags exclude driver sanitizer switches; dedicated helper flag variables permit explicit compatible instrumentation. I qualify the real Make recipe, strict Clang GCC-selection flags and the existing capture/replay corpus before landing. My parent compiler/runtime sanitizer assertions remain unchanged.
+
+I retain [four actual Make builds and capture/replay runs](evidence/assembler-capture-flags/summary.json): default GCC, strict Clang with GCC13 selected in CFLAGS, parent sanitizer flags with the external-helper boundary, and explicit helper UBSan. Each passes all10 existing corpus tests; forced-include exported constants prove CPPFLAGS and CFLAGS both reached the built helper. Independent source review passes; publication remains through the PR.
+
+## My mixed record-array consumer dependency after PR916
+
+I continue f36b/15f/488 from actual PR916 canonical7bba8c798. My declaration
+projection is complete within its measured scope; ARRAY-field origin proof and
+generated lifetime are not supplied by metadata. I record
+[the next consumer contract](NANOISA_MIXED_RECORD_ARRAY_CONSUMER.md) under
+`task_f64151e8a1c14585909bc44e801f5a4b` before implementation.
+
+- [ ] I review the exact separate query and structural-validation factoring; old public verifier/profile decisions remain unchanged, with no stripped metadata or trusted-bit bypass.
+- [ ] I implement and review copied record-field ARRAY origin constraints across all alias writes, calls/globals/joins and replacement, then qualify bounded work/storage, faults and unchanged old modes on both hosts.
+- [ ] I qualify actual counted record/array carrier lifetime and failure cleanup in native and import-free Wasm harnesses before any executable widening.
+- [ ] I review and qualify the complete shared verifier/VM/native/LLVM/Wasm admission and generated-root conjunction, then paired source publication and unchanged programs/shadows.
+- [ ] I complete required executable unions, nested/recursive/generic/imported/resource/tuple/map/callable graph successors and full product gates before parent closure. The first flat-array consumer does not narrow full5.1.
+
+This checkpoint is documentation only. I preserve File parser, peer affine source,
+service-admission work and all frozen qualification trees independently.
+
+I prepare the f641 prerequisite extraction checkpoint with three static verifier
+helpers and a complete moved-check/caller map. All old policy branches, diagnostics
+and outputs retain their order; no new API, admission, facts or execution are
+claimed. The next reviewed checkpoint must supply the original-module private
+preparation and complete memory/work accounting before any fixture gates.
+
+- [ ] I retain both bc45 public-package setup failures before fixture execution: my external launch omitted the known managed LLVM selectors, producing Linux's strict GCC-install-selection warning and Darwin's missing opt. I correct only explicit NMS runtime compiler/optimizer configuration and inventory, preserve the first terminals, and continue the separate package trees; the completed ordinary integration is unchanged.
+
+- [ ] I retain the first selected Darwin public-corpus compile terminal: the external launch left NANO_FILE_RUNTIME_CFLAGS empty, omitting the Make-emitted SDK ffi include path. I forward the exact frozen current Make flags before continuing only Darwin public controls, keep Linux's completed package pass, and do not weaken warnings or assertions.
+## My retained Darwin native timeout diagnosis
+
+- [x] I diagnose task_2f52721aac374ac592b61438315dc981 with a retained run of the unchanged projected record-array global test, including both function orders and its original120-second subprocess limit. I reuse the already qualified f219 public integration translator/assembler/VM artifacts on puck with exact current hashes; this is a fresh control run, not a fresh build or a replay of the deleted historical binaries. I preserve generated C, bytecode, executables, individual commands/stdout/stderr/status, selected environment and process cleanup. The tuple producer case remains pending until the repaired emitter is integrated. A passing control alone cannot establish the historical cause or close full-suite acceptance.
+
+I reproduced both projected native timeouts on puck with the unchanged120-second limit. A live process sample places the store-first stall inside recursive Apple ASan initialization during dyld/malloc startup, before program main. A separate minimal puts-only executable also times out with Apple cc's ASan/UBSan runtime, while the same source/options with Homebrew Clang enters main successfully. I retain both diagnostic results and do not infer a generated-code fault from the historical timeout. Before correction, I scope the two affected tests to honor the existing NANO_NATIVE_TEST_CC selector using shlex, preserving every sanitizer flag, assertion and deadline. Tuple producer qualification and the whole fresh canonical suite remain required.
+
+- [x] I let the projected aggregate and tuple native sanitizer tests honor my existing `NANO_NATIVE_TEST_CC` selector, retaining default `cc`, all assertions and deadlines. Both methods pass on Linux and Darwin, with eight successful generated native executions and independently checked retained evidence. My [diagnosis and qualification](NATIVE_COMPILER_SELECTOR.md) preserve the original timeouts and runtime control; full canonical 90-method acceptance and task_2f52721aac374ac592b61438315dc981 remain open.
+
+I prepare the complete f641 non-admitting source checkpoint on actual919ca377:
+fresh same-original-module declarations, bounded shared operand/stack/type
+validation, copied decoded staging, exact array-field alias constraints and owned
+immutable getters. My accounting includes declaration staging, decoder realloc
+capacity, type scratch and publication overlap. Old wrappers remain in their
+original mode; public consumers are unchanged. Full source review precedes
+fixtures and all execution.
+
+- [ ] I diagnose the static empty-nonvoid-function precondition under task_f4d020187bf34faca52e761cbb299dde: the old height walk skips its empty terminal while managed origin analysis expects a result slot. I preserve old decisions pending separate review; the new f641 preparation explicitly refuses this shape and requires a negative control. No runtime failure is claimed from inspection alone.
+
+I record root review of baefc8516 under the same f4d task before correction: the implicit result boundary is reachable from a nonempty body too. I require exact depth equal to the declared result count before both implicit and explicit result consumption in the new f641 mode. Empty-body preflight alone is insufficient. Old public behavior remains unchanged; this is static evidence, with fixtures and execution still pending source review.
+
+I record two further baef static review corrections before changing source: I reserve the shared service/File opcode rescan separately from preflight, and I enforce the five-tag flat-array boundary for every origin and content alternative, including arrays never stored in a record field. Existing graph modes remain unchanged. I audit the other shared scan charges in the consumer contract; no runtime failure or acceptance is claimed.
+
+I prepare the reviewed f641 fixture checkpoint after c4ff source approval:
+all-five-tag copied facts, full alias writes, standalone flat-origin refusals,
+implicit/explicit result guards, joins/calls/globals, old graph compatibility,
+exact internal budget callers and measured allocation-prefix cleanup/recovery.
+My linked and seven-TU instrumented runner retains strict bounded terminals and
+actual Python/compiler selection. I have not compiled or run these fixtures;
+root review precedes the seven-configuration matrix and unchanged neighbors.
+
+I save this fixture draft before the independent PR922 audit. It remains uncompiled and unexecuted, with final static coverage review pending; this draft is not a gate authorization or a completed fixture milestone.
+
+I finish the draft static coverage pass after the PR922 audit: I add exact forward nested-record/global-index facts, cyclic-referent refusal, a wrong-element branch alternative, and complete input-byte preservation. The fixture checkpoint is ready for root source/fixture review; no test or build has run.
+
+I preserve the first55045 Linux/puck query failures under task_88f58fa7a28a4c16aa60149688cb49bb: setup/discovery passed, then the first positive declaration was INVALID. Before repair, I identify LAYOUTS byte offsets8/20 as the unused union layout/field names, both incorrectly NO_INDEX despite the unchanged union reader requiring names. I replace only these fixture names with existing string0/string1; all authority checks and expected results remain unchanged. Fresh corrected trees follow, with first terminals immutable.
+
+I complete the bounded f641 query qualification at frozen2e9faf477: all seven
+Linux/Darwin configurations pass787 linked/1289 instrumented checks, with40
+measured allocation positions and independent recovery per refusal. All specified
+unchanged ownership/union/array neighbors pass on both hosts. My
+[record-array seal](evidence/record-array-origins.md) preserves both original55045
+missing-union-name terminals and the fixture-only correction. This completes
+query evidence pending independent review/actual merge; it grants no mixed
+runtime/source admission and does not close full f36/15f/488 parents.
+
+### Layout fault fixture private-symbol closure (2026-09-20)
+
+- [x] I preserve both canonical ca377 full-suite link failures and record their
+  exact duplicate private decoder symbols before editing the fixture; see
+  [my correction contract](LAYOUT_FAULT_FIXTURE_PRIVATE_SYMBOLS.md), MAC task
+  `task_666ba1fff2e44f398e7960c825011f1a`.
+- [x] I rename only the embedded fault fixture's two private decoder exports,
+  retaining the real provider and every existing assertion.
+- [x] I qualify the corrected layout target and original90-method phase on Linux
+  and puck with verified initial provider reuse, unchanged deadlines and retained
+  terminals. The later full-Make verifier corpus fails separately below.
+
+### Complete verifier corpus after canonical admission repair (2026-09-20)
+
+- [ ] I diagnose and repair the exact typed-U8 addition refusal in
+  `tests/test_u8_basic.nano`: my corrected canonical full Make run passes the
+  original90 methods, then rejects `let c: u8 = (+ b 1)` while compiling shadows.
+  MAC `task_c6b2a040c1434fc784a9d46c02a4981e` retains the first verifier terminal.
+- [ ] I restore the required `list_LexerToken_insert` binding for
+  `tests/token_value_bytes.nano` without deleting insert/set/remove or exact-byte
+  assertions. MAC `task_7b805000dfda4da386b55d4691e8c647` retains the independent
+  undefined-function terminal. Linux selected176, verified174, failed2 and
+  skipped0; I do not call that complete verifier-corpus acceptance.
+- [x] I repair my Game of Life random seed call (`task_f84d2ba77b2fa6490e6bfad25b71b613`). Hosted Darwin strict-example job106078349684 retains a compile failure from my incorrect integer declaration for the pointer argument of C time. I use my existing typed epoch-microsecond API divided to seconds, preserve random-seed behavior and qualify existing strict example/shadow checks on Linux and Darwin without weakening warnings.
+
+- [ ] I preserve allocation errors before writing the scalar-union compiler contract length (`task_59fbb2c526127b4e40867e9222de400a`, PR917). Static review finds a missing error guard after allocation-bearing contract writes; I require guarded backpatching, adjacent-site audit and cleanup/recovery coverage. The owning peer has the finding; independent Linux source acceptance and full5.1 remain open.
+
+My Game of Life timing repair at69208feac passes fresh C-seed builds, all five unchanged strict-example regressions, and a retained direct example compilation on Linux and Darwin. I retain the [original failure and reports](evidence/game-of-life-timing/seal.json). Independent review confirms epoch-second seed granularity. I did not run the graphical window, and this does not close native FFI declaration coverage or full5.1 acceptance.
+
+- [x] I select a supported native sanitizer compiler in my macOS hosted build (`task_0843b8e173511d75050d15c77d42e5fe`). PR918 job106076903795 fails eight reference transport controls because Apple ASan rejects enabled leak detection. I install Homebrew LLVM and set my existing explicit sanitizer/managed-runtime selectors, retaining ordinary CC, assertions, flags and deadlines. I require workflow validation, actual selected transport checks and observed hosted progress before closing this CI scope; full5.1 remains open.
+
+My proposed macOS CI selector step passes YAML/step-order and Bash syntax validation. Executing that exact step on puck selects Homebrew LLVM and all eight unchanged reference transport tests pass in6.802 seconds with leak detection retained. I preserve the [hosted failure and local result](evidence/macos-ci-native-compiler/source-log.json); actual hosted acceptance remains open under task_0843b8e173511d75050d15c77d42e5fe.
+
+- [x] I replace my remaining example integer declarations of pointer-valued C time (`task_f8b2d26e09f860ae640d9fc621817ef7`). Hosted PR921 strict-example job106082187281 stops at nl_random_sentence. My audit finds the same call in sdl_fire, sdl_starfield and ncurses_matrix_rain. I use my existing typed epoch-microsecond API divided to seconds and retain strict compilation plus existing shadows on Linux and Darwin. Full strict-example acceptance remains required.
+
+My PR921 hosted macOS job106082187346 now passes all eight unchanged reference transport checks in6.414 seconds with the explicit Homebrew selection. I retain the [hosted terminal excerpt](evidence/macos-ci-native-compiler/hosted-transport-pass.json). That job fails later at the independently repaired PR922 layout fixture; I do not claim the whole CI run passes.
+
+- [x] I correct my external strict-example runner inventory variable (`task_4e22dd2904b0ba0a1d063d8ab06363a2`). Both first28ba6 builds exit0, but the source equality gate refuses because the example loop overwrites the inventory variable. I retain those terminals and both drivers, rename that local only, and qualify fresh trees with unchanged equality checks.
+
+- [x] I repair the full_repl dependency shadow failure (`task_52369a502d247eb46b9f7cab90b8b214`). My fresh Linux full strict-example run at28ba6 passes all five prior regressions and all four corrected time examples, then stops at imported eval_internal shadow line214 while compiling full_repl. I retain the complete first log and investigate the actual evaluator/transport/provider boundary without skipping shadows; Darwin comparison remains pending.
+
+- [x] I preserve C++ language mode in module input capture (`task_89e84ee91d0d722af3b101ca43dedf6b`). My Darwin strict-example run at28ba6 reaches bullet_beads_simple after the four timing repairs compile, then reports C++ headers parsed as C while retaining Bullet compiler/assembler inputs. I retain that first failure and audit capture against actual compilation without permitting a live-source fallback.
+
+My REPL prerequisite diagnosis is now measured: the original C-seed-only setup omitted bin/nanoc; adding the actual CI stage1 prerequisite makes full_repl compile and advances Linux to Bullet. Both first Bullet failures used my explicit global CC selector, which overrides the module's c_compiler=c++ by design. My corrected CI-equivalent run removes that override and preserves module compiler selection. I retain these as qualification setup findings; I do not label input capture itself defective without a failure under the declared C++ compiler.
+
+My corrected CI-equivalent strict-example gate now passes on Linux (194.573 seconds) and Darwin (146.250 seconds), with every available example selected normally. Each also passes the unchanged five-example regressions and retained direct compilation of all four timing corrections. The prior REPL and Bullet stops were setup-selection failures: stage1 supplies the compiler alias, and allowing each module its declared compiler restores Bullet C++ mode. I retain all first failures; I changed no REPL, Bullet, capture, or shadow assertion to obtain these results.
+
+I retain the [complete seven-run history and input/product evidence](evidence/example-time-ffi/seal.json). The three setup follow-ups are closed by corrected qualification with unchanged REPL/Bullet/runtime source; their initial diagnoses are not promoted to demonstrated product defects.
+
+- [x] I preserve binary operand grouping in my C-seed native emitter (`task_f8dc08d9daf14e43b4f469cf77b5136b`). The paired File parser fixture exposed strict-GCC failures for nested comparison operands, and my existing self-hosted comparison regression covers only Stage2. I mirror the already grouped Nano emitter operands in my C iterative emitter, retaining comparison outer-parenthesis policy, and run the existing nested-comparison behavior through C-seed, Stage1 and Stage2 on Linux and Darwin. I preserve the original emitted C and failure diagnostics and require fresh compiler/bootstrap qualification.
+
+My b4ddc1edb grouping correction passes fresh C-seed builds and three-stage bootstraps on Linux and Darwin, all six existing array compatibility methods (including unchanged nested-comparison assertions through each producer), and existing Boolean-precedence programs compiled/executed by all three producers. I retain the [original failure, phase records and content-addressed input/product inventory](evidence/c-seed-comparison-grouping/seal.json). Independent source review confirms unchanged operator selection and short-circuit behavior. These gates do not establish my separate NanoISA-only bootstrap fixed point or full5.1 release acceptance.
+
+## I reconcile my bounded full-suite diagnostic tasks
+
+PR918 and PR919 are merged, and PR922 completes the unchanged90-method phase on both hosts in160.989 and201.715 seconds. Its independent audit retains exact source/tool/product history and the original failures. I now close task_4931a66f39c04b1a96981a4e00d43646 and task_2f52721aac374ac592b61438315dc981 for their bounded emitter-deadline and selected native-sanitizer diagnosis/repair scopes. The original ten-second shadow policy and120-second native deadlines remain unchanged. I do not infer the cause of deleted historical binaries from new successful binaries.
+
+The complete Make run subsequently verifies174 of176 corpus programs. Computed U8 conversion task_c6b2a040c1434fc784a9d46c02a4981e and generic-list mutation task_7b805000dfda4da386b55d4691e8c647 remain open, along with all full5.1 bootstrap, mixed/source, service, platform and release gates. These diagnostic closures do not approve publication.
 
 - [ ] I implement the actual paired generated File source route under existing task_8bbc1cf5295b4b59b314640ef57c725f, following [my concrete source design](NANOISA_FILE_SOURCE_IMPLEMENTATION.md), after review. I base it on actual token911 merge cf238dfd1. In dependency order I integrate primary AST/schema and real parsers; bounded companion snapshots and complete namespace resolution; independent C/Nano typed checking and File byte lowering; then actual selected shadows, explicit grant routing and staged installed publication. Each source/fixture checkpoint is reviewed before execution. I require fresh C-seed/Stage1/Stage2, all helper/module shadows and full paired product gates on Linux/Darwin. Cyclic/indirect/richer-borrow source acceptance remains mandatory, not closed by the first acyclic slice.
 - [x] I record and correct a documentation-only result-name mismatch before the source design: the immutable catalog, renderer and descriptive plans name rewind's result PositionResult; my older paired-source table said RewindResult. I change the table to the existing identity without changing any catalog, source or runtime behavior.
@@ -13281,3 +13647,11 @@ union lifetime and whole-parser OOM limits. Review and actual merge remain
 pending; full8bbc resolution, lowering and generated behavior acceptance stay
 open. I do not close the root-owned compiler grouping follow-up with these
 fixture results.
+
+I prepare the separate PR927 ready integration from actual PR925 merge302f129df.
+I retain both additive Make/roadmap records and the exact frozen5a0e parser and
+cleanup source. Incoming canonical ownership/common providers and the actual
+PR923 iterative grouping repair require fresh C-seed/Stage1/Stage2 bootstrap
+and the same focused seven configurations, paired/schema/publisher and neighbor
+gates on Linux and puck. I preserve the original seal and source pins; no
+integrated execution begins before source-delta review. Full8bbc remains open.

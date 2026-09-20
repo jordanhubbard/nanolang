@@ -248,7 +248,7 @@ class FilePublic(unittest.TestCase):
         self.assertTrue(all('-std=c11' in line and line.rfind('-std=c11')>line.rfind('-std=c99') for line in grant_lines))
         paths = [p for p in self.installed.rglob('*') if p.is_file()]
         self.assertTrue((self.installed / 'lib/libnano_file_runtime.a').is_file())
-        self.assertEqual(len(list((self.installed / 'include').rglob('*.h'))),22)
+        self.assertEqual(len(list((self.installed / 'include').rglob('*.h'))),30)
         (self.artifacts / 'installed-sha256.json').write_text(json.dumps(
             {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)},indent=2))
         self.command(name + '-archive-members', ['ar','t',str(self.installed / 'lib/libnano_file_runtime.a')])
@@ -403,7 +403,7 @@ return nvm_file_host_grant_destroy(&g)!=NVM_FILE_HOST_OK;}
         retained=self.artifacts / 'installed-before-uninstall'
         shutil.copytree(self.installed,retained)
         owned_headers=sorted((self.installed / 'include').rglob('*.h'))
-        self.assertEqual(len(owned_headers),22)
+        self.assertEqual(len(owned_headers),30)
         saved={str(p.relative_to(self.installed)):hashlib.sha256(p.read_bytes()).hexdigest()
                for p in self.installed.rglob('*') if p.is_file()}
         for rel,digest in saved.items():

@@ -1,0 +1,11 @@
+{
+  "label": "other-ubsan-static",
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-print-file-name=libclang_rt.ubsan_standalone.a"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

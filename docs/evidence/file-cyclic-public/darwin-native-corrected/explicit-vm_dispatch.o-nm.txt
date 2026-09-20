@@ -1,0 +1,14 @@
+                 U ___memset_chk
+                 U ___snprintf_chk
+                 U _calloc
+                 U _free
+                 U _memcpy
+0000000000000c8c T _vm_dispatch_advance
+000000000000012c T _vm_dispatch_build_function
+000000000000096c T _vm_dispatch_build_module
+0000000000000c0c T _vm_dispatch_current
+0000000000000000 T _vm_dispatch_function_free
+000000000000005c T _vm_dispatch_module_free
+0000000000000110 T _vm_dispatch_profile_all
+00000000000000fc T _vm_dispatch_profile_none
+0000000000000b54 T _vm_dispatch_seek

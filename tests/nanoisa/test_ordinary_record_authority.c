@@ -3,12 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 static long budget=-1;
+static unsigned allocation_calls;
 static void *authority_calloc(size_t count,size_t size) {
+    allocation_calls++;
     if(!budget)return NULL;
     if(budget>0)budget--;
     return calloc(count,size);
 }
 #define calloc authority_calloc
+#include "../../src/nanoisa/nvm_v2_layouts.c"
 #include "../../src/nanoisa/ownership_contracts.c"
 #undef calloc
 #include "assembler.h"
@@ -18,6 +21,24 @@ static void *authority_calloc(size_t count,size_t size) {
 static unsigned checks;
 #define CHECK(x) do { checks++; assert(x); } while(0)
 static void word(uint8_t *p,uint32_t n) {for(unsigned i=0;i<4;i++)p[i]=(uint8_t)(n>>(8*i));}
+/* I fault the actual retained layout allocations, including the first boolean
+ * preflight and second checked decode. Their legacy statuses are distinct. */
+static void allocation_failures(NvmModule *m,uint32_t index) {
+    NvmLayoutAuthority out=NVM_LAYOUT_AUTHORITY_RESOURCE;
+    budget=-1;allocation_calls=0;
+    CHECK(nvm_retained_layouts_valid(m));unsigned first_decode=allocation_calls;CHECK(first_decode>0);
+    allocation_calls=0;CHECK(nvm_ownership_layout_authority(m,index,&out)==NVM_V2_OK);
+    unsigned measured=allocation_calls;CHECK(measured==2*first_decode);
+    for(unsigned point=0;point<measured;point++){
+        budget=(long)point;out=NVM_LAYOUT_AUTHORITY_RESOURCE;
+        NvmV2Result r=nvm_ownership_layout_authority(m,index,&out);
+        CHECK(r==(point<first_decode?NVM_V2_ERR_SECTION_TYPE:NVM_V2_ERR_TRUNCATED));
+        CHECK(out==NVM_LAYOUT_AUTHORITY_RESOURCE);
+        budget=-1;CHECK(nvm_ownership_layout_authority(m,index,&out)==NVM_V2_OK);
+        CHECK(out==NVM_LAYOUT_AUTHORITY_ORDINARY);
+    }
+    printf("I covered %u real ordinary-authority decoder allocation positions.\n",measured);
+}
 static void check_authority(NvmModule *m,uint32_t index,NvmLayoutAuthority expected) {
     NvmLayoutAuthority found=NVM_LAYOUT_AUTHORITY_RESOURCE;
     CHECK(nvm_ownership_layout_authority(m,index,&found)==NVM_V2_OK && found==expected);
@@ -66,8 +87,9 @@ static void forward_authority(const char *path) {
     check_authority(copy,0,NVM_LAYOUT_AUTHORITY_ORDINARY);nvm_module_free(copy);free(text);
     data[11]=0;invalid(m);data[11]=1;
     NvmLayoutAuthority batch[4]={3,3,3,3};budget=0;
-    CHECK(nvm_ownership_layout_authorities(m,4,batch)==NVM_V2_ERR_TRUNCATED);budget=-1;
+    CHECK(nvm_ownership_layout_authorities(m,4,batch)==NVM_V2_ERR_SECTION_TYPE);budget=-1;
     for(unsigned i=0;i<4;i++)CHECK(batch[i]==3);
+    allocation_failures(m,0);
     save_module(m,path);
     /* A disconnected UNKNOWN edge still cannot accompany any RESOURCE flag. */
     entries[0].field_count=0;entries[0].fields=NULL;leaf.type_tag=TAG_INT;
@@ -136,10 +158,10 @@ int main(int argc,char **argv) {
     nvm_record_plan_free(plan);
     CHECK(nvm_ownership_layout_authorities(m,3,batch)==NVM_V2_ERR_INDEX_RANGE);
     for(unsigned i=0;i<4;i++)CHECK(batch[i]==NVM_LAYOUT_AUTHORITY_ORDINARY);
-    budget=0;CHECK(nvm_ownership_layout_authorities(m,4,batch)==NVM_V2_ERR_TRUNCATED);budget=-1;
+    budget=0;CHECK(nvm_ownership_layout_authorities(m,4,batch)==NVM_V2_ERR_SECTION_TYPE);budget=-1;
     for(unsigned i=0;i<4;i++)CHECK(batch[i]==NVM_LAYOUT_AUTHORITY_ORDINARY);
     NvmRecordPlan sentinel={0};plan=&sentinel;
-    budget=0;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED);budget=-1;
+    budget=0;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_MEMORY);budget=-1;
     CHECK(plan==&sentinel);
     char *before=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(before);
     NvmModule *copy=asm_assemble(before,&error);CHECK(copy);
@@ -147,16 +169,26 @@ int main(int argc,char **argv) {
     CHECK(copy->ownership_size==m->ownership_size && !memcmp(copy->ownership_data,data,m->ownership_size));
     check_authority(copy,1,NVM_LAYOUT_AUTHORITY_ORDINARY);nvm_module_free(copy);
     NvmLayoutAuthority found=NVM_LAYOUT_AUTHORITY_RESOURCE;
-    budget=0;CHECK(nvm_ownership_layout_authority(m,1,&found)==NVM_V2_ERR_TRUNCATED);budget=-1;
+    budget=0;CHECK(nvm_ownership_layout_authority(m,1,&found)==NVM_V2_ERR_SECTION_TYPE);budget=-1;
     CHECK(found==NVM_LAYOUT_AUTHORITY_RESOURCE);
     char *after=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(after && !strcmp(before,after));free(after);
-    budget=1;CHECK(nvm_ownership_layout_authority(m,1,&found)==NVM_V2_OK);budget=-1;
+    budget=-1;CHECK(nvm_ownership_layout_authority(m,1,&found)==NVM_V2_OK);
     CHECK(found==NVM_LAYOUT_AUTHORITY_ORDINARY);
+    allocation_failures(m,1);
     found=NVM_LAYOUT_AUTHORITY_RESOURCE;
     CHECK(nvm_ownership_layout_authority(m,4,&found)==NVM_V2_ERR_INDEX_RANGE && found==NVM_LAYOUT_AUTHORITY_RESOURCE);
     CHECK(nvm_ownership_layout_authority(m,0,NULL)==NVM_V2_ERR_INDEX_RANGE);
-    data[8]=3;invalid(m);data[8]=1; /* Direct resource string stays unsupported. */
-    data[9]=3;invalid(m);data[9]=1; /* So does a transitive string child. */
+    data[8]=3;invalid(m);data[8]=1; /* An ordinary parent cannot contain a resource child. */
+    data[9]=3;
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
+    check_authority(m,1,NVM_LAYOUT_AUTHORITY_RESOURCE);
+    plan=&sentinel;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED && plan==&sentinel);
+    data[8]=3;
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
+    check_authority(m,0,NVM_LAYOUT_AUTHORITY_RESOURCE);
+    check_authority(m,1,NVM_LAYOUT_AUTHORITY_RESOURCE);
+    plan=&sentinel;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED && plan==&sentinel);
+    data[8]=data[9]=1; /* I describe STRING roots without certifying their execution. */
     data[8]=0;invalid(m);data[8]=1; /* Unknown child cannot certify its parent. */
     data[11]=0;check_authority(m,3,NVM_LAYOUT_AUTHORITY_UNKNOWN);
     plan=&sentinel;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED && plan==&sentinel);

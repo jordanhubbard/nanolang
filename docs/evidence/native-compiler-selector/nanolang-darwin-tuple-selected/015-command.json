@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-fno-omit-frame-pointer",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.c",
+    "-o",
+    "/tmp/nanolang-darwin-tuple-selected/nano-tuple-values-ofa6_6go/source.native"
+  ],
+  "cwd": "/private/tmp/nanolang-file-cyclic-public-final",
+  "timeout": 120,
+  "selected_ASAN_OPTIONS": null
+}

@@ -1,0 +1,10 @@
+{
+  "label": "ordinary-cc1",
+  "argv": [
+    "/bin/gcc",
+    "-print-prog-name=cc1"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

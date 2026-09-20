@@ -1,0 +1,5 @@
+{
+  "NMS_RUNTIME_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+  "NMS_RUNTIME_OPT": "/opt/homebrew/opt/llvm/bin/opt",
+  "NMS_NATIVE_CLANG_FLAGS": ""
+}
