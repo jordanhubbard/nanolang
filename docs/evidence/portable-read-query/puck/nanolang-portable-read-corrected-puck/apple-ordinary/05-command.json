@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/products/instrumented"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-qualified",
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

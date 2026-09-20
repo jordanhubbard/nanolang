@@ -1,0 +1,23 @@
+test_exact_tags_and_last_write (tests.test_llvm_scalar_globals.ScalarGlobals.test_exact_tags_and_last_write) ... ok
+test_first_initializer_is_selected (tests.test_llvm_scalar_globals.ScalarGlobals.test_first_initializer_is_selected) ... ok
+test_functions_share_branch_selected_writes (tests.test_llvm_scalar_globals.ScalarGlobals.test_functions_share_branch_selected_writes) ... ok
+test_initial_void_and_highest_slot (tests.test_llvm_scalar_globals.ScalarGlobals.test_initial_void_and_highest_slot) ... ok
+test_initializer_and_heap_refusals_preserve_output (tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_and_heap_refusals_preserve_output) ... FAIL
+
+======================================================================
+FAIL: test_initializer_and_heap_refusals_preserve_output (tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_and_heap_refusals_preserve_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-managed-string-971b-linux/tests/test_llvm_scalar_globals.py", line 127, in test_initializer_and_heap_refusals_preserve_output
+    self.run_cmd([ROOT/'bin'/tool,module,'-o',out],success=False)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-managed-string-971b-linux/tests/test_llvm_generic_numeric.py", line 23, in run_cmd
+    self.assertEqual(p.returncode == 0, success, str(args) + '\n' + p.stdout + p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True != False : [PosixPath('/home/jkh/Src/nanolang-managed-string-971b-linux/bin/nvm2llvm'), PosixPath('/tmp/nanolang-managed-string-971b-linux-neighbors/temporary/nano-numeric-5mvq7dxf/globals.nvm'), '-o', PosixPath('/tmp/nanolang-managed-string-971b-linux-neighbors/temporary/nano-numeric-5mvq7dxf/previous')]
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 7.953s
+
+FAILED (failures=1)

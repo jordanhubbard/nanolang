@@ -1,0 +1,7 @@
+mkdir -p obj/nanoisa
+python3 scripts/embed_managed_runtime.py --clang "/usr/local/bin/clang" --opt "/usr/local/bin/opt" --header obj/nanoisa/managed_runtime_ir.h --manifest obj/nanoisa/managed_runtime_ir.json
+mkdir -p obj
+mkdir -p obj/nanovm
+mkdir -p obj/build_bootstrap
+mkdir -p bin
+/usr/local/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/dump_main.c -o obj/nanoisa/dump_main.o

@@ -1,0 +1,43 @@
+{
+  "phases": [
+    {
+      "host": "linux",
+      "phase": {
+        "commands": 456,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 99.11859858897515,
+        "skipped": [],
+        "tests_run": 23
+      },
+      "reports": 4582,
+      "objects": 3864,
+      "source_pin": "e4f67f98199ae807cabd559a480fbcde47c23cb7"
+    },
+    {
+      "host": "puck",
+      "phase": {
+        "commands": 456,
+        "errors": 0,
+        "exception": null,
+        "failures": 0,
+        "inputs_equal": true,
+        "passed": true,
+        "retention_failures": [],
+        "seconds": 117.62817520799581,
+        "skipped": [],
+        "tests_run": 23
+      },
+      "reports": 4582,
+      "objects": 3914,
+      "source_pin": "e4f67f98199ae807cabd559a480fbcde47c23cb7"
+    }
+  ],
+  "production_change_from_this_work": false,
+  "new_execution_after_public_merge": false,
+  "full_release_ready": false
+}

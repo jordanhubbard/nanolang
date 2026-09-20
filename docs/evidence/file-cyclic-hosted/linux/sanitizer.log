@@ -1,0 +1,33 @@
+I retain cyclic hosted artifacts at /tmp/nano-file-cyclic-hosted-bupjp74p
+test_full_chain_allocations_and_all_variants (tests.test_file_cyclic_hosted.FileCyclicHosted.test_full_chain_allocations_and_all_variants) ... I retain 435 transient refusals and 0 complete recovered plans after one allocation failure
+I retain 55 precise MEMORY and 380 ambiguous UNRESOLVED allocation prefixes
+PASS 597902 private serialized File hosted-plan checks; no handler or public admission
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+I checked cyclic hosted allocation prefixes 376 and transient refusals 376, complete recoveries 0/0
+PASS 1279978 private cyclic hosted checks; no runtime or service execution
+ok
+test_linked_copied_cyclic_hosted_facts (tests.test_file_cyclic_hosted.FileCyclicHosted.test_linked_copied_cyclic_hosted_facts) ... PASS 2519 private serialized File hosted-plan checks; no handler or public admission
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 31, calls 2, borrowed calls 1
+I compared full hosted variants: service mask 2, calls 0, borrowed calls 0
+PASS 237053 private cyclic hosted checks; no runtime or service execution
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 34.261s
+
+OK

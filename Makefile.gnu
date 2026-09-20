@@ -448,7 +448,7 @@ $(OBJ_DIR)/nanoisa/nvm2c_main.o $(OBJ_DIR)/nanovm/main.o: $(NANOISA_DIR)/file_pu
 
 # My retained service ABI and immutable catalog participate in incremental builds.
 $(NANOISA_OBJECTS): $(NANOISA_DIR)/file_hosted.h $(NANOISA_DIR)/file_hosted.inc $(NANOISA_DIR)/file_body.h $(NANOISA_DIR)/file_body.inc $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
-$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_cyclic.inc
+$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_cyclic.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic_hosted.inc
 $(OBJ_DIR)/nsi_file_plan.o: $(SRC_DIR)/nsi.h $(SRC_DIR)/nsi_cap.h
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
@@ -5585,3 +5585,20 @@ test-file-source-plan: bootstrap3
 	NANO_FILE_SOURCE_CC="$(CC)" NANO_FILE_SOURCE_CFLAGS="$(CFLAGS)" NANO_FILE_SOURCE_SANITIZERS=0 python3 -m unittest -f -v tests.test_file_source_plan
 test-file-source-plan-sanitizers:
 	NANO_FILE_SOURCE_CC="$(CC)" NANO_FILE_SOURCE_CFLAGS="$(CFLAGS)" NANO_FILE_SOURCE_SANITIZERS=1 python3 -m unittest -f -v tests.test_file_source_plan.FileSourcePlan.test_c_ownership_allocation_and_exact_budget
+
+.PHONY: test-file-cyclic-hosted
+# I rebuild allocating reader/bridge/query providers inside the retained runner.
+test-file-cyclic-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_CYCLIC_HOSTED_CC="$(CC)" NANO_FILE_CYCLIC_HOSTED_CFLAGS="$(CFLAGS)" FILE_CYCLIC_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_CYCLIC_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_hosted
+
+# I describe read-text imports privately; these controls perform no host reads.
+.PHONY: test-portable-read-plan
+test-portable-read-plan: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	PORTABLE_READ_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/verifier.o $(OBJ_DIR)/nanoisa/verifier_types.o $(VM_DECODE_OBJECT),$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" PORTABLE_READ_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_portable_host_plan
+
+# I keep private indirect target facts in the qualified File declaration unit.
+$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_targets.h $(NANOISA_DIR)/file_indirect_targets.inc
+
+.PHONY: test-file-indirect-targets
+test-file-indirect-targets: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_INDIRECT_TARGETS_CC="$(CC)" NANO_FILE_INDIRECT_TARGETS_CFLAGS="$(CFLAGS)" FILE_INDIRECT_TARGETS_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_INDIRECT_TARGETS_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_targets

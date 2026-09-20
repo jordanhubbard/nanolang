@@ -1,0 +1,50 @@
+{
+  "instrumented": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/instrumented",
+    "sha256": "6331a090592277d0e45d910c3f7733f48d6f43eac47957d62188a1aa3b4458ef",
+    "bytes": 2728744,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/6331a090592277d0e45d910c3f7733f48d6f43eac47957d62188a1aa3b4458ef"
+  },
+  "instrumented-read_decode.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/instrumented-read_decode.o",
+    "sha256": "efd8d7110a15996edcc2d4b277e83917b762f4f85ff37c1d3e30a01005de6c48",
+    "bytes": 39696,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/efd8d7110a15996edcc2d4b277e83917b762f4f85ff37c1d3e30a01005de6c48"
+  },
+  "instrumented-read_query.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/instrumented-read_query.o",
+    "sha256": "325cf0889c2995e162bb60c8a74554bb925d95594f98d52dbdc388225cd27384",
+    "bytes": 63880,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/325cf0889c2995e162bb60c8a74554bb925d95594f98d52dbdc388225cd27384"
+  },
+  "instrumented-read_stack.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/instrumented-read_stack.o",
+    "sha256": "3e30ca1d79dfdf13446512fe69f05373771693b1771f774132a710bf3e702c49",
+    "bytes": 209728,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/3e30ca1d79dfdf13446512fe69f05373771693b1771f774132a710bf3e702c49"
+  },
+  "instrumented-read_types.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/instrumented-read_types.o",
+    "sha256": "b20cedd8417144e77a589fc2c2570d45ec81075123e89123dbba4f7be6fbc814",
+    "bytes": 46200,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/b20cedd8417144e77a589fc2c2570d45ec81075123e89123dbba4f7be6fbc814"
+  },
+  "linked-read_decode.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/linked-read_decode.o",
+    "sha256": "c8797f624c074f09cdee8bfdf217c04bd4781b172127d991a48d325ebbb5c910",
+    "bytes": 39448,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/c8797f624c074f09cdee8bfdf217c04bd4781b172127d991a48d325ebbb5c910"
+  },
+  "linked-read_query.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/linked-read_query.o",
+    "sha256": "62b55555668bb1c03ea3e10ab88fd2ec4a67729be115b93b517c96df07b639b6",
+    "bytes": 63832,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/62b55555668bb1c03ea3e10ab88fd2ec4a67729be115b93b517c96df07b639b6"
+  },
+  "linked-read_stack.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/linked-read_stack.o",
+    "sha256": "a23c9ee4972c667f7d064aad79d3fa85f26f20fe174bedf2f768739cf86df981",
+    "bytes": 209512,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/a23c9ee4972c667f7d064aad79d3fa85f26f20fe174bedf2f768739cf86df981"
+  }
+}

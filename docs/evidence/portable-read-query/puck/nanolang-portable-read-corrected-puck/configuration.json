@@ -1,0 +1,21 @@
+{
+  "platform": "darwin",
+  "configs": [
+    [
+      "apple-ordinary",
+      "/usr/bin/clang",
+      []
+    ],
+    [
+      "homebrew-sanitizer",
+      "/opt/homebrew/opt/llvm/bin/clang",
+      [
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    ]
+  ],
+  "source_scope": "C/header/inc source tree plus exact fixtures/Make/contract",
+  "tools_scope": "named compiler, Python, Make, Git; not complete transitive system tools",
+  "sanitizers": "four query/decoder/verifier/type TUs + fixture; ordinary providers"
+}

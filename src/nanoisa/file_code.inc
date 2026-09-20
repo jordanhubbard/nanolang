@@ -12,7 +12,8 @@ struct NvmFileCodePlan {
     uint16_t instruction_order[NVM_FILE_CODE_INSTRUCTIONS];
     uint64_t calls[NVM_FILE_FLOW_FUNCTIONS];
 };
-static bool file_code_supported(uint8_t op) {
+static bool file_code_supported_mode(uint8_t op,bool indirect) {
+    if(indirect && (op==OP_FUNCREF || op==OP_CALL_INDIRECT))return true;
     switch(op) {
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
@@ -33,6 +34,7 @@ static bool file_code_supported(uint8_t op) {
     default:return false;
     }
 }
+static bool file_code_supported(uint8_t op) { return file_code_supported_mode(op,false); }
 static bool file_code_budget(size_t *bytes,size_t count,size_t width) {
     if(count && width>SIZE_MAX/count)return false;
     size_t add=count*width;
@@ -86,11 +88,17 @@ static NvmFileFlowStatus file_code_preflight(const NvmModule *m,uint32_t *instru
     *instructions=total;*budget=bytes;return NVM_FILE_FLOW_OK;
 }
 static NvmFileFlowStatus file_code_operands(NvmFileCodePlan *p,uint32_t function,
-                                            NvmFileCodeInstruction *in) {
+                                            NvmFileCodeInstruction *in,bool indirect) {
     const DecodedInstruction *d=&in->decoded;
     const NvmFileFlowFunction *fn=&p->functions[function].declaration;
-    if(!file_code_supported(d->opcode))return NVM_FILE_FLOW_UNRESOLVED;
+    if(!file_code_supported_mode(d->opcode,indirect))return NVM_FILE_FLOW_UNRESOLVED;
     switch(d->opcode) {
+    case OP_FUNCREF:
+        return d->operands[0].u32<p->count?NVM_FILE_FLOW_OK:NVM_FILE_FLOW_INVALID;
+    case OP_CALL_INDIRECT:
+        if(d->operands[0].u16>NVM_FILE_FLOW_LOCALS || d->operands[1].u16>1)
+            return NVM_FILE_FLOW_INVALID;
+        break;
     case OP_PUSH_BOOL:return d->operands[0].u8<=1?NVM_FILE_FLOW_OK:NVM_FILE_FLOW_INVALID;
     case OP_LOAD_LOCAL: case OP_STORE_LOCAL: case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
     case OP_FILE_DROP_LOCAL: case OP_FILE_RESULT_BRANCH: case OP_FILE_RESULT_TAKE:
@@ -203,13 +211,13 @@ static NvmFileFlowStatus file_code_cfg(NvmFileCodePlan *p,uint32_t f,bool acycli
 void nvm_file_code_free(NvmFileCodePlan *p) {
     if(p){nvm_file_flow_declarations_free(p->declarations);free(p->instructions);free(p->code);free(p);}
 }
-static NvmFileFlowStatus file_code_prepare_mode(const NvmModule *m,NvmFileCodePlan **out,bool acyclic) {
+static NvmFileFlowStatus file_code_prepare_profile(const NvmModule *m,NvmFileCodePlan **out,bool acyclic,bool indirect) {
     if(!out)return NVM_FILE_FLOW_INVALID;
     uint32_t total;size_t budget;
     NvmFileFlowStatus status=file_code_preflight(m,&total,&budget);
     if(status!=NVM_FILE_FLOW_OK)return status;
     NvmFileFlowDeclarations *declarations=NULL;
-    status=nvm_file_flow_declarations(m,&declarations);if(status!=NVM_FILE_FLOW_OK)return status;
+    status=file_flow_declarations_mode(m,&declarations,indirect);if(status!=NVM_FILE_FLOW_OK)return status;
     const NvmFileFlowFunction *entry=&declarations->functions[m->header.entry_point];
     if(!scalar(entry->result.tag) || entry->result.global_index!=NVM_V2_NO_INDEX) {
         nvm_file_flow_declarations_free(declarations);return NVM_FILE_FLOW_UNRESOLVED;
@@ -239,7 +247,7 @@ static NvmFileFlowStatus file_code_prepare_mode(const NvmModule *m,NvmFileCodePl
             in->successors[0]=in->successors[1]=NVM_FILE_CODE_NO_SUCCESSOR;
             uint32_t width=isa_decode(p->code+fn->code_offset+pc,fn->code_length-pc,&in->decoded);
             if(!width){status=NVM_FILE_FLOW_INVALID;goto fail;}
-            status=file_code_operands(p,f,in);if(status!=NVM_FILE_FLOW_OK)goto fail;
+            status=file_code_operands(p,f,in,indirect);if(status!=NVM_FILE_FLOW_OK)goto fail;
             pc+=width;fn->instruction_count++;
         }
         status=file_code_cfg(p,f,acyclic);if(status!=NVM_FILE_FLOW_OK)goto fail;
@@ -254,6 +262,9 @@ static NvmFileFlowStatus file_code_prepare_mode(const NvmModule *m,NvmFileCodePl
     *out=p;return NVM_FILE_FLOW_OK;
 fail:
     nvm_file_code_free(p);return status;
+}
+static NvmFileFlowStatus file_code_prepare_mode(const NvmModule *m,NvmFileCodePlan **out,bool acyclic) {
+    return file_code_prepare_profile(m,out,acyclic,false);
 }
 /* The old API always retains its original DAG refusal. Only the separate
  * non-admitting cyclic query calls the private syntactic preparation mode. */

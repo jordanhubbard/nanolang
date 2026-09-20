@@ -1,0 +1,11 @@
+{
+  "label": "other-asan",
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-print-file-name=libclang_rt.asan-aarch64.so"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}
