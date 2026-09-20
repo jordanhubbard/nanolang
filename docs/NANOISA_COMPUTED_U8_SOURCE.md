@@ -53,3 +53,20 @@ aggregate destination audit, complete fixture review and fresh paired
 qualification remain before this source work can be called complete. The Nano
 emitter's existing indirect-call refusal remains visible full-graph work; this
 scalar change does not manufacture an indirect call implementation.
+
+My first retained fixture matrix has seven methods. It uses four explicit
+canonical producers: nano_virt and separately freshly compiled Nano emitters
+from C seed, Stage1 and Stage2. NANO_U8_EMITTERS must name those three distinct
+executables; no missing producer is substituted. Actual source output is
+verified/executed and reassembled for generated C/LLVM/Wasm O0/O2 comparison.
+C-seed native output is compared independently. I retain the original byte
+program unchanged, all256 integer-to-byte values and extrema, globals/locals,
+qualified parameters/returns, once-only calls and differing-result tail calls.
+
+The existing C producer's checked indirect/captured path has a separate actual
+VM control, including a captured byte that shadows an integer global. That is
+not independent Nano indirect or generated closure acceptance. Both remain
+explicit full-graph work. Literal256 and negative literal refusals remain; old
+computed-expression refusals are replaced by positive narrowing checks. Raw
+CAST_U8 reconstruction covers both C and Nano with actual recompiled producer
+outputs. No build, fixture discovery or execution has occurred at this point.
