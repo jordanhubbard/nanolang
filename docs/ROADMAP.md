@@ -13739,3 +13739,6 @@ must rename the new exported symbol as well as its existing aliases.
   controls before fresh corrected providers and the complete query matrix.
 - [ ] I retain exact MEMORY, output/input preservation, zero live payload and
   independent recovery at every measured failure prefix; no broad status waiver.
+
+
+I retain both429da host first terminals: setup/config/discovery and linked2792 checks pass, then the instrumented fixture fails strict compilation because direct mixed-layout controls omitted ownership_layouts_private.h. Production providers compile. I add only the defining private header to the fixture; no prototype invention, warning suppression, predicate change or runtime result is inferred. Fresh corrected gate remains required.
