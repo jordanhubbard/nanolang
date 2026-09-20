@@ -12834,3 +12834,5 @@ actual merge and bounded repair reconciliation remain pending, full15a92 open.
 - [ ] I resolve `task_4931a66f39c04b1a96981a4e00d43646`: compiling my bytecode emitter reaches the ten-second shadow deadline in that same run. I distinguish slow finite work from nontermination without raising the deadline or weakening tests.
 
 I keep these independent of PR910's generic-call identity and VM fixture repair. The original 90-method suite completed with 88 passes and two failures. Its temporary module paths were deleted by the existing test cleanup; I retain the command/log rather than claiming recovered historical binaries. These clauses remain full 5.1 acceptance work.
+
+- [ ] I diagnose `task_2f52721aac374ac592b61438315dc981`: my c140 Darwin full suite additionally times out four native sanitizer executables (two projected-array global orders and two tuple producers) after120seconds each. I retain the original1114.818-second make terminal, do not infer its cause, and require fresh retained baseline/target controls before a repair. These are separate from the passive and emitter-shadow errors.
