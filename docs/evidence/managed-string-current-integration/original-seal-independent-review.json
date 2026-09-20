@@ -1,0 +1,11 @@
+{
+  "head": "8bfac38233064eff3a4dd6fc9af61e8eaa335038",
+  "committed_seal_files": 181,
+  "errors": [],
+  "seal_sha256": "c3bbcc37d0b8eb06feb65d240acb75d6f5ae84d5c42f7c4940153de872ee8789",
+  "phases_consistent": 8,
+  "original_phase_audits_reused": true,
+  "parameterized_auditor_reviewed": true,
+  "backup_hash_verified": "1cb72893aeb2cff65e9ccc6b638addc8e7b7179336b1ec076388c236cc56af64",
+  "scope": "Final committed seals and existing full byte audit results reviewed; no qualification rerun or redundant complete object rehash"
+}

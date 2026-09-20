@@ -95,9 +95,9 @@ or compiler dependency.
 
 An additional complete original-Darwin backup is retained on sparky at
 `/tmp/nanolang-managed-string-darwin-retained/nanolang-managed-string-971b-darwin-original.tar.gz`.
-I independently read all8,844 archived entries,4,582 reports and3,902 objects;
-its report manifest matches the original audit. The357,089,280-byte archive has
-SHA256`1cb72893aeb2cff65e9ccc6b638addc8e7b7179336b1ec076388c236cc56af64`.
+I independently read all 8,844 archived entries, 4,582 reports and 3,902 objects;
+its report manifest matches the original audit. The 357,089,280-byte archive has
+SHA256 `1cb72893aeb2cff65e9ccc6b638addc8e7b7179336b1ec076388c236cc56af64`.
 The original CX directory remains intact.
 
 This evidence satisfies the original bounded managed-string acceptance after
@@ -105,3 +105,22 @@ canonical integration. Aggregate/cycle488, host linkage2d2, full applicable
 language coverage, historical evaluator incident791a, NanoISA-only bootstrap
 and the full5.1 release remain separate. A passing string matrix does not
 authorize publication.
+
+## I check canonical integration separately
+
+At e4f67f981 I merge canonical5d1d and preserve both roadmap sections from the
+only textual conflict. Fresh provider preparation and all23 original methods
+pass on Linux and puck. Independent audits verify4,582 reports and456 command
+pairs on each host, plus3,864/3,914 archived objects respectively. My
+[integration matrix](managed-string-current-integration/summary.json) retains
+actual timings, statuses and exact pins.
+
+Main then gains the independently qualified public File opt-ins in PR895 at
+97546742a. I merge that change automatically at7d0b661e6. Independent review
+finds unchanged default CLI bodies and managed routes; the new File paths have
+their own paired integration/refusal/wrapper evidence. My
+[identity record](managed-string-current-integration/integration-identity.json)
+lists the complete incoming path set and56 identical managed source/fixture
+blobs. I retain the e4f execution attribution; this later merge is a reviewed
+composition, not a new run of those binaries. No new bootstrap or full release
+claim follows.
