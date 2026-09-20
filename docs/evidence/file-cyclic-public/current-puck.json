@@ -1,0 +1,38 @@
+[
+  {
+    "group": "darwin-first",
+    "root": "/private/tmp/nanolang-file-cyclic-public-aff3",
+    "last": "ordinary",
+    "sources": 20576,
+    "tools": 17,
+    "products": 2483,
+    "mismatches": 0
+  },
+  {
+    "group": "darwin-schema-first",
+    "root": "/private/tmp/nanolang-file-cyclic-public-414c",
+    "last": "schema-consistency",
+    "sources": 20576,
+    "tools": 17,
+    "products": 0,
+    "mismatches": 0
+  },
+  {
+    "group": "darwin-header-corrected",
+    "root": "/private/tmp/nanolang-file-cyclic-public-414c-config",
+    "last": "clang-ordinary",
+    "sources": 20576,
+    "tools": 36,
+    "products": 751,
+    "mismatches": 0
+  },
+  {
+    "group": "darwin-native-corrected",
+    "root": "/private/tmp/nanolang-file-cyclic-public-a11c",
+    "last": "archive-boundary",
+    "sources": 20576,
+    "tools": 36,
+    "products": 203,
+    "mismatches": 0
+  }
+]

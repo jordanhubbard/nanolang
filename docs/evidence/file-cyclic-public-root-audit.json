@@ -1,0 +1,22 @@
+{
+  "seal": "docs/evidence/file-cyclic-public",
+  "reports": 599,
+  "objects": 19463,
+  "bytes": 9173998875,
+  "pairs": 106,
+  "status": "pass",
+  "refs": 54301,
+  "terminals": 53,
+  "failed": [
+    "darwin-first/ordinary-terminal.json",
+    "darwin-header-corrected/clang-ordinary-terminal.json",
+    "darwin-schema-first/schema-consistency-terminal.json",
+    "linux-first/ordinary-terminal.json",
+    "linux-header-corrected/clang-ordinary-terminal.json"
+  ],
+  "archive": {
+    "bytes": 1840439563,
+    "path": "/tmp/nanolang-file-cyclic-public-artifacts.tar.gz",
+    "sha256": "d3323eba6e848bb7172c3d276be0d843340f9a972fc1722123409d373004b52c"
+  }
+}

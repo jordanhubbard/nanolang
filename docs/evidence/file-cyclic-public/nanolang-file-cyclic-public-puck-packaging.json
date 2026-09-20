@@ -1,0 +1,53 @@
+{
+  "objects": 9275,
+  "bytes": 3465957011,
+  "references": 25141,
+  "current": [
+    {
+      "group": "darwin-first",
+      "root": "/private/tmp/nanolang-file-cyclic-public-aff3",
+      "last": "ordinary",
+      "sources": 20576,
+      "tools": 17,
+      "products": 2483,
+      "mismatches": 0
+    },
+    {
+      "group": "darwin-schema-first",
+      "root": "/private/tmp/nanolang-file-cyclic-public-414c",
+      "last": "schema-consistency",
+      "sources": 20576,
+      "tools": 17,
+      "products": 0,
+      "mismatches": 0
+    },
+    {
+      "group": "darwin-header-corrected",
+      "root": "/private/tmp/nanolang-file-cyclic-public-414c-config",
+      "last": "clang-ordinary",
+      "sources": 20576,
+      "tools": 36,
+      "products": 751,
+      "mismatches": 0
+    },
+    {
+      "group": "darwin-native-corrected",
+      "root": "/private/tmp/nanolang-file-cyclic-public-a11c",
+      "last": "archive-boundary",
+      "sources": 20576,
+      "tools": 36,
+      "products": 203,
+      "mismatches": 0
+    }
+  ],
+  "reports_archive": {
+    "path": "/tmp/nanolang-file-cyclic-public-puck-reports.tar.gz",
+    "sha256": "6a84f498cef36817a458b9609e7b8b464eaccec6fc1da8d2a5ad91e080579168",
+    "bytes": 33649960
+  },
+  "artifacts_archive": {
+    "path": "/tmp/nanolang-file-cyclic-public-puck-artifacts.tar.gz",
+    "sha256": "321f28e119f3023ed5b941e3d170040e4676a123aeda5fe4921e3a35bac4b10b",
+    "bytes": 724524023
+  }
+}

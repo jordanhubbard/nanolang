@@ -4,7 +4,7 @@
 #include "file_hosted.h"
 
 #define NVM_FILE_CYCLIC_HOSTED_REVISION 1u
-/* Private serialized preparation only. No target coverage, runtime admission,
+/* Trusted serialized preparation only. No target coverage, runtime admission,
  * grant, fuel, service execution or old single-state plan conversion. Inputs
  * stay immutable during preparation; output storage is disjoint from all input
  * and plan storage. External serialization matches the underlying queries.
@@ -16,7 +16,7 @@ typedef struct {
     uint16_t frames;
     uint32_t reference_slots, region_slots;
     size_t input_bytes, allocation_bound, query_storage_peak, retained_bound;
-    bool runtime_admitted; /* Always false in this nonexecuting checkpoint. */
+    bool runtime_admitted; /* Always false: descriptive preparation is not admission. */
 } NvmFileCyclicHostedStartup;
 typedef struct {
     NvmFileCodeFunction code;

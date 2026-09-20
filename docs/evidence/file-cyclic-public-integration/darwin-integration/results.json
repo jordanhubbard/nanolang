@@ -1,0 +1,57 @@
+[
+  {
+    "phase": "schema-consistency",
+    "seconds": 0.187,
+    "status": 0
+  },
+  {
+    "phase": "schema-tests",
+    "seconds": 1.483,
+    "status": 0
+  },
+  {
+    "phase": "setup",
+    "seconds": 9.82,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.141,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.069,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 57.993,
+    "status": 0
+  },
+  {
+    "phase": "private-cyclic-dispatch",
+    "seconds": 41.066,
+    "status": 0
+  },
+  {
+    "phase": "cyclic-hosted",
+    "seconds": 5.997,
+    "status": 0
+  },
+  {
+    "phase": "indirect-hosted",
+    "seconds": 6.244,
+    "status": 0
+  },
+  {
+    "phase": "public",
+    "seconds": 44.194,
+    "status": 0
+  },
+  {
+    "phase": "archive-boundary",
+    "seconds": 0.689,
+    "status": 0
+  }
+]
