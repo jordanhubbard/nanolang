@@ -222,3 +222,52 @@ bounded effective path before callback, validates status/length/content and
 frees scratch after nms_create regardless of its result. It never changes the
 caller's argument ownership. Native callers remain responsible for valid C
 storage and serialized context/runtime use.
+
+## My native fixture checkpoint before execution
+
+My new C fixture builds real files in a retained caller-supplied directory. It
+checks empty, one-byte, multibyte and partial-UTF8 content, embedded NUL,
+exact1MiB and1MiB+1, effective NUL-prefix paths, missing files and deny-all.
+It rejects pairwise input/destination/length/context overlaps before observed
+open attempts, checks actual closed descriptors against an unrelated live FILE,
+and distinguishes real read/close calls from modeled progress-plus-error or
+post-real-close errors. It explicitly retains LIMIT when modeled close fails.
+
+My allocator observer rebuilds all three new/managed runtime C translation
+units with SDK-safe malloc/calloc/free hooks. Existing binary64 parser helpers
+are header-only. The real-reader TU alone receives fread/ferror/fopen/fclose
+hooks; those normally forward to libc. Fixture setup allocations/files and
+libc/system allocations are outside project tracking. The unhooked comparison
+rebuilds all three TUs separately and retains the ordinary semantic controls.
+No prebuilt compiler/provider object participates in these direct adapter tests.
+
+I fill all eight initial managed slots, retain three owners of the path (caller,
+an outside alias and a simulated global root), and prepare collection storage.
+The measured successful call must use exactly four project allocations: scratch,
+result bytes, enlarged slot table and enlarged collection workspace. Every
+persistent-prefix and single-transient failure preserves the three path owners,
+all eight existing roots and tracked byte/object baseline; a fresh successful
+call follows each failure. Context allocation failure separately preserves its
+output sentinel. Simulated global roots are explicit reference-count controls,
+not generated-global/source-program acceptance. Every final disposal requires
+zero managed roots/bytes and zero tracked allocations.
+
+The same fixture runs through direct C and separately compiled LLVM O0/O2
+forwarders of the exact native callback signature. The wrapper calls that
+forwarder as its real callback, exercising its typed native link. This is not
+NanoISA translation. All production TUs and the fixture use the selected strict
+compiler/sanitizer flags; the LLVM forwarder's independently selected compiler,
+flags and target triple are recorded. Its IR only forwards arguments and has no
+memory access to claim as a separately instrumented allocator.
+
+The runner records commands, file-backed combined stdout/stderr, return/timeout/
+process-group state and content-addressed products before assertions. Every
+command snapshots products before and after; paths are never reused across
+routes, and fixture file vectors use distinct names. Phase inputs include all
+current source C/header/include files, exact fixtures, Make/contract, selected
+compilers/Python and explicit additional tool/runtime files. Fresh phase hashes
+are compared at exit; this is endpoint evidence, not intermediate or complete
+transitive closure. TERM/KILL group cleanup has bounded waits and cannot pass
+if cleanup was needed or left descendants. No gate has run at this checkpoint.
+Real Linux/Darwin ordinary and supported strict-sanitizer qualification awaits
+review of this full fixture/runner. Wasm hosts remain subsequent source work.
