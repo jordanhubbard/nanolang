@@ -53,7 +53,8 @@ both compiled and ran the hello smoke; the native compiler binaries differed,
 which the bootstrap reports without claiming fixed-point equality. The
 canonical bytecode fixed-point gates remain separate release evidence.
 
-Linux qualification, mixed extension conjunction, resource payloads, the full
+Fresh Linux qualification now passes at the exact held source and current-main
+integration pins. Mixed extension conjunction, resource payloads, the full
 affine parent, PR522 and 5.1 publication remain open.
 
 ## My defensive backpatch checkpoint
@@ -103,7 +104,40 @@ The corrected Darwin checkpoint also passes:
 | `/private/tmp/nanolang-affine-union-backpatch-adjacent.log` | `1c0fe60280ff4353ba4c4c90c93429305c74ccc43e60f88dc8a3253b5a6f9676` |
 | Homebrew Clang 23.1.1 | `570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888` |
 
-Independent review and Linux qualification remain required before I close
-`task_59fbb2c526127b4e40867e9222de400a` or merge PR917. The zero-payload empty
-binding parser change remains root-owned and unmerged; I add no empty lexical
-binding or affine admission in this checkpoint.
+## My fresh Linux and current-main integration
+
+The independent read-only source review passes the imported declaration,
+concrete-instance, match-lowering and guarded-cleanup scope. At exact PR917
+head `c15e91de2cf5097bc7cf28e55515819c12e7926b`, a fresh isolated Linux tree
+passes bootstrap in 279.54 seconds, all three injected contract allocation
+failures and recoveries, 90/90 NanoVirt methods, all four source methods and
+all 25 module/generic identity neighbors. Its 28,584 tracked entries, 20,337
+provider/source entries and nine selected tools remain unchanged at their
+recorded boundaries. MAC evidence `ev_14bee9b6eedd4c40bc3cef22df5d830f`
+records report SHA-256
+`7e6f971062bbf4e943194071b623980c9b1bbcfb12ac30bee08732373941fa17`.
+
+I then replay the qualified commits onto canonical base
+`8ed0a0ff6e30969b9721aa0cf89db011ec4f4506` without replacing the paired File
+parser or shared ARRAY_FIELDS work. Production pin
+`b8c7f75487da7754f92b7be1a38c5375476a0467` passes fresh bootstrap in 281.35
+seconds, all three contract failures and recoveries, 90 NanoVirt methods,
+546 ordinary and 856 allocation-path affine checks, ownership contracts,
+non-admitting ARRAY_FIELDS/declaration/record-array neighbors, all 25 identity
+methods and all four source methods. I retain two setup terminals separately:
+the counted-runtime package selected Clang without its documented GCC 13 path,
+and my first direct source command omitted `nanoisa_emit` and `nano_virt`.
+The corrected failed package method passes in 5.235 seconds; the prepared
+source gate passes in 38.668 seconds. No failed output was executed.
+
+The integrated report SHA-256 is
+`11e54ec049c29ceda0fe6882804db8da22cb57764c3ad61ab20de233d4af1bc6`;
+its manifest SHA-256 is
+`76ca90161ef0c0a646acd9b63098e6659c4902671a50ab0fb84bdd52ea2c8348`.
+All 57,287 tracked source entries, four compiler tools and five source tools
+remain equal at the recorded boundaries.
+
+The zero-payload parser cleanup is now present through PR927; this slice adds
+no empty lexical binding or new affine authority. The frontend binding leak,
+complete kind 1 plus kind 2 conjunction, resource payloads, full affine parent,
+PR522 and release publication remain open.

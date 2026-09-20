@@ -66,4 +66,5 @@ PR522, product acceptance or release publication.
 
 My first Darwin production checkpoint and exact retained hashes are recorded
 in [the imported scalar-union evidence](evidence/affine-imported-scalar-unions.md).
-Linux qualification and every broader boundary above remain open.
+Fresh Linux qualification passes at the exact held source and current-main
+integration pins. Every broader boundary above remains open.
