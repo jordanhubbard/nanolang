@@ -3,12 +3,14 @@
 #include "retained_layouts.h"
 #include "assembler.h"
 #include "verifier.h"
+#include "nvm2c.h"
 #include "isa.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 static unsigned checks;
+static const char *native_output,*module_output;
 #define CHECK(c) do {checks++;assert(c);} while(0)
 #ifdef AFFINE_BYTECODE_ALLOCATION_TEST
 static unsigned allocation_attempts, fail_at;
@@ -31,14 +33,97 @@ void *affine_bytecode_test_realloc(void *old,size_t size) {
 #endif
 static void word(uint8_t *p,uint32_t v) {for(unsigned i=0;i<4;i++)p[i]=(uint8_t)(v>>(8*i));}
 static void slot(uint8_t *p,uint8_t tag,uint8_t mode) {
-    p[0]=tag;p[1]=mode;word(p+4,tag==TAG_STRUCT?0:NVM_V2_NO_INDEX);
+    p[0]=tag;p[1]=mode;word(p+4,(tag==TAG_STRUCT || tag==TAG_UNION)?0:NVM_V2_NO_INDEX);
 }
 static const char *tag_name(uint8_t tag) {
     switch(tag) {
-    case TAG_STRUCT:return "struct";case TAG_INT:return "int";
+    case TAG_STRUCT:return "struct";case TAG_UNION:return "union";case TAG_INT:return "int";
     case TAG_BOOL:return "bool";case TAG_FLOAT:return "float";
     default:return "void";
     }
+}
+static NvmModule *union_fixture(const char *body,uint16_t params,uint16_t locals,
+                                uint8_t result) {
+    char parameters[256]={0};size_t parameter_bytes=0;
+    if (params) {
+        int wrote=snprintf(parameters,sizeof(parameters),".parameters 0");
+        CHECK(wrote>0 && (size_t)wrote<sizeof(parameters));parameter_bytes=(size_t)wrote;
+        for (uint16_t i=0;i<params;i++) {
+            wrote=snprintf(parameters+parameter_bytes,sizeof(parameters)-parameter_bytes," union");
+            CHECK(wrote>0 && (size_t)wrote<sizeof(parameters)-parameter_bytes);
+            parameter_bytes+=(size_t)wrote;
+        }
+        CHECK(parameter_bytes+1<sizeof(parameters));parameters[parameter_bytes++]='\n';
+        parameters[parameter_bytes]='\0';
+    }
+    char source[8192];int used=snprintf(source,sizeof(source),
+        ".types 0 0 1\n.entry 0\n.string \"text\"\n.function inspect %u %u 0 %s %u\n%s.end\n%s",
+        params,locals,tag_name(result),result!=TAG_VOID,body,parameters);
+    CHECK(used>0 && (size_t)used<sizeof(source));
+    AsmResult assembled;NvmModule *m=asm_assemble_unverified(source,&assembled);
+    if(!m) {
+        fprintf(stderr,"%s\n",assembled.message);
+    }
+    CHECK(m);
+    uint32_t identity=nvm_add_string(m,"Choice<int,string>",18);
+    uint32_t v0=nvm_add_string(m,"IntValue",8),v1=nvm_add_string(m,"TextPair",8);
+    uint32_t v2=nvm_add_string(m,"Empty",5),f0=nvm_add_string(m,"value",5);
+    uint32_t f1=nvm_add_string(m,"left",4),f2=nvm_add_string(m,"right",5);
+    CHECK(identity!=UINT32_MAX && v0!=UINT32_MAX && v1!=UINT32_MAX &&
+          v2!=UINT32_MAX && f0!=UINT32_MAX && f1!=UINT32_MAX && f2!=UINT32_MAX);
+    NvmV2LayoutField fields[]={{TAG_INT,NVM_V2_NO_INDEX,f0},
+        {TAG_STRING,NVM_V2_NO_INDEX,f1},{TAG_BOOL,NVM_V2_NO_INDEX,f2}};
+    NvmV2Layout layout={NVM_V2_LAYOUT_UNION,3,identity,fields};
+    NvmV2Layouts layouts={&layout,1};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    uint32_t at=28+8u*locals;
+    m->ownership_size=at+56;m->ownership_data=calloc(m->ownership_size,1);CHECK(m->ownership_data);
+    uint8_t *p=m->ownership_data;word(p,NVM_OWNERSHIP_EXTENSION_VERSION);word(p+4,1);
+    word(p+12,1);p[16]=(uint8_t)locals;p[17]=(uint8_t)(locals>>8);
+    p[18]=(uint8_t)params;p[19]=(uint8_t)(params>>8);slot(p+20,result,0);
+    for(uint16_t i=0;i<locals;i++)slot(p+28+8*i,TAG_UNION,0);
+    word(p+at,4);word(p+at+4,0);word(p+at+8,1);
+    p[at+12]=NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS;
+    p[at+14]=NVM_OWNERSHIP_EXTENSION_REVISION_1;word(p+at+16,36);
+    word(p+at+20,1);word(p+at+24,0);p[at+28]=3;
+    word(p+at+32,v0);p[at+38]=1;
+    word(p+at+40,v1);p[at+44]=1;p[at+46]=2;
+    word(p+at+48,v2);p[at+52]=3;
+    bool needs=false;NvmV2Result contract=nvm_ownership_contracts_validate(m,&needs);
+    if(contract!=NVM_V2_OK)fprintf(stderr,"union ownership contract: %d\n",contract);
+    CHECK(contract==NVM_V2_OK && needs);
+    return m;
+}
+static void analyze_union(const char *body,uint16_t params,uint16_t locals,uint8_t result,
+                          bool accepted,const char *reason) {
+    NvmModule *m=union_fixture(body,params,locals,result);
+    NvmAffineAnalysis got=nvm_affine_analyze_function(m,0);
+    if(got.ok!=accepted)fprintf(stderr,"Unexpected union analysis: %s at%u\n%s",got.message,got.byte_offset,body);
+    CHECK(got.ok==accepted);if(reason)CHECK(strstr(got.message,reason));
+    if(accepted && !params) {
+        NvmVerifyResult verified=nvm_verify_owned_module(m);
+        if(!verified.ok)fprintf(stderr,"union verification: %s\n",verified.error_msg);
+        CHECK(verified.ok);
+        CHECK(nvm_verify(m).ok);
+        char error[256]={0};char *native=nvm2c_emit(m,error,sizeof(error));
+        if(!native)fprintf(stderr,"union native emission: %s\n",error);
+        CHECK(native!=NULL);
+        if(native_output) {
+            FILE *file=fopen(native_output,"wb");CHECK(file!=NULL);
+            size_t length=strlen(native);CHECK(fwrite(native,1,length,file)==length);
+            CHECK(fclose(file)==0);
+            NvmV2Module wire={0};size_t bytes=0;
+            CHECK(nvm_v2_from_nvm_module(m,&wire)==NVM_V2_OK);
+            CHECK(nvm_v2_module_serialize(&wire,NULL,0,&bytes)==NVM_V2_OK);
+            uint8_t *serialized=malloc(bytes);CHECK(serialized!=NULL);
+            CHECK(nvm_v2_module_serialize(&wire,serialized,bytes,NULL)==NVM_V2_OK);
+            file=fopen(module_output,"wb");CHECK(file!=NULL);
+            CHECK(fwrite(serialized,1,bytes,file)==bytes);CHECK(fclose(file)==0);
+            free(serialized);nvm_v2_module_free(&wire);
+            native_output=NULL;module_output=NULL;
+        }
+        free(native);
+    }
+    nvm_module_free(m);
 }
 static NvmModule *fixture(const char *body,uint16_t params,uint16_t locals,
                            const uint8_t *tags,const uint8_t *modes,uint8_t result,bool resource) {
@@ -80,10 +165,41 @@ static void analyze(const char *body,uint16_t params,uint16_t locals,const uint8
     if(resource)CHECK(!nvm_verify(m).ok); /* Analysis never admits runtime. */
     free(before);nvm_module_free(m);
 }
-int main(void) {
+int main(int argc,char **argv) {
+    if(argc==3){native_output=argv[1];module_output=argv[2];}
+    else CHECK(argc==1);
     uint8_t tags[4]={TAG_STRUCT,TAG_BOOL,TAG_INT,TAG_INT};
     uint8_t shared[4]={1,0,0,0},exclusive[4]={2,0,0,0};
     analyze("LOAD_LOCAL 0\nAGG_GET 0\nRET\n",1,1,tags,shared,TAG_INT,true,true,NULL);
+    analyze_union("PUSH_STR 0\nPUSH_BOOL 1\nAGG_PACK 1 0 1 2\nSTORE_LOCAL 0\n"
+                  "LOAD_LOCAL 0\nMATCH_TAG 1 matched\nPOP\nPUSH_BOOL 0\nRET\n"
+                  "matched:\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nAGG_GET 1\nRET\n",
+                  0,2,TAG_BOOL,true,NULL);
+    if(argc==3)CHECK(native_output==NULL && module_output==NULL);
+    analyze_union("PUSH_STR 0\nPUSH_BOOL 1\nAGG_PACK 1 0 1 2\nMATCH_TAG 0 matched\n"
+                  "POP\nPUSH_BOOL 0\nRET\nmatched:\nAGG_GET 9\nRET\n",
+                  0,0,TAG_BOOL,true,NULL);
+    analyze_union("PUSH_STR 0\nPUSH_BOOL 1\nAGG_PACK 1 0 1 2\nMATCH_TAG 1 matched\n"
+                  "AGG_GET 9\nRET\nmatched:\nAGG_GET 1\nRET\n",
+                  0,0,TAG_BOOL,true,NULL);
+    analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nPOP\nPUSH_I64 0\nRET\n"
+                  "matched:\nAGG_GET 0\nRET\n",1,1,TAG_INT,true,NULL);
+    analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nPOP\nPUSH_I64 0\nRET\n"
+                  "matched:\nPOP\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n",1,1,TAG_INT,false,
+                  "proven scalar-union variant");
+    analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nPOP\nPUSH_I64 0\nRET\n"
+                  "matched:\nPOP\nLOAD_LOCAL 1\nAGG_GET 0\nRET\n",2,2,TAG_INT,false,
+                  "proven scalar-union variant");
+    analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nJMP joined\n"
+                  "matched:\nNOP\njoined:\nAGG_GET 0\nRET\n",1,1,TAG_INT,false,
+                  "proven scalar-union variant");
+    analyze_union("LOAD_LOCAL 0\nAGG_GET 0\nRET\n",1,1,TAG_INT,false,
+                  "proven scalar-union variant");
+    analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nPOP\nPUSH_I64 0\nRET\n"
+                  "matched:\nAGG_GET 1\nRET\n",1,1,TAG_INT,false,
+                  "payload field");
+    analyze_union("PUSH_STR 0\nAGG_PACK 1 0 1 1\nPOP\nPUSH_BOOL 0\nRET\n",
+                  0,0,TAG_BOOL,false,"constructor shape");
     analyze("LOAD_LOCAL 0\nSTRUCT_GET 0\nRET\n",1,1,tags,exclusive,TAG_INT,true,true,NULL);
     analyze("LOAD_LOCAL 1\nJMP_FALSE otherwise\nLOAD_LOCAL 0\nAGG_GET 0\nJMP joined\n"
             "otherwise:\nPUSH_I64 42\njoined:\nRET\n",2,2,tags,shared,TAG_INT,true,true,NULL);

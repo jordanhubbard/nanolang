@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-publisher-5fff-puck/apple-ordinary/nano-file-publisher-nbmik3x1/make-bin/nsi-file-binding",
+    "/private/tmp/nanolang-file-publisher-5fff-puck/apple-ordinary/nano-file-publisher-nbmik3x1/cli/input-oversize",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-publisher-5fff-puck/apple-ordinary/nano-file-publisher-nbmik3x1/cli/refused-oversize"
+  ],
+  "pid": 19062,
+  "returncode": 1,
+  "timeout": false
+}

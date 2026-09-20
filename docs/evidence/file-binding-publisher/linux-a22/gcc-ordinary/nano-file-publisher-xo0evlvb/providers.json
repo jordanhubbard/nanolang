@@ -1,0 +1,34 @@
+{
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/nsi_file_binding.o": {
+    "sha256": "77955fbcd167bc35a43554ae8c037643678f43a63b8bdfad24cec7eb7e9ea406",
+    "bytes": 66224
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/nsi_file_plan.o": {
+    "sha256": "ecaa4f7b53941b7bb4cb2e356797fbcf80a74da30abc73df12fbd2e459accff0",
+    "bytes": 32528
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/nsi.o": {
+    "sha256": "009cb12358d9ae57b08fd0aba5b1b9dcb13f649a508644591d0a5ec9348ade46",
+    "bytes": 97376
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/cJSON.o": {
+    "sha256": "ccf46b8ab78af9580d59c7eba33cce1c25c69d90d150f477794c47781a120871",
+    "bytes": 134352
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/utf8.o": {
+    "sha256": "9580a34b66c634a97711a5e93e9b88e374ca7246dcd984140e2444309d42c05d",
+    "bytes": 18280
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/nsi_file_publish.o": {
+    "sha256": "fb82a9cc74eb23bd8cdce246bae9b0dbcaf040385d4008c14108d2625045c3a0",
+    "bytes": 39584
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-obj/file-binding-publisher/nsi_file_binding_main.o": {
+    "sha256": "cec04f71a1b1401828b5ea9971ad876faef55927bf994e80930d92124230d24e",
+    "bytes": 31616
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-ordinary/nano-file-publisher-xo0evlvb/make-bin/nsi-file-binding": {
+    "sha256": "89a1e4364b8b2e1941e74ad1888f738c595702fdf239d7ec2f9933e8308f39b8",
+    "bytes": 309128
+  }
+}

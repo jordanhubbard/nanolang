@@ -1,0 +1,1 @@
+{"status":0,"failed_stage":0,"first_errno":0,"cleanup_errno":0,"published":true,"durable":true,"cleanup_pending":false,"path_encoding":"byte-codepoints-0-255","input":"tests/fixtures/nsi_file_plan.json","directory":"/private/tmp/nanolang-file-publisher-4e828-puck/apple-ordinary/nano-file-publisher-p_g2biev/cli/quoted ' $(touch injected); utf8-\u00c3\u00a9","staging_name":""}

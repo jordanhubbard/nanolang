@@ -1,0 +1,31 @@
+{
+  "seal": "docs/evidence/token-value-bytes",
+  "reports": 1556,
+  "objects": 2080,
+  "bytes": 833665658,
+  "pairs": 54,
+  "status": "pass",
+  "refs": 23699,
+  "actual_raw_shadow_selections": 24,
+  "complete_byte_generation_comparisons": 16,
+  "token_output_checks": 12,
+  "qualified_source_fixture_git_blobs": 2426,
+  "current_linux": {
+    "root": "/home/jkh/Src/nanolang-token-corrected-315",
+    "current": {
+      "source": 18170,
+      "tools": 12,
+      "products": 835
+    },
+    "status": "pass"
+  },
+  "current_puck": {
+    "root": "/tmp/nanolang-token-corrected-315",
+    "current": {
+      "source": 18170,
+      "tools": 12,
+      "products": 620
+    },
+    "status": "pass"
+  }
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 9.189,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.127,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-ordinary-build",
+    "seconds": 0.286,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-ordinary-run",
+    "seconds": 0.342,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-sanitizer-build",
+    "seconds": 0.753,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-sanitizer-run",
+    "seconds": 0.303,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-ordinary-build",
+    "seconds": 0.179,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-ordinary-run",
+    "seconds": 0.235,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-ordinary-build",
+    "seconds": 0.121,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-ordinary-run",
+    "seconds": 0.236,
+    "status": 0
+  }
+]

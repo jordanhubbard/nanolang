@@ -1,0 +1,392 @@
+{
+  "apple-ordinary/nano-token-bytes-xaq8lca9/gen_compiler_schema-nanoc_c": {
+    "sha256": "670386a6123102842da0ec9de69eb93ccaf71a0aa8e874778e21580ce846e717",
+    "bytes": 8803336,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/670386a6123102842da0ec9de69eb93ccaf71a0aa8e874778e21580ce846e717"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/gen_compiler_schema-nanoc_c-build.stderr": {
+    "sha256": "e3ea7343e4b0b8eae01b950aff851477ed3c00f0cf4315252c1fa08f529ae348",
+    "bytes": 2138,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3ea7343e4b0b8eae01b950aff851477ed3c00f0cf4315252c1fa08f529ae348"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/gen_compiler_schema-nanoc_c-build.stdout": {
+    "sha256": "d3c812d99be5522812913c717a186b4f25d65a5d27f34e1d5865590601806198",
+    "bytes": 8685,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/d3c812d99be5522812913c717a186b4f25d65a5d27f34e1d5865590601806198"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/gen_compiler_schema-nanoc_c-generate.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/gen_compiler_schema-nanoc_c-generate.stdout": {
+    "sha256": "afb855c1bb93f0f9f21d6689a116abe46cf00722e98393862f55b0018422e9a3",
+    "bytes": 316,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/afb855c1bb93f0f9f21d6689a116abe46cf00722e98393862f55b0018422e9a3"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/gen_compiler_schema-nanoc_c.c": {
+    "sha256": "b71ab6c61fec548bc3ee07dc31b28bb8eb8808a7a6b3fca3db7c748732f9debf",
+    "bytes": 142151,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/b71ab6c61fec548bc3ee07dc31b28bb8eb8808a7a6b3fca3db7c748732f9debf"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/gen_compiler_schema-nanoc_stage1-build.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/gen_compiler_schema-nanoc_stage1-build.stdout": {
+    "sha256": "4b1762f3093ee5b45d66c8661eb47aa92fffc124e9d5cb8a72d8fed8a1b38336",
+    "bytes": 180,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/4b1762f3093ee5b45d66c8661eb47aa92fffc124e9d5cb8a72d8fed8a1b38336"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/lexer.o": {
+    "sha256": "c254479d1072731d162ffdf8c2b2b9e31dc8ff83d023563cae1be308890abdb2",
+    "bytes": 48920,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/c254479d1072731d162ffdf8c2b2b9e31dc8ff83d023563cae1be308890abdb2"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-lexer.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-lexer.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-runtime-list_LexerToken.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-runtime-list_LexerToken.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-runtime-list_token.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-runtime-list_token.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-runtime-token_helpers.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-runtime-token_helpers.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-utf8.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/provider-utf8.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/python-generator/scripts/gen_compiler_schema.py": {
+    "sha256": "18c947e5bfe81da1558d958529f59348b2dbf21519c5b7b828d4a32d8080ff19",
+    "bytes": 9389,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/18c947e5bfe81da1558d958529f59348b2dbf21519c5b7b828d4a32d8080ff19"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/python-generator/src/generated/compiler_schema.h": {
+    "sha256": "82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456",
+    "bytes": 23716,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/python-generator/src_nano/generated/compiler_ast.nano": {
+    "sha256": "54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95",
+    "bytes": 8408,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/python-generator/src_nano/generated/compiler_contracts.nano": {
+    "sha256": "24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416",
+    "bytes": 1610,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/python-generator/src_nano/generated/compiler_schema.nano": {
+    "sha256": "a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060",
+    "bytes": 3146,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/python-generator-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/python-generator-run.stdout": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/runtime-list_LexerToken.o": {
+    "sha256": "15189c286c27f3e371d45c1d4db116568dd6ecd59c02b9effeeee5249c67ba59",
+    "bytes": 13352,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/15189c286c27f3e371d45c1d4db116568dd6ecd59c02b9effeeee5249c67ba59"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/runtime-list_token.o": {
+    "sha256": "06faf2ed4eef46a3271b6daeddae32760d8c0b98ecc9b58fce6536303c2db745",
+    "bytes": 13224,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/06faf2ed4eef46a3271b6daeddae32760d8c0b98ecc9b58fce6536303c2db745"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/runtime-token_helpers.o": {
+    "sha256": "52c9518997186cb84b71d6a2a2a3b337c7743d4ec4032be29f80b720317033a0",
+    "bytes": 4544,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/52c9518997186cb84b71d6a2a2a3b337c7743d4ec4032be29f80b720317033a0"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/schema-nanoc_c/src/generated/compiler_schema.h": {
+    "sha256": "82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456",
+    "bytes": 23716,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/schema-nanoc_c/src_nano/generated/compiler_ast.nano": {
+    "sha256": "54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95",
+    "bytes": 8408,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/schema-nanoc_c/src_nano/generated/compiler_contracts.nano": {
+    "sha256": "24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416",
+    "bytes": 1610,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/schema-nanoc_c/src_nano/generated/compiler_schema.nano": {
+    "sha256": "a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060",
+    "bytes": 3146,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_c": {
+    "sha256": "a499e8b8b097543fba6c30a3e29ac6a3a75d8ba3720320d9f672ed018c71a194",
+    "bytes": 8916008,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/a499e8b8b097543fba6c30a3e29ac6a3a75d8ba3720320d9f672ed018c71a194"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_c-build.stderr": {
+    "sha256": "cfcb40946bc1e446b38fb46f0b3a06b0be8872dbfba71928a4d9447c7ac69986",
+    "bytes": 2788,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/cfcb40946bc1e446b38fb46f0b3a06b0be8872dbfba71928a4d9447c7ac69986"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_c-build.stdout": {
+    "sha256": "88a3b2883a445505084836354401471a93bd86437330ff272386f148ccaffed6",
+    "bytes": 34393,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/88a3b2883a445505084836354401471a93bd86437330ff272386f148ccaffed6"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_c-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_c-run.stdout": {
+    "sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "bytes": 55,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_c.c": {
+    "sha256": "9c9deea1cdae59f5a61e1cee25c0b19d8428f7367a109712a7f3428d9c0b178d",
+    "bytes": 117740,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/9c9deea1cdae59f5a61e1cee25c0b19d8428f7367a109712a7f3428d9c0b178d"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage1": {
+    "sha256": "6ed8493935ad72d45e4ac9bfbca07d36b12a122e81bf2ea5f6bee0249365c94b",
+    "bytes": 8796464,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/6ed8493935ad72d45e4ac9bfbca07d36b12a122e81bf2ea5f6bee0249365c94b"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage1-build.stderr": {
+    "sha256": "e492b39e976e776d8b24e9fbdf80a0f2c34e110812c7a662d3bb781dd431831e",
+    "bytes": 3859,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e492b39e976e776d8b24e9fbdf80a0f2c34e110812c7a662d3bb781dd431831e"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage1-build.stdout": {
+    "sha256": "049698a7f8adcf2cb1408af51998883c35a89002ce434b14bb2b9bcc9c851fea",
+    "bytes": 171,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/049698a7f8adcf2cb1408af51998883c35a89002ce434b14bb2b9bcc9c851fea"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage1-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage1-run.stdout": {
+    "sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "bytes": 55,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage1-tmp/nano_native_1789896391_0/program.c": {
+    "sha256": "521b8519caf4ae750d9fef9b07590678203f4ba192837437fc2946e134b288aa",
+    "bytes": 168094,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/521b8519caf4ae750d9fef9b07590678203f4ba192837437fc2946e134b288aa"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage2": {
+    "sha256": "bf3b53947a100d3c481e910e93fa5713cec722cdcfc6e28aaa95e780e2400d60",
+    "bytes": 8796464,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/bf3b53947a100d3c481e910e93fa5713cec722cdcfc6e28aaa95e780e2400d60"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage2-build.stderr": {
+    "sha256": "e492b39e976e776d8b24e9fbdf80a0f2c34e110812c7a662d3bb781dd431831e",
+    "bytes": 3859,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e492b39e976e776d8b24e9fbdf80a0f2c34e110812c7a662d3bb781dd431831e"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage2-build.stdout": {
+    "sha256": "ec87ef5d91d0d28b2b5bda7e2e0d1d23302a421d4dbb2abe49ed6e77e58eaac5",
+    "bytes": 171,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/ec87ef5d91d0d28b2b5bda7e2e0d1d23302a421d4dbb2abe49ed6e77e58eaac5"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage2-run.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage2-run.stdout": {
+    "sha256": "55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b",
+    "bytes": 55,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/55aaf833ed0d5998ef4719c7fa61f0a0d748920200d28caceca6a2d30d2f3e8b"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_stage2-tmp/nano_native_1789896394_0/program.c": {
+    "sha256": "521b8519caf4ae750d9fef9b07590678203f4ba192837437fc2946e134b288aa",
+    "bytes": 168094,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/521b8519caf4ae750d9fef9b07590678203f4ba192837437fc2946e134b288aa"
+  },
+  "apple-ordinary/nano-token-bytes-xaq8lca9/utf8.o": {
+    "sha256": "7b97669a059752e377cfb23df89b92f77a5bf5782314c86436522bc1db2e1747",
+    "bytes": 10880,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/7b97669a059752e377cfb23df89b92f77a5bf5782314c86436522bc1db2e1747"
+  },
+  "apple-ordinary.stderr": {
+    "sha256": "bee31315392a91f058c9025bb57403b497b201eeebc62be334d9e2a2d9a7fe30",
+    "bytes": 1289,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/bee31315392a91f058c9025bb57403b497b201eeebc62be334d9e2a2d9a7fe30"
+  },
+  "apple-ordinary.stdout": {
+    "sha256": "d28f6dd47b55c7f0407a8f87ac8248263333f6845da3a32cfcaf974f99d06f79",
+    "bytes": 107,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/d28f6dd47b55c7f0407a8f87ac8248263333f6845da3a32cfcaf974f99d06f79"
+  },
+  "apple-owning-compiler.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-owning-compiler.stdout": {
+    "sha256": "083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24",
+    "bytes": 93,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24"
+  },
+  "apple-owning-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "apple-owning-version.stdout": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+  },
+  "ffi-flags.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ffi-flags.stdout": {
+    "sha256": "92341d92d547ddd138d5081351673ba5af7641c16ea9f198b83847317b174e60",
+    "bytes": 90,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/92341d92d547ddd138d5081351673ba5af7641c16ea9f198b83847317b174e60"
+  },
+  "ffi-libdir.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ffi-libdir.stdout": {
+    "sha256": "c7667ad8669708dc96d3517c8ac823da3b13afa11ea704d0da11934fd896dd83",
+    "bytes": 38,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/c7667ad8669708dc96d3517c8ac823da3b13afa11ea704d0da11934fd896dd83"
+  },
+  "host.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "host.stdout": {
+    "sha256": "3c30fbf2f8173cfe994092f97d6f66aa5782099db016a3f0b1775a16536be491",
+    "bytes": 129,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/3c30fbf2f8173cfe994092f97d6f66aa5782099db016a3f0b1775a16536be491"
+  },
+  "make-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "make-version.stdout": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+  },
+  "ordinary-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "ordinary-version.stdout": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+  },
+  "other-asan.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "other-asan.stdout": {
+    "sha256": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+    "bytes": 92,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc"
+  },
+  "other-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "other-version.stdout": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+  },
+  "pkg-config-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "pkg-config-version.stdout": {
+    "sha256": "7bb9bbd2e2162e7c4db854f8740421fd7f8e6a2113a09dc1ef4711aec644536a",
+    "bytes": 6,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/7bb9bbd2e2162e7c4db854f8740421fd7f8e6a2113a09dc1ef4711aec644536a"
+  },
+  "sdk-version.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sdk-version.stdout": {
+    "sha256": "14a06c556ac677f94334dd2c86395d46009b9def8685e00741e60d31305a0262",
+    "bytes": 5,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/14a06c556ac677f94334dd2c86395d46009b9def8685e00741e60d31305a0262"
+  },
+  "sdk.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sdk.stdout": {
+    "sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf",
+    "bytes": 95,
+    "archive": "/private/tmp/nanolang-token-ae62-puck/objects/5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf"
+  }
+}

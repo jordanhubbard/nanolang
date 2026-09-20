@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-file-indirect-hosted-5c26-puck/providers.mk",
+    "-j2",
+    "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "carrier-providers",
+    "nvm2c",
+    "nvm2llvm",
+    "nvm2hl",
+    "nano_virt"
+  ],
+  "selectors": {
+    "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_RUNTIME_CFLAGS": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

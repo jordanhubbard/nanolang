@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/private/tmp/nanolang-array-d74-puck/controls/ordinary_record_authority-ordinary'
+relocations:     []
+...

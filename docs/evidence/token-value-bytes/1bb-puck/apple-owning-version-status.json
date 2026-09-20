@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "--version"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.012222500000000025
+}

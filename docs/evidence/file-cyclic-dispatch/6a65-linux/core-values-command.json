@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_nsi_file_values"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_VALUES_CC": "/usr/bin/gcc-13",
+    "NANO_FILE_VALUES_CFLAGS": "",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}

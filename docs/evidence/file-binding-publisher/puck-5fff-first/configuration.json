@@ -1,0 +1,31 @@
+{
+  "pin": "5fff9b63d",
+  "platform": "darwin",
+  "configs": [
+    [
+      "apple-ordinary",
+      "/usr/bin/clang",
+      [],
+      false,
+      true
+    ],
+    [
+      "homebrew-ordinary",
+      "/opt/homebrew/opt/llvm/bin/clang",
+      [],
+      false,
+      true
+    ],
+    [
+      "homebrew-sanitizer",
+      "/opt/homebrew/opt/llvm/bin/clang",
+      [],
+      true,
+      false
+    ]
+  ],
+  "source_count": 16218,
+  "source_scope": "all tracked files at the frozen pin",
+  "sanitizer_scope": "all seven fresh publisher providers and actual CLI plus linked/included-source fixtures; fresh strict-binding and legacy neighbors; no generated source execution",
+  "tool_scope": "explicit drivers, selected subtools, sanitizer libraries and Darwin ffi headers/library; not complete transitive system toolchain"
+}

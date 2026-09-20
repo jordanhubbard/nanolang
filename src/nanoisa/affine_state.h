@@ -54,6 +54,7 @@ bool nvm_affine_scalar_field(const NvmAffineState *state, uint16_t local,
                               uint16_t field, uint8_t *tag);
 bool nvm_affine_can_exit_scalar(const NvmAffineState *state, uint8_t tag);
 typedef struct { uint8_t tag; uint32_t layout; } NvmAffineType;
+#define NVM_AFFINE_UNKNOWN_VARIANT UINT16_MAX
 /* These transfer APIs exchange an exact record token with the bytecode stack.
  * The stack analysis must prohibit duplication, loss and incompatible joins. */
 bool nvm_affine_take_local(NvmAffineState *state, uint16_t local, NvmAffineType *type);
@@ -61,6 +62,15 @@ bool nvm_affine_put_local(NvmAffineState *state, uint16_t local, NvmAffineType t
 bool nvm_affine_local_type(const NvmAffineState *state, uint16_t local, NvmAffineType *type);
 bool nvm_affine_record_fields(const NvmAffineState *state, uint32_t layout,
                                NvmAffineType *fields, uint16_t capacity, uint16_t *count);
+/* I keep concrete union identity separate from its path-local selected arm. */
+bool nvm_affine_union_define(NvmAffineState *state,uint16_t local,
+                              uint32_t layout,uint16_t variant);
+bool nvm_affine_union_refine(NvmAffineState *state,uint16_t local,uint16_t variant);
+bool nvm_affine_union_variant(const NvmAffineState *state,uint16_t local,
+                               uint16_t *variant);
+bool nvm_affine_union_fields(const NvmAffineState *state,uint32_t layout,
+                              uint16_t variant,NvmAffineType *fields,
+                              uint16_t capacity,uint16_t *count);
 bool nvm_affine_can_exit_type(const NvmAffineState *state, NvmAffineType type);
 #define NVM_AFFINE_MAX_PARAMETERS 8u
 /* I substitute checked caller places into a fresh bounded helper.

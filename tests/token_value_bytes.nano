@@ -1,0 +1,65 @@
+import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/diagnostics.nano"
+import "src_nano/compiler/token_value_bytes.nano"
+
+fn token_count_checks() -> void {
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string "name 42 \"a\\0suffix\" \"\\u0000\" \"é\" not ( )" "counts.nano" diagnostics)
+    assert (== (list_LexerToken_length tokens) 9)
+    let expected: array<int> = [4,2,8,6,2,3,0,0,0]
+    let kinds: array<int> = [4,1,3,3,3,70,7,8,0]
+    for i in (range 0 9) {
+        let tok: LexerToken = (list_LexerToken_get tokens i)
+        assert (== tok.value_bytes (at expected i))
+        assert (== tok.token_type (at kinds i))
+    }
+    let literal: LexerToken = (list_LexerToken_get tokens 2)
+    assert (== literal.value "a\\0suffix")
+    let copied: LexerToken = LexerToken { token_type: 3, value: "raw", line: 7, column: 9, value_bytes: 1099511627776 }
+    let copies: List<LexerToken> = (list_LexerToken_new)
+    for i in (range 0 33) { (list_LexerToken_push copies copied) }
+    (list_LexerToken_insert copies 1 copied)
+    (list_LexerToken_set copies 2 copied)
+    (list_LexerToken_remove copies 1)
+    assert (== (list_LexerToken_length copies) 33)
+    let removed: LexerToken = (list_LexerToken_get copies 1)
+    let popped: LexerToken = (list_LexerToken_pop copies)
+    assert (== removed.value_bytes 1099511627776)
+    assert (== popped.value_bytes 1099511627776)
+    let first: LexerToken = (list_LexerToken_get copies 0)
+    assert (== first.value_bytes 1099511627776)
+    assert (== first.line 7)
+    assert (== first.column 9)
+    let grammar_input: string = " { rule <- \"a\\nb\" }"
+    let bodies: List<LexerToken> = (list_LexerToken_new)
+    let grammar_bytes: int = (str_length grammar_input)
+    let end: int = (process_grammar_body grammar_input 0 grammar_bytes bodies 1 1)
+    assert (== end grammar_bytes)
+    let body: LexerToken = (list_LexerToken_get bodies 0)
+    let body_bytes: int = (str_length body.value)
+    assert (== body.value_bytes body_bytes)
+    assert (> body.value_bytes (token_literal_value_bytes body.value))
+    let parts: List<LexerToken> = (tokenize_string "f\"a\\0suffix{42}é\"" "parts.nano" diagnostics)
+    let mut strings: int = 0
+    for i in (range 0 (list_LexerToken_length parts)) {
+        let part: LexerToken = (list_LexerToken_get parts i)
+        if (== part.token_type LexerTokenType.TOKEN_STRING) {
+            if (== strings 0) { assert (== part.value_bytes 8) }
+            else { assert (== part.value_bytes 2) }
+            set strings (+ strings 1)
+        }
+    }
+    assert (== strings 2)
+}
+
+shadow token_count_checks { (token_count_checks) }
+
+fn main() -> int {
+    (token_count_checks)
+    let tokens: List<LexerToken> = (tokenize_string "name 42 \"a\\0suffix\" \"\\u0000\" \"é\" not ( )" "counts.nano" (diag_list_new))
+    for i in (range 0 (list_LexerToken_length tokens)) {
+        let tok: LexerToken = (list_LexerToken_get tokens i)
+        (println (+ (+ (+ (+ (int_to_string i) ":") (int_to_string tok.token_type)) ":") (int_to_string tok.value_bytes)))
+    }
+    return 0
+}

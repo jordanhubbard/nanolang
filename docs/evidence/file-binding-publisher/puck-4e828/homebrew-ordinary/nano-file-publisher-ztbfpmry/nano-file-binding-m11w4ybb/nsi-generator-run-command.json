@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/nano-file-binding-m11w4ybb/nsi-generator"
+  ],
+  "cwd": "/private/tmp/nanolang-file-publisher-corrected-4e828",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

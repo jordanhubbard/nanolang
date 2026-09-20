@@ -1,0 +1,138 @@
+{
+  "bytes": 212243248,
+  "darwin_archive": {
+    "path": "/tmp/nanolang-passive-933-puck-evidence.tar.gz",
+    "sha256": "b898da85f535cd3bd8164d415c099c6f7506e799412532ce9f1efc0213e5ee0f"
+  },
+  "main": "0dc58835ffd2183f6c35f90a4d02bd2da18e4a19",
+  "objects": 493,
+  "pairs": 48,
+  "phases": {
+    "nanolang-passive-933-linux": [
+      {
+        "phase": "build",
+        "seconds": 22.445,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "passive",
+        "seconds": 3.622,
+        "status": 0
+      },
+      {
+        "phase": "source-flow",
+        "seconds": 0.016,
+        "status": 0
+      },
+      {
+        "phase": "flow-vm",
+        "seconds": 0.004,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-emit",
+        "seconds": 0.004,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-build",
+        "seconds": 0.065,
+        "status": 0
+      },
+      {
+        "phase": "flow-native",
+        "seconds": 0.001,
+        "status": 0
+      },
+      {
+        "phase": "comparison-build",
+        "seconds": 34.247,
+        "status": 0
+      },
+      {
+        "phase": "comparison",
+        "seconds": 0.415,
+        "status": 0
+      },
+      {
+        "phase": "scoped-sanitizer",
+        "seconds": 2.02,
+        "status": 0
+      },
+      {
+        "phase": "float-casts",
+        "seconds": 0.816,
+        "status": 0
+      }
+    ],
+    "nanolang-passive-933-puck": [
+      {
+        "phase": "build",
+        "seconds": 9.282,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.096,
+        "status": 0
+      },
+      {
+        "phase": "passive",
+        "seconds": 11.444,
+        "status": 0
+      },
+      {
+        "phase": "source-flow",
+        "seconds": 0.374,
+        "status": 0
+      },
+      {
+        "phase": "flow-vm",
+        "seconds": 0.007,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-emit",
+        "seconds": 0.006,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-build",
+        "seconds": 0.048,
+        "status": 0
+      },
+      {
+        "phase": "flow-native",
+        "seconds": 0.241,
+        "status": 0
+      },
+      {
+        "phase": "comparison-build",
+        "seconds": 42.196,
+        "status": 0
+      },
+      {
+        "phase": "comparison",
+        "seconds": 1.784,
+        "status": 0
+      },
+      {
+        "phase": "scoped-sanitizer",
+        "seconds": 1.146,
+        "status": 0
+      },
+      {
+        "phase": "float-casts",
+        "seconds": 1.245,
+        "status": 0
+      }
+    ]
+  },
+  "pin": "933aa91eab7092b238805f772b4fd3564997ae19",
+  "references": 9205
+}

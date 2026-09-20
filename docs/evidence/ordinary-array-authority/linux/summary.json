@@ -1,0 +1,538 @@
+{
+  "host": "linux",
+  "objects": 515,
+  "bytes": 213735943,
+  "references": 3940,
+  "pairs": [
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ordinary_record_authority-build-source-before.json",
+      "after": "ordinary_record_authority-build-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ordinary_record_authority-build-tools-before.json",
+      "after": "ordinary_record_authority-build-tools-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ordinary-source-before.json",
+      "after": "ordinary-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ordinary-tools-before.json",
+      "after": "ordinary-tools-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "configuration-source-before.json",
+      "after": "configuration-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "configuration-tools-before.json",
+      "after": "configuration-tools-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ownership_contracts-run-source-before.json",
+      "after": "ownership_contracts-run-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ownership_contracts-run-tools-before.json",
+      "after": "ownership_contracts-run-tools-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ownership_contracts-build-source-before.json",
+      "after": "ownership_contracts-build-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ownership_contracts-build-tools-before.json",
+      "after": "ownership_contracts-build-tools-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "sanitizer-source-before.json",
+      "after": "sanitizer-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "sanitizer-tools-before.json",
+      "after": "sanitizer-tools-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "clang-sanitizer-source-before.json",
+      "after": "clang-sanitizer-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "clang-sanitizer-tools-before.json",
+      "after": "clang-sanitizer-tools-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "setup-source-before.json",
+      "after": "setup-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "setup-tools-before.json",
+      "after": "setup-tools-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ordinary_record_authority-run-source-before.json",
+      "after": "ordinary_record_authority-run-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "ordinary_record_authority-run-tools-before.json",
+      "after": "ordinary_record_authority-run-tools-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "clang-ordinary-source-before.json",
+      "after": "clang-ordinary-source-after.json"
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "before": "clang-ordinary-tools-before.json",
+      "after": "clang-ordinary-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "before": "ordinary_record_authority-ordinary-run-source-before.json",
+      "after": "ordinary_record_authority-ordinary-run-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "before": "ordinary_record_authority-ordinary-run-tools-before.json",
+      "after": "ordinary_record_authority-ordinary-run-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "before": "configuration-source-before.json",
+      "after": "configuration-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "before": "configuration-tools-before.json",
+      "after": "configuration-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "before": "setup-source-before.json",
+      "after": "setup-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "before": "setup-tools-before.json",
+      "after": "setup-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "before": "ordinary_record_authority-ordinary-build-source-before.json",
+      "after": "ordinary_record_authority-ordinary-build-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "before": "ordinary_record_authority-ordinary-build-tools-before.json",
+      "after": "ordinary_record_authority-ordinary-build-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "nvm_v2_convert-ordinary-run-source-before.json",
+      "after": "nvm_v2_convert-ordinary-run-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "nvm_v2_convert-ordinary-run-tools-before.json",
+      "after": "nvm_v2_convert-ordinary-run-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "ordinary_record_authority-ordinary-run-source-before.json",
+      "after": "ordinary_record_authority-ordinary-run-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "ordinary_record_authority-ordinary-run-tools-before.json",
+      "after": "ordinary_record_authority-ordinary-run-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "nvm_v2_endtoend-ordinary-run-source-before.json",
+      "after": "nvm_v2_endtoend-ordinary-run-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "nvm_v2_endtoend-ordinary-run-tools-before.json",
+      "after": "nvm_v2_endtoend-ordinary-run-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "ordinary_record_authority-sanitizer-run-source-before.json",
+      "after": "ordinary_record_authority-sanitizer-run-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "ordinary_record_authority-sanitizer-run-tools-before.json",
+      "after": "ordinary_record_authority-sanitizer-run-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "configuration-source-before.json",
+      "after": "configuration-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "configuration-tools-before.json",
+      "after": "configuration-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "nvm_v2_endtoend-ordinary-build-source-before.json",
+      "after": "nvm_v2_endtoend-ordinary-build-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "nvm_v2_endtoend-ordinary-build-tools-before.json",
+      "after": "nvm_v2_endtoend-ordinary-build-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "ordinary_record_authority-sanitizer-build-source-before.json",
+      "after": "ordinary_record_authority-sanitizer-build-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "ordinary_record_authority-sanitizer-build-tools-before.json",
+      "after": "ordinary_record_authority-sanitizer-build-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "setup-source-before.json",
+      "after": "setup-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "setup-tools-before.json",
+      "after": "setup-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "ordinary_record_authority-ordinary-build-source-before.json",
+      "after": "ordinary_record_authority-ordinary-build-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "ordinary_record_authority-ordinary-build-tools-before.json",
+      "after": "ordinary_record_authority-ordinary-build-tools-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "nvm_v2_convert-ordinary-build-source-before.json",
+      "after": "nvm_v2_convert-ordinary-build-source-after.json"
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "before": "nvm_v2_convert-ordinary-build-tools-before.json",
+      "after": "nvm_v2_convert-ordinary-build-tools-after.json"
+    }
+  ],
+  "terminals": [
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "ordinary_record_authority-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": -6,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "ordinary-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "setup-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "ownership_contracts-build-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "ordinary_record_authority-build-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "clang-sanitizer-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "clang-ordinary-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "ownership_contracts-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "sanitizer-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "phase": "ordinary_record_authority-ordinary-build-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "phase": "ordinary_record_authority-ordinary-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": -6,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "phase": "setup-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "phase": "configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "ordinary_record_authority-ordinary-build-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "nvm_v2_convert-ordinary-build-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "ordinary_record_authority-sanitizer-build-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "ordinary_record_authority-ordinary-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "nvm_v2_convert-ordinary-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "setup-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "nvm_v2_endtoend-ordinary-build-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "ordinary_record_authority-sanitizer-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "phase": "nvm_v2_endtoend-ordinary-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    }
+  ]
+}

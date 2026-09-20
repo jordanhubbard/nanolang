@@ -31,4 +31,6 @@ bool nvm_file_runtime_cyclic_report(const NvmFileRuntime *,NvmFileCyclicExecutio
 NvmFileCyclicExecutionReport nvm_file_runtime_cyclic_finish(NvmFileRuntime *,NvmFileRuntimeView *);
 NvmFileCyclicExecutionReport nvm_file_runtime_cyclic_destroy(NvmFileRuntime **,NvmFileRuntimeView *);
 bool nvm_file_runtime_cyclic_abi(uint32_t,size_t,size_t,size_t,size_t);
+/* Separate semantic contract for generated cyclic operations; old native ABI is unchanged. */
+bool nvm_file_runtime_cyclic_native_abi(uint32_t,size_t,size_t,size_t,size_t,size_t);
 #endif

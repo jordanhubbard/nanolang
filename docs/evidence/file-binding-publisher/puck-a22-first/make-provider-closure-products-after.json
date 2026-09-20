@@ -1,0 +1,17 @@
+{
+  "obj/file-binding-publisher/nsi_file_binding_main.d": {
+    "sha256": "855b4912698c8541cfeae68099fb69f002135f5ccf192e3fd54b5cdfb8ca687f",
+    "bytes": 182,
+    "archive": "/private/tmp/nanolang-file-publisher-a22-puck/objects/855b4912698c8541cfeae68099fb69f002135f5ccf192e3fd54b5cdfb8ca687f"
+  },
+  "obj/file-binding-publisher/nsi_file_binding_main.o": {
+    "sha256": "405da7bf858d47fc991fd6b787bbf03e3cf3fbab1d10b3329903f03a847c88c4",
+    "bytes": 17648,
+    "archive": "/private/tmp/nanolang-file-publisher-a22-puck/objects/405da7bf858d47fc991fd6b787bbf03e3cf3fbab1d10b3329903f03a847c88c4"
+  },
+  "obj/file-binding-publisher/nsi_file_publish.d": {
+    "sha256": "862664acf5a48706a5025a8c7415a54ce16cd7d598e03220480fa12963d75b5d",
+    "bytes": 168,
+    "archive": "/private/tmp/nanolang-file-publisher-a22-puck/objects/862664acf5a48706a5025a8c7415a54ce16cd7d598e03220480fa12963d75b5d"
+  }
+}

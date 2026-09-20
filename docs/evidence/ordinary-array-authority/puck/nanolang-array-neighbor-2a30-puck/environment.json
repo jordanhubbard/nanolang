@@ -1,0 +1,7 @@
+{
+  "CARRIER_PHASES": "setup,configuration,ordinary_record_authority-ordinary-build,ordinary_record_authority-ordinary-run,ordinary_record_authority-sanitizer-build,ordinary_record_authority-sanitizer-run,nvm_v2_convert-ordinary-build,nvm_v2_convert-ordinary-run,nvm_v2_endtoend-ordinary-build,nvm_v2_endtoend-ordinary-run",
+  "CARRIER_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "CC": "/usr/bin/cc",
+  "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib:/opt/homebrew/opt/libffi/lib",
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+}

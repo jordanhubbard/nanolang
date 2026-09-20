@@ -1,0 +1,17 @@
+{
+  "pin": "d4fe65e93baa2bb03b88c6dbc587ec41ea8eb52a",
+  "platform": "linux",
+  "configs": [
+    [
+      "gcc-ordinary",
+      "/usr/bin/gcc",
+      [],
+      false,
+      true
+    ]
+  ],
+  "source_count": 24345,
+  "source_scope": "all tracked files at the frozen pin",
+  "sanitizer_scope": "ordinary integration only; original seven sanitizer/compiler configurations remain at original qualified pins",
+  "tool_scope": "explicit drivers, selected subtools, sanitizer libraries and Darwin ffi headers/library; not complete transitive system toolchain"
+}

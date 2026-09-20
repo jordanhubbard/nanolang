@@ -1,0 +1,60 @@
+{
+  "integrations": [
+    {
+      "seal": "integration",
+      "objects": 1349,
+      "bytes": 443166985,
+      "refs": 7579,
+      "selected": 12,
+      "four_file_comparisons": 8,
+      "status": "pass"
+    },
+    {
+      "seal": "union-integration",
+      "objects": 1349,
+      "bytes": 444280814,
+      "refs": 7579,
+      "selected": 12,
+      "four_file_comparisons": 8,
+      "status": "pass"
+    },
+    {
+      "seal": "final-closure",
+      "objects": 759,
+      "bytes": 279182981,
+      "refs": 3978,
+      "selected": 12,
+      "four_file_comparisons": 8,
+      "status": "pass"
+    }
+  ],
+  "final_git": {
+    "pin": "8856cfa0c34bed720d45967c373be3eb89a9ee6a",
+    "selected_git_inputs": 2453,
+    "status": "pass"
+  },
+  "final_linux": {
+    "root": "/home/jkh/Src/nanolang-token-final-885",
+    "current": {
+      "source": 26190,
+      "tools": 12,
+      "products": 333
+    },
+    "status": "pass"
+  },
+  "final_puck": {
+    "root": "/tmp/nanolang-token-final-885",
+    "current": {
+      "source": 26190,
+      "tools": 12,
+      "products": 332
+    },
+    "status": "pass"
+  },
+  "git_reports": [
+    252,
+    251,
+    253
+  ],
+  "scope": "Independent root audit of all three integration seals. Original315 source/seven-configuration evidence was audited separately. Current endpoints do not prove a full transitive toolchain or bootstrap fixed point."
+}

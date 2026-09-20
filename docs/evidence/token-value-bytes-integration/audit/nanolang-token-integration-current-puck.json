@@ -1,0 +1,24 @@
+{
+  "root": "/tmp/nanolang-token-integration-51d",
+  "report": "/tmp/nanolang-token-integration-puck",
+  "maps": {
+    "source": {
+      "map": "/tmp/nanolang-token-integration-puck/ordinary-adjacency-source-after.json",
+      "sha256": "f4a795bdddf491e6746807f6eedde83effa1f8639d5bbde96ad42654d23edaa3",
+      "count": 24085,
+      "mismatches": []
+    },
+    "tools": {
+      "map": "/tmp/nanolang-token-integration-puck/ordinary-adjacency-tools-after.json",
+      "sha256": "07c55e3a419661629a6f51615487266fc50c844a06b89caabf0228d6c5e38df9",
+      "count": 12,
+      "mismatches": []
+    },
+    "products": {
+      "map": "/tmp/nanolang-token-integration-puck/ordinary-adjacency-products-after.json",
+      "sha256": "246c00cedd6e09e289b25ba3131e44890a06dea37c1e2963604235222a6682f3",
+      "count": 631,
+      "mismatches": []
+    }
+  }
+}

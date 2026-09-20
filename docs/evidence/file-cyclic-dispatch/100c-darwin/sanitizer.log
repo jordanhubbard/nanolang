@@ -1,0 +1,8 @@
+I retain cyclic dispatch artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-cyclic-dispatch-9u70lctl
+test_instrumented_matched_cyclic_dispatch (tests.test_file_cyclic_dispatch.FileCyclicDispatch.test_instrumented_matched_cyclic_dispatch) ... ok
+test_linked_matched_dispatch_and_isolated_refusals (tests.test_file_cyclic_dispatch.FileCyclicDispatch.test_linked_matched_dispatch_and_isolated_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 69.700s
+
+OK

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-array-neighbor-cdd-linux/providers.mk",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "array-providers",
+    "nano_vm",
+    "nvm2c"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": ""
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "pin": "7bf8e208a",
+  "platform": "darwin",
+  "configs": [
+    [
+      "apple-ordinary",
+      "/usr/bin/clang",
+      [],
+      false,
+      true
+    ],
+    [
+      "homebrew-ordinary",
+      "/opt/homebrew/opt/llvm/bin/clang",
+      [],
+      false,
+      true
+    ],
+    [
+      "homebrew-sanitizer",
+      "/opt/homebrew/opt/llvm/bin/clang",
+      [],
+      true,
+      false
+    ]
+  ],
+  "source_count": 18170,
+  "source_scope": "all tracked files at the frozen pin",
+  "sanitizer_scope": "fresh five C providers and C fixture/bridge inclusion only; ordinary generated Nano products",
+  "tool_scope": "explicit drivers, selected subtools, sanitizer libraries and Darwin ffi headers/library; not complete transitive system toolchain"
+}

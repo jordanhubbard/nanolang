@@ -1,0 +1,221 @@
+{
+  "bytes": 391281422,
+  "corrected_pin": "1f0db21e6",
+  "darwin_archive": {
+    "path": "/tmp/nanolang-passive-cfg-puck-evidence.tar.gz",
+    "sha256": "d3d688f080976dc2fa93e08f5e2568d34e631d521bb007fcaf6125d07374c97e"
+  },
+  "first_fixture": "35957bad6",
+  "objects": 865,
+  "pairs": 76,
+  "phases": {
+    "nanolang-passive-cfg-1f0db-linux": [
+      {
+        "phase": "build",
+        "seconds": 21.532,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "passive",
+        "seconds": 3.472,
+        "status": 0
+      },
+      {
+        "phase": "source-flow",
+        "seconds": 0.016,
+        "status": 0
+      },
+      {
+        "phase": "flow-vm",
+        "seconds": 0.004,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-emit",
+        "seconds": 0.004,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-build",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "flow-native",
+        "seconds": 0.001,
+        "status": 0
+      },
+      {
+        "phase": "comparison-build",
+        "seconds": 33.593,
+        "status": 0
+      },
+      {
+        "phase": "comparison",
+        "seconds": 0.415,
+        "status": 0
+      },
+      {
+        "phase": "scoped-sanitizer",
+        "seconds": 2.019,
+        "status": 0
+      },
+      {
+        "phase": "float-casts",
+        "seconds": 0.816,
+        "status": 0
+      }
+    ],
+    "nanolang-passive-cfg-1f0db-puck": [
+      {
+        "phase": "build",
+        "seconds": 9.571,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.09,
+        "status": 0
+      },
+      {
+        "phase": "passive",
+        "seconds": 9.931,
+        "status": 0
+      },
+      {
+        "phase": "source-flow",
+        "seconds": 0.322,
+        "status": 0
+      },
+      {
+        "phase": "flow-vm",
+        "seconds": 0.006,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-emit",
+        "seconds": 0.006,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-build",
+        "seconds": 0.091,
+        "status": 0
+      },
+      {
+        "phase": "flow-native",
+        "seconds": 0.211,
+        "status": 0
+      },
+      {
+        "phase": "comparison-build",
+        "seconds": 38.908,
+        "status": 0
+      },
+      {
+        "phase": "comparison",
+        "seconds": 1.644,
+        "status": 0
+      },
+      {
+        "phase": "scoped-sanitizer",
+        "seconds": 1.49,
+        "status": 0
+      },
+      {
+        "phase": "float-casts",
+        "seconds": 1.145,
+        "status": 0
+      }
+    ],
+    "nanolang-passive-cfg-35957-linux": [
+      {
+        "phase": "build",
+        "seconds": 21.212,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.114,
+        "status": 0
+      },
+      {
+        "phase": "passive",
+        "seconds": 3.472,
+        "status": 0
+      },
+      {
+        "phase": "source-flow",
+        "seconds": 0.016,
+        "status": 0
+      },
+      {
+        "phase": "flow-vm",
+        "seconds": 0.004,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-emit",
+        "seconds": 0.004,
+        "status": 0
+      },
+      {
+        "phase": "flow-native-build",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "flow-native",
+        "seconds": 0.001,
+        "status": 0
+      }
+    ],
+    "nanolang-passive-cfg-35957-linux-comparison": [
+      {
+        "phase": "comparison-build",
+        "seconds": 32.891,
+        "status": 0
+      },
+      {
+        "phase": "comparison",
+        "seconds": 0.415,
+        "status": 0
+      },
+      {
+        "phase": "scoped-sanitizer",
+        "seconds": 2.02,
+        "status": 0
+      }
+    ],
+    "nanolang-passive-cfg-35957-puck-prepared": [
+      {
+        "phase": "build",
+        "seconds": 9.494,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.09,
+        "status": 0
+      },
+      {
+        "phase": "passive",
+        "seconds": 9.506,
+        "status": 2
+      }
+    ]
+  },
+  "preparation_failure": {
+    "host": "puck",
+    "raw_terminal": "Retained in root tool output; no captured stderr file is claimed.",
+    "reason": "Git archive lacked external tracked-file manifest; driver git ls-files returned128 before any build or fixture execution. Supplied manifest before fresh prepared-report run.",
+    "report": "nanolang-passive-cfg-35957-puck"
+  },
+  "production": "12a7cc3fe",
+  "references": 14246
+}

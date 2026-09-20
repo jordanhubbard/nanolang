@@ -1,0 +1,9 @@
+{
+  "CARRIER_PHASES": "configuration,code,body,flow,hosted,opcodes,cyclic-hosted,indirect_targets,indirect_flow",
+  "CARRIER_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+  "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+  "LSAN_OPTIONS": "",
+  "NANO_FILE_RUNTIME_CFLAGS": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+  "PATH": "/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+}

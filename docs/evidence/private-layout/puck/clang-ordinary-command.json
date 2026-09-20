@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_ownership_layouts_private"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LIBRARY_PATH": "/usr/local/lib",
+    "LSAN_OPTIONS": "",
+    "OWNERSHIP_LAYOUT_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "OWNERSHIP_LAYOUT_CFLAGS": "",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}
