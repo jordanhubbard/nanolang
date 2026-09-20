@@ -159,7 +159,7 @@ static NvmModule *held_loop(NvmFileNominalBindings *b,bool fail,bool endless){
  target(p,error);take_result(p,0,1);op(p,OP_POP);fi(p,0);op(p,OP_RET);
  return frame_module(&s,1,b,false,-1);
 }
-static NvmModule *dead_label(NvmFileNominalBindings *b){NvmModule *m=csimple(b,false);Body c={0};fi(&c,17);op(&c,OP_RET);op(&c,OP_NOP);setbody(m,0,c);return m;}
+static NvmModule *dead_label(NvmFileNominalBindings *b){NvmModule *m=csimple(b,false);Body c={0};fi(&c,17);op(&c,OP_RET);op(&c,OP_NOP);op(&c,OP_RET);setbody(m,0,c);return m;}
 static NvmModule *multiple_variants(NvmFileNominalBindings *b){
  FrameSpec s={.locals=1,.types={-1},.result=-1};Body *p=&s.code;
  op(p,OP_PUSH_BOOL);op(p,1);uint32_t skip=branch(p,OP_JMP_FALSE,0);
@@ -216,7 +216,7 @@ static void refusal_controls(void){
   CHECK(report.instruction_limit==(kind==2?0:options.instruction_limit) && !memcmp(&out,&old,sizeof out) && open_attempts==opens);
  }
  release_wire(wire);
- m=dead_label(&b);m->code[m->code_size-1]=OP_PRINT;
+ m=dead_label(&b);m->code[m->code_size-2]=OP_PRINT;
  run_module(m,100,NVM_FILE_RUNTIME_UNRESOLVED,0,0);
  m=held_loop(&b,false,false);CHECK(!nvm_verify(m).ok);char error[256];CHECK(!nvm2c_emit(m,error,sizeof error));
  nvm_module_free(m);
