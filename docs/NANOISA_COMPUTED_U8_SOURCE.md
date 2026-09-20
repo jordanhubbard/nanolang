@@ -70,3 +70,11 @@ explicit full-graph work. Literal256 and negative literal refusals remain; old
 computed-expression refusals are replaced by positive narrowing checks. Raw
 CAST_U8 reconstruction covers both C and Nano with actual recompiled producer
 outputs. No build, fixture discovery or execution has occurred at this point.
+
+## My interpreted scalar destination prerequisite
+
+I retain the first20bdb Linux and Darwin source failures under task_c4180e737bd042b1a2cfdb04a9c19906. My fresh builds, complete C-seed/Stage1/Stage2 bootstrap and three actual Nano emitter builds pass; my C-seed's interpreted shadows then leave a257 return unnarrowed in a U8-returning function. This is a demonstrated evaluator mismatch, not a failed generated CAST_U8 test.
+
+My evaluator represents both INT and U8 with VAL_INT. At a checked exact TYPE_U8 scalar destination, I narrow its integer payload through uint8_t once. I preserve control-flow metadata, do not allocate, and leave other value kinds and destination types unchanged. The shared environment publication paths cover local/global initialization, parameters and reassignment using the retained destination type. Both evaluator function invocation paths narrow only a completed return belonging to that activation; a nonlocal return addressed to an outer handler must retain its original value. Indirect and qualified calls use the actual registered function's destination. Existing checker literal and wrong-source refusals remain authoritative.
+
+I review this source before rebuilding any provider. The seven source methods remain unchanged and mandatory. Aggregate fields/elements, full callable graph and complete verifier corpus remain required under the parent; a passing scalar prerequisite does not close those obligations.

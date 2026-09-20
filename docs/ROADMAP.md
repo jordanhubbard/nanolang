@@ -13920,3 +13920,5 @@ The supplemental seal preserves880 objects/15982 references/96 equal pairs;
 current3716-source inventories and actual lib/provider products are rehashed.
 I submit the ready PR for independent audit. Full mixed execution and source
 parents remain open; original c032c sanitizer attribution is unchanged.
+
+- [ ] I preserve contextual U8 narrowing in interpreted shadows (task_c4180e737bd042b1a2cfdb04a9c19906). Fresh20bdb build, C-seed/Stage1/Stage2 bootstrap and three independent emitter builds pass on Linux and Darwin. The first all-byte source method then fails the C-seed shadow: a declared U8 return keeps257 instead of1, and six boundary assertions fail. I retain both first terminals and repair exact checked scalar binding/assignment/parameter/return boundaries before rerunning; aggregate destinations remain part of the full audit. I do not skip shadow execution.
