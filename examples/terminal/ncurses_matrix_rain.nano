@@ -6,6 +6,7 @@
 # Prerequisites: none
 # Expected Output: interactive terminal animation
 
+module "stdlib/timing.nano" as Timing
 module "modules/ncurses/ncurses.nano"
 
 # === CONSTANTS ===
@@ -16,7 +17,6 @@ let UPDATE_DELAY_MS: int = 50
 # === EXTERNAL FUNCTIONS ===
 extern fn rand() -> int
 extern fn srand(seed: int) -> void
-extern fn time(t: int) -> int
 
 # === DROP STATE ===
 # Each column has a "drop" - a stream of falling characters
@@ -53,7 +53,7 @@ fn main() -> int {
     (println "")
     
     # Seed random
-    let t: int = (time 0)
+    let t: int = (/ (Timing.get_microseconds) 1000000)
     unsafe { (srand t) }
     
     # Initialize ncurses
