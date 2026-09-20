@@ -1,0 +1,1498 @@
+{
+  "nanolang-cast-u8-backends-puck-layout-asan/build-products-after.json": {
+    "sha256": "c118020d27f2131d7a987b98baf07ec9e4f76b89c650f0bad723998c9d4e3793",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/build-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/build-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/build-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/build-status.json": {
+    "sha256": "51f3ac98db7a3a5844a5261d7b7f965b2edb892bba2038a4306ff4947564a67f",
+    "bytes": 770
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/build-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/build-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/build.log": {
+    "sha256": "e6d72eaab121bae7aa1fd0e24f02997c4fa1f917292931ae095c3c9dea4f2487",
+    "bytes": 8850
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/compiler-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/compiler-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/compiler-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/compiler-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/compiler-status.json": {
+    "sha256": "bc3740664364576b234b0690944658e52010e57b1208baa71382f2c73984f223",
+    "bytes": 546
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/compiler-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/compiler-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/discovery-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/discovery-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/discovery-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/discovery-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/discovery-status.json": {
+    "sha256": "2157de9c0a9356b122b83e2bf074cf7e8ed096b0d8d7ab641e0e755c0dcb35a2",
+    "bytes": 806
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/discovery-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/discovery-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/environment.json": {
+    "sha256": "f200de1f3d66a1edca77761b12ddba9dca940a0ae85c2c5fe764abfc7c4a4341",
+    "bytes": 891
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/generated-byte-products-after.json": {
+    "sha256": "c118020d27f2131d7a987b98baf07ec9e4f76b89c650f0bad723998c9d4e3793",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/generated-byte-products-before.json": {
+    "sha256": "c118020d27f2131d7a987b98baf07ec9e4f76b89c650f0bad723998c9d4e3793",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/generated-byte-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/generated-byte-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/generated-byte-status.json": {
+    "sha256": "6bb138d080cac9515becf853bf925a38bef85a9188f279431e446be0847f734c",
+    "bytes": 646
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/generated-byte-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/generated-byte-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/generated-byte.log": {
+    "sha256": "768d543cfff902a320bd1f76e6f007e0d4f840b9fdf049fade30071ee3723e3a",
+    "bytes": 1207
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/llvm-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/llvm-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/llvm-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/llvm-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/llvm-status.json": {
+    "sha256": "996115212cb5a1db975aa7c22bd47d9c47cc2142885c2ce225461de30b1541a0",
+    "bytes": 561
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/llvm-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/llvm-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/make-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/make-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/make-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/make-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/make-status.json": {
+    "sha256": "693e8d41e6c283e12867fc224f62fdd754dea514cd196ca4403731d33e8900b5",
+    "bytes": 542
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/make-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/make-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/manifest.json": {
+    "sha256": "ad514a3863fb2644999743d92cb869133a86e3409d29e7a22ec016536553c040",
+    "bytes": 5541
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/native-compiler-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/native-compiler-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/native-compiler-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/native-compiler-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/native-compiler-status.json": {
+    "sha256": "e4d4970b3ff7b53859e5797ee0690f187a7756ffbd3db1990d07411b401e6255",
+    "bytes": 571
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/native-compiler-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/native-compiler-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/retained-inner.json": {
+    "sha256": "244531bbb3d02e686d3943d29ca21c85e9abe2f643f99ab47047160fc7a49505",
+    "bytes": 723732
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/runner.json": {
+    "sha256": "344a86325542ff55c10a1ea1dc9af96678b567153bf0556cabb68982ffd166ed",
+    "bytes": 245
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/source-initial.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/terminal.json": {
+    "sha256": "738f89a4cfc10b079c45e373c8c30327ae61e1ff0b5aab22f3a4d102908348af",
+    "bytes": 365
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/tools-initial.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "nanolang-cast-u8-backends-puck-layout-asan/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/build-products-after.json": {
+    "sha256": "8547bf320d80ee221e8508c0a940fd164ef15243fc2f57d6742391068bfd80d5",
+    "bytes": 111751
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/build-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/build-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/build-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/build-status.json": {
+    "sha256": "621420a22cfee57af979e990a1ad49609100bfa72eddf96f8dc830150ff0aaf9",
+    "bytes": 775
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/build-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/build-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/build.log": {
+    "sha256": "034d6ea3f88997243f6ea4a051bd45dd8610cdfcecd2eaabdb071941ddab49b7",
+    "bytes": 61513
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/compiler-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/compiler-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/compiler-status.json": {
+    "sha256": "2cac73f79e8f10c5449e15e2c282aa37b7836d53fb316beb49db9fb5316f3589",
+    "bytes": 550
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/compiler-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/compiler-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/discovery-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/discovery-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/discovery-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/discovery-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/discovery-status.json": {
+    "sha256": "7ba16a47b0ed3d23d92eedf1cf72133e59c24357d9762d34b3830d9eb0d454c1",
+    "bytes": 812
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/discovery-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/discovery-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/environment.json": {
+    "sha256": "25979fc53e7eb81752661afc1fdbc0e0457e42c30551154f24d7902cf957190b",
+    "bytes": 708
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-products-after.json": {
+    "sha256": "8547bf320d80ee221e8508c0a940fd164ef15243fc2f57d6742391068bfd80d5",
+    "bytes": 111751
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-products-before.json": {
+    "sha256": "8547bf320d80ee221e8508c0a940fd164ef15243fc2f57d6742391068bfd80d5",
+    "bytes": 111751
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-status.json": {
+    "sha256": "ac6d72b3e5d915dd52e441f29a6563b83f6309b6a7ad3f74935028a67f7037e7",
+    "bytes": 656
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte.log": {
+    "sha256": "56b900ac3a2d5aef2c634036b79aac05f0dd96bcac3c9d075756e045893f9050",
+    "bytes": 1207
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/llvm-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/llvm-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/llvm-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/llvm-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/llvm-status.json": {
+    "sha256": "c99aab200a10e929101ff1c8a6d51746bdc55007ac5ecdf364722157a22cb5f1",
+    "bytes": 564
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/llvm-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/llvm-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/make-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/make-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/make-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/make-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/make-status.json": {
+    "sha256": "8d7d9ade92a7d893a02d4164210196b571b68c0c0dc496c2f01af09403fa2634",
+    "bytes": 546
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/make-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/make-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/manifest.json": {
+    "sha256": "16fe97650711c99a5a2d1bcbb519b70896eaeaefd37e3c62604094f62e585a60",
+    "bytes": 5564
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-status.json": {
+    "sha256": "c36353d1999ef95f0580a8e75365d02b1cc8d00783b4f2d37e100a6b37b268a3",
+    "bytes": 558
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/retained-inner.json": {
+    "sha256": "6220f60edde2ec965eff65f520ea5138e0c61aee76477eecde66d79263cd1b94",
+    "bytes": 588406
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/runner.json": {
+    "sha256": "bda06c475fab1fa994ec94c625693d7cad2cd43f00a4500a4f9147ac2fcdf9cc",
+    "bytes": 249
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/source-initial.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/terminal.json": {
+    "sha256": "738f89a4cfc10b079c45e373c8c30327ae61e1ff0b5aab22f3a4d102908348af",
+    "bytes": 365
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/tools-initial.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "nanolang-cast-u8-backends-puck-layout-ordinary/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/compiler-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/compiler-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/compiler-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/compiler-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/compiler-status.json": {
+    "sha256": "adc2264cb92ede6a951f914e44bdaf103ed5984a0a8dfb25c1626b91c89b3401",
+    "bytes": 545
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/compiler-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/compiler-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/environment.json": {
+    "sha256": "32e61f8b2c351e1dffcdb757285ca87c047aeb8da623c97c9ae4b57a5e6a4553",
+    "bytes": 744
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/llvm-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/llvm-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/llvm-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/llvm-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/llvm-status.json": {
+    "sha256": "a44719029de3acdace9eb8212dd1362f0d85f7cd6b27b4ab9c3b676c7b581f13",
+    "bytes": 559
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/llvm-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/llvm-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/make-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/make-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/make-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/make-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/make-status.json": {
+    "sha256": "45cf3455b81cd4dce818f81b7b4699a07194fca2aea66fbd8e2fd36116f5fef5",
+    "bytes": 531
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/make-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/make-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/manifest.json": {
+    "sha256": "d30535258e4653fdab4c00d4bf83a05225989dd2ea3d16687a85cad9cf2c89d5",
+    "bytes": 3842
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/native-compiler-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/native-compiler-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/native-compiler-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/native-compiler-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/native-compiler-status.json": {
+    "sha256": "21cd445963997bdc316893ffb092d20e3f0fe413cc724f9e9f4a3ab05665f78b",
+    "bytes": 570
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/native-compiler-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/native-compiler-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/runner.json": {
+    "sha256": "2e65f828481c28faec3d1799924304cf0061c8f98d1238569f243921c03d35e6",
+    "bytes": 243
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-status.json": {
+    "sha256": "f3e76c233d5691fedc5f0e8da78a9864cd882c018c53be86d76d5c66e5743053",
+    "bytes": 732
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors.log": {
+    "sha256": "d25d721380e87e92530380819a417583ffd87b597afb5097a0e18b85df53aa07",
+    "bytes": 6635
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/source-initial.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/tools-initial.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "nanolang-cast-u8-backends-puck-neighbors/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-status.json": {
+    "sha256": "8e22e171c06d9ae618d8f3a0fa4d3ddf0f669e9b5beb7b1be47cf25cc848b010",
+    "bytes": 554
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/environment.json": {
+    "sha256": "32e61f8b2c351e1dffcdb757285ca87c047aeb8da623c97c9ae4b57a5e6a4553",
+    "bytes": 744
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-status.json": {
+    "sha256": "1b9cbc807d816c42db26c99afcc192957e2a143f01609c384ddf15006bb4f5ff",
+    "bytes": 569
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/make-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/make-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/make-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/make-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/make-status.json": {
+    "sha256": "16c3a6c569c197c917bbf5626dc93765363a7b024a8a90c3e87041b2b8338347",
+    "bytes": 550
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/make-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/make-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-status.json": {
+    "sha256": "ec09c0ef31ccd99738c75d1c79687e1f6e5f505a2656cb87f03e013ee3ffe9ff",
+    "bytes": 789
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors.log": {
+    "sha256": "832579e718d4bbff9b5c50c6cf68c56bb0bf12c75d2109e8419eb1033ab97cfa",
+    "bytes": 2733
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/manifest.json": {
+    "sha256": "db0be21f046c8687256ebf91c6493eead64361d6534ee2ca6aa16cfa2b7fbaf8",
+    "bytes": 4877
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-status.json": {
+    "sha256": "70b99be8702984911996241fab0e05c11f48659c3d90bccc2c2b6b60e3f15cf2",
+    "bytes": 579
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/runner.json": {
+    "sha256": "a9a1a8f6ba78ff19903571ce572d2ba1faa0643bd8b31165fb28520d3dc3f2f8",
+    "bytes": 253
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-status.json": {
+    "sha256": "6a0f2d3fea3f25ca90be5771e7a3bf46e12ec6440e7f89b84aa0a313f8e9f728",
+    "bytes": 742
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors.log": {
+    "sha256": "ece6ec43a313fad35606e70357cbfbcb5590bc05c3b4d22d9fc74622c8932225",
+    "bytes": 3103
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/source-initial.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/terminal.json": {
+    "sha256": "738f89a4cfc10b079c45e373c8c30327ae61e1ff0b5aab22f3a4d102908348af",
+    "bytes": 365
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/tools-initial.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "nanolang-cast-u8-backends-puck-neighbors-corrected/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/build-products-after.json": {
+    "sha256": "8f974d99f8102980b6bea5754ccb305c78bf50098683cf91e18502b480811546",
+    "bytes": 109399
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/build-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/build-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/build-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/build-status.json": {
+    "sha256": "62389484da090034f4b52eb96d247822782918c209bfb9ddf0233c353466418f",
+    "bytes": 765
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/build-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/build-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/build.log": {
+    "sha256": "034d6ea3f88997243f6ea4a051bd45dd8610cdfcecd2eaabdb071941ddab49b7",
+    "bytes": 61513
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/compiler-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/compiler-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/compiler-status.json": {
+    "sha256": "37bdea110eda67bf0685aa0857a196f7af4388b6707cf141f492d464ec2123c0",
+    "bytes": 543
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/compiler-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/compiler-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/discovery-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/discovery-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/discovery-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/discovery-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/discovery-status.json": {
+    "sha256": "e13cc9dc3b8a3cbc009c18b84eb790a8ee5bbb14a5b9f9c903d615f3a0b6d0c5",
+    "bytes": 804
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/discovery-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/discovery-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/environment.json": {
+    "sha256": "453254fdd86d6d5b0556cd31ba6648467cf26db6264d2d6fcc40958d226810fd",
+    "bytes": 744
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/generated-byte-products-after.json": {
+    "sha256": "8f974d99f8102980b6bea5754ccb305c78bf50098683cf91e18502b480811546",
+    "bytes": 109399
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/generated-byte-products-before.json": {
+    "sha256": "8f974d99f8102980b6bea5754ccb305c78bf50098683cf91e18502b480811546",
+    "bytes": 109399
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/generated-byte-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/generated-byte-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/generated-byte-status.json": {
+    "sha256": "dc878f7bfb829ff245361c0efcb6d7257b4ecf80e27776d78e9092965013dece",
+    "bytes": 643
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/generated-byte-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/generated-byte-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/generated-byte.log": {
+    "sha256": "7434d3b8876f550a71b6670b5bdccaa33a43a87b7d5d1fba8a1f6523d0b0fe11",
+    "bytes": 1207
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/llvm-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/llvm-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/llvm-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/llvm-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/llvm-status.json": {
+    "sha256": "0990d70c78dfda7a0d8431fd467d42fa3df8848f9b64dd0c2f93ff6571172439",
+    "bytes": 557
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/llvm-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/llvm-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/make-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/make-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/make-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/make-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/make-status.json": {
+    "sha256": "464573cdb2eface5e21fb3a86ca51102dc30d3fc383abbc87ad04a6a8c83dcc9",
+    "bytes": 539
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/make-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/make-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/manifest.json": {
+    "sha256": "e63264d5bdea65f3426f05f7b967c32ebe8cbddeeda5a33f6dc6111e317759e0",
+    "bytes": 5502
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/native-compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/native-compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/native-compiler-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/native-compiler-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/native-compiler-status.json": {
+    "sha256": "4d2bef5fba558acbdd1f1df1c8686421b0eb3ea56b05e56dda4b65ee4b793337",
+    "bytes": 568
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/native-compiler-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/native-compiler-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/retained-inner.json": {
+    "sha256": "95a50c925d5e2ec81930a426f93a880ead407cb2b3c70b2bd1e8b69e7cada466",
+    "bytes": 576716
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/runner.json": {
+    "sha256": "9744b6de39bd9c40bb707239731c062c58405c477e62917336270b1e1f4944bd",
+    "bytes": 242
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/source-initial.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/terminal.json": {
+    "sha256": "89dc52a9ab6ca034854564c6db145253802f7505ae9d512bfbababbe4ab1ddf9",
+    "bytes": 345
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/tools-initial.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "nanolang-cast-u8-backends-puck-ordinary/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-products-after.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-products-before.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-status.json": {
+    "sha256": "7c84374f1301434f5d3f082e67a8f0407647e36dbb16017278ade064bcf9e316",
+    "bytes": 759
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/check-refusal.py": {
+    "sha256": "4bbfff0fa61ca5c2bd3051bf5dc78c692a4f38c9a75bca57baeb57d659cfe8d3",
+    "bytes": 398
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/compiler-products-after.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/compiler-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/compiler-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/compiler-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/compiler-status.json": {
+    "sha256": "8d362d9ac11a11007959f5fd586a88322cbcc3f3d2da96c9350f3618d5941150",
+    "bytes": 550
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/compiler-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/compiler-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/convert.nasm": {
+    "sha256": "267bc9f73567032159b45d1ada7fad56c786ce4f343815b7d8f0ef0112ef263e",
+    "bytes": 84
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/convert.nvm": {
+    "sha256": "dd379fa1adb0f2211dc4615eb1ad37e826b6268763259cac584a5936a9387af9",
+    "bytes": 364
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/environment.json": {
+    "sha256": "32e61f8b2c351e1dffcdb757285ca87c047aeb8da623c97c9ae4b57a5e6a4553",
+    "bytes": 744
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/llvm-products-after.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/llvm-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/llvm-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/llvm-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/llvm-status.json": {
+    "sha256": "f40f54f527ca0fc3bd46ce5fdaa71359867cbca3182ec88b801402f919f1629f",
+    "bytes": 563
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/llvm-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/llvm-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/make-products-after.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/make-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/make-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/make-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/make-status.json": {
+    "sha256": "1b41ea5d106efae0a76ebee38c03f70387ec95df48533f889b4e67583d3bc056",
+    "bytes": 544
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/make-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/make-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/manifest.json": {
+    "sha256": "eafc894baa731350a5eaf9769a26201650d69377af2f18478619c5a67607feab",
+    "bytes": 6911
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/native-compiler-products-after.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/native-compiler-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/native-compiler-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/native-compiler-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/native-compiler-status.json": {
+    "sha256": "01a1556a7093b96e08e512541b060a283e7b5182bc9882edfc96da681457bca2",
+    "bytes": 574
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/native-compiler-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/native-compiler-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-products-after.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-products-before.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-status.json": {
+    "sha256": "1ce70ef3f3bccb4b93f64af9382125b05037e16bbad0023894492355bb90eff9",
+    "bytes": 1023
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal.log": {
+    "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+    "bytes": 127
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c.out": {
+    "sha256": "f9c3ee1caaed197ef4d2dc45c9a910c39d253914d15c77d14f481829429a0012",
+    "bytes": 25
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-products-after.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-products-before.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-status.json": {
+    "sha256": "a1d61af16e93c78b003cd56fee9da0c34ffaa0f9e46e807bc60824174430f5ad",
+    "bytes": 1036
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal.log": {
+    "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+    "bytes": 127
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano.out": {
+    "sha256": "f9c3ee1caaed197ef4d2dc45c9a910c39d253914d15c77d14f481829429a0012",
+    "bytes": 25
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-products-after.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-status.json": {
+    "sha256": "600e12c950516ca818757d0df375318ddeebf3da341d40b404a711411d550869",
+    "bytes": 574
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool.log": {
+    "sha256": "71feaa296a1f2db9321f0f2e2629dbeb6ffefe986d10f9422a2d9cfa356cd614",
+    "bytes": 1469
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/runner.json": {
+    "sha256": "3976116216729f74499118dc24d94fd6e05aeef2ebee16bbc957b11c620a2d28",
+    "bytes": 248
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/source-initial.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/terminal.json": {
+    "sha256": "1bf3e637395fa68045b26a15b5892314c4f18531dd3931d3b202ed83b7131082",
+    "bytes": 231
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/tools-initial.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "nanolang-cast-u8-backends-puck-reconstruction/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "nanolang-cast-u8-backends-layout.py": {
+    "sha256": "b5b75a2121071a3a129bb8ba34ba47e7a7b433da13f4e61993913c6beea35afc",
+    "bytes": 6607
+  },
+  "nanolang-cast-u8-backends-matrix.py": {
+    "sha256": "cb2cb06f2a2f986496142c9fd0649bbe7f42da58a819bc2194087b8d1375ab86",
+    "bytes": 6579
+  },
+  "nanolang-cast-u8-backends-neighbors-corrected.py": {
+    "sha256": "e1359a89d7b4ce6f7ef15f88f59e6c4065295182c33b41a06b3a7a95fb36adf6",
+    "bytes": 6938
+  },
+  "nanolang-cast-u8-backends-neighbors.py": {
+    "sha256": "4c9ef08f473549c2a2c441fa234c9c7a53875da592b4c9d44cde5c9fc64a5824",
+    "bytes": 6546
+  },
+  "nanolang-cast-u8-backends-reconstruction.py": {
+    "sha256": "9d89858246a71d3d2b24b201eaadfe469dfd8a3a9a2662cce84f48b46b07a7bb",
+    "bytes": 7722
+  }
+}

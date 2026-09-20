@@ -1064,6 +1064,20 @@ test-nanovirt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON
 	@./tests/nanovirt/test_codegen
 	@rm -f tests/nanovirt/test_codegen
 
+$(OBJ_DIR)/nanovirt/codegen_contract_allocation.o: $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/codegen.h | $(OBJ_DIR)/nanovirt
+	$(CC) $(CFLAGS) -DNANOVIRT_TEST_CONTRACT_REALLOC -c $< -o $@
+
+.PHONY: test-borrow-contract-allocation
+test-borrow-contract-allocation: $(OBJ_DIR)/nanovirt/codegen_contract_allocation.o $(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_borrow_contract_allocation \
+		tests/nanovirt/test_borrow_contract_allocation.c $(OBJ_DIR)/nanovirt/codegen_contract_allocation.o \
+		$(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_borrow_contract_allocation
+	rm -f $(OBJ_DIR)/test_borrow_contract_allocation
+
+test-units: test-borrow-contract-allocation
+
 nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o | bin
 	$(CC) $(CFLAGS) -o bin/$@ $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(LDFLAGS)
@@ -4818,7 +4832,7 @@ test-affine-scalar-union-runtime: test-affine-bytecode nano_vm nvm2c
 
 .PHONY: test-affine-scalar-union-source
 test-units: test-affine-scalar-union-source
-test-affine-scalar-union-source: nanoisa_emit nano_vm nvm2c nanoisa_dump
+test-affine-scalar-union-source: bootstrap nanoisa_emit nano_virt nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_affine_scalar_union_source
 
 .PHONY: test-legacy-float-conversion
@@ -4860,6 +4874,7 @@ test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
 
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_execution.h $(NANOISA_DIR)/managed_record_array_execution.inc
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_origins.h $(NANOISA_DIR)/record_array_origins.inc $(NANOISA_DIR)/record_array_structure_private.h
 $(OBJ_DIR)/nanoisa/verifier.o: $(NANOISA_DIR)/record_array_structure_private.h $(NANOISA_DIR)/record_array_structure.inc
 $(OBJ_DIR)/nanoisa/verifier_types.o: $(NANOISA_DIR)/record_array_structure_private.h
@@ -5764,6 +5779,11 @@ test-cast-u8: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_O
 .PHONY: test-mixed-counted-runtime
 test-mixed-counted-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	MC_COUNTED_CC="$(CC)" MC_COUNTED_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_mixed_counted_runtime
+
+.PHONY: test-record-array-execution
+# I prepare copied execution facts without opening a runtime route.
+test-record-array-execution: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_execution
 
 # I require fresh schema ABI products before actual paired service parser gates.
 .PHONY: test-file-service-parser test-file-service-parser-sanitizers

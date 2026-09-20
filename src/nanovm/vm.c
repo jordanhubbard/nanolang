@@ -288,12 +288,17 @@ static bool vm_owned_proof_matches(const VmState *vm, const VmOwnedInvocationPro
         !vm->callbacks && !vm->opcode_trace;
 }
 
-/* I retain ordinary classification only between synchronous ASSERT resumes.
- * This is not an owned proof and never enables owned execution handlers. */
+/* I retain ordinary admission only between synchronous ASSERT resumes. The
+ * File-opcode presence below is a narrower code fact: one public invocation
+ * may reuse it after host traps because its executing bytecode is immutable.
+ * Mutable service and ownership metadata are still read on every admission. */
 typedef struct {
     const VmState *vm;
     const NvmModule *module;
     bool valid;
+    const NvmModule *service_module;
+    bool service_file_known;
+    bool service_file_pending;
 } VmOrdinaryAdmission;
 
 static bool vm_ordinary_admission_eligible(const VmState *vm) {
@@ -305,6 +310,26 @@ static bool vm_ordinary_admission_matches(const VmState *vm,
                                           const VmOrdinaryAdmission *ordinary) {
     return ordinary && ordinary->valid && ordinary->vm==vm &&
         vm_ordinary_admission_eligible(vm) && ordinary->module==vm->module;
+}
+
+static NvmServiceClassification vm_invocation_service_classify(
+        const NvmModule *module, VmOrdinaryAdmission *ordinary) {
+    if (!module || !ordinary) return nvm_service_classify(module);
+    if (!ordinary->service_file_known || ordinary->service_module != module) {
+        NvmServiceClassification first = nvm_service_classify(module);
+        bool bindings = nvm_service_bindings_present(module);
+        ordinary->service_module = module;
+        ordinary->service_file_known = true;
+        /* A negative complete query proves both terms absent. A positive
+         * binding query needs one explicit code query so later metadata
+         * removal cannot hide a File instruction. */
+        ordinary->service_file_pending = first.pending &&
+            (!bindings || nvm_file_instructions_present(module));
+    }
+    return (NvmServiceClassification){
+        module,
+        nvm_service_bindings_present(module) || ordinary->service_file_pending
+    };
 }
 
 static bool vm_owned_constants_ready(const VmState *vm) {
@@ -1458,7 +1483,7 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
         NvmServiceClassification service;
         const NvmServiceClassification *facts=NULL;
         if (vm && vm->module) {
-            service=nvm_service_classify(vm->module);
+            service=vm_invocation_service_classify(vm->module,ordinary);
             facts=&service;
         }
         if(vm && nvm_owned_array_route_classified(vm->module,facts)!=NVM_OWNER_ARRAY_NOT_SELECTED && !vm_owned_proof_matches(vm,proof))

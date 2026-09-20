@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "head": "9b1ed4a26c6903baa1ff5ca67278328f3d32f59c",
+  "scope": "Corrected generated CAST_U8 native/LLVM/Wasm acceptance with inventoried first-build ordinary providers; source and reconstruction remain unimplemented"
+}

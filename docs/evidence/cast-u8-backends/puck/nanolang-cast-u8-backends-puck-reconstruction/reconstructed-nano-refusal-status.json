@@ -1,0 +1,28 @@
+{
+  "name": "reconstructed-nano-refusal",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/check-refusal.py",
+    "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano.out",
+    "/private/tmp/nanolang-cast-u8-backends-e0e85/bin/nvm2hl",
+    "--language",
+    "nano",
+    "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/convert.nvm",
+    "-o",
+    "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano.out"
+  ],
+  "bound_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.07878612499999971,
+  "log": {
+    "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+    "bytes": 127,
+    "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

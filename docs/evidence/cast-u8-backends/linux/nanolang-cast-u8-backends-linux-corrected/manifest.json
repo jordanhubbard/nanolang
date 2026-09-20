@@ -1,0 +1,168 @@
+{
+  "head": "9b1ed4a26c6903baa1ff5ca67278328f3d32f59c",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "scope": "Corrected generated CAST_U8 native/LLVM/Wasm acceptance with inventoried first-build ordinary providers; source and reconstruction remain unimplemented",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0014996500685811043,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0015843709697946906,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/usr/local/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0157085390528664,
+      "log": {
+        "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+        "bytes": 440,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.001525250030681491,
+      "log": {
+        "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+        "bytes": 303,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "discovery",
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-c",
+        "import unittest;from tests import test_cast_u8_backends;s=unittest.defaultTestLoader.loadTestsFromModule(test_cast_u8_backends);assert s.countTestCases()==5;print('I discover exactly five generated CAST_U8 methods.')"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0640318050282076,
+      "log": {
+        "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+        "bytes": 51,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "build",
+      "argv": [
+        "make",
+        "-j2",
+        "nanoisa_dump",
+        "nano_vm",
+        "nvm2c",
+        "nvm2llvm",
+        "nvm2wasm",
+        "CC=/bin/gcc",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 3.271386631997302,
+      "log": {
+        "sha256": "3e223205572d57c0f3b668f7765e1311fffac1ae69fa5a86256a01f78e6a5654",
+        "bytes": 8091,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/3e223205572d57c0f3b668f7765e1311fffac1ae69fa5a86256a01f78e6a5654"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "generated-byte",
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_cast_u8_backends"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 33.79687413503416,
+      "log": {
+        "sha256": "7875f6f1432465595058b677d7842bc3a9c5700b41e309ffae5a572f0aa5b936",
+        "bytes": 1195,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-corrected/objects/7875f6f1432465595058b677d7842bc3a9c5700b41e309ffae5a572f0aa5b936"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

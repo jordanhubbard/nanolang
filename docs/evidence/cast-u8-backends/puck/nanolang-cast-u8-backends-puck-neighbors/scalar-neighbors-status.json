@@ -1,0 +1,27 @@
+{
+  "name": "scalar-neighbors",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_nvm2llvm",
+    "tests.test_nvm2llvm_floats",
+    "tests.test_nvm2wasm",
+    "tests.test_scalar_u8"
+  ],
+  "bound_seconds": 900,
+  "status": 1,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 20.888924666999998,
+  "log": {
+    "sha256": "d25d721380e87e92530380819a417583ffd87b597afb5097a0e18b85df53aa07",
+    "bytes": 6635,
+    "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/d25d721380e87e92530380819a417583ffd87b597afb5097a0e18b85df53aa07"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

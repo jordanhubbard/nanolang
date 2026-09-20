@@ -1,0 +1,42 @@
+{
+  "f093b/source": {
+    "entries": 3716,
+    "map": "/tmp/nanolang-record-execution-f093b-puck/ordinary-source-after.json",
+    "sha256": "50b3010c88155ee141bcd30021ef60a48eba7edd9447fd55e2b7b9b6baac59d1"
+  },
+  "f093b/tools": {
+    "entries": 15,
+    "map": "/tmp/nanolang-record-execution-f093b-puck/ordinary-tools-after.json",
+    "sha256": "72322121d44adabe9caf27f62bfa29fd3d995561cdd1aa89b86711f58b4788a9"
+  },
+  "f093b/providers-and-last-fixture-artifacts": {
+    "entries": 255,
+    "map": "/tmp/nanolang-record-execution-f093b-puck/ordinary-artifacts.json",
+    "sha256": "447b4a880a85019c6680e82bce0a8cdb1f3361006988bc6a0acb2bdf82d6eb24"
+  },
+  "f093b/source-archive": {
+    "sha256": "466085cb773db176c74bda8f5c105654b3448eb187e4ff225aeb958f157a4f56",
+    "bytes": 15209298,
+    "artifact": "/tmp/nanolang-record-execution-integration-puck-seal/objects/466085cb773db176c74bda8f5c105654b3448eb187e4ff225aeb958f157a4f56"
+  },
+  "b87bb/source": {
+    "entries": 3716,
+    "map": "/tmp/nanolang-record-execution-b87bb-puck/complete-declarations-source-after.json",
+    "sha256": "f2e5432533a675f1dc01271acde6648347bd15819fe3fea57ba9848608518760"
+  },
+  "b87bb/tools": {
+    "entries": 15,
+    "map": "/tmp/nanolang-record-execution-b87bb-puck/complete-declarations-tools-after.json",
+    "sha256": "72322121d44adabe9caf27f62bfa29fd3d995561cdd1aa89b86711f58b4788a9"
+  },
+  "b87bb/providers-and-last-fixture-artifacts": {
+    "entries": 217,
+    "map": "/tmp/nanolang-record-execution-b87bb-puck/complete-declarations-artifacts.json",
+    "sha256": "ac80cec44a9acb787baa7e0b20632103632b78c03774df2b20585a20eedab396"
+  },
+  "b87bb/source-archive": {
+    "sha256": "c110071c829abc8ae141c55347f6a91583023e2e5d9dd71788d595e500f32d89",
+    "bytes": 15209533,
+    "artifact": "/tmp/nanolang-record-execution-integration-puck-seal/objects/c110071c829abc8ae141c55347f6a91583023e2e5d9dd71788d595e500f32d89"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "compiler",
+  "argv": [
+    "/bin/gcc",
+    "--version"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.0015861779684200883,
+  "log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246,
+    "archive": "/tmp/nanolang-cast-u8-backends-linux-layout-ordinary/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

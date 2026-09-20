@@ -1,0 +1,30 @@
+{
+  "name": "build",
+  "argv": [
+    "make",
+    "-j2",
+    "nanoisa_dump",
+    "nano_vm",
+    "nvm2c",
+    "nvm2llvm",
+    "nvm2wasm",
+    "CC=/bin/gcc",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 14.199520724010654,
+  "log": {
+    "sha256": "b066b57ec07fb0405f493cb734d8d345e03fc5a8cd732105e5c835dd359ad0a7",
+    "bytes": 24817,
+    "archive": "/tmp/nanolang-cast-u8-backends-linux-integration/objects/b066b57ec07fb0405f493cb734d8d345e03fc5a8cd732105e5c835dd359ad0a7"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

@@ -1,0 +1,120 @@
+{
+  "head": "e0e85441f5ea25875f2f08cf747c284e129afa29",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "matrix_mode": "ordinary",
+  "scope": "Selected generated native C ASan/UBSan and emitted native IR ASan when requested; ordinary LLVM/Wasm. Explicit target ABI corrected generated CAST_U8 native/LLVM/Wasm acceptance with inventoried first-build ordinary providers; source and reconstruction remain unimplemented",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/usr/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.024250499999999953,
+      "log": {
+        "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+        "bytes": 200,
+        "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.024590708999999933,
+      "log": {
+        "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.024573999999999874,
+      "log": {
+        "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/usr/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.012445708,
+      "log": {
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+        "bytes": 263,
+        "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "scalar-neighbors",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_nvm2llvm",
+        "tests.test_nvm2llvm_floats",
+        "tests.test_nvm2wasm",
+        "tests.test_scalar_u8"
+      ],
+      "bound_seconds": 900,
+      "status": 1,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 20.888924666999998,
+      "log": {
+        "sha256": "d25d721380e87e92530380819a417583ffd87b597afb5097a0e18b85df53aa07",
+        "bytes": 6635,
+        "archive": "/private/tmp/nanolang-cast-u8-backends-puck-neighbors/objects/d25d721380e87e92530380819a417583ffd87b597afb5097a0e18b85df53aa07"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}
