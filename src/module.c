@@ -2165,6 +2165,31 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         meta->unions = malloc(sizeof(UnionDef) * meta->union_count);
         for (int i = 0; i < meta->union_count; i++) {
             meta->unions[i] = env->unions[i];
+            meta->unions[i].variant_names = NULL;
+            meta->unions[i].variant_field_counts = NULL;
+            meta->unions[i].variant_field_names = NULL;
+            meta->unions[i].variant_field_types = NULL;
+            /* I own these copies independently of the registering environment. */
+            meta->unions[i].module_name = env->unions[i].module_name ? strdup(env->unions[i].module_name) : NULL;
+            meta->unions[i].generic_params = NULL;
+            if (env->unions[i].generic_param_count > 0) {
+                meta->unions[i].generic_params = calloc((size_t)env->unions[i].generic_param_count, sizeof(char *));
+                for (int j = 0; j < env->unions[i].generic_param_count; j++)
+                    if (env->unions[i].generic_params[j])
+                        meta->unions[i].generic_params[j] = strdup(env->unions[i].generic_params[j]);
+            }
+            meta->unions[i].variant_field_type_names = NULL;
+            if (env->unions[i].variant_field_type_names) {
+                meta->unions[i].variant_field_type_names = calloc((size_t)env->unions[i].variant_count, sizeof(char **));
+                for (int j = 0; j < env->unions[i].variant_count; j++) {
+                    if (!env->unions[i].variant_field_type_names[j]) continue;
+                    int fields = env->unions[i].variant_field_counts[j];
+                    meta->unions[i].variant_field_type_names[j] = calloc((size_t)fields, sizeof(char *));
+                    for (int k = 0; k < fields; k++)
+                        if (env->unions[i].variant_field_type_names[j][k])
+                            meta->unions[i].variant_field_type_names[j][k] = strdup(env->unions[i].variant_field_type_names[j][k]);
+                }
+            }
             meta->unions[i].variant_field_type_info = calloc((size_t)env->unions[i].variant_count, sizeof(TypeInfo **));
             for (int j = 0; j < env->unions[i].variant_count; ++j) {
                 int fields = env->unions[i].variant_field_counts[j];
@@ -2564,13 +2589,23 @@ void free_module_metadata(ModuleMetadata *meta) {
                     if (meta->unions[i].variant_field_types && meta->unions[i].variant_field_types[j]) {
                         free(meta->unions[i].variant_field_types[j]);
                     }
+                    if (meta->unions[i].variant_field_type_names && meta->unions[i].variant_field_type_names[j]) {
+                        for (int k = 0; k < meta->unions[i].variant_field_counts[j]; k++)
+                            free(meta->unions[i].variant_field_type_names[j][k]);
+                        free(meta->unions[i].variant_field_type_names[j]);
+                    }
                 }
-                free(meta->unions[i].variant_field_type_info);
                 free(meta->unions[i].variant_names);
                 free(meta->unions[i].variant_field_counts);
                 free(meta->unions[i].variant_field_names);
                 free(meta->unions[i].variant_field_types);
             }
+            free(meta->unions[i].variant_field_type_info);
+            free(meta->unions[i].variant_field_type_names);
+            for (int j = 0; j < meta->unions[i].generic_param_count; j++)
+                free(meta->unions[i].generic_params[j]);
+            free(meta->unions[i].generic_params);
+            free(meta->unions[i].module_name);
         }
         free(meta->unions);
     }

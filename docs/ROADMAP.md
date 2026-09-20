@@ -870,6 +870,17 @@ their individual acceptance evidence closes them.
       general tuple substitution or ownership transfer. MAC
       `task_bcd773ad3c084ce099a3da5aef682fef`.
 
+- [ ] I release independently owned registered and extracted union metadata
+      (`task_0bae7b0426fc4c3e912ab00cfd7de136`, under `task_00c47a5d65d04c48914864ec0de553d6`).
+      My current environment owns allocated field type-name arrays, generic
+      formals and module names, while extracted metadata still borrows those
+      pointers. I first give the extracted copy independent ownership, then
+      free each owner's allocations. I require AST/environment/module lifetime
+      independence in both destruction orders, null/empty controls, a fresh
+      unsuppressed ASan/UBSan/LSan lifecycle gate and the existing normal
+      metadata suite. Import-tracker freeing is already canonical; callback
+      placeholder and other parent leaks remain separate until measured.
+
 - [ ] **Release legacy union metadata allocations.** My payload lifetime check
       exposed 245 bytes retained by existing registered field-name/formal arrays
       and the environment import tracker. I establish borrower ownership before
@@ -12384,5 +12395,7 @@ I supplement frame bb338 at1525adfd0 with fresh canonical4fb provider closure an
 
 - [x] I freshly bootstrap canonical851 source at frozen3c728 on Linux (282.734s) and Darwin (285.790s corrected configuration), prepare exact frontend/VM tools and pass my unchanged33-method script on bothhosts (85.286s/77.369s). I preserve all36 source hashes,144 boundary observations, fullPREFIX/shadows and authority-specific refusal expectations. My later parser877 is outside this source pin; evidence is `docs/evidence/affine-full-suite/`.
 - [ ] I review/reconcile this bounded script acceptance against task_e8d860a16da0464891dd32e91c42bef1 after actual merge. The larger make target's module/generic identity, current integrated product/fixed-point and full ownership/managed/release gates remain required; I do not close full parents from these33 methods.
+
+- [x] I qualify independent union metadata lifetimes at10fc127b1 with normal and fully rebuilt GCC ASan/UBSan/LSan lifecycle checks and existing complete metadata/scoping targets on Linux. I preserve both destruction orders, nested TypeInfo and allocated zero-length arrays in [my evidence](evidence/union-metadata-ownership/README.md). Child0bae7b awaits actual-merge reconciliation; callback/placeholder and full parent00c47 remain open.
 
 - [x] I repair sealed affine evidence publication under task_36d34c2f22f945189281548f0997faaf: ordinary git add omitted ignored retention-wrapper Python caches listed in my report manifests. I preserve the original publication and exact archives, explicitly include those small hashed records, and require every advertised report to be tracked/hash-exact before corrected push. No source, assertion, gate or archive changes; actual-merge reconciliation remains pending.
