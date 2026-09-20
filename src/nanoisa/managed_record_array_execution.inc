@@ -160,7 +160,7 @@ static int rae_recipe(uint8_t op,NvmRecordArrayExecutionInstruction *r) {
     case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S:
     case OP_I64_REM_S: case OP_I64_NEG: case OP_F64_TO_BITS: case OP_F64_FROM_BITS:
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV: case OP_F64_NEG:
-    case OP_CAST_INT: case OP_CAST_FLOAT: case OP_CAST_BOOL: case OP_TYPE_CHECK:
+    case OP_CAST_INT: case OP_CAST_FLOAT: case OP_CAST_BOOL: case OP_CAST_U8: case OP_TYPE_CHECK:
     case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE:
     case OP_I64_EQ: case OP_I64_NE: case OP_I64_LT_S: case OP_I64_LE_S: case OP_I64_GT_S: case OP_I64_GE_S:
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:

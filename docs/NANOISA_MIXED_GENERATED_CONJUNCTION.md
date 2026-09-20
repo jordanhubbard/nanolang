@@ -373,3 +373,16 @@ reserved-byte invalidity also leaves it false. The embedded old codec fixture
 renames the new exported symbol to preserve its separate faulted provider copy.
 The original complete-plan exact MEMORY assertion remains unchanged. I submit
 source and these controls for review before any corrected execution.
+
+## My post-byte preparation integration
+
+After actual PR932 merge128d5cd2 I add CAST_U8 as my93rd explicit scalar recipe.
+It consumes one INT-or-U8 value, publishes one exact U8 value and carries checked
+runtime tags plus first-error cleanup. It performs no allocation and requires no
+safepoint. Wrong-tag ownership must still be released by each future consumer's
+ordinary error path; this descriptive recipe does not execute or publish one.
+My independent numeric inventory and whole-query INT/U8-to-byte-array controls
+cover the new row. All original92 controls remain. Before integration execution
+I review this source/fixture delta, then rebuild current ordinary query providers
+and run the complete plan/origin and named ownership/union/array/layout neighbors
+on both hosts. The original c032c seven-configuration seal stays unchanged.

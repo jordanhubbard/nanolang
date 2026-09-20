@@ -119,6 +119,33 @@ static void snapshot_controls(void) {
         nvm_record_array_execution_free(p);
     }
 }
+/* I copy both conversion rows into an actual declared byte-array graph.
+ * Query acceptance does not execute the conversions or admit this graph. */
+static void byte_conversion_plan(void) {
+    Input c;init(&c,TAG_U8,true);array(&c,TAG_U8);
+    scalar(&c,TAG_INT);op(&c,OP_CAST_U8);op(&c,OP_ARR_PUSH);
+    scalar(&c,TAG_U8);op(&c,OP_CAST_U8);op(&c,OP_ARR_PUSH);
+    record(&c,0);op(&c,OP_POP);finish(&c);
+    positive(&c);
+    NvmRecordArrayExecutionPlan *p=prepare(&c,NVM_ARRAY_ELIGIBLE);
+    NvmRecordArrayExecutionCounts n;
+    CHECK(nvm_record_array_execution_counts(p,&n)&&n.instructions==11);
+    NvmRecordArrayExecutionInstruction row;
+    const unsigned casts[]={2,5};
+    for(unsigned i=0;i<2;i++) {
+        CHECK(nvm_record_array_execution_instruction(p,casts[i],&row));
+        CHECK(row.opcode==OP_CAST_U8&&row.recipe==NVM_RA_ROOT_SCALAR);
+        CHECK(row.pops==1&&row.pushes==1&&row.operand_count==0);
+        CHECK(row.obligations==(NVM_RA_CHECK_TAGS|NVM_RA_FIRST_ERROR_CLEANUP));
+        CHECK(row.successor_count==1&&row.successors[0]==row.next_pc);
+    }
+    NvmRecordHeapOrigin origin;
+    CHECK(nvm_record_array_execution_origin(p,0,&origin)&&origin.declared_tag==TAG_U8);
+    uint16_t mask=0;CHECK(nvm_record_array_execution_required_elements(p,0,&mask)&&mask==MASK(TAG_U8));
+    NvmRecordValueOrigins field;
+    CHECK(nvm_record_array_execution_field_value(p,0,&field)&&field.tags==MASK(TAG_ARRAY)&&field.origins==1&&!field.unknown);
+    nvm_record_array_execution_free(p);
+}
 static void initializer_input(Input *c) {
     init(c,TAG_INT,true);arg32(c,OP_LOAD_GLOBAL,0);op(c,OP_POP);finish(c);
     c->m.function_count=2;c->fn[1].name_idx=3;c->fn[1].code_offset=(uint32_t)c->n;
@@ -255,7 +282,7 @@ static void plan_refusals(void) {
     CHECK(before.ok==after.ok&&!strcmp(before.error_msg,after.error_msg));
 }
 #ifdef RA_WHITEBOX
-/* This independent manifest covers all 92 operations in the reviewed profile.
+/* This independent manifest covers all 93 operations in the reviewed profile.
  * Decoder-only rows below are not claims that arbitrary operand stacks verify. */
 #define BASE (NVM_RA_FIRST_ERROR_CLEANUP|NVM_RA_CHECK_TAGS)
 #define SAFE (NVM_RA_SAFEPOINT_BEFORE|NVM_RA_STAGE_OPERANDS)
@@ -270,7 +297,7 @@ static const struct {uint8_t opcode,recipe;uint16_t flags;} operations[]={
     SPEC(PUSH_VOID,CONSTANT,NVM_RA_FIRST_ERROR_CLEANUP),SPEC(PUSH_STR,CONSTANT,BASE|KEEP),
     SPEC(I64_ADD,SCALAR,BASE),SPEC(I64_SUB,SCALAR,BASE),SPEC(I64_MUL,SCALAR,BASE),SPEC(I64_DIV_S,SCALAR,BASE),SPEC(I64_REM_S,SCALAR,BASE),SPEC(I64_NEG,SCALAR,BASE),
     SPEC(F64_TO_BITS,SCALAR,BASE),SPEC(F64_FROM_BITS,SCALAR,BASE),SPEC(F64_ADD,SCALAR,BASE),SPEC(F64_SUB,SCALAR,BASE),SPEC(F64_MUL,SCALAR,BASE),SPEC(F64_DIV,SCALAR,BASE),SPEC(F64_NEG,SCALAR,BASE),
-    SPEC(CAST_INT,SCALAR,BASE),SPEC(CAST_FLOAT,SCALAR,BASE),SPEC(CAST_BOOL,SCALAR,BASE),SPEC(TYPE_CHECK,SCALAR,BASE),
+    SPEC(CAST_U8,SCALAR,BASE),SPEC(CAST_INT,SCALAR,BASE),SPEC(CAST_FLOAT,SCALAR,BASE),SPEC(CAST_BOOL,SCALAR,BASE),SPEC(TYPE_CHECK,SCALAR,BASE),
     SPEC(EQ,SCALAR,BASE),SPEC(NE,SCALAR,BASE),SPEC(LT,SCALAR,BASE),SPEC(LE,SCALAR,BASE),SPEC(GT,SCALAR,BASE),SPEC(GE,SCALAR,BASE),
     SPEC(I64_EQ,SCALAR,BASE),SPEC(I64_NE,SCALAR,BASE),SPEC(I64_LT_S,SCALAR,BASE),SPEC(I64_LE_S,SCALAR,BASE),SPEC(I64_GT_S,SCALAR,BASE),SPEC(I64_GE_S,SCALAR,BASE),
     SPEC(F64_EQ,SCALAR,BASE),SPEC(F64_NE,SCALAR,BASE),SPEC(F64_LT,SCALAR,BASE),SPEC(F64_LE,SCALAR,BASE),SPEC(F64_GT,SCALAR,BASE),SPEC(F64_GE,SCALAR,BASE),
@@ -294,7 +321,7 @@ static const struct {uint8_t opcode,recipe;uint16_t flags;} operations[]={
 #undef BOUND
 #undef NOM
 static void complete_opcode_table(void) {
-    bool listed[256]={false};size_t count=sizeof operations/sizeof operations[0];CHECK(count==92);
+    bool listed[256]={false};size_t count=sizeof operations/sizeof operations[0];CHECK(count==93);
     for(size_t i=0;i<count;i++) {
         uint8_t opcode=operations[i].opcode;CHECK(!listed[opcode]);listed[opcode]=true;
         NvmRecordArrayExecutionInstruction recipe={0};CHECK(rae_recipe(opcode,&recipe));
@@ -429,6 +456,7 @@ static void plan_accounting(void) {
 int main(void) {
     CHECK(record_array_origin_controls()==0);
     puts("I begin owned execution snapshots");snapshot_controls();
+    puts("I begin copied byte conversion recipes");byte_conversion_plan();
     puts("I begin initializer identity and call signatures");initializer_and_call_controls();
     puts("I begin exact branch and instruction facts");control_edges();
     puts("I begin the 256-function and counted-string boundaries");function_boundary();counted_string_boundary();
