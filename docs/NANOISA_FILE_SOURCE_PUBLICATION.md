@@ -121,3 +121,49 @@ I inspected `gc_alloc`, `dyn_array_new` and `dyn_array_push_struct`: allocation 
 ### I retain explicit Nano request byte extents
 
 Before preparing fixtures I inspected `builtins_registry.c:str_length` and `nl_cstr_length`: native/evaluator string length uses strlen. The initial6c22 bare-string request could silently truncate a counted source identity containing NUL. I therefore mirror the C request span as Nano `FileSourceText { data: string, size: int }`. The caller preserves the complete decoded source byte count; validation requires it not to exceed the available string length and rejects NUL-containing/full-extent mismatches before identity comparison. All comparisons/copies use exactly that declared prefix, including when the backing string is longer without a NUL. Passing a shorter truthful span describes only that prefix on either API; neither API proves the caller supplied a complete source token. No runtime string representation changes or execution claim follows.
+
+### My first descriptive fixture checkpoint
+
+I prepare `tests/file_source_plan_corpus.py`,
+`tests/nanoisa/test_file_source_plan.c`, and `tests/test_file_source_plan.py`
+without executing them before review. One explicit request corpus generates C
+and Nano callers. My expected row renderer is independent of both builders;
+I compare every category, mode, identity, source location, unresolved wire index,
+name byte and module byte, and compare the complete separately rendered catalog.
+Reordering preserves the supplied order and changes request indices truthfully.
+I include all thirteen bindings, distinct modules with identical short names,
+direct aliases, collisions, count and ID limits, and malformed catalog facts.
+
+I exercise exact counted prefixes, a prefix ending within a UTF-8 sequence,
+counted embedded NUL rejection, and a truthful prefix before an embedded NUL.
+Nano-only controls cover negative counts and a count greater than the available
+string. I do not pass an invalid readable-memory span to C or infer a general
+length-aware string runtime from these requests. My future parser must retain
+the original complete decoded token extent rather than substituting strlen.
+
+My C controls mutate every catalog byte, preserve output sentinels, fail the
+single plan allocation, check exact allocation size, mutate and free input
+strings before reading copied rows, and retain borrowed getter strings only
+while their plan lives. I check exact accepted and one-byte-excess public text
+budgets on C and Nano; a separately labeled C helper control covers internal
+budget arithmetic. Nano allocation failure remains outside recoverable status
+parity, and none of these fixtures validates an NSI document or completeness of
+a caller-supplied source namespace.
+
+After source/fixture review I will use fresh isolated Linux and puck trees,
+explicit compiler identities and source/tool inventories. I will run the C
+ownership and corpus controls with ordinary GCC/Clang on Linux and Apple/selected
+Homebrew Clang on Darwin, and strict ASan/UBSan/LSan for the three C providers and
+C fixtures where supported. I will build the actual C seed and fresh Stage1/2,
+then compile and execute the complete imported Nano helper/module and generated
+fixture through all three native drivers with all selected dependency and root
+shadows. C-seed JSON and self-hosted trace records identify that selection. I
+will not label an ordinary generated Nano executable as fully sanitizer-covered.
+
+My runner retains source, argv, stdout, stderr, terminal status, process-group
+cleanup, freshly compiled providers and executables. My external qualification
+driver will retain bootstrap terminals and immutable before/after inventories;
+it will stop on an unexpected terminal. A fixture timeout or failed build does
+not authorize replaying that unchanged failed artifact. These planned checks
+remain nonexecuting with respect to File services and confer no publication,
+parser, source lowering or host authority.
