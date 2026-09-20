@@ -12641,4 +12641,4 @@ requirements remain open.
 
 - [x] I correct the private layout fixture's pre-execution runner import: peer8fadd's dependent branch contains the retained FileCyclic command helper, not the newer root FileIndirectFlow helper. Static review found the absent import before any build/test. I reuse FileCyclic.command without changing its file-backed timeout/group-cleanup protocol; no production delta or execution failure is claimed.
 
-- [ ] I isolate private-layout unittest discovery from the imported FileCyclic TestCase. Independent static review found that the class import would discover unrelated cyclic tests and require their provider environment. I record this before correction, import the helper module instead, and check discovery before qualification; production remains unchanged.
+- [x] I isolate private-layout unittest discovery from the imported FileCyclic TestCase. Independent static review found that the class import would discover unrelated cyclic tests and require their provider environment. I record this before correction, import the helper module instead, and check discovery before qualification; production remains unchanged.
