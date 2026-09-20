@@ -429,8 +429,10 @@ static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affin
     }
 
     bool needs_ownership = false;
-    if (!mixed_composed && nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
-        return fail("I found invalid ownership declarations");
+    if (!mixed_composed) {
+        if (nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
+            return fail("I found invalid ownership declarations");
+    }
     if (needs_ownership && !affine_only) {
         for (uint32_t i=0;i<mod->function_count;i++) {
             NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,i);
@@ -920,7 +922,7 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
 /* I keep runtime admission closed even if affine analysis grows new operations. */
 static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     switch (op) {
-    case OP_CALL: case OP_CALL_REF:
+    case OP_HALT: case OP_CALL: case OP_CALL_REF:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
@@ -928,7 +930,8 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_BOOL: case OP_PUSH_F64:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
-    case OP_AGG_GET: case OP_STRUCT_GET: case OP_ADD: case OP_SUB: case OP_MUL:
+    case OP_AGG_PACK: case OP_AGG_GET: case OP_AGG_TAG: case OP_STRUCT_GET:
+    case OP_ADD: case OP_SUB: case OP_MUL:
     case OP_DIV: case OP_MOD: case OP_NEG: case OP_EQ: case OP_NE: case OP_LT:
     case OP_LE: case OP_GT: case OP_GE: case OP_AND: case OP_OR: case OP_NOT:
     case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV: case OP_F64_NEG:
@@ -968,7 +971,8 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
                 if(!nvm_affine_parameter_at(state,i,&type,&mode)) valid=false;
             } else if(!nvm_affine_local_type(state,i,&type) ||
                 (type.tag!=TAG_INT && type.tag!=TAG_BOOL && type.tag!=TAG_U8 &&
-                 type.tag!=TAG_STRUCT && !(i>=fn->arity && type.tag==TAG_FLOAT &&
+                 type.tag!=TAG_STRUCT && type.tag!=TAG_UNION &&
+                 !(i>=fn->arity && type.tag==TAG_FLOAT &&
                                            type.layout==NVM_V2_NO_INDEX) &&
                  !(value_graph && type.tag==TAG_STRING &&
                                            type.layout==NVM_V2_NO_INDEX))) valid=false;
@@ -982,6 +986,17 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     bool supported = true;
     for (uint32_t i=0; i<layouts.count; i++) {
         const NvmV2Layout *layout = &layouts.items[i];
+        if (layout->kind==NVM_V2_LAYOUT_UNION) {
+            if (mod->ownership_data[8+i] || layout->field_count>NVM_AFFINE_MAX_STACK)
+                supported=false;
+            for (uint16_t f=0;f<layout->field_count;f++) {
+                uint8_t tag=layout->fields[f].type_tag;
+                if ((tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_FLOAT &&
+                     !(value_graph && tag==TAG_STRING)) ||
+                    layout->fields[f].nested_idx!=NVM_V2_NO_INDEX) supported=false;
+            }
+            continue;
+        }
         if (!(mod->ownership_data[8+i] & NVM_LAYOUT_COMPLETE) ||
             layout->kind != NVM_V2_LAYOUT_STRUCT || layout->field_count > NVM_AFFINE_MAX_STACK)
             supported = false;

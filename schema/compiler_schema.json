@@ -1159,6 +1159,10 @@
           "int"
         ],
         [
+          "union_type_name",
+          "string"
+        ],
+        [
           "arm_variants",
           "array<string>"
         ],
@@ -1172,6 +1176,14 @@
         ],
         [
           "arm_body_types",
+          "array<int>"
+        ],
+        [
+          "arm_guard_ids",
+          "array<int>"
+        ],
+        [
+          "arm_guard_types",
           "array<int>"
         ],
         [

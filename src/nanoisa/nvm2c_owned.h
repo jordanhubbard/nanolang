@@ -16,6 +16,14 @@ static bool owned_emission_local(const NvmAffineState *state,const NvmMixedSampl
     if(!nvm_mixed_samples_local(mixed,function,local,&d) || d.category!=NVM_MIXED_VALUE_OWNER)return false;
     *out=(NvmAffineType){d.tag,d.global_layout};return true;
 }
+static bool owned_emission_union(const NvmV2Layouts *layouts,uint32_t ordinal,uint32_t *global) {
+    if(!layouts || !global)return false;
+    uint32_t seen=0;
+    for(uint32_t i=0;i<layouts->count;i++)if(layouts->items[i].kind==NVM_V2_LAYOUT_UNION) {
+        if(seen++==ordinal){*global=i;return true;}
+    }
+    return false;
+}
 static char *emit_owned_function(const NvmModule *mod,uint32_t function,
                                   const NvmMixedSamplesPlan *mixed,const NvmOwnedArrayPlan *owner_arrays,char *err,size_t err_len) {
     const bool shared=mixed || owner_arrays;
@@ -64,7 +72,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             if (!owned_emission_local(state,mixed,owner_arrays,function,in->operands[0].u16,&type)) goto fail;
             pop=0;push=layouts.items[type.layout].field_count;
         }
-        if(mixed && op==OP_AGG_PACK){pop=in->operands[3].u16;push=1;}
+        if(op==OP_AGG_PACK){pop=in->operands[3].u16;push=1;}
         if(shared && op==OP_ARR_LITERAL){pop=in->operands[1].u16;push=1;}
         if (op==OP_CALL) {pop=mod->functions[in->operands[0].u32].arity;push=mod->functions[in->operands[0].u32].result_count;}
         if (op==OP_RET) continue;
@@ -101,7 +109,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         "typedef struct { int64_t scalar; nown_record *record; nown_string *string; double floating; uint8_t tag; } nown_value;\n");
     if(!function)nvm2c_puts(&b,
         "static inline double nown_float_bits(uint64_t bits) { double value; memcpy(&value,&bits,sizeof(value)); return value; }\n"
-        "struct nown_record { size_t refs, count; uint32_t layout; nown_value fields[]; };\n"
+        "struct nown_record { size_t refs, count; uint32_t layout, variant; nown_value fields[]; };\n"
         "typedef struct { unsigned root,region,exclusive,parent,depth,origin; uint64_t generation; uint16_t fields[32]; } nown_reference;\n"
         "static nown_record *nown_referent(nown_value *const origins[2],const uint64_t generations[2],const nown_reference *ref) {\n"
         " if(ref->origin>1 || !origins[ref->origin] || ref->generation!=generations[ref->origin])return NULL;\n"
@@ -299,6 +307,15 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_puts(&b," nown_release(a); a=(nown_value){0};\n");break;
         }
         case OP_AGG_PACK: {
+            if(in->operands[0].u8==AGG_VARIANT && !shared) {
+                uint32_t layout;
+                if(!owned_emission_union(&layouts,in->operands[1].u32,&layout))goto fail;
+                unsigned count=in->operands[3].u16;int base=n-(int)count;
+                nvm2c_printf(&b," a.record=NOWN_ALLOC(1,sizeof(nown_record)+%u*sizeof(nown_value));\n if(!a.record){status=1;goto cleanup;} a.record->refs=1; a.record->count=%u; a.record->layout=%u; a.record->variant=%u;\n",count,count,layout,in->operands[2].u32);
+                for(unsigned f=0;f<count;f++)
+                    nvm2c_printf(&b," a.record->fields[%u]=t[%d]; t[%d]=(nown_value){0};\n",f,base+(int)f,base+(int)f);
+                nvm2c_printf(&b," a.tag=%u; t[%d]=a; a=(nown_value){0};\n",TAG_UNION,base);break;
+            }
             if(!mixed || in->operands[0].u8!=AGG_RECORD)goto fail;
             NvmMixedRecordIdentity identity;
             if(!nvm_mixed_samples_record(mixed,in->operands[1].u32,&identity) || identity.field_count!=in->operands[3].u16)goto fail;
@@ -310,6 +327,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             for(unsigned f=0;f<count;f++)nvm2c_printf(&b," nown_release(t[%d]);t[%d]=(nown_value){0};\n",base+(int)f,base+(int)f);
             nvm2c_printf(&b," t[%d]=(nown_value){.tag=%u,.category=2,.managed=managed,.handle=handle};}\n",base,TAG_STRUCT);break;
         }
+        case OP_AGG_TAG:
+            nvm2c_printf(&b," if(t[%d].tag!=%u || !t[%d].record){status=3;goto cleanup;} a=t[%d]; t[%d]=(nown_value){.scalar=(int64_t)a.record->variant,.tag=%u}; nown_release(a); a=(nown_value){0};\n",n-1,TAG_UNION,n-1,n-1,n-1,TAG_INT);break;
         case OP_ARR_NEW:case OP_ARR_LITERAL: {
             if(!shared)goto fail;
             unsigned count=op==OP_ARR_LITERAL?in->operands[1].u16:0;int base=n-(int)count;
@@ -343,6 +362,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             break;
         }
         case OP_AGG_GET: case OP_STRUCT_GET:
+            if(op==OP_AGG_GET && !shared)nvm2c_printf(&b," if((t[%d].tag!=%u && t[%d].tag!=%u) || !t[%d].record || %u>=t[%d].record->count){status=3;goto cleanup;}\n",n-1,TAG_STRUCT,n-1,TAG_UNION,n-1,local,n-1);
             if(shared)nvm2c_printf(&b," if(t[%d].category==2){NmsValue value={0}; status=nown_status(nms_record_get(managed,t[%d].handle,%u,&value));if(status)goto cleanup; if(!nown_from_managed(managed,value,&a)){(void)nms_value_release(managed,value);status=3;goto cleanup;} nown_release(t[%d]);t[%d]=a;a=(nown_value){0};}else {\n",n-1,n-1,local,n-1,n-1);
             nvm2c_printf(&b," if(!nown_retain(t[%d].record->fields[%u])){status=1;goto cleanup;} a=t[%d]; t[%d]=a.record->fields[%u]; nown_release(a); a=(nown_value){0};\n",n-1,local,n-1,n-1,local);
             if(shared)nvm2c_puts(&b," }\n");

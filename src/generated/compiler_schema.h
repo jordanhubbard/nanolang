@@ -725,10 +725,13 @@ typedef struct nl_ASTMatch {
     int column;
     int scrutinee;
     int scrutinee_type;
+    const char * union_type_name;
     DynArray * arm_variants;
     DynArray * arm_bindings;
     DynArray * arm_body_ids;
     DynArray * arm_body_types;
+    DynArray * arm_guard_ids;
+    DynArray * arm_guard_types;
     int arm_count;
 } nl_ASTMatch;
 typedef nl_ASTMatch ASTMatch;
