@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "/tmp/nanolang-passive-cfg-1f0db-linux/flow.c",
+    "-lm",
+    "-o",
+    "/tmp/nanolang-passive-cfg-1f0db-linux/flow"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": ""
+  }
+}

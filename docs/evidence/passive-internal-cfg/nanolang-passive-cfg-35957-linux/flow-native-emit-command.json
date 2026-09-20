@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-passive-qualified-35957/bin/nvm2c",
+    "/tmp/nanolang-passive-cfg-35957-linux/flow.nvm",
+    "-o",
+    "/tmp/nanolang-passive-cfg-35957-linux/flow.c"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": ""
+  }
+}

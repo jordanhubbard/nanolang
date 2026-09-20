@@ -1,0 +1,67 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 23.039,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 7.383,
+    "status": 0
+  },
+  {
+    "phase": "cyclic",
+    "seconds": 3.031,
+    "status": 0
+  },
+  {
+    "phase": "code",
+    "seconds": 8.835,
+    "status": 0
+  },
+  {
+    "phase": "body",
+    "seconds": 9.033,
+    "status": 0
+  },
+  {
+    "phase": "flow",
+    "seconds": 8.688,
+    "status": 0
+  },
+  {
+    "phase": "hosted",
+    "seconds": 5.477,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.173,
+    "status": 0
+  },
+  {
+    "phase": "cyclic-hosted",
+    "seconds": 7.434,
+    "status": 0
+  },
+  {
+    "phase": "indirect_targets",
+    "seconds": 2.57,
+    "status": 0
+  },
+  {
+    "phase": "indirect_flow",
+    "seconds": 2.72,
+    "status": 0
+  }
+]

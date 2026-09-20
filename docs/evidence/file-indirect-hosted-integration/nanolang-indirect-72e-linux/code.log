@@ -1,0 +1,10 @@
+I retain File CODE artifacts at /tmp/nano-file-code-h0m3kjeh
+test_instrumented_preparation_allocation_recovery (tests.test_file_code.FileCode.test_instrumented_preparation_allocation_recovery) ... PASS 2409 private File CODE preparation checks; no transfer/body certificate or execution
+ok
+test_linked_decode_graphs_lifetimes_and_refusal (tests.test_file_code.FileCode.test_linked_decode_graphs_lifetimes_and_refusal) ... PASS 1817 private File CODE preparation checks; no transfer/body certificate or execution
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 8.754s
+
+OK

@@ -1,0 +1,97 @@
+{
+  "seal": "203a5ce3f87da5cc63b18264553443cc1e12394e",
+  "pin": "933aa91eab7092b238805f772b4fd3564997ae19",
+  "git_reports": 239,
+  "cas": 493,
+  "bytes": 212243248,
+  "artifact_refs": 9205,
+  "pairs": 48,
+  "terminals": [
+    "nanolang-passive-933-linux/build",
+    "nanolang-passive-933-linux/discovery",
+    "nanolang-passive-933-linux/passive",
+    "nanolang-passive-933-linux/source-flow",
+    "nanolang-passive-933-linux/flow-vm",
+    "nanolang-passive-933-linux/flow-native-emit",
+    "nanolang-passive-933-linux/flow-native-build",
+    "nanolang-passive-933-linux/flow-native",
+    "nanolang-passive-933-linux/comparison-build",
+    "nanolang-passive-933-linux/comparison",
+    "nanolang-passive-933-linux/scoped-sanitizer",
+    "nanolang-passive-933-linux/float-casts",
+    "nanolang-passive-933-puck/build",
+    "nanolang-passive-933-puck/discovery",
+    "nanolang-passive-933-puck/passive",
+    "nanolang-passive-933-puck/source-flow",
+    "nanolang-passive-933-puck/flow-vm",
+    "nanolang-passive-933-puck/flow-native-emit",
+    "nanolang-passive-933-puck/flow-native-build",
+    "nanolang-passive-933-puck/flow-native",
+    "nanolang-passive-933-puck/comparison-build",
+    "nanolang-passive-933-puck/comparison",
+    "nanolang-passive-933-puck/scoped-sanitizer",
+    "nanolang-passive-933-puck/float-casts"
+  ],
+  "incoming_canonical_paths": [
+    "src/nanoisa/affine_bytecode.c",
+    "src/nanoisa/affine_state.c",
+    "src/nanoisa/affine_state.h",
+    "src/nanoisa/nvm2c_owned.h",
+    "src/nanoisa/owned_array_admit.inc",
+    "src/nanoisa/ownership_contracts.c",
+    "src/nanoisa/ownership_contracts.h",
+    "src/nanoisa/verifier.c",
+    "src_nano/compiler/nanoisa_borrows.nano",
+    "tests/nanoisa/fixtures/affine_scalar_union_instances.nano",
+    "tests/nanoisa/test_affine_bytecode.c",
+    "tests/nanoisa/test_ownership_contracts.c",
+    "tests/test_affine_scalar_union_runtime.py",
+    "tests/test_affine_scalar_union_source.py"
+  ],
+  "make_only_additive": true,
+  "archive_sha256": "b898da85f535cd3bd8164d415c099c6f7506e799412532ce9f1efc0213e5ee0f",
+  "logs": {
+    "nanolang-passive-933-linux": {
+      "passive.log": "_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic\n/usr/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -DPASSIVE_CFG_ALLOCATION_TEST -Isrc/nanoisa -o obj/test_passive_cfg_alloc tests/nanoisa/test_passive.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic\npassive: 273 passed, 0 failed\n..........................\n----------------------------------------------------------------------\nRan 26 tests in 2.450s\n\nOK\n",
+      "comparison.log": "test_passive_flow_bytecode_and_source_order_metadata_match (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_flow_bytecode_and_source_order_metadata_match) ... ok\ntest_passive_par_records_and_scalar_execution (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_par_records_and_scalar_execution) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.320s\n\nOK\n",
+      "scoped-sanitizer.log": "/usr/bin/gcc-13 -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -fsanitize=address,undefined -fno-omit-frame-pointer -DPASSIVE_CFG_ALLOCATION_TEST -Isrc/nanoisa -o obj/test_passive_cfg_sanitized tests/nanoisa/test_passive.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi  -rdynamic\nobj/test_passive_cfg_sanitized\npassive: 273 passed, 0 failed\n",
+      "flow-vm.log": "15\n",
+      "flow-native.log": "15\n",
+      "float-casts.log": "test_cast_float_matches_vm_scalar_conversions (tests.test_native_floats.NativeFloats.test_cast_float_matches_vm_scalar_conversions) ... ok\ntest_cast_float_through_polymorphic_calls_and_local_loop (tests.test_native_floats.NativeFloats.test_cast_float_through_polymorphic_calls_and_local_loop) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.769s\n\nOK\n"
+    },
+    "nanolang-passive-933-puck": {
+      "passive.log": "anoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -DPASSIVE_CFG_ALLOCATION_TEST -Isrc/nanoisa -o obj/test_passive_cfg_alloc tests/nanoisa/test_passive.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib\npassive: 273 passed, 0 failed\n..........................\n----------------------------------------------------------------------\nRan 26 tests in 10.304s\n\nOK\n",
+      "comparison.log": "test_passive_flow_bytecode_and_source_order_metadata_match (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_flow_bytecode_and_source_order_metadata_match) ... ok\ntest_passive_par_records_and_scalar_execution (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_passive_par_records_and_scalar_execution) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 1.685s\n\nOK\n",
+      "scoped-sanitizer.log": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -fsanitize=address,undefined -fno-omit-frame-pointer -DPASSIVE_CFG_ALLOCATION_TEST -Isrc/nanoisa -o obj/test_passive_cfg_sanitized tests/nanoisa/test_passive.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib\nobj/test_passive_cfg_sanitized\npassive: 273 passed, 0 failed\n",
+      "flow-vm.log": "15\n",
+      "flow-native.log": "15\n",
+      "float-casts.log": "test_cast_float_matches_vm_scalar_conversions (tests.test_native_floats.NativeFloats.test_cast_float_matches_vm_scalar_conversions) ... ok\ntest_cast_float_through_polymorphic_calls_and_local_loop (tests.test_native_floats.NativeFloats.test_cast_float_through_polymorphic_calls_and_local_loop) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 1.148s\n\nOK\n"
+    }
+  },
+  "current_pending": false,
+  "current": {
+    "linux": {
+      "host": "linux",
+      "root": "/tmp/nanolang-passive-933-linux-source",
+      "counts": {
+        "source": 23196,
+        "tools": 10,
+        "artifacts": 295
+      },
+      "mismatches": [],
+      "frozen_git_source_inputs": 2444
+    },
+    "puck": {
+      "host": "puck",
+      "root": "/tmp/nanolang-passive-933-puck-source",
+      "counts": {
+        "source": 23196,
+        "tools": 15,
+        "artifacts": 244
+      },
+      "mismatches": [],
+      "frozen_git_source_inputs": 2444
+    }
+  },
+  "verdict": "PASS scoped frozen933 integration on actual893; no execution reruns"
+}

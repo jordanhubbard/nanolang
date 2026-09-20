@@ -78,8 +78,111 @@ static bool allowed(uint8_t op, uint32_t version) {
 }
 #include "passive_calls.inc"
 
+/* I admit only finite internal control flow. Ascending instruction order is
+ * a topological order because every edge moves strictly forward. */
+#define PASSIVE_NODE_INSNS 65536u
+typedef struct {
+    uint32_t pc, length;
+    int64_t height;
+} PassiveInstruction;
+static uint32_t passive_target(const PassiveInstruction *code, uint32_t count,
+                               uint32_t target) {
+    uint32_t low = 0, high = count;
+    while (low < high) {
+        uint32_t mid = low + (high - low) / 2;
+        if (code[mid].pc < target) low = mid + 1;
+        else high = mid;
+    }
+    return low < count && code[low].pc == target ? low : count;
+}
+static bool node_cfg(const NvmModule *m, const NvmFunctionEntry *f,
+                     Node *nodes, uint32_t count, uint32_t index, ClosedCalls *calls) {
+    const Node *n = &nodes[index];
+    uint32_t instructions = 0;
+    for (uint32_t pc = n->entry; pc < n->exit;) {
+        DecodedInstruction d;
+        uint32_t length = isa_decode(m->code + pc, n->exit - pc, &d);
+        if (!length || instructions == PASSIVE_NODE_INSNS) return false;
+        ++instructions; pc += length;
+    }
+    PassiveInstruction *code = calloc(instructions, sizeof(*code));
+    bool *seen_deps = calloc(count, sizeof(*seen_deps));
+    bool *seen_reads = calloc(f->arity ? f->arity : 1, sizeof(*seen_reads));
+    bool ok = code && seen_deps && seen_reads;
+    if (!ok) goto done;
+    uint32_t pc = n->entry;
+    for (uint32_t i = 0; i < instructions; ++i) {
+        DecodedInstruction d;
+        code[i].pc = pc;
+        code[i].length = isa_decode(m->code + pc, n->exit - pc, &d);
+        code[i].height = -1;
+        pc += code[i].length;
+    }
+    code[0].height = 0;
+    for (uint32_t i = 0; ok && i < instructions; ++i) {
+        DecodedInstruction d;
+        isa_decode(m->code + code[i].pc, code[i].length, &d);
+        bool branch = d.opcode == OP_JMP || d.opcode == OP_JMP_TRUE || d.opcode == OP_JMP_FALSE;
+        const InstructionInfo *info = isa_get_info(d.opcode);
+        if (code[i].height < 0 || !info ||
+            (!allowed(d.opcode, 2) && d.opcode != OP_CALL && !branch)) { ok = false; break; }
+        int32_t pop = info->pop_count, push = info->push_count;
+        if (d.opcode == OP_CALL) {
+            uint32_t callee = d.operands[0].u32;
+            if (!closed_function(calls, callee)) { ok = false; break; }
+            pop = m->functions[callee].arity; push = m->functions[callee].result_count;
+        }
+        if (pop < 0 || push < 0 || code[i].height < pop ||
+            code[i].height - pop > UINT32_MAX - (uint32_t)push) { ok = false; break; }
+        int64_t height = code[i].height - pop + push;
+        if (d.opcode == OP_STORE_LOCAL) {
+            if (i + 1 != instructions || d.operands[0].u16 != n->result || height) ok = false;
+            continue;
+        }
+        if (i + 1 == instructions) { ok = false; break; }
+        if (d.opcode == OP_LOAD_LOCAL) {
+            uint32_t local = d.operands[0].u16, producer = count;
+            for (uint32_t j = 0; j < count; ++j) if (nodes[j].result == local) producer = j;
+            if (producer < count) {
+                if (!contains(n->deps, n->dependencies, producer)) ok = false;
+                seen_deps[producer] = true;
+            } else if (local >= f->arity || !contains(n->inputs, n->reads, local)) ok = false;
+            else seen_reads[local] = true;
+        }
+        uint32_t next[2], successors = 0;
+        if (branch) {
+            int64_t target = (int64_t)code[i].pc + d.operands[0].i32;
+            if (target <= code[i].pc || target >= n->exit) { ok = false; break; }
+            next[successors++] = passive_target(code, instructions, (uint32_t)target);
+        }
+        if (d.opcode != OP_JMP) next[successors++] = i + 1;
+        for (uint32_t edge = 0; ok && edge < successors; ++edge) {
+            uint32_t j = next[edge];
+            if (j >= instructions || (code[j].height >= 0 && code[j].height != height)) ok = false;
+            else code[j].height = height;
+        }
+    }
+    for (uint32_t i = 0; ok && i < n->dependencies; ++i)
+        if (!seen_deps[at(n->deps, i)]) ok = false;
+    for (uint32_t i = 0; ok && i < n->reads; ++i)
+        if (!seen_reads[at(n->inputs, i)]) ok = false;
+done:
+    free(code); free(seen_deps); free(seen_reads);
+    return ok;
+}
+/* Only an already proved same-node version-2 edge may enter the interior. */
+static bool internal_node_edge(const Node *nodes, uint32_t count,
+                               uint32_t pc, int64_t target, uint32_t version) {
+    if (version != 2) return false;
+    for (uint32_t i = 0; i < count; ++i)
+        if (pc >= nodes[i].entry && pc < nodes[i].exit &&
+            target > pc && target < nodes[i].exit) return true;
+    return false;
+}
+
 static bool node_code(const NvmModule *m, const NvmFunctionEntry *f,
                       Node *nodes, uint32_t count, uint32_t index, uint32_t version, ClosedCalls *calls) {
+    if (version == 2) return node_cfg(m, f, nodes, count, index, calls);
     Node *n = &nodes[index];
     uint32_t depth = 0;
     bool *seen_deps = calloc(count, sizeof(bool));
@@ -194,7 +297,8 @@ static bool block(Reader *r, const NvmModule *m, uint32_t *previous_function,
         if (d.opcode == OP_JMP || d.opcode == OP_JMP_TRUE || d.opcode == OP_JMP_FALSE) {
             /* Relative branches use the instruction start, as in the ISA verifier. */
             int64_t target = (int64_t)pc + d.operands[0].i32;
-            if (target > entry && target < exit) ok = false;
+            if (target > entry && target < exit &&
+                !internal_node_edge(nodes, count, pc, target, version)) ok = false;
         }
         if (d.opcode == OP_STORE_LOCAL) {
             uint32_t local = d.operands[0].u16;

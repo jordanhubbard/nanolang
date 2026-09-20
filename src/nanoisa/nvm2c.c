@@ -6765,6 +6765,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    nhost_arg_count = argc; nhost_args = argv;\n");
         else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
+        if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT))
+            nvm2c_puts(&b, "    (void)nparse_binary64;\n");
         if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN) ||
             module_has_opcode(mod, OP_CAST_STRING))
             nvm2c_puts(&b, "    (void)nano_rt_f64_format; (void)nano_rt_f64_print;\n");

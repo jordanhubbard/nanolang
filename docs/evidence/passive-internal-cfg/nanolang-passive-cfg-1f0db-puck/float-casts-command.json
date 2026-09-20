@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_native_floats.NativeFloats.test_cast_float_matches_vm_scalar_conversions",
+    "tests.test_native_floats.NativeFloats.test_cast_float_through_polymorphic_calls_and_local_loop"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": "",
+    "NANO_NATIVE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-passive-cfg-1f0db-puck/passive-comparison.mk",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "passive-scoped-sanitizer"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LSAN_OPTIONS": ""
+  }
+}

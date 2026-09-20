@@ -4472,7 +4472,9 @@ test-affine-generic-identity: bootstrap
 test-units: test-passive-metadata
 test-passive-metadata: $(NANOISA_OBJECTS) $(NANOISA_UTF8) nano_vm nvm2c nanoisa_dump
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_passive tests/nanoisa/test_passive.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
-	@python3 -m unittest tests.test_passive_metadata tests.test_passive_inputs tests.test_passive_directives tests.test_passive_calls
+	$(CC) $(CFLAGS) -DPASSIVE_CFG_ALLOCATION_TEST -I$(NANOISA_DIR) -o obj/test_passive_cfg_alloc tests/nanoisa/test_passive.c $(filter-out $(OBJ_DIR)/nanoisa/passive.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@obj/test_passive_cfg_alloc
+	@python3 -m unittest tests.test_passive_metadata tests.test_passive_inputs tests.test_passive_directives tests.test_passive_calls tests.test_passive_internal_cfg
 
 .PHONY: test-global-initializer-context
 test-units: test-global-initializer-context
@@ -5687,3 +5689,11 @@ test-token-value-bytes-sanitizers:
 .PHONY: test-portable-read-wasm
 test-portable-read-wasm:
 	python3 -m unittest -f -v tests.test_portable_read_wasm
+
+# I rebuild the owning query TU for the private indirect hosted conjunction.
+$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_hosted.h $(NANOISA_DIR)/file_indirect_hosted.inc
+
+.PHONY: test-file-indirect-hosted
+# I query copied indirect plans; no callable or service executes.
+test-file-indirect-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_INDIRECT_HOSTED_CC="$(CC)" NANO_FILE_INDIRECT_HOSTED_CFLAGS="$(CFLAGS)" FILE_INDIRECT_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_INDIRECT_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_hosted
