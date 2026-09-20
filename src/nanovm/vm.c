@@ -27,23 +27,40 @@
 
 #ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
 #include <unistd.h>
+static uint64_t shadow_admission_calls, shadow_admission_ns, shadow_assert_traps;
+static uint64_t shadow_clock_ns(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) != 0 || now.tv_sec < 0 ||
+        now.tv_nsec < 0 || now.tv_nsec >= 1000000000L) _exit(92);
+    uint64_t seconds = (uint64_t)now.tv_sec, nanos = (uint64_t)now.tv_nsec;
+    if (seconds > (UINT64_MAX - nanos) / UINT64_C(1000000000)) _exit(92);
+    return seconds * UINT64_C(1000000000) + nanos;
+}
+static void shadow_admission_record(uint64_t start) {
+    uint64_t end = shadow_clock_ns();
+    if (end < start || shadow_admission_calls == UINT64_MAX ||
+        end - start > UINT64_MAX - shadow_admission_ns) _exit(92);
+    ++shadow_admission_calls;
+    shadow_admission_ns += end - start;
+}
 /* I observe a bounded private diagnostic without changing shadow bytecode. */
 static void shadow_progress(const NvmModule *module, uint32_t function,
                             const char *event) {
     static unsigned rows;
-    static struct timespec first;
+    static uint64_t first;
     const NvmFunctionEntry *entry = &module->functions[function];
     const char *name = nvm_get_string(module, entry->name_idx);
     if (!name || (strncmp(name, "$shadow_", 8) != 0 &&
                   strcmp(name, "parse_owned_pattern") != 0)) return;
-    struct timespec now;
-    if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) _exit(92);
+    uint64_t now = shadow_clock_ns();
     if (!rows) first = now;
-    double elapsed_ms = ((double)now.tv_sec - (double)first.tv_sec) * 1000.0
-        + ((double)now.tv_nsec - (double)first.tv_nsec) / 1000000.0;
-    if (rows == 8192 || elapsed_ms < 0 ||
-        fprintf(stderr, "[shadow-progress] elapsed_ms=%.3f %s fn=%u pc=%u name=%.64s\n",
-                elapsed_ms, event, function, entry->code_offset, name) < 0 ||
+    if (rows == 8192 || now < first ||
+        fprintf(stderr, "[shadow-progress] elapsed_ms=%.3f admission_calls=%llu admission_ms=%.3f assert_traps=%llu %s fn=%u pc=%u name=%.64s\n",
+                (double)(now - first) / 1000000.0,
+                (unsigned long long)shadow_admission_calls,
+                (double)shadow_admission_ns / 1000000.0,
+                (unsigned long long)shadow_assert_traps,
+                event, function, entry->code_offset, name) < 0 ||
         fflush(stderr) != 0) _exit(92);
     ++rows;
 }
@@ -1427,6 +1444,9 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
 }
 
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof) {
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+    uint64_t admission_started = shadow_clock_ns();
+#endif
     VmOwnedInvocationProof resumed;
     if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED && !vm_owned_proof_matches(vm,proof))
         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a synchronous owner ARRAY root invocation before execution.");
@@ -1467,6 +1487,9 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
             vm->references.generation=++vm->reference_generation;
         }
     }
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+    shadow_admission_record(admission_started);
+#endif
     /* Derive code_end from current function */
     const NvmFunctionEntry *cur_fn = &vm->module->functions[vm->current_fn];
     uint32_t code_end = cur_fn->code_offset + cur_fn->code_length;
@@ -4754,6 +4777,10 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
             break;
 
         case TRAP_ASSERT:
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+            if (shadow_assert_traps == UINT64_MAX) _exit(92);
+            ++shadow_assert_traps;
+#endif
             if (!val_truthy(trap.data.assert_check.condition)) {
                 vm_release(&vm->heap, trap.data.assert_check.condition);
                 VmResult result = vm_error(vm, VM_ERR_ASSERT_FAILED, "Assertion failed");
