@@ -102,3 +102,19 @@ safety, alias lifetime, owner transfer or generated graph cleanup. Those origin
 and runtime obligations precede paired source publication and all selected
 shadows. Generic/imported/nested/recursive/tuple/map/callable graph scope remains
 required by5.1; this intermediate projection closes none of those parents.
+
+## My mixed forward-layout prerequisite
+
+Static implementation review found that the existing private ARRAY decoder's
+forward-edge path intentionally requires every layout to be STRUCT. A scalar
+union beside a forward ordinary record would fail that earlier profile before
+whole-envelope projection. I add a separate explicit mixed private decoder
+entry using the same bounded copy/graph walker: STRUCT nodes may reference only
+STRUCT nodes; UNION nodes carry only scalar/string NO_INDEX fields. The shared
+iterative walk checks every record edge and rejects cycles. Existing public
+and ordinary-array decoder profiles remain byte-for-byte decisions, including
+their previous refusals. The new projection alone selects the mixed profile.
+Resource ordering and union variant completeness remain the common ownership
+reader's independent responsibility. This amendment precedes decoder changes;
+its new profile must receive the same allocation, malformed-cross-kind and
+forward-order controls before acceptance.
