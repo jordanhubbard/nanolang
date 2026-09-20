@@ -1,0 +1,184 @@
+{
+  "acyclic_scalar_control": true,
+  "artifact_bytes": 119141795,
+  "artifact_references": 2744,
+  "current_linux": [
+    {
+      "group": "linux",
+      "mismatches": 0,
+      "providers": 173,
+      "sources": 11221,
+      "tools": 10,
+      "tree": "/home/jkh/Src/nanolang-file-cyclic-hosted-integration-881fc"
+    }
+  ],
+  "cyclic_execution": false,
+  "integrated_sanitizers": false,
+  "phases": {
+    "darwin": [
+      {
+        "phase": "setup",
+        "seconds": 9.668,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.125,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 5.588,
+        "status": 0
+      },
+      {
+        "phase": "archive-boundary",
+        "seconds": 0.773,
+        "status": 0
+      }
+    ],
+    "linux": [
+      {
+        "phase": "setup",
+        "seconds": 22.268,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.114,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 7.28,
+        "status": 0
+      },
+      {
+        "phase": "archive-boundary",
+        "seconds": 0.465,
+        "status": 0
+      }
+    ]
+  },
+  "production": "bae2badf9f566b0a2124bf395602c2e70d2390b5",
+  "provider_pairs": [
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "configuration",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 173,
+      "group": "linux",
+      "phase": "archive-boundary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": true,
+      "existing_input_count": 0,
+      "group": "linux",
+      "phase": "setup",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "configuration",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 172,
+      "group": "darwin",
+      "phase": "archive-boundary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": true,
+      "existing_input_count": 0,
+      "group": "darwin",
+      "phase": "setup",
+      "unchanged": true
+    }
+  ],
+  "qualified_fixture": "881fcf0a71e8a3f08a6fd3d2962dca6d1719fed7",
+  "runtime_admitted": false,
+  "source_tool_pairs": [
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "ordinary",
+      "sources": 11221,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "configuration",
+      "sources": 11221,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "archive-boundary",
+      "sources": 11221,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "setup",
+      "sources": 11221,
+      "tools": 10
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "ordinary",
+      "sources": 11221,
+      "tools": 13
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "configuration",
+      "sources": 11221,
+      "tools": 13
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "archive-boundary",
+      "sources": 11221,
+      "tools": 13
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "setup",
+      "sources": 11221,
+      "tools": 13
+    }
+  ],
+  "unique_artifacts": 481,
+  "whole_program_sanitizer": false
+}

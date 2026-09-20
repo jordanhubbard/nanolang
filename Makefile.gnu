@@ -448,7 +448,7 @@ $(OBJ_DIR)/nanoisa/nvm2c_main.o $(OBJ_DIR)/nanovm/main.o: $(NANOISA_DIR)/file_pu
 
 # My retained service ABI and immutable catalog participate in incremental builds.
 $(NANOISA_OBJECTS): $(NANOISA_DIR)/file_hosted.h $(NANOISA_DIR)/file_hosted.inc $(NANOISA_DIR)/file_body.h $(NANOISA_DIR)/file_body.inc $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
-$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_cyclic.inc
+$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_cyclic.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic_hosted.inc
 $(OBJ_DIR)/nsi_file_plan.o: $(SRC_DIR)/nsi.h $(SRC_DIR)/nsi_cap.h
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
@@ -5573,3 +5573,8 @@ test-file-public-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJEC
 .PHONY: test-file-cyclic
 test-file-cyclic: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	FILE_CYCLIC_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_CYCLIC_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic
+
+.PHONY: test-file-cyclic-hosted
+# I rebuild allocating reader/bridge/query providers inside the retained runner.
+test-file-cyclic-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_CYCLIC_HOSTED_CC="$(CC)" NANO_FILE_CYCLIC_HOSTED_CFLAGS="$(CFLAGS)" FILE_CYCLIC_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_CYCLIC_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_hosted
