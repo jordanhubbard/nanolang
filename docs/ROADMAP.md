@@ -13678,3 +13678,25 @@ entry and index allocation. I extend the old two/one-site failure loops to inclu
 that mandatory publication allocation, retaining every existing rollback check.
 New sweeps separately cover existing-capacity insertion and growth from 12 roots.
 No old fixture has been executed against the changed index yet.
+
+#### My 9f4e compiler prerequisites
+
+I preserve both fresh 9f4e make-build terminals under
+`task_1a4cba8a04804aa287e5b9d6eefb98f7`. Linux reached strict generated C
+compilation and rejected the undeclared coroutine `strdup` call after 35.507
+seconds. Darwin compiled my parser, then rejected ordinary record boundaries
+in typecheck.nano, beginning with `(at states i)` at 525:36, after 28.326
+seconds. Neither run reached bootstrap or fixtures. Source and tool maps agree.
+
+- [ ] I copy coroutine error text with checked standard-C allocation, preserving
+  error status and NULL text on allocation failure without changing strict flags.
+- [ ] I carry array element annotation and declaring owner together through
+  accepted indexing expressions, including nested arrays, fields and callable
+  results. I preserve local/call precedence, exact record identity and unresolved
+  refusal; I do not substitute current-module ownership for missing facts.
+- [ ] I review source and fixtures before fresh corrected preparation and all
+  pending list/evaluator/full Make gates at the original shadow deadline.
+
+My Linux terminal is retained in `/tmp/nanolang-record-lists-9f4e-linux-prepare`
+and my Darwin terminal in `/private/tmp/nanolang-record-lists-9f4e-puck-prepare`.
+The parser progress is not complete timeout acceptance for the remaining graph.
