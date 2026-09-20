@@ -1,0 +1,57 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 9.504,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.121,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 7.055,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 7.1,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 16.16,
+    "status": 0
+  },
+  {
+    "phase": "core-values",
+    "seconds": 1.854,
+    "status": 0
+  },
+  {
+    "phase": "cyclic",
+    "seconds": 4.851,
+    "status": 0
+  },
+  {
+    "phase": "cyclic-hosted",
+    "seconds": 12.233,
+    "status": 0
+  },
+  {
+    "phase": "private-vm",
+    "seconds": 13.689,
+    "status": 0
+  },
+  {
+    "phase": "private-native",
+    "seconds": 53.162,
+    "status": 0
+  },
+  {
+    "phase": "public",
+    "seconds": 25.847,
+    "status": 1
+  }
+]

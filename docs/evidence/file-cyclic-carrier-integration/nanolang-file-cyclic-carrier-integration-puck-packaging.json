@@ -1,0 +1,25 @@
+{
+  "references": 2284,
+  "unique_artifacts": 327,
+  "bytes": 81063280,
+  "current": [
+    {
+      "providers": 172,
+      "group": "darwin",
+      "tree": "/tmp/nanolang-file-cyclic-carrier-5c71",
+      "sources": 12613,
+      "tools": 13,
+      "mismatches": 0
+    }
+  ],
+  "archives": {
+    "/tmp/nanolang-file-cyclic-carrier-integration-puck-reports.tar.gz": {
+      "sha256": "1fac4bfba18d2c503632f6e8cc4b178e22197b21b3b1390b91f4a9677cabab48",
+      "bytes": 5668680
+    },
+    "/tmp/nanolang-file-cyclic-carrier-integration-puck-artifacts.tar.gz": {
+      "sha256": "167cc6046dbe9dc631b0cd4cb75e7417db3efb0681d130164ff315625f166c00",
+      "bytes": 19448462
+    }
+  }
+}

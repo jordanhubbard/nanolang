@@ -1,0 +1,7 @@
+test_c_ownership_allocation_and_exact_budget (tests.test_file_source_plan.FileSourcePlan) ... ok
+test_paired_full_modules_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 35.395s
+
+OK

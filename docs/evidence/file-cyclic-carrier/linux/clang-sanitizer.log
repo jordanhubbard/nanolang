@@ -1,0 +1,41 @@
+I retain carrier artifacts at /tmp/nano-file-cyclic-runtime-08vstcd8
+test_instrumented_cyclic_and_preserved_acyclic (tests.test_file_cyclic_runtime.FileCyclicRuntime.test_instrumented_cyclic_and_preserved_acyclic) ... I begin retained acyclic carrier/frame corpus
+I retain 436 allocation refusals and 0 recovered complete carriers
+PASS 84507 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch
+PASS 42381 manual private File frame transfer checks; no opcode dispatcher
+I begin cyclic carrier case invalid_options
+I begin cyclic carrier case reverse_kind_guard
+I begin cyclic carrier case fuel_and_lifecycle
+I begin cyclic carrier case nested_borrows
+I begin cyclic carrier case cyclic_owner_calls
+I begin cyclic carrier case swapped_roots
+I begin cyclic carrier case held_owner_refusal
+I begin cyclic carrier case service_fuel_and_error
+I begin cyclic carrier case loops
+I begin cyclic carrier case forged_boundaries
+I begin cyclic carrier case counter_boundaries
+I begin cyclic carrier case allocation_failures
+I measure 202 create/begin allocation attempts for persistent failure prefixes
+I measure 202 create/begin allocation attempts for single failure prefixes
+PASS 398 create and 6 begin allocation refusals with fresh recovery
+PASS 442427 manual cyclic carrier/fuel checks; no cyclic opcode dispatcher
+ok
+test_linked_cyclic_and_preserved_acyclic (tests.test_file_cyclic_runtime.FileCyclicRuntime.test_linked_cyclic_and_preserved_acyclic) ... I begin retained acyclic carrier/frame corpus
+PASS 11936 manual private File carrier checks; 0 acquisition attempts, 0 real opens, 0 real closes, 0 I/O attempts, 0 nested refusal observations; no File CODE/frame dispatch
+PASS 15469 manual private File frame transfer checks; no opcode dispatcher
+I begin cyclic carrier case invalid_options
+I begin cyclic carrier case reverse_kind_guard
+I begin cyclic carrier case fuel_and_lifecycle
+I begin cyclic carrier case nested_borrows
+I begin cyclic carrier case cyclic_owner_calls
+I begin cyclic carrier case swapped_roots
+I begin cyclic carrier case held_owner_refusal
+I begin cyclic carrier case service_fuel_and_error
+I begin cyclic carrier case loops
+PASS 225049 manual cyclic carrier/fuel checks; no cyclic opcode dispatcher
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 26.674s
+
+OK

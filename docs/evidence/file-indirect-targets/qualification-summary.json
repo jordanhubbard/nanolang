@@ -1,0 +1,406 @@
+{
+  "artifact_bytes": 331263234,
+  "artifact_references": 4497,
+  "equal_source_tool_pairs": [
+    {
+      "after": "flow-source-after.json",
+      "before": "flow-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "flow-tools-after.json",
+      "before": "flow-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "ordinary-source-after.json",
+      "before": "ordinary-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "ordinary-tools-after.json",
+      "before": "ordinary-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "configuration-source-after.json",
+      "before": "configuration-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "configuration-tools-after.json",
+      "before": "configuration-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "opcodes-source-after.json",
+      "before": "opcodes-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "opcodes-tools-after.json",
+      "before": "opcodes-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "code-source-after.json",
+      "before": "code-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "code-tools-after.json",
+      "before": "code-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "body-source-after.json",
+      "before": "body-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "body-tools-after.json",
+      "before": "body-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "hosted-source-after.json",
+      "before": "hosted-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "hosted-tools-after.json",
+      "before": "hosted-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "sanitizer-source-after.json",
+      "before": "sanitizer-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "sanitizer-tools-after.json",
+      "before": "sanitizer-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "clang-sanitizer-source-after.json",
+      "before": "clang-sanitizer-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "clang-sanitizer-tools-after.json",
+      "before": "clang-sanitizer-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "setup-source-after.json",
+      "before": "setup-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "setup-tools-after.json",
+      "before": "setup-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "cyclic-neighbor-source-after.json",
+      "before": "cyclic-neighbor-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "cyclic-neighbor-tools-after.json",
+      "before": "cyclic-neighbor-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "clang-ordinary-source-after.json",
+      "before": "clang-ordinary-source-before.json",
+      "count": 11580,
+      "host": "linux"
+    },
+    {
+      "after": "clang-ordinary-tools-after.json",
+      "before": "clang-ordinary-tools-before.json",
+      "count": 9,
+      "host": "linux"
+    },
+    {
+      "after": "flow-source-after.json",
+      "before": "flow-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "flow-tools-after.json",
+      "before": "flow-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "ordinary-source-after.json",
+      "before": "ordinary-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "ordinary-tools-after.json",
+      "before": "ordinary-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "configuration-source-after.json",
+      "before": "configuration-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "configuration-tools-after.json",
+      "before": "configuration-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "opcodes-source-after.json",
+      "before": "opcodes-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "opcodes-tools-after.json",
+      "before": "opcodes-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "code-source-after.json",
+      "before": "code-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "code-tools-after.json",
+      "before": "code-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "body-source-after.json",
+      "before": "body-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "body-tools-after.json",
+      "before": "body-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "hosted-source-after.json",
+      "before": "hosted-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "hosted-tools-after.json",
+      "before": "hosted-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "sanitizer-source-after.json",
+      "before": "sanitizer-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "sanitizer-tools-after.json",
+      "before": "sanitizer-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "setup-source-after.json",
+      "before": "setup-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "setup-tools-after.json",
+      "before": "setup-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "cyclic-neighbor-source-after.json",
+      "before": "cyclic-neighbor-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "cyclic-neighbor-tools-after.json",
+      "before": "cyclic-neighbor-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    },
+    {
+      "after": "clang-ordinary-source-after.json",
+      "before": "clang-ordinary-source-before.json",
+      "count": 11580,
+      "host": "puck"
+    },
+    {
+      "after": "clang-ordinary-tools-after.json",
+      "before": "clang-ordinary-tools-before.json",
+      "count": 12,
+      "host": "puck"
+    }
+  ],
+  "puck_archive": {
+    "bytes": 43244392,
+    "path": "/tmp/nanolang-file-indirect-5acd-puck-reports.tar.gz",
+    "sha256": "c01e173da70a7c4b708b68775680862415ea70b336c2ac6109cdc02ac340a988"
+  },
+  "source": "5acd1b370",
+  "terminals": [
+    {
+      "host": "linux",
+      "phase": "cyclic-neighbor-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "body-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "setup-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "code-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "hosted-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "configuration-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "opcodes-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "clang-sanitizer-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "clang-ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "flow-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "linux",
+      "phase": "sanitizer-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "cyclic-neighbor-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "body-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "setup-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "code-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "hosted-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "configuration-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "opcodes-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "clang-ordinary-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "flow-terminal.json",
+      "status": 0
+    },
+    {
+      "host": "puck",
+      "phase": "sanitizer-terminal.json",
+      "status": 0
+    }
+  ],
+  "unique_artifacts": 653
+}
