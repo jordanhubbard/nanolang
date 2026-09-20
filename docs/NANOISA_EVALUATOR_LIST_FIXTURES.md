@@ -114,3 +114,11 @@ has nine methods: the added method inspects actual parsed pending/importer
 extern declarations, both module orders, actual alias resolution and collision
 refusals, plus direct registered ordinal/owner controls. It executes no foreign
 ABI. I retain every earlier assertion and the unchanged full LexerToken gate.
+
+My exact-root index supplement retains all nine Python methods and all existing
+C controls. It adds measured initial/no-growth/12-root-growth publication sweeps,
+exact old-table byte/alias preservation, same-Environment and fresh recovery,
+valid-allocation collision probing, nested/type misses and independent teardown.
+The mandatory first index allocation extends first-string publication from two
+to three observed sites and first tuple retirement from one to two. I preserve
+all original assertions and include every newly measured allocation in both modes.

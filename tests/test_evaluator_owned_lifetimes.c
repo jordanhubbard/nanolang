@@ -264,19 +264,170 @@ static void publication_controls(void) {
         CHECK(!env_record_list_apply(env, id, "new", NULL, 0, &out)); end();
         CHECK(failures && out.type == VAL_INT && out.as.int_val == 67 && env->record_lists == NULL && !live);
     }
-    for (int once = 0; once < 2; ++once) for (size_t index = 0; index < 2; ++index) {
+    for (int once = 0; once < 2; ++once) for (size_t index = 0; index < 3; ++index) {
         Value out = integer(67); begin(index, once != 0);
         CHECK(!env_value_snapshot(env, text_value("kept"), &out)); end();
         CHECK(failures && out.type == VAL_INT && out.as.int_val == 67 && env->record_results == NULL && !live);
     }
     TupleValue tuple = {0}; Value owned;
     CHECK(env_clone_value_snapshot(tuple_value(&tuple), &owned));
-    for (int once = 0; once < 2; ++once) {
-        begin(0, once != 0); CHECK(!env_retire_value(env, owned)); end();
+    for (int once = 0; once < 2; ++once) for (size_t index = 0; index < 2; ++index) {
+        begin(index, once != 0); CHECK(!env_retire_value(env, owned)); end();
         CHECK(failures == 1 && !live && env->record_results == NULL && owned.as.tuple_val->element_count == 0);
     }
     CHECK(env_retire_value(env, owned)); CHECK(!env_retire_value(env, owned));
     free_environment(env);
+}
+
+/* I exercise the actual publication transaction, including a new table and a
+ * 12-root growth boundary. Old graph addresses and every old slot must survive. */
+static void index_attempt(bool retirement, size_t preload, size_t at, bool once, size_t *count) {
+    Environment *env = create_environment(); CHECK(env);
+    Value retained[12]; struct EnvRecordResult *entries[12];
+    CHECK(preload <= 12);
+    for (size_t i = 0; i < preload; ++i) {
+        CHECK(env_value_snapshot(env, text_value("retained"), &retained[i]));
+        entries[i] = env->record_results;
+    }
+    struct EnvRecordIndex *old_index = env->record_result_index;
+    struct EnvRecordResult *old_head = env->record_results;
+    uintptr_t old_address = (uintptr_t)old_index;
+    size_t bytes = 0; unsigned char *old_bytes = NULL;
+    if (old_index) {
+        CHECK(old_index->capacity == 16 && old_index->count == preload);
+        CHECK(record_index_bytes(old_index->capacity, &bytes));
+        old_bytes = malloc(bytes); CHECK(old_bytes); memcpy(old_bytes, old_index, bytes);
+    }
+    TupleValue empty = {0}; Value owned = integer(0);
+    if (retirement) CHECK(env_clone_value_snapshot(tuple_value(&empty), &owned));
+    Value saved_owned = owned, out = integer(883), sentinel = out;
+    begin(at, once);
+    bool ok = retirement ? env_retire_value(env, owned) : env_value_snapshot(env, text_value("new"), &out);
+    *count = attempts; end();
+    if (at != SIZE_MAX) {
+        CHECK(!ok && failures && !memcmp(&out, &sentinel, sizeof out));
+        CHECK(!memcmp(&owned, &saved_owned, sizeof owned));
+        CHECK(env->record_results == old_head && env->record_result_index == old_index);
+        if (old_index) CHECK(!memcmp(old_bytes, old_index, bytes));
+        CHECK(live == 0);
+        if (retirement)
+            CHECK(owned.as.tuple_val->element_count == 0 && !owned.as.tuple_val->elements);
+    } else {
+        CHECK(ok && failures == 0 && env->record_result_index->count == preload + 1);
+        CHECK(env->record_result_index->capacity == (preload == 12 ? 32 : 16));
+        if (preload == 12) CHECK((uintptr_t)env->record_result_index != old_address);
+        if (preload && preload != 12) CHECK(env->record_result_index == old_index);
+        CHECK(env->record_results->next == old_head);
+        CHECK(env_record_result_borrowed(env, retirement ? owned : out));
+        if (!retirement) CHECK(!strcmp(out.as.string_val, "new"));
+    }
+    for (size_t i = 0; i < preload; ++i) {
+        CHECK(env_record_result_borrowed(env, retained[i]));
+        CHECK(!strcmp(retained[i].as.string_val, "retained"));
+        size_t slot; bool found;
+        CHECK(record_index_slot(env->record_result_index, retained[i], &slot, &found) && found);
+        CHECK(env->record_result_index->slots[slot] == entries[i]);
+    }
+    if (at != SIZE_MAX) {
+        Value recovered = integer(883);
+        CHECK(retirement ? env_retire_value(env, owned) : env_value_snapshot(env, text_value("new"), &recovered));
+        CHECK(env->record_result_index->count == preload + 1);
+        CHECK(env_record_result_borrowed(env, retirement ? owned : recovered));
+        for (size_t i = 0; i < preload; ++i) CHECK(env_record_result_borrowed(env, retained[i]));
+    }
+    free(old_bytes); free_environment(env); CHECK(live == 0);
+}
+static void index_allocation_controls(void) {
+    const size_t preloads[] = {0, 3, 12};
+    for (int retirement = 0; retirement < 2; ++retirement)
+        for (size_t p = 0; p < sizeof(preloads) / sizeof(*preloads); ++p) {
+            size_t count;
+            index_attempt(retirement != 0, preloads[p], SIZE_MAX, false, &count);
+            CHECK(count == (size_t)(retirement ? 1 : 2) + (preloads[p] == 3 ? 0 : 1));
+            for (int once = 0; once < 2; ++once) for (size_t i = 0; i < count; ++i) {
+                size_t ignored;
+                index_attempt(retirement != 0, preloads[p], i, once != 0, &ignored);
+                index_attempt(retirement != 0, preloads[p], SIZE_MAX, false, &ignored);
+            }
+        }
+}
+static void index_identity_controls(void) {
+    Environment *a = create_environment(), *b = create_environment(); CHECK(a && b);
+    CHECK(!env_record_result_borrowed(NULL, integer(0)));
+    CHECK(!env_record_result_borrowed(a, integer(0)));
+    Value null_record = record_value(NULL); CHECK(!env_record_result_borrowed(a, null_record));
+    char text[] = "same"; Value fields[] = {text_value(text)}; char *names[] = {"text"};
+    StructValue record = {.struct_name = "Item", .field_names = names, .field_values = fields, .field_count = 1};
+    Value elements[] = {record_value(&record)}; TupleValue tuple = {.elements = elements, .element_count = 1};
+    Value string, second_string, record_root, tuple_root, other;
+    begin(SIZE_MAX, false);
+    CHECK(env_value_snapshot(a, text_value(text), &string));
+    CHECK(env_value_snapshot(a, text_value(text), &second_string));
+    CHECK(string.as.string_val != second_string.as.string_val);
+    CHECK(env_value_snapshot(a, record_value(&record), &record_root));
+    CHECK(env_value_snapshot(a, tuple_value(&tuple), &tuple_root));
+    CHECK(env_value_snapshot(b, text_value(text), &other));
+    end(); CHECK(failures == 0);
+    CHECK(env_record_result_borrowed(a, string) && env_record_result_borrowed(a, second_string));
+    CHECK(env_record_result_borrowed(a, record_root) && env_record_result_borrowed(a, tuple_root));
+    CHECK(!env_record_result_borrowed(a, text_value(text)));
+    CHECK(!env_record_result_borrowed(a, record_root.as.struct_val->field_values[0]));
+    CHECK(!env_record_result_borrowed(a, tuple_root.as.tuple_val->elements[0]));
+    CHECK(!env_record_result_borrowed(a, other) && !env_record_result_borrowed(b, string));
+    /* A char pointer to an actual live object's representation is valid. The
+     * query does not read it as text, and its different tag must still miss. */
+    CHECK(!env_record_result_borrowed(a, text_value((char *)tuple_root.as.tuple_val)));
+    size_t before = a->record_result_index->count;
+    CHECK(!env_retire_value(a, tuple_root) && a->record_result_index->count == before);
+    text[0] = 'X'; CHECK(!strcmp(string.as.string_val, "same"));
+    free_environment(a);
+    CHECK(env_record_result_borrowed(b, other) && !strcmp(other.as.string_val, "same"));
+    free_environment(b); CHECK(live == 0);
+}
+static void index_collision_and_limits(void) {
+    Environment *env = create_environment(); CHECK(env);
+    Value pool[33]; TupleValue empty = {0}; size_t buckets[16][3], used[16] = {0}, selected = SIZE_MAX;
+    /* Thirty-three live roots in sixteen buckets guarantee a bucket of three.
+     * All addresses come from actual successful graph allocations. */
+    begin(SIZE_MAX, false);
+    for (size_t i = 0; i < 33; ++i) {
+        CHECK(env_clone_value_snapshot(tuple_value(&empty), &pool[i]));
+        size_t bucket = record_result_hash(pool[i]) & 15;
+        if (used[bucket] < 3) buckets[bucket][used[bucket]++] = i;
+        if (used[bucket] == 3) selected = bucket;
+    }
+    CHECK(selected != SIZE_MAX);
+    size_t first = buckets[selected][0], second = buckets[selected][1], missing = buckets[selected][2];
+    CHECK(env_retire_value(env, pool[first]) && env_retire_value(env, pool[second]));
+    CHECK(env->record_result_index->capacity == 16 && env->record_result_index->count == 2);
+    CHECK(env->record_result_index->slots[selected]->value.as.tuple_val == pool[first].as.tuple_val);
+    CHECK(env->record_result_index->slots[(selected + 1) & 15]->value.as.tuple_val == pool[second].as.tuple_val);
+    end(); CHECK(failures == 0);
+    /* I forbid allocation through actual lookup and duplicate refusal while
+     * already tracked roots remain live; begin() intentionally requires zero. */
+    attempts = failures = 0; failure_at = 0; transient = false; observing = true;
+    CHECK(env_record_result_borrowed(env, pool[first]) && env_record_result_borrowed(env, pool[second]));
+    CHECK(!env_record_result_borrowed(env, pool[missing]));
+    CHECK(!env_retire_value(env, pool[first]));
+    end(); CHECK(attempts == 0 && failures == 0);
+    size_t bytes = 71;
+    CHECK(!record_index_bytes(0, &bytes) && bytes == 71);
+    CHECK(!record_index_bytes(15, &bytes) && bytes == 71);
+    CHECK(!record_index_bytes(24, &bytes) && bytes == 71);
+    CHECK(!record_index_bytes(SIZE_MAX, &bytes) && bytes == 71);
+    CHECK(!record_index_bytes(SIZE_MAX / 2 + 1, &bytes) && bytes == 71);
+    CHECK(!record_index_bytes(16, NULL));
+    CHECK(record_index_bytes(16, &bytes) && bytes == sizeof(struct EnvRecordIndex) + 16 * sizeof(struct EnvRecordResult *));
+    struct EnvRecordIndex *index = env->record_result_index;
+    struct EnvRecordResult candidate = {.next = env->record_results, .value = pool[missing]};
+    struct EnvRecordResult saved = candidate;
+    index->count = SIZE_MAX;
+    CHECK(!record_result_publish(env, &candidate));
+    CHECK(!memcmp(&candidate, &saved, sizeof candidate) && env->record_result_index == index && index->count == SIZE_MAX);
+    index->count = 2;
+    CHECK(env_record_result_borrowed(env, pool[first]) && !env_record_result_borrowed(env, pool[missing]));
+    for (size_t i = 0; i < 33; ++i) if (i != first && i != second) env_discard_value_snapshot(pool[i]);
+    free_environment(env); CHECK(live == 0);
 }
 
 static void provider_controls(void) {
@@ -514,7 +665,7 @@ int main(int argc, char **argv) {
         cache_registration_control(argv[2]); return 0;
     }
     CHECK(argc == 1);
-    graph_controls(); signature_controls(); list_controls(); publication_controls(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
+    graph_controls(); signature_controls(); list_controls(); publication_controls(); index_allocation_controls(); index_identity_controls(); index_collision_and_limits(); provider_controls(); scheduler_controls(); task_allocation_controls(); borrowed_staging_controls();
     CHECK(live == 0 && !observing);
     printf("I passed %zu checked ownership assertions.\n", checks);
     return 0;

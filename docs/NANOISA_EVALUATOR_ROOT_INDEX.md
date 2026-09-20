@@ -130,3 +130,29 @@ and frees the index before the existing list/arena destruction; the Environment'
 lease preflight still precedes all cleanup. Symbol ownership, nested graph copies,
 public escape copies and scheduler/provider lease code are unchanged. I have run
 only diff checks at this source checkpoint, not builds, fixtures or timing gates.
+
+## My fixture checkpoint
+
+I extend the existing owning env.c fixture, retaining its full prior suite and
+all parsed public escape/scheduler/cache controls. New measured sweeps cover both
+snapshot and retirement with 0, 3 and 12 prior roots: initial table, insertion
+without growth and the exact first growth. Every observed allocation is failed
+in persistent and transient modes. Failure preserves old table bytes, arena head,
+entry/graph addresses, aliases, sentinel output and retirement input; recovery
+uses the same Environment and then a separate fresh successful control. Successful
+growth requires capacity 32 and the same old entry pointers.
+
+Thirty-three actual live empty tuples mapped to sixteen buckets guarantee three
+colliding hashes. I retire two, check their exact adjacent probe slots and query
+the third as missing; lookup and duplicate refusal run with allocation budget zero.
+I retain real string/record/tuple roots, equal text at separate addresses, nested
+non-roots and independent Environments. A differently tagged char pointer to a
+live tuple's object representation checks the type component without reading it
+as a string. No fabricated addresses or invalid memory accesses are used.
+
+Pure size checks cover invalid capacities and product overflow without huge
+allocations. A controlled count=SIZE_MAX on an existing valid table checks the
+publication overflow refusal before mutation; I restore the count before any
+cleanup. All old prefix, graph, list, callable, scheduler, bundle, cache and borrow
+staging assertions remain. The two old hardcoded publication loops now include
+the required index allocation. No new builds or fixture execution have occurred.

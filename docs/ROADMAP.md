@@ -13670,3 +13670,11 @@ the final killed shadow interval remains unattributed.
 
 I record the preimplementation transaction and boundaries in
 docs/NANOISA_EVALUATOR_ROOT_INDEX.md. No deadline or lifetime is shortened.
+
+Before extending root-index fixtures, I record the exact allocation-domain
+migration under task_c2e9d2f19f1b4a359e841edcceda4abd: first string publication now
+requires entry, string clone and index allocation; first tuple retirement requires
+entry and index allocation. I extend the old two/one-site failure loops to include
+that mandatory publication allocation, retaining every existing rollback check.
+New sweeps separately cover existing-capacity insertion and growth from 12 roots.
+No old fixture has been executed against the changed index yet.
