@@ -144,7 +144,9 @@ def generate_c(cases):
         args=[('q' if c['requests'] else 'NULL'),str(len(c['requests']))]
         for key in ('aliases','ordinary'):args.extend([key if c[key] else 'NULL',str(len(c[key]))])
         out.append('NlFileSourcePlan *p=(NlFileSourcePlan *)(uintptr_t)1;NlFileSourceStatus s=nl_file_source_plan_build('+','.join(args)+',&p);\n')
-        out.append(f'if(s!={c["status"]})abort();if(s){{if(p!=(NlFileSourcePlan *)(uintptr_t)1)abort();p=NULL;}}emit({n},s,p);}}\n')
+        out.append(f'if(s!={c["status"]}) {{ abort(); }}\n')
+        out.append('if(s) {\n if(p!=(NlFileSourcePlan *)(uintptr_t)1) { abort(); }\n p=NULL;\n}\n')
+        out.append(f'emit({n},s,p);\n}}\n')
     out.append('int main(void){if(!nl_file_source_catalog_view(catalog,sizeof catalog,&catalog_size))abort();printf("CAT:%s\\n",catalog);')
     out.extend(f'case_{i}();' for i in range(len(cases)));out.append('return 0;}\n')
     return ''.join(out)
