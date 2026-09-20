@@ -260,9 +260,9 @@ Ordinary staged arguments own their copied graphs. Explicit deferred `spawn`
 rejects a target with borrowed formals before enqueue with
 `I cannot enqueue a deferred borrowed argument.` and exit(1); the source checker
 already restricts explicit borrow expressions to declared direct-call arguments.
-Top-level callable arguments copy their name and signature under the existing
-signature allocator's fatal failure policy; this is not a new all-metadata
-recoverable-allocation claim. Reference fields outside the record/tuple/string
+Top-level callable arguments copy their name and complete signature using my
+checked snapshot copier with partial rollback. This does not change the legacy
+compiler metadata allocation policy. Reference fields outside the record/tuple/string
 owned graph retain their separate ownership contract.
 
 ### My shared-cache prerequisite
@@ -293,8 +293,8 @@ async calls use this route. Result copy precedes task release. Standalone callab
 arguments/results copy and release their owned name/signature metadata with a
 separate hook, because the public function-call boundary already owns those
 fields; nested callable/reference fields keep their separate borrowed contract.
-Signature copying retains its existing checked fatal allocator behavior, not a
-new allocation-prefix recovery claim for the entire metadata system.
+My subsequent checked-callable correction below replaces the initially retained
+fatal signature allocator in this task snapshot hook.
 
 `env_require_destroyable` now runs before all audited local AST/cache teardown
 sites, including main's 21 cleanup branches, DAP/LSP, nano/nanovirt, browser,
@@ -309,3 +309,27 @@ before releasing old storage, so later-argument rebinding cannot free an earlier
 staged argument. Public arena strings copy at the escape boundary. I have not
 built, executed, qualified, or reproduced a historical faulty case in this source
 checkpoint. The cache prerequisite and independent review still block gates.
+
+### My checked callable snapshot correction
+
+The 6a118 source review identified a fatal legacy signature allocation inside
+`eval_owned_task_clone`, whose contract requires checked failure. I replace only
+that hook with `copy_function_signature_checked`. My new env-owned include copies
+all signature parameter/return metadata and every TypeInfo name, parameter, array,
+tuple, row, type variable and nested callable subtree. I preserve scalar flags,
+counts, NULL optional arrays and duplicate annotations. I do not borrow a nested
+metadata node or use a same-pointer shortcut.
+
+I reject negative counts, unrepresentable allocation products and depth 128
+before allocating the rejected node. Every allocated node starts with NULL
+pointers; existing recursive destructors reclaim each partial graph. A false
+return leaves the caller's output unchanged, including allocation failures after
+a successful sibling copy. A NULL source is a successful NULL copy. The task
+hook releases its staged name if signature copying fails and publishes its Value
+only after both succeed. No fatal metadata allocator is called by this copier.
+
+This is source-reviewed work pending review of the correction and fixtures.
+I still require allocation-prefix recovery, nested annotation preservation,
+output sentinels, depth/count refusal and scheduler result cleanup controls.
+I do not claim recoverable allocation throughout the compiler's unrelated legacy
+metadata consumers, and no test or build has run at this checkpoint.

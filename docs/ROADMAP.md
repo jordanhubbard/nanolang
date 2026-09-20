@@ -13610,3 +13610,8 @@ I record the 6a118 scheduler review's callable-copy allocation gap under
 task_f8b5ecacb7e4bcc1542712b4652308ad: the legacy signature clone exits on OOM
 inside a checked task-result clone. I require a checked recursive callable
 metadata copy and rollback before claiming recoverable task snapshot failures.
+
+My callable task-snapshot correction adds a checked complete signature/annotation
+clone with depth/count/product checks, partial rollback and atomic output. This
+addresses the recorded task_f8b5ecacb7e4bcc1542712b4652308ad source finding only;
+legacy compiler metadata allocation and full qualification remain separate.

@@ -68,7 +68,11 @@ static bool eval_owned_task_clone(Value source, Value *out) {
     if (!source.as.function_val.function_name) return false;
     char *name = strdup(source.as.function_val.function_name);
     if (!name) return false;
-    FunctionSignature *signature = copy_function_signature(source.as.function_val.signature);
+    FunctionSignature *signature = NULL;
+    if (!copy_function_signature_checked(source.as.function_val.signature, &signature)) {
+        free(name);
+        return false;
+    }
     Value copy = {0};
     copy.type = VAL_FUNCTION;
     copy.as.function_val.function_name = name;

@@ -1042,6 +1042,8 @@ Value create_function(const char *function_name, FunctionSignature *signature);
 /* Function signature helpers */
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
 FunctionSignature *function_signature_from_function(const Function *function);
+/* I preserve *out on failure; NULL source is a successful NULL copy. */
+bool copy_function_signature_checked(const FunctionSignature *source, FunctionSignature **out);
 FunctionSignature *copy_function_signature(const FunctionSignature *signature);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);

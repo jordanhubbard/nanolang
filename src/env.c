@@ -1864,6 +1864,8 @@ void free_payload_type_info(TypeInfo *info) {
     free(info);
 }
 
+#include "env_signature_snapshot.inc"
+
 /* I substitute complete concrete trees, not the flattened field name. */
 static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeInfo *arguments) {
     TypeInfo *info = *slot;
