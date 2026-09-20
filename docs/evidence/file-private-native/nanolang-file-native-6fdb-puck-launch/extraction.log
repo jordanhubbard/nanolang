@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<stdin>", line 12, in <module>
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 490, in relative_to
+    raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+ValueError: '/private/tmp/nanolang-file-native-4e8-corrected/bin/nano_virt' is not in the subpath of '/tmp/nanolang-file-native-4e8-corrected'

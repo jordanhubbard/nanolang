@@ -169,7 +169,7 @@ static bool file_code_index(const NvmFileCodePlan *p,uint32_t f,int64_t pc,uint1
         if(p->instructions[p->starts[f]+i].byte_offset==(uint32_t)pc){*out=i;return true;}
     return false;
 }
-static NvmFileFlowStatus file_code_cfg(NvmFileCodePlan *p,uint32_t f) {
+static NvmFileFlowStatus file_code_cfg(NvmFileCodePlan *p,uint32_t f,bool acyclic) {
     NvmFileCodeFunction *fn=&p->functions[f];
     uint16_t indegree[NVM_FILE_CODE_FUNCTION_INSTRUCTIONS]={0};
     bool selected[NVM_FILE_CODE_FUNCTION_INSTRUCTIONS]={0};
@@ -189,6 +189,7 @@ static NvmFileFlowStatus file_code_cfg(NvmFileCodePlan *p,uint32_t f) {
         }
         for(uint8_t e=0;e<in->successor_count;e++)indegree[in->successors[e]]++;
     }
+    if(!acyclic)return NVM_FILE_FLOW_OK;
     for(uint16_t rank=0;rank<fn->instruction_count;rank++) {
         uint16_t found=fn->instruction_count;
         for(uint16_t i=0;i<fn->instruction_count;i++)if(!selected[i] && !indegree[i]){found=i;break;}
@@ -202,7 +203,7 @@ static NvmFileFlowStatus file_code_cfg(NvmFileCodePlan *p,uint32_t f) {
 void nvm_file_code_free(NvmFileCodePlan *p) {
     if(p){nvm_file_flow_declarations_free(p->declarations);free(p->instructions);free(p->code);free(p);}
 }
-NvmFileFlowStatus nvm_file_code_prepare(const NvmModule *m,NvmFileCodePlan **out) {
+static NvmFileFlowStatus file_code_prepare_mode(const NvmModule *m,NvmFileCodePlan **out,bool acyclic) {
     if(!out)return NVM_FILE_FLOW_INVALID;
     uint32_t total;size_t budget;
     NvmFileFlowStatus status=file_code_preflight(m,&total,&budget);
@@ -241,7 +242,7 @@ NvmFileFlowStatus nvm_file_code_prepare(const NvmModule *m,NvmFileCodePlan **out
             status=file_code_operands(p,f,in);if(status!=NVM_FILE_FLOW_OK)goto fail;
             pc+=width;fn->instruction_count++;
         }
-        status=file_code_cfg(p,f);if(status!=NVM_FILE_FLOW_OK)goto fail;
+        status=file_code_cfg(p,f,acyclic);if(status!=NVM_FILE_FLOW_OK)goto fail;
     }
     uint64_t done=0;
     for(uint32_t rank=0;rank<p->count;rank++) {
@@ -253,6 +254,11 @@ NvmFileFlowStatus nvm_file_code_prepare(const NvmModule *m,NvmFileCodePlan **out
     *out=p;return NVM_FILE_FLOW_OK;
 fail:
     nvm_file_code_free(p);return status;
+}
+/* The old API always retains its original DAG refusal. Only the separate
+ * non-admitting cyclic query calls the private syntactic preparation mode. */
+NvmFileFlowStatus nvm_file_code_prepare(const NvmModule *m,NvmFileCodePlan **out) {
+    return file_code_prepare_mode(m,out,true);
 }
 uint32_t nvm_file_code_function_count(const NvmFileCodePlan *p){return p?p->count:0;}
 bool nvm_file_code_function(const NvmFileCodePlan *p,uint32_t f,NvmFileCodeFunction *out) {

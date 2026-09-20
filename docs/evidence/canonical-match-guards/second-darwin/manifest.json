@@ -1,0 +1,61 @@
+{
+  "head": "e75a719bf370f6a4ece494224ced2a8e52fee9df",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "phases": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "seconds": 280.613,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "86633f147f44036e8a02dbd64bdea9016f2d791aade95d2f43c7f9757192cd3e"
+    },
+    {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "seconds": 1.479,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "4fe49bf8aca51c56c48d6ab768c7e1a17577ca05013d4e853a57d747fdf6f642"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_canonical_match_guards"
+      ],
+      "status": 1,
+      "seconds": 61.267,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "adf5f88ac20aee89b2358cfcdd2a5599c82b6a7b17fbe8574b28e26bffa3ad5f"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}

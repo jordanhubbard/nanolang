@@ -1,0 +1,49 @@
+{
+  "commands": [
+    {
+      "args": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--print-runtime-dir"
+      ],
+      "stdout": "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin"
+    }
+  ],
+  "files": {
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_abi_osx.a": {
+      "sha256": "b2453339743f3242d807daee7bc8aa2e864c804ade2d612eb0daee494694e9ea",
+      "bytes": 180368,
+      "archive": "/private/tmp/nanolang-guards-eaf-darwin/artifacts/b2453339743f3242d807daee7bc8aa2e864c804ade2d612eb0daee494694e9ea"
+    },
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib": {
+      "sha256": "d6d39a8772ba124ea3a79a5f84463024242e63083dbe84d9f5ae0bf37647b439",
+      "bytes": 3966896,
+      "archive": "/private/tmp/nanolang-guards-eaf-darwin/artifacts/d6d39a8772ba124ea3a79a5f84463024242e63083dbe84d9f5ae0bf37647b439"
+    },
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.ubsan_osx_dynamic.dylib": {
+      "sha256": "b17fa6630478edff0ec5b829e47be39fe78e7c518dad35936c96b4a3ea6e8c5b",
+      "bytes": 1294640,
+      "archive": "/private/tmp/nanolang-guards-eaf-darwin/artifacts/b17fa6630478edff0ec5b829e47be39fe78e7c518dad35936c96b4a3ea6e8c5b"
+    },
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.ubsan_minimal_osx_dynamic.dylib": {
+      "sha256": "84290c4a0cfd1b2632682d932f00942ce4911a7dbb242143aa8cdc2291e2b9e0",
+      "bytes": 144000,
+      "archive": "/private/tmp/nanolang-guards-eaf-darwin/artifacts/84290c4a0cfd1b2632682d932f00942ce4911a7dbb242143aa8cdc2291e2b9e0"
+    },
+    "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.ubsan_minimal_osx.a": {
+      "sha256": "c2c50a9ef25c9a77bd4a4351dfe217efa8b7cd92a055ae230ee2e5be05fd1cca",
+      "bytes": 130000,
+      "archive": "/private/tmp/nanolang-guards-eaf-darwin/artifacts/c2c50a9ef25c9a77bd4a4351dfe217efa8b7cd92a055ae230ee2e5be05fd1cca"
+    },
+    "/usr/bin/clang": {
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+      "bytes": 118640,
+      "archive": "/private/tmp/nanolang-guards-eaf-darwin/artifacts/b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    },
+    "/usr/bin/cc": {
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+      "bytes": 118640,
+      "archive": "/private/tmp/nanolang-guards-eaf-darwin/artifacts/b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    }
+  },
+  "scope": "Read before focused sanitizer probes, after bootstrap began; not a pre-bootstrap claim."
+}

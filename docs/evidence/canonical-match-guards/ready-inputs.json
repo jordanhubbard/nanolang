@@ -1,0 +1,19 @@
+{
+  "qualified": "eafcd1e52651996b1960a21ef5a3af57baf7a3b1",
+  "canonical": "f1606e2c84e67491e9652a5bf71944d235216d95",
+  "inputs": {
+    "schema/compiler_schema.json": "a62b3513aca34a21bf73beb40e581a68fc368b7a498a19c58b1df1891f38a2b8",
+    "src/generated/compiler_schema.h": "214b9d300a2fea7e0e8b40046de81d835a65ce8ccfb27fb4f78dc41d338e073c",
+    "src_nano/compiler/nanoisa_codegen.nano": "4908407b4c9066d1f92ab8c712ec6c7cd646b9386185bb6858b2d4f29f81fbf5",
+    "src_nano/generated/compiler_ast.nano": "36bf00899badeb0d8d354038a2a386c03e90eb514847e7020efdf2f999710f2c",
+    "src_nano/parser.nano": "31b80f91cc2a1ad395d83e008ff11a3966c987d48a106bfdaf9913dc4085510a",
+    "src_nano/transpiler.nano": "bebbd8218b976ac002c690168803603ba699127e61a02d8fd9fbb5b3dae06b71",
+    "src_nano/typecheck.nano": "29cc6902fa96350ae8ff493b12a7e3553d5595fd60ead91d9a1655a5da8f4d13",
+    "tests/nanoisa/fixtures/match_guard_backstop_driver.nano.txt": "65ee8387f59c12f6116b318263c375221ff0191c6e0e55a786507cd2a03a78ef",
+    "tests/test_canonical_match_guards.py": "e49d93848f6d2893aae61378e64c01e4a03c684bb5e6145bf4c913e16f4d3873",
+    "tests/test_generic_selected_ownership.py": "dce25fa55c45cb62f74d21def98ada4b8da3d06aafd5523450d37706ee3c7352",
+    "tests/test_selected_variant_ownership.py": "8c563c70b26c5b2e9d15c51fbf87b0e608d5967ff3ca4bce85c6079e46365e57"
+  },
+  "all_equal": true,
+  "scope": "Current main adds isolated private File code/ABI queries and additive recipes; no guard frontend/schema/fixture edits."
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "phase": "normal",
+    "seconds": 50.137,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 139.821,
+    "status": 0
+  },
+  {
+    "phase": "clang",
+    "seconds": 9.036,
+    "status": 1
+  }
+]
