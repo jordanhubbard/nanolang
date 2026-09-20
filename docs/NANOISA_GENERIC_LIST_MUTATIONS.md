@@ -195,3 +195,35 @@ will include known differently named record and enum instances through each
 boundary, legitimate aliases, discarded/returned results, callback signatures,
 module identity and side-effecting argument order. Current original source and
 bounds expectations remain unchanged, and no qualification starts yet.
+
+### My next boundary draft and remaining static blockers
+
+I extend existing collection checks for List<T> local/global initializers,
+assignments, record fields and returns; infer local T before binding registration;
+check direct and indirect arguments and complete callable signatures; and require
+agreement across conditional/match value branches. The four existing generated
+uppercase list declarations now retain receiver/return T and the enum element
+kind. New metadata strings use my existing checker-lifetime allocation registry.
+My lowercase implicit operations share exact arity/receiver/index/element checks
+for old new/get/push/set and the new insert/remove/pop. Scalar extern routes and
+actual callable precedence remain separate. I remove the generic-list/INT
+assignment exception: interpreter pointer storage is not source permission.
+
+This remains a source draft, not qualification-ready. My static audit found two
+additional accepted-flow prerequisites that I must close before execution:
+
+- A record/enum value can already have a mismatched declared name before entering
+  a list operation. Checking its declared name at insert/push cannot recover the
+  actual initializer provenance. Exact element declaration identity must hold at
+  the preceding ordinary record/enum binding, assignment, argument and return
+  boundaries too, or such a missing-proof route must explicitly refuse.
+- Imported function signatures and record fields resolve names in their declaring
+  module. Resolving both raw names in the caller is insufficient when declarations
+  share a spelling. I must carry or recover that owner context, preserve valid
+  qualified aliases, and reject missing/ambiguous identity. A pair of successful
+  caller-relative lookups is not by itself module-identity evidence.
+
+I retain those blockers under the same list task and do not infer complete
+nominal proof from the new boundary calls. The evaluator representation/lifetime
+checkpoint and later fixtures remain separate. No build, execution, source
+acceptance or full-corpus success is claimed by this draft.

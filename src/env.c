@@ -1363,7 +1363,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.param_count = 0;
     func.params = NULL;
     func.return_type = TYPE_LIST_GENERIC;
-    func.return_struct_type_name = NULL;
+    func.return_struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     func.return_fn_sig = NULL;
     func.return_type_info = NULL;
     func.body = NULL;  /* Built-in */
@@ -1377,10 +1377,10 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     params = calloc(2, sizeof(Parameter));
     params[0].name = strdup("list");
     params[0].type = TYPE_LIST_GENERIC;
-    params[0].struct_type_name = NULL;
+    params[0].struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     params[0].element_type = TYPE_UNKNOWN;
     params[1].name = strdup("value");
-    params[1].type = TYPE_STRUCT;
+    params[1].type = env_get_enum(env, element_type) ? TYPE_ENUM : TYPE_STRUCT;
     params[1].struct_type_name = strdup(element_type);
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
@@ -1398,14 +1398,14 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     params = calloc(2, sizeof(Parameter));
     params[0].name = strdup("list");
     params[0].type = TYPE_LIST_GENERIC;
-    params[0].struct_type_name = NULL;
+    params[0].struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     params[0].element_type = TYPE_UNKNOWN;
     params[1].name = strdup("index");
     params[1].type = TYPE_INT;
     params[1].struct_type_name = NULL;
     params[1].element_type = TYPE_UNKNOWN;
     func.params = params;
-    func.return_type = TYPE_STRUCT;
+    func.return_type = env_get_enum(env, element_type) ? TYPE_ENUM : TYPE_STRUCT;
     func.return_struct_type_name = strdup(element_type);
     func.body = NULL;
     func.shadow_test = NULL;
@@ -1419,7 +1419,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     params = calloc(1, sizeof(Parameter));
     params[0].name = strdup("list");
     params[0].type = TYPE_LIST_GENERIC;
-    params[0].struct_type_name = NULL;
+    params[0].struct_type_name = env_own_checker_allocation(env, strdup(element_type));
     params[0].element_type = TYPE_UNKNOWN;
     func.params = params;
     func.return_type = TYPE_INT;

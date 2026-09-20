@@ -352,12 +352,84 @@ static void check_unused_variables(TypeChecker *tc, int start_index) {
 const char *get_struct_type_name(ASTNode *expr, Environment *env);
 /* I retain nominal evidence for checked list operations; a prefix alone is
  * never a receiver or element type. Returned names are borrowed. */
-static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type) {
-    if (!expr) return NULL;
+static bool list_nominal_matches(Environment *env, const char *actual,
+                                 const char *expected, bool is_enum) {
+    if (!actual || !expected) return false;
+    if (is_enum) {
+        EnumDef *wanted = env_get_enum(env, expected);
+        EnumDef *found = env_get_enum(env, actual);
+        return wanted && found && wanted == found;
+    }
+    StructDef *wanted = env_get_struct(env, expected);
+    StructDef *found = env_get_struct(env, actual);
+    return wanted && found && wanted == found;
+}
+
+/* Both legacy signature names and complete List<T> annotations resolve here.
+ * I borrow metadata and refuse conflicting or absent declarations. */
+static const char *list_annotation_name(Environment *env, const TypeInfo *info,
+                                        const char *fallback) {
+    const char *name = NULL;
+    if (info) {
+        if (info->base_type != TYPE_LIST_GENERIC) return NULL;
+        if (info->type_param_count == 1 && info->type_params && info->type_params[0]) {
+            const TypeInfo *element = info->type_params[0];
+            if (element->type_param_count ||
+                (element->base_type != TYPE_STRUCT && element->base_type != TYPE_ENUM)) return NULL;
+            name = element->generic_name;
+        } else if (!info->type_param_count) {
+            name = info->generic_name;
+        } else return NULL;
+        if (!name || (fallback && !list_nominal_matches(env, name, fallback,
+                                                       env_get_enum(env, fallback) != NULL))) return NULL;
+    }
+    if (!name) name = fallback;
+    return name && (env_get_struct(env, name) || env_get_enum(env, name)) ? name : NULL;
+}
+
+static bool checked_signature_equal(Environment *env, const FunctionSignature *a,
+                                     const FunctionSignature *b, unsigned depth) {
+    if (!a || !b || depth > 128 || a->param_count != b->param_count || a->param_count < 0)
+        return false;
+    for (int i = 0; i <= a->param_count; ++i) {
+        bool result = i == a->param_count;
+        if (!result && (!a->param_types || !b->param_types)) return false;
+        Type at = result ? a->return_type : a->param_types[i];
+        Type bt = result ? b->return_type : b->param_types[i];
+        const char *an = result ? a->return_struct_name : a->param_struct_names ? a->param_struct_names[i] : NULL;
+        const char *bn = result ? b->return_struct_name : b->param_struct_names ? b->param_struct_names[i] : NULL;
+        TypeInfo *ai = result ? a->return_type_info : a->param_type_info ? a->param_type_info[i] : NULL;
+        TypeInfo *bi = result ? b->return_type_info : b->param_type_info ? b->param_type_info[i] : NULL;
+        if (at != bt) return false;
+        if (at == TYPE_LIST_GENERIC) {
+            an = list_annotation_name(env, ai, an);
+            bn = list_annotation_name(env, bi, bn);
+            if (!list_nominal_matches(env, an, bn, bn && env_get_enum(env, bn))) return false;
+        } else if (at == TYPE_FUNCTION) {
+            const FunctionSignature *as = result ? a->return_fn_sig : ai ? ai->fn_sig : NULL;
+            const FunctionSignature *bs = result ? b->return_fn_sig : bi ? bi->fn_sig : NULL;
+            if (!checked_signature_equal(env, as, bs, depth + 1)) return false;
+        } else {
+            /* Preserve the preexisting exact annotation comparison for all other types. */
+            char *an_view = (char *)an, *bn_view = (char *)bn;
+            FunctionSignature left = {.param_count = 1, .param_types = &at,
+                .param_struct_names = &an_view, .param_type_info = &ai, .return_type = TYPE_VOID};
+            FunctionSignature right = {.param_count = 1, .param_types = &bt,
+                .param_struct_names = &bn_view, .param_type_info = &bi, .return_type = TYPE_VOID};
+            if (!function_signatures_equal(&left, &right)) return false;
+        }
+    }
+    return true;
+}
+
+static const char *list_nominal_name_at(ASTNode *expr, Environment *env, Type type, unsigned depth) {
+    if (!expr || depth > 128) return NULL;
     if (expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier,
                                              expr->line, expr->column);
-        return sym && sym->type == type ? sym->struct_type_name : NULL;
+        return sym && sym->type == type ? (type == TYPE_LIST_GENERIC
+            ? list_annotation_name(env, sym->type_info, sym->struct_type_name)
+            : sym->struct_type_name) : NULL;
     }
     if (expr->type == AST_STRUCT_LITERAL && type == TYPE_STRUCT)
         return get_struct_type_name(expr, env);
@@ -371,19 +443,53 @@ static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type)
             if (!strcmp(def->field_names[i], expr->as.field_access.field_name) &&
                 (def->field_types[i] == type ||
                  (type == TYPE_ENUM && def->field_types[i] == TYPE_STRUCT)))
-                return def->field_type_names ? def->field_type_names[i] : NULL;
+                return type == TYPE_LIST_GENERIC
+                    ? list_annotation_name(env, def->field_type_info ? def->field_type_info[i] : NULL,
+                        def->field_type_names ? def->field_type_names[i] : NULL)
+                    : def->field_type_names ? def->field_type_names[i] : NULL;
         return NULL;
+    }
+    if (expr->type == AST_MATCH || expr->type == AST_COND) {
+        int count = expr->type == AST_MATCH ? expr->as.match_expr.arm_count
+                                            : expr->as.cond_expr.clause_count + 1;
+        const char *first = NULL;
+        for (int i = 0; i < count; ++i) {
+            ASTNode *body = expr->type == AST_MATCH ? expr->as.match_expr.arm_bodies[i]
+                : i < expr->as.cond_expr.clause_count ? expr->as.cond_expr.values[i]
+                                                     : expr->as.cond_expr.else_value;
+            const char *name = list_nominal_name_at(body, env, type, depth + 1);
+            if (!name) return NULL;
+            if (!first) first = name;
+            if (!list_nominal_matches(env, name, first, env_get_enum(env, first) != NULL))
+                return NULL;
+        }
+        return first;
+    }
+    if (expr->type == AST_MODULE_QUALIFIED_CALL) {
+        const char *alias = expr->as.module_qualified_call.module_alias;
+        const char *name = expr->as.module_qualified_call.function_name;
+        size_t size = strlen(alias) + strlen(name) + 2;
+        char *qualified = malloc(size);
+        if (!qualified) return NULL;
+        snprintf(qualified, size, "%s.%s", alias, name);
+        Function *fn = env_get_function(env, qualified);
+        free(qualified);
+        return fn && fn->return_type == type ? fn->return_struct_type_name : NULL;
     }
     if (expr->type == AST_CALL) {
         if (type != TYPE_LIST_GENERIC && expr->as.call.return_struct_type_name)
             return expr->as.call.return_struct_type_name;
         FunctionSignature *sig = expr->as.call.checked_signature;
-        if (sig && sig->return_type == type) return sig->return_struct_name;
+        if (sig && sig->return_type == type) return type == TYPE_LIST_GENERIC
+            ? list_annotation_name(env, sig->return_type_info, sig->return_struct_name)
+            : sig->return_struct_name;
         if (expr->as.call.func_expr || !expr->as.call.name ||
             env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column))
             return NULL;
         Function *fn = env_get_function(env, expr->as.call.name);
-        if (fn) return fn->return_type == type ? fn->return_struct_type_name : NULL;
+        if (fn) return fn->return_type == type ? (type == TYPE_LIST_GENERIC
+            ? list_annotation_name(env, fn->return_type_info, fn->return_struct_type_name)
+            : fn->return_struct_type_name) : NULL;
         /* The existing zero-argument constructor has no return TypeInfo. */
         const char *name = expr->as.call.name;
         bool list_prefix = strlen(name) > 5 &&
@@ -403,43 +509,58 @@ static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type)
         }
     }
     if (expr->type == AST_BLOCK && expr->as.block.count)
-        return list_nominal_name(expr->as.block.statements[expr->as.block.count - 1], env, type);
+        return list_nominal_name_at(expr->as.block.statements[expr->as.block.count - 1], env, type, depth + 1);
     return NULL;
 }
 
-static bool list_nominal_matches(Environment *env, const char *actual,
-                                 const char *expected, bool is_enum) {
-    if (!actual || !expected) return false;
-    if (is_enum) {
-        EnumDef *wanted = env_get_enum(env, expected);
-        EnumDef *found = env_get_enum(env, actual);
-        return wanted && found && wanted == found;
-    }
-    StructDef *wanted = env_get_struct(env, expected);
-    StructDef *found = env_get_struct(env, actual);
-    return wanted && found && wanted == found;
+static const char *list_nominal_name(ASTNode *expr, Environment *env, Type type) {
+    return list_nominal_name_at(expr, env, type, 0);
 }
 
-static Type check_list_mutation(ASTNode *expr, Environment *env,
-                                 const char *name, const char *operation,
-                                 bool is_enum) {
-    bool insert = !strcmp(operation, "insert");
-    bool pop = !strcmp(operation, "pop");
-    int arity = insert ? 3 : pop ? 1 : 2;
+/* I compare source list identity, never the evaluator's pointer carrier. */
+static bool check_list_contract(Environment *env, Type type, const char *name, ASTNode *value) {
+    if (type != TYPE_LIST_GENERIC) return true;
+    Type actual_type = check_expression(value, env);
+    const char *actual = list_nominal_name(value, env, TYPE_LIST_GENERIC);
+    if (name && actual_type == TYPE_LIST_GENERIC &&
+        list_nominal_matches(env, actual, name, env_get_enum(env, name) != NULL)) return true;
+    emit_context_error("E001 TYPE MISMATCH", value ? value->line : 0,
+        value ? value->column : 0, 1,
+        "I require the exact declared element type for this list value.",
+        "Preserve List<T> identity across bindings, fields, calls and returns.");
+    return false;
+}
+
+static Type check_list_operation(ASTNode *expr, Environment *env,
+                                  const char *name, const char *operation,
+                                  bool is_enum) {
+    bool create = !strcmp(operation, "new");
+    bool insert = !strcmp(operation, "insert"), set = !strcmp(operation, "set");
+    bool push = !strcmp(operation, "push"), get = !strcmp(operation, "get");
+    bool remove = !strcmp(operation, "remove"), pop = !strcmp(operation, "pop");
+    bool index = insert || set || get || remove;
+    bool write = insert || set || push;
+    bool returns_element = get || remove || pop;
+    bool measure = !strcmp(operation, "length") || !strcmp(operation, "capacity");
+    bool empty = !strcmp(operation, "is_empty");
+    bool clear = !strcmp(operation, "clear") || !strcmp(operation, "free");
+    int arity = create ? 0 : insert || set ? 3 : push || get || remove ? 2 : 1;
     Type element = is_enum ? TYPE_ENUM : TYPE_STRUCT;
-    bool valid = expr->as.call.arg_count == arity;
+    bool valid = (create || index || write || pop || measure || empty || clear) &&
+        expr->as.call.arg_count == arity;
     Type types[3] = {TYPE_UNKNOWN, TYPE_UNKNOWN, TYPE_UNKNOWN};
     for (int i = 0; i < expr->as.call.arg_count; ++i) {
         Type actual = check_expression(expr->as.call.args[i], env);
         if (i < 3) types[i] = actual;
     }
-    if (valid) {
+    if (valid && !create) {
         valid = types[0] == TYPE_LIST_GENERIC &&
             list_nominal_matches(env, list_nominal_name(expr->as.call.args[0], env,
                                                         TYPE_LIST_GENERIC), name, is_enum);
-        if (!pop) valid = valid && types[1] == TYPE_INT;
-        if (insert) valid = valid && types[2] == element &&
-            list_nominal_matches(env, list_nominal_name(expr->as.call.args[2], env,
+        if (index) valid = valid && types[1] == TYPE_INT;
+        int value = push ? 1 : 2;
+        if (write) valid = valid && types[value] == element &&
+            list_nominal_matches(env, list_nominal_name(expr->as.call.args[value], env,
                                                         element), name, is_enum);
     }
     if (!is_enum && (is_resource_type(env, name) || has_resource_collection_payload(env, name)))
@@ -450,13 +571,17 @@ static Type check_list_mutation(ASTNode *expr, Environment *env,
             "Use the declared List<T> receiver and matching ordinary element type.");
         return TYPE_UNKNOWN;
     }
-    if (!insert) {
+    if (returns_element) {
         char *copy = strdup(name);
         if (!copy) return TYPE_UNKNOWN;
         free(expr->as.call.return_struct_type_name);
         expr->as.call.return_struct_type_name = copy;
     }
-    return insert ? TYPE_VOID : element;
+    if (create) {
+        env_register_list_instantiation(env, name);
+        return TYPE_LIST_GENERIC;
+    }
+    return returns_element ? element : measure ? TYPE_INT : empty ? TYPE_BOOL : TYPE_VOID;
 }
 
 static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
@@ -661,11 +786,8 @@ static bool types_match(Type t1, Type t2) {
         return true;
     }
     
-    /* Generic lists match with int (list functions return int handles) */
-    if ((t1 == TYPE_LIST_GENERIC && t2 == TYPE_INT) ||
-        (t1 == TYPE_INT && t2 == TYPE_LIST_GENERIC)) {
-        return true;
-    }
+    /* Evaluator list pointers are not source INT/list compatibility. */
+    if (t1 == TYPE_LIST_GENERIC || t2 == TYPE_LIST_GENERIC) return false;
     
     /* Function types match with int when checking function-typed parameters */
     /* This is a temporary workaround - function-typed parameters return TYPE_INT as placeholder */
@@ -791,6 +913,7 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
 /* I compare declarations, including their module identity, at array boundaries. */
 static bool check_record_array_contract(Environment *env, Type type, Type element,
                                          const char *name, ASTNode *value) {
+    if (type == TYPE_LIST_GENERIC) return check_list_contract(env, type, name, value);
     if (type != TYPE_ARRAY || element != TYPE_STRUCT || !name || !value) return true;
     StructDef *expected = env_get_struct(env, name);
     if (!expected) return true; /* Enum and formal-generic contexts have other rules. */
@@ -1909,6 +2032,10 @@ static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignatu
         check_concrete_union_arrays(env, expected, argument, 0);
         bool matches = indirect_argument_matches(argument, env, expected,
                                                   sig->param_types[i], 0);
+        if (sig->param_types[i] == TYPE_LIST_GENERIC)
+            matches = check_list_contract(env, TYPE_LIST_GENERIC,
+                list_annotation_name(env, expected,
+                    sig->param_struct_names ? sig->param_struct_names[i] : NULL), argument);
         if (!matches) {
             emit_context_error("E001 TYPE MISMATCH", call->as.call.args[i]->line,
                                call->as.call.args[i]->column, 1,
@@ -1946,7 +2073,9 @@ static Type check_perform(ASTNode *expr, Environment *env) {
     }
     for (int i = 0; i < count; i++) {
         Type actual = check_expression(expr->as.effect_op.args[i], env);
-        if (!types_match(actual, op->params[i].type)) {
+        if (!check_list_contract(env, op->params[i].type,
+                list_annotation_name(env, op->params[i].type_info, op->params[i].struct_type_name),
+                expr->as.effect_op.args[i]) || !types_match(actual, op->params[i].type)) {
             emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 7,
                                "I require the declared operation's argument type for perform.",
                                "Match the effect operation signature.");
@@ -3098,45 +3227,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 /* Type check based on the operation */
                                 const char *operation = func_suffix + 1;  /* Skip the '_' */
                                 
-                                if (!strcmp(operation, "insert") || !strcmp(operation, "remove") ||
-                                    !strcmp(operation, "pop")) {
-                                    Type result = check_list_mutation(expr, env, type_name, operation, edef != NULL);
-                                    free(type_name);
-                                    return result;
-                                }
-
-                                /* Type check arguments */
-                                for (int i = 0; i < expr->as.call.arg_count; i++) {
-                                    check_expression(expr->as.call.args[i], env);
-                                }
-                                
-                                /* Return appropriate type based on operation */
-                                if (strcmp(operation, "new") == 0 || strcmp(operation, "with_capacity") == 0) {
-                                    /* Register this instantiation for code generation */
-                                    env_register_list_instantiation(env, type_name);
-                                    free(type_name);
-                                    return TYPE_LIST_GENERIC;  /* Returns List<Type> */
-                                } else if (strcmp(operation, "get") == 0) {
-                                    /* Set struct type name on the call node for field access */
-                                    if (!edef && sdef) {
-                                        expr->as.call.return_struct_type_name = strdup(type_name);
-                                    }
-                                    free(type_name);
-                                    return edef ? TYPE_ENUM : TYPE_STRUCT;  /* Returns element type */
-                                } else if (strcmp(operation, "length") == 0 || strcmp(operation, "capacity") == 0) {
-                                    free(type_name);
-                                    return TYPE_INT;
-                                } else if (strcmp(operation, "is_empty") == 0) {
-                                    free(type_name);
-                                    return TYPE_BOOL;
-                                } else if (strcmp(operation, "pop") == 0) {
-                                    free(type_name);
-                                    return edef ? TYPE_ENUM : TYPE_STRUCT;  /* Returns element type */
-                                } else {
-                                    /* push, set, insert, remove, clear, free return void */
-                                    free(type_name);
-                                    return TYPE_VOID;
-                                }
+                                Type result = check_list_operation(expr, env, type_name, operation, edef != NULL);
+                                free(type_name);
+                                return result;
                             } else {
                                 /* Better error message: list function for unknown type */
                                 char message[256];
@@ -3194,6 +3287,35 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* If the function has type-variable parameters (T, E, etc.), collect
              * the concrete types from the call site, register a monomorphized
              * instance, and store the concrete function name on the call node.   */
+            /* I snapshot declaration metadata before checking child constructors,
+             * which may grow the environment's function table. */
+            Parameter *list_params = func->params;
+            bool list_formal = false;
+            for (int i = 0; list_params && i < expr->as.call.arg_count; ++i)
+                list_formal |= list_params[i].type == TYPE_LIST_GENERIC;
+            for (int i = 0; list_params && i < expr->as.call.arg_count; ++i) {
+                Parameter *param = &list_params[i];
+                if (!check_list_contract(env, param->type,
+                        list_annotation_name(env, param->type_info, param->struct_type_name),
+                        expr->as.call.args[i])) return TYPE_UNKNOWN;
+                const char *name = param->struct_type_name;
+                if (list_formal && name &&
+                    ((param->type == TYPE_STRUCT && env_get_struct(env, name)) ||
+                     (param->type == TYPE_ENUM && env_get_enum(env, name)))) {
+                    ASTNode *argument = expr->as.call.args[i];
+                    Type actual = check_expression(argument, env);
+                    if (actual != param->type || !list_nominal_matches(env,
+                            list_nominal_name(argument, env, actual), name, param->type == TYPE_ENUM)) {
+                        emit_context_error("E001 TYPE MISMATCH", argument->line, argument->column, 1,
+                            "I require the declared nominal element argument for this list call.",
+                            "Use the exact record or enum declaration.");
+                        return TYPE_UNKNOWN;
+                    }
+                }
+            }
+            func = env_get_function(env, expr->as.call.name);
+            if (!func) return TYPE_UNKNOWN;
+
             if (func_is_generic(func)) {
                 /* Collect unique type variables in first-appearance order */
                 char *var_names_buf[16];
@@ -3315,7 +3437,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                             /* It's a function-typed variable - mark as used and allow it */
                             sym->is_used = true;
                             FunctionSignature *actual = sym->type_info ? sym->type_info->fn_sig : NULL;
-                            if (!function_signatures_equal(func->params[i].fn_sig, actual)) {
+                            if (!checked_signature_equal(env, func->params[i].fn_sig, actual, 0)) {
                                 emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
                                     "I require the complete declared function signature.",
                                     "Match the callback parameter and result annotations.");
@@ -3345,7 +3467,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         FunctionSignature *passed_sig = function_signature_from_function(passed_func);
                         
                         /* Compare signatures */
-                        if (!function_signatures_equal(func->params[i].fn_sig, passed_sig)) {
+                        if (!checked_signature_equal(env, func->params[i].fn_sig, passed_sig, 0)) {
                             char message[256];
                             snprintf(message, sizeof(message),
                                     "Argument %d expects a function with a different signature.",
@@ -5024,6 +5146,15 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     const char *name = get_struct_type_name(stmt->as.let.value, tc->env);
                     if (name) stmt->as.let.type_name = strdup(name);
                 }
+                if (inferred == TYPE_LIST_GENERIC) {
+                    const char *name = list_nominal_name(stmt->as.let.value, tc->env, TYPE_LIST_GENERIC);
+                    if (!stmt->as.let.type_name && name) stmt->as.let.type_name = strdup(name);
+                    if (!stmt->as.let.type_name || !check_list_contract(tc->env, inferred,
+                            stmt->as.let.type_name, stmt->as.let.value)) {
+                        tc->has_error = true;
+                        return TYPE_VOID;
+                    }
+                }
                 if (!stmt->as.let.type_info) {
                     stmt->as.let.type_info = copy_payload_type_info(
                         try_get_expr_type_info(stmt->as.let.value, tc->env));
@@ -5215,7 +5346,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 
                 /* Check if signatures match */
                 if (declared_sig && value_sig) {
-                    if (!function_signatures_equal(declared_sig, value_sig)) {
+                    if (!checked_signature_equal(tc->env, declared_sig, value_sig, 0)) {
                         fprintf(stderr, "Error at line %d, column %d: Function signature mismatch in let statement\n", stmt->line, stmt->column);
                         tc->has_error = true;
                     }
@@ -5409,6 +5540,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 for (int i = 0; i < record->field_count; ++i) {
                     if (strcmp(record->field_names[i], stmt->as.set.field_name)) continue;
                     Type actual = check_expression(stmt->as.set.value, tc->env);
+                    if (!check_list_contract(tc->env, record->field_types[i],
+                            record->field_type_names ? record->field_type_names[i] : NULL,
+                            stmt->as.set.value)) tc->has_error = true;
                     if (!types_match(actual, record->field_types[i])) {
                         fprintf(stderr, "I require the declared field type for borrowed mutation\n");
                         tc->has_error = true;

@@ -13532,3 +13532,6 @@ My proposed macOS CI selector step passes YAML/step-order and Bash syntax valida
 - [ ] Close the legacy List<T> nominal-flow gap before qualifying the draft new
       mutation lowering: check initializer, reassignment, field, argument and
       return boundaries, including function values and both registration passes.
+- [ ] Close prior record/enum element provenance and declaring-module resolution
+      before list mutation acceptance: a declared T label is not evidence that
+      its initializer or imported actual value had that declaration identity.
