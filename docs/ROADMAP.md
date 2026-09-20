@@ -12725,3 +12725,12 @@ are text only; no source/service execution or file publication is qualified.
 Full fixture review precedes fresh both-host ordinary/sanitizer gates.
 
 - [ ] I correct the measured23bed puck Homebrew linked-fixture compile refusal: `fail_hits` is set but only read by instrumented fault sweeps, so strict `-Wunused-but-set-global` rejects the linked form. I preserve the first compiler terminal and prior Apple/Linux ordinary passes. I assert zero injected failures in the linked-only branch without suppressing diagnostics or changing production; review precedes fresh affected gates.
+
+I retain strict binding qualification at675 production: all seven approved
+Linux/puck ordinary/sanitizer configurations pass704 cases, full canonical JSON
+and forward-text equality, tracked allocation failures and legacy neighbors.
+I preserve the original Homebrew linked warning and separately reviewed bc7de
+zero-injection assertion. My [bounded905-report seal](evidence/file-binding-plan.md)
+records22 equal input pairs and923 artifact objects. No generated shadow or
+publisher execution is claimed; independent review/merge and all later source
+publication requirements remain open.
