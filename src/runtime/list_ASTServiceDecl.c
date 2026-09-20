@@ -15,13 +15,13 @@
 static void ensure_capacity_ASTServiceDecl(List_ASTServiceDecl *list, int min_capacity) {
     int new_capacity = nl_list_grown_capacity(list->capacity, min_capacity, sizeof(*list->data));
     if (new_capacity == list->capacity) return;
-    
+
     struct nl_ASTServiceDecl *new_data = realloc(list->data, sizeof(struct nl_ASTServiceDecl) * new_capacity);
     if (!new_data) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
-    
+
     list->data = new_data;
     list->capacity = new_capacity;
 }
@@ -39,16 +39,16 @@ List_ASTServiceDecl* nl_list_ASTServiceDecl_with_capacity(int capacity) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
-    
+
     list->data = capacity ? malloc(sizeof(*list->data) * (size_t)capacity) : NULL;
     if (capacity && !list->data) {
         fprintf(stderr, "Error: Failed to allocate memory for list data\n");
         exit(1);
     }
-    
+
     list->length = 0;
     list->capacity = capacity;
-    
+
     return list;
 }
 
@@ -65,7 +65,7 @@ struct nl_ASTServiceDecl nl_list_ASTServiceDecl_pop(List_ASTServiceDecl *list) {
         fprintf(stderr, "Error: Cannot pop from empty list\n");
         exit(1);
     }
-    
+
     list->length--;
     return list->data[list->length];
 }
@@ -73,17 +73,17 @@ struct nl_ASTServiceDecl nl_list_ASTServiceDecl_pop(List_ASTServiceDecl *list) {
 /* Insert an element at the specified index */
 void nl_list_ASTServiceDecl_insert(List_ASTServiceDecl *list, int index, struct nl_ASTServiceDecl value) {
     if (index < 0 || index > list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
+        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n",
                 index, list->length);
         exit(1);
     }
-    
+
     ensure_capacity_ASTServiceDecl(list, nl_list_next_length(list->length));
-    
+
     /* Shift elements to the right */
-    memmove(&list->data[index + 1], &list->data[index], 
+    memmove(&list->data[index + 1], &list->data[index],
             sizeof(struct nl_ASTServiceDecl) * (list->length - index));
-    
+
     list->data[index] = value;
     list->length++;
 }
@@ -91,17 +91,17 @@ void nl_list_ASTServiceDecl_insert(List_ASTServiceDecl *list, int index, struct 
 /* Remove and return the element at the specified index */
 struct nl_ASTServiceDecl nl_list_ASTServiceDecl_remove(List_ASTServiceDecl *list, int index) {
     if (index < 0 || index >= list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
+        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n",
                 index, list->length);
         exit(1);
     }
-    
+
     struct nl_ASTServiceDecl value = list->data[index];
-    
+
     /* Shift elements to the left */
-    memmove(&list->data[index], &list->data[index + 1], 
+    memmove(&list->data[index], &list->data[index + 1],
             sizeof(struct nl_ASTServiceDecl) * (list->length - index - 1));
-    
+
     list->length--;
     return value;
 }
@@ -109,22 +109,22 @@ struct nl_ASTServiceDecl nl_list_ASTServiceDecl_remove(List_ASTServiceDecl *list
 /* Set the value at the specified index */
 void nl_list_ASTServiceDecl_set(List_ASTServiceDecl *list, int index, struct nl_ASTServiceDecl value) {
     if (index < 0 || index >= list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
+        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n",
                 index, list->length);
         exit(1);
     }
-    
+
     list->data[index] = value;
 }
 
 /* Get the value at the specified index */
 struct nl_ASTServiceDecl nl_list_ASTServiceDecl_get(List_ASTServiceDecl *list, int index) {
     if (index < 0 || index >= list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n", 
+        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n",
                 index, list->length);
         exit(1);
     }
-    
+
     return list->data[index];
 }
 
