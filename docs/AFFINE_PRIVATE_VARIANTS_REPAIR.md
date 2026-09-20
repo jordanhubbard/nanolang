@@ -9,3 +9,25 @@ Before code I audit every state allocation site in src: the public constructor a
 I repair only the two private constructors: allocate at least one uint16_t variant cell using their already bounded local count, include that allocation in the existing failure cleanup, and initialize every declared local to NVM_AFFINE_UNKNOWN_VARIANT before returning. I do not admit union values to mixed or owner ARRAY profiles, change verifier authority, alter clone behavior to tolerate missing storage, weaken assertions, or skip allocation failures. The existing destructor releases the new allocation on every partial-construction failure. Local counts are uint16_t, so the capacity multiplication is representable on supported size_t targets.
 
 I submit the tiny production diff for independent review before fixtures/runs. Acceptance must cover construction, clone independence/unknown initialization, cleanup and failure at the new allocation for both private paths, alongside normal constructor/clone and existing mixed/owner authority controls. Fresh corrected gates retain the first failures and original successful51d/1f9 phases, with actual changed affine-provider attribution. Full roadmap/Darwin timeout work remains separate.
+
+## My focused fixture boundary
+
+Before writing fixtures, I select direct constructor controls in one test-only
+translation unit that includes the unchanged affine implementation. I construct
+ordinary scalar-local metadata with one resource layout, obtain real copied mixed
+and owner-layout descriptions, and call the two private constructors with those
+inputs. These are constructor invariant controls, not independently admitted
+mixed/ARRAY programs. Existing complete mixed and owner authority/admission
+fixtures remain separate acceptance.
+
+I check zero, three and 256 locals, every UNKNOWN variant cell, clone storage
+independence, survival after the original state is freed, and the public
+constructor as an adjacent control. Test-only malloc storage is poisoned before
+production initialization. I instrument the affine TU and layout decoder, count
+retained allocations, and sweep every observed constructor and clone allocation
+with permanent and single-failure budgets. Every failure must preserve an existing
+state, release partial storage, and permit fresh recovery. I identify the variant
+allocation by its returned pointer on the successful path, then require its exact
+index to fail during both sweeps. Other providers remain ordinary; sanitizers
+cover these two rebuilt TUs and the fixture, not the complete provider closure.
+I submit the fixture and retained runner before executing any new gate.
