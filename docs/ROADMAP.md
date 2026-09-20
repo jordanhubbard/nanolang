@@ -1,5 +1,15 @@
 # My Roadmap
 
+- [ ] I keep my retained document-pair acceptance aligned with the generated
+  `v5.1.0` presentation (`task_2a49f076bf61e42c6fd33816fca5f3b8`).
+  The clean Darwin, Linux ARM64 and hosted coverage gates pass every earlier
+  compiler check, then the document-pair test still requires `NANOLANG 5.0`
+  and recognizes code paragraphs through three stale literal prefixes. I
+  preserve those terminals, identify every generated code paragraph from its
+  actual monospace formatting, require the current 5.1 cover and release
+  boundaries, and rerun the focused and complete release gates without
+  regenerating or weakening the retained artifacts.
+
 - [ ] I run my reference-evaluator transport checks with a leak-capable native compiler on Darwin (`task_730fbd4144e8ffce038bbd6c19025658`). My clean final `make test` reaches all eight unchanged child-reaping, descriptor, allocation and signal controls, but Apple ASan aborts each process before semantics because it does not support `detect_leaks=1`. I keep leak detection mandatory by preferring an explicit `NANO_NATIVE_TEST_CC`, then installed Homebrew LLVM on Darwin, and use compiler-specific fallback only when that runtime is unavailable. All eight focused controls pass with Homebrew LLVM and leak detection enabled (`13b54e0660597dd8500b6f2d40e880a6b5538e98228189881f050da75b42fe21`); I still require a new clean full release gate.
 
 - [ ] I preserve the selected AOT runtime instrumentation when my artifact-import fixtures link generated native programs (`task_4f48a537b3c73acd785299347fa64a58`). The first integrated coverage job builds `bin/nano_aot_runtime.o` with gcov instrumentation, then all three consumers in `tests/test_nanoisa_artifact_imports.py` omit the active coverage link flags and stop on unresolved `__gcov_init`, `__gcov_exit` and `__gcov_merge_add`. I carry only my Make-selected fixture link flags into those native links and retain their standalone defaults and every VM/native assertion. The complete ordinary 90-method gate passes (`9dfb51fd7dc2da503c9b5c8d6222da2997b93aeadf3692d068e383068495226f`), and the three formerly failing fixtures pass with an instrumented runtime (`be864f8ddc8ef9d7011a4db84f0983aff99468763e33a17263e4852a6526f51a`); I still require the complete hosted coverage gate.
