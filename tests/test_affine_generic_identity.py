@@ -55,6 +55,28 @@ fn main() -> int { let boxed: Box<int> = Box.Some { value: 7 } return (- (read b
 shadow main { assert (== (main) 0) }
 ''', True)
 
+    def test_guarded_first_success_preserves_lexical_payloads(self):
+        self.check('''resource struct T { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn close_record(value: T) -> int { let T { fd } = value return fd }
+shadow close_record { assert (== (close_record T { fd: 3 }) 3) }
+fn identity(value: Box<int>) -> Box<int> { return value }
+shadow identity { let boxed: Box<int> = Box.Some { value: 7 } let selected: Box<int> = (identity boxed) match selected { Some(v) => { assert (== v.value 7) } None(n) => { assert false } } }
+fn choose(value: Box<int>, first: bool) -> int {
+    let v: int = 40
+    let selected: Box<int> = (identity value)
+    match selected {
+        Some(v) if first => { return (+ v.value 1) }
+        Some(v) if true => { return v.value }
+        None(n) => { return v }
+    }
+    return 0
+}
+shadow choose { let boxed: Box<int> = Box.Some { value: 7 } assert (== (choose boxed false) 7) assert (== (choose boxed true) 8) }
+fn main() -> int { let boxed: Box<int> = Box.Some { value: 7 } return (- (+ (choose boxed false) (close_record T { fd: 3 })) 10) }
+shadow main { assert (== (main) 0) }
+''', True)
+
     def test_concrete_same_named_resource_still_rejected(self):
         self.check('''resource struct T { fd: int }
 union Box<T> { Some { value: T }, None {} }

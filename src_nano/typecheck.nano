@@ -1282,7 +1282,24 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                     if (resource_type_is_declared parser payload) { (resource_flow_error diags file_name matched.line matched.column "I require a binding for the selected resource payload") }
                 }
             }
-            let branch: ResourceFlow = (resource_flow_value parser (at matched.arm_body_ids arm) (at matched.arm_body_types arm) expected_type arm_states move loop_entry diags file_name return_type)
+            let mut guard_flow: ResourceFlow = ResourceFlow { states: arm_states, next: true }
+            if (< arm (array_length matched.arm_guard_ids)) {
+                let guard_id: int = (at matched.arm_guard_ids arm)
+                if (>= guard_id 0) {
+                    set guard_flow (resource_flow_node parser guard_id (at matched.arm_guard_types arm) arm_states false loop_entry diags file_name return_type "bool")
+                    let mut outer_index: int = 0
+                    while (< outer_index first) {
+                        let before: ResourceState = (at flow.states outer_index)
+                        let after: ResourceState = (at guard_flow.states outer_index)
+                        if (and (!= before.moved after.moved) (resource_type_is_declared parser before.type_name)) {
+                            (resource_flow_error diags file_name matched.line matched.column (+ "a match guard changes ownership: " before.name))
+                        }
+                        set outer_index (+ outer_index 1)
+                    }
+                }
+            }
+            let mut branch: ResourceFlow = guard_flow
+            if guard_flow.next { set branch (resource_flow_value parser (at matched.arm_body_ids arm) (at matched.arm_body_types arm) expected_type guard_flow.states move loop_entry diags file_name return_type) }
             if branch.next { (resource_resolve_exit parser branch.states first diags file_name) }
             let outer: ResourceFlow = ResourceFlow { states: (resource_copy branch.states first), next: branch.next }
             set joined (resource_join parser joined outer diags file_name)
@@ -4069,6 +4086,80 @@ shadow check_union_construct {
     assert (== (type_to_string concrete) "Box<int>")
 }
 
+fn tc_match_guard_unconditional(parser: Parser, m: ASTMatch, arm: int) -> bool {
+    if (>= arm (array_length m.arm_guard_ids)) { return true }
+    let guard_id: int = (at m.arm_guard_ids arm)
+    if (< guard_id 0) { return true }
+    if (!= (at m.arm_guard_types arm) ParseNodeType.PNODE_BOOL) { return false }
+    return (parser_get_bool parser guard_id).value
+}
+shadow tc_match_guard_unconditional {
+    let parser: Parser = (resource_test_parser "fn main() -> int { return match 1 { _ if true => 1 } }")
+    assert (tc_match_guard_unconditional parser (parser_get_match parser 0) 0)
+}
+
+fn tc_match_total(parser: Parser, m: ASTMatch, scrutinee_type: NSType, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
+    let integer: bool = (== scrutinee_type.kind TypeKind.TYPE_INT)
+    let union_value: bool = (== scrutinee_type.kind TypeKind.TYPE_UNION)
+    if (not (or integer union_value)) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "match expression must match an exact int or union type" (Diagnostics.diag_location file_name m.line m.column)))
+        return false
+    }
+    let mut wildcard: bool = false
+    let mut arm: int = 0
+    while (< arm m.arm_count) {
+        let variant: string = (at m.arm_variants arm)
+        if wildcard {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I cannot reach a match arm after an unconditional wildcard" (Diagnostics.diag_location file_name m.line m.column)))
+            return false
+        }
+        if (== variant "_") {
+            if (tc_match_guard_unconditional parser m arm) { set wildcard true }
+        } else {
+            if (and integer (not (tc_str_starts_with variant "INT:"))) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require integer patterns in an integer match" (Diagnostics.diag_location file_name m.line m.column)))
+                return false
+            }
+            if (and union_value (tc_str_starts_with variant "INT:")) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require declared variants in a union match" (Diagnostics.diag_location file_name m.line m.column)))
+                return false
+            }
+        }
+        set arm (+ arm 1)
+    }
+    if integer {
+        if wildcard { return true }
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require an unconditional wildcard in an integer match" (Diagnostics.diag_location file_name m.line m.column)))
+        return false
+    }
+    if wildcard { return true }
+    let mut union_index: int = 0
+    while (< union_index (parser_get_union_count parser)) {
+        let definition: ASTUnion = (parser_get_union parser union_index)
+        if (== definition.name (base_type_name (type_to_string scrutinee_type))) {
+            let mut variant_index: int = 0
+            while (< variant_index definition.variant_count) {
+                let wanted: string = (at definition.variant_names variant_index)
+                let mut covered: bool = false
+                set arm 0
+                while (< arm m.arm_count) {
+                    if (and (== wanted (at m.arm_variants arm)) (tc_match_guard_unconditional parser m arm)) { set covered true }
+                    set arm (+ arm 1)
+                }
+                if (not covered) {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require every union variant or an unconditional wildcard in a match" (Diagnostics.diag_location file_name m.line m.column)))
+                    return false
+                }
+                set variant_index (+ variant_index 1)
+            }
+            return true
+        }
+        set union_index (+ union_index 1)
+    }
+    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a declared concrete union in a match" (Diagnostics.diag_location file_name m.line m.column)))
+    return false
+}
+
 /* Check match expression  
  * Example: match opt { Some(s) => s.value, None(n) => 0 }
  * Returns: NSType of the match arms (must all match)
@@ -4079,24 +4170,25 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
     /* Check scrutinee (expression being matched) */
     let scrutinee_type: NSType = (check_expr_node parser m.scrutinee m.scrutinee_type symbols diags file_name)
 
-    /* Detect int-pattern match: any arm variant starts with "INT:" */
-    let mut has_int_patterns: bool = false
-    let mut pat_i: int = 0
-    while (< pat_i m.arm_count) {
-        let pv: string = (at m.arm_variants pat_i)
-        if (tc_str_starts_with pv "INT:") {
-            set has_int_patterns true
-        } else { (print "") }
-        set pat_i (+ pat_i 1)
-    }
+    if (not (tc_match_total parser m scrutinee_type diags file_name)) { return (type_unknown_named "match_error") }
 
-    if (and (!= scrutinee_type.kind TypeKind.TYPE_UNION) (not has_int_patterns)) {
-        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "match expression must match on union type" (Diagnostics.diag_location file_name m.line m.column))
-        (Diagnostics.diag_list_add diags diag)
-        return (type_unknown_named "match_error")
-    } else {
-        (print "")
-    }
+    let mut checked_union: string = ""
+    if (== scrutinee_type.kind TypeKind.TYPE_UNION) { set checked_union (type_to_string scrutinee_type) }
+    (list_ASTMatch_set parser.matches node_id (ASTMatch {
+        node_type: m.node_type,
+        line: m.line,
+        column: m.column,
+        scrutinee: m.scrutinee,
+        scrutinee_type: m.scrutinee_type,
+        union_type_name: checked_union,
+        arm_variants: m.arm_variants,
+        arm_bindings: m.arm_bindings,
+        arm_body_ids: m.arm_body_ids,
+        arm_body_types: m.arm_body_types,
+        arm_guard_ids: m.arm_guard_ids,
+        arm_guard_types: m.arm_guard_types,
+        arm_count: m.arm_count
+    }))
     
     if (<= m.arm_count 0) {
         return (type_unknown_named "empty_match")
@@ -4129,6 +4221,17 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
             }
         } else {
             (print "")
+        }
+
+        if (< i (array_length m.arm_guard_ids)) {
+            let guard_id: int = (at m.arm_guard_ids i)
+            if (>= guard_id 0) {
+                let guard_type: NSType = (check_expr_node parser guard_id (at m.arm_guard_types i) arm_symbols diags file_name)
+                if (!= guard_type.kind TypeKind.TYPE_BOOL) {
+                    let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "match guards must have type bool" (Diagnostics.diag_location file_name m.line m.column))
+                    (Diagnostics.diag_list_add diags diag)
+                }
+            }
         }
 
         let body_id: int = (at m.arm_body_ids i)
@@ -6115,6 +6218,10 @@ fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count
                     (purity_add context binding false body_count)
                     set body_count (+ body_count 1)
                 }
+            }
+            if (< i (array_length n.arm_guard_ids)) {
+                let guard_id: int = (at n.arm_guard_ids i)
+                if (>= guard_id 0) { set result (purity_join result (purity_node parser guard_id (at n.arm_guard_types i) context body_count)) }
             }
             set result (purity_join result (purity_node parser (at n.arm_body_ids i) (at n.arm_body_types i) context body_count))
             set i (+ i 1)

@@ -2315,32 +2315,26 @@ shadow parse_cond_clauses {
     assert (== 1 1)
 }
 
-/* I refuse guarded arms until my self-hosted AST can retain each guard. */
+/* I retain an optional arm guard as the parser's last expression before the arrow. */
 fn parser_expect_match_arrow(p: Parser) -> Parser {
     if (parser_is_at_end p) { return (parser_with_error p true) }
     let tok: LexerToken = (parser_current p)
     if (== tok.token_type (token_if)) {
-        let diag: CompilerDiagnostic = (Diagnostics.diag_parser_error
-            "P0001"
-            "I do not yet accept guarded match arms in my self-hosted parser"
-            (Diagnostics.diag_location p.file_name tok.line tok.column))
-        (Diagnostics.diag_list_add p.diagnostics diag)
-        return (parser_with_error p true)
+        let guarded: Parser = (parse_expression (parser_advance p))
+        if (parser_has_error guarded) { return guarded }
+        return (parser_expect guarded (token_arrow))
     }
     return (parser_expect p (token_arrow))
 }
 
 shadow parser_expect_match_arrow {
     let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
-    let tokens: List<LexerToken> = (tokenize_string "if true" "guard.nano" diagnostics)
+    let tokens: List<LexerToken> = (tokenize_string "if true =>" "guard.nano" diagnostics)
     let p: Parser = (parser_new tokens (list_LexerToken_length tokens) "guard.nano")
-    let rejected: Parser = (parser_expect_match_arrow p)
-    assert (parser_has_error rejected)
-    assert (== (list_CompilerDiagnostic_length rejected.diagnostics) 1)
-    let diag: CompilerDiagnostic = (list_CompilerDiagnostic_get rejected.diagnostics 0)
-    assert (== diag.message "I do not yet accept guarded match arms in my self-hosted parser")
-    assert (== diag.location.line 1)
-    assert (== diag.location.column 1)
+    let accepted: Parser = (parser_expect_match_arrow p)
+    assert (not (parser_has_error accepted))
+    assert (== accepted.last_expr_node_type ParseNodeType.PNODE_BOOL)
+    assert (== accepted.position 3)
 }
 
 /* Parse match expression: match expr { pattern => body, ... } */
@@ -2369,13 +2363,15 @@ fn parse_match(p: Parser) -> Parser {
                 let mut arm_bindings: array<string> = []
                 let mut arm_body_ids: array<int> = []
                 let mut arm_body_types: array<int> = []
+                let mut arm_guard_ids: array<int> = []
+                let mut arm_guard_types: array<int> = []
                 let mut arm_count: int = 0
 
                 while (not (parser_is_at_end pcur)) {
                     let tcur: LexerToken = (parser_current pcur)
                     if (== tcur.token_type (token_rbrace)) {
                         let p_end: Parser = (parser_advance pcur)
-                        return (parser_store_match p_end scrutinee_id scrutinee_type arm_variants arm_bindings arm_body_ids arm_body_types arm_count tok.line tok.column)
+                        return (parser_store_match p_end scrutinee_id scrutinee_type arm_variants arm_bindings arm_body_ids arm_body_types arm_guard_ids arm_guard_types arm_count tok.line tok.column)
                     } else {
                         if (and (!= tcur.token_type (token_identifier)) (!= tcur.token_type (token_number))) {
                             return (parser_with_error pcur true)
@@ -2385,8 +2381,13 @@ fn parse_match(p: Parser) -> Parser {
                             /* Integer literal arm: 42 => { body }  — no binding parens */
                             if (== tcur.token_type (token_number)) {
                                 let int_pattern: string = (str_concat "INT:" variant_name)
+                                let mut guarded: bool = false
+                                if (not (parser_is_at_end p1a)) { set guarded (== (parser_current p1a).token_type (token_if)) }
                                 let p1e: Parser = (parser_expect_match_arrow p1a)
                                 if (parser_has_error p1e) { return p1e } else {
+                                    let mut guard_id: int = -1
+                                    let mut guard_type: int = -1
+                                    if guarded { set guard_id p1e.last_expr_node_id set guard_type p1e.last_expr_node_type }
                                     if (parser_is_at_end p1e) {
                                         return (parser_with_error p1e true)
                                     } else {
@@ -2400,6 +2401,8 @@ fn parse_match(p: Parser) -> Parser {
                                                 set arm_bindings (array_push arm_bindings "_")
                                                 set arm_body_ids (array_push arm_body_ids pbody.last_expr_node_id)
                                                 set arm_body_types (array_push arm_body_types ParseNodeType.PNODE_BLOCK)
+                                                set arm_guard_ids (array_push arm_guard_ids guard_id)
+                                                set arm_guard_types (array_push arm_guard_types guard_type)
                                                 set arm_count (+ arm_count 1)
                                                 set pcur pbody
 
@@ -2419,6 +2422,8 @@ fn parse_match(p: Parser) -> Parser {
                                                 set arm_bindings (array_push arm_bindings "_")
                                                 set arm_body_ids (array_push arm_body_ids pexpr.last_expr_node_id)
                                                 set arm_body_types (array_push arm_body_types pexpr.last_expr_node_type)
+                                                set arm_guard_ids (array_push arm_guard_ids guard_id)
+                                                set arm_guard_types (array_push arm_guard_types guard_type)
                                                 set arm_count (+ arm_count 1)
                                                 set pcur pexpr
 
@@ -2434,8 +2439,13 @@ fn parse_match(p: Parser) -> Parser {
                                 }
                             /* Wildcard arm: _ => { body }  — no binding parens */
                             } else if (== variant_name "_") {
+                                let mut guarded: bool = false
+                                if (not (parser_is_at_end p1a)) { set guarded (== (parser_current p1a).token_type (token_if)) }
                                 let p1e: Parser = (parser_expect_match_arrow p1a)
                                 if (parser_has_error p1e) { return p1e } else {
+                                    let mut guard_id: int = -1
+                                    let mut guard_type: int = -1
+                                    if guarded { set guard_id p1e.last_expr_node_id set guard_type p1e.last_expr_node_type }
                                     if (parser_is_at_end p1e) {
                                         return (parser_with_error p1e true)
                                     } else {
@@ -2449,6 +2459,8 @@ fn parse_match(p: Parser) -> Parser {
                                                 set arm_bindings (array_push arm_bindings "_")
                                                 set arm_body_ids (array_push arm_body_ids pbody.last_expr_node_id)
                                                 set arm_body_types (array_push arm_body_types ParseNodeType.PNODE_BLOCK)
+                                                set arm_guard_ids (array_push arm_guard_ids guard_id)
+                                                set arm_guard_types (array_push arm_guard_types guard_type)
                                                 set arm_count (+ arm_count 1)
                                                 set pcur pbody
 
@@ -2468,6 +2480,8 @@ fn parse_match(p: Parser) -> Parser {
                                                 set arm_bindings (array_push arm_bindings "_")
                                                 set arm_body_ids (array_push arm_body_ids pexpr.last_expr_node_id)
                                                 set arm_body_types (array_push arm_body_types pexpr.last_expr_node_type)
+                                                set arm_guard_ids (array_push arm_guard_ids guard_id)
+                                                set arm_guard_types (array_push arm_guard_types guard_type)
                                                 set arm_count (+ arm_count 1)
                                                 set pcur pexpr
 
@@ -2494,8 +2508,13 @@ fn parse_match(p: Parser) -> Parser {
                                             let p1c: Parser = (parser_advance p1b)
                                             let p1d: Parser = (parser_expect p1c (token_rparen))
                                             if (parser_has_error p1d) { return p1d } else {
+                                                let mut guarded: bool = false
+                                                if (not (parser_is_at_end p1d)) { set guarded (== (parser_current p1d).token_type (token_if)) }
                                                 let p1e: Parser = (parser_expect_match_arrow p1d)
                                                 if (parser_has_error p1e) { return p1e } else {
+                                                    let mut guard_id: int = -1
+                                                    let mut guard_type: int = -1
+                                                    if guarded { set guard_id p1e.last_expr_node_id set guard_type p1e.last_expr_node_type }
                                                     /* Arm body: block (preferred) or expression */
                                                     if (parser_is_at_end p1e) {
                                                         return (parser_with_error p1e true)
@@ -2510,6 +2529,8 @@ fn parse_match(p: Parser) -> Parser {
                                                                 set arm_bindings (array_push arm_bindings binding_name)
                                                                 set arm_body_ids (array_push arm_body_ids pbody.last_expr_node_id)
                                                                 set arm_body_types (array_push arm_body_types ParseNodeType.PNODE_BLOCK)
+                                                                set arm_guard_ids (array_push arm_guard_ids guard_id)
+                                                                set arm_guard_types (array_push arm_guard_types guard_type)
                                                                 set arm_count (+ arm_count 1)
                                                                 set pcur pbody
 
@@ -2530,6 +2551,8 @@ fn parse_match(p: Parser) -> Parser {
                                                                 set arm_bindings (array_push arm_bindings binding_name)
                                                                 set arm_body_ids (array_push arm_body_ids pexpr.last_expr_node_id)
                                                                 set arm_body_types (array_push arm_body_types pexpr.last_expr_node_type)
+                                                                set arm_guard_ids (array_push arm_guard_ids guard_id)
+                                                                set arm_guard_types (array_push arm_guard_types guard_type)
                                                                 set arm_count (+ arm_count 1)
                                                                 set pcur pexpr
 
@@ -6572,17 +6595,20 @@ fn parser_store_struct_literal(p: Parser, type_name: string, field_names: array<
 }
 
 /* Helper: Store match expression */
-fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_variants: array<string>, arm_bindings: array<string>, arm_body_ids: array<int>, arm_body_types: array<int>, arm_count: int, line: int, column: int) -> Parser {
+fn parser_store_match(p: Parser, scrutinee_id: int, scrutinee_type: int, arm_variants: array<string>, arm_bindings: array<string>, arm_body_ids: array<int>, arm_body_types: array<int>, arm_guard_ids: array<int>, arm_guard_types: array<int>, arm_count: int, line: int, column: int) -> Parser {
     let node: ASTMatch = ASTMatch {
         node_type: ParseNodeType.PNODE_MATCH,
         line: line,
         column: column,
         scrutinee: scrutinee_id,
         scrutinee_type: scrutinee_type,
+        union_type_name: "",
         arm_variants: arm_variants,
         arm_bindings: arm_bindings,
         arm_body_ids: arm_body_ids,
         arm_body_types: arm_body_types,
+        arm_guard_ids: arm_guard_ids,
+        arm_guard_types: arm_guard_types,
         arm_count: arm_count
     }
     let node_id: int = p.matches_count
@@ -8626,7 +8652,7 @@ shadow parser_store_match {
     let bindings: array<string> = []
     let body_ids: array<int> = []
     let body_types: array<int> = []
-    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types 0 1 1)
+    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types [] [] 0 1 1)
     let m: ASTMatch = (parser_get_match p2 0)
     assert (== m.arm_count 0)
 }
@@ -9062,7 +9088,7 @@ shadow parser_get_match_count {
     let bindings: array<string> = []
     let body_ids: array<int> = []
     let body_types: array<int> = []
-    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types 0 1 1)
+    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types [] [] 0 1 1)
     assert (== (parser_get_match_count p2) 1)
 }
 
@@ -9072,7 +9098,7 @@ shadow parser_get_match {
     let bindings: array<string> = []
     let body_ids: array<int> = []
     let body_types: array<int> = []
-    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types 0 1 1)
+    let p2: Parser = (parser_store_match p 0 ParseNodeType.PNODE_IDENTIFIER variants bindings body_ids body_types [] [] 0 1 1)
     let m: ASTMatch = (parser_get_match p2 0)
     assert (== m.arm_count 0)
 }
@@ -9243,7 +9269,7 @@ shadow parse_phase_run {
     assert (== broken_diag.message "Syntax error: Unexpected token")
     assert (== broken_diag.location.file "broken.nano")
 
-    /* I refuse an integer guard at its exact if token. */
+    /* I retain an integer guard and align it with its arm. */
     let int_guard_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let int_guard_source: string = "fn choose(value: int) -> int { return match value { 1 if true => 1 _ => 0 } }"
     let int_guard_tokens: List<LexerToken> = (tokenize_string int_guard_source "int-guard.nano" int_guard_diags)
@@ -9254,17 +9280,14 @@ shadow parse_phase_run {
         diagnostics: int_guard_diags
     }
     let int_guard_out: ParsePhaseOutput = (parse_phase_run int_guard_lex "int-guard.nano")
-    assert int_guard_out.had_error
-    assert (== (list_CompilerDiagnostic_length int_guard_out.diagnostics) 1)
-    let int_guard_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get int_guard_out.diagnostics 0)
-    assert (== int_guard_diag.phase CompilerPhase.PHASE_PARSER)
-    assert (== int_guard_diag.code "P0001")
-    assert (== int_guard_diag.message "I do not yet accept guarded match arms in my self-hosted parser")
-    assert (== int_guard_diag.location.file "int-guard.nano")
-    assert (== int_guard_diag.location.line 1)
-    assert (== int_guard_diag.location.column 55)
+    assert (not int_guard_out.had_error)
+    assert (== (list_CompilerDiagnostic_length int_guard_out.diagnostics) 0)
+    let int_guard_match: ASTMatch = (parser_get_match int_guard_out.parser 0)
+    assert (== (array_length int_guard_match.arm_guard_ids) 2)
+    assert (>= (at int_guard_match.arm_guard_ids 0) 0)
+    assert (< (at int_guard_match.arm_guard_ids 1) 0)
 
-    /* I refuse a wildcard guard at its exact if token. */
+    /* I retain a conditional wildcard guard. */
     let wildcard_guard_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let wildcard_guard_source: string = "fn choose(value: int) -> int { return match value { _ if true => 1 } }"
     let wildcard_guard_tokens: List<LexerToken> = (tokenize_string wildcard_guard_source "wildcard-guard.nano" wildcard_guard_diags)
@@ -9275,17 +9298,13 @@ shadow parse_phase_run {
         diagnostics: wildcard_guard_diags
     }
     let wildcard_guard_out: ParsePhaseOutput = (parse_phase_run wildcard_guard_lex "wildcard-guard.nano")
-    assert wildcard_guard_out.had_error
-    assert (== (list_CompilerDiagnostic_length wildcard_guard_out.diagnostics) 1)
-    let wildcard_guard_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get wildcard_guard_out.diagnostics 0)
-    assert (== wildcard_guard_diag.phase CompilerPhase.PHASE_PARSER)
-    assert (== wildcard_guard_diag.code "P0001")
-    assert (== wildcard_guard_diag.message "I do not yet accept guarded match arms in my self-hosted parser")
-    assert (== wildcard_guard_diag.location.file "wildcard-guard.nano")
-    assert (== wildcard_guard_diag.location.line 1)
-    assert (== wildcard_guard_diag.location.column 55)
+    assert (not wildcard_guard_out.had_error)
+    assert (== (list_CompilerDiagnostic_length wildcard_guard_out.diagnostics) 0)
+    let wildcard_guard_match: ASTMatch = (parser_get_match wildcard_guard_out.parser 0)
+    assert (== (array_length wildcard_guard_match.arm_guard_ids) 1)
+    assert (>= (at wildcard_guard_match.arm_guard_ids 0) 0)
 
-    /* I refuse a named payload guard at its exact if token. */
+    /* I retain a named payload guard in its lexical arm. */
     let named_guard_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let named_guard_source: string = "union Choice { Some { value: int }, None {} } fn choose(value: Choice) -> int { return match value { Some(payload) if true => payload.value None(empty) => 0 } }"
     let named_guard_tokens: List<LexerToken> = (tokenize_string named_guard_source "named-guard.nano" named_guard_diags)
@@ -9296,13 +9315,10 @@ shadow parse_phase_run {
         diagnostics: named_guard_diags
     }
     let named_guard_out: ParsePhaseOutput = (parse_phase_run named_guard_lex "named-guard.nano")
-    assert named_guard_out.had_error
-    assert (== (list_CompilerDiagnostic_length named_guard_out.diagnostics) 1)
-    let named_guard_diag: CompilerDiagnostic = (list_CompilerDiagnostic_get named_guard_out.diagnostics 0)
-    assert (== named_guard_diag.phase CompilerPhase.PHASE_PARSER)
-    assert (== named_guard_diag.code "P0001")
-    assert (== named_guard_diag.message "I do not yet accept guarded match arms in my self-hosted parser")
-    assert (== named_guard_diag.location.file "named-guard.nano")
-    assert (== named_guard_diag.location.line 1)
-    assert (== named_guard_diag.location.column 116)
+    assert (not named_guard_out.had_error)
+    assert (== (list_CompilerDiagnostic_length named_guard_out.diagnostics) 0)
+    let named_guard_match: ASTMatch = (parser_get_match named_guard_out.parser 0)
+    assert (== (array_length named_guard_match.arm_guard_ids) 2)
+    assert (>= (at named_guard_match.arm_guard_ids 0) 0)
+    assert (< (at named_guard_match.arm_guard_ids 1) 0)
 }

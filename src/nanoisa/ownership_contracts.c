@@ -65,8 +65,11 @@ static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,
         return NVM_V2_ERR_SECTION_TYPE;
     if (layout != NVM_V2_NO_INDEX) {
         if (layout >= layouts->count) return NVM_V2_ERR_INDEX_RANGE;
-        if (tag != TAG_STRUCT || !(flags[layout] & NVM_LAYOUT_COMPLETE) ||
-            layouts->items[layout].kind != NVM_V2_LAYOUT_STRUCT)
+        bool record = tag == TAG_STRUCT && (flags[layout] & NVM_LAYOUT_COMPLETE) &&
+            layouts->items[layout].kind == NVM_V2_LAYOUT_STRUCT;
+        bool union_value = tag == TAG_UNION && flags[layout] == 0 &&
+            layouts->items[layout].kind == NVM_V2_LAYOUT_UNION;
+        if (!record && !union_value)
             return NVM_V2_ERR_SECTION_TYPE;
     }
     if (mode) {

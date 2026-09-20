@@ -22,6 +22,8 @@ bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
 bool nvm_affine_scalar_define(NvmAffineState *state, uint16_t local);
 /* I keep retainable STRING operations separate from numeric scalar APIs. */
 bool nvm_affine_string_define(NvmAffineState *state, uint16_t local);
+/* I keep an exact, incomplete UNION layout on copyable scalar-union locals. */
+bool nvm_affine_union_define(NvmAffineState *state,uint16_t local,uint32_t layout);
 bool nvm_affine_string_field(const NvmAffineState *state, uint16_t local,
                               uint16_t field, uint8_t *tag);
 bool nvm_affine_move(NvmAffineState *state, uint16_t source, uint16_t destination);
@@ -61,6 +63,8 @@ bool nvm_affine_put_local(NvmAffineState *state, uint16_t local, NvmAffineType t
 bool nvm_affine_local_type(const NvmAffineState *state, uint16_t local, NvmAffineType *type);
 bool nvm_affine_record_fields(const NvmAffineState *state, uint32_t layout,
                                NvmAffineType *fields, uint16_t capacity, uint16_t *count);
+bool nvm_affine_union_fields(const NvmAffineState *state,uint32_t ordinal,uint32_t *layout,
+                              NvmAffineType *fields,uint16_t capacity,uint16_t *count);
 bool nvm_affine_can_exit_type(const NvmAffineState *state, NvmAffineType type);
 #define NVM_AFFINE_MAX_PARAMETERS 8u
 /* I substitute checked caller places into a fresh bounded helper.
