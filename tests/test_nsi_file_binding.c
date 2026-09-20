@@ -194,6 +194,8 @@ int main(int argc,char **argv) {
         size_t n;unsigned char *input=case_bytes(base,names[i],&n);
         faults(input,n,names[i],NL_FILE_BINDING_INVALID);free(input);
     }
+#else
+    CHECK(fail_hits==0);
 #endif
     free(bytes);free(gold_json);free(gold_source);CHECK(live==0&&live_bytes==0);
     printf("PASS strict File binding %zu checks cases=%zu allocations=%zu/%zu/%zu/%zu bound=%zu mode=%s\n",checks,sizeof binding_cases/sizeof binding_cases[0],kinds[0],kinds[1],kinds[2],kinds[3],bound,
