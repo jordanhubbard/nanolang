@@ -1,0 +1,13 @@
+                 U _free
+                 U _malloc
+00000000000004a0 T _nvm_shape_child
+0000000000000c20 T _nvm_shape_convert
+0000000000000000 T _nvm_shape_destroy
+00000000000002a4 T _nvm_shape_kind
+0000000000000340 T _nvm_shape_lookup
+0000000000000088 T _nvm_shape_new
+000000000000021c T _nvm_shape_root
+0000000000000e24 T _nvm_shape_solve_conversions
+0000000000000700 T _nvm_shape_unify
+                 U _realloc
+                 U _snprintf

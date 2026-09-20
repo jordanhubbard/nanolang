@@ -12573,7 +12573,7 @@ status. My corrected unexecuted fixture uses file-backed logs, bounded independe
 group/leader cleanup on every path, actual decoded two-root swaps with held-owner
 refusal, and exact transfer/edge guard controls. Production remainsf6ee.
 
-- [ ] I preserve the first486ba cyclic query fixture compile terminal and repair only its local exit-name collision (task_1f0d53da650d42aba327852e74a9f3f7): fresh setup passes21.065s, configuration0.064s, ordinary fixture compile fails0.265s before execution. The local `exit` masks inherited CHECK macro libc exit. I retain `/tmp/nanolang-file-cyclic-486ba-linux` and `/tmp/nano-file-cyclic-3u3k0oad`, change only that identifier, then request review before fresh corrected gates. Darwin remains unrun; query production is unchanged.
+- [x] I preserve the first486ba cyclic query fixture compile terminal and repair only its local exit-name collision (task_1f0d53da650d42aba327852e74a9f3f7): fresh setup passes21.065s, configuration0.064s, ordinary fixture compile fails0.265s before execution. The local `exit` masks inherited CHECK macro libc exit. I retain `/tmp/nanolang-file-cyclic-486ba-linux` and `/tmp/nano-file-cyclic-3u3k0oad`, change only that identifier, then request review before fresh corrected gates. Darwin remains unrun; query production is unchanged.
 
 I seal task243a's bounded private cyclic query acceptance in
 [my platform evidence](evidence/file-cyclic-query.md): corrected04d58 passes
@@ -12582,3 +12582,55 @@ Linux and puck. I preserve first486ba fixture compile failure and corrected-only
 execution,247 reports,782 unique artifacts,24 equal source/tool pairs and exact
 prepared-provider identities. Productionf6ee is unchanged. Independent review
 and actual merge remain pending; no cyclic File runtime or parent closure follows.
+
+## I compose cyclic File execution after the qualified query
+
+I retain the preceding pending-review/first-failure paragraphs as historical
+checkpoints. PR894 actually merged5d1d3d39ffff55035440074680437e74af915acd;
+root independently verified247 reports,782 artifacts and the archive, then
+reconciled bounded243a. I reconciled only fixture-repair1f0d from that actual
+merge; the initial486ba failure and corrected04d58 evidence remain unchanged.
+The broader control/call row stays open for its runtime and source obligations.
+
+- [ ] I review [my concrete cyclic execution contract](NANOISA_FILE_CYCLIC_EXECUTION.md), task_15a92c930af7433e9e25b41c7c5c761f under72556/6931: separate all-variant copied hosted authority, exact frame witnesses and successor cursors, finite shared instruction fuel, physical lifetime and complete first-error cleanup. This is design only until review.
+- [ ] I implement/review/qualify the non-executing cyclic hosted plan, then private carrier/frame/fuel checks, then matched VM and real generated native functions, in that dependency order with separate source and fixture checkpoints. I preserve old acyclic APIs/native ABI1 and all current refusals.
+- [ ] I seal fresh Linux/Darwin VM/native O0/O2 and supported sanitizer acceptance with full alternatives, exact fuel boundaries, repeated acquisition beyond64 total, held-reference invariants, fault recovery and pre-disposal root counts, retaining the original acyclic corpus.
+- [ ] After actual dfa149 integration, I separately review public cyclic conjunction, explicit opt-in/options, grant/gate lifetime, packaging and installed acceptance. Closed-indirect calls, richer borrows, complete paired-source/shadows and full parents remain required and open.
+
+I prepare15a92 dependency1 only: separate nonexecuting cyclic hosted header/plan
+and complete copying accessors, immutable serialized retention, all-variant
+logical obligation checks and bounded callee-first storage maxima. Existing
+acyclic functions remain unchanged; runtime_admitted stays false. Source review
+precedes hosted fixture preparation and gates. Physical generation witnesses,
+fuel, matched VM/native and public conjunction remain later unchecked steps.
+
+I prepare15a92 dependency1 hosted fixtures only after root/native source review:
+complete old hosted adjacency, every cyclic variant/edge/relation, seed ordinal0,
+exact lower-index call/initializer maxima, declared stack boundaries, destroyed
+input independence, real16/17 joins and full-chain allocation recovery. The
+runner reuses qualified bounded process cleanup with fresh rebuilt providers.
+No fixture/build/execution has run; sourcebae2 remains unchanged and review is
+required before frozen query-only gates.
+
+I seal15a92 dependency1 at frozen46912: Linux12 and Darwin11 phases PASS,
+including fresh setup, ordinary selected compilers, strict scoped sanitizers and
+unchanged cyclic/CODE/body/flow/hosted/opcode neighbors. [My hosted evidence](evidence/file-cyclic-hosted.md)
+retains230 reports,945 unique artifacts,23 equal source/tool pairs and all
+allocation/output controls. No correction or cyclic service execution occurs.
+Independent review and merge are pending;15a92 and all later runtime/public/
+source obligations remain open.
+
+I assess canonical895/97546742a in a separate15a92 ready tree. The automatic
+b75f merge preserves qualified hosted/query bytes and adds only already reviewed
+public package/engine changes. Before ordinary integration gates I prepare a
+linked-archive conjunction fixture: private cyclic-hosted success plus public
+VM/emitter refusal and output preservation, then an acyclic scalar control.
+This uses source-private headers, not a newly installed cyclic API. Root reviews
+this fixture first; original46912 sanitizer attribution stays unchanged.
+
+I retain the15a92 dependency1 integration at881fc: both-host fresh setup,
+ordinary hosted tests and actual archive/public-refusal controls pass. The
+separate120-report seal keeps original46912 sanitizer results distinct; current
+ready integration through462c98 changes no production. Dependency1 awaits
+review/actual merge, while cyclic carrier/fuel/VM/native/public and source
+requirements remain open.
