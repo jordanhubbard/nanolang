@@ -143,3 +143,19 @@ ignored-result array_push and array_set bypass the destination-view check. I
 retain exact wrong-record controls and a valid array_set control in this
 checkpoint. Their production check requires review before execution; I do not
 call the source draft qualified or weaken those required refusals.
+
+My mutation correction runs after the existing argument validation loop and
+before returning the builtin's result type. It applies only when the selected
+object is my real builtin and its arity matches array_push or array_set. It
+obtains an owned receiver view, then compares the inserted expression against
+the element annotation under that view's declaring owner. Nested literal
+arguments use the same contextual comparison as other array boundaries. I do
+not call check_expression again in this boundary helper or evaluate anything.
+Existing view/comparison helpers retain their existing annotation traversal.
+
+A syntactically empty receiver literal has no retained nominal declaration and
+keeps its existing inference/bounds policy. Every other receiver must provide a
+complete array view; unknown receiver facts cannot waive nominal identity.
+Once the view establishes a non-nominal element, existing scalar/enum conversion
+policy remains unchanged. All owned views are discarded on both acceptance and
+refusal. No runtime operation, backend policy or public ABI changes here.

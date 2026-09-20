@@ -994,6 +994,30 @@ static bool check_nominal_array_contract(Environment *env, const TypeInfo *expec
     return false;
 }
 
+/* I check writes even when no expression destination requests their result view.
+ * The caller already checked arguments; this helper only compares annotations. */
+static bool check_nominal_array_mutation(Environment *env, ASTNode *call) {
+    bool push = nominal_array_builtin(call, env, "array_push", 2);
+    if (!push && !nominal_array_builtin(call, env, "array_set", 3)) return true;
+    ASTNode *receiver = call->as.call.args[0];
+    ASTNode *value = call->as.call.args[push ? 1 : 2];
+    if (receiver->type == AST_ARRAY_LITERAL && receiver->as.array_literal.element_count == 0)
+        return true; /* No retained element declaration exists on this literal. */
+    NominalView view = {0};
+    bool matches = nominal_value_view(receiver, env, 0, &view) &&
+        view.info->base_type == TYPE_ARRAY && view.info->element_type;
+    if (matches && nominal_array_requires_identity(env, view.info->element_type, view.owner, 0))
+        matches = checked_annotations_equal(env, view.info->element_type, view.owner,
+                      view.info->element_type, view.owner, 0) &&
+                  nominal_array_matches(env, view.info->element_type, view.owner, value, 0);
+    nominal_view_discard(&view);
+    if (!matches)
+        emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
+            "I require the receiver's declared nominal element type for this array mutation.",
+            "Preserve complete receiver facts and each inserted record's declaration and owner.");
+    return matches;
+}
+
 /* I preserve scalar enum conversion policy; this checkpoint checks records and
  * the new ordinary-record list route, not a new enum destination ABI. */
 static bool check_nominal_contract(Environment *env, Type type, const TypeInfo *info,
@@ -4115,6 +4139,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     check_expression(expr->as.call.args[i], env);
                 }
             }
+
+            if (!check_nominal_array_mutation(env, expr)) return TYPE_UNKNOWN;
 
             /* Special handling for array operations that need element type inference */
             if (strcmp(expr->as.call.name, "at") == 0 || strcmp(expr->as.call.name, "array_get") == 0) {
