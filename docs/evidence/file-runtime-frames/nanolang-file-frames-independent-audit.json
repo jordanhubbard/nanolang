@@ -1,0 +1,125 @@
+{
+  "scope": "Independent read-only audit; no fixture execution",
+  "report_manifest_sha256": "08aba596d732e70637d33ee24ddedcceabfd4ed3fc73cdaf3572f43287ac477f",
+  "reports": 249,
+  "report_mismatches": [],
+  "artifacts": 1082,
+  "artifact_mismatches": [],
+  "pairs": [
+    {
+      "source": "darwin/body-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "darwin/flow-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "darwin/hosted-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "darwin/normal-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "darwin/opcodes-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "darwin/sanitizer-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "darwin/values-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "darwin/wrapper-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "darwin-first/normal-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "darwin-first/setup-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux/body-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux/clang-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux/flow-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux/hosted-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux/normal-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux/opcodes-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux/sanitizer-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux/values-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux/wrapper-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux-first/normal-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux-first/setup-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux-setup-first/setup-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    },
+    {
+      "source": "linux-status-corrected/normal-source-before.json",
+      "source_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

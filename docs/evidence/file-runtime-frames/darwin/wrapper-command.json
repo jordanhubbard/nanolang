@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "import tempfile,unittest\nclass Retained(tempfile.TemporaryDirectory):\n def cleanup(self):\n  if self._finalizer.detach():print('I retain wrapper artifacts at '+self.name,flush=True)\ntempfile.TemporaryDirectory=Retained\nunittest.main(module=None,argv=['unittest','-f','-v','tests.test_wrapper_publication'])\n"
+  ],
+  "selectors": {
+    "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "NANO_FILE_OPCODE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_FILE_RUNTIME_CFLAGS": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+    "NANO_FILE_VALUES_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_NATIVE_TEST_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

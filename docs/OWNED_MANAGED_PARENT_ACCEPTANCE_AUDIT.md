@@ -18,7 +18,7 @@ The numbered criteria below come from
 |3: aliases across pack/observe/unpack/move/call/return, writes/growth, empty/nested owners, overwrite, assertions/repeated calls | Above runtime, PR847 `a52d990d`,849 `ec8f5b7a`,876 `4fbca357`; [mutation](evidence/owned-array-mutation-runtime.md), [Darwin mutation](evidence/owned-array-mutation-darwin.md), [distinct overwrite](evidence/owned-array-overwrite/README.md) | The last missing distinct A-to-B occupied ARRAY-local overwrite retains owner/outside aliases, independent B/C values and A growth. It proves VM/native replacement, not source binding assignment. |
 |4: allocation/growth/publication failure, sentinels/surviving aliases/recovery, signed/extreme indices and exact FLOAT bits with native sanitizers | Public authority/runtime sweeps above; PR852 `c4529256` [bits/extreme indices](evidence/owned-array-bits-boundaries.md), plus876 overwrite sweeps | Exact partial instrumentation and allocation categories remain as sealed. No floating equality substitutes for uint64 bit observations; no disposal sweep hides live roots; no every-system-allocation claim. |
 |5: separately reviewed paired source, original Bundle/PREFIX/shadows, canonical/VM/native/installed routes, order/inference/false shadows/refusals on both hosts | PR846 `3660228d` [source](evidence/owned-array-source-final.md); PR861 `59ffcecc` [mutation/source final](evidence/owned-array-mutation-final/README.md) | Exact builtin mutation/length is admitted. Bare ARRAY signatures, managed-root borrowing, owner-field assignment and managed binding reassignment remain outside that reviewed source slice. Original Bundle and full12 pattern suite pass without changes. |
-|6: integrated source/tool/command/status/artifact seals; bounded child only | All named seals and canonical merge ancestry; proposed PR878 adds fresh851-source full33 script on bothhosts | Source mutation acceptance includes fresh bootstrap, full6 identity/12 mutation/12 patterns and evaluator123/totality8 at its frozen pin. Later current-product/fixed-point/release acceptance is separate. |
+|6: integrated source/tool/command/status/artifact seals; bounded child only | All named seals and canonical merge ancestry; merged PR878 adds fresh851-source full33 script on bothhosts | Source mutation acceptance includes fresh bootstrap, full6 identity/12 mutation/12 patterns and evaluator123/totality8 at its frozen pin. Later current-product/fixed-point/release acceptance is separate. |
 
 The independent native-effects audit identifies no additional unmeasured runtime
 criterion after mutation, exact bits/extreme indices and distinct overwrite.
@@ -64,7 +64,7 @@ and full d76 remain open even if all bounded430220/4be clauses are reconciled.
 ## My proposed ledger action
 
 I replace stale initial-proposal wording with this exact evidence matrix while
-preserving historical entries and exclusions. I request review before using the
-actual-merge helper to close430220 or4be. At this checkpoint both remain open;
+preserving historical entries and exclusions. Root and independent native-effects review approve using the
+actual-merge helper to close only bounded430220/4be after this audit merges. At this checkpoint both remain open;
 e8d and all broader parents remain open. No new source ARRAY assignment code is
 part of this audit.

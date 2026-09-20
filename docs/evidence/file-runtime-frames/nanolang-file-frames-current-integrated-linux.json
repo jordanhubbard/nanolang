@@ -1,0 +1,12 @@
+[
+  {
+    "root": "/home/jkh/Src/nanolang-file-frames-integrated",
+    "report": "/tmp/nanolang-file-frames-152-linux",
+    "source_inventory": "wrapper-source-after.json",
+    "tool_inventory": "wrapper-tools-after.json",
+    "sources": 8993,
+    "tools": 9,
+    "source_mismatches": [],
+    "tool_mismatches": []
+  }
+]

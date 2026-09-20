@@ -172,7 +172,8 @@ static void test_import_alias_owners(void) {
     record.name = strdup("Record");
     enumeration.name = strdup("Enumeration");
     choice.name = strdup("Choice");
-    record.module_name = enumeration.module_name = choice.module_name = "LeftValue";
+    record.module_name = enumeration.module_name = "LeftValue";
+    choice.module_name = strdup("LeftValue");
     env_define_struct(env, record);
     env_define_enum(env, enumeration);
     env_define_union(env, choice);

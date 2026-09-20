@@ -870,6 +870,17 @@ their individual acceptance evidence closes them.
       general tuple substitution or ownership transfer. MAC
       `task_bcd773ad3c084ce099a3da5aef682fef`.
 
+- [ ] I release independently owned registered and extracted union metadata
+      (`task_0bae7b0426fc4c3e912ab00cfd7de136`, under `task_00c47a5d65d04c48914864ec0de553d6`).
+      My current environment owns allocated field type-name arrays, generic
+      formals and module names, while extracted metadata still borrows those
+      pointers. I first give the extracted copy independent ownership, then
+      free each owner's allocations. I require AST/environment/module lifetime
+      independence in both destruction orders, null/empty controls, a fresh
+      unsuppressed ASan/UBSan/LSan lifecycle gate and the existing normal
+      metadata suite. Import-tracker freeing is already canonical; callback
+      placeholder and other parent leaks remain separate until measured.
+
 - [ ] **Release legacy union metadata allocations.** My payload lifetime check
       exposed 245 bytes retained by existing registered field-name/formal arrays
       and the environment import tracker. I establish borrower ownership before
@@ -12365,6 +12376,16 @@ qualification builds run before the full fixture checkpoint review.
   I preserve all source hashes, positive/negative cases, original PREFIX/shadows
   and first terminals; no narrowed replacement or full-product claim follows.
 
+- [ ] I implement [checked private File frame/call transfers](NANOISA_FILE_RUNTIME_FRAMES.md), task_bb3381ff39934b379067adaad2785ced, under82ff after reviewed carrier PR858: first review the shared arena layout/API and preallocation accounting; then implement checked current-frame access, argument staging, formal aliases and RET publication; then review and qualify fresh overlap/ownership/failure/initializer controls. I allocate no second frame arena or infer mode from equal counts. This grants no dispatcher/public/source authority; matched VM/native handlers and full parent obligations remain subsequent reviewed work.
+  - I prepare the private frame source checkpoint in `file_runtime_frames.h/.inc`: actual mode/depth and suspended frames enter the existing sizeof budget; ALL arguments precede callee-local installation and parent result staging precedes child clearance. My allocation/ownership table is in the frame contract. Strict syntax-only checking passes; new fixture/service execution remains held for complete source and fixture review.
+I clarify framebb338 before production: I finish staging every value argument before installing any callee local; no interleaving may overwrite a later argument in the VM suffix. Root approves the remaining contract with public/dispatcher boundaries unchanged.
+I retain the prefreeze frame-fixture syntax finding under bb338: my new synthetic module builder tried to set `NvmFunctionEntry.max_stack`, which belongs to the v2 function table rather than the in-memory function entry. Both linked/instrumented syntax-only checks refused compilation before any fixture execution. I remove that nonexistent assignment; the existing service bridge already emits the intended zero/derived wire bound. I change no production or assertion.
+I prepare the complete bb338 fixture checkpoint: old carrier assertions remain called through an optional main macro, with new explicit overlap/formal forwarding/File+Result returns,64-frame and equal-mode controls, exact refusal/output checks, generation-limited staged-root cleanup and initializer handled-close-error suppression. My frame contract records the owning-TU instrumentation and ordered Linux/puck normal/sanitizer/neighbor gate plan. Only syntax/parsing checks have run; complete fixture review precedes service execution. Carrier PR858 is now actually merged at21ed843950d0bd9a397d663cf9dfd3184f5d156a;82ff and full File parents remain open.
+I retain bb338's first56bb Linux setup status2/0.274s before fixtures: native managed-runtime Clang lacked the known explicit GCC13 install selection. The fresh corrected setup passes11.405s with native-only `NMS_NATIVE_CLANG_FLAGS`; no source/assertion/Wasm flag changes. Its first normal instrumented run then fails3.510s at my new two-borrowed-formal CALL_REF assertion expecting INVALID, after the complete old carrier84505 checks and earlier new frame controls. The log does not print the actual enum. Static `file_code_operands` returns UNRESOLVED for borrowed count other than one before flow can diagnose duplicate origins. I record this fixture/status-precedence mismatch before correcting the exact expected status; output-sentinel and zero-host-attempt assertions remain. This is not evidence of a production failure.
+I retain both independent041031 frame normal terminals: Linux status1/3.396s and puck status1/2.994s after setup11.161s, each at the final `!tracked_live && !tracked_bytes` assertion after the old carrier and all new frame semantic controls. Static review finds an allocation-domain mismatch in my new fixture helpers: included `fixture()` uses the HOSTED_INSTRUMENT allocator, while `frame_module()` freed/replaced its ownership/CODE buffers after those macros were undefined. The real frees bypass tracker removal. I record this before restoring malloc/calloc/realloc/free hooks over the new helper definitions. I preserve the final zero assertion and all original artifacts; this finding does not establish a production leak or a measured outstanding-byte count.
+I seal the corrected private frame bb338 milestone at8644219d8 in [my evidence](evidence/file-runtime-frames.md): Linux ordinary/GCC/Clang and puck ordinary/Homebrew sanitizer manual transfer controls plus hosted/body/flow/value/opcode/wrapper neighbors pass. I retain the setup, exact-status and allocator-domain first terminals with their actual binaries and23 equal inventory pairs. The249-report seal covers1,082 unique artifacts. This does not qualify an opcode dispatcher, generated-native File handler or public source execution;82ff/full File and full5.1 parents remain open pending reviewed continuation.
+
+I supplement frame bb338 at1525adfd0 with fresh canonical4fb provider closure and ordinary frame/opcode/wrapper controls on Linux and puck; all pass. My341-report combined seal retains31 inventory pairs,1,646 unique artifacts and the original sanitizer/failure pins. Later PR877 is parser-only production drift, separately identified without relabeling the measured integration. The next dependency remains a reviewed private NanoVM adapter under82ff; public File and full5.1 acceptance remain open.
 ### My full-affine Darwin dependency-discovery prerequisite (273296)
 
 - [x] I preserve the first 3c728 Darwin bootstrap terminal (9.5246s, make exit2, missing openssl/sha.h) and identify the omitted Homebrew PATH used by brew --prefix discovery; sources and HEAD remain unchanged.
@@ -12381,4 +12402,7 @@ qualification builds run before the full fixture checkpoint review.
 - [ ] I map every original430220/4be acceptance clause to exact merged runtime/source/seal evidence and explicit exclusions, then obtain review before parent ledger closure. Source ARRAY binding reassignment remains refused; I add no new implementation under this reconciliation.
 
 - [x] I repair sealed affine evidence publication under task_36d34c2f22f945189281548f0997faaf: ordinary git add omitted ignored retention-wrapper Python caches listed in my report manifests. I preserve the original publication and exact archives, explicitly include those small hashed records, and require every advertised report to be tracked/hash-exact before corrected push. No source, assertion, gate or archive changes; actual-merge reconciliation remains pending.
+
+
+- [x] I qualify independent union metadata lifetimes at10fc127b1 with normal and fully rebuilt GCC ASan/UBSan/LSan lifecycle checks and existing complete metadata/scoping targets on Linux. I preserve both destruction orders, nested TypeInfo and allocated zero-length arrays in [my evidence](evidence/union-metadata-ownership/README.md). Child0bae7b awaits actual-merge reconciliation; callback/placeholder and full parent00c47 remain open.
 

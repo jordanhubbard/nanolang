@@ -1,0 +1,14 @@
+{
+  "canonical": "4fbca3578",
+  "qualified": "8644219d8",
+  "paths": {
+    "src/nanoisa/file_runtime.c": "54812dd99cfd6a58316ef3621bb83cdd4b421123b0dd0596e0daedebfd36ad5f",
+    "src/nanoisa/file_runtime_frames.h": "edefbf2c82be0e2677d60878d571574968d8e4711a7c4d3d2ba053b1654bf799",
+    "src/nanoisa/file_runtime_frames.inc": "6e569bdae53e5384553be1266c53f62ede0d815cd06c7e9f0c9053fce81407a6",
+    "tests/nanoisa/test_file_runtime.c": "827c0be0f6f6ffb4b8cbaa25a087a33f8abc3f5b521ef9502beb38ea8b33442b",
+    "tests/nanoisa/test_file_runtime_frames.c": "af66ef54bc8489be2700f89392f12c6bbfe1810c8f05d03eaa3b5faf51108d18",
+    "tests/nanoisa/file_runtime_frame_values.c": "1a075e3a39e60049f7c670753f11c26b28bbe8dd817d4f9d76d0a7b4c5c08018",
+    "tests/test_file_runtime_frames.py": "3624ca122d1e76f9f259c3173e6f7b8a46c1f6877be487d23e9e90480d7d8622"
+  },
+  "conflicts": "canonical Makefile/ROADMAP retained, exact frame-only additions appended"
+}

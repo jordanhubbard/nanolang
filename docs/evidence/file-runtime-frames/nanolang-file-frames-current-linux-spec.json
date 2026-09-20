@@ -1,0 +1,26 @@
+[
+  {
+    "root": "/home/jkh/Src/nanolang-file-frames-qualified",
+    "report": "/tmp/nanolang-file-frames-56bb-linux",
+    "source": "setup-source-after.json",
+    "tools": "setup-tools-after.json"
+  },
+  {
+    "root": "/home/jkh/Src/nanolang-file-frames-56bb-corrected",
+    "report": "/tmp/nanolang-file-frames-56bb-linux-corrected",
+    "source": "normal-source-after.json",
+    "tools": "normal-tools-after.json"
+  },
+  {
+    "root": "/home/jkh/Src/nanolang-file-frames-fixture-corrected",
+    "report": "/tmp/nanolang-file-frames-041-linux",
+    "source": "normal-source-after.json",
+    "tools": "normal-tools-after.json"
+  },
+  {
+    "root": "/home/jkh/Src/nanolang-file-frames-allocation-corrected",
+    "report": "/tmp/nanolang-file-frames-864-linux",
+    "source": "wrapper-source-after.json",
+    "tools": "wrapper-tools-after.json"
+  }
+]

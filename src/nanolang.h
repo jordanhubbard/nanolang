@@ -958,6 +958,7 @@ char *typeinfo_to_generic_arg_name(TypeInfo *info);
 void env_register_union_instantiation(Environment *env, const char *union_name,
                                       const char **type_args, int type_arg_count);
 int env_get_enum_variant(Environment *env, const char *variant_name);
+/* I take ownership of a newly registered union and its allocated metadata. */
 void env_define_union(Environment *env, UnionDef union_def);
 UnionDef *env_get_union(Environment *env, const char *name);
 void env_define_opaque_type(Environment *env, const char *name);
