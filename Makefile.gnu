@@ -5496,3 +5496,18 @@ test-file-runtime-frames: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS)
 	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime_frames
 test-file-runtime-frames-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
 	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime_frames
+
+.PHONY: test-file-private-vm test-file-private-vm-sanitizers
+test-file-private-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
+	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_private_vm
+test-file-private-vm-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
+	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_private_vm
+
+# I keep the preparatory grant outside default providers until joint admission.
+FILE_HOST_GRANT_OBJECT = $(OBJ_DIR)/nanoisa/file_host_grant.o
+.PHONY: file-host-grant test-file-host-grant
+file-host-grant: $(FILE_HOST_GRANT_OBJECT)
+$(FILE_HOST_GRANT_OBJECT): $(NANOISA_DIR)/file_host_grant.c $(NANOISA_DIR)/file_host_grant.h $(NANOISA_DIR)/file_host_grant_internal.h | $(OBJ_DIR)/nanoisa
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(NANOISA_DIR) -std=c11 -c $< -o $@
+test-file-host-grant: file-host-grant
+	NANO_FILE_HOST_GRANT_CC="$(CC)" NANO_FILE_HOST_GRANT_CPPFLAGS="$(CPPFLAGS)" NANO_FILE_HOST_GRANT_CFLAGS="$(CFLAGS)" NANO_FILE_HOST_GRANT_LDFLAGS="$(LDFLAGS)" NANO_FILE_HOST_GRANT_OBJECT="$(FILE_HOST_GRANT_OBJECT)" python3 -m unittest -f -v tests.test_file_host_grant

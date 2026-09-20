@@ -1,0 +1,23 @@
+{
+  "env": {
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "LSAN_OPTIONS": null,
+    "SDKROOT": null,
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  "flags": [
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-fPIC",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer"
+  ],
+  "sanitizers": true,
+  "selected": "/usr/local/bin/clang",
+  "version": "clang version 23.0.0git (https://github.com/llvm/llvm-project.git 11af80c3ec82dc1800c9fa80190c75cd3d69249f)\nTarget: aarch64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /usr/local/bin"
+}

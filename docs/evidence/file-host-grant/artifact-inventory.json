@@ -1,0 +1,443 @@
+[
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/bfa9925df7209d0b91b91580354e85aebecc185e690a2958de6515f2080d2f4a",
+    "sha256": "bfa9925df7209d0b91b91580354e85aebecc185e690a2958de6515f2080d2f4a",
+    "size": 11978208,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/fixtures/nano-file-host-grant-kfc1yquj/instrumented"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/505137bcb2835e18d5ee8ef2ca0a36b0669bc264e95a21987ed467e1a7412497",
+    "sha256": "505137bcb2835e18d5ee8ef2ca0a36b0669bc264e95a21987ed467e1a7412497",
+    "size": 67336,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/fixtures/nano-file-host-grant-kfc1yquj/instrumented-main.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/408b5343d268b9a0e3af0df1683ed2965608ceebcd8ddc5174ea9b8b354563fb",
+    "sha256": "408b5343d268b9a0e3af0df1683ed2965608ceebcd8ddc5174ea9b8b354563fb",
+    "size": 47112,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/fixtures/nano-file-host-grant-kfc1yquj/instrumented-provider.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/a7d6d9a23f97eadde9c64a863f78515627a0f4712e03a869876ba6c5c2240d23",
+    "sha256": "a7d6d9a23f97eadde9c64a863f78515627a0f4712e03a869876ba6c5c2240d23",
+    "size": 11969960,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/fixtures/nano-file-host-grant-kfc1yquj/linked"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/5c757711ff2738b775f7dae30ef03a19917bd2347f5adb4d058693a29cb9dbe1",
+    "sha256": "5c757711ff2738b775f7dae30ef03a19917bd2347f5adb4d058693a29cb9dbe1",
+    "size": 56616,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/fixtures/nano-file-host-grant-kfc1yquj/linked-main.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/f61e6bf7be585211803faacfc56ba82d08465854c60aae3e29a314f83cec495d",
+    "sha256": "f61e6bf7be585211803faacfc56ba82d08465854c60aae3e29a314f83cec495d",
+    "size": 5888,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/fixtures/nano-file-host-grant-kfc1yquj/peer.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/2d8e8b0bd566e0f993b6a78c8e7173608d8eb0cb7f745decfa62fbdc84c52e21",
+    "sha256": "2d8e8b0bd566e0f993b6a78c8e7173608d8eb0cb7f745decfa62fbdc84c52e21",
+    "size": 1823,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/headers.d"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/e4ce1bee09feb8b0e8cd94b1e1426cf0c114d9982d3e55b596200c358a49e45b",
+    "sha256": "e4ce1bee09feb8b0e8cd94b1e1426cf0c114d9982d3e55b596200c358a49e45b",
+    "size": 268,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/obj/nanoisa/file_host_grant.d"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/a624f4e34f77ce30b9ec7494b99b0d9054ce2225e239fb1bc66803af18ed08cf",
+    "sha256": "a624f4e34f77ce30b9ec7494b99b0d9054ce2225e239fb1bc66803af18ed08cf",
+    "size": 22944,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-sanitizers/obj/nanoisa/file_host_grant.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/dc53da4cd1612f18966d3b5e0759043dd943c140a830069761a234f7ea950466",
+    "sha256": "dc53da4cd1612f18966d3b5e0759043dd943c140a830069761a234f7ea950466",
+    "size": 86464,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/instrumented"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/88acc711fb734cf018386bcbdac8acfeeed8e7dc18f6763f22c532a967a7045a",
+    "sha256": "88acc711fb734cf018386bcbdac8acfeeed8e7dc18f6763f22c532a967a7045a",
+    "size": 27496,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/instrumented-main.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/58485c03c207678678d99c06e48fdbd1a2529ca454afaa6aef13cc1a7ade077b",
+    "sha256": "58485c03c207678678d99c06e48fdbd1a2529ca454afaa6aef13cc1a7ade077b",
+    "size": 20496,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/instrumented-provider.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/109655e1adc04d0e29d6aa17a179447814f7115d15497c4ed190697f5fc983dd",
+    "sha256": "109655e1adc04d0e29d6aa17a179447814f7115d15497c4ed190697f5fc983dd",
+    "size": 81824,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/linked"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/ebfaacb7fb73256fbe23c262fefe968448221ea8c7526a56a5958aff04b6f549",
+    "sha256": "ebfaacb7fb73256fbe23c262fefe968448221ea8c7526a56a5958aff04b6f549",
+    "size": 22728,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/linked-main.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/3d9915ad234c4bb0b9dfc8b76b0c6765b28546dc1ea509c47b38412bf55ce195",
+    "sha256": "3d9915ad234c4bb0b9dfc8b76b0c6765b28546dc1ea509c47b38412bf55ce195",
+    "size": 4712,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/peer.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/7662ce827f463430321a0cd3469851cb1a4fd3a3469b506d464e322588f98ab1",
+    "sha256": "7662ce827f463430321a0cd3469851cb1a4fd3a3469b506d464e322588f98ab1",
+    "size": 1769,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/headers.d"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/829117e48bab07763e48c0d3d45a54eabee249a043eb5de917698ce2ace2cd37",
+    "sha256": "829117e48bab07763e48c0d3d45a54eabee249a043eb5de917698ce2ace2cd37",
+    "size": 264,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/obj/nanoisa/file_host_grant.d"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/d3b4cc6a30cc0d90ac5d08b132685bc2e155315af20177e5764a28f5e9c1f42d",
+    "sha256": "d3b4cc6a30cc0d90ac5d08b132685bc2e155315af20177e5764a28f5e9c1f42d",
+    "size": 10392,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/obj/nanoisa/file_host_grant.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/fa60f860c9e600504de6e7997c56e6e7279ea2a61c20f9cae831adb61fd4ba0c",
+    "sha256": "fa60f860c9e600504de6e7997c56e6e7279ea2a61c20f9cae831adb61fd4ba0c",
+    "size": 88440,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/fixtures/nano-file-host-grant-kuwrnu0y/instrumented"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/6c7a35f87ae92028fd53451ba0dd08f06fe2e8af94ff9a5480524670d52072b2",
+    "sha256": "6c7a35f87ae92028fd53451ba0dd08f06fe2e8af94ff9a5480524670d52072b2",
+    "size": 36056,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/fixtures/nano-file-host-grant-kuwrnu0y/instrumented-main.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/2551b9c0cc779795feb02c902ce136c32f078d9baa29cafd44ca0ac3f4756038",
+    "sha256": "2551b9c0cc779795feb02c902ce136c32f078d9baa29cafd44ca0ac3f4756038",
+    "size": 21408,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/fixtures/nano-file-host-grant-kuwrnu0y/instrumented-provider.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/f27511f4ebbd1a1fd2c54b2cf81e9a0bc41b23a6bf3564359aab7f79e22f32f5",
+    "sha256": "f27511f4ebbd1a1fd2c54b2cf81e9a0bc41b23a6bf3564359aab7f79e22f32f5",
+    "size": 83824,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/fixtures/nano-file-host-grant-kuwrnu0y/linked"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/a9ed61e3d74d4d7af7fe7be2f36983f57463371b8adaef49b916bd1e3951a49c",
+    "sha256": "a9ed61e3d74d4d7af7fe7be2f36983f57463371b8adaef49b916bd1e3951a49c",
+    "size": 29624,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/fixtures/nano-file-host-grant-kuwrnu0y/linked-main.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/d1080ad6a59c0b5bc61a526b7fe73024deb8ed8cf7338ef63e5a5c8fcfeaf033",
+    "sha256": "d1080ad6a59c0b5bc61a526b7fe73024deb8ed8cf7338ef63e5a5c8fcfeaf033",
+    "size": 4840,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/fixtures/nano-file-host-grant-kuwrnu0y/peer.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/fd2db4eab33ff59e7c032cf81f2c06c69e2afb7daafb8869ae0b2dbbe5cd91fb",
+    "sha256": "fd2db4eab33ff59e7c032cf81f2c06c69e2afb7daafb8869ae0b2dbbe5cd91fb",
+    "size": 1016,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/headers.d"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/b03bbadcb2c52bad459862323ae2c61a5fc8ba8563282982c49a90b86b8e8951",
+    "sha256": "b03bbadcb2c52bad459862323ae2c61a5fc8ba8563282982c49a90b86b8e8951",
+    "size": 260,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/obj/nanoisa/file_host_grant.d"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/08c91b2f71ea2d4a5f575ff30dddbc446e7d9cf205f7f8e9d604ddb66687dd9f",
+    "sha256": "08c91b2f71ea2d4a5f575ff30dddbc446e7d9cf205f7f8e9d604ddb66687dd9f",
+    "size": 11608,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/obj/nanoisa/file_host_grant.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/1865fea708410cad40aa13aefebd55f81eba79b946d737b553d388e55999d946",
+    "sha256": "1865fea708410cad40aa13aefebd55f81eba79b946d737b553d388e55999d946",
+    "size": 112288,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/fixtures/nano-file-host-grant-1qzj2cbs/instrumented"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/e589ae57b78a2c010acbbb36b907a928319641c1477a572ea226f9780a86ba3e",
+    "sha256": "e589ae57b78a2c010acbbb36b907a928319641c1477a572ea226f9780a86ba3e",
+    "size": 49832,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/fixtures/nano-file-host-grant-1qzj2cbs/instrumented-main.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/69139157016aafc9b2eccc5c769b0b6592bd63332989e8f7bffe76bba7bd022d",
+    "sha256": "69139157016aafc9b2eccc5c769b0b6592bd63332989e8f7bffe76bba7bd022d",
+    "size": 49992,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/fixtures/nano-file-host-grant-1qzj2cbs/instrumented-provider.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/cb17aeace65101e74902cb8510eb52cefefeea2a41e8f8edab9711edd5277148",
+    "sha256": "cb17aeace65101e74902cb8510eb52cefefeea2a41e8f8edab9711edd5277148",
+    "size": 103232,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/fixtures/nano-file-host-grant-1qzj2cbs/linked"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/bd3e7567126c633124c4dbea3df654605ef252dcd30b49ede7a44c4df5810722",
+    "sha256": "bd3e7567126c633124c4dbea3df654605ef252dcd30b49ede7a44c4df5810722",
+    "size": 41344,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/fixtures/nano-file-host-grant-1qzj2cbs/linked-main.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/0ba5bcc04031c9be83ba19f3959ebecf8695a2b52594bfafd75e3dcb17a1de6f",
+    "sha256": "0ba5bcc04031c9be83ba19f3959ebecf8695a2b52594bfafd75e3dcb17a1de6f",
+    "size": 5400,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/fixtures/nano-file-host-grant-1qzj2cbs/peer.o"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/fd2db4eab33ff59e7c032cf81f2c06c69e2afb7daafb8869ae0b2dbbe5cd91fb",
+    "sha256": "fd2db4eab33ff59e7c032cf81f2c06c69e2afb7daafb8869ae0b2dbbe5cd91fb",
+    "size": 1016,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/headers.d"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/623231df1a8020276dbee8392b50a8935e53249f17fe4409cc3a639045d0a652",
+    "sha256": "623231df1a8020276dbee8392b50a8935e53249f17fe4409cc3a639045d0a652",
+    "size": 264,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/obj/nanoisa/file_host_grant.d"
+  },
+  {
+    "host": "linux",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/6194045c44064e7ea053e3008b5fbac01a9b1215ea107ade1b92776ea281b457",
+    "sha256": "6194045c44064e7ea053e3008b5fbac01a9b1215ea107ade1b92776ea281b457",
+    "size": 29552,
+    "source": "/tmp/nanolang-file-host-grant-54822-linux/gcc-sanitizers/obj/nanoisa/file_host_grant.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/71ed82c33577986773522e64db0d8f00ecccc95488183d47b81a113c0a2b8d9b",
+    "sha256": "71ed82c33577986773522e64db0d8f00ecccc95488183d47b81a113c0a2b8d9b",
+    "size": 81744,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/fixtures/nano-file-host-grant-pmgazfz6/instrumented"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/0fb616c90b2a02672a3d3e38bc088af2b025042e5fa6631458eea9ec2fd5a9a9",
+    "sha256": "0fb616c90b2a02672a3d3e38bc088af2b025042e5fa6631458eea9ec2fd5a9a9",
+    "size": 43160,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/fixtures/nano-file-host-grant-pmgazfz6/instrumented-main.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/e6e6325a38a8f29681cf0daafbdb9145c80c2a02bec7e63d919692836d641005",
+    "sha256": "e6e6325a38a8f29681cf0daafbdb9145c80c2a02bec7e63d919692836d641005",
+    "size": 33048,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/fixtures/nano-file-host-grant-pmgazfz6/instrumented-provider.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/d9d8425210f8c9bdedd1113c2a62f198482e07acd5d185a88d51be9ad5368566",
+    "sha256": "d9d8425210f8c9bdedd1113c2a62f198482e07acd5d185a88d51be9ad5368566",
+    "size": 60456,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/fixtures/nano-file-host-grant-pmgazfz6/linked"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/a27651b25bf44876c8238b466ff5c93f553ce2f391f4b78ae3ed5b29e47e1cd8",
+    "sha256": "a27651b25bf44876c8238b466ff5c93f553ce2f391f4b78ae3ed5b29e47e1cd8",
+    "size": 36392,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/fixtures/nano-file-host-grant-pmgazfz6/linked-main.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/3c0a3224d71b76f8ace634f564a17f299bfe9672f2722fafbce255725a231c67",
+    "sha256": "3c0a3224d71b76f8ace634f564a17f299bfe9672f2722fafbce255725a231c67",
+    "size": 3536,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/fixtures/nano-file-host-grant-pmgazfz6/peer.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/88ac3ebd1bc88625edc58b6ccb2e84b8a20f0fd99af96968def90c94fb0f85ed",
+    "sha256": "88ac3ebd1bc88625edc58b6ccb2e84b8a20f0fd99af96968def90c94fb0f85ed",
+    "size": 10904,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/headers.d"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/8d86fa49daa86f44e0e175dbb162576fe68d5d9da03923a2af7ff8b9fd1485f6",
+    "sha256": "8d86fa49daa86f44e0e175dbb162576fe68d5d9da03923a2af7ff8b9fd1485f6",
+    "size": 517,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/obj/nanoisa/file_host_grant.d"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/48193617773e0b0bc00ae7e7220fbc5d4ab88139fe41e2f2d12c47d6845e2e5b",
+    "sha256": "48193617773e0b0bc00ae7e7220fbc5d4ab88139fe41e2f2d12c47d6845e2e5b",
+    "size": 16728,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/obj/nanoisa/file_host_grant.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/f649d69bc9bd44c11cf76b97edd140e87e6c9560d67f6f02913e043a3a776fbe",
+    "sha256": "f649d69bc9bd44c11cf76b97edd140e87e6c9560d67f6f02913e043a3a776fbe",
+    "size": 36544,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/fixtures/nano-file-host-grant-6zrvllug/instrumented"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/7ea7e957e9af16d008a64eb718edb527a49fd2ef930ae464b33bbcd74584965c",
+    "sha256": "7ea7e957e9af16d008a64eb718edb527a49fd2ef930ae464b33bbcd74584965c",
+    "size": 20520,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/fixtures/nano-file-host-grant-6zrvllug/instrumented-main.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/1da071c6c5f6942026eb474d60d8dee5dd0f8c46cbe678fb101737048f64649e",
+    "sha256": "1da071c6c5f6942026eb474d60d8dee5dd0f8c46cbe678fb101737048f64649e",
+    "size": 15200,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/fixtures/nano-file-host-grant-6zrvllug/instrumented-provider.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/928eb300aa2de132bec53642d3b78fc881b4feee5249310e978990a879e75b1e",
+    "sha256": "928eb300aa2de132bec53642d3b78fc881b4feee5249310e978990a879e75b1e",
+    "size": 35640,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/fixtures/nano-file-host-grant-6zrvllug/linked"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/1b270de6e4823605e381ee28f5cbf3a18d8b7d9b8ca40f7bc112412378de411d",
+    "sha256": "1b270de6e4823605e381ee28f5cbf3a18d8b7d9b8ca40f7bc112412378de411d",
+    "size": 16888,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/fixtures/nano-file-host-grant-6zrvllug/linked-main.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/de3f011d10eff80845849bce7fc0d718167c9dbfa2fb0a34e4b3935b2c4b6a45",
+    "sha256": "de3f011d10eff80845849bce7fc0d718167c9dbfa2fb0a34e4b3935b2c4b6a45",
+    "size": 2936,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/fixtures/nano-file-host-grant-6zrvllug/peer.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/a7c0f1b5a3a85f86703efbd841ac9775954ddde685adede005aad64c60858681",
+    "sha256": "a7c0f1b5a3a85f86703efbd841ac9775954ddde685adede005aad64c60858681",
+    "size": 10828,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/headers.d"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/1f8fcffa61237974956da95c0d0dc5a6d0d9a65f2739950111c485c7c16304fe",
+    "sha256": "1f8fcffa61237974956da95c0d0dc5a6d0d9a65f2739950111c485c7c16304fe",
+    "size": 513,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/obj/nanoisa/file_host_grant.d"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/90e42d4712b02cd57e535bb55afc837550c645174019b3663bd59cab9b20ae25",
+    "sha256": "90e42d4712b02cd57e535bb55afc837550c645174019b3663bd59cab9b20ae25",
+    "size": 7472,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/obj/nanoisa/file_host_grant.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/f1c883ab27b1c7a060cd6c6d1a19a67347df4885851c9a5d3d960b3dfa773b86",
+    "sha256": "f1c883ab27b1c7a060cd6c6d1a19a67347df4885851c9a5d3d960b3dfa773b86",
+    "size": 42064,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/instrumented"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/fffb1a8e1118fb31336a22b0fee923a505cd2f765fedb513a76dcb4bb8d15c88",
+    "sha256": "fffb1a8e1118fb31336a22b0fee923a505cd2f765fedb513a76dcb4bb8d15c88",
+    "size": 28936,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/instrumented-main.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/edd50d064cfaa4b9562616617a1d1a4cb1c6a6c4a86232a13ac52eebfbd9cbf5",
+    "sha256": "edd50d064cfaa4b9562616617a1d1a4cb1c6a6c4a86232a13ac52eebfbd9cbf5",
+    "size": 17664,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/instrumented-provider.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/274ffd1e16802a6e036ae1d2e11c97282a04d636219a35e72f5d442a99d151c2",
+    "sha256": "274ffd1e16802a6e036ae1d2e11c97282a04d636219a35e72f5d442a99d151c2",
+    "size": 39304,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/linked"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/889ae20050fa391e007e68c8c1554579cd2b6559fbd77dfda45cda658c7656de",
+    "sha256": "889ae20050fa391e007e68c8c1554579cd2b6559fbd77dfda45cda658c7656de",
+    "size": 23792,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/linked-main.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/19b6d5cc5b55d46a34d80c47bd394c4767b175b85ff57d6a8368c010e5356eb5",
+    "sha256": "19b6d5cc5b55d46a34d80c47bd394c4767b175b85ff57d6a8368c010e5356eb5",
+    "size": 2952,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/peer.o"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/792f886b2ad3f2064dc4bb01075cbe9ea8dac3f0dbb69489eacbc1b13e024bbb",
+    "sha256": "792f886b2ad3f2064dc4bb01075cbe9ea8dac3f0dbb69489eacbc1b13e024bbb",
+    "size": 11373,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/headers.d"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/a91b0ef619a0862eed3d0a872b299c56888f47c297a287c46ec41ed50978961c",
+    "sha256": "a91b0ef619a0862eed3d0a872b299c56888f47c297a287c46ec41ed50978961c",
+    "size": 273,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/obj/nanoisa/file_host_grant.d"
+  },
+  {
+    "host": "darwin",
+    "retained": "/tmp/nanolang-file-host-grant-artifacts/f250fdd3a12aecf264004807a8f981f602289c1aa13bf914410c7ad93216a624",
+    "sha256": "f250fdd3a12aecf264004807a8f981f602289c1aa13bf914410c7ad93216a624",
+    "size": 7432,
+    "source": "/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/obj/nanoisa/file_host_grant.o"
+  }
+]

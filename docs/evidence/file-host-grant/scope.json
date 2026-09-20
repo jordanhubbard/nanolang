@@ -1,0 +1,30 @@
+{
+  "artifact_entries": 63,
+  "expected_negative": "C99 owning-source compile refuses with explicit diagnostic in every configuration",
+  "inventory_pairs": 9,
+  "pending": "public and installed conjunction, generated two-program namespace, matched native prerequisite, full source/loop/indirect requirements",
+  "precode_pin": "8dc094ddf",
+  "production_pin": "221c4d0a6",
+  "sanitizer_scope": "Entire isolated grant object plus both C99 fixture consumers; no File handler/VM/native/core execution",
+  "source_count_each": 9584,
+  "source_equal_across_hosts": true,
+  "source_pin": "54822f541",
+  "summaries": {
+    "darwin": {
+      "configurations": 3,
+      "pass": true,
+      "source_count": 9584,
+      "source_pin": "54822f541",
+      "terminal_count": 6
+    },
+    "linux": {
+      "configurations": 4,
+      "pass": true,
+      "source_count": 9584,
+      "source_pin": "54822f541",
+      "terminal_count": 8
+    }
+  },
+  "unexpected_terminal": null,
+  "unique_artifacts": 62
+}

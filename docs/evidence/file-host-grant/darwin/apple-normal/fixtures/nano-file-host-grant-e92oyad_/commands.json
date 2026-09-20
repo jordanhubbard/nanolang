@@ -1,0 +1,196 @@
+[
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "-isysroot",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c99",
+      "-c",
+      "tests/nanoisa/file_host_grant_peer.c",
+      "-o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/peer.o"
+    ],
+    "status": 0,
+    "log": "00.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "-isysroot",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c99",
+      "-c",
+      "tests/nanoisa/test_file_host_grant.c",
+      "-o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/linked-main.o"
+    ],
+    "status": 0,
+    "log": "01.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "-isysroot",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/linked-main.o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/peer.o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/obj/nanoisa/file_host_grant.o",
+      "-pthread",
+      "-o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/linked"
+    ],
+    "status": 0,
+    "log": "02.log"
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/linked"
+    ],
+    "status": 0,
+    "log": "03.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "-isysroot",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c11",
+      "-c",
+      "tests/nanoisa/file_host_grant_instrumented.c",
+      "-o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/instrumented-provider.o"
+    ],
+    "status": 0,
+    "log": "04.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "-isysroot",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c99",
+      "-DFILE_HOST_INSTRUMENTED",
+      "-c",
+      "tests/nanoisa/test_file_host_grant.c",
+      "-o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/instrumented-main.o"
+    ],
+    "status": 0,
+    "log": "05.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "-isysroot",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/instrumented-main.o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/peer.o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/instrumented-provider.o",
+      "-pthread",
+      "-o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/instrumented"
+    ],
+    "status": 0,
+    "log": "06.log"
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/instrumented"
+    ],
+    "status": 0,
+    "log": "07.log"
+  },
+  {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "-isysroot",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c99",
+      "-c",
+      "src/nanoisa/file_host_grant.c",
+      "-o",
+      "/private/tmp/nanolang-file-host-grant-54822-darwin/apple-normal/fixtures/nano-file-host-grant-e92oyad_/wrong-mode.o"
+    ],
+    "status": 1,
+    "log": "08.log"
+  }
+]

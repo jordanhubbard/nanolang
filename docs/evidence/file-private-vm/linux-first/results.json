@@ -1,0 +1,12 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 20.41,
+    "status": 0
+  },
+  {
+    "phase": "normal",
+    "seconds": 3.538,
+    "status": 1
+  }
+]

@@ -1,0 +1,189 @@
+[
+  {
+    "command": [
+      "/usr/local/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c99",
+      "-c",
+      "tests/nanoisa/file_host_grant_peer.c",
+      "-o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/peer.o"
+    ],
+    "status": 0,
+    "log": "00.log"
+  },
+  {
+    "command": [
+      "/usr/local/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c99",
+      "-c",
+      "tests/nanoisa/test_file_host_grant.c",
+      "-o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/linked-main.o"
+    ],
+    "status": 0,
+    "log": "01.log"
+  },
+  {
+    "command": [
+      "/usr/local/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/linked-main.o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/peer.o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/obj/nanoisa/file_host_grant.o",
+      "-pthread",
+      "-o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/linked"
+    ],
+    "status": 0,
+    "log": "02.log"
+  },
+  {
+    "command": [
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/linked"
+    ],
+    "status": 0,
+    "log": "03.log"
+  },
+  {
+    "command": [
+      "/usr/local/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c11",
+      "-c",
+      "tests/nanoisa/file_host_grant_instrumented.c",
+      "-o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/instrumented-provider.o"
+    ],
+    "status": 0,
+    "log": "04.log"
+  },
+  {
+    "command": [
+      "/usr/local/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c99",
+      "-DFILE_HOST_INSTRUMENTED",
+      "-c",
+      "tests/nanoisa/test_file_host_grant.c",
+      "-o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/instrumented-main.o"
+    ],
+    "status": 0,
+    "log": "05.log"
+  },
+  {
+    "command": [
+      "/usr/local/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/instrumented-main.o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/peer.o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/instrumented-provider.o",
+      "-pthread",
+      "-o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/instrumented"
+    ],
+    "status": 0,
+    "log": "06.log"
+  },
+  {
+    "command": [
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/instrumented"
+    ],
+    "status": 0,
+    "log": "07.log"
+  },
+  {
+    "command": [
+      "/usr/local/bin/clang",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c99",
+      "-fPIC",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "-Isrc/nanoisa",
+      "-pthread",
+      "-std=c99",
+      "-c",
+      "src/nanoisa/file_host_grant.c",
+      "-o",
+      "/tmp/nanolang-file-host-grant-54822-linux/clang-normal/fixtures/nano-file-host-grant-cxuw9dn8/wrong-mode.o"
+    ],
+    "status": 1,
+    "log": "08.log"
+  }
+]

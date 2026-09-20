@@ -1,0 +1,12 @@
+[
+  {
+    "root": "/tmp/nanolang-file-private-vm-cfb",
+    "report": "/tmp/nanolang-file-private-vm-cfb-darwin",
+    "source_inventory": "normal-source-before.json",
+    "tool_inventory": "normal-tools-before.json",
+    "sources": 9090,
+    "tools": 14,
+    "source_mismatches": [],
+    "tool_mismatches": []
+  }
+]

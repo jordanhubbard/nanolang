@@ -1,0 +1,32 @@
+[
+  {
+    "phase": "normal",
+    "seconds": 6.872,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 23.28,
+    "status": 0
+  },
+  {
+    "phase": "clang",
+    "seconds": 22.77,
+    "status": 0
+  },
+  {
+    "phase": "frames",
+    "seconds": 21.814,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.073,
+    "status": 0
+  },
+  {
+    "phase": "wrapper",
+    "seconds": 3.18,
+    "status": 0
+  }
+]

@@ -102,6 +102,13 @@ bool nvm_file_runtime_frame_reserve(const NvmFileRuntime *c,uint16_t index,uint3
        !fr_empty(c,f.stack_base+index))return false;
     *out=f.stack_base+index;return true;
 }
+bool nvm_file_runtime_frame_scratch(const NvmFileRuntime *c,uint32_t *out) {
+    NvmFileRuntimeFrameView f;
+    if(!out || !nvm_file_runtime_frame_view(c,&f) || !f.staging_slots)return false;
+    uint64_t slot=(uint64_t)f.staging_base+f.staging_slots-1;
+    if(slot>=c->storage.values || !fr_empty(c,(uint32_t)slot))return false;
+    *out=(uint32_t)slot;return true;
+}
 bool nvm_file_runtime_frame_reference(const NvmFileRuntime *c,uint16_t index,uint32_t *out) {
     NvmFileRuntimeFrameView f;
     if(!out || !nvm_file_runtime_frame_view(c,&f) || index>=NVM_FILE_FLOW_REFERENCES)return false;

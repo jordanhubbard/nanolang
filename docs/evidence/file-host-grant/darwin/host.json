@@ -1,0 +1,9 @@
+{
+  "machine": "arm64",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "scope": "grant only; no service/dispatcher execution",
+  "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+  "selected_source_count": 9584,
+  "source_pin": "54822f541",
+  "source_root": "/private/tmp/nanolang-file-host-grant-54822"
+}

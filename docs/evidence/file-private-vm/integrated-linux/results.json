@@ -1,0 +1,27 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 20.836,
+    "status": 0
+  },
+  {
+    "phase": "normal",
+    "seconds": 6.846,
+    "status": 0
+  },
+  {
+    "phase": "frames",
+    "seconds": 6.315,
+    "status": 0
+  },
+  {
+    "phase": "opcodes",
+    "seconds": 3.154,
+    "status": 0
+  },
+  {
+    "phase": "wrapper",
+    "seconds": 3.161,
+    "status": 0
+  }
+]

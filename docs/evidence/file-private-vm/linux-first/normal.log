@@ -1,0 +1,22 @@
+I retain carrier artifacts at /tmp/nano-file-private-vm-0d6vp19w
+test_instrumented_private_vm_and_preserved_frames (tests.test_file_private_vm.FilePrivateVm.test_instrumented_private_vm_and_preserved_frames) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_private_vm_and_preserved_frames (tests.test_file_private_vm.FilePrivateVm.test_instrumented_private_vm_and_preserved_frames)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-private-vm-qualified/tests/test_file_private_vm.py", line 81, in test_instrumented_private_vm_and_preserved_frames
+    self.qualify('instrumented', True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-private-vm-qualified/tests/test_file_private_vm.py", line 78, in qualify
+    self.command(f'{name}-run', [str(exe)], run=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-private-vm-qualified/tests/test_file_private_vm.py", line 41, in command
+    self.assertEqual(result.returncode, 0, (args, result.stdout, result.stderr))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : (['/tmp/nano-file-private-vm-0d6vp19w/instrumented'], 'I retain 436 allocation refusals and 0 recovered complete carriers\nPASS 84506 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch\nPASS 42381 manual private File frame transfer checks; no opcode dispatcher\n', 'FAIL 55: report.acquired && !report.cleanup.cleanup_failures && out.initialized && !out.owning && !out.formal && out.type.tag==tag && out.values[0]==value\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 3.501s
+
+FAILED (failures=1)

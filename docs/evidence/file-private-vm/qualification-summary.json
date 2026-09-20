@@ -1,0 +1,190 @@
+{
+  "artifact_entries": 5608,
+  "crossplatform_source_equality": 9090,
+  "equal_inventory_pairs": [
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "normal",
+      "sources": 9090,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "setup",
+      "sources": 9090,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "normal",
+      "sources": 9090,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "clang",
+      "sources": 9090,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "opcodes",
+      "sources": 9090,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "wrapper",
+      "sources": 9090,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "frames",
+      "sources": 9090,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "sanitizer",
+      "sources": 9090,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "normal",
+      "sources": 9090,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "opcodes",
+      "sources": 9090,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "wrapper",
+      "sources": 9090,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "frames",
+      "sources": 9090,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "sanitizer",
+      "sources": 9090,
+      "tools": 14
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "setup",
+      "sources": 9090,
+      "tools": 14
+    }
+  ],
+  "initial_fixture": "ec54bd16e",
+  "native_lowering": false,
+  "phases": {
+    "darwin": [
+      {
+        "phase": "setup",
+        "seconds": 9.293,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 5.688,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 13.775,
+        "status": 0
+      },
+      {
+        "phase": "frames",
+        "seconds": 12.399,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.549,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 6.666,
+        "status": 0
+      }
+    ],
+    "linux": [
+      {
+        "phase": "normal",
+        "seconds": 6.872,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 23.28,
+        "status": 0
+      },
+      {
+        "phase": "clang",
+        "seconds": 22.77,
+        "status": 0
+      },
+      {
+        "phase": "frames",
+        "seconds": 21.814,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.073,
+        "status": 0
+      },
+      {
+        "phase": "wrapper",
+        "seconds": 3.18,
+        "status": 0
+      }
+    ],
+    "linux-first": [
+      {
+        "phase": "setup",
+        "seconds": 20.41,
+        "status": 0
+      },
+      {
+        "phase": "normal",
+        "seconds": 3.538,
+        "status": 1
+      }
+    ]
+  },
+  "private_vm_dispatch": true,
+  "production": "bdc8d29f3",
+  "public_dispatch": false,
+  "qualification": "cfb2a9903",
+  "unique_artifacts": 949,
+  "unique_bytes": 684570462
+}

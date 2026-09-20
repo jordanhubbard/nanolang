@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_file_host_grant"
+  ],
+  "elapsed_seconds": 1.237,
+  "status": 0
+}
