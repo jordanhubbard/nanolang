@@ -12,15 +12,7 @@ char **g_argv = NULL;
 static size_t allocation_attempts;
 static size_t fail_at;
 
-#if defined(__has_feature)
-#if __has_feature(address_sanitizer)
-#define NANOVIRT_CONTRACT_TEST_HAS_LSAN 1
-#endif
-#endif
-#if defined(__SANITIZE_ADDRESS__)
-#define NANOVIRT_CONTRACT_TEST_HAS_LSAN 1
-#endif
-#ifdef NANOVIRT_CONTRACT_TEST_HAS_LSAN
+#ifdef NANOVIRT_TEST_CONTRACT_LSAN_SCOPE
 extern void __lsan_disable(void);
 extern void __lsan_enable(void);
 static void frontend_leak_scope_begin(void) { __lsan_disable(); }
