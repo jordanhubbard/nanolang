@@ -12,6 +12,7 @@ import unittest
 from tests import test_file_source_plan as retained_runner
 from tests.file_companion_corpus import corpus, report_source, provider_report_source
 from tests import file_native_provider_corpus
+from tests import file_cseed_provider_owners
 ROOT=Path(__file__).resolve().parents[1]
 SMALL=('src/file_companion_snapshot.c','src/file_companion_bridge.c','src/file_source_input.c',
        'src/nsi_file_binding.c','src/nsi_file_plan.c','src/nsi.c','src/cJSON.c','src/utf8.c',
@@ -212,5 +213,8 @@ class FileCompanion(unittest.TestCase):
         # changed provider preparer; the C-seed module builder remains separate.
         for compiler in ('nanoc_stage1','nanoc_stage2'):
             self.command(compiler+'-concurrent-providers',[sys.executable,'-m','tests.file_native_provider_invocations',ROOT,self.work/(compiler+'-concurrent'),ROOT/'bin'/compiler],timeout=1100)
+
+    def test_public_provider_owners_and_wrappers(self):
+        file_cseed_provider_owners.run(self, ROOT, selected)
 
 if __name__=='__main__':unittest.main()

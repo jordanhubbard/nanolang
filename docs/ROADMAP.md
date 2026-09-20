@@ -13904,3 +13904,10 @@ shared-library loading. No gate runs before the complete fixture checkpoint.
   rule and proposed complete once-only list before source changes. I preserve
   flags/output/compiler/test behavior, require review, and retain the actual
   existing test-forth-see neighbor rather than skipping its separate build route.
+
+I prepare the complete provider-owner fixture supplement without execution:
+36 actual producer/case combinations per host, exact shadow selections, observed
+final compiler commands, selected static/dynamic symbol ownership, fresh-process
+wrapper calls, both full co-import orders, and the actual examples Forth neighbor.
+I retain every original companion/provider assertion and the same seven scoped
+C configurations. Source and complete fixtures require review before qualification.

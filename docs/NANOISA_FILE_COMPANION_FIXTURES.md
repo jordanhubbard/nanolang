@@ -90,3 +90,53 @@ Passing this checkpoint would qualify descriptive preparation and provider closu
 It cannot authorize File source shadows or service execution, complete nominal
 propagation/lowering, or close full8bbc, cyclic/indirect/richer-borrow/mixed/source
 and full5.1 acceptance obligations.
+
+## My complete provider-owner supplement
+
+After retaining the6d673 and10b74 bootstrap failures, I add one ordinary fixture
+method using tests/file_cseed_provider_owners.py. I retain all original methods.
+My ownership source is1c6f7a5ef plus reviewed2d552048a; the separately proposed
+examples recipe completion also requires source review. No new fixture executes
+before the complete checkpoint is reviewed.
+
+I run twelve source cases through each of C-seed, Stage1 and Stage2 on both hosts:
+eight standalone affected modules/owners; NanoISA plus Forth in both orders; and
+the complete compiler-support, JSON, companion, catalog, NanoISA and Forth group
+in both orders. Every case runs its ordinary wrapper assertions in both mandatory
+shadows and the final executable. Ownership-only modules add no callable shadows.
+I retain exact selected shadow multisets and compiler success reports, not only a
+test count. Forth also disassembles dup from the actual Forth interpreter bytecode;
+the missing-input response is a separate negative control.
+
+Each case has a fresh module cache and an observing compiler delegate that records
+the real argument vector then executes the selected compiler unchanged. I require
+exactly one actual final command for the requested output. For C-seed I inspect its
+actual aggregate object inputs and sibling selected shared libraries: the public
+cJSON, plan, catalog and NanoISA anchors belong only to their declared owners, and
+UTF-8 belongs to the final runtime rather than a module aggregate. Forth's public
+symbols must be disjoint from NanoISA's complete public symbol set. Moved private
+dependencies must not remain dynamically exported; the original wrapper must.
+I retain nm output, readelf/otool dependency output, exact artifacts and hashes.
+The qualification driver must inventory the actual nm/readelf or nm/otool tools.
+
+I load each selected shared library alone in a fresh Python process using local
+lazy binding, matching the existing lazy FFI loader rather than asserting eager
+resolution of unused runtime entry points. Actual wrapper calls exercise cJSON
+parse/object/delete, JSON parse/object/free, plan/catalog identity, compiler-support
+empty lookup, companion token lifetime, NanoISA loading and Forth disassembly.
+No earlier library from another test can supply a missing implementation. I make
+no claim about unused lazy symbols or cross-library mutable-state identity.
+
+Stage1/Stage2 final native commands retain unique canonical C-source inputs and
+the existing provider conflict/concurrent-invocation tests remain separate. I do
+not call a source argument list a complete archive symbol proof. Final executable
+symbols and actual behavior supplement the C-seed per-owner object evidence.
+
+I retain the existing examples test-forth-see route, independently of the manifest
+shared-library controls. The fixture compares its explicit complete source list
+against the Forth manifest union, runs the actual Make target, and copies/hashes
+its bytecode, C test executable and shared library into retained evidence. This
+ordinary supplement runs in the Linux GCC and puck Apple full paired phases;
+the seven selected-provider C configurations remain unchanged and do not become
+seven full compiler or module sanitizer configurations. Fresh bootstrap is still
+required before any supplement. Full File source execution stays held.
