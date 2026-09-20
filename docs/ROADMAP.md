@@ -12806,3 +12806,15 @@ correction uses a module import and performs fresh successful emission after
 every allocation prefix with faults disabled, unchanged host/failure counters
 and restored tracked allocation baselines. No fixture has run; root reviews
 the bounded delta before matrix approval.
+
+I retain the first frozen9284 terminals under fixture repair78437: Linux setup
+22.571s and puck setup9.257s passed; configuration and exact two-test discovery
+passed on both. Their first ordinary capture builds failed (3.321s/2.265s) when
+inherited `test_file_body.c` redefined/undefined the new fixture's broad `main`
+macro. The retained cyclic fixture therefore still defined `main`, conflicting
+with capture. Both exact compiler diagnostics and artifacts are preserved in
+`/tmp/nanolang-file-cyclic-dispatch-9284-{linux,puck}` and their recorded fixture
+directories. No cyclic dispatch executable or generated module ran. Before
+correction I specify a dedicated `FILE_CYCLIC_RUNTIME_MAIN` default-main guard
+for that retained fixture; the new fixture selects it without changing old
+entry behavior or assertions. Root reviews the exact delta before fresh gates.
