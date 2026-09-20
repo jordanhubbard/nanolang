@@ -240,3 +240,14 @@ is not a claim about intermediate immutability or every transitive system tool.
 The external qualification still prepares frozen providers, records actual host,
 compiler/runtime identities and seals first terminals. Linux/Darwin ordinary
 and explicit sanitizer configurations await review; no gate has run here.
+
+My first external Linux setup stopped before building providers or fixtures:
+Clang23's `-print-file-name=libclang_rt.asan-aarch64.so` returned the unresolved
+basename. I retain `/tmp/nanolang-portable-read-e9-linux` and the exact first
+external driver. This installation uses its target-specific runtime directory
+`/usr/local/lib/clang/23/lib/aarch64-unknown-linux-gnu`, with unqualified
+`libclang_rt.asan.so` and static ASan/preinit/UBSan archives. My corrected driver
+queries and requires those actual paths, preserving strict existence checks;
+there is no source/fixture change or sanitizer suppression. Darwin keeps its
+explicit Homebrew `libclang_rt.asan_osx_dynamic.dylib` selection. This setup
+failure establishes no query result; corrected gates use fresh evidence roots.
