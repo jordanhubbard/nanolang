@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-token-corrected-ece/src",
+    "-c",
+    "/private/tmp/nanolang-token-corrected-ece/src/runtime/list_token.c",
+    "-o",
+    "/private/tmp/nanolang-token-ece-puck/apple-ordinary/nano-token-bytes-ob_qnxpy/runtime-list_token.o"
+  ],
+  "cwd": "/private/tmp/nanolang-token-corrected-ece",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

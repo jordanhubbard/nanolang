@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-c",
+    "import os,sys; os.chdir(sys.argv[1]); os.execv(sys.argv[2],[sys.argv[2]])",
+    "/private/tmp/nanolang-token-315-puck/homebrew-ordinary/nano-token-bytes-sgzvy8i_/schema-nanoc_c",
+    "/private/tmp/nanolang-token-315-puck/homebrew-ordinary/nano-token-bytes-sgzvy8i_/gen_compiler_schema-nanoc_c"
+  ],
+  "cwd": "/private/tmp/nanolang-token-corrected-315",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

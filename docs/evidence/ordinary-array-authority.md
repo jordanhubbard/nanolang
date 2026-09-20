@@ -109,3 +109,25 @@ inputs. These declaration/container checks do not evaluate passive CFGs or
 emit the changed optional numeric helper. I retain d74 measurements at their
 actual pin; public ARRAY_FIELDS refusal and complete mixed validation limits
 remain unchanged.
+
+I integrate actual PR913 at325d8d86e. Its new private indirect-hosted plan
+is an additive file_flow include and explicit Make target; it does not enter
+my declaration-query call graph or change the eight selected reader/decoder/
+fixture inputs listed above. I compared those exact Git blobs against d74 and
+retained both additive roadmap histories. Earlier gate pins remain unchanged.
+
+I integrate actual PR911 at0a5ff1e after the token ABI change. My ordinary-array
+runner links only NANOISA_OBJECTS and utf8, with the ownership/layout providers
+rebuilt directly; it neither includes LexerToken nor links the lexer, parser,
+compiler AST schema or generated list modules. All selected NanoISA query and
+fixture inputs remain unchanged. I preserve the qualified C declaration closure
+and retain the token integration's separate full compiler/ABI evidence.
+
+My [independent integration audit](ordinary-array-integration-independent-review.json)
+passes at correctedfe2985d9c. It verifies all194 actual Git report blobs,357
+CAS objects,5542 references,36 endpoint pairs, both nine-phase outcomes and
+current sources/tools/providers. The audit initially found nine dSYM report
+files ignored by Git; their working bytes already matched the seal. I recorded
+task_b5dfc0f04d2b49b4ec6b01ab46771f22 before explicitly committing those exact
+files. The correction changes evidence publication only, and retains the first
+audit finding without repeating product gates.

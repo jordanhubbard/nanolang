@@ -1,0 +1,92 @@
+{
+  "previous_seal": "ae7cadb69f97cfcd50998c54c135a6cfa0ce8216",
+  "main": "0dc58835ffd2183f6c35f90a4d02bd2da18e4a19",
+  "token_inputs_exact": [
+    {
+      "path": "schema/compiler_schema.json",
+      "sha256": "d62d89358d089872b5cf745d7aa6e198b098b839c1af303eb729a45310b3d1a6"
+    },
+    {
+      "path": "scripts/gen_compiler_schema.nano",
+      "sha256": "13a75d41ca4fdd7eadadc226aa3631125a299c830d86501576f77bad119539f6"
+    },
+    {
+      "path": "scripts/gen_compiler_schema.py",
+      "sha256": "18c947e5bfe81da1558d958529f59348b2dbf21519c5b7b828d4a32d8080ff19"
+    },
+    {
+      "path": "src/generated/compiler_schema.h",
+      "sha256": "82dbfe19bc0f2b6e5f807353f7c8cc3cfd684757e461848ee840a6c287ad5456"
+    },
+    {
+      "path": "src/lexer.c",
+      "sha256": "1ce754d298bf62c4475f489ede37c7f09dcef09928efbe6cba1e2ac861919645"
+    },
+    {
+      "path": "src/lexer_bridge.c",
+      "sha256": "0ca16b2926c46001e5dd44b392eb41ed0fc00ba4d3908419da4d0b57652a6d3e"
+    },
+    {
+      "path": "src/runtime/token_helpers.c",
+      "sha256": "de893399a56488dee2160a49d6e0218d99288f45f5d0aa7cb7d036373560e61a"
+    },
+    {
+      "path": "src/runtime/token_helpers.h",
+      "sha256": "fc68de323b721a597931239ecdfc1ca0f0922ae4ca2b48a71330706619ee4bdb"
+    },
+    {
+      "path": "src/string_literal_decode.h",
+      "sha256": "2c21b279bb0a07c614d9c10acfab3502658594909ad65d240ae25b7b0c212a2d"
+    },
+    {
+      "path": "src_nano/compiler/lexer.nano",
+      "sha256": "25cd72d1113349d30dc166c6ce3c0c3098f2637200fbd969c39d2ce89afe5e9c"
+    },
+    {
+      "path": "src_nano/compiler/token_value_bytes.nano",
+      "sha256": "20acb072e9f4b082b7039d28f47e5cd511eed6c76e9b39c31fb60ee97d9d1158"
+    },
+    {
+      "path": "src_nano/generated/compiler_ast.nano",
+      "sha256": "54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95"
+    },
+    {
+      "path": "src_nano/nanoc_integrated.nano",
+      "sha256": "c2d5bd5869d8405fdd177321b70f1d4c41d52de7620a862ef59d04771ff79dc3"
+    },
+    {
+      "path": "src_nano/parser.nano",
+      "sha256": "34d679fbabfd18ae2eac6051449ea318a24bb00bb92d2b290cbc10090c3cde3e"
+    },
+    {
+      "path": "tests/test_token_value_bytes.c",
+      "sha256": "227b0ecdcbf0f3a8f426fa75e115ccf44e80337e283f0a4ce2189dec07f21141"
+    },
+    {
+      "path": "tests/test_token_value_bytes.py",
+      "sha256": "afba4ab01a443a7ea1cebd75ea459bebcc1721068728b9b2efef34920d688be7"
+    },
+    {
+      "path": "tests/token_value_bytes.nano",
+      "sha256": "251be1bcda41b9a4584f7c70a506be0102878d288253bcfb0e8128f90ec1e951"
+    }
+  ],
+  "incoming_exact_main": [
+    "src/nanoisa/affine_bytecode.c",
+    "src/nanoisa/affine_state.c",
+    "src/nanoisa/affine_state.h",
+    "src/nanoisa/nvm2c_owned.h",
+    "src/nanoisa/owned_array_admit.inc",
+    "src/nanoisa/ownership_contracts.c",
+    "src/nanoisa/ownership_contracts.h",
+    "src/nanoisa/verifier.c",
+    "src_nano/compiler/nanoisa_borrows.nano",
+    "tests/nanoisa/fixtures/affine_scalar_union_instances.nano",
+    "tests/nanoisa/test_affine_bytecode.c",
+    "tests/nanoisa/test_ownership_contracts.c",
+    "tests/test_affine_scalar_union_runtime.py",
+    "tests/test_affine_scalar_union_source.py"
+  ],
+  "make_only_additive": true,
+  "qualification": "Fresh whole bootstrap ABI providers then ordinary token/paired/schema and parser/module/wrapper on bothhosts; earlier sanitizer claims unchanged"
+}

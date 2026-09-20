@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/private/tmp/nanolang-token-ece-puck/apple-ordinary/nano-token-bytes-ob_qnxpy/python-generator/scripts/gen_compiler_schema.py"
+  ],
+  "cwd": "/private/tmp/nanolang-token-corrected-ece",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

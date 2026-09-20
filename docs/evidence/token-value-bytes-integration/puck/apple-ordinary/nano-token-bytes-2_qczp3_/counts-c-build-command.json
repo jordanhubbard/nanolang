@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-token-integration-51d/src",
+    "/private/tmp/nanolang-token-integration-51d/tests/test_token_value_bytes.c",
+    "/private/tmp/nanolang-token-integration-puck/apple-ordinary/nano-token-bytes-2_qczp3_/lexer.o",
+    "/private/tmp/nanolang-token-integration-puck/apple-ordinary/nano-token-bytes-2_qczp3_/utf8.o",
+    "/private/tmp/nanolang-token-integration-puck/apple-ordinary/nano-token-bytes-2_qczp3_/runtime-list_LexerToken.o",
+    "/private/tmp/nanolang-token-integration-puck/apple-ordinary/nano-token-bytes-2_qczp3_/runtime-list_token.o",
+    "/private/tmp/nanolang-token-integration-puck/apple-ordinary/nano-token-bytes-2_qczp3_/runtime-token_helpers.o",
+    "-o",
+    "/private/tmp/nanolang-token-integration-puck/apple-ordinary/nano-token-bytes-2_qczp3_/counts-c"
+  ],
+  "cwd": "/private/tmp/nanolang-token-integration-51d",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

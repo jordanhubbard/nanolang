@@ -1,0 +1,14 @@
+{
+  "/tmp/nanolang-token-28e.tar": {
+    "sha256": "22fad08c125f8a1fc4015e98d44d939714c9c2ce76c61a8bf5028e310cb795f6",
+    "bytes": 1596651520
+  },
+  "/tmp/nanolang-token-gates-28e.py": {
+    "sha256": "07268e1b42a79012f6d2eb1ba3a03c81bcdf4328fe39c98864161bab55a95e1b",
+    "bytes": 8063
+  },
+  "/tmp/nanolang-token-28e-paths.json": {
+    "sha256": "9d5769f7feed7ae95dddf86d90b154766e11564020e30d87e2f4bda95f11fcb7",
+    "bytes": 1463906
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "nanolang-token-copy-083.py": {
+    "sha256": "a5c51743c040b11c19de8dfca8a2266f498299fe20842f9c657bfc8b6c109fa2",
+    "bytes": 2282,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/a5c51743c040b11c19de8dfca8a2266f498299fe20842f9c657bfc8b6c109fa2"
+  },
+  "nanolang-token-copy-1bb.py": {
+    "sha256": "270a008b66bb290c5922b89e09425a1608f0d7f4af5b6a0d8caa2d98e93fb732",
+    "bytes": 2282,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/270a008b66bb290c5922b89e09425a1608f0d7f4af5b6a0d8caa2d98e93fb732"
+  },
+  "nanolang-token-copy-ece.py": {
+    "sha256": "41bd2a6ad8391a96301703feb3d12b8f63ef586602efc31ee6ffa8f9fbf35ae8",
+    "bytes": 2282,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/41bd2a6ad8391a96301703feb3d12b8f63ef586602efc31ee6ffa8f9fbf35ae8"
+  },
+  "nanolang-token-copy-303.py": {
+    "sha256": "c07f53dcdb2d0d10a6df96a3cda2201899a896ccaf195e72509f54388a0c00c8",
+    "bytes": 2802,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/c07f53dcdb2d0d10a6df96a3cda2201899a896ccaf195e72509f54388a0c00c8"
+  },
+  "nanolang-token-copy-7bf-first.py": {
+    "sha256": "e56b953889d864d84957ca0561ec5b071e9d23116b6fa77917c55f23f1b10678",
+    "bytes": 2067,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/e56b953889d864d84957ca0561ec5b071e9d23116b6fa77917c55f23f1b10678"
+  },
+  "nanolang-token-copy-ae62.py": {
+    "sha256": "370d2fe3dc11337652307dc4cbaac09f4581f9ea17dffe19b3d0ec975c287bf8",
+    "bytes": 2802,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/370d2fe3dc11337652307dc4cbaac09f4581f9ea17dffe19b3d0ec975c287bf8"
+  },
+  "nanolang-token-copy-315.py": {
+    "sha256": "5f73877983c0db017f1e024b1fac02dd13fdbe6f6d3584a7f5d21d9ac0d84da4",
+    "bytes": 2802,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/5f73877983c0db017f1e024b1fac02dd13fdbe6f6d3584a7f5d21d9ac0d84da4"
+  },
+  "nanolang-token-copy-d285.py": {
+    "sha256": "1a0341758392b7396910f87ed29598c2d790a1c11f34fcffc80effd42b4f82dc",
+    "bytes": 2802,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/1a0341758392b7396910f87ed29598c2d790a1c11f34fcffc80effd42b4f82dc"
+  },
+  "nanolang-token-copy-7bf.py": {
+    "sha256": "d6e43c030361b5fd6543f10be52e45f746579600841f29aa726c9437f801caf4",
+    "bytes": 2282,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/d6e43c030361b5fd6543f10be52e45f746579600841f29aa726c9437f801caf4"
+  },
+  "nanolang-token-gates-1bb.py": {
+    "sha256": "f08e2aae879b9a2f2edde47e7c334d85d8140180d79ba2f3565f2aae6518293d",
+    "bytes": 8199,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/f08e2aae879b9a2f2edde47e7c334d85d8140180d79ba2f3565f2aae6518293d"
+  },
+  "nanolang-token-gates-083.py": {
+    "sha256": "f22493831d1dcb09c43adbdd6a54c14340246130309430783b775de365c31c17",
+    "bytes": 8199,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/f22493831d1dcb09c43adbdd6a54c14340246130309430783b775de365c31c17"
+  },
+  "nanolang-token-gates-28e.py": {
+    "sha256": "07268e1b42a79012f6d2eb1ba3a03c81bcdf4328fe39c98864161bab55a95e1b",
+    "bytes": 8063,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/07268e1b42a79012f6d2eb1ba3a03c81bcdf4328fe39c98864161bab55a95e1b"
+  },
+  "nanolang-token-gates-d285.py": {
+    "sha256": "534ea948741fbf24ba738378ed8611238e98951ccb7aa8b1c842413ec03216be",
+    "bytes": 8199,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/534ea948741fbf24ba738378ed8611238e98951ccb7aa8b1c842413ec03216be"
+  },
+  "nanolang-token-gates-ece.py": {
+    "sha256": "739e0ec79875f7ef79e6803408c249a007332252aed8501aab2c76da11169ceb",
+    "bytes": 8199,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/739e0ec79875f7ef79e6803408c249a007332252aed8501aab2c76da11169ceb"
+  },
+  "nanolang-token-gates-ae62.py": {
+    "sha256": "6dadbdcc526b9a73241850ee0d80948d02bdf623d5e769519bb7b3a26e4d6098",
+    "bytes": 8199,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/6dadbdcc526b9a73241850ee0d80948d02bdf623d5e769519bb7b3a26e4d6098"
+  },
+  "nanolang-token-gates-303.py": {
+    "sha256": "048aacaf2a0205637d753f82d9ff324d045a7e44041bf26fa22792662304a647",
+    "bytes": 8199,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/048aacaf2a0205637d753f82d9ff324d045a7e44041bf26fa22792662304a647"
+  },
+  "nanolang-token-gates-315.py": {
+    "sha256": "85bba2b00009800ce4a6a79865c07a47a59bebe0c8fa500524228c94af3ad82b",
+    "bytes": 8199,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/85bba2b00009800ce4a6a79865c07a47a59bebe0c8fa500524228c94af3ad82b"
+  },
+  "nanolang-token-gates-7bf.py": {
+    "sha256": "15f58096a5da28942829553f83983cb6dba74a31d0b0a6ad6b5b8c0e9def398f",
+    "bytes": 8070,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/15f58096a5da28942829553f83983cb6dba74a31d0b0a6ad6b5b8c0e9def398f"
+  },
+  "nanolang-token-current.py": {
+    "sha256": "00d23151ae830ba14f699b5cab6955b1561dc79cd91fca728a331b985780720c",
+    "bytes": 1317,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/00d23151ae830ba14f699b5cab6955b1561dc79cd91fca728a331b985780720c"
+  },
+  "nanolang-token-package.py": {
+    "sha256": "d881f30e1020be63a2a94e4a0a53e3dea24f25a786e2a4a33cf7bd57ed6ca9eb",
+    "bytes": 1806,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/d881f30e1020be63a2a94e4a0a53e3dea24f25a786e2a4a33cf7bd57ed6ca9eb"
+  },
+  "nanolang-token-seal-extra.py": {
+    "sha256": "0360b46f39bd89e0561a0a1d9c854d2077e718b2d27dc37b0a934b828409ef7f",
+    "bytes": 3381,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/0360b46f39bd89e0561a0a1d9c854d2077e718b2d27dc37b0a934b828409ef7f"
+  },
+  "nanolang-token-315-linux-driver.log": {
+    "sha256": "a0cbd18dbbb2fc4a8247b312a305dd3b73fccd9526d3062021fc86f5ae2face4",
+    "bytes": 337,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/a0cbd18dbbb2fc4a8247b312a305dd3b73fccd9526d3062021fc86f5ae2face4"
+  },
+  "nanolang-token-303-linux-driver.log": {
+    "sha256": "5ea5b192ef782e1be6e2c02eac64b39bd3f35e3dedcd6831d38fd773040760a5",
+    "bytes": 237,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/5ea5b192ef782e1be6e2c02eac64b39bd3f35e3dedcd6831d38fd773040760a5"
+  },
+  "nanolang-token-28e-linux-driver.log": {
+    "sha256": "73909d6fdf56991b6fe85e96c1fa4ab009d0036e74e9cb01ee7347deac18b85e",
+    "bytes": 257,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/73909d6fdf56991b6fe85e96c1fa4ab009d0036e74e9cb01ee7347deac18b85e"
+  },
+  "nanolang-token-1bb-linux-driver.log": {
+    "sha256": "921e42c86ca2203794390c1f419970649437223b3cd493c941a8438e76ea8d5a",
+    "bytes": 238,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/921e42c86ca2203794390c1f419970649437223b3cd493c941a8438e76ea8d5a"
+  },
+  "nanolang-token-ae62-linux-driver.log": {
+    "sha256": "0c8e7fa8dfc167f07e4be679851f14c968439238537a7c4e25facf53b1bb0057",
+    "bytes": 238,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/0c8e7fa8dfc167f07e4be679851f14c968439238537a7c4e25facf53b1bb0057"
+  },
+  "nanolang-token-d285-linux-driver.log": {
+    "sha256": "1d53c3925bdf3556ebbfb890a1bedc593cb1137329c03da86ada1f20ac56b08a",
+    "bytes": 238,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/1d53c3925bdf3556ebbfb890a1bedc593cb1137329c03da86ada1f20ac56b08a"
+  },
+  "nanolang-token-ece-linux-driver.log": {
+    "sha256": "b34951c8c61d92c52cbe2325674499e3dcdc208657af620d01a3d7d20b3dee3e",
+    "bytes": 237,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/b34951c8c61d92c52cbe2325674499e3dcdc208657af620d01a3d7d20b3dee3e"
+  },
+  "nanolang-token-083-linux-driver.log": {
+    "sha256": "c9351098168be75c204708154d9e49c69d0050e163fbd34fcb465b917a6dec77",
+    "bytes": 237,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/c9351098168be75c204708154d9e49c69d0050e163fbd34fcb465b917a6dec77"
+  },
+  "nanolang-token-7bf-linux-driver.log": {
+    "sha256": "8cac356d80705f6dc971f627e0f0b92a34e7dd501c21332554b993ca4a238c03",
+    "bytes": 237,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/8cac356d80705f6dc971f627e0f0b92a34e7dd501c21332554b993ca4a238c03"
+  },
+  "nanolang-token-28e-paths.json": {
+    "sha256": "9d5769f7feed7ae95dddf86d90b154766e11564020e30d87e2f4bda95f11fcb7",
+    "bytes": 1463906,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/9d5769f7feed7ae95dddf86d90b154766e11564020e30d87e2f4bda95f11fcb7"
+  },
+  "nanolang-token-puck-transport.stdout": {
+    "sha256": "47306e9116d73061c63ea54365d690f23c84872bdf6bc1a22156a5c664bdb3bf",
+    "bytes": 302,
+    "archive": "/tmp/nanolang-token-value-bytes-artifacts/47306e9116d73061c63ea54365d690f23c84872bdf6bc1a22156a5c664bdb3bf"
+  }
+}

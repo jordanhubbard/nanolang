@@ -1,0 +1,50 @@
+{
+  "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14": {
+    "sha256": "7521cd8e8d21274539c64ab2708818d0f32d58be26ae88f9cb30bfb0c392d7c8",
+    "bytes": 133264
+  },
+  "/usr/bin/aarch64-linux-gnu-ar": {
+    "sha256": "f4583a612510e038dbc1ae8afb5eae5f0445c435bdd7c4c28e78acc7e757d2b1",
+    "bytes": 67824
+  },
+  "/usr/bin/aarch64-linux-gnu-gcc-13": {
+    "sha256": "a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d",
+    "bytes": 990040
+  },
+  "/usr/bin/aarch64-linux-gnu-ld.bfd": {
+    "sha256": "1e4d3369b76845fa8e099b83513bf28f6f722e046f9b2cde1378c9e27f96d19c",
+    "bytes": 1710520
+  },
+  "/usr/bin/make": {
+    "sha256": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0",
+    "bytes": 267672
+  },
+  "/usr/bin/pkgconf": {
+    "sha256": "b21b58e97876992968c82d823d74034abbc6a4176f8c9d5f2e0400f343e73fc1",
+    "bytes": 69512
+  },
+  "/usr/lib/aarch64-linux-gnu/libasan.so.8.0.0": {
+    "sha256": "de6c4e81ffe87e94b6a6977cf5ec3eb403cb26fbd1aea1c1b9637f843ec51daf",
+    "bytes": 10792896
+  },
+  "/usr/lib/aarch64-linux-gnu/libubsan.so.1.0.0": {
+    "sha256": "71f00676e3fb2285661a71188865bb9924d7da38ebecd2b9bb0ee180b28caa60",
+    "bytes": 3443024
+  },
+  "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1": {
+    "sha256": "64edfe466dd55c4216c006e9fa237af012e4974281dd4d11640aacfc3b3693af",
+    "bytes": 26761448
+  },
+  "/usr/local/bin/clang-23": {
+    "sha256": "3679c26d7a60727b11acba72366337f0e35853c9cd3cd342a463aa2f8fe10c9e",
+    "bytes": 234969072
+  },
+  "/usr/local/lib/clang/23/lib/aarch64-unknown-linux-gnu/libclang_rt.asan.a": {
+    "sha256": "2a9164b07c2836772b7a54593900600c38278f802ba88e40f191a2b086d55512",
+    "bytes": 26640436
+  },
+  "/usr/local/lib/clang/23/lib/aarch64-unknown-linux-gnu/libclang_rt.ubsan_standalone.a": {
+    "sha256": "13a9f531c4687f6162921923b3ea0250111547c48b341be25babe4bfaa12b449",
+    "bytes": 7537306
+  }
+}

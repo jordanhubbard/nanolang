@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-token-corrected-315/src",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-c",
+    "/home/jkh/Src/nanolang-token-corrected-315/src/runtime/list_token.c",
+    "-o",
+    "/tmp/nanolang-token-315-linux/gcc-sanitizer/nano-token-bytes-6_zo23dz/runtime-list_token.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-token-corrected-315",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}
