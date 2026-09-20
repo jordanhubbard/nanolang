@@ -1,0 +1,7 @@
+Warning at line 484, column 2: Unused variable 'catalog'
+Warning at line 943, column 2: Unused variable 'catalog'
+[ffi_loader] Initialized
+[ffi_loader] Loaded 'file_source_catalog' from /home/jkh/Src/nanolang-file-source-qualified-74c/modules/file_source_catalog/.build/.nano-gen-yqZiVu/libfile_source_catalog.so
+I stopped shadow execution after 10 seconds.
+Shadow tests failed
+[ffi_loader] Shut down

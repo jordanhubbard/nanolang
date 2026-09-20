@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-sanitizer/nano-file-binding-yylawiho/binding-linked",
+    "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-sanitizer/nano-file-binding-yylawiho",
+    "/private/tmp/nanolang-file-binding-bc7de-puck/homebrew-sanitizer/nano-file-binding-yylawiho/expected.json",
+    "/private/tmp/nanolang-file-binding-corrected-bc7de/tests/fixtures/nsi_file_binding_expected.nano.txt"
+  ],
+  "cwd": "/private/tmp/nanolang-file-binding-corrected-bc7de",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

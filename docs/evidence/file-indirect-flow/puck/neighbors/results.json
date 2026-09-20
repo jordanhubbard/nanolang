@@ -1,0 +1,17 @@
+[
+  {
+    "phase": "configuration",
+    "seconds": 0.2,
+    "status": 0
+  },
+  {
+    "phase": "cyclic-neighbor",
+    "seconds": 2.84,
+    "status": 0
+  },
+  {
+    "phase": "indirect-target-neighbor",
+    "seconds": 2.262,
+    "status": 0
+  }
+]

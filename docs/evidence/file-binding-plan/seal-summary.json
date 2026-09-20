@@ -1,0 +1,54 @@
+{
+  "production": "675c44a91",
+  "original_fixture": "23bedeb11",
+  "corrected_fixture": "bc7debbff",
+  "cases": 704,
+  "equal_input_pairs": [
+    "puck-bc7de/make-provider-closure-tools-before.json",
+    "puck-bc7de/homebrew-sanitizer-source-before.json",
+    "puck-bc7de/make-provider-closure-source-before.json",
+    "puck-bc7de/homebrew-ordinary-tools-before.json",
+    "puck-bc7de/homebrew-sanitizer-tools-before.json",
+    "puck-bc7de/homebrew-ordinary-source-before.json",
+    "puck-23bed-first/make-provider-closure-tools-before.json",
+    "puck-23bed-first/make-provider-closure-source-before.json",
+    "puck-23bed-first/apple-ordinary-tools-before.json",
+    "puck-23bed-first/homebrew-ordinary-tools-before.json",
+    "puck-23bed-first/homebrew-ordinary-source-before.json",
+    "puck-23bed-first/apple-ordinary-source-before.json",
+    "linux-23bed/make-provider-closure-tools-before.json",
+    "linux-23bed/gcc-sanitizer-tools-before.json",
+    "linux-23bed/clang-ordinary-tools-before.json",
+    "linux-23bed/make-provider-closure-source-before.json",
+    "linux-23bed/clang-sanitizer-tools-before.json",
+    "linux-23bed/gcc-ordinary-tools-before.json",
+    "linux-23bed/gcc-ordinary-source-before.json",
+    "linux-23bed/clang-sanitizer-source-before.json",
+    "linux-23bed/gcc-sanitizer-source-before.json",
+    "linux-23bed/clang-ordinary-source-before.json"
+  ],
+  "artifact_objects": 923,
+  "artifact_references": 6100,
+  "artifact_bytes": 748183932,
+  "scope": "strict immutable byte ingestion and forward text only; no generated shadow execution/publication",
+  "current_maps": {
+    "linux": {
+      "sources": 13523,
+      "tools": 12
+    },
+    "puck_original": {
+      "source_root": "/tmp/nanolang-file-binding-qualified-23bed",
+      "reference": "/tmp/nanolang-file-binding-23bed-puck",
+      "sources": 13523,
+      "tools": 12,
+      "current_matches": true
+    },
+    "puck_corrected": {
+      "source_root": "/tmp/nanolang-file-binding-corrected-bc7de",
+      "reference": "/tmp/nanolang-file-binding-bc7de-puck",
+      "sources": 13523,
+      "tools": 12,
+      "current_matches": true
+    }
+  }
+}

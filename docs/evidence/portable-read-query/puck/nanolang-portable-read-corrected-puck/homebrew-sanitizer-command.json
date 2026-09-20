@@ -1,0 +1,13 @@
+{
+  "label": "homebrew-sanitizer",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_portable_host_plan"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

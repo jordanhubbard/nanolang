@@ -1,0 +1,10 @@
+                 U _free
+                 U _isa_decode
+                 U _malloc
+                 U _memcpy
+000000000000056c T _nvm_add_local_binding
+                 U _nvm_add_metadata
+                 U _nvm_add_string
+00000000000003e0 T _nvm_local_name_at
+0000000000000000 T _nvm_local_names_validate
+                 U _nvm_metadata_valid

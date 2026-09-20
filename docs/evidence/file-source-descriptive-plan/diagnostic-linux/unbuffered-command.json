@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/bin/stdbuf",
+    "-o0",
+    "-e0",
+    "/home/jkh/Src/nanolang-file-source-diagnostic-74c/bin/nanoc_c",
+    "/tmp/nanolang-file-source-diagnostic-74c/corpus.nano",
+    "-o",
+    "/tmp/nanolang-file-source-diagnostic-74c/program",
+    "--verbose",
+    "--llm-shadow-json",
+    "/tmp/nanolang-file-source-diagnostic-74c/shadows.json"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-source-diagnostic-74c",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

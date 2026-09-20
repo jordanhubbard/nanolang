@@ -1,0 +1,24 @@
+I retain carrier artifacts at /tmp/nano-file-cyclic-runtime-ehwku8ns
+test_instrumented_cyclic_and_preserved_acyclic (tests.test_file_cyclic_runtime.FileCyclicRuntime.test_instrumented_cyclic_and_preserved_acyclic) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_cyclic_and_preserved_acyclic (tests.test_file_cyclic_runtime.FileCyclicRuntime.test_instrumented_cyclic_and_preserved_acyclic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-cyclic-carrier-c5d/tests/test_file_cyclic_runtime.py", line 75, in test_instrumented_cyclic_and_preserved_acyclic
+    self.qualify('instrumented', True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-cyclic-carrier-c5d/tests/test_file_cyclic_runtime.py", line 72, in qualify
+    self.command(f'{name}-run', [str(exe)], run=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-file-cyclic-carrier-c5d/tests/test_file_cyclic_runtime.py", line 35, in command
+    stdout = retained_runner.FileCyclic.command(self, name, args)
+  File "/home/jkh/Src/nanolang-file-cyclic-carrier-c5d/tests/test_file_cyclic.py", line 86, in command
+    self.assertEqual(status["returncode"], 0, status)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'timeout': False, 'returncode': 1, 'leader_reaped': True, 'group_disappeared': True, 'bound_seconds': 240, 'errors': [], 'cleanup_signals': [], 'launched': True}
+
+----------------------------------------------------------------------
+Ran 1 test in 4.332s
+
+FAILED (failures=1)

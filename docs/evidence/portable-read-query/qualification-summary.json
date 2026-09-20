@@ -1,0 +1,272 @@
+{
+  "hosts": {
+    "linux": {
+      "reports": 285,
+      "unique_artifacts": 556,
+      "artifact_references": 2606,
+      "artifact_bytes": 397308194,
+      "pairs": [
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary-after.json",
+          "count": 519,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer-after.json",
+          "count": 519,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/verifier-cleanup-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/verifier-cleanup-after.json",
+          "count": 519,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/prepare-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/prepare-after.json",
+          "count": 482,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer-after.json",
+          "count": 519,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/generic-verifier-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/generic-verifier-after.json",
+          "count": 519,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/nanoisa-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/nanoisa-after.json",
+          "count": 519,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/inputs-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/inputs-after.json",
+          "count": 502,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/inputs-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/inputs-after.json",
+          "count": 502,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/inputs-before.json",
+          "after": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/inputs-after.json",
+          "count": 502,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-resume-linux/before.json",
+          "after": "/tmp/nanolang-portable-read-resume-linux/after.json",
+          "count": 520,
+          "equal": true
+        },
+        {
+          "before": "/tmp/nanolang-portable-read-resume-linux/nanoisa-before.json",
+          "after": "/tmp/nanolang-portable-read-resume-linux/nanoisa-after.json",
+          "count": 520,
+          "equal": true
+        }
+      ],
+      "current": [
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary-after.json",
+          "current_equal": true,
+          "count": 519
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/prepare-after.json",
+          "current_equal": true,
+          "count": 482
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/nanoisa-after.json",
+          "current_equal": true,
+          "count": 519
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/generic-verifier-after.json",
+          "current_equal": true,
+          "count": 519
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/verifier-cleanup-after.json",
+          "current_equal": true,
+          "count": 519
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer-after.json",
+          "current_equal": true,
+          "count": 519
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer-after.json",
+          "current_equal": true,
+          "count": 519
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/inputs-after.json",
+          "current_equal": true,
+          "count": 502
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/inputs-after.json",
+          "current_equal": true,
+          "count": 502
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/inputs-after.json",
+          "current_equal": true,
+          "count": 502
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-resume-linux/nanoisa-after.json",
+          "current_equal": true,
+          "count": 520
+        },
+        {
+          "map": "/tmp/nanolang-portable-read-resume-linux/after.json",
+          "current_equal": true,
+          "count": 520
+        }
+      ]
+    },
+    "puck": {
+      "reports": 195,
+      "unique_artifacts": 549,
+      "artifact_references": 2087,
+      "artifact_bytes": 34131471,
+      "pairs": [
+        {
+          "before": "/private/tmp/nanolang-portable-read-corrected-puck/prepare-before.json",
+          "after": "/private/tmp/nanolang-portable-read-corrected-puck/prepare-after.json",
+          "count": 476,
+          "equal": true
+        },
+        {
+          "before": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary-before.json",
+          "after": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary-after.json",
+          "count": 513,
+          "equal": true
+        },
+        {
+          "before": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer-before.json",
+          "after": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer-after.json",
+          "count": 513,
+          "equal": true
+        },
+        {
+          "before": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/inputs-before.json",
+          "after": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/inputs-after.json",
+          "count": 502,
+          "equal": true
+        },
+        {
+          "before": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/inputs-before.json",
+          "after": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/inputs-after.json",
+          "count": 502,
+          "equal": true
+        },
+        {
+          "before": "/private/tmp/nanolang-portable-read-resume-puck/before.json",
+          "after": "/private/tmp/nanolang-portable-read-resume-puck/after.json",
+          "count": 518,
+          "equal": true
+        },
+        {
+          "before": "/private/tmp/nanolang-portable-read-resume-puck/nanoisa-before.json",
+          "after": "/private/tmp/nanolang-portable-read-resume-puck/nanoisa-after.json",
+          "count": 518,
+          "equal": true
+        },
+        {
+          "before": "/private/tmp/nanolang-portable-read-resume-puck/verifier-cleanup-before.json",
+          "after": "/private/tmp/nanolang-portable-read-resume-puck/verifier-cleanup-after.json",
+          "count": 518,
+          "equal": true
+        },
+        {
+          "before": "/private/tmp/nanolang-portable-read-resume-puck/homebrew-linked-before.json",
+          "after": "/private/tmp/nanolang-portable-read-resume-puck/homebrew-linked-after.json",
+          "count": 518,
+          "equal": true
+        },
+        {
+          "before": "/private/tmp/nanolang-portable-read-resume-puck/generic-verifier-before.json",
+          "after": "/private/tmp/nanolang-portable-read-resume-puck/generic-verifier-after.json",
+          "count": 518,
+          "equal": true
+        }
+      ],
+      "current": [
+        {
+          "map": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary-after.json",
+          "current_equal": true,
+          "count": 513
+        },
+        {
+          "map": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer-after.json",
+          "current_equal": true,
+          "count": 513
+        },
+        {
+          "map": "/private/tmp/nanolang-portable-read-corrected-puck/prepare-after.json",
+          "current_equal": true,
+          "count": 476
+        },
+        {
+          "map": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/inputs-after.json",
+          "current_equal": true,
+          "count": 502
+        },
+        {
+          "map": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/inputs-after.json",
+          "current_equal": true,
+          "count": 502
+        },
+        {
+          "map": "/private/tmp/nanolang-portable-read-resume-puck/homebrew-linked-after.json",
+          "current_equal": true,
+          "count": 518
+        },
+        {
+          "map": "/private/tmp/nanolang-portable-read-resume-puck/nanoisa-after.json",
+          "current_equal": true,
+          "count": 518
+        },
+        {
+          "map": "/private/tmp/nanolang-portable-read-resume-puck/after.json",
+          "current_equal": true,
+          "count": 518
+        },
+        {
+          "map": "/private/tmp/nanolang-portable-read-resume-puck/generic-verifier-after.json",
+          "current_equal": true,
+          "count": 518
+        },
+        {
+          "map": "/private/tmp/nanolang-portable-read-resume-puck/verifier-cleanup-after.json",
+          "current_equal": true,
+          "count": 518
+        }
+      ]
+    }
+  },
+  "unique_artifacts": 634,
+  "artifact_bytes": 423363786,
+  "source_pin": "e9e6144cb0441ed2dd170e001e92fc4a331f0b8b",
+  "corrected_linked_fixture_pin": "76ec98223",
+  "production_pin": "9005b9f509f97fd7ca71cdcf04eb028a9fd82097",
+  "puck_archive_sha256": "7d731dc4378903a5d58d03f80a88fa30acc0714bbf699baafb2ffdc94e8a5a7f"
+}

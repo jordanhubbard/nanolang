@@ -1,0 +1,14 @@
+{
+  "returncode": 1,
+  "phase": "external-tool-inventory-before-build",
+  "error": "AssertionError: pathlib.Path(p).is_file()",
+  "driver_sha256": "b678feeab2863ed68e3ee074d024be27b638a3fc6b7a6484827f46179dff3999",
+  "observed_diagnostic_outputs": {
+    "libasan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libasan.so",
+    "libubsan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libubsan.so",
+    "cc1": "cc1",
+    "collect2": "collect2"
+  },
+  "qualification_commands_launched": 0,
+  "attribution": "The original assertion did not print its loop variable; subsequent diagnostic queries show both executable helper basenames unresolved."
+}

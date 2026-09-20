@@ -10584,6 +10584,15 @@ Other translators:
 
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
       MAC `task_2d2e9eb552394f6e84e90f5aa08484e2`.
+      - [ ] I review the [portable read-text linkage proposal](NANOISA_PORTABLE_READ_TEXT_LINKAGE.md), task_b7ef4d216a4948c58f7a710feacc4251: exact existing STRING→STRING imports, native callback and Wasm offset/length ABI, copied managed results and real allowlisted filesystem adapters.
+      - [ ] I qualify its private non-admitting binding query, then separately review/qualify adapters, opt-in lowering/publication and paired source/installed host links. Query preparation issues no host calls; old closed profiles remain unchanged.
+        - [x] I review my first `portable_host_plan.h/.c` source checkpoint9005b9f50 before fixtures: fixed owned import facts, exact STRING declarations and later-adapter ownership obligations, all-function shared structural validation with precharged allocation bounds. PREPARED grants no operand-type, host-capability or execution authority; shared advisory type allocation skips and reported INVALID allocation failures remain explicit. The query has no host context; capability-denial controls belong to the adapter checkpoint.
+        - [x] I review and qualify the separate query fixture/retention checkpoint ([bounded evidence](evidence/portable-read-query.md)): copied facts after input destruction, unused-body/import/File/limit refusals, exact allocation-domain prefix/transient outcomes and unchanged closed-profile refusal. No bytecode executes; linked and observed query objects and scoped sanitizer inputs remain separately attributed.
+        - [x] I correct and qualify the external Clang23 runtime-inventory filename assumption: first setup stops before build on unresolved arch-suffixed ASan basename; I retain that terminal, require the actual target-directory shared/static runtime paths, and run fresh gates with unchanged e9e query/fixtures.
+        - [x] I close the retained e9e harness-only terminals without weakening assertions: correct the external ISA-neighbor module include path and observe the linked fixture failure counter under strict Homebrew warnings; fresh linked/unreached adjacency controls preserve earlier passed query phases and all original artifacts.
+      - [ ] I implement the reviewed private read-text adapter/managed-copy checkpoint under b7ef after query899 actual merge f42201461 ([exact API and staged contract](NANOISA_PORTABLE_READ_TEXT_ADAPTERS.md)): copied immutable allowlist, real native read/close, rooted borrowed argument and owned copied result, bounded scratch and first-error cleanup. Source review precedes fixtures or host effects.
+      - [ ] I qualify direct native/LLVM and separately reviewed wasm32 Node/Wasmtime adapters with real files, exact ABI/ranges, denial before effects, allocation/root recovery and copied-return lifetime. Direct adapter acceptance does not admit NanoISA CALL_EXTERN; complete target authority, opt-in source/emission and installed linkage remain later checkpoints.
+      - [ ] I retain the full parent continuation for byte/aggregate results, remaining filesystem/process/compiler capabilities and exact linked-module identities. This first read-text step does not close2d2, replace15f/488 authority or narrow compiler/bootstrap/fixed-point gates.
 - [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full
@@ -12584,6 +12593,33 @@ execution,247 reports,782 unique artifacts,24 equal source/tool pairs and exact
 prepared-provider identities. Productionf6ee is unchanged. Independent review
 and actual merge remain pending; no cyclic File runtime or parent closure follows.
 
+### My paired File source and NSI publication prerequisite
+
+- [ ] I review [my paired File source contract](NANOISA_FILE_SOURCE_PUBLICATION.md), `task_8bbc1cf5295b4b59b314640ef57c725f`, on actual public merge97546742 under6fc/72556/6931/d03c. I retain exact catalog/declaration identity and proposed grammar, cross-format coexistence with the separately owned scalar-union schema, and all mandatory source/shadow/control-flow requirements. This row authorizes no implementation before review.
+  - [ ] I implement and independently review only paired non-admitting source plans/catalog data access first, with exact copied identities, budgets and transactional outputs.
+  - [ ] I correct the statically discovered6c22 Nano request extent gap before fixtures: bare strings use strlen and cannot represent C counted-span validation of embedded NUL. Mirror explicit byte extents in Nano request text and reject length mismatches; retain truthful caller span semantics without widening string runtime or publication authority.
+  - [ ] I correct the statically reviewed384c fixture acceptance gaps before execution: replace aggregate/sample shadow checks with exact selected names for every generated case, Nano boundary helper, source-plan helper and catalog bridge; retain complete file-backed stdout/stderr and bounded process cleanup without losing the first terminal. C-seed success JSON currently exposes counts, not successful names; I retain actual verbose selection records alongside it rather than inventing JSON fields.
+  - [ ] I retain frozen32ade Linux bootstrap PASS281.203s and the first GCC fixture terminal: linked/instrumented ownership passes, then adjacent generated unbraced if statements fail strict misleading-indentation compilation before Nano execution. I correct only generated statement bracing/line layout, preserve every predicate and sentinel assertion, and freshly compile the corrected corpus after review; the independent puck attempt remains separately observed.
+  - [ ] I preserve independent32ade puck bootstrap PASS278.261s, passing C ownership/corpus, and first C-seed Nano module failure before shadows. My new bridge advertises a module-local header which the existing pure-Nano object compile path does not inherit (module.c passes NULL compile flags); I use the existing src include-root header directly rather than change generic compiler propagation. I retain that observed general include-propagation limitation for later module publication review. Two fixture qualified-call result-field accesses also lack inferred struct type; I bind exact FileSourcePlan locals before reading status. No assertions, shadow selection or source-plan semantics are removed.
+  - [ ] I preserve corrected74c Linux first terminal: C ownership/corpus and both Nano module builds pass; C-seed stops the selected shadow child at its unchanged10-second deadline without an observed last shadow because verbose output was buffered. Before changing fixtures or production I run a separately labeled, isolated unbuffered diagnostic under the same deadline to distinguish a single-boundary cost from aggregate suite cost; it cannot replace qualification. Original32ade/74c failure trees remain immutable.
+  - [ ] I retain the approved isolated74c unbuffered diagnostic:75 actual shadow starts,74 PASSED records, no FAILED record, and the unchanged whole-suite10-second deadline during nano_budget_case (standalone duration unmeasured); all10,993 source and5 tool hashes remain equal. Before fresh qualification I optimize only equal positive full-length Nano text spans with existing byte-string equality, preserving the original counted-prefix loop, complete58-case corpus, exact1MiB budget shadows and deadline.
+  - [ ] I qualify the reviewed descriptive-only fixture checkpoint: canonical C/Nano requests, counted byte prefixes including partial UTF-8/NUL, exact limits, C allocation rollback/input independence, full imported helper/module shadows through actual C-seed/fresh Stage1/2, and retained Linux/Darwin ordinary plus scoped C sanitizer evidence. I preserve the NSI/completeness caller precondition and Nano recoverable-allocation limitation.
+  - [ ] I review paired declaration parsing/checking/schema/clone propagation and distinct generated binding publication before fixtures, retaining strict existing NSI v0 semantics.
+  - [ ] I review paired acyclic File lowering and complete required v2 metadata/hosted conjunction, all bodies and truthful local/stack/reference facts before execution.
+  - [ ] I qualify explicit per-shadow grants, exact selected dependency/root shadows and VOID initializer cleanup, staged compiler publication, C-seed/freshStage1/Stage2 VM/native and installed Linux/Darwin full source/product gates.
+  - [ ] I retain cyclic/fuel, indirect-call and richer-borrow source acceptance as mandatory parent continuations; separate query facts or bounded acyclic success cannot close them.
+
+I qualify only the paired descriptive File plan slice at701dca50f with
+[retained evidence](evidence/file-source-descriptive-plan.md): seven Linux/puck
+configurations pass, four ordinary configurations each compare58 cases through
+C-seed/Stage1/Stage2 with exactly75 selected shadows per producer, and every C
+configuration passes7,503 linked/7,518 instrumented checks. I retain original32ade
+bootstraps and all first failures, the approved74c diagnostic, exact copied
+compiler/provider provenance, and explicit postphase-only inventory limits.
+Final independent review and merge are pending;8bbc and all full File/source
+parents remain open. I have not parsed, lowered, published or executed File
+source through these descriptive plans.
+
 ## I compose cyclic File execution after the qualified query
 
 I retain the preceding pending-review/first-failure paragraphs as historical
@@ -12635,3 +12671,167 @@ separate120-report seal keeps original46912 sanitizer results distinct; current
 ready integration through462c98 changes no production. Dependency1 awaits
 review/actual merge, while cyclic carrier/fuel/VM/native/public and source
 requirements remain open.
+
+- [x] I correct the native read-text qualification driver's executable-helper discovery under b7ef: my first15069 Linux attempt stops before build when file-name queries return cc1/collect2 basenames. I retain the exact driver/terminal in [preflight evidence](evidence/portable-read-adapter-preflight/preflight-terminal.json), use supported program-name queries for executables only, and require a fresh source-identical matrix after review. No product failure or adapter acceptance is inferred.
+- [x] I preserve the15069 Linux precompile triple-probe terminal and consistently pass configured LLVM_FLAGS to dumpmachine under b7ef. The existing exact triple regex, combined-output retention and strict compile flags remain; corrected Linux acceptance requires a fresh fixture checkpoint, while any unaffected puck15069 results keep their original attribution.
+- [x] I retain the original15069 puck pre-adapter LLVM target-mismatch terminal under b7ef and derive the forwarding IR target from a retained compiler-produced C probe, with exact selected flags/SDK. Driver target-name diagnostics are not equivalent to effective cc1 targets on Darwin. Strict-Werror remains; this fixture-only correction requires review and fresh qualification.
+- [x] I retain b9ba's puck Homebrew unhooked compile terminal after all three observed routes pass, and assert unhooked observer counters/descriptor remain untouched under b7ef. Preserve existing allocation/lifetime assertions and strict warnings; qualify corrected unhooked routes plus previously unreached sanitizer scope without relabeling already passed original phases.
+
+I qualify the private native read-text adapter under b7ef with [sealed direct C/LLVM evidence](evidence/portable-read-adapters.md): Linux GCC/Clang and puck Apple/Homebrew ordinary/supported sanitizers, exact split b9ba/7b66 fixture attribution, retained first terminals, copied roots and allocation recovery. These bounded driver/fixture corrections are verified; canonical review/merge remains pending. Real Wasm adapters, public profile/source/installed linkage and full2d2 remain open.
+I refine the next15a92 dependency in
+[NANOISA_FILE_CYCLIC_CARRIER_PLAN.md](NANOISA_FILE_CYCLIC_CARRIER_PLAN.md):
+private plan-kind separation, exact variant/physical witness validation, existing
+slot recycling with nonwrapping generations, and one invocation fuel/report
+revision. PR897 completes only copied hosted facts. This new design awaits
+review before production; carrier, matched VM/native, public conjunction and
+source/indirect/richer-borrow obligations stay open. I coordinate closed-target
+indirect design with root-owned2c135 without overlapping implementation.
+
+I prepare the first15a92 private cyclic carrier source checkpoint after reviewed
+e39 design: explicit plan kind, exact variant/witness and complete core-slot
+coverage, nonwrapping existing physical lifetimes, shared fuel/open-instruction
+protocol and distinct report/cleanup. Invalid options return create status only;
+later adapters own their failure reports. I hold all builds/fixtures/execution
+for source review and retain public acyclic APIs/refusals and full later goals.
+
+I prepare the next15a92 carrier fixture after complete `d4070d672` source review:
+manual cyclic protocol controls retain the old carrier/frame corpus, exact
+fuel/physical identity/owned and borrowed call semantics, 258 slot reuse,
+pre-disposal owner coverage, and measured allocation-failure prefixes. The
+runner retains bounded file-backed terminals and clears leak suppressions.
+[NANOISA_FILE_CYCLIC_CARRIER_PLAN.md](NANOISA_FILE_CYCLIC_CARRIER_PLAN.md)
+records the exact fixture and neighbor scope. This checkpoint is unexecuted;
+fixture review precedes fresh Linux/Darwin qualification. Matched cyclic VM,
+real generated-native, public conjunction, indirect/richer borrowing and source
+requirements remain open under15a92/72556/6931.
+
+After independent carrier fixture review, I add the requested zero-project-
+allocation execution block across entered cyclic instructions, witness checks,
+backedges and return in both arena modes. I retain all prior fault predicates
+and distinguish retained creation bytes from an unmeasured preparation peak.
+This bounded fixture addition remains unexecuted pending review.
+
+- [ ] I repair carrier fixture post-refusal root inspection (`1a19c4ff`, parent
+  `15a92`). Frozen `c5d048` Linux setup/configuration passed; its first ordinary
+  gate compiled, passed the retained 84,506 carrier and 42,381 frame checks, then
+  failed the inherited `frame_local` helper. I preserve the complete terminal
+  and artifacts. Static inspection finds the held-owner case asks an active
+  frame accessor after expected BORROWED; the later generation-LIMIT case has
+  the same mismatch. I snapshot stable root IDs before refusal and retain the
+  owner/output assertions through the existing root-view API. Unbuffered case
+  markers improve later attribution. Production and status predicates remain
+  unchanged; root reviews the bounded diff before fresh corrected gates.
+
+- [ ] I retain the historical Git input for my Darwin public neighbor (`task_c4c58d627e7c4611973070666387d06d`, parent15a92). At ac877 my corrected carrier matrix and private neighbors passed; public CLI/instrumented methods passed before the linked method's fixed `git show` failed in an archive without `.git`. Root approved only that uncompleted method with verified read-only historical repository, fixed commit/blob, fresh artifacts and source/tool/provider endpoints. Original terminal and passing scopes remain distinct; no fixture or production changes.
+
+I qualify the bounded15a92 carrier protocol at ac877 with exact d407 production:
+Linux GCC/Clang and Darwin Apple/Homebrew ordinary plus supported scoped
+sanitizers pass, including retained acyclic/frame suites and new 258-iteration
+zero-project-allocation controls. Core/query/hosted/private VM/native neighbors
+pass. Linux public suite passes; Darwin public CLI/instrumented passes and its
+remaining linked method passes after verified historical Git input underc4c58.
+I preserve c5d first fixture and ac877 missing-history terminals separately.
+The evidence seal and canonical899/900 bounded integration await review/merge;
+15a92 and full control-call/source parents remain open.
+- [ ] I establish [exact closed-target indirect File calls](NANOISA_FILE_INDIRECT_TARGETS.md), `task_2c135a488bd61576caf83debb2786270` under72556/6931: review current callable identity and bounded target-set/signature/call-graph query; review complete candidate ownership composition and matched VM/native membership-before-transfer; qualify fault/fuel/lifetime and unchanged guards, then public installed and paired source/shadows. Callable argument/results and richer borrowed target transport remain mandatory later checkpoints; no target query or existing function tag grants File execution. Root owns this lane alongside the separate cyclic carrier/fuel and source work.
+
+- [x] I retain and correct the first indirect-query qualification extraction failure: system Python on puck lacks tarfile.extractall(filter=...), so no fixture/build ran. I verify the same source archive hash and extract with supported Homebrew Python into a fresh directory before Darwin gates; Linux qualification is independent. I preserve the first terminal and complete both host reports before closing this driver correction.
+
+- [x] I qualify the first private indirect-target query at5acd1b370 on Linux/puck with seven ordinary/sanitizer configurations and separate code/body/flow/hosted/opcode/cyclic neighbors. [Retained evidence](evidence/file-indirect-targets.md) records all target-query limits; candidate ownership/runtime/source and full task2c135 remain open.
+
+- [ ] I compose every checked indirect target with complete cyclic File ownership under task2c135 after actual PR900: review [the new distinct report and every-candidate transition](NANOISA_FILE_INDIRECT_FLOW.md), implement and review shared internal callable mode without changing old entries, qualify owned arguments/results/borrow/cleanup/all-candidate refusals and faults on Linux/puck; then separately compose hosted execution and matched VM/native dispatch. No target facts or new ownership report alone grants execution.
+
+- [x] I repair the old cyclic allocation fixture's direct internal call after the reviewed indirect extension added its explicit context argument. At293e9c131, all four Linux indirect ownership configurations and code/body/flow/hosted/opcode neighbors pass, then cyclic-neighbor compilation refuses a missing fifth argument at test_file_cyclic.c:308. I retain `/tmp/nanolang-file-indirect-flow-293-linux/cyclic-neighbor-terminal.json` and `/tmp/nano-file-cyclic-q7xbwxbo/instrumented-build-stderr.log`; no cyclic-neighbor execution occurred. I pass explicit NULL to retain the original cyclic mode and predicate, review that fixture-only change, then run corrected cyclic and previously unreached indirect-target neighbors. New ownership production and its qualified fixtures remain unchanged.
+
+- [x] I qualify private every-target indirect File ownership composition at5687cf13c/293e9c131 in seven Linux/Darwin configurations, with all41 measured preparation allocation faults, selected lifetime/sentinel/budget controls and separate old neighbors. [Retained evidence](evidence/file-indirect-flow.md) includes both first cyclic fixture compile failures and the reviewed7d4c explicit-NULL correction; corrected cyclic and previously unreached target neighbors pass with unchanged production. Full task2c135 and hosted/runtime/public/source continuation remain open.
+
+I prepare a separate cyclic-carrier ready integration onto canonical8b84b9cd0
+(899/900). Only the additive roadmap tail conflicts; I retain both histories.
+Thirteen exact carrier/core/fixture/runner/archive-boundary paths match ac877.
+Fresh changed-query providers and ordinary carrier/cyclic-hosted/indirect plus
+archive-public-refusal controls will qualify this integration on both hosts,
+under the reviewed bounded plan. Original ac877 sanitizer/public evidence remains
+unchanged and does not become integrated sanitizer acceptance.
+
+I seal the approved5c71 canonical integration: both hosts pass fresh preparation,
+ordinary carrier, indirect/cyclic-hosted queries and the actual public archive
+boundary. The integration evidence retains156 reports,629 artifacts and12 equal
+source/tool phase pairs, with all prepared execution providers unchanged.
+Original ac877 sanitizer/public corpus attribution stays separate. Source and
+fixture repair children1a19/c4c58 await actual merge reconciliation; full15a92
+matched cyclic VM/native/public execution and parent goals remain open.
+I prepare the descriptive source-plan integration on canonical8b84b9cd in a
+separate tree, preserving frozen701 qualification. All ten plan/module/fixture
+files retain their exact qualified bytes; all21 incoming source/test files
+retain canonical bytes. Only additive Make/roadmap conflicts required resolution.
+Before execution I review fresh changed-provider/C-seed relinking and ordinary
+full source-plan gates on Linux/puck. I retain exact original Stage1/Stage2
+compiler provenance, rebuild imported bridge/module products with empty caches,
+and keep original bootstrap/sanitizer claims at their measured pins. This
+integration does not grant source publication or File execution authority.
+
+I retain the approved af68 integration: fresh C-seed/provider builds and ordinary
+full paired source-plan gates pass on Linux and puck, with all58 cases and75
+selected shadows per producer. My supplemental293-report seal preserves eight
+equal input pairs and698 artifacts; original701 sanitizer and32ade bootstrap
+claims remain distinct. Root independently verifies the original892-report seal.
+Final supplemental review/actual merge remain pending; full8bbc/source parents
+stay open and no source publication or File execution follows.
+
+## I continue actual File binding publication after the descriptive milestone
+
+I retain PR901 actual merge `ec51690f7028fc788145d4d84e630627a07df668` as only
+the paired nonexecuting plan milestone of `task_8bbc1cf5295b4b59b314640ef57c725f`.
+Root verified892+293 actual report blobs,1352+698 retained artifact objects,
+26+8 equal input pairs and18 producer outputs with exactly75 selected shadows.
+I preserve all first failures and distinct bootstrap/sanitizer/integration pins.
+No optional hosted-check success is inferred. Full8bbc/6fc/72556/6931/d03c remain
+open; no duplicate source task replaces their original acceptance.
+
+- [ ] I review [my concrete next binding/source design](NANOISA_FILE_BINDING_PUBLICATION_NEXT.md) before production: strict actual NSI snapshot, pure exact catalog renderer, no-replacement companion directory, paired source declaration/identity and full mandatory later lowering/shadow/publication requirements.
+- [ ] I correct the statically discovered strict-ingestion prerequisite before the new publisher: existing `nl_nsi_load_path` reads an unbounded path and uses non-complete-consumption `cJSON_Parse`; `keys_allowed` does not reject duplicate keys and C-string NSI fields do not retain decoded NUL extents. I establish a bounded counted-byte path with exact decoded-key/string/full-document validation and reuse the existing exact File catalog validator. Legacy acceptance remains separate; no malformed-input execution or product correction is claimed yet.
+- [ ] I review/qualify the pure binding plan's complete allocation/output/lifetime and canonical roundtrip behavior, then separately review/qualify atomic no-replacement directory publication and actual explicit CLI on Linux/puck. I retain first/secondary cleanup and postcommit durability states; no source/service execution follows from generated text alone.
+- [ ] I settle the peer-owned shared schema coexistence policy before paired parser/AST/clone changes, then retain all C-seed/Nano helper/module shadows and exact identity comparisons. I reserve no competing schema version or numeric slot.
+- [ ] I review/qualify complete paired lowering, selected shadows/fresh grants/VOID startup, installed generated binding consumers, actual VM/direct native source and full original platform/product gates. Cyclic/indirect/richer-borrow source acceptance remains mandatory under the open parents.
+
+- [ ] I repair the statically found shared NSI `parse_named` partial-allocation leak before strict binding qualification: a failed id/name strdup can leave the other copied string owned by a temporary local that its caller discards. I free both failed partial fields and publish them only together; successful legacy parsing semantics stay unchanged.
+- [ ] I pin strict binding allocation/work caps before code:1MiB input/output,8192 lexical tokens,64 container depth,256 objects,64 members/object,256 elements/array,4096 raw string/number bytes. Preflight is allocation-free; cJSON nodes/strings/numeric scratch and all NSI copies/ID work are bounded before allocation. Canonical roundtrip calls only the lower strict decoder, never prepare/render recursively. Full source/allocation review precedes fixtures.
+
+I prepare the first strict File binding source checkpoint only: allocation-free
+full JSON preflight, bounded duplicate/extents and shared NSI conversion, exact
+catalog validation, immutable two-pass JSON/forward-source rendering and one
+lower-level canonical roundtrip. My conservative checked heap accounting charges
+NSI provisional arrays by token count, including malformed scalar elements before
+validation. Transactional parse_named cleanup fixes the recorded partial-copy
+leak. No publisher/CLI/schema/source execution is implemented; source review
+precedes fixtures and no build or test has run.
+
+I prepare the root-approved675 strict-binding fixture checkpoint: independent
+full catalog mutation/omission/valid-mode corpus, exact lexical budget edges,
+canonical JSON and hand-written forward-source goldens, source lifetime and
+atomic outputs, full five-provider prefix/transient allocation sweeps including
+roundtrip/extra generic NSI shapes, targeted first/second parse_named strdup
+failures and unchanged NSI/generator/File-plan neighbors. The retained runner
+uses durable files and bounded cleanup with no leak suppression. Forward shadows
+are text only; no source/service execution or file publication is qualified.
+Full fixture review precedes fresh both-host ordinary/sanitizer gates.
+
+- [ ] I correct the measured23bed puck Homebrew linked-fixture compile refusal: `fail_hits` is set but only read by instrumented fault sweeps, so strict `-Wunused-but-set-global` rejects the linked form. I preserve the first compiler terminal and prior Apple/Linux ordinary passes. I assert zero injected failures in the linked-only branch without suppressing diagnostics or changing production; review precedes fresh affected gates.
+
+I retain strict binding qualification at675 production: all seven approved
+Linux/puck ordinary/sanitizer configurations pass704 cases, full canonical JSON
+and forward-text equality, tracked allocation failures and legacy neighbors.
+I preserve the original Homebrew linked warning and separately reviewed bc7de
+zero-injection assertion. My [bounded905-report seal](evidence/file-binding-plan.md)
+records22 equal input pairs and923 artifact objects. No generated shadow or
+publisher execution is claimed; independent review/merge and all later source
+publication requirements remain open.
+I retain the independent original and integration carrier audits, then integrate
+canonical PR901/ec516 in a separate final tree. Its descriptive source-plan
+files and explicit Make targets do not enter my existing runtime closure: all
+2,305 prior source/fixture/module blobs and ten provider-source/object variable
+assignments stay exact. The additive roadmap tail retains both histories; Make
+merges automatically. Both original manifests (444 reports total) remain byte
+exact. This static integration adds no gate rerun or broader acceptance claim.
+The final audit/identity records are in `evidence/file-cyclic-carrier-final`;
+actual merge and bounded repair reconciliation remain pending, full15a92 open.

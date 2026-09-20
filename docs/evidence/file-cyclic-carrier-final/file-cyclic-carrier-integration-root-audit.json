@@ -1,0 +1,80 @@
+{
+  "reports": 156,
+  "artifacts": 629,
+  "artifact_bytes": 201895170,
+  "archive": {
+    "bytes": 51987773,
+    "path": "/tmp/nanolang-file-cyclic-carrier-integration-artifacts.tar.gz",
+    "sha256": "3d09c01fea449b92cc38ae62ee38d84ef8900095c687d3dcc2c69fadfcc5b919"
+  },
+  "archive_objects": 629,
+  "references": 4558,
+  "source_tool_pairs": 12,
+  "phases": {
+    "darwin": [
+      {
+        "phase": "setup",
+        "seconds": 9.172,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.141,
+        "status": 0
+      },
+      {
+        "phase": "carrier",
+        "seconds": 7.116,
+        "status": 0
+      },
+      {
+        "phase": "indirect",
+        "seconds": 2.305,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 5.479,
+        "status": 0
+      },
+      {
+        "phase": "archive-boundary",
+        "seconds": 0.671,
+        "status": 0
+      }
+    ],
+    "linux": [
+      {
+        "phase": "setup",
+        "seconds": 22.07,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.114,
+        "status": 0
+      },
+      {
+        "phase": "carrier",
+        "seconds": 8.735,
+        "status": 0
+      },
+      {
+        "phase": "indirect",
+        "seconds": 2.419,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 7.032,
+        "status": 0
+      },
+      {
+        "phase": "archive-boundary",
+        "seconds": 0.515,
+        "status": 0
+      }
+    ]
+  },
+  "provider_pairs_checked": 12
+}

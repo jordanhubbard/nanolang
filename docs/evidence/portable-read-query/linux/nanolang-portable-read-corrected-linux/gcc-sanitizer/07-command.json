@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "-std=c11",
+    "-D_DEFAULT_SOURCE",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-c",
+    "src/nanovm/vm_decode.c",
+    "-o",
+    "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/products/linked-read_decode.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-qualified",
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

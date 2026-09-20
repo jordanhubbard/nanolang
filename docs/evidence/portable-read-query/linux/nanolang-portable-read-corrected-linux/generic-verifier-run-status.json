@@ -1,0 +1,10 @@
+{
+  "label": "generic-verifier-run",
+  "argv": [
+    "/tmp/nanolang-portable-read-corrected-linux/generic-verifier-binary"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.0037946710363030434
+}

@@ -1,0 +1,105 @@
+{
+  "scope": "postphase-only inventory of retained actual module generation files; not a historical before map",
+  "files": {
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.build.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/.link-dependencies": {
+      "sha256": "b2c27c154cff1fc79bc42ae51446aa8959ec2ba300d325f5040a8da4df6048fb",
+      "bytes": 28140
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/__snapshot_0_0.s": {
+      "sha256": "da1bcbe2356ee8f228c004d0eb8a0ad91238d258ddb5eca0cd31e26a3d94227d",
+      "bytes": 28891
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/__snapshot_0_1.s": {
+      "sha256": "ea6d7becc558968143a1f4d78494f28511848b4b7c6deb1ca704b2384063e706",
+      "bytes": 38106
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/file_source_catalog.o": {
+      "sha256": "633419c5893e0ddf1253e92049386f7b1fb6619e74baaf9aa9f7b75d8f314c82",
+      "bytes": 17056
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/file_source_catalog_0.d": {
+      "sha256": "0e6936bbf5ccf224edb5e14e4447214dd44f104820b7fdd87e264ac759efb0b1",
+      "bytes": 9757
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/file_source_catalog_0.d.includes": {
+      "sha256": "cca165b807432fed6145a83fdbe3cd14bea33a560f5bfc41d6c314eb68d9dd3c",
+      "bytes": 12100
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/file_source_catalog_0.o": {
+      "sha256": "156bff8cd250e2c591f930b6f41f5fa95b84669024bebec9bbc23547f1ff77b2",
+      "bytes": 5760
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/file_source_catalog_1.d": {
+      "sha256": "2a6e9411275041ad05dfac55f8d85d971dfbc17e322c75b6de9f8522ea2c81c5",
+      "bytes": 8700
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/file_source_catalog_1.d.includes": {
+      "sha256": "34d134ba1a1b05921266ebf5ff1225f1fc6b69fdb1200e069a1fd78db49ab51d",
+      "bytes": 10528
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/file_source_catalog_1.o": {
+      "sha256": "71929dd5863cf69f2301cbd0ec5ca919576fe649b73df0bfe390b556f7056943",
+      "bytes": 12472
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/libfile_source_catalog.dylib": {
+      "sha256": "008ad7089216271c13577552942590b7faaffa208930115c86b64613b73b5bb7",
+      "bytes": 51808
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Pw6lQN/source_hashes.json": {
+      "sha256": "f26e09eb63956ade54d40fa843f64d6fb2663629d0b519252c79bf1fdd724cf9",
+      "bytes": 41689
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/.link-dependencies": {
+      "sha256": "2779008efe4b5d3fb372d3e94a54f60dc1c343c7816b1ef9ee122aca0ec08f03",
+      "bytes": 39647
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/__snapshot_0_0.s": {
+      "sha256": "b20911ae69257d7e60fccae3c10776f8e2f8713e134cf5d490d9e0bc78735d77",
+      "bytes": 29175
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/__snapshot_0_1.s": {
+      "sha256": "21b508ec0a16653216fcb537073091718651d084d6e13ab6c970e078694e4c31",
+      "bytes": 38187
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/file_source_catalog.o": {
+      "sha256": "b23d254b975d4469247b9993f8296a2d37b28c7a6c7dc45c99d93771802ce8ee",
+      "bytes": 17152
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/file_source_catalog_0.d": {
+      "sha256": "cc2f86139add1251fb759dbe71c7df92cc77a5c236aff048030525b1401d0b0d",
+      "bytes": 14214
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/file_source_catalog_0.d.includes": {
+      "sha256": "f24d001372863ff4354779044087c8b8f3c489122f8b26d6661e850718d6b43a",
+      "bytes": 17714
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/file_source_catalog_0.o": {
+      "sha256": "1969c32cd3963e8abcdb4ba0d2c95f6c2b5fbcc64153200a53fc0348b8da9eaa",
+      "bytes": 5856
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/file_source_catalog_1.d": {
+      "sha256": "7acdcff7b43140fb920d0047f81424e73503154751fe1b3be1875c652cd17444",
+      "bytes": 12656
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/file_source_catalog_1.d.includes": {
+      "sha256": "610b9bb589e4c54b794974b29ae777ac4687cc9d56c3753663d697712a9e058d",
+      "bytes": 15395
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/file_source_catalog_1.o": {
+      "sha256": "6c15025050e7c120c50836214e105bef25b7e07182f731a89f492b7e4aa07772",
+      "bytes": 12480
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/libfile_source_catalog.dylib": {
+      "sha256": "f66f047baa36b8e32ed71655d747ead862a97f058aa619139e11a5fac121db84",
+      "bytes": 51872
+    },
+    "/private/tmp/nanolang-file-source-qualified-701/modules/file_source_catalog/.build/.nano-gen-Q0AGyg/source_hashes.json": {
+      "sha256": "453307d0a97c932ad7714b043d7b41bf28a85b898fae33bd4b857228189bf3a6",
+      "bytes": 56060
+    }
+  }
+}

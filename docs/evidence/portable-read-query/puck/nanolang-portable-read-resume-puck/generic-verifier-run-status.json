@@ -1,0 +1,10 @@
+{
+  "label": "generic-verifier-run",
+  "argv": [
+    "/private/tmp/nanolang-portable-read-resume-puck/generic-verifier-binary"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.26513999999999993
+}

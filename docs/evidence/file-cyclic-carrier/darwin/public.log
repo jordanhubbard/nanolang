@@ -1,0 +1,49 @@
+I retain native artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-public-kelvjyt8
+test_cli_staging_faults (tests.test_file_public.FilePublic.test_cli_staging_faults) ... PASS real CLI staging and modeled I/O/allocation failure cleanup
+ok
+test_instrumented_native_corpus (tests.test_file_public.FilePublic.test_instrumented_native_corpus) ... I retain 436 allocation refusals and 0 recovered complete carriers
+PASS 84511 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch
+PASS 42381 manual private File frame transfer checks; no opcode dispatcher
+private VM allocation refusals=478 recovered=0
+PASS 182788 actual private File VM dispatch checks; legacy grant-less File routes remain refused
+PASS native emission allocation refusals=334
+PASS native capture: 73 exact modules, 71 emitted, 2 refused before host
+PASS public VM corpus, shared grant and scalar boundary
+I retain 436 allocation refusals and 0 recovered complete carriers
+PASS 84509 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch
+PASS 42381 manual private File frame transfer checks; no opcode dispatcher
+private VM allocation refusals=478 recovered=0
+PASS 182075 actual generated-native File dispatch checks; legacy grant-less File routes remain refused
+PASS private generated-native replay: 567 calls, unchanged original corpus assertions
+PASS public generated-native corpus and shared gate
+I retain 436 allocation refusals and 0 recovered complete carriers
+PASS 84509 manual private File carrier checks; 64 acquisition attempts, 63 real opens, 63 real closes, 34 I/O attempts, 9 nested refusal observations; no File CODE/frame dispatch
+PASS 42381 manual private File frame transfer checks; no opcode dispatcher
+private VM allocation refusals=478 recovered=0
+PASS 182075 actual generated-native File dispatch checks; legacy grant-less File routes remain refused
+PASS private generated-native replay: 567 calls, unchanged original corpus assertions
+PASS public generated-native corpus and shared gate
+ok
+test_linked_native_corpus_and_isolated_refusals (tests.test_file_public.FilePublic.test_linked_native_corpus_and_isolated_refusals) ... FAIL
+
+======================================================================
+FAIL: test_linked_native_corpus_and_isolated_refusals (tests.test_file_public.FilePublic.test_linked_native_corpus_and_isolated_refusals)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-file-cyclic-carrier-ac877/tests/test_file_public.py", line 438, in test_linked_native_corpus_and_isolated_refusals
+    self.qualify('linked', False)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-file-cyclic-carrier-ac877/tests/test_file_public.py", line 192, in qualify
+    objects = self.providers(name, instrument)
+  File "/private/tmp/nanolang-file-cyclic-carrier-ac877/tests/test_file_public.py", line 144, in providers
+    old = self.command(name + '-reference-source', ['git','show',
+        'f1606e2c84e67491e9652a5bf71944d235216d95:src/nanoisa/nvm2c_file_private.c'])
+  File "/private/tmp/nanolang-file-cyclic-carrier-ac877/tests/test_file_public.py", line 111, in command
+    self.assertEqual(process.returncode,expected,(args,stdout_text,stderr_text))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0 : (['git', 'show', 'f1606e2c84e67491e9652a5bf71944d235216d95:src/nanoisa/nvm2c_file_private.c'], '', 'fatal: not a git repository (or any of the parent directories): .git\n')
+
+----------------------------------------------------------------------
+Ran 3 tests in 25.772s
+
+FAILED (failures=1)

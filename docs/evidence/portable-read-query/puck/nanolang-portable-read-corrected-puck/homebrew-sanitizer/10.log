@@ -1,0 +1,4 @@
+tests/nanoisa/test_portable_host_plan.c:15:17: error: variable 'failed_domains' set but not used [-Werror,-Wunused-but-set-global]
+   15 | static unsigned failed_domains;
+      |                 ^
+1 error generated.

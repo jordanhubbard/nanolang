@@ -1,0 +1,13 @@
+host 0 0.002
+ordinary-version 0 0.001
+other-version 0 0.016
+make-version 0 0.002
+pkg-config-version 0 0.002
+ffi-flags 0 0.001
+other-asan 0 0.016
+gcc-asan 0 0.001
+gcc-ubsan 0 0.002
+gcc-cc1 0 0.002
+clang-ubsan 0 0.016
+fresh-cseed-providers 0 20.317
+gcc-ordinary 0 35.601

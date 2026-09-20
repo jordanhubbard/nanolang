@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-binding-qualified-23bed/src",
+    "-I",
+    "/home/jkh/Src/nanolang-file-binding-qualified-23bed/tests",
+    "-I",
+    "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q",
+    "-c",
+    "src/utf8.c",
+    "-o",
+    "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/linked-utf8.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-binding-qualified-23bed",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

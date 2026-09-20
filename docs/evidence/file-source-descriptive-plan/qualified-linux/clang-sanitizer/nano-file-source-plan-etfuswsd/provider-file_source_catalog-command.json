@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-file-source-qualified-701",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-c",
+    "src/nanoisa/file_source_catalog.c",
+    "-o",
+    "/tmp/nanolang-file-source-701-linux/clang-sanitizer/nano-file-source-plan-etfuswsd/file_source_catalog.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-source-qualified-701",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

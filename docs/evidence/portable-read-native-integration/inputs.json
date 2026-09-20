@@ -1,0 +1,19 @@
+{
+  "qualified": "5fd98c018a592597222673fb66da67458d15c5fd",
+  "canonical": "9c90a55e1a08c79878b5219ca34b0c14a883401f",
+  "equal_inputs": {
+    "src/nanoisa/portable_read_host.c": "3d5174e498c850935bec53e3a4d5d4f861986a8f04d406a6ebf23060416a920a",
+    "src/nanoisa/portable_read_host.h": "b6be464836821234122f5422745590ebdea8fd3c0ce082573220736e168d07c1",
+    "src/nanoisa/portable_read_managed.c": "1c2aa732202913130b76832234bce2911d84d35c0d2bba8ec0cbcc87b0102420",
+    "src/nanoisa/portable_read_managed.h": "5c12ad95295d04f9a2bf50cb2f20f22ffa999db4dd9dc51e687bc043b94073fd",
+    "src/nanoisa/managed_strings.c": "2011b556dc4a8ddf32180aba2681cdb570a68ce872a91e36dbf392a82c47f95d",
+    "src/nanoisa/managed_strings.h": "487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699",
+    "src/nanoisa/binary64_parse.h": "bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5",
+    "tests/nanoisa/portable_read_hooks.h": "e227e13cd6c3fc7706ce1bc39ecd21c5072f98919036b5310c731780eb3a7c8a",
+    "tests/nanoisa/portable_read_link.ll": "81048b18584a6b3ff637eb5c08eaf8aa72546d64a0487bb875d3001bc499ad30",
+    "tests/nanoisa/test_portable_read_adapters.c": "cc2db12f085dd1045d1bb7ee6f20230690ea206473b4e3b0a8038526369a9660",
+    "tests/test_portable_read_adapters.py": "0e5734659c79e0193f13dd57623d70731cfba1446f5b0137e11f404d816fc38a",
+    "docs/evidence/portable-read-adapters/report-sha256.json": "9f8b6ab700f0504b6e9b447366add046f3c7097be28d2570665fda8d0677ef11"
+  },
+  "Makefile.gnu": "b8303126c46595f329f43e3b6316fb84d355f5a3ab54d8510d8e09970abfb65f"
+}

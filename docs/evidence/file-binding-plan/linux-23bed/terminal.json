@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "pin": "23bedeb11",
+  "configs": [
+    "gcc-ordinary",
+    "clang-ordinary",
+    "gcc-sanitizer",
+    "clang-sanitizer"
+  ],
+  "all_input_pairs_equal": true
+}

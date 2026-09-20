@@ -1,0 +1,42 @@
+{
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/linked-nsi_file_binding.o": {
+    "sha256": "6ea36f8d36f7bdb3e36c414607e55903399917a9da984b4481bd7b439d03bac7",
+    "bytes": 52224
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/linked-nsi_file_plan.o": {
+    "sha256": "2b7ff98a779e717556f51a73d89cc5f3f7a8d34ac2d8ffd112f900d0700b052b",
+    "bytes": 32608
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/linked-nsi.o": {
+    "sha256": "1ecbccaa64aa7420071749b7574db82fb1f384678ca38355592f333d14814c2a",
+    "bytes": 79568
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/linked-cJSON.o": {
+    "sha256": "dd2e969e1bf41936a39ccd91ad1aa2a9b11b856919ef63e3839c39ceb63de360",
+    "bytes": 108664
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/linked-utf8.o": {
+    "sha256": "61d752c3df0b373c8c365e3ab66689c701dc83f03dd227176a9aba9338af79e6",
+    "bytes": 13176
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/instrumented-nsi_file_binding.o": {
+    "sha256": "3e00ae642cc8c3fd0ba9faf058af86d1621c3b9a356d839b8575ffbbb8d3ad59",
+    "bytes": 52344
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/instrumented-nsi_file_plan.o": {
+    "sha256": "62cad6a017e3d7dc79e6967aa451b2ccc7a9684a47d760abd94335909fe946bf",
+    "bytes": 32696
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/instrumented-nsi.o": {
+    "sha256": "0d9468edad308460999b95da2a5b1d5111aba5575896f0925e2b92eb2407e857",
+    "bytes": 79768
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/instrumented-cJSON.o": {
+    "sha256": "353e2581b127d6eed47c9ca2f8424ad2e366caf8a0f213af74a241c25c2bd98c",
+    "bytes": 108712
+  },
+  "/tmp/nanolang-file-binding-23bed-linux/clang-ordinary/nano-file-binding-2y7mjz1q/instrumented-utf8.o": {
+    "sha256": "61d752c3df0b373c8c365e3ab66689c701dc83f03dd227176a9aba9338af79e6",
+    "bytes": 13176
+  }
+}

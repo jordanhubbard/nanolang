@@ -1,0 +1,63 @@
+test_owned_declarations_and_allocation_boundaries (tests.test_portable_host_plan.PortableHostPlan.test_owned_declarations_and_allocation_boundaries) ... I retain query evidence at /tmp/nanolang-portable-read-corrected-linux/gcc-ordinary
+phase: copied declarations, input destruction and closed profiles
+phase: exact declarations and complete unused-function checks
+phase: independent preallocation limits
+phase: exact allocation domains, persistent prefixes and transient failures
+fault mode=prefix index=0 domains=2 status=2
+fault mode=prefix index=1 domains=2 status=2
+fault mode=prefix index=2 domains=2 status=2
+fault mode=prefix index=3 domains=4 status=2
+fault mode=prefix index=4 domains=4 status=2
+fault mode=prefix index=5 domains=4 status=2
+fault mode=prefix index=6 domains=10 status=2
+fault mode=prefix index=7 domains=10 status=2
+fault mode=prefix index=8 domains=10 status=2
+fault mode=prefix index=9 domains=10 status=2
+fault mode=prefix index=10 domains=10 status=2
+fault mode=prefix index=11 domains=2 status=2
+fault mode=prefix index=12 domains=2 status=2
+fault mode=prefix index=13 domains=2 status=2
+fault mode=prefix index=14 domains=4 status=2
+fault mode=prefix index=15 domains=4 status=2
+fault mode=prefix index=16 domains=4 status=2
+fault mode=prefix index=17 domains=9 status=5
+fault mode=prefix index=18 domains=9 status=5
+fault mode=prefix index=19 domains=9 status=5
+fault mode=prefix index=20 domains=9 status=5
+fault mode=prefix index=21 domains=9 status=5
+fault mode=prefix index=22 domains=1 status=5
+fault mode=transient index=0 domains=2 status=2
+fault mode=transient index=1 domains=2 status=2
+fault mode=transient index=2 domains=2 status=2
+fault mode=transient index=3 domains=4 status=2
+fault mode=transient index=4 domains=4 status=2
+fault mode=transient index=5 domains=4 status=2
+fault mode=transient index=6 domains=8 status=0
+fault mode=transient index=7 domains=8 status=0
+fault mode=transient index=8 domains=8 status=0
+fault mode=transient index=9 domains=8 status=0
+fault mode=transient index=10 domains=8 status=0
+fault mode=transient index=11 domains=2 status=2
+fault mode=transient index=12 domains=2 status=2
+fault mode=transient index=13 domains=2 status=2
+fault mode=transient index=14 domains=4 status=2
+fault mode=transient index=15 domains=4 status=2
+fault mode=transient index=16 domains=4 status=2
+fault mode=transient index=17 domains=8 status=0
+fault mode=transient index=18 domains=8 status=0
+fault mode=transient index=19 domains=8 status=0
+fault mode=transient index=20 domains=8 status=0
+fault mode=transient index=21 domains=8 status=0
+fault mode=transient index=22 domains=1 status=5
+I retain 29 structural INVALID, 7 report MEMORY and 10 advisory-only successful transient queries.
+PASS: 5994 private portable read-text checks; no bytecode or host execution.
+phase: copied declarations, input destruction and closed profiles
+phase: exact declarations and complete unused-function checks
+phase: independent preallocation limits
+PASS: 266 private portable read-text checks; no bytecode or host execution.
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.614s
+
+OK

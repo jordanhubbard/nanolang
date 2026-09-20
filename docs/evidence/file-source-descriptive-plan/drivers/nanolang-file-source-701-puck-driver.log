@@ -1,0 +1,13 @@
+sdk 0 0.006
+sdk-version 0 0.01
+host 0 0.003
+ordinary-version 0 0.021
+other-version 0 0.021
+make-version 0 0.012
+pkg-config-version 0 0.003
+ffi-flags 0 0.005
+ffi-libdir 0 0.003
+other-asan 0 0.035
+apple-ordinary 0 32.881
+homebrew-ordinary 0 35.462
+homebrew-sanitizer 0 1.927
