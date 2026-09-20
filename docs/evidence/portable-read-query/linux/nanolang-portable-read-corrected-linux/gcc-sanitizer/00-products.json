@@ -1,0 +1,8 @@
+{
+  "instrumented-read_query.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/products/instrumented-read_query.o",
+    "sha256": "e7fd84ba71a0695d286a13ea5c572cb4b381262d702e1ae4b87e6786a43ac34d",
+    "bytes": 252360,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-sanitizer/objects/e7fd84ba71a0695d286a13ea5c572cb4b381262d702e1ae4b87e6786a43ac34d"
+  }
+}

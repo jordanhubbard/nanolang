@@ -5578,3 +5578,8 @@ test-file-cyclic: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 # I rebuild allocating reader/bridge/query providers inside the retained runner.
 test-file-cyclic-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_FILE_CYCLIC_HOSTED_CC="$(CC)" NANO_FILE_CYCLIC_HOSTED_CFLAGS="$(CFLAGS)" FILE_CYCLIC_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_CYCLIC_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_hosted
+
+# I describe read-text imports privately; these controls perform no host reads.
+.PHONY: test-portable-read-plan
+test-portable-read-plan: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	PORTABLE_READ_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/verifier.o $(OBJ_DIR)/nanoisa/verifier_types.o $(VM_DECODE_OBJECT),$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" PORTABLE_READ_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_portable_host_plan

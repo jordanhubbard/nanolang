@@ -1,0 +1,8 @@
+{
+  "instrumented-read_query.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/products/instrumented-read_query.o",
+    "sha256": "f93eb0ffd4f9f2065e0bd64a68f9cbfa001b149869bbc6e4a91c3d49f79e3ae5",
+    "bytes": 34456,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/objects/f93eb0ffd4f9f2065e0bd64a68f9cbfa001b149869bbc6e4a91c3d49f79e3ae5"
+  }
+}

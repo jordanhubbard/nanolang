@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/local/bin/clang-23",
+    "-std=c11",
+    "-D_DEFAULT_SOURCE",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-Dmalloc=read_query_malloc",
+    "-Dcalloc=read_query_calloc",
+    "-Drealloc=read_query_realloc",
+    "-Dfree=read_query_free",
+    "-c",
+    "src/nanoisa/portable_host_plan.c",
+    "-o",
+    "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/products/instrumented-read_query.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-qualified",
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

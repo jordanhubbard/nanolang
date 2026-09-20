@@ -1,0 +1,14 @@
+{
+  "instrumented-read_decode.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/products/instrumented-read_decode.o",
+    "sha256": "3ac1091477a448f53bb52c99f154ff202b49845c91efe8dd891980baa9ade262",
+    "bytes": 88792,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/objects/3ac1091477a448f53bb52c99f154ff202b49845c91efe8dd891980baa9ade262"
+  },
+  "instrumented-read_query.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/products/instrumented-read_query.o",
+    "sha256": "b7dd974716278ec95e42b90720002ccbffb5ab964339d79be111c5f2ea78cd28",
+    "bytes": 202112,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/clang-sanitizer/objects/b7dd974716278ec95e42b90720002ccbffb5ab964339d79be111c5f2ea78cd28"
+  }
+}

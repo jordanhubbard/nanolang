@@ -1,0 +1,44 @@
+{
+  "instrumented": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/products/instrumented",
+    "sha256": "57500be3c7a8c785091c6145425a360c7da63bcb520653d9584d8edb0bfb077d",
+    "bytes": 793184,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/objects/57500be3c7a8c785091c6145425a360c7da63bcb520653d9584d8edb0bfb077d"
+  },
+  "instrumented-read_decode.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/products/instrumented-read_decode.o",
+    "sha256": "47f8384d96ce00f18a23af6071b31bd1af0bdf60ab24adeb7d95c702a4852aea",
+    "bytes": 21432,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/objects/47f8384d96ce00f18a23af6071b31bd1af0bdf60ab24adeb7d95c702a4852aea"
+  },
+  "instrumented-read_query.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/products/instrumented-read_query.o",
+    "sha256": "f93eb0ffd4f9f2065e0bd64a68f9cbfa001b149869bbc6e4a91c3d49f79e3ae5",
+    "bytes": 34456,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/objects/f93eb0ffd4f9f2065e0bd64a68f9cbfa001b149869bbc6e4a91c3d49f79e3ae5"
+  },
+  "instrumented-read_stack.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/products/instrumented-read_stack.o",
+    "sha256": "a41670c56f7a53d60bfc7d8cc92ad94e63d4ea4a32e63411d13b9bf745ea6a6d",
+    "bytes": 115944,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/objects/a41670c56f7a53d60bfc7d8cc92ad94e63d4ea4a32e63411d13b9bf745ea6a6d"
+  },
+  "instrumented-read_types.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/products/instrumented-read_types.o",
+    "sha256": "5225f8ba86a9ae99cb58a79f19911e428c486c9a8d09dea1f3c21d0e15b80b54",
+    "bytes": 22512,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/objects/5225f8ba86a9ae99cb58a79f19911e428c486c9a8d09dea1f3c21d0e15b80b54"
+  },
+  "linked-read_decode.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/products/linked-read_decode.o",
+    "sha256": "5458fd1426f7f9722f2ef542f69c8eef83caf819337e1e7a5291335e40aa6cc4",
+    "bytes": 21336,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/objects/5458fd1426f7f9722f2ef542f69c8eef83caf819337e1e7a5291335e40aa6cc4"
+  },
+  "linked-read_query.o": {
+    "path": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/products/linked-read_query.o",
+    "sha256": "60bb9e50fe19772474789f6cad7ed366636b6e2bb2178bd8aa7cda7d61090194",
+    "bytes": 34352,
+    "archive": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/objects/60bb9e50fe19772474789f6cad7ed366636b6e2bb2178bd8aa7cda7d61090194"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "pin": "dee968861ae828edf3ee29cf0174d28ae00540be",
+  "reports": 492,
+  "artifacts": 634,
+  "bytes": 423363786,
+  "equal_pairs": 22,
+  "artifact_references": 22832,
+  "nonzero_terminals": [
+    {
+      "path": "linux/nanolang-portable-read-corrected-linux/nanoisa-build-status.json",
+      "returncode": 1,
+      "timeout": false
+    },
+    {
+      "path": "puck/nanolang-portable-read-corrected-puck/homebrew-sanitizer/10-status.json",
+      "returncode": 1,
+      "timeout": false
+    },
+    {
+      "path": "puck/nanolang-portable-read-corrected-puck/homebrew-sanitizer-status.json",
+      "returncode": 1,
+      "timeout": false
+    }
+  ],
+  "pass": true
+}

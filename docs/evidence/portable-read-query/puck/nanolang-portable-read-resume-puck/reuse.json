@@ -1,0 +1,4 @@
+{
+  "prior_command": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/10-status.json",
+  "changes": "Only corrected fixture path and fresh output binary; original four unhooked objects verified from retained product hashes."
+}
