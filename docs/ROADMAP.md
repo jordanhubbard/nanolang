@@ -13631,3 +13631,22 @@ controls will cover checked snapshots, callable metadata, bundles, list mutation
 and provider edges; fatal cache initialization and modeled private compiler
 failures are separate. The unchanged LexerToken program and full make test remain
 required. All list/tuple/deferred/cache tasks stay open pending actual gates.
+
+#### My deferred foreign list-field declaration prerequisite
+
+I retain both first b915 make-build terminals under
+`task_addf07bd93224ebca3af7c7479a578c4`: Linux stopped after 22.016 seconds and
+Darwin after 10.200 seconds at compiler_contracts.nano:66, before bootstrap or
+fixtures. Eager List<LexerToken> field registration ran before compiler_ast
+registered its extern LexerToken. I do not call this a specialization collision.
+
+- [ ] I collect declarations before resolving list-field specializations, retain
+  pending declaration-only extern fields, and reject unresolved actual value use.
+- [ ] I resolve foreign names only through the existing unmangled extern C
+  namespace and the original registered declaration ordinal; ordinary names do
+  not acquire a global unique-name fallback. I preserve collision refusals.
+- [ ] I check importer-forward externs, ordinary and extern collisions, aliases,
+  and load-order independence before fresh corrected preparation and full gates.
+
+My preimplementation boundary is in
+`docs/NANOISA_LIST_FORWARD_DECLARATIONS.md`. Both first roots remain unchanged.
