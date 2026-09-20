@@ -120,3 +120,10 @@ and a conditionally emitted numeric helper reference; this query does neither
 passive execution nor native emission. Its explicit passive/source refusal and
 all selected indirect plan behavior remain intact. I retain the fresh72e gates
 at their actual pin rather than repeat those unchanged query checks.
+
+My [independent integration audit](file-indirect-hosted-integration-review.json)
+verifies every report, object, reference, endpoint pair and actual terminal.
+It also rehashes current sources, actual tools and final provider artifacts on
+both hosts;2447 selected source/schema/test inputs match frozen72e per host.
+The retained Apple sanitizer failure and corrected Homebrew neighbor commands
+match the logs, without changed assertions or query source.
