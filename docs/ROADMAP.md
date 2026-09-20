@@ -12859,3 +12859,10 @@ new fixtures and no publisher/CLI operation has been executed.
 - [ ] I reconcile the publisher EINTR wording before fixtures: current comparisons permit64 retries and make the65th interruption terminal; the contract incorrectly says64 total interruptions. I retain that bounded implementation and pin64-retry/65th-failure controls for read/write/fsync, with close never retried. No execution failure is inferred from this static finding.
 
 - [ ] I complete the statically reviewed publisher Make dependency closure: `nsi_file_plan.c` also includes `nsi_file_catalog.h` and `nsi_cap.h`, which6e39 omitted from the scoped header list. I add both before fixtures; no measured stale build or runtime failure is claimed.
+
+I prepare the publisher fixture checkpoint after reviewed74eb dependency closure:
+linked and full real-operation instrumented API/CLI controls, every baseline
+operation failure, secondary cleanup and postcommit status, exact retry/collision
+bounds, real no-replacement sentinels/concurrent processes and unchanged strict
+neighbors. Actual scoped Make compiles must prove CPPFLAGS forwarding. No build,
+publication operation or generated source has run; full fixture review is next.

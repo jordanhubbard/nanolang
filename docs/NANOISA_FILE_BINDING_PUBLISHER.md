@@ -271,3 +271,52 @@ dependencies cover the complete seven-provider closure. Fixture review must reta
 actual compile commands demonstrating CPPFLAGS at compile time, not only link time.
 My read/write/fsync tests distinguish64 interrupted retries followed by progress
 from65 interruptions causing failure; close-once remains unchanged.
+
+## My fixture checkpoint before execution
+
+I prepare one C API fixture in linked and included-production instrumented forms.
+The latter wraps actual open/openat/mkdir/stat/write/sync/close/entropy/rename/
+unlink operations, keeps live descriptor identities, and sweeps every operation
+of a successful publication with one injected first failure. Each retained line
+identifies the failed operation, stage, commit/durability and cleanup state.
+I also fail each cleanup unlink/close ordinal, combine postcommit sync failure
+with secondary close failure, preserve unknown child/inode states, exercise the
+64-collision budget, and temporarily rename the parent to observe descriptor
+anchoring (without claiming the original pathname stays stable). Short writes,
+zero write, exact64/65 interruption boundaries and unchanged plan bytes remain
+assertions. The close hook actually closes before injecting its error, explicitly
+modeling reporting failure rather than arbitrary OS close disposition.
+
+The same instrumented translation unit invokes the actual CLI main with checked
+input open/stat/malloc/read/close hooks, first-operation failures, short reads and
+64/65 read interruptions. The decoder/renderer providers remain freshly linked;
+the existing strict suite separately supplies their complete allocation sweeps.
+No fixture changes the publisher's production source or conditionally admits a
+new operation. Fixture cleanup owns its isolated test directory, uses only known
+fixture children, and does not turn production unknown-identity cleanup into an
+unreported success.
+
+The Python runner builds all seven providers through the actual explicit Make
+recipe into a fresh per-configuration directory. A header forced by CFLAGS
+requires a macro supplied only through CPPFLAGS, proving compile-time forwarding.
+Linked tests use those objects; instrumented tests include publisher/CLI source
+and link the same five strict providers. Strict warnings remain errors. Each
+configuration also reruns the unchanged strict binding and legacy neighbors.
+
+The actual CLI subprocess corpus compares both complete output files with
+independent goldens, permissions, repeat EXISTS, existing regular/empty/nonempty/
+symlink/dangling sentinels, parent symlink refusal, regular input restrictions,
+byte-valued filenames and JSON byte recovery, oversized inputs, usage and eight
+concurrent publishers with exactly one winner. A read-only stderr descriptor
+checks nonzero reporting failure after successful publication without removing
+the result. Every subprocess has durable file-backed output/status; children
+inherit the outer retained process group for bounded terminal cleanup. These
+are proposed controls, not measured results. All new fixtures require review
+before any compilation or filesystem publication.
+
+My planned frozen matrix is Linux GCC/Clang ordinary and strict ASan/UBSan, plus
+puck Apple/Homebrew ordinary and Homebrew strict ASan/UBSan. Each uses explicit
+selected tools, fresh scoped Make/provider objects, source/tool before/after
+maps, actual binaries and first terminals. Leak detection stays enabled with no
+inherited LSAN suppression. This does not qualify installed compiler routing,
+generated shadows, service execution or broader source acceptance.

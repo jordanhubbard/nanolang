@@ -5644,3 +5644,9 @@ $(FILE_BINDING_PUBLISH_DIR):
 	mkdir -p "$@"
 $(FILE_BINDING_PUBLISH_DIR)/%.o: $(SRC_DIR)/%.c $(FILE_BINDING_PUBLISH_HEADERS) | $(FILE_BINDING_PUBLISH_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c "$<" -o "$@"
+
+.PHONY: test-file-binding-publisher test-file-binding-publisher-sanitizers
+test-file-binding-publisher:
+	NANO_FILE_PUBLISH_CC="$(CC)" NANO_FILE_PUBLISH_CFLAGS="$(CFLAGS)" NANO_FILE_PUBLISH_LDFLAGS="$(LDFLAGS)" NANO_FILE_PUBLISH_SANITIZERS=0 python3 -m unittest -f -v tests.test_nsi_file_publish
+test-file-binding-publisher-sanitizers:
+	NANO_FILE_PUBLISH_CC="$(CC)" NANO_FILE_PUBLISH_CFLAGS="$(CFLAGS)" NANO_FILE_PUBLISH_LDFLAGS="$(LDFLAGS)" NANO_FILE_PUBLISH_SANITIZERS=1 python3 -m unittest -f -v tests.test_nsi_file_publish
