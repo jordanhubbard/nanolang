@@ -1,0 +1,14 @@
+{
+  "instrumented-read_decode.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/instrumented-read_decode.o",
+    "sha256": "efd8d7110a15996edcc2d4b277e83917b762f4f85ff37c1d3e30a01005de6c48",
+    "bytes": 39696,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/efd8d7110a15996edcc2d4b277e83917b762f4f85ff37c1d3e30a01005de6c48"
+  },
+  "instrumented-read_query.o": {
+    "path": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/products/instrumented-read_query.o",
+    "sha256": "325cf0889c2995e162bb60c8a74554bb925d95594f98d52dbdc388225cd27384",
+    "bytes": 63880,
+    "archive": "/tmp/nanolang-portable-read-corrected-linux/gcc-ordinary/objects/325cf0889c2995e162bb60c8a74554bb925d95594f98d52dbdc388225cd27384"
+  }
+}

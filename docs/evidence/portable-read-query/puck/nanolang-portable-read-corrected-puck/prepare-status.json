@@ -1,0 +1,15 @@
+{
+  "label": "prepare",
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "/private/tmp/nanolang-portable-read-corrected-puck/prepare.mk",
+    "-j4",
+    "CC=/usr/bin/clang",
+    "portable-prepare"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 1.794427458
+}

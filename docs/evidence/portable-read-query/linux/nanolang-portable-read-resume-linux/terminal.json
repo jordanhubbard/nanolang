@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "inputs_equal": true,
+  "earlier_passes": "Remain attributed to e9e; new fixture assertion executed only by fresh Homebrew linked binary."
+}
