@@ -1,0 +1,10 @@
+I retain indirect target query artifacts at /tmp/nano-file-indirect_targets-ebphjonu
+test_instrumented_indirect_targets_query (tests.test_file_indirect_targets.FileIndirectTargets.test_instrumented_indirect_targets_query) ... PASS 2726 private indirect target checks; no pending module execution
+ok
+test_linked_indirect_targets_query (tests.test_file_indirect_targets.FileIndirectTargets.test_linked_indirect_targets_query) ... PASS 2067 private indirect target checks; no pending module execution
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 7.882s
+
+OK

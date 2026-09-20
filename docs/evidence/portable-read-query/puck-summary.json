@@ -1,0 +1,120 @@
+{
+  "reports": 195,
+  "unique_artifacts": 549,
+  "artifact_references": 2087,
+  "artifact_bytes": 34131471,
+  "pairs": [
+    {
+      "before": "/private/tmp/nanolang-portable-read-corrected-puck/prepare-before.json",
+      "after": "/private/tmp/nanolang-portable-read-corrected-puck/prepare-after.json",
+      "count": 476,
+      "equal": true
+    },
+    {
+      "before": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary-before.json",
+      "after": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary-after.json",
+      "count": 513,
+      "equal": true
+    },
+    {
+      "before": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer-before.json",
+      "after": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer-after.json",
+      "count": 513,
+      "equal": true
+    },
+    {
+      "before": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/inputs-before.json",
+      "after": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/inputs-after.json",
+      "count": 502,
+      "equal": true
+    },
+    {
+      "before": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/inputs-before.json",
+      "after": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/inputs-after.json",
+      "count": 502,
+      "equal": true
+    },
+    {
+      "before": "/private/tmp/nanolang-portable-read-resume-puck/before.json",
+      "after": "/private/tmp/nanolang-portable-read-resume-puck/after.json",
+      "count": 518,
+      "equal": true
+    },
+    {
+      "before": "/private/tmp/nanolang-portable-read-resume-puck/nanoisa-before.json",
+      "after": "/private/tmp/nanolang-portable-read-resume-puck/nanoisa-after.json",
+      "count": 518,
+      "equal": true
+    },
+    {
+      "before": "/private/tmp/nanolang-portable-read-resume-puck/verifier-cleanup-before.json",
+      "after": "/private/tmp/nanolang-portable-read-resume-puck/verifier-cleanup-after.json",
+      "count": 518,
+      "equal": true
+    },
+    {
+      "before": "/private/tmp/nanolang-portable-read-resume-puck/homebrew-linked-before.json",
+      "after": "/private/tmp/nanolang-portable-read-resume-puck/homebrew-linked-after.json",
+      "count": 518,
+      "equal": true
+    },
+    {
+      "before": "/private/tmp/nanolang-portable-read-resume-puck/generic-verifier-before.json",
+      "after": "/private/tmp/nanolang-portable-read-resume-puck/generic-verifier-after.json",
+      "count": 518,
+      "equal": true
+    }
+  ],
+  "current": [
+    {
+      "map": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary-after.json",
+      "current_equal": true,
+      "count": 513
+    },
+    {
+      "map": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer-after.json",
+      "current_equal": true,
+      "count": 513
+    },
+    {
+      "map": "/private/tmp/nanolang-portable-read-corrected-puck/prepare-after.json",
+      "current_equal": true,
+      "count": 476
+    },
+    {
+      "map": "/private/tmp/nanolang-portable-read-corrected-puck/homebrew-sanitizer/inputs-after.json",
+      "current_equal": true,
+      "count": 502
+    },
+    {
+      "map": "/private/tmp/nanolang-portable-read-corrected-puck/apple-ordinary/inputs-after.json",
+      "current_equal": true,
+      "count": 502
+    },
+    {
+      "map": "/private/tmp/nanolang-portable-read-resume-puck/homebrew-linked-after.json",
+      "current_equal": true,
+      "count": 518
+    },
+    {
+      "map": "/private/tmp/nanolang-portable-read-resume-puck/nanoisa-after.json",
+      "current_equal": true,
+      "count": 518
+    },
+    {
+      "map": "/private/tmp/nanolang-portable-read-resume-puck/after.json",
+      "current_equal": true,
+      "count": 518
+    },
+    {
+      "map": "/private/tmp/nanolang-portable-read-resume-puck/generic-verifier-after.json",
+      "current_equal": true,
+      "count": 518
+    },
+    {
+      "map": "/private/tmp/nanolang-portable-read-resume-puck/verifier-cleanup-after.json",
+      "current_equal": true,
+      "count": 518
+    }
+  ]
+}

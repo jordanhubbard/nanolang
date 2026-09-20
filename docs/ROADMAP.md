@@ -10576,6 +10576,13 @@ Other translators:
 
 - [ ] I implement declared host/module capability linkage with exact signatures and result ownership for LLVM/Wasm; target-specific refusal does not exclude portable file/compiler capabilities.
       MAC `task_2d2e9eb552394f6e84e90f5aa08484e2`.
+      - [ ] I review the [portable read-text linkage proposal](NANOISA_PORTABLE_READ_TEXT_LINKAGE.md), task_b7ef4d216a4948c58f7a710feacc4251: exact existing STRING→STRING imports, native callback and Wasm offset/length ABI, copied managed results and real allowlisted filesystem adapters.
+      - [ ] I qualify its private non-admitting binding query, then separately review/qualify adapters, opt-in lowering/publication and paired source/installed host links. Query preparation issues no host calls; old closed profiles remain unchanged.
+        - [x] I review my first `portable_host_plan.h/.c` source checkpoint9005b9f50 before fixtures: fixed owned import facts, exact STRING declarations and later-adapter ownership obligations, all-function shared structural validation with precharged allocation bounds. PREPARED grants no operand-type, host-capability or execution authority; shared advisory type allocation skips and reported INVALID allocation failures remain explicit. The query has no host context; capability-denial controls belong to the adapter checkpoint.
+        - [x] I review and qualify the separate query fixture/retention checkpoint ([bounded evidence](evidence/portable-read-query.md)): copied facts after input destruction, unused-body/import/File/limit refusals, exact allocation-domain prefix/transient outcomes and unchanged closed-profile refusal. No bytecode executes; linked and observed query objects and scoped sanitizer inputs remain separately attributed.
+        - [x] I correct and qualify the external Clang23 runtime-inventory filename assumption: first setup stops before build on unresolved arch-suffixed ASan basename; I retain that terminal, require the actual target-directory shared/static runtime paths, and run fresh gates with unchanged e9e query/fixtures.
+        - [x] I close the retained e9e harness-only terminals without weakening assertions: correct the external ISA-neighbor module include path and observe the linked fixture failure counter under strict Homebrew warnings; fresh linked/unreached adjacency controls preserve earlier passed query phases and all original artifacts.
+      - [ ] I retain the full parent continuation for byte/aggregate results, remaining filesystem/process/compiler capabilities and exact linked-module identities. This first read-text step does not close2d2, replace15f/488 authority or narrow compiler/bootstrap/fixed-point gates.
 - [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full
@@ -12683,3 +12690,16 @@ remaining linked method passes after verified historical Git input underc4c58.
 I preserve c5d first fixture and ac877 missing-history terminals separately.
 The evidence seal and canonical899/900 bounded integration await review/merge;
 15a92 and full control-call/source parents remain open.
+- [ ] I establish [exact closed-target indirect File calls](NANOISA_FILE_INDIRECT_TARGETS.md), `task_2c135a488bd61576caf83debb2786270` under72556/6931: review current callable identity and bounded target-set/signature/call-graph query; review complete candidate ownership composition and matched VM/native membership-before-transfer; qualify fault/fuel/lifetime and unchanged guards, then public installed and paired source/shadows. Callable argument/results and richer borrowed target transport remain mandatory later checkpoints; no target query or existing function tag grants File execution. Root owns this lane alongside the separate cyclic carrier/fuel and source work.
+
+- [x] I retain and correct the first indirect-query qualification extraction failure: system Python on puck lacks tarfile.extractall(filter=...), so no fixture/build ran. I verify the same source archive hash and extract with supported Homebrew Python into a fresh directory before Darwin gates; Linux qualification is independent. I preserve the first terminal and complete both host reports before closing this driver correction.
+
+- [x] I qualify the first private indirect-target query at5acd1b370 on Linux/puck with seven ordinary/sanitizer configurations and separate code/body/flow/hosted/opcode/cyclic neighbors. [Retained evidence](evidence/file-indirect-targets.md) records all target-query limits; candidate ownership/runtime/source and full task2c135 remain open.
+
+I prepare a separate cyclic-carrier ready integration onto canonical8b84b9cd0
+(899/900). Only the additive roadmap tail conflicts; I retain both histories.
+Thirteen exact carrier/core/fixture/runner/archive-boundary paths match ac877.
+Fresh changed-query providers and ordinary carrier/cyclic-hosted/indirect plus
+archive-public-refusal controls will qualify this integration on both hosts,
+under the reviewed bounded plan. Original ac877 sanitizer/public evidence remains
+unchanged and does not become integrated sanitizer acceptance.

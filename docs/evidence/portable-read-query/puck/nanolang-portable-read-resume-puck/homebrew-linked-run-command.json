@@ -1,0 +1,9 @@
+{
+  "label": "homebrew-linked-run",
+  "argv": [
+    "/private/tmp/nanolang-portable-read-resume-puck/homebrew-linked-binary"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}
