@@ -13535,3 +13535,13 @@ My proposed macOS CI selector step passes YAML/step-order and Bash syntax valida
 - [ ] Close prior record/enum element provenance and declaring-module resolution
       before list mutation acceptance: a declared T label is not evidence that
       its initializer or imported actual value had that declaration identity.
+- [ ] Implement and review my [declaring-owner, record provenance and evaluator
+      lifetime checkpoint](NANOISA_LIST_PROVENANCE_AND_EVALUATOR.md) before list
+      qualification: exact owner-aware identities, complete record destinations,
+      typed owned record slots and copied results, with explicit enum-list refusal
+      until its separate representation/parity acceptance is complete.
+- [ ] Establish existing numeric enum destination semantics under
+      `task_b62f81577990c1d4b5b07809bb1cf3c2` across I64 NanoISA,
+      evaluator and target C-enum representations without inventing a new ABI or
+      weakening conversion policy; then complete full enum-list parity required
+      by 5.1. Raw tag-9 transport and record-list acceptance do not close this gap.

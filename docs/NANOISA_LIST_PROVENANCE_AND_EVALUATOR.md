@@ -1,0 +1,164 @@
+# My generic-list provenance and evaluator checkpoint
+
+I record this design before extending the unqualified `7d97f824d` source draft.
+My owner is `task_7b805000dfda4da386b55d4691e8c647`. I have not built or executed
+that draft. My original LexerToken corpus, bounds checks and shadow deadline
+remain unchanged. This checkpoint proposes implementation boundaries for review;
+it does not grant a backend admission or close the full 5.1 list requirement.
+
+## My declaration identity
+
+I distinguish a declaration from its spelling. `env_get_struct` and
+`env_get_enum` can fall back to another module after a local lookup; that fallback
+is not sufficient evidence for a list element. `env_get_struct_owned` already
+matches a record's owner and accepts its canonical or original name. Record
+registration appends declarations and skips an already registered owner/name;
+reallocation can move the table. I will therefore retain an environment-local
+identity consisting of declaration kind and checked table ordinal, with zero
+reserved for unknown, rather than retain a table element pointer. I will audit
+every registration/reset path before relying on ordinal stability. Identities
+never cross environments or enter serialized AST/NanoISA data.
+
+I resolve an annotation with an explicit declaring owner. A qualified alias must
+belong to that owner and export the requested declaration; its actual module
+must match exactly, including the global-owner case. An unqualified annotation
+uses the declaring module and the existing legal import binding. A canonical
+mangled name may identify its existing declaration, but I do not strip a prefix
+and search globally. An ambiguous or absent binding refuses; I do not select the
+first same-spelled declaration. I preserve existing import visibility and aliases.
+The resolver returns an identity, not a temporary change to `current_module`.
+
+| Evidence source | Owner used for annotation resolution |
+| --- | --- |
+| Explicit local/global or parameter annotation | Its declaring module, captured when the symbol is installed |
+| Direct function formal and return | The resolved Function's `module_name` |
+| Record field annotation | The resolved containing StructDef's `module_name` |
+| Explicit function-value annotation | The annotation's declaring module |
+| Inferred function value | The actual callable's signature owner, preserved through copies |
+| Returned function value | The declaring function's return-signature owner |
+| Qualified reference | The namespace owned by the reference's lexical module |
+
+I add narrowly scoped symbol metadata for the resolved nominal identity and
+callable-signature owner, initialize it on every symbol installation, and copy
+owner strings through my existing environment-owned metadata registry. Symbol
+truncation/redefinition must not inherit an old identity. Signature comparisons
+receive an owner for each side, including nested function signatures. Branch
+results must agree on resolved identity and full callable signature; no first-arm
+shortcut. Fields and direct calls recover their owners from definitions; they do
+not borrow a caller-relative raw name. I do not add a general AST-address cache,
+which would outlive transient checker metadata or an AST allocation.
+
+## My value provenance before a collection boundary
+
+An exact list receiver cannot repair an earlier mislabeled element. I apply
+ordinary record declaration identity at explicit/inferred local and global
+initialization, reassignment, field construction/update, direct/indirect argument
+passing, and return. A value-producing block, conditional or match carries the
+identity shared by its reachable result paths. I check the actual expression
+before publishing destination metadata. I reject assignment between different
+record declarations even if their fields happen to match; native C struct
+assignment does not make those declarations interchangeable.
+
+I keep numeric enum conversion separate. My existing `types_match` permits
+numeric values at enum destinations. I do not replace that policy with universal
+enum incompatibility or reject a previously valid scalar conversion merely to
+simplify list checking. A destination conversion must perform the existing
+numeric conversion and then carry the destination declaration. Relabeling a U8
+value as an enum while retaining a U8 VM tag is insufficient.
+
+My source evidence is incomplete for the full-width case: `type_to_tag` in
+`src/nanovirt/codegen.c` maps source enums to TAG_INT, while
+`generate_enum_definitions` in `src/transpiler.c` emits ordinary C `typedef enum`
+with int variant values. That does not establish identical I64 conversion for
+all values or target enum representations. Raw ENUM_VAL/tag-9 scalar transport
+in `docs/NANOISA_LLVM_ENUM_SCALARS.md` is a different contract. I record the
+I64/C-enum destination representation gap under
+`task_b62f81577990c1d4b5b07809bb1cf3c2` as a separate required 5.1 acceptance:
+inspect the existing enum specification, preserve its numeric policy, then
+measure exact destination behavior across evaluator, C, NanoISA and reconstructed
+source before proposing any representation correction. I do not invent a new
+enum ABI, truncate I64 by assumption, or claim CAST_INT alone resolves that gap.
+
+My first independently qualifiable list increment is ordinary record elements,
+including LexerToken. The new implicit enum-list route must explicitly refuse in
+checker, NanoISA lowering and evaluator until the enum destination contract and
+parity are implemented. This is an intermediate boundary, not removal of enum
+lists from the roadmap. Existing declared scalar/extern routes retain their
+existing behavior and are not evidence for the new implicit enum-list route.
+
+## My evaluator storage and lifetime proposal
+
+`eval_call_impl` currently encodes a List_int pointer as VAL_INT for generic
+lists. Push allocates a record copy, get/pop infer record status from a spelling,
+set/insert store the Value integer union member, and remove returns an INT.
+Those paths do not establish record parity or complete slot ownership. I will
+replace only the implicit ordinary-record route with checked, typed storage.
+Existing scalar lists and Token's explicit native wrappers remain separate.
+
+I propose an environment-owned registry of record-list handles. Each entry owns
+its List_int storage and resolved element identity. The existing integer handle
+is an evaluator implementation detail, not a source INT conversion. Before any
+operation I find the entry by handle, check live state and exact identity, then
+check arity, argument kinds and bounds. I do not dereference an arbitrary integer
+as a record-list header. The List_int backing shape remains usable by the existing
+iteration path, which must also check registry membership for a generic record
+receiver. Aliases share one entry. Explicit free releases elements and vector
+storage but retains a closed handle identity until environment teardown, avoiding
+accidental identity reuse. This does not promise safe use after free in compiled C.
+
+Each occupied slot owns a record snapshot: recursively cloned record fields and
+copied/retained strings, with arrays and other reference fields retaining the
+existing `create_struct` borrowing semantics. I reuse one checked clone/discard
+pair; `discard_literal_record` documents that ownership boundary. I reject a
+resource-containing element through the existing ownership checks. I do not
+claim deep ownership of arbitrary arrays, lists, functions or foreign resources.
+All allocation sizes and growth arithmetic are checked. Clone/growth failure
+cleans staged allocations and leaves length and occupied slots unchanged before
+the existing evaluator failure path. I do not silently substitute VOID success.
+
+| Operation | Ownership transition after argument evaluation and validation |
+| --- | --- |
+| new | Publish the registry entry only after its storage is complete |
+| push/insert | Stage a complete owned snapshot before growing or shifting slots |
+| set | Stage a new snapshot, replace the slot, then discard the old snapshot |
+| get | Publish an independent result snapshot; the slot remains owned |
+| remove/pop | Stage the result snapshot before mutation, then discard the removed slot |
+| clear | Discard each occupied snapshot once and set length to zero |
+| free | Clear slots, release vector storage, mark the registry entry closed |
+
+I propose retaining list-produced result snapshots in a separate environment-owned
+result arena. They are borrowed Values until the environment is destroyed;
+binding installation and function return copy them through the existing value
+copy boundary. This keeps an earlier argument/result valid when a later argument
+mutates, clears or frees the source list. The arena must never also register a
+symbol-owned clone. Its teardown uses the same recursive snapshot discard and
+runs after symbols no longer refer to its results. I will audit both function-call
+entry paths, return copying, `repl_eval_node`, field access and every temporary
+cleanup before implementing that ownership rule. A consumer that frees a borrowed
+result would require an explicit ownership correction before qualification.
+
+This proposal retains memory proportional to cumulative list-result snapshots
+until environment teardown; it does not claim expression-bounded interpreter
+memory. Compiled NanoISA scratch roots still clear after each expression. My REPL
+keeps its Environment alive across commands and shows each result before teardown;
+a returned borrowed evaluator result may not outlive that Environment. I will not
+change the public Value/StructValue representation or retrofit an uninitialized
+ownership flag into every historical constructor. If the audit finds an existing
+API requiring independently owned escaping results, that boundary must clone
+explicitly or receive a separately reviewed lifetime design.
+
+## My source and acceptance order
+
+I first submit the owner-aware resolver, symbol/callable provenance and complete
+record boundary checks, including explicit refusal of the new enum-list route.
+I then submit the evaluator registry/clone/result-lifetime implementation and its
+complete consumer audit. No qualification starts from either partial draft.
+Fixtures follow source review and retain the original token_value_bytes program.
+They cover same-spelled declarations in two modules, qualified aliases, nested
+callable signatures, both module passes, every boundary above, ordinary record
+copies and string lifetime, old new/get/push/set plus new insert/remove/pop,
+argument order, independent results after set/remove/clear/free, allocation-prefix
+cleanup, and environment teardown. Accepted record programs must agree across
+evaluator/C-seed/Stage1/Stage2/NanoVM/native routes; unsupported target profiles
+must continue explicit refusal. Enum-list parity and I64 enum destination behavior
+remain required subsequent checkpoints, not inferred from LexerToken acceptance.
