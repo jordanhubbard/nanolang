@@ -92,3 +92,23 @@ by this four-family correction. I do not weaken full5.1 or general standalone
 module requirements: any measured failure there remains a recorded blocker with
 its own complete source review. Full File source nominal typing, independent
 lowering, execution shadows, grants and publication remain open under full8bbc.
+
+## My prepared source checkpoint
+
+I add the two ownership-only manifests and module declarations, eight explicit
+consumer import edges, and the exact six-consumer public/private manifest split.
+[NANOISA_FILE_CSEED_PROVIDER_OWNER_DIFF.json](NANOISA_FILE_CSEED_PROVIDER_OWNER_DIFF.json)
+retains the old/new ordered provider lists and unchanged import targets. Static
+canonical-path enumeration of all module manifests finds one public cJSON owner,
+one public nsi_file_plan owner, the existing single catalog owner, and no module
+public UTF-8 owner (the actual final runtime supplies it). Every unrelated manifest
+field is byte-value equal before and after JSON reformatting. Existing private
+providers remain first, followed by moved providers in their original order.
+
+I add no new C allocation, runtime struct, module-loader branch, metadata grammar,
+provider flag or wrapper signature. Existing module preparation allocates its
+normal records/objects for two additional selected physical modules and imports;
+those costs belong to compiler/module preparation, not my snapshot64MiB bound.
+Shared-library copies retain existing hidden compilation and cleanup paths.
+The complete standalone/static/dynamic/combined fixture supplement remains required
+before any corrected bootstrap or module execution.

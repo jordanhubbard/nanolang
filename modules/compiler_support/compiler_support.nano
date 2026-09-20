@@ -1,3 +1,6 @@
+# I retain explicit static owners while my shared library keeps private dependencies.
+module "modules/cjson_provider/cjson_provider.nano" as CompilerCJsonProvider
+
 module compiler_support
 
 extern fn nlc_module_artifact(source_path: string) -> string

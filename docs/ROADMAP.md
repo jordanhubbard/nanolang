@@ -13873,3 +13873,10 @@ in a new driver/evidence directory; product source and fixture assertions remain
   explicit static owner/import dependency plan with standalone and combined module
   controls; I retain private shared-library dependencies and do not suppress
   duplicate symbols or silently choose a provider profile.
+
+I prepare the approved1c0e provider ownership source: two explicit public owner
+modules, real consumer import edges and private dependency copies retained by the
+existing shared-library recipe. A complete static canonical manifest inventory
+confirms the four ownership families; flags and wrapper signatures are unchanged.
+No build or execution follows until complete source and expanded fixtures review.
+Linux build capacity remains held; both previous bootstrap failures stay retained.

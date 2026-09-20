@@ -1,3 +1,6 @@
+# I retain explicit static owners while my shared library keeps private dependencies.
+module "modules/nsi_file_catalog_provider/nsi_file_catalog_provider.nano" as ForthFileCatalogProvider
+
 # forth_see — NanoISA decompiler for Forth SEE word
 #
 # Locates the dispatch branch for the given built-in Forth word in

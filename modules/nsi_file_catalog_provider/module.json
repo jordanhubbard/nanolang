@@ -1,0 +1,8 @@
+{
+  "name": "nsi_file_catalog_provider",
+  "version": "1.0.0",
+  "description": "I own the public static File catalog plan implementation without granting service access.",
+  "c_sources": [
+    "../../src/nsi_file_plan.c"
+  ]
+}
