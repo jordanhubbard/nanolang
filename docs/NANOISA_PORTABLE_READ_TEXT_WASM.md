@@ -281,3 +281,83 @@ cannot partly publish the four-byte length. Payload writes can already have
 happened and remain unpublished scratch. I keep all small Node publication
 views and the length Buffer allocated before its final byte copy. A later
 engine/host trap is terminal, not a synthetic successful cleanup report.
+
+## My complete fixture checkpoint before execution
+
+I add `tests/nanoisa/test_portable_read_wasm.c` and independent Node/Python
+fixture drivers. The C fixture links the exact production thunk and managed
+core through retained LLVM IR. Its exported controls set bounded input bytes,
+initialize one or eight STRING roots, hold three references to the argument,
+call the production wrapper into either of two result slots, inspect length and
+FNV byte hash, and release/finish/dispose explicitly. These exports are private
+fixture machinery. A separate bounded raw byte area exercises the actual host
+import offsets without exposing any new production export or opcode.
+
+The fixture requires exact argument bytes/reference count, object/byte totals,
+and, in NMS_TESTING builds, unchanged tracked allocation count immediately after
+failed calls and zero tracked allocations after normal disposal. Filling eight
+slots and preparing collection forces the three result-publication allocations
+(payload, expanded slots, expanded workspace). I measure that exact count and
+exercise every persistent failure prefix plus fresh recovery. This is not a
+single-transient sweep or host allocator census. The normal build omits
+NMS_TESTING; both builds still execute real files, memory bounds and cleanup.
+
+| Controls | What I assert |
+|---|---|
+| Eight real file vectors | Empty, copied bytes, actual multibyte filename/content, partial UTF8, content NUL, exact1MiB, one excess byte, missing file; exact status/length/hash and close attempt. |
+| Copied allowlist/return |64 rows accepted,65 rejected; mutable original path bytes and row list changed after creation; first result remains `copied` after a real second read returns `second`; separate instances deny independently. |
+| Managed refusal | Null/inactive/disposed runtime, invalid/array handle, empty/4096/4097 path prefix and embedded-NUL suffix; roots preserved and host entry absent where required. |
+| Real memory behavior | Growth between calls; result creation grows memory on exact1MiB; actual maximum-memory exhaustion reports NMS_MEMORY with argument roots retained. |
+| Raw import | High-bit/out-of-bounds offsets, all three overlap pairs, oversized capacity/path, zero-capacity EOF/excess probe and unaligned length cell; no open before rejection and unchanged sentinel length. |
+| Actual engine envelope | Duplicate types, wrong section order, start, shared/memory64/wrong limits, wrong namespace/signature/import count, missing memory export, invalid body, count/section/LEB bounds. Order/body cases specifically require the engine's own compile-error class. |
+| Host I/O hooks | Real first-byte progress followed by modeled EIO; actual close followed by modeled EIO/MemoryError; first LIMIT retained; fd actually closed, no retry. |
+| Host storage hooks | Three direct host copy/buffer allocations independently refused, and length publication/view allocation refused; length stays91, recovery succeeds. Python additionally observes already-copied payload before refused length publication. |
+| Host lifecycle hooks | Active close/nested export refused; an explicitly trusted hook grows actual memory during callback and publication refuses INVALID; a real engine trap disables all subsequent calls and explicit close succeeds. |
+| Separate replacement imports | Unknown status, untouched sentinel, excessive length, embedded NUL and guest scratch-latch reentry; no second import and exact roots/normal cleanup. These are modeled callback obligations, not filesystem acceptance. |
+
+Node temporarily intercepts the real Instance constructor only to capture the
+fixture instance for forbidden-memory-growth and length-view allocation probes;
+normal calls still traverse the production object. Python uses supported
+Memory.read/grow/write methods and actual Caller, with scoped wrappers restored
+in finally. Neither fixture changes generated guest bodies, substitutes a VM
+interpreter, weakens engine memory checks, or claims containment of trusted hooks.
+The trap fixture deliberately starts with live managed roots; it drops the
+terminal engine instance and does not claim generated nms_finish ran. Node GC
+reclamation timing remains unmeasured.
+
+`tests/test_portable_read_wasm.py` builds four fresh guests per host: O0/O2,
+each normal and NMS_TESTING, then runs each under actual Node and Wasmtime43.
+All three translation units rebuild consistently in each guest. The linker
+allowlist file contains only npr_wasm_host_read_text. Both production envelope
+readers check the resulting actual import signature and memory before execution;
+there is no blanket unresolved-symbol linker option. Eight primary real vectors
+and16 modeled groups per normal engine run (19 for observed managed builds)
+are counted separately; additional compound real calls are asserted in those
+groups. The count is not a claim of exhaustive engine/allocator coverage.
+
+The runner requires explicit PORTABLE_WASM_CLANG, PORTABLE_WASM_LD,
+PORTABLE_WASM_NODE, PORTABLE_WASM_PYTHON and PORTABLE_WASM_WHEEL. It privately
+extracts only the platform's exact checksummed43.0.0 wheel, rejects unsafe zip
+paths/symlinks, verifies every pinned member, and sets child PYTHONPATH to that
+private directory. It does not use pip or modify global packages. Child bytecode
+cache writes and Python optimized assertions are disabled. Optional
+PORTABLE_WASM_FLAGS and PORTABLE_WASM_EXTRA_TOOLS remain recorded selections.
+Native ASan/UBSan options do not instrument guest Wasm or the prebuilt engines;
+NMS_TESTING and explicit host hooks have the narrow domains above.
+
+I reuse the reviewed native-adapter runner's command supervision and content
+retention by module import, exposing only the new unittest class to discovery.
+Each command writes argv/log/status and archives products before assertions;
+process groups receive bounded TERM/KILL cleanup. Inputs and selected provider
+bytes are freshly hashed at phase endpoints. Source/tool endpoint equality is
+not intermediate immutability or a complete transitive toolchain claim.
+The private engine, wheel, Python sources, selected executables, C/header/fixture
+inputs, generated LLVM/object/Wasm and malformed module bytes remain retained.
+Both hosts use isolated trees and external supervised phase/source/tool maps;
+first failures stop that gate and remain recorded before correction.
+
+I retain ordinary native adapter/query and relevant managed runtime/package
+neighbors as separately scoped follow-up phases. Full compiler/bootstrap and
+actual public host-linked source emission remain later b7ef/2d2 obligations.
+This checkpoint contains source only; no build, wheel installation, engine
+initialization or fixture filesystem call has run.

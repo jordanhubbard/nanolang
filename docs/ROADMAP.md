@@ -12795,3 +12795,11 @@ I prepare the first private Wasm source checkpoint: exact1052684-byte guest
 workspace and independent Node/Wasmtime libraries with checked numeric type
 limits, current-memory spans and explicit close/trap state. I retain source
 review before fixtures/builds; no public provider or selector changed.
+
+I prepare the complete private Wasm fixture checkpoint after source9f99 review:
+four O0/O2 normal/observed guests per host, actual Node/Wasmtime43 execution,
+exact real byte vectors, copied roots/results, memory limits and independent
+trusted-hook publication/error/latch controls. I retain explicit engine compile
+errors, private wheel/member identity, bounded command supervision and product
+archives. Fixture/source review still precedes every build and host operation;
+public emission and b7ef/2d2 remain open.
