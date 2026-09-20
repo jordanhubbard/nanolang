@@ -1,0 +1,73 @@
+{
+  "head": "8538faadf0e4b97168187245909fa0cffab2ef36",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "phases": [
+    {
+      "name": "selfhost-bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "seconds": 264.544,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "aaf5506ae0edf9286a219fec794186a6218b438d71755d0f0f99cb6d1d22f94d"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_canonical_match_guards"
+      ],
+      "status": 0,
+      "seconds": 95.399,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "log_sha256": "7354d8c97787226acb22ce55d6fce51465bea80590117ab5bfd8bc20e7444e60"
+    },
+    {
+      "name": "userguide",
+      "command": [
+        "make",
+        "userguide-check",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "seconds": 154.089,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "81ef68849eb54ca3259aa8094de692fb93f6128be56f2c1da9fda4ed736ea005"
+    },
+    {
+      "name": "full-test",
+      "command": [
+        "make",
+        "test",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 2,
+      "seconds": 18.633,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "2debcc7995427b73b7cb9781b0cc263155ef1e5eef5962d3b6de6ad5f18df631"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}

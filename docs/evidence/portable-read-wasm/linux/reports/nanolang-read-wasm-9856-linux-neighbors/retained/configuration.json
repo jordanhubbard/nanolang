@@ -1,0 +1,39 @@
+{
+  "tools": {
+    "cc": "/usr/bin/gcc",
+    "clang": "/usr/local/bin/clang",
+    "python": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "make": "/usr/bin/make",
+    "ld": "/bin/ld",
+    "ar": "/bin/ar",
+    "pkg-config": "/bin/pkg-config",
+    "libasan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libasan.so",
+    "libubsan.so": "/usr/lib/gcc/aarch64-linux-gnu/13/libubsan.so",
+    "cc1": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1",
+    "collect2": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2"
+  },
+  "env": {
+    "PORTABLE_WASM_CLANG": "/usr/local/bin/clang",
+    "PORTABLE_WASM_LD": "/usr/local/bin/wasm-ld",
+    "PORTABLE_WASM_NODE": "/home/linuxbrew/.linuxbrew/bin/node",
+    "PORTABLE_WASM_PYTHON": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "PORTABLE_WASM_WHEEL": "/tmp/nanolang-wasmtime-43-design/wasmtime-43.0.0-py3-none-manylinux2014_aarch64.whl",
+    "PORTABLE_WASM_FLAGS": "",
+    "PORTABLE_WASM_EXTRA_TOOLS": "{\"clang\": \"/usr/local/bin/clang-23\", \"linker\": \"/usr/local/bin/lld\", \"node\": \"/home/linuxbrew/.linuxbrew/Cellar/node/26.0.0/bin/node\", \"python\": \"/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14\", \"wheel\": \"/tmp/nanolang-wasmtime-43-design/wasmtime-43.0.0-py3-none-manylinux2014_aarch64.whl\"}",
+    "PORTABLE_WASM_ARTIFACTS": "/tmp/nanolang-read-wasm-9856-linux-neighbors/neighbors",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "CC": "/usr/bin/gcc",
+    "PORTABLE_ADAPTER_CC": "/usr/bin/gcc",
+    "PORTABLE_ADAPTER_CLANG": "/usr/local/bin/clang",
+    "PORTABLE_ADAPTER_CFLAGS": "",
+    "PORTABLE_ADAPTER_LLVM_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "PORTABLE_ADAPTER_EXTRA_TOOLS": "{\"cc\": \"/usr/bin/gcc\", \"clang\": \"/usr/local/bin/clang\", \"python\": \"/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14\", \"make\": \"/usr/bin/make\", \"ld\": \"/bin/ld\", \"ar\": \"/bin/ar\", \"pkg-config\": \"/bin/pkg-config\", \"libasan.so\": \"/usr/lib/gcc/aarch64-linux-gnu/13/libasan.so\", \"libubsan.so\": \"/usr/lib/gcc/aarch64-linux-gnu/13/libubsan.so\", \"cc1\": \"/usr/libexec/gcc/aarch64-linux-gnu/13/cc1\", \"collect2\": \"/usr/libexec/gcc/aarch64-linux-gnu/13/collect2\"}",
+    "PORTABLE_ADAPTER_ARTIFACTS": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter",
+    "PORTABLE_READ_CC": "/usr/bin/gcc",
+    "PORTABLE_READ_CFLAGS": "",
+    "PORTABLE_READ_ARTIFACTS": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/query"
+  },
+  "scope": "ordinary native adapter and query; GCC/HB ASan UBSan LSan native core/module controls only; no installed CLI/package claim"
+}

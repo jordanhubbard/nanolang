@@ -1,0 +1,149 @@
+{
+  "report_files": 507,
+  "unique_objects": 737,
+  "object_bytes": 70157939,
+  "references": 16727,
+  "pairs": [
+    {
+      "before": "/private/tmp/nanolang-read-wasm-4ee-puck/engines-source-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-4ee-puck/engines-source-after.json",
+      "count": 14997
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-4ee-puck/engines-tools-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-4ee-puck/engines-tools-after.json",
+      "count": 5
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-4ee-puck/engines/inputs-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-4ee-puck/engines/inputs-after.json",
+      "count": 115
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck/engines-source-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck/engines-source-after.json",
+      "count": 14997
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck/engines-tools-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck/engines-tools-after.json",
+      "count": 5
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck/engines/inputs-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck/engines/inputs-after.json",
+      "count": 119
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors/neighbors-source-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors/neighbors-source-after.json",
+      "count": 14997
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors/neighbors-tools-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors/neighbors-tools-after.json",
+      "count": 5
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/neighbors-source-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/neighbors-source-after.json",
+      "count": 14997
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/neighbors-tools-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/neighbors-tools-after.json",
+      "count": 5
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter-source-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter-source-after.json",
+      "count": 14997
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/declaration-query-inputs-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/declaration-query-inputs-after.json",
+      "count": 494
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/managed-native-source-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/managed-native-source-after.json",
+      "count": 14997
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/managed-native-inputs-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/managed-native-inputs-after.json",
+      "count": 494
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/declaration-query-source-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/declaration-query-source-after.json",
+      "count": 14997
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter-inputs-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter-inputs-after.json",
+      "count": 494
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/inputs-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/native-adapter/inputs-after.json",
+      "count": 498
+    },
+    {
+      "before": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/query/inputs-before.json",
+      "after": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/query/inputs-after.json",
+      "count": 519
+    }
+  ],
+  "current_files_verified": 30116,
+  "terminals": [
+    {
+      "path": "/private/tmp/nanolang-read-wasm-4ee-puck/engines-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 1,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 0.45
+      }
+    },
+    {
+      "path": "/private/tmp/nanolang-read-wasm-9856-puck/engines-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 0,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 5.732
+      }
+    },
+    {
+      "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors/neighbors-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 1,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 0.048
+      }
+    },
+    {
+      "path": "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/neighbors-terminal.json",
+      "status": {
+        "timeout": false,
+        "errors": [],
+        "signals": [],
+        "returncode": 0,
+        "leader_reaped": true,
+        "group_disappeared": true,
+        "seconds": 19.132
+      }
+    }
+  ]
+}

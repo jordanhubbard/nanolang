@@ -13022,3 +13022,72 @@ objects. The public module phase has a proposed3600-second outer bound (its
 individual install commands retain900-second bounds); setup and each retained
 neighbor keep1800 seconds. No driver is launched before dependency and gate
 approval.
+## My real Wasm read-text host checkpoint (b7ef under2d2)
+
+I record actual native PR903 merge `0a488a1040412746566290bd93110ff76e8720dd`.
+Its private native acceptance does not close b7ef/2d2 or admit a host import.
+I continue from that canonical pin under [my concrete Wasm design](NANOISA_PORTABLE_READ_TEXT_WASM.md).
+
+- [x] I review the exact per-instance static workspace amendment, wasm32 import,
+  bounded module/memory envelope and real Node/Wasmtime43 APIs before source.
+- [x] I implement and review only private guest/embedding sources, preserving
+  qualified native/runtime bytes and unchanged public selectors/providers.
+- [x] I review fixtures then qualify actual O0/O2 guests on both real hosts and
+  engines, including copied roots/returns, memory growth/limits, pre-effect span
+  refusal, real file semantics and separately attributed allocation/error cleanup.
+- [ ] I seal exact tools/packages/IR/guests and retained first terminals, integrate
+  through review, then continue full typed/lifetime authority, emitted/source and
+  installed host linkage under the existing open b7ef/2d2 roadmap obligations.
+
+I prepare the first private Wasm source checkpoint: exact1052684-byte guest
+workspace and independent Node/Wasmtime libraries with checked numeric type
+limits, current-memory spans and explicit close/trap state. I retain source
+review before fixtures/builds; no public provider or selector changed.
+
+I prepare the complete private Wasm fixture checkpoint after source9f99 review:
+four O0/O2 normal/observed guests per host, actual Node/Wasmtime43 execution,
+exact real byte vectors, copied roots/results, memory limits and independent
+trusted-hook publication/error/latch controls. I retain explicit engine compile
+errors, private wheel/member identity, bounded command supervision and product
+archives. Fixture/source review still precedes every build and host operation;
+public emission and b7ef/2d2 remain open.
+
+- [x] I correct the Wasm fixture executable-spelling defect discovered in the
+  first4ee gates: resolving wasm-ld to generic lld changes its invocation mode.
+  I preserve both pre-build terminals, retain selected absolute argv spelling,
+  still archive resolved tool bytes, and review the fixture correction before
+  fresh qualification. No guest or production behavior was exercised.
+
+- [x] I retain puck's first9856 neighbor preflight failure: non-login SSH PATH
+  omits installed Homebrew pkg-config. I select its exact absolute path and
+  explicitly prepend Homebrew bin for Make's python3/pkg-config discovery,
+  record that environment, and review fresh neighbor-only continuation. The
+  already passed actual-engine matrix and Linux neighbors keep their own pins.
+
+I seal [my private real-engine evidence](evidence/portable-read-wasm.md): corrected
+9856 runs all eight Node/Wasmtime routes on each host, plus separately scoped
+native/query neighbors. I retain both4ee linker-discovery failures and puck's
+neighbor PATH preflight before corrections. My endpoint maps and current-input
+checks do not claim intermediate or transitive toolchain immutability. Independent
+seal/integration review and publication remain; b7ef/2d2 stay open, including real
+emitted/installed host linkage and applicable full compiler/bootstrap gates.
+
+I integrate the private Wasm seal with canonical904/905 in a separate811527aa6
+tree. All15 selected non-Make inputs remain byte-identical; Make preserves both
+additive target sets. Fresh ordinary declaration-query/provider closure passes
+5994/267 checks on each host. [My supplemental seal](evidence/portable-read-wasm-current-integration.md)
+keeps these checks separate from the original actual-engine/native/core matrix;
+full b7ef/2d2 admission/emission/installed/compiler obligations remain open.
+### Generic union call match identity (2026-09-20)
+
+- [ ] I repair the shared C checker call-scrutinee metadata loss observed in PR 906/907/908 arm64 CI without weakening exact union identity or coverage (`task_a1d38d93616f4c48a3b8692b30226a82`; [contract](MATCH_CALL_UNION_IDENTITY.md)). I retain the three first terminals, review source/fixtures before execution, and qualify direct Result/Option statement/value matches plus unchanged user-guide and match-policy controls on fresh providers.
+
+- [ ] I correct the generic-call CI gate runner's `make build`/`make bootstrap` prerequisite mismatch, retaining the six-method first terminal and separately qualifying actual Stage 1/2 guard paths on frozen `8538faadf` source (`task_a1d38d93616f4c48a3b8692b30226a82`).
+
+- [ ] I correct the general VM underflow fixture's stale expectation for bare `FILE_DROP_STACK`, retain both first full-test terminals, assert service-first refusal with untouched caller/frame state, and preserve ordinary handler underflow checks (`task_c2807d311e5d46938d5193b394bb6840`; [contract](MATCH_CALL_UNION_IDENTITY.md)).
+
+- [ ] I correct the full-test driver’s separate `NANO_NATIVE_TEST_CC` selection on Darwin, retain the eight-method unsupported Apple leak-sanitizer terminal, and qualify the unchanged transport/full-test path with explicit supported Homebrew Clang and leak detection intact (`task_a1d38d93616f4c48a3b8692b30226a82`).
+
+- [ ] I preserve the907 restack puck pre-build terminal: SSH-selected Python rejects tarfile.extractall(filter=data) before source extraction or compilation. I explicitly select installed Homebrew Python in a fresh destination and inventory the actual driver; no runtime/fixture assertion or historical tool claim changes.
+
+I retain the907 canonical restack at3df299892 after actual906/ca0c9f6a8: fresh providers and ordinary linked cyclic VM/native O0/O2 pass on Linux/puck, all33 traces match at each optimization over23 exact modules. My [supplement](evidence/file-cyclic-dispatch-restack-910/README.md) preserves the pre-build Python terminal,93 reports,834 artifacts and8 equal pairs; original sanitizer matrices retain their pins. Root review/actual merge remain pending, full parents open.

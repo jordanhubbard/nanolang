@@ -5542,6 +5542,7 @@ static void test_stack_slice_underflow(void) {
     unsigned required[256] = {1, 1, 2, 3, 3, 3, 1, 1, 65536, 65536,
                               3, 3, 3, 3, 3, 3};
     size_t count = 16;
+    unsigned file_refusals = 0;
     for (unsigned opcode = 0; opcode < NANOISA_PRIMARY_OPCODE_LIMIT; opcode++) {
         const InstructionInfo *info = isa_get_info((uint8_t)opcode);
         if (!info || info->operand_count || info->pop_count <= 0) continue;
@@ -5581,7 +5582,29 @@ static void test_stack_slice_underflow(void) {
                     ASSERT(!vm.verified, "I reject underflow in the verifier");
                     for (unsigned i = 0; i < caller; i++)
                         vm.stack[vm.stack_size++] = val_int(100 + i);
-                    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_STACK_UNDERFLOW,
+                    bool file_opcode = isa_is_file_opcode((uint8_t)ops[op]);
+                    VmResult expected = file_opcode ? VM_ERR_TYPE_ERROR : VM_ERR_STACK_UNDERFLOW;
+                    VmResult actual = vm_execute(&vm);
+                    if (actual != expected)
+                        fprintf(stderr, "I observed opcode 0x%02x depth %u locals %u caller %u: expected %d, got %d (%s).\n",
+                                (unsigned)ops[op], depth, locals, caller,
+                                (int)expected, (int)actual, vm.error_msg);
+                    if (file_opcode) {
+                        /* I refuse bare File code before creating its activation. */
+                        ASSERT_EQ_INT(ops[op], OP_FILE_DROP_STACK, "I identify the fixed-effect File control");
+                        ASSERT_EQ_INT(actual, VM_ERR_TYPE_ERROR, "I preserve service-first public refusal");
+                        ASSERT_EQ_INT(vm.frame_count, 0, "I create no frame for refused File code");
+                        ASSERT_EQ_INT(vm.stack_size, caller, "I leave the caller stack intact before File activation");
+                        for (unsigned i = 0; i < caller; i++) {
+                            ASSERT_EQ_INT(vm.stack[i].tag, TAG_INT, "I preserve refused File caller tags");
+                            ASSERT_EQ_INT(vm.stack[i].as.i64, 100 + i, "I preserve refused File caller values");
+                        }
+                        file_refusals++;
+                        vm_destroy(&vm);
+                        nvm_module_free(mod);
+                        continue;
+                    }
+                    ASSERT_EQ_INT(actual, VM_ERR_STACK_UNDERFLOW,
                                   "I trap on missing operands");
                     ASSERT_EQ_INT(vm.stack_size, caller + locals + depth,
                                   "I preserve the stack on underflow");
@@ -5604,6 +5627,7 @@ static void test_stack_slice_underflow(void) {
             }
         }
     }
+    ASSERT_EQ_INT(file_refusals, 4, "I cover both local and caller states for bare File refusal");
 }
 
 static void test_linked_call_shape_boundaries(void) {

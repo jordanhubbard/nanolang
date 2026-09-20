@@ -1,0 +1,10 @@
+-- E002 PURITY VIOLATION --- /tmp/nano-canonical-match-guards-1q1p9lvd/guard-purity.nano
+I cannot prove a closed empty effect summary for this pure fn
+
+3| pure fn choose(c: Choice) -> int { return match c { Some(p) if state => p.number Some(p) => 0 None(n) => 0 } } fn main() -> int { return 0 } shadow main { assert true }
+                                    ^
+Hint: I reject observable state, mutation, resources and unknown calls or constructs
+Warning at line 3, column 43: Unused variable 'p'
+Warning at line 3, column 43: Unused variable 'n'
+Warning: Function 'choose' is missing a shadow test
+Type checking failed

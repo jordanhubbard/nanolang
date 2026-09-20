@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/unhooked-O2",
+    "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/unhooked-O2-files"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}
