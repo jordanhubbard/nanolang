@@ -116,3 +116,41 @@ remote archive before extraction. I preserve the original qualified and failed
 trees on both hosts. No historical failed fixture binary was replayed; the one
 unbuffered compiler diagnostic is separately authorized and labeled above.
 Independent final seal review and canonical merge remain pending.
+
+## Canonical provider integration
+
+I integrate actual canonical `8b84b9cd` at `af68d82ae` in separate trees.
+All ten qualified plan, catalog, module and fixture files retain their exact
+bytes; all 21 incoming canonical source/test files retain theirs. The Make and
+roadmap conflicts are additive. Canonical private cyclic-hosted, indirect and
+read-text queries do not select my source plans or widen their authority.
+
+I rebuild the entire C-seed/provider object closure from empty object directories
+on each host. I copy only the retained `nanoc`, Stage1 and Stage2 executables by
+hash and compare every `src_nano` input with qualified701. Imported bridge/module
+caches start empty. I do not claim another full bootstrap or sanitizer matrix.
+
+| Host | Fresh C-seed/providers | Ordinary full paired gate |
+| --- | ---: | ---: |
+| Linux GCC | 20.317 s, PASS | 35.601 s, PASS |
+| puck Apple Clang | 8.677 s, PASS | 32.400 s, PASS |
+
+Each ordinary gate retains all 58 cases, exact canonical outputs and 75 selected
+shadows through each of C-seed, Stage1 and Stage2, plus 7,503 linked and 7,518
+instrumented C checks. Instrumented here means allocation observation; these
+integration runs do not add sanitizer acceptance.
+
+[My supplemental manifest](file-source-descriptive-plan-integration/report-sha256.json)
+hashes 293 reports, including the root's independent original-seal audit and its
+read-only script. Eight source/tool pairs match; every source map contains
+13,220 files. I retain 698 unique artifacts totaling 185,678,820 bytes in
+`/tmp/nanolang-file-source-integration-artifacts`, with 2,085 original archived-map
+references. Integration product endpoints also include actual catalog `.build`
+artifacts. The owning Xcode compiler hash/version is captured before these new
+gates, without changing the original postphase-only claim.
+
+The supplemental puck archive SHA256 is
+`810558777f9812301ee4815af3b02e4d568857a985caede1c5d4989b484c319c`, checked against
+the remote archive before extraction. Both integration trees remain retained.
+All advertised report bytes are checked as actual Git blobs before publication.
+Independent supplemental review and actual merge remain pending.
