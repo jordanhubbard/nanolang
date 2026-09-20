@@ -288,3 +288,11 @@ compared without using struct padding or hashes as proof. Capacity numbers are
 copied descriptive metadata, never permission to append to the immutable arrays.
 Closed-profile imports/services/passive/callback/lazy-call state refuse before
 unsupported objects are inspected. Getters expose copied values/bytes only.
+
+My independent source review found a counted/C-string initializer mismatch.
+The corrected new preparation checks every function name's counted span and
+refuses embedded NUL before calling analysis; exact __init__ selection therefore
+agrees with existing consumers. Other counted strings still permit embedded
+NUL. The scan is charged before reading its bytes. Old query wrappers retain
+their existing behavior. A separate initializer-with-NUL negative fixture and
+normal counted-string/initializer positives remain required before execution.

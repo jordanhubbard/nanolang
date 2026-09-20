@@ -290,6 +290,17 @@ NvmArrayEligibilityResult nvm_prepare_record_array_execution(const NvmModule *m,
      * My own copies/temporaries never borrow that reserved64MiB/16M allowance. */
     p->bytes=UINT64_C(64)*1024*1024;p->work=UINT64_C(16777216);
     if(!rae_charge(p,65536u+sizeof *p,65536u+sizeof *p) || !rae_snapshot(p,m))goto fail;
+    /* Existing consumers identify functions by C strings. In this new plan I
+     * refuse embedded NUL names before analysis, so counted identity agrees. */
+    for(uint32_t fi=0;fi<p->snapshot.function_count;fi++) {
+        uint32_t name=p->snapshot.functions[fi].name_idx;
+        if(name>=p->snapshot.string_count)goto fail;
+        uint32_t length=p->snapshot.string_lengths[name];
+        if(!rae_charge(p,0,(uint64_t)length+1))goto fail;
+        if(memchr(p->snapshot.strings[name],0,length)) {
+            p->failure=NVM_ARRAY_UNRESOLVED;goto fail;
+        }
+    }
     r=analyze(&p->snapshot,NULL,NULL,NULL,&p->origins,p->maximum_stacks);
     if(r.status!=NVM_ARRAY_ELIGIBLE){nvm_record_array_execution_free(p);return r;}
     /* Entire numeric opcode space is a fixed, charged completeness check. */
