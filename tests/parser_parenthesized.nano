@@ -3,8 +3,8 @@ import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
 
 fn main() -> int {
-    let sources: array<string> = ["(sum + i)", "(a + b * c)", "(p.1, p.0)", "(p.x, p.y)", "(x, y)", "(f x)", "(f)", "(Mod.f x)"]
-    let kinds: array<int> = [ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_MODULE_QUALIFIED_CALL]
+    let sources: array<string> = ["(sum + i)", "(a + b * c)", "(p.1, p.0)", "(p.x, p.y)", "(x, y)", "(f x)", "(f)", "(Mod.f x)", "(Leaf { value: 1 }, 2)", "(Leaf { value: 1 })", "(Mod.Leaf { value: 1 }, 2)"]
+    let kinds: array<int> = [ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_MODULE_QUALIFIED_CALL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_STRUCT_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL]
     let mut i: int = 0
     while (< i (array_length sources)) {
         let tokens: List<LexerToken> = (tokenize_string (at sources i) "parser-test.nano" (list_CompilerDiagnostic_new))
@@ -18,6 +18,12 @@ fn main() -> int {
             assert (== root.left_type ParseNodeType.PNODE_BINARY_OP)
             let left: ASTBinaryOp = (list_ASTBinaryOp_get parsed.binary_ops root.left)
             assert (== left.op (token_plus))
+        }
+        if (or (== i 8) (== i 10)) {
+            let tuple: ASTTupleLiteral = (list_ASTTupleLiteral_get parsed.tuple_literals parsed.last_expr_node_id)
+            assert (== tuple.element_count 2)
+            assert (== (at tuple.element_types 0) ParseNodeType.PNODE_STRUCT_LITERAL)
+            assert (== (at tuple.element_types 1) ParseNodeType.PNODE_NUMBER)
         }
         set i (+ i 1)
     }

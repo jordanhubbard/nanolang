@@ -3200,12 +3200,17 @@ fn parenthesized_call_start(p: Parser) -> bool {
     if (is_binary_op next.token_type) { return false }
     if (== next.token_type (token_dot)) { return false }
     if (== next.token_type (token_comma)) { return false }
+    # I parse a named literal as an expression before deciding tuple versus group.
+    if (== next.token_type (token_lbrace)) {
+        let first: int = (char_at name.name 0)
+        if (and (>= first 65) (<= first 90)) { return false }
+    }
     return true
 }
 
 shadow parenthesized_call_start {
-    let sources: array<string> = ["f x)", "f)", "Mod.f x)", "x + y)", "p.1, p.0)", "p.x, p.y)", "42)"]
-    let expected: array<bool> = [true, true, true, false, false, false, false]
+    let sources: array<string> = ["f x)", "f)", "Mod.f x)", "x + y)", "p.1, p.0)", "p.x, p.y)", "42)", "Leaf { value: 1 }, 2)", "Mod.Leaf { value: 1 })", "f { value: 1 })"]
+    let expected: array<bool> = [true, true, true, false, false, false, false, false, false, true]
     let mut i: int = 0
     while (< i (array_length sources)) {
         let tokens: List<LexerToken> = (tokenize_string (at sources i) "parser-test.nano" (list_CompilerDiagnostic_new))
