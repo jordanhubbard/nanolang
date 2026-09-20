@@ -22,6 +22,7 @@
 #include "../utf8.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
 #include <unistd.h>
@@ -39,7 +40,6 @@ static void shadow_progress(const NvmModule *module, uint32_t function,
     ++rows;
 }
 #endif
-#include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
 
