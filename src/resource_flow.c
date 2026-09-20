@@ -854,6 +854,9 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
         case AST_ENUM_DEF: case AST_IMPORT: case AST_MODULE_DECL:
         case AST_OPAQUE_TYPE: case AST_EFFECT_DECL:
             return OWN_NEXT;
+        case AST_SERVICE_DECL:
+            own_error(flow, node, "I have not resolved this File service declaration", NULL);
+            return OWN_NEXT;
         case AST_FUNCTION:
             own_nested_function(flow, node);
             return OWN_NEXT;

@@ -4513,6 +4513,7 @@ shadow parser_has_guarded_globals {
 
 /* Generate complete C program with module forward declarations */
 fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
+    if (> parser.services_count 0) { set reduce_emission_error "I have not resolved File service declarations for this consumer." return "" }
     let mut sb: array<string> = []
 
     set sb (cg_append sb (gen_c_includes))
@@ -8553,6 +8554,7 @@ shadow parser_has_peg2_import {
 
 fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     set reduce_emission_error ""
+    if (> parser.services_count 0) { set reduce_emission_error "I have not resolved File service declarations for this consumer." return "" }
     (build_module_alias_map parser)
     (reset_fn_types)
 

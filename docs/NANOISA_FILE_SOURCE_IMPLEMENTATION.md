@@ -234,3 +234,48 @@ explicit fuel/public conjunction; indirect source calls need finite target and
 matched runtime admission; richer borrows need their own transport and lifetime
 qualification. I retain these and complete mixed ownership/source acceptance as
 required 5.1 parent obligations. Passing the first profile does not close them.
+
+## My first source checkpoint audit
+
+I append C AST_SERVICE_DECL and schema PNODE_SERVICE_DECL; I retain all previous
+numeric values. ASTServiceDecl and Parser's service list/count change the internal
+compiler ABI, so I require a fresh compiler/runtime/module closure, never old
+Parser values or generated list objects. Python regeneration writes all four
+canonical outputs; compiler_contracts.nano has no changed bytes. Independent
+C-seed/Stage1/Stage2 generator equality remains a later gate.
+
+My node owns two decoded strings, complete counts, catalog1 and origin_index=-1.
+I do not fabricate an origin without the later module map. C parse/clone/free
+owns these strings exactly once. All39 current-schema Nano Parser copies retain
+services/count, and the service store changes only that count and normal node
+bookkeeping. The historical nanoc_integrated.nano owns a separate older Parser
+schema; it explicitly refuses service syntax rather than mixing the new ABI.
+
+I reject unresolved service graphs before C import processing, ordinary type
+checking/shadows, reflection/typed export, C/NanoISA/C-backend emission and Nano
+checking/transpilation/NanoISA (including direct borrow emission). Direct C
+statement evaluation terminates with the existing invariant-failure mechanism.
+C fold/DCE/CPS walkers preserve the node as an owning leaf; clone and free handle
+its strings. HM/LSP inference and NanoCore refuse it. The data-only parsers do
+not read companions, resolve authority or execute generated shadows.
+
+I reuse the shared C literal decoder and Nano's existing import-path decoder,
+checking complete raw-decoded counts before decoding and resulting extent after.
+Unknown escape spellings retain the current decoder behavior; no new Unicode
+escape grammar is introduced. Both declaration strings have a1MiB counted limit,
+interface spelling is exact, document path is nonempty and nonabsolute. Other
+path/filesystem policy remains the later snapshot resolver's responsibility.
+
+My added C declaration has two decode allocations and one zeroed node; failure
+frees both strings. Its clone owns a fresh node and two copies. Program entry
+checks both initial buffers, checked table growth keeps the old pointer on
+failure, and final root allocation frees retained declarations on failure.
+This is not whole-parser recoverable-OOM acceptance: older unrelated expression,
+lambda-hoist and AST-constructor paths still contain unchecked allocations. I
+record that prerequisite rather than claiming the new service checks repair it.
+The forthcoming fixture checkpoint must bound measured allocation claims to the
+actual paths and retain the whole-source publication failure obligation.
+
+I have not run a compiler, fixture, bootstrap or service gate at this source
+checkpoint. Mandatory new helper/parser shadows belong to the next reviewed
+fixture checkpoint; none may be omitted from eventual full selected shadows.

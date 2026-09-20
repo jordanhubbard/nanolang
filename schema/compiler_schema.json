@@ -134,7 +134,8 @@
     "PNODE_PAR_BLOCK",
     "PNODE_EFFECT_DECL",
     "PNODE_HANDLE_EXPR",
-    "PNODE_ASYNC_FN"
+    "PNODE_ASYNC_FN",
+    "PNODE_SERVICE_DECL"
   ],
   "nano_enums": [
     {
@@ -1634,6 +1635,14 @@
         [
           "last_expr_node_type",
           "int"
+        ],
+        [
+          "services",
+          "List<ASTServiceDecl>"
+        ],
+        [
+          "services_count",
+          "int"
         ]
       ],
       "emit_c": true
@@ -1820,6 +1829,48 @@
         [
           "output_path",
           "string"
+        ]
+      ],
+      "emit_c": true
+    },
+    {
+      "name": "ASTServiceDecl",
+      "fields": [
+        [
+          "node_type",
+          "int"
+        ],
+        [
+          "line",
+          "int"
+        ],
+        [
+          "column",
+          "int"
+        ],
+        [
+          "interface_id",
+          "string"
+        ],
+        [
+          "interface_bytes",
+          "int"
+        ],
+        [
+          "document_path",
+          "string"
+        ],
+        [
+          "path_bytes",
+          "int"
+        ],
+        [
+          "catalog_version",
+          "int"
+        ],
+        [
+          "origin_index",
+          "int"
         ]
       ],
       "emit_c": true

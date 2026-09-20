@@ -6114,6 +6114,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             return create_void();
         }
         
+        case AST_SERVICE_DECL:
+            return eval_match_invariant_failure("I have not resolved File service declarations for this consumer");
         case AST_FUNCTION:
         case AST_SHADOW:
             /* Function and shadow definitions are handled at program level */
@@ -6158,6 +6160,7 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
 
 bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modules,
                             const char *input_file, bool include_imports, bool verbose) {
+    if (ast_has_service_declaration(program)) { fprintf(stderr, "I have not resolved File service declarations for this consumer.\n"); return false; }
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program for shadow tests\n");
         return false;

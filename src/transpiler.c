@@ -4758,6 +4758,7 @@ static void generate_effect_dispatch(StringBuilder *sb, ASTNode *program, Enviro
 
 /* Transpile program to C */
 static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char *input_file) {
+    if (ast_has_service_declaration(program)) { fprintf(stderr, "I have not resolved File service declarations for this consumer.\n"); return NULL; }
     if (!program || program->type != AST_PROGRAM) {
         return NULL;
     }

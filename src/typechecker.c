@@ -7148,6 +7148,10 @@ static bool functions_match(Function *f1, Function *f2) {
  * I retain inferred metadata just as the ordinary function checker does;
  * the bytecode emitter still needs it when choosing operand/array kinds. */
 bool type_check_root_shadows(ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     if (!program || program->type != AST_PROGRAM || !env) return false;
     bool ok = true;
     for (int i = 0; i < program->as.program.count; i++) {
@@ -7238,6 +7242,10 @@ static bool register_effect_declaration(ASTNode *item, Environment *env) {
 }
 
 bool type_check(ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
         return false;
@@ -8146,6 +8154,10 @@ register_function_pass1:;
 
 /* Type check a module (without requiring main function) */
 bool type_check_module(ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) {
+        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        return false;
+    }
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
         return false;

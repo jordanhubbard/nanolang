@@ -13228,3 +13228,12 @@ requirements stay open; root reviews evidence before actual PR911 merge.
 
 - [ ] I implement the actual paired generated File source route under existing task_8bbc1cf5295b4b59b314640ef57c725f, following [my concrete source design](NANOISA_FILE_SOURCE_IMPLEMENTATION.md), after review. I base it on actual token911 merge cf238dfd1. In dependency order I integrate primary AST/schema and real parsers; bounded companion snapshots and complete namespace resolution; independent C/Nano typed checking and File byte lowering; then actual selected shadows, explicit grant routing and staged installed publication. Each source/fixture checkpoint is reviewed before execution. I require fresh C-seed/Stage1/Stage2, all helper/module shadows and full paired product gates on Linux/Darwin. Cyclic/indirect/richer-borrow source acceptance remains mandatory, not closed by the first acyclic slice.
 - [x] I record and correct a documentation-only result-name mismatch before the source design: the immutable catalog, renderer and descriptive plans name rewind's result PositionResult; my older paired-source table said RewindResult. I change the table to the existing identity without changing any catalog, source or runtime behavior.
+
+I begin the reviewed44b39 first actual File parser checkpoint: append a dedicated
+schema/AST declaration with counted text and unresolved origin sentinel, retain
+it in both real parsers and all Parser copies, and refuse service graphs in
+unimplemented checking/export/emission consumers. I regenerate canonical schema
+artifacts without executing new fixtures. Complete source review precedes gates;
+companion snapshot/resolution and executable lowering remain later checkpoints.
+
+- [ ] I audit and close complete C parser allocation failure handling before claiming whole generated-File-source recoverable OOM/publication cleanup under8bbc. Static review of the first service parser finds legacy create_node and unrelated expression/lambda-hoist allocations can still be unchecked. The new service node/clone/program buffers retain ownership on failure; that bounded fact does not establish whole-parser recovery. I require explicit allocation-domain coverage or supervised process-failure cleanup before full source acceptance.

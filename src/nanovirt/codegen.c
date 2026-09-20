@@ -4169,6 +4169,10 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                                               ModuleList *modules, const char *input_file,
                                               bool shadows, bool include_imports) {
     CodegenResult result = {0};
+    if (ast_has_service_declaration(program)) {
+        snprintf(result.error_msg, sizeof(result.error_msg), "I have not resolved File service declarations for this consumer.");
+        return result;
+    }
 
     if (!program || program->type != AST_PROGRAM) {
         result.ok = false;

@@ -6369,6 +6369,10 @@ shadow purity_summary {
 
 pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int) -> TypecheckPhaseOutput {
     let env: TypeEnvironment = (env_new)
+    if (> parser.services_count 0) {
+        (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0037" "I have not resolved File service declarations for this consumer." (Diagnostics.diag_location file_name 0 0)))
+        return (typecheck_output env.diagnostics 1 true)
+    }
     let mut symbols: array<Symbol> = (env_copy_symbols initial_symbols)
     let mut error_count: int = 0
 

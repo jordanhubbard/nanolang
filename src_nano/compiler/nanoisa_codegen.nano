@@ -5281,6 +5281,7 @@ shadow nisa_shadow_name {
 # I lower a selected suffix into one module with shared initialized globals.
 # My caller retains the binding context and supervises execution separately.
 pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
+    if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
     let _: int = (nisa_reset)
     set nisa_program_mode true
     let count: int = parser.shadows_count
@@ -5358,6 +5359,7 @@ shadow nanoisa_emit_shadows_nasm {
 }
 
 fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
+    if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
     let _: int = (nisa_reset)
     set nisa_program_mode program
     let mut selected_owned: bool = (nanoisa_has_borrows parser)

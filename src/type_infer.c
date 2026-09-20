@@ -1510,6 +1510,7 @@ static HMType *infer_block(InferCtx *ctx, HMEnv *env,
 /* ── Top-level entry point ───────────────────────────────────────────────── */
 
 bool hm_infer_program(ASTNode *program, const char *source_file) {
+    if (ast_has_service_declaration(program)) return false;
     if (!program) return true;
 
     InferCtx *ctx = hm_ctx_new(source_file);
@@ -1535,6 +1536,7 @@ bool hm_infer_program(ASTNode *program, const char *source_file) {
  */
 HMInferResult hm_infer_program_for_lsp(ASTNode *program, const char *source_file) {
     HMInferResult r = {NULL, NULL, false};
+    if (ast_has_service_declaration(program)) return r;
     if (!program) { r.ok = true; return r; }
 
     InferCtx *ctx = hm_ctx_new(source_file);
@@ -1575,6 +1577,7 @@ TypeScheme *hm_env_lookup_scheme(HMEnv *env, const char *name) {
  */
 bool hm_infer_program_with_effects(ASTNode *program, const char *source_file,
                                     EffectRegistry *reg) {
+    if (ast_has_service_declaration(program)) return false;
     if (!program) return true;
 
     /* Use caller-supplied registry or create a fresh one */

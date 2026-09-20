@@ -2196,6 +2196,7 @@ static int render_source(ASTNode *root, FILE *out, const char *source_file,
         ctx_error(&c, "I require hosted C library support for this C profile.");
     snprintf(c.prefix, sizeof c.prefix, "nano_cb_plan_");
     if (!root) ctx_error(&c, "I require a program AST.");
+    if (ast_has_service_declaration(root)) ctx_error(&c, "I have not resolved File service declarations for this consumer.");
     FILE *plan = NULL;
     char *text = NULL;
     if (!c.error) {
