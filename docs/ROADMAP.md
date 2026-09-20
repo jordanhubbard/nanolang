@@ -13690,3 +13690,10 @@ wrappers pass NULL for new internal stack export, preserving their allocation
 shape/counter path. No public/runtime consumer calls this API. I submit source
 for independent review before fixtures, compilation or execution; CAST_U8's
 separate pending backend expansion needs an explicit later recipe, not fallback.
+
+I record the independent c39caf initializer-identity finding before correction:
+my new plan compares a counted eight-byte __init__ name, but existing analysis
+and consumers use C-string comparison. A counted name with embedded NUL could
+therefore disagree. Under existing f36b/15f/488 I explicitly refuse embedded
+NUL function names in this new preparation before analysis, preserve all old
+wrappers and require a counted-name refusal/control fixture before execution.
