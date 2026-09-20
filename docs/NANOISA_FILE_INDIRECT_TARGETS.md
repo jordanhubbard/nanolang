@@ -47,6 +47,9 @@ No payload bit pattern creates a callable. A join unions target bits only for
 compatible initialized FUNCTION values with equal stack shape. A missing or
 uninitialized predecessor never gains initialization from another predecessor.
 Scalar/File/category disagreement refuses; UNKNOWN is never the empty target set.
+FUNCTION transfers are limited to FUNCREF, LOAD_LOCAL, STORE_LOCAL, DUP, POP
+and the consumed callable of CALL_INDIRECT. EQ/NE, aggregate construction,
+File ownership moves and conversions do not transport or inspect callable bits.
 An unseen/unreachable instruction is a distinct worklist bottom, not a reached
 state containing an uninitialized local. Joined reached states retain a
 may-uninitialized alternative; unioning target bits never clears it. I finish
@@ -63,7 +66,13 @@ finite: existing64 functions/256 locals and stack/256 instructions per function,
 16MiB total retained/transient query budget. Checked arithmetic and budget checks
 precede allocation. A deterministic increasing instruction-order worklist and
 monotone target-bit additions terminate or explicitly return LIMIT. These are
-query budgets; they do not replace runtime fuel.
+query budgets; they do not replace runtime fuel. The visit limit is an explicit
+work/precision ceiling, not a promise that every size-valid graph succeeds.
+The implementation reuses one function's bounded local/stack work states and
+retains only copied code/declarations and final per-site target reports across
+functions. It must account for exact state widths, reachability/init flags,
+queues, candidate edges and simultaneous staging before allocation; retaining
+all functions' full512-slot states is not justified by the16MiB budget.
 
 The query uses actual operand-stack transfers for every supported instruction,
 including branch/refinement, calls, File service/results and explicit cleanup.
