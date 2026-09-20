@@ -60,3 +60,14 @@ tree twice. I register only after the iterable view succeeds, and do not publish
 the loop symbol on registration failure. This adds no Environment layout field
 or runtime value ownership change. Inferred LET views instead transfer their
 tree to the existing AST annotation owner.
+
+My union-payload visitor must not assign one owner to a mixed substituted tree.
+I retain the original declaration template and an explicit, stack-local
+substitution context containing the declared formal names, concrete argument
+annotations, and the argument owner's identity. Recursive annotation comparison
+switches owner only when it reaches that exact declared formal; fixed leaves
+keep their definition owner. Resolved argument subtrees are compared without
+reapplying the template substitution. The old public-internal comparison wrapper
+uses NULL contexts and retains its existing behavior. I carry both comparison
+sides' contexts through nested callable signatures and duplicated signature
+facts. This is comparison metadata, not a new source type or runtime layout.
