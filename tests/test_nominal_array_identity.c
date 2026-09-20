@@ -65,6 +65,34 @@ static void intrinsic_identity(void) {
     assert(!env_array_push_is_builtin(env, 0, 0));
     free_environment(env);
 }
+static void parsed_extern_policy(void) {
+    const char *names[] = {"at", "array_push"};
+    for (size_t i = 0; i < sizeof names / sizeof *names; ++i) {
+        char source[512];
+        int length = snprintf(source, sizeof source,
+            "extern fn %s(values: array<int>, index: int) -> int\n"
+            "fn main() -> int { return 0 }\nshadow main { assert true }\n", names[i]);
+        assert(length > 0 && (size_t)length < sizeof source);
+        for (int module = 0; module < 2; ++module) {
+            int count = 0;
+            Token *tokens = tokenize(source, &count); assert(tokens);
+            ASTNode *program = parse_program(tokens, count); assert(program);
+            Environment *env = create_environment(); assert(env);
+            bool checked = module ? type_check_module(program, env) : type_check(program, env);
+            assert(checked == !module);
+            Function *selected = env_get_function(env, names[i]);
+            assert(env_function_is_builtin(selected));
+            bool foreign_registered = false;
+            for (int j = 0; j < env->function_count; ++j)
+                if (!strcmp(env->functions[j].name, names[i]) && env->functions[j].is_extern) {
+                    foreign_registered = true;
+                    assert(!env_function_is_builtin(&env->functions[j]));
+                }
+            assert(foreign_registered == !module);
+            free_environment(env); free_ast(program); free_tokens(tokens, count);
+        }
+    }
+}
 static void declaration_identity(void) {
     Environment *env = create_environment(); assert(env);
     env->current_module = "Records";
@@ -107,7 +135,7 @@ static void declaration_identity(void) {
     free_environment(env);
 }
 int main(void) {
-    intrinsic_identity(); declaration_identity();
+    intrinsic_identity(); parsed_extern_policy(); declaration_identity();
     puts("I checked actual builtin objects and owner-bound array declaration obligations.");
     return 0;
 }
