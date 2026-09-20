@@ -13985,3 +13985,13 @@ both-host qualification and independent evidence review.
   closure needs `g_argc`/`g_argv` normally owned by main. I define zero/NULL
   globals exactly as the existing private owner-array and VM fixtures do,
   keeping every provider and assertion. No runtime case has executed.
+
+- [ ] I complete precise private record-array global flow before resuming the
+  stopped88ae VM graph (`task_d0208a61082f4a08b407768b1a8b4252`;
+  `NANOISA_RECORD_ARRAY_GLOBAL_FLOW.md`). Initial VOID, branch/call effects and
+  repeated-entry committed values remain conservative; a dominating store and
+  a still-current TYPE_CHECK snapshot can establish the exact path value.
+  I retain the original global slice/field and heap-result alias assertions,
+  immutable output, old wrapper behavior and charged finite storage/work.
+  This is a required semantic prerequisite, not a fixture weakening. Linux88ae
+  separately retained explicit setup ENOSPC; no Linux runtime case ran.
