@@ -122,3 +122,12 @@ rebuilt directly; it neither includes LexerToken nor links the lexer, parser,
 compiler AST schema or generated list modules. All selected NanoISA query and
 fixture inputs remain unchanged. I preserve the qualified C declaration closure
 and retain the token integration's separate full compiler/ABI evidence.
+
+My [independent integration audit](ordinary-array-integration-independent-review.json)
+passes at correctedfe2985d9c. It verifies all194 actual Git report blobs,357
+CAS objects,5542 references,36 endpoint pairs, both nine-phase outcomes and
+current sources/tools/providers. The audit initially found nine dSYM report
+files ignored by Git; their working bytes already matched the seal. I recorded
+task_b5dfc0f04d2b49b4ec6b01ab46771f22 before explicitly committing those exact
+files. The correction changes evidence publication only, and retains the first
+audit finding without repeating product gates.
