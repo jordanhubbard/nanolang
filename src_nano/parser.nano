@@ -2637,7 +2637,7 @@ fn parse_match(p: Parser) -> Parser {
 }
 
 shadow parse_match {
-    let tokens: List<LexerToken> = (tokenize_string "match item { None() => 1 Some(value) => 2 }" "match.nano" (diag_list_new))
+    let tokens: List<LexerToken> = (tokenize_string "match item { None() => 1 Some(value) => 2 }" "match.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_match (parser_new tokens (list_LexerToken_length tokens) "match.nano"))
     assert (not (parser_has_error p))
     let matched: ASTMatch = (parser_get_match p p.last_expr_node_id)
