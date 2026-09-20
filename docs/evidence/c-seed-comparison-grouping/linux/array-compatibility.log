@@ -1,0 +1,11 @@
+test_nested_comparison_grouping (tests.test_selfhost_array_compatibility.ArrayCompatibility.test_nested_comparison_grouping) ... ok
+test_nested_mismatches (tests.test_selfhost_array_compatibility.ArrayCompatibility.test_nested_mismatches) ... ok
+test_nested_values (tests.test_selfhost_array_compatibility.ArrayCompatibility.test_nested_values) ... ok
+test_pr294_incremental_cube (tests.test_selfhost_array_compatibility.ArrayCompatibility.test_pr294_incremental_cube) ... ok
+test_scalar_identity_and_empty_arrays (tests.test_selfhost_array_compatibility.ArrayCompatibility.test_scalar_identity_and_empty_arrays) ... ok
+test_scalar_mismatches (tests.test_selfhost_array_compatibility.ArrayCompatibility.test_scalar_mismatches) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 28.593s
+
+OK

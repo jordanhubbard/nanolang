@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "make",
+    "-j2",
+    "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "test-affine-scalar-union-runtime"
+  ],
+  "selectors": {
+    "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "LSAN_OPTIONS": "",
+    "NANO_AFFINE_UNION_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_FILE_RUNTIME_CFLAGS": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

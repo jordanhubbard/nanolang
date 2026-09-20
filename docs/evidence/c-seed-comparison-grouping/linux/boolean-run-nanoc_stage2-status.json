@@ -1,0 +1,20 @@
+{
+  "name": "boolean-run-nanoc_stage2",
+  "argv": [
+    "/tmp/nanolang-comparison-linux/boolean-nanoc_stage2"
+  ],
+  "bound_seconds": 10,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.0014359389897435904,
+  "log": {
+    "sha256": "9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef",
+    "bytes": 234,
+    "archive": "/tmp/nanolang-comparison-linux/objects/9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

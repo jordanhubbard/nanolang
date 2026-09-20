@@ -1,0 +1,24 @@
+{
+  "name": "boolean-compile-nanoc_c",
+  "argv": [
+    "/home/jkh/Src/nanolang-c-seed-comparison-grouping/bin/nanoc_c",
+    "tests/test_boolean_precedence.nano",
+    "-o",
+    "/tmp/nanolang-comparison-linux/boolean-nanoc_c",
+    "--keep-c"
+  ],
+  "bound_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 1.568310922011733,
+  "log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-comparison-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

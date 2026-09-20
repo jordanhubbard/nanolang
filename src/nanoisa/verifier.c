@@ -11,6 +11,7 @@
 #include "service_bindings_module.h"
 #include "verifier.h"
 #include "managed_array_shapes.h"
+#include "record_array_structure_private.h"
 #include "managed_record_shapes.h"
 #include "passive.h"
 #include "retained_layouts.h"
@@ -367,10 +368,9 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
  * Structural validation
  * ======================================================================== */
 
-static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affine_only,
-                                        bool *owned_admitted, bool mixed_composed) {
-    if (owned_admitted) *owned_admitted=false;
-    bool admitted=false;
+/* I keep policy selection outside these shared checks. The original module
+ * and function tables remain the inputs; no copied/stripped module is used. */
+static NvmVerifyResult verify_module_ranges(const NvmModule *mod) {
     if (!mod) return fail("module is NULL");
     if (nvm_service_execution_pending(mod))
         return fail("I require reviewed service lifetime and dispatch admission before execution");
@@ -428,23 +428,10 @@ static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affin
         }
     }
 
-    bool needs_ownership = false;
-    if (!mixed_composed && nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
-        return fail("I found invalid ownership declarations");
-    if (needs_ownership && !affine_only) {
-        for (uint32_t i=0;i<mod->function_count;i++) {
-            NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,i);
-            if (!analysis.ok) return fail("I refuse reference lifetime and ownership instruction dataflow in function[%u] at %u: %s",
-                                          i,analysis.byte_offset,analysis.message);
-        }
-        NvmVerifyResult admission = nvm_verify_owned_module(mod);
-        if (!admission.ok) return admission;
-        admitted=true;
-    }
+    return ok_result();
+}
 
-    if (!nvm_retained_layouts_valid(mod))
-        return fail("I found invalid retained layout metadata");
-
+static NvmVerifyResult verify_module_contracts_and_imports(const NvmModule *mod) {
     if (!nvm_passive_valid(mod))
         return fail("I found invalid passive eligibility metadata");
 
@@ -488,6 +475,36 @@ static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affin
         }
     }
 
+    return ok_result();
+}
+
+static NvmVerifyResult verify_structure_checked(const NvmModule *mod, bool affine_only,
+                                        bool *owned_admitted, bool mixed_composed) {
+    if (owned_admitted) *owned_admitted=false;
+    bool admitted=false;
+    NvmVerifyResult ranges = verify_module_ranges(mod);
+    if (!ranges.ok) return ranges;
+
+    bool needs_ownership = false;
+    if (!mixed_composed && nvm_ownership_contracts_validate(mod, &needs_ownership) != NVM_V2_OK)
+        return fail("I found invalid ownership declarations");
+    if (needs_ownership && !affine_only) {
+        for (uint32_t i=0;i<mod->function_count;i++) {
+            NvmAffineAnalysis analysis=nvm_affine_analyze_function(mod,i);
+            if (!analysis.ok) return fail("I refuse reference lifetime and ownership instruction dataflow in function[%u] at %u: %s",
+                                          i,analysis.byte_offset,analysis.message);
+        }
+        NvmVerifyResult admission = nvm_verify_owned_module(mod);
+        if (!admission.ok) return admission;
+        admitted=true;
+    }
+
+    if (!nvm_retained_layouts_valid(mod))
+        return fail("I found invalid retained layout metadata");
+
+    NvmVerifyResult contracts = verify_module_contracts_and_imports(mod);
+    if (!contracts.ok) return contracts;
+
     if (owned_admitted) *owned_admitted=admitted;
     return ok_result();
 }
@@ -508,31 +525,13 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
  * Bytecode instruction validation (per-function)
  * ======================================================================== */
 
-static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_idx,
+/* Callers first validate module policy/ranges and the function index. I keep
+ * decode, operands, stack and type checks together in their original order. */
+static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_idx,
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
-                                           uint16_t *out_max_stack) {
-    if(nvm_service_execution_pending(mod))
-        return fail("I refuse service contracts before mixed execution selection");
-    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
-        if(linked_count)return fail("I refuse linked owner ARRAY execution contracts");
-        return verify_owned_arrays(mod,fn_idx,out_max_stack);
-    }
-    if(nvm_mixed_samples_candidate(mod)) {
-        if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
-        return verify_mixed_samples(mod,fn_idx,out_max_stack);
-    }
-    bool owned_admitted=false;
-    NvmVerifyResult structure = verify_structure(mod, false, &owned_admitted);
-    if (!structure.ok) return structure;
-    if (fn_idx >= mod->function_count)
-        return fail("function index %u >= function_count %u",
-                    fn_idx, mod->function_count);
-    if (mod->ownership_size && (owned_admitted || nvm_verify_owned_module(mod).ok)) {
-        if (linked_count) return fail("I refuse linked ownership execution contracts");
-        if (out_max_stack) *out_max_stack = NVM_AFFINE_MAX_STACK;
-        return ok_result();
-    }
+                                           uint16_t *out_max_stack, NvmRecordArrayBudget *budget,
+                                           VmDecodedFunction *kept) {
     const NvmFunctionEntry *fn = &mod->functions[fn_idx];
     VmDecodedFunction decoded;
     char decode_error[VM_DECODE_ERROR_SIZE];
@@ -546,6 +545,7 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
 } while (0)
 
     for (uint32_t i = 0; i < decoded.instruction_count; i++) {
+        if(!nvm_ra_steps(budget,8))FAIL_DECODED("I reached my private operand-check work bound.");
         uint32_t pos = decoded.instructions[i].byte_offset;
         DecodedInstruction instr = decoded.instructions[i].instruction;
 
@@ -874,18 +874,56 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
 
 #undef FAIL_DECODED
     uint16_t proven_depth = 0;
+    uint64_t scratch=(uint64_t)(decoded.instruction_count+1)*3u*sizeof(int32_t);
+    if(!nvm_ra_bytes(budget,scratch) || !nvm_ra_steps(budget,(uint64_t)(decoded.instruction_count+1)*32u))
+        return vm_decoded_function_free(&decoded),fail("I reached my private stack-check budget.");
     NvmVerifyResult stack_result =
         verify_stack_heights(mod, &decoded, fn_idx, &proven_depth);
+    if(budget)budget->bytes-=scratch;
+    if(budget && proven_depth>256) {
+        vm_decoded_function_free(&decoded);budget->limited=true;return fail("I reached my private stack bound.");
+    }
     if (out_max_stack) *out_max_stack = proven_depth;
 
     /* Types only once the shape is proven: the type pass indexes slots the
      * height walk guarantees exist. */
     if (stack_result.ok)
-        stack_result = nvm_verify_function_types(mod, fn_idx, &decoded,
-                                                 proven_depth, NULL, 0);
-    vm_decoded_function_free(&decoded);
+        stack_result = budget?nvm_verify_function_types_record_array(mod,fn_idx,&decoded,proven_depth,budget):
+            nvm_verify_function_types(mod, fn_idx, &decoded,proven_depth,NULL,0);
+    if(stack_result.ok && kept)*kept=decoded;
+    else vm_decoded_function_free(&decoded);
     return stack_result;
 }
+
+static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_idx,
+                                           const NvmModule *const *linked_modules,
+                                           uint32_t linked_count,
+                                           uint16_t *out_max_stack) {
+    if(nvm_service_execution_pending(mod))
+        return fail("I refuse service contracts before mixed execution selection");
+    if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED) {
+        if(linked_count)return fail("I refuse linked owner ARRAY execution contracts");
+        return verify_owned_arrays(mod,fn_idx,out_max_stack);
+    }
+    if(nvm_mixed_samples_candidate(mod)) {
+        if(linked_count)return fail("I refuse linked mixed ownership execution contracts");
+        return verify_mixed_samples(mod,fn_idx,out_max_stack);
+    }
+    bool owned_admitted=false;
+    NvmVerifyResult structure = verify_structure(mod, false, &owned_admitted);
+    if (!structure.ok) return structure;
+    if (fn_idx >= mod->function_count)
+        return fail("function index %u >= function_count %u",
+                    fn_idx, mod->function_count);
+    if (mod->ownership_size && (owned_admitted || nvm_verify_owned_module(mod).ok)) {
+        if (linked_count) return fail("I refuse linked ownership execution contracts");
+        if (out_max_stack) *out_max_stack = NVM_AFFINE_MAX_STACK;
+        return ok_result();
+    }
+    return verify_function_body(mod, fn_idx, linked_modules, linked_count, out_max_stack,NULL,NULL);
+}
+
+#include "record_array_structure.inc"
 
 NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx) {
     NvmVerifyResult structure=verify_structure(mod,true,NULL);

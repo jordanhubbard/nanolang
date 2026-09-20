@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-record-array-55045-linux/providers.mk",
+    "-j2",
+    "CC=/bin/gcc-13",
+    "array-providers",
+    "nano_vm",
+    "nvm2c"
+  ],
+  "selectors": {
+    "CC": "/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}
