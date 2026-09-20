@@ -13029,3 +13029,5 @@ full b7ef/2d2 admission/emission/installed/compiler obligations remain open.
 - [ ] I correct the general VM underflow fixture's stale expectation for bare `FILE_DROP_STACK`, retain both first full-test terminals, assert service-first refusal with untouched caller/frame state, and preserve ordinary handler underflow checks (`task_c2807d311e5d46938d5193b394bb6840`; [contract](MATCH_CALL_UNION_IDENTITY.md)).
 
 - [ ] I correct the full-test driver’s separate `NANO_NATIVE_TEST_CC` selection on Darwin, retain the eight-method unsupported Apple leak-sanitizer terminal, and qualify the unchanged transport/full-test path with explicit supported Homebrew Clang and leak detection intact (`task_a1d38d93616f4c48a3b8692b30226a82`).
+
+- [ ] I preserve the907 restack puck pre-build terminal: SSH-selected Python rejects tarfile.extractall(filter=data) before source extraction or compilation. I explicitly select installed Homebrew Python in a fresh destination and inventory the actual driver; no runtime/fixture assertion or historical tool claim changes.
