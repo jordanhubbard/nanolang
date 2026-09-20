@@ -143,10 +143,19 @@ class PortableReadAdapters(unittest.TestCase):
         try:
             self.command([*cc, '--version'])
             self.command([*llvm, '--version'])
-            triple = self.command([*llvm, *llvm_flags, '-dumpmachine']).strip()
-            self.assertRegex(triple, r'^[a-zA-Z0-9_.-]+$')
+            # I retain the actual frontend target, including SDK normalization.
+            probe = self.work / 'target-probe.c'
+            probe_ir = self.work / 'target-probe.ll'
+            probe.write_text('void portable_read_target_probe(void) {}\n')
+            self.command([*llvm, *llvm_flags, '-std=c11', '-Wall', '-Wextra',
+                          '-Werror', '-O0', '-S', '-emit-llvm', probe, '-o', probe_ir])
+            declarations = [line for line in probe_ir.read_text().splitlines()
+                            if line.startswith('target triple')]
+            self.assertEqual(len(declarations), 1, declarations)
+            self.assertRegex(declarations[0], r'^target triple = "[a-zA-Z0-9_.-]+"$')
             ir = self.work / 'typed-read.ll'
-            ir.write_text(f'target triple = "{triple}"\n' + (ROOT / 'tests/nanoisa/portable_read_link.ll').read_text())
+            ir.write_text(declarations[0] + '\n' +
+                          (ROOT / 'tests/nanoisa/portable_read_link.ll').read_text())
             llvm_objects = {}
             for optimization in ('O0', 'O2'):
                 obj = self.work / f'typed-{optimization}.o'
