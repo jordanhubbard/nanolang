@@ -12654,3 +12654,9 @@ records the exact fixture and neighbor scope. This checkpoint is unexecuted;
 fixture review precedes fresh Linux/Darwin qualification. Matched cyclic VM,
 real generated-native, public conjunction, indirect/richer borrowing and source
 requirements remain open under15a92/72556/6931.
+
+After independent carrier fixture review, I add the requested zero-project-
+allocation execution block across entered cyclic instructions, witness checks,
+backedges and return in both arena modes. I retain all prior fault predicates
+and distinguish retained creation bytes from an unmeasured preparation peak.
+This bounded fixture addition remains unexecuted pending review.

@@ -301,6 +301,14 @@ whole-program sanitizer claim. Linked mode uses separately compiled production
 providers, while instrumented mode includes the real carrier/core owning source
 for physical assertions and boundary-counter setup.
 
+I also set the project allocation budget to zero after creation/begin, through
+all entered instructions, physical witness checks, backedges and final return
+in both the zero-iteration and 258-iteration cases. I require no failed allocation
+attempt and unchanged retained allocation counts/bytes before restoring the
+budget for finish/destroy. This does not instrument host libc allocations.
+The separate creation assertion compares retained bytes with the storage bound;
+it does not measure or claim a transient preparation peak.
+
 My runner reuses the reviewed cyclic-query command driver: file-backed output,
 240-second command bound, bounded TERM/KILL group cleanup even after leader
 exit, launch/cleanup errors and terminal JSON retained. I explicitly clear

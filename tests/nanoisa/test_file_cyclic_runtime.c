@@ -123,7 +123,15 @@ static void loops(void){
  for(unsigned mode=0;mode<2;mode++)for(unsigned permutation=0;permutation<2;permutation++)for(unsigned zero=0;zero<2;zero++){
   unsigned acquired=carrier_opened;NvmFileNominalBindings b;int64_t n=zero?0:258;
   NvmFileRuntime *c=ccreate(cloop(&b,permutation!=0,n),(NvmFileRuntimeMode)mode,100000,true);
+#ifdef HOSTED_INSTRUMENT
+  size_t execution_live=tracked_live,execution_bytes=tracked_bytes;
+  allocation_budget=0;single_failure=false;failed_calls=0;
+#endif
   cpush(c,n);cstore(c,false);for(int64_t i=0;i<n;i++){cheader(c,false);citeration(c);}cheader(c,true);cpush(c,73);cret(c);
+#ifdef HOSTED_INSTRUMENT
+  CHECK(!failed_calls && tracked_live==execution_live && tracked_bytes==execution_bytes);
+  allocation_budget=-1;
+#endif
   NvmFileCyclicExecutionReport r=cfinish(&c,NVM_FILE_RUNTIME_OK,73);CHECK(!r.fuel_exhausted && r.instructions_started==8+(uint64_t)n*24);
 #ifdef HOSTED_INSTRUMENT
   CHECK(carrier_opened-acquired==(unsigned)n);
