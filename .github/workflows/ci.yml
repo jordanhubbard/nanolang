@@ -328,7 +328,7 @@ jobs:
   sanitizers:
     name: Memory Sanitizers
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     permissions:
       contents: read
 
@@ -382,7 +382,7 @@ jobs:
       - name: Run tests with sanitizers
         env:
           NANO_SHADOW_TIMEOUT_SECONDS: "60"
-        timeout-minutes: 20  # Timeout for test step specifically
+        timeout-minutes: 45  # Full instrumented suite, still finitely bounded.
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"

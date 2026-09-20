@@ -1,5 +1,14 @@
 # My Roadmap
 
+- [ ] I keep my full hosted sanitizer suite inside an explicit measured outer
+  bound (`task_4477289a83667be58ce3ae1b6bf11124`). Exact replacement run
+  `35541114629` reaches the unchanged `Run tests with sanitizers` step, then
+  GitHub terminates it at the configured 20-minute step deadline without an
+  assertion or sanitizer diagnostic. I preserve that terminal, keep
+  ASan/UBSan, leak policy and every test unchanged, and extend only the finite
+  hosted step and job bounds. I require the complete replacement sanitizer
+  job before release.
+
 - [ ] I give my hosted full-release bootstrap shadows their existing finite CI
   budget (`task_188a0717e52f57e5ce3d3ee5ab7d5085`). Replacement run
   `35539999974` passes every earlier check, then Linux x64, Linux ARM64 and
