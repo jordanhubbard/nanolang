@@ -244,6 +244,8 @@ their individual acceptance evidence closes them.
 
 ## Active Execution Queue
 
+- [ ] I correct recovered a18 match guards before affine union admission (`task_4eaa6395ba014821b123f5332817aed0`, parent `task_a18a9f752536469faafc4d3ebec01dfd`). My [preimplementation audit](CANONICAL_MATCH_GUARDS.md) records lost scrutinees, omitted guard visitors, zero-result terminal misses, statement switch ordering, failure-state restoration, incomplete union envelopes/formal tags, missing ownership joins and shadows. I preserve candidate45ab and canonical parser877. I review lossless guard semantics first, then exact concrete union instances and ownership joins, before fresh full paired/platform gates; no parent or release closure follows from this first slice.
+
 - [x] I retain exact undeclared string builtin results for concat, trim and prefix/suffix predicates, and lower `str_trim` through VM and native C with my existing four-byte whitespace policy (`task_602f10d8e2b348eab8b7e230e12986fa`). My first integrated audio gate exposed missing direct-return builtin classification; I include that path before completion. I preserve declared function identity and test nested expressions, empty/all-space text, UTF-8 bytes, scalar refusal and current string-edge examples before full product reruns.
 - [x] I report VM trim allocation refusal after releasing the input and before publishing a string value (`task_88c3bcfa6f2041f9909718cf7715ed68`). I test corrected ordinary trim and deterministic allocation recovery; I do not replay historical failures.
 
