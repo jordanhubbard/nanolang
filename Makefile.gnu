@@ -5578,3 +5578,6 @@ test-file-cyclic: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 # I rebuild allocating reader/bridge/query providers inside the retained runner.
 test-file-cyclic-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_FILE_CYCLIC_HOSTED_CC="$(CC)" NANO_FILE_CYCLIC_HOSTED_CFLAGS="$(CFLAGS)" FILE_CYCLIC_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_CYCLIC_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_hosted
+
+# I keep private indirect target facts in the qualified File declaration unit.
+$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_targets.h $(NANOISA_DIR)/file_indirect_targets.inc

@@ -38,14 +38,14 @@ static NvmFileFlowDeclaration scalar_type(uint8_t tag) {
     return (NvmFileFlowDeclaration){tag,0,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX,NVM_FILE_CATEGORY_UNKNOWN};
 }
 static NvmFileFlowStatus read_declaration(NvmV2Cursor *c,const NvmFileNominalPlan *p,
-                                         NvmFileFlowDeclaration *out) {
+                                         NvmFileFlowDeclaration *out,bool callable_local) {
     uint8_t tag,mode;uint16_t pad;uint32_t index;
     if(nvm_v2_u8(c,&tag)!=NVM_V2_OK || nvm_v2_u8(c,&mode)!=NVM_V2_OK ||
        nvm_v2_u16(c,&pad)!=NVM_V2_OK || nvm_v2_u32(c,&index)!=NVM_V2_OK || pad)
         return NVM_FILE_FLOW_INVALID;
     NvmFileFlowDeclaration d=scalar_type(tag);d.mode=mode;d.global_index=index;
     if(index==NVM_V2_NO_INDEX) {
-        if(mode || !scalar(tag))return NVM_FILE_FLOW_UNRESOLVED;
+        if(mode || (!scalar(tag) && !(callable_local && tag==TAG_FUNCTION)))return NVM_FILE_FLOW_UNRESOLVED;
     } else {
         NvmFileNominalLayout layout;
         if(!nvm_file_nominal_layout(p,index,&layout))return NVM_FILE_FLOW_INVALID;
@@ -65,7 +65,7 @@ static NvmFileFlowStatus nominal_status(NvmFileNominalStatus s) {
     default:return NVM_FILE_FLOW_INVALID;
     }
 }
-NvmFileFlowStatus nvm_file_flow_declarations(const NvmModule *m,NvmFileFlowDeclarations **out) {
+static NvmFileFlowStatus file_flow_declarations_mode(const NvmModule *m,NvmFileFlowDeclarations **out,bool callable_locals) {
     if(!m || !out || !m->function_count || !m->functions)return NVM_FILE_FLOW_INVALID;
     if(m->function_count>NVM_FILE_FLOW_FUNCTIONS)return NVM_FILE_FLOW_LIMIT;
     if(m->callback_contract_count || m->module_ref_count)return NVM_FILE_FLOW_UNRESOLVED;
@@ -108,12 +108,12 @@ NvmFileFlowStatus nvm_file_flow_declarations(const NvmModule *m,NvmFileFlowDecla
             status=NVM_FILE_FLOW_INVALID;goto fail;
         }
         d->offsets[i]=(uint32_t)offset;f->result_count=actual->result_count;
-        status=read_declaration(&c,nominal,&f->result);if(status!=NVM_FILE_FLOW_OK)goto fail;
+        status=read_declaration(&c,nominal,&f->result,false);if(status!=NVM_FILE_FLOW_OK)goto fail;
         if(f->result.mode || f->result.tag!=(f->result_count?actual->result_tag:TAG_VOID)) {
             status=NVM_FILE_FLOW_INVALID;goto fail;
         }
         for(uint16_t j=0;j<f->locals;j++) {
-            status=read_declaration(&c,nominal,&d->locals[offset+j]);if(status!=NVM_FILE_FLOW_OK)goto fail;
+            status=read_declaration(&c,nominal,&d->locals[offset+j],callable_locals && j>=f->parameters);if(status!=NVM_FILE_FLOW_OK)goto fail;
             if(j>=f->parameters && d->locals[offset+j].mode) {status=NVM_FILE_FLOW_INVALID;goto fail;}
         }
         offset+=f->locals;
@@ -122,6 +122,9 @@ NvmFileFlowStatus nvm_file_flow_declarations(const NvmModule *m,NvmFileFlowDecla
     *out=d;return NVM_FILE_FLOW_OK;
 fail:
     nvm_file_flow_declarations_free(d);return status;
+}
+NvmFileFlowStatus nvm_file_flow_declarations(const NvmModule *m,NvmFileFlowDeclarations **out) {
+    return file_flow_declarations_mode(m,out,false);
 }
 void nvm_file_flow_declarations_free(NvmFileFlowDeclarations *d) {
     if(d && --d->references==0){nvm_file_nominal_plan_free(d->nominal);free(d);}
@@ -611,3 +614,5 @@ NvmFileFlowStatus nvm_file_flow_call(NvmFileFlowState *s,uint32_t site,uint32_t 
 #include "file_cyclic.inc"
 
 #include "file_cyclic_hosted.inc"
+
+#include "file_indirect_targets.inc"

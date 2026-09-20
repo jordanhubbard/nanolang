@@ -158,3 +158,30 @@ paired C-seed/Stage1/Stage2 callable source with full mandatory shadows follow.
 Callable parameter/result propagation, richer borrowed targets and their source
 routes remain required within5.1; the first bounded local-target report closes
 none of72556/6931, full compiler bootstrap or release publication.
+
+## My first source checkpoint
+
+I keep target analysis in the existing File declaration translation unit so
+checked decode/nominal layouts and exact allocation extents remain shared. Only
+the new private entry enables FUNCTION locals and callable opcodes; existing
+entries pass false explicitly. The report owns its code plan, a worst-case
+instruction-count array of call rows and a64-row call graph. One checked heap
+workspace contains256 incoming states plus working/edge states, each with fixed
+256-local/256-stack facts. This workspace is reused and freed before publication;
+exact sizeof products are charged with the original plan bound before allocation.
+
+Initialization uses separate reached-state bottom and a two-bit alternative
+mask. Result-arm alternatives are separately retained for category projections.
+Transfer checks tags, stack shapes and exact signatures, but does not track
+physical or symbolic owner identity, reference liveness or cleanup obligations.
+Region/end-borrow instructions have no target effect. Reference-slot bounds and
+nominal forms are decoded; their lifetime proof remains in the later composed
+flow. The code and report must never be mistaken for that proof.
+
+Ordinary direct calls consume only non-reference parameters from the stack;
+indirect calls require zero borrowed parameters and a complete compatible target
+set. Every body is analyzed independently from its declared parameter seed.
+Final call rows and candidate graph edges are emitted only after the full local
+fixed point. The combined graph is then closed and checked for recursion before
+one output publication. Failed partial joins are private staging and are freed;
+no caller-owned report or module is modified. No fixtures or execution ran here.
