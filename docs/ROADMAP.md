@@ -12839,3 +12839,5 @@ map identity and exact callable staging limits; the serialized instruction
 ceiling remains separate. I reuse the13-provider hosted allocation closure and
 bounded runner, without FLOW_INSTRUMENT or runtime dispatch. Fixture review
 precedes frozen Linux/Darwin qualification; no acceptance is claimed here.
+
+- [ ] I repair task_ff730d2cf69d4b6998f66bdcc66e66d1 before new indirect-hosted gates. I preserve225b's Linux line303 baseline failure and Darwin line310 final-zero failure (Darwin reached409 persistent and409 transient refusals). Both fresh setups/discovery passed; neither complete method passed. My arity fixture frees the tracked bodymodule ownership buffer through ordinary free, bypassing the tracker. I pair its replacement allocation/free under HOSTED hooks, add a pre-sweep zero-live checkpoint and diagnostic counts, then request review before fresh full qualification. I change no production or assertion and do not replay old binaries.

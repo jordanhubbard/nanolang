@@ -234,11 +234,22 @@ static NvmModule *ih_arity(unsigned parameters){
  NvmFileNominalBindings b;uint32_t pc;NvmModule *m=ih_module(&b,false,false,4,&pc);
  /* The target has256 ordinary locals even for the253-argument wire control. */
  size_t old=ownership_function_offset(m,1),tail=old+12+8*m->functions[1].local_count;
- size_t size=m->ownership_size+8*(256-m->functions[1].local_count);uint8_t *data=calloc(1,size);CHECK(data);
+ size_t size=m->ownership_size+8*(256-m->functions[1].local_count);
+#ifdef HOSTED_INSTRUMENT
+ uint8_t *data=file_test_calloc(1,size);
+#else
+ uint8_t *data=calloc(1,size);
+#endif
+ CHECK(data);
  memcpy(data,m->ownership_data,old+12);memcpy(data+old+12+8*256,m->ownership_data+tail,m->ownership_size-tail);
  data[old]=0;data[old+1]=1;data[old+2]=(uint8_t)parameters;data[old+3]=(uint8_t)(parameters>>8);
  for(unsigned i=0;i<256;i++)desc(data+old+12+8*i,TAG_INT,0,NVM_V2_NO_INDEX);
- free(m->ownership_data);m->ownership_data=data;m->ownership_size=(uint32_t)size;m->functions[1].local_count=256;m->functions[1].arity=(uint16_t)parameters;
+#ifdef HOSTED_INSTRUMENT
+ file_test_free(m->ownership_data);
+#else
+ free(m->ownership_data);
+#endif
+ m->ownership_data=data;m->ownership_size=(uint32_t)size;m->functions[1].local_count=256;m->functions[1].arity=(uint16_t)parameters;
  uint8_t tags[256];memset(tags,TAG_INT,sizeof tags);CHECK(nvm_set_function_param_types(m,1,tags,(uint16_t)parameters));
  Body c={0};for(unsigned i=0;i<parameters;i++)integer(&c);ih_ref(&c,1);ih_call(&c,parameters);op(&c,OP_RET);setbody(m,0,c);return m;
 }
@@ -300,6 +311,7 @@ static void ih_allocations(void){
     if(failed_calls)ih_compare(p,reference);
     nvm_file_indirect_hosted_free(p);recoveries[transient]+=failed_calls!=0;
    }else{CHECK(failed_calls && p==(NvmFileIndirectHostedPlan *)(uintptr_t)1 && (got==NVM_FILE_FLOW_MEMORY || got==NVM_FILE_FLOW_UNRESOLVED));failures[transient]++;}
+   if(tracked_live!=baseline || tracked_bytes!=basebytes)fprintf(stderr,"mode %u prefix %d status %u live %zu/%zu bytes %zu/%zu\n",transient,prefix,(unsigned)got,tracked_live,baseline,tracked_bytes,basebytes);
    CHECK(tracked_live==baseline && tracked_bytes==basebytes);
    if(!failed_calls){CHECK(got==NVM_FILE_FLOW_OK);completed=true;break;}
    p=ih_expect(bytes,size,NVM_FILE_FLOW_OK);nvm_file_indirect_hosted_free(p);CHECK(tracked_live==baseline && tracked_bytes==basebytes);
@@ -312,7 +324,11 @@ static void ih_allocations(void){
 }
 int main(void){
  CHECK(prior_file_hosted_fixture_main()==0);
- ih_relations();ih_owned_candidates();ih_candidate_depth();ih_startup_wire();ih_internal_and_arity();ih_allocations();
+ ih_relations();ih_owned_candidates();ih_candidate_depth();ih_startup_wire();ih_internal_and_arity();
+#ifdef HOSTED_INSTRUMENT
+ CHECK(!tracked_live && !tracked_bytes);
+#endif
+ ih_allocations();
 #ifdef HOSTED_INSTRUMENT
  CHECK(!tracked_live && !tracked_bytes);
 #endif
