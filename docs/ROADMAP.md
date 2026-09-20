@@ -244,6 +244,8 @@ their individual acceptance evidence closes them.
 
 ## Active Execution Queue
 
+- [ ] I correct my new guard purity shadow's effect-mask expectation (`task_4eaa6395ba014821b123f5332817aed0`). Both fresh first bootstraps at `2ad92f457` stop before Stage1 publication on `purity_node:6310` (Linux 67.203s; puck 87.334s). Mutable identifier reads use existing mask2, not mutation mask4. I retain both terminals and correct only that expected value; the immutable payload guard remains0. Fresh qualification is still required.
+
 - [ ] I migrate the two guarded-owner diagnostic expectations in selected/generic ownership tests from the removed canonical parser refusal to the retained exhaustive-unguarded-owned-match semantic refusal (`task_4eaa6395ba014821b123f5332817aed0`). I record this static fixture mismatch before editing, preserve both source cases and output sentinels, and qualify them alongside the guard checkpoint.
 
 - [ ] I correct recovered a18 match guards before affine union admission (`task_4eaa6395ba014821b123f5332817aed0`, parent `task_a18a9f752536469faafc4d3ebec01dfd`). My [preimplementation audit](CANONICAL_MATCH_GUARDS.md) records lost scrutinees, omitted guard visitors, zero-result terminal misses, statement switch ordering, failure-state restoration, incomplete union envelopes/formal tags, missing ownership joins and shadows. I preserve candidate45ab and canonical parser877. I review lossless guard semantics first, then exact concrete union instances and ownership joins, before fresh full paired/platform gates; no parent or release closure follows from this first slice.
