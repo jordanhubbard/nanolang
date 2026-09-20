@@ -84,3 +84,14 @@ I retain earlier sanitizer acceptance at660; unchanged source identity does not
 relabel it as integration-pin sanitizer acceptance. Full-suite qualification waits
 for the separately reviewed projected/tuple native-compiler-selector correction;
 this scoped integration neither closes nor weakens that requirement.
+
+Before any52b gate, I also integrate actual916 main7bba8c798eeb19027d596539a9c86f4db6cb0840.
+The additive Make/roadmap conflicts retain both targets and histories. This changes
+shared ownership/layout provider code: existing public calls pass NULL projection,
+and the old public/private layout routes pass false for mixed unions. The new
+complete declaration query is separate and non-admitting. I preserve my qualified
+constructor/admission source and fixture bytes, build these current providers
+fresh, and add the actual declaration-projection target to ordinary neighbors.
+The unused52b checkouts contain no qualification runs and are not evidence of a
+pass. Public package checks use a separate integration tree because their actual
+Make install deliberately rebuilds providers; my ordinary gate tree stays frozen.

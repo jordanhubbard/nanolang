@@ -1,0 +1,26 @@
+{
+  "objects": 231,
+  "bytes": 57923500,
+  "references": 5613,
+  "current": [
+    {
+      "group": "darwin-corrected",
+      "root": "/private/tmp/nanolang-mixed-declaration-5a367",
+      "last": "ownership-public",
+      "sources": 28172,
+      "tools": 15,
+      "products": 183,
+      "mismatches": 0
+    }
+  ],
+  "reports_archive": {
+    "path": "/tmp/nanolang-mixed-declaration-puck-reports.tar.gz",
+    "sha256": "16baa4c5eacf3c32d394f37db61a65e5e2b5fdad786811d9879c278824d98c17",
+    "bytes": 28948238
+  },
+  "artifacts_archive": {
+    "path": "/tmp/nanolang-mixed-declaration-puck-artifacts.tar.gz",
+    "sha256": "22cca9f14be63c54292c94e3481c294f4255d792ce8aa0e17663fbc9302e4e0c",
+    "bytes": 17748711
+  }
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 20.213,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.114,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 1.117,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 0.365,
+    "status": 1
+  }
+]

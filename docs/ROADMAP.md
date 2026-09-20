@@ -13404,6 +13404,29 @@ requirements stay open; root reviews evidence before actual PR911 merge.
 - [ ] I restore variant-storage invariants in both private affine-state constructors under task_0924394710ff4dbc9a762b26b1eebf34 and `docs/AFFINE_PRIVATE_VARIANTS_REPAIR.md`. I retain the observed mixed clone crash before fault injection and the statically identified owner ARRAY constructor gap, review production then fixtures, and qualify corrected paths without expanding authority.
 
 - [ ] I preserve the first660 Darwin owner-authority neighbor link failure before fixture execution: its old Python runner hardcodes `-lm -lcrypto` and drops my prepared OpenSSL search path. Under task_0924394710ff4dbc9a762b26b1eebf34 I forward exact caller link flags through Make/environment, preserving the old default and all assertions, before continuing only the unreached Darwin controls. Linux's unchanged owner-authority pass remains attributed to660.
+## My complete mixed declaration projection
+
+- [ ] I review the [whole-envelope projection contract](NANOISA_MIXED_DECLARATION_PROJECTION.md) under existing f36b/15f/488 before implementation. Both UNION_VARIANTS and ARRAY_FIELDS must validate before either copied projection escapes; existing public and executable selectors retain their decisions.
+- [ ] I factor shared owned declaration staging, add the bounded complete mixed plan and exact copied getters, then review all production before fixtures. I retain the existing ordinary-only query and all resource/unsupported/limit distinctions.
+- [ ] I qualify mixed identities, independent malformed halves, input destruction, unchanged sentinels, work/storage limits and every allocation prefix on both hosts with original ownership/union/array neighbors.
+- [ ] I audit public consumers and add origin/mutation/alias/runtime proofs before paired source publication and full generic/imported/nested graph acceptance. Full5.1 remains open until those gates pass.
+
+- [ ] I add the explicit mixed private forward-layout profile required by the projection contract before using it: static review found the current array profile intentionally requires all forward-table layouts to be STRUCT. I preserve that old profile and qualify shared bounded graph traversal for scalar unions beside forward record DAGs, rejecting cross-kind record edges and cycles. This is part of existing f36b/15f, not new executable authority.
+
+I prepare the mixed declaration production checkpoint after reviewed228b design
+and its explicit forward-layout amendment. Shared staging, exact zero union
+flags, full suffix precedence and counted/copied variants are implemented;
+old query/public profiles remain unchanged. No fixtures, builds or execution
+have run. Full production review precedes new acceptance work.
+
+I prepare the mixed declaration fixture checkpoint after root and independent
+31c68 production review. My new fixture preserves every original ordinary query
+control, adds complete copied mixed identities and malformed-half/descriptor/
+path/status controls, actual maximum tables and conservative two-pass union work
+boundaries, and measures both allocation-failure modes with fresh recovery. The
+runner retains strict diagnostics and bounded raw command evidence. Source stays
+at31c68 integrated with canonical e59 by422535929; no builds or execution occur
+before complete fixture review. Full parents and runtime admission remain open.
 ### Final public cyclic integration after merged compiler/query prerequisites
 
 I preserve my original public cyclic seven-configuration seal at `f0012faad` and integrate actual main `e59fc09b591db977e53e4fef549d7615ad34e114` in a separate tree. My 25 public source, header, generator and fixture files remain byte-identical. I retain both additive Make targets and roadmap histories. Incoming token byte-count ABI, affine/ordinary array readers, passive preparation and separate indirect hosted query require fresh common/compiler/query providers; they do not change my public cyclic API or fuel protocol.
@@ -13411,6 +13434,27 @@ I preserve my original public cyclic seven-configuration seal at `f0012faad` and
 - [x] I inspect the incoming provider/header changes and preserve exact qualified public source and fixture identities.
 - [x] I build fresh providers and compiler/package tools on Linux and Darwin, then run ordinary public cyclic installed-package/native controls, matched private dispatch, cyclic hosted, indirect hosted, old acyclic public and archive boundary neighbors with endpoint maps and first-terminal retention. All11 selected phases pass on each host at `4c85e7984`. My installed checks retain C99/C11/C++11/C++17 and native O0/O2.
 - [x] I seal this ordinary integration separately in251 reports with6,834 artifacts and22 phase endpoint sets; original sanitizer results retain their original pins. Independent review and actual merge remain pending. I keep source publication, indirect execution, richer borrows and the full parent open.
+
+I integrate the reviewed mixed query and849a fixtures with actual public914 merge
+`f219fa6c500d5b3e2b20ccd300399ba69940b478` before fresh qualification. All query
+and fixture bytes stay exact. I retain both roadmap histories and additive Make
+prerequisites. My planned seven compiler configurations rebuild the two query
+translation units with selected strict and sanitizer flags; other linked providers
+are inventoried ordinary setup. I retain old ownership, affine-union, ordinary-array
+and transport neighbors and stop on the first unexpected terminal. No result from
+this non-admitting query establishes runtime or source mixed-graph authority.
+
+- [ ] I preserve task_349ba67236c448e0aa92f206632c3557 first mixed-fixture Clang terminal at `dd5a3ab63`: line164 places cleanup after a nested-loop closing brace on the same line, triggering strict misleading-indentation. Linux GCC ordinary passes1,814 linked/10,960 instrumented checks and13 allocation positions; Darwin was transferred but unrun. I separate only that statement, retain all predicates and production, then qualify corrected/unrun phases with fresh fixture products and exact provider reuse evidence. I do not repeat the unaffected GCC pass or execute a failed output.
+
+My [mixed declaration qualification](evidence/ownership-declaration-projection.md)
+now passes all seven compiler configurations cumulatively: original dd5a GCC
+ordinary and corrected5a367 remaining Linux/Darwin modes. Each reports1,814
+linked/10,960 observed checks and13 mixed allocation positions in both failure
+modes. Corrected15 Linux and17 Darwin phases include unchanged ownership, affine
+union, array and transport neighbors. I retain the first strict Clang formatting
+terminal, exact provider-copy attribution and a367-report/598-object seal. Full
+source/runtime goals remain open; independent review and actual merge precede
+bounded ledger reconciliation, including repair349ba.
 
 ## My assembler capture build flags
 
