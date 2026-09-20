@@ -12587,6 +12587,8 @@ and actual merge remain pending; no cyclic File runtime or parent closure follow
 
 ### My paired File source and NSI publication prerequisite
 
+- [ ] I preserve1bb token fixture C-seed/Stage1/Stage2 output and exact shadow selection on both hosts, then the first actual Nano schema generator typecheck refusal: eight existing nl_json_as_bool calls return int where bool is required. I import/use the existing tested std/json as_bool wrapper at those sites before fresh full schema equality; no JSON semantics or comparison weakening. I distinguish the changed generator stamp input from unchanged compiled compiler sources and canonical generated files when retaining28e bootstrap provenance.
+
 - [ ] I reconcile paired grammar keyword reservation (`task_9b6cbac8f6f941e3ad38a0c7f5ff59c9`): C-seed accepts the ece fixture local while Stage1 reserves TOKEN_GRAMMAR. I inventory intended semantics and require paired acceptance/refusal or an explicit documented language boundary before full source acceptance; the1bb fixture rename alone does not repair this frontend difference.
 
 - [ ] I preserve ece465 first paired terminals on Linux/puck: C-seed passes76 shadows and exact fixture output, then Stage1 refuses the local identifier grammar at line33 because my Nano lexer reserves TOKEN_GRAMMAR. I rename only that fixture local and its two references before fresh affected qualification; literal bytes, assertions, full generator parity and shadow selection remain unchanged. I do not claim Stage1/Stage2 acceptance from the C-seed pass.
