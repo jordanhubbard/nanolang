@@ -118,3 +118,22 @@ Resource ordering and union variant completeness remain the common ownership
 reader's independent responsibility. This amendment precedes decoder changes;
 its new profile must receive the same allocation, malformed-cross-kind and
 forward-order controls before acceptance.
+
+## My first source checkpoint
+
+I implement nvm_prepare_ownership_declarations and the copied counts/layout/
+field/type/binding/variant getters in a private header. One factored staging
+function preserves the old ordinary query when its projection argument is NULL.
+The mixed query validates both bodies, counts variants in the shared union
+reader and copies them in one second charged pass. Absent legacy union facts
+remain UNKNOWN. Both whole-module unsupported checks and exact per-kind flags
+precede publication. Ambiguous consumed borrowed descriptors can defer only in
+the new projection, so a later deterministically malformed suffix wins there.
+I retain path transport validation; instruction-specific reference-path meaning
+still belongs to the lifetime verifier and is not an output of this plan.
+
+The separate mixed private layout profile admits scalar unions beside forward
+record DAGs. Old public/ordinary profiles and all executable selectors remain
+unchanged. I charge both owned halves before allocating the final report and
+variant array. The staging union view is call-local and never retained in the
+published report. Production review precedes fixtures, builds or execution.

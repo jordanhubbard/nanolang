@@ -5696,3 +5696,6 @@ $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o: $(NANOISA_DIR)/ownership_layouts_private.h
 
 # I rebuild my shared reader for private array grammar changes.
 $(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ordinary_array_authority.h $(NANOISA_DIR)/ownership_array_fields.inc $(NANOISA_DIR)/ordinary_array_authority.inc $(NANOISA_DIR)/ownership_layouts_private.h
+
+# I rebuild the shared declaration owner for complete mixed copied facts.
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ownership_declaration_projection.h $(NANOISA_DIR)/ownership_declaration_projection.inc

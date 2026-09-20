@@ -13,4 +13,7 @@
  * callers must not infer a precise allocation diagnosis from TRUNCATED alone.
  * Existing public layout decoding retains its original profile and semantics. */
 NvmV2Result nvm_ownership_layouts_private_decode(const uint8_t *,size_t,NvmV2Layouts *);
+/* I additionally validate scalar-union nodes beside forward record DAGs.
+ * Only the complete mixed declaration query selects this private grammar. */
+NvmV2Result nvm_ownership_mixed_layouts_private_decode(const uint8_t *,size_t,NvmV2Layouts *);
 #endif

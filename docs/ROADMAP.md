@@ -13163,3 +13163,9 @@ ff730 reconciliation remain pending; full2c135/runtime/public/source remain open
 - [ ] I audit public consumers and add origin/mutation/alias/runtime proofs before paired source publication and full generic/imported/nested graph acceptance. Full5.1 remains open until those gates pass.
 
 - [ ] I add the explicit mixed private forward-layout profile required by the projection contract before using it: static review found the current array profile intentionally requires all forward-table layouts to be STRUCT. I preserve that old profile and qualify shared bounded graph traversal for scalar unions beside forward record DAGs, rejecting cross-kind record edges and cycles. This is part of existing f36b/15f, not new executable authority.
+
+I prepare the mixed declaration production checkpoint after reviewed228b design
+and its explicit forward-layout amendment. Shared staging, exact zero union
+flags, full suffix precedence and counted/copied variants are implemented;
+old query/public profiles remain unchanged. No fixtures, builds or execution
+have run. Full production review precedes new acceptance work.
