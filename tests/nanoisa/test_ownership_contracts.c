@@ -15,6 +15,9 @@ static unsigned checks;
 static void word(uint8_t *data, unsigned offset, uint32_t value) {
     for (unsigned i = 0; i < 4; i++) data[offset+i] = (uint8_t)(value >> (8*i));
 }
+static void half(uint8_t *data, unsigned offset, uint16_t value) {
+    data[offset] = (uint8_t)value; data[offset+1] = (uint8_t)(value >> 8);
+}
 static void slot(uint8_t *data, unsigned offset, uint8_t tag, uint8_t mode, uint32_t layout) {
     data[offset] = tag; data[offset+1] = mode; word(data, offset+4, layout);
 }
@@ -88,7 +91,125 @@ static void check_path_transport(NvmModule *module) {
     check_status(module,true,false);CHECK(nvm_verify(module).ok);
 }
 
+static void check_union_transport(void) {
+    NvmModule *module=nvm_module_new();CHECK(module!=NULL);
+    uint32_t identity=nvm_add_string(module,"Choice<int,string>",18);
+    uint32_t int_variant=nvm_add_string(module,"IntValue",8);
+    uint32_t pair_variant=nvm_add_string(module,"TextPair",8);
+    uint32_t empty_variant=nvm_add_string(module,"Empty",5);
+    uint32_t value_name=nvm_add_string(module,"value",5);
+    uint32_t left_name=nvm_add_string(module,"left",4);
+    uint32_t right_name=nvm_add_string(module,"right",5);
+    CHECK(identity!=UINT32_MAX && int_variant!=UINT32_MAX &&
+          pair_variant!=UINT32_MAX && empty_variant!=UINT32_MAX &&
+          value_name!=UINT32_MAX && left_name!=UINT32_MAX && right_name!=UINT32_MAX);
+    NvmV2LayoutField fields[]={{TAG_INT,NVM_V2_NO_INDEX,value_name},
+        {TAG_STRING,NVM_V2_NO_INDEX,left_name},{TAG_BOOL,NVM_V2_NO_INDEX,right_name}};
+    NvmV2Layout layout={NVM_V2_LAYOUT_UNION,3,identity,fields};
+    NvmV2Layouts layouts={&layout,1};module->union_count=1;
+    CHECK(nvm_retain_layouts(module,&layouts)==NVM_V2_OK);
+    module->ownership_size=72;module->ownership_data=calloc(72,1);CHECK(module->ownership_data);
+    uint8_t *data=module->ownership_data;
+    word(data,0,NVM_OWNERSHIP_EXTENSION_VERSION);word(data,4,1);
+    word(data,12,0); /* no functions */
+    word(data,16,4);word(data,20,0); /* bounded empty v2 path suffix */
+    word(data,24,1);half(data,28,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS);
+    half(data,30,NVM_OWNERSHIP_EXTENSION_REVISION_1);word(data,32,36);
+    word(data,36,1);word(data,40,0);half(data,44,3);
+    word(data,48,int_variant);half(data,52,0);half(data,54,1);
+    word(data,56,pair_variant);half(data,60,1);half(data,62,2);
+    word(data,64,empty_variant);half(data,68,3);half(data,70,0);
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_OK && needs);
+    NvmUnionVariantFact fact={99,99,99,99};
+    CHECK(nvm_ownership_union_variant(module,0,0,&fact)==NVM_V2_OK &&
+          fact.layout==0 && fact.name_idx==int_variant &&
+          fact.field_offset==0 && fact.field_count==1);
+    CHECK(nvm_ownership_union_variant(module,0,1,&fact)==NVM_V2_OK &&
+          fact.name_idx==pair_variant && fact.field_offset==1 && fact.field_count==2);
+    CHECK(nvm_ownership_union_variant(module,0,2,&fact)==NVM_V2_OK &&
+          fact.name_idx==empty_variant && fact.field_offset==3 && fact.field_count==0);
+    fact=(NvmUnionVariantFact){99,99,99,99};
+    CHECK(nvm_ownership_union_variant(module,0,3,&fact)==NVM_V2_ERR_INDEX_RANGE &&
+          fact.layout==99 && fact.name_idx==99 && fact.field_offset==99 && fact.field_count==99);
+    data=realloc(data,80);CHECK(data);module->ownership_data=data;module->ownership_size=80;
+    memmove(data+32,data+24,48);word(data,16,12);word(data,20,1);
+    half(data,24,1);half(data,26,0);half(data,28,7);half(data,30,0);
+    CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_OK);
+    uint16_t path[2]={99,99},path_count=99;
+    CHECK(nvm_ownership_path(module,0,path,2,&path_count)==NVM_V2_OK &&
+          path_count==1 && path[0]==7);
+    half(data,38,2);path[0]=99;path_count=99;
+    CHECK(nvm_ownership_path(module,0,path,2,&path_count)==NVM_V2_ERR_FORMAT_VERSION &&
+          path[0]==99 && path_count==99);
+    half(data,38,NVM_OWNERSHIP_EXTENSION_REVISION_1);
+    memmove(data+24,data+32,48);module->ownership_size=72;word(data,16,4);word(data,20,0);
+    half(data,60,0);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_INDEX_RANGE);half(data,60,1);
+    half(data,62,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_INDEX_RANGE);half(data,62,2);
+    word(data,56,int_variant);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_TYPE);word(data,56,pair_variant);
+    half(data,46,1);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_TYPE);half(data,46,0);
+    word(data,40,1);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_TYPE);word(data,40,0);
+    word(data,36,2);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_INDEX_RANGE);word(data,36,1);
+    word(data,16,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_RANGE);word(data,16,4);
+    word(data,24,0);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_INDEX_RANGE);word(data,24,1);
+    half(data,28,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);half(data,28,1);
+    half(data,30,2);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);half(data,30,1);
+    word(data,32,35);data[71]=1;CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_RANGE);
+    data[71]=0;CHECK(nvm_ownership_contracts_validate(module,&needs)!=NVM_V2_OK);word(data,32,36);
+    module->ownership_size=71;CHECK(nvm_ownership_contracts_validate(module,&needs)!=NVM_V2_OK);
+    module->ownership_size=72;CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_OK);
+    data=realloc(data,80);CHECK(data);module->ownership_data=data;module->ownership_size=80;
+    word(data,24,2);half(data,72,NVM_OWNERSHIP_EXTENSION_ARRAY_FIELDS);
+    half(data,74,NVM_OWNERSHIP_EXTENSION_REVISION_1);word(data,76,0);
+    CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);
+    half(data,72,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS);
+    CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_TYPE);
+    half(data,72,3);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_FORMAT_VERSION);
+    module->ownership_size=72;word(data,24,1);
+    word(data,0,NVM_OWNERSHIP_PATH_VERSION);
+    fact=(NvmUnionVariantFact){99,99,99,99};
+    NvmV2Result query=nvm_ownership_union_variant(module,0,0,&fact);
+    CHECK(query!=NVM_V2_OK);
+    word(data,0,NVM_OWNERSHIP_EXTENSION_VERSION);
+    nvm_module_free(module);
+}
+
+static void check_concrete_union_instances(void) {
+    NvmModule *module=nvm_module_new();CHECK(module!=NULL);
+    uint32_t first=nvm_add_string(module,"Choice<int,string>",18);
+    uint32_t second=nvm_add_string(module,"Choice<float,bool>",18);
+    uint32_t left=nvm_add_string(module,"IntValue",8);
+    uint32_t right=nvm_add_string(module,"FloatValue",10);
+    uint32_t value=nvm_add_string(module,"value",5);
+    CHECK(first!=UINT32_MAX && second!=UINT32_MAX && left!=UINT32_MAX &&
+          right!=UINT32_MAX && value!=UINT32_MAX);
+    NvmV2LayoutField fields[]={{TAG_INT,NVM_V2_NO_INDEX,value},
+                               {TAG_FLOAT,NVM_V2_NO_INDEX,value}};
+    NvmV2Layout items[]={{NVM_V2_LAYOUT_UNION,1,first,&fields[0]},
+                         {NVM_V2_LAYOUT_UNION,1,second,&fields[1]}};
+    NvmV2Layouts layouts={items,2};module->union_count=2;
+    CHECK(nvm_retain_layouts(module,&layouts)==NVM_V2_OK);
+    module->ownership_size=72;module->ownership_data=calloc(72,1);
+    CHECK(module->ownership_data!=NULL);uint8_t *data=module->ownership_data;
+    word(data,0,NVM_OWNERSHIP_EXTENSION_VERSION);word(data,4,2);
+    word(data,12,0);word(data,16,4);word(data,20,0);word(data,24,1);
+    half(data,28,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS);
+    half(data,30,NVM_OWNERSHIP_EXTENSION_REVISION_1);word(data,32,36);
+    word(data,36,2);word(data,40,0);half(data,44,1);word(data,48,left);half(data,54,1);
+    word(data,56,1);half(data,60,1);word(data,64,right);half(data,70,1);
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_OK && needs);
+    NvmUnionVariantFact fact={0};
+    CHECK(nvm_ownership_union_variant(module,0,0,&fact)==NVM_V2_OK &&
+          fact.layout==0 && fact.name_idx==left && fact.field_count==1);
+    CHECK(nvm_ownership_union_variant(module,1,0,&fact)==NVM_V2_OK &&
+          fact.layout==1 && fact.name_idx==right && fact.field_count==1);
+    word(data,56,0);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_ERR_SECTION_TYPE);
+    word(data,56,1);CHECK(nvm_ownership_contracts_validate(module,&needs)==NVM_V2_OK);
+    nvm_module_free(module);
+}
+
 int main(int argc, char **argv) {
+    check_union_transport();
+    check_concrete_union_instances();
     AsmResult result;
     NvmModule *module = asm_assemble(
         ".types 1 0 0\n.entry 1\n.function read 1 1 0 int 1\n"
