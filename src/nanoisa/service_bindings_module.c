@@ -1,3 +1,4 @@
+#include "shadow_admission_diagnostic.h"
 #include "service_bindings_module.h"
 #include "../nsi_file_catalog.h"
 #include "isa.h"
@@ -28,7 +29,8 @@ bool nvm_v2_file_instructions_present(const NvmV2Module *m) {
     }
     return false;
 }
-bool nvm_service_execution_pending(const NvmModule *m) {
+SHADOW_QUERY(bool, nvm_service_execution_pending,
+             (const NvmModule *m), (m), SHADOW_SERVICE) {
     return nvm_service_bindings_present(m) || nvm_file_instructions_present(m);
 }
 static bool exact_bytes(const uint8_t *bytes,uint32_t length,const char *text) {

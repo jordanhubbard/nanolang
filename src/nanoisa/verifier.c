@@ -8,6 +8,7 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+#include "shadow_admission_diagnostic.h"
 #include "service_bindings_module.h"
 #include "verifier.h"
 #include "managed_array_shapes.h"
@@ -897,7 +898,8 @@ NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx
 }
 
 /* I refuse transfer instructions even without their required declarations. */
-bool nvm_uses_owned_transfers(const NvmModule *mod) {
+SHADOW_QUERY(bool, nvm_uses_owned_transfers,
+             (const NvmModule *mod), (mod), SHADOW_TRANSFERS) {
     if (!mod) return true;
     if (mod->function_count && !mod->functions) return true;
     for (uint32_t f=0;f<mod->function_count;f++) {

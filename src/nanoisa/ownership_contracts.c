@@ -1,3 +1,4 @@
+#include "shadow_admission_diagnostic.h"
 #include "ownership_contracts.h"
 #include "retained_layouts.h"
 #include "reference_places.h"
@@ -136,8 +137,9 @@ NvmV2Result nvm_ownership_path(const NvmModule *module,uint32_t index,
     return paths_read(&cursor,index,fields,capacity,count);
 }
 
-NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
-                                            bool *requires_verifier) {
+SHADOW_QUERY(NvmV2Result, nvm_ownership_contracts_validate,
+             (const NvmModule *module, bool *requires_verifier),
+             (module, requires_verifier), SHADOW_CONTRACTS) {
     if (!module || !requires_verifier) return NVM_V2_ERR_INDEX_RANGE;
     *requires_verifier = false;
     if (!module->ownership_size)

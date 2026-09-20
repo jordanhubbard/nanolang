@@ -11,6 +11,7 @@
  */
 
 #include "vm.h"
+#include "../nanoisa/shadow_admission_diagnostic.h"
 #include "../binary64_bits.h"
 #include "../binary64_arithmetic.h"
 #include "vm_ffi.h"
@@ -38,6 +39,53 @@ static uint64_t shadow_clock_ns(void) {
     if (seconds > (UINT64_MAX - nanos) / UINT64_C(1000000000)) _exit(92);
     return seconds * UINT64_C(1000000000) + nanos;
 }
+enum { SHADOW_REMAINDER, SHADOW_OUTER_OWNER, SHADOW_OUTER_MIXED,
+       SHADOW_READY, SHADOW_SUPPORTED, SHADOW_OUTER_COUNT };
+static bool shadow_collecting;
+static unsigned shadow_outer;
+static uint64_t shadow_stage_started;
+static uint64_t shadow_outer_pending[SHADOW_OUTER_COUNT], shadow_outer_ns[SHADOW_OUTER_COUNT];
+static uint64_t shadow_leaf_pending_calls[SHADOW_LEAF_COUNT], shadow_leaf_pending_ns[SHADOW_LEAF_COUNT];
+static uint64_t shadow_leaf_calls[SHADOW_LEAF_COUNT], shadow_leaf_ns[SHADOW_LEAF_COUNT];
+static void shadow_add(uint64_t *value, uint64_t delta) {
+    if (delta > UINT64_MAX - *value) _exit(92);
+    *value += delta;
+}
+static void shadow_stage_at(unsigned next, uint64_t now) {
+    if (!shadow_collecting || next >= SHADOW_OUTER_COUNT || now < shadow_stage_started) _exit(92);
+    shadow_add(&shadow_outer_pending[shadow_outer], now - shadow_stage_started);
+    shadow_outer = next;
+    shadow_stage_started = now;
+}
+static void shadow_stage(unsigned next) { shadow_stage_at(next, shadow_clock_ns()); }
+static void shadow_collect_begin(uint64_t start) {
+    if (shadow_collecting) _exit(92);
+    memset(shadow_outer_pending, 0, sizeof shadow_outer_pending);
+    memset(shadow_leaf_pending_calls, 0, sizeof shadow_leaf_pending_calls);
+    memset(shadow_leaf_pending_ns, 0, sizeof shadow_leaf_pending_ns);
+    shadow_collecting = true;
+    shadow_outer = SHADOW_REMAINDER;
+    shadow_stage_started = start;
+}
+uint64_t shadow_query_begin(void) {
+    if (!shadow_collecting) return 0;
+    uint64_t now = shadow_clock_ns();
+    if (now == UINT64_MAX) _exit(92);
+    return now + 1;
+}
+void shadow_query_end(unsigned kind, uint64_t token) {
+    if (!token) return;
+    uint64_t now = shadow_clock_ns();
+    if (!shadow_collecting || kind >= SHADOW_LEAF_COUNT || now < token - 1) _exit(92);
+    shadow_add(&shadow_leaf_pending_calls[kind], 1);
+    shadow_add(&shadow_leaf_pending_ns[kind], now - (token - 1));
+}
+static VmTrap shadow_refusal(VmTrap trap) {
+    shadow_collecting = false;
+    return trap;
+}
+#define SHADOW_STAGE(next) shadow_stage(next)
+#define SHADOW_REFUSAL(value) shadow_refusal(value)
 static void shadow_admission_record(uint64_t start, bool reuse) {
     uint64_t end = shadow_clock_ns();
     uint64_t *calls = reuse ? &shadow_reuse_calls : &shadow_full_calls;
@@ -45,6 +93,14 @@ static void shadow_admission_record(uint64_t start, bool reuse) {
     if (end < start || shadow_admission_calls == UINT64_MAX ||
         *calls == UINT64_MAX || end - start > UINT64_MAX - shadow_admission_ns ||
         end - start > UINT64_MAX - *nanos) _exit(92);
+    shadow_stage_at(SHADOW_REMAINDER, end);
+    for (unsigned i = 0; i < SHADOW_OUTER_COUNT; ++i)
+        shadow_add(&shadow_outer_ns[i], shadow_outer_pending[i]);
+    for (unsigned i = 0; i < SHADOW_LEAF_COUNT; ++i) {
+        shadow_add(&shadow_leaf_calls[i], shadow_leaf_pending_calls[i]);
+        shadow_add(&shadow_leaf_ns[i], shadow_leaf_pending_ns[i]);
+    }
+    shadow_collecting = false;
     ++shadow_admission_calls;
     shadow_admission_ns += end - start;
     ++*calls;
@@ -62,7 +118,7 @@ static void shadow_progress(const NvmModule *module, uint32_t function,
     uint64_t now = shadow_clock_ns();
     if (!rows) first = now;
     if (rows == 8192 || now < first ||
-        fprintf(stderr, "[shadow-progress] elapsed_ms=%.3f admission_calls=%llu admission_ms=%.3f assert_traps=%llu full_calls=%llu full_ns=%llu reuse_calls=%llu reuse_ns=%llu admission_ns=%llu %s fn=%u pc=%u name=%.64s\n",
+        fprintf(stderr, "[shadow-progress] elapsed_ms=%.3f admission_calls=%llu admission_ms=%.3f assert_traps=%llu full_calls=%llu full_ns=%llu reuse_calls=%llu reuse_ns=%llu admission_ns=%llu outer_remainder_ns=%llu outer_owner_ns=%llu outer_mixed_ns=%llu outer_ready_ns=%llu outer_supported_ns=%llu service_calls=%llu service_ns=%llu owner_calls=%llu owner_ns=%llu mixed_calls=%llu mixed_ns=%llu contracts_calls=%llu contracts_ns=%llu transfers_calls=%llu transfers_ns=%llu %s fn=%u pc=%u name=%.64s\n",
                 (double)(now - first) / 1000000.0,
                 (unsigned long long)shadow_admission_calls,
                 (double)shadow_admission_ns / 1000000.0,
@@ -72,10 +128,28 @@ static void shadow_progress(const NvmModule *module, uint32_t function,
                 (unsigned long long)shadow_reuse_calls,
                 (unsigned long long)shadow_reuse_ns,
                 (unsigned long long)shadow_admission_ns,
+                (unsigned long long)shadow_outer_ns[0],
+                (unsigned long long)shadow_outer_ns[1],
+                (unsigned long long)shadow_outer_ns[2],
+                (unsigned long long)shadow_outer_ns[3],
+                (unsigned long long)shadow_outer_ns[4],
+                (unsigned long long)shadow_leaf_calls[0],
+                (unsigned long long)shadow_leaf_ns[0],
+                (unsigned long long)shadow_leaf_calls[1],
+                (unsigned long long)shadow_leaf_ns[1],
+                (unsigned long long)shadow_leaf_calls[2],
+                (unsigned long long)shadow_leaf_ns[2],
+                (unsigned long long)shadow_leaf_calls[3],
+                (unsigned long long)shadow_leaf_ns[3],
+                (unsigned long long)shadow_leaf_calls[4],
+                (unsigned long long)shadow_leaf_ns[4],
                 event, function, entry->code_offset, name) < 0 ||
         fflush(stderr) != 0) _exit(92);
     ++rows;
 }
+#else
+#define SHADOW_STAGE(next) ((void)0)
+#define SHADOW_REFUSAL(value) (value)
 #endif
 
 #ifdef NANO_VM_TRACE_COMPILED
@@ -1477,48 +1551,54 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
                                       VmOrdinaryAdmission *ordinary) {
 #ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
     uint64_t admission_started = shadow_clock_ns();
+    shadow_collect_begin(admission_started);
 #endif
     VmOwnedInvocationProof resumed;
     bool admitted=false, required=false;
     bool reuse=vm_ordinary_admission_matches(vm,ordinary);
     if (ordinary) ordinary->valid=false;
     if (!reuse) {
+        SHADOW_STAGE(SHADOW_OUTER_OWNER);
         if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED && !vm_owned_proof_matches(vm,proof))
-            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a synchronous owner ARRAY root invocation before execution.");
+            return SHADOW_REFUSAL(trap_error(vm,VM_ERR_TYPE_ERROR,"I require a synchronous owner ARRAY root invocation before execution."));
+        SHADOW_STAGE(SHADOW_OUTER_MIXED);
         if(vm && nvm_mixed_samples_candidate(vm->module) && !vm_owned_proof_matches(vm,proof)) {
             if(!vm_mixed_invocation_prepare(vm,&resumed,true))
-                return trap_error(vm,resumed.refusal?resumed.refusal:VM_ERR_TYPE_ERROR,"%s",
-                                  resumed.reason?resumed.reason:VM_OWNERSHIP_REQUIRED);
+                return SHADOW_REFUSAL(trap_error(vm,resumed.refusal?resumed.refusal:VM_ERR_TYPE_ERROR,"%s",
+                                  resumed.reason?resumed.reason:VM_OWNERSHIP_REQUIRED));
             proof=&resumed;
         }
+        SHADOW_STAGE(SHADOW_READY);
         admitted=vm_owned_proof_matches(vm,proof);
         if (admitted && proof->owner_arrays) {
             required=true;
-            if(!vm_owned_constants_ready(vm))return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete owner ARRAY constants.");
+            if(!vm_owned_constants_ready(vm))return SHADOW_REFUSAL(trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete owner ARRAY constants."));
         } else if (!vm_owned_runtime_ready(vm,&required))
-            return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+            return SHADOW_REFUSAL(trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED));
+        SHADOW_STAGE(SHADOW_SUPPORTED);
         if (!admitted && !vm_ownership_supported(vm))
-            return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+            return SHADOW_REFUSAL(trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED));
     }
+    SHADOW_STAGE(SHADOW_REMAINDER);
     const bool owned_execution = admitted || required;
     const bool mixed_execution = admitted && (proof->mixed || proof->owner_arrays);
     if (owned_execution) {
         if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
             vm->frames[0].fn_idx!=0)
-            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a bounded standalone owned activation");
+            return SHADOW_REFUSAL(trap_error(vm,VM_ERR_TYPE_ERROR,"I require a bounded standalone owned activation"));
         for (uint32_t i=0;i<vm->frame_count;i++) {
             VmReferenceActivation *context=vm_reference_activation(vm,i);
             if (vm->frames[i].module!=vm->module ||
                 ((i || vm->references.active) && !context->active))
-                return trap_error(vm,VM_ERR_TYPE_ERROR,"I require each active owned frame context");
+                return SHADOW_REFUSAL(trap_error(vm,VM_ERR_TYPE_ERROR,"I require each active owned frame context"));
         }
         if (!vm->references.active) {
             if (vm->frame_count!=1 || vm->current_fn!=0 || vm->ip!=vm->module->functions[0].code_offset)
-                return trap_error(vm,VM_ERR_TYPE_ERROR,"I need reference activation entry before resuming");
+                return SHADOW_REFUSAL(trap_error(vm,VM_ERR_TYPE_ERROR,"I need reference activation entry before resuming"));
             memset(&vm->references,0,sizeof(vm->references));
             vm->references.active=true;
             if (vm->reference_generation==UINT64_MAX)
-                return trap_error(vm,VM_ERR_TYPE_ERROR,"I exhausted reference activation identities");
+                return SHADOW_REFUSAL(trap_error(vm,VM_ERR_TYPE_ERROR,"I exhausted reference activation identities"));
             vm->references.generation=++vm->reference_generation;
         }
     }

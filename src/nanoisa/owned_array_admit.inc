@@ -1,5 +1,7 @@
+#include "shadow_admission_diagnostic.h"
 #include "owned_array_admission.h"
-NvmOwnedArrayRoute nvm_owned_array_route(const NvmModule *m) {
+SHADOW_QUERY(NvmOwnedArrayRoute, nvm_owned_array_route,
+             (const NvmModule *m), (m), SHADOW_OWNER) {
     if(!m || nvm_service_execution_pending(m))return NVM_OWNER_ARRAY_NOT_SELECTED;
     if(!m->ownership_data && !m->ownership_size)return NVM_OWNER_ARRAY_NOT_SELECTED;
     if(!m->ownership_data || !m->ownership_size)
