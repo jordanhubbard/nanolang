@@ -139,7 +139,7 @@ int main(int argc,char **argv){CHECK(argc==2);CHECK(nvm_file_host_grant_create_t
 #else
 int main(void){(void)cyclic_public_bridge;(void)cyclic_public_emit;
  CHECK(nvm_file_host_grant_create_temporary_files(&cyclic_grant)==NVM_FILE_HOST_OK);
- CHECK(cyclic_prior_main()==0);public_boundaries(NULL);
+ CHECK(cyclic_prior_main()==0);CHECK(cyclic_public_calls==0);public_boundaries(NULL);
  CHECK(nvm_file_host_grant_destroy(&cyclic_grant)==NVM_FILE_HOST_OK);
  puts("PASS public cyclic native full corpus and grant boundary");return 0;}
 #endif
