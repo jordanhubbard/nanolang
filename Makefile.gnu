@@ -5630,3 +5630,10 @@ test-file-binding-plan-sanitizers:
 	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" NANO_FILE_BINDING_SANITIZERS=1 python3 -m unittest -f -v tests.test_nsi_file_binding
 # I compose target and ownership facts only through a separate private entry.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DIR)/file_indirect_flow.inc
+
+# I publish only through this explicit tool; default/install lists stay separate.
+.PHONY: nsi-file-binding
+nsi-file-binding: $(BIN_DIR)/nsi-file-binding
+$(BIN_DIR)/nsi-file-binding: $(OBJ_DIR)/nsi_file_binding_main.o $(OBJ_DIR)/nsi_file_publish.o $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi_file_plan.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o | $(BIN_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+$(OBJ_DIR)/nsi_file_publish.o $(OBJ_DIR)/nsi_file_binding_main.o: $(SRC_DIR)/nsi_file_publish.h $(SRC_DIR)/nsi_file_binding.h

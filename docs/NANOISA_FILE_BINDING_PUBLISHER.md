@@ -221,3 +221,41 @@ CLI returns failure while the publisher report's commit facts remain unchanged.
    source imports, schema/AST/lowering/selected shadows, fresh grants, startup,
    cyclic/indirect/richer-borrow source and complete platform/product requirements
    remain mandatory later stages under the original parents.
+
+## My first production checkpoint ownership table
+
+I implement the approved standalone publisher and explicit command only. The
+strict decoder/renderer/catalog files and existing default/installed surfaces
+are unchanged. Both filesystem paths and stderr JSON byte representation are
+bounded: the CLI refuses input/destination path strings above4095 bytes before
+opening, representing refused oversized paths as JSON null. Redundant trailing
+parent separators are trimmed before the no-follow directory open, so a trailing
+slash cannot accidentally bypass that final-component check.
+
+| Owner / storage | Acquisition and release / failure rule |
+| --- | --- |
+| caller plan and two counted views | Borrowed through publication; never modified or freed by publisher. |
+| publisher parent/final buffers |4096+256 automatic bytes; checked before filesystem calls. |
+| `FpTransaction` | Automatic owning state: two directory descriptors, two child descriptors and exact stat identities/creation flags. It starts with every descriptor -1. |
+| staging selection helper | Automatic96-byte candidate and16-byte entropy; at most64 mkdir attempts. Report owns96 diagnostic bytes; no heap allocation. |
+| stat/write/sync helpers | Fixed stat/scalar automatic scratch, no recursion, no document-sized automatic arrays or allocations. |
+| parent directory fd | One open and fstat; anchored operations until one terminal close. |
+| staging directory fd/name | Created flag recorded immediately after mkdir; identity only after fstat. Unknown identity survives cleanup as pending, never guessed-owned. |
+| each file fd/name | Created flag recorded immediately after exclusive open; identity after fstat. Exact write/fsync/close, or close-once plus checked known-child unlink. |
+| CLI input buffer | Exactly1MiB+1 requested bytes after regular-file fstat; freed after prepare and before publisher. Read never requests beyond remaining capacity. |
+| strict binding preparation | Existing queried conservative bound plus input buffer is checked against16MiB before opening. CLI retains one returned plan through publication, then frees it. |
+| output report/JSON | Fixed report; path byte escaping streams bounded input names to stderr. Reporting failure returns nonzero and does not undo commit. |
+
+The exact publisher automatic object sizes are owning-TU `sizeof(FpTransaction)`
+plus the listed buffers, stat/scalar scratch and report supplied by the caller;
+compiler stack-frame layout/ABI overhead is not a claimed heap allocation or
+portable byte-exact stack guarantee. There is no allocation after publication
+begins. Platform/libc internals remain outside project-requested heap accounting.
+
+I capture first errors before rollback and preserve later cleanup errors. A file
+close failure is a first CLOSE failure; a rollback close failure is secondary.
+The stage and parent are closed even after an unknown-child identity prevents
+unlink, and no descriptor slot can be closed twice. Parent sync success precedes
+durable=true; later close errors preserve that fact and published=true.
+No new fixture, compiler build, syscall publication or generated shadow has run
+at this source checkpoint. Full source review precedes fixture preparation.
