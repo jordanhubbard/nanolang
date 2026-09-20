@@ -12469,3 +12469,10 @@ I supplement private VMe105 with frozen42838153c/current8c959 provider integrati
     waits and records unconfirmed cleanup as failure; stat-keyed command maps
     retain complete product archives while fresh phase endpoint hashes retain
     exact input evidence. The existing fixture assertions stay unchanged.
+
+  - [ ] I qualify explicit native Clang selection after the first579222 Linux
+    preparation atcd312 returned2 in0.115s before any tests: auto-selected GCC14
+    lacks the include directories identified in GCC13. I retain the first tree,
+    terminal and equal source/tool maps, and add validated native-only selection
+    flags without warning suppression or wasm32 flag changes. Corrected fresh
+    preparation and gates remain pending review.

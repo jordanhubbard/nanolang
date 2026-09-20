@@ -181,3 +181,23 @@ cleanup cannot pass. I preserve all product boundary snapshots and archive
 bytes; this corrects retention machinery without changing the two fixtures or
 any compiler/runtime source. No failed build or fixture exists for this static
 review finding, and no qualification has yet run.
+
+## I pin the native GCC installation for Clang23
+
+The first fresh Linux preparation atcd312 stopped before provider qualification:
+`/tmp/nanolang-managed-string-cd312-linux-prepare/terminal.json` retains return2
+at0.114840524s, confirmed process cleanup, and unchanged source/tool maps.
+Clang23 selected GCC14 but diagnosed its missing libstdc++ include directories
+under `-Werror,-Wgcc-install-dir-libstdcxx`; it identified the installed GCC13
+alternative. No test ran. I retain this original tree and terminal.
+
+Before corrected preparation I extend the explicit selection JSON with optional
+`native_clang_flags`, an array of nonempty, NUL-free strings (absent means empty).
+Linux selects `--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13`. I form CC
+with `shlex.join([selected_clang, *flags])` and NMS_NATIVE_CLANG_FLAGS with
+`shlex.join(flags)`. The complete original selection remains in the evidence.
+The literal clang/wasm tool and NMS_WASM_CC stay unflagged; native-only settings
+must not contaminate the wasm32 toolchain. This selects a real installation;
+it does not suppress the warning. The external preparation driver uses the same
+selection for its native Make commands. Independent review precedes corrected
+execution; no compiler, runtime or test assertion changes here.

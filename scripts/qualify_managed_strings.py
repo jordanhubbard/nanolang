@@ -234,7 +234,7 @@ def main():
     parser.add_argument('--phase', required=True, choices=PHASES)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--tools', required=True, type=Path,
-                        help='JSON: executables {name: absolute path}, libraries [absolute paths]')
+                        help='JSON: executables {name: absolute path}, libraries [absolute paths], native_clang_flags [strings]')
     parser.add_argument('--command-seconds', type=int, default=120)
     parser.add_argument('--phase-seconds', type=int, default=3600)
     options = parser.parse_args()
@@ -245,6 +245,10 @@ def main():
         parser.error('I retain evidence outside the checkout')
     output.mkdir(parents=True, exist_ok=False)
     selection = json.loads(options.tools.read_text())
+    native_flags = selection.get('native_clang_flags', [])
+    if not isinstance(native_flags, list) or any(
+            not isinstance(flag, str) or not flag or '\0' in flag for flag in native_flags):
+        raise ValueError('I require native_clang_flags to be an array of nonempty NUL-free strings')
     executables = selection['executables']
     for name in REQUIRED:
         path = Path(executables[name])
@@ -326,7 +330,8 @@ tempfile.TemporaryDirectory = _Retained
 ''')
     os.environ.update(PYTHONPATH=str(child_hook) + os.pathsep + str(ROOT),
         NMS_RETAIN_TEMPORARY=str(output / 'temporary'), PATH=str(aliases) + os.pathsep + os.environ['PATH'],
-        CC=shlex.quote(executables['clang']), NMS_WASM_CC='clang',
+        CC=shlex.join([executables['clang'], *native_flags]),
+        NMS_NATIVE_CLANG_FLAGS=shlex.join(native_flags), NMS_WASM_CC='clang',
         NMS_RUNTIME_CLANG='clang', NMS_RUNTIME_OPT='opt', NMS_CORE_LEAK_CHECK='1',
         NANOLANG_LLVM_VM=str(ROOT / 'bin/nano_vm'),
         NANOLANG_LLVM_C=str(ROOT / 'bin/nvm2c'),
