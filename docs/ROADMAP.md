@@ -12646,3 +12646,5 @@ requirements remain open.
 - [x] I qualify the private structural decoder prerequisite at f4200bff5/83b04f11c in all seven Linux/Darwin compiler configurations, with independent evidence review. [Retained evidence](evidence/private-layout.md) records42 linked/486 instrumented checks each and every measured allocation failure. The whole ARRAY_FIELDS authority query, public consumers and full15f/488 remain open.
 
 - [ ] I implement the reviewed whole-envelope ordinary-array query after the qualified structural prerequisite, preserving public decisions and reporting ambiguous legacy decode failure as UNKNOWN. The [implementation checkpoint](NANOISA_ORDINARY_RECORD_ARRAY_AUTHORITY.md) records common-reader factoring, complete extension validation, copied ownership and conservative work/heap bounds before code.
+
+- [ ] I refuse a partial service claim in the private ordinary-array query: independent review of8750 found that a nonnull service_data pointer with zero service_size escaped the conservative UNKNOWN predicate. I add the missing pointer check before fixtures; this query never grants execution.
