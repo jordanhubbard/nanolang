@@ -1,0 +1,6 @@
+test_c_ownership_and_refusal (tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.633s
+
+OK

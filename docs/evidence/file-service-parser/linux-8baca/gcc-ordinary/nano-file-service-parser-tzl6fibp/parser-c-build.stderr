@@ -1,0 +1,5 @@
+/home/jkh/Src/nanolang-file-service-parser-8baca/tests/test_file_service_parser.c: In function ‘grammar’:
+/home/jkh/Src/nanolang-file-service-parser-8baca/tests/test_file_service_parser.c:73:17: error: initialization discards ‘const’ qualifier from pointer target type [-Werror=discarded-qualifiers]
+   73 |     char *saved=t[5].value;
+      |                 ^
+cc1: all warnings being treated as errors

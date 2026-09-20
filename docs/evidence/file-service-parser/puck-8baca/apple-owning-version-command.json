@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "--version"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-8baca",
+  "environment": {
+    "CC": "/usr/bin/clang",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "PKG_CONFIG_PATH": "/opt/homebrew/opt/libffi/lib/pkgconfig:/opt/homebrew/opt/openssl@3/lib/pkgconfig",
+    "NMS_NATIVE_CLANG_FLAGS": null,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "NANO_SERVICE_PARSER_CC": null,
+    "NANO_SERVICE_PARSER_CFLAGS": null,
+    "NANO_SERVICE_PARSER_SANITIZERS": null,
+    "NANO_SERVICE_PARSER_OBJECTS": null,
+    "NANO_SERVICE_PARSER_LDFLAGS": null
+  }
+}

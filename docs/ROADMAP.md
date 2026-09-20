@@ -13268,3 +13268,16 @@ precedes all gates and full File source lowering remains open.
 - [ ] I correct the78aac puck fixture diagnostic-stream assumption: Stage1 rejects the ordinary payload-omitted case with status1 and no executable, and emits the exact zero-field diagnostic on stdout; C seed emits it on stderr. I retain both streams separately and the first assertion terminal after all three paired parser outputs/shadow selections passed. Before editing I require combined-stream substring checks only, preserving returncodes, no-output and no-service-masking assertions. I do not impose or claim a uniform diagnostic stream; the already running14ca Linux attempt retains its own terminal.
 
 - [ ] I repair ordinary match cleanup under task_63edb399b8cd44ef82eaffa99328a22e: the5a534 puck Homebrew sanitizer completes all parser/publisher assertions, then reports162bytes in12 allocations from a fresh union match temporary, interpreted binding metadata and restored native binding metadata. I retain the exact trace and stop; static tracing finds direct symbol-count resets and no union temporary destruction. I require ownership/alias/result-escape and metadata-lifetime review before production edits, preserving all ordinary execution assertions and strict leak detection. This is a measured cleanup failure, distinct from the earlier missing observer boundary.
+
+I complete the bounded actual parser/retention qualification at5a0e9b896:
+fresh Linux and puck C-seed/Stage1/Stage2 bootstrap, actual paired publisher
+parsing/shadow selections/schema bytes, seven scoped C sanitizer/ordinary
+configurations, seven affected strict publisher configurations and both ordinary
+parser/module/wrapper closures pass. I preserve17 earlier first terminals and
+all corrected source identities in [my seal](evidence/file-service-parser.md).
+My final current maps verify26455 sources and12 selected tools on each host.
+I retain the measured empty-literal/metadata cleanup scope and explicit general
+union lifetime and whole-parser OOM limits. Review and actual merge remain
+pending; full8bbc resolution, lowering and generated behavior acceptance stay
+open. I do not close the root-owned compiler grouping follow-up with these
+fixture results.

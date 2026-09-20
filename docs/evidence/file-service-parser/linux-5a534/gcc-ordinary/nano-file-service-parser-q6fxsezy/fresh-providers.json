@@ -1,0 +1,13 @@
+{
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/lexer.o": "3536058b7529289d8f7648d512112c2c017d5db90d9442f3dcaf7ad59781894d",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/utf8.o": "6036510eb3eda7f8d98395970d4d2bedca32362c917bee95396c5af84d8536cb",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/env.o": "08f1a5577ed387a4fa7f71d2d69c4c9dabef27e72015a1bb7a7225fb5e0a8a8b",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/publisher-bin/nsi-file-binding": "d27858b3ebef42c4b4b24d46b3d43fa339a7b56eb71f80bd966d883b15427048",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/publisher-obj/file-binding-publisher/cJSON.o": "a5bc9fd54d3a9bd35b28df284c7456a79dc616539d62757b7fe4e4c7425dbae3",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/publisher-obj/file-binding-publisher/nsi.o": "7919395218d7d9088dd2ee04a63f5aa570c0c99f000153fd29913155bae535ff",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/publisher-obj/file-binding-publisher/nsi_file_binding.o": "b4ba8a8267fc0cfb7bc87f409736e1292917b804a059dd330864af80db0d2cff",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "280d35af03644865ad7ef37f2b6e4ac780e83c005860cd51ca1494b1eaa84b6c",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/publisher-obj/file-binding-publisher/nsi_file_plan.o": "902ed37d71f0e93b4f95b7759d5ed1caffa2c3fdb867c4874c219ca3df256c62",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/publisher-obj/file-binding-publisher/nsi_file_publish.o": "eae44501a75e6597fdda64c588bf406991955df71c912fc00733e736fb17977d",
+  "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary/nano-file-service-parser-q6fxsezy/publisher-obj/file-binding-publisher/utf8.o": "c33f87ce037b0f56669d4f4b6b9ea9348aed512ff775efba4a38d81db7c41ab2"
+}

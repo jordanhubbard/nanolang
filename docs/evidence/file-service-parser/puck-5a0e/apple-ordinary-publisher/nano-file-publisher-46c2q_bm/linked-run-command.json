@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/fixture-linked",
+    "tests/fixtures/nsi_file_plan.json",
+    "/private/tmp/nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/api-linked"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-5a0e",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

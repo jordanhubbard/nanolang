@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/publisher-bin/nsi-file-binding",
+    "/home/jkh/Src/nanolang-file-service-parser-5a0e/tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/published"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-5a0e",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

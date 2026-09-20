@@ -1,0 +1,286 @@
+{
+  "final_source": "5a0e9b8967ee24b6834ccbbbe7994fbb8f6b9588",
+  "scopes": {
+    "linux-4d290": "/tmp/nanolang-file-service-parser-linux",
+    "linux-bc5": "/tmp/nanolang-file-service-parser-bc5-linux",
+    "linux-8baca": "/tmp/nanolang-file-service-parser-8baca-linux",
+    "linux-3936": "/tmp/nanolang-file-service-parser-3936-linux",
+    "linux-77ad": "/tmp/nanolang-file-service-parser-77ad-linux",
+    "linux-18334": "/tmp/nanolang-file-service-parser-18334-linux",
+    "linux-8134": "/tmp/nanolang-file-service-parser-8134-linux",
+    "linux-78aac": "/tmp/nanolang-file-service-parser-78aac-linux",
+    "linux-14cae": "/tmp/nanolang-file-service-parser-14cae-linux",
+    "linux-5a534": "/tmp/nanolang-file-service-parser-5a534-linux",
+    "linux-5a0e": "/tmp/nanolang-file-service-parser-5a0e-linux",
+    "puck-8baca": "/tmp/nanolang-file-service-parser-puck-retained/nanolang-file-service-parser-8baca-puck",
+    "puck-3936": "/tmp/nanolang-file-service-parser-puck-retained/nanolang-file-service-parser-3936-puck",
+    "puck-77ad": "/tmp/nanolang-file-service-parser-puck-retained/nanolang-file-service-parser-77ad-puck",
+    "puck-18334": "/tmp/nanolang-file-service-parser-puck-retained/nanolang-file-service-parser-18334-puck",
+    "puck-8134": "/tmp/nanolang-file-service-parser-puck-retained/nanolang-file-service-parser-8134-puck",
+    "puck-78aac": "/tmp/nanolang-file-service-parser-puck-retained/nanolang-file-service-parser-78aac-puck",
+    "puck-5a534": "/tmp/nanolang-file-service-parser-puck-retained/nanolang-file-service-parser-5a534-puck",
+    "puck-5a0e": "/tmp/nanolang-file-service-parser-puck-retained/nanolang-file-service-parser-5a0e-puck",
+    "current-linux": "/tmp/nanolang-file-service-parser-5a0e-current-linux",
+    "current-puck": "/tmp/nanolang-file-service-parser-puck-retained/nanolang-file-service-parser-5a0e-current-puck"
+  },
+  "equal_source_tool_pairs": [
+    "linux-4d290/bootstrap-source-before.json",
+    "linux-4d290/bootstrap-tools-before.json",
+    "linux-bc5/bootstrap-source-before.json",
+    "linux-bc5/bootstrap-tools-before.json",
+    "linux-8baca/bootstrap-source-before.json",
+    "linux-8baca/bootstrap-tools-before.json",
+    "linux-8baca/gcc-ordinary-source-before.json",
+    "linux-8baca/gcc-ordinary-tools-before.json",
+    "linux-8baca/providers-source-before.json",
+    "linux-8baca/providers-tools-before.json",
+    "linux-3936/gcc-ordinary-source-before.json",
+    "linux-3936/gcc-ordinary-tools-before.json",
+    "linux-77ad/bootstrap-source-before.json",
+    "linux-77ad/bootstrap-tools-before.json",
+    "linux-18334/bootstrap-source-before.json",
+    "linux-18334/bootstrap-tools-before.json",
+    "linux-18334/gcc-ordinary-source-before.json",
+    "linux-18334/gcc-ordinary-tools-before.json",
+    "linux-18334/providers-source-before.json",
+    "linux-18334/providers-tools-before.json",
+    "linux-8134/gcc-ordinary-source-before.json",
+    "linux-8134/gcc-ordinary-tools-before.json",
+    "linux-78aac/gcc-ordinary-source-before.json",
+    "linux-78aac/gcc-ordinary-tools-before.json",
+    "linux-14cae/gcc-ordinary-source-before.json",
+    "linux-14cae/gcc-ordinary-tools-before.json",
+    "linux-5a534/gcc-ordinary-publisher-source-before.json",
+    "linux-5a534/gcc-ordinary-publisher-tools-before.json",
+    "linux-5a534/gcc-ordinary-source-before.json",
+    "linux-5a534/gcc-ordinary-tools-before.json",
+    "linux-5a534/gcc-sanitizers-source-before.json",
+    "linux-5a534/gcc-sanitizers-tools-before.json",
+    "linux-5a0e/bootstrap-source-before.json",
+    "linux-5a0e/bootstrap-tools-before.json",
+    "linux-5a0e/clang-ordinary-publisher-source-before.json",
+    "linux-5a0e/clang-ordinary-publisher-tools-before.json",
+    "linux-5a0e/clang-ordinary-source-before.json",
+    "linux-5a0e/clang-ordinary-tools-before.json",
+    "linux-5a0e/clang-sanitizers-publisher-source-before.json",
+    "linux-5a0e/clang-sanitizers-publisher-tools-before.json",
+    "linux-5a0e/clang-sanitizers-source-before.json",
+    "linux-5a0e/clang-sanitizers-tools-before.json",
+    "linux-5a0e/gcc-ordinary-publisher-source-before.json",
+    "linux-5a0e/gcc-ordinary-publisher-tools-before.json",
+    "linux-5a0e/gcc-ordinary-source-before.json",
+    "linux-5a0e/gcc-ordinary-tools-before.json",
+    "linux-5a0e/gcc-sanitizers-publisher-source-before.json",
+    "linux-5a0e/gcc-sanitizers-publisher-tools-before.json",
+    "linux-5a0e/gcc-sanitizers-source-before.json",
+    "linux-5a0e/gcc-sanitizers-tools-before.json",
+    "linux-5a0e/ordinary-adjacency-source-before.json",
+    "linux-5a0e/ordinary-adjacency-tools-before.json",
+    "linux-5a0e/providers-source-before.json",
+    "linux-5a0e/providers-tools-before.json",
+    "puck-8baca/apple-ordinary-source-before.json",
+    "puck-8baca/apple-ordinary-tools-before.json",
+    "puck-8baca/bootstrap-source-before.json",
+    "puck-8baca/bootstrap-tools-before.json",
+    "puck-8baca/providers-source-before.json",
+    "puck-8baca/providers-tools-before.json",
+    "puck-3936/apple-ordinary-source-before.json",
+    "puck-3936/apple-ordinary-tools-before.json",
+    "puck-77ad/bootstrap-source-before.json",
+    "puck-77ad/bootstrap-tools-before.json",
+    "puck-18334/apple-ordinary-source-before.json",
+    "puck-18334/apple-ordinary-tools-before.json",
+    "puck-18334/bootstrap-source-before.json",
+    "puck-18334/bootstrap-tools-before.json",
+    "puck-18334/providers-source-before.json",
+    "puck-18334/providers-tools-before.json",
+    "puck-8134/apple-ordinary-source-before.json",
+    "puck-8134/apple-ordinary-tools-before.json",
+    "puck-78aac/apple-ordinary-source-before.json",
+    "puck-78aac/apple-ordinary-tools-before.json",
+    "puck-5a534/apple-ordinary-publisher-source-before.json",
+    "puck-5a534/apple-ordinary-publisher-tools-before.json",
+    "puck-5a534/apple-ordinary-source-before.json",
+    "puck-5a534/apple-ordinary-tools-before.json",
+    "puck-5a534/homebrew-ordinary-publisher-source-before.json",
+    "puck-5a534/homebrew-ordinary-publisher-tools-before.json",
+    "puck-5a534/homebrew-ordinary-source-before.json",
+    "puck-5a534/homebrew-ordinary-tools-before.json",
+    "puck-5a534/homebrew-sanitizers-source-before.json",
+    "puck-5a534/homebrew-sanitizers-tools-before.json",
+    "puck-5a0e/apple-ordinary-publisher-source-before.json",
+    "puck-5a0e/apple-ordinary-publisher-tools-before.json",
+    "puck-5a0e/apple-ordinary-source-before.json",
+    "puck-5a0e/apple-ordinary-tools-before.json",
+    "puck-5a0e/bootstrap-source-before.json",
+    "puck-5a0e/bootstrap-tools-before.json",
+    "puck-5a0e/homebrew-ordinary-publisher-source-before.json",
+    "puck-5a0e/homebrew-ordinary-publisher-tools-before.json",
+    "puck-5a0e/homebrew-ordinary-source-before.json",
+    "puck-5a0e/homebrew-ordinary-tools-before.json",
+    "puck-5a0e/homebrew-sanitizers-publisher-source-before.json",
+    "puck-5a0e/homebrew-sanitizers-publisher-tools-before.json",
+    "puck-5a0e/homebrew-sanitizers-source-before.json",
+    "puck-5a0e/homebrew-sanitizers-tools-before.json",
+    "puck-5a0e/ordinary-adjacency-source-before.json",
+    "puck-5a0e/ordinary-adjacency-tools-before.json",
+    "puck-5a0e/providers-source-before.json",
+    "puck-5a0e/providers-tools-before.json"
+  ],
+  "special_files_not_followed": [
+    {
+      "path": "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/existing-dangling",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/absent"
+    },
+    {
+      "path": "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/existing-symlink",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/published"
+    },
+    {
+      "path": "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/input-existing-symlink",
+      "mode": 41471,
+      "target": "/home/jkh/Src/nanolang-file-service-parser-5a534/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/input-fifo",
+      "mode": 4532,
+      "target": null
+    },
+    {
+      "path": "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/input-symlink",
+      "mode": 41471,
+      "target": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/parent-link",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli"
+    },
+    {
+      "path": "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/existing-dangling",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/absent"
+    },
+    {
+      "path": "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/existing-symlink",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/published"
+    },
+    {
+      "path": "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/input-existing-symlink",
+      "mode": 41471,
+      "target": "/home/jkh/Src/nanolang-file-service-parser-5a0e/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/input-fifo",
+      "mode": 4532,
+      "target": null
+    },
+    {
+      "path": "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/input-symlink",
+      "mode": 41471,
+      "target": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/parent-link",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli"
+    },
+    {
+      "path": "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/existing-dangling",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/absent"
+    },
+    {
+      "path": "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/existing-symlink",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/published"
+    },
+    {
+      "path": "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/input-existing-symlink",
+      "mode": 41471,
+      "target": "/home/jkh/Src/nanolang-file-service-parser-5a0e/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/input-fifo",
+      "mode": 4532,
+      "target": null
+    },
+    {
+      "path": "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/input-symlink",
+      "mode": 41471,
+      "target": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/parent-link",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli"
+    },
+    {
+      "path": "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/existing-dangling",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/absent"
+    },
+    {
+      "path": "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/existing-symlink",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/published"
+    },
+    {
+      "path": "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/input-existing-symlink",
+      "mode": 41471,
+      "target": "/home/jkh/Src/nanolang-file-service-parser-5a0e/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/input-fifo",
+      "mode": 4532,
+      "target": null
+    },
+    {
+      "path": "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/input-symlink",
+      "mode": 41471,
+      "target": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/parent-link",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli"
+    },
+    {
+      "path": "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/existing-dangling",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/absent"
+    },
+    {
+      "path": "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/existing-symlink",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/published"
+    },
+    {
+      "path": "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/input-existing-symlink",
+      "mode": 41471,
+      "target": "/home/jkh/Src/nanolang-file-service-parser-5a0e/tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/input-fifo",
+      "mode": 4532,
+      "target": null
+    },
+    {
+      "path": "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/input-symlink",
+      "mode": 41471,
+      "target": "tests/fixtures/nsi_file_plan.json"
+    },
+    {
+      "path": "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/parent-link",
+      "mode": 41471,
+      "target": "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli"
+    }
+  ],
+  "artifacts": 5205,
+  "artifact_references": 13620,
+  "artifact_bytes": 6207449637,
+  "scope": "Actual paired parser/AST prerequisite, bounded empty-literal/match metadata cleanup; no File source lowering/execution or general union lifetime acceptance."
+}

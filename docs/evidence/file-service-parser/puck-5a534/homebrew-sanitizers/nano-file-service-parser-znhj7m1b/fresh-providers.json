@@ -1,0 +1,13 @@
+{
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/lexer.o": "35a69807f548cfc7bb21cb220ad2a221eb266a2a27b893c1b05f17506b8a08fc",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/utf8.o": "4d60a922e1127a5d66f2b8c8ca05d25595667d059563c1719623fc796022942a",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/env.o": "0f4da4e5aa4286651baba4385cb51f9203b65bdb2db90efb6ea9b88d98d52a92",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/publisher-bin/nsi-file-binding": "f2f6b9274f1c71cac1dfb414d11b3fabbf065a7bf053dff2a56694a65b0cc93c",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/publisher-obj/file-binding-publisher/cJSON.o": "18094054735fefe04812ffe6b57ef7329ac14f80c5431af6588bde1c283f85f8",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/publisher-obj/file-binding-publisher/nsi.o": "ce111a3b2daed17f111fdf4e616e77d2fb34341478a7bcbfb8799f22c5c76c47",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/publisher-obj/file-binding-publisher/nsi_file_binding.o": "a4afd3ab0e846a8c5fa6fa94bc68f423febb9ee6740c470857760b0c67c399fe",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "e14af093b8f1977591feaf61f0bf9eb5c0d390654767db0647905a4a4d461d2f",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/publisher-obj/file-binding-publisher/nsi_file_plan.o": "c921d037c05f7a59455867281fdaf09573eca9eb1e75a91bb3c4f38c8e73133f",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/publisher-obj/file-binding-publisher/nsi_file_publish.o": "444968d584270c24dbde6e7a78f1fd27e5c92aa8303817fce38f99fc22dfb336",
+  "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-sanitizers/nano-file-service-parser-znhj7m1b/publisher-obj/file-binding-publisher/utf8.o": "bc7df419e53d5f5165cd59633890eb1858cba508e48baa6ba945f2aceb08c2a5"
+}

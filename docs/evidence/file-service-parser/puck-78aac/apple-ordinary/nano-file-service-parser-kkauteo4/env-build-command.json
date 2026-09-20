@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-78aac/src",
+    "-include",
+    "/private/tmp/nanolang-file-service-parser-78aac/tests/file_service_parser_free_hooks.h",
+    "-DNANO_FILE_SERVICE_PARSER_OBSERVE_FREE=1",
+    "-c",
+    "/private/tmp/nanolang-file-service-parser-78aac/src/env.c",
+    "-o",
+    "/private/tmp/nanolang-file-service-parser-78aac-puck/apple-ordinary/nano-file-service-parser-kkauteo4/env.o"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-78aac",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

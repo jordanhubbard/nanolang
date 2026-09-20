@@ -1,0 +1,7 @@
+src/type_infer.c: In function ‘infer_expr’:
+src/type_infer.c:970:5: error: enumeration value ‘AST_SERVICE_DECL’ not handled in switch [-Werror=switch]
+  970 |     switch (node->type) {
+      |     ^~~~~~
+cc1: all warnings being treated as errors
+make: *** [Makefile.gnu:3516: obj/type_infer.o] Error 1
+make: *** Waiting for unfinished jobs....
