@@ -4798,6 +4798,16 @@ test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_bytecode_alloc
 
+.PHONY: test-affine-scalar-union-runtime
+test-units: test-affine-scalar-union-runtime
+test-affine-scalar-union-runtime: test-affine-bytecode nano_vm nvm2c
+	python3 -m unittest -v tests.test_affine_scalar_union_runtime
+
+.PHONY: test-affine-scalar-union-source
+test-units: test-affine-scalar-union-source
+test-affine-scalar-union-source: nanoisa_emit nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_affine_scalar_union_source
+
 .PHONY: test-legacy-float-conversion
 test-legacy-float-conversion: bootstrap $(INTERPRETER)
 	@python3 -m unittest tests.test_legacy_float_conversion
