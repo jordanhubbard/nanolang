@@ -1,0 +1,3554 @@
+{
+  "docs/evidence/cast-u8-backends/collect-cast-u8-backends-inner.py": {
+    "sha256": "9925ccf579c981bed0573b95f9b252772fc6e61e9969e2abf3cfaf38b857900f",
+    "bytes": 604
+  },
+  "docs/evidence/cast-u8-backends/linux/artifact-store.json": {
+    "sha256": "b32a227133121546173ba7cb494c5b9bc7177f50ac4df61f443bceac01e95e15",
+    "bytes": 1366716
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-corrected.py": {
+    "sha256": "9da536d6c26659292f9755162a4ac8672d2ec6205956c479f6c08d1e4c769952",
+    "bytes": 6109
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-first.py": {
+    "sha256": "51cabdf79698c5cb3a22f795d0b76c1bd69e090f59d5029cea092aa334c54ba8",
+    "bytes": 5974
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-layout.py": {
+    "sha256": "b5b75a2121071a3a129bb8ba34ba47e7a7b433da13f4e61993913c6beea35afc",
+    "bytes": 6607
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/build-products-after.json": {
+    "sha256": "e8d4961d764c406611a5e2726e64cb1ff2cbdedc9211c682c8c136d372f1c496",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/build-products-before.json": {
+    "sha256": "e8d4961d764c406611a5e2726e64cb1ff2cbdedc9211c682c8c136d372f1c496",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/build-sources-after.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/build-sources-before.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/build-status.json": {
+    "sha256": "167800acb62332a5d2b252c6f006cc0bb0a34af390247e6b8609d8930ae18429",
+    "bytes": 783
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/build-tools-after.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/build-tools-before.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/build.log": {
+    "sha256": "e447f8adf4f9b995091d2273fd2b4f8efd7dd2e4cb3f0c84172d0873f3a9db50",
+    "bytes": 7931
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/compiler-products-after.json": {
+    "sha256": "7fb0ea1721874853236fd29348b1dde6ee7f9a76e3c15fcf1f74f278a03ea97c",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/compiler-products-before.json": {
+    "sha256": "7fb0ea1721874853236fd29348b1dde6ee7f9a76e3c15fcf1f74f278a03ea97c",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/compiler-sources-after.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/compiler-sources-before.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/compiler-status.json": {
+    "sha256": "7df2bef7da2f936a394ab6b3498484934cb7734d86fe7c12ea65c5ddccf9a788",
+    "bytes": 528
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/compiler-tools-after.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/compiler-tools-before.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/discovery-products-after.json": {
+    "sha256": "e8d4961d764c406611a5e2726e64cb1ff2cbdedc9211c682c8c136d372f1c496",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/discovery-products-before.json": {
+    "sha256": "7fb0ea1721874853236fd29348b1dde6ee7f9a76e3c15fcf1f74f278a03ea97c",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/discovery-sources-after.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/discovery-sources-before.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/discovery-status.json": {
+    "sha256": "a252a62f1cb7f0cde6344228d21c3d8af38ba96f5c710a61af83b38011be431a",
+    "bytes": 792
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/discovery-tools-after.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/discovery-tools-before.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/environment.json": {
+    "sha256": "8837604fd264851ffb286f09ac05a5dca5882d9d6cb84dbe65654bd05121bd50",
+    "bytes": 1410
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/generated-byte-products-after.json": {
+    "sha256": "e8d4961d764c406611a5e2726e64cb1ff2cbdedc9211c682c8c136d372f1c496",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/generated-byte-products-before.json": {
+    "sha256": "e8d4961d764c406611a5e2726e64cb1ff2cbdedc9211c682c8c136d372f1c496",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/generated-byte-sources-after.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/generated-byte-sources-before.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/generated-byte-status.json": {
+    "sha256": "6dd4bbc061790f79dfc7b164cc0cca99a0f17d107f5c96e2033b24b6db5b1df6",
+    "bytes": 634
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/generated-byte-tools-after.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/generated-byte-tools-before.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/generated-byte.log": {
+    "sha256": "de8dfa174413c44abf08fd1806f52a14eb329f88a5ccd8e8d61eb68bb39676e5",
+    "bytes": 6513
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/llvm-products-after.json": {
+    "sha256": "7fb0ea1721874853236fd29348b1dde6ee7f9a76e3c15fcf1f74f278a03ea97c",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/llvm-products-before.json": {
+    "sha256": "7fb0ea1721874853236fd29348b1dde6ee7f9a76e3c15fcf1f74f278a03ea97c",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/llvm-sources-after.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/llvm-sources-before.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/llvm-status.json": {
+    "sha256": "ef33ff8bd75ed121ca96dbaa4cbdb963ead69a2f941a21aea0a2a531d106183f",
+    "bytes": 535
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/llvm-tools-after.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/llvm-tools-before.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/make-products-after.json": {
+    "sha256": "7fb0ea1721874853236fd29348b1dde6ee7f9a76e3c15fcf1f74f278a03ea97c",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/make-products-before.json": {
+    "sha256": "7fb0ea1721874853236fd29348b1dde6ee7f9a76e3c15fcf1f74f278a03ea97c",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/make-sources-after.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/make-sources-before.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/make-status.json": {
+    "sha256": "fed0e1a58ad8439d1b39b0a08a4307d9495fc577e897635a1c8e88e521c93030",
+    "bytes": 524
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/make-tools-after.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/make-tools-before.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/manifest.json": {
+    "sha256": "8cc8802d93c1e8644d8f7543db206e5f8f2ddb572f58c8465f25de0fb6e0f574",
+    "bytes": 5442
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/native-compiler-products-after.json": {
+    "sha256": "7fb0ea1721874853236fd29348b1dde6ee7f9a76e3c15fcf1f74f278a03ea97c",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/native-compiler-products-before.json": {
+    "sha256": "7fb0ea1721874853236fd29348b1dde6ee7f9a76e3c15fcf1f74f278a03ea97c",
+    "bytes": 104727
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/native-compiler-sources-after.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/native-compiler-sources-before.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/native-compiler-status.json": {
+    "sha256": "a65a14b7c1fc8e82ea61df9cbe5dec99b6af468332dd914351a51fa9fc31cefa",
+    "bytes": 546
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/native-compiler-tools-after.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/native-compiler-tools-before.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/native-compiler.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/retained-inner.json": {
+    "sha256": "171def40566f12c0820a26afe35a614b72ff048c4e3204e8ba20a021e6d70e28",
+    "bytes": 453653
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/runner.json": {
+    "sha256": "62238ba1229c02b499b881fb2897c49b67cc0176b49b84ff662fe32b421612c9",
+    "bytes": 231
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/source-initial.json": {
+    "sha256": "52a276e80ca97b1ca711a78071da90dbe261b519f7c01192649c59c532352147",
+    "bytes": 1180588
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/tools-initial.json": {
+    "sha256": "6cba5b752d71604109062af47588ca75cd5059ed9b271120f07390ec3974c095",
+    "bytes": 4142
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-asan/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/build-products-after.json": {
+    "sha256": "17d156546a0a1dcf373345e75d854684bf39ca1b5d3e31014cfe3302dce614d0",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/build-products-before.json": {
+    "sha256": "f7af67574eb4eea783ee7442332334980285bf3f6d24b834d8dfe390989f5058",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/build-sources-after.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/build-sources-before.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/build-status.json": {
+    "sha256": "fe0acbafc9e13b8cfe37f9eed2957a029ad0ecb24d434f3bedccf4d6728a34cf",
+    "bytes": 788
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/build-tools-after.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/build-tools-before.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/build.log": {
+    "sha256": "3e223205572d57c0f3b668f7765e1311fffac1ae69fa5a86256a01f78e6a5654",
+    "bytes": 8091
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/compiler-products-after.json": {
+    "sha256": "f23b773ede35d568688dc6278f22ffd26b74d939ab946569f797a61a8177899c",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/compiler-products-before.json": {
+    "sha256": "f23b773ede35d568688dc6278f22ffd26b74d939ab946569f797a61a8177899c",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/compiler-sources-after.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/compiler-sources-before.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/compiler-status.json": {
+    "sha256": "3b68ff3cd6fb288428e731e0e09d397630ff2ca4549a4777b56f274749e9cfb0",
+    "bytes": 533
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/compiler-tools-after.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/compiler-tools-before.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/discovery-products-after.json": {
+    "sha256": "f7af67574eb4eea783ee7442332334980285bf3f6d24b834d8dfe390989f5058",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/discovery-products-before.json": {
+    "sha256": "f23b773ede35d568688dc6278f22ffd26b74d939ab946569f797a61a8177899c",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/discovery-sources-after.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/discovery-sources-before.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/discovery-status.json": {
+    "sha256": "7040a280898ad00548ccb43fff9912df4eb5838d239749084b315592c8fb5379",
+    "bytes": 796
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/discovery-tools-after.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/discovery-tools-before.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/environment.json": {
+    "sha256": "3f1d6619b88d1b6ca5106412fb1980c3e4f8f644af25be1bfa34fea99f1ef954",
+    "bytes": 1187
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/generated-byte-products-after.json": {
+    "sha256": "17d156546a0a1dcf373345e75d854684bf39ca1b5d3e31014cfe3302dce614d0",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/generated-byte-products-before.json": {
+    "sha256": "17d156546a0a1dcf373345e75d854684bf39ca1b5d3e31014cfe3302dce614d0",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/generated-byte-sources-after.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/generated-byte-sources-before.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/generated-byte-status.json": {
+    "sha256": "b9b95ea434b180087eef672f92f99a4a797510d9f5c472c859ba4a637d78a42a",
+    "bytes": 641
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/generated-byte-tools-after.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/generated-byte-tools-before.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/generated-byte.log": {
+    "sha256": "7875f6f1432465595058b677d7842bc3a9c5700b41e309ffae5a572f0aa5b936",
+    "bytes": 1195
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/llvm-products-after.json": {
+    "sha256": "f23b773ede35d568688dc6278f22ffd26b74d939ab946569f797a61a8177899c",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/llvm-products-before.json": {
+    "sha256": "f23b773ede35d568688dc6278f22ffd26b74d939ab946569f797a61a8177899c",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/llvm-sources-after.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/llvm-sources-before.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/llvm-status.json": {
+    "sha256": "ba3fc37a4d9115098e0f86620f034332259c89effb6d14abd72028e1602db1d7",
+    "bytes": 538
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/llvm-tools-after.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/llvm-tools-before.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/make-products-after.json": {
+    "sha256": "f23b773ede35d568688dc6278f22ffd26b74d939ab946569f797a61a8177899c",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/make-products-before.json": {
+    "sha256": "f23b773ede35d568688dc6278f22ffd26b74d939ab946569f797a61a8177899c",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/make-sources-after.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/make-sources-before.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/make-status.json": {
+    "sha256": "26966fb1b97e3556057865cfa4011ed300e99d1590eb6c17429cd39d34c946be",
+    "bytes": 529
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/make-tools-after.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/make-tools-before.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/manifest.json": {
+    "sha256": "f55f18a2e741121dc2a9b4409927206af1b017445c01ff7917be9565434da9d9",
+    "bytes": 5338
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/native-compiler-products-after.json": {
+    "sha256": "f23b773ede35d568688dc6278f22ffd26b74d939ab946569f797a61a8177899c",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/native-compiler-products-before.json": {
+    "sha256": "f23b773ede35d568688dc6278f22ffd26b74d939ab946569f797a61a8177899c",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/native-compiler-sources-after.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/native-compiler-sources-before.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/native-compiler-status.json": {
+    "sha256": "05ca5887eccfd1c174b0c4382b328cd55e95d7519b1cec9e4cd1f58269be7512",
+    "bytes": 540
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/native-compiler-tools-after.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/native-compiler-tools-before.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/native-compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/retained-inner.json": {
+    "sha256": "d879c573c02c3c815b5934556d0e55367b8aa8aa0892aef40f290068bbd093a7",
+    "bytes": 506356
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/runner.json": {
+    "sha256": "5836b94ac913da0d98a6cf746efeebeaedf0d27d57931a7e0b93f4b5c60299cc",
+    "bytes": 236
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/source-initial.json": {
+    "sha256": "b54ec4ec9494099f194564c076611cc5793184a9971664c3fa3da871a1c230fe",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/terminal.json": {
+    "sha256": "15a3fa9021fc4a8a9614441536166cc13dcb8cb83d27ac98f0c8e488f0638523",
+    "bytes": 243
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/tools-initial.json": {
+    "sha256": "9ac3284ecb9d0bde100a35e91d6742b7012f29c9f7579f3a5661d6ec138bfdef",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-corrected/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/build-products-after.json": {
+    "sha256": "a8784a404f0f2f123a98154893cb5977f06f4d32dfe10b82d60aa7c407c6e1b4",
+    "bytes": 105065
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/build-products-before.json": {
+    "sha256": "3ebb712f3f741c1e02403bb184f239920245fabc98c755c2dec30921da122a4e",
+    "bytes": 683
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/build-sources-after.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/build-sources-before.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/build-status.json": {
+    "sha256": "4e0439020b026c88a3816beb61d44da6d03b218787fd95d9c20d9893edd2119f",
+    "bytes": 786
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/build-tools-after.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/build-tools-before.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/build.log": {
+    "sha256": "8fb00b055d23b3804ba8d7675d9a7c8194e18fe21650186beca8cbd6c2790018",
+    "bytes": 34228
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/compiler-sources-after.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/compiler-sources-before.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/compiler-status.json": {
+    "sha256": "16a2b8ce32fc353f08b951bccdf79e9d059556eabc08ac0e2c67b5e2d006aacf",
+    "bytes": 529
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/compiler-tools-after.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/compiler-tools-before.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/discovery-products-after.json": {
+    "sha256": "3ebb712f3f741c1e02403bb184f239920245fabc98c755c2dec30921da122a4e",
+    "bytes": 683
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/discovery-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/discovery-sources-after.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/discovery-sources-before.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/discovery-status.json": {
+    "sha256": "85d14888c470466db0422451836a881175360edbf495297271a505ec240a52c1",
+    "bytes": 793
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/discovery-tools-after.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/discovery-tools-before.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/environment.json": {
+    "sha256": "3f1d6619b88d1b6ca5106412fb1980c3e4f8f644af25be1bfa34fea99f1ef954",
+    "bytes": 1187
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/generated-byte-products-after.json": {
+    "sha256": "a8784a404f0f2f123a98154893cb5977f06f4d32dfe10b82d60aa7c407c6e1b4",
+    "bytes": 105065
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/generated-byte-products-before.json": {
+    "sha256": "a8784a404f0f2f123a98154893cb5977f06f4d32dfe10b82d60aa7c407c6e1b4",
+    "bytes": 105065
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/generated-byte-sources-after.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/generated-byte-sources-before.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/generated-byte-status.json": {
+    "sha256": "f1212830895503af393d235ba885188547fc82ed2e5976e5b9cb98628846d3bf",
+    "bytes": 638
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/generated-byte-tools-after.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/generated-byte-tools-before.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/generated-byte.log": {
+    "sha256": "59ba544efcbc07c4f941e23d830c3dccc2b18989bec55f8e4dd116e615a10fd3",
+    "bytes": 10977
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/llvm-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/llvm-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/llvm-sources-after.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/llvm-sources-before.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/llvm-status.json": {
+    "sha256": "5ac041a1ef331d939df62143f650449bab1e94c56f35091815d28b77002ae3b5",
+    "bytes": 536
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/llvm-tools-after.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/llvm-tools-before.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/make-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/make-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/make-sources-after.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/make-sources-before.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/make-status.json": {
+    "sha256": "ec86e440df2d3be0a77f5986ff31299be9346a3ad6dfc45ffdfc98860fe49a98",
+    "bytes": 526
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/make-tools-after.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/make-tools-before.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/manifest.json": {
+    "sha256": "8f23b35c0716e602cb076e692d1c579c258a21a432e65071f80e635f66882582",
+    "bytes": 5259
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/native-compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/native-compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/native-compiler-sources-after.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/native-compiler-sources-before.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/native-compiler-status.json": {
+    "sha256": "b1408df447e793d8fb49ae2f6ff4b329e1b8f10db6e496982907d2431a21ae66",
+    "bytes": 536
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/native-compiler-tools-after.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/native-compiler-tools-before.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/native-compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/retained-inner.json": {
+    "sha256": "f0114b051ac87e853f7ed0808ae27ec28caeba5cf1fad14e86c0fb0f6016292b",
+    "bytes": 193430
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/runner.json": {
+    "sha256": "974c1352335d8319e55d639fb0ead288ed78f3e8e3c52038f885bfc3783cbb77",
+    "bytes": 232
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/source-initial.json": {
+    "sha256": "94e8e71912ad5ef5fa161b65b23cba6838e0d6cd554a70ea6a00c5eb287cf4c8",
+    "bytes": 1184290
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/tools-initial.json": {
+    "sha256": "54b385ec02f9b605aa827a0fda3f4e89153a93f06b60e91747227d70c02f95f6",
+    "bytes": 4157
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-first/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/build-products-after.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/build-products-before.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/build-sources-after.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/build-sources-before.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/build-status.json": {
+    "sha256": "09faa6fb1f3b00b67a74c4fd74f6e2e86334564e95ff6f217d745f96a80a96ae",
+    "bytes": 791
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/build-tools-after.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/build-tools-before.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/build.log": {
+    "sha256": "e447f8adf4f9b995091d2273fd2b4f8efd7dd2e4cb3f0c84172d0873f3a9db50",
+    "bytes": 7931
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/compiler-products-after.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/compiler-products-before.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/compiler-sources-after.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/compiler-sources-before.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/compiler-status.json": {
+    "sha256": "01e25463d864fd020364d3e7ab234244f952cc1b0f11160d8c61186746be8f8d",
+    "bytes": 535
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/compiler-tools-after.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/compiler-tools-before.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/discovery-products-after.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/discovery-products-before.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/discovery-sources-after.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/discovery-sources-before.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/discovery-status.json": {
+    "sha256": "3b4619bddaf505cf11d9a02a60947807a1f1829ea43cc34ad3f1e1f8bef80a41",
+    "bytes": 799
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/discovery-tools-after.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/discovery-tools-before.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/environment.json": {
+    "sha256": "8837604fd264851ffb286f09ac05a5dca5882d9d6cb84dbe65654bd05121bd50",
+    "bytes": 1410
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/generated-byte-products-after.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/generated-byte-products-before.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/generated-byte-sources-after.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/generated-byte-sources-before.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/generated-byte-status.json": {
+    "sha256": "e0f776851a724b0afac23d5f146d68ee7349deac7bd8541000fc5b650a42c6a1",
+    "bytes": 643
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/generated-byte-tools-after.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/generated-byte-tools-before.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/generated-byte.log": {
+    "sha256": "9597e7a8d9333295b8f27a7dfa3b151db4ea9b60b7e0e904ae12a30aa2f3ec90",
+    "bytes": 1195
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/llvm-products-after.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/llvm-products-before.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/llvm-sources-after.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/llvm-sources-before.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/llvm-status.json": {
+    "sha256": "2a89b985be45bc5019280d1ec22bec56aafffb7647603b2ae089974d40a95cb9",
+    "bytes": 541
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/llvm-tools-after.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/llvm-tools-before.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/make-products-after.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/make-products-before.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/make-sources-after.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/make-sources-before.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/make-status.json": {
+    "sha256": "8f54aff34c6a7a1b7d44053d312668c7e60a5ef8ea39ac91082580291901cd4c",
+    "bytes": 532
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/make-tools-after.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/make-tools-before.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/manifest.json": {
+    "sha256": "e6b62d1829cee3ccee211f76dd27bcde6f0b8a9318b44b1119dba6d0f18e31bc",
+    "bytes": 5514
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/native-compiler-products-after.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/native-compiler-products-before.json": {
+    "sha256": "b4d518fcab48d20397bc50a5d322817966c49b2142471fe70586c711951ced1c",
+    "bytes": 107093
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/native-compiler-sources-after.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/native-compiler-sources-before.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/native-compiler-status.json": {
+    "sha256": "1c0f9df1271747603a34628d3b4d172b2a67f8cd4f4379953ae4501d7c408d54",
+    "bytes": 553
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/native-compiler-tools-after.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/native-compiler-tools-before.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/native-compiler.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/retained-inner.json": {
+    "sha256": "a8fe6ab6c3f13d9b5372b057256c0e6507bcf0a98436daba79ef739fc3af73e4",
+    "bytes": 601595
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/runner.json": {
+    "sha256": "3ec219e8ceb440491918c6a4f7c979011b92406abf6a500649d3c96a637fea79",
+    "bytes": 238
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/source-initial.json": {
+    "sha256": "e43e7639c83a0f04b47e02790a70e430996f729d84196e35b9ccb362e4b65910",
+    "bytes": 1206502
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/terminal.json": {
+    "sha256": "738f89a4cfc10b079c45e373c8c30327ae61e1ff0b5aab22f3a4d102908348af",
+    "bytes": 365
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/tools-initial.json": {
+    "sha256": "a8c177cd06d4004cb69fea05067966a26f13239d8766d662509985d8b81731e2",
+    "bytes": 4247
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-asan/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/build-products-after.json": {
+    "sha256": "27ba0dd381ebd1bd4cefc5f97b14b34c5ce37db52c06cead9f8a1a6cb3c5f31d",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/build-products-before.json": {
+    "sha256": "1455338315b59c8e528e574fffc0b87e259163af20b040d70cffb4eae7c374c8",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/build-sources-after.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/build-sources-before.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/build-status.json": {
+    "sha256": "849a51b1b4289b115809e5bf158241fd7126d86d4fde393f8d803c7b747132a6",
+    "bytes": 794
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/build-tools-after.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/build-tools-before.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/build.log": {
+    "sha256": "e447f8adf4f9b995091d2273fd2b4f8efd7dd2e4cb3f0c84172d0873f3a9db50",
+    "bytes": 7931
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/compiler-products-after.json": {
+    "sha256": "e85593550e3e1985d1d5cee5a77c6d1e2fe257247708d7121a0e27d6ceb11dbb",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/compiler-products-before.json": {
+    "sha256": "e85593550e3e1985d1d5cee5a77c6d1e2fe257247708d7121a0e27d6ceb11dbb",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/compiler-sources-after.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/compiler-sources-before.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/compiler-status.json": {
+    "sha256": "990643634663728861b850d4527afe673c7cb658a5dc3da9b653aff47b58138c",
+    "bytes": 539
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/compiler-tools-after.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/compiler-tools-before.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/discovery-products-after.json": {
+    "sha256": "1455338315b59c8e528e574fffc0b87e259163af20b040d70cffb4eae7c374c8",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/discovery-products-before.json": {
+    "sha256": "e85593550e3e1985d1d5cee5a77c6d1e2fe257247708d7121a0e27d6ceb11dbb",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/discovery-sources-after.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/discovery-sources-before.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/discovery-status.json": {
+    "sha256": "42116a01f7fd9f1b9b47972e103574d2ceb5f06a5a36392a6de3426f0b8706c8",
+    "bytes": 803
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/discovery-tools-after.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/discovery-tools-before.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/environment.json": {
+    "sha256": "3f1d6619b88d1b6ca5106412fb1980c3e4f8f644af25be1bfa34fea99f1ef954",
+    "bytes": 1187
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/generated-byte-products-after.json": {
+    "sha256": "27ba0dd381ebd1bd4cefc5f97b14b34c5ce37db52c06cead9f8a1a6cb3c5f31d",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/generated-byte-products-before.json": {
+    "sha256": "27ba0dd381ebd1bd4cefc5f97b14b34c5ce37db52c06cead9f8a1a6cb3c5f31d",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/generated-byte-sources-after.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/generated-byte-sources-before.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/generated-byte-status.json": {
+    "sha256": "5dbb7a29b9f563fd9de4f4b2a759bf68a971dc661ec6b607db575e2cb5520712",
+    "bytes": 646
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/generated-byte-tools-after.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/generated-byte-tools-before.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/generated-byte.log": {
+    "sha256": "821554ce0fc3bc58248e1af7b763ad1105f6a58553c5e3e7842d560cd1bc695d",
+    "bytes": 1195
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/llvm-products-after.json": {
+    "sha256": "e85593550e3e1985d1d5cee5a77c6d1e2fe257247708d7121a0e27d6ceb11dbb",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/llvm-products-before.json": {
+    "sha256": "e85593550e3e1985d1d5cee5a77c6d1e2fe257247708d7121a0e27d6ceb11dbb",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/llvm-sources-after.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/llvm-sources-before.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/llvm-status.json": {
+    "sha256": "56c267efbc5c5114107a408b8cb3058dfc9dfdd8fb0456b1ab1c04f8f58105a6",
+    "bytes": 545
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/llvm-tools-after.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/llvm-tools-before.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/make-products-after.json": {
+    "sha256": "e85593550e3e1985d1d5cee5a77c6d1e2fe257247708d7121a0e27d6ceb11dbb",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/make-products-before.json": {
+    "sha256": "e85593550e3e1985d1d5cee5a77c6d1e2fe257247708d7121a0e27d6ceb11dbb",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/make-sources-after.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/make-sources-before.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/make-status.json": {
+    "sha256": "b0324d52d3df85010346db082ed6eddef5830ad7f982134c962b9ce928f52fba",
+    "bytes": 536
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/make-tools-after.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/make-tools-before.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/manifest.json": {
+    "sha256": "2f778f99c168e84de74bdb2de9debb33b88f5d62993b5ace35ca4784d6042d66",
+    "bytes": 5533
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/native-compiler-products-after.json": {
+    "sha256": "e85593550e3e1985d1d5cee5a77c6d1e2fe257247708d7121a0e27d6ceb11dbb",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/native-compiler-products-before.json": {
+    "sha256": "e85593550e3e1985d1d5cee5a77c6d1e2fe257247708d7121a0e27d6ceb11dbb",
+    "bytes": 108445
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/native-compiler-sources-after.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/native-compiler-sources-before.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/native-compiler-status.json": {
+    "sha256": "6e1c4beb95603557ba0ccb0536a1441f8d296cfe6b3725239bf2c7cef38e8003",
+    "bytes": 546
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/native-compiler-tools-after.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/native-compiler-tools-before.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/native-compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/retained-inner.json": {
+    "sha256": "bd8f0479800b61329e61fdef1b6233b3170b70092d2e933454948816be4d0caf",
+    "bytes": 516380
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/runner.json": {
+    "sha256": "d3ae322071c58b2a90f229f973cb81aa820d8b9bc7b69df4110ebd074d57ed54",
+    "bytes": 242
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/source-initial.json": {
+    "sha256": "27e1f1585d5c9f3b3a5079a4625127830bef06af7a6a345593431a74ba1234ad",
+    "bytes": 1221310
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/terminal.json": {
+    "sha256": "738f89a4cfc10b079c45e373c8c30327ae61e1ff0b5aab22f3a4d102908348af",
+    "bytes": 365
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/tools-initial.json": {
+    "sha256": "b9af3165c13bca60575860dfe15f88d645aec78996a080d3d470821120a49708",
+    "bytes": 4307
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-layout-ordinary/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/compiler-products-after.json": {
+    "sha256": "4e35c36591a9715ac5d38b418f18a4fa296f6b886569c7db334f258af8d00f48",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/compiler-products-before.json": {
+    "sha256": "4e35c36591a9715ac5d38b418f18a4fa296f6b886569c7db334f258af8d00f48",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/compiler-sources-after.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/compiler-sources-before.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/compiler-status.json": {
+    "sha256": "9e7daf6b498f82df48079bba388a148aabd624be16938e45e68cc62f4bafb535",
+    "bytes": 533
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/compiler-tools-after.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/compiler-tools-before.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/environment.json": {
+    "sha256": "3f1d6619b88d1b6ca5106412fb1980c3e4f8f644af25be1bfa34fea99f1ef954",
+    "bytes": 1187
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/llvm-products-after.json": {
+    "sha256": "4e35c36591a9715ac5d38b418f18a4fa296f6b886569c7db334f258af8d00f48",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/llvm-products-before.json": {
+    "sha256": "4e35c36591a9715ac5d38b418f18a4fa296f6b886569c7db334f258af8d00f48",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/llvm-sources-after.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/llvm-sources-before.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/llvm-status.json": {
+    "sha256": "789a46abdc7e1101c50fd9f9af82ff5fbe97ee28745f96804b7d492dadc2f097",
+    "bytes": 539
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/llvm-tools-after.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/llvm-tools-before.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/make-products-after.json": {
+    "sha256": "4e35c36591a9715ac5d38b418f18a4fa296f6b886569c7db334f258af8d00f48",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/make-products-before.json": {
+    "sha256": "4e35c36591a9715ac5d38b418f18a4fa296f6b886569c7db334f258af8d00f48",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/make-sources-after.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/make-sources-before.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/make-status.json": {
+    "sha256": "383490ba31eea620257c2bcfdf8adbc9a69ba19583ee132a11f26176dad07123",
+    "bytes": 530
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/make-tools-after.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/make-tools-before.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/manifest.json": {
+    "sha256": "da39a75f6f43f1941b0d054a432c4c63d4271a183dd2a317a0e3d44f2ad118a6",
+    "bytes": 3791
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/native-compiler-products-after.json": {
+    "sha256": "4e35c36591a9715ac5d38b418f18a4fa296f6b886569c7db334f258af8d00f48",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/native-compiler-products-before.json": {
+    "sha256": "4e35c36591a9715ac5d38b418f18a4fa296f6b886569c7db334f258af8d00f48",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/native-compiler-sources-after.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/native-compiler-sources-before.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/native-compiler-status.json": {
+    "sha256": "b30931d1b5e683c7249ce5f2e5ffcee9a60f704d060247db9632ac8b5961347a",
+    "bytes": 540
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/native-compiler-tools-after.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/native-compiler-tools-before.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/native-compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/runner.json": {
+    "sha256": "fcdd0283aa2e0111cb1da83fc01c3f883aae56dc58c25d8b112cefc27db569de",
+    "bytes": 236
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/scalar-neighbors-products-after.json": {
+    "sha256": "c62cb4b427d016b32a18b3720039faad3c6f6e94f3c131dc40f1b8e716556cde",
+    "bytes": 107778
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/scalar-neighbors-products-before.json": {
+    "sha256": "4e35c36591a9715ac5d38b418f18a4fa296f6b886569c7db334f258af8d00f48",
+    "bytes": 106417
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/scalar-neighbors-sources-after.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/scalar-neighbors-sources-before.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/scalar-neighbors-status.json": {
+    "sha256": "9052c1c11a723dbdbba3e26bf10dd51716085dedbd8d9919c94f8ea251996d96",
+    "bytes": 723
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/scalar-neighbors-tools-after.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/scalar-neighbors-tools-before.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/scalar-neighbors.log": {
+    "sha256": "4c13175f5a67184a05f9f65a0950ec975af1a0d1bca8f15d9fa49a831cae374a",
+    "bytes": 9114
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/source-initial.json": {
+    "sha256": "8adbcef2735c88b973de588f7dff0cce27063b6cfe8d46cf06fb3d05f2f9cec5",
+    "bytes": 1199098
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/tools-initial.json": {
+    "sha256": "1b14669b7af34ddc2943adc5dd5f639e7167e0f5bf74dab3d896c37936afc037",
+    "bytes": 4217
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/compiler-products-after.json": {
+    "sha256": "924b6b6f4e4e1268ba8cea1c1cfd0906629cb8e6b8e67868c9cfb68bc950ec0d",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/compiler-products-before.json": {
+    "sha256": "924b6b6f4e4e1268ba8cea1c1cfd0906629cb8e6b8e67868c9cfb68bc950ec0d",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/compiler-sources-after.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/compiler-sources-before.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/compiler-status.json": {
+    "sha256": "331e605ea58b1d3701c9cbfd044e7d7b5f6e000b7a4148dc07e08ec3b03b3f0b",
+    "bytes": 541
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/compiler-tools-after.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/compiler-tools-before.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/environment.json": {
+    "sha256": "3f1d6619b88d1b6ca5106412fb1980c3e4f8f644af25be1bfa34fea99f1ef954",
+    "bytes": 1187
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/llvm-products-after.json": {
+    "sha256": "924b6b6f4e4e1268ba8cea1c1cfd0906629cb8e6b8e67868c9cfb68bc950ec0d",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/llvm-products-before.json": {
+    "sha256": "924b6b6f4e4e1268ba8cea1c1cfd0906629cb8e6b8e67868c9cfb68bc950ec0d",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/llvm-sources-after.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/llvm-sources-before.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/llvm-status.json": {
+    "sha256": "26dfb9060c24bf47774516fca4e385d5960e6d3ccb1e02ae8bc04f4770259f1a",
+    "bytes": 550
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/llvm-tools-after.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/llvm-tools-before.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/make-products-after.json": {
+    "sha256": "924b6b6f4e4e1268ba8cea1c1cfd0906629cb8e6b8e67868c9cfb68bc950ec0d",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/make-products-before.json": {
+    "sha256": "924b6b6f4e4e1268ba8cea1c1cfd0906629cb8e6b8e67868c9cfb68bc950ec0d",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/make-sources-after.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/make-sources-before.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/make-status.json": {
+    "sha256": "945289f34b34985f725acb559e1e0a56017458fb51029d67e126363be89bb3ff",
+    "bytes": 540
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/make-tools-after.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/make-tools-before.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/managed-neighbors-products-after.json": {
+    "sha256": "ba0e32619be38fb8676d42b756a390908699099adb675ed868dca5c10bb5434f",
+    "bytes": 113009
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/managed-neighbors-products-before.json": {
+    "sha256": "861af060e6b437abc01a525ce303fe5cefca62bad046f66adc4e60e1a10ec693",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/managed-neighbors-sources-after.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/managed-neighbors-sources-before.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/managed-neighbors-status.json": {
+    "sha256": "b57e1b85ccff14cef6219a63b3a28ab5fbb74388ef6d6366b09255a54c58b953",
+    "bytes": 786
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/managed-neighbors-tools-after.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/managed-neighbors-tools-before.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/managed-neighbors.log": {
+    "sha256": "a96d65aea132162c5c7f078be2bf52e6577ff6e70223ad77b3fc3dcd41ad3753",
+    "bytes": 4021
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/manifest.json": {
+    "sha256": "ef8a4740fa7802b1b08eaa01726d8ee072a9437ddaf2d8a8db89f1caf0a9b4fa",
+    "bytes": 4759
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/native-compiler-products-after.json": {
+    "sha256": "924b6b6f4e4e1268ba8cea1c1cfd0906629cb8e6b8e67868c9cfb68bc950ec0d",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/native-compiler-products-before.json": {
+    "sha256": "924b6b6f4e4e1268ba8cea1c1cfd0906629cb8e6b8e67868c9cfb68bc950ec0d",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/native-compiler-sources-after.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/native-compiler-sources-before.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/native-compiler-status.json": {
+    "sha256": "338a52546095245f83ccd1423ef17911d1e6377a13febffd5f60a38a0bc904c6",
+    "bytes": 547
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/native-compiler-tools-after.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/native-compiler-tools-before.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/native-compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/runner.json": {
+    "sha256": "87c8b4c6255cb347e1336a7672c38c1e3aa0b199b5daec6325b5160be75b8892",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/scalar-neighbors-products-after.json": {
+    "sha256": "861af060e6b437abc01a525ce303fe5cefca62bad046f66adc4e60e1a10ec693",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/scalar-neighbors-products-before.json": {
+    "sha256": "924b6b6f4e4e1268ba8cea1c1cfd0906629cb8e6b8e67868c9cfb68bc950ec0d",
+    "bytes": 111198
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/scalar-neighbors-sources-after.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/scalar-neighbors-sources-before.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/scalar-neighbors-status.json": {
+    "sha256": "2717627381bc5844c3f1c528b2ec21794172dd232c0bc55b65d246509367d928",
+    "bytes": 733
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/scalar-neighbors-tools-after.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/scalar-neighbors-tools-before.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/scalar-neighbors.log": {
+    "sha256": "17c7298d7104c835b3373fd96667b3f42970764601132dcce0f5dbac211e1a54",
+    "bytes": 4638
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/source-initial.json": {
+    "sha256": "11072e8374c7000d7b8e0458fce836f46bc3d52b845fd3f7fdd0f30b3705d8bc",
+    "bytes": 1236118
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/terminal.json": {
+    "sha256": "fcf469123fef8f53382bd1968543e32a4b71e7433ad5d99c37081e7b8fae6463",
+    "bytes": 365
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/tools-initial.json": {
+    "sha256": "40e11f7c0918abc9d38e2c8219e2f7141e8d036f937a5ce60191ec443b3f6bb1",
+    "bytes": 4367
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-neighbors-corrected/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/assemble-refusal-products-after.json": {
+    "sha256": "ef685ed537d8e64885cf433b9cde8c37cd509b98f8636d4f1b91c78416ac82f6",
+    "bytes": 111899
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/assemble-refusal-products-before.json": {
+    "sha256": "ef685ed537d8e64885cf433b9cde8c37cd509b98f8636d4f1b91c78416ac82f6",
+    "bytes": 111899
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/assemble-refusal-sources-after.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/assemble-refusal-sources-before.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/assemble-refusal-status.json": {
+    "sha256": "cc38a4d8492d1413533983b984ab47c72ab9af5a6a8bec682c48b490c017611e",
+    "bytes": 734
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/assemble-refusal-tools-after.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/assemble-refusal-tools-before.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/assemble-refusal.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/check-refusal.py": {
+    "sha256": "4bbfff0fa61ca5c2bd3051bf5dc78c692a4f38c9a75bca57baeb57d659cfe8d3",
+    "bytes": 398
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/compiler-products-after.json": {
+    "sha256": "38fb266fcb92abb3b8280a925391b1160af07a2bfb35a4deeb76d7685ee8f8cc",
+    "bytes": 111274
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/compiler-products-before.json": {
+    "sha256": "38fb266fcb92abb3b8280a925391b1160af07a2bfb35a4deeb76d7685ee8f8cc",
+    "bytes": 111274
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/compiler-sources-after.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/compiler-sources-before.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/compiler-status.json": {
+    "sha256": "e71422cb4ef0c5107b67a6f36e4fc86ac72748013662c1a9b6d35a3114d9bdb8",
+    "bytes": 538
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/compiler-tools-after.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/compiler-tools-before.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/convert.nasm": {
+    "sha256": "267bc9f73567032159b45d1ada7fad56c786ce4f343815b7d8f0ef0112ef263e",
+    "bytes": 84
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/convert.nvm": {
+    "sha256": "dd379fa1adb0f2211dc4615eb1ad37e826b6268763259cac584a5936a9387af9",
+    "bytes": 364
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/environment.json": {
+    "sha256": "3f1d6619b88d1b6ca5106412fb1980c3e4f8f644af25be1bfa34fea99f1ef954",
+    "bytes": 1187
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/llvm-products-after.json": {
+    "sha256": "38fb266fcb92abb3b8280a925391b1160af07a2bfb35a4deeb76d7685ee8f8cc",
+    "bytes": 111274
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/llvm-products-before.json": {
+    "sha256": "38fb266fcb92abb3b8280a925391b1160af07a2bfb35a4deeb76d7685ee8f8cc",
+    "bytes": 111274
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/llvm-sources-after.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/llvm-sources-before.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/llvm-status.json": {
+    "sha256": "91d521c2e3f1c2277deedf98a9a131f3f336387f8ae2147f1bd2fa4afb9a3501",
+    "bytes": 545
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/llvm-tools-after.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/llvm-tools-before.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/llvm.log": {
+    "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+    "bytes": 440
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/make-products-after.json": {
+    "sha256": "38fb266fcb92abb3b8280a925391b1160af07a2bfb35a4deeb76d7685ee8f8cc",
+    "bytes": 111274
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/make-products-before.json": {
+    "sha256": "38fb266fcb92abb3b8280a925391b1160af07a2bfb35a4deeb76d7685ee8f8cc",
+    "bytes": 111274
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/make-sources-after.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/make-sources-before.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/make-status.json": {
+    "sha256": "aca4e31227f90f46ecbbd09a6b7dffdd6c432d865156385b6e46fdb9e1b063c2",
+    "bytes": 535
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/make-tools-after.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/make-tools-before.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/make.log": {
+    "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+    "bytes": 303
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/manifest.json": {
+    "sha256": "c95454a58843c4fac5db6a4c6d54ec27c31f4a6957000866911075090aeb62ab",
+    "bytes": 6692
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/native-compiler-products-after.json": {
+    "sha256": "38fb266fcb92abb3b8280a925391b1160af07a2bfb35a4deeb76d7685ee8f8cc",
+    "bytes": 111274
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/native-compiler-products-before.json": {
+    "sha256": "38fb266fcb92abb3b8280a925391b1160af07a2bfb35a4deeb76d7685ee8f8cc",
+    "bytes": 111274
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/native-compiler-sources-after.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/native-compiler-sources-before.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/native-compiler-status.json": {
+    "sha256": "a6e7b7cdc0a9a44e44a4f8639db73bfdf2dded726c3a85c42baeb14d03f1ad62",
+    "bytes": 545
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/native-compiler-tools-after.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/native-compiler-tools-before.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/native-compiler.log": {
+    "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+    "bytes": 246
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c-refusal-products-after.json": {
+    "sha256": "ef685ed537d8e64885cf433b9cde8c37cd509b98f8636d4f1b91c78416ac82f6",
+    "bytes": 111899
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c-refusal-products-before.json": {
+    "sha256": "ef685ed537d8e64885cf433b9cde8c37cd509b98f8636d4f1b91c78416ac82f6",
+    "bytes": 111899
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c-refusal-sources-after.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c-refusal-sources-before.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c-refusal-status.json": {
+    "sha256": "ad691bf30bf6181a1335f0d22af1783a519bb6b8bc1cb5b008a584bc41893766",
+    "bytes": 983
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c-refusal-tools-after.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c-refusal-tools-before.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c-refusal.log": {
+    "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+    "bytes": 127
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-c.out": {
+    "sha256": "f9c3ee1caaed197ef4d2dc45c9a910c39d253914d15c77d14f481829429a0012",
+    "bytes": 25
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano-refusal-products-after.json": {
+    "sha256": "ef685ed537d8e64885cf433b9cde8c37cd509b98f8636d4f1b91c78416ac82f6",
+    "bytes": 111899
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano-refusal-products-before.json": {
+    "sha256": "ef685ed537d8e64885cf433b9cde8c37cd509b98f8636d4f1b91c78416ac82f6",
+    "bytes": 111899
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano-refusal-sources-after.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano-refusal-sources-before.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano-refusal-status.json": {
+    "sha256": "febf71dd15d2cac3b4efa01597357629cd9411f18a1d45a92f0a5beba3024070",
+    "bytes": 995
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano-refusal-tools-after.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano-refusal-tools-before.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano-refusal.log": {
+    "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+    "bytes": 127
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano.out": {
+    "sha256": "f9c3ee1caaed197ef4d2dc45c9a910c39d253914d15c77d14f481829429a0012",
+    "bytes": 25
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstruction-tool-products-after.json": {
+    "sha256": "ef685ed537d8e64885cf433b9cde8c37cd509b98f8636d4f1b91c78416ac82f6",
+    "bytes": 111899
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstruction-tool-products-before.json": {
+    "sha256": "38fb266fcb92abb3b8280a925391b1160af07a2bfb35a4deeb76d7685ee8f8cc",
+    "bytes": 111274
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstruction-tool-sources-after.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstruction-tool-sources-before.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstruction-tool-status.json": {
+    "sha256": "28aa3e13e6acc19a4d3e64bcdb775f0e719365d88db80d95b071c10d24e8c696",
+    "bytes": 561
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstruction-tool-tools-after.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstruction-tool-tools-before.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/reconstruction-tool.log": {
+    "sha256": "13e0bcc86636e2db2d861201750a6ba03d02875a542e4fa00587ddad1c2535f0",
+    "bytes": 1284
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/runner.json": {
+    "sha256": "c7f7efcd4d5277b8e4fe679cf121d60cd6a89713a9eb247183a33b653a148bfb",
+    "bytes": 241
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/source-initial.json": {
+    "sha256": "11fdf537879314a3befb20b9710e5def273e75fcf641571e05367886be89dd29",
+    "bytes": 1217608
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/terminal.json": {
+    "sha256": "1f25e5a93be8867551048fd6c609c1af48b794879e4540205bcb0157ba3ee6fd",
+    "bytes": 231
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/tools-initial.json": {
+    "sha256": "e373750effc96c63da3c9c0ce3ac66edf287704207e04adc8ab3c3c33eb2dcf7",
+    "bytes": 4292
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-matrix.py": {
+    "sha256": "cb2cb06f2a2f986496142c9fd0649bbe7f42da58a819bc2194087b8d1375ab86",
+    "bytes": 6579
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-neighbors-corrected.py": {
+    "sha256": "e1359a89d7b4ce6f7ef15f88f59e6c4065295182c33b41a06b3a7a95fb36adf6",
+    "bytes": 6938
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-neighbors.py": {
+    "sha256": "4c9ef08f473549c2a2c441fa234c9c7a53875da592b4c9d44cde5c9fc64a5824",
+    "bytes": 6546
+  },
+  "docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-reconstruction.py": {
+    "sha256": "9d89858246a71d3d2b24b201eaadfe469dfd8a3a9a2662cce84f48b46b07a7bb",
+    "bytes": 7722
+  },
+  "docs/evidence/cast-u8-backends/linux/report-sha256.json": {
+    "sha256": "9b3dee59a428a431da5da1c5d3e3c976fcdb593ac8c3d21742e53f136c512d93",
+    "bytes": 91334
+  },
+  "docs/evidence/cast-u8-backends/linux/summary.json": {
+    "sha256": "e10b4d08101acf2d14a73f7aa38f0a89aa9e15fd7e8f8b608554a1eee4bf116f",
+    "bytes": 42741
+  },
+  "docs/evidence/cast-u8-backends/objects.json": {
+    "sha256": "adfdb0a8682aa6059d4b6ea5b87c7c7ce5ccd5bde69fb4c1ee0cb57d1354a883",
+    "bytes": 2398229
+  },
+  "docs/evidence/cast-u8-backends/publish-cast-u8-backends.py": {
+    "sha256": "b3b1b217411931c3f6b654b160316d5dbd1f180860702b23a816997cc2764f2d",
+    "bytes": 1756
+  },
+  "docs/evidence/cast-u8-backends/puck/artifact-store.json": {
+    "sha256": "1c495e8f0e0c312c44c57aa0f2126d80b7f9c2cad2115d818ee76066a88bb46a",
+    "bytes": 1282600
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-layout.py": {
+    "sha256": "b5b75a2121071a3a129bb8ba34ba47e7a7b433da13f4e61993913c6beea35afc",
+    "bytes": 6607
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-matrix.py": {
+    "sha256": "cb2cb06f2a2f986496142c9fd0649bbe7f42da58a819bc2194087b8d1375ab86",
+    "bytes": 6579
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-neighbors-corrected.py": {
+    "sha256": "e1359a89d7b4ce6f7ef15f88f59e6c4065295182c33b41a06b3a7a95fb36adf6",
+    "bytes": 6938
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-neighbors.py": {
+    "sha256": "4c9ef08f473549c2a2c441fa234c9c7a53875da592b4c9d44cde5c9fc64a5824",
+    "bytes": 6546
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/build-products-after.json": {
+    "sha256": "c118020d27f2131d7a987b98baf07ec9e4f76b89c650f0bad723998c9d4e3793",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/build-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/build-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/build-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/build-status.json": {
+    "sha256": "51f3ac98db7a3a5844a5261d7b7f965b2edb892bba2038a4306ff4947564a67f",
+    "bytes": 770
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/build-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/build-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/build.log": {
+    "sha256": "e6d72eaab121bae7aa1fd0e24f02997c4fa1f917292931ae095c3c9dea4f2487",
+    "bytes": 8850
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/compiler-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/compiler-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/compiler-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/compiler-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/compiler-status.json": {
+    "sha256": "bc3740664364576b234b0690944658e52010e57b1208baa71382f2c73984f223",
+    "bytes": 546
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/compiler-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/compiler-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/discovery-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/discovery-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/discovery-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/discovery-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/discovery-status.json": {
+    "sha256": "2157de9c0a9356b122b83e2bf074cf7e8ed096b0d8d7ab641e0e755c0dcb35a2",
+    "bytes": 806
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/discovery-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/discovery-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/environment.json": {
+    "sha256": "f200de1f3d66a1edca77761b12ddba9dca940a0ae85c2c5fe764abfc7c4a4341",
+    "bytes": 891
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/generated-byte-products-after.json": {
+    "sha256": "c118020d27f2131d7a987b98baf07ec9e4f76b89c650f0bad723998c9d4e3793",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/generated-byte-products-before.json": {
+    "sha256": "c118020d27f2131d7a987b98baf07ec9e4f76b89c650f0bad723998c9d4e3793",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/generated-byte-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/generated-byte-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/generated-byte-status.json": {
+    "sha256": "6bb138d080cac9515becf853bf925a38bef85a9188f279431e446be0847f734c",
+    "bytes": 646
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/generated-byte-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/generated-byte-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/generated-byte.log": {
+    "sha256": "768d543cfff902a320bd1f76e6f007e0d4f840b9fdf049fade30071ee3723e3a",
+    "bytes": 1207
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/llvm-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/llvm-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/llvm-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/llvm-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/llvm-status.json": {
+    "sha256": "996115212cb5a1db975aa7c22bd47d9c47cc2142885c2ce225461de30b1541a0",
+    "bytes": 561
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/llvm-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/llvm-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/make-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/make-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/make-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/make-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/make-status.json": {
+    "sha256": "693e8d41e6c283e12867fc224f62fdd754dea514cd196ca4403731d33e8900b5",
+    "bytes": 542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/make-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/make-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/manifest.json": {
+    "sha256": "ad514a3863fb2644999743d92cb869133a86e3409d29e7a22ec016536553c040",
+    "bytes": 5541
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/native-compiler-products-after.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/native-compiler-products-before.json": {
+    "sha256": "7989ad65a969760dc28406d67f0fc779ad5d86e94b6a8229a57559ec72656527",
+    "bytes": 110407
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/native-compiler-sources-after.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/native-compiler-sources-before.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/native-compiler-status.json": {
+    "sha256": "e4d4970b3ff7b53859e5797ee0690f187a7756ffbd3db1990d07411b401e6255",
+    "bytes": 571
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/native-compiler-tools-after.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/native-compiler-tools-before.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/retained-inner.json": {
+    "sha256": "244531bbb3d02e686d3943d29ca21c85e9abe2f643f99ab47047160fc7a49505",
+    "bytes": 723732
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/runner.json": {
+    "sha256": "344a86325542ff55c10a1ea1dc9af96678b567153bf0556cabb68982ffd166ed",
+    "bytes": 245
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/source-initial.json": {
+    "sha256": "936ed22fe5da437351b88dbadcd24854ee705dd66590f25be3fd504ebc19ab04",
+    "bytes": 1250926
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/terminal.json": {
+    "sha256": "738f89a4cfc10b079c45e373c8c30327ae61e1ff0b5aab22f3a4d102908348af",
+    "bytes": 365
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/tools-initial.json": {
+    "sha256": "016da6865bf0c5c597145621084cde1a79a918a509cb0a425fb11edd1236a64c",
+    "bytes": 4872
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-asan/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/build-products-after.json": {
+    "sha256": "8547bf320d80ee221e8508c0a940fd164ef15243fc2f57d6742391068bfd80d5",
+    "bytes": 111751
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/build-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/build-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/build-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/build-status.json": {
+    "sha256": "621420a22cfee57af979e990a1ad49609100bfa72eddf96f8dc830150ff0aaf9",
+    "bytes": 775
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/build-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/build-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/build.log": {
+    "sha256": "034d6ea3f88997243f6ea4a051bd45dd8610cdfcecd2eaabdb071941ddab49b7",
+    "bytes": 61513
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/compiler-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/compiler-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/compiler-status.json": {
+    "sha256": "2cac73f79e8f10c5449e15e2c282aa37b7836d53fb316beb49db9fb5316f3589",
+    "bytes": 550
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/compiler-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/compiler-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/discovery-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/discovery-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/discovery-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/discovery-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/discovery-status.json": {
+    "sha256": "7ba16a47b0ed3d23d92eedf1cf72133e59c24357d9762d34b3830d9eb0d454c1",
+    "bytes": 812
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/discovery-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/discovery-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/environment.json": {
+    "sha256": "25979fc53e7eb81752661afc1fdbc0e0457e42c30551154f24d7902cf957190b",
+    "bytes": 708
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-products-after.json": {
+    "sha256": "8547bf320d80ee221e8508c0a940fd164ef15243fc2f57d6742391068bfd80d5",
+    "bytes": 111751
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-products-before.json": {
+    "sha256": "8547bf320d80ee221e8508c0a940fd164ef15243fc2f57d6742391068bfd80d5",
+    "bytes": 111751
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-status.json": {
+    "sha256": "ac6d72b3e5d915dd52e441f29a6563b83f6309b6a7ad3f74935028a67f7037e7",
+    "bytes": 656
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/generated-byte.log": {
+    "sha256": "56b900ac3a2d5aef2c634036b79aac05f0dd96bcac3c9d075756e045893f9050",
+    "bytes": 1207
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/llvm-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/llvm-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/llvm-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/llvm-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/llvm-status.json": {
+    "sha256": "c99aab200a10e929101ff1c8a6d51746bdc55007ac5ecdf364722157a22cb5f1",
+    "bytes": 564
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/llvm-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/llvm-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/make-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/make-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/make-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/make-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/make-status.json": {
+    "sha256": "8d7d9ade92a7d893a02d4164210196b571b68c0c0dc496c2f01af09403fa2634",
+    "bytes": 546
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/make-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/make-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/manifest.json": {
+    "sha256": "16fe97650711c99a5a2d1bcbb519b70896eaeaefd37e3c62604094f62e585a60",
+    "bytes": 5564
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-sources-after.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-sources-before.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-status.json": {
+    "sha256": "c36353d1999ef95f0580a8e75365d02b1cc8d00783b4f2d37e100a6b37b268a3",
+    "bytes": 558
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-tools-after.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler-tools-before.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/native-compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/retained-inner.json": {
+    "sha256": "6220f60edde2ec965eff65f520ea5138e0c61aee76477eecde66d79263cd1b94",
+    "bytes": 588406
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/runner.json": {
+    "sha256": "bda06c475fab1fa994ec94c625693d7cad2cd43f00a4500a4f9147ac2fcdf9cc",
+    "bytes": 249
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/source-initial.json": {
+    "sha256": "b0621d0e296226fd79f028b161f60c0bbc1b978bf10a4ce1b5e04785abb2370b",
+    "bytes": 1265734
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/terminal.json": {
+    "sha256": "738f89a4cfc10b079c45e373c8c30327ae61e1ff0b5aab22f3a4d102908348af",
+    "bytes": 365
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/tools-initial.json": {
+    "sha256": "e0681334fc4d0c9cf9c735b63a8d07446d7a369ca2bc08729216c460bccdcee1",
+    "bytes": 4936
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-layout-ordinary/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/compiler-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/compiler-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/compiler-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/compiler-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/compiler-status.json": {
+    "sha256": "adc2264cb92ede6a951f914e44bdaf103ed5984a0a8dfb25c1626b91c89b3401",
+    "bytes": 545
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/compiler-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/compiler-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/environment.json": {
+    "sha256": "32e61f8b2c351e1dffcdb757285ca87c047aeb8da623c97c9ae4b57a5e6a4553",
+    "bytes": 744
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/llvm-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/llvm-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/llvm-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/llvm-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/llvm-status.json": {
+    "sha256": "a44719029de3acdace9eb8212dd1362f0d85f7cd6b27b4ab9c3b676c7b581f13",
+    "bytes": 559
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/llvm-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/llvm-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/make-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/make-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/make-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/make-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/make-status.json": {
+    "sha256": "45cf3455b81cd4dce818f81b7b4699a07194fca2aea66fbd8e2fd36116f5fef5",
+    "bytes": 531
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/make-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/make-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/manifest.json": {
+    "sha256": "d30535258e4653fdab4c00d4bf83a05225989dd2ea3d16687a85cad9cf2c89d5",
+    "bytes": 3842
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/native-compiler-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/native-compiler-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/native-compiler-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/native-compiler-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/native-compiler-status.json": {
+    "sha256": "21cd445963997bdc316893ffb092d20e3f0fe413cc724f9e9f4a3ab05665f78b",
+    "bytes": 570
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/native-compiler-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/native-compiler-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/runner.json": {
+    "sha256": "2e65f828481c28faec3d1799924304cf0061c8f98d1238569f243921c03d35e6",
+    "bytes": 243
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-products-after.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-products-before.json": {
+    "sha256": "341d0ff72f186b3cd0ffc7f20e7293daa81083129d3679b5e5bc19213379f8e3",
+    "bytes": 109735
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-sources-after.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-sources-before.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-status.json": {
+    "sha256": "f3e76c233d5691fedc5f0e8da78a9864cd882c018c53be86d76d5c66e5743053",
+    "bytes": 732
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-tools-after.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors-tools-before.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/scalar-neighbors.log": {
+    "sha256": "d25d721380e87e92530380819a417583ffd87b597afb5097a0e18b85df53aa07",
+    "bytes": 6635
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/source-initial.json": {
+    "sha256": "c0ce052a03b7659bb9ad3e3ff7c4d641f017fe706fa382a23c28f7481706492e",
+    "bytes": 1243522
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/tools-initial.json": {
+    "sha256": "d837f873c77383d8c23f6d1044ffcd7b730665b3943812442a9214af3d79c551",
+    "bytes": 4840
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-status.json": {
+    "sha256": "8e22e171c06d9ae618d8f3a0fa4d3ddf0f669e9b5beb7b1be47cf25cc848b010",
+    "bytes": 554
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/compiler-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/environment.json": {
+    "sha256": "32e61f8b2c351e1dffcdb757285ca87c047aeb8da623c97c9ae4b57a5e6a4553",
+    "bytes": 744
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-status.json": {
+    "sha256": "1b9cbc807d816c42db26c99afcc192957e2a143f01609c384ddf15006bb4f5ff",
+    "bytes": 569
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/llvm-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/make-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/make-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/make-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/make-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/make-status.json": {
+    "sha256": "16c3a6c569c197c917bbf5626dc93765363a7b024a8a90c3e87041b2b8338347",
+    "bytes": 550
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/make-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/make-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-status.json": {
+    "sha256": "ec09c0ef31ccd99738c75d1c79687e1f6e5f505a2656cb87f03e013ee3ffe9ff",
+    "bytes": 789
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/managed-neighbors.log": {
+    "sha256": "832579e718d4bbff9b5c50c6cf68c56bb0bf12c75d2109e8419eb1033ab97cfa",
+    "bytes": 2733
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/manifest.json": {
+    "sha256": "db0be21f046c8687256ebf91c6493eead64361d6534ee2ca6aa16cfa2b7fbaf8",
+    "bytes": 4877
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-status.json": {
+    "sha256": "70b99be8702984911996241fab0e05c11f48659c3d90bccc2c2b6b60e3f15cf2",
+    "bytes": 579
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/runner.json": {
+    "sha256": "a9a1a8f6ba78ff19903571ce572d2ba1faa0643bd8b31165fb28520d3dc3f2f8",
+    "bytes": 253
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-products-after.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-products-before.json": {
+    "sha256": "aaae6ed962909a9368cc17ef522c67f230720959280484f3e595fa91aca85ff0",
+    "bytes": 113095
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-sources-after.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-sources-before.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-status.json": {
+    "sha256": "6a0f2d3fea3f25ca90be5771e7a3bf46e12ec6440e7f89b84aa0a313f8e9f728",
+    "bytes": 742
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-tools-after.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors-tools-before.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/scalar-neighbors.log": {
+    "sha256": "ece6ec43a313fad35606e70357cbfbcb5590bc05c3b4d22d9fc74622c8932225",
+    "bytes": 3103
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/source-initial.json": {
+    "sha256": "e898e24d28fc4e90b2e663076e4b6ddc64426add47e08f1d10e06bc260cf363a",
+    "bytes": 1280542
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/terminal.json": {
+    "sha256": "738f89a4cfc10b079c45e373c8c30327ae61e1ff0b5aab22f3a4d102908348af",
+    "bytes": 365
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/tools-initial.json": {
+    "sha256": "866841c6ac3ac3c817b5b128d4c018d6f01cb4c63c4237b264e4df5617d1628f",
+    "bytes": 5000
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-neighbors-corrected/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/build-products-after.json": {
+    "sha256": "8f974d99f8102980b6bea5754ccb305c78bf50098683cf91e18502b480811546",
+    "bytes": 109399
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/build-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/build-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/build-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/build-status.json": {
+    "sha256": "62389484da090034f4b52eb96d247822782918c209bfb9ddf0233c353466418f",
+    "bytes": 765
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/build-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/build-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/build.log": {
+    "sha256": "034d6ea3f88997243f6ea4a051bd45dd8610cdfcecd2eaabdb071941ddab49b7",
+    "bytes": 61513
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/compiler-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/compiler-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/compiler-status.json": {
+    "sha256": "37bdea110eda67bf0685aa0857a196f7af4388b6707cf141f492d464ec2123c0",
+    "bytes": 543
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/compiler-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/compiler-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/discovery-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/discovery-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/discovery-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/discovery-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/discovery-status.json": {
+    "sha256": "e13cc9dc3b8a3cbc009c18b84eb790a8ee5bbb14a5b9f9c903d615f3a0b6d0c5",
+    "bytes": 804
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/discovery-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/discovery-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/discovery.log": {
+    "sha256": "da2f8b8c44bdd7059a830865d779b552b578ba34e777598af7499de15c34615b",
+    "bytes": 51
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/environment.json": {
+    "sha256": "453254fdd86d6d5b0556cd31ba6648467cf26db6264d2d6fcc40958d226810fd",
+    "bytes": 744
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/generated-byte-products-after.json": {
+    "sha256": "8f974d99f8102980b6bea5754ccb305c78bf50098683cf91e18502b480811546",
+    "bytes": 109399
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/generated-byte-products-before.json": {
+    "sha256": "8f974d99f8102980b6bea5754ccb305c78bf50098683cf91e18502b480811546",
+    "bytes": 109399
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/generated-byte-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/generated-byte-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/generated-byte-status.json": {
+    "sha256": "dc878f7bfb829ff245361c0efcb6d7257b4ecf80e27776d78e9092965013dece",
+    "bytes": 643
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/generated-byte-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/generated-byte-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/generated-byte.log": {
+    "sha256": "7434d3b8876f550a71b6670b5bdccaa33a43a87b7d5d1fba8a1f6523d0b0fe11",
+    "bytes": 1207
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/llvm-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/llvm-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/llvm-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/llvm-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/llvm-status.json": {
+    "sha256": "0990d70c78dfda7a0d8431fd467d42fa3df8848f9b64dd0c2f93ff6571172439",
+    "bytes": 557
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/llvm-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/llvm-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/make-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/make-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/make-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/make-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/make-status.json": {
+    "sha256": "464573cdb2eface5e21fb3a86ca51102dc30d3fc383abbc87ad04a6a8c83dcc9",
+    "bytes": 539
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/make-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/make-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/manifest.json": {
+    "sha256": "e63264d5bdea65f3426f05f7b967c32ebe8cbddeeda5a33f6dc6111e317759e0",
+    "bytes": 5502
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/native-compiler-products-after.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/native-compiler-products-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/native-compiler-sources-after.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/native-compiler-sources-before.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/native-compiler-status.json": {
+    "sha256": "4d2bef5fba558acbdd1f1df1c8686421b0eb3ea56b05e56dda4b65ee4b793337",
+    "bytes": 568
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/native-compiler-tools-after.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/native-compiler-tools-before.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/retained-inner.json": {
+    "sha256": "95a50c925d5e2ec81930a426f93a880ead407cb2b3c70b2bd1e8b69e7cada466",
+    "bytes": 576716
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/runner.json": {
+    "sha256": "9744b6de39bd9c40bb707239731c062c58405c477e62917336270b1e1f4944bd",
+    "bytes": 242
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/source-initial.json": {
+    "sha256": "324d655bd592061fd4a318e0b34daca67df6d3ea97e71ef18a4991d2be9d079e",
+    "bytes": 1239820
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/terminal.json": {
+    "sha256": "89dc52a9ab6ca034854564c6db145253802f7505ae9d512bfbababbe4ab1ddf9",
+    "bytes": 345
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/tools-initial.json": {
+    "sha256": "b7cd687bd98c76504a981c59afaa6d97cdeacd5f82b47385c0686398ddd78127",
+    "bytes": 4824
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-ordinary/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-products-after.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-products-before.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-status.json": {
+    "sha256": "7c84374f1301434f5d3f082e67a8f0407647e36dbb16017278ade064bcf9e316",
+    "bytes": 759
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/assemble-refusal.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/check-refusal.py": {
+    "sha256": "4bbfff0fa61ca5c2bd3051bf5dc78c692a4f38c9a75bca57baeb57d659cfe8d3",
+    "bytes": 398
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/compiler-products-after.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/compiler-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/compiler-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/compiler-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/compiler-status.json": {
+    "sha256": "8d362d9ac11a11007959f5fd586a88322cbcc3f3d2da96c9350f3618d5941150",
+    "bytes": 550
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/compiler-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/compiler-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/compiler.log": {
+    "sha256": "3c1b6ad2b9ce3b873b86251d13ced75437f199a74dd90839ca1a0d11cdfe31b9",
+    "bytes": 200
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/convert.nasm": {
+    "sha256": "267bc9f73567032159b45d1ada7fad56c786ce4f343815b7d8f0ef0112ef263e",
+    "bytes": 84
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/convert.nvm": {
+    "sha256": "dd379fa1adb0f2211dc4615eb1ad37e826b6268763259cac584a5936a9387af9",
+    "bytes": 364
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/environment.json": {
+    "sha256": "32e61f8b2c351e1dffcdb757285ca87c047aeb8da623c97c9ae4b57a5e6a4553",
+    "bytes": 744
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/llvm-products-after.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/llvm-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/llvm-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/llvm-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/llvm-status.json": {
+    "sha256": "f40f54f527ca0fc3bd46ce5fdaa71359867cbca3182ec88b801402f919f1629f",
+    "bytes": 563
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/llvm-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/llvm-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/llvm.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/make-products-after.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/make-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/make-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/make-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/make-status.json": {
+    "sha256": "1b41ea5d106efae0a76ebee38c03f70387ec95df48533f889b4e67583d3bc056",
+    "bytes": 544
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/make-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/make-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/make.log": {
+    "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+    "bytes": 263
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/manifest.json": {
+    "sha256": "eafc894baa731350a5eaf9769a26201650d69377af2f18478619c5a67607feab",
+    "bytes": 6911
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/native-compiler-products-after.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/native-compiler-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/native-compiler-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/native-compiler-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/native-compiler-status.json": {
+    "sha256": "01a1556a7093b96e08e512541b060a283e7b5182bc9882edfc96da681457bca2",
+    "bytes": 574
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/native-compiler-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/native-compiler-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/native-compiler.log": {
+    "sha256": "8fb76a77264a41912945170b10858b58cf97dfd93fe465759f0a6f4061e4ca39",
+    "bytes": 222
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-products-after.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-products-before.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-status.json": {
+    "sha256": "1ce70ef3f3bccb4b93f64af9382125b05037e16bbad0023894492355bb90eff9",
+    "bytes": 1023
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c-refusal.log": {
+    "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+    "bytes": 127
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-c.out": {
+    "sha256": "f9c3ee1caaed197ef4d2dc45c9a910c39d253914d15c77d14f481829429a0012",
+    "bytes": 25
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-products-after.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-products-before.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-status.json": {
+    "sha256": "a1d61af16e93c78b003cd56fee9da0c34ffaa0f9e46e807bc60824174430f5ad",
+    "bytes": 1036
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano-refusal.log": {
+    "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+    "bytes": 127
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstructed-nano.out": {
+    "sha256": "f9c3ee1caaed197ef4d2dc45c9a910c39d253914d15c77d14f481829429a0012",
+    "bytes": 25
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-products-after.json": {
+    "sha256": "2346f8acbc5438d3c68e6bb3dfd96109084e81f3d608970d74e9b6db8e3a6a82",
+    "bytes": 113185
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-products-before.json": {
+    "sha256": "beea49d7177c59b860f839e8baca41f4e16edb23cfb4b1fedbdaf0dc3d0bb335",
+    "bytes": 111415
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-sources-after.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-sources-before.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-status.json": {
+    "sha256": "600e12c950516ca818757d0df375318ddeebf3da341d40b404a711411d550869",
+    "bytes": 574
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-tools-after.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool-tools-before.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/reconstruction-tool.log": {
+    "sha256": "71feaa296a1f2db9321f0f2e2629dbeb6ffefe986d10f9422a2d9cfa356cd614",
+    "bytes": 1469
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/runner.json": {
+    "sha256": "3976116216729f74499118dc24d94fd6e05aeef2ebee16bbc957b11c620a2d28",
+    "bytes": 248
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/source-initial.json": {
+    "sha256": "e6ea399087e28fabe0cd7baf02e119023bc21f9ae8b83e4d6a7cf19d529f3cd5",
+    "bytes": 1262032
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/terminal.json": {
+    "sha256": "1bf3e637395fa68045b26a15b5892314c4f18531dd3931d3b202ed83b7131082",
+    "bytes": 231
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/tools-initial.json": {
+    "sha256": "02389f278d386f064b5a321cee2a9f319031a13d58a87662ef9f0bf3f0d3e850",
+    "bytes": 4920
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/tracked-paths.json": {
+    "sha256": "301753e87b5099643c809dd1d445eb1c3f3323f40c5ccdfad49b9700b3727196",
+    "bytes": 3158207
+  },
+  "docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-reconstruction.py": {
+    "sha256": "9d89858246a71d3d2b24b201eaadfe469dfd8a3a9a2662cce84f48b46b07a7bb",
+    "bytes": 7722
+  },
+  "docs/evidence/cast-u8-backends/puck/report-sha256.json": {
+    "sha256": "91b5eeb075d41b1f2b4cb968e3201f62baf13bb082c43b90720097ab90403986",
+    "bytes": 68443
+  },
+  "docs/evidence/cast-u8-backends/puck/summary.json": {
+    "sha256": "636d7d9f1dc5b6b8204c16daf2a72ace434d1f55324d3ad42ca4d25b36c16311",
+    "bytes": 32343
+  },
+  "docs/evidence/cast-u8-backends/seal-cast-u8-backends.py": {
+    "sha256": "43d8601370eb8b71c843d2c4f4052337d480728a33af1583fca4a26e1ef90b00",
+    "bytes": 1995
+  },
+  "docs/evidence/cast-u8-backends/summary.json": {
+    "sha256": "70e91a4ac0e39eddd753d5e0f257413645ad8bd0c64c3180351e87ea60e748fb",
+    "bytes": 79446
+  },
+  "docs/evidence/cast-u8-backends/transport.json": {
+    "sha256": "034b6708a305e751fd07dae043d17eb76e5a9408ba339b931641c0f53c5ede31",
+    "bytes": 168
+  }
+}

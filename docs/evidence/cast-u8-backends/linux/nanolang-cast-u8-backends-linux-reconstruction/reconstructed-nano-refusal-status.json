@@ -1,0 +1,28 @@
+{
+  "name": "reconstructed-nano-refusal",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "/tmp/nanolang-cast-u8-backends-linux-reconstruction/check-refusal.py",
+    "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano.out",
+    "/home/jkh/Src/nanolang-cast-u8-backends/bin/nvm2hl",
+    "--language",
+    "nano",
+    "/tmp/nanolang-cast-u8-backends-linux-reconstruction/convert.nvm",
+    "-o",
+    "/tmp/nanolang-cast-u8-backends-linux-reconstruction/reconstructed-nano.out"
+  ],
+  "bound_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.11423810303676873,
+  "log": {
+    "sha256": "9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215",
+    "bytes": 127,
+    "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/9a8965d858b49bb1220caf74b21211b82c1478ed5d74df7ab44440eafa760215"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

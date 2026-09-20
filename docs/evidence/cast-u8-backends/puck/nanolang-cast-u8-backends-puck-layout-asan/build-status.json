@@ -1,0 +1,30 @@
+{
+  "name": "build",
+  "argv": [
+    "make",
+    "-j2",
+    "nanoisa_dump",
+    "nano_vm",
+    "nvm2c",
+    "nvm2llvm",
+    "nvm2wasm",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS="
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 1.063380917,
+  "log": {
+    "sha256": "e6d72eaab121bae7aa1fd0e24f02997c4fa1f917292931ae095c3c9dea4f2487",
+    "bytes": 8850,
+    "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-asan/objects/e6d72eaab121bae7aa1fd0e24f02997c4fa1f917292931ae095c3c9dea4f2487"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

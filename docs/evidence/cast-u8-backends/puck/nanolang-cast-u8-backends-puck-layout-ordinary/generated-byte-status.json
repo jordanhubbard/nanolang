@@ -1,0 +1,24 @@
+{
+  "name": "generated-byte",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_cast_u8_backends"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 29.125405375000003,
+  "log": {
+    "sha256": "56b900ac3a2d5aef2c634036b79aac05f0dd96bcac3c9d075756e045893f9050",
+    "bytes": 1207,
+    "archive": "/private/tmp/nanolang-cast-u8-backends-puck-layout-ordinary/objects/56b900ac3a2d5aef2c634036b79aac05f0dd96bcac3c9d075756e045893f9050"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}
