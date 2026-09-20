@@ -1,0 +1,538 @@
+{
+  "pin": "51d4bb83f9032d630bb2e04e7b4aedcf4552e29b",
+  "pairs": [
+    {
+      "before": "linux/bootstrap-tools-before.json",
+      "after": "linux/bootstrap-tools-after.json",
+      "count": 12
+    },
+    {
+      "before": "linux/gcc-ordinary-tools-before.json",
+      "after": "linux/gcc-ordinary-tools-after.json",
+      "count": 12
+    },
+    {
+      "before": "linux/gcc-ordinary-source-before.json",
+      "after": "linux/gcc-ordinary-source-after.json",
+      "count": 24085
+    },
+    {
+      "before": "linux/ordinary-adjacency-source-before.json",
+      "after": "linux/ordinary-adjacency-source-after.json",
+      "count": 24085
+    },
+    {
+      "before": "linux/bootstrap-source-before.json",
+      "after": "linux/bootstrap-source-after.json",
+      "count": 24085
+    },
+    {
+      "before": "linux/ordinary-adjacency-tools-before.json",
+      "after": "linux/ordinary-adjacency-tools-after.json",
+      "count": 12
+    },
+    {
+      "before": "puck/apple-ordinary-tools-before.json",
+      "after": "puck/apple-ordinary-tools-after.json",
+      "count": 12
+    },
+    {
+      "before": "puck/bootstrap-tools-before.json",
+      "after": "puck/bootstrap-tools-after.json",
+      "count": 12
+    },
+    {
+      "before": "puck/ordinary-adjacency-source-before.json",
+      "after": "puck/ordinary-adjacency-source-after.json",
+      "count": 24085
+    },
+    {
+      "before": "puck/bootstrap-source-before.json",
+      "after": "puck/bootstrap-source-after.json",
+      "count": 24085
+    },
+    {
+      "before": "puck/ordinary-adjacency-tools-before.json",
+      "after": "puck/ordinary-adjacency-tools-after.json",
+      "count": 12
+    },
+    {
+      "before": "puck/apple-ordinary-source-before.json",
+      "after": "puck/apple-ordinary-source-after.json",
+      "count": 24085
+    }
+  ],
+  "selections": [
+    {
+      "path": "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/gen_compiler_schema-nanoc_stage2-selection.json",
+      "count": 63
+    },
+    {
+      "path": "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/token_value_bytes-nanoc_c-selection.json",
+      "count": 76
+    },
+    {
+      "path": "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/gen_compiler_schema-nanoc_stage1-selection.json",
+      "count": 63
+    },
+    {
+      "path": "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/gen_compiler_schema-nanoc_c-selection.json",
+      "count": 63
+    },
+    {
+      "path": "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/token_value_bytes-nanoc_stage2-selection.json",
+      "count": 76
+    },
+    {
+      "path": "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/token_value_bytes-nanoc_stage1-selection.json",
+      "count": 76
+    },
+    {
+      "path": "puck/apple-ordinary/nano-token-bytes-2_qczp3_/gen_compiler_schema-nanoc_stage2-selection.json",
+      "count": 63
+    },
+    {
+      "path": "puck/apple-ordinary/nano-token-bytes-2_qczp3_/token_value_bytes-nanoc_c-selection.json",
+      "count": 76
+    },
+    {
+      "path": "puck/apple-ordinary/nano-token-bytes-2_qczp3_/gen_compiler_schema-nanoc_stage1-selection.json",
+      "count": 63
+    },
+    {
+      "path": "puck/apple-ordinary/nano-token-bytes-2_qczp3_/gen_compiler_schema-nanoc_c-selection.json",
+      "count": 63
+    },
+    {
+      "path": "puck/apple-ordinary/nano-token-bytes-2_qczp3_/token_value_bytes-nanoc_stage2-selection.json",
+      "count": 76
+    },
+    {
+      "path": "puck/apple-ordinary/nano-token-bytes-2_qczp3_/token_value_bytes-nanoc_stage1-selection.json",
+      "count": 76
+    }
+  ],
+  "generations": [
+    "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/python-generator-generation.json",
+    "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/gen_compiler_schema-nanoc_stage2-generation.json",
+    "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/gen_compiler_schema-nanoc_stage1-generation.json",
+    "linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/gen_compiler_schema-nanoc_c-generation.json",
+    "puck/apple-ordinary/nano-token-bytes-2_qczp3_/python-generator-generation.json",
+    "puck/apple-ordinary/nano-token-bytes-2_qczp3_/gen_compiler_schema-nanoc_stage2-generation.json",
+    "puck/apple-ordinary/nano-token-bytes-2_qczp3_/gen_compiler_schema-nanoc_stage1-generation.json",
+    "puck/apple-ordinary/nano-token-bytes-2_qczp3_/gen_compiler_schema-nanoc_c-generation.json"
+  ],
+  "matrix": {
+    "linux": [
+      {
+        "phase": "host",
+        "argv": [
+          "uname",
+          "-a"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.0017671779496595263
+      },
+      {
+        "phase": "ordinary-version",
+        "argv": [
+          "/usr/bin/gcc",
+          "--version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.0013844040222465992
+      },
+      {
+        "phase": "other-version",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+          "--version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.015490464982576668
+      },
+      {
+        "phase": "make-version",
+        "argv": [
+          "/bin/make",
+          "--version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.0015157019952312112
+      },
+      {
+        "phase": "pkg-config-version",
+        "argv": [
+          "/bin/pkg-config",
+          "--version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.0014547089813277125
+      },
+      {
+        "phase": "ffi-flags",
+        "argv": [
+          "/bin/pkg-config",
+          "--cflags",
+          "--libs",
+          "libffi"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.0014057959197089076
+      },
+      {
+        "phase": "other-asan",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+          "-print-file-name=libclang_rt.asan.a"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.015576177975162864
+      },
+      {
+        "phase": "gcc-asan",
+        "argv": [
+          "/usr/bin/gcc",
+          "-print-file-name=libasan.so"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.001382709015160799
+      },
+      {
+        "phase": "gcc-ubsan",
+        "argv": [
+          "/usr/bin/gcc",
+          "-print-file-name=libubsan.so"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.0014153009979054332
+      },
+      {
+        "phase": "gcc-cc1",
+        "argv": [
+          "/usr/bin/gcc",
+          "-print-prog-name=cc1"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.001334468019194901
+      },
+      {
+        "phase": "clang-ubsan",
+        "argv": [
+          "/usr/local/bin/clang",
+          "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+          "-print-file-name=libclang_rt.ubsan_standalone.a"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.015760116977617145
+      },
+      {
+        "phase": "bootstrap",
+        "argv": [
+          "/bin/make",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "bootstrap"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 285.2228355850093
+      },
+      {
+        "phase": "gcc-ordinary",
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_token_value_bytes"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 27.630032244022004
+      },
+      {
+        "phase": "ordinary-adjacency",
+        "argv": [
+          "/bin/make",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "test-parser",
+          "test-module-metadata",
+          "test-wrapper-gen"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 267.77693106094375
+      }
+    ],
+    "puck": [
+      {
+        "phase": "sdk",
+        "argv": [
+          "/usr/bin/xcrun",
+          "--show-sdk-path"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.010016166954301298
+      },
+      {
+        "phase": "sdk-version",
+        "argv": [
+          "/usr/bin/xcrun",
+          "--show-sdk-version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.0056887909304350615
+      },
+      {
+        "phase": "host",
+        "argv": [
+          "uname",
+          "-a"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.006142999976873398
+      },
+      {
+        "phase": "ordinary-version",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.0350097909104079
+      },
+      {
+        "phase": "other-version",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.12469487497583032
+      },
+      {
+        "phase": "make-version",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.010777708026580513
+      },
+      {
+        "phase": "pkg-config-version",
+        "argv": [
+          "/opt/homebrew/bin/pkg-config",
+          "--version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.03904754191171378
+      },
+      {
+        "phase": "ffi-flags",
+        "argv": [
+          "/opt/homebrew/bin/pkg-config",
+          "--cflags",
+          "--libs",
+          "libffi"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.010036916006356478
+      },
+      {
+        "phase": "ffi-libdir",
+        "argv": [
+          "/opt/homebrew/bin/pkg-config",
+          "--variable=libdir",
+          "libffi"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.005337083013728261
+      },
+      {
+        "phase": "other-asan",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.021786874975077808
+      },
+      {
+        "phase": "apple-owning-compiler",
+        "argv": [
+          "/usr/bin/xcrun",
+          "--find",
+          "clang"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.009320167009718716
+      },
+      {
+        "phase": "apple-owning-version",
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+          "--version"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 0.012402124935761094
+      },
+      {
+        "phase": "bootstrap",
+        "argv": [
+          "/usr/bin/make",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "bootstrap"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 279.8262724169763
+      },
+      {
+        "phase": "apple-ordinary",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_token_value_bytes"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 27.726453291019425
+      },
+      {
+        "phase": "ordinary-adjacency",
+        "argv": [
+          "/usr/bin/make",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "test-parser",
+          "test-module-metadata",
+          "test-wrapper-gen"
+        ],
+        "timeout": false,
+        "returncode": 0,
+        "cleanup_errors": [],
+        "child_returncode": 0,
+        "group_absent": true,
+        "seconds": 276.2472284999676
+      }
+    ]
+  },
+  "scope": "Fresh whole bootstrap and ordinary integration only; earlier sanitizer results unchanged"
+}

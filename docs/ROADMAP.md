@@ -12596,6 +12596,38 @@ and actual merge remain pending; no cyclic File runtime or parent closure follow
 
 ### My paired File source and NSI publication prerequisite
 
+- [ ] I retain the bounded token metadata qualification at315656d93: seven split C configurations, four ordinary paired C-seed/Stage1/Stage2 token76/generator63 selections, all four actual generated files byte-equal, and parser/module-metadata/wrapper adjacency on Linux/puck. My [seal](evidence/token-value-bytes.md) preserves original28e bootstrap, each first terminal, and separate315 Make-triggered bootstrap product changes. Independent review/canonical integration/actual merge remain pending; broader File and compiler-policy tasks stay open.
+
+- [ ] I preserve ae62 C-seed generator63-shadow PASS and exact four-file byte parity on Linux/puck, then Stage1 SH0002 refusal of the existing builtin-target str_starts_with shadow. I introduce a named schema_prefix_matches wrapper at the three generator call sites and attach the same positive/negative assertions to that function. I retain the paired builtin-shadow policy disagreement as a full5.1 follow-up (`task_ba64cfbaa3d94de9bf3f7066c3fd3a5d`); the generator wrapper is not a checker policy repair.
+
+- [ ] I preserve303 generator63-shadow PASS on Linux/puck followed by strict native compilation failure in my new schema_name_before helper: an int index compares with direct str_length lowered to size_t. I retain task_50f624351db54305ac31a918e9874010 and give this helper typed left/right byte-length locals with identical ordering and existing shadows; no warning suppression or four-file parity relaxation.
+
+- [ ] I preserve d285 first generator terminals on Linux/puck: after the typed boolean correction, pre-existing generator shadows call file_delete and JSON mutator externs as statements outside unsafe blocks. I use the existing public delete/json_array_push/object_set wrappers and matching JSON constructor wrappers, preserving exact calls, ownership, shadows and four-file output checks. This is newly exercised generator qualification, not a token decoder regression; I change no global safety policy.
+
+- [ ] I preserve1bb token fixture C-seed/Stage1/Stage2 output and exact shadow selection on both hosts, then the first actual Nano schema generator typecheck refusal: eight existing nl_json_as_bool calls return int where bool is required. I import/use the existing tested std/json as_bool wrapper at those sites before fresh full schema equality; no JSON semantics or comparison weakening. I distinguish the changed generator stamp input from unchanged compiled compiler sources and canonical generated files when retaining28e bootstrap provenance.
+
+- [ ] I reconcile paired grammar keyword reservation (`task_9b6cbac8f6f941e3ad38a0c7f5ff59c9`): C-seed accepts the ece fixture local while Stage1 reserves TOKEN_GRAMMAR. I inventory intended semantics and require paired acceptance/refusal or an explicit documented language boundary before full source acceptance; the1bb fixture rename alone does not repair this frontend difference.
+
+- [ ] I preserve ece465 first paired terminals on Linux/puck: C-seed passes76 shadows and exact fixture output, then Stage1 refuses the local identifier grammar at line33 because my Nano lexer reserves TOKEN_GRAMMAR. I rename only that fixture local and its two references before fresh affected qualification; literal bytes, assertions, full generator parity and shadow selection remain unchanged. I do not claim Stage1/Stage2 acceptance from the C-seed pass.
+
+- [ ] I complete native accepted-transitive declaration closure (`task_784f64db9b7443c888242a3b52b9dbe5`) and integer string-length comparison semantics (`task_50f624351db54305ac31a918e9874010`) under full5.1 source publication, with the083 first diagnostics and paired strict native gates; explicit fixture imports/locals do not close either child. I record that083 final temporary C was automatically removed; future producer commands use --keep-c and report-owned TMPDIR, without replaying083 or claiming its missing file is retained.
+
+- [ ] I retain083 paired C-seed76-shadow PASS on Linux/puck followed by native C compile failure: accepted transitive helper references lack emitted prototypes and direct int/str_length comparisons produce signedness errors. Before fresh token gates I give the fixture explicit direct module imports and typed length locals with unchanged assertions/selection. The broader accepted-visibility/declaration and integer-builtin C lowering mismatch remains a required source-publication follow-up; this fixture correction does not repair or qualify it.
+
+- [ ] I retain7bf corrected C decoder/list/bridge and unchanged f-string PASS on both hosts, then the first paired C-seed typecheck refusal before shadows: my new Nano fixture binds generic list_remove as an element, but its existing source signature is void. I call remove as a statement and assert the remaining length/shifted element count, preserving pop, high-bit metadata and actual C remove-return controls. No compiler/list production change or old-binary replay.
+
+- [ ] I preserve the7bf copy-proof setup terminal on both hosts before any corrected fixture execution: an overbroad assertion required lexer_bridge absence from the entire Makefile, but the separate unbuilt HYBRID_OBJECTS declaration legitimately includes it. I check actual compiled dependency maps/object absence and record that isolated declaration instead; unchanged28e compiler inputs and every copied product remain hash-verified. No bootstrap or product defect is inferred from this audit-script mistake.
+
+- [ ] I retain28e clean bootstrap PASS on Linux285.398s and puck272.178s, followed on both hosts by the first pre-execution C token fixture compile failure: inactive lexer_bridge.c accesses List_LexerToken fields after the generated header has supplied only its forward declaration. I use the existing list length accessor for both accesses, preserving ABI/count/ownership assertions; fresh corrected dependent gates require review and retain original bootstrap attribution.
+
+- [ ] I correct the6e393 review prerequisites before token gates: isolate the retained runner module so unittest discovers exactly two intended methods; run Python and all three freshly produced Nano schema generators in separate copied schema/output roots and compare every generated byte with committed outputs. Static inspection finds the older Nano generator maps all int fields to int64_t, emits duplicate unsorted forward declarations and one extra final newline in AST/contracts; I align it to primary-schema/canonical Python semantics (only the explicit value_bytes override widens), retaining strict equality rather than masking differences.
+
+- [ ] I correct the token bridge inventory findings within8bbc before count propagation: inactive lexer_bridge.c treats the current by-value list getter as a pointer, and token_helpers.h declares List_Token while its implementation takes List_LexerToken. I align exact owning declarations/copies and preserve all count fields without recomputing them, with focused bridge compile/copy/rollback controls before any activation claim. The same inactive bridge also leaks a returned empty list; I record and clean that owned empty prefix before qualification.
+
+- [ ] I implement the reviewed [token byte-count prerequisite](TOKEN_VALUE_BYTES.md) under8bbc before service AST work: preserve raw token values, retain complete decoded literal byte counts including escaped NUL suffixes, distinguish raw grammar bodies, regenerate the primary C/Nano schema and update every constructor/list bridge. I record the internal by-value ABI change and require clean paired bootstrap/runtime/module closure; no old binary/provider mixing or public service admission. Production plus service-independent fixtures receive review before execution.
+
+- [ ] I implement [my paired declaration/AST/lowering contract](NANOISA_FILE_PAIRED_SOURCE.md) under existing8bbc/6fc/72556/6931/d03c after publisher review: first retain complete decoded token byte counts and paired schema/AST/import-origin ownership; then exact companion/catalog/nominal/shadow binding; then independent C/Nano nonexecuting lowering; then reviewed explicit-grant VM/native selected shadows and staged publication; then fresh C-seed/Stage1/Stage2 and installed Linux/Darwin acceptance. My current LexerToken lacks decoded extent, so I record that concrete prerequisite before parser code rather than infer service text length with strlen. Shared ownership-envelope integration must preserve peer893 coexistence without assigning competing versions. All loop/indirect/richer-borrow and original full source requirements remain mandatory later gates. This checkpoint is design only.
+
 - [ ] I review [my paired File source contract](NANOISA_FILE_SOURCE_PUBLICATION.md), `task_8bbc1cf5295b4b59b314640ef57c725f`, on actual public merge97546742 under6fc/72556/6931/d03c. I retain exact catalog/declaration identity and proposed grammar, cross-format coexistence with the separately owned scalar-union schema, and all mandatory source/shadow/control-flow requirements. This row authorizes no implementation before review.
   - [ ] I implement and independently review only paired non-admitting source plans/catalog data access first, with exact copied identities, budgets and transactional outputs.
   - [ ] I correct the statically discovered6c22 Nano request extent gap before fixtures: bare strings use strlen and cannot represent C counted-span validation of embedded NUL. Mirror explicit byte extents in Nano request text and reject length mismatches; retain truthful caller span semantics without widening string runtime or publication authority.
@@ -12844,9 +12876,9 @@ duplicate decoder or competing source task. PR905 seal/integration remains under
 independent review. My next [publisher contract](NANOISA_FILE_BINDING_PUBLISHER.md)
 is design only, based on92726 with no publication code or execution.
 
-- [ ] I review the anchored publisher/explicit CLI API, fixed storage and exact status/commit/durability/cleanup semantics before production, including unidentified partial creation and no close retry.
-- [ ] I implement only reviewed publisher/CLI providers and explicit Make target, reusing the immutable strict plan; then review complete production and fixtures before filesystem qualification.
-- [ ] I qualify real Linux/puck exclusive directory publication, every attempted operation/fault/cleanup state, concurrent winners, unchanged sentinels and postcommit reports; retain first terminals and immutable source/tool/artifact evidence.
+- [x] I review the anchored publisher/explicit CLI API, fixed storage and exact status/commit/durability/cleanup semantics before production, including unidentified partial creation and no close retry.
+- [x] I implement only reviewed publisher/CLI providers and explicit Make target, reusing the immutable strict plan; then review complete production and fixtures before filesystem qualification.
+- [x] I qualify real Linux/puck exclusive directory publication, every attempted operation/fault/cleanup state, concurrent winners, unchanged sentinels and postcommit reports; retain first terminals and immutable source/tool/artifact evidence.
 - [ ] I continue paired parser/schema/lowering, generated module imports and all selected shadows/installed grants/startup and broader control-flow acceptance; successful file publication never substitutes for source execution.
 
 I retain PR905 actual merge `af8809b32850454d06d9c1881c3a27b43f4c9d9c`;
@@ -13102,6 +13134,45 @@ closure excludes the changed typechecker and cyclic/Wasm providers, so I do not
 repeat unchanged gates. Both additive histories remain. Actual publisher merge
 and all broader source/publication parent acceptance remain pending.
 
+I reconcile only the bounded publisher review, implementation and measured
+publication rows through actual PR908 merge
+`0061feed573ad7e4cac2a9e61d5ed38f0fb62440`. Root checked the original publisher
+seal and44 selected/25 incoming identities in the additive restack. The following
+paired parser/schema/lowering and full source/publication acceptance row stays
+open under8bbc and its original parents.
+
+I integrate PR911 with that canonical merge, retaining the original token and
+full-generator seals. PR910 changed my actual C-seed typechecker, so I require
+fresh Linux/puck bootstraps and ordinary complete token/paired-generator/schema
+checks plus parser/module/wrapper neighbors in new empty build trees. No old
+ABI objects or copied compiler products enter this acceptance. Original scoped
+sanitizer results keep their original pins and are not relabeled integrated.
+
+I retain [fresh token integration51d](evidence/token-value-bytes-integration.md)
+against actual0061: both empty-tree bootstraps, full ordinary token/paired actual
+generator/schema checks and parser/module/wrapper adjacency pass. My252-report
+supplement retains12 equal source/tool pairs,12 exact shadow selections and8
+four-file generator comparisons. Both current24,085-source/12-tool maps and
+824 Linux/631 puck products match. Original sanitizer pins stay unchanged;
+subsequent PR893 is outside this frozen acceptance. Full8bbc/source parents
+and compiler-policy follow-ups remain open pending their own acceptance.
+
+I integrate token911 after actual PR893 merge
+`0dc58835ffd2183f6c35f90a4d02bd2da18e4a19`. All17 token/fixture inputs remain
+exact; the14 incoming source/fixture paths match canonical main and Make only
+adds independent targets. The ownership checker and Nano borrow producer change
+actual compiler inputs, so I require new empty-tree Linux/puck bootstraps and
+complete ordinary token/paired-generator/schema plus parser/module/wrapper
+checks. I preserve51d and original315 evidence without relabeling sanitizer
+acceptance. No new source feature or full File completion is claimed.
+
+I retain [token integrationd4f](evidence/token-value-bytes-union-integration.md)
+on actual893: both fresh complete bootstraps, ordinary paired token/full schema
+generation and parser/module/wrapper checks pass. My251-report supplement
+records12 equal pairs,12 exact shadow selections,8 full generator comparisons
+and current24,345-source/12-tool equality on both hosts. Original sanitizer
+claims stay at original pins; later912 needs scoped dependency assessment.
+No full File/source parent closes from this prerequisite.
 ### Full-suite passive-flow and emitter-shadow attribution (2026-09-20)
 
 - [x] I resolve `task_4c107eb5835743dd9e8c0683eadd78ea`: my unchanged passive-flow source is rejected during shadow bytecode verification in the retained Linux c140 full-suite run. I first compare fresh canonical af8809 and repaired compiler builds, retain exact artifacts, and review any branch-validation repair before execution. My [internal CFG contract](NANOISA_PASSIVE_INTERNAL_CFG.md) requires bounded forward edges, exact stack joins, a shared terminal result store and unchanged dependency/input authority.
@@ -13138,6 +13209,22 @@ and1,456 content-addressed artifacts. Bounded independent review/actual merge an
 ff730 reconciliation remain pending; full2c135/runtime/public/source remain open.
 
 - [ ] I correct task_f4463938a7b1ea12bc6eadacfdb9fc85 in the indirect-hosted72e integration driver's Darwin neighbor selector before continuing task2c135: existing CODE/BODY/FLOW runners always enable ASan with leak detection, but my ordinary integration adapter selected AppleClang. I retain the first CODE unsupported-leak terminal and the prior setup/query/cyclic passes. I restore explicit Homebrew Clang for these unchanged neighbors, preserve every assertion and leak setting, and run the failed/unreached phases into a fresh report on the frozen source.
+
+I integrate actual912/913 main933e8a590d28f0d2b4c746cc58c106011b43b01b
+after preservingd4f acceptance. All17 token inputs and all src_nano/schema/module
+files remain unchanged. New passive/nvm2c/private-query owning TUs affect the
+C-seed/NanoISA/wrapper link closure, so root approves fresh affected providers,
+complete ordinary token/paired generator with exactly retainedd4f Stage1/2 and
+fresh module cache, plus wrapper controls on both hosts. This is a bounded
+closure run, not a new bootstrap or sanitizer claim. Full source remains open.
+
+I retain [final token closure885](evidence/token-value-bytes-final-closure.md):
+fresh affected C-seed/NanoISA/nano_virt providers, complete ordinary paired
+token/generator/schema and wrapper controls pass on both hosts. Only d4f
+Stage1/2 are retained with exact product and507-input/selected-graph proof; no
+bootstrap or sanitizer replay is claimed. My253-report seal has12 equal pairs
+and current26,190-source/12-tool equality on each host. Original full source
+requirements stay open; root reviews evidence before actual PR911 merge.
 
 - [ ] I implement the private ordinary record-array authority query under task_f36b179a0f2b4a1b99c29ccd2af66f99 using the agreed shared v3 envelope at peer8fadd11f: [reconciled reader contract](NANOISA_ORDINARY_RECORD_ARRAY_AUTHORITY.md). I preserve public ARRAY_FIELDS refusal until the separate consumer audit, validate whole mixed envelopes before private projection, review source then fixtures, and qualify limits/faults/copied lifetime on Linux/Darwin. Flat declaration facts do not close full15f/488 or grant executable admission.
 

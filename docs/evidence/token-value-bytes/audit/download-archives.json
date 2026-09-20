@@ -1,0 +1,14 @@
+{
+  "nanolang-token-prior-puck.tar.gz": {
+    "path": "/tmp/nanolang-token-prior-puck.tar.gz",
+    "sha256": "e04953b77ccb4aca5a2a69255116c66dc069967a3cf2bb3cb89aee432d542f5d",
+    "bytes": 83194886,
+    "remote_hash_verified": true
+  },
+  "nanolang-token-final-puck.tar.gz": {
+    "path": "/tmp/nanolang-token-final-puck.tar.gz",
+    "sha256": "61cc818bbea412e9daba2f1a4e9373291d9c298330d9b725122f1d736bde7331",
+    "bytes": 25656489,
+    "remote_hash_verified": true
+  }
+}

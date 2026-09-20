@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "pin": "8856cfa0c34bed720d45967c373be3eb89a9ee6a",
+  "configs": [
+    "apple-ordinary"
+  ],
+  "all_input_pairs_equal": true
+}

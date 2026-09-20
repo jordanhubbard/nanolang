@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-token-corrected-7bf/src",
+    "/home/jkh/Src/nanolang-token-corrected-7bf/tests/test_fstring_lexer.c",
+    "/tmp/nanolang-token-7bf-linux/gcc-ordinary/nano-token-bytes-gnqab9xt/lexer.o",
+    "/tmp/nanolang-token-7bf-linux/gcc-ordinary/nano-token-bytes-gnqab9xt/utf8.o",
+    "/tmp/nanolang-token-7bf-linux/gcc-ordinary/nano-token-bytes-gnqab9xt/runtime-list_LexerToken.o",
+    "/tmp/nanolang-token-7bf-linux/gcc-ordinary/nano-token-bytes-gnqab9xt/runtime-list_token.o",
+    "/tmp/nanolang-token-7bf-linux/gcc-ordinary/nano-token-bytes-gnqab9xt/runtime-token_helpers.o",
+    "-o",
+    "/tmp/nanolang-token-7bf-linux/gcc-ordinary/nano-token-bytes-gnqab9xt/fstrings"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-token-corrected-7bf",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

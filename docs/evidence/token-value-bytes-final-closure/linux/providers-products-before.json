@@ -1,0 +1,12 @@
+{
+  "bin/nanoc_stage1": {
+    "sha256": "474718bc8c4c929615557a79f4a13352832443e8fdea5bdabe2ec5b308713f12",
+    "bytes": 17615440,
+    "archive": "/tmp/nanolang-token-final-linux/objects/474718bc8c4c929615557a79f4a13352832443e8fdea5bdabe2ec5b308713f12"
+  },
+  "bin/nanoc_stage2": {
+    "sha256": "75a45444c1178f53bcf591e6713490d51f6d32a9963160f72a78e05066736728",
+    "bytes": 11494864,
+    "archive": "/tmp/nanolang-token-final-linux/objects/75a45444c1178f53bcf591e6713490d51f6d32a9963160f72a78e05066736728"
+  }
+}

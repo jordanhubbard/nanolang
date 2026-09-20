@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-token-integration-51d/src",
+    "/home/jkh/Src/nanolang-token-integration-51d/tests/test_token_value_bytes.c",
+    "/tmp/nanolang-token-integration-linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/lexer.o",
+    "/tmp/nanolang-token-integration-linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/utf8.o",
+    "/tmp/nanolang-token-integration-linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/runtime-list_LexerToken.o",
+    "/tmp/nanolang-token-integration-linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/runtime-list_token.o",
+    "/tmp/nanolang-token-integration-linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/runtime-token_helpers.o",
+    "-o",
+    "/tmp/nanolang-token-integration-linux/gcc-ordinary/nano-token-bytes-ldmsgmd8/counts-c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-token-integration-51d",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

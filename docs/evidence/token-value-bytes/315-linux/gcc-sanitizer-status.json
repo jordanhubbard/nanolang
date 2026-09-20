@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_token_value_bytes.TokenValueBytes.test_c_counts_decoder_and_bridges"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 1.6171706559835002
+}

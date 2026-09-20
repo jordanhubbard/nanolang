@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-token-corrected-315/bin/nanoc_stage1",
+    "/private/tmp/nanolang-token-corrected-315/scripts/gen_compiler_schema.nano",
+    "-o",
+    "/private/tmp/nanolang-token-315-puck/apple-ordinary/nano-token-bytes-4alqau30/gen_compiler_schema-nanoc_stage1",
+    "--keep-c"
+  ],
+  "cwd": "/private/tmp/nanolang-token-corrected-315",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

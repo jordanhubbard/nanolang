@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "pin": "51d4bb83f9032d630bb2e04e7b4aedcf4552e29b",
+  "configs": [
+    "gcc-ordinary"
+  ],
+  "all_input_pairs_equal": true
+}

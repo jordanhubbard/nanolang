@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/private/tmp/nanolang-token-7bf-puck/apple-ordinary/nano-token-bytes-ygwebwa4/python-generator/scripts/gen_compiler_schema.py"
+  ],
+  "cwd": "/private/tmp/nanolang-token-corrected-7bf",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

@@ -1,0 +1,24 @@
+{
+  "root": "/home/jkh/Src/nanolang-token-integration-51d",
+  "report": "/tmp/nanolang-token-integration-linux",
+  "maps": {
+    "source": {
+      "map": "/tmp/nanolang-token-integration-linux/ordinary-adjacency-source-after.json",
+      "sha256": "f4a795bdddf491e6746807f6eedde83effa1f8639d5bbde96ad42654d23edaa3",
+      "count": 24085,
+      "mismatches": []
+    },
+    "tools": {
+      "map": "/tmp/nanolang-token-integration-linux/ordinary-adjacency-tools-after.json",
+      "sha256": "363461e9c063e6ec5eb4fd14fcac34f5c5ac227513764f60917f20e3dbee6e4b",
+      "count": 12,
+      "mismatches": []
+    },
+    "products": {
+      "map": "/tmp/nanolang-token-integration-linux/ordinary-adjacency-products-after.json",
+      "sha256": "effbfe4418e07194983693c5423acd910271b12356f74db6833787e7c3567e83",
+      "count": 824,
+      "mismatches": []
+    }
+  }
+}

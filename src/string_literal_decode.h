@@ -1,8 +1,32 @@
-/* I share existing source escape decoding without changing its byte contract. */
+/* I share source escape decoding and its complete byte count. */
 #ifndef NANOLANG_STRING_LITERAL_DECODE_H
 #define NANOLANG_STRING_LITERAL_DECODE_H
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+
+static inline bool nl_string_escape_byte(char code, char *out) {
+    switch (code) {
+        case 'n': *out = '\n'; return true;
+        case 't': *out = '\t'; return true;
+        case 'r': *out = '\r'; return true;
+        case '0': *out = '\0'; return true;
+        case '\\': case '\'': case '"': *out = code; return true;
+        default: return false;
+    }
+}
+
+static inline size_t nl_string_literal_value_bytes(const char *raw) {
+    size_t out = 0;
+    for (size_t i = 0; raw[i]; i++) {
+        char byte;
+        if (raw[i] == '\\' && raw[i + 1] &&
+            nl_string_escape_byte(raw[i + 1], &byte)) i++;
+        else if (raw[i] == '\\' && raw[i + 1]) { i++; out++; }
+        out++;
+    }
+    return out;
+}
 
 static inline char *nl_decode_string_literal(const char *raw) {
     size_t len = strlen(raw);
@@ -10,21 +34,14 @@ static inline char *nl_decode_string_literal(const char *raw) {
     if (!buf) return NULL;
     size_t out = 0;
     for (size_t i = 0; i < len; i++) {
-        if (raw[i] == '\\' && i + 1 < len) {
-            i++;
-            switch (raw[i]) {
-                case 'n':  buf[out++] = '\n'; break;
-                case 't':  buf[out++] = '\t'; break;
-                case 'r':  buf[out++] = '\r'; break;
-                case '0':  buf[out++] = '\0'; break;
-                case '\\': buf[out++] = '\\'; break;
-                case '\'': buf[out++] = '\''; break;
-                case '"':  buf[out++] = '"';  break;
-                default:   buf[out++] = '\\'; buf[out++] = raw[i]; break;
+        char byte = raw[i];
+        if (byte == '\\' && i + 1 < len) {
+            char code = raw[++i];
+            if (!nl_string_escape_byte(code, &byte)) {
+                buf[out++] = '\\'; byte = code;
             }
-        } else {
-            buf[out++] = raw[i];
         }
+        buf[out++] = byte;
     }
     buf[out] = '\0';
     return buf;

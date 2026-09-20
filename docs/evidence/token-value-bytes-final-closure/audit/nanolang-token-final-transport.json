@@ -1,0 +1,15 @@
+{
+  "source_pin": "8856cfa0c34bed720d45967c373be3eb89a9ee6a",
+  "source_archive": "/tmp/nanolang-token-final-885.tar",
+  "sha256": "37f4e0b852bb56a81d1f51b8388e462142dabb8f83eedd3305ec8537fbd996a0",
+  "bytes": 3401410560,
+  "remote_sha256": "37f4e0b852bb56a81d1f51b8388e462142dabb8f83eedd3305ec8537fbd996a0",
+  "fresh_providers": true,
+  "retained_compilers": "d4f Stage1/2 exact only; see retained-stages.json",
+  "puck_report_archive": {
+    "path": "/tmp/nanolang-token-final-puck.tar.gz",
+    "sha256": "10f979825a286f32d9c71189ff94f00f4979347a790a735e5bf9c56be052c86e",
+    "bytes": 16226202,
+    "remote_hash_verified": true
+  }
+}

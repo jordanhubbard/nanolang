@@ -1,0 +1,42 @@
+{
+  "pin": "30340f0ac",
+  "platform": "linux",
+  "configs": [
+    [
+      "gcc-ordinary",
+      "/usr/bin/gcc",
+      [],
+      false,
+      true
+    ],
+    [
+      "clang-ordinary",
+      "/usr/local/bin/clang",
+      [
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      false,
+      true
+    ],
+    [
+      "gcc-sanitizer",
+      "/usr/bin/gcc",
+      [],
+      true,
+      false
+    ],
+    [
+      "clang-sanitizer",
+      "/usr/local/bin/clang",
+      [
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      true,
+      false
+    ]
+  ],
+  "source_count": 18170,
+  "source_scope": "all tracked files at the frozen pin",
+  "sanitizer_scope": "fresh five C providers and C fixture/bridge inclusion only; ordinary generated Nano products",
+  "tool_scope": "explicit drivers, selected subtools, sanitizer libraries and Darwin ffi headers/library; not complete transitive system toolchain"
+}

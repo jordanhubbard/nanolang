@@ -1,0 +1,46 @@
+{
+  "origin_pin": "d4fe65e93baa2bb03b88c6dbc587ec41ea8eb52a",
+  "origin_root": "/home/jkh/Src/nanolang-token-union-d4f",
+  "origin_report": "/tmp/nanolang-token-union-linux",
+  "new_root": "/home/jkh/Src/nanolang-token-final-885",
+  "copied": {
+    "bin/nanoc_stage1": {
+      "sha256": "474718bc8c4c929615557a79f4a13352832443e8fdea5bdabe2ec5b308713f12",
+      "bytes": 17615440,
+      "archive": "/tmp/nanolang-token-union-linux/objects/474718bc8c4c929615557a79f4a13352832443e8fdea5bdabe2ec5b308713f12"
+    },
+    "bin/nanoc_stage2": {
+      "sha256": "75a45444c1178f53bcf591e6713490d51f6d32a9963160f72a78e05066736728",
+      "bytes": 11494864,
+      "archive": "/tmp/nanolang-token-union-linux/objects/75a45444c1178f53bcf591e6713490d51f6d32a9963160f72a78e05066736728"
+    }
+  },
+  "graphs": {
+    "token_value_bytes-expected-selection.json": {
+      "sha256": "e71e3daafcca1747b6af7152b9833ccdad118f807bb77b709f4c58bc35390c6d",
+      "inputs": {
+        "tests/token_value_bytes.nano": "251be1bcda41b9a4584f7c70a506be0102878d288253bcfb0e8128f90ec1e951",
+        "src_nano/compiler/lexer.nano": "25cd72d1113349d30dc166c6ce3c0c3098f2637200fbd969c39d2ce89afe5e9c",
+        "src_nano/compiler/ir.nano": "7653770323b30a7739443faf5f4f17cb3a803fa2345c2f7ad7411b917ca8b506",
+        "src_nano/generated/compiler_schema.nano": "a181f89e881e477dab5806b2e7a6ab9933dd56d12a99b94d08a339b70b350060",
+        "src_nano/generated/compiler_ast.nano": "54f0f08525a27b4546b3caade4958ee713d88385701764643682a1371ce74c95",
+        "src_nano/generated/compiler_contracts.nano": "24ba702464b62046d72d0c35bd43febb2e20a677b3abc712bc7c011fdcabc416",
+        "src_nano/ast_shared.nano": "abdbe08761ff5805ae31a8eccbd84bbe9362ecf06905917795502a9aafd012c9",
+        "src_nano/compiler/token_value_bytes.nano": "20acb072e9f4b082b7039d28f47e5cd511eed6c76e9b39c31fb60ee97d9d1158",
+        "src_nano/compiler/diagnostics.nano": "45f6f1454e35debf417eb8b2ccc66105a3a52fdf4976a897980d33fe1833d771",
+        "modules/std/fs.nano": "880b6f90a43f5ac903736af74fd0ceccdf07ebb92a839eabd54c7fb62e8ead43"
+      },
+      "selected": 76
+    },
+    "gen_compiler_schema-expected-selection.json": {
+      "sha256": "b27a0ef68464f6e83e053f7c1879ae9164d3b16a0c388b202e847243331fed72",
+      "inputs": {
+        "scripts/gen_compiler_schema.nano": "13a75d41ca4fdd7eadadc226aa3631125a299c830d86501576f77bad119539f6",
+        "modules/std/fs.nano": "880b6f90a43f5ac903736af74fd0ceccdf07ebb92a839eabd54c7fb62e8ead43",
+        "modules/std/json/json.nano": "6a17c98bd5725c3430027fa6581b134e42d4d3df2da4923e7e2c573b202379fb"
+      },
+      "selected": 63
+    }
+  },
+  "nano_schema_module_inputs": 507
+}

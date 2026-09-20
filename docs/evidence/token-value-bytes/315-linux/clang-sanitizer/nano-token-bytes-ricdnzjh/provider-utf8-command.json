@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-token-corrected-315/src",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-c",
+    "/home/jkh/Src/nanolang-token-corrected-315/src/utf8.c",
+    "-o",
+    "/tmp/nanolang-token-315-linux/clang-sanitizer/nano-token-bytes-ricdnzjh/utf8.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-token-corrected-315",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

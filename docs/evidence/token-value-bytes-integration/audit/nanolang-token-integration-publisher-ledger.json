@@ -1,0 +1,11 @@
+{
+  "checksum": "12ba9f215692d761adb6151eefe446b21a8a9941f7753a2fcc81484e16b9ffe8",
+  "created_at": "2026-09-20T10:17:56.974188+00:00",
+  "created_by": "release_audit",
+  "id": "ev_7f8d854c4d48473fb3a266a7584c83ae",
+  "kind": "publication",
+  "metadata": {},
+  "summary": "I retain actual publisher merge0061feed573ad7e4cac2a9e61d5ed38f0fb62440 and original seal plus44 selected/25 incoming identities. Checksum identifies committed static integration JSON. Only bounded publisher review/implementation/filesystem rows are reconciled in PR911 integration51d4bb83f; paired source and full File parents remain open. Fresh both-host token ABI bootstraps are running, with no integrated acceptance claimed yet.",
+  "task_id": "task_8bbc1cf5295b4b59b314640ef57c725f",
+  "uri": "https://github.com/jordanhubbard/nanolang/pull/908"
+}
