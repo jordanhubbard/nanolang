@@ -20,14 +20,14 @@ Token *tokenize_nano(const char *source, int *token_count) {
     /* Call the nanolang lexer */
     List_LexerToken *token_list = nl_tokenize(source);
     
-    if (!token_list || token_list->length == 0) {
+    if (!token_list || nl_list_LexerToken_length(token_list) == 0) {
         if (token_list) nl_list_LexerToken_free(token_list);
         *token_count = 0;
         return NULL;
     }
     
     /* Allocate Token array */
-    int count = token_list->length;
+    int count = nl_list_LexerToken_length(token_list);
     Token *tokens = malloc(sizeof(Token) * count);
     
     if (!tokens) {
