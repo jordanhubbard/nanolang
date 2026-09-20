@@ -12857,3 +12857,5 @@ new fixtures and no publisher/CLI operation has been executed.
 
 - [ ] I correct the static8b495 publisher Make contract mismatch before fixtures: its link recipe forwards CPPFLAGS, but reused generic object compilation does not. I give this explicit tool a scoped object directory and compile recipe preserving CC/CPPFLAGS/CFLAGS, without changing default provider rules or reusing differently configured objects.
 - [ ] I reconcile the publisher EINTR wording before fixtures: current comparisons permit64 retries and make the65th interruption terminal; the contract incorrectly says64 total interruptions. I retain that bounded implementation and pin64-retry/65th-failure controls for read/write/fsync, with close never retried. No execution failure is inferred from this static finding.
+
+- [ ] I complete the statically reviewed publisher Make dependency closure: `nsi_file_plan.c` also includes `nsi_file_catalog.h` and `nsi_cap.h`, which6e39 omitted from the scoped header list. I add both before fixtures; no measured stale build or runtime failure is claimed.
