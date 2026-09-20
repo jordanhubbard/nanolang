@@ -1,0 +1,5 @@
+{
+  "source_pin": "83b04f11c",
+  "returncode": -6,
+  "diagnostic_wrapper": "Global pointer references obsolete fixture allocator to retain it without executing it or disabling warnings; unchanged fixture assertions and baseline reader"
+}

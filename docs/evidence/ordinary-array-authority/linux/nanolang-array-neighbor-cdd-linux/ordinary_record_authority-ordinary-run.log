@@ -1,0 +1,1 @@
+ordinary_record_authority-ordinary: tests/nanoisa/test_ordinary_record_authority.c:47: invalid: Assertion `nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK && !needs' failed.

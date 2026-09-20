@@ -15,7 +15,7 @@ static bool ownership_version(uint32_t version) {
 }
 
 static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *flags,
-                                bool *needs) {
+                                bool *needs, bool array_fields) {
     bool resource_table = false;
     for (uint32_t i = 0; i < layouts->count; i++)
         if (flags[i] & NVM_LAYOUT_RESOURCE) resource_table = true;
@@ -39,6 +39,8 @@ static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *fla
             const NvmV2LayoutField *field = &layout->fields[j];
             if (scalar(field->type_tag) || field->type_tag == TAG_STRING) {
                 if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_SECTION_TYPE;
+            } else if (array_fields && field->type_tag == TAG_ARRAY && !(flag & NVM_LAYOUT_RESOURCE)) {
+                if (field->nested_idx != NVM_V2_NO_INDEX) return NVM_V2_ERR_SECTION_TYPE;
             } else if (field->type_tag == TAG_STRUCT && field->nested_idx < layouts->count &&
                        (!resource_table || field->nested_idx < i)) {
                 unsigned nested = flags[field->nested_idx];
@@ -56,7 +58,7 @@ static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *fla
 
 static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,
                                const uint8_t *flags, uint32_t version, bool parameter,
-                               int signature_tag, bool *needs) {
+                               int signature_tag, bool *needs, bool *ambiguous) {
     uint8_t tag, mode;
     uint16_t reserved;
     uint32_t layout;
@@ -83,8 +85,10 @@ static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,
         if (layout == NVM_V2_NO_INDEX || !(flags[layout] & NVM_LAYOUT_RESOURCE))
             return NVM_V2_ERR_SECTION_TYPE;
         NvmReferencePlace place = {1, 0, layout, NULL, 0, layout, (NvmReferenceMode)mode};
-        if (!nvm_reference_place_valid(layouts, layout, &place))
+        if (!nvm_reference_place_valid(layouts, layout, &place)) {
+            if (ambiguous) *ambiguous=true;
             return NVM_V2_ERR_SECTION_TYPE;
+        }
         *needs = true;
     }
     return NVM_V2_OK;
@@ -284,18 +288,12 @@ static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
     return NVM_V2_OK;
 }
 
-NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
-                                            bool *requires_verifier) {
-    if (!module || !requires_verifier) return NVM_V2_ERR_INDEX_RANGE;
-    *requires_verifier = false;
-    if (!module->ownership_size)
-        return module->ownership_data ? NVM_V2_ERR_SECTION_RANGE : NVM_V2_OK;
-    if (!module->ownership_data || !module->layout_size ||
-        !nvm_retained_layouts_valid(module)) return NVM_V2_ERR_SECTION_TYPE;
-    NvmV2Layouts layouts = {0};
-    NvmV2Result result = nvm_v2_layouts_decode(module->layout_data,
-                                             module->layout_size, &layouts);
-    if (result != NVM_V2_OK) return result;
+#include "ownership_array_fields.inc"
+static NvmV2Result ownership_validate_owned(const NvmModule *module,
+        const NvmV2Layouts *layouts,bool *requires_verifier,
+        NvmOrdinaryArrayAuthority *private_plan) {
+    NvmV2Result result;
+    bool ambiguous=false;
     NvmV2Cursor cursor;
     nvm_v2_cursor_init(&cursor, module->ownership_data, module->ownership_size);
     uint32_t version, count;
@@ -304,11 +302,12 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
     if ((result = nvm_v2_u32(&cursor, &version)) != NVM_V2_OK ||
         (result = nvm_v2_u32(&cursor, &count)) != NVM_V2_OK) goto done;
     if (!ownership_version(version)) { result = NVM_V2_ERR_FORMAT_VERSION; goto done; }
-    if (count != layouts.count) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
+    if (count != layouts->count) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
     if ((result = nvm_v2_take(&cursor, count, &flags)) != NVM_V2_OK ||
         (result = nvm_v2_align4(&cursor)) != NVM_V2_OK ||
-        (result = check_layouts(&layouts, flags, &needs)) != NVM_V2_OK ||
+        (result = check_layouts(layouts, flags, &needs, private_plan!=NULL)) != NVM_V2_OK ||
         (result = nvm_v2_u32(&cursor, &count)) != NVM_V2_OK) goto done;
+    if (private_plan) for (uint32_t i=0;i<layouts->count;i++) private_plan->flags[i]=flags[i];
     if (count != module->function_count || (count && !module->functions)) {
         result = NVM_V2_ERR_INDEX_RANGE; goto done;
     }
@@ -320,13 +319,13 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
         if (locals != function->local_count || params != function->arity || params > locals ||
             function->result_count > 1) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
         int return_tag = function->result_count ? function->result_tag : TAG_VOID;
-        if ((result = descriptor(&cursor, &layouts, flags, version, false, return_tag, &needs))
+        if ((result = descriptor(&cursor, layouts, flags, version, false, return_tag, &needs, private_plan?&ambiguous:NULL))
             != NVM_V2_OK) goto done;
         for (uint16_t local = 0; local < locals; local++) {
             int tag = -1;
             if (local < params) tag = module->function_param_types &&
                 module->function_param_types[i] ? module->function_param_types[i][local] : TAG_VOID;
-            if ((result = descriptor(&cursor, &layouts, flags, version, local < params, tag, &needs))
+            if ((result = descriptor(&cursor, layouts, flags, version, local < params, tag, &needs, private_plan?&ambiguous:NULL))
                 != NVM_V2_OK) goto done;
         }
     }
@@ -343,18 +342,35 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
         if (extensions.union_variants.data) {
             NvmV2Cursor unions;nvm_v2_cursor_init(&unions,extensions.union_variants.data,
                                                   extensions.union_variants.size);
-            if ((result=union_facts_read(&unions,module,&layouts,NVM_V2_NO_INDEX,0,NULL))
+            if ((result=union_facts_read(&unions,module,layouts,NVM_V2_NO_INDEX,0,NULL))
                 !=NVM_V2_OK) goto done;
             needs=true;
         }
-        /* ARRAY_FIELDS has a reserved shared kind, but its independent checked
-         * payload validator has not landed. Mandatory understanding refuses it
-         * instead of projecting the already-understood union half. */
-        if (extensions.array_fields.data) { result=NVM_V2_ERR_FORMAT_VERSION;goto done; }
+        if (extensions.array_fields.data) {
+            if (!private_plan) { result=NVM_V2_ERR_FORMAT_VERSION;goto done; }
+            if ((result=oaa_array_fields(extensions.array_fields,private_plan))!=NVM_V2_OK) goto done;
+        }
     }
     if (cursor.pos != cursor.size) { result = NVM_V2_ERR_SECTION_RANGE; goto done; }
     *requires_verifier = needs;
 done:
+    if (private_plan && ambiguous) private_plan->failure=NVM_OAA_UNKNOWN;
+    return result;
+}
+
+NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
+                                            bool *requires_verifier) {
+    if (!module || !requires_verifier) return NVM_V2_ERR_INDEX_RANGE;
+    *requires_verifier = false;
+    if (!module->ownership_size)
+        return module->ownership_data ? NVM_V2_ERR_SECTION_RANGE : NVM_V2_OK;
+    if (!module->ownership_data || !module->layout_size ||
+        !nvm_retained_layouts_valid(module)) return NVM_V2_ERR_SECTION_TYPE;
+    NvmV2Layouts layouts = {0};
+    NvmV2Result result = nvm_v2_layouts_decode(module->layout_data,
+                                             module->layout_size, &layouts);
+    if (result != NVM_V2_OK) return result;
+    result=ownership_validate_owned(module,&layouts,requires_verifier,NULL);
     nvm_v2_layouts_free(&layouts);
     return result;
 }
@@ -450,3 +466,5 @@ NvmV2Result nvm_ownership_layout_authorities(const NvmModule *module, uint32_t c
              NVM_LAYOUT_AUTHORITY_ORDINARY) : NVM_LAYOUT_AUTHORITY_UNKNOWN;
     return NVM_V2_OK;
 }
+
+#include "ordinary_array_authority.inc"

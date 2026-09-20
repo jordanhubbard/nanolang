@@ -1,0 +1,48 @@
+{
+  "archive_files": 289,
+  "archive_reports": 101,
+  "archive_sha256": "d370d6d01073fbb6ce1a0dbb674898297f46b34e288c81f579b7e3bcc095d97c",
+  "cas_bytes": 103174064,
+  "cas_objects": 357,
+  "corrected_git_reports": 194,
+  "current": {
+    "linux": {
+      "mismatches": 0,
+      "products": 163,
+      "sources": 23181,
+      "tools": 10
+    },
+    "puck": {
+      "mismatches": 0,
+      "products": 172,
+      "sources": 23181,
+      "tools": 13
+    }
+  },
+  "git_reports": 185,
+  "limits": [
+    "Ordinary integration only; original seven compiler configurations retain original pins and stated Python/tool attribution limits.",
+    "No array runtime/source admission or complete mixed-envelope projection claim.",
+    "No full SDK/OS or transitive toolchain immutability claim."
+  ],
+  "original_missing_reports_retained": [
+    "nanolang-array-d74-puck/controls/nvm_v2_convert-ordinary.dSYM/Contents/Info.plist",
+    "nanolang-array-d74-puck/controls/nvm_v2_convert-ordinary.dSYM/Contents/Resources/DWARF/nvm_v2_convert-ordinary",
+    "nanolang-array-d74-puck/controls/nvm_v2_convert-ordinary.dSYM/Contents/Resources/Relocations/aarch64/nvm_v2_convert-ordinary.yml",
+    "nanolang-array-d74-puck/controls/nvm_v2_endtoend-ordinary.dSYM/Contents/Info.plist",
+    "nanolang-array-d74-puck/controls/nvm_v2_endtoend-ordinary.dSYM/Contents/Resources/DWARF/nvm_v2_endtoend-ordinary",
+    "nanolang-array-d74-puck/controls/nvm_v2_endtoend-ordinary.dSYM/Contents/Resources/Relocations/aarch64/nvm_v2_endtoend-ordinary.yml",
+    "nanolang-array-d74-puck/controls/ordinary_record_authority-ordinary.dSYM/Contents/Info.plist",
+    "nanolang-array-d74-puck/controls/ordinary_record_authority-ordinary.dSYM/Contents/Resources/DWARF/ordinary_record_authority-ordinary",
+    "nanolang-array-d74-puck/controls/ordinary_record_authority-ordinary.dSYM/Contents/Resources/Relocations/aarch64/ordinary_record_authority-ordinary.yml"
+  ],
+  "pairs": 36,
+  "phases_pass": 18,
+  "publication_correction_head": "fe2985d9cbd9c11e19904335f1224df4d892eb41",
+  "references": 5542,
+  "retained_reports": 194,
+  "seal_pin": "16a59e09f",
+  "source_git_checks": 1934,
+  "source_pin": "d74a643f0d490c8f2227d467155d29af438cdb63",
+  "status": "PASS_AFTER_EXACT_GIT_PUBLICATION_CORRECTION"
+}

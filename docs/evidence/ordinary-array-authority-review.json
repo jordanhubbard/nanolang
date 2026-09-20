@@ -1,0 +1,211 @@
+{
+  "pin": "49f3d9f0b2c11119e09d16d719f13aca281cd0a3",
+  "report_git_blobs": 563,
+  "cas_objects": 893,
+  "cas_bytes": 301726476,
+  "artifact_references": 7156,
+  "equal_source_tool_pairs": 86,
+  "puck_archive": {
+    "path": "/tmp/nanolang-ordinary-array-puck-seal-v2.tar.gz",
+    "sha256": "10ab440c7fb6599a10568e8b097945fd54f8ba44d39ae3aba6ff3bff7ed9ecf9",
+    "objects": 380,
+    "reports": 238
+  },
+  "qualified_source_correspondence": [
+    {
+      "host": "linux",
+      "root": "nanolang-array-neighbor-2a30-linux",
+      "pin": "2a30d68e2",
+      "entries": 11671,
+      "symlink_exclusions": []
+    },
+    {
+      "host": "linux",
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "pin": "ef4500e40",
+      "entries": 11671,
+      "symlink_exclusions": []
+    },
+    {
+      "host": "linux",
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "pin": "cdd600074",
+      "entries": 11671,
+      "symlink_exclusions": []
+    },
+    {
+      "host": "puck",
+      "root": "nanolang-ordinary-array-ef450-puck",
+      "pin": "ef4500e40",
+      "entries": 11671,
+      "symlink_exclusions": []
+    },
+    {
+      "host": "puck",
+      "root": "nanolang-array-neighbor-2a30-puck",
+      "pin": "2a30d68e2",
+      "entries": 11671,
+      "symlink_exclusions": []
+    }
+  ],
+  "query_matrix": [
+    {
+      "host": "linux",
+      "phase": "ordinary",
+      "linked": 463,
+      "instrumented": 2397,
+      "allocation_positions": 8
+    },
+    {
+      "host": "linux",
+      "phase": "sanitizer",
+      "linked": 463,
+      "instrumented": 2397,
+      "allocation_positions": 8
+    },
+    {
+      "host": "linux",
+      "phase": "clang-ordinary",
+      "linked": 463,
+      "instrumented": 2397,
+      "allocation_positions": 8
+    },
+    {
+      "host": "linux",
+      "phase": "clang-sanitizer",
+      "linked": 463,
+      "instrumented": 2397,
+      "allocation_positions": 8
+    },
+    {
+      "host": "puck",
+      "phase": "ordinary",
+      "linked": 463,
+      "instrumented": 2397,
+      "allocation_positions": 8
+    },
+    {
+      "host": "puck",
+      "phase": "clang-ordinary",
+      "linked": 463,
+      "instrumented": 2397,
+      "allocation_positions": 8
+    },
+    {
+      "host": "puck",
+      "phase": "sanitizer",
+      "linked": 463,
+      "instrumented": 2397,
+      "allocation_positions": 8
+    }
+  ],
+  "corrected_neighbors": [
+    {
+      "host": "linux",
+      "phase": "ordinary_record_authority-ordinary-run",
+      "checks": 252
+    },
+    {
+      "host": "linux",
+      "phase": "ordinary_record_authority-sanitizer-run",
+      "checks": 252
+    },
+    {
+      "host": "linux",
+      "phase": "nvm_v2_convert-ordinary-run",
+      "checks": 365
+    },
+    {
+      "host": "linux",
+      "phase": "nvm_v2_endtoend-ordinary-run",
+      "checks": 20
+    },
+    {
+      "host": "puck",
+      "phase": "ordinary_record_authority-ordinary-run",
+      "checks": 252
+    },
+    {
+      "host": "puck",
+      "phase": "ordinary_record_authority-sanitizer-run",
+      "checks": 252
+    },
+    {
+      "host": "puck",
+      "phase": "nvm_v2_convert-ordinary-run",
+      "checks": 365
+    },
+    {
+      "host": "puck",
+      "phase": "nvm_v2_endtoend-ordinary-run",
+      "checks": 20
+    }
+  ],
+  "preserved_gate_failures": [
+    {
+      "host": "linux",
+      "root": "nanolang-ordinary-array-ef450-linux",
+      "phase": "ordinary_record_authority-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": -6,
+      "timeout": false
+    },
+    {
+      "host": "linux",
+      "root": "nanolang-array-neighbor-cdd-linux",
+      "phase": "ordinary_record_authority-ordinary-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": -6,
+      "timeout": false
+    },
+    {
+      "host": "puck",
+      "root": "nanolang-ordinary-array-ef450-puck",
+      "phase": "ordinary_record_authority-run-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": -6,
+      "timeout": false
+    }
+  ],
+  "historical_linux_actual_python_hash": false,
+  "scope": "Independent read-only Git/CAS/archive/maps/source/terminal audit including live Linux and puck rehash; no gates rerun.",
+  "live_current": {
+    "linux": {
+      "checked": 35020,
+      "bytes": 3253070685,
+      "mismatches": []
+    },
+    "puck": {
+      "checked": 23351,
+      "bytes": 2010482221,
+      "mismatches": []
+    }
+  },
+  "baseline_current_source_identity": {
+    "src/nanoisa/nvm_v2_layouts.c": "91ccaed95d17ba63eda88c926b9427ce10df85d4a95cbb0801c5a4bb6ecd1efd",
+    "src/nanoisa/ownership_contracts.c": "69374bb92988f6009129c824b02f5b4022c54b634793b59c59b4ed9feb5d92f6",
+    "tests/nanoisa/test_ordinary_record_authority.c": "6b035a2b708ba7b5807277248a3fbcbde793d37ca3ba92adff83b30ef63a6771"
+  },
+  "limits": [
+    "Original Linux actual /usr/bin/python3 historical hash absent; PATH Python inventory is not that interpreter.",
+    "Darwin Apple ordinary tool inventory hashes /usr/bin/clang launcher; Xcode compiler installed directory/version and SDK version recorded, not complete Xcode/SDK content hash.",
+    "Sanitizers cover freshly compiled query/fixture sources; linked common ISA objects are ordinary.",
+    "Baseline assertion failures are reproduced and preserved; corrected neighbors are distinct later fixture evidence.",
+    "Query-only descriptive authority, no runtime/source/complete-release acceptance."
+  ]
+}
