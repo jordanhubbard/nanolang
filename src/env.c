@@ -656,6 +656,24 @@ static bool module_string_list_contains(char **items, int count, const char *nam
     return false;
 }
 
+static NominalIdentity generated_list_element(Environment *env, const Function *function) {
+    for (int i = 0; env && function && i < env->generic_instance_count; ++i) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        if (!inst->list_element.ordinal) continue;
+        for (size_t j = 0; j < 4; ++j) {
+            size_t ordinal = inst->list_functions[j];
+            if (ordinal && ordinal <= (size_t)env->function_count &&
+                &env->functions[ordinal - 1] == function) return inst->list_element;
+        }
+    }
+    return (NominalIdentity){TYPE_UNKNOWN, 0};
+}
+
+const char *env_function_signature_owner(Environment *env, const Function *function) {
+    NominalIdentity element = generated_list_element(env, function);
+    return element.ordinal ? env_nominal_owner(env, element) : function ? function->module_name : NULL;
+}
+
 /* Define function */
 void env_define_function(Environment *env, Function func) {
     if (env->function_count >= env->function_capacity) {
@@ -768,6 +786,23 @@ Function *env_get_function(Environment *env, const char *name) {
 
             return &func_cache[i];
         }
+    }
+
+    /* A generated list declaration never replaces a real declaration. */
+    bool generated_name = false;
+    for (int i = 0; i < env->function_count; ++i)
+        if (env->functions[i].name && !strcmp(env->functions[i].name, name) &&
+            generated_list_element(env, &env->functions[i]).ordinal) generated_name = true;
+    if (generated_name) {
+        Function *fallback = NULL;
+        for (int i = 0; i < env->function_count; ++i) {
+            Function *fn = &env->functions[i];
+            if (!fn->name || strcmp(fn->name, name) || generated_list_element(env, fn).ordinal) continue;
+            if ((!fn->module_name && !env->current_module) ||
+                (fn->module_name && env->current_module && !strcmp(fn->module_name, env->current_module))) return fn;
+            if (!fallback) fallback = fn;
+        }
+        if (fallback) return fallback;
     }
 
     /* Check user-defined functions */
@@ -979,7 +1014,7 @@ static bool nominal_owner_equal(const char *a, const char *b) {
 NominalIdentity env_nominal_identity(Environment *env, const char *name,
                                      const char *owner, Type kind) {
     NominalIdentity none = {TYPE_UNKNOWN, 0};
-    if (!env || !name || !*name || (kind != TYPE_STRUCT && kind != TYPE_ENUM)) return none;
+    if (!env || !name || !*name || (kind != TYPE_STRUCT && kind != TYPE_ENUM && kind != TYPE_UNION)) return none;
     const char *declaration_name = name;
     const char *declaration_owner = owner;
     const char *dot = strchr(name, '.');
@@ -996,8 +1031,8 @@ NominalIdentity env_nominal_identity(Environment *env, const char *name,
         }
         if (!found || !dot[1]) return none;
         bool exported = false;
-        int count = kind == TYPE_STRUCT ? found->struct_count : found->enum_count;
-        char **names = kind == TYPE_STRUCT ? found->struct_names : found->enum_names;
+        int count = kind == TYPE_STRUCT ? found->struct_count : kind == TYPE_ENUM ? found->enum_count : found->union_count;
+        char **names = kind == TYPE_STRUCT ? found->struct_names : kind == TYPE_ENUM ? found->enum_names : found->union_names;
         for (int i = 0; names && i < count; ++i)
             if (names[i] && !strcmp(names[i], dot + 1)) exported = true;
         if (!exported) return none;
@@ -1005,11 +1040,11 @@ NominalIdentity env_nominal_identity(Environment *env, const char *name,
         declaration_name = dot + 1;
     }
     NominalIdentity result = none;
-    int count = kind == TYPE_STRUCT ? env->struct_count : env->enum_count;
+    int count = kind == TYPE_STRUCT ? env->struct_count : kind == TYPE_ENUM ? env->enum_count : env->union_count;
     for (int i = 0; i < count; ++i) {
-        const char *actual = kind == TYPE_STRUCT ? env->structs[i].name : env->enums[i].name;
+        const char *actual = kind == TYPE_STRUCT ? env->structs[i].name : kind == TYPE_ENUM ? env->enums[i].name : env->unions[i].name;
         const char *original = kind == TYPE_STRUCT ? env->structs[i].original_name : NULL;
-        const char *module = kind == TYPE_STRUCT ? env->structs[i].module_name : env->enums[i].module_name;
+        const char *module = kind == TYPE_STRUCT ? env->structs[i].module_name : kind == TYPE_ENUM ? env->enums[i].module_name : env->unions[i].module_name;
         bool local = nominal_owner_equal(module, declaration_owner);
         bool spelling = actual && !strcmp(actual, declaration_name);
         /* A distinct canonical mangled name already names its owner. I never
@@ -1030,13 +1065,16 @@ const char *env_nominal_name(Environment *env, NominalIdentity identity) {
         return env->structs[identity.ordinal - 1].name;
     if (identity.kind == TYPE_ENUM && identity.ordinal <= (size_t)env->enum_count)
         return env->enums[identity.ordinal - 1].name;
+    if (identity.kind == TYPE_UNION && identity.ordinal <= (size_t)env->union_count)
+        return env->unions[identity.ordinal - 1].name;
     return NULL;
 }
 
 const char *env_nominal_owner(Environment *env, NominalIdentity identity) {
     if (!env_nominal_name(env, identity)) return NULL;
     return identity.kind == TYPE_STRUCT ? env->structs[identity.ordinal - 1].module_name
-                                      : env->enums[identity.ordinal - 1].module_name;
+                                      : identity.kind == TYPE_ENUM ? env->enums[identity.ordinal - 1].module_name
+                                      : env->unions[identity.ordinal - 1].module_name;
 }
 
 /* I test declaration identity without importing another module's fallback. */
@@ -1385,19 +1423,20 @@ OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name) {
 }
 
 /* Register a list instantiation for code generation */
-void env_register_list_instantiation(Environment *env, const char *element_type) {
+bool env_register_list_instantiation(Environment *env, const char *element_type) {
     NominalIdentity identity = env_nominal_identity(env, element_type, env->current_module, TYPE_STRUCT);
     /* This incremental implicit route requires a concrete ordinary record. */
-    if (!identity.ordinal) return;
+    if (!identity.ordinal) return false;
     element_type = env_nominal_name(env, identity);
-    const char *element_owner = env_nominal_owner(env, identity);
+    if (strlen(element_type) > 256 - sizeof("List_")) return false;
     /* Check if already registered */
     for (int i = 0; i < env->generic_instance_count; i++) {
         GenericInstantiation *inst = &env->generic_instances[i];
         if (safe_strcmp(inst->generic_name, "List") == 0 &&
             inst->type_arg_names && 
             safe_strcmp(inst->type_arg_names[0], element_type) == 0) {
-            return;  /* Already registered */
+            return inst->list_element.kind == identity.kind &&
+                   inst->list_element.ordinal == identity.ordinal;
         }
     }
     
@@ -1409,6 +1448,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     }
     
     GenericInstantiation inst = {0};
+    inst.list_element = identity;
     inst.generic_name = strdup("List");
     inst.type_arg_count = 1;
     inst.type_args = malloc(sizeof(Type));
@@ -1421,7 +1461,8 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     snprintf(specialized, sizeof(specialized), "List_%s", element_type);
     inst.concrete_name = strdup(specialized);
     
-    env->generic_instances[env->generic_instance_count++] = inst;
+    int instance_index = env->generic_instance_count++;
+    env->generic_instances[instance_index] = inst;
     
     /* Register specialized functions in environment for type checking */
     char func_name[512];  /* Increased to handle long type names + suffixes */
@@ -1431,10 +1472,9 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     Parameter *params;
 
     func.is_extern = true;
-    /* Generated operations carry the element annotation's owner. They have no
-     * private user body; ordinary source visibility still resolves the record. */
-    func.is_pub = true;
-    func.module_name = element_owner ? env_own_checker_allocation(env, strdup(element_owner)) : NULL;
+    /* Annotation ownership is separate from source visibility and lookup. */
+    func.is_pub = false;
+    func.module_name = NULL;
     
     /* List_T_new() -> List<T>* */
     snprintf(func_name, sizeof(func_name), "%s_new", specialized);
@@ -1447,6 +1487,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.return_type_info = NULL;
     func.body = NULL;  /* Built-in */
     func.shadow_test = NULL;
+    env->generic_instances[instance_index].list_functions[0] = (size_t)env->function_count + 1;
     env_define_function(env, func);
     
     /* List_T_push(list: List<T>*, value: T) -> void */
@@ -1468,6 +1509,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
+    env->generic_instances[instance_index].list_functions[1] = (size_t)env->function_count + 1;
     env_define_function(env, func);
     
     /* List_T_get(list: List<T>*, index: int) -> T */
@@ -1489,6 +1531,7 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
+    env->generic_instances[instance_index].list_functions[2] = (size_t)env->function_count + 1;
     env_define_function(env, func);
     
     /* List_T_length(list: List<T>*) -> int */
@@ -1508,7 +1551,9 @@ void env_register_list_instantiation(Environment *env, const char *element_type)
     func.body = NULL;
     func.shadow_test = NULL;
     func.is_extern = true;
+    env->generic_instances[instance_index].list_functions[3] = (size_t)env->function_count + 1;
     env_define_function(env, func);
+    return true;
 }
 
 /* Register a HashMap<K,V> instantiation for code generation

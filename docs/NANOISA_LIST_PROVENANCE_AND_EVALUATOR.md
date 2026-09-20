@@ -228,3 +228,52 @@ fixture. Full consumer audit, legal import/alias controls, generated declaration
 collision controls, inferred metadata replay and every accepted ordinary record
 expression shape remain required fixture/source review boundaries. Missing
 metadata refusals are not a permanent reduction of my full list scope.
+
+### My source-review corrections before the next checkpoint
+
+I retain `0ec5b0b32` as an unqualified draft. Review found that two unresolved
+TYPE_STRUCT signature names could fall through to raw spelling equality; I will
+instead classify real record, enum, union or opaque declarations explicitly, and
+refuse an unresolved formal/concrete name in a runtime callable signature. Enum
+scalar destination conversion remains unchanged. I will also preserve the prior
+indirect argument compatibility result when adding nominal checks; a legacy
+exemption cannot overwrite a failed base-type check.
+
+I will compare complete signatures for function-valued IF/COND/MATCH branches
+before selecting an annotation owner, retaining a representative signature and
+its owner together. Mere same-owner agreement is insufficient. A signature
+borrowed from a different arm must not be paired with that representative owner.
+
+I withdraw the draft's generated `is_pub=true` change. Generated list functions
+retain their old global/private lookup behavior. A side record on their existing
+GenericInstantiation will identify their exact function-table ordinals and the
+resolved element identity; signature-owner queries use that association without
+changing source visibility or exported module lists. Concrete specialization name
+collisions between distinct identities refuse before adding a conflicting row.
+Actual user declarations remain selected over generated helper declarations.
+These corrections require source review before any fixture execution.
+
+My corrected source now classifies runtime callable nominal signatures as an
+exact record, enum or union identity, or the same existing global opaque entry.
+Unresolved generic/formal spellings refuse here; scalar enum assignment conversion
+is unchanged. Complete TypeInfo facts still compare after canonicalizing the
+resolved declaration name in temporary views. I preserve the original indirect
+argument match with conjunction.
+
+My callable view owns a signature copy and keeps its annotation owner beside it.
+IF/COND/MATCH compare every branch's complete view; inferred binding publication
+and direct invocation of a function-valued expression consume that paired view.
+Every temporary copy is released after comparison or transferred into an owned
+inferred TypeInfo. No borrowed signature is paired with another branch's owner.
+
+My GenericInstantiation side record contains the exact record identity and four
+one-based generated function indices. All three production instantiation
+constructors already zero their structures; the new scalar fields need no
+separate destructor. Generated helper visibility is again `is_pub=false` with
+`module_name=NULL`, and my signature-owner query consults only exact associated
+function slots. Lookup prefers a real declaration over an associated generated
+helper. Registration now reports success/failure, and every production caller
+uses the checked wrapper. A same-spelling instance with a different declaration
+identity, or an overlong generated name, refuses before publishing a new row.
+Ordinary record renaming/import compatibility still needs the retained source
+and fixture acceptance; this correction does not rename an ABI to hide a collision.

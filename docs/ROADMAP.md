@@ -13554,3 +13554,7 @@ My proposed macOS CI selector step passes YAML/step-order and Bash syntax valida
       copied symbol contexts and inferred metadata replay; only then finish the
       separately reviewed evaluator storage/return/iteration checkpoint and its
       full source/fixture acceptance. No compiled result is claimed by this draft.
+- [ ] Correct the unqualified owner-aware draft's unresolved signature fallback,
+      callable branch owner/signature agreement, overwritten indirect argument
+      check and generated-list visibility/name-collision handling before evaluator
+      work or qualification; preserve scalar enum destination compatibility.
