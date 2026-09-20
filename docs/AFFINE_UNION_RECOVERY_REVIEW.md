@@ -50,4 +50,4 @@ from those earlier runs.
 
 SSH delivery to the active peer thread succeeded with queue receipt
 `01a0bca5-32f1-7d53-832f-e079e00efe3b`. Delivery is not acknowledgement.
-PR522 remains a publication hold. This review closes neither a18 nor full5.1.
+PR522 remains a publication hold. This review closes neither a18 nor full 5.1.
