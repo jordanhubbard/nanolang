@@ -69,8 +69,10 @@ Grammar raw-body and f-string construction/copies have separate checks.
 runs the direct decoder/list/bridge fixture and unchanged f-string neighbor,
 and compares full observable rows through the three explicitly fresh compiler
 paths. It compiles the actual Nano schema generator and requires all selected
-shadows (including the new override check); it does not run its writing main
-against the immutable source tree. Exact selected-name multisets come from the
+shadows (including the new override check). It runs the Python generator and
+each freshly produced Nano generator main in separate copied schema/output
+roots and compares all four complete output files with committed generated
+bytes. It never runs a writing main against the immutable source tree. Exact selected-name multisets come from the
 complete retained import graph, not sample matches. The inherited file-backed
 runner preserves first terminal, process-group cleanup and empty LSAN_OPTIONS.
 Sanitizers cover the named C providers/fixture, not the entire compiler.
@@ -82,3 +84,22 @@ Homebrew sanitizer C checks. Existing compiled module caches are not reused.
 I have only regenerated source text and inspected diffs; no new build, shadow,
 fixture, bootstrap or service execution has run. Complete checkpoint review
 precedes those gates.
+
+
+## My review corrections before first execution
+
+At6e393 review I find that importing the retained TestCase directly also exposes
+its unrelated tests to unittest discovery. I import its module instead and
+require the exact two intended test IDs. I also replace generator-shadow-only
+coverage with actual full isolated regeneration equality. Every generated file,
+comparison hash and differing byte text is retained before a mismatch fails.
+
+Static generator inspection reveals older differences from the primary Python
+producer: ordinary int mapped to int64_t, duplicate unsorted forward declarations,
+and extra final newlines in AST/contracts output. I align the independent Nano
+generator to the existing canonical output: ordinary int remains C int; only
+value_bytes has its explicit64-bit override. I sort/deduplicate names with Nano
+code and add ordering/duplicate shadows, release the temporary list after
+rendering, and emit the canonical final newline. No committed existing field
+is widened and no comparison normalizes away bytes. These are source-review
+findings, not observed failing generator executions. Review still precedes gates.

@@ -5,13 +5,16 @@ import json
 import os
 import re
 import shlex
+import shutil
+import sys
+import difflib
 import tempfile
 import unittest
-from tests.test_file_source_plan import FileSourcePlan
+from tests import test_file_source_plan as retained_runner
 ROOT=Path(__file__).resolve().parents[1]
 
 class TokenValueBytes(unittest.TestCase):
-    command=classmethod(FileSourcePlan.command.__func__)
+    command=classmethod(retained_runner.FileSourcePlan.command.__func__)
     @classmethod
     def setUpClass(cls):
         cls.work=Path(tempfile.mkdtemp(prefix='nano-token-bytes-',dir=os.environ.get('NANO_TOKEN_REPORT_DIR')))
@@ -35,6 +38,33 @@ class TokenValueBytes(unittest.TestCase):
         self.command('fstrings-build',[*self.cc,*self.flags,ROOT/'tests/test_fstring_lexer.c',*self.objects,'-o',adjacent])
         self.command('fstrings-run',[adjacent])
     def test_paired_fresh_compilers(self):
+        generated=('src/generated/compiler_schema.h',
+            'src_nano/generated/compiler_schema.nano',
+            'src_nano/generated/compiler_ast.nano',
+            'src_nano/generated/compiler_contracts.nano')
+        def isolated(name):
+            where=self.work/name
+            for directory in ('schema','scripts','src/generated','src_nano/generated'):
+                (where/directory).mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(ROOT/'schema/compiler_schema.json',where/'schema/compiler_schema.json')
+            return where
+        def compare(name,where):
+            rows={};mismatch=[]
+            for output in generated:
+                actual=(where/output).read_bytes();expected=(ROOT/output).read_bytes()
+                rows[output]={'actual_sha256':hashlib.sha256(actual).hexdigest(),
+                    'committed_sha256':hashlib.sha256(expected).hexdigest(),
+                    'actual_bytes':len(actual),'committed_bytes':len(expected)}
+                if actual!=expected:
+                    mismatch.append(output)
+                    (self.work/(name+'-'+Path(output).name+'.diff')).write_text(''.join(
+                        difflib.unified_diff(expected.decode().splitlines(True),actual.decode().splitlines(True),fromfile='committed',tofile=name)))
+            (self.work/(name+'-generation.json')).write_text(json.dumps(rows,indent=2)+'\n')
+            self.assertEqual(mismatch,[])
+        python_root=isolated('python-generator')
+        shutil.copyfile(ROOT/'scripts/gen_compiler_schema.py',python_root/'scripts/gen_compiler_schema.py')
+        self.command('python-generator-run',[sys.executable,python_root/'scripts/gen_compiler_schema.py'])
+        compare('python-generator',python_root)
         # Exact import graph from frozen sources, including duplicate shadow names.
         def selected(source):
             visited=set();names=[];files={}
@@ -72,6 +102,21 @@ class TokenValueBytes(unittest.TestCase):
                 if label=='token_value_bytes':
                     result,_=self.command(label+'-'+compiler+'-run',[exe])
                     self.assertEqual(result,b'0:4:4\n1:1:2\n2:3:8\n3:3:6\n4:3:2\n5:70:3\n6:7:0\n7:8:0\n8:0:0\n')
-                # I compile the schema generator and run all its selected shadows;
-                # I do not run its main over the immutable qualified source tree.
+                else:
+                    where=isolated('schema-'+compiler)
+                    # The child changes cwd before exec; the source tree stays immutable.
+                    self.command(label+'-'+compiler+'-generate',[sys.executable,'-c',
+                        'import os,sys; os.chdir(sys.argv[1]); os.execv(sys.argv[2],[sys.argv[2]])',where,exe],timeout=300)
+                    compare(label+'-'+compiler,where)
+def load_tests(loader, tests, pattern):
+    def ids(suite):
+        for item in suite:
+            if isinstance(item,unittest.TestSuite):yield from ids(item)
+            else:yield item.id()
+    actual=sorted(ids(tests))
+    expected=sorted(__name__+'.TokenValueBytes.'+name for name in (
+        'test_c_counts_decoder_and_bridges','test_paired_fresh_compilers'))
+    if actual!=expected:raise AssertionError(('exact intended discovery',actual,expected))
+    return tests
+
 if __name__=='__main__':unittest.main()

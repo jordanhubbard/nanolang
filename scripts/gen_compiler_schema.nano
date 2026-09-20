@@ -194,7 +194,7 @@ fn gen_nano_ast(schema: Json) -> string {
         }
     } else {}
     
-    return output
+    return (str_substring output 0 (- (str_length output) 1))
 }
 
 shadow gen_nano_ast {
@@ -294,7 +294,7 @@ fn gen_contracts(schema: Json) -> string {
         }
     } else {}
 
-    return output
+    return (str_substring output 0 (- (str_length output) 1))
 }
 
 shadow gen_contracts {
@@ -338,7 +338,7 @@ fn map_type_to_c(nano_type: string) -> string {
             return "bool"
         } else {
             if (== nano_type "int") {
-                return "int64_t"
+                return "int"
             } else {
                 if (str_starts_with nano_type "array<") {
                     return "DynArray *"
@@ -366,10 +366,56 @@ fn map_type_to_c(nano_type: string) -> string {
 shadow map_type_to_c {
     assert (== (map_type_to_c "string") "const char *")
     assert (== (map_type_to_c "bool") "bool")
-    assert (== (map_type_to_c "int") "int64_t")
+    assert (== (map_type_to_c "int") "int")
     assert (== (map_type_to_c "array<int>") "DynArray *")
     assert (== (map_type_to_c "List<Token>") "List_Token *")
     assert (== (map_type_to_c "Type") "NSType")
+}
+
+# I order ASCII schema type names independently of host locale.
+fn schema_name_before(left: string, right: string) -> bool {
+    let mut i: int = 0
+    while (and (< i (str_length left)) (< i (str_length right))) {
+        let a: int = (char_at left i)
+        let b: int = (char_at right i)
+        if (!= a b) { return (< a b) }
+        set i (+ i 1)
+    }
+    return (< (str_length left) (str_length right))
+}
+
+shadow schema_name_before {
+    assert (schema_name_before "AST" "LexerToken")
+    assert (schema_name_before "AST" "ASTArray")
+    assert (not (schema_name_before "AST" "AST"))
+    assert (not (schema_name_before "z" "a"))
+}
+
+fn schema_insert_name(names: List<string>, name: string) -> void {
+    let mut i: int = 0
+    while (< i (list_string_length names)) {
+        let current: string = (list_string_get names i)
+        if (== current name) { return }
+        if (schema_name_before name current) {
+            (list_string_insert names i name)
+            return
+        }
+        set i (+ i 1)
+    }
+    (list_string_push names name)
+}
+
+shadow schema_insert_name {
+    let names: List<string> = (list_string_new)
+    (schema_insert_name names "LexerToken")
+    (schema_insert_name names "AST")
+    (schema_insert_name names "ASTArray")
+    (schema_insert_name names "AST")
+    assert (== (list_string_length names) 3)
+    assert (== (list_string_get names 0) "AST")
+    assert (== (list_string_get names 1) "ASTArray")
+    assert (== (list_string_get names 2) "LexerToken")
+    (list_string_free names)
 }
 
 # Generate C header
@@ -381,46 +427,40 @@ fn gen_c(schema: Json) -> string {
     set output (+ output "#include <stdbool.h>\n")
     set output (+ output "#include \"runtime/dyn_array.h\"\n\n")
     
-    # Detect and forward declare List<T> types
-    # We'll generate declarations inline - #ifndef guards prevent duplicates
-    let mut has_lists: bool = false
+    # I emit the same sorted unique declarations as the primary Python generator.
+    let list_names: List<string> = (list_string_new)
     if (object_has schema "nano_structs") {
         let structs: Json = (get schema "nano_structs")
-        let struct_count: int = (array_size structs)
         let mut i: int = 0
-        
-        # First pass: collect all List<T> types
-        let mut list_decls: string = ""
-        while (< i struct_count) {
+        while (< i (array_size structs)) {
             let struct_obj: Json = (get_index structs i)
             let fields: Json = (get struct_obj "fields")
-            let field_count: int = (array_size fields)
             let mut j: int = 0
-            
-            while (< j field_count) {
+            while (< j (array_size fields)) {
                 let field: Json = (get_index fields j)
                 let field_type: string = (as_string (get_index field 1))
                 if (str_starts_with field_type "List<") {
-                    set has_lists true
-                    let inner: string = (extract_between field_type "List<" ">")
-                    # Generate declaration (duplicates handled by #ifndef)
-                    set list_decls (+ list_decls (+ "#ifndef FORWARD_DEFINED_List_" (+ inner "\n")))
-                    set list_decls (+ list_decls (+ "#define FORWARD_DEFINED_List_" (+ inner "\n")))
-                    set list_decls (+ list_decls (+ "typedef struct List_" (+ inner (+ " List_" (+ inner ";\n")))))
-                    set list_decls (+ list_decls "#endif\n")
-                } else {}
+                    (schema_insert_name list_names (extract_between field_type "List<" ">"))
+                }
                 set j (+ j 1)
             }
             set i (+ i 1)
         }
-        
-        if has_lists {
-            set output (+ output "/* Forward declare List types */\n")
-            set output (+ output list_decls)
-            set output (+ output "\n")
-        } else {}
-    } else {}
-    
+    }
+    if (> (list_string_length list_names) 0) {
+        set output (+ output "/* Forward declare List types */\n")
+        for i in (range 0 (list_string_length list_names)) {
+            let inner: string = (list_string_get list_names i)
+            set output (+ output (+ "#ifndef FORWARD_DEFINED_List_" (+ inner "\n")))
+            set output (+ output (+ "#define FORWARD_DEFINED_List_" (+ inner "\n")))
+            set output (+ output (+ "typedef struct List_" (+ inner (+ " List_" (+ inner ";\n")))))
+            set output (+ output "#endif\n")
+        }
+        set output (+ output "\n")
+    }
+
+    (list_string_free list_names)
+
     # Generate C-emitted enums
     if (object_has schema "nano_enums") {
         let enums: Json = (get schema "nano_enums")
