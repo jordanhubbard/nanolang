@@ -5609,6 +5609,7 @@ test-portable-read-plan: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 .PHONY: test-portable-read-adapters
 test-portable-read-adapters:
 	PORTABLE_ADAPTER_CC="$(CC)" PORTABLE_ADAPTER_CFLAGS="$(CFLAGS)" python3 -m unittest -f -v tests.test_portable_read_adapters
+
 # I keep private indirect target facts in the qualified File declaration unit.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_targets.h $(NANOISA_DIR)/file_indirect_targets.inc
 
