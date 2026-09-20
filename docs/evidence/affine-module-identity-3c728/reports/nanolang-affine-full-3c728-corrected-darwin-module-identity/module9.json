@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_affine_module_identity"
+  ],
+  "status": 0,
+  "seconds": 67.87553441600001
+}
