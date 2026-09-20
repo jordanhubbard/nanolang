@@ -21,6 +21,8 @@ bool nvm_file_runtime_frame_local(const NvmFileRuntime *,uint16_t,uint32_t *);
 bool nvm_file_runtime_frame_operand(const NvmFileRuntime *,uint16_t,uint32_t *);
 /* Empty output slot within the prepared operand peak; does not change count. */
 bool nvm_file_runtime_frame_reserve(const NvmFileRuntime *,uint16_t,uint32_t *);
+/* Empty last staging root for a matched private handler; no allocation. */
+bool nvm_file_runtime_frame_scratch(const NvmFileRuntime *,uint32_t *);
 bool nvm_file_runtime_frame_reference(const NvmFileRuntime *,uint16_t,uint32_t *);
 /* Exact current STORE_LOCAL/OWN_STORE_LOCAL. Other ordinary handlers use the
  * private carrier primitives, then next checks the completed physical stack. */

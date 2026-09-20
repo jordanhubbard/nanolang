@@ -184,3 +184,26 @@ functions/labels (not an embedded interpreter), public selection, paired source
 and mandatory shadow execution, installed routes, loops, indirect calls and
 richer borrowed calls remain concrete required runtime82ff/full File/full5.1
 work. Their checkpoints remain independent of this bounded implementation.
+
+## My first production checkpoint
+
+My scalar output C type is exactly `NvmFileRuntimeView *`, required non-NULL.
+The private declaration and entire implementation are gated by
+`NVM_FILE_VM_PRIVATE`; no normal provider manifest or public route changes.
+I add one nonallocating checked frame scratch getter, returning only the empty
+last staging index. No context/arena struct changes or heap allocations occur.
+
+| Storage | Owner and bound |
+| --- | --- |
+| Runtime, hosted plan, values/references/regions/frames and File core | Existing create/begin/destroy ownership and checked64MiB bound; unchanged concrete structs. |
+| Execute loop | One runtime pointer, borrowed const plan pointer, copied frame/instruction/body fact, root index/status and uint64 counter; fixed automatic passive storage. |
+| Numeric handler | Two uint32 root indices, two passive RuntimeViews and scalar operands/result. No owner is stored in these views. |
+| Constructor handler | At most seven uint32 root indices; construction consumes the existing arena roots in place. |
+| Service temporary | Existing last stage slot; success moves it to the operand slot, failure leaves it tracked for terminal cleanup. |
+| Result/report | Existing passive RuntimeView publication and RuntimeReport; only destroy after clean complete entry writes caller output. |
+
+These are exact C element types/counts, not a measured compiler stack-frame ABI
+or a claim that libc's FILE memory enters the arena ceiling. No recursion or
+variable-size automatic allocation is introduced. A prebegin coverage refusal
+destroys the fresh unacquired context without publishing output and returns its
+own no-acquisition UNRESOLVED report; it cannot finish another invocation.
