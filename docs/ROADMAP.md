@@ -12838,3 +12838,5 @@ I keep these independent of PR910's generic-call identity and VM fixture repair.
 - [ ] I diagnose `task_2f52721aac374ac592b61438315dc981`: my c140 Darwin full suite additionally times out four native sanitizer executables (two projected-array global orders and two tuple producers) after120seconds each. I retain the original1114.818-second make terminal, do not infer its cause, and require fresh retained baseline/target controls before a repair. These are separate from the passive and emitter-shadow errors.
 
 - [ ] For emitter-shadow task4931, I prepare and review the private macro-only bounded entry/exit observer in `EMITTER_SHADOW_PROGRESS_DIAGNOSTIC.md`, preserve my ten-second shadow policy, then retain one fresh original-command diagnostic before any repair.
+
+- [ ] For task4931, I review and run the separate exact two-input owned-pattern probe with monotonic diagnostic observations, retaining the original selected-shadow failure and making no full-suite timing claim.
