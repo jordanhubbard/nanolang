@@ -137,10 +137,15 @@ runtime acquisition or output mutation. An acquired-but-failed initialization
 still needs finish; BUSY does not acquire and does not inspect/mutate active
 state. Initializer and root share the same instance and first-error state.
 Nested invocation, recursive direct calls and frame exhaustion have explicit
-bounded failure cleanup; no C recursion overflow is acceptable. Before source
-review I choose and document a checked frame limit or an explicit iterative call
-stack shared semantically by all four routes. No new implicit execution fuel is
-introduced into ordinary language semantics.
+bounded failure cleanup. I cap the new invocation at256 simultaneously active
+frames (initializer and root are sequential, with each counted when active).
+Each callee checks/reserves its frame before argument transfer; exhausting this
+limit records a stack-limit failure and unwinds all staged/caller roots. C/LLVM
+use explicit bounded frame storage if256 host calls cannot be shown safe on the
+selected targets; no unchecked C recursion overflow is acceptable. VM enforces
+the same new-route limit, preserving old-route limits. This is a new checked
+profile execution limit, not a proof of recursive termination. No new implicit
+execution fuel is introduced into ordinary language semantics.
 
 ## Dependency 2: private matched consumers
 
