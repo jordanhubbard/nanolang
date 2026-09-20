@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #define REQUIRE(x) do{if(!(x)){fprintf(stderr,"I fail CLI check %u\n",__LINE__);exit(1);}}while(0)
-static int fault,live;static unsigned closes;
+static int fault,live,rejected_fd=-1;static unsigned closes;
 static void *cli_malloc(size_t n){if(fault==1)return NULL;void *p=malloc(n);if(p)live++;return p;}
 static void cli_free(void *p){if(p)live--;free(p);}
 static int cli_close(FILE *f){int fd=fileno(f);int r=fclose(f);closes++;REQUIRE(fcntl(fd,F_GETFD)==-1 && errno==EBADF);if(fault==2){errno=EIO;return EOF;}return r;}
@@ -20,7 +20,7 @@ static size_t cli_write(const void *p,size_t n,size_t count,FILE *f){
 }
 static int cli_flush(FILE *f){int r=fflush(f);if(fault==4){errno=ENOSPC;return EOF;}return r;}
 static int cli_rename(const char *a,const char *b){if(fault==5){errno=EACCES;return -1;}return rename(a,b);}
-static FILE *cli_fdopen(int fd,const char *mode){if(fault==6){errno=EMFILE;return NULL;}return fdopen(fd,mode);}
+static FILE *cli_fdopen(int fd,const char *mode){if(fault==6){rejected_fd=fd;errno=EMFILE;return NULL;}return fdopen(fd,mode);}
 #define malloc cli_malloc
 #define free cli_free
 #undef fclose
@@ -46,7 +46,7 @@ int main(void){
  FILE *f=fopen(path,"wb");REQUIRE(f);REQUIRE(fwrite("preserved",1,9,f)==9 && !fclose(f));
  char error[256];
  for(fault=1;fault<=6;fault++){
-  REQUIRE(!nvm_file_cli_write(path,"replacement",error,sizeof error));REQUIRE(error[0] && !live);retained(path);clean_directory(directory);
+  REQUIRE(!nvm_file_cli_write(path,"replacement",error,sizeof error));REQUIRE(error[0] && !live);if(fault==6)REQUIRE(rejected_fd>=0 && fcntl(rejected_fd,F_GETFD)==-1 && errno==EBADF);retained(path);clean_directory(directory);
   int expected=fault==1?ENOMEM:fault==2?EIO:(fault==3 || fault==4)?ENOSPC:fault==5?EACCES:EMFILE;REQUIRE(strstr(error,strerror(expected)));
  }
  fault=0;REQUIRE(nvm_file_cli_write(path,"replacement",error,sizeof error));REQUIRE(!error[0] && !live);clean_directory(directory);

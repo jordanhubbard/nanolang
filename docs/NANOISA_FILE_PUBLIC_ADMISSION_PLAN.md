@@ -322,3 +322,20 @@ missing-C11 review finding was retracted: the inherited explicit grant rule is
 present, and a standalone Make dry run confirmed that its recipe-bearing source
 prerequisite remains `$<`. No production correction or build-defect claim follows
 from that disproven suspicion.
+
+### My reviewed fixture supplement
+
+Before execution I add actual installed BOOL0/BOOL1 and INT-257 wires, first
+checking full values through the byte API, then checking CLI exits0/1/255. I
+copy and hash every installed artifact before the actual uninstall command.
+The supplement verifies removal of my exact22 headers, archive and new nvm2c
+command while unrelated prefix/bin/lib/include sentinels survive. Removed
+installed paths are intentionally absent afterward; retained copies carry the
+artifact claim, with separate before/after manifests and actual command status.
+
+My command runner now records Popen exceptions and always performs bounded
+TERM/KILL, leader reaping and process-group disappearance checks, including
+normal exits. Unconfirmed cleanup fails the gate. The CLI fdopen-failure
+fixture separately retains the rejected raw descriptor and observes EBADF
+before any later operation can reuse it. These are fixture/retention changes;
+my production checkpoint remains unchanged and no gate has run.

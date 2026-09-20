@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import shlex
 import signal
 import subprocess
@@ -41,51 +42,76 @@ class FilePublic(unittest.TestCase):
             ('CC', 'NANO_FILE_RUNTIME_CC', 'NANO_FILE_RUNTIME_CFLAGS', 'SDKROOT', 'LSAN_OPTIONS',
              'ASAN_OPTIONS', 'UBSAN_OPTIONS', 'FILE_RUNTIME_OBJECTS', 'FILE_RUNTIME_LDFLAGS')}, indent=2))
 
-    def command(self, name, args, marker=None, expected=0, cwd=None, timeout=240, stdout_fd=None):
-        (self.artifacts / (name + '-command.json')).write_text(json.dumps(args, indent=2))
-        stdout_path = self.artifacts / (name + '-stdout.bin')
-        stderr_path = self.artifacts / (name + '-stderr.bin')
-        started = time.monotonic()
-        timed_out = False
-        cleanup = []
-        with stdout_path.open('wb') as stdout, stderr_path.open('wb') as stderr:
-            process = subprocess.Popen(args, cwd=cwd or ROOT, env=self.environment,
-                                       stdout=stdout if stdout_fd is None else stdout_fd, stderr=stderr, start_new_session=True)
+    @staticmethod
+    def stop_group(process):
+        outcome = {'pid':process.pid,'errors':[],'reaped':False,'group_gone':False}
+        for sig in (signal.SIGTERM,signal.SIGKILL):
             try:
-                process.wait(timeout=timeout)
+                os.killpg(process.pid,sig)
+            except ProcessLookupError:
+                pass
+            except OSError as error:
+                outcome['errors'].append(repr(error))
+            try:
+                process.wait(timeout=5)
+                outcome['reaped']=True
             except subprocess.TimeoutExpired:
-                timed_out = True
-                # Regular output files retain all bytes without waiting on pipes
-                # held by descendants. Only this fresh process group is signaled.
-                for sig in (signal.SIGTERM, signal.SIGKILL):
-                    try:
-                        os.killpg(process.pid, sig)
-                        cleanup.append({'signal': sig.name, 'sent': True})
-                    except ProcessLookupError:
-                        cleanup.append({'signal': sig.name, 'group_absent': True})
-                    except OSError as error:
-                        cleanup.append({'signal': sig.name, 'error': str(error)})
-                    try:
-                        process.wait(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        cleanup.append({'signal': sig.name, 'leader_wait_expired': True})
-                # KILL is attempted even when TERM reaped the group leader, so
-                # a surviving child cannot inherit an indefinite grace period.
-        stdout_text = stdout_path.read_bytes().decode('utf-8', errors='replace')
-        stderr_text = stderr_path.read_bytes().decode('utf-8', errors='replace')
-        status = 124 if timed_out else process.returncode
-        terminal = {'timed_out': timed_out, 'timeout_seconds': timeout,
-                    'elapsed_seconds': round(time.monotonic() - started, 6),
-                    'returncode': process.poll(), 'status': status,
-                    'cleanup': cleanup, 'leader_reaped': process.returncode is not None}
-        (self.artifacts / (name + '.log')).write_text(stdout_text + stderr_text)
-        (self.artifacts / (name + '-status.txt')).write_text(str(status) + '\n')
-        (self.artifacts / (name + '-terminal.json')).write_text(json.dumps(terminal, indent=2))
-        self.assertFalse(timed_out, (args, terminal, stdout_text, stderr_text))
-        self.assertEqual(process.returncode, expected, (args, stdout_text, stderr_text))
+                outcome[sig.name + '_wait_expired']=True
+        until=time.monotonic()+2
+        while True:
+            try:
+                os.killpg(process.pid,0)
+            except ProcessLookupError:
+                outcome['group_gone']=True
+                break
+            except OSError as error:
+                outcome['errors'].append(repr(error))
+                break
+            if time.monotonic()>=until:
+                break
+            time.sleep(0.02)
+        outcome['confirmed']=outcome['reaped'] and outcome['group_gone'] and not outcome['errors']
+        return outcome
+
+    def command(self, name, args, marker=None, expected=0, cwd=None, timeout=240, stdout_fd=None):
+        (self.artifacts / (name + '-command.json')).write_text(json.dumps(args,indent=2))
+        stdout_path=self.artifacts / (name + '-stdout.bin')
+        stderr_path=self.artifacts / (name + '-stderr.bin')
+        started=time.monotonic()
+        process=None
+        problem=None
+        cleanup=None
+        try:
+            with stdout_path.open('wb') as stdout, stderr_path.open('wb') as stderr:
+                process=subprocess.Popen(args,cwd=cwd or ROOT,env=self.environment,
+                    stdin=subprocess.DEVNULL,stdout=stdout if stdout_fd is None else stdout_fd,
+                    stderr=stderr,start_new_session=True)
+                (self.artifacts / (name + '-process.json')).write_text(json.dumps(
+                    {'pid':process.pid,'pgid':process.pid}))
+                process.wait(timeout=timeout)
+        except BaseException as error:
+            problem=error
+        finally:
+            if process is not None:
+                cleanup=self.stop_group(process)
+            timed_out=isinstance(problem,(subprocess.TimeoutExpired,TimeoutError))
+            status=124 if timed_out else (127 if process is None else process.returncode)
+            terminal={'timed_out':timed_out,'timeout_seconds':timeout,
+                'elapsed_seconds':round(time.monotonic()-started,6),
+                'returncode':None if process is None else process.returncode,'status':status,
+                'cleanup':cleanup,'exception':None if problem is None else repr(problem)}
+            (self.artifacts / (name + '-status.txt')).write_text(str(status)+'\n')
+            (self.artifacts / (name + '-terminal.json')).write_text(json.dumps(terminal,indent=2))
+            stdout_text=stdout_path.read_bytes().decode('utf-8',errors='replace') if stdout_path.exists() else ''
+            stderr_text=stderr_path.read_bytes().decode('utf-8',errors='replace') if stderr_path.exists() else ''
+            (self.artifacts / (name + '.log')).write_text(stdout_text+stderr_text)
+        if problem is not None:
+            raise problem
+        self.assertTrue(cleanup and cleanup['confirmed'],(args,terminal))
+        self.assertEqual(process.returncode,expected,(args,stdout_text,stderr_text))
         if marker:
-            self.assertIn(marker, stdout_text)
-            print(stdout_text.strip(), flush=True)
+            self.assertIn(marker,stdout_text)
+            print(stdout_text.strip(),flush=True)
         return stdout_text
 
     def providers(self, name, instrument):
@@ -248,6 +274,9 @@ class FilePublic(unittest.TestCase):
         emitter = self.installed / 'bin/nvm2c'
         self.command(name + '-installed-vm', [str(vm),'--allow-temporary-files',str(wire)],
                      expected=251,cwd=outside)
+        for label,status in (('bool-false',0),('bool-true',1),('negative-int',255)):
+            self.command(name + '-installed-' + label,[str(vm),'--allow-temporary-files',
+                str(directory / (label + '.nvm'))],expected=status,cwd=outside)
         self.command(name + '-installed-default-refusal', [str(vm),str(wire)],expected=1,cwd=outside)
         for index,option in enumerate(('--verify-only','--daemon','--check-shadows','--debug','--cop')):
             self.command(name + f'-installed-mode-{index}', [str(vm),'--allow-temporary-files',option,str(wire)],
@@ -369,6 +398,32 @@ return nvm_file_host_grant_destroy(&g)!=NVM_FILE_HOST_OK;}
         (self.artifacts / (name + '-installed-artifacts.json')).write_text(json.dumps(
             {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(outside.iterdir())
              if p.is_file() and p != large},indent=2))
+
+        # Retain exact installed bytes before invoking the actual uninstall.
+        retained=self.artifacts / 'installed-before-uninstall'
+        shutil.copytree(self.installed,retained)
+        owned_headers=sorted((self.installed / 'include').rglob('*.h'))
+        self.assertEqual(len(owned_headers),22)
+        saved={str(p.relative_to(self.installed)):hashlib.sha256(p.read_bytes()).hexdigest()
+               for p in self.installed.rglob('*') if p.is_file()}
+        for rel,digest in saved.items():
+            self.assertEqual(hashlib.sha256((retained / rel).read_bytes()).hexdigest(),digest)
+        (self.artifacts / (name + '-pre-uninstall-artifacts.json')).write_text(json.dumps(saved,indent=2))
+        (self.artifacts / (name + '-retained-install-sha256.json')).write_text(json.dumps(
+            {str(retained / rel):digest for rel,digest in saved.items()},indent=2))
+        sentinels=[self.installed / 'unrelated.txt',
+                   self.installed / 'include/nanolang/file/unrelated.h',
+                   self.installed / 'lib/unrelated.a',self.installed / 'bin/unrelated']
+        for sentinel in sentinels:
+            sentinel.write_bytes(b'I belong to another package.\n')
+        self.command(name + '-actual-uninstall',['make','uninstall','PREFIX='+str(self.installed)])
+        for path in [*owned_headers,archive,emitter]:
+            self.assertFalse(path.exists(),str(path))
+        for sentinel in sentinels:
+            self.assertEqual(sentinel.read_bytes(),b'I belong to another package.\n')
+        remaining={str(p.relative_to(self.installed)):hashlib.sha256(p.read_bytes()).hexdigest()
+                   for p in self.installed.rglob('*') if p.is_file()}
+        (self.artifacts / (name + '-post-uninstall-artifacts.json')).write_text(json.dumps(remaining,indent=2))
 
     def test_cli_staging_faults(self):
         binary=self.artifacts / 'cli-faults'

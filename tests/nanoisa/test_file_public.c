@@ -140,6 +140,18 @@ static void public_boundaries(void){
  char path[4096];int length=snprintf(path,sizeof path,"%s/public-lifecycle.nvm",public_parity_directory);
  CHECK(length>0 && (size_t)length<sizeof path);FILE *wire=fopen(path,"wb");CHECK(wire);
  CHECK(fwrite(bytes,1,n,wire)==n && !fclose(wire));
+ const char *names[]={"bool-false","bool-true","negative-int"};
+ for(unsigned i=0;i<3;i++){
+  FrameSpec spec={.result=i<2?-2:-1};NvmFileNominalBindings bindings;
+  int64_t expected=i<2?(int64_t)i:INT64_C(-257);
+  if(i<2)vb(&spec.code,i!=0);else fi(&spec.code,expected);op(&spec.code,OP_RET);
+  NvmModule *scalar_module=frame_module(&spec,1,&bindings,false,-1);size_t scalar_size;
+  uint8_t *scalar_wire=serialize(scalar_module,&scalar_size);nvm_module_free(scalar_module);
+  NvmFileScalar scalar_out={0};NvmFileRuntimeReport scalar_report=nvm_file_execute_bytes(public_grant,scalar_wire,scalar_size,&scalar_out);
+  CHECK(scalar_report.status==NVM_FILE_RUNTIME_OK && scalar_out.tag==(i<2?TAG_BOOL:TAG_INT) && scalar_out.value==expected);
+  length=snprintf(path,sizeof path,"%s/%s.nvm",public_parity_directory,names[i]);CHECK(length>0 && (size_t)length<sizeof path);
+  wire=fopen(path,"wb");CHECK(wire);CHECK(fwrite(scalar_wire,1,scalar_size,wire)==scalar_size && !fclose(wire));public_free(scalar_wire);
+ }
 #endif
  public_wire_refusals(bytes,n);
  public_wire=bytes;public_size=n;unsigned opens=open_attempts,loads=loader_attempts,forks=fork_attempts;
