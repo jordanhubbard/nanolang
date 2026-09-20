@@ -1,0 +1,38 @@
+{
+  "head": "1e53cba55e774d3f7e0e0adb0d271d702f775e32",
+  "phases": [
+    {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "nano_virt",
+        "CC=/bin/gcc",
+        "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -DNANO_SHADOW_PROGRESS_DIAGNOSTIC"
+      ],
+      "status": 0,
+      "seconds": 20.695,
+      "cleanup": [],
+      "timeout": false,
+      "providers_equal": false,
+      "output_exists": false
+    },
+    {
+      "name": "emitter",
+      "command": [
+        "/home/jkh/Src/nanolang-admission-followup-diagnostic/bin/nano_virt",
+        "src_nano/nanoisa_emit.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/tmp/nanolang-admission-followup-once/emitter.nvm"
+      ],
+      "status": 1,
+      "seconds": 21.543,
+      "cleanup": [],
+      "timeout": false,
+      "providers_equal": false,
+      "output_exists": false
+    }
+  ]
+}

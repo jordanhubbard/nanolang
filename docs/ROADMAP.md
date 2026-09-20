@@ -12910,3 +12910,5 @@ I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5
 ### My next emitter admission measurement
 
 - [ ] I review and run one separately built private timing observer on qualified8d731 production, retaining full/reuse admission buckets, ASSERT counts and matched shadow-marker deltas under the unchanged full imported ten-second gate. Task_4931a66f39c04b1a96981a4e00d43646 remains open; evidencecd85 preserves both ordinary deadline failures. I make no broader lifetime or cache change before measured diagnosis and independent design review.
+
+- [x] I retain the reviewed 1e53 ordinary-admission follow-up observation in `docs/evidence/admission-followup.md`; the unchanged emitter ten-second gate still fails, and task_4931a66f39c04b1a96981a4e00d43646 remains open.

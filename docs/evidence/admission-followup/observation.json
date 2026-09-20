@@ -1,0 +1,92 @@
+{
+  "markers": 407,
+  "first": {
+    "elapsed_ms": 0.0,
+    "admission_calls": 2,
+    "admission_ms": 15.144,
+    "assert_traps": 0,
+    "full_calls": 2,
+    "full_ns": 15143945,
+    "reuse_calls": 0,
+    "reuse_ns": 0,
+    "admission_ns": 15143945,
+    "event": "enter",
+    "fn": 563,
+    "pc": 153628,
+    "name": "$shadow_0_diag_location"
+  },
+  "last": {
+    "elapsed_ms": 3815.947,
+    "admission_calls": 1016,
+    "admission_ms": 3728.231,
+    "assert_traps": 519,
+    "full_calls": 497,
+    "full_ns": 3728216263,
+    "reuse_calls": 519,
+    "reuse_ns": 14464,
+    "admission_ns": 3728230727,
+    "event": "enter",
+    "fn": 764,
+    "pc": 166770,
+    "name": "$shadow_201_parse_block_recursive"
+  },
+  "delta": {
+    "elapsed_ms": 3815.947,
+    "admission_calls": 1014,
+    "assert_traps": 519,
+    "full_calls": 495,
+    "full_ns": 3713072318,
+    "reuse_calls": 519,
+    "reuse_ns": 14464,
+    "admission_ns": 3713086782,
+    "admission_fraction": 0.9730446418674054
+  },
+  "intervals": [
+    {
+      "name": "$shadow_200_parse_owned_pattern",
+      "delta": {
+        "elapsed_ms": 45.314000000000306,
+        "admission_calls": 14,
+        "assert_traps": 8,
+        "full_calls": 6,
+        "full_ns": 45070429,
+        "reuse_calls": 8,
+        "reuse_ns": 208,
+        "admission_ns": 45070637,
+        "admission_fraction": 0.9946294081299311
+      }
+    },
+    {
+      "name": "$shadow_199_parser_mark_owned",
+      "delta": {
+        "elapsed_ms": 0.011999999999716238,
+        "admission_calls": 2,
+        "assert_traps": 2,
+        "full_calls": 0,
+        "full_ns": 0,
+        "reuse_calls": 2,
+        "reuse_ns": 64,
+        "admission_ns": 64,
+        "admission_fraction": 0.005333333333459449
+      }
+    }
+  ],
+  "sources_equal": true,
+  "tools_equal": true,
+  "providers": {
+    "added": 405,
+    "removed": 0,
+    "changed": 0
+  },
+  "baseline": {
+    "pin": "86c758c234b59f4a6985039a4a8ff61e5ac3517b",
+    "delta": {
+      "elapsed_ms": 7586.052,
+      "admission_ms": 7484.43,
+      "admission_calls": 1014,
+      "assert_traps": 519,
+      "admission_fraction": 0.9866040992073348
+    },
+    "identical_marker_boundaries": true
+  }
+}
