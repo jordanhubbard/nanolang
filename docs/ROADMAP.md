@@ -13900,3 +13900,11 @@ including93 recipes and94 one-shot/persistent allocation positions. The Python
 wrapper then still requires the old92-recipe output string. I update only that
 expected count to the independently enumerated93, retain both failures and all
 C predicates, and require fresh corrected ordinary query plus unrun neighbors.
+
+I complete the fresh b87bb ordinary integration on both hosts:20 phases each,
+linked2823/observed6420 query controls,93 recipes and all named neighbors pass.
+I retain both f093 Python count failures and their passing C controls separately.
+The supplemental seal preserves880 objects/15982 references/96 equal pairs;
+current3716-source inventories and actual lib/provider products are rehashed.
+I submit the ready PR for independent audit. Full mixed execution and source
+parents remain open; original c032c sanitizer attribution is unchanged.
