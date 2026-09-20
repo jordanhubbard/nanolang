@@ -1,0 +1,11 @@
+[shadow-progress] elapsed_ms=0.000 enter fn=319 pc=62583 name=$shadow_0_main
+[shadow-progress] elapsed_ms=2.222 enter fn=133 pc=41764 name=parse_owned_pattern
+[shadow-progress] elapsed_ms=8.534 leave fn=133 pc=41764 name=parse_owned_pattern
+[shadow-progress] elapsed_ms=21.065 enter fn=133 pc=41764 name=parse_owned_pattern
+[shadow-progress] elapsed_ms=27.345 leave fn=133 pc=41764 name=parse_owned_pattern
+[shadow-progress] elapsed_ms=39.806 leave fn=319 pc=62583 name=$shadow_0_main
+[shadow-progress] elapsed_ms=39.809 leave fn=320 pc=62868 name=$shadow_entry
+[owned-pattern-probe] before first call
+[owned-pattern-probe] after first call
+[owned-pattern-probe] before qualified call
+[owned-pattern-probe] after qualified call
