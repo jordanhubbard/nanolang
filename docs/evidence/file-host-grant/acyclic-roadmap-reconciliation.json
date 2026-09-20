@@ -1,0 +1,22 @@
+{
+  "task": "task_546cf4241d4050fae080fd25b5602b8c",
+  "state": "completed",
+  "merge": "ab17e610786397670321b846de137f3c8bee9bf6",
+  "ancestor_of_current_main": true,
+  "current_main": "595bb466defed63ceec966fde24a76a69821edfe",
+  "evidence_id": "ev_f431947db5d847c1910a92b7c6fa1307",
+  "canonical_integration": {
+    "canonical_ref": "refs/heads/main",
+    "canonical_tip_sha": "ab17e610786397670321b846de137f3c8bee9bf6",
+    "contains_reviewed_head": true,
+    "merged_sha": "ab17e610786397670321b846de137f3c8bee9bf6",
+    "publication_mode": "operator_post_merge_reconciliation",
+    "pull_request_number": 848,
+    "pull_request_url": "https://github.com/jordanhubbard/nanolang/pull/848",
+    "remote_verified": true,
+    "reviewed_head_sha": "03fde7465d9aaa781c87a5b0c9833f56a79e7df3",
+    "schema": "mac.canonical_integration.v1",
+    "status": "pass"
+  },
+  "scope": "Only completed private acyclic546cf; full hosted/public/source parents remain open"
+}

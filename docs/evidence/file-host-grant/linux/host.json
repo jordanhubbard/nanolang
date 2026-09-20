@@ -1,0 +1,9 @@
+{
+  "machine": "aarch64",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "scope": "grant only; no service/dispatcher execution",
+  "sdk": null,
+  "selected_source_count": 9584,
+  "source_pin": "54822f541",
+  "source_root": "/home/jkh/Src/nanolang-file-host-grant-qualified"
+}

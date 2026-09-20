@@ -1,0 +1,7 @@
+test_c99_consumers_share_c11_gate (tests.test_file_host_grant.FileHostGrant) ... I retain grant artifacts at /private/tmp/nanolang-file-host-grant-54822-darwin/homebrew-sanitizers/fixtures/nano-file-host-grant-pmgazfz6
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.194s
+
+OK
