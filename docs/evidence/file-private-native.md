@@ -109,3 +109,12 @@ and `nanolang-file-native-6fdb`. Measured Darwin roots are
 `/tmp/nanolang-file-native-6fdb-ready`. Failed preparation directories remain
 separate. I keep these frozen trees intact. Later canonical integration is a
 separate review, and bounded completion awaits actual merge reconciliation.
+
+I prepare a separate ready integration with canonical PR887 `dc83a0c92`. Its
+production adds three isolated grant files and an explicit independent Make
+target; it does not change existing runtime/frame/emitter providers. Only my
+additive ROADMAP tail conflicts, and I retain both histories. All eight native
+production/fixture paths remain byte-identical to seal0da877eb4, recorded in
+[my integration identity](file-private-native-ready-integration.json). I run no
+redundant gate for this disjoint change and do not relabel original qualification
+as a new integrated execution measurement.

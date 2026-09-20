@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "file-host-grant",
+    "CC=/bin/gcc",
+    "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC",
+    "OBJ_DIR=/tmp/nanolang-file-host-grant-54822-linux/gcc-normal/obj",
+    "LIBFFI_CFLAGS=",
+    "LIBFFI_LIBS="
+  ],
+  "elapsed_seconds": 0.08,
+  "status": 0
+}

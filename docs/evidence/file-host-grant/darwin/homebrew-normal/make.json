@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "file-host-grant",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "CFLAGS=-O1 -g -Wall -Wextra -Werror -std=c99 -fPIC -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+    "OBJ_DIR=/private/tmp/nanolang-file-host-grant-54822-darwin/homebrew-normal/obj",
+    "LIBFFI_CFLAGS=",
+    "LIBFFI_LIBS="
+  ],
+  "elapsed_seconds": 0.238,
+  "status": 0
+}

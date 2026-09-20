@@ -1,0 +1,63 @@
+[
+  {
+    "entries": 9584,
+    "equal": true,
+    "host": "linux",
+    "kind": "source"
+  },
+  {
+    "entries": 5,
+    "equal": true,
+    "host": "linux",
+    "kind": "tools",
+    "phase": "clang-sanitizers"
+  },
+  {
+    "entries": 5,
+    "equal": true,
+    "host": "linux",
+    "kind": "tools",
+    "phase": "clang-normal"
+  },
+  {
+    "entries": 6,
+    "equal": true,
+    "host": "linux",
+    "kind": "tools",
+    "phase": "gcc-normal"
+  },
+  {
+    "entries": 6,
+    "equal": true,
+    "host": "linux",
+    "kind": "tools",
+    "phase": "gcc-sanitizers"
+  },
+  {
+    "entries": 9584,
+    "equal": true,
+    "host": "darwin",
+    "kind": "source"
+  },
+  {
+    "entries": 5,
+    "equal": true,
+    "host": "darwin",
+    "kind": "tools",
+    "phase": "homebrew-sanitizers"
+  },
+  {
+    "entries": 5,
+    "equal": true,
+    "host": "darwin",
+    "kind": "tools",
+    "phase": "homebrew-normal"
+  },
+  {
+    "entries": 5,
+    "equal": true,
+    "host": "darwin",
+    "kind": "tools",
+    "phase": "apple-normal"
+  }
+]

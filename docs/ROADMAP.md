@@ -870,37 +870,36 @@ their individual acceptance evidence closes them.
       general tuple substitution or ownership transfer. MAC
       `task_bcd773ad3c084ce099a3da5aef682fef`.
 
-- [ ] I repeat the exact unchanged full module-metadata C fixture with fresh
-      external binary and hash-verified f7c O0 sanitizer providers, unsuppressed
-      once. This includes the original union payload substitution lifecycle and
-      callback lifecycle together; my earlier focused ownership fixtures do not
-      substitute for that exact parent00c47 gate. I preserve the qualified tree
-      and retain first terminal/source/provider maps before parent review.
+- [x] I pass the exact unchanged full module-metadata C fixture, including
+      both original union-substitution and parsed callback lifecycles, with a
+      fresh external binary and hash-verified f7c O0 ASan/UBSan providers.
+      All 24 methods pass with unsuppressed leak detection. I preserve the
+      qualified tree and source/provider/tool maps in [my full-fixture
+      evidence](evidence/checker-metadata-ownership.md#my-original-full-fixture-supplemental-acceptance).
 
-- [ ] I own checker-created function metadata and callback/array placeholders
-      independently of borrowed AST/manual/builtin graphs and mutable symbol slots.
-      I preserve the595-byte historical parsed lifecycle terminal, explicitly run
-      that unchanged parsed test in a fresh harness, cover both checker paths and
-      truncation/redefinition, and require unsuppressed sanitizer plus metadata/
-      scoping gates before closure. Contract: [checker ownership](CHECKER_METADATA_OWNERSHIP.md).
-      MAC `task_e69bf88f5cbb49bd933b5ad7e25ae3e6`, parent00c47.
+- [x] I own checker-created function metadata and callback/array placeholders
+      independently of borrowed AST/manual/builtin graphs and mutable slots.
+      Both checker paths, destruction orders, truncation and borrowed runtime
+      array controls pass; the complete normal metadata/scoping targets pass.
+      PR884 merged at `4aa6ce063`; child `task_e69bf88f5cbb49bd933b5ad7e25ae3e6`
+      is complete. [Contract](CHECKER_METADATA_OWNERSHIP.md) and
+      [evidence](evidence/checker-metadata-ownership.md).
 
-- [ ] I release independently owned registered and extracted union metadata
-      (`task_0bae7b0426fc4c3e912ab00cfd7de136`, under `task_00c47a5d65d04c48914864ec0de553d6`).
-      My current environment owns allocated field type-name arrays, generic
-      formals and module names, while extracted metadata still borrows those
-      pointers. I first give the extracted copy independent ownership, then
-      free each owner's allocations. I require AST/environment/module lifetime
-      independence in both destruction orders, null/empty controls, a fresh
-      unsuppressed ASan/UBSan/LSan lifecycle gate and the existing normal
-      metadata suite. Import-tracker freeing is already canonical; callback
-      placeholder and other parent leaks remain separate until measured.
+- [x] I release independently owned registered and extracted union metadata.
+      PR882 gives each owner its own field type-name arrays, generic formals
+      and module name, then releases each copy. Both destruction orders,
+      nested TypeInfo and zero-length allocations pass normal and unsuppressed
+      sanitizer checks. Child `task_0bae7b0426fc4c3e912ab00cfd7de136` is complete;
+      [my evidence](evidence/union-metadata-ownership/README.md) retains the pin.
 
-- [ ] **Release legacy union metadata allocations.** My payload lifetime check
-      exposed 245 bytes retained by existing registered field-name/formal arrays
-      and the environment import tracker. I establish borrower ownership before
-      freeing these and require LeakSanitizer evidence; scoped ASan checks with
-      leak detection disabled do not satisfy this item. MAC `task_00c47a5d65d04c48914864ec0de553d6`.
+- [x] **Release legacy union metadata allocations.** The original 245-byte
+      union and later 595-byte callback reports remain preserved. Import-tracker
+      cleanup, PR882 and PR884 satisfy both original parsed lifecycle leak
+      obligations in the unchanged full fixture with leak detection enabled.
+      Actual merge ancestry and independent report/artifact review support
+      completed `task_00c47a5d65d04c48914864ec0de553d6`. This closes those recorded
+      metadata leaks; I do not claim all compiler allocations or allocation-
+      failure recovery, and full release acceptance remains open.
 
 - [x] **Adopt v5.1.0 as my full-roadmap release target.** I preserve the
       published `v5.0.0` tag and move every unreleased `v5.0.1` contract,
@@ -9458,7 +9457,8 @@ Ownership and proposal closure:
     - [x] I repair the wrapper closure capacity exposed by nominal-provider integration (`task_ab82330ce20acb79e62cf7b8572bc6cf`, under21469): preserve acc254 Darwin focused transport PASS15.597s and adjacent wrapper quoted-path terminal2/15.441s; replace checked fixed object/link concatenation with checked dynamic storage while preserving all quoted inputs, output atomicity and failure cleanup. Source review and unchanged Linux/Darwin wrapper assertions precede completion; I do not shorten the fixture path or replay failed binaries.
     - [x] I retain the bounded non-executing version2 exact catalog/global/source-kind nominal mappings; version1 remains non-executable and unknown versions fail closed. My [nominal transport contract](NANOISA_FILE_NOMINAL_TRANSPORT.md), `task_21469c00ddb7a61dcb5ea5f4e9efd333`, first specifies separate120-byte raw codec/private query, then combined non-executing retention. Shared ownership validation rejects COMPLETE UNION; I record the required service-only syntactic transport path before implementation and preserve exact RESOURCE flags, all shared authority refusals and public guards. Production review precedes fixtures; Linux/Darwin roundtrip/atomicity/fault/refusal gates precede any completion claim. My [private query/raw evidence](evidence/file-nominal-private.md) at856620f83 passes normal and strict GCC/Clang Linux plus Apple/Homebrew Darwin gates with unchanged old-authority/consumer refusals. It seals57 reports and560 per-phase artifact entries; no feature-envelope, converter/module roundtrip or execution claim yet. Before combined code I record intentional positives for version-aware metadata validation and v2 bridge/container retention; shared ownership/authority and all executing consumers remain refusals. Fresh integration preserves829/e119 owned-array query closure and both additive Make targets. The temporary NvmV2 view calls only the private query, with checked allocation/cleanup and no validation recursion. Reviewed674d combined production now receives separately frozen nominal module/fault/consumer fixtures; only three former transport refusals migrate to positives. Shared ownership/execution refusals and original private evidence remain unchanged. Fresh Linux/Darwin bootstrap/provider/wrapper and paired container gates precede completion. Corrected acc254 transport gates pass on both platforms; 775b wrapper gates pass after reviewed dynamic closure repair. I retain the subsequent Darwin owned-array adjacent link setup failure (crypto search path missing) before explicit LIBRARY_PATH qualification; no fixture assertion or source change. My [combined transport evidence](evidence/file-nominal-retention.md) seals236 reports/998 artifact entries; 0d057 integration passes Linux16.366s and Darwin23.987s, 05d wrapper integration passes both platforms, and 9752 linked nominal/origin/authority integration passes Linux10.958s. No public File/source/host authority is added.
     - [x] I establish the [private File/Result transfer-state foundation](NANOISA_FILE_RESULT_FLOW.md), `task_6739329b1fcde420706bb5a10f481919`, after canonical833. I derive exact declarations from the checked nominal module and model moves, exclusive references, all service outcome transitions, explicit arm refinement/take, call obligations, conservative joins and complete exits. I do not certify bytecode, assign opcodes, grant rights or widen shared admission. Production review precedes frozen allocation/atomicity/lifetime controls; later CODE decoding/CFG certificates and matched VM/native dispatch remain separately reviewed. I prepare only the first declaration/state checkpoint: exact copied metadata, allocation-free scalar/owner moves, caller-owned borrowed formals, region/exit checks, exact nominal allocation sizing and complete provider lists. Root reviewed the first checkpoint at `d4606de4f`. My second production checkpoint adds exact service/import transitions, scalar catalog constructors, transactional Result refinement/take, exact internal-call obligations and conservative joins with checked shared symbolic identities. Both checkpoints remain private and non-certifying. Root approved `7bcfd0d5c`; frozen `38a19922a` normal and GCC sanitizer controls pass. Its first Clang phase stops before fixture execution on the known GCC-install selection warning under Werror; I preserve that terminal and select `/usr/lib/gcc/aarch64-linux-gnu/13` explicitly for a fresh remaining-phase run, without changing source or assertions. I also preserve the first integrated `24ddc72de` wrapper setup terminal: its fresh-tree driver omitted the `nano_virt` build prerequisite after normal flow and C-seed module checks passed. I build that provider explicitly before fresh remaining wrapper controls; this changes no production or fixture assertion. [My sealed private acceptance](evidence/file-result-flow.md) records original38a Linux/Darwin normal/sanitizer/adjacent/provider controls and integrated24dd fresh normal/C-seed/module/wrapper controls, with both first setup terminals retained. PR839 merged at `b69b60cde`; actual ancestry reconciles only673932 complete. Full File flow decoding, public dispatch and source/shadow acceptance remain open.
-    - [ ] I establish [private decoded File CODE/CFG authority](NANOISA_FILE_CODE_AUTHORITY.md), `task_546cf4241d4050fae080fd25b5602b8c`, after673932. I review exact proposed primary0x91–0x96 encoding and old-consumer refusal before a non-executing, complete acyclic function/CFG query binds sites, callee bodies, nominal identities, borrows and cleanup obligations to actual CODE. No implementation or admission precedes contract/source review. Root approved the first encoding/refusal stage. Before code I record the raw disassembler signed32 branch-target addition and widen its shared target calculation for checked new branch formatting; no pre-fix boundary fixture executes. Metadata presence stays distinct from instruction-family execution refusal, and raw decoder partial-output behavior is not advertised as atomic.
+    - [x] I establish [private decoded File CODE/CFG authority](NANOISA_FILE_CODE_AUTHORITY.md), `task_546cf4241d4050fae080fd25b5602b8c`, after673932. I review exact proposed primary0x91–0x96 encoding and old-consumer refusal before a non-executing, complete acyclic function/CFG query binds sites, callee bodies, nominal identities, borrows and cleanup obligations to actual CODE. No implementation or admission precedes contract/source review. Root approved the first encoding/refusal stage. Before code I record the raw disassembler signed32 branch-target addition and widen its shared target calculation for checked new branch formatting; no pre-fix boundary fixture executes. Metadata presence stays distinct from instruction-family execution refusal, and raw decoder partial-output behavior is not advertised as atomic.
+      I reconcile this bounded row with actual PR848 merge `ab17e610786397670321b846de137f3c8bee9bf6`, canonical ancestry and live MAC546cf COMPLETED. [My body evidence](evidence/file-body-transfers.md) retains the completed encoding/preparation/acyclic-body milestone; the next loop/indirect/richer-borrow and public/source rows remain unchecked. I do not repeat completed query work or close its full parents.
     - [ ] I complete the required File loop/backedge, indirect-target/body and needed multi-borrow call boundaries after the first acyclic milestone, then qualify repeated bounded-live runtime cleanup and complete paired source/all selected shadows under72556/6931. Acyclic private success does not waive those parent or release obligations.
     - [ ] I review exact File/Result flow plus matched VM/native host-granted dispatch before changing any public selector; every entry remains scalar-only with no escaping File/owned Result.
     - [ ] I review paired executable generation and source publishers, then qualify C-seed/fresh Stage1/Stage2 complete source and all shadows in real VM/native File lifecycle on Linux/Darwin. Private carrier/query evidence does not close6931/d03c/ed702.
@@ -12229,6 +12229,10 @@ I integrate canonical846/847 separately at e756 with unchanged File production/f
 
 - [ ] I establish [the File hosted conjunction](NANOISA_FILE_HOSTED_CONJUNCTION.md), `task_6fc967db5ee6921f84d1619ca5fd084c`, under72556 after546cf: first a reviewed private plan from the actual v2 envelope with exact entry/first-initializer order, scalar host escape and derived operand/frame bounds; then separately reviewed matched VM/native carrier/service/root cleanup; then combined public selection only after all pending runtime obligations and actual file lifecycle acceptance; finally paired source/full shadows and remaining loop/indirect/richer-borrow clauses. No implementation precedes contract review, and no private report itself grants hosted authority. Full6931/d03c File/Socket/GPU promises remain open.
 
+- [ ] I prepare only the opaque File host-grant lifecycle and shared C11 atomic gate (`task_25bbd69e2c9a49428f58a45dad942b8c`) under6fc/72556/82ff, after [the reviewed public contract](NANOISA_FILE_PUBLIC_CONJUNCTION.md): record exact ABI/status/private balanced-lock ownership first; then implement the isolated owning object and C99 public surface; then review deterministic lifecycle/allocation/shared-TU/concurrent BUSY fixtures before execution; finally qualify actual Linux/Darwin compiler recipes and retained evidence. No dispatcher, emitter, provider default or public File guard changes. The larger public conjunction remains open.
+
+I qualify only this preparatory grant/gate at frozen54822f541: fresh Linux GCC/Clang ordinary and strict sanitizer configurations plus puck AppleClang ordinary and HomebrewClang ordinary/sanitizers pass. Every phase builds its own C11 object and C99 consumers, preserving all assertions and zero-live-grant cleanup. The [component seal](evidence/file-host-grant.md) records exact source/tool/artifact scope; the child awaits reviewed merge and larger public admission remains open.
+
 - [x] I reconcile only bounded546cf encoding/preparation/acyclic body acceptance from actual PR848 mergeab17e610 through the supported default-profile evidence helper. Full72556/6931 and hosted6fc remain open. Root approves97bb's first nonexecuting serialized-v2 hosted plan; before implementation I audit decoder/bridge allocation products, prior-only nominal layout validation, actual first-initializer selection and the loss of wire max_stack at the bridge. New runtime storage facts count abstract value/reference/frame slots and retain pending carrier/cleanup qualification; they do not assert a matched File carrier already exists.
 
 - [x] I correct hosted6fc legacy failure classification before fixtures: static allocation-path review finds the v2 bridge reports INDEX_RANGE for failed string/metadata insertion and retained-layout allocation validation, not only TRUNCATED. I retain precise nonallocating INVALID/LIMIT and direct allocation MEMORY; allocating reader/bridge failures become conservatively UNRESOLVED until a separately precise legacy status API exists. I qualify every allocator prefix with unchanged success/output/cleanup/peak assertions; no prior failing binary is executed.
@@ -12460,3 +12464,5 @@ I preserve4e8 Linux ordinaryPASS50.137s and GCC ASan/UBSan/LSanPASS139.821s, eac
 
 I preserve6fdb Darwin reuse-launcher failure before the driver: verified source extraction succeeds, but comparing recorded /private/tmp provider paths to an unresolved /tmp root fails containment. The checked launcher stops before any dependent gate. I resolve both paths, retain the terminal in `/tmp/nanolang-file-native-6fdb-puck-launch`, and use fresh -ready tree/evidence paths. This is an orchestration correction; no product/fixture change or completed Darwin sanitizer claim follows.
 I seal private-native9a237 qualification in [my evidence](evidence/file-private-native.md): Linux GCC ordinary/sanitizer, corrected Clang sanitizer and Darwin Apple/Homebrew full original corpus at nativeO0/O2 pass, plus isolated no-private-VM/mismatch controls and VM/frame/opcode/wrapper neighbors. I retain the registry/Clang first failures and both Darwin orchestration prerequisites, with precise4e8/6fdb attribution and138 byte-identical generatedC comparisons. The18-pair seal covers6,199 unique artifacts; source/public/full82ff/5.1 acceptance remains separate, and bounded completion awaits independent review/actual merge.
+
+- [ ] I establish the [explicit public File host-grant conjunction](NANOISA_FILE_PUBLIC_CONJUNCTION.md) under existing6fc/72556/82ff after vm_effects' private native9a23711 acceptance: review concrete grant/gate/API and immutable-byte preparation; review joint matched VM/native service-aware routing while old grant-less guards remain; qualify host authority, startup/cleanup/output and actual installed opt-in/package paths on Linux/Darwin. No public admission precedes matched target and fixture review. The loop/indirect/multi-borrow and paired source/full-shadow requirements above remain mandatory5.1 work, not closed by this initial acyclic public route.

@@ -1,0 +1,22 @@
+{
+  "env": {
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "LSAN_OPTIONS": null,
+    "SDKROOT": null,
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  },
+  "flags": [
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-fPIC",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer"
+  ],
+  "sanitizers": true,
+  "selected": "/bin/gcc",
+  "version": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+}

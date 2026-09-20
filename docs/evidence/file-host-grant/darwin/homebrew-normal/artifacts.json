@@ -1,0 +1,11 @@
+{
+  "fixtures/nano-file-host-grant-6zrvllug/instrumented": "f649d69bc9bd44c11cf76b97edd140e87e6c9560d67f6f02913e043a3a776fbe",
+  "fixtures/nano-file-host-grant-6zrvllug/instrumented-main.o": "7ea7e957e9af16d008a64eb718edb527a49fd2ef930ae464b33bbcd74584965c",
+  "fixtures/nano-file-host-grant-6zrvllug/instrumented-provider.o": "1da071c6c5f6942026eb474d60d8dee5dd0f8c46cbe678fb101737048f64649e",
+  "fixtures/nano-file-host-grant-6zrvllug/linked": "928eb300aa2de132bec53642d3b78fc881b4feee5249310e978990a879e75b1e",
+  "fixtures/nano-file-host-grant-6zrvllug/linked-main.o": "1b270de6e4823605e381ee28f5cbf3a18d8b7d9b8ca40f7bc112412378de411d",
+  "fixtures/nano-file-host-grant-6zrvllug/peer.o": "de3f011d10eff80845849bce7fc0d718167c9dbfa2fb0a34e4b3935b2c4b6a45",
+  "headers.d": "a7c0f1b5a3a85f86703efbd841ac9775954ddde685adede005aad64c60858681",
+  "obj/nanoisa/file_host_grant.d": "1f8fcffa61237974956da95c0d0dc5a6d0d9a65f2739950111c485c7c16304fe",
+  "obj/nanoisa/file_host_grant.o": "90e42d4712b02cd57e535bb55afc837550c645174019b3663bd59cab9b20ae25"
+}
