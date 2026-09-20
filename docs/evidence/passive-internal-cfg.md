@@ -46,3 +46,14 @@ integration and actual merge remain pending. The separate fullgraph emitter
 shadow deadline, Darwin native executable timeouts and full5.1 release remain
 open. This bounded passive repair does not establish complete compiler/bootstrap
 fixed points or production correspondence to the formal model.
+
+## My independent seal audit
+
+I retain the [independent audit](passive-internal-cfg-independent-review.json)
+with SHA256b1c2a8dbffc8550ceeeab655bd51bbbc942fd9559de58e426a69ecc18a4c1508.
+It verifies every sealed Git report and CAS object,14246 references,76 matching
+endpoint pairs, the complete Darwin archive and3798 selected source/fixture
+Git identities. Both corrected hosts pass all12 recorded phases. It preserves
+the original Darwin failure and all stated instrumentation/retention limits.
+It does not rehash current remote endpoints or establish full-product acceptance.
+Canonical integration remains pending.
