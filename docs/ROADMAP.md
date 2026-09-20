@@ -12790,3 +12790,12 @@ reports and ordered host events; exact shared fuel, live-reference backedges,
 and isolated ABI/non-first-variant/reference/edge/dead-label refusals are explicit.
 Old private/public/archive neighbors remain separate required gates. No fixture
 has been compiled or executed; I submit the complete checkpoint for review.
+
+- [ ] I repair my unexecuted f55c cyclic dispatch fixture's imported-TestCase
+  discovery and emitter recovery coverage under15a92. Root static review found
+  module-scope `FileCyclic` exposes unrelated tests/setup to unittest discovery.
+  I import the module and reference its command helper through that module.
+  The emitter sweep's eventual successful prefix is not independent recovery
+  after every refusal; I add a fresh fault-disabled emission, publication/no-host
+  assertions, free and exact baseline checks after each prefix. No production
+  defect or runtime failure is asserted; correction review precedes gates.
