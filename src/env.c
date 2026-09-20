@@ -225,8 +225,8 @@ static void env_free_value(Value v) {
      * because interpreter function-local variables persist in global environment.
      * GC cycle collection will clean them up when the program ends.
      * Compiled code handles opaque lifetimes correctly via scope-based cleanup. */
-    if (v.type == VAL_STRUCT) {
-        env_discard_record(v.as.struct_val);
+    if (v.type == VAL_STRUCT || v.type == VAL_TUPLE) {
+        env_discard_value_snapshot(v);
         return;
     }
     if (v.type == VAL_FUNCTION) {
@@ -439,10 +439,13 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
 
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
     /* Borrowed parameters retain their caller's identity and do not own its storage. */
-    if (value.type == VAL_STRUCT && value.as.struct_val &&
+    if ((value.type == VAL_STRUCT || value.type == VAL_TUPLE) &&
         type != TYPE_BORROW_SHARED && type != TYPE_BORROW_MUT) {
-        StructValue *sv = value.as.struct_val;
-        value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        Value copy;
+        if (!env_clone_value_snapshot(value, &copy)) {
+            fprintf(stderr, "I cannot copy a binding value graph.\n"); exit(1);
+        }
+        value = copy;
     }
     if (env->symbol_count >= env->symbol_capacity) {
         env->symbol_capacity *= 2;
@@ -599,9 +602,12 @@ void env_set_var(Environment *env, const char *name, Value value) {
     if (sym) {
         /* I copy before releasing the old binding, including self-assignment
          * and a record field borrowed from that binding. */
-        if (value.type == VAL_STRUCT && value.as.struct_val) {
-            StructValue *sv = value.as.struct_val;
-            value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        if (value.type == VAL_STRUCT || value.type == VAL_TUPLE) {
+            Value copy;
+            if (!env_clone_value_snapshot(value, &copy)) {
+                fprintf(stderr, "I cannot copy a replacement value graph.\n"); exit(1);
+            }
+            value = copy;
         }
         env_free_value(sym->value);
         sym->value = value;
@@ -961,6 +967,10 @@ Value create_union(const char *union_name, int variant_index, const char *varian
                 StructValue *nested = field_values[i].as.struct_val;
                 v.as.union_val->field_values[i] = create_struct(nested->struct_name,
                     nested->field_names, nested->field_values, nested->field_count);
+            } else if (field_values[i].type == VAL_TUPLE) {
+                if (!env_clone_value_snapshot(field_values[i], &v.as.union_val->field_values[i])) {
+                    fprintf(stderr, "I cannot copy a tuple union payload.\n"); exit(1);
+                }
             } else {
                 v.as.union_val->field_values[i] = field_values[i];
             }
@@ -1964,46 +1974,23 @@ Value create_function(const char *function_name, FunctionSignature *signature) {
 
 /* Create tuple value */
 Value create_tuple(Value *elements, int element_count) {
-    Value val;
-    val.type = VAL_TUPLE;
-    val.is_return = false;
-    val.is_break = false;
-    val.is_continue = false;
-    val.as.tuple_val = malloc(sizeof(TupleValue));
-    val.as.tuple_val->element_count = element_count;
-    
-    /* Allocate and copy elements */
-    if (element_count > 0) {
-        val.as.tuple_val->elements = malloc(sizeof(Value) * element_count);
-        for (int i = 0; i < element_count; i++) {
-            val.as.tuple_val->elements[i] = elements[i];
-            /* Deep copy strings */
-            if (elements[i].type == VAL_STRING) {
-                val.as.tuple_val->elements[i].as.string_val = strdup(elements[i].as.string_val);
-            }
-        }
-    } else {
-        val.as.tuple_val->elements = NULL;
+    TupleValue tuple = {0};
+    tuple.elements = elements;
+    tuple.element_count = element_count;
+    Value source = {0}, copy;
+    source.type = VAL_TUPLE;
+    source.as.tuple_val = &tuple;
+    if (!env_clone_value_snapshot(source, &copy)) {
+        fprintf(stderr, "I cannot copy tuple storage.\n"); exit(1);
     }
-    
-    return val;
+    return copy;
 }
 
-/* Free tuple value */
 void free_tuple(TupleValue *tuple) {
-    if (!tuple) return;
-    
-    /* Free string elements */
-    for (int i = 0; i < tuple->element_count; i++) {
-        if (tuple->elements[i].type == VAL_STRING && tuple->elements[i].as.string_val) {
-            free(tuple->elements[i].as.string_val);
-        }
-    }
-    
-    if (tuple->elements) {
-        free(tuple->elements);
-    }
-    free(tuple);
+    Value owned = {0};
+    owned.type = VAL_TUPLE;
+    owned.as.tuple_val = tuple;
+    env_discard_value_snapshot(owned);
 }
 
 /* Register a module namespace (for import aliases) */

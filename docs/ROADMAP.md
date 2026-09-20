@@ -13579,3 +13579,9 @@ and `task_f8b5ecacb7e4bcc1542712b4652308ad` for queued-task Environment leases.
 Both belong to my required 5.1 list/evaluator acceptance. My proposal is in
 `docs/NANOISA_EVALUATOR_ESCAPE_LIFETIME.md`; neither retirement nor a green
 insert-only test closes them. I retain enum parity and the full imported graph.
+
+I record the independently found `6e8042182` synchronous pending-argument gap
+under task_7b805000dfda4da386b55d4691e8c647: immediate by-value record/tuple
+snapshots across all three call routes and aggregate staging must precede the
+next argument, while explicit borrow formals preserve identity. No faulty path
+was executed. This correction remains part of source review before qualification.

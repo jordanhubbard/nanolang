@@ -1,5 +1,5 @@
-/* I own these records independently of symbols. Non-record reference fields
- * retain create_struct's borrowed representation. Results accumulate until
+/* I own record/tuple/string graphs independently of symbols. Other reference
+ * leaves keep their existing borrowed representation. Results accumulate until
  * Environment teardown; this is not expression-bounded storage. */
 #include "runtime/list_int.h"
 #include <limits.h>
@@ -13,105 +13,147 @@ struct EnvRecordList {
 };
 struct EnvRecordResult {
     struct EnvRecordResult *next;
-    StructValue *record;
+    Value value;
 };
 
-void env_discard_record(StructValue *record) {
-    if (!record) return;
-    for (int i = 0; i < record->field_count; ++i) {
-        Value field = record->field_values[i];
-        if (field.type == VAL_STRUCT) env_discard_record(field.as.struct_val);
-        else if (field.type == VAL_STRING && field.as.string_val) {
-            if (gc_is_managed(field.as.string_val)) gc_release(field.as.string_val);
-            else free(field.as.string_val);
+/* I own only the record/tuple/string value graph. Other reference leaves keep
+ * their original ownership contract and are never released by this pair. */
+void env_discard_value_snapshot(Value owned) {
+    if (owned.type == VAL_STRING) {
+        if (gc_is_managed(owned.as.string_val)) gc_release(owned.as.string_val);
+        else free(owned.as.string_val);
+    } else if (owned.type == VAL_STRUCT) {
+        StructValue *record = owned.as.struct_val;
+        if (!record) return;
+        for (int i = 0; i < record->field_count; ++i) {
+            env_discard_value_snapshot(record->field_values[i]);
+            free(record->field_names[i]);
         }
-        free(record->field_names[i]);
+        free(record->field_names);
+        free(record->field_values);
+        free(record->struct_name);
+        free(record);
+    } else if (owned.type == VAL_TUPLE) {
+        TupleValue *tuple = owned.as.tuple_val;
+        if (!tuple) return;
+        for (int i = 0; i < tuple->element_count; ++i)
+            env_discard_value_snapshot(tuple->elements[i]);
+        free(tuple->elements);
+        free(tuple);
     }
-    free(record->field_names);
-    free(record->field_values);
-    free(record->struct_name);
-    free(record);
 }
 
-static bool clone_record_at(const StructValue *src, StructValue **out, unsigned depth) {
-    if (!src || !src->struct_name || depth >= 128 || src->field_count < 0 ||
-        (src->field_count && (!src->field_names || !src->field_values)) ||
-        (size_t)src->field_count > SIZE_MAX / sizeof(Value) ||
-        (size_t)src->field_count > SIZE_MAX / sizeof(char *)) return false;
-    StructValue *dst = calloc(1, sizeof(*dst));
-    if (!dst) return false;
-    dst->struct_name = strdup(src->struct_name);
-    size_t count = src->field_count ? (size_t)src->field_count : 1;
-    dst->field_names = calloc(count, sizeof(*dst->field_names));
-    dst->field_values = calloc(count, sizeof(*dst->field_values));
-    if (!dst->struct_name || !dst->field_names || !dst->field_values) goto fail;
-    for (int i = 0; i < src->field_count; ++i) {
-        if (!src->field_names[i]) goto fail;
-        dst->field_names[i] = strdup(src->field_names[i]);
-        if (!dst->field_names[i]) goto fail;
-        dst->field_values[i] = create_void();
-        dst->field_count = i + 1;
-        Value field = src->field_values[i];
-        if (field.type == VAL_STRING) {
-            char *text = strdup(field.as.string_val ? field.as.string_val : "");
-            if (!text) goto fail;
-            field.as.string_val = text;
-        } else if (field.type == VAL_STRUCT) {
-            StructValue *nested = NULL;
-            if (!clone_record_at(field.as.struct_val, &nested, depth + 1)) goto fail;
-            field.as.struct_val = nested;
+void env_discard_record(StructValue *record) {
+    Value owned = {0};
+    owned.type = VAL_STRUCT;
+    owned.as.struct_val = record;
+    env_discard_value_snapshot(owned);
+}
+
+static bool clone_value_at(Value source, Value *out, unsigned depth) {
+    if (depth >= 128) return false;
+    Value copy = source;
+    copy.is_return = copy.is_break = copy.is_continue = false;
+    copy.return_target = NULL;
+    if (source.type == VAL_STRING) {
+        copy.as.string_val = strdup(source.as.string_val ? source.as.string_val : "");
+        if (!copy.as.string_val) return false;
+    } else if (source.type == VAL_STRUCT) {
+        StructValue *src = source.as.struct_val;
+        if (!src || !src->struct_name || src->field_count < 0 ||
+            (src->field_count && (!src->field_names || !src->field_values)) ||
+            (size_t)src->field_count > SIZE_MAX / sizeof(Value) ||
+            (size_t)src->field_count > SIZE_MAX / sizeof(char *)) return false;
+        StructValue *dst = calloc(1, sizeof(*dst));
+        if (!dst) return false;
+        copy.as.struct_val = dst;
+        dst->struct_name = strdup(src->struct_name);
+        size_t count = src->field_count ? (size_t)src->field_count : 1;
+        dst->field_names = calloc(count, sizeof(*dst->field_names));
+        dst->field_values = calloc(count, sizeof(*dst->field_values));
+        if (!dst->struct_name || !dst->field_names || !dst->field_values) goto fail;
+        for (int i = 0; i < src->field_count; ++i) {
+            if (!src->field_names[i]) goto fail;
+            dst->field_names[i] = strdup(src->field_names[i]);
+            if (!dst->field_names[i]) goto fail;
+            dst->field_values[i].type = VAL_VOID;
+            dst->field_count = i + 1;
+            if (!clone_value_at(src->field_values[i], &dst->field_values[i], depth + 1)) goto fail;
         }
-        dst->field_values[i] = field;
+    } else if (source.type == VAL_TUPLE) {
+        TupleValue *src = source.as.tuple_val;
+        if (!src || src->element_count < 0 || (src->element_count && !src->elements) ||
+            (size_t)src->element_count > SIZE_MAX / sizeof(Value)) return false;
+        TupleValue *dst = calloc(1, sizeof(*dst));
+        if (!dst) return false;
+        copy.as.tuple_val = dst;
+        if (src->element_count) {
+            dst->elements = calloc((size_t)src->element_count, sizeof(Value));
+            if (!dst->elements) goto fail;
+        }
+        for (int i = 0; i < src->element_count; ++i) {
+            if (!clone_value_at(src->elements[i], &dst->elements[i], depth + 1)) goto fail;
+            ++dst->element_count;
+        }
     }
-    *out = dst;
+    *out = copy;
     return true;
 fail:
-    env_discard_record(dst);
+    env_discard_value_snapshot(copy);
     return false;
 }
 
-bool env_clone_record(Value source, Value *out) {
-    if (!out || source.type != VAL_STRUCT) return false;
-    StructValue *record = NULL;
-    if (!clone_record_at(source.as.struct_val, &record, 0)) return false;
-    Value result = {0};
-    result.type = VAL_STRUCT;
-    result.as.struct_val = record;
-    *out = result;
-    return true;
+bool env_clone_value_snapshot(Value source, Value *out) {
+    return out && clone_value_at(source, out, 0);
 }
 
-bool env_record_snapshot(Environment *env, Value source, Value *out) {
-    if (!env || !out) return false;
+bool env_clone_record(Value source, Value *out) {
+    return source.type == VAL_STRUCT && env_clone_value_snapshot(source, out);
+}
+
+bool env_value_snapshot(Environment *env, Value source, Value *out) {
+    if (!env || !out || (source.type != VAL_STRUCT && source.type != VAL_TUPLE)) return false;
     struct EnvRecordResult *entry = malloc(sizeof(*entry));
     if (!entry) return false;
     Value copy;
-    if (!env_clone_record(source, &copy)) { free(entry); return false; }
-    entry->record = copy.as.struct_val;
+    if (!env_clone_value_snapshot(source, &copy)) { free(entry); return false; }
+    entry->value = copy;
     entry->next = env->record_results;
     env->record_results = entry;
     *out = copy;
     return true;
 }
 
+bool env_record_snapshot(Environment *env, Value source, Value *out) {
+    return source.type == VAL_STRUCT && env_value_snapshot(env, source, out);
+}
+
 bool env_record_result_borrowed(Environment *env, Value value) {
-    if (!env || value.type != VAL_STRUCT) return false;
-    for (struct EnvRecordResult *entry = env->record_results; entry; entry = entry->next)
-        if (entry->record == value.as.struct_val) return true;
+    if (!env || (value.type != VAL_STRUCT && value.type != VAL_TUPLE)) return false;
+    for (struct EnvRecordResult *entry = env->record_results; entry; entry = entry->next) {
+        if (entry->value.type != value.type) continue;
+        if (value.type == VAL_STRUCT && entry->value.as.struct_val == value.as.struct_val) return true;
+        if (value.type == VAL_TUPLE && entry->value.as.tuple_val == value.as.tuple_val) return true;
+    }
     return false;
 }
 
 /* I transfer ownership only after registration succeeds. My caller clears its
  * symbol after true; false preserves its ownership. */
-bool env_retire_record(Environment *env, Value owned) {
-    if (!env || owned.type != VAL_STRUCT || !owned.as.struct_val ||
+bool env_retire_value(Environment *env, Value owned) {
+    if (!env || (owned.type != VAL_STRUCT && owned.type != VAL_TUPLE) ||
+        (owned.type == VAL_STRUCT ? !owned.as.struct_val : !owned.as.tuple_val) ||
         env_record_result_borrowed(env, owned)) return false;
     struct EnvRecordResult *entry = malloc(sizeof(*entry));
     if (!entry) return false;
-    entry->record = owned.as.struct_val;
+    entry->value = owned;
     entry->next = env->record_results;
     env->record_results = entry;
     return true;
+}
+
+bool env_retire_record(Environment *env, Value owned) {
+    return owned.type == VAL_STRUCT && env_retire_value(env, owned);
 }
 
 static struct EnvRecordList *record_list_find(Environment *env, Value handle) {
@@ -254,7 +296,7 @@ static void env_record_storage_free(Environment *env) {
     while (env->record_results) {
         struct EnvRecordResult *entry = env->record_results;
         env->record_results = entry->next;
-        env_discard_record(entry->record);
+        env_discard_value_snapshot(entry->value);
         free(entry);
     }
 }

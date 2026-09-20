@@ -938,7 +938,11 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
-/* I copy only record/string storage; other reference fields stay borrowed. */
+/* I copy record/tuple/string graphs; other reference fields stay borrowed. */
+bool env_clone_value_snapshot(Value source, Value *out);
+void env_discard_value_snapshot(Value owned);
+bool env_value_snapshot(Environment *env, Value source, Value *out);
+bool env_retire_value(Environment *env, Value owned);
 bool env_clone_record(Value source, Value *out);
 void env_discard_record(StructValue *record);
 bool env_record_snapshot(Environment *env, Value source, Value *out);

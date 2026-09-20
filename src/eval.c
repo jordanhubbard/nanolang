@@ -208,8 +208,8 @@ static void eval_scope_release(Environment *env, int first, bool functions) {
         Symbol *symbol = &env->symbols[i];
         bool borrowed = symbol->type == TYPE_BORROW_SHARED || symbol->type == TYPE_BORROW_MUT;
         Value value = symbol->value;
-        if (!borrowed && value.type == VAL_STRUCT && value.as.struct_val) {
-            if (!env_retire_record(env, value)) {
+        if (!borrowed && (value.type == VAL_STRUCT || value.type == VAL_TUPLE)) {
+            if (!env_retire_value(env, value)) {
                 fprintf(stderr, "I cannot retire an owned record binding.\n"); exit(1);
             }
             symbol->value = create_void();
@@ -217,7 +217,7 @@ static void eval_scope_release(Environment *env, int first, bool functions) {
         free(symbol->name);
         free(symbol->struct_type_name);
         if (borrowed) continue;
-        if (value.type == VAL_STRUCT) { /* Its unique owner is now my retirement entry. */ }
+        if (value.type == VAL_STRUCT || value.type == VAL_TUPLE) { /* Its unique owner is now my retirement entry. */ }
         else if (value.type == VAL_STRING) {
             if (gc_is_managed(value.as.string_val)) gc_release(value.as.string_val);
             else free(value.as.string_val);
@@ -231,9 +231,9 @@ static void eval_scope_release(Environment *env, int first, bool functions) {
 }
 
 static Value eval_preserve_record(Environment *env, Value value) {
-    if (value.type != VAL_STRUCT || env_record_result_borrowed(env, value)) return value;
+    if ((value.type != VAL_STRUCT && value.type != VAL_TUPLE) || env_record_result_borrowed(env, value)) return value;
     Value copy;
-    if (!env_record_snapshot(env, value, &copy)) {
+    if (!env_value_snapshot(env, value, &copy)) {
         fprintf(stderr, "I cannot preserve a record result across its scope.\n");
         exit(1);
     }
@@ -242,6 +242,18 @@ static Value eval_preserve_record(Environment *env, Value value) {
     copy.is_break = value.is_break;
     copy.is_continue = value.is_continue;
     return copy;
+}
+
+/* I capture the formal kind before evaluation can move function tables. */
+static Value eval_staged_argument(ASTNode *expression, Environment *env,
+                                  const char *callee, int index) {
+    Function *function = env_get_function(env, callee);
+    Type formal = function && function->params && index >= 0 && index < function->param_count
+        ? function->params[index].type : TYPE_UNKNOWN;
+    Value value = eval_expression(expression, env);
+    if (value.is_return || value.is_break || value.is_continue ||
+        formal == TYPE_BORROW_SHARED || formal == TYPE_BORROW_MUT) return value;
+    return eval_preserve_record(env, value);
 }
 
 static Value eval_scoped_block(ASTNode **statements, int count, Environment *env) {
@@ -3118,7 +3130,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         /* Evaluate arguments */
         Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
         for (int i = 0; i < node->as.call.arg_count; i++) {
-            args[i] = eval_expression(node->as.call.args[i], env);
+            args[i] = eval_staged_argument(node->as.call.args[i], env, func_name, i);
             if (args[i].is_return) {
                 Value result = args[i];
                 free(args);
@@ -3257,7 +3269,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* Evaluate arguments */
     Value args[16];  /* Max args for function calls */
     for (int i = 0; i < node->as.call.arg_count; i++) {
-        args[i] = eval_expression(node->as.call.args[i], env);
+        args[i] = eval_staged_argument(node->as.call.args[i], env, name, i);
         if (args[i].is_return) return args[i];
     }
 
@@ -4623,8 +4635,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     } else if (result.type == VAL_FUNCTION) {
         FunctionSignature *sig_copy = copy_function_signature(result.as.function_val.signature);
         return_value = create_function(result.as.function_val.function_name, sig_copy);
-    } else if (result.type == VAL_STRUCT && result.as.struct_val) {
-        if (!env_record_snapshot(env, result, &return_value)) {
+    } else if (result.type == VAL_STRUCT || result.type == VAL_TUPLE) {
+        if (!env_value_snapshot(env, result, &return_value)) {
             fprintf(stderr, "I cannot copy a returned record.\n");
             exit(1);
         }
@@ -4761,7 +4773,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (arg_count > 0) {
                 args = malloc(sizeof(Value) * (size_t)arg_count);
                 for (int i = 0; i < arg_count; i++) {
-                    args[i] = eval_expression(expr->as.module_qualified_call.args[i], env);
+                    args[i] = eval_staged_argument(expr->as.module_qualified_call.args[i], env, qualified_name, i);
                     if (args[i].is_return) {
                         Value result = args[i];
                         free(args);
@@ -4912,7 +4924,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                             if (field_count > 0) {
                                 field_values = malloc(sizeof(Value) * field_count);
                                 for (int i = 0; i < field_count; i++) {
-                                    field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
+                                    field_values[i] = eval_preserve_record(env, eval_expression(expr->as.struct_literal.field_values[i], env));
                                     if (field_values[i].is_return) {
                                         Value result = field_values[i];
                                         free(field_values);
@@ -4937,7 +4949,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * target type from a 'let x: T = {..base, ...}' declaration. We must
              * handle spread regardless of whether struct_name is set. */
             if (expr->as.struct_literal.spread_source) {
-                Value base_val = eval_expression(expr->as.struct_literal.spread_source, env);
+                Value base_val = eval_preserve_record(env, eval_expression(expr->as.struct_literal.spread_source, env));
                 if (base_val.is_return) return base_val;
                 StructValue *base_sv = base_val.type == VAL_STRUCT ? base_val.as.struct_val : NULL;
                 int base_count = base_sv ? base_sv->field_count : 0;
@@ -4964,8 +4976,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 /* Add override/new fields */
                 for (int oi = 0; oi < over_count; oi++) {
                     merged_names[merged_count]  = expr->as.struct_literal.field_names[oi];
-                    merged_values[merged_count] = eval_expression(
-                        expr->as.struct_literal.field_values[oi], env);
+                    merged_values[merged_count] = eval_preserve_record(env, eval_expression(
+                        expr->as.struct_literal.field_values[oi], env));
                     if (merged_values[merged_count].is_return) {
                         Value result = merged_values[merged_count];
                         free(merged_names);
@@ -5007,7 +5019,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Evaluate each field value */
             for (int i = 0; i < field_count; i++) {
                 field_names[i] = expr->as.struct_literal.field_names[i];
-                field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
+                field_values[i] = eval_preserve_record(env, eval_expression(expr->as.struct_literal.field_values[i], env));
                 if (field_values[i].is_return) {
                     Value result = field_values[i];
                     free(canonical_name);
@@ -5124,7 +5136,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 
                 for (int i = 0; i < field_count; i++) {
                     field_names[i] = expr->as.union_construct.field_names[i];
-                    field_values[i] = eval_expression(expr->as.union_construct.field_values[i], env);
+                    field_values[i] = eval_preserve_record(env, eval_expression(expr->as.union_construct.field_values[i], env));
                     if (field_values[i].is_return) {
                         Value result = field_values[i];
                         free(field_names);
@@ -5252,7 +5264,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Evaluate each element */
             Value *elements = malloc(sizeof(Value) * element_count);
             for (int i = 0; i < element_count; i++) {
-                elements[i] = eval_expression(expr->as.tuple_literal.elements[i], env);
+                elements[i] = eval_preserve_record(env, eval_expression(expr->as.tuple_literal.elements[i], env));
                 if (elements[i].is_return) {
                     Value result = elements[i];
                     free(elements);
@@ -5286,7 +5298,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 return create_void();
             }
             
-            return tv->elements[index];
+            Value item = tv->elements[index];
+            if (item.type == VAL_STRING) return create_string(item.as.string_val);
+            return eval_preserve_record(env, item);
         }
 
         case AST_TRY_OP: {
@@ -5522,8 +5536,8 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     for (int i = 0; i < record->field_count; ++i) {
                         if (!strcmp(record->field_names[i], stmt->as.set.field_name)) {
                             Value staged = value;
-                            if (value.type == VAL_STRUCT) {
-                                if (!env_clone_record(value, &staged)) {
+                            if (value.type == VAL_STRUCT || value.type == VAL_TUPLE) {
+                                if (!env_clone_value_snapshot(value, &staged)) {
                                     fprintf(stderr, "I cannot copy a replacement record field.\n"); exit(1);
                                 }
                             } else if (value.type == VAL_STRING) {
@@ -5534,7 +5548,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                             }
                             Value previous = record->field_values[i];
                             record->field_values[i] = staged;
-                            if (previous.type == VAL_STRUCT) env_discard_record(previous.as.struct_val);
+                            if (previous.type == VAL_STRUCT || previous.type == VAL_TUPLE) env_discard_value_snapshot(previous);
                             else if (previous.type == VAL_STRING) {
                                 if (gc_is_managed(previous.as.string_val)) gc_release(previous.as.string_val);
                                 else free(previous.as.string_val);
@@ -6276,8 +6290,8 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     Value return_value = result;
     if (result.type == VAL_STRING) {
         return_value = create_string(result.as.string_val);
-    } else if (result.type == VAL_STRUCT) {
-        if (!env_record_snapshot(env, result, &return_value)) {
+    } else if (result.type == VAL_STRUCT || result.type == VAL_TUPLE) {
+        if (!env_value_snapshot(env, result, &return_value)) {
             fprintf(stderr, "I cannot copy a returned record.\n");
             exit(1);
         }
@@ -6307,7 +6321,7 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
      * internal call paths and direct generated operations use my result arena. */
     if (env_record_result_borrowed(env, result)) {
         Value copy;
-        if (!env_clone_record(result, &copy)) { fprintf(stderr, "I cannot copy an escaping record.\n"); exit(1); }
+        if (!env_clone_value_snapshot(result, &copy)) { fprintf(stderr, "I cannot copy an escaping record.\n"); exit(1); }
         copy.is_return = result.is_return;
         copy.return_target = result.return_target;
         result = copy;

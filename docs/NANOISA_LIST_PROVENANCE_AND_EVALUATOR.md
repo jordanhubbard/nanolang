@@ -396,3 +396,15 @@ all interpreter allocations. The current clone bound is 128 record nodes along
 a path, with cumulative list results and retired bindings retained until teardown.
 No build, source execution, fixture qualification or historical reproduction was
 performed for this checkpoint. Only source review and whitespace checks apply.
+
+### My synchronous argument staging correction
+
+Independent review of `6e8042182` found a pending-argument ownership gap before
+execution: FIELD_ACCESS may lend a nested record, and a later argument's field
+replacement can release it before parameter cloning. I record the correction
+under my existing list task before implementing it. Direct, callable-expression
+and module-qualified calls must snapshot each by-value record/tuple argument
+immediately after evaluation, before the next argument. Explicit borrowed formal
+parameters retain their actual source identity and are not silently copied.
+Aggregate fields/elements need the same left-to-right staging. This is a source
+correction, not a reproduction or an assertion change.
