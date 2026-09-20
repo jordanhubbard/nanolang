@@ -1,0 +1,160 @@
+{
+  "bytes": 298548221,
+  "darwin_archive": {
+    "path": "/tmp/nanolang-indirect-72e-puck-evidence.tar.gz",
+    "sha256": "647443abd4b05b2818678517835fa849c07fd518578321af328cbdebcdcd8326"
+  },
+  "main": "0dc58835ffd2183f6c35f90a4d02bd2da18e4a19",
+  "objects": 807,
+  "pairs": 56,
+  "phases": {
+    "nanolang-indirect-72e-linux": [
+      {
+        "phase": "setup",
+        "seconds": 23.039,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 7.383,
+        "status": 0
+      },
+      {
+        "phase": "cyclic",
+        "seconds": 3.031,
+        "status": 0
+      },
+      {
+        "phase": "code",
+        "seconds": 8.835,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 9.033,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 8.688,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 5.477,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.173,
+        "status": 0
+      },
+      {
+        "phase": "cyclic-hosted",
+        "seconds": 7.434,
+        "status": 0
+      },
+      {
+        "phase": "indirect_targets",
+        "seconds": 2.57,
+        "status": 0
+      },
+      {
+        "phase": "indirect_flow",
+        "seconds": 2.72,
+        "status": 0
+      }
+    ],
+    "nanolang-indirect-72e-puck": [
+      {
+        "phase": "setup",
+        "seconds": 9.615,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.148,
+        "status": 0
+      },
+      {
+        "phase": "discovery",
+        "seconds": 0.087,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 6.284,
+        "status": 0
+      },
+      {
+        "phase": "cyclic",
+        "seconds": 2.798,
+        "status": 0
+      },
+      {
+        "phase": "code",
+        "seconds": 3.076,
+        "status": 1
+      }
+    ],
+    "nanolang-indirect-72e-puck-corrected": [
+      {
+        "phase": "configuration",
+        "seconds": 0.151,
+        "status": 0
+      },
+      {
+        "phase": "code",
+        "seconds": 5.764,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 5.98,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 5.744,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 4.233,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.484,
+        "status": 0
+      },
+      {
+        "phase": "cyclic-hosted",
+        "seconds": 5.76,
+        "status": 0
+      },
+      {
+        "phase": "indirect_targets",
+        "seconds": 2.379,
+        "status": 0
+      },
+      {
+        "phase": "indirect_flow",
+        "seconds": 2.552,
+        "status": 0
+      }
+    ]
+  },
+  "pin": "72e3be01c2d46291c3d23ff0ded74f285a0f654e",
+  "references": 10407
+}

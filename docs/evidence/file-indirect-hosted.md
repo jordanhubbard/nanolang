@@ -91,3 +91,25 @@ qualified Git pins. The [audit](file-indirect-hosted-independent-review.json)
 retains SHA256c1226f5bcae9243b7dfa10dcf0d3f6be1f46c0bd60556e344bbf2e7fc63cd1e2.
 No fixture replay or full runtime/source acceptance is claimed. Current-main
 integration and actual merge still precede task closure.
+
+## My current-main integration
+
+I integrate canonical affine-union main0dc588 at
+`72e3be01c2d46291c3d23ff0ded74f285a0f654e`. My query production and fixtures
+remain unchanged; I retain additive Make and roadmap histories and rebuild fresh
+providers on Linux and puck. Linux passes all thirteen selected phases. Puck
+passes setup, configuration, discovery, ordinary query and cyclic controls, then
+its CODE runner reports unsupported Apple leak detection before assertions.
+I retain that first terminal under task_f4463938a7b1ea12bc6eadacfdb9fc85.
+The external integration adapter had selected AppleClang for existing neighbors
+that always enable sanitizers. I restore explicit Homebrew Clang with unchanged
+leak detection and assertions; all eight failed/unrun neighbors then pass with
+a fresh configuration report on the same frozen source. Original passes are not
+relabelled. This supplement includes ordinary query checks and the neighbors'
+existing sanitizer scopes; it is not a replay of the original seven configurations.
+
+My [integration seal](file-indirect-hosted-integration/summary.json) retains
+277 reports, 807 objects totaling298548221 bytes, 10407 artifact references and
+56 equal source/tool endpoint pairs, plus the complete Darwin archive identity.
+Runtime dispatch, public/source indirect calls and the full2c135 roadmap remain
+open. Independent integration review and actual merge remain pending.
