@@ -7055,7 +7055,95 @@ shadow generate_match_arm_value {
     assert (str_contains code "_out = nl_n;")
 }
 
+fn transp_match_guard_id(m: ASTMatch, arm: int) -> int {
+    if (>= arm (array_length m.arm_guard_ids)) { return -1 }
+    return (at m.arm_guard_ids arm)
+}
+
+fn transp_match_has_guards(m: ASTMatch) -> bool {
+    let mut arm: int = 0
+    while (< arm m.arm_count) {
+        if (>= (transp_match_guard_id m arm) 0) { return true }
+        set arm (+ arm 1)
+    }
+    return false
+}
+
+# I lower guarded arms as ordered predicates. A switch cannot represent two
+# guarded arms for the same tag or an early guarded wildcard.
+fn generate_guarded_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: string) -> string {
+    let scr_code: string = (generate_expression parser m.scrutinee m.scrutinee_type env "")
+    let mut union_name: string = m.union_type_name
+    if (== union_name "") {
+        if (== m.scrutinee_type ParseNodeType.PNODE_IDENTIFIER) {
+            set union_name (genenv_get env (parser_get_identifier parser m.scrutinee).name)
+        } else { if (== m.scrutinee_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
+            set union_name (parser_get_union_construct parser m.scrutinee).union_name
+        } }
+    }
+    if (== union_name "") { set union_name (infer_expr_type parser m.scrutinee m.scrutinee_type env) }
+    if (== union_name "") { set union_name "UNKNOWN" }
+    if (is_generic_type union_name) { set union_name (monomorphize_type_name union_name) }
+
+    let mut is_int_match: bool = false
+    let mut probe: int = 0
+    while (< probe m.arm_count) {
+        if (transp_str_starts_with (at m.arm_variants probe) "INT:") { set is_int_match true }
+        set probe (+ probe 1)
+    }
+
+    let mut out_c: string = "int64_t"
+    if (!= expected_type "") { set out_c (type_to_c expected_type) }
+    let mut parts: array<string> = []
+    set parts (cg_append parts "({ ")
+    if is_int_match {
+        set parts (cg_append parts "int64_t _m = ")
+    } else {
+        set parts (cg_append parts (+ "nl_" (+ union_name " _m = ")))
+    }
+    set parts (cg_append parts scr_code)
+    set parts (cg_append parts (+ "; " (+ out_c " _out = {0}; bool _matched = false; ")))
+
+    let mut arm: int = 0
+    while (< arm m.arm_count) {
+        let variant: string = (at m.arm_variants arm)
+        let binding: string = (at m.arm_bindings arm)
+        let body_id: int = (at m.arm_body_ids arm)
+        let body_type: int = (at m.arm_body_types arm)
+        let guard: int = (transp_match_guard_id m arm)
+        let mut condition: string = "!_matched"
+        if (transp_str_starts_with variant "INT:") {
+            set condition (+ condition (+ " && _m == " (str_substring variant 4 (- (str_length variant) 4))))
+        } else { if (!= variant "_") {
+            set condition (+ condition (+ " && _m.tag == nl_" (+ union_name (+ "_TAG_" variant))))
+        } }
+        set parts (cg_append parts (+ "if (" (+ condition ") { ")))
+
+        let mut env_arm: GenEnv = env
+        if (and (not is_int_match) (!= variant "_")) {
+            set parts (cg_append parts (gen_match_variant_binding parser union_name variant binding ""))
+            let binding_type: string = (get_variant_field_type parser union_name variant)
+            if (!= binding "_") { set env_arm (genenv_put env binding binding_type false) }
+        }
+
+        if (>= guard 0) {
+            let guard_code: string = (generate_expression parser guard (at m.arm_guard_types arm) env_arm "bool")
+            set parts (cg_append parts (+ "if (" (+ guard_code ") { _matched = true; ")))
+            set parts (cg_append parts (generate_match_arm_value parser body_id body_type env_arm expected_type))
+            set parts (cg_append parts "} ")
+        } else {
+            set parts (cg_append parts "_matched = true; ")
+            set parts (cg_append parts (generate_match_arm_value parser body_id body_type env_arm expected_type))
+        }
+        set parts (cg_append parts "} ")
+        set arm (+ arm 1)
+    }
+    set parts (cg_append parts "_out; })")
+    return (cg_build parts)
+}
+
 fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: string) -> string {
+    if (transp_match_has_guards m) { return (generate_guarded_match_expr parser m env expected_type) }
     let scr_code: string = (generate_expression parser m.scrutinee m.scrutinee_type env "")
 
     /* Infer union name from scrutinee identifier type in env (common case). */
@@ -7192,6 +7280,12 @@ shadow generate_match_expr {
     let int_match: ASTMatch = (parser_get_match int_parser 0)
     let int_code: string = (generate_match_expr int_parser int_match (genenv_new "main") "int")
     assert (str_contains int_code "int64_t _out = {0}; switch (_m)")
+    let guarded_tokens: List<LexerToken> = (tokenize_string "union Opt { Some { value: int }, None {} } fn main() -> int { let x: Opt = Opt.Some { value: 1 } return match x { Some(v) if false => v.value, Some(v) => v.value, None(n) => 0 } }" "guarded-expr.nano" (list_CompilerDiagnostic_new))
+    let guarded_parser: Parser = (parse_program guarded_tokens (list_LexerToken_length guarded_tokens) "guarded-expr.nano")
+    let guarded_match: ASTMatch = (parser_get_match guarded_parser 0)
+    let guarded_code: string = (generate_match_expr guarded_parser guarded_match (genenv_put (genenv_new "main") "x" "Opt" false) "int")
+    assert (str_contains guarded_code "bool _matched = false")
+    assert (not (str_contains guarded_code "switch (_m.tag)"))
 }
 
 /* Get the NanoLang type of the first field of a union variant (for env registration).
@@ -7437,7 +7531,99 @@ shadow gen_match_variant_binding {
     assert (str_contains b3 "nl_v")
 }
 
+fn generate_guarded_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, return_type: string) -> string {
+    let scr_code: string = (generate_expression parser m.scrutinee m.scrutinee_type env "")
+    let mut union_name: string = m.union_type_name
+    if (== union_name "") {
+        if (== m.scrutinee_type ParseNodeType.PNODE_IDENTIFIER) {
+            set union_name (genenv_get env (parser_get_identifier parser m.scrutinee).name)
+        } else { if (== m.scrutinee_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
+            set union_name (parser_get_union_construct parser m.scrutinee).union_name
+        } }
+    }
+    if (== union_name "") { set union_name (infer_expr_type parser m.scrutinee m.scrutinee_type env) }
+    if (== union_name "") { set union_name "UNKNOWN" }
+    if (is_generic_type union_name) { set union_name (monomorphize_type_name union_name) }
+
+    let mut is_int_match: bool = false
+    let mut probe: int = 0
+    while (< probe m.arm_count) {
+        if (transp_str_starts_with (at m.arm_variants probe) "INT:") { set is_int_match true }
+        set probe (+ probe 1)
+    }
+
+    let mut parts: array<string> = []
+    set parts (cg_append parts (gen_indent indent))
+    set parts (cg_append parts "{\n")
+    set parts (cg_append parts (gen_indent (+ indent 1)))
+    if is_int_match {
+        set parts (cg_append parts "int64_t _m = ")
+    } else {
+        set parts (cg_append parts (+ "nl_" (+ union_name " _m = ")))
+    }
+    set parts (cg_append parts scr_code)
+    set parts (cg_append parts ";\n")
+    set parts (cg_append parts (gen_indent (+ indent 1)))
+    set parts (cg_append parts "bool _matched = false;\n")
+
+    let mut arm: int = 0
+    while (< arm m.arm_count) {
+        let variant: string = (at m.arm_variants arm)
+        let binding: string = (at m.arm_bindings arm)
+        let body_id: int = (at m.arm_body_ids arm)
+        let body_type: int = (at m.arm_body_types arm)
+        let guard: int = (transp_match_guard_id m arm)
+        let mut condition: string = "!_matched"
+        if (transp_str_starts_with variant "INT:") {
+            set condition (+ condition (+ " && _m == " (str_substring variant 4 (- (str_length variant) 4))))
+        } else { if (!= variant "_") {
+            set condition (+ condition (+ " && _m.tag == nl_" (+ union_name (+ "_TAG_" variant))))
+        } }
+        set parts (cg_append parts (gen_indent (+ indent 1)))
+        set parts (cg_append parts (+ "if (" (+ condition ") {\n")))
+
+        let mut env_arm: GenEnv = env
+        if (and (not is_int_match) (!= variant "_")) {
+            set parts (cg_append parts (gen_match_variant_binding parser union_name variant binding (gen_indent (+ indent 2))))
+            let binding_type: string = (get_variant_field_type parser union_name variant)
+            if (!= binding "_") { set env_arm (genenv_put env binding binding_type false) }
+        }
+
+        let mut body_indent: int = (+ indent 2)
+        if (>= guard 0) {
+            let guard_code: string = (generate_expression parser guard (at m.arm_guard_types arm) env_arm "bool")
+            set parts (cg_append parts (gen_indent (+ indent 2)))
+            set parts (cg_append parts (+ "if (" (+ guard_code ") {\n")))
+            set parts (cg_append parts (gen_indent (+ indent 3)))
+            set parts (cg_append parts "_matched = true;\n")
+            set body_indent (+ indent 3)
+        } else {
+            set parts (cg_append parts (gen_indent (+ indent 2)))
+            set parts (cg_append parts "_matched = true;\n")
+        }
+
+        if (== body_type ParseNodeType.PNODE_BLOCK) {
+            set parts (cg_append parts (generate_block parser body_id body_indent env_arm return_type))
+        } else {
+            set parts (cg_append parts (gen_indent body_indent))
+            set parts (cg_append parts (generate_expression parser body_id body_type env_arm ""))
+            set parts (cg_append parts ";\n")
+        }
+        if (>= guard 0) {
+            set parts (cg_append parts (gen_indent (+ indent 2)))
+            set parts (cg_append parts "}\n")
+        }
+        set parts (cg_append parts (gen_indent (+ indent 1)))
+        set parts (cg_append parts "}\n")
+        set arm (+ arm 1)
+    }
+    set parts (cg_append parts (gen_indent indent))
+    set parts (cg_append parts "}\n")
+    return (cg_build parts)
+}
+
 fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, return_type: string) -> string {
+    if (transp_match_has_guards m) { return (generate_guarded_match_stmt parser m indent env return_type) }
     let scr_code: string = (generate_expression parser m.scrutinee m.scrutinee_type env "")
 
     /* Infer union name from scrutinee identifier type in env (common case). */
@@ -7602,6 +7788,12 @@ shadow generate_match_stmt {
     let env0: GenEnv = (genenv_put (genenv_new "test") "x" "Option" false)
     let code: string = (generate_match_stmt p m 0 env0 "int")
     assert (str_contains code "switch")
+    let guarded_tokens: List<LexerToken> = (tokenize_string "union Opt { Some { value: int }, None {} } fn main() -> int { let x: Opt = Opt.Some { value: 1 } match x { Some(v) if false => { return v.value } Some(v) => { return v.value } None(n) => { return 0 } } }" "guarded-stmt.nano" (list_CompilerDiagnostic_new))
+    let guarded_parser: Parser = (parse_program guarded_tokens (list_LexerToken_length guarded_tokens) "guarded-stmt.nano")
+    let guarded_match: ASTMatch = (parser_get_match guarded_parser 0)
+    let guarded_code: string = (generate_match_stmt guarded_parser guarded_match 0 (genenv_put (genenv_new "main") "x" "Opt" false) "int")
+    assert (str_contains guarded_code "bool _matched = false")
+    assert (not (str_contains guarded_code "switch (_m.tag)"))
 }
 
 struct StmtGenResult {

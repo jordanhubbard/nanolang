@@ -8,6 +8,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 COMPILER_ROOT = Path(os.environ.get("NANOLANG_AFFINE_COMPILER_ROOT", ROOT / "bin"))
 COMPILERS = os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(",")
+CANONICAL_COMPILERS = os.environ.get("NANOLANG_AFFINE_CANONICAL_COMPILERS", "nanoc_stage1,nanoc_stage2").split(",")
 
 
 class GenericAffineIdentity(unittest.TestCase):
@@ -31,6 +32,27 @@ class GenericAffineIdentity(unittest.TestCase):
                     self.assertGreater(result.returncode, 0, messages)
                     self.assertRegex(messages, r"(?i)(ownership|resource-bearing)")
                     self.assertEqual(output.read_bytes(), b"prior artifact")
+
+    def check_canonical(self, source):
+        for compiler in CANONICAL_COMPILERS:
+            with self.subTest(canonical_compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-generic-affine-nvm-") as directory:
+                work = Path(directory)
+                program = work / "main.nano"
+                module = work / "program.nvm"
+                generated = work / "program.c"
+                native = work / "program"
+                program.write_text(source)
+                result = subprocess.run([str(COMPILER_ROOT / compiler), str(program), "--emit-nvm", "-o", str(module)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                run = subprocess.run([str(ROOT / "bin/nano_vm"), str(module)], cwd=ROOT, capture_output=True, text=True, timeout=10)
+                self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+                translate = subprocess.run([str(ROOT / "bin/nvm2c"), str(module), "-o", str(generated)], cwd=ROOT, capture_output=True, text=True, timeout=30)
+                self.assertEqual(translate.returncode, 0, translate.stdout + translate.stderr)
+                cc = os.environ.get("CC", "cc")
+                compile_native = subprocess.run([cc, "-Wall", "-Wextra", "-Werror", "-std=c11", str(generated), str(ROOT / "bin/nano_aot_runtime.o"), "-lm", "-o", str(native)], cwd=ROOT, capture_output=True, text=True, timeout=30)
+                self.assertEqual(compile_native.returncode, 0, compile_native.stdout + compile_native.stderr)
+                native_run = subprocess.run([str(native)], cwd=ROOT, capture_output=True, text=True, timeout=10)
+                self.assertEqual(native_run.returncode, 0, native_run.stdout + native_run.stderr)
 
     def test_integer_payload_copy_and_match(self):
         self.check('''union Box<T> { Some { value: T }, None {} }
@@ -56,7 +78,7 @@ shadow main { assert (== (main) 0) }
 ''', True)
 
     def test_guarded_first_success_preserves_lexical_payloads(self):
-        self.check('''resource struct T { fd: int }
+        source = '''resource struct T { fd: int }
 union Box<T> { Some { value: T }, None {} }
 fn close_record(value: T) -> int { let T { fd } = value return fd }
 shadow close_record { assert (== (close_record T { fd: 3 }) 3) }
@@ -75,7 +97,9 @@ fn choose(value: Box<int>, first: bool) -> int {
 shadow choose { let boxed: Box<int> = Box.Some { value: 7 } assert (== (choose boxed false) 7) assert (== (choose boxed true) 8) }
 fn main() -> int { let boxed: Box<int> = Box.Some { value: 7 } return (- (+ (choose boxed false) (close_record T { fd: 3 })) 10) }
 shadow main { assert (== (main) 0) }
-''', True)
+'''
+        self.check(source, True)
+        self.check_canonical(source)
 
     def test_concrete_same_named_resource_still_rejected(self):
         self.check('''resource struct T { fd: int }
