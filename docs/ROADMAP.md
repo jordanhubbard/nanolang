@@ -13137,3 +13137,10 @@ Make/product change or passed ordinary replay follows. Fresh corrected paths
 will run the affected Clang phase and previously unrun phases with precise
 414c source attribution. The approved Darwin schema-only Python3.13 correction
 records its interpreter and PyYAML files while keeping the3.14 driver unchanged.
+
+- [ ] I repair and qualify caller flag propagation in the assembler capture
+  build recipe as a distinct full5.1 build-system follow-up
+  (`task_befc0deb04bc4a73b4ef2931ca7b604d`). My approved compiler-command selection
+  lets the bounded cyclic gate continue; it does not repair the recipe's omitted
+  CFLAGS. I preserve strict warnings and review the intended target flag policy
+  before a separate Make change and meaningful shared-library acceptance.
