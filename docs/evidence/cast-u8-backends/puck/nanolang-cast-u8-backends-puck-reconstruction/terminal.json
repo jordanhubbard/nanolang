@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "head": "e0e85441f5ea25875f2f08cf747c284e129afa29",
+  "scope": "I preserve existing output when C and Nano reconstruction encounter unsupported CAST_U8. This does not establish source conversion support."
+}

@@ -1,0 +1,13 @@
+{"pin": "429da44bcf0f3803b4964d0163660d50565faa34", "source_files": 3700, "root": "/tmp/nanolang-record-execution-qualified-429da", "sdk": null}
+{"phase": "setup", "status": 0, "seconds": 24.431}
+{"phase": "configuration", "status": 0, "seconds": 0.115}
+{"phase": "discovery", "status": 0, "seconds": 0.116}
+{"phase": "ordinary", "status": 1, "seconds": 3.873}
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-execution-429da-launch.py", line 19, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-record-execution-429da-driver.py',str(root),'/tmp/nanolang-record-execution-429da-'+host],check=True,env=env)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14', '/tmp/nanolang-record-execution-429da-driver.py', '/tmp/nanolang-record-execution-qualified-429da', '/tmp/nanolang-record-execution-429da-linux']' returned non-zero exit status 1.

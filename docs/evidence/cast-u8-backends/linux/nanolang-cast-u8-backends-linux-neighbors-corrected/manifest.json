@@ -1,0 +1,148 @@
+{
+  "head": "163290ddab180431955145919f6e31a4a6d37cec",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "fixture_overlay": null,
+  "matrix_mode": "ordinary",
+  "scope": "Selected generated native C ASan/UBSan and emitted native IR ASan when requested; ordinary LLVM/Wasm. Explicit target ABI corrected generated CAST_U8 native/LLVM/Wasm acceptance with inventoried first-build ordinary providers; source and reconstruction remain unimplemented",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.07613863295409828,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0039062270661816,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/usr/local/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.016845926991663873,
+      "log": {
+        "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+        "bytes": 440,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0033751019509509206,
+      "log": {
+        "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+        "bytes": 303,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "scalar-neighbors",
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_nvm2llvm",
+        "tests.test_nvm2llvm_floats",
+        "tests.test_nvm2wasm",
+        "tests.test_scalar_u8"
+      ],
+      "bound_seconds": 900,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 73.54625430901069,
+      "log": {
+        "sha256": "17c7298d7104c835b3373fd96667b3f42970764601132dcce0f5dbac211e1a54",
+        "bytes": 4638,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/17c7298d7104c835b3373fd96667b3f42970764601132dcce0f5dbac211e1a54"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "managed-neighbors",
+      "argv": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_llvm_managed_strings",
+        "tests.test_llvm_managed_mutable_arrays",
+        "tests.test_managed_binary64_bits",
+        "tests.test_managed_binary64_format"
+      ],
+      "bound_seconds": 1200,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 42.57408136699814,
+      "log": {
+        "sha256": "a96d65aea132162c5c7f078be2bf52e6577ff6e70223ad77b3fc3dcd41ad3753",
+        "bytes": 4021,
+        "archive": "/tmp/nanolang-cast-u8-backends-linux-neighbors-corrected/objects/a96d65aea132162c5c7f078be2bf52e6577ff6e70223ad77b3fc3dcd41ad3753"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}
