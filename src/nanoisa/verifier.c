@@ -11,6 +11,7 @@
 #include "service_bindings_module.h"
 #include "verifier.h"
 #include "managed_array_shapes.h"
+#include "record_array_structure_private.h"
 #include "managed_record_shapes.h"
 #include "passive.h"
 #include "retained_layouts.h"
@@ -529,7 +530,8 @@ static NvmVerifyResult verify_structure(const NvmModule *mod, bool affine_only,
 static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_idx,
                                            const NvmModule *const *linked_modules,
                                            uint32_t linked_count,
-                                           uint16_t *out_max_stack) {
+                                           uint16_t *out_max_stack, NvmRecordArrayBudget *budget,
+                                           VmDecodedFunction *kept) {
     const NvmFunctionEntry *fn = &mod->functions[fn_idx];
     VmDecodedFunction decoded;
     char decode_error[VM_DECODE_ERROR_SIZE];
@@ -543,6 +545,7 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
 } while (0)
 
     for (uint32_t i = 0; i < decoded.instruction_count; i++) {
+        if(!nvm_ra_steps(budget,8))FAIL_DECODED("I reached my private operand-check work bound.");
         uint32_t pos = decoded.instructions[i].byte_offset;
         DecodedInstruction instr = decoded.instructions[i].instruction;
 
@@ -871,16 +874,24 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
 
 #undef FAIL_DECODED
     uint16_t proven_depth = 0;
+    uint64_t scratch=(uint64_t)(decoded.instruction_count+1)*3u*sizeof(int32_t);
+    if(!nvm_ra_bytes(budget,scratch) || !nvm_ra_steps(budget,(uint64_t)(decoded.instruction_count+1)*32u))
+        return vm_decoded_function_free(&decoded),fail("I reached my private stack-check budget.");
     NvmVerifyResult stack_result =
         verify_stack_heights(mod, &decoded, fn_idx, &proven_depth);
+    if(budget)budget->bytes-=scratch;
+    if(budget && proven_depth>256) {
+        vm_decoded_function_free(&decoded);budget->limited=true;return fail("I reached my private stack bound.");
+    }
     if (out_max_stack) *out_max_stack = proven_depth;
 
     /* Types only once the shape is proven: the type pass indexes slots the
      * height walk guarantees exist. */
     if (stack_result.ok)
-        stack_result = nvm_verify_function_types(mod, fn_idx, &decoded,
-                                                 proven_depth, NULL, 0);
-    vm_decoded_function_free(&decoded);
+        stack_result = budget?nvm_verify_function_types_record_array(mod,fn_idx,&decoded,proven_depth,budget):
+            nvm_verify_function_types(mod, fn_idx, &decoded,proven_depth,NULL,0);
+    if(stack_result.ok && kept)*kept=decoded;
+    else vm_decoded_function_free(&decoded);
     return stack_result;
 }
 
@@ -909,8 +920,10 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
         if (out_max_stack) *out_max_stack = NVM_AFFINE_MAX_STACK;
         return ok_result();
     }
-    return verify_function_body(mod, fn_idx, linked_modules, linked_count, out_max_stack);
+    return verify_function_body(mod, fn_idx, linked_modules, linked_count, out_max_stack,NULL,NULL);
 }
+
+#include "record_array_structure.inc"
 
 NvmVerifyResult nvm_verify_affine_function(const NvmModule *mod, uint32_t fn_idx) {
     NvmVerifyResult structure=verify_structure(mod,true,NULL);

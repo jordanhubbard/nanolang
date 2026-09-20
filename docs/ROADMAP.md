@@ -13495,3 +13495,13 @@ preparation and complete memory/work accounting before any fixture gates.
 I reproduced both projected native timeouts on puck with the unchanged120-second limit. A live process sample places the store-first stall inside recursive Apple ASan initialization during dyld/malloc startup, before program main. A separate minimal puts-only executable also times out with Apple cc's ASan/UBSan runtime, while the same source/options with Homebrew Clang enters main successfully. I retain both diagnostic results and do not infer a generated-code fault from the historical timeout. Before correction, I scope the two affected tests to honor the existing NANO_NATIVE_TEST_CC selector using shlex, preserving every sanitizer flag, assertion and deadline. Tuple producer qualification and the whole fresh canonical suite remain required.
 
 - [x] I let the projected aggregate and tuple native sanitizer tests honor my existing `NANO_NATIVE_TEST_CC` selector, retaining default `cc`, all assertions and deadlines. Both methods pass on Linux and Darwin, with eight successful generated native executions and independently checked retained evidence. My [diagnosis and qualification](NATIVE_COMPILER_SELECTOR.md) preserve the original timeouts and runtime control; full canonical 90-method acceptance and task_2f52721aac374ac592b61438315dc981 remain open.
+
+I prepare the complete f641 non-admitting source checkpoint on actual919ca377:
+fresh same-original-module declarations, bounded shared operand/stack/type
+validation, copied decoded staging, exact array-field alias constraints and owned
+immutable getters. My accounting includes declaration staging, decoder realloc
+capacity, type scratch and publication overlap. Old wrappers remain in their
+original mode; public consumers are unchanged. Full source review precedes
+fixtures and all execution.
+
+- [ ] I diagnose the static empty-nonvoid-function precondition under task_f4d020187bf34faca52e761cbb299dde: the old height walk skips its empty terminal while managed origin analysis expects a result slot. I preserve old decisions pending separate review; the new f641 preparation explicitly refuses this shape and requires a negative control. No runtime failure is claimed from inspection alone.

@@ -249,3 +249,87 @@ extraction checkpoint. Only additive roadmap tails conflict; both histories
 remain. My verifier source is byte-identical to242ebc8cf, and the incoming
 constructor/service transaction and selector evidence stay independent. No
 new build or executable acceptance is claimed by this integration.
+
+## My complete private production checkpoint
+
+I now prepare the new path without invoking an old executable selector. The
+public source-private header `managed_record_array_origins.h` defines the opaque
+report, exact copied count/origin/field/element-mask structs and declaration
+getters. The separate internal structure header is construction machinery, not
+an installed API: the sole origin entry creates a zeroed budget, calls preparation
+on the original module, and never accepts a previously returned structure or
+caller declaration plan. No reusable trust bit is introduced.
+
+Preparation checks closed-host boundaries before dispatch, validates counted
+string storage, in-memory header, metadata, function/range/signature limits and
+all instruction opcodes. It calls the extracted original ranges and contract/
+import checks. Its own fresh complete declaration plan replaces only the old
+ownership/layout eligibility route for this private preparation. It does not
+strip or edit any module field. It then invokes the same decoded operand switch,
+stack-height/ownership-balance walk and type rules on every original function.
+Decoded records carry no source pointers for the supported direct-call subset;
+they transfer into analysis once, then are freed before report publication ends.
+No public verifier, profile, converter, emitter or VM calls the new query.
+
+The old function body passes NULL accounting and no kept-decoded output, preserving
+its output order and optional type-pass allocation behavior. Only the new bounded
+type entry turns a type-workspace allocation failure into MEMORY. Both entries
+share the same type rules and transfer/join loop. The private preflight refuses
+unsupported opcodes before shared operand validation could reach affine analysis.
+No foreign, indirect, union-value, effect, owned or borrowed opcode is admitted.
+
+I found an inherited static empty-body precondition: the old height walk skips
+an empty terminal node, while the managed origin walk expects a value for a
+nonvoid return. I record task_f4d020187bf34faca52e761cbb299dde without claiming a
+runtime observation. My new mode explicitly rejects empty nonvoid functions;
+I leave wider old behavior for separate review and require a direct negative
+fixture here. This is not a silent change to the old verifier.
+
+### My accounting and cleanup
+
+I count conservative work units and reserved live capacities, not measured
+allocator traffic. The following reservations precede work/allocation:
+
+| Component | Reservation / work |
+|---|---|
+| Fixed explicit automatic scratch | 64KiB and65536 work units; implementation/compiler call-frame overhead and allocator metadata are not claimed measured. |
+| Whole declaration plan and staging | Full16MiB and1048576 units, retained conservatively even when the concrete plan is smaller. Its independently reviewed internal caps remain enforced. |
+| Each decoded function | Five bytes per code byte plus sentinel for boundaries/indices; three times geometric instruction capacity times `sizeof(VmDecodedInstruction)` for realloc overlap; code and instruction passes charged before decode. |
+| Height work | Three32-bit vectors per instruction plus terminal;32 units per entry, released before type-work allocation. |
+| Type work | `(instructions+1)*(max_stack+sizeof(u16)+2*sizeof(bool)+sizeof(u32))`; initial cells charged, each worklist visit charges `4*max_stack+32`, then reservation released. |
+| Origin analysis | Exact allocated structure, state/queue/depth/seen/origin arrays, copied layouts/maps/element constraints, weak field summaries and final report overlap; allocation initialization and explicit scans charged. |
+| Fixed-point work |2048 units per transfer for fixed state/seed scratch; joins charge actual cell counts; array/record helpers charge their64-origin loops separately, including each constructor/literal value; slices charge64x64 search bound; outer sweeps and final checks are charged. |
+
+No allocation or scan follows a refused reservation. Cleanup is bounded by already
+established function/layout/origin counts and must still execute after exhaustion.
+Borrowed input storage is not counted as owned report memory. The absolute64MiB
+and16777216-unit ceilings can reject a combination below individual table maxima;
+I do not claim every advertised individual maximum fits simultaneously.
+
+The copied plan recreates exact global/per-kind record maps without removing
+interleaved unused union declarations. I retain full declaration facts in the
+published report. `all_writes` is a monotone per-array-origin summary even for
+packed arrays; existing old modes do not create or consult it. After convergence,
+record constructors/replacements collect field element obligations, then every
+such origin's complete write summary must fit its one exact element tag. The
+ordinary packed-coercion matrix remains unchanged outside these new constraints.
+GET/POP preserve VOID alternatives, and known parameter/result signatures retain
+exact tags. Existing weak global VOID alternatives are not erased to force
+acceptance; record-field access can retain runtime receiver checks, while an
+optional direct value cannot satisfy an exact constructor field.
+
+A partial structure owns all decoded functions and its fresh declarations.
+After decoded functions transfer to analysis their old slots are zeroed. Analysis
+owns copied record maps, field constraints and lattice allocations. A successful
+report receives the declaration owner only after every copied origin/field
+allocation succeeds; otherwise cleanup frees every prefix and leaves `*out`
+unchanged. The report contains only numeric facts and owned arrays. All old
+query wrappers select the old mode; new budget/fact behavior is conditional on
+the private structure. Old selectors still refuse ARRAY_FIELDS as before.
+
+The shared source lists already link verifier, verifier_types, managed_array_shapes
+and ownership providers together, including the File public archive closure.
+I add no translation unit or installed header. Explicit Make prerequisites cover
+both new includes and the private/public source headers. Source review, fixture
+review and fresh selected gates are still required; no build or module execution
+has occurred for this checkpoint.
