@@ -1,0 +1,72 @@
+# My ordinary array declaration query evidence
+
+I qualify a private, copied declaration query at production `4f5f26126` and
+fixture `ef4500e40`, on top of the reviewed shared-v3 branch from PR893. This
+checkpoint grants no runtime, public decoder, compiler or release authority.
+My structural prerequisite remains separately sealed in `private-layout/`.
+
+I pass all seven query configurations: Linux GCC and Clang, each ordinary and
+ASan/UBSan/LSan; Darwin Apple clang ordinary and Homebrew clang ordinary and
+ASan/UBSan/LSan. Each reports463 linked and2397 instrumented checks, including
+all eight measured allocation positions in persistent and transient modes,
+unchanged outputs and recovery. The runner compiles ownership/layout sources
+fresh with the selected flags; linked ISA providers are ordinary build objects.
+I do not claim whole-program sanitizer instrumentation.
+
+I cover copied input lifetime, every first-profile flat tag, complete ordinary
+ARRAY field bindings, malformed mixed extension envelopes, exact extent and
+count ceilings, sorted unique coverage, forward/backward type chains and cycles,
+nominal layout identity, resource refusals and unsupported service/import
+metadata. Legacy public ARRAY_FIELDS refusal and v1/v2/union-v3 controls remain.
+A valid unsupported shape remains UNKNOWN, not execution permission. Legacy
+layout allocation failures can remain diagnostically ambiguous; direct query
+allocations distinguish MEMORY. No source-level array execution is established.
+
+## My retained failures and corrected neighbors
+
+Both original query runs finish every new query configuration and the old
+ownership-contract neighbor, then stop in an inherited ordinary-authority test.
+Its old allocation hook no longer reaches the layout decoder. I reproduce the
+same assertion against baseline83b; a nonexecuting function-pointer reference
+only makes its unused hook compile under the unchanged warning policy.
+
+After retargeting the hook, cdd600 passes the real allocation sweeps and reaches
+a second stale assertion: resource STRING declarations are already accepted by
+baseline83b. I reproduce that later failure with the same corrected fixture and
+the baseline reader. I preserve all first terminals. Neither failure is
+relabeled as infrastructure or a passing query regression control.
+
+At fixture `2a30d68e23618a8c97f033f5bb12b80fbc55f657`, I preserve exact
+SECTION_TYPE versus TRUNCATED allocation-stage assertions and fresh recovery;
+I preserve refusal of an ordinary parent containing a resource child. Complete
+resource STRING declarations require the ownership verifier and remain refused
+by the ordinary managed-record plan. These are descriptive assertions, not
+claims that a declaration alone permits resource execution.
+
+Corrected neighbors pass on Linux and Darwin:252 ordinary-authority checks in
+ordinary and sanitizer configurations, including14 forward-layout and8 prior-
+layout allocation positions;365 conversion checks and20 end-to-end transport
+checks. The corrective driver records its actual interpreter explicitly and
+builds fresh providers. I do not rerun or relabel the unchanged seven query
+configurations as tests of the later neighbor fixture.
+
+## My retained identities and limits
+
+`ordinary-array-authority/report-sha256.json` identifies563 report files.
+`artifact-store.json` identifies893 distinct retained objects totaling301726476
+bytes. Per-host summaries retain commands, all terminal statuses, source/tool
+pairs and actual nested test command outputs. Current maps rehash qualified
+source paths and recorded tools; CAS preserves providers and generated binaries.
+The Darwin archive checksum is retained in the qualification summary. Baseline
+diagnostics and the corrected runs are separate from the original query runs.
+
+The original Linux query driver invoked `/usr/bin/python3` but inventoried the
+PATH-selected Python. Its actual interpreter's historical hash was not captured;
+I do not claim complete historical toolchain immutability. The corrected
+neighbor driver records `sys.executable`. The first Darwin evidence collector
+stopped on a dSYM directory; its corrected collector traverses that directory.
+This was post-test packaging, not a gate failure or gate replay. I retain both
+collector files and the incomplete first packaging directory under `/tmp`.
+
+PR893 integration, independent audit, actual canonical merge, ordinary array
+runtime/source acceptance and the full5.1 roadmap remain open.

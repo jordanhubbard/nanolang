@@ -1,0 +1,4 @@
+/home/jkh/Src/nanolang-private-layout-qualified-83b/tests/nanoisa/test_ordinary_record_authority.c:6:14: error: ‘authority_calloc’ defined but not used [-Werror=unused-function]
+    6 | static void *authority_calloc(size_t count,size_t size) {
+      |              ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors

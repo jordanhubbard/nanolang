@@ -1,0 +1,22 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 19.66,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-ordinary-build",
+    "seconds": 0.316,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-ordinary-run",
+    "seconds": 1.067,
+    "status": -6
+  }
+]

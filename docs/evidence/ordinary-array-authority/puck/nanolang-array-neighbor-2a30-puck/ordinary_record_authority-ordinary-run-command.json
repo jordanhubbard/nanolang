@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-array-neighbor-2a30-puck/controls/ordinary_record_authority-ordinary"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/cc",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib:/opt/homebrew/opt/libffi/lib",
+    "LSAN_OPTIONS": ""
+  }
+}

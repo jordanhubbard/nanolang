@@ -1,0 +1,1 @@
+ordinary_record_authority: tests/nanoisa/test_ordinary_record_authority.c:69: forward_authority: Assertion `nvm_ownership_layout_authorities(m,4,batch)==NVM_V2_ERR_TRUNCATED' failed.
