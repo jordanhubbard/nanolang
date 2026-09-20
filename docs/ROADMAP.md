@@ -13943,3 +13943,11 @@ permit an instance-local acyclic policy for this exact query. I use a charged,
 fixed258-entry iterative release stack, with no suspect-buffer allocations or
 host recursion. Old/public heaps retain their collector; nested/cyclic fullgraph
 collector acceptance remains required, not inferred from this bounded route.
+
+- [ ] Before private mixed VM execution I repair the e181 scalar wrong-tag root
+  gap (`task_f1307e3b122a4d7a96a5a52a9479f672`). Root static review found that
+  general physical-value validation still lets heap operands reach I64/F64/BOOL
+  handlers that pop before rejecting a tag without releasing those owners. I
+  audit all93 actual handlers and require exact private input-tag preflights
+  where needed, leaving ordinary behavior unchanged. I review the correction
+  and meaningful cleanup controls before any execution; e181 is not accepted.
