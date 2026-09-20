@@ -100,3 +100,32 @@ preparation remains at `/tmp/nanolang-record-lists-40870-linux-prepare`; the
 from the exact40870 production pin in a separate tree. I keep all shadows and
 the10s child/120s outer limits. Any added counter or timing wrapper receives
 source review before execution. No timing result qualifies production behavior.
+
+## My729ce typechecker measurement
+
+My separate729ce observer completed its fresh three-provider build and link,
+then ran the unchanged full typecheck_driver.nano graph once. The compiler
+returned1 at my original ten-second shadow deadline; the launcher's recorded
+elapsed time was28.311s including its precommand inventory. All six command
+input pairs agree, both process bounds held, and the process group is gone.
+
+I retain985 markers and492 completed shadows. First begin through the last
+unmatched check_expr_node begin spans9.730779906s. Within that interval I count
+21,836,131 graph allocation attempts,19,497,224 clone nodes and641,226 cumulative
+published roots. Snapshot cloning takes0.484468380s and740,342 borrowed-root
+lookups take0.103279909s. Index work across lookup/publication/rehash visits
+5,500,063 slots in2,168,004 calls. These scopes overlap and are not additive.
+
+Nominal view calls/time, checked annotation allocations and legacy payload
+allocations have zero delta during the measured shadow interval. Before the
+first marker I observe10,862 view calls and33,667,967ns inclusive view time.
+The two largest completed shadows are parse_block_recursive at2.020s and
+parse_unsafe_block_recursive at1.983s. I cannot attribute the unmatched final
+interval or the remaining measured time from the counters alone.
+
+The seal is `docs/evidence/typecheck-lifetime-729ce/seal.json`:55reports,
+4,087unique objects/781,009,958bytes and six equal command pairs. The CAS is
+`/tmp/nanolang-typecheck-lifetime-729ce-artifacts`. I preserve scoped allocation,
+observer overhead and deleted-intermediate limitations; this is not qualification.
+My next authorized measurement targets actual record_list_find visits/time and
+graph disposal/root publication, before selecting any further correction.
