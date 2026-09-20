@@ -13697,3 +13697,14 @@ and consumers use C-string comparison. A counted name with embedded NUL could
 therefore disagree. Under existing f36b/15f/488 I explicitly refuse embedded
 NUL function names in this new preparation before analysis, preserve all old
 wrappers and require a counted-name refusal/control fixture before execution.
+
+I prepare the copied execution-plan fixture checkpoint after source review:
+full old origin controls, owned snapshot independence, exact initializer/counted
+NUL boundary, all getters and original bytes,256/257 functions,4096/4097 strings,
+all92 opcode recipes/decoded rows and65536/65537 internal instruction counts.
+I distinguish decoder-only rows from whole-query admission. Combined copy domains
+receive measured one-shot/persistent allocation-prefix failures with fresh
+recovery; exact wrapper byte/work/overflow guards and old verifier decisions
+remain required. The new one-method runner rebuilds seven selected query
+providers, clears LSAN_OPTIONS and retains bounded terminal evidence. No fixture
+has been compiled or executed; I request complete fixture review before gates.

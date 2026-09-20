@@ -296,3 +296,56 @@ agrees with existing consumers. Other counted strings still permit embedded
 NUL. The scan is charged before reading its bytes. Old query wrappers retain
 their existing behavior. A separate initializer-with-NUL negative fixture and
 normal counted-string/initializer positives remain required before execution.
+
+## My non-admitting preparation fixture checkpoint
+
+I retain the full unchanged origin fixture as a renamed callable corpus inside
+my new C fixture. I then inspect the new opaque plan after destroying its source
+module, mutating external counted strings/metadata/debug and freeing an independent
+second plan. All five flat element tags, interleaved union/record ordinals,
+counted NUL string payloads, section/header/metadata/debug bytes, original code,
+layout/ownership wire bytes and copied origin/declaration getters are asserted.
+Each public getter has a failed-output sentinel and a null-output control.
+
+I separately establish ordinary initializer/global facts, reject counted NUL
+function names while preserving the old query's initializer behavior, and inspect
+copied array-parameter signatures and present empty parameter rows. Actual
+branch/join and negative-backedge modules retain exact successor offsets. A
+negative-zero FLOAT immediate retains its exact bits. Closed-profile pointers,
+invalid result depths and nested origins refuse without publishing. I prepare
+256 functions and 4096 counted strings, and reject the next counts before reading
+undersized caller tables;1024 remains the distinct descriptive dynamic-frame cap.
+
+My white-box manifest independently lists all92 reviewed opcode recipes and
+required root obligations, then checks the entire256-opcode space. Each listed
+opcode also passes the actual second decoder with independently encoded immediate
+bits, signatures, dynamic pops/pushes and CFG expectations. These isolated rows
+are decoder tests, not assertions that arbitrary stacks or nominal operands are
+admissible. Separate whole-query positives cover real arrays/records, calls,
+initializers and branches. The decoder's65536/65537 row boundary is likewise
+explicitly separate from whole-query abstract-state limits.
+
+I test wrapper byte/work boundaries at the exact last admitted allocation and
+one unit beyond, multiplication overflow, invalid prior counters and original
+snapshot disagreement. A combined initializer/call/array/string/record module
+with parameter rows, metadata and debug covers all allocating copy domains.
+The measured sweep fails every allocation position once and persistently,
+requires no publication and zero tracked live payload, then independently
+prepares/frees a fresh plan after each refusal. Measured simultaneous requested
+payload bytes must fit the published conservative reservation. Allocator metadata
+and ordinary linked providers remain outside this measurement.
+
+The Python fixture imports only the old bounded command module, not its TestCase.
+It exposes one new method, builds selected linked and instrumented configurations,
+and rebuilds the same seven analysis/verifier/declaration provider translation
+units used by the origin fixture. In the instrumented form the fixture includes
+the analysis TU and wraps the other six plus its allocator observer. Remaining
+linked providers are ordinary and must be inventoried separately. LSAN_OPTIONS
+is explicitly empty. I retain file-backed command output, bounded process-group
+cleanup and terminal records through the existing reviewed helper.
+
+I submit this complete fixture checkpoint before compilation or execution.
+After review I require the seven Linux/Darwin ordinary and supported sanitizer
+configurations, old origin/ownership/union/array neighbors, exact source/tool/
+provider inventories and first-terminal preservation. No runtime/public admission,
+generated-consumer behavior or source acceptance is claimed by these query gates.
