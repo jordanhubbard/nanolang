@@ -25,8 +25,9 @@ static void remember(void *p,size_t n){if(p){CHECK(live_count<256);live[live_cou
 void *pr_test_malloc(size_t n){if(fail())return NULL;void *p=malloc(n);remember(p,n);return p;}
 void *pr_test_calloc(size_t n,size_t w){CHECK(!w||n<=SIZE_MAX/w);if(fail())return NULL;void *p=calloc(n,w);remember(p,n*w);return p;}
 void pr_test_free(void *p){if(!p)return;size_t i=0;while(i<live_count&&live[i].p!=p)++i;CHECK(i<live_count);live_bytes-=live[i].n;live[i]=live[--live_count];free(p);}
+static NprFileHost *active_probe;static unsigned active_refusals;
 static unsigned opens,closes,successful_opens;static bool read_error,close_error,read_progress;static int last_fd=-1;
-FILE *pr_test_fopen(const char *p,const char *m){++opens;FILE *f=fopen(p,m);if(f){++successful_opens;last_fd=fileno(f);}return f;}
+FILE *pr_test_fopen(const char *p,const char *m){++opens;if(active_probe){CHECK(npr_file_host_destroy(active_probe)==NPR_INVALID);++active_refusals;}FILE *f=fopen(p,m);if(f){++successful_opens;last_fd=fileno(f);}return f;}
 size_t pr_test_fread(void *p,size_t s,size_t n,FILE *f){if(read_error&&n>1)n=1;size_t k=fread(p,s,n,f);if(read_error&&k)read_progress=true;return k;}
 int pr_test_ferror(FILE *f){return read_error&&read_progress?1:ferror(f);}
 int pr_test_fclose(FILE *f){++closes;int r=fclose(f);if(close_error){errno=EIO;return EOF;}return r;}
@@ -80,9 +81,28 @@ static void context_and_ranges(void){
  CHECK(npr_file_host_destroy(NULL)==NPR_OK);CHECK(npr_file_host_create(NULL,0,&h)==NPR_OK);CHECK(READ(h,(uint8_t *)empty,strlen(empty),buffer,32,&length)==NPR_DENIED);CHECK(npr_file_host_destroy(h)==NPR_OK);
 }
 static unsigned callback_mode,callback_count;
+static const uint8_t *callback_expected_path;static uint32_t callback_expected_length;
 static int32_t bad_callback(void *ctx,const uint8_t *p,uint32_t n,uint8_t *dst,uint32_t cap,uint32_t *len){
- (void)ctx;(void)p;(void)n;++callback_count;
+ (void)ctx;++callback_count;if(callback_expected_path){CHECK(n==callback_expected_length);CHECK(!memcmp(p,callback_expected_path,n));}
  switch(callback_mode){case 0:return 99;case 1:*len=cap+1;return NPR_OK;case 2:return NPR_OK;case 3:dst[0]=0;*len=1;return NPR_OK;case 4:*len=999;return NPR_DENIED;default:dst[0]='q';*len=1;return NPR_OK;}
+}
+static void copied_allowlist_and_filename(void){
+ char path[4097];int k=snprintf(path,sizeof path,"%s/caf\xc3\xa9-\xe2\x82\xac.bin",directory);CHECK(k>0&&k<4097);
+ FILE *f=fopen(path,"wb");CHECK(f);CHECK(fwrite("copy",1,4,f)==4);CHECK(fclose(f)==0);
+ uint8_t *storage=malloc(64u*4097u);CHECK(storage);NprPath rows[64];
+ for(unsigned i=0;i<64;i++){char *name=(char *)storage+i*4097u;int n=i==63?snprintf(name,4097,"%s",path):snprintf(name,4097,"%s/allow-%u",directory,i);CHECK(n>0&&n<=4096);rows[i]=(NprPath){(uint8_t *)name,(uint32_t)n};}
+ NprFileHost *h=NULL;CHECK(npr_file_host_create(rows,64,&h)==NPR_OK&&h);NprFileHost *sentinel=(void *)(uintptr_t)1;
+ CHECK(npr_file_host_create(rows,65,&sentinel)==NPR_LIMIT&&sentinel==(void *)(uintptr_t)1);
+ memset(storage,'!',64u*4097u);free(storage);memset(rows,0,sizeof rows);
+ uint8_t data[8];uint32_t n=91;io_reset();
+#ifdef READ_OBSERVED
+ active_probe=h;active_refusals=0;
+#endif
+ CHECK(READ(h,(uint8_t *)path,strlen(path),data,8,&n)==NPR_OK&&n==4&&!memcmp(data,"copy",4));
+#ifdef READ_OBSERVED
+ CHECK(active_refusals==1&&opens==1&&closes==1);active_probe=NULL;
+#endif
+ CHECK(npr_file_host_destroy(h)==NPR_OK);
 }
 static void managed_boundaries(void){
  char path[4097];make_file(path,(uint8_t *)"value",5);NprFileHost *h=host_for(path);NprHostBinding real={READ,h},bad={bad_callback,&callback_mode};NmsRuntime r;runtime_start(&r);NmsHandle arg;
@@ -96,6 +116,13 @@ static void managed_boundaries(void){
  NprHostBinding absent={NULL,h};x=npr_read_managed(&r,arg,&absent);CHECK(x.host_status==NPR_DENIED&&!x.value);absent=(NprHostBinding){bad_callback,NULL};x=npr_read_managed(&r,arg,&absent);CHECK(x.host_status==NPR_DENIED&&!x.value&&!callback_count);
  NmsHandle array;CHECK(nms_string_array_create(&r,&array)==NMS_OK);x=npr_read_managed(&r,array,&bad);CHECK(x.host_status==NPR_OK&&x.managed_status==NMS_TYPE&&!x.value&&!callback_count);CHECK(nms_release(&r,array)==NMS_OK);
  uint8_t long_path[4097];memset(long_path,'x',sizeof long_path);NmsHandle long_arg;CHECK(nms_create(&r,long_path,sizeof long_path,&long_arg)==NMS_OK);x=npr_read_managed(&r,long_arg,&bad);CHECK(x.host_status==NPR_LIMIT&&!x.value&&!callback_count);CHECK(nms_release(&r,long_arg)==NMS_OK);
+ CHECK(nms_create(&r,long_path,4096,&long_arg)==NMS_OK);callback_expected_path=long_path;callback_expected_length=4096;callback_mode=5;
+ x=npr_read_managed(&r,long_arg,&bad);CHECK(callback_count==1&&x.host_status==NPR_OK&&x.managed_status==NMS_OK);view_is(&r,x.value,"q",1);CHECK(nms_release(&r,x.value)==NMS_OK);callback_expected_path=NULL;CHECK(nms_release(&r,long_arg)==NMS_OK);
+ CHECK(nms_create(&r,NULL,0,&long_arg)==NMS_OK);io_reset();x=npr_read_managed(&r,long_arg,&real);CHECK(x.host_status==NPR_DENIED&&x.managed_status==NMS_OK&&!x.value);
+#ifdef READ_OBSERVED
+ CHECK(!opens&&!closes);
+#endif
+ CHECK(nms_release(&r,long_arg)==NMS_OK);
  CHECK(nms_release(&r,arg)==NMS_OK);runtime_end(&r);x=npr_read_managed(&r,0,&bad);CHECK(x.managed_status==NMS_DISPOSED&&!x.value&&x.host_status==NPR_OK);CHECK(npr_file_host_destroy(h)==NPR_OK);
  char missing[4097];CHECK(snprintf(missing,sizeof missing,"%s/missing",directory)>0);h=host_for(missing);uint8_t data[8];uint32_t n=99;CHECK(READ(h,(uint8_t *)missing,strlen(missing),data,8,&n)==NPR_OK&&n==0);CHECK(npr_file_host_destroy(h)==NPR_OK);
 }
@@ -128,4 +155,4 @@ static void allocation_faults(void){
  CHECK(!failures&&!live_count&&!live_bytes);
 #endif
 }
-int main(int argc,char **argv){CHECK(argc==2);CHECK(strlen(argv[1])<sizeof directory);strcpy(directory,argv[1]);real_vectors();context_and_ranges();managed_boundaries();io_faults();allocation_faults();CHECK(!live_count&&!live_bytes);printf("I passed %u private read-text adapter checks; no bytecode admission.\n",checks);return 0;}
+int main(int argc,char **argv){CHECK(argc==2);CHECK(strlen(argv[1])<sizeof directory);strcpy(directory,argv[1]);real_vectors();context_and_ranges();copied_allowlist_and_filename();managed_boundaries();io_faults();allocation_faults();CHECK(!live_count&&!live_bytes);printf("I passed %u private read-text adapter checks; no bytecode admission.\n",checks);return 0;}

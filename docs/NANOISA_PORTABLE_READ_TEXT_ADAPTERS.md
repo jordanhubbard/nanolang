@@ -271,3 +271,13 @@ transitive closure. TERM/KILL group cleanup has bounded waits and cannot pass
 if cleanup was needed or left descendants. No gate has run at this checkpoint.
 Real Linux/Darwin ordinary and supported strict-sanitizer qualification awaits
 review of this full fixture/runner. Wasm hosts remain subsequent source work.
+
+Before execution, I supplement the reviewed fixture with a64-row copied allowlist
+and65-row refusal. I mutate/free all source path storage before reading the final
+allowed real multibyte filename, preserving a sentinel on overflow. A4096-byte
+managed path must reach the callback with exactly the expected bytes/length;
+the existing4097 refusal remains. Empty managed paths must be denied before
+observed opens. An observed fopen hook attempts active-context destruction,
+requires INVALID, then forwards to the real fopen and verifies ordinary close.
+This checks the private active guard without exposing production internals.
+Every prior assertion and production file remains unchanged; no gate has run.
