@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import platform
+import shlex
 import subprocess
 import tempfile
 import unittest
@@ -70,7 +71,7 @@ class CanonicalTupleValues(unittest.TestCase):
                     generated_text = generated.read_text()
                     self.assertIn(".kind != 2", generated_text)
                     self.checked(
-                        "cc",
+                        *shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc")),
                         "-std=c11",
                         "-O1",
                         "-g",
