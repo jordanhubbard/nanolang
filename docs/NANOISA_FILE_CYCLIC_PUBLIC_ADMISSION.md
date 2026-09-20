@@ -330,3 +330,39 @@ operation/agreement blocks and nine unchanged acyclic/core files against4a12.
 It does not prove a build, link closure, installed ABI or runtime acceptance.
 Those checks await source/fixture review and the required canonical private
 merge. I have not run a build or newly admitted module for this checkpoint.
+
+
+## I submit fixtures without executing them
+
+My new public C fixture includes the entire private dispatch corpus through
+three default-preserving entry/emit/main selectors. Replacing the selectors by
+their defaults reconstructs the previous source exactly. No original program,
+expected value, fault prefix, cleanup predicate or trace field is removed. The
+new runner first captures that private corpus, then the public VM corpus, checks
+identical serialized cases and every report/host trace, and compares real public
+native O0/O2 replays to the same private reference. The retained pre-disposal core
+root checks and zero-project-allocation execution budget apply to these public
+routes; common ordinary objects remain outside the scoped provider hooks.
+
+Additional controls use invalid addresses while the owning gate is held to prove
+BUSY precedes all argument inspection. Real service callbacks test both cyclic
+and acyclic outer invocations against mixed nested APIs/emission/native entries.
+Repeated/revoked grants, scalar sentinels, exact zero/MAX limits, null outputs,
+invalid identifiers, unsupported zero-fuel input and old acyclic loop refusal
+remain observable. The installed test compiles separate cyclic programs and an
+acyclic program with only installed headers/archive/system inputs, checks actual
+native symbols for absence of VM engines, exercises ABI/non-first variant/
+reference/edge disagreement and an actually reached dead label, and retains
+strict public-header C99/C11/C++ forms. Explicit CLI limit/duplicate/mode/error
+controls include initializer charging, BOOL and negative INT exit behavior,
+atomic output sentinels and the unchanged shared CLI fault harness.
+
+Each configuration requests a fresh full install at its own PREFIX and retains
+that complete package before actual uninstall. The expected header count changes
+from22 to30 in the old acyclic package fixture solely for the approved eight
+new installed headers. Unrelated prefix content must survive. The new Python
+module imports only modules, has exactly two local test methods in static AST
+inspection, and delegates bounded file-backed process/group handling to the
+already reviewed runner. Actual unittest discovery and all compilation/execution
+remain pending independent fixture review and canonical907. Its inventory records
+`sys.executable` and clears LSAN_OPTIONS and ambient include-path overrides.

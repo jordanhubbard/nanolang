@@ -5653,3 +5653,10 @@ test-file-binding-plan-sanitizers:
 	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" NANO_FILE_BINDING_SANITIZERS=1 python3 -m unittest -f -v tests.test_nsi_file_binding
 # I compose target and ownership facts only through a separate private entry.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DIR)/file_indirect_flow.inc
+
+
+.PHONY: test-file-cyclic-public test-file-cyclic-public-sanitize
+test-file-cyclic-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public
+test-file-cyclic-public-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public

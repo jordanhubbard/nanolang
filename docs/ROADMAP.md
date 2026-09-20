@@ -12995,3 +12995,21 @@ identity/include inspection passes; no build, execution, installed acceptance or
 canonical activation is claimed. PR907 actual merge and independent complete
 production/fixture review still precede gates. Parent15a92 and its source,
 closed-indirect and richer-reference obligations remain open.
+
+
+I prepare public cyclic fixtures after root source review4578. I retain the
+entire original private corpus through default-preserving fixture entry/emit/main
+selectors, compare complete reports and host traces with private capture, and
+exercise explicit grant/options/package/CLI boundaries. My existing acyclic
+installed-package assertion must count30 headers after the approved eight-header
+addition; no behavioral assertion is removed. The public report header labels
+its historical DEFAULT constant as private legacy only. Source/fixture review
+and canonical907 still precede every new gate.
+
+
+I submit the complete public cyclic fixture checkpoint with unchanged private
+corpus source reconstructed under its default selectors, identical-byte corpus
+and complete trace comparison, actual public native O0/O2, installed-only archive
+and CLI controls. Static Python parsing and diff checks pass; no unittest setup,
+compiler, install or module has run. I retain the canonical907 and independent
+fixture-review prerequisites before freezing new gate inputs.
