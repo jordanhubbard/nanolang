@@ -50,7 +50,7 @@
     "docs/evidence/mixed-samples-source-linux/manifest.json": "9b9e1e2315c9c2820d9d8d0395e40021375d63fe18d7a2b16c0e4dc1a46e1a71",
     "docs/evidence/mixed-samples-source-darwin/manifest.json": "5214a1fde8b42f7d0272615d51004b45a8a3dfc29cd81796acfe0ba676a89f2e",
     "docs/evidence/owned-string-fields-source.md": "ec1658f015dbe4d89f16e81d395beb838d06188fb772a65da765bb034cab1418",
-    "docs/AFFINE_REMAINING_ACCEPTANCE.md": "42771a1b6cb510e7f24e85ee69f51f3ca2f3efeed6666aaabb6d6c5ac1227309"
+    "docs/AFFINE_REMAINING_ACCEPTANCE.md": "59fe4decd9ff114118ca58ade354547551b30ee841b3f4c15cf6526f12792809"
   },
   "observed_tasks": {
     "430220": {
@@ -74,5 +74,6 @@
       "description": "I preserve the first installed-product 950f36d1 full make test-quick terminal status2/1734.273s, after fresh bootstrap216.202s/tools24.445s, all3 component builds/entries,17core,244eligibleVM examples and docs158/158 pass. tests/test_affine_selfhost.sh runs33 methods and reports55 subcase checked lowering failures across Stage1/Stage2/nano_virt. Log /tmp/nanolang-product-quick-950f36d1/test-quick.log and manifests retain1674 unchanged sources, clean pinned head and intentional Stage1 rebuild. No failed artifact replay.\n\nBefore production repair I classify each subcase by original expectation, producer and first refusal, separating missing positive admission from negative diagnostic phase and unrelated fixtures; record exact dependency order against existing full ownership/affine parents. I preserve original tests, mandatory shadows, exact layouts/move checks and full product routing. No legacy fallback, eligibility exclusions or weakened assertions. Corrections need a reviewed bounded contract, fresh paired source/verifier/VM/native gates and a new installed-product acceptance pin. Full task_d76ae44a12fd4d27a2b4aa84c30d7bc6 remains open. c435 example boundary is separately completed. Frozen950f remains untouched; evidence goes on separate branch.\n",
       "updated_at": "2026-09-18T19:20:45.138806+00:00"
     }
-  }
+  },
+  "audit_document_sha256": "fd87b8ffbaea5725a6a42f3d126fbb4ebd9dfea4c72bee40bc30f35b222c56bc"
 }
