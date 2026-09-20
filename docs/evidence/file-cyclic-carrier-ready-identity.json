@@ -1,0 +1,21 @@
+{
+  "base_main": "8b84b9cd0",
+  "qualified_fixture": "ac8772ae8",
+  "paths": {
+    "src/nanoisa/file_cyclic_runtime.h": "9dceb8d2d2e34de7bcaa01d207fd1a8c3ca2d916241f894f78dd287a619992c3",
+    "src/nanoisa/file_cyclic_runtime_facts.inc": "6cb8be8583f9ce6401afd1447bc538fa33a8caa6dd635bb081c55c94e3df6536",
+    "src/nanoisa/file_cyclic_runtime.inc": "4a4da9eeb1089c16d5e579f4be669ee24b337c80025bd8ef7a52470189d58bfe",
+    "src/nanoisa/file_runtime.c": "ba7fe545f0ebc865151420a0c65e9f8f47ffbc03338f91e237301700731dd854",
+    "src/nanoisa/file_runtime_frames.inc": "94fcfc75e4a134ebdea1d62ae339d183486607ecad7345ca10958e50aec0f049",
+    "src/nsi_file_values.c": "13b505b04ec37ae78380c5633ed00f48c601ec9f855f1e23293c5fdc53da9fa2",
+    "src/nsi_file_values_internal.h": "a5fd923a8b222ad1cd027ce9889540adeb5ef71c66dc5fa123386fa427a0cbf8",
+    "tests/nanoisa/test_file_cyclic_runtime.c": "095715f60f2e17d47781d19e849cf9c97d865c57a1d758db929d910191f87ad0",
+    "tests/nanoisa/file_cyclic_runtime_values.c": "a6a266ff8c7f9f0371d03b7bfab85dfad44057eb8f0d6b1561493cf2b222f320",
+    "tests/test_file_cyclic_runtime.py": "d9293e358fe99330a881d15614a9485ac597701787e67649c1a22c8b940bf9d3",
+    "tests/test_file_cyclic.py": "9a9fa1d92975b4356f562dd49d077b01206e5131cc9550a9ab4f98406f1a1dcd",
+    "tests/test_file_cyclic_hosted_integration.py": "b04fe06ac4bc289e512160bd84a76e1b517d9ec155b45d3fd5f9fc2fa1acf3ce",
+    "tests/nanoisa/test_file_cyclic_hosted_integration.c": "3dad9d30d700de0c614eb409f13fbf4062d21f7bfe8422517d1ed57a8440073d"
+  },
+  "conflict_resolution": "Additive ROADMAP tail retains both complete histories; all production merged automatically.",
+  "new_common_provider": "file_flow.c/file_code.inc explicit false-mode wrapper factoring; ordinary integration pending."
+}

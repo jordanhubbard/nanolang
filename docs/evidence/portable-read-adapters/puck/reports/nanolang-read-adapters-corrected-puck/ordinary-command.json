@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_portable_read_adapters"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-15069",
+  "env": {
+    "PORTABLE_ADAPTER_CC": "/usr/bin/clang",
+    "PORTABLE_ADAPTER_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+    "PORTABLE_ADAPTER_CFLAGS": "",
+    "PORTABLE_ADAPTER_LLVM_FLAGS": "",
+    "PORTABLE_ADAPTER_EXTRA_TOOLS": "{\"ordinary\": \"/usr/bin/clang\", \"llvm\": \"/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23\", \"python\": \"/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14\", \"ld\": \"/usr/bin/ld\", \"ar\": \"/usr/bin/ar\", \"asan\": \"/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib\", \"xcrun\": \"/usr/bin/xcrun\"}",
+    "PORTABLE_ADAPTER_ARTIFACTS": "/private/tmp/nanolang-read-adapters-corrected-puck/ordinary",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

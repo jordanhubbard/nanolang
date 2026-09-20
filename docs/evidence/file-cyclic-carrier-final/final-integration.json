@@ -1,0 +1,52 @@
+{
+  "existing_blobs_unchanged": true,
+  "existing_source_fixture_module_blobs": 2305,
+  "incoming_main": "ec51690f7028fc788145d4d84e630627a07df668",
+  "original_manifests_preserved": {
+    "file-cyclic-carrier": {
+      "manifest_sha256": "9a7599ee5fd70d3bf04793b9715973240a457c011b840410803014210a529cf3",
+      "reports": 288
+    },
+    "file-cyclic-carrier-integration": {
+      "manifest_sha256": "2b04a324335d58935bd45b3436c99173fdd2f8e85bbb65986f0a6710ccd3f0b2",
+      "reports": 156
+    }
+  },
+  "provider_assignments_unchanged": {
+    "COMMON_OBJECTS": [
+      "COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))"
+    ],
+    "COMMON_SOURCES": [
+      "COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/catalog.c",
+      "COMMON_SOURCES += $(SRC_DIR)/resource_flow.c $(SRC_DIR)/nominal_types.c"
+    ],
+    "FILE_PUBLIC_OBJECTS": [
+      "FILE_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY_STEMS))) \\\n\t$(OBJ_DIR)/nanoisa/file_host_grant.o $(OBJ_DIR)/nanoisa/file_runtime_public.o \\\n\t$(OBJ_DIR)/nanoisa/file_public_native.o $(OBJ_DIR)/nanovm/file_public_vm.o \\\n\t$(OBJ_DIR)/nsi_cap.o $(OBJ_DIR)/nsi_file.o $(OBJ_DIR)/nsi_file_values.o"
+    ],
+    "FILE_PUBLIC_QUERY_STEMS": [
+      "FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/file_flow nanoisa/isa \\\n\tnanoisa/managed_array_shapes nanoisa/mixed_float_proof nanoisa/nvm_format \\\n\tnanoisa/nvm_format_v2 nanoisa/nvm_v2_constants nanoisa/nvm_v2_convert \\\n\tnanoisa/nvm_v2_cursor nanoisa/nvm_v2_functions nanoisa/nvm_v2_imports \\\n\tnanoisa/nvm_v2_layouts nanoisa/nvm_v2_module nanoisa/nvm_v2_signatures \\\n\tnanoisa/ownership_contracts nanoisa/passive nanoisa/reference_places \\\n\tnanoisa/retained_layouts nanoisa/service_bindings nanoisa/service_bindings_module \\\n\tnanoisa/service_file_nominal nanoisa/service_file_nominal_plan \\\n\tnanoisa/verifier nanoisa/verifier_types nanovm/vm_decode nsi_file_plan"
+    ],
+    "NANOISA_OBJECTS": [
+      "NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES)) \\\n\t$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT) $(OBJ_DIR)/nsi_file_plan.o"
+    ],
+    "NANOISA_SOURCES": [
+      "NANOISA_SOURCES = $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/service_file_nominal.c $(NANOISA_DIR)/service_file_nominal_plan.c $(NANOISA_DIR)/service_bindings.c $(NANOISA_DIR)/service_bindings_module.c $(NANOISA_DIR)/mixed_float_proof.c $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \\\n\t$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \\\n\t$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c \\\n\t$(NANOISA_DIR)/frontend.c"
+    ],
+    "NANOVM_OBJECTS": [
+      "NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOURCES)) $(OBJ_DIR)/runtime/callback_runtime.o"
+    ],
+    "NANOVM_SOURCES": [
+      "NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/heap_cycles.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_callback.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c",
+      "NANOVM_SOURCES += $(NANOVM_DIR)/vm_ffi_arrays.c"
+    ],
+    "RUNTIME_OBJECTS": [
+      "RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))"
+    ],
+    "RUNTIME_SOURCES": [
+      "RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \\\n\t$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \\\n\t$(RUNTIME_DIR)/list_CompilerDiagnostic.c $(RUNTIME_DIR)/list_CompilerSourceLocation.c \\\n\t$(RUNTIME_DIR)/list_ASTNumber.c $(RUNTIME_DIR)/list_ASTFloat.c \\\n\t$(RUNTIME_DIR)/list_ASTString.c $(RUNTIME_DIR)/list_ASTBool.c \\\n\t$(RUNTIME_DIR)/list_ASTIdentifier.c \\\n\t$(RUNTIME_DIR)/list_ASTBinaryOp.c $(RUNTIME_DIR)/list_ASTCall.c \\\n\t$(RUNTIME_DIR)/list_ASTModuleQualifiedCall.c \\\n\t$(RUNTIME_DIR)/list_ASTArrayLiteral.c $(RUNTIME_DIR)/list_ASTLet.c \\\n\t$(RUNTIME_DIR)/list_ASTSet.c $(RUNTIME_DIR)/list_ASTStmtRef.c \\\n\t$(RUNTIME_DIR)/list_ASTIf.c $(RUNTIME_DIR)/list_ASTWhile.c \\\n\t$(RUNTIME_DIR)/list_ASTFor.c $(RUNTIME_DIR)/list_ASTReturn.c \\\n\t$(RUNTIME_DIR)/list_ASTBlock.c $(RUNTIME_DIR)/list_ASTUnsafeBlock.c \\\n\t$(RUNTIME_DIR)/list_ASTPrint.c $(RUNTIME_DIR)/list_ASTAssert.c \\\n\t$(RUNTIME_DIR)/list_ASTFunction.c $(RUNTIME_DIR)/list_ASTShadow.c \\\n\t$(RUNTIME_DIR)/list_ASTStruct.c $(RUNTIME_DIR)/list_ASTStructLiteral.c \\\n\t$(RUNTIME_DIR)/list_ASTFieldAccess.c $(RUNTIME_DIR)/list_ASTEnum.c \\\n\t$(RUNTIME_DIR)/list_ASTUnion.c $(RUNTIME_DIR)/list_ASTUnionConstruct.c \\\n\t$(RUNTIME_DIR)/list_ASTMatch.c $(RUNTIME_DIR)/list_ASTImport.c \\\n\t$(RUNTIME_DIR)/list_ASTOpaqueType.c $(RUNTIME_DIR)/list_ASTTupleLiteral.c \\\n\t$(RUNTIME_DIR)/list_ASTTupleIndex.c \\\n\t$(RUNTIME_DIR)/token_helpers.c $(RUNTIME_DIR)/gc.c $(RUNTIME_DIR)/effect_runtime.c $(RUNTIME_DIR)/dyn_array.c \\\n\t$(RUNTIME_DIR)/gc_struct.c $(RUNTIME_DIR)/nl_string.c $(RUNTIME_DIR)/ffi_loader.c \\\n\t$(RUNTIME_DIR)/module_build_dir.c \\\n\t$(RUNTIME_DIR)/cli.c $(RUNTIME_DIR)/regex.c"
+    ]
+  },
+  "resolution": "Additive ROADMAP tail retains both histories; Make merged automatically.",
+  "reviewed_head": "4635c82fd491e0f2f8279164136ab6321e421b2c",
+  "scope": "Static integration of separate descriptive-only source plan; no product execution repeated; original qualified5c71 runtime/provider closure remains exact."
+}

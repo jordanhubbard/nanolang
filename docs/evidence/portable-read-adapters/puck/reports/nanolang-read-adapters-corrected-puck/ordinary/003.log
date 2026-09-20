@@ -1,0 +1,2 @@
+error: overriding the module target triple with arm64-apple-macosx26.0.0 [-Werror,-Woverride-module]
+1 error generated.

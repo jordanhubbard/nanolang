@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "-std=c11",
+    "-D_POSIX_C_SOURCE=200809L",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-DREAD_LLVM",
+    "tests/nanoisa/test_portable_read_adapters.c",
+    "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-0.o",
+    "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-1.o",
+    "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-2.o",
+    "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/typed-O0.o",
+    "-lm",
+    "-o",
+    "/private/tmp/nanolang-read-adapters-7b66-sanitizer/clang-sanitizer/products/unhooked-O0"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-7b66",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

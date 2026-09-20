@@ -1,0 +1,16 @@
+test_private_c_and_typed_llvm_boundaries (tests.test_portable_read_adapters.PortableReadAdapters.test_private_c_and_typed_llvm_boundaries) ... I retain private adapter evidence at /private/tmp/nanolang-read-adapters-b9ba-puck/ordinary
+I checked 4 measured call allocations in persistent and transient modes.
+I passed 1741 private read-text adapter checks; no bytecode admission.
+I checked 4 measured call allocations in persistent and transient modes.
+I passed 1741 private read-text adapter checks; no bytecode admission.
+I checked 4 measured call allocations in persistent and transient modes.
+I passed 1741 private read-text adapter checks; no bytecode admission.
+I passed 531 private read-text adapter checks; no bytecode admission.
+I passed 531 private read-text adapter checks; no bytecode admission.
+I passed 531 private read-text adapter checks; no bytecode admission.
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.617s
+
+OK

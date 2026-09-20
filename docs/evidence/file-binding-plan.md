@@ -66,3 +66,14 @@ My retained roots are:
 I require independent seal review and actual merge before recording this bounded
 milestone as delivered. Atomic publication and paired parser/lowering/shadows,
 installed source acceptance and broader control-flow obligations remain required.
+
+I prepare separate canonical integration with actual main
+`36fb22d9114a83748a5919c27cd12a5f7ffb0f6b`. Incoming private cyclic carrier,
+indirect-flow and portable-read code does not enter this five-provider fixture
+closure. All23 recorded production/header/fixture/neighbor inputs match the
+qualified seal exactly, and all15 incoming production paths match canonical
+main exactly. Make/roadmap conflicts retain both additive blocks; strict binding
+recipes and common compilation rules do not change. My [integration identity
+record](file-binding-plan-integration.json) does not relabel original tests as
+new integrated execution. No repeated qualification is justified by this
+unchanged closure. Root reviews the integration before merge.

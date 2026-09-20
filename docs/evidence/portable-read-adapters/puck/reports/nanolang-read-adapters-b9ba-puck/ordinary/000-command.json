@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "--version"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-b9ba",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

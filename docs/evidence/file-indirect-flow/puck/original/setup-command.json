@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-file-indirect-flow-293-puck/providers.mk",
+    "-j2",
+    "CC=/usr/bin/clang",
+    "carrier-providers",
+    "nvm2c",
+    "nvm2llvm",
+    "nvm2hl",
+    "nano_virt"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/clang",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_RUNTIME_CFLAGS": "-I/opt/homebrew/opt/openssl@3/include",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

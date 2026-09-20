@@ -1,0 +1,180 @@
+{
+  "reports": 288,
+  "artifacts": 6942,
+  "artifact_bytes": 1838325293,
+  "archive": {
+    "bytes": 377328544,
+    "path": "/tmp/nanolang-file-cyclic-carrier-artifacts.tar.gz",
+    "sha256": "292e3ed28f87fd9cb63fd477aac377e5aa20a4018b12a59204cf0a45e5c81082"
+  },
+  "archive_objects": 6942,
+  "references": 23529,
+  "source_tool_pairs": 27,
+  "phases": {
+    "darwin": [
+      {
+        "phase": "setup",
+        "seconds": 9.504,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.121,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 7.055,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 7.1,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 16.16,
+        "status": 0
+      },
+      {
+        "phase": "core-values",
+        "seconds": 1.854,
+        "status": 0
+      },
+      {
+        "phase": "cyclic",
+        "seconds": 4.851,
+        "status": 0
+      },
+      {
+        "phase": "cyclic-hosted",
+        "seconds": 12.233,
+        "status": 0
+      },
+      {
+        "phase": "private-vm",
+        "seconds": 13.689,
+        "status": 0
+      },
+      {
+        "phase": "private-native",
+        "seconds": 53.162,
+        "status": 0
+      },
+      {
+        "phase": "public",
+        "seconds": 25.847,
+        "status": 1
+      }
+    ],
+    "darwin-public-linked": [
+      {
+        "phase": "public-linked",
+        "seconds": 25.785,
+        "status": 0
+      }
+    ],
+    "first-linux": [
+      {
+        "phase": "setup",
+        "seconds": 21.569,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.114,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 4.424,
+        "status": 1
+      }
+    ],
+    "linux": [
+      {
+        "phase": "setup",
+        "seconds": 21.616,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 8.283,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 8.685,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 36.6,
+        "status": 0
+      },
+      {
+        "phase": "clang-sanitizer",
+        "seconds": 26.776,
+        "status": 0
+      },
+      {
+        "phase": "core-values",
+        "seconds": 1.618,
+        "status": 0
+      },
+      {
+        "phase": "cyclic",
+        "seconds": 9.34,
+        "status": 0
+      },
+      {
+        "phase": "cyclic-hosted",
+        "seconds": 34.396,
+        "status": 0
+      },
+      {
+        "phase": "private-vm",
+        "seconds": 26.078,
+        "status": 0
+      },
+      {
+        "phase": "private-native",
+        "seconds": 141.105,
+        "status": 0
+      },
+      {
+        "phase": "public",
+        "seconds": 64.669,
+        "status": 0
+      }
+    ]
+  },
+  "provider_pairs_checked": 27,
+  "current_endpoints": {
+    "first_linux": [
+      11583,
+      9,
+      172
+    ],
+    "linux": [
+      11583,
+      9,
+      184
+    ],
+    "darwin": [
+      11583,
+      14,
+      183
+    ]
+  },
+  "raw_terminals_verified": true,
+  "production_d407_equal": true,
+  "history_blob_verified": true,
+  "scope": "Manual private cyclic carrier only. Public neighbors acyclic; provider rebuild changes explicit. Retained creation bytes not peak. No reruns."
+}

@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c11",
+    "-D_POSIX_C_SOURCE=200809L",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "-DREAD_ALLOC_HOOKS",
+    "-include",
+    "tests/nanoisa/portable_read_hooks.h",
+    "-DREAD_IO_HOOKS",
+    "-c",
+    "src/nanoisa/portable_read_host.c",
+    "-o",
+    "/private/tmp/nanolang-read-adapters-b9ba-puck/ordinary/products/observed-0.o"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-adapters-b9ba",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

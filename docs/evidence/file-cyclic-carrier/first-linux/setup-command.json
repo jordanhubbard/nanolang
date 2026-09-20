@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-file-cyclic-carrier-c5d-linux/providers.mk",
+    "-j2",
+    "CC=/usr/bin/gcc-13",
+    "carrier-providers",
+    "nvm2c",
+    "nvm2llvm",
+    "nvm2hl",
+    "nano_virt"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}

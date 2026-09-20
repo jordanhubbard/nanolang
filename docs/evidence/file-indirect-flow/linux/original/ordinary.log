@@ -1,0 +1,19 @@
+I retain indirect ownership query artifacts at /tmp/nano-file-indirect_flow-n8kiukx4
+test_instrumented_indirect_flow_query (tests.test_file_indirect_flow.FileIndirectFlow.test_instrumented_indirect_flow_query) ... I begin scalar composition.
+I begin owned composition.
+I begin ownership refusals.
+I begin allocation and bound controls.
+I checked 41 allocating preparation sites in both failure modes.
+PASS 10277 private indirect ownership checks; no File execution
+ok
+test_linked_indirect_flow_query (tests.test_file_indirect_flow.FileIndirectFlow.test_linked_indirect_flow_query) ... I begin scalar composition.
+I begin owned composition.
+I begin ownership refusals.
+I begin allocation and bound controls.
+PASS 3724 private indirect ownership checks; no File execution
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.515s
+
+OK
