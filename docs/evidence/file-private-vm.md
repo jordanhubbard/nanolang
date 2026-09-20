@@ -62,7 +62,7 @@ The complete corrected runs above pass the retained full output assertion.
 
 ## I seal source and artifact identity
 
-[My manifest](file-private-vm/report-sha256.json) seals149 reports and14 equal
+My initial33630768a seal contains149 reports and14 equal
 source/tool before-after pairs. Its5,608 artifact references resolve to949 unique
 content-addressed files (684,570,462 bytes) under
 `/tmp/nanolang-file-private-vm-artifacts`. Every artifact and downloaded puck
@@ -75,3 +75,35 @@ and `nanolang-file-private-vm-corrected` (cfb). Puck uses
 `/tmp/nanolang-file-private-vm-cfb`. This evidence tree is not substituted for any
 measured source tree. Later canonical/common-provider integration will be
 reported separately without relabeling cfb sanitizer acceptance.
+
+
+## I qualify the canonical integration separately
+
+I freeze42838153c after integrating canonical8c959439d in a separate tree.
+The incoming union metadata ownership changes affect common env/module provider
+objects, while later parser and evidence changes are disjoint. All seven private
+VM/frame getter/fixture paths remain byte-identical tocfb. Only additive ROADMAP
+text required conflict resolution; normal provider lists and public File guards
+remain unchanged.
+
+| Gate at42838153c | Linux | Darwin puck |
+| --- | ---: | ---: |
+| Fresh provider setup | PASS20.836s | PASS9.325s |
+| Ordinary private VM | PASS6.846s | PASS5.751s |
+| Ordinary preserved frames | PASS6.315s | PASS5.259s |
+| File opcode/public refusal | PASS3.154s | PASS4.494s |
+| Ordinary wrapper publication | PASS3.161s | PASS7.201s |
+
+Both drivers exit0. I do not relabel the originalcfb private VM/frame sanitizer
+matrix as integrated428 acceptance. Existing opcode/wrapper harness settings
+remain unchanged. Both current428 source maps contain exactly equal9,432 files;
+all9 Linux/14 Darwin tool labels match. Ten additional before-after pairs are
+equal. The measured roots are `nanolang-file-private-vm-integrated` on Linux and
+`/tmp/nanolang-file-private-vm-428` on puck.
+
+[My combined manifest](file-private-vm/report-sha256.json) seals256 reports,
+24 total inventory pairs and9,351 artifact references to1,603 unique retained
+files (1,149,431,287 bytes). All original first-terminal and sanitizer reports
+remain at their original pins. I verify each advertised report against its
+committed Git blob as well as its filesystem hash; ignored packaging files
+cannot satisfy this seal. Independent review and guarded merge remain required.

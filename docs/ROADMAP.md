@@ -12428,3 +12428,5 @@ Source ARRAY binding reassignment stays refused, arbitrary profile composition
 and broader51da/488a/28f2 target obligations stay open, and live e8d/d76 remain
 OPEN. Generic16 awaits coordinated a18 integration;33+9 are not fullmake, current
 product, fixed-point or release acceptance.
+
+I supplement private VMe105 with frozen42838153c/current8c959 provider integration: fresh common provider setup, ordinary actual private VM/frame and opcode/wrapper gates pass on Linux/puck. Exactprivate production/fixture identities remaincfb; its sanitizer seal is not relabeled. My256-report seal retains24 inventory pairs and1,603 unique artifacts, including the original first failure. Native direct lowering is the next separate reviewed82ff dependency; public/source/full5.1 obligations remain open.
