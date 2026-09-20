@@ -870,6 +870,14 @@ their individual acceptance evidence closes them.
       general tuple substitution or ownership transfer. MAC
       `task_bcd773ad3c084ce099a3da5aef682fef`.
 
+- [ ] I own checker-created function metadata and callback/array placeholders
+      independently of borrowed AST/manual/builtin graphs and mutable symbol slots.
+      I preserve the595-byte historical parsed lifecycle terminal, explicitly run
+      that unchanged parsed test in a fresh harness, cover both checker paths and
+      truncation/redefinition, and require unsuppressed sanitizer plus metadata/
+      scoping gates before closure. Contract: [checker ownership](CHECKER_METADATA_OWNERSHIP.md).
+      MAC `task_e69bf88f5cbb49bd933b5ad7e25ae3e6`, parent00c47.
+
 - [ ] I release independently owned registered and extracted union metadata
       (`task_0bae7b0426fc4c3e912ab00cfd7de136`, under `task_00c47a5d65d04c48914864ec0de553d6`).
       My current environment owns allocated field type-name arrays, generic
