@@ -12902,3 +12902,7 @@ I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5
 - [ ] I review and qualify counter-based ordinary/assertion/refusal/mutation/reentry controls under both dispatch forms, preserving owned and callback paths.
 - [ ] I freshly execute the unchanged full imported emitter shadow gate with its original ten-second policy, then relevant VM/callback/service/profile adjacency; I retain failures without extending deadlines.
 - [ ] I seal evidence and obtain actual merge before reconciling this bounded task; passive and Darwin native timeout tasks remain separate.
+
+### My ordinary-admission fixture indentation prerequisite
+
+- [ ] I correct the new fixture main-loop indentation after retaining the firstedd51 strict GCC compilation terminal under task_4931a66f39c04b1a96981a4e00d43646; no fixture executed. I preserve strict warnings, all assertions and original provider/source evidence, review the tiny correction, then run a fresh corrected fixture.
