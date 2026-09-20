@@ -70,3 +70,15 @@ collector files and the incomplete first packaging directory under `/tmp`.
 
 PR893 integration, independent audit, actual canonical merge, ordinary array
 runtime/source acceptance and the full5.1 roadmap remain open.
+
+Independent review rehashed all563 committed report blobs,893 CAS objects,
+7156 artifact references,86 equal source/tool pairs and current source/tool maps
+on both hosts. It matched each11671-file source inventory to its exact qualified
+Git pin and confirmed the seven query configurations, corrected neighbors and
+retained failures. The separate `ordinary-array-authority-review.json` records
+that audit without changing the original seal.
+
+The original Darwin Apple tool map hashes the `/usr/bin/clang` launcher and
+records Xcode17's installed directory and SDK26.2. It does not hash the complete
+selected Xcode compiler/SDK contents. I retain that attribution limit rather
+than treating the launcher hash as a complete toolchain identity.
