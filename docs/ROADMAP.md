@@ -875,7 +875,7 @@ their individual acceptance evidence closes them.
       fresh external binary and hash-verified f7c O0 ASan/UBSan providers.
       All 24 methods pass with unsuppressed leak detection. I preserve the
       qualified tree and source/provider/tool maps in [my full-fixture
-      evidence](evidence/checker-metadata-full/README.md).
+      evidence](evidence/checker-metadata-ownership.md#my-original-full-fixture-supplemental-acceptance).
 
 - [x] I own checker-created function metadata and callback/array placeholders
       independently of borrowed AST/manual/builtin graphs and mutable slots.
@@ -883,7 +883,7 @@ their individual acceptance evidence closes them.
       array controls pass; the complete normal metadata/scoping targets pass.
       PR884 merged at `4aa6ce063`; child `task_e69bf88f5cbb49bd933b5ad7e25ae3e6`
       is complete. [Contract](CHECKER_METADATA_OWNERSHIP.md) and
-      [evidence](evidence/checker-metadata-ownership/README.md).
+      [evidence](evidence/checker-metadata-ownership.md).
 
 - [x] I release independently owned registered and extracted union metadata.
       PR882 gives each owner its own field type-name arrays, generic formals
