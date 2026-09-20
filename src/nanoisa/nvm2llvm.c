@@ -795,6 +795,7 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     }
     const NvmRecordPlan *records = heap ? heap->records : NULL;
     if (managed) fputs(target == NVM_LLVM_WASM32 ? nms_runtime_ir_wasm32 : nms_runtime_ir_native, out);
+    else fputs(target == NVM_LLVM_WASM32 ? nms_runtime_target_wasm32 : nms_runtime_target_native, out);
     runtime(out, managed);
     if (global_count)
         fprintf(out, "@globals = internal global [%u x %%V] zeroinitializer\n", global_count);

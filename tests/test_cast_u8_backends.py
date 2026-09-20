@@ -81,6 +81,13 @@ class CastU8Backends(unittest.TestCase):
                 self.assertIn('__asan_report_', selected.read_text())
         self.run_actual(['llc', '-filetype=obj', '-relocation-model=pic', selected, '-o', obj])
 
+    def assert_target(self, ir, target):
+        manifest = json.loads((ROOT / 'obj/nanoisa/managed_runtime_ir.json').read_text())
+        facts = manifest['variants'][target]
+        text = ir.read_text()
+        self.assertEqual(re.findall(r'^target datalayout = "([^"]+)"$', text, re.M), [facts['layout']])
+        self.assertEqual(re.findall(r'^target triple = "([^"]+)"$', text, re.M), [facts['triple']])
+
     @staticmethod
     def exact_byte(expected):
         return (f'DUP\nTYPE_CHECK 2\nASSERT\nDUP\nTYPE_CHECK 1\nBOOL_NOT\nASSERT\n'
@@ -100,6 +107,7 @@ class CastU8Backends(unittest.TestCase):
         source, ir = self.artifacts / 'program.c', self.artifacts / 'program.ll'
         self.run_actual([ROOT / 'bin/nvm2c', module, '-o', source])
         self.run_actual([ROOT / 'bin/nvm2llvm', module, '-o', ir])
+        self.assert_target(ir, 'native')
         self.run_actual(['llvm-as', ir, '-o', self.artifacts / 'original.bc'])
         self.run_actual(['lli', ir])
         for optimization in ('O0', 'O2'):
@@ -128,6 +136,7 @@ class CastU8Backends(unittest.TestCase):
         wasm_ir = self.artifacts / 'wasm.ll'
         self.run_actual([ROOT / 'bin/nvm2llvm', module, '--entry-name', 'nano_entry',
                          '--runtime-target', 'wasm32', '-o', wasm_ir])
+        self.assert_target(wasm_ir, 'wasm32')
         for optimization in ('O0', 'O2'):
             selected = self.artifacts / ('wasm-' + optimization + '.ll')
             output = selected.with_suffix('.wasm')
@@ -218,6 +227,7 @@ class CastU8Backends(unittest.TestCase):
                     original = self.artifacts / (target + '.ll')
                     self.run_actual([ROOT / 'bin/nvm2llvm', module, '--entry-name', 'nano_entry',
                         '--runtime-target', target, '-o', original])
+                    self.assert_target(original, target)
                     for optimization in ('O0', 'O2'):
                         ir = self.artifacts / (target + '-' + optimization + '.ll')
                         self.run_actual(['opt', '-S', '-passes=default<' + optimization + '>', original, '-o', ir])
