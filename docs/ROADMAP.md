@@ -1179,6 +1179,21 @@ their individual acceptance evidence closes them.
       remaining active rows still require the same evidence check. MAC
       `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
+- [ ] **Lower recursive scalar arrays through my canonical NanoISA product.**
+      Exact-head release CI at `8854649eb` reaches my installed compiler and
+      then refuses `array<array<int>>` in the unchanged incremental-cube and
+      nested-value acceptance cases. I extend my checked NanoISA emitter and
+      native translator together for recursive arrays whose leaves already
+      have supported scalar storage. I preserve declared element shapes,
+      left-to-right evaluation, safe child lifetimes, exact mismatch
+      diagnostics, VM/native parity, and the original tests. I do not switch
+      this release gate back to my C seed. The first x64 and coverage logs are
+      retained with SHA-256
+      `b41e0142b612bdc8605d6b46377f67a506fccf6065fe8002df51038122138ec8`
+      and
+      `5647aaab69dce489e2760ce2933aca0f2d8c7fada8059a0c002ae965ea269d93`.
+      MAC `task_b877d68139a6d26162c8ad4beb9bc0b6`.
+
 - [x] **Preserve opaque null arguments in native call snapshots.** I retain my
       accepted integer-zero spelling for an opaque null when foreign call
       arguments are evaluated once into ordered temporaries. I reject nonzero
