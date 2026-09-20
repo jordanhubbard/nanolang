@@ -94,7 +94,7 @@ NvmOrdinaryArrayResult nvm_describe_ordinary_array_authority(
     bool needs=false;
     r=ownership_validate_owned(m,&p->layouts,&needs,p);
     if(r!=NVM_V2_OK){status=p->failure;goto fail;}
-    if(needs || m->import_count || m->module_ref_count || m->service_size ||
+    if(needs || m->import_count || m->module_ref_count || m->service_size || m->service_data ||
        m->passive_size || m->passive_data)p->unknown=true;
     uint32_t arrays=0;
     for(uint32_t i=0;i<p->layouts.count;i++) {
