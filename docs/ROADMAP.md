@@ -12534,3 +12534,11 @@ logical obligation checks and bounded callee-first storage maxima. Existing
 acyclic functions remain unchanged; runtime_admitted stays false. Source review
 precedes hosted fixture preparation and gates. Physical generation witnesses,
 fuel, matched VM/native and public conjunction remain later unchecked steps.
+
+I prepare15a92 dependency1 hosted fixtures only after root/native source review:
+complete old hosted adjacency, every cyclic variant/edge/relation, seed ordinal0,
+exact lower-index call/initializer maxima, declared stack boundaries, destroyed
+input independence, real16/17 joins and full-chain allocation recovery. The
+runner reuses qualified bounded process cleanup with fresh rebuilt providers.
+No fixture/build/execution has run; sourcebae2 remains unchanged and review is
+required before frozen query-only gates.

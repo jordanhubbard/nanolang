@@ -252,3 +252,46 @@ public selector, installed header or source producer. The Make dependency names
 the new include/header explicitly. This checkpoint has had static inspection
 only: no fixture, compiler, build, service or cyclic execution has run. I request
 source review before preparing the new hosted fixtures and gates.
+
+## My unexecuted hosted fixture checkpoint
+
+I retain the complete old serialized hosted fixture and its allocation controls.
+The new fixture compares every copied instruction/operand, SCC representative,
+variant body/obligation, edge target, local/stack declaration/value relation,
+reference, region and original nominal/import map against an independent cyclic
+query. Both nominal permutations, a header with uninitialized entry versus
+initialized backedge, a live owner/reference loop and real16/17 alternative
+joins are explicit. I assert the initial parameter seed is ordinal0 for every
+function, without collapsing its other instruction0 alternatives.
+
+I check exact scalar and all five service obligations, owned and borrowed calls,
+pending/discharged masks, cleanup and result refinements. A lower-index callee
+chain retains caller operands and yields exact VM/native maxima27/29 with three
+frames; an initializer's23-slot peak dominates the14-slot entry sequentially.
+Legacy zero declared max_stack accepts, a positive undersized value refuses,
+and exact/65535 declarations retain the computed peak. No large declaration is
+used to allocate an unnecessary large carrier here.
+
+I destroy source module/code/ownership and overwrite/free serialized input,
+then repeat all fact comparisons and copy back the full original byte span.
+Every accessor family has invalid-index/output-sentinel controls. Malformed
+wire/dead operands, unsupported callbacks/dead indirect opcode, decoder limits
+and17 alternatives preserve output. Old acyclic hosted preparation still
+refuses loops, as do generic verifier/native converter routes.
+
+The instrumented mode rebuilds the same thirteen allocating reader/bridge/query
+providers as the qualified old hosted suite. It explores complete allocation
+prefixes and single transient failures, measures live bytes/old-plus-new realloc
+peaks against the published bound, preserves outputs and recovers freshly.
+Recovered successful plans after a transient fault must match complete reference
+facts and bytes. Ambiguous legacy codec failures remain UNRESOLVED, not asserted
+MEMORY. Shared ordinary providers are not labeled instrumented.
+
+The Python runner reuses the reviewed file-backed bounded process-group cleanup
+from test_file_cyclic without importing a discoverable extra TestCase. Its two
+methods build instrumented and separately linked providers into fresh retained
+directories. Compiler, flags and sanitizer selection are explicit; no defaults
+imply full-runtime instrumentation. A new Make target names this fixture only.
+Unchanged cyclic-query/body/flow/CODE/refusal neighbors remain separate gates.
+I have not compiled or executed this fixture; complete fixture review precedes
+frozen Linux/Darwin ordinary and supported sanitizer qualification.

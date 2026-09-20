@@ -5517,3 +5517,8 @@ test-file-host-grant: file-host-grant
 .PHONY: test-file-cyclic
 test-file-cyclic: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	FILE_CYCLIC_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_CYCLIC_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic
+
+.PHONY: test-file-cyclic-hosted
+# I rebuild allocating reader/bridge/query providers inside the retained runner.
+test-file-cyclic-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_CYCLIC_HOSTED_CC="$(CC)" NANO_FILE_CYCLIC_HOSTED_CFLAGS="$(CFLAGS)" FILE_CYCLIC_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_CYCLIC_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_hosted
