@@ -12,6 +12,7 @@ let mut nb_named: array<bool> = []
 let mut nb_tags: array<int> = []
 let mut nb_layouts: array<int> = []
 let mut nb_identities: array<string> = []
+let mut nb_variants: array<int> = []
 let mut nb_modes: array<int> = []
 let mut nb_live: array<bool> = []
 let mut nb_disposal_pending: array<bool> = []
@@ -291,6 +292,7 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     set nb_tags (array_push nb_tags tag)
     set nb_layouts (array_push nb_layouts layout)
     set nb_identities (array_push nb_identities "")
+    set nb_variants (array_push nb_variants -1)
     set nb_modes (array_push nb_modes mode)
     set nb_live (array_push nb_live true)
     set nb_disposal_pending (array_push nb_disposal_pending false)
@@ -301,7 +303,7 @@ fn nb_reset_locals() -> int {
     set nb_control_depth 0
     set nb_transferred false set nb_loop_first -1 set nb_loop_index -1 set nb_loop_top "" set nb_loop_done ""
     set nb_loop_live [] set nb_loop_pending [] set nb_loop_breaks 0
-    set nb_names [] set nb_named [] set nb_tags [] set nb_identities []
+    set nb_names [] set nb_named [] set nb_tags [] set nb_identities [] set nb_variants []
     set nb_projection_parents [] set nb_projection_fields [] set nb_layouts [] set nb_modes []
     set nb_live [] set nb_disposal_pending [] set nb_mutable [] set nb_code "" set nb_returned false set nb_transfers_owner false
     return 0
@@ -795,8 +797,266 @@ shadow nb_union_expr {
     assert (== nb_expression_identity "#union:-1:0<int,string>")
     let _: int = (nb_reset_locals) set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] set nb_error ""
 }
+
+fn nb_match_coverage(parser: Parser, matched: ASTMatch, definition: ASTUnion) -> bool {
+    let mut covered: array<bool> = []
+    let mut i: int = 0
+    while (< i definition.variant_count) { set covered (array_push covered false) set i (+ i 1) }
+    set i 0
+    while (< i matched.arm_count) {
+        let variant: int = (nb_union_variant definition (at matched.arm_variants i))
+        if (< variant 0) { return false }
+        if (parser_match_arm_unconditional parser matched i) { (array_set covered variant true) }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i definition.variant_count) {
+        if (not (at covered i)) { return false }
+        set i (+ i 1)
+    }
+    return (> definition.variant_count 0)
+}
+shadow nb_match_coverage {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} } fn main(value: Choice<int,string>) -> int { return match value { Left(p) if false => 9 Left(p) => p.value Right(p) => 0 Empty(p) => 0 } }" "match-coverage.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "match-coverage.nano")
+    assert (not (parser_has_error parser))
+    assert (nb_match_coverage parser (parser_get_match parser 0) (parser_get_union parser 0))
+}
+
+fn nb_match_scope_end(first: int) -> int {
+    let _: int = (nb_names_end first)
+    let mut i: int = first
+    while (< i (array_length nb_names)) { (array_set nb_names i "") set i (+ i 1) }
+    return 0
+}
+shadow nb_match_scope_end {
+    set nb_error "" let _: int = (nb_reset_locals)
+    let _: int = (nb_slot "outer" 1 4294967295 0 false)
+    let inner: int = (nb_slot "inner" 4 4294967295 0 false)
+    let _: int = (nb_name_begin inner "inner")
+    let _: int = (nb_match_scope_end 1)
+    assert (== (nb_local "outer") 0) assert (== (nb_local "inner") -1)
+    assert (str_contains nb_code ".local_end 1")
+    let _: int = (nb_reset_locals)
+}
+
+fn nb_match_binding(instance: int, variant: int, binding: string) -> int {
+    let mut name: string = binding
+    if (== name "_") { set name "" }
+    let slot: int = (nb_slot name 10 instance 0 false)
+    if (< slot 0) { return -1 }
+    (array_set nb_identities slot (at nb_union_identities instance))
+    (array_set nb_variants slot variant)
+    let _: int = (nb_emit "DUP")
+    let _: int = (nb_op1 "STORE_LOCAL" slot)
+    let _: int = (nb_name_begin slot name)
+    return slot
+}
+shadow nb_match_binding {
+    set nb_error "" set nb_union_identities ["#union:1:0<int,string>"]
+    let _: int = (nb_reset_locals)
+    let slot: int = (nb_match_binding 0 1 "payload")
+    assert (== slot 0) assert (== (at nb_variants slot) 1)
+    assert (== (at nb_identities slot) "#union:1:0<int,string>")
+    assert (str_contains nb_code "DUP\n  STORE_LOCAL 0")
+    let _: int = (nb_reset_locals) set nb_union_identities []
+}
+
+fn nb_match_instance(parser: Parser, matched: ASTMatch) -> int {
+    if (!= (nb_expr parser matched.scrutinee matched.scrutinee_type) 10) {
+        let _: int = (nb_fail "an exact concrete scalar union match source") return -1
+    }
+    let instance: int = nb_expression_layout
+    if (or (< instance 0) (>= instance (array_length nb_union_identities))) {
+        let _: int = (nb_fail "a registered concrete scalar union match source") return -1
+    }
+    if (!= nb_expression_identity (at nb_union_identities instance)) {
+        let _: int = (nb_fail "the authoritative concrete union match identity") return -1
+    }
+    return instance
+}
+shadow nb_match_instance {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} } fn main(value: Choice<int,string>) -> int { return match value { Left(p) => p.value Right(p) => 0 Empty(p) => 0 } }" "match-instance.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "match-instance.nano")
+    set nb_error "" set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] let _: int = (nb_reset_locals)
+    assert (nb_register_union parser "Choice<int,string>")
+    let slot: int = (nb_slot "value" 10 0 0 false)
+    (array_set nb_identities slot (at nb_union_identities 0))
+    assert (== (nb_match_instance parser (parser_get_match parser 0)) 0)
+    let _: int = (nb_reset_locals) set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+}
+
+fn nb_match_expr(parser: Parser, node_id: int) -> int {
+    let matched: ASTMatch = (parser_get_match parser node_id)
+    let instance: int = (nb_match_instance parser matched)
+    if (< instance 0) { return 0 }
+    let definition: ASTUnion = (parser_get_union parser (at nb_union_sources instance))
+    if (not (nb_match_coverage parser matched definition)) { return (nb_fail "complete named scalar union match coverage") }
+    let end: string = (nb_label)
+    let mut result: int = 0
+    let mut arm_index: int = 0
+    while (< arm_index matched.arm_count) {
+        if (== (at matched.arm_body_types arm_index) ParseNodeType.PNODE_BLOCK) { return (nb_fail "scalar expressions in value match arms") }
+        let variant: int = (nb_union_variant definition (at matched.arm_variants arm_index))
+        if (< variant 0) { return (nb_fail "a declared concrete union match variant") }
+        let arm: string = (nb_label)
+        let next: string = (nb_label)
+        let _: int = (nb_emit (+ "MATCH_TAG " (+ (int_to_string variant) (+ " " arm))))
+        let _: int = (nb_emit (+ "JMP " next))
+        let _: int = (nb_emit (+ arm ":"))
+        let first: int = (array_length nb_names)
+        if (< (nb_match_binding instance variant (at matched.arm_bindings arm_index)) 0) { return 0 }
+        let guard_id: int = (at matched.arm_guard_ids arm_index)
+        if (>= guard_id 0) {
+            if (!= (nb_expr parser guard_id (at matched.arm_guard_types arm_index)) 4) { return (nb_fail "an exact Boolean scalar union match guard") }
+            let _: int = (nb_emit (+ "JMP_FALSE " next))
+        }
+        let _: int = (nb_emit "POP")
+        let tag: int = (nb_expr parser (at matched.arm_body_ids arm_index) (at matched.arm_body_types arm_index))
+        if (not (or (== tag 1) (or (== tag 3) (or (== tag 4) (== tag 5))))) { return (nb_fail "one exact scalar value-match result") }
+        if (== result 0) { set result tag }
+        else { if (!= result tag) { return (nb_fail "one matching scalar value-match result type") } }
+        let _: int = (nb_match_scope_end first)
+        let _: int = (nb_emit (+ "JMP " end))
+        let _: int = (nb_emit (+ next ":"))
+        set arm_index (+ arm_index 1)
+    }
+    let _: int = (nb_emit "POP")
+    let _: int = (nb_emit "PUSH_BOOL 0")
+    let _: int = (nb_emit "ASSERT")
+    let _: int = (nb_emit "HALT")
+    let _: int = (nb_emit (+ end ":"))
+    return result
+}
+shadow nb_match_expr {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} } fn main(value: Choice<int,string>) -> int { return match value { Left(p) if false => 9 Left(p) => p.value Right(p) => 0 Empty(p) => 0 } }" "match-expression.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "match-expression.nano")
+    set nb_error "" set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] let _: int = (nb_reset_locals)
+    assert (nb_register_union parser "Choice<int,string>")
+    let slot: int = (nb_slot "value" 10 0 0 false)
+    (array_set nb_identities slot (at nb_union_identities 0))
+    assert (== (nb_match_expr parser 0) 1)
+    assert (str_contains nb_code "MATCH_TAG 0") assert (str_contains nb_code "AGG_GET 0")
+    let _: int = (nb_reset_locals) set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+}
+
+fn nb_match_statement(parser: Parser, node_id: int) -> int {
+    let matched: ASTMatch = (parser_get_match parser node_id)
+    let instance: int = (nb_match_instance parser matched)
+    if (< instance 0) { return 0 }
+    let definition: ASTUnion = (parser_get_union parser (at nb_union_sources instance))
+    if (not (nb_match_coverage parser matched definition)) { return (nb_fail "complete named scalar union match coverage") }
+    let incoming_count: int = (array_length nb_live)
+    let incoming_live: array<bool> = (nb_copy_flags nb_live incoming_count)
+    let incoming_pending: array<bool> = (nb_copy_flags nb_disposal_pending incoming_count)
+    let mut joined_live: array<bool> = []
+    let mut joined_pending: array<bool> = []
+    let mut has_join: bool = false
+    let mut all_return: bool = true
+    let mut all_stop: bool = true
+    let end: string = (nb_label)
+    let mut arm_index: int = 0
+    while (< arm_index matched.arm_count) {
+        if (!= (at matched.arm_body_types arm_index) ParseNodeType.PNODE_BLOCK) { return (nb_fail "statement blocks in scalar union match arms") }
+        let mut local: int = 0
+        while (< local incoming_count) {
+            (array_set nb_live local (at incoming_live local))
+            (array_set nb_disposal_pending local (at incoming_pending local))
+            set local (+ local 1)
+        }
+        set nb_returned false set nb_transferred false
+        let variant: int = (nb_union_variant definition (at matched.arm_variants arm_index))
+        if (< variant 0) { return (nb_fail "a declared concrete union match variant") }
+        let arm: string = (nb_label)
+        let next: string = (nb_label)
+        let _: int = (nb_emit (+ "MATCH_TAG " (+ (int_to_string variant) (+ " " arm))))
+        let _: int = (nb_emit (+ "JMP " next))
+        let _: int = (nb_emit (+ arm ":"))
+        let first: int = (array_length nb_names)
+        if (< (nb_match_binding instance variant (at matched.arm_bindings arm_index)) 0) { return 0 }
+        let guard_id: int = (at matched.arm_guard_ids arm_index)
+        if (>= guard_id 0) {
+            if (!= (nb_expr parser guard_id (at matched.arm_guard_types arm_index)) 4) { return (nb_fail "an exact Boolean scalar union match guard") }
+            let _: int = (nb_emit (+ "JMP_FALSE " next))
+        }
+        let _: int = (nb_emit "POP")
+        set nb_control_depth (+ nb_control_depth 1)
+        let _: int = (nb_body parser (at matched.arm_body_ids arm_index) false)
+        set nb_control_depth (- nb_control_depth 1)
+        if (!= nb_error "") { return 0 }
+        let arm_return: bool = nb_returned
+        let arm_stop: bool = (or nb_returned nb_transferred)
+        let _: int = (nb_match_scope_end first)
+        if (not arm_stop) {
+            if has_join {
+                if (not (nb_same_owners incoming_count joined_live joined_pending)) { return 0 }
+            } else {
+                set joined_live (nb_copy_flags nb_live incoming_count)
+                set joined_pending (nb_copy_flags nb_disposal_pending incoming_count)
+                set has_join true
+            }
+            let _: int = (nb_emit (+ "JMP " end))
+        }
+        set all_return (and all_return arm_return)
+        set all_stop (and all_stop arm_stop)
+        let _: int = (nb_emit (+ next ":"))
+        set arm_index (+ arm_index 1)
+    }
+    let _: int = (nb_emit "POP")
+    let _: int = (nb_emit "PUSH_BOOL 0")
+    let _: int = (nb_emit "ASSERT")
+    let _: int = (nb_emit "HALT")
+    let _: int = (nb_emit (+ end ":"))
+    if has_join {
+        let mut local: int = 0
+        while (< local incoming_count) {
+            (array_set nb_live local (at joined_live local))
+            (array_set nb_disposal_pending local (at joined_pending local))
+            set local (+ local 1)
+        }
+    }
+    set nb_returned all_return
+    set nb_transferred (and all_stop (not all_return))
+    return 0
+}
+shadow nb_match_statement {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} } fn main(value: Choice<int,string>) -> int { match value { Left(p) => { return p.value } Right(p) => { return 0 } Empty(p) => { return 0 } } }" "match-statement.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "match-statement.nano")
+    set nb_error "" set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] let _: int = (nb_reset_locals)
+    assert (nb_register_union parser "Choice<int,string>")
+    let slot: int = (nb_slot "value" 10 0 0 false)
+    (array_set nb_identities slot (at nb_union_identities 0))
+    set nb_result 1
+    let _: int = (nb_match_statement parser 0)
+    assert (== nb_error "") assert nb_returned
+    assert (str_contains nb_code "MATCH_TAG 0") assert (str_contains nb_code "RET")
+    let _: int = (nb_reset_locals) set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+}
+
+fn nb_declared_match_binding(parser: Parser, name: string) -> bool {
+    let mut match_index: int = 0
+    while (< match_index (parser_get_match_count parser)) {
+        let matched: ASTMatch = (parser_get_match parser match_index)
+        let mut arm: int = 0
+        while (< arm matched.arm_count) {
+            if (== (at matched.arm_bindings arm) name) { return true }
+            set arm (+ arm 1)
+        }
+        set match_index (+ match_index 1)
+    }
+    return false
+}
+shadow nb_declared_match_binding {
+    let tokens: List<LexerToken> = (tokenize_string "union Choice<T> { Some { value: T }, None {} } fn main(value: Choice<int>) -> int { match value { Some(payload) => { return payload.value } None(empty) => { return 0 } } }" "match-binding-name.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "match-binding-name.nano")
+    assert (nb_declared_match_binding parser "payload")
+    assert (nb_declared_match_binding parser "empty")
+    assert (not (nb_declared_match_binding parser "outside"))
+}
+
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (!= nb_error "") { return 0 }
+    if (== kind ParseNodeType.PNODE_MATCH) { return (nb_match_expr parser id) }
     if (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) {
         let identity: string = (parser_get_union_construct parser id).union_name
         return (nb_union_expr parser id kind identity)
@@ -831,7 +1091,36 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
         let field: ASTFieldAccess = (parser_get_field_access parser id)
         if (== field.object_type ParseNodeType.PNODE_IDENTIFIER) {
-            let local: int = (nb_local (parser_get_identifier parser field.object).name)
+            let object_name: string = (parser_get_identifier parser field.object).name
+            let local: int = (nb_local object_name)
+            if (and (< local 0) (nb_declared_match_binding parser object_name)) {
+                return (nb_fail "a payload binding inside its lexical match arm")
+            }
+            if (and (>= local 0) (== (at nb_tags local) 10)) {
+                let instance: int = (at nb_layouts local)
+                let variant: int = (at nb_variants local)
+                if (or (not (at nb_live local)) (or (< instance 0) (or (>= instance (array_length nb_union_identities)) (< variant 0)))) {
+                    return (nb_fail "a live variant-qualified scalar union payload")
+                }
+                if (!= (at nb_identities local) (at nb_union_identities instance)) { return (nb_fail "the authoritative payload binding identity") }
+                let definition: ASTUnion = (parser_get_union parser (at nb_union_sources instance))
+                if (>= variant definition.variant_count) { return (nb_fail "a declared payload binding variant") }
+                let offset: int = (nb_union_offset definition variant)
+                let count: int = (at definition.variant_field_counts variant)
+                let mut index: int = -1
+                let mut candidate: int = 0
+                while (< candidate count) {
+                    if (== field.field_name (at definition.variant_field_names (+ offset candidate))) { set index candidate }
+                    set candidate (+ candidate 1)
+                }
+                if (< index 0) { return (nb_fail "a declared exact variant payload field") }
+                let spelling: string = (nb_union_field_type definition (at nb_union_spellings instance) (+ offset index))
+                let tag: int = (nb_union_payload_tag spelling)
+                if (== tag 0) { return (nb_fail "an exact scalar variant payload field") }
+                let _: int = (nb_op1 "LOAD_LOCAL" local)
+                let _: int = (nb_op1 "AGG_GET" index)
+                return tag
+            }
             if (nb_ordinary_local local) {
                 if (not (at nb_live local)) { return (nb_fail "a live ordinary receiver") }
                 let layout: int = (at nb_layouts local)
@@ -1229,6 +1518,12 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
             set nb_control_depth (+ nb_control_depth 1)
             let _: int = (nb_body_statements parser scope.statements is_shadow)
             set nb_control_depth (- nb_control_depth 1)
+            set i (+ i 1)
+            continue
+        }
+        if (== stmt.node_type ParseNodeType.PNODE_MATCH) {
+            if (== nb_control_depth 32) { return (nb_fail "at most 32 nested control-flow bodies") }
+            let _: int = (nb_match_statement parser stmt.node_id)
             set i (+ i 1)
             continue
         }
