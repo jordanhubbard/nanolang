@@ -1,0 +1,24 @@
+{
+  "name": "assemble-refusal",
+  "argv": [
+    "/private/tmp/nanolang-cast-u8-backends-e0e85/bin/nanoisa",
+    "asm",
+    "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/convert.nasm",
+    "-o",
+    "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/convert.nvm"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.044882417000000174,
+  "log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-cast-u8-backends-puck-reconstruction/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

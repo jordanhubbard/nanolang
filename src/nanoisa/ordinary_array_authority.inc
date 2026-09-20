@@ -69,10 +69,11 @@ static NvmOrdinaryArrayResult oaa_prepare(
     NvmOrdinaryArrayAuthority *p=calloc(1,sizeof *p);
     if(!p)return oaa_result(NVM_OAA_MEMORY);
     p->failure=NVM_OAA_INVALID;p->steps=work;
+    bool allocation_failed=false;
     NvmV2Result r=projection?
-        nvm_ownership_mixed_layouts_private_decode(m->layout_data,m->layout_size,&p->layouts):
+        nvm_ownership_mixed_layouts_private_decode_detailed(m->layout_data,m->layout_size,&p->layouts,&allocation_failed):
         nvm_ownership_layouts_private_decode(m->layout_data,m->layout_size,&p->layouts);
-    if(r!=NVM_V2_OK){status=r==NVM_V2_ERR_TRUNCATED?NVM_OAA_UNKNOWN:NVM_OAA_INVALID;goto fail;}
+    if(r!=NVM_V2_OK){status=allocation_failed?NVM_OAA_MEMORY:r==NVM_V2_ERR_TRUNCATED?NVM_OAA_UNKNOWN:NVM_OAA_INVALID;goto fail;}
     uint32_t records=0,enums=0,unions=0;
     for(uint32_t i=0;i<p->layouts.count;i++) {
         const NvmV2Layout *row=&p->layouts.items[i];

@@ -1,0 +1,39 @@
+I retain query artifacts at /tmp/nano-record-array-execution-qjqfj16h
+test_complete_plan_and_allocation_controls (tests.test_record_array_execution.RecordArrayExecution.test_complete_plan_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 788 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+PASS 2792 record-array execution-plan checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 40 allocation positions and 56546 peak payload bytes; every refusal recovered
+PASS 1290 record-array origin checks; no runtime admission
+I begin owned execution snapshots
+I begin initializer identity and call signatures
+I begin exact branch and instruction facts
+I begin the 256-function and counted-string boundaries
+I begin closed preparation refusal boundaries
+I begin complete opcode recipes
+I checked 92 explicit opcode recipes and every numeric opcode
+I begin precise private layout allocation facts
+I begin plan allocation/work boundaries
+I measured 94 plan allocation positions and 74382 peak payload bytes; each one-shot/persistent refusal recovered
+PASS 6377 record-array execution-plan checks; no runtime admission
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.764s
+
+OK

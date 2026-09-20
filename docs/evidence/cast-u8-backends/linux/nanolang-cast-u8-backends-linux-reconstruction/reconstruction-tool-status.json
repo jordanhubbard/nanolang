@@ -1,0 +1,22 @@
+{
+  "name": "reconstruction-tool",
+  "argv": [
+    "make",
+    "nvm2hl",
+    "CC=/bin/gcc"
+  ],
+  "bound_seconds": 300,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.26482232194393873,
+  "log": {
+    "sha256": "13e0bcc86636e2db2d861201750a6ba03d02875a542e4fa00587ddad1c2535f0",
+    "bytes": 1284,
+    "archive": "/tmp/nanolang-cast-u8-backends-linux-reconstruction/objects/13e0bcc86636e2db2d861201750a6ba03d02875a542e4fa00587ddad1c2535f0"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

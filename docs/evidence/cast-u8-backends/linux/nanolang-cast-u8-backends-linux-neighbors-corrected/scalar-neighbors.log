@@ -1,0 +1,41 @@
+test_calls_loops_branch_effects_and_bool_transport (tests.test_nvm2llvm.ScalarLLVM.test_calls_loops_branch_effects_and_bool_transport) ... ok
+test_count_only_nominal_metadata_refused (tests.test_nvm2llvm.ScalarLLVM.test_count_only_nominal_metadata_refused) ... ok
+test_existing_predicate_and_unused_array_signature (tests.test_nvm2llvm.ScalarLLVM.test_existing_predicate_and_unused_array_signature) ... ok
+test_integer_boundaries (tests.test_nvm2llvm.ScalarLLVM.test_integer_boundaries) ... ok
+test_nonzero_arity_initializer_refused (tests.test_nvm2llvm.ScalarLLVM.test_nonzero_arity_initializer_refused) ... ok
+test_recursive_call_and_stack_join (tests.test_nvm2llvm.ScalarLLVM.test_recursive_call_and_stack_join) ... ok
+test_refused_profile_preserves_output (tests.test_nvm2llvm.ScalarLLVM.test_refused_profile_preserves_output) ... ok
+test_runtime_declared_result_tag (tests.test_nvm2llvm.ScalarLLVM.test_runtime_declared_result_tag) ... ok
+test_runtime_tag_preserved_across_call (tests.test_nvm2llvm.ScalarLLVM.test_runtime_tag_preserved_across_call) ... ok
+test_scalar_tags_boolean_ops_and_argument_order (tests.test_nvm2llvm.ScalarLLVM.test_scalar_tags_boolean_ops_and_argument_order) ... ok
+test_unused_import_refused (tests.test_nvm2llvm.ScalarLLVM.test_unused_import_refused) ... ok
+test_verified_implicit_entry (tests.test_nvm2llvm.ScalarLLVM.test_verified_implicit_entry) ... ok
+test_arithmetic_comparisons_and_nan (tests.test_nvm2llvm_floats.LLVMFloats.test_arithmetic_comparisons_and_nan) ... ok
+test_checked_integer_and_float_conversions (tests.test_nvm2llvm_floats.LLVMFloats.test_checked_integer_and_float_conversions) ... ok
+test_float_calls_locals_joins_truthiness_and_signed_zero (tests.test_nvm2llvm_floats.LLVMFloats.test_float_calls_locals_joins_truthiness_and_signed_zero) ... ok
+test_float_entry_is_outside_executable_contract (tests.test_nvm2llvm_floats.LLVMFloats.test_float_entry_is_outside_executable_contract) ... ok
+test_invalid_float_to_int_traps_before_conversion (tests.test_nvm2llvm_floats.LLVMFloats.test_invalid_float_to_int_traps_before_conversion) ... ok
+test_calls_loops_branch_effects_and_bool_transport (tests.test_nvm2wasm.ScalarWasm.test_calls_loops_branch_effects_and_bool_transport) ... ok
+test_checked_float_conversions (tests.test_nvm2wasm.ScalarWasm.test_checked_float_conversions) ... ok
+test_existing_predicate_and_unused_array_signature (tests.test_nvm2wasm.ScalarWasm.test_existing_predicate_and_unused_array_signature) ... ok
+test_float_arithmetic_comparisons_and_nan (tests.test_nvm2wasm.ScalarWasm.test_float_arithmetic_comparisons_and_nan) ... ok
+test_float_calls_locals_joins_truthiness_and_signed_zero (tests.test_nvm2wasm.ScalarWasm.test_float_calls_locals_joins_truthiness_and_signed_zero) ... ok
+test_integer_boundaries (tests.test_nvm2wasm.ScalarWasm.test_integer_boundaries) ... ok
+test_invalid_float_to_int_traps (tests.test_nvm2wasm.ScalarWasm.test_invalid_float_to_int_traps) ... ok
+test_output_and_source_preservation (tests.test_nvm2wasm.ScalarWasm.test_output_and_source_preservation) ... ok
+test_recursive_call_and_stack_join (tests.test_nvm2wasm.ScalarWasm.test_recursive_call_and_stack_join) ... ok
+test_scalar_entry_result_and_custom_name (tests.test_nvm2wasm.ScalarWasm.test_scalar_entry_result_and_custom_name) ... ok
+test_scalar_tags_boolean_ops_and_argument_order (tests.test_nvm2wasm.ScalarWasm.test_scalar_tags_boolean_ops_and_argument_order) ... ok
+test_shared_profile_refusals_preserve_output (tests.test_nvm2wasm.ScalarWasm.test_shared_profile_refusals_preserve_output) ... ok
+test_calls_locals_branch_and_implicit_result_transport (tests.test_scalar_u8.ScalarU8.test_calls_locals_branch_and_implicit_result_transport) ... ok
+test_declared_byte_argument_retains_runtime_tag_guard (tests.test_scalar_u8.ScalarU8.test_declared_byte_argument_retains_runtime_tag_guard) ... ok
+test_declared_byte_result_checks_actual_return_tag (tests.test_scalar_u8.ScalarU8.test_declared_byte_result_checks_actual_return_tag) ... ok
+test_exact_conversions_tags_and_unsigned_order (tests.test_scalar_u8.ScalarU8.test_exact_conversions_tags_and_unsigned_order) ... ok
+test_generic_byte_order_across_scalar_backends (tests.test_scalar_u8.ScalarU8.test_generic_byte_order_across_scalar_backends) ... ok
+test_native_byte_display_and_unused_signature (tests.test_scalar_u8.ScalarU8.test_native_byte_display_and_unused_signature) ... ok
+test_typed_integer_instruction_still_checks_byte_tag (tests.test_scalar_u8.ScalarU8.test_typed_integer_instruction_still_checks_byte_tag) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 73.470s
+
+OK

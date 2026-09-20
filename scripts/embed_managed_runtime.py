@@ -62,6 +62,10 @@ def generate(clang, opt):
     lines = ['/* I generate this runtime package; edit its C source, not this file. */',
              '#ifndef NANOISA_MANAGED_RUNTIME_IR_H', '#define NANOISA_MANAGED_RUNTIME_IR_H']
     for target, value in variants.items():
+        prefix = ('target datalayout = "' + value['layout'] + '"\n' +
+                  'target triple = "' + value['triple'] + '"\n')
+        lines.append('static const char nms_runtime_target_' + target + '[] = ' +
+                     json.dumps(prefix) + ';')
         lines.append('static const char nms_runtime_ir_'+target+'[] =')
         lines += [json.dumps(line+'\n') for line in value['ir'].splitlines()]
         lines.append(';')

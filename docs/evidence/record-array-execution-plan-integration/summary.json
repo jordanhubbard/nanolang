@@ -1,0 +1,83 @@
+{
+  "source_pin": "b87bb91f1793b48617d7737bcd4f6110590bbce1",
+  "production_checkpoint": "f093b0ccc88f6e0b69861a8a986764bbfd50877e",
+  "objects": 880,
+  "object_bytes": 296266150,
+  "references": 15982,
+  "equal_source_tool_pairs": 96,
+  "phase_terminals": 48,
+  "preserved_nonzero_terminals": [
+    {
+      "host": "linux",
+      "path": "nanolang-record-execution-f093b-linux/ordinary-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    },
+    {
+      "host": "puck",
+      "path": "nanolang-record-execution-f093b-puck/ordinary-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    }
+  ],
+  "darwin_archive": {
+    "path": "/tmp/nanolang-record-execution-integration-puck-evidence.tar.gz",
+    "bytes": 68750659,
+    "sha256": "22d608e7438a4dbc47e3ba24b7f983b1ce6b5ca6978395bb6bb66f18e463d7d5"
+  },
+  "selected_source": {
+    "Makefile.gnu": {
+      "sha256": "4c153077524903258afd147eab659f13fa0f72ce9b37a8e350c67bc976aa47bf",
+      "git_blob": "168280f1f7597887e40305526351ed15d5421d10"
+    },
+    "src/nanoisa/managed_array_shapes.c": {
+      "sha256": "cd281d0319889021d2f24db80479a9195df6a82da16c2aa158a900ff2012c7b9",
+      "git_blob": "53cf44399a7e0fd9513d1c8e9a3d39772ac87975"
+    },
+    "src/nanoisa/managed_record_array_execution.h": {
+      "sha256": "1b432da98af5cff8c6ca077cb9962da4e1530f4705671e41f055845eeed7bc11",
+      "git_blob": "85dc40874b5263a6e4ed007598b3bca75b2aa9c1"
+    },
+    "src/nanoisa/managed_record_array_execution.inc": {
+      "sha256": "07c4e921bc3ed012b503693360865400f3d8ed9a88b98f4bf2f044edbd32ffd5",
+      "git_blob": "a3e6cb4b0f775d7c68eb78a1028c959480c09a85"
+    },
+    "src/nanoisa/nvm_v2_layouts.c": {
+      "sha256": "f158f79c7a99b54b3d3eb5e584f00a55bc5a6ec0fa71c4ae1e02f96d69253710",
+      "git_blob": "fa08cdd9bcb965fcfbd5c5a3d930b67d37290112"
+    },
+    "src/nanoisa/ordinary_array_authority.inc": {
+      "sha256": "a664da380b985ef79d2976814b34a29dbad9a812dffaee6d410e8e614c831c64",
+      "git_blob": "606b715f9944bf8537e3393d10f5fa18fd9a2a47"
+    },
+    "src/nanoisa/ownership_layouts_private.h": {
+      "sha256": "368eb1f787ab1e4ee95ca8333d7600e5d6fc5ff4bf5b5de0815290d0de2cd164",
+      "git_blob": "90513680d278ef8c6289fef8f9cc84c640439287"
+    },
+    "tests/nanoisa/test_nvm_v2_layouts.c": {
+      "sha256": "d68f206f9449aabdad85bd1287d4da694958d9ca71407c36d1edc497db205ccc",
+      "git_blob": "5e8e1d8844e1b935ba1757e2f858af26363e4129"
+    },
+    "tests/nanoisa/test_record_array_execution.c": {
+      "sha256": "75fe7623e7d7767aa52d42f9d6a582fbad4a4ce923ebc34b93c18364c9187965",
+      "git_blob": "938b07a7de16e8c943d3f02c59012bc91ff5e9d6"
+    },
+    "tests/test_record_array_execution.py": {
+      "sha256": "2c248b19b644ecbd26c72290cf3e1a4468ebdac2a5c326fc2cc10067ce02755a",
+      "git_blob": "6ed7a004adaeffa2e94904380f4ecb037f00588e"
+    }
+  },
+  "scope": "copied non-admitting execution-plan preparation only; ordinary integrated query and named neighbors both hosts; original seven configurations remain separately attributed; no generated consumer/runtime/public/source admission"
+}

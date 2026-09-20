@@ -1,0 +1,102 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 8.411,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.148,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.048,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 3.527,
+    "status": 0
+  },
+  {
+    "phase": "ownership_contracts-build",
+    "seconds": 0.213,
+    "status": 0
+  },
+  {
+    "phase": "ownership_contracts-run",
+    "seconds": 0.261,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-build",
+    "seconds": 0.273,
+    "status": 0
+  },
+  {
+    "phase": "ordinary_record_authority-run",
+    "seconds": 0.262,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_layouts-build",
+    "seconds": 0.152,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_layouts-run",
+    "seconds": 0.271,
+    "status": 0
+  },
+  {
+    "phase": "ownership_layouts_private-build",
+    "seconds": 0.152,
+    "status": 0
+  },
+  {
+    "phase": "ownership_layouts_private-run",
+    "seconds": 0.269,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-build",
+    "seconds": 0.152,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_convert-run",
+    "seconds": 0.268,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-build",
+    "seconds": 0.153,
+    "status": 0
+  },
+  {
+    "phase": "nvm_v2_endtoend-run",
+    "seconds": 0.262,
+    "status": 0
+  },
+  {
+    "phase": "old-array",
+    "seconds": 1.199,
+    "status": 0
+  },
+  {
+    "phase": "affine-union",
+    "seconds": 2.358,
+    "status": 0
+  },
+  {
+    "phase": "ownership-public",
+    "seconds": 1.3,
+    "status": 0
+  },
+  {
+    "phase": "complete-declarations",
+    "seconds": 1.435,
+    "status": 0
+  }
+]
