@@ -13995,3 +13995,12 @@ both-host qualification and independent evidence review.
   immutable output, old wrapper behavior and charged finite storage/work.
   This is a required semantic prerequisite, not a fixture weakening. Linux88ae
   separately retained explicit setup ENOSPC; no Linux runtime case ran.
+
+My precise-global prerequisite now has a separate query-only fixture checkpoint:
+dominating/branch/callee stores, no-write multiple contexts, recursive and unused
+writers, initializer return gating, repeated committed prefixes and stale copied
+predicates through direct/transitive writes. Exact global255/256, byte/work/cell
+limits, source-owner destruction, old-wrapper comparison and all observed
+one-shot/persistent allocation positions retain exact MEMORY and fresh recovery.
+I await fixture review before fresh seven-configuration qualification; the
+original88ae stopped VM corpus remains unchanged and unaccepted.

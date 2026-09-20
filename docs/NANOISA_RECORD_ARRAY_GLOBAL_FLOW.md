@@ -172,3 +172,39 @@ mode, with separately charged joins, invalidations, branch copies, seeds and
 return summaries. Cleanup frees the optional exit vector/control owner after
 all transferred function states and before the final analysis owner. No source
 fixture or stopped VM program changes in this checkpoint.
+
+## My fixture checkpoint and pending qualification
+
+I add a separate query-only C fixture and one Python method, without importing
+another TestCase into discovery. The method builds linked and seven-provider
+allocation-observed forms. The old origin fixture is included for its existing
+wire builders under a renamed entry; its old entry remains available and the
+unchanged origin suite is a separate neighbor, not silently run as this method.
+I leave the stopped88ae VM fixture byte-for-byte unchanged.
+
+My decoded cases cover global-slice installation, initial VOID, both branch
+stores and a missing/incompatible store; unconditional, conditional, recursive
+and unused writers; a no-write helper entered with different global types;
+successful and nonreturning initialization; a repeated-entry incompatible
+committed prefix; exact ARRAY result after a VOID guard; copied predicates after
+direct, transitive and branch-local writes; and an unrelated-slot write control.
+A global255 reference appears only in a later helper, with256 refused. Copied
+facts remain readable after their whole source owner is overwritten/freed. Old
+managed-record outcomes remain identical before and after the new query.
+
+Observed internal controls call the actual preallocator at exact byte, work and
+exit-cell boundaries, checking the next unit refuses. They inspect relation
+join/invalidation, unknown and out-of-domain tag refinements, exact work limits
+and absence of transfer allocations. A successful two-function/interleaved-union
+global case measures all actual allocation positions. Every position is failed
+once and persistently, requires exact MEMORY with untouched output and zero
+remaining tracked objects/bytes, and is followed by independent fresh recovery.
+Measured payload peak must fit the published conservative reservation.
+
+I have not compiled or executed this checkpoint. After review I require fresh
+Linux GCC/Clang ordinary and supported sanitizer forms, Darwin Apple/Homebrew
+ordinary and Homebrew sanitizer forms, with the unchanged origin/execution,
+ordinary ownership/union/array queries as named neighbors. I retain actual
+interpreter/compiler/provider identities, source and product endpoints, bounded
+raw logs and every first terminal. Linux preparation remains capacity-gated;
+none of this changes the original ENOSPC or private VM refusal attribution.
