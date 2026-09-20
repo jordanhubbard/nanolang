@@ -361,3 +361,21 @@ neighbors as separately scoped follow-up phases. Full compiler/bootstrap and
 actual public host-linked source emission remain later b7ef/2d2 obligations.
 This checkpoint contains source only; no build, wheel installation, engine
 initialization or fixture filesystem call has run.
+
+## My first qualification terminal and narrow fixture correction
+
+Both first4ee gates stop at linker version discovery before compiling any guest.
+The fixture resolves the selected wasm-ld symlink and invokes generic lld, which
+refuses that mode on Linux and puck. I retain the actual first argv/log/status,
+product archives and equal source/tool endpoints in
+/tmp/nanolang-read-wasm-4ee-linux and puck's
+/private/tmp/nanolang-read-wasm-4ee-puck. The supervised phase durations are
+1.268s and0.450s; both return1 with reaped leaders and vanished process groups.
+These are fixture preflight failures, not demonstrated guest or host defects.
+
+Before changing the fixture I record this correction: selected() keeps the
+absolute executable spelling returned by PATH lookup, without resolving the
+symlink for argv. The existing retain() still resolves and hashes its actual
+bytes. This preserves wasm-ld's required invocation mode and keeps byte identity
+separate from command spelling. I change no assertion, warning policy, production
+source or selected tool. Corrected fresh gates require independent review first.

@@ -12803,3 +12803,9 @@ trusted-hook publication/error/latch controls. I retain explicit engine compile
 errors, private wheel/member identity, bounded command supervision and product
 archives. Fixture/source review still precedes every build and host operation;
 public emission and b7ef/2d2 remain open.
+
+- [ ] I correct the Wasm fixture executable-spelling defect discovered in the
+  first4ee gates: resolving wasm-ld to generic lld changes its invocation mode.
+  I preserve both pre-build terminals, retain selected absolute argv spelling,
+  still archive resolved tool bytes, and review the fixture correction before
+  fresh qualification. No guest or production behavior was exercised.
