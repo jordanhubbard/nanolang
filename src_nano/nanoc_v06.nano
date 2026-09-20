@@ -236,6 +236,17 @@ shadow resolve_cc_binary {
     assert (> (str_length cc) 0)
 }
 
+fn native_product_cflags(configured: string) -> string {
+    if (== configured "") { return "-O1" }
+    return configured
+}
+
+shadow native_product_cflags {
+    assert (== (native_product_cflags "") "-O1")
+    assert (== (native_product_cflags "-O0 -g") "-O0 -g")
+    assert (== (native_product_cflags "-fsanitize=address") "-fsanitize=address")
+}
+
 /* =============================================================================
  * STRING HELPERS
  * ============================================================================= */
@@ -2261,7 +2272,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 set cc_cmd (+ cc_cmd mod_flags.compile_flags)
             } else { (print "") }
             set cc_cmd (+ cc_cmd " ")
-            let extra_cflags: string = (getenv "NANO_CFLAGS")
+            let extra_cflags: string = (native_product_cflags (getenv "NANO_CFLAGS"))
             if (!= extra_cflags "") {
                 set cc_cmd (+ cc_cmd extra_cflags)
                 set cc_cmd (+ cc_cmd " ")
