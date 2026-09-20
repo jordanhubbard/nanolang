@@ -112,3 +112,50 @@ those costs belong to compiler/module preparation, not my snapshot64MiB bound.
 Shared-library copies retain existing hidden compilation and cleanup paths.
 The complete standalone/static/dynamic/combined fixture supplement remains required
 before any corrected bootstrap or module execution.
+
+## My remaining Forth co-import prerequisite
+
+I record an additional static closure defect before attempting a predictable link:
+the Forth and NanoISA manifests both publicly compile the same 34 canonical C
+sources. This includes the NanoISA C wrapper, ISA/verifier/assembler/disassembler,
+ownership/format providers and selected VM value/heap/dispatch providers. The exact
+ordered intersection and proposed ownership lists are in
+[NANOISA_FORTH_PROVIDER_OWNER_PLAN.json](NANOISA_FORTH_PROVIDER_OWNER_PLAN.json).
+This is manifest evidence, not a newly executed failure. My original10b74 failures
+and the four-family correction remain separately retained.
+
+I propose the existing NanoISA module as the sole public static owner of those
+34 units. I retain its manifest and wrapper declarations unchanged. Forth keeps
+only forth_see.c as its public unit, moves the 34 units to its private shared list
+in original order after the existing private plan dependency, and imports the
+actual NanoISA module through the qualified ForthNanoisaProvider alias. Its
+existing explicit plan-owner import remains. No new provider module, spelling
+exception, module-loader suppression or source copy is needed. The NanoISA-only
+file_flow.c remains in its existing owner; selecting that module adds its existing
+closure to a standalone Forth static link rather than omitting part of that owner.
+
+I retain every other Forth manifest value and its actual extern declaration.
+Forth's shared library still links its original complete C dependency set, now
+with those dependencies hidden rather than exported. Its nl_forth_see export must
+remain callable. A separately loaded NanoISA library keeps its own wrapper exports.
+I do not promise shared mutable state between private copies. The Nano native
+preparer continues to compare canonical source, language/compiler and final
+ordered profile before deduplication; the new import cannot override a conflict.
+
+Standalone Forth now selects NanoISA's actual source import closure and mandatory
+shadows, including its existing filesystem module dependency. I require that
+complete selected-shadow multiset in all three real producers. These are ordinary
+assembler/file fixtures, not File service source admission. Descriptive opted-in
+service graphs must still refuse before module preparation, shadow execution or
+output publication; my existing no-compiler-attempt controls remain unchanged.
+
+Before qualification I require source review of this extension, followed by the
+complete fixture supplement: standalone affected modules; NanoISA plus Forth in
+both import orders; the full compiler-support/JSON/companion/catalog/NanoISA/Forth
+co-import in both orders; actual wrapper behavior; exact public object owner and
+dynamic export checks; original provider conflict/concurrency controls; fresh
+C-seed/Stage1/Stage2 bootstrap and all original companion gates on both hosts.
+The Forth shared-library wrapper check must work in its own process without first
+loading NanoISA or another test library that could mask a missing dependency.
+Linux builds remain held for capacity. I do not execute a known-conflicting old
+combined program as a substitute for fixing this statically demonstrated defect.

@@ -13880,3 +13880,14 @@ existing shared-library recipe. A complete static canonical manifest inventory
 confirms the four ownership families; flags and wrapper signatures are unchanged.
 No build or execution follows until complete source and expanded fixtures review.
 Linux build capacity remains held; both previous bootstrap failures stay retained.
+
+- [ ] I resolve the additional static NanoISA/Forth co-import ownership defect:
+  their manifests publicly repeat 34 canonical providers. I record the exact
+  intersection before changing source, propose the existing NanoISA module as
+  their public owner, and retain Forth's original dependency copies privately in
+  its shared library through the existing hidden recipe. Forth gains an actual
+  NanoISA import edge; all existing mandatory shadows remain selected. I require
+  complete standalone and combined/reversed-order static/dynamic wrapper controls
+  before acceptance, with no predictable failing link needed to prove the manifest
+  duplication. The design and ordered provider inventory accompany task28cf8;
+  no implementation of this extension precedes source-design review.
