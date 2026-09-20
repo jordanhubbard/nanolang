@@ -244,6 +244,9 @@ their individual acceptance evidence closes them.
 
 ## Active Execution Queue
 
+- [ ] I correct the ordered native match emitter's missing line boundary before generated block directives (`task_4eaa6395ba014821b123f5332817aed0`). Both `e75a719bf` focused runs finish4PASS/2FAIL: the named-order Stage1 compile rejects mid-line `#line`, and the separate raw backstop driver lacks `std/env` imports. I retain all six-method results, correct the newline without changing guards/control flow, add a directive-boundary shadow, and add only the missing fixture imports before fresh qualification.
+- [ ] I retain generated guard C and distinguish regenerated module outputs from fixed providers (`task_4eaa6395ba014821b123f5332817aed0`). The failed native driver removed its temporary C because the fixture omitted `--keep-c`; historical bytes are unavailable. The frozen maps expose nine rebuilt `obj/nano_modules` outputs during imported fixture compilation. I preserve these facts, add retention and per-command output snapshots, and do not relabel those phases as fixed-provider runs.
+
 - [ ] I correct my new guard purity shadow's effect-mask expectation (`task_4eaa6395ba014821b123f5332817aed0`). Both fresh first bootstraps at `2ad92f457` stop before Stage1 publication on `purity_node:6310` (Linux 67.203s; puck 87.334s). Mutable identifier reads use existing mask2, not mutation mask4. I retain both terminals and correct only that expected value; the immutable payload guard remains0. Fresh qualification is still required.
 
 - [ ] I migrate the two guarded-owner diagnostic expectations in selected/generic ownership tests from the removed canonical parser refusal to the retained exhaustive-unguarded-owned-match semantic refusal (`task_4eaa6395ba014821b123f5332817aed0`). I record this static fixture mismatch before editing, preserve both source cases and output sentinels, and qualify them alongside the guard checkpoint.
