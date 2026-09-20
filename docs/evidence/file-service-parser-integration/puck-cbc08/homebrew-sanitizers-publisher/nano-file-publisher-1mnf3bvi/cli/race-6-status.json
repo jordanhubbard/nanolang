@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers-publisher/nano-file-publisher-1mnf3bvi/make-bin/nsi-file-binding",
+    "tests/fixtures/nsi_file_plan.json",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers-publisher/nano-file-publisher-1mnf3bvi/cli/raced"
+  ],
+  "pid": 56835,
+  "returncode": 1,
+  "timeout": false
+}

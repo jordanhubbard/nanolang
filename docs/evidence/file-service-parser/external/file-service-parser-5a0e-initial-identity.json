@@ -1,0 +1,8 @@
+{
+  "source_map_sha256": "f578ea74b62aa3cc353ed6bcee00e6546f689a91b65284ef6b0e20c4503ced54",
+  "exact_source_paths": 26455,
+  "source_before_maps_byte_equal": true,
+  "linux_initial_products": {},
+  "puck_initial_products": {},
+  "scope": "Read-only comparison of retained before-bootstrap maps while qualification is still running; not a gate outcome"
+}

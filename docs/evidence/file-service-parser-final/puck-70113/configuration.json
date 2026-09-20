@@ -1,0 +1,17 @@
+{
+  "pin": "7011339acc4fbffeea12e72fdba1ff4d7fdd8892",
+  "platform": "puck",
+  "configs": [
+    [
+      "apple-ordinary",
+      "/usr/bin/clang",
+      [],
+      false,
+      true
+    ]
+  ],
+  "source_count": 54637,
+  "source_scope": "all tracked files at the frozen pin",
+  "sanitizer_scope": "ordinary only; fresh selected parser/env/lexer/UTF8/eval/transpiler and current common/runtime/NanoISA/VM/NanoVirt providers; retained CBC compiler binaries, no new sanitizer claim",
+  "tool_scope": "explicit drivers, selected subtools, sanitizer libraries and Darwin ffi headers/library; not complete transitive system toolchain"
+}

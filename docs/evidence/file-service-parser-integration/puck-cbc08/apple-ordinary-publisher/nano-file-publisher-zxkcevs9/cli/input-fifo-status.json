@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/make-bin/nsi-file-binding",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/cli/input-fifo",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary-publisher/nano-file-publisher-zxkcevs9/cli/refused-fifo"
+  ],
+  "pid": 56041,
+  "returncode": 1,
+  "timeout": false
+}

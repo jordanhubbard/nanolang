@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-14cae-linux/gcc-ordinary/nano-file-service-parser-p8om1sq5/token_value_bytes-nanoc_c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-14cae",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

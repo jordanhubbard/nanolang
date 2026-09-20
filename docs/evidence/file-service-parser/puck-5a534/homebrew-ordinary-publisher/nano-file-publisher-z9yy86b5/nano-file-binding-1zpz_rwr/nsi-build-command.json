@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-5a534/src",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-5a534/tests",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/nano-file-binding-1zpz_rwr",
+    "tests/test_nsi.c",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/nano-file-binding-1zpz_rwr/linked-nsi.o",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/nano-file-binding-1zpz_rwr/linked-cJSON.o",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/nano-file-binding-1zpz_rwr/linked-utf8.o",
+    "-lm",
+    "-o",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/nano-file-binding-1zpz_rwr/nsi"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-5a534",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

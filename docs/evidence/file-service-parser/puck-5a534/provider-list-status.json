@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "/private/tmp/nanolang-file-service-parser-5a534-puck/providers.mk",
+    "CC=/usr/bin/clang",
+    "parser-provider-list"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.14286875003017485
+}

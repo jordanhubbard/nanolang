@@ -314,12 +314,12 @@ static void fb_render_source(BindingWriter *w, const NlNsi *n) {
             fb_write(w, ")\n            match written {\n                Ok(count) => { assert (== count 1) }\n                Error(error) => { assert false }\n            }\n");
         }
         if (i == 2 || i == 3) {
-            fb_write(w, "            let positioned: PositionResult = (rewind &mut owned)\n            match positioned {\n                Ok() => {}\n                Error(error) => { assert false }\n            }\n            let read: ReadResult = (read_byte &mut owned)\n            match read {\n                Ok(byte) => {\n                    assert (== byte.value ");
+            fb_write(w, "            let positioned: PositionResult = (rewind &mut owned)\n            match positioned {\n                Ok() => {}\n                Error(error) => { assert false }\n            }\n            let read: ReadResult = (read_byte &mut owned)\n            match read {\n                Ok(octet) => {\n                    assert (== octet.value ");
             fb_write(w, i == 3 ? "0" : "255");
-            fb_write(w, ")\n                    assert (not byte.eof)\n                }\n                Error(error) => { assert false }\n            }\n");
+            fb_write(w, ")\n                    assert (not octet.eof)\n                }\n                Error(error) => { assert false }\n            }\n");
         }
         if (i == 3) {
-            fb_write(w, "            let ended: ReadResult = (read_byte &mut owned)\n            match ended {\n                Ok(byte) => { assert byte.eof assert (== byte.value 0) }\n                Error(error) => { assert false }\n            }\n");
+            fb_write(w, "            let ended: ReadResult = (read_byte &mut owned)\n            match ended {\n                Ok(octet) => { assert octet.eof assert (== octet.value 0) }\n                Error(error) => { assert false }\n            }\n");
         }
         fb_write(w, "            let closed: CloseResult = (close owned)\n            match closed {\n                Ok() => {}\n                Error(error) => { assert false }\n            }\n        }\n        Error(error) => { assert false }\n    }\n}\n\n");
     }

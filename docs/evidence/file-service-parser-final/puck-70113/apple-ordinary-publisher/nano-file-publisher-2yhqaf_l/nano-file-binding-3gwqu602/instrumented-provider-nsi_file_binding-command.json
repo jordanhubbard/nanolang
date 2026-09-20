@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-70113/src",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-70113/tests",
+    "-I",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602",
+    "-include",
+    "/private/tmp/nanolang-file-service-parser-70113/tests/file_binding_hooks.h",
+    "-c",
+    "src/nsi_file_binding.c",
+    "-o",
+    "/private/tmp/nanolang-file-service-parser-70113-puck/apple-ordinary-publisher/nano-file-publisher-2yhqaf_l/nano-file-binding-3gwqu602/instrumented-nsi_file_binding.o"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-70113",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

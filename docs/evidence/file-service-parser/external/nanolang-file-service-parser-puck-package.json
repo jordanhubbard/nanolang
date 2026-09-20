@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "tar",
+    "-czf",
+    "/tmp/nanolang-file-service-parser-puck-evidence.tar.gz",
+    "-C",
+    "/tmp",
+    "nanolang-file-service-parser-8baca-puck",
+    "nanolang-file-service-parser-3936-puck",
+    "nanolang-file-service-parser-77ad-puck",
+    "nanolang-file-service-parser-18334-puck",
+    "nanolang-file-service-parser-8134-puck",
+    "nanolang-file-service-parser-78aac-puck",
+    "nanolang-file-service-parser-5a534-puck",
+    "nanolang-file-service-parser-5a0e-puck",
+    "nanolang-file-service-parser-5a0e-current-puck"
+  ],
+  "scope": "Complete retained Darwin report and CAS directories, including failed historical runs; final current products supplement is postphase only",
+  "returncode": 0,
+  "seconds": 23.771648708032444,
+  "bytes": 274864657,
+  "sha256": "b99acda411bcf57236536cb30f77be3cb68226db81ec2c01ff326d621b4b6994"
+}

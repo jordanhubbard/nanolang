@@ -99,7 +99,7 @@ static int count_refs(const ASTNode *node, const char *name) {
 
         case AST_NUMBER: case AST_FLOAT: case AST_STRING: case AST_BOOL:
         case AST_BREAK:  case AST_CONTINUE: case AST_IMPORT:
-        case AST_MODULE_DECL: case AST_OPAQUE_TYPE: case AST_ENUM_DEF:
+        case AST_MODULE_DECL: case AST_SERVICE_DECL: case AST_OPAQUE_TYPE: case AST_ENUM_DEF:
         case AST_QUALIFIED_NAME:
             return 0;
 
@@ -305,7 +305,7 @@ static void dce_walk(ASTNode *node) {
         /* Leaves */
         case AST_NUMBER: case AST_FLOAT: case AST_STRING: case AST_BOOL:
         case AST_IDENTIFIER: case AST_BREAK: case AST_CONTINUE:
-        case AST_IMPORT: case AST_MODULE_DECL: case AST_OPAQUE_TYPE:
+        case AST_IMPORT: case AST_MODULE_DECL: case AST_SERVICE_DECL: case AST_OPAQUE_TYPE:
         case AST_ENUM_DEF: case AST_STRUCT_DEF: case AST_UNION_DEF:
         case AST_QUALIFIED_NAME:
             return;

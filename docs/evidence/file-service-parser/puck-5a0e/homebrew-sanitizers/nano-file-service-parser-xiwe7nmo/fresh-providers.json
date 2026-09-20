@@ -1,0 +1,15 @@
+{
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/lexer.o": "a57af3f86b457315f5f28861c8b2adeb03b64f58e121817eee327942b23d5bbc",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/utf8.o": "e22bbe7ac66952a54bae352d9c6fb8f1c098237b772d04c78d14e1eec09bf7ed",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/env.o": "e3078139560b9e88499daa2293cbd1a1434fae8f621e930ef05223bcabf0bb52",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/eval.o": "a3d9fd466c84dcddcc2f17b9b7dfc8f2e88d8a30dd9af2aa955e9a66a13327e9",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/transpiler.o": "04b4cd5d387f85a1bcad30cc5f1f3eacc03e62d24ad21de241952a21c019d96c",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/publisher-bin/nsi-file-binding": "6ce3f5fb3293ae94440553e44b1f522fb1ba5723009fbdfc1409cceda57b6728",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/publisher-obj/file-binding-publisher/cJSON.o": "1107202ea7e389c914b9c0b6fb266de54b89d7106ede2701a3b05a197fcdcc5c",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/publisher-obj/file-binding-publisher/nsi.o": "c9ebf76c850ec20b75a056e98550114544a33cfb0c5a805cdd591cdc807897ae",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/publisher-obj/file-binding-publisher/nsi_file_binding.o": "0775d9d67cc15a2ec9400fcb3a0e3bc364d325775ceea9643105edb01380bb2c",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "d34afd9326c4866a8aaf42d17d1012ea36e046736facdbb3dd3f47e1c9c4574e",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/publisher-obj/file-binding-publisher/nsi_file_plan.o": "7e32dbcf1beb034f44aeaa36321c4e1f291f853b5ad05bc97056db319b273490",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/publisher-obj/file-binding-publisher/nsi_file_publish.o": "0a4c1c599f32152ea87b40c5bad7a09bb6c331b9cfb5ca456a82c0f5a995a4f6",
+  "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers/nano-file-service-parser-xiwe7nmo/publisher-obj/file-binding-publisher/utf8.o": "3f127b6db9918ab149ba55ddb01b33db5bc7fa493f4eac5944f34dda7ecc4ab4"
+}

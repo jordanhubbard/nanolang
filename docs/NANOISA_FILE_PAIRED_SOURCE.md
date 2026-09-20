@@ -113,7 +113,7 @@ none. The exact operation contract remains:
 | --- | --- | --- |
 | temp | New File exists only in the successful affine Result | OpenResult |
 | write_byte | Borrow; checked ordinary INT domain0..255 before host access | Scalar WriteResult |
-| rewind | Borrow; origin retained | Scalar RewindResult |
+| rewind | Borrow; origin retained | Scalar PositionResult |
 | read_byte | Borrow; origin retained | Scalar ReadResult, byte0..255 or canonical0 at EOF |
 | close | Consume on success and reported close error | Scalar CloseResult |
 

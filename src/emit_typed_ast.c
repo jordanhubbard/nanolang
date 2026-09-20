@@ -174,6 +174,7 @@ static void emit_stmt(ASTNode *stmt, Environment *env, int indent, int *first) {
  * Main entry point
  * ============================================================ */
 void emit_typed_ast_json(const char *input_file, ASTNode *program, Environment *env) {
+    if (ast_has_service_declaration(program)) { fprintf(stderr, "I have not resolved File service declarations for this consumer.\n"); return; }
     fputs("{\n", stdout);
     fputs("  ", stdout); jkey("format_version"); jstr("1.0"); fputs(",\n", stdout);
     fputs("  ", stdout); jkey("file"); jstr(input_file); fputs(",\n", stdout);

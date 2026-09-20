@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/input-symlink",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-5a534-linux/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/refused-symlink"
+  ],
+  "pid": 2465256,
+  "returncode": 1,
+  "timeout": false
+}

@@ -1,0 +1,34 @@
+{
+  "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/make-obj/file-binding-publisher/nsi_file_binding.o": {
+    "sha256": "11a2c72a4834437c5e8b79c77a2c2b7ebc87172d6fd66d4b5878b30ac2c4676d",
+    "bytes": 66224
+  },
+  "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/make-obj/file-binding-publisher/nsi_file_plan.o": {
+    "sha256": "be9e72e4a1ce40698dfe7ec681491348102b57e216cfcae85459bb4947a33de8",
+    "bytes": 32520
+  },
+  "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/make-obj/file-binding-publisher/nsi.o": {
+    "sha256": "7232a1f23febd25a8584f2a602fb0ba13f53689cbae32f561a31c2732dfc0d81",
+    "bytes": 97368
+  },
+  "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/make-obj/file-binding-publisher/cJSON.o": {
+    "sha256": "898f01b15829e17c64d128835494849feb9c77893b84a1e89a5e9f977df476b4",
+    "bytes": 134344
+  },
+  "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/make-obj/file-binding-publisher/utf8.o": {
+    "sha256": "ee772f1eed52fcc47a7b0df96b1439a1686e03ec58839f3c4403324c83f042a8",
+    "bytes": 18280
+  },
+  "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/make-obj/file-binding-publisher/nsi_file_publish.o": {
+    "sha256": "5c4e7545c3c6e06c2a2f1bbaa4f7435cdc164da848b1974cd3f4b2971e4250ba",
+    "bytes": 39584
+  },
+  "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/make-obj/file-binding-publisher/nsi_file_binding_main.o": {
+    "sha256": "03b0bd748489aab5faf1ed75b70039453553c980f0a468eac6e8884e158d819f",
+    "bytes": 31608
+  },
+  "/tmp/nanolang-file-service-parser-70113-linux/gcc-ordinary-publisher/nano-file-publisher-oevydiua/make-bin/nsi-file-binding": {
+    "sha256": "b17e5d2a9ff7a33d9ab8feb768f02c8f01d224014f981561b58f48553b0e6329",
+    "bytes": 309128
+  }
+}

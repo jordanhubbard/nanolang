@@ -1,0 +1,17 @@
+test_c_ownership_and_refusal (tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal) ... FAIL
+
+======================================================================
+FAIL: test_c_ownership_and_refusal (tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-file-service-parser-8baca/tests/test_file_service_parser.py", line 61, in test_c_ownership_and_refusal
+    self.command('parser-c-build',[*self.cc,*self.flags,ROOT/'tests/test_file_service_parser.c',*self.selected,*self.common,*self.links,'-o',exe])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-file-service-parser-8baca/tests/test_file_source_plan.py", line 110, in command
+    raise AssertionError((name,status,out[-8000:],err[-8000:]))
+AssertionError: ('parser-c-build', {'returncode': 1, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': 1}, b'', b"/private/tmp/nanolang-file-service-parser-8baca/tests/test_file_service_parser.c:73:11: error: initializing 'char *' with an expression of type 'const char *' discards qualifiers [-Werror,-Wincompatible-pointer-types-discards-qualifiers]\n   73 |     char *saved=t[5].value;\n      |           ^     ~~~~~~~~~~\n1 error generated.\n")
+
+----------------------------------------------------------------------
+Ran 1 test in 0.938s
+
+FAILED (failures=1)

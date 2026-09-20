@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers-publisher/nano-file-publisher-1mnf3bvi/nano-file-binding-nfh9nu4g/binding-linked",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers-publisher/nano-file-publisher-1mnf3bvi/nano-file-binding-nfh9nu4g",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-sanitizers-publisher/nano-file-publisher-1mnf3bvi/nano-file-binding-nfh9nu4g/expected.json",
+    "/private/tmp/nanolang-file-service-parser-cbc08/tests/fixtures/nsi_file_binding_expected.nano.txt"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

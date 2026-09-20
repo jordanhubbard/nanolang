@@ -1,0 +1,5 @@
+{
+  "status": "failed",
+  "error": "NameError: name 'summary' is not defined",
+  "scope": "External supplemental seal assembly only; qualification unchanged; restored omitted summary construction before packaging retry."
+}

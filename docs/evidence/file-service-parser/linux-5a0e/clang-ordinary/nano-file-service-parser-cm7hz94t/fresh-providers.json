@@ -1,0 +1,15 @@
+{
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/lexer.o": "4dea553a56391d54501961b40d4822851278ffcd45560cf573fd831008c45eb9",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/utf8.o": "ffe279ca4d928630ca1be28e40454b22a477b2e6074b1623416c9961aa41b202",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/env.o": "fd5c4dfa6cd58cf0d86e653bc4b6e4dbdae427cc545fa6f3fb4baa7fcbe49047",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/eval.o": "5c63d990b3d6bfff83b56b54cc28890422d382428122e964bdb12767faff5866",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/transpiler.o": "44c429b8cc105ff35cb9b017e32f4c3436f779bc90761452826bbbb310238a06",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-bin/nsi-file-binding": "7edf526ba430ca054c8ad74b0c07098027f31525681d58158e267441587fec7f",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-obj/file-binding-publisher/cJSON.o": "49343e812177a2242bb24d0d710e8b741dc56f9a817e7a0a3b1651439ec99726",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-obj/file-binding-publisher/nsi.o": "9bac15b6ca0cf4d0f2e7c5d35923a59def5f50b9c8848450c433705643bf589c",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-obj/file-binding-publisher/nsi_file_binding.o": "5dd4646e3ae63ab4b1dbd03cf778ab8edcd050e1ff81ff7f44b635e79fc24b81",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "bc97e25190d0d587671ae6a13bc939a98e459275874052cc52e5763818d2df24",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-obj/file-binding-publisher/nsi_file_plan.o": "909a742e6d820a5ee98cc470ad7a82c5101e3cd208eabdcdced12290d62e291c",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-obj/file-binding-publisher/nsi_file_publish.o": "1515cd5af00612316cde0122be751c24673c2ba865ecdb8bb4cb604609c86ea6",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-ordinary/nano-file-service-parser-cm7hz94t/publisher-obj/file-binding-publisher/utf8.o": "40d0ff92a33989e2f2888689ab40bae31e2440d240e6674b1ba0a1824c7c7a12"
+}

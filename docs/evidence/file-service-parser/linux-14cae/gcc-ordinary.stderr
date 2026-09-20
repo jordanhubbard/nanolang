@@ -1,0 +1,16 @@
+test_c_ownership_and_refusal (tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal) ... ok
+test_paired_compilers_schema_and_consumers (tests.test_file_service_parser.FileServiceParser.test_paired_compilers_schema_and_consumers) ... FAIL
+
+======================================================================
+FAIL: test_paired_compilers_schema_and_consumers (tests.test_file_service_parser.FileServiceParser.test_paired_compilers_schema_and_consumers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-file-service-parser-14cae/tests/test_file_service_parser.py", line 131, in test_paired_compilers_schema_and_consumers
+    if label=='payload-omitted':self.assertIn(b'zero-field',err)
+                                ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: b'zero-field' not found in b''
+
+----------------------------------------------------------------------
+Ran 2 tests in 300.153s
+
+FAILED (failures=1)

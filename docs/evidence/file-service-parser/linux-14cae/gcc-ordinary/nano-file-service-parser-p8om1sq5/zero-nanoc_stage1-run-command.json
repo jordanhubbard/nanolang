@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-c",
+    "import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=60); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode==7 else 1)",
+    "/tmp/nanolang-file-service-parser-14cae-linux/gcc-ordinary/nano-file-service-parser-p8om1sq5/zero-nanoc_stage1-run.json",
+    "/tmp/nanolang-file-service-parser-14cae-linux/gcc-ordinary/nano-file-service-parser-p8om1sq5/ordinary-zero-nanoc_stage1"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-14cae",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

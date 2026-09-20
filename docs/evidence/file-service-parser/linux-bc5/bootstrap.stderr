@@ -1,0 +1,25 @@
+Error at line 8177, column 9: Expected variable name
+Error at line 8177, column 17: Unexpected token in expression: COLON (type=14)
+Error at line 8177, column 19: Unexpected token in expression: TYPE_INT (type=50)
+Error at line 8177, column 23: Unexpected token in expression: ASSIGN (type=17)
+Error at line 8178, column 16: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 8178, column 24: Unexpected token in expression: RPAREN (type=8)
+Error at line 8178, column 26: Unexpected token in expression: LBRACE (type=9)
+Error at line 8179, column 9: 'else' without matching 'if'
+Error at line 8179, column 14: Unexpected token in expression: LBRACE (type=9)
+Error at line 8183, column 25: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 8183, column 33: Unexpected token in expression: RPAREN (type=8)
+Error at line 8183, column 39: Unexpected token in expression: TYPE_U8 (type=51)
+Error at line 8183, column 47: Unexpected token in expression: RPAREN (type=8)
+Error at line 8183, column 48: Unexpected token in expression: RPAREN (type=8)
+Error at line 8183, column 50: Unexpected token in expression: LBRACE (type=9)
+Error at line 8184, column 13: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8184, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8184, column 21: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8184, column 22: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 8184, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+... stopping after 20 errors
+Error: Failed to parse module '/home/jkh/Src/nanolang-file-service-parser-bc5/src_nano/parser.nano'
+Error at line 18, column 1: Failed to load module '/home/jkh/Src/nanolang-file-service-parser-bc5/src_nano/parser.nano'
+Module loading failed
+make: *** [Makefile.gnu:3686: .bootstrap1.built] Error 1

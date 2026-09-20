@@ -1,0 +1,42 @@
+{
+  "pin": "14caefafcc5cac29d771432ef87c608e0a962af8",
+  "platform": "linux",
+  "configs": [
+    [
+      "gcc-ordinary",
+      "/usr/bin/gcc",
+      [],
+      false,
+      true
+    ],
+    [
+      "gcc-sanitizers",
+      "/usr/bin/gcc",
+      [],
+      true,
+      false
+    ],
+    [
+      "clang-ordinary",
+      "/usr/local/bin/clang",
+      [
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      false,
+      false
+    ],
+    [
+      "clang-sanitizers",
+      "/usr/local/bin/clang",
+      [
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      true,
+      false
+    ]
+  ],
+  "source_count": 26453,
+  "source_scope": "all tracked files at the frozen pin",
+  "sanitizer_scope": "parser fixture and fresh env/lexer/UTF8 selected sanitizer providers (env free observation only); ordinary common/runtime providers reused; publisher seven providers fresh at selected flags",
+  "tool_scope": "explicit drivers, selected subtools, sanitizer libraries and Darwin ffi headers/library; not complete transitive system toolchain"
+}

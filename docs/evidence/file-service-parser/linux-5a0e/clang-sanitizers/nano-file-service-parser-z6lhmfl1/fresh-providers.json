@@ -1,0 +1,15 @@
+{
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/lexer.o": "35401189b65ebaedd43beafc68de2a95e59964c403349f6c344a3275217f15c8",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/utf8.o": "92e9b4b882bb45d7e7fe13943ee53165440af3f0a673a3a85b6fb5084c9540ca",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/env.o": "7153a478872d4e091b49c58e0dba66a002c4b1739e8a6a93ab46d1f930ba951d",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/eval.o": "c608beb8af0fa89b146281e56ec0aec63adfc14c4798c8b9e559f944c0788dd7",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/transpiler.o": "fe717475c2ad67477b3586eee4bdc9193f3c1ae7470e1b5768ace3ee8c545653",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/publisher-bin/nsi-file-binding": "cebcf23b4e290dd94ff3ccb1733568b12fa2553d5ad6b30003304352e8bd6cce",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/publisher-obj/file-binding-publisher/cJSON.o": "1da9d2f4432c6803d9ab4f3ad719edeab326f7ee529d6d995d7ebd3d93d8c12f",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/publisher-obj/file-binding-publisher/nsi.o": "545dfed6db34016e1febd2662f47d1a4fc84361c9f0db4624655f845dd220fb1",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/publisher-obj/file-binding-publisher/nsi_file_binding.o": "291bd3040ca1855b1516a94209df34205d3872f5fdf75cc15e1b48bc10ec409e",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "52eeb0c87947bc27845a912b118a03bae0bdbe94da531c0f70585ffc97117047",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/publisher-obj/file-binding-publisher/nsi_file_plan.o": "f187002c40a8008dd613f30dbc5e38c25bc1eac00ec1baaec34bcddee987cbb4",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/publisher-obj/file-binding-publisher/nsi_file_publish.o": "fa59f08fbda8d3b307c1dc5ddb7ba08bb35e8bf029a135d5bb71625de28120e9",
+  "/tmp/nanolang-file-service-parser-5a0e-linux/clang-sanitizers/nano-file-service-parser-z6lhmfl1/publisher-obj/file-binding-publisher/utf8.o": "5b5a296e7085f0c0c6b3670fb2d975e8cec01d1ea89b88db633be3b1c37c96b3"
+}

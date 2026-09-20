@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "CPPFLAGS=-DFILE_PUBLISH_CPPFLAGS_PRESENT",
+    "CFLAGS=-std=c99 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -Wall -Wextra -Werror -g -O1 -I /home/jkh/Src/nanolang-file-service-parser-cbc08/src -fsanitize=address,undefined -fno-omit-frame-pointer -include /tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/required-cppflags.h",
+    "LDFLAGS=-lm -lcrypto -lffi -rdynamic",
+    "OBJ_DIR=/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/make-obj",
+    "BIN_DIR=/tmp/nanolang-file-service-parser-cbc08-linux/gcc-sanitizers-publisher/nano-file-publisher-gdo8ufnz/make-bin",
+    "nsi-file-binding"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

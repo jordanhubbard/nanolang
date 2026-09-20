@@ -1,0 +1,15 @@
+{
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/lexer.o": "980c89fae3c3d4c7ef6c49f87d94bca9d474e9d96cfd18cc05135ce3ded8508c",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/utf8.o": "e4cf253524b7686d7a59e144e458ba3e08b0a0e0852813acb30c83fd737cc59e",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/env.o": "28d134e81c110a1dc794a707472718fb1e1f79d128be4ee81696b8014cff4eff",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/eval.o": "6f951dcca8842054b1dbbe237364c02621e55ad0b5dbfdd60f5b856206123354",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/transpiler.o": "72e0d01b7bcf0baf316e4e8c26dd61969b89705699f776af706e0ecf3adf7f16",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/publisher-bin/nsi-file-binding": "99e78765c4fcd3d1ce01e402ba4de910e1297305f25c8f57973d740920acd677",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/publisher-obj/file-binding-publisher/cJSON.o": "277cdb1b99a2e066ae7af59dcf93acb014b3866f4b23cfa5bd91e72c16c648c7",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/publisher-obj/file-binding-publisher/nsi.o": "5b60300656ae5fd56bdb198fa05357c72cc5062472ed4122a32b9ccfd61d6f41",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/publisher-obj/file-binding-publisher/nsi_file_binding.o": "56fb5cc6cb1aaf90a60de66b1bbb7a6b7b9ef7b1717e2d3a45c3f47e04a01972",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "9fc92b7904edd890c91fd0db9cd69fdeb47ff12527a03d9571a794c3dd2b7029",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/publisher-obj/file-binding-publisher/nsi_file_plan.o": "d90f43bcbbee01c27a797af5868ebc40affa30012065cda276da3060d048f8c3",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/publisher-obj/file-binding-publisher/nsi_file_publish.o": "c5ff0b8ca9120e0fe3aa4566d5136a2654c469429372e47ed437fd0de6f9e029",
+  "/private/tmp/nanolang-file-service-parser-cbc08-puck/homebrew-ordinary/nano-file-service-parser-ktx7ql6i/publisher-obj/file-binding-publisher/utf8.o": "5f4005bcb1ac755b2493aa9d963e0ef6ac7af7b970b3d0c42689ae592c3c1de7"
+}

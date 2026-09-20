@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/input-fifo",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/refused-fifo"
+  ],
+  "pid": 2687131,
+  "returncode": 1,
+  "timeout": false
+}

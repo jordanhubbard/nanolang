@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-service-parser-cbc08/bin/nanoc_stage2",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary/nano-file-service-parser-16bfdful/file_service_parser.nano",
+    "-o",
+    "/private/tmp/nanolang-file-service-parser-cbc08-puck/apple-ordinary/nano-file-service-parser-16bfdful/parser-nanoc_stage2",
+    "--keep-c"
+  ],
+  "cwd": "/private/tmp/nanolang-file-service-parser-cbc08",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

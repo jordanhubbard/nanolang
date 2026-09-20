@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/input-directory",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-service-parser-cbc08-linux/clang-sanitizers-publisher/nano-file-publisher-4kafswcp/cli/refused-directory"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "uname",
+    "-a"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 0.0015332669718191028
+}

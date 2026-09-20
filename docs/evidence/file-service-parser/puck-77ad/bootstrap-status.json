@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-j2",
+    "CC=/usr/bin/clang",
+    "bootstrap"
+  ],
+  "timeout": false,
+  "returncode": 2,
+  "cleanup_errors": [],
+  "child_returncode": 2,
+  "group_absent": true,
+  "seconds": 275.73865837499034
+}

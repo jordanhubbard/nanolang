@@ -1,0 +1,219 @@
+{
+  "archive": "/tmp/nanolang-file-service-parser-puck-evidence.tar.gz",
+  "sha256": "b99acda411bcf57236536cb30f77be3cb68226db81ec2c01ff326d621b4b6994",
+  "bytes": 274864657,
+  "members": 13078,
+  "special_members_not_materialized": [
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/existing-dangling",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/absent",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/parent-link",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/input-symlink",
+      "linkname": "tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/published",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/input-fifo",
+      "linkname": "",
+      "type": "6",
+      "mode": 420,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/homebrew-ordinary-publisher/nano-file-publisher-z9yy86b5/cli/input-existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a534/tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/cli/existing-dangling",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/cli/absent",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/cli/parent-link",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/cli",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/cli/input-symlink",
+      "linkname": "tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/cli/existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/cli/published",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/cli/input-fifo",
+      "linkname": "",
+      "type": "6",
+      "mode": 420,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a534-puck/apple-ordinary-publisher/nano-file-publisher-q1ifvuug/cli/input-existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a534/tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/existing-dangling",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/absent",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/parent-link",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/input-symlink",
+      "linkname": "tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/published",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/input-fifo",
+      "linkname": "",
+      "type": "6",
+      "mode": 420,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-sanitizers-publisher/nano-file-publisher-kv_zjr58/cli/input-existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e/tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/existing-dangling",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/absent",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/parent-link",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/input-symlink",
+      "linkname": "tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/published",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/input-fifo",
+      "linkname": "",
+      "type": "6",
+      "mode": 420,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/homebrew-ordinary-publisher/nano-file-publisher-ttjo3r9q/cli/input-existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e/tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli/existing-dangling",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli/absent",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli/parent-link",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli/input-symlink",
+      "linkname": "tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli/existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli/published",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli/input-fifo",
+      "linkname": "",
+      "type": "6",
+      "mode": 420,
+      "size": 0
+    },
+    {
+      "name": "nanolang-file-service-parser-5a0e-puck/apple-ordinary-publisher/nano-file-publisher-46c2q_bm/cli/input-existing-symlink",
+      "linkname": "/private/tmp/nanolang-file-service-parser-5a0e/tests/fixtures/nsi_file_plan.json",
+      "type": "2",
+      "mode": 493,
+      "size": 0
+    }
+  ],
+  "destination": "/tmp/nanolang-file-service-parser-puck-retained"
+}

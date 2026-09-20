@@ -1,0 +1,22 @@
+  nsi: load log example and read stable ids                    PASS
+  nsi: load records variants arrays resources callbacks async  PASS
+  nsi: reject missing interface id                             PASS
+  nsi: reject duplicate method id                              PASS
+  nsi: reject method id outside interface                      PASS
+  nsi: reject unknown nsi_version                              PASS
+  nsi: reject invalid UTF-8                                    PASS
+  nsi: reject capability without cap: prefix                   PASS
+  nsi: reject param missing direction                          PASS
+  nsi: reject unknown ownership                                PASS
+  nsi: reject streaming in on out param                        PASS
+  nsi: reject unknown type kind                                PASS
+  nsi: reject empty variant                                    PASS
+  nsi: reject array without element                            PASS
+  nsi: document is compatible with itself                      PASS
+  nsi: adding a method is compatible                           PASS
+  nsi: removing a method is breaking                           PASS
+  nsi: reject method without explicit params                   PASS
+  nsi: reject c_type ABI hint                                  PASS
+  nsi: reject unresolved param type                            PASS
+
+20 passed, 0 failed
