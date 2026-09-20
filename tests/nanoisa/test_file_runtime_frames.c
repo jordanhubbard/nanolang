@@ -6,6 +6,12 @@
 #include "../../src/nanoisa/file_runtime_frames.h"
 #ifdef HOSTED_INSTRUMENT
 void file_frame_set_generation(NlFileValues *,NlFileValue *,uint64_t);
+/* Included fixture builders and hooked providers own tracked allocations.
+ * Keep every new helper allocation/free in that same instrumented domain. */
+#define malloc file_test_malloc
+#define calloc file_test_calloc
+#define realloc file_test_realloc
+#define free file_test_free
 #endif
 /* Negative types are scalar: -1 INT, -2 BOOL, -3 VOID. Others are exact catalog
  * ordinals. Borrow bits are formal parameter modes, not inferred tag authority. */
