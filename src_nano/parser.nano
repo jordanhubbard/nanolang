@@ -2994,7 +2994,7 @@ fn parse_primary(p: Parser) -> Parser {
                                             }
                                         } else {
                                             /* Regular parenthesized expression OR tuple literal */
-                                            let p2: Parser = (parse_expression p1)
+                                            let p2: Parser = (parse_parenthesized_head p1)
                                             if (parser_has_error p2) {
                                                 return p2
                                             } else {
@@ -3190,6 +3190,36 @@ shadow parse_primary {
     let malformed: List<LexerToken> = (tokenize_string "(x +)" "parser-test.nano" (list_CompilerDiagnostic_new))
     let rejected: Parser = (parse_primary (parser_new malformed (list_LexerToken_length malformed) "parser-test.nano"))
     assert (parser_has_error rejected)
+}
+
+# I retain declaration-aware literal identity before choosing tuple or group.
+fn parse_parenthesized_head(p: Parser) -> Parser {
+    let name: NameParseResult = (parse_call_name p)
+    if name.ok {
+        if (not (parser_is_at_end name.p)) {
+            if (== (parser_current name.p).token_type (token_lbrace)) {
+                let first: int = (char_at name.name 0)
+                if (and (>= first 65) (<= first 90)) {
+                    let start: LexerToken = (parser_current p)
+                    return (parse_named_literal (parser_advance name.p) name.name start.line start.column)
+                }
+            }
+        }
+    }
+    return (parse_expression p)
+}
+
+shadow parse_parenthesized_head {
+    let sources: array<string> = ["Leaf { value: 1 }, 2)", "Mod.Leaf { value: 1 })", "x + y)"]
+    let kinds: array<int> = [ParseNodeType.PNODE_STRUCT_LITERAL, ParseNodeType.PNODE_STRUCT_LITERAL, ParseNodeType.PNODE_BINARY_OP]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "parser-test.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_parenthesized_head (parser_new tokens (list_LexerToken_length tokens) "parser-test.nano"))
+        assert (not (parser_has_error parsed))
+        assert (== parsed.last_expr_node_type (at kinds i))
+        set i (+ i 1)
+    }
 }
 
 fn parenthesized_call_start(p: Parser) -> bool {
