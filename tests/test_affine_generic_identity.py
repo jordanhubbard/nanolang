@@ -11,7 +11,7 @@ COMPILERS = os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,na
 
 
 class GenericAffineIdentity(unittest.TestCase):
-    def check(self, source, accepted, modules=None):
+    def check(self, source, accepted, modules=None, refusal=r"(?i)(ownership|resource-bearing)"):
         for compiler in COMPILERS:
             with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-generic-affine-") as directory:
                 work = Path(directory)
@@ -29,7 +29,7 @@ class GenericAffineIdentity(unittest.TestCase):
                     self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
                 else:
                     self.assertGreater(result.returncode, 0, messages)
-                    self.assertRegex(messages, r"(?i)(ownership|resource-bearing)")
+                    self.assertRegex(messages, refusal)
                     self.assertEqual(output.read_bytes(), b"prior artifact")
 
     def test_integer_payload_copy_and_match(self):
@@ -119,6 +119,40 @@ shadow choose { let some: Box<int> = Box.Some { value: 3 } let none: Box<int> = 
 fn main() -> int { let some: Box<int> = Box.Some { value: 3 } return (- (choose some Handle { fd: 4 }) 7) }
 shadow main { assert (== (main) 0) }
 ''', True)
+
+    def test_guarded_generic_match_is_first_success_with_outer_owner(self):
+        self.check('''resource struct Handle { fd: int }
+union Box<T> { Some { value: T }, None {} }
+let mut trace: int = 0
+fn mark(value: int) -> bool { set trace (+ (* trace 10) value) return (> value 0) }
+shadow mark { set trace 0 assert (mark 2) assert (== trace 2) }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 4 }) 4) }
+fn choose(value: Box<int>, owner: Handle) -> int {
+    let selected: int = match value {
+        Some(payload) if (and (> payload.value 10) (mark 1)) => 100
+        Some(payload) if (mark 2) => payload.value
+        Some(payload) => 200
+        None(empty) => 0
+    }
+    return (+ selected (close_handle owner))
+}
+shadow choose { set trace 0 assert (== (choose Box.Some { value: 7 } Handle { fd: 4 }) 11) assert (== trace 2) }
+fn main() -> int { set trace 0 let result: int = (choose Box.Some { value: 7 } Handle { fd: 4 }) assert (== trace 2) return (- result 11) }
+shadow main { assert (== (main) 0) }
+''', True)
+
+    def test_guarded_generic_match_requires_bool_guard(self):
+        self.check('''resource struct Handle { fd: int }
+union Box<T> { Some { value: T }, None {} }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 4 }) 4) }
+fn choose(value: Box<int>, owner: Handle) -> int {
+    match value { Some(payload) if payload.value => { return (close_handle owner) } Some(payload) => { return (close_handle owner) } None(empty) => { return (close_handle owner) } }
+}
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }
+''', False, refusal=r"(?i)(match guard|bool)")
 
     def test_ordinary_match_rejects_unresolved_return_arm(self):
         self.check('''resource struct Handle { fd: int }

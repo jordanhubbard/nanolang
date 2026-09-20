@@ -4131,6 +4131,17 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
             (print "")
         }
 
+        if (< i (array_length m.arm_guard_ids)) {
+            let guard_id: int = (at m.arm_guard_ids i)
+            if (>= guard_id 0) {
+                let guard_type: NSType = (check_expr_node parser guard_id (at m.arm_guard_types i) arm_symbols diags file_name)
+                if (!= guard_type.kind TypeKind.TYPE_BOOL) {
+                    let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0001" "match guard must have exact bool type" (Diagnostics.diag_location file_name m.line m.column))
+                    (Diagnostics.diag_list_add diags diag)
+                }
+            }
+        }
+
         let body_id: int = (at m.arm_body_ids i)
         let body_type: int = (at m.arm_body_types i)
         let arm_type: NSType = (check_expr_node parser body_id body_type arm_symbols diags file_name)

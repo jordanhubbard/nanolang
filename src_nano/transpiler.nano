@@ -7105,6 +7105,44 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
     }
 
     let mut parts: array<string> = []
+    let mut guarded: bool = false
+    set probe_i 0
+    while (< probe_i m.arm_count) { if (>= (at m.arm_guard_ids probe_i) 0) { set guarded true } set probe_i (+ probe_i 1) }
+    if guarded {
+        set parts (cg_append parts "({ ")
+        if is_int_match { set parts (cg_append parts "int64_t _m = ") }
+        else { set parts (cg_append parts union_c) set parts (cg_append parts " _m = ") }
+        set parts (cg_append parts scr_code)
+        set parts (cg_append parts "; ") set parts (cg_append parts out_c)
+        set parts (cg_append parts " _out = {0}; int _matched = 0; ")
+        let mut guard_i: int = 0
+        while (< guard_i m.arm_count) {
+            let guard_variant: string = (at m.arm_variants guard_i)
+            let guard_binding: string = (at m.arm_bindings guard_i)
+            let mut env_arm: GenEnv = env
+            set parts (cg_append parts "if (!_matched && ")
+            if (== guard_variant "_") { set parts (cg_append parts "1") }
+            else { if (transp_str_starts_with guard_variant "INT:") { set parts (cg_append parts (+ "_m == " (str_substring guard_variant 4 (- (str_length guard_variant) 4)))) }
+            else { set parts (cg_append parts (+ "_m.tag == nl_" (+ union_name (+ "_TAG_" guard_variant)))) } }
+            set parts (cg_append parts ") { ")
+            if (and (not is_int_match) (!= guard_variant "_")) {
+                set parts (cg_append parts (gen_match_variant_binding parser union_name guard_variant guard_binding ""))
+                if (!= guard_binding "_") { set env_arm (genenv_put env guard_binding (get_variant_field_type parser union_name guard_variant) false) }
+            }
+            let guard_id: int = (at m.arm_guard_ids guard_i)
+            if (>= guard_id 0) {
+                set parts (cg_append parts "if (")
+                set parts (cg_append parts (generate_expression parser guard_id (at m.arm_guard_types guard_i) env_arm "bool"))
+                set parts (cg_append parts ") { _matched = 1; ")
+            } else { set parts (cg_append parts "_matched = 1; ") }
+            set parts (cg_append parts (generate_match_arm_value parser (at m.arm_body_ids guard_i) (at m.arm_body_types guard_i) env_arm expected_type))
+            if (>= guard_id 0) { set parts (cg_append parts "} ") }
+            set parts (cg_append parts "} ")
+            set guard_i (+ guard_i 1)
+        }
+        set parts (cg_append parts "_out; })")
+        return (cg_build parts)
+    }
     set parts (cg_append parts "({ ")
     if (== is_int_match true) {
         set parts (cg_append parts "int64_t _m = ")

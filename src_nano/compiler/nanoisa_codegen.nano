@@ -1307,11 +1307,6 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
     while (< i node.arm_count) {
         let variant: string = (at node.arm_variants i)
         if (< (nisa_union_variant definition variant) 0) { return "" }
-        let mut previous: int = 0
-        while (< previous i) {
-            if (== variant (at node.arm_variants previous)) { return "" }
-            set previous (+ previous 1)
-        }
         if (== (at node.arm_body_types i) ParseNodeType.PNODE_BLOCK) { return "" }
         let mut names: array<string> = []
         let mut types: array<string> = []
@@ -1325,6 +1320,10 @@ fn nisa_match_result_type(parser: Parser, node_id: int) -> string {
         set types (array_push types (+ actual (+ "." variant)))
         set nisa_names names
         set nisa_types types
+        if (< i (array_length node.arm_guard_ids)) {
+            let guard_id: int = (at node.arm_guard_ids i)
+            if (and (>= guard_id 0) (!= (nisa_expr_type parser guard_id (at node.arm_guard_types i)) "bool")) { return "" }
+        }
         let arm_type: string = (nisa_expr_type parser (at node.arm_body_ids i) (at node.arm_body_types i))
         set nisa_names saved_names
         set nisa_types saved_types
@@ -1370,7 +1369,10 @@ fn nisa_emit_match_body(parser: Parser, node_id: int, result_type: string) -> st
     let actual: string = (nisa_expr_type parser node.scrutinee node.scrutinee_type)
     if (not (nisa_union_supported parser actual)) { return (nisa_fail "I require an exact scalar union match") }
     let definition: ASTUnion = (parser_get_union parser (nisa_union_index parser actual))
-    if (!= node.arm_count definition.variant_count) { return (nisa_fail "I require one match arm per variant") }
+    if (< node.arm_count definition.variant_count) { return (nisa_fail "I require complete match coverage") }
+    let mut covered: array<bool> = []
+    let mut variant_index: int = 0
+    while (< variant_index definition.variant_count) { set covered (array_push covered false) set variant_index (+ variant_index 1) }
     let mut out: string = (nisa_emit_expr parser node.scrutinee node.scrutinee_type)
     let end: string = (nisa_fresh)
     let mut i: int = 0
@@ -1378,11 +1380,9 @@ fn nisa_emit_match_body(parser: Parser, node_id: int, result_type: string) -> st
         let name: string = (at node.arm_variants i)
         let variant: int = (nisa_union_variant definition name)
         if (< variant 0) { return (nisa_fail "I require a named match variant") }
-        let mut previous: int = 0
-        while (< previous i) {
-            if (== name (at node.arm_variants previous)) { return (nisa_fail "I require distinct match variants") }
-            set previous (+ previous 1)
-        }
+        let guard_id: int = (at node.arm_guard_ids i)
+        let guard_type: int = (at node.arm_guard_types i)
+        if (< guard_id 0) { (array_set covered variant true) }
         if (== result_type "") {
             if (!= (at node.arm_body_types i) ParseNodeType.PNODE_BLOCK) { return (nisa_fail "I require a statement block in each match arm") }
         } else {
@@ -1399,6 +1399,11 @@ fn nisa_emit_match_body(parser: Parser, node_id: int, result_type: string) -> st
         set nisa_names (array_push nisa_names binding)
         set nisa_types (array_push nisa_types (+ actual (+ "." name)))
         set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+        if (>= guard_id 0) {
+            if (!= (nisa_expr_type parser guard_id guard_type) "bool") { return (nisa_fail "I require an exact bool match guard") }
+            set out (+ out (nisa_emit_expected_expr parser guard_id guard_type "bool"))
+            set out (+ out (nisa_line_imm "JMP_FALSE" next))
+        }
         if (== result_type "") {
             set out (+ out (nisa_emit_block parser (at node.arm_body_ids i)))
         } else {
@@ -1419,6 +1424,11 @@ fn nisa_emit_match_body(parser: Parser, node_id: int, result_type: string) -> st
         }
         set out (+ out (nisa_label_line next))
         set i (+ i 1)
+    }
+    set variant_index 0
+    while (< variant_index definition.variant_count) {
+        if (not (at covered variant_index)) { return (nisa_fail "I require an unconditional arm for every variant") }
+        set variant_index (+ variant_index 1)
     }
     set out (+ out (nisa_line "POP"))
     set out (+ out (nisa_line_imm "PUSH_BOOL" "0"))
