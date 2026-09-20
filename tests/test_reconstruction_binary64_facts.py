@@ -53,10 +53,13 @@ class Binary64Facts(unittest.TestCase):
                     self.assertEqual(code[4]['arg'], 37)
                     self.assertTrue(all('f64_bits' not in ins for ins in code[1:]))
 
-    def test_source_refusal_preserves_previous_outputs(self):
+    def test_unsupported_float_source_preserves_previous_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
-            module = self.module(directory, 'DUP\nF64_ADD\n')
+            # Typed F64_ADD reconstruction is supported by the later arithmetic
+            # contract. Generic ADD on FLOAT operands remains outside that
+            # contract and keeps this facts-era atomic-publication check useful.
+            module = self.module(directory, 'DUP\nADD\n')
             for target in ('c', 'nano'):
                 output = directory/f'previous.{target}'
                 output.write_text('retained output\n')
@@ -64,7 +67,7 @@ class Binary64Facts(unittest.TestCase):
                                          '-o', output], cwd=ROOT, capture_output=True,
                                         text=True, timeout=30)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn('F64_ADD', result.stderr)
+                self.assertIn('I require exact scalar operand types', result.stderr)
                 self.assertEqual(output.read_text(), 'retained output\n')
 
 if __name__ == '__main__':

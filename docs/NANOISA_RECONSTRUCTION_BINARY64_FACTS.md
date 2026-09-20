@@ -12,10 +12,11 @@ storage into `uint64_t` with `memcpy`, then format the integer bits. I do no
 floating arithmetic or decimal formatting. The field retains signed zeros,
 finite values, infinities, and quiet/signaling NaN payload and sign bits.
 
-These facts do not grant executable admission. I retain my bounded int/bool
-function signatures, entry restrictions, instruction whitelist and atomic
-source publication. `PUSH_F64` still refuses reconstructed C and NanoLang
-output. I do not claim float source constants, arithmetic or comparisons.
+These facts did not grant executable admission by themselves. My later
+binary64 transport, arithmetic, comparison and negation contracts admit their
+named typed operations with independent evidence. This facts gate still checks
+the exact operand bits and atomic previous-output preservation by using a
+generic float `ADD`, which remains outside those typed contracts.
 
 My next source contract must distinguish exact bit transport from arithmetic
 results. Typed F64 comparisons use IEEE unordered behavior; generic float
