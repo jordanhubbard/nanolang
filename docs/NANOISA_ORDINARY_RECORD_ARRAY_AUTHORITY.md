@@ -34,7 +34,9 @@ already exists; its existence does not establish generated mixed graph cleanup.
 
 ## My proposed compatible metadata checkpoint
 
-I propose ownership payload version3 for ordinary array declarations. I allocate
+I propose one shared ownership extension envelope for the array and peer PR893
+union-variant lanes. Version3 is a coordination proposal, not an allocation.
+Neither lane may independently assign its grammar before joint review. I allocate
 no opcode, layout kind, public runtime tag or outer container section. Existing
 LAYOUTS rows remain byte-compatible: an ARRAY field uses TAG_ARRAY and NO_INDEX,
 never an invented record index. Existing v1/v2 payloads and accepted decisions
@@ -43,10 +45,27 @@ I do not advertise backward execution compatibility. The v1/v2 raw container
 transport must preserve the opaque ownership bytes through roundtrip; any
 semantic converter that rejects v3 continues to reject until separately reviewed.
 
-Version3 starts with the exact v1 layout-count/flags/function-descriptor encoding,
-then appends an element-type table and field-binding table. It has no v2 path
-suffix in this first ordinary-only form. All integers use existing little-endian
-encoding. A type row is eight bytes: tag u8, three zero bytes, referent u32.
+The proposed version3 retains the v1 layout-count/flags/function-descriptor
+prefix, then stores `path_bytes:u32`, exactly that many bytes containing the
+existing v2 path-count/rows/alignment encoding, followed by `extension_count:u32`.
+Even an empty path table encodes its zero count (four bytes). Existing paths,
+indices, modes, maximum256 paths/depth32 and resource restrictions do not change.
+The checked common reader passes a bounded path subcursor to existing path
+validation; its exact-end check applies to that subcursor. Version2 still checks
+the end of its original whole payload. No new paths arise from array metadata.
+
+Each extension is `kind:u16, revision:u16, payload_bytes:u32`, followed by exactly
+that many payload bytes and zero alignment to four. Kinds are strictly ordered,
+unique and mandatory-understanding: unknown kind/revision refuses, never skips
+potential ownership obligations. Proposed symbolic kinds are UNION_VARIANTS and
+ARRAY_FIELDS; numerical assignments await the peer's exact variant proposal and
+joint review. ARRAY_FIELDS revision1 contains the type and binding tables below.
+UNION_VARIANTS must carry the peer's exact per-variant identities/field contracts;
+this document does not invent or approve their payload. Coexistence is valid only
+when the common validator validates both extensions and cross-references; neither
+consumer can authorize a mixed table from just the extension it understands.
+
+All integers use existing little-endian encoding. A type row is eight bytes: tag u8, three zero bytes, referent u32.
 Scalar INT/U8/FLOAT/BOOL/STRING rows require NO_INDEX. An ARRAY row references an
 element type row; a STRUCT row references an exact global retained layout.
 A binding row is twelve bytes: global record layout u32, field ordinal u16,
@@ -64,22 +83,74 @@ flag, borrowed descriptor, import, foreign or passive authority is admitted.
 Existing complete v1/v2 declarations can be described unchanged; an ARRAY field
 without the new exact binding is UNKNOWN, never ordinary by omission.
 
-The private reader must independently validate the full common envelope and
-all function/local/signature descriptors. It must not bypass the old validator
-with a caller-supplied trusted flag or make the public validator accept v3.
-Implementation review must pin the exact internal factoring before modifying a
-shared reader. The query owns all returned data and survives input destruction.
+I factor one checked internal ownership reader, used by existing public validation
+and the private query. It validates common descriptors, paths, extension spans and
+all cross-table facts before projecting either lane's declarations. Public v1/v2
+entry behavior remains unchanged; the public entry explicitly rejects proposedv3
+until its separate shared-validation checkpoint is reviewed. The private query
+requests a reviewed grammar version, not a trusted/skip-validation boolean.
+Resource flags remain authoritative: ordinary parents cannot hide resource
+children, including through element rows. Resource-bearing layout tables retain
+their existing prior-order envelope restriction. Array metadata grants no owned,
+borrowed or reference-path eligibility. Unsupported resource/union combinations
+return UNKNOWN in this ordinary query after complete structural validation. The query owns all returned data and survives input destruction.
 Statuses are DESCRIBED, UNKNOWN, INVALID, LIMIT, MEMORY; failures preserve the
 entire caller output. Null output is invalid. Getter failure preserves outputs;
-no getter exposes source pointers. Proposed independent limits:4096 layouts,
+no getter exposes source pointers. My private query and report use the existing managed descriptor ceiling
+NVM_RECORD_PLAN_MAX_LAYOUTS=256, not4096. Common wire counts remain u32; their
+representability is not target eligibility. A structurally valid larger table
+returns LIMIT before private report allocation. Other independent limits:
 65536 total fields,4096 type rows,65536 bindings,64 type depth,16MiB total owned
 and transient memory,1048576 traversal steps. Checked arithmetic precedes every
 allocation/index. Visited iterative graph walks prevent exponential DAG work.
 All limit exhaustion refuses; it never degrades into ordinary authority.
 
-Before coding, review must settle the version number against current allocations
-and freeze the exact private API names/ownership table. This proposal does not
-reserve version3 by itself.
+Before coding, joint review must settle the shared version and UNION_VARIANTS
+payload against the peer's current proposal. This is a blocking design dependency,
+not permission to implement an array-only alternate reader.
+
+### My frozen proposed private query API
+
+I propose `ordinary_array_authority.h` with an opaque owned report and these
+names; implementation remains subject to the shared-envelope review:
+
+```c
+typedef struct NvmOrdinaryArrayAuthority NvmOrdinaryArrayAuthority;
+typedef enum {
+    NVM_OAA_DESCRIBED, NVM_OAA_UNKNOWN, NVM_OAA_INVALID,
+    NVM_OAA_LIMIT, NVM_OAA_MEMORY
+} NvmOrdinaryArrayStatus;
+typedef struct {
+    NvmOrdinaryArrayStatus status;
+    uint32_t layout, field; /* NO_INDEX when no exact location applies. */
+    const char *message;   /* Static storage, never input-owned. */
+} NvmOrdinaryArrayResult;
+typedef struct { uint32_t layouts, types, bindings; } NvmOrdinaryArrayCounts;
+typedef struct { uint8_t tag; uint32_t referent; } NvmOrdinaryArrayType;
+typedef struct {
+    uint32_t layout;
+    uint16_t field;
+    uint32_t element_type;
+} NvmOrdinaryArrayBinding;
+NvmOrdinaryArrayResult nvm_describe_ordinary_array_authority(
+    const NvmModule *, NvmOrdinaryArrayAuthority **);
+void nvm_ordinary_array_authority_free(NvmOrdinaryArrayAuthority *);
+bool nvm_ordinary_array_authority_counts(
+    const NvmOrdinaryArrayAuthority *, NvmOrdinaryArrayCounts *);
+bool nvm_ordinary_array_authority_type(
+    const NvmOrdinaryArrayAuthority *, uint32_t, NvmOrdinaryArrayType *);
+bool nvm_ordinary_array_authority_binding(
+    const NvmOrdinaryArrayAuthority *, uint32_t, NvmOrdinaryArrayBinding *);
+```
+
+The opaque report owns a retained numeric layout copy, exact ordinary flags/maps,
+type rows and bindings. It owns no AST/module/string/library reference. DESCRIBED
+alone publishes a newly allocated report; UNKNOWN and every error leave *out
+unchanged and free all staging. Legacy supported ordinary tables can describe
+zero bindings; missing authority remains UNKNOWN. Free(NULL) is harmless. Getters
+copy one complete value only on success and reject null outputs/out-of-range
+indices unchanged. Structure padding is not serialized or used for equality.
+These are declaration facts only; there is no executable-proof boolean.
 
 ## My separate source and provenance checkpoints
 
