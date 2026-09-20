@@ -122,3 +122,8 @@ I retain [fresh integration51d](token-value-bytes-integration.md) separately
 from the original seal above. Both hosts rebuild the full compiler/token ABI
 closure against actual0061 and pass ordinary paired/schema/adjacency checks.
 No earlier sanitizer or first-terminal attribution changes.
+
+I also retain [fresh d4f ownership integration](token-value-bytes-union-integration.md)
+and [final885 provider closure](token-value-bytes-final-closure.md) separately.
+The latter preserves exactly qualified Stage1/2 while rebuilding affected C
+providers; it is not another bootstrap or sanitizer claim.

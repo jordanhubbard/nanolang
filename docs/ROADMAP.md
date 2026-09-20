@@ -13217,3 +13217,11 @@ C-seed/NanoISA/wrapper link closure, so root approves fresh affected providers,
 complete ordinary token/paired generator with exactly retainedd4f Stage1/2 and
 fresh module cache, plus wrapper controls on both hosts. This is a bounded
 closure run, not a new bootstrap or sanitizer claim. Full source remains open.
+
+I retain [final token closure885](evidence/token-value-bytes-final-closure.md):
+fresh affected C-seed/NanoISA/nano_virt providers, complete ordinary paired
+token/generator/schema and wrapper controls pass on both hosts. Only d4f
+Stage1/2 are retained with exact product and507-input/selected-graph proof; no
+bootstrap or sanitizer replay is claimed. My253-report seal has12 equal pairs
+and current26,190-source/12-tool equality on each host. Original full source
+requirements stay open; root reviews evidence before actual PR911 merge.
