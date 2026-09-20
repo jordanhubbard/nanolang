@@ -1,0 +1,24 @@
+import "src_nano/parser.nano"
+import "src_nano/transpiler.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+fn render(statement: bool) -> string {
+ let text: string = "fn value(x: int) -> int { return match x { 1 if true => 7 } } fn action(x: int) -> int { match x { 1 if true => { return 7 } } return 99 }"
+ let tokens: List<LexerToken> = (tokenize_string text "unchecked.nano" (list_CompilerDiagnostic_new))
+ let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "unchecked.nano")
+ let env: GenEnv = (genenv_put (genenv_new "value") "x" "int" false)
+ let mut body: string = ""
+ if statement { set body (generate_match_stmt parsed (parser_get_match parsed 1) 0 env "int") }
+ else { set body (+ "return " (+ (generate_match_expr parsed (parser_get_match parsed 0) env "int") ";")) }
+ return (+ "#include <stdint.h>\n#include <stdio.h>\n#include <stdlib.h>\nint64_t probe(int64_t nl_x){" (+ body "}\nint main(int argc,char **argv){(void)argv;return (int)(probe(argc==1?1:2)-7);}\n"))
+}
+shadow render {
+ assert (str_contains (render false) "if (!_matched)")
+ assert (str_contains (render true) "abort();")
+ assert (not (str_contains (render true) "switch"))
+}
+fn main() -> int {
+ if (!= (argc) 2) { return 2 }
+ (print (render (== (argv 1) "statement")))
+ return 0
+}
+shadow main { assert true }
