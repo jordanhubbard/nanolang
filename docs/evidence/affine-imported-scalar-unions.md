@@ -55,3 +55,52 @@ canonical bytecode fixed-point gates remain separate release evidence.
 
 Linux qualification, mixed extension conjunction, resource payloads, the full
 affine parent, PR522 and 5.1 publication remain open.
+
+## My defensive backpatch checkpoint
+
+Static review of the earlier producer found that my final
+`UNION_VARIANTS` payload-length write did not check the compiler error state
+after allocation-bearing contract appends. I did not reproduce a corrupting
+runtime execution. At `ce90b62762270849aafd23d10d50e3e326233a0e` I route the
+v3 path length, extension payload length and v2 path-version mutation through
+one bounds-checked patch helper. Once contract growth fails I retain the first
+diagnostic, stop variant-name work, skip every patch and keep the partial
+buffer in local cleanup ownership instead of publishing it to the module.
+
+The dedicated allocator replaces only contract-buffer `realloc`. The retained
+fixture requires three growth allocations. I fail each allocation once, check
+that no module is published, require my original `available contract storage`
+diagnostic, then compile and free a complete module in the same process. The
+ordinary gate and the Homebrew LLVM 23 ASan/UBSan/LSan gate both pass all three
+failures and all three recoveries.
+
+My first LSan run completed the contract checks and then reported 1,652 bytes
+in 154 frontend/typechecker match-binding allocations created before contract
+emission. I retain that first terminal and track it separately as
+`task_b46f55c35c72bd063b9a27eaf93a4816`. The corrected sanitizer harness
+disables LSan only while parsing and type checking, re-enables it before every
+call to NanoVirt code generation and keeps ASan/UBSan enabled throughout. It
+does not suppress contract allocations or close the checker task.
+
+The corrected Darwin checkpoint also passes:
+
+- all 90 NanoVirt code-generation tests;
+- all four affine scalar-union source methods in 41.767 seconds; and
+- all nine imported-union and qualified-module-identity neighbors in 13.749
+  seconds.
+
+| Retained input or log | SHA-256 |
+| --- | --- |
+| `src/nanovirt/borrow_codegen.inc` | `62d427145126aa89625a4413d7b6d50571056de658346732b1518e8759395eaa` |
+| `tests/nanovirt/test_borrow_contract_allocation.c` | `1d5a13fbe6aa779bc07e6345f5067f0947ad18208e496baffbcc3f8570c04e2a` |
+| `Makefile.gnu` | `16d44cef5aec796f7a5ee1ae3be0f34eebf9d0fc3f6e62c846346ec68deb85b5` |
+| `/private/tmp/nanolang-affine-union-backpatch-sanitizer.log` | `b867eb7c25224f7cbdf1c8d87c35fff77203e92518b92fe23bbd7dda89c99d37` |
+| `/private/tmp/nanolang-affine-union-backpatch-nanovirt90.log` | `aabcf1a54c161c88fc594c59a6b0eabb8643a39a02b5ad2c6595257034e8f09d` |
+| `/private/tmp/nanolang-affine-union-backpatch-source.log` | `2b2f2c47044e720524915c46ff50e4e1a1cb91bbd43c68a6d8cf72201d0a2412` |
+| `/private/tmp/nanolang-affine-union-backpatch-adjacent.log` | `1c0fe60280ff4353ba4c4c90c93429305c74ccc43e60f88dc8a3253b5a6f9676` |
+| Homebrew Clang 23.1.1 | `570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888` |
+
+Independent review and Linux qualification remain required before I close
+`task_59fbb2c526127b4e40867e9222de400a` or merge PR917. The zero-payload empty
+binding parser change remains root-owned and unmerged; I add no empty lexical
+binding or affine admission in this checkpoint.
