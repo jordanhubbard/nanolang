@@ -1,0 +1,42 @@
+{
+  "scope": "Actual-merge reconciliation of only original bounded430220/4be and Darwin273296; no broader task completion",
+  "pr880_merge": "06594fa06be9f36aa1eff1ffa8fee303052d89fe",
+  "pr880_reviewed_head": "df6d9706d79dc8d61dc0b828362e717abab10e0a",
+  "pr878_merge": "ea6fd7b46",
+  "verification": "Supported helper verified merged states, reviewed-head ancestry and remote canonical tip; live MAC states re-read afterward.",
+  "tasks": {
+    "430220": {
+      "id": "task_430220ce190946518d404088533531b6",
+      "state": "completed",
+      "description": "I complete only the original bounded FLOAT-array-in-owner contract in docs/NANOISA_OWNED_FLOAT_ARRAY_FIELDS.md, reconciled clause by clause in docs/OWNED_MANAGED_PARENT_ACCEPTANCE_AUDIT.md merged PR880 at06594fa06be9f36aa1eff1ffa8fee303052d89fe after root and independent native-effects review. Canonical ancestry includes descriptive824/origin829/authority830/optional832, reviewed runtime836 and actual switch838/public842, paired unchanged Bundle/PREFIX/all-shadow source846, mutation847/849 and exact bits/extreme indices852, full source mutation861, and distinct ARRAY-local overwrite876. Each original numbered acceptance clause links exact seals and exclusions in the audit; no pending implementation is relabeled as measured.\n\nThe original Bundle program and all mandatory shadows pass paired C-seed/Stage1/Stage2, canonical/VM/native/installed routes on Linux and Darwin. Actual runtime aliases survive pack/project/unpack/call/return, mutation/growth and distinct occupied-local replacement, with fault/recovery/root controls. Sanitizer/allocation coverage is exactly the recorded category-specific coverage, not all-system instrumentation. The original initial-contract description is preserved in docs/evidence/owned-managed-parent-audit.json and task history.\n\nSource ARRAY-binding reassignment remains refused; runtime STORE evidence does not widen source syntax. Bare ARRAY signatures, managed-root borrows, arbitrary mixed-profile composition, nonzero links and complete LLVM/Wasm remain outside this bounded slice and under the original broader parents. Full4be reconciliation is separate;51da/488a/28f2/e8d/d76 and full product/fixed-point/release obligations are not closed by this task. Original failures/artifacts remain intact. Hosted checks are separately tracked; exact GitGuardian inventory findings are classified, not called green.\n",
+      "completed_at": "2026-09-20T01:02:24.440709+00:00",
+      "previous_state": "waiting"
+    },
+    "4be": {
+      "id": "task_4be28fef163f42069064357639b3b5cc",
+      "state": "completed",
+      "description": "I complete the original bounded mixed ordinary-managed/owned selected-shadow contract from docs/NANOISA_MIXED_OWNED_MANAGED_VALUES.md, reconciled in docs/OWNED_MANAGED_PARENT_ACCEPTANCE_AUDIT.md merged PR880 at06594fa06be9f36aa1eff1ffa8fee303052d89fe after root and independent native-effects review. Its five stages map to canonical binary64 PR798, descriptive802/closed shape805/private composition812, runtime/native819/Darwin820, paired original Samples/PREFIX/all shadows828, and separately qualified STRING runtime/source813, transitive wrapper801 and bounded owner-ARRAY430220 dependencies through876. Exact merge ancestry and referenced evidence hashes accompany the audit.\n\nOriginal Samples, STRING Bundle, FLOAT-array Bundle and transitive scalar Connection families retain distinct qualified scopes. Full source checks, exact original nominal/global mappings, fresh admission, FLOAT-or-VOID runtime obligations, roots/aliases/cleanup, owner calls/results, refusal/output atomicity and Linux/Darwin source seals remain as measured. Original initial proposal wording and first failures are preserved in the audit snapshot/history. Full33 and separate module9 later pass at frozen3c728; these are not fullmake/product claims.\n\nNo arbitrary ordinary-plus-owner-array profile composition, general collections/cycles/callbacks/imports, ordinary managed CALL/result widening or complete LLVM/Wasm claim follows. Allocation/instrumentation limits remain those in each seal, including no new mixed-frame fault-injection claim. Full51da/488a/28f2/e8d/d76 and complete product/fixed-point/release parents remain open. Source ARRAY-binding reassignment stays refused.\n",
+      "completed_at": "2026-09-20T01:02:29.345171+00:00",
+      "previous_state": "open"
+    },
+    "273296": {
+      "id": "task_273296f15f46457a8199665418602954",
+      "state": "completed",
+      "description": "I complete only the reviewed Darwin dependency-discovery runner correction. I preserve the first3c728 bootstrap make exit2/9.5246s missing openssl/sha.h; its noninteractive PATH omitted Homebrew's brew discovery. A separate same-pin tree with explicit Homebrew PATH, Apple Clang and selected SDK passed freshbootstrap285.790s and all33 original methods77.369s. Resolved package/header/library/compiler identities and exact reports/artifacts are sealed in docs/evidence/affine-full-suite. PR878 actually merged ea6fd7b46; exact ignored wrapper-cache publication records were supplied separately by PR881 under36d34, without changing the raw gates/archives. No compiler/source/assertion change, Darwin sanitizer claim or fullparent closure. Actualmerge reconciliation is separately verified by the helper.\n",
+      "completed_at": "2026-09-20T00:46:43.891494+00:00",
+      "previous_state": "failed"
+    },
+    "e8d": {
+      "id": "task_e8d860a16da0464891dd32e91c42bef1",
+      "state": "open",
+      "description": "I preserve the first installed-product 950f36d1 full make test-quick terminal status2/1734.273s, after fresh bootstrap216.202s/tools24.445s, all3 component builds/entries,17core,244eligibleVM examples and docs158/158 pass. tests/test_affine_selfhost.sh runs33 methods and reports55 subcase checked lowering failures across Stage1/Stage2/nano_virt. Log /tmp/nanolang-product-quick-950f36d1/test-quick.log and manifests retain1674 unchanged sources, clean pinned head and intentional Stage1 rebuild. No failed artifact replay.\n\nBefore production repair I classify each subcase by original expectation, producer and first refusal, separating missing positive admission from negative diagnostic phase and unrelated fixtures; record exact dependency order against existing full ownership/affine parents. I preserve original tests, mandatory shadows, exact layouts/move checks and full product routing. No legacy fallback, eligibility exclusions or weakened assertions. Corrections need a reviewed bounded contract, fresh paired source/verifier/VM/native gates and a new installed-product acceptance pin. Full task_d76ae44a12fd4d27a2b4aa84c30d7bc6 remains open. c435 example boundary is separately completed. Frozen950f remains untouched; evidence goes on separate branch.\n",
+      "completed_at": null
+    },
+    "d76": {
+      "id": "task_d76ae44a12fd4d27a2b4aa84c30d7bc6",
+      "state": "open",
+      "description": "After the VM shadow cutover, remove the AST-to-C transpiler import and path from the product driver. Default native and --target c must consume verified NanoISA through nvm2c with the declared native artifact runtime, preserve CLI/output/shadow semantics and prove the compiler bootstrap plus real products. Keep C seed as bootstrap tool; do not claim complete release or other architecture lanes. Track implementation, tests and evidence on docs/ROADMAP.md before code.\n\nPinned product VM fixed point passed at ae63b24817313e21412b0aefc4242a7f7f196188: seed module and two full-source VM generations are raw-identical 259,428 bytes SHA256 b02452f60a3058158120499f7eabfeb31fbc0768b3cddf4c9727aecc21efb05a; generations 400.406/403.119 seconds, verified second-generation hello, unchanged host closure. Durable evidence pushed to PR522 at 5c472d06 in docs/evidence/product-vm-fixedpoint-ae63b248.md and.json. Does not close product: export-shadow dd74 remains failing 26/27 ordinary gate at bd4a2428; stacked PR573 public pure metadata passes focused stage checks but no incident resolution claim. Full release hold unchanged.",
+      "completed_at": null
+    }
+  }
+}
