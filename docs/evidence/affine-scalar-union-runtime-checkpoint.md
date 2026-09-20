@@ -166,10 +166,68 @@ e7feda8dd8688be8f914e6c6e4f3ad04c6329403bceed9617bd1b578a0148b03  /private/tmp/n
 900e234dd550791d95330664079a192c7bdf6bfa155fb51f7ae42852901bd3fc  /private/tmp/nanolang-pr893-19c7573e-verifier-nvm2c.log
 ```
 
+## Fresh Linux qualification
+
+I used a separate shared-object clone on sparky at
+`/tmp/nanolang-pr893-bb5d744b.mYM3aX`; I did not mutate the active root
+checkout. The first setup command stopped before checkout or build because the
+clone inherited the local checkout as its origin and that checkout did not
+carry the pushed PR ref:
+
+```text
+fatal: couldn't find remote ref fix/affine-scalar-unions-pr889
+```
+
+I retained that terminal in this report, changed only the isolated clone's
+origin to the canonical GitHub repository and checked out exact head
+`bb5d744beba6086c82ee2f0778802b86b4a1f75c`. Fresh bootstrap passed in
+274.96 seconds and the required tools built in 27.33 seconds. Stage 1 and Stage
+2 again passed their smoke checks but produced different native binaries; this
+is not fixed-point evidence.
+
+The first affine runtime command then stopped before executing its checks.
+GCC 13 rejected the fixture's one-line failed-assembly diagnostic followed by
+`CHECK` under `-Werror=misleading-indentation`. Its retained log is
+`2622ab6fc99e49798c9c6e7acbc7fc152a4ca3852ed7d96c20cfd0fe5e2914ab`.
+I braced only that diagnostic branch at `c30543c3c`; affine production and the
+qualified compiler binaries remained byte-identical. From that test-only head:
+
+```text
+make -j8 test-affine-scalar-union-runtime
+  PASS: 546 ordinary and 856 allocation-path affine checks
+  PASS: VM/native runtime under GCC 13 ASan/UBSan with leak detection
+
+NANO_NATIVE_TEST_CC=cc python3 -m unittest -v tests.test_affine_scalar_union_source
+  PASS: simultaneous concrete instances verify and execute in VM/native routes
+
+make -j8 test-ownership-contracts test-owned-transfers
+  PASS: ownership contract Python control
+  PASS: 184 ordinary and 275 allocation-path owned-transfer checks
+
+make -j8 test-verifier test-nvm2c
+  PASS: 96 verifier checks
+  PASS: 1,365 shape constraints
+  PASS: 2,422 structured nvm2c checks, 0 failed
+```
+
+The source index was clean after the final command. The actual compiler was
+Ubuntu GCC 13.3.0 at `/usr/bin/aarch64-linux-gnu-gcc-13`, SHA-256
+`a20520ee21543f243d40636a9181a142c45ecd989de31ab86b99a8ea5ada870d`.
+The corrected retained logs are:
+
+```text
+7b10411b947aa87596a6d6d0a134c1ee295afc4f8cc44cbb89779965ee54d594  /tmp/nanolang-pr893-bb5d744b.mYM3aX/bootstrap.log
+d49a6b4b1dc1f35029923ca283557ee013b61d70bed9d9c42caaaa42e45d663e  /tmp/nanolang-pr893-bb5d744b.mYM3aX/tools.log
+0a93f8cd8d91e7455cb851e2bce29019fac9ca90e5f6515d6f29d96379105653  /tmp/nanolang-pr893-bb5d744b.mYM3aX/runtime-corrected.log
+3ad904e88033d857cbea88985aab392e2f8093c8ffe60bcf9c1f8b65256b18cb  /tmp/nanolang-pr893-bb5d744b.mYM3aX/source-corrected.log
+491f53dd7dd29e85c44682ac4f58c9a8bd261604e11acfb75a533581afd702bb  /tmp/nanolang-pr893-bb5d744b.mYM3aX/adjacent-corrected.log
+3353008c44f756c56a2960d26a5992b31238ce191a970db1d41ec97b0e2e0d46  /tmp/nanolang-pr893-bb5d744b.mYM3aX/verifier-nvm2c-corrected.log
+```
+
 ## What remains
 
 I still require the complete statement/value match matrix, precise
 unsupported-payload refusals, qualified mixed-envelope conjunction after the
 independently owned `ARRAY_FIELDS` validator, Stage 1/Stage 2 producer parity
-and fresh integrated Linux qualification. PR522 and release publication remain
-held.
+and the remaining full-product qualification. PR522 and release publication
+remain held.
