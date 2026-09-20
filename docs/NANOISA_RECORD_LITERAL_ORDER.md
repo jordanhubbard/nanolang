@@ -11,3 +11,7 @@ I require actual side-effect traces with reversed declaration/source order, unch
 ## My native producer prerequisite
 
 The same static audit finds both native C producers put side-effecting field expressions directly in designated compound initializers. C does not establish my written source evaluation order for those expressions. Thus native output is not an independent correct oracle until it is repaired too. I extend the same task to emit a private typed record temporary and sequenced field assignment statements inside the existing expression-block mechanism. I snapshot inherited fields before explicit overrides; every explicit assignment retains destination C conversion semantics. Temporary names must be disjoint from source bindings and remain safe under nested literal scopes. Actual source-order assertions, rather than agreement with the old native output, are my authority. I review both native and NanoISA changes before testing.
+
+## Native union initializers
+
+I found the same static ordering gap in native union designated initializers. I include both native producers and exact payload evaluation traces in task_9a1ba277fe3e45d5913d03305ece1e06 before implementation. My NanoISA union staging already follows written order; this finding does not qualify native behavior.
