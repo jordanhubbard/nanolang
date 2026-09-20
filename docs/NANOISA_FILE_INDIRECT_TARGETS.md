@@ -185,3 +185,19 @@ Final call rows and candidate graph edges are emitted only after the full local
 fixed point. The combined graph is then closed and checked for recursion before
 one output publication. Failed partial joins are private staging and are freed;
 no caller-owned report or module is modified. No fixtures or execution ran here.
+
+## My first fixture checkpoint
+
+I stage linked and allocation-instrumented target-only fixtures. They inspect
+branch and late-backedge candidate unions, zero-iteration initialization,
+local overwrite and copy, incompatible candidates, wrong arity, bad indices,
+unreachable indirect sites, combined direct/indirect and unused-body recursion,
+ordinary File category transfers, input-destroyed report lifetime, getter
+sentinels and allocation-prefix/transient rollback. Existing grant-less verifier
+and native-emission refusals remain assertions. Size refusals use actual public
+query boundaries rather than altered constants. No pending File module executes.
+
+I retain command output in files and bound compiler/fixture process groups. This
+checkpoint has not compiled or run; review precedes qualification, which must
+attribute actual source, provider and tool inputs and preserve first failures.
+The larger callable flow/runtime/source contract remains open.
