@@ -12367,5 +12367,5 @@ qualification builds run before the full fixture checkpoint review.
 
 ### My remaining affine acceptance after the full33 script
 
-- [ ] I run the complete unchanged nine-method module-identity suite with the fresh3c728 stages and separate source/tool/artifact evidence on Linux and Darwin; parent task_e8d860a16da0464891dd32e91c42bef1. Contract: `docs/AFFINE_REMAINING_ACCEPTANCE.md`. The generic16 methods await coordinated a18 integration; no full-make/product claim follows these nine.
+- [x] I run the complete unchanged nine-method module-identity suite with the fresh3c728 stages and separate source/tool/artifact evidence on Linux and Darwin (78.581s/67.801s; `docs/evidence/affine-module-identity-3c728/`); parent task_e8d860a16da0464891dd32e91c42bef1. Contract: `docs/AFFINE_REMAINING_ACCEPTANCE.md`. The generic16 methods await coordinated a18 integration; no full-make/product claim follows these nine.
 - [ ] I map every original430220/4be acceptance clause to exact merged runtime/source/seal evidence and explicit exclusions, then obtain review before parent ledger closure. Source ARRAY binding reassignment remains refused; I add no new implementation under this reconciliation.

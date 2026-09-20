@@ -36,3 +36,10 @@ occupied ARRAY-local replacement proves retained aliases survive a VM/native
 STORE; it does not admit source `set values replacement`. I add no implementation
 or new source scope in this checkpoint. Broader managed composition, general
 collections/cycles and LLVM/Wasm remain under their original parents.
+
+## My measured nine-method terminal
+
+Linux passes9 methods in78.581s and Darwin passes9 in67.801s. My [separate
+seal](evidence/affine-module-identity-3c728/README.md) retains31 reports and618
+artifacts across bothhosts. Each creates four module-cache files; all preexisting
+inputs and stage hashes remain exact. The generic16 and full-product holds remain.

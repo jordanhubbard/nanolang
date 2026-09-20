@@ -1,0 +1,6 @@
+{
+  "CC": "/usr/bin/clang",
+  "PYTHONPATH": "/private/tmp/nanolang-affine-full-3c728-corrected-darwin-module-identity/retention:/private/tmp/nanolang-affine-full-3c728c437-corrected",
+  "AFFINE_RETAIN_DIR": "/private/tmp/nanolang-affine-full-3c728-corrected-darwin-module-identity/artifacts",
+  "AFFINE_PROFILE_EVIDENCE_DIR": "/private/tmp/nanolang-affine-full-3c728-corrected-darwin-module-identity/boundary-routes"
+}
