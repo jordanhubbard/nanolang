@@ -37,8 +37,8 @@ creation succeeded but adapter coverage fails, I destroy only this fresh context
 I retain the exact hosted entry/initializer selection and signatures. After
 begin I start the selected root with `frame_start`. Actual RET completes an
 initializer through the existing cleanup snapshot before entry can start.
-Ignored scalar initializer results are discarded by qualified root completion;
-owning root results remain refused. Both roots use one invocation identity.
+The initializer must have zero results and exact VOID result metadata; scalar
+and owning initializer results are refused. Root completion receives NO_SLOT. Both roots use one invocation identity.
 Entry publishes only its exact INT or BOOL result after clean terminal finish.
 
 ## My complete first instruction inventory
@@ -116,7 +116,8 @@ introduced in this slice.
 
 ## My service and pending-obligation conjunction
 
-I retain all original pending masks in reports. Before begin, every reachable
+I retain all original pending masks in the immutable hosted/body facts;
+NvmFileRuntimeReport has no pending-mask field. Before begin, every reachable
 mask must be covered by this actual adapter and its qualified carrier/core;
 unknown bits or an unexpected obligation are UNRESOLVED.
 
