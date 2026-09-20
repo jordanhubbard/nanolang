@@ -14093,3 +14093,14 @@ ordinary admission cache, so this integration does not borrow cached public
 admission. Fresh providers and the unchanged complete VM matrix are required.
 My source-location checkbox above reflects actual PR935 merge and its independent
 both-mode/two-host evidence; it does not close the mixed runtime requirements.
+
+- [ ] I update internal white-box fixture calls for the private mixed context
+  (`task_58e5fa7f876e48b38f7743c543b36c88`). All three15d1 Darwin private VM
+  configurations and query neighbors pass before ordinary-admission compilation
+  stops at13 old three-argument calls. I add an explicit NULL fourth context,
+  preserving every cache/admission assertion. Full caller inventory also finds
+  two old owned-string-proof calls using the earlier two-argument signature;
+  those receive both NULL optional contexts and their unchanged standalone proof
+  becomes an additional neighbor. I retain first terminals, reuse only exact
+  inventoried provider bytes and run corrected/unrun neighbors in fresh paths;
+  I do not replay the passing private corpus for fixture-only corrections.
