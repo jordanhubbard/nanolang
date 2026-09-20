@@ -1,0 +1,7 @@
+{
+  "status": "FAILED",
+  "phase": "compiler runtime inventory",
+  "runner_exit": 1,
+  "build_or_fixture_started": false,
+  "reason": "Clang23 print-file-name returned unresolved libclang_rt.asan-aarch64.so; strict existence guard raised before provider build."
+}

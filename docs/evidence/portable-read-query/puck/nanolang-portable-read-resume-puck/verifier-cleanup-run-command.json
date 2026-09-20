@@ -1,0 +1,9 @@
+{
+  "label": "verifier-cleanup-run",
+  "argv": [
+    "/private/tmp/nanolang-portable-read-resume-puck/verifier-cleanup-binary"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

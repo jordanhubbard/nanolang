@@ -1,0 +1,4 @@
+phase: copied declarations, input destruction and closed profiles
+phase: exact declarations and complete unused-function checks
+phase: independent preallocation limits
+PASS: 266 private portable read-text checks; no bytecode or host execution.
