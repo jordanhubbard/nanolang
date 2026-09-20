@@ -41,8 +41,8 @@ I do not hash the full SDK or operating system. Original ordinary Python tests
 clean their temporary products; I retain their logs rather than claiming those
 missing files. Report-owned flow products and inventoried provider bytes remain.
 
-Source/fixture review preceded execution. Independent seal audit, canonical
-integration and actual merge remain pending. The separate fullgraph emitter
+Source/fixture review preceded execution. Independent seal audit and canonical
+integration are recorded below; actual merge remains pending. The separate fullgraph emitter
 shadow deadline, Darwin native executable timeouts and full5.1 release remain
 open. This bounded passive repair does not establish complete compiler/bootstrap
 fixed points or production correspondence to the formal model.
@@ -56,4 +56,22 @@ endpoint pairs, the complete Darwin archive and3798 selected source/fixture
 Git identities. Both corrected hosts pass all12 recorded phases. It preserves
 the original Darwin failure and all stated instrumentation/retention limits.
 It does not rehash current remote endpoints or establish full-product acceptance.
-Canonical integration remains pending.
+Canonical integration is recorded below.
+
+## My current-main integration
+
+At `6ae98a219a9588ec554348dd55c3b2f127f3ea51`, I integrate canonical
+`0061feed573ad7e4cac2a9e61d5ed38f0fb62440` with both additive Make and roadmap
+histories intact. I rebuild fresh providers on Linux and puck. All twelve
+phases pass on each host: 26 passive methods and 273 direct checks, unchanged
+flow VM/native output 15, both independent source comparisons, scoped passive
+allocation sanitizer checks, and the two existing float-conversion methods.
+The original sanitizer instrumentation and temporary-product retention limits
+above apply unchanged.
+
+My [integration seal](passive-internal-cfg-integration/summary.json) records
+239 reports, 493 retained artifact objects totaling 211112401 bytes, 9205
+artifact references and 48 equal source/tool endpoint pairs. I retain the
+Darwin archive identity in that seal and do not relabel earlier measurements.
+This repairs the bounded passive gate; the compiler shadow deadline and separate
+Darwin native timeouts still require their own evidence before release.

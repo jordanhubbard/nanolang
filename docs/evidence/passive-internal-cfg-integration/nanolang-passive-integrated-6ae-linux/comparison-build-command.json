@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-passive-integrated-6ae-linux/passive-comparison.mk",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "nanoisa_emit",
+    "passive-comparator"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc",
+    "LSAN_OPTIONS": ""
+  }
+}
