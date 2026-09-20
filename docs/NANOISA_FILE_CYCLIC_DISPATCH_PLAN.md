@@ -208,3 +208,21 @@ the same cyclic wires. I do not claim cyclic public admission, installed APIs,
 source loops, indirect or richer borrow execution, LLVM/Wasm, full-product or
 parent completion from this private checkpoint. Their remaining dependencies
 stay recorded under 15a92/72556/6931 and the original parent contracts.
+
+## My first production checkpoint
+
+I implement separate macro-gated VM and native translation units, a shared new
+private all-variant coverage include, and the separate cyclic native ABI guard.
+I leave the old operation engines and all public selectors unchanged. To keep
+this checkpoint reviewable I copy the existing passive operation implementations
+into the private adapters; native numeric/operation emission remains text-exact
+except the generated callee signature dropping its old counter pointer. VM
+service identity uses the cyclic catalog-to-original mapping. No query internal
+changes are part of this lane.
+
+My generated agreement compares every reference slot, sharing an explicit zero-
+field predicate for empty slots, plus all live relations and exact serialized
+bytes. The new explicit Make object recipes use owning source paths and C11;
+provider lists exclude public VM/native/grant entries and any VM dispatcher
+from the generated-native runtime. These are proposed source changes for review,
+not measured execution. Complete source review precedes fixture preparation.

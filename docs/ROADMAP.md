@@ -12776,3 +12776,9 @@ checks are not claimed passed.
 - [ ] I review and implement my [private cyclic VM/native dispatch plan](NANOISA_FILE_CYCLIC_DISPATCH_PLAN.md) under15a92: exact all-variant coverage, original identities, one carrier fuel budget, real generated functions/labels and explicit semantic ABI/fact agreement.
 - [ ] I review the complete shared-wire fixtures, then qualify Linux/puck VM/native O0/O2, fuel/host/fault/cleanup and unchanged acyclic/public-refusal neighbors with retained first terminals and source/tool/provider seals.
 - [ ] I review a separate matched public conjunction after private dispatch qualification; closed-indirect, richer-borrow and paired source/shadows remain required, with no old acyclic plan reinterpretation.
+
+I prepare the first reviewed-design27b972 private cyclic dispatch source: distinct
+macro-gated VM/native units, shared all-variant coverage, exact generated semantic
+agreement, separate ABI guard and one carrier fuel budget. Existing acyclic and
+public engines stay unchanged. I submit source before fixtures/build/execution;
+15a92 remains OPEN and no cyclic public admission is claimed.

@@ -441,6 +441,15 @@ $(FILE_PUBLIC_LIBRARY): $(FILE_PUBLIC_OBJECTS)
 	mv "$$file_archive_dir/runtime.a" "$@"
 $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(NANOISA_DIR)/file_native_abi.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_PUBLIC_ENGINE -c $< -o $@
+# I keep cyclic dispatch source-private and outside every default/public selector.
+FILE_CYCLIC_DISPATCH_HEADERS = $(NANOISA_DIR)/file_cyclic_dispatch.inc $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.h
+FILE_CYCLIC_PRIVATE_PROVIDERS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY_STEMS))) $(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nsi_cap.o $(OBJ_DIR)/nsi_file.o $(OBJ_DIR)/nsi_file_values.o
+FILE_CYCLIC_VM_OBJECT = $(OBJ_DIR)/nanovm/file_vm_cyclic_private.o
+FILE_CYCLIC_NATIVE_OBJECT = $(OBJ_DIR)/nanoisa/nvm2c_file_cyclic_private.o
+$(FILE_CYCLIC_VM_OBJECT): $(SRC_DIR)/nanovm/file_vm_cyclic_private.c $(SRC_DIR)/nanovm/file_vm_cyclic_private.h $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanovm
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_CYCLIC_VM_PRIVATE -std=c11 -c $(SRC_DIR)/nanovm/file_vm_cyclic_private.c -o $@
+$(FILE_CYCLIC_NATIVE_OBJECT): $(NANOISA_DIR)/nvm2c_file_cyclic_private.c $(NANOISA_DIR)/nvm2c_file_cyclic_private.h $(NANOISA_DIR)/file_cyclic_native_emit.inc $(FILE_CYCLIC_DISPATCH_HEADERS) | $(OBJ_DIR)/nanoisa
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_CYCLIC_NATIVE_PRIVATE -std=c11 -c $(NANOISA_DIR)/nvm2c_file_cyclic_private.c -o $@
 # I rebuild both carrier owners for private cyclic implementation changes.
 $(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_cyclic_runtime.h $(NANOISA_DIR)/file_cyclic_runtime_facts.inc $(NANOISA_DIR)/file_cyclic_runtime.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_runtime_frames.inc $(SRC_DIR)/nsi_file_values_internal.h
 $(OBJ_DIR)/nsi_file_values.o: $(SRC_DIR)/nsi_file_values_internal.h
