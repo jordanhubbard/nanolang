@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "--target=wasm32-unknown-unknown",
+    "-O2",
+    "-Werror",
+    "-c",
+    "/private/tmp/nanolang-read-wasm-9856-puck/engines/products/O2-managed-observed-0.ll",
+    "-o",
+    "/private/tmp/nanolang-read-wasm-9856-puck/engines/products/O2-managed-observed-0.o"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

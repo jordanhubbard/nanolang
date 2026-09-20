@@ -1,0 +1,20 @@
+{
+  "instrumented-read_decode.o": {
+    "path": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/products/instrumented-read_decode.o",
+    "sha256": "1a49012f0d939cc1412513969a579334d173d9ac90d41ab8f0fb6b4ec0a1084e",
+    "bytes": 21432,
+    "archive": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/objects/1a49012f0d939cc1412513969a579334d173d9ac90d41ab8f0fb6b4ec0a1084e"
+  },
+  "instrumented-read_query.o": {
+    "path": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/products/instrumented-read_query.o",
+    "sha256": "22c7d97fec58230256a2babd0199e933a5a4e070b688bc29bd62be37d919b9e0",
+    "bytes": 34456,
+    "archive": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/objects/22c7d97fec58230256a2babd0199e933a5a4e070b688bc29bd62be37d919b9e0"
+  },
+  "instrumented-read_stack.o": {
+    "path": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/products/instrumented-read_stack.o",
+    "sha256": "05d237a071f4b64b8021b9d9c0b56763c17c97a6217ccc8c809a812420f7baf4",
+    "bytes": 115944,
+    "archive": "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/objects/05d237a071f4b64b8021b9d9c0b56763c17c97a6217ccc8c809a812420f7baf4"
+  }
+}

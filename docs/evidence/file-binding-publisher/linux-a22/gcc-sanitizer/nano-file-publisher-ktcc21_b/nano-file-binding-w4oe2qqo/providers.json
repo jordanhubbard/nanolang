@@ -1,0 +1,42 @@
+{
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/linked-nsi_file_binding.o": {
+    "sha256": "0a09f58c5d7d813b743f48f5717cc1acbede8359a47a712eec0361101f38e07a",
+    "bytes": 299000
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/linked-nsi_file_plan.o": {
+    "sha256": "9204af98baf73ebc610db83e553c095c556061db53cf28ed5cb21ddc24034f3b",
+    "bytes": 131880
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/linked-nsi.o": {
+    "sha256": "88d392ba9d5bf6362bd602e07ca9e1a5ec729bee523d3c872ab620c0070fdcb9",
+    "bytes": 550656
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/linked-cJSON.o": {
+    "sha256": "f7177e5caa2d8c781b6174cf40aabc7ebab4525362eefcbc634db4f33ba2f048",
+    "bytes": 639320
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/linked-utf8.o": {
+    "sha256": "798618134f9abdb6209136de10b831b1f419d85008478bc452b30a2fa2de9a6c",
+    "bytes": 49744
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/instrumented-nsi_file_binding.o": {
+    "sha256": "0177c7ad4c83639b62563e60ae808308963b3128b088820d1c30087d471904d6",
+    "bytes": 294856
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/instrumented-nsi_file_plan.o": {
+    "sha256": "3a0dee54810167934a358e1090818114c5a312327911c8749283b181c47238f9",
+    "bytes": 132040
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/instrumented-nsi.o": {
+    "sha256": "c9de3050e6d00894685957af832a2705633928e3f525f1a87d6b3ceb9d9de738",
+    "bytes": 546504
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/instrumented-cJSON.o": {
+    "sha256": "8d2d2d41ab404812f080d46593a5ddda52fdf914db230a37bea8540fd3d1b648",
+    "bytes": 639544
+  },
+  "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/nano-file-binding-w4oe2qqo/instrumented-utf8.o": {
+    "sha256": "bb3491a918e6ad4e83918730f1a286325299783852c30c55f64f0efdd2f2e5d0",
+    "bytes": 49840
+  }
+}

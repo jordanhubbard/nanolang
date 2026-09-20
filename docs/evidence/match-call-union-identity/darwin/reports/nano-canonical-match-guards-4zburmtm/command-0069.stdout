@@ -1,0 +1,10 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+int64_t probe(int64_t nl_x){{
+int64_t _m = nl_x; int _matched = 0; if (!_matched && (_m == 1)) { if (1) { _matched = 1;
+#line 1 "unchecked.nano"
+    return 7;
+} } { fprintf(stderr, "I reached no successful checked match arm\n"); abort(); } }
+}
+int main(int argc,char **argv){(void)argv;return (int)(probe(argc==1?1:2)-7);}

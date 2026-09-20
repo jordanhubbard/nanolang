@@ -1,0 +1,13 @@
+{"pin": "7913c7cd59aa36272027f609b08c93959b48d4c9", "source_files": 13985, "root": "/private/tmp/nanolang-file-cyclic-dispatch-7913", "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"}
+{"phase": "setup", "status": 0, "seconds": 9.698}
+{"phase": "configuration", "status": 0, "seconds": 0.12}
+{"phase": "discovery", "status": 0, "seconds": 0.07}
+{"phase": "ordinary", "status": 1, "seconds": 3.914}
+Traceback (most recent call last):
+  File "/tmp/nanolang-file-cyclic-dispatch-7913-puck-launch.py", line 17, in <module>
+    subprocess.run(['/opt/homebrew/bin/python3','/tmp/nanolang-file-cyclic-dispatch-7913-driver.py',str(root),'/tmp/nanolang-file-cyclic-dispatch-7913-puck'],check=True,env=env)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/opt/homebrew/bin/python3', '/tmp/nanolang-file-cyclic-dispatch-7913-driver.py', '/tmp/nanolang-file-cyclic-dispatch-7913', '/tmp/nanolang-file-cyclic-dispatch-7913-puck']' returned non-zero exit status 1.

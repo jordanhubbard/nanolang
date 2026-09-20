@@ -4310,7 +4310,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
-            if (match_expr_node->type == AST_FIELD_ACCESS) {
+            if (match_expr_node->type == AST_FIELD_ACCESS || match_expr_node->type == AST_CALL) {
                 TypeInfo *field_info = try_get_expr_type_info(match_expr_node, env);
                 if (field_info && field_info->generic_name && env_get_union(env, field_info->generic_name)) {
                     union_type_info = field_info;
@@ -5751,7 +5751,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             }
 
-            if (match_expr_node->type == AST_FIELD_ACCESS) {
+            if (match_expr_node->type == AST_FIELD_ACCESS || match_expr_node->type == AST_CALL) {
                 TypeInfo *field_info = try_get_expr_type_info(match_expr_node, tc->env);
                 if (field_info && field_info->generic_name && env_get_union(tc->env, field_info->generic_name)) {
                     union_type_info = field_info;

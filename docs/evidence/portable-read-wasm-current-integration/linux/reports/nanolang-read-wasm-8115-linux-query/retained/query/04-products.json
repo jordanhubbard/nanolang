@@ -1,0 +1,32 @@
+{
+  "instrumented": {
+    "path": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/products/instrumented",
+    "sha256": "0952719f238bb4cd6266b9f336b0e10b1137ae33f6d0a8afcabfb4c8f7185a01",
+    "bytes": 2900328,
+    "archive": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/objects/0952719f238bb4cd6266b9f336b0e10b1137ae33f6d0a8afcabfb4c8f7185a01"
+  },
+  "instrumented-read_decode.o": {
+    "path": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/products/instrumented-read_decode.o",
+    "sha256": "c73366baf3e76d021fb97f03217e9897a926331df1e8132048b14f09f2b91008",
+    "bytes": 39712,
+    "archive": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/objects/c73366baf3e76d021fb97f03217e9897a926331df1e8132048b14f09f2b91008"
+  },
+  "instrumented-read_query.o": {
+    "path": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/products/instrumented-read_query.o",
+    "sha256": "411573daf41f92a807e8df675b4f8bdbfd1f37445e370972a3d2722ce28fc4f9",
+    "bytes": 63896,
+    "archive": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/objects/411573daf41f92a807e8df675b4f8bdbfd1f37445e370972a3d2722ce28fc4f9"
+  },
+  "instrumented-read_stack.o": {
+    "path": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/products/instrumented-read_stack.o",
+    "sha256": "59b3b565fd96a93b6193f05ae5265d6bbf14098a402a897adc0b7ca9965e3d81",
+    "bytes": 209752,
+    "archive": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/objects/59b3b565fd96a93b6193f05ae5265d6bbf14098a402a897adc0b7ca9965e3d81"
+  },
+  "instrumented-read_types.o": {
+    "path": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/products/instrumented-read_types.o",
+    "sha256": "07aa558bc06e166ff358d4866a331da41749e379d4335638b1bc24ce743857fb",
+    "bytes": 46216,
+    "archive": "/tmp/nanolang-read-wasm-8115-linux-query/retained/query/objects/07aa558bc06e166ff358d4866a331da41749e379d4335638b1bc24ce743857fb"
+  }
+}

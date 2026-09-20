@@ -12703,7 +12703,7 @@ backedges and return in both arena modes. I retain all prior fault predicates
 and distinguish retained creation bytes from an unmeasured preparation peak.
 This bounded fixture addition remains unexecuted pending review.
 
-- [ ] I repair carrier fixture post-refusal root inspection (`1a19c4ff`, parent
+- [x] I repair carrier fixture post-refusal root inspection (`1a19c4ff`, parent
   `15a92`). Frozen `c5d048` Linux setup/configuration passed; its first ordinary
   gate compiled, passed the retained 84,506 carrier and 42,381 frame checks, then
   failed the inherited `frame_local` helper. I preserve the complete terminal
@@ -12714,7 +12714,7 @@ This bounded fixture addition remains unexecuted pending review.
   markers improve later attribution. Production and status predicates remain
   unchanged; root reviews the bounded diff before fresh corrected gates.
 
-- [ ] I retain the historical Git input for my Darwin public neighbor (`task_c4c58d627e7c4611973070666387d06d`, parent15a92). At ac877 my corrected carrier matrix and private neighbors passed; public CLI/instrumented methods passed before the linked method's fixed `git show` failed in an archive without `.git`. Root approved only that uncompleted method with verified read-only historical repository, fixed commit/blob, fresh artifacts and source/tool/provider endpoints. Original terminal and passing scopes remain distinct; no fixture or production changes.
+- [x] I retain the historical Git input for my Darwin public neighbor (`task_c4c58d627e7c4611973070666387d06d`, parent15a92). At ac877 my corrected carrier matrix and private neighbors passed; public CLI/instrumented methods passed before the linked method's fixed `git show` failed in an archive without `.git`. Root approved only that uncompleted method with verified read-only historical repository, fixed commit/blob, fresh artifacts and source/tool/provider endpoints. Original terminal and passing scopes remain distinct; no fixture or production changes.
 
 I qualify the bounded15a92 carrier protocol at ac877 with exact d407 production:
 Linux GCC/Clang and Darwin Apple/Homebrew ordinary plus supported scoped
@@ -12828,6 +12828,271 @@ exact. This static integration adds no gate rerun or broader acceptance claim.
 The final audit/identity records are in `evidence/file-cyclic-carrier-final`;
 actual merge and bounded repair reconciliation remain pending, full15a92 open.
 
+## I stage exclusive File binding publication after strict rendering
+
+I continue existing task8bbc and its original File/source parents; I create no
+duplicate decoder or competing source task. PR905 seal/integration remains under
+independent review. My next [publisher contract](NANOISA_FILE_BINDING_PUBLISHER.md)
+is design only, based on92726 with no publication code or execution.
+
+- [ ] I review the anchored publisher/explicit CLI API, fixed storage and exact status/commit/durability/cleanup semantics before production, including unidentified partial creation and no close retry.
+- [ ] I implement only reviewed publisher/CLI providers and explicit Make target, reusing the immutable strict plan; then review complete production and fixtures before filesystem qualification.
+- [ ] I qualify real Linux/puck exclusive directory publication, every attempted operation/fault/cleanup state, concurrent winners, unchanged sentinels and postcommit reports; retain first terminals and immutable source/tool/artifact evidence.
+- [ ] I continue paired parser/schema/lowering, generated module imports and all selected shadows/installed grants/startup and broader control-flow acceptance; successful file publication never substitutes for source execution.
+
+I retain PR905 actual merge `af8809b32850454d06d9c1881c3a27b43f4c9d9c`;
+remote main ancestry includes reviewed92726. Root independently verified905 Git
+reports,923 artifact objects,6,100 references,22 equal pairs and all three current
+13,523-source/12-tool maps ([review5748322420](https://github.com/jordanhubbard/nanolang/pull/905#issuecomment-5748322420)).
+Only strict ingestion/pure forward text is delivered. Task8bbc and full source/
+publication parents remain open; publisher183db is still a precode review.
+
+I prepare the approved183db publisher source checkpoint after actual905. My
+standalone owning transaction uses descriptor-relative creation, explicit
+exclusive rename and exact unknown-identity retention; CLI reads one bounded
+regular-file buffer and emits JSON byte-codepoint diagnostics. Strict binding
+providers and default/installed lists remain unchanged. The contract now records
+all owning descriptors/buffers and cleanup transitions. Source review precedes
+new fixtures and no publisher/CLI operation has been executed.
+
+- [ ] I correct the static8b495 publisher Make contract mismatch before fixtures: its link recipe forwards CPPFLAGS, but reused generic object compilation does not. I give this explicit tool a scoped object directory and compile recipe preserving CC/CPPFLAGS/CFLAGS, without changing default provider rules or reusing differently configured objects.
+- [ ] I reconcile the publisher EINTR wording before fixtures: current comparisons permit64 retries and make the65th interruption terminal; the contract incorrectly says64 total interruptions. I retain that bounded implementation and pin64-retry/65th-failure controls for read/write/fsync, with close never retried. No execution failure is inferred from this static finding.
+
+- [ ] I complete the statically reviewed publisher Make dependency closure: `nsi_file_plan.c` also includes `nsi_file_catalog.h` and `nsi_cap.h`, which6e39 omitted from the scoped header list. I add both before fixtures; no measured stale build or runtime failure is claimed.
+
+I prepare the publisher fixture checkpoint after reviewed74eb dependency closure:
+linked and full real-operation instrumented API/CLI controls, every baseline
+operation failure, secondary cleanup and postcommit status, exact retry/collision
+bounds, real no-replacement sentinels/concurrent processes and unchanged strict
+neighbors. Actual scoped Make compiles must prove CPPFLAGS forwarding. No build,
+publication operation or generated source has run; full fixture review is next.
+
+- [ ] I correct the measured a22 puck actual-Make first terminal before fresh gates: `getentropy` lacks its Darwin declaration. The selected Xcode SDK declares it in `sys/random.h:38`, not unistd.h/stdlib.h. I add the Apple-specific header to publisher and fixture prelude; no entropy/retry behavior changes. I preserve original Linux passes and the failed puck source/tool/compiler evidence.
+
+- [ ] I reconcile the measured5fff puck raw-filename fixture assumption before fresh gates: actual Make succeeds and CLI reaches rename, which reports IO/EILSEQ(92) for invalid UTF-8 bytes, published=false with clean rollback and exact JSON byte escaping. The fixture incorrectly requires universal successful publication for every non-NUL byte sequence. I retain that first terminal; propose an independent same-filesystem name-support probe and separate universally valid quoted-name positive, with exact raw-byte success/refusal and cleanup assertions. No publisher behavior change or filesystem support claim follows without review.
+
+I retain [the explicit publisher qualification](evidence/file-binding-publisher.md):
+seven Linux/puck ordinary/sanitizer configurations pass real Make/API/CLI/fault/
+concurrency controls and unchanged strict neighbors. Both puck first terminals
+remain immutable; Apple-header and exact-filesystem-probe corrections have their
+own reviewed pins. My1,944-report seal records24 equal input pairs and1,298
+artifact objects. Independent review/merge remain pending; generated source,
+installed compiler routing and the full File/source parents remain open.
+I record actual PR902 merge `9c90a55e1a08c79878b5219ca34b0c14a883401f`
+after independent original/supplemental seals and additive901 integration review.
+The earlier pending-merge statements are historical. Repairs1a19/c4c58 are
+reconciled COMPLETED through actual merge evidence; dependency2 is measured
+private carrier acceptance only. Task15a92 remains OPEN. Optional queued hosted
+checks are not claimed passed.
+
+- [ ] I review and implement my [private cyclic VM/native dispatch plan](NANOISA_FILE_CYCLIC_DISPATCH_PLAN.md) under15a92: exact all-variant coverage, original identities, one carrier fuel budget, real generated functions/labels and explicit semantic ABI/fact agreement.
+- [ ] I review the complete shared-wire fixtures, then qualify Linux/puck VM/native O0/O2, fuel/host/fault/cleanup and unchanged acyclic/public-refusal neighbors with retained first terminals and source/tool/provider seals.
+- [ ] I review a separate matched public conjunction after private dispatch qualification; closed-indirect, richer-borrow and paired source/shadows remain required, with no old acyclic plan reinterpretation.
+
+I prepare the first reviewed-design27b972 private cyclic dispatch source: distinct
+macro-gated VM/native units, shared all-variant coverage, exact generated semantic
+agreement, separate ABI guard and one carrier fuel budget. Existing acyclic and
+public engines stay unchanged. I submit source before fixtures/build/execution;
+15a92 remains OPEN and no cyclic public admission is claimed.
+
+After full4a12 source approval, I prepare the shared-wire private cyclic dispatch
+fixture and bounded runner. VM capture versus native O0/O2 compares complete
+reports and ordered host events; exact shared fuel, live-reference backedges,
+258 reuse, staging faults, pre-sweep core draining, allocation/output controls
+and isolated ABI/non-first-variant/reference/edge/dead-label refusals are explicit.
+Old private/public/archive neighbors remain separate required gates. No fixture
+has been compiled or executed; I submit the complete checkpoint for review.
+
+- [ ] I repair my unexecuted f55c cyclic dispatch fixture's imported-TestCase
+  discovery and emitter recovery coverage under15a92. Root static review found
+  module-scope `FileCyclic` exposes unrelated tests/setup to unittest discovery.
+  I import the module and reference its command helper through that module.
+  The emitter sweep's eventual successful prefix is not independent recovery
+  after every refusal; I add a fresh fault-disabled emission, publication/no-host
+  assertions, free and exact baseline checks after each prefix. No production
+  defect or runtime failure is asserted; correction review precedes gates.
+
+I track the static fixture repair as `task_78437ef067bf434fb24bbef3d692280a`.
+Precode record5f2b84 preserves the original unexecuted f55c checkpoint. The
+correction uses a module import and performs fresh successful emission after
+every allocation prefix with faults disabled, unchanged host/failure counters
+and restored tracked allocation baselines. No fixture has run; root reviews
+the bounded delta before matrix approval.
+
+I retain the first frozen9284 terminals under fixture repair78437: Linux setup
+22.571s and puck setup9.257s passed; configuration and exact two-test discovery
+passed on both. Their first ordinary capture builds failed (3.321s/2.265s) when
+inherited `test_file_body.c` redefined/undefined the new fixture's broad `main`
+macro. The retained cyclic fixture therefore still defined `main`, conflicting
+with capture. Both exact compiler diagnostics and artifacts are preserved in
+`/tmp/nanolang-file-cyclic-dispatch-9284-{linux,puck}` and their recorded fixture
+directories. No cyclic dispatch executable or generated module ran. Before
+correction I specify a dedicated `FILE_CYCLIC_RUNTIME_MAIN` default-main guard
+for that retained fixture; the new fixture selects it without changing old
+entry behavior or assertions. Root reviews the exact delta before fresh gates.
+
+I retain a separate corrected-pin launcher terminal: source preparation yielded
+before the first Linux driver invocation, which exited2 because the driver was
+not yet created. No driver/setup/test ran in that invocation. The record is
+`/tmp/nanolang-file-cyclic-dispatch-7913-launch-first.json`. I awaited successful
+preparation and exact source/archive identity before the corrected launch; puck
+also waits for successful transfer before its verified launcher. This is a
+launcher sequencing failure, not a product result. Frozen7913 remains unchanged.
+
+I retain frozen7913 first runtime terminals: Linux setup21.972s and puck
+setup9.698s/configuration/two-test discovery passed. Their first ordinary phases
+failed4.675s/3.914s on case0 before acquisition/fuel: expectedOK, actualINVALID.
+The fixture constructed `PUSH_I64 17; RET; NOP`; existing all-instruction CFG
+validation correctly refuses the final NOP fallthrough outside the body, even
+when unreachable. Both raw logs, binaries and maps remain under7913 reports.
+Before correction I specify an unreachable RET after that NOP, retaining the
+zero-variant instruction2 native forced-entry refusal and unchanged2-instruction
+positive path. The unsupported-op control will replace that penultimate NOP
+with PRINT while preserving final RET. No production/query rule changes; root
+reviews this fixture-only delta before fresh gates. Repair78437 remains open.
+
+I retain frozen100c Linux ordinary first terminal11.592s after successful fresh
+setup22.369s/configuration/two-test discovery. Its full VM capture passed23 exact
+modules and the emitter sweep passed334 allocation refusals, retaining generated
+C and O0 objects. Replay registry compilation then failed GCC's unchanged
+`-Werror=misleading-indentation`: fixture text placed `if (...) abort(); return r;`
+on one line. Native replay had not run. Before correction I specify only a
+newline between those fixture-generated statements; no assertion or production
+change. Puck's independently running100c gate remains separately attributed.
+I keep repair78437 open and request exact correction review before fresh runs.
+
+I completed the frozen private matched cyclic dispatch matrix at production
+4a12: Linux fixture6a65 has15 passing phases; Darwin fixture100c has14. All seven
+new ordinary/sanitizer configurations and old carrier/core/query/hosted/private
+VM/native/public/archive neighbors passed. The fixture revisions differ only in
+registry formatting;22 emitted instrumented programs are byte-identical.
+I seal537 reports,9917 unique artifacts,36997 references and49 source/tool pairs
+in `docs/evidence/file-cyclic-dispatch`, retaining every earlier compile/runtime
+fixture terminal and the launcher sequencing failure. Instrumentation remains
+scoped; public/source/indirect/richer-borrow admission is not granted. Parent15a92
+and repair78437 remain open pending independent review/integration/actual merge.
+My next ready tree integrates canonical904 query factoring and905 binding code,
+then rebuilds fresh affected providers and runs ordinary matched dispatch,
+cyclic/hosted/indirect queries and public/archive controls on both hosts. Original
+sanitizer evidence keeps its frozen source attribution; no bootstrap is implied.
+
+I prepare cyclic dispatch ready integration from sealed31f42 onto canonical
+af8809b32 (904 indirect ownership query and905 strict binding bytes). Only the
+Makefile tail conflicted: I retain both opt-in cyclic targets and the independent
+binding targets/query prerequisites. All eight qualified production source
+blobs and six fixture files remain exact. Incoming shared file_flow/file_cyclic
+changes add the reviewed explicit private indirect mode; my cyclic entry still
+passes NULL. I freeze this ready source before fresh -j2 provider setup and nine
+ordinary phases on Linux/puck: setup, configuration, exact two-test discovery,
+matched dispatch, cyclic query, cyclic hosted, indirect ownership, public, and
+actual linked-archive boundary. No bootstrap or repeated sanitizer claim follows.
+The external integration driver is adapted from the sealed bounded runner with
+only phase selection, ordinary selectors and the indirect query invocation.
+
+Independent review of original31f42 found a Linux runner provenance gap: commands
+invoke `/usr/bin/python3` through `sys.executable`, but tools() inventories only
+PATH-resolved `python3` (Homebrew). I retain the actual argv and all test results,
+compiler/provider/source hashes and original sealed maps; I have no historical
+hash for the actual Linux interpreter. This also applies to the completed3ea2
+Linux supplement. Darwin's actual interpreter matches its recorded tool. I do
+not infer a product defect or retroactively certify interpreter immutability.
+Before changing the external driver I specify an additional `sys.executable`
+identity entry for future runs. Repair78437 tracks this measured limitation;
+root decides bounded prospective supplementation before any gate repetition.
+
+Root reviewed this attribution gap and requires no gate replay solely for it.
+Compiled C results and measured source/compiler/provider identities remain
+valid. I capture the actual interpreter's current hash as current-only evidence
+and correct future driver inventory; neither recovers a missing historical
+measurement nor supports whole-toolchain immutability.
+
+My frozen3ea2 canonical integration passed all nine ordinary phases on Linux and
+puck. I seal the supplement under `docs/evidence/file-cyclic-dispatch-integration`
+and preserve the original31f42 sanitizer scope. Independent native review
+verified537 original Git reports/9917 artifacts/49 pairs/all seven current roots
+and exact native/VM trace controls; its only finding is the explicitly retained
+Linux interpreter historical-hash omission above. No runtime/source public
+activation follows this private checkpoint. Parent15a92 stays open; repair78437
+requires actual merge reconciliation.
+## My real Wasm read-text host checkpoint (b7ef under2d2)
+
+I record actual native PR903 merge `0a488a1040412746566290bd93110ff76e8720dd`.
+Its private native acceptance does not close b7ef/2d2 or admit a host import.
+I continue from that canonical pin under [my concrete Wasm design](NANOISA_PORTABLE_READ_TEXT_WASM.md).
+
+- [x] I review the exact per-instance static workspace amendment, wasm32 import,
+  bounded module/memory envelope and real Node/Wasmtime43 APIs before source.
+- [x] I implement and review only private guest/embedding sources, preserving
+  qualified native/runtime bytes and unchanged public selectors/providers.
+- [x] I review fixtures then qualify actual O0/O2 guests on both real hosts and
+  engines, including copied roots/returns, memory growth/limits, pre-effect span
+  refusal, real file semantics and separately attributed allocation/error cleanup.
+- [ ] I seal exact tools/packages/IR/guests and retained first terminals, integrate
+  through review, then continue full typed/lifetime authority, emitted/source and
+  installed host linkage under the existing open b7ef/2d2 roadmap obligations.
+
+I prepare the first private Wasm source checkpoint: exact1052684-byte guest
+workspace and independent Node/Wasmtime libraries with checked numeric type
+limits, current-memory spans and explicit close/trap state. I retain source
+review before fixtures/builds; no public provider or selector changed.
+
+I prepare the complete private Wasm fixture checkpoint after source9f99 review:
+four O0/O2 normal/observed guests per host, actual Node/Wasmtime43 execution,
+exact real byte vectors, copied roots/results, memory limits and independent
+trusted-hook publication/error/latch controls. I retain explicit engine compile
+errors, private wheel/member identity, bounded command supervision and product
+archives. Fixture/source review still precedes every build and host operation;
+public emission and b7ef/2d2 remain open.
+
+- [x] I correct the Wasm fixture executable-spelling defect discovered in the
+  first4ee gates: resolving wasm-ld to generic lld changes its invocation mode.
+  I preserve both pre-build terminals, retain selected absolute argv spelling,
+  still archive resolved tool bytes, and review the fixture correction before
+  fresh qualification. No guest or production behavior was exercised.
+
+- [x] I retain puck's first9856 neighbor preflight failure: non-login SSH PATH
+  omits installed Homebrew pkg-config. I select its exact absolute path and
+  explicitly prepend Homebrew bin for Make's python3/pkg-config discovery,
+  record that environment, and review fresh neighbor-only continuation. The
+  already passed actual-engine matrix and Linux neighbors keep their own pins.
+
+I seal [my private real-engine evidence](evidence/portable-read-wasm.md): corrected
+9856 runs all eight Node/Wasmtime routes on each host, plus separately scoped
+native/query neighbors. I retain both4ee linker-discovery failures and puck's
+neighbor PATH preflight before corrections. My endpoint maps and current-input
+checks do not claim intermediate or transitive toolchain immutability. Independent
+seal/integration review and publication remain; b7ef/2d2 stay open, including real
+emitted/installed host linkage and applicable full compiler/bootstrap gates.
+
+I integrate the private Wasm seal with canonical904/905 in a separate811527aa6
+tree. All15 selected non-Make inputs remain byte-identical; Make preserves both
+additive target sets. Fresh ordinary declaration-query/provider closure passes
+5994/267 checks on each host. [My supplemental seal](evidence/portable-read-wasm-current-integration.md)
+keeps these checks separate from the original actual-engine/native/core matrix;
+full b7ef/2d2 admission/emission/installed/compiler obligations remain open.
+### Generic union call match identity (2026-09-20)
+
+- [x] I repair the shared C checker call-scrutinee metadata loss observed in PR 906/907/908 arm64 CI without weakening exact union identity or coverage (`task_a1d38d93616f4c48a3b8692b30226a82`; [contract](MATCH_CALL_UNION_IDENTITY.md)). I retain the three first terminals, review source/fixtures before execution, and qualify direct Result/Option statement/value matches plus unchanged user-guide and match-policy controls on fresh providers.
+
+- [x] I correct the generic-call CI gate runner's `make build`/`make bootstrap` prerequisite mismatch, retaining the six-method first terminal and separately qualifying actual Stage 1/2 guard paths on frozen `8538faadf` source (`task_a1d38d93616f4c48a3b8692b30226a82`).
+
+- [x] I correct the general VM underflow fixture's stale expectation for bare `FILE_DROP_STACK`, retain both first full-test terminals, assert service-first refusal with untouched caller/frame state, and preserve ordinary handler underflow checks (`task_c2807d311e5d46938d5193b394bb6840`; [contract](MATCH_CALL_UNION_IDENTITY.md)).
+
+- [x] I correct the full-test driver’s separate `NANO_NATIVE_TEST_CC` selection on Darwin, retain the eight-method unsupported Apple leak-sanitizer terminal, and qualify the unchanged transport/full-test path with explicit supported Homebrew Clang and leak detection intact (`task_a1d38d93616f4c48a3b8692b30226a82`).
+
+- [x] I preserve the907 restack puck pre-build terminal: SSH-selected Python rejects tarfile.extractall(filter=data) before source extraction or compilation. I explicitly select installed Homebrew Python in a fresh destination and inventory the actual driver; no runtime/fixture assertion or historical tool claim changes.
+
+I retain the907 canonical restack at3df299892 after actual906/ca0c9f6a8: fresh providers and ordinary linked cyclic VM/native O0/O2 pass on Linux/puck, all33 traces match at each optimization over23 exact modules. My [supplement](evidence/file-cyclic-dispatch-restack-910/README.md) preserves the pre-build Python terminal,93 reports,834 artifacts and8 equal pairs; original sanitizer matrices retain their pins. Root review/actual merge remain pending, full parents open.
+
+I retain PR908 publisher acceptance across actual PR907 main
+`6dd5d7a2bde2234dfeb3c21633f5426c7a83bae2`, including PR906/910.
+[My static closure comparison](evidence/file-binding-publisher-restack-910.md)
+checks44 selected inputs and all1,946 original evidence blobs unchanged; incoming
+25 source/fixture paths match canonical main. The isolated seven-provider Make
+closure excludes the changed typechecker and cyclic/Wasm providers, so I do not
+repeat unchanged gates. Both additive histories remain. Actual publisher merge
+and all broader source/publication parent acceptance remain pending.
+
 ### Full-suite passive-flow and emitter-shadow attribution (2026-09-20)
 
 - [x] I resolve `task_4c107eb5835743dd9e8c0683eadd78ea`: my unchanged passive-flow source is rejected during shadow bytecode verification in the retained Linux c140 full-suite run. I first compare fresh canonical af8809 and repaired compiler builds, retain exact artifacts, and review any branch-validation repair before execution. My [internal CFG contract](NANOISA_PASSIVE_INTERNAL_CFG.md) requires bounded forward edges, exact stack joins, a shared terminal result store and unchanged dependency/input authority.
@@ -12838,3 +13103,5 @@ I keep these independent of PR910's generic-call identity and VM fixture repair.
 - [x] I restore strict AppleClang compilation when CAST_FLOAT emits an otherwise unused binary64 parser wrapper (`task_1520319827d64ec9abee585fb1dfb08f`). The first passive35957 Darwin gate retains273 C checks and25/26 Python passes; arctan's generated C fails unused-function under unchanged warning flags. I add the same standard-C function reference already used for optional numeric helpers, with exactly the existing parser-emission predicate. I preserve parser behavior and strict warnings, then qualify original arctan and actual string parsing on both hosts.
 
 I retain paired passive control-flow and optional-parser-helper qualification at1f0db in [my evidence](evidence/passive-internal-cfg.md):26 passive methods,273 C checks, paired flow/par, unchanged flow VM/native output and scoped sanitizers pass on both hosts. Canonical integration and actual merge remain pending; the full release remains held.
+
+I reconcile bounded PR910 match and VM-fixture repairs at actual6b86de83d, private Wasm906 atca0c9f6a8, private cyclic907 at6dd5d7a2b and publisher908 at0061feed5. Their broader source/runtime parents and emitter deadline/Darwin executable-timeout blockers stay open. I integrate the passive repair with0061feed5 next, rebuilding the changed common checker/provider closure on both hosts before publication.

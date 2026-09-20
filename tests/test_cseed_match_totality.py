@@ -109,6 +109,100 @@ shadow main { assert true }
         )
         self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
 
+    def test_generic_union_calls_keep_exact_payloads_and_run_once(self):
+        source = """union Result<T, E> { Ok { value: T }, Err { error: E } }
+union Option<T> { Some { value: T }, None {} }
+let mut calls: int = 0
+fn text_result(ok: bool) -> Result<string, string> {
+ set calls (+ calls 1)
+ if ok { return Result.Ok { value: "kept" } }
+ return Result.Err { error: "error" }
+}
+shadow text_result {
+ let value: Result<string, string> = (text_result true)
+ match value { Ok(item) => { assert (== item.value "kept") } Err(item) => { assert false } }
+}
+fn int_result(ok: bool) -> Result<int, string> {
+ set calls (+ calls 1)
+ if ok { return Result.Ok { value: 31 } }
+ return Result.Err { error: "error" }
+}
+shadow int_result {
+ let value: Result<int, string> = (int_result true)
+ match value { Ok(item) => { assert (== item.value 31) } Err(item) => { assert false } }
+}
+fn bool_option(present: bool) -> Option<bool> {
+ set calls (+ calls 1)
+ if present { return Option.Some { value: true } }
+ return Option.None {}
+}
+shadow bool_option {
+ let value: Option<bool> = (bool_option true)
+ match value { Some(item) => { assert item.value } None(item) => { assert false } }
+}
+fn probe() -> int {
+ set calls 0
+ let mut text: string = ""
+ match (text_result true) {
+  Ok(item) if false => { assert false }
+  Ok(item) => { set text item.value }
+  Err(item) => { set text item.error }
+ }
+ assert (== text "kept") assert (== calls 1)
+ let error: string = match (text_result false) {
+  Ok(item) => item.value Err(item) => item.error
+ }
+ assert (== error "error") assert (== calls 2)
+ let number: int = match (int_result true) {
+  Ok(item) => (+ item.value 1) Err(item) => 0
+ }
+ assert (== number 32) assert (== calls 3)
+ match (int_result false) {
+  Ok(item) => { assert false }
+  Err(item) => { assert (== item.error "error") }
+ }
+ assert (== calls 4)
+ let selected: bool = match (bool_option true) {
+  Some(item) => item.value None(item) => false
+ }
+ assert selected assert (== calls 5)
+ match (bool_option false) {
+  Some(item) => { assert false }
+  None(item) => { assert true }
+ }
+ assert (== calls 6)
+ return 0
+}
+shadow probe { assert (== (probe) 0) }
+fn main() -> int { return (probe) }
+shadow main { assert (== (main) 0) }
+"""
+        result, output = self.compile(source)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        executed = subprocess.run([str(output)], capture_output=True, text=True, timeout=10)
+        self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
+
+    def test_generic_union_call_refusals_preserve_output(self):
+        prefix = """union Option<T> { Some { value: T }, None {} }
+fn source() -> Option<string> { return Option.Some { value: "kept" } }
+shadow source { assert true }
+"""
+        cases = (
+            ('let value: string = match (source) { Some(item) => item.value }', r'(?is)E035.*missing: None'),
+            ('match (source) { Some(item) => { assert true } }', r'(?is)E035.*missing: None'),
+            ('let value: int = match (source) { Some(item) => item.value None(item) => "" }', r'(?is)(type mismatch|expected.*int|E001)'),
+            ('match (source) { Some(item) => { let value: int = item.value } None(item) => { assert true } }', r'(?is)(type mismatch|expected.*int|E001)'),
+        )
+        for body, diagnostic in cases:
+            with self.subTest(body=body):
+                prior = b"prior artifact"
+                result, output = self.compile(prefix + 'fn main() -> int { ' + body + ' return 0 }\nshadow main { assert true }\n', prior)
+                combined = result.stdout + result.stderr
+                self.assertNotEqual(result.returncode, 0, combined)
+                self.assertRegex(combined, diagnostic)
+                self.assertNotRegex(combined, r'(?i)(parse error|parsing failed|unexpected token|error: incompatible)')
+                self.assertEqual(output.read_bytes(), prior)
+
     def test_incomplete_union_value_and_statement_are_refused(self):
         cases = (
             " let selected: int = match choice { Some(payload) => payload.number }",

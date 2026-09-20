@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/node",
+    "/private/tmp/nanolang-portable-read-wasm-9856/tests/nanoisa/portable_read_wasm_node.mjs",
+    "/private/tmp/nanolang-portable-read-wasm-9856/src/runtime/portable_read_node.mjs",
+    "/private/tmp/nanolang-read-wasm-9856-puck/engines/products/O0-managed-observed.wasm",
+    "/private/tmp/nanolang-read-wasm-9856-puck/engines/products/vectors.json"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

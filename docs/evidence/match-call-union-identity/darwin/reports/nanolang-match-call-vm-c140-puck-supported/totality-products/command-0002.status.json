@@ -1,0 +1,24 @@
+{
+  "args": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c11",
+    "-D_POSIX_C_SOURCE=200809L",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "-I/private/tmp/nanolang-match-call-vm-c140/src",
+    "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/harness.c",
+    "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/exporter.o",
+    "-Wl,-dead_strip",
+    "-o",
+    "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/harness"
+  ],
+  "returncode": 0,
+  "seconds": 0.26481591700576246,
+  "timeout": 60
+}

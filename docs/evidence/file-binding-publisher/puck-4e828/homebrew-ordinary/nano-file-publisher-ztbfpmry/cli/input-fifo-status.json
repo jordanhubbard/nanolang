@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/make-bin/nsi-file-binding",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/cli/input-fifo",
+    "--file-binding-dir",
+    "/private/tmp/nanolang-file-publisher-4e828-puck/homebrew-ordinary/nano-file-publisher-ztbfpmry/cli/refused-fifo"
+  ],
+  "pid": 23618,
+  "returncode": 1,
+  "timeout": false
+}

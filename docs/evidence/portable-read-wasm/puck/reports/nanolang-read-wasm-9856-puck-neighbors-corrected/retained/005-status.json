@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/products/module"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

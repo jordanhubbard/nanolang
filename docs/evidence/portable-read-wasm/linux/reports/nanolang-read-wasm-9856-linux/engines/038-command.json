@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/usr/local/bin/wasm-ld",
+    "--no-entry",
+    "--export-memory",
+    "--initial-memory=2097152",
+    "--max-memory=67108864",
+    "-z",
+    "stack-size=65536",
+    "--allow-undefined-file=/tmp/nanolang-read-wasm-9856-linux/engines/products/allowed-imports.txt",
+    "/tmp/nanolang-read-wasm-9856-linux/engines/products/O2-managed-observed-0.o",
+    "/tmp/nanolang-read-wasm-9856-linux/engines/products/O2-managed-observed-1.o",
+    "/tmp/nanolang-read-wasm-9856-linux/engines/products/O2-managed-observed-2.o",
+    "-o",
+    "/tmp/nanolang-read-wasm-9856-linux/engines/products/O2-managed-observed.wasm"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

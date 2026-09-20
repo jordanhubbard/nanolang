@@ -1,0 +1,4 @@
+Warning at line 5, column 41: Unused variable 'ignored'
+Warning at line 7, column 24: Unused variable 'ignored'
+Warning at line 29: contract condition is always false
+Warning at line 29: contract condition is always false

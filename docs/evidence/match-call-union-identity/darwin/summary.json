@@ -1,0 +1,14 @@
+{
+  "roots": [
+    "/private/tmp/nanolang-match-call-8538-puck",
+    "/private/tmp/nanolang-match-call-8538-puck-continuation",
+    "/private/tmp/nanolang-match-call-vm-c140-puck",
+    "/private/tmp/nanolang-match-call-vm-c140-puck-supported",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-vh40cbbq",
+    "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-canonical-match-guards-4zburmtm"
+  ],
+  "reports": 1181,
+  "artifacts": 4814,
+  "artifact_bytes": 871041943,
+  "references": 17661
+}

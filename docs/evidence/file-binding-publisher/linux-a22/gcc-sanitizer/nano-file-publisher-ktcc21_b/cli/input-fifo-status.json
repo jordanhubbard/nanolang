@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/make-bin/nsi-file-binding",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/cli/input-fifo",
+    "--file-binding-dir",
+    "/tmp/nanolang-file-publisher-a22-linux/gcc-sanitizer/nano-file-publisher-ktcc21_b/cli/refused-fifo"
+  ],
+  "pid": 459078,
+  "returncode": 1,
+  "timeout": false
+}

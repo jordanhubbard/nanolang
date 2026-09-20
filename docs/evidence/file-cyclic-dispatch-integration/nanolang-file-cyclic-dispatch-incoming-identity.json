@@ -1,0 +1,33 @@
+{
+  "ready": "3ea2dfa983fe67fb97e625781e90e2d42e8c547f",
+  "main": "af8809b32",
+  "incoming_source_test_blobs_exact": {
+    "src/nanoisa/file_cyclic.inc": "997cd0e82fbabb5a4a470f1e37340f5889ecdc89",
+    "src/nanoisa/file_flow.c": "f35c3650c7f34459e58f36cfb1c78e1783bda4ea",
+    "src/nanoisa/file_indirect_flow.h": "3295dc73f1fdaf18c97db3e8f240f501928d511e",
+    "src/nanoisa/file_indirect_flow.inc": "e8b399dd1e015b9cfc68897671276ef5c7d0172d",
+    "src/nanoisa/portable_read_host.c": "4fbf4090e8838f29f7e35a9d8300a95c12b6a8e3",
+    "src/nanoisa/portable_read_host.h": "9dea96592f61526a6e029f12203ee19e33528a59",
+    "src/nanoisa/portable_read_managed.c": "41b82073082bdfb339a32195784f7146d4823a04",
+    "src/nanoisa/portable_read_managed.h": "0c4cf53fbccbd01cdab1f9c31e04418a24e1c742",
+    "src/nsi.c": "d28dd8958daa39c34281c701d98b8d72c318b0f8",
+    "src/nsi_file_binding.c": "ae15266cdc0120f164e8a6e851998670f7143ed9",
+    "src/nsi_file_binding.h": "b83700c8e1d1bcef6ee389f8d36a2578000ffc0e",
+    "src/nsi_file_plan.c": "1513a25cd7de7a9429317da540251fca60025f55",
+    "src/nsi_file_plan.h": "8dfa71eed13f51b1473fdd44d91d101334f60251",
+    "src/nsi_internal.h": "afa2de307fc37e7193e90304195a404fc247c764",
+    "tests/file_binding_corpus.py": "7e5f8eb31448e67652ebdb5379319a273954521d",
+    "tests/file_binding_hooks.h": "5d3c2ea1cd4e7af825616d412d2bd6c4d6353bd0",
+    "tests/fixtures/nsi_file_binding_expected.nano.txt": "6095987d9bb3dc09c479fa4ef551e404b9660110",
+    "tests/nanoisa/portable_read_hooks.h": "6026c4108b83d40f3ae700aec40a57840a492510",
+    "tests/nanoisa/portable_read_link.ll": "acf5c449059a50aaff47133db7b008c95b7adb9e",
+    "tests/nanoisa/test_file_cyclic.c": "60b8b79dd8c43c4168163d22feae111d40de9672",
+    "tests/nanoisa/test_file_indirect_flow.c": "cf4f32375aa28c0aef170ead3be658029ee05da4",
+    "tests/nanoisa/test_file_indirect_targets.c": "a8ab600f10dadf208c2e08edadfe071da27c47ef",
+    "tests/nanoisa/test_portable_read_adapters.c": "a8548297da7909c93fac42d6555677cc898e7894",
+    "tests/test_file_indirect_flow.py": "4b9e237501add0a766bf4b07ada176f3cc90e10e",
+    "tests/test_nsi_file_binding.c": "43487b58cc8d2cb826af3d1f90ac229c6f2fec0b",
+    "tests/test_nsi_file_binding.py": "1700ee2e3df92568c25a6c421a00ca6ccde4388a",
+    "tests/test_portable_read_adapters.py": "ce6c0c0e92298bdc9f5ba60ccf56e278f430ef48"
+  }
+}

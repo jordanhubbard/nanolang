@@ -1,0 +1,77 @@
+{
+  "bin/nsi-file-binding": {
+    "sha256": "71a26cbbecf76c29b704700ac5a03536a1e2036bd5733fdbc19043df3c6f4fc9",
+    "bytes": 124480,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/71a26cbbecf76c29b704700ac5a03536a1e2036bd5733fdbc19043df3c6f4fc9"
+  },
+  "obj/file-binding-publisher/cJSON.d": {
+    "sha256": "c2c795235f748be068c44896a8a06745e7d6bc9d27496ef8e0ceea86e649688e",
+    "bytes": 73,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/c2c795235f748be068c44896a8a06745e7d6bc9d27496ef8e0ceea86e649688e"
+  },
+  "obj/file-binding-publisher/cJSON.o": {
+    "sha256": "883050d5aaafe177b891ac1adb2e4f093ab0b749d55e277a4cbd7fce20cb3550",
+    "bytes": 93448,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/883050d5aaafe177b891ac1adb2e4f093ab0b749d55e277a4cbd7fce20cb3550"
+  },
+  "obj/file-binding-publisher/nsi.d": {
+    "sha256": "ac04514ba06b25b3419fb8128491a1242accef0c9c55881aa87550e2488ec12f",
+    "bytes": 156,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/ac04514ba06b25b3419fb8128491a1242accef0c9c55881aa87550e2488ec12f"
+  },
+  "obj/file-binding-publisher/nsi.o": {
+    "sha256": "59afe3f79d789c1f2925f1b03a60449781e30b27d646a20ccf8278c0a42bdf43",
+    "bytes": 64080,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/59afe3f79d789c1f2925f1b03a60449781e30b27d646a20ccf8278c0a42bdf43"
+  },
+  "obj/file-binding-publisher/nsi_file_binding.d": {
+    "sha256": "a583ea9326642cb72e607afdede9b943aac8c4384408bddf4787077ffb6cb1e0",
+    "bytes": 274,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/a583ea9326642cb72e607afdede9b943aac8c4384408bddf4787077ffb6cb1e0"
+  },
+  "obj/file-binding-publisher/nsi_file_binding.o": {
+    "sha256": "601787c9a1dab6b2863df4ae843c5b4bfb100abc5c1d5dc995754239026b1de9",
+    "bytes": 62888,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/601787c9a1dab6b2863df4ae843c5b4bfb100abc5c1d5dc995754239026b1de9"
+  },
+  "obj/file-binding-publisher/nsi_file_binding_main.d": {
+    "sha256": "855b4912698c8541cfeae68099fb69f002135f5ccf192e3fd54b5cdfb8ca687f",
+    "bytes": 182,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/855b4912698c8541cfeae68099fb69f002135f5ccf192e3fd54b5cdfb8ca687f"
+  },
+  "obj/file-binding-publisher/nsi_file_binding_main.o": {
+    "sha256": "01ad74928a2c0f3044c0972e4daff38ee59b218d9b787fc0fd3f90ee8312a75b",
+    "bytes": 17648,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/01ad74928a2c0f3044c0972e4daff38ee59b218d9b787fc0fd3f90ee8312a75b"
+  },
+  "obj/file-binding-publisher/nsi_file_plan.d": {
+    "sha256": "856abcdedf7f8466e142ac20bc716fa1c42497c21e8711c4fc07fecac9a852d2",
+    "bytes": 206,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/856abcdedf7f8466e142ac20bc716fa1c42497c21e8711c4fc07fecac9a852d2"
+  },
+  "obj/file-binding-publisher/nsi_file_plan.o": {
+    "sha256": "dc94397c78170efabb6ad68dfccd33f3f880d2d94f0b88b9255d563a09ce07c6",
+    "bytes": 25800,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/dc94397c78170efabb6ad68dfccd33f3f880d2d94f0b88b9255d563a09ce07c6"
+  },
+  "obj/file-binding-publisher/nsi_file_publish.d": {
+    "sha256": "862664acf5a48706a5025a8c7415a54ce16cd7d598e03220480fa12963d75b5d",
+    "bytes": 168,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/862664acf5a48706a5025a8c7415a54ce16cd7d598e03220480fa12963d75b5d"
+  },
+  "obj/file-binding-publisher/nsi_file_publish.o": {
+    "sha256": "b3816ea4f6915286255137f6f9cf82d26dcc62b9112d45a4502df41fc291b86d",
+    "bytes": 26360,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/b3816ea4f6915286255137f6f9cf82d26dcc62b9112d45a4502df41fc291b86d"
+  },
+  "obj/file-binding-publisher/utf8.d": {
+    "sha256": "54b38e3316a635e565e75d619d3154793025686df6bc7f3cec011b5e5a816110",
+    "bytes": 69,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/54b38e3316a635e565e75d619d3154793025686df6bc7f3cec011b5e5a816110"
+  },
+  "obj/file-binding-publisher/utf8.o": {
+    "sha256": "aa3637c45501e93b21b36b0e74e5af3b2cc159b491c99ec9385716a5bd5d18b8",
+    "bytes": 13376,
+    "archive": "/private/tmp/nanolang-file-publisher-5fff-puck/objects/aa3637c45501e93b21b36b0e74e5af3b2cc159b491c99ec9385716a5bd5d18b8"
+  }
+}

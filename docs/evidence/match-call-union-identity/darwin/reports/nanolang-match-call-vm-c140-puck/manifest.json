@@ -1,0 +1,40 @@
+{
+  "head": "c1409c5b5338a36ad304ea0ed9cc5a218cdba0f4",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "phases": [
+    {
+      "name": "vm",
+      "command": [
+        "make",
+        "test-nanovm",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "seconds": 10.914,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "dd25f5dcb6b5d89da71c9c84bd3ce5f6106450735d49ac879fa70f7f62ae440f"
+    },
+    {
+      "name": "full-test",
+      "command": [
+        "make",
+        "test",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 2,
+      "seconds": 473.474,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "892dde147d32b9bb4e30885012fbff0f9134b596dacf404abda79c2fb310891f"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}
