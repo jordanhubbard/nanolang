@@ -12420,3 +12420,5 @@ Source ARRAY binding reassignment stays refused, arbitrary profile composition
 and broader51da/488a/28f2 target obligations stay open, and live e8d/d76 remain
 OPEN. Generic16 awaits coordinated a18 integration;33+9 are not fullmake, current
 product, fixed-point or release acceptance.
+
+- [ ] I lower [checked private File plans to native C functions and labels](NANOISA_FILE_PRIVATE_NATIVE.md), task_9a23711b4d9afb8b3408ccc6deff609c under82ff, after carrier/frame and independently qualified private VM: review the private emitter/ABI/complete fact agreement and explicit link closure; review fixtures; qualify the unchanged serialized corpus and fault/root lifecycle at strict C11 O0/O2 on Linux/Darwin; seal actual artifacts before bounded reconciliation. I emit actual native control flow, not an embedded bytecode interpreter. Public service guards, installed standalone C, paired source and full File/5.1 remain separate. This initial checkpoint is design only; no new production or service execution is authorized by the document itself.
