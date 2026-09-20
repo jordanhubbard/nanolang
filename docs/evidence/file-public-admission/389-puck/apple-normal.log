@@ -1,0 +1,21 @@
+I retain native artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-public-r4u19pph
+test_cli_staging_faults (tests.test_file_public.FilePublic.test_cli_staging_faults) ... FAIL
+
+======================================================================
+FAIL: test_cli_staging_faults (tests.test_file_public.FilePublic.test_cli_staging_faults)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-file-public-389/tests/test_file_public.py", line 430, in test_cli_staging_faults
+    self.command('cli-faults-build', [*self.compiler,*self.flags,'-std=c99',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'tests/nanoisa/test_file_public_cli.c','-o',str(binary)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-file-public-389/tests/test_file_public.py", line 111, in command
+    self.assertEqual(process.returncode,expected,(args,stdout_text,stderr_text))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : (['/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang', '-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi', '-I/opt/homebrew/opt/openssl@3/include', '-std=c11', '-D_DEFAULT_SOURCE', '-DNVM_FILE_VM_PRIVATE', '-DNVM_FILE_NATIVE_PRIVATE', '-DNVM_FILE_PUBLIC_ENGINE', '-g', '-Wall', '-Wextra', '-Werror', '-I.', '-Isrc', '-Isrc/nanoisa', '-pthread', '-std=c99', 'tests/nanoisa/test_file_public_cli.c', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-public-r4u19pph/cli-faults'], '', 'tests/nanoisa/test_file_public_cli.c:45:55: error: call to undeclared function \'mkdtemp\'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n   45 |  char directory[]="/tmp/nano-file-cli-XXXXXX";REQUIRE(mkdtemp(directory));char path[256];REQUIRE(snprintf(path,sizeof path,"%s/out.c",directory)>0);\n      |                                                       ^\n1 error generated.\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.046s
+
+FAILED (failures=1)

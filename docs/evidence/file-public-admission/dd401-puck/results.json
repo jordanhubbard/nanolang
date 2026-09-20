@@ -1,0 +1,16 @@
+[
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "setup",
+    "seconds": 9.031,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "apple-normal",
+    "seconds": 48.417,
+    "status": 0
+  }
+]

@@ -1,0 +1,23 @@
+[
+  "/usr/local/bin/clang",
+  "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "-std=c11",
+  "-D_DEFAULT_SOURCE",
+  "-DNVM_FILE_VM_PRIVATE",
+  "-DNVM_FILE_NATIVE_PRIVATE",
+  "-DNVM_FILE_PUBLIC_ENGINE",
+  "-g",
+  "-O1",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-I.",
+  "-Isrc",
+  "-Isrc/nanoisa",
+  "-pthread",
+  "-DHOSTED_INSTRUMENT",
+  "-c",
+  "tests/nanoisa/test_file_public.c",
+  "-o",
+  "/tmp/nanolang-file-public-a46-preflight-linux/clang-instrumented-replay.o"
+]

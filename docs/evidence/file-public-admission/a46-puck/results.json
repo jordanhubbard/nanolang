@@ -1,0 +1,23 @@
+[
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "setup",
+    "seconds": 7.753,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "clang-normal",
+    "seconds": 44.361,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "clang-sanitizer",
+    "seconds": 75.924,
+    "status": 0
+  }
+]
