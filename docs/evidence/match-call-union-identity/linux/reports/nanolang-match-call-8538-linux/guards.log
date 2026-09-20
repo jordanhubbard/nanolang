@@ -1,0 +1,139 @@
+I retain guard artifacts at /tmp/nano-canonical-match-guards-z9k09l3n
+test_checked_negatives_preserve_output (tests.test_canonical_match_guards.CanonicalMatchGuards.test_checked_negatives_preserve_output) ... ERROR
+test_named_union_vm_and_sanitized_native (tests.test_canonical_match_guards.CanonicalMatchGuards.test_named_union_vm_and_sanitized_native) ... ERROR
+test_native_order_scope_and_control (tests.test_canonical_match_guards.CanonicalMatchGuards.test_native_order_scope_and_control) ... ERROR
+test_parser877_unchanged (tests.test_canonical_match_guards.CanonicalMatchGuards.test_parser877_unchanged) ... ERROR
+test_shadow_and_profile_refusals (tests.test_canonical_match_guards.CanonicalMatchGuards.test_shadow_and_profile_refusals) ... ERROR
+test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards.test_unchecked_generated_terminal_backstops) ... ok
+
+======================================================================
+ERROR: test_checked_negatives_preserve_output (tests.test_canonical_match_guards.CanonicalMatchGuards.test_checked_negatives_preserve_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 208, in test_checked_negatives_preserve_output
+    self.refuse(name, PREFIX + "fn main() -> int { return " + value + " } shadow main { assert true }", pattern)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 173, in refuse
+    result = self.command([BIN / compiler, path, "-o", output] + (["--emit-nvm"] if bytecode else []), expected=None)
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 113, in command
+    process = subprocess.Popen(args, cwd=ROOT, env=self.env, stdout=stdout,
+                               stderr=stderr, start_new_session=True)
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-match-call-union-identity/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_named_union_vm_and_sanitized_native (tests.test_canonical_match_guards.CanonicalMatchGuards.test_named_union_vm_and_sanitized_native)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 187, in test_named_union_vm_and_sanitized_native
+    self.command([BIN / compiler, path, "--emit-nvm", "-o", module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 113, in command
+    process = subprocess.Popen(args, cwd=ROOT, env=self.env, stdout=stdout,
+                               stderr=stderr, start_new_session=True)
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-match-call-union-identity/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_native_order_scope_and_control (tests.test_canonical_match_guards.CanonicalMatchGuards.test_native_order_scope_and_control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 180, in test_native_order_scope_and_control
+    self.native("named-order", TRACE)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 165, in native
+    self.command([BIN / compiler, path, "-o", output, "--keep-c"])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 113, in command
+    process = subprocess.Popen(args, cwd=ROOT, env=self.env, stdout=stdout,
+                               stderr=stderr, start_new_session=True)
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-match-call-union-identity/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_parser877_unchanged (tests.test_canonical_match_guards.CanonicalMatchGuards.test_parser877_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 240, in test_parser877_unchanged
+    self.command([BIN / compiler, ROOT / "tests/parser_parenthesized.nano", "-o", output, "--keep-c"], timeout=600)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 113, in command
+    process = subprocess.Popen(args, cwd=ROOT, env=self.env, stdout=stdout,
+                               stderr=stderr, start_new_session=True)
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-match-call-union-identity/bin/nanoc_stage1'
+
+======================================================================
+ERROR: test_shadow_and_profile_refusals (tests.test_canonical_match_guards.CanonicalMatchGuards.test_shadow_and_profile_refusals)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 216, in test_shadow_and_profile_refusals
+    self.refuse("shadow-native", bad, r"(?is)(shadow|assert)")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 173, in refuse
+    result = self.command([BIN / compiler, path, "-o", output] + (["--emit-nvm"] if bytecode else []), expected=None)
+  File "/home/jkh/Src/nanolang-match-call-union-identity/tests/test_canonical_match_guards.py", line 113, in command
+    process = subprocess.Popen(args, cwd=ROOT, env=self.env, stdout=stdout,
+                               stderr=stderr, start_new_session=True)
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/jkh/Src/nanolang-match-call-union-identity/bin/nanoc_stage1'
+
+----------------------------------------------------------------------
+Ran 6 tests in 34.356s
+
+FAILED (errors=5)

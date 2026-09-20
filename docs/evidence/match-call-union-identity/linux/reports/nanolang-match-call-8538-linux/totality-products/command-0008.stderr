@@ -1,0 +1,8 @@
+-- E035 NON-EXHAUSTIVE MATCH --- /tmp/nanolang-match-call-8538-linux/totality-products/temporary/nanolang-cseed-match-totality-grhjj3oo/case.nano
+I require this match to cover every variant; I am missing: Some
+
+4|  match choice { Some(payload) if (> payload.number 0) => { assert true } None(empty) => { assert true } }
+    ^^^^^
+Hint: Add unconditional arms for the missing variants or one unconditional wildcard.
+Warning at line 4, column 2: Unused variable 'empty'
+Type checking failed

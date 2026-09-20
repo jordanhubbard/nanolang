@@ -1,0 +1,9 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-mwc5i4it/case.nano
+I do not mix integer and union-variant patterns in one match.
+
+4|  let selected: int = match 7 { 7 => 1 Some(payload) => 2 _ => 0 }
+                        ^^^^^
+Hint: Use only integer patterns for an int, or only named/or-pattern arms for a union.
+Warning at line 3, column 2: Unused variable 'choice'
+Warning at line 4, column 2: Unused variable 'selected'
+Type checking failed
