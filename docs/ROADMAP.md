@@ -13908,3 +13908,19 @@ The supplemental seal preserves880 objects/15982 references/96 equal pairs;
 current3716-source inventories and actual lib/provider products are rehashed.
 I submit the ready PR for independent audit. Full mixed execution and source
 parents remain open; original c032c sanitizer attribution is unchanged.
+
+### My actual mixed execution consumers after PR933
+
+I continue from actual933 merge6b44b302 with a distinct ordinary mixed VM
+activation [contract](NANOISA_MIXED_VM_ACTIVATION.md). I do not reuse affine owned
+proofs, their frame cap or a public verified bit. Full f36b/15f/488 remain open.
+
+- [ ] I review exact copied/original identity, complete93-op decoded coverage,
+  retained plan/module lifetime, private instance/results and bounded preparation.
+- [ ] I implement and review real ordinary VM dispatch/root transactions and
+  1024-frame failure unwind before fixtures; both dispatch forms remain required.
+- [ ] I qualify full private VM programs/faults and old guards, then implement
+  matching real C/native LLVM/Wasm consumers with explicit frame storage and
+  complete differential acceptance before any public selection.
+- [ ] I complete public transport/admission, paired source and the remaining
+  full mixed graph requirements from the original conjunction contract.
