@@ -194,3 +194,49 @@ delegation; no public entry calls this private query. All query output remains
 unchanged on reported failure. The only retained pointers are static diagnostics;
 the plan borrows no input storage. No fixtures, build or host operation has run
 for this source checkpoint.
+
+## My first query fixture checkpoint (not executed)
+
+I prepare `tests/nanoisa/test_portable_host_plan.c` and its retained Python gate.
+A normal linked query and an allocator-observed query use the same malformed,
+limit, copied-fact and closed-profile controls. The explicit Make target remains
+outside default providers and test-units. No module body executes. My positive
+fixture has all three exact aliases and an unused STRING identity helper; rows
+are still checked after destroying the entire module. Invalid getter calls and
+all query refusals preserve sentinels. Closed scalar/literal/managed profiles
+still reject the import-bearing module before and independently of any plan.
+
+I cover missing entry, unknown/extra import, kind/namespace/NUL/name/signature
+mismatches, missing parameter facts, malformed unused body/local/call operands,
+owned/passive/layout/linked/callback envelopes, File metadata and bare File
+instructions in either entry or unused helper. Distinct limit controls stop at
+function/import/string counts, represented CODE/string bytes, decoded instruction
+count and conservative allocation budget before the first query allocation.
+A no-import complete scalar module reports NOT_SELECTED.
+
+My allocation observer wraps all four allocation functions in exactly four
+translation units: portable_host_plan.c, vm_decode.c, verifier.c (including its
+internal implementation includes) and verifier_types.c. Other prepared linked
+providers remain ordinary objects. Query preflight excludes their allocating
+nominal paths. I distinguish QUERY/DECODE/STACK/TYPES sites, preserve realloc's
+old allocation on failure, and require zero tracked objects/bytes after every
+attempt. Every persistent prefix and single transient failure through a fresh
+successful query's measured request count is inspected; later successful
+recovery and exact input header/table/CODE/string/parameter bytes are required.
+I print every actual index/domain/status. INVALID requires observed decoder or
+stack allocation failure, MEMORY requires report allocation failure, and a
+successful injected query requires only advisory type-allocation failures. I
+retain those successes as an explicit limitation, never as typed-operand proof.
+
+The driver builds linked and observed variants separately with strict warnings;
+selected sanitizer flags instrument those four translation units plus the
+fixture, not all prepared providers. It retains command JSON, file-backed output,
+status and each newly built object/binary before assertions. Commands have a
+120-second bound followed by bounded five-second TERM and KILL waits; unresolved
+cleanup cannot pass. A content-addressed archive retains exact participating
+C/header/include source files, selected compiler/Python executables and named
+provider objects, with fresh before/after phase hashes. This endpoint comparison
+is not a claim about intermediate immutability or every transitive system tool.
+The external qualification still prepares frozen providers, records actual host,
+compiler/runtime identities and seals first terminals. Linux/Darwin ordinary
+and explicit sanitizer configurations await review; no gate has run here.

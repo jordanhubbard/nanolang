@@ -5573,3 +5573,8 @@ test-file-public-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJEC
 .PHONY: test-file-cyclic
 test-file-cyclic: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	FILE_CYCLIC_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_CYCLIC_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic
+
+# I describe read-text imports privately; these controls perform no host reads.
+.PHONY: test-portable-read-plan
+test-portable-read-plan: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	PORTABLE_READ_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/verifier.o $(OBJ_DIR)/nanoisa/verifier_types.o $(VM_DECODE_OBJECT),$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" PORTABLE_READ_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_portable_host_plan
