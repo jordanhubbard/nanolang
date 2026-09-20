@@ -2244,7 +2244,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                     let platform: string = (nlc_str_trim (nl_exec_capture "uname -s"))
                     if (== platform "") { (native_cleanup native_dir keep_c) return 1 }
                     let mut command: string = (+ (resolve_cc_binary) " -std=c11 ")
-                    let cflags: string = (getenv "NANO_CFLAGS")
+                    let cflags: string = (native_product_cflags (getenv "NANO_CFLAGS"))
                     if (!= cflags "") { set command (+ command (+ cflags " ")) }
                     set command (+ command (+ (native_shell_quote c_file) (+ " " (native_shell_quote runtime))))
                     set command (+ command (+ " -lm" (native_array_abi_link_flags platform)))
