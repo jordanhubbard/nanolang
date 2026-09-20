@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "CC=/usr/bin/gcc",
+    "bootstrap"
+  ],
+  "status": 0,
+  "seconds": 282.10508468397893
+}

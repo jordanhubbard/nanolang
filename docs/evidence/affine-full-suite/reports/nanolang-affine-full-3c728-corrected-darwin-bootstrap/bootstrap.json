@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/usr/bin/make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "CC=/usr/bin/clang",
+    "bootstrap"
+  ],
+  "status": 0,
+  "seconds": 284.58652412500004
+}
