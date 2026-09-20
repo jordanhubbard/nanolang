@@ -46,3 +46,5 @@ Hosted scalar/startup conjunction, matched indirect VM/native dispatch, callable
 arguments/results, richer borrows, public installed admission and paired source
 with mandatory shadows remain required next checkpoints. No ownership query
 alone completes the File or release parent.
+
+I integrate onto canonical903/0a488a104 at d233a6d8a. My query source, fixtures and original seal manifest remain byte-identical; the three changed existing source files implement separately qualified physical runtime providers outside this ISA-only query link closure. New source-plan/native-adapter files and additive Make targets do not change that closure. My [identity record](file-indirect-flow-integration.json) records this review, not a new test run. My [independent seal audit](file-indirect-flow-independent-review.json) rechecks all report/artifact identities and both hosts. Full indirect execution and 5.1 remain open.
