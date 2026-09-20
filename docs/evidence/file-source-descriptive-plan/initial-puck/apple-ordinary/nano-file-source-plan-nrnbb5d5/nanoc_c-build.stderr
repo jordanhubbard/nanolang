@@ -1,0 +1,14 @@
+Warning at line 484, column 2: Unused variable 'catalog'
+Warning at line 943, column 2: Unused variable 'catalog'
+Error at line 2529, column 61: Cannot determine struct type for field access
+Error at line 2571, column 61: Cannot determine struct type for field access
+Error: Failed to compile module '/private/tmp/nanolang-file-source-qualified-32ade/src_nano/compiler/file_source_plan.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-rl6JQx/source.c:29:10: fatal error: 'file_source_catalog.h' file not found
+   29 | #include "file_source_catalog.h"  /* priority: 0 */
+      |          ^~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-rl6JQx/source.c
+Error: Failed to compile module '/private/tmp/nanolang-file-source-qualified-32ade/src_nano/compiler/file_source_plan.nano'
+Error: Failed to compile modules

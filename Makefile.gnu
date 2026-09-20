@@ -5583,6 +5583,18 @@ test-file-public-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJEC
 test-file-cyclic: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	FILE_CYCLIC_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_CYCLIC_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic
 
+# I prepare descriptive source plans only; existing compiler selection is unchanged.
+.PHONY: file-source-plan
+file-source-plan: $(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o $(OBJ_DIR)/nsi_file_plan.o
+$(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o: $(NANOISA_DIR)/file_source_plan.h $(SRC_DIR)/nsi_file_catalog.h $(SRC_DIR)/nsi_file_plan.h
+
+# I qualify explicit descriptive requests; no File source lowering is selected.
+.PHONY: test-file-source-plan test-file-source-plan-sanitizers
+test-file-source-plan: bootstrap3
+	NANO_FILE_SOURCE_CC="$(CC)" NANO_FILE_SOURCE_CFLAGS="$(CFLAGS)" NANO_FILE_SOURCE_SANITIZERS=0 python3 -m unittest -f -v tests.test_file_source_plan
+test-file-source-plan-sanitizers:
+	NANO_FILE_SOURCE_CC="$(CC)" NANO_FILE_SOURCE_CFLAGS="$(CFLAGS)" NANO_FILE_SOURCE_SANITIZERS=1 python3 -m unittest -f -v tests.test_file_source_plan.FileSourcePlan.test_c_ownership_allocation_and_exact_budget
+
 .PHONY: test-file-cyclic-hosted
 # I rebuild allocating reader/bridge/query providers inside the retained runner.
 test-file-cyclic-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)

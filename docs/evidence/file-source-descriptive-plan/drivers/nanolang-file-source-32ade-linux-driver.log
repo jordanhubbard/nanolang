@@ -1,0 +1,13 @@
+host 0 0.002
+ordinary-version 0 0.001
+other-version 0 0.016
+make-version 0 0.001
+pkg-config-version 0 0.001
+ffi-flags 0 0.001
+other-asan 0 0.016
+gcc-asan 0 0.001
+gcc-ubsan 0 0.001
+gcc-cc1 0 0.001
+clang-ubsan 0 0.015
+bootstrap 0 281.203
+gcc-ordinary 1 1.068

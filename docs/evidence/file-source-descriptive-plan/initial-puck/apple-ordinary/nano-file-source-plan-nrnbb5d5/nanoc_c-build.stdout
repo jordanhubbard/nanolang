@@ -1,0 +1,15 @@
+Compiling /private/tmp/nanolang-file-source-32ade-puck/apple-ordinary/nano-file-source-plan-nrnbb5d5/corpus.nano...
+✓ Lexing complete (77513 tokens)
+✓ Parsing complete
+✓ Loaded 2 module(s)
+✓ Type checking complete
+[Modules] Processing 2 module(s)...
+[Modules] Building C module 'file_source_catalog' (/private/tmp/nanolang-file-source-qualified-32ade/modules/file_source_catalog)
+[Modules] Also compiling nanolang parts of C module 'file_source_catalog'
+✓ Generated module C code: obj/nano_modules/.nano-module-zAtYlt/source.c
+Compiling module: /usr/bin/clang -std=c99 -I'/private/tmp/nanolang-file-source-qualified-32ade'/src -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/collections -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/json -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/io -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/math -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/peg -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/string -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/sdl_helpers '-I/private/tmp/nanolang-file-source-qualified-32ade/modules/file_source_catalog' -I/opt/homebrew/include/SDL2 -D_THREAD_SAFE  -c -o 'obj/nano_modules/.nano-module-zAtYlt/object.o' 'obj/nano_modules/.nano-module-zAtYlt/source.c'
+✓ Compiled module to object file: obj/nano_modules/file_source_catalog_nano_file_source_catalog.o
+  C source kept at: obj/nano_modules/.nano-module-zAtYlt/source.c
+[Modules] Compiling nanolang module '/private/tmp/nanolang-file-source-qualified-32ade/src_nano/compiler/file_source_plan.nano'
+✓ Generated module C code: obj/nano_modules/.nano-module-rl6JQx/source.c
+Compiling module: /usr/bin/clang -std=c99 -I'/private/tmp/nanolang-file-source-qualified-32ade'/src -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/collections -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/json -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/io -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/math -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/peg -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/std/string -I'/private/tmp/nanolang-file-source-qualified-32ade'/modules/sdl_helpers '-I/private/tmp/nanolang-file-source-qualified-32ade/src_nano/compiler' -I/opt/homebrew/include/SDL2 -D_THREAD_SAFE  -c -o 'obj/nano_modules/.nano-module-rl6JQx/object.o' 'obj/nano_modules/.nano-module-rl6JQx/source.c'

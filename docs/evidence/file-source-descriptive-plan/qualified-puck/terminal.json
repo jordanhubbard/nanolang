@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "pin": "701dca50f",
+  "configs": [
+    "apple-ordinary",
+    "homebrew-ordinary",
+    "homebrew-sanitizer"
+  ],
+  "all_input_pairs_equal": true
+}

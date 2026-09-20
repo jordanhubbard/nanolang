@@ -1,0 +1,50 @@
+[
+  {
+    "before": "puck/fresh-cseed-providers-tools-before.json",
+    "after": "puck/fresh-cseed-providers-tools-after.json",
+    "count": 12,
+    "equal": true
+  },
+  {
+    "before": "puck/apple-ordinary-tools-before.json",
+    "after": "puck/apple-ordinary-tools-after.json",
+    "count": 12,
+    "equal": true
+  },
+  {
+    "before": "puck/apple-ordinary-source-before.json",
+    "after": "puck/apple-ordinary-source-after.json",
+    "count": 13220,
+    "equal": true
+  },
+  {
+    "before": "puck/fresh-cseed-providers-source-before.json",
+    "after": "puck/fresh-cseed-providers-source-after.json",
+    "count": 13220,
+    "equal": true
+  },
+  {
+    "before": "linux/fresh-cseed-providers-tools-before.json",
+    "after": "linux/fresh-cseed-providers-tools-after.json",
+    "count": 12,
+    "equal": true
+  },
+  {
+    "before": "linux/gcc-ordinary-tools-before.json",
+    "after": "linux/gcc-ordinary-tools-after.json",
+    "count": 12,
+    "equal": true
+  },
+  {
+    "before": "linux/gcc-ordinary-source-before.json",
+    "after": "linux/gcc-ordinary-source-after.json",
+    "count": 13220,
+    "equal": true
+  },
+  {
+    "before": "linux/fresh-cseed-providers-source-before.json",
+    "after": "linux/fresh-cseed-providers-source-after.json",
+    "count": 13220,
+    "equal": true
+  }
+]
