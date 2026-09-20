@@ -80,7 +80,10 @@ successful empty text before returning. Unrecognized status never means empty.
 The concrete real adapter takes only its own context. Before opening anything,
 it validates path/capacity/output pointers, path length and exact allowlist match;
 validates uintptr_t ranges with checked addition; and rejects overlap among
-input bytes, destination bytes and the four-byte output cell. Zero-length ranges
+input bytes, destination bytes and the four-byte output cell, and overlap of
+any of those three ranges with the complete known opaque context allocation.
+I check its sizeof(context) range before writing the active flag, preserving the
+copied allowlist against aliased buffers. Zero-length ranges
 are empty. C pointer validity remains a caller precondition. This overlap check
 is defined integer arithmetic, not ordering unrelated C pointers. The output
 length cell changes only on success. Output bytes remain unpublished scratch.
@@ -92,9 +95,11 @@ opens in binary-read mode, and reads at most capacity plus one probe byte.
 Capacity is at most1048576. A byte beyond capacity produces LIMIT, never a
 truncated successful result. It checks read error and fclose separately, closes
 exactly once and never retries close. A failed read/close returns OK with zero
-length, preserving legacy text semantics; it takes precedence over interpreting
-partial content as successful text. An oversize read with successful cleanup is
-LIMIT. The first non-success host status remains first if cleanup also fails.
+length only when no terminal host error has already been selected. In particular,
+a detected excess byte selects LIMIT immediately; later fclose failure cannot
+replace LIMIT with empty success. A read error before any excess byte instead
+selects legacy empty success, discarding partial bytes. Cleanup closes once in
+each case. The first non-success host status remains first if cleanup also fails.
 No project heap allocation is needed inside the real callback. libc/OS buffering
 is outside that claim. No writes, process launch or deletion are part of this API.
 
@@ -122,7 +127,10 @@ I initialize length to an invalid sentinel, call exactly once, validate known
 status and length<=capacity, then copy via nms_create. I free scratch on every
 path. Only host_status==NPR_OK and managed_status==NMS_OK returns a nonzero owned
 value. Host failure returns managed_status==NMS_OK with zero value; managed
-validation/allocation failure returns its exact NmsStatus and zero value.
+validation/allocation failure returns host_status==NPR_OK, its exact NmsStatus
+and zero value. NPR_OK in that pair does not assert that a callback ran. Every
+return initializes all three fields. The wrapper explicitly checks disposed and
+active before nms_view; nms_view alone does not enforce invocation state.
 Scratch allocation reports NPR_MEMORY. A failed nms_create reports NMS_MEMORY,
 not an empty string. A successful empty result is still a valid owned STRING.
 The result struct returns by value, avoiding aliasing an output handle slot with
