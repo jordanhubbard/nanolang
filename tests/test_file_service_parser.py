@@ -126,14 +126,14 @@ class FileServiceParser(unittest.TestCase):
                 else:
                     status=self.work/(label+'-'+name+'-refusal.json')
                     script="import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=120); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode>0 else 1)"
-                    _,err=self.command(label+'-'+name+'-refusal',[sys.executable,'-c',script,status,*argv],timeout=140)
-                    self.assertFalse(executable.exists());self.assertNotIn(b'resolved File service',err)
-                    if label=='payload-omitted':self.assertIn(b'zero-field',err)
+                    out,err=self.command(label+'-'+name+'-refusal',[sys.executable,'-c',script,status,*argv],timeout=140)
+                    self.assertFalse(executable.exists());self.assertNotIn(b'resolved File service',out+b'\n'+err)
+                    if label=='payload-omitted':self.assertIn(b'zero-field',out+b'\n'+err)
         for name in ('nanoc_c','nanoc_stage1','nanoc_stage2','nano_virt'):
             output=self.work/(name+'-forbidden-output');status=self.work/(name+'-refusal.json')
             script="import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=120); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode>0 else 1)"
-            _,err=self.command(name+'-consumer-refusal',[sys.executable,'-c',script,status,ROOT/'bin'/name,self.binding,'-o',output],timeout=140)
-            self.assertFalse(output.exists());self.assertIn(b'resolved File service',err)
+            out,err=self.command(name+'-consumer-refusal',[sys.executable,'-c',script,status,ROOT/'bin'/name,self.binding,'-o',output],timeout=140)
+            self.assertFalse(output.exists());self.assertIn(b'resolved File service',out+b'\n'+err)
 
 def load_tests(loader,tests,pattern):
     def ids(suite):
