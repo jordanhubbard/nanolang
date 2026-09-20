@@ -5633,3 +5633,8 @@ $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DI
 
 # I rebuild the owning query TU for the private indirect hosted conjunction.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_hosted.h $(NANOISA_DIR)/file_indirect_hosted.inc
+
+.PHONY: test-file-indirect-hosted
+# I query copied indirect plans; no callable or service executes.
+test-file-indirect-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_INDIRECT_HOSTED_CC="$(CC)" NANO_FILE_INDIRECT_HOSTED_CFLAGS="$(CFLAGS)" FILE_INDIRECT_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" FILE_INDIRECT_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_hosted

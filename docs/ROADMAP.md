@@ -12829,3 +12829,13 @@ The final audit/identity records are in `evidence/file-cyclic-carrier-final`;
 actual merge and bounded repair reconciliation remain pending, full15a92 open.
 
 - [ ] I establish the distinct [private indirect File hosted plan](NANOISA_FILE_INDIRECT_HOSTED.md) under task2c135 after canonical904: review exact serialized/startup conjunction, every-candidate frame/value/staging bounds and copied lifetime; then implement/review/qualify all allocation failures and original neighbors on Linux/Darwin. Runtime membership/fuel/cleanup, public installed admission, callable arguments/results, richer borrows and paired source/full shadows remain required later checkpoints.
+
+I prepare the reviewed95c indirect-hosted fixture checkpoint before any run.
+I compare copied full alternatives and callable obligations, exercise both
+candidate orders with a larger non-first callee, startup and wire refusals,
+input destruction, all getter sentinels and persistent/transient allocation
+prefixes with independent recovery. Instrumented internal controls cover target
+map identity and exact callable staging limits; the serialized instruction
+ceiling remains separate. I reuse the13-provider hosted allocation closure and
+bounded runner, without FLOW_INSTRUMENT or runtime dispatch. Fixture review
+precedes frozen Linux/Darwin qualification; no acceptance is claimed here.

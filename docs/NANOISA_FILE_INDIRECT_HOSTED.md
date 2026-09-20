@@ -116,3 +116,30 @@ The new accessors return copied facts and never a cyclic plan pointer.
 
 This source checkpoint has not been compiled or executed. Complete independent
 review and separately reviewed fixtures precede qualification.
+
+## My fixture checkpoint
+
+I retain the existing hosted fixture through its named main and add one separate
+indirect fixture; I do not include a second body/allocator tracker. My ordinary
+runner rebuilds all13 allocating reader/bridge/query providers. Instrumentation
+includes file_flow.c directly under the same HOSTED allocation hooks for private
+map/fact controls and omits its external object; the other12 providers retain
+the same hooks. Common ISA objects remain outside those allocation hooks.
+I reuse the bounded file-backed command runner and import TestCase modules, not
+TestCase aliases. Two new methods are intended; discovery has not yet run.
+
+I distinguish the operand/staging boundary from the wire instruction ceiling.
+A253-argument straight-line caller occupies256 instructions and is my serialized
+positive.254,255 and256 such callers exceed that independent ceiling. In the
+instrumented plan only, I adapt the already checked call's copied downstream
+facts to255 supplied arguments with256 input operands, require257 staging slots,
+then reject256 supplied arguments. This isolated arithmetic/control test is not
+a claim of complete serialized255-argument authority or runtime execution.
+
+I compare full facts against a fresh independent ownership query before and
+after destroying inputs, including every variant, canonical edge, reference,
+region and service/call obligation. Both candidate and catalog orders survive;
+either candidate can dominate capacities. The fault sweep preserves the legacy
+codec ambiguity, checks conservative transient peak and live allocation baseline,
+and performs independent fresh recovery after every injected allocation event.
+Source remains95c04f751; no build, fixture execution or qualification is claimed.
