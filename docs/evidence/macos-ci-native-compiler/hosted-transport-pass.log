@@ -1,0 +1,14 @@
+2026-09-20T13:09:44.8741070Z python3 -m unittest -v tests.test_reference_eval_transport
+2026-09-20T13:09:47.6998690Z test_caller_child_survives_success_and_missing_program (tests.test_reference_eval_transport.ReferenceTransport.test_caller_child_survives_success_and_missing_program) ... ok
+2026-09-20T13:09:48.1560450Z test_early_exit_keeps_parent_signal_policy_and_cleans_children (tests.test_reference_eval_transport.ReferenceTransport.test_early_exit_keeps_parent_signal_policy_and_cleans_children) ... ok
+2026-09-20T13:09:48.8481680Z test_empty_nonzero_and_missing_program (tests.test_reference_eval_transport.ReferenceTransport.test_empty_nonzero_and_missing_program) ... ok
+2026-09-20T13:09:49.1215860Z test_large_input_and_output_before_consumption (tests.test_reference_eval_transport.ReferenceTransport.test_large_input_and_output_before_consumption) ... ok
+2026-09-20T13:09:49.3322000Z test_output_allocation_failure_reaps_both_owned_children (tests.test_reference_eval_transport.ReferenceTransport.test_output_allocation_failure_reaps_both_owned_children) ... ok
+2026-09-20T13:09:49.7768050Z test_path_lookup_and_trim (tests.test_reference_eval_transport.ReferenceTransport.test_path_lookup_and_trim) ... ok
+2026-09-20T13:09:49.9930680Z test_quoted_expression_and_adjacent_spaced_path (tests.test_reference_eval_transport.ReferenceTransport.test_quoted_expression_and_adjacent_spaced_path) ... ok
+2026-09-20T13:09:51.3295260Z test_repeated_calls_and_closed_standard_descriptors (tests.test_reference_eval_transport.ReferenceTransport.test_repeated_calls_and_closed_standard_descriptors) ... ok
+2026-09-20T13:09:51.3313440Z 
+2026-09-20T13:09:51.3313730Z ----------------------------------------------------------------------
+2026-09-20T13:09:51.3314050Z Ran 8 tests in 6.414s
+2026-09-20T13:09:51.3314160Z 
+2026-09-20T13:09:51.3314220Z OK
