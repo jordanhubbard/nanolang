@@ -123,3 +123,14 @@ canonical7bba, verifying every noncomment/nonblank line remains identical to the
 qualified bc45 recipe. No source, target, flags or command order changes. I keep
 all frozen bc45 files and their original hashes; this ready-tree comment-only
 correction does not relabel qualification and does not justify a runtime replay.
+
+Linux's corrected public two-method corpus/package passes. Darwin's selected
+setup passes, but its first instrumented method stops while compiling vm_ffi.c:
+ffi.h is absent from the compiler's default header search. The external launch
+had left NANO_FILE_RUNTIME_CFLAGS empty instead of forwarding actual Make CFLAGS.
+I retain that selected-puck method terminal and its partial provider products.
+Before continuation I set the selector from the already retained frozenbc45
+Make-emitted cflags.txt, including its exact Xcode26.2 SDK ffi and Homebrew OpenSSL
+include paths, with all strict warning flags intact. No production/fixture edit
+is needed. I rerun only read-only configuration/discovery and the Darwin public
+corpus; its completed setup and Linux complete pass remain attributed separately.
