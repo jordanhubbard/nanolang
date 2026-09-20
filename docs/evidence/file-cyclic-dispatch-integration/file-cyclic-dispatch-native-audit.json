@@ -1,0 +1,826 @@
+{
+  "committed_and_worktree_reports": 537,
+  "cas": {
+    "count": 9917,
+    "bytes": 3552924805
+  },
+  "archive": {
+    "bytes": 824776112,
+    "path": "/tmp/nanolang-file-cyclic-dispatch-artifacts.tar.gz",
+    "sha256": "3f649ba1b0f1eab8da7827a0232e20d6820ada329a1a846d8fc2807646085b6a",
+    "members": 9917
+  },
+  "references": 36997,
+  "pairs": [
+    {
+      "group": "100c-darwin",
+      "phase": "setup",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "configuration",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "discovery",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "ordinary",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "clang-ordinary",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "sanitizer",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "carrier",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "core-values",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "cyclic",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "cyclic-hosted",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "private-vm",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "private-native",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "public",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 164
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "archive-boundary",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-linux",
+      "phase": "setup",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-linux",
+      "phase": "configuration",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-linux",
+      "phase": "discovery",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "100c-linux",
+      "phase": "ordinary",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "setup",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "configuration",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "discovery",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "ordinary",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "clang-ordinary",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "sanitizer",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "clang-sanitizer",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "carrier",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "core-values",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "cyclic",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "cyclic-hosted",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "private-vm",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "private-native",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "public",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 164
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "archive-boundary",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "7913-darwin",
+      "phase": "setup",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "7913-darwin",
+      "phase": "configuration",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "7913-darwin",
+      "phase": "discovery",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "7913-darwin",
+      "phase": "ordinary",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "7913-linux",
+      "phase": "setup",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "7913-linux",
+      "phase": "configuration",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "7913-linux",
+      "phase": "discovery",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "7913-linux",
+      "phase": "ordinary",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "9284-darwin",
+      "phase": "setup",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "9284-darwin",
+      "phase": "configuration",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "9284-darwin",
+      "phase": "discovery",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "9284-darwin",
+      "phase": "ordinary",
+      "sources": 13985,
+      "tools": 14,
+      "changed_providers": 0
+    },
+    {
+      "group": "9284-linux",
+      "phase": "setup",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "9284-linux",
+      "phase": "configuration",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "9284-linux",
+      "phase": "discovery",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    },
+    {
+      "group": "9284-linux",
+      "phase": "ordinary",
+      "sources": 13985,
+      "tools": 11,
+      "changed_providers": 0
+    }
+  ],
+  "terminals": [
+    {
+      "group": "100c-darwin",
+      "phase": "setup",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "configuration",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "discovery",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "ordinary",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "clang-ordinary",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "sanitizer",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "carrier",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "core-values",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "cyclic",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "cyclic-hosted",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "private-vm",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "private-native",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "public",
+      "returncode": 0
+    },
+    {
+      "group": "100c-darwin",
+      "phase": "archive-boundary",
+      "returncode": 0
+    },
+    {
+      "group": "100c-linux",
+      "phase": "setup",
+      "returncode": 0
+    },
+    {
+      "group": "100c-linux",
+      "phase": "configuration",
+      "returncode": 0
+    },
+    {
+      "group": "100c-linux",
+      "phase": "discovery",
+      "returncode": 0
+    },
+    {
+      "group": "100c-linux",
+      "phase": "ordinary",
+      "returncode": 1
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "setup",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "configuration",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "discovery",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "ordinary",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "clang-ordinary",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "sanitizer",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "clang-sanitizer",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "carrier",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "core-values",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "cyclic",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "cyclic-hosted",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "private-vm",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "private-native",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "public",
+      "returncode": 0
+    },
+    {
+      "group": "6a65-linux",
+      "phase": "archive-boundary",
+      "returncode": 0
+    },
+    {
+      "group": "7913-darwin",
+      "phase": "setup",
+      "returncode": 0
+    },
+    {
+      "group": "7913-darwin",
+      "phase": "configuration",
+      "returncode": 0
+    },
+    {
+      "group": "7913-darwin",
+      "phase": "discovery",
+      "returncode": 0
+    },
+    {
+      "group": "7913-darwin",
+      "phase": "ordinary",
+      "returncode": 1
+    },
+    {
+      "group": "7913-linux",
+      "phase": "setup",
+      "returncode": 0
+    },
+    {
+      "group": "7913-linux",
+      "phase": "configuration",
+      "returncode": 0
+    },
+    {
+      "group": "7913-linux",
+      "phase": "discovery",
+      "returncode": 0
+    },
+    {
+      "group": "7913-linux",
+      "phase": "ordinary",
+      "returncode": 1
+    },
+    {
+      "group": "9284-darwin",
+      "phase": "setup",
+      "returncode": 0
+    },
+    {
+      "group": "9284-darwin",
+      "phase": "configuration",
+      "returncode": 0
+    },
+    {
+      "group": "9284-darwin",
+      "phase": "discovery",
+      "returncode": 0
+    },
+    {
+      "group": "9284-darwin",
+      "phase": "ordinary",
+      "returncode": 1
+    },
+    {
+      "group": "9284-linux",
+      "phase": "setup",
+      "returncode": 0
+    },
+    {
+      "group": "9284-linux",
+      "phase": "configuration",
+      "returncode": 0
+    },
+    {
+      "group": "9284-linux",
+      "phase": "discovery",
+      "returncode": 0
+    },
+    {
+      "group": "9284-linux",
+      "phase": "ordinary",
+      "returncode": 1
+    }
+  ],
+  "current_linux": [
+    {
+      "group": "100c-linux",
+      "source": 13985,
+      "tool_labels": 11,
+      "providers": 174,
+      "paths": 14167
+    },
+    {
+      "group": "6a65-linux",
+      "source": 13985,
+      "tool_labels": 11,
+      "providers": 186,
+      "paths": 14179
+    },
+    {
+      "group": "7913-linux",
+      "source": 13985,
+      "tool_labels": 11,
+      "providers": 174,
+      "paths": 14167
+    },
+    {
+      "group": "9284-linux",
+      "source": 13985,
+      "tool_labels": 11,
+      "providers": 174,
+      "paths": 14167
+    }
+  ],
+  "production_blobs": 8,
+  "current_darwin": [
+    {
+      "group": "100c-darwin",
+      "paths": 14183,
+      "sources": 13985,
+      "tool_labels": 14,
+      "providers": 185
+    },
+    {
+      "group": "7913-darwin",
+      "paths": 14171,
+      "sources": 13985,
+      "tool_labels": 14,
+      "providers": 173
+    },
+    {
+      "group": "9284-darwin",
+      "paths": 14171,
+      "sources": 13985,
+      "tool_labels": 14,
+      "providers": 173
+    }
+  ],
+  "trace_audit": {
+    "configs": [
+      {
+        "group": "6a65-linux",
+        "phase": "ordinary",
+        "modes": [
+          {
+            "mode": "instrumented",
+            "traces": 36,
+            "modules": 23,
+            "generated": 22
+          },
+          {
+            "mode": "linked",
+            "traces": 33,
+            "modules": 23,
+            "generated": 22
+          }
+        ],
+        "nested_success_statuses": 180,
+        "isolated_pairs": 14
+      },
+      {
+        "group": "6a65-linux",
+        "phase": "clang-ordinary",
+        "modes": [
+          {
+            "mode": "instrumented",
+            "traces": 36,
+            "modules": 23,
+            "generated": 22
+          },
+          {
+            "mode": "linked",
+            "traces": 33,
+            "modules": 23,
+            "generated": 22
+          }
+        ],
+        "nested_success_statuses": 180,
+        "isolated_pairs": 14
+      },
+      {
+        "group": "6a65-linux",
+        "phase": "sanitizer",
+        "modes": [
+          {
+            "mode": "instrumented",
+            "traces": 36,
+            "modules": 23,
+            "generated": 22
+          },
+          {
+            "mode": "linked",
+            "traces": 33,
+            "modules": 23,
+            "generated": 22
+          }
+        ],
+        "nested_success_statuses": 180,
+        "isolated_pairs": 14
+      },
+      {
+        "group": "6a65-linux",
+        "phase": "clang-sanitizer",
+        "modes": [
+          {
+            "mode": "instrumented",
+            "traces": 36,
+            "modules": 23,
+            "generated": 22
+          },
+          {
+            "mode": "linked",
+            "traces": 33,
+            "modules": 23,
+            "generated": 22
+          }
+        ],
+        "nested_success_statuses": 180,
+        "isolated_pairs": 14
+      },
+      {
+        "group": "100c-darwin",
+        "phase": "ordinary",
+        "modes": [
+          {
+            "mode": "instrumented",
+            "traces": 36,
+            "modules": 23,
+            "generated": 22
+          },
+          {
+            "mode": "linked",
+            "traces": 33,
+            "modules": 23,
+            "generated": 22
+          }
+        ],
+        "nested_success_statuses": 180,
+        "isolated_pairs": 14
+      },
+      {
+        "group": "100c-darwin",
+        "phase": "clang-ordinary",
+        "modes": [
+          {
+            "mode": "instrumented",
+            "traces": 36,
+            "modules": 23,
+            "generated": 22
+          },
+          {
+            "mode": "linked",
+            "traces": 33,
+            "modules": 23,
+            "generated": 22
+          }
+        ],
+        "nested_success_statuses": 180,
+        "isolated_pairs": 14
+      },
+      {
+        "group": "100c-darwin",
+        "phase": "sanitizer",
+        "modes": [
+          {
+            "mode": "instrumented",
+            "traces": 36,
+            "modules": 23,
+            "generated": 22
+          },
+          {
+            "mode": "linked",
+            "traces": 33,
+            "modules": 23,
+            "generated": 22
+          }
+        ],
+        "nested_success_statuses": 180,
+        "isolated_pairs": 14
+      }
+    ],
+    "generated_first_corrected_equal": 22
+  },
+  "first_terminals": {
+    "9284_both": "Retained capture-build errors: main macro redefinition/conflicting signatures; no dispatch executable ran.",
+    "7913_both": "Retained capture-run expected0 got1 at unset location before0 fuel; malformed dead-label body diagnosed statically, correction preserves unreachable zero-variant control.",
+    "100c_linux": "Retained GCC registry misleading-indentation compile refusal after23-module VM capture/emission;22 emitted programs hash-identical after formatting-only correction.",
+    "7913_launch": "Separate status2 driver-not-created launcher retained; not a fixture execution."
+  },
+  "tool_attribution_limit": {
+    "linux_actual_argv": "/usr/bin/python3",
+    "inventoried_python": "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/bin/python3.14",
+    "finding": "Actual Linux orchestration interpreter not present in before/after tool inventory; current hashes cannot retroactively establish its historical identity. Retained C builds/traces/assertions and recorded compiler/provider endpoint claims remain as measured.",
+    "darwin": "Actual Python argv resolves to inventoried Homebrew Python."
+  },
+  "scope": {
+    "review_only": true,
+    "no_gate_rerun": true,
+    "private_dispatch_only": true,
+    "whole_program_sanitizer": false,
+    "measured_preparation_peak": false,
+    "integration": "Not covered by this original-seal audit.",
+    "result": "Byte/trace/source/provider audit passes with explicit Linux Python inventory limitation; root to reconcile claim/next-driver recording."
+  }
+}

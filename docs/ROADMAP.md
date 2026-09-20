@@ -12955,3 +12955,12 @@ Compiled C results and measured source/compiler/provider identities remain
 valid. I capture the actual interpreter's current hash as current-only evidence
 and correct future driver inventory; neither recovers a missing historical
 measurement nor supports whole-toolchain immutability.
+
+My frozen3ea2 canonical integration passed all nine ordinary phases on Linux and
+puck. I seal the supplement under `docs/evidence/file-cyclic-dispatch-integration`
+and preserve the original31f42 sanitizer scope. Independent native review
+verified537 original Git reports/9917 artifacts/49 pairs/all seven current roots
+and exact native/VM trace controls; its only finding is the explicitly retained
+Linux interpreter historical-hash omission above. No runtime/source public
+activation follows this private checkpoint. Parent15a92 stays open; repair78437
+requires actual merge reconciliation.
