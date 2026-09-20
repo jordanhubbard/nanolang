@@ -188,3 +188,41 @@ where meaningful without requiring alternative numbering to equal old IDs.
 Both Linux and Darwin private query gates retain old hosted/body/flow/refusal
 neighbors. No newly cyclic module executes. Production then fixtures receive
 separate review before any gate; public/source/VM/native work remains pending.
+
+## My first unexecuted production checkpoint
+
+I define the concrete copying-accessor ABI in `src/nanoisa/file_cyclic.h` before
+implementation. The summary, state counts and per-variant body/edge facts are
+distinct from old body reports. Complete input locals/stack/references/regions
+and exact nominal/import maps remain queryable. Original successor indices pair
+with variant ordinals; an absent refined edge carries NO_VARIANT.
+
+`file_cyclic.inc` owns bounded canonical states and FIFO pairs. It uses iterative
+reachability bitsets to name SCCs by the least original instruction index. Each
+transfer reconstructs a private scratch flow state and a separately allocated
+copy of declaration facts; only that copy has a bounded temporary-label counter.
+The immutable plan's declaration counters and every preexisting query state stay
+unchanged. Existing transfer routines perform one instruction, while their
+per-step cleanup/obligation facts are copied into the new variant report.
+
+Live owners use labels1..256; formal anchors257..512 remain fixed; canonical
+regions513..768 and local reference epochs769..1024 occupy disjoint domains.
+The single-step scratch allocator starts at1025, with complete post-transfer
+validation before bijective normalization. Fresh physical generations are never
+reported as these labels. Function bodies reuse existing checked transfers with
+a private callee-checked table and retain acyclic calls.
+
+The only existing preparation change factors a private `acyclic` argument:
+`nvm_file_code_prepare` always supplies true, preserving its original DAG
+refusal. The new query alone supplies false after the same syntactic preflight.
+Old selectors, runtime/hosted plans, grants, emitters and producer sources do not
+consume the report. I add the include to existing file_flow and its explicit
+Make prerequisites; no new link-provider or wire format is introduced.
+
+All report, retained-site/node, workspace and scratch-declaration allocations
+are accounted before materialization under16MiB, including conservative old-plan
+storage and transient overlap. Partial failure frees only its owned storage;
+the scratch borrows its report's nominal plan and does not release that borrow.
+Publication validates every processed variant and edge reference. This
+checkpoint is static-only: no compilation, fixtures or cyclic execution has run.
+I request source review before preparing the meaningful fixture checkpoint.

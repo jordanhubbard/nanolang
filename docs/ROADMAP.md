@@ -12484,3 +12484,9 @@ I seal private-native9a237 qualification in [my evidence](evidence/file-private-
 - [ ] I prepare and review [the next cyclic-flow and richer-call contract](NANOISA_FILE_CONTROL_CALL_EXTENSION.md), task_243a9a5809bf422caab0bddafa447098 under72556/6931: first finite non-admitting loop analysis, then matched private VM/native fuel and lifetime acceptance; separately closed indirect targets and explicit multi-borrow transport; only then public conjunction and complete paired-source/shadow acceptance. Existing refusals/limits remain until each reviewed dependency qualifies. Public acyclic dfa149 remains separately owned.
 
 I refine task243a9's first [non-admitting cyclic query checkpoint](NANOISA_FILE_CYCLIC_QUERY.md): explicit canonical live-root/reference relations, at most16 exact state alternatives per instruction, bounded FIFO exploration and16MiB accounted storage, immutable revision1 report and concrete zero-iteration/replacement/held-reference controls. I do not reset historical counters in old flow states, change publicdfa149, implement production or execute cyclic modules before separate reviews.
+
+I prepare task243a's first unexecuted production checkpoint: a distinct cyclic
+report/accessor header, bounded canonical state alternatives and FIFO exploration,
+private one-step declaration/state scratch, and checked edge publication. The
+old public preparation always retains DAG validation; no selector or target
+consumes the new query. Source review precedes fixtures, builds or execution.
