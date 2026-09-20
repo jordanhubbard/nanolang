@@ -74,16 +74,31 @@ static uint8_t borrow_type_info_tag(const TypeInfo *info) {
     if(!info || info->generic_name || info->type_param_count)return TAG_VOID;
     return borrow_local_tag(info->base_type);
 }
+#ifdef NANOVIRT_TEST_CONTRACT_REALLOC
+extern void *nanovirt_test_contract_realloc(void *pointer,size_t size);
+#define BORROW_CONTRACT_REALLOC(pointer,size) nanovirt_test_contract_realloc((pointer),(size))
+#else
+#define BORROW_CONTRACT_REALLOC(pointer,size) realloc((pointer),(size))
+#endif
 static void borrow_word(BorrowCG *b,uint32_t value,unsigned width) {
     if(b->cg->had_error)return;
     if(b->contract_size+width>b->contract_capacity) {
         size_t capacity=b->contract_capacity?b->contract_capacity*2:128;
-        uint8_t *next=realloc(b->contracts,capacity);
+        uint8_t *next=BORROW_CONTRACT_REALLOC(b->contracts,capacity);
         if(!next){borrow_error(b,NULL,"available contract storage");return;}
         b->contracts=next;b->contract_capacity=capacity;
     }
     for(unsigned i=0;i<width;i++)b->contracts[b->contract_size++]=(uint8_t)(value>>(8*i));
 }
+static bool borrow_patch_word(BorrowCG *b,size_t at,uint32_t value,unsigned width) {
+    if(b->cg->had_error)return false;
+    if(width>4 || at>b->contract_size || width>b->contract_size-at) {
+        borrow_error(b,NULL,"a retained contract length reservation");return false;
+    }
+    for(unsigned i=0;i<width;i++)b->contracts[at+i]=(uint8_t)(value>>(8*i));
+    return true;
+}
+#undef BORROW_CONTRACT_REALLOC
 static void borrow_descriptor(BorrowCG *b,uint8_t tag,uint8_t mode,uint32_t layout) {
     if(tag==TAG_UNION && layout!=NVM_V2_NO_INDEX)layout+=b->record_count;
     borrow_word(b,tag,1);borrow_word(b,mode,1);borrow_word(b,0,2);borrow_word(b,layout,4);
@@ -1509,7 +1524,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
             if(!nvm_add_local_binding(cg->module,&b->pending_names[i]))
                 borrow_error(b,NULL,"available lexical-name storage");
         if((b->path_count || b->union_count) && !cg->had_error) {
-            if(!b->union_count)b->contracts[0]=NVM_OWNERSHIP_PATH_VERSION;
+            if(!b->union_count)borrow_patch_word(b,0,NVM_OWNERSHIP_PATH_VERSION,1);
             size_t paths_at=b->contract_size;
             if(b->union_count)borrow_word(b,0,4);
             size_t paths_begin=b->contract_size;
@@ -1521,17 +1536,17 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
             }
             if(b->union_count && !cg->had_error) {
                 uint32_t path_bytes=(uint32_t)(b->contract_size-paths_begin);
-                for(unsigned byte=0;byte<4;byte++)b->contracts[paths_at+byte]=(uint8_t)(path_bytes>>(8*byte));
+                borrow_patch_word(b,paths_at,path_bytes,4);
                 borrow_word(b,1,4);
                 borrow_word(b,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS,2);
                 borrow_word(b,NVM_OWNERSHIP_EXTENSION_REVISION_1,2);
                 size_t size_at=b->contract_size;borrow_word(b,0,4);size_t payload=b->contract_size;
                 borrow_word(b,b->union_count,4);
-                for(unsigned instance=0;instance<b->union_count;instance++) {
+                for(unsigned instance=0;instance<b->union_count && !cg->had_error;instance++) {
                     BorrowUnion *u=&b->unions[instance];unsigned offset=0;
                     borrow_word(b,b->record_count+instance,4);
                     borrow_word(b,(uint32_t)u->definition->variant_count,2);borrow_word(b,0,2);
-                    for(int variant=0;variant<u->definition->variant_count;variant++) {
+                    for(int variant=0;variant<u->definition->variant_count && !cg->had_error;variant++) {
                         const char *name=u->definition->variant_names[variant];
                         uint32_t string=nvm_add_string(cg->module,name,(uint32_t)strlen(name));
                         if(string==UINT32_MAX){borrow_error(b,NULL,"available union variant-name storage");break;}
@@ -1541,13 +1556,13 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                     }
                 }
                 uint32_t bytes=(uint32_t)(b->contract_size-payload);
-                for(unsigned byte=0;byte<4;byte++)b->contracts[size_at+byte]=(uint8_t)(bytes>>(8*byte));
+                borrow_patch_word(b,size_at,bytes,4);
                 while(!cg->had_error && b->contract_size%4)borrow_word(b,0,1);
             }
         }
-        cg->module->ownership_data=b->contracts;b->contracts=NULL;cg->module->ownership_size=(uint32_t)b->contract_size;
-        cg->module->header.flags|=NVM_FLAG_HAS_MAIN;cg->module->header.entry_point=0;
         if(!cg->had_error) {
+            cg->module->ownership_data=b->contracts;b->contracts=NULL;cg->module->ownership_size=(uint32_t)b->contract_size;
+            cg->module->header.flags|=NVM_FLAG_HAS_MAIN;cg->module->header.entry_point=0;
             if(nvm_service_bindings_present(cg->module))borrow_error(b,NULL,"a source graph without service bindings");
             NvmVerifyResult verified={0};
             if(!cg->had_error)verified=nvm_verify(cg->module);
