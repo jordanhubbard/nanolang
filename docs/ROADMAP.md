@@ -13848,3 +13848,19 @@ I do not infer full source lowering or service acceptance from this preparation.
   getter-sentinel comparisons also used struct assignment before memcmp, which
   does not promise padding-byte preservation. I initialize those sentinels with
   memcpy and retain the exact unchanged-output assertions. No failed run occurred.
+
+I retain the first6d673 Linux setup terminal before bootstrap: my external driver
+queried architecture-suffixed sanitizer library names, but actual Clang23 uses
+its target-directory runtime layout. Measured queries resolve libclang_rt.asan.a
+and libclang_rt.ubsan_standalone.a. I correct only that external inventory selector
+in a new driver/evidence directory; product source and fixture assertions remain
+6d673. The original terminal remains evidence, not a product or sanitizer failure.
+
+- [ ] I correct the actual6d673 both-host bootstrap source failure before continuing:
+  my new parser, graph collector/resolver and native provider code assigns ordinary
+  record fields, while the existing C checker requires an exclusive borrowed owner
+  for field mutation. The first terminal names parser.nano before Stage1 completes.
+  I reconstruct complete ordinary records at each new update, preserving all other
+  fields and the existing exclusive-borrow rule. I audit constructor/schema fields
+  across every affected record and send the complete correction for source review;
+  no old failed binary or dependent fixture is rerun.

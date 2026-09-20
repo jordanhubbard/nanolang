@@ -130,23 +130,23 @@ fn fsr_add(input: FileResolution, origin: string, qualifier: string, name: strin
     if (!= result.status 1) { return result }
     if (or (not (fsr_identifier name))
         (and (!= qualifier "") (not (fsr_qualifier qualifier)))) {
-        set result.status 5 return result
+        set result (FileResolution { status: 5, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) return result
     }
     let key: string = (fsr_namespace origin qualifier)
     let key_size: int = (str_length key)
-    if (or (== key_size 0) (or (> key_size 4096) (>= (array_length result.rows) 528))) { set result.status 3 return result }
+    if (or (== key_size 0) (or (> key_size 4096) (>= (array_length result.rows) 528))) { set result (FileResolution { status: 3, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) return result }
     let qualifier_size: int = (str_length qualifier)
     let name_size: int = (str_length name)
-    set result.work (+ result.work (* 8 (* (+ (+ qualifier_size name_size) 1) (+ (+ qualifier_size name_size) 1))))
-    if (> result.work 2199023255552) { set result.status 3 return result }
+    set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work (* 8 (* (+ (+ qualifier_size name_size) 1) (+ (+ qualifier_size name_size) 1)))), text_bytes: result.text_bytes })
+    if (> result.work 2199023255552) { set result (FileResolution { status: 3, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) return result }
     let mut i: int = 0
     while (< i (array_length result.rows)) {
         let old: FileVisibility = (at result.rows i)
-        set result.work (+ result.work 16384)
-        if (> result.work 2199023255552) { set result.status 3 return result }
+        set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work 16384), text_bytes: result.text_bytes })
+        if (> result.work 2199023255552) { set result (FileResolution { status: 3, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) return result }
         if (and (== old.origin origin) (and (== old.qualifier qualifier) (== old.name name))) {
             if (and (> target 0) (and (== old.target target) (== old.exported exported))) { return result }
-            set result.status 2 return result
+            set result (FileResolution { status: 2, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) return result
         }
         set i (+ i 1)
     }
@@ -155,12 +155,12 @@ fn fsr_add(input: FileResolution, origin: string, qualifier: string, name: strin
     let mut actual_origin: string = target_origin
     let mut actual_name: string = target_name
     if (== target 0) { set actual id set actual_origin origin set actual_name name }
-    if (> (+ result.text_bytes (+ key_size 258)) 2300000) { set result.status 3 return result }
-    set result.rows (array_push result.rows (FileVisibility { origin: origin, qualifier: qualifier,
+    if (> (+ result.text_bytes (+ key_size 258)) 2300000) { set result (FileResolution { status: 3, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) return result }
+    set result (FileResolution { status: result.status, origins: result.origins, rows: (array_push result.rows (FileVisibility { origin: origin, qualifier: qualifier,
         name: name, target_origin: actual_origin, target_name: actual_name, id: id, target: actual,
-        kind: kind, ordinal: ordinal, exported: exported, service: service }))
-    set result.text_bytes (+ result.text_bytes (+ key_size 258))
-    if (> result.text_bytes 2300000) { set result.status 3 }
+        kind: kind, ordinal: ordinal, exported: exported, service: service })), plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes })
+    set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: (+ result.text_bytes (+ key_size 258)) })
+    if (> result.text_bytes 2300000) { set result (FileResolution { status: 3, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) }
     return result
 }
 shadow fsr_add {
@@ -202,7 +202,7 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
         if (or (!= (ResolutionFs.canonical path) path) (!= (fsr_find_path paths path) i)) { return (fsr_empty 2) }
         let source: string = (at sources i)
         let source_size: int = (str_length source)
-        set result.text_bytes (+ result.text_bytes (+ source_size 1))
+        set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: (+ result.text_bytes (+ source_size 1)) })
         if (> result.text_bytes 67108864) { return (fsr_empty 3) }
         let parsed: ParsedDeclarations = (at original i)
         set edge_count (+ edge_count parsed.parser.imports_count)
@@ -214,7 +214,7 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
         while (> j 0) {
             let previous_size: int = (str_length (at sorted (- j 1)))
             let scan_width: int = (+ (+ path_size previous_size) 1)
-            set result.work (+ result.work (* 4 (* scan_width scan_width)))
+            set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work (* 4 (* scan_width scan_width))), text_bytes: result.text_bytes })
             if (> result.work 2199023255552) { return (fsr_empty 3) }
             if (<= (fsr_compare (at sorted (- j 1)) path) 0) { break }
             (array_set sorted j (at sorted (- j 1)))
@@ -223,12 +223,12 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
         (array_set sorted j path)
         set i (+ i 1)
     }
-    set result.work (+ result.work (+ (* result.text_bytes 8) (* (+ (* count count) (* edge_count count)) 8192)))
+    set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work (+ (* result.text_bytes 8) (* (+ (* count count) (* edge_count count)) 8192))), text_bytes: result.text_bytes })
     if (> result.work 2199023255552) { return (fsr_empty 3) }
-    if (== services 0) { set result.status 0 return result }
+    if (== services 0) { set result (FileResolution { status: 0, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) return result }
     if (> services 16) { return (fsr_empty 3) }
     # Source storage is distinct from the existing descriptive plan's text budget.
-    set result.text_bytes 0
+    set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: 0 })
     let mut requests: array<FileSourceRequest> = []
     let mut wire: string = (+ (int_to_string services) ";")
     set i 0
@@ -241,7 +241,7 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
         let metadata: int = (Companion.metadata path)
         if (< metadata 0) { return (fsr_empty 6) }
         if (> metadata 0) { return (fsr_empty 5) }
-        set result.origins (array_push result.origins (FileParsedOrigin { path: path, source: (at sources source_index), parsed: parsed }))
+        set result (FileResolution { status: result.status, origins: (array_push result.origins (FileParsedOrigin { path: path, source: (at sources source_index), parsed: parsed })), rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes })
         let mut d: int = 0
         while (< d (array_length parsed.definitions)) {
             let def: ParsedDefinition = (at parsed.definitions d)
@@ -343,7 +343,7 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
                     let mut n: int = 0
                     while (< n available) {
                         let row: FileVisibility = (at result.rows n)
-                        set result.work (+ result.work 8192)
+                        set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work 8192), text_bytes: result.text_bytes })
                         if (and (== row.origin target_path) (and row.exported (and (== row.qualifier "") (== row.name name)))) {
                             if (>= found 0) { return (fsr_empty 2) } set found n
                         }
@@ -356,7 +356,7 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
                         set n 0
                         while (< n available) {
                             let child: FileVisibility = (at result.rows n)
-                            set result.work (+ result.work 16384)
+                            set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work 16384), text_bytes: result.text_bytes })
                             if (> result.work 2199023255552) { return (fsr_empty 3) }
                             if (and (== child.origin target_path) (and child.exported (fsr_namespace_suffix child.qualifier name))) {
                                 let name_size: int = (str_length name)
@@ -378,7 +378,7 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
                 let mut n: int = 0
                 while (< n available) {
                     let row: FileVisibility = (at result.rows n)
-                    set result.work (+ result.work 16384)
+                    set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work 16384), text_bytes: result.text_bytes })
                     if (> result.work 2199023255552) { return (fsr_empty 3) }
                     if (and (== row.origin target_path) row.exported) {
                         let joined: string = (fsr_join_qualifier prefix row.qualifier)
@@ -405,13 +405,13 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
             let previous: FileVisibility = (at result.rows (- j 1))
             let previous_key: string = (fsr_namespace previous.origin previous.qualifier)
             let width: int = (+ 259 (+ (str_length previous_key) (str_length key)))
-            set result.work (+ result.work (* 4 (* width width)))
+            set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work (* 4 (* width width))), text_bytes: result.text_bytes })
             if (> result.work 2199023255552) { return (fsr_empty 3) }
             let comparison: int = (fsr_compare previous_key key)
             if (or (< comparison 0) (and (== comparison 0) (<= (fsr_compare previous.name value.name) 0))) { break }
             (array_set result.rows j previous)
             set j (- j 1)
-            set result.work (+ result.work 16384)
+            set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work 16384), text_bytes: result.text_bytes })
         }
         (array_set result.rows j value)
         set i (+ i 1)
@@ -434,11 +434,11 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
             let mut j: int = base
             while (< j (array_length result.rows)) {
                 let candidate: FileVisibility = (at result.rows j)
-                set result.work (+ result.work 8192)
+                set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: (+ result.work 8192), text_bytes: result.text_bytes })
                 if (> result.work 2199023255552) { return (fsr_empty 3) }
                 if (and (== candidate.kind 8) (and (== candidate.qualifier "")
                     (and (== candidate.origin row.target_origin) (== candidate.name row.target_name)))) {
-                    set row.target candidate.id set found true break
+                    set row (FileVisibility { origin: row.origin, qualifier: row.qualifier, name: row.name, target_origin: row.target_origin, target_name: row.target_name, id: row.id, target: candidate.id, kind: row.kind, ordinal: row.ordinal, exported: row.exported, service: row.service }) set found true break
                 }
                 set j (+ j 1)
             }
@@ -490,8 +490,8 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
             let dropped: bool = (Companion.destroy token)
             return (fsr_empty 5)
         }
-        set result.snapshots (array_push result.snapshots (FileSourceSnapshot { module_path: q.module_id.data,
-            original: original_document, canonical: canonical_document, generated: generated_source, catalog: catalog }))
+        set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: (array_push result.snapshots (FileSourceSnapshot { module_path: q.module_id.data,
+            original: original_document, canonical: canonical_document, generated: generated_source, catalog: catalog })), work: result.work, text_bytes: result.text_bytes })
         (array_set requests i (FileSourceRequest { module_id: q.module_id, interface_id: q.interface_id, catalog_view: (fsr_text catalog),
             catalog_version: q.catalog_version, line: q.line, column: q.column, bindings: q.bindings }))
         set i (+ i 1)
@@ -507,8 +507,8 @@ pub fn file_resolution_prepare(paths: array<string>, sources: array<string>, ori
         else if (>= i base) { set aliases (array_push aliases (FileSourceAlias { module_id: key, name: (fsr_text row.name), id: row.id, target: row.target })) }
         set i (+ i 1)
     }
-    set result.plan (file_source_plan requests aliases ordinary)
-    if (!= result.plan.status 0) { set result.status 5 }
+    set result (FileResolution { status: result.status, origins: result.origins, rows: result.rows, plan: (file_source_plan requests aliases ordinary), snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes })
+    if (!= result.plan.status 0) { set result (FileResolution { status: 5, origins: result.origins, rows: result.rows, plan: result.plan, snapshots: result.snapshots, work: result.work, text_bytes: result.text_bytes }) }
     return result
 }
 fn fsr_unused_resolver(owner: string, path: string, root: string) -> string { return path }

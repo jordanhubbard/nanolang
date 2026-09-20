@@ -884,11 +884,11 @@ fn collect_files_ast(path: string, repo_root: string, input: CollectResult,
     if (not result.ok) { return result }
     if (or (!= (array_length result.order) (array_length result.sources))
         (!= (array_length result.order) (array_length result.parsed))) {
-        set result.ok false return result
+        set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: false, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges }) return result
     }
     let norm_path: string = (canonical path)
     let path_bytes: int = (str_length norm_path)
-    if (or (<= path_bytes 0) (> path_bytes 4095)) { set result.ok false return result }
+    if (or (<= path_bytes 0) (> path_bytes 4095)) { set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: false, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges }) return result }
     if (nlc_hashset_has_string result.visited_set norm_path) {
         # Only a completed first parse can be reused; active cycles refuse.
         let mut i: int = 0
@@ -896,39 +896,39 @@ fn collect_files_ast(path: string, repo_root: string, input: CollectResult,
             if (== (at result.order i) norm_path) { return result }
             set i (+ i 1)
         }
-        set result.ok false return result
+        set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: false, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges }) return result
     }
     if (or (>= (array_length result.visited) max_files) (>= result.input_bytes 67108864)) {
-        set result.ok false return result
+        set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: false, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges }) return result
     }
-    set result.visited (array_push result.visited norm_path)
-    set result.visited_set (nlc_hashset_add_string result.visited_set norm_path)
+    set result (CollectResult { visited: (array_push result.visited norm_path), visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: result.ok, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges })
+    set result (CollectResult { visited: result.visited, visited_set: (nlc_hashset_add_string result.visited_set norm_path), order: result.order, sources: result.sources, parsed: result.parsed, ok: result.ok, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges })
     let copied: SourceCompanion.SourceInput = (SourceCompanion.source norm_path (- 67108864 result.input_bytes))
-    if (!= copied.status 0) { set result.ok false return result }
-    set result.input_bytes (+ result.input_bytes (+ copied.size 1))
+    if (!= copied.status 0) { set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: false, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges }) return result }
+    set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: result.ok, lines_scanned: result.lines_scanned, input_bytes: (+ result.input_bytes (+ copied.size 1)), edges: result.edges })
     let line_count: int = copied.lines
     if (or (> line_count max_file_lines) (> line_count (- max_lines result.lines_scanned))) {
-        set result.ok false return result
+        set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: false, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges }) return result
     }
-    set result.lines_scanned (+ result.lines_scanned line_count)
+    set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: result.ok, lines_scanned: (+ result.lines_scanned line_count), input_bytes: result.input_bytes, edges: result.edges })
     if trace { (println (+ "[import-ast] " norm_path)) }
     let tokens: List<LexerToken> = (tokenize_string copied.source norm_path (list_CompilerDiagnostic_new))
     let parsed: ParsedDeclarations = (parse_program_declarations tokens (list_LexerToken_length tokens) norm_path)
-    if (parser_has_error parsed.parser) { set result.ok false return result }
+    if (parser_has_error parsed.parser) { set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: false, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges }) return result }
     let mut i: int = 0
     while (< i (parser_get_import_count parsed.parser)) {
-        if (>= result.edges 50000) { set result.ok false return result }
-        set result.edges (+ result.edges 1)
+        if (>= result.edges 50000) { set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: false, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges }) return result }
+        set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: result.ok, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: (+ result.edges 1) })
         let imported: ASTImport = (parser_get_import parsed.parser i)
         let dep: string = (resolve_import_path norm_path imported.module_path repo_root)
-        if (== dep "") { set result.ok false return result }
+        if (== dep "") { set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: result.parsed, ok: false, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges }) return result }
         set result (collect_files_ast dep repo_root result max_files max_lines max_file_lines trace)
         if (not result.ok) { return result }
         set i (+ i 1)
     }
-    set result.order (array_push result.order norm_path)
-    set result.sources (array_push result.sources copied.source)
-    set result.parsed (array_push result.parsed parsed)
+    set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: (array_push result.order norm_path), sources: result.sources, parsed: result.parsed, ok: result.ok, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges })
+    set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: (array_push result.sources copied.source), parsed: result.parsed, ok: result.ok, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges })
+    set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: result.sources, parsed: (array_push result.parsed parsed), ok: result.ok, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges })
     return result
 }
 shadow collect_files_ast {
@@ -1243,21 +1243,21 @@ fn native_provider_add(input: NativeProviderSet, value: NativeProvider) -> Nativ
     let mut result: NativeProviderSet = input
     if (not result.ok) { return result }
     if (or (== value.source "") (or (== value.compiler "") (or (== value.language "") (== value.profile "")))) {
-        set result.ok false return result
+        set result (NativeProviderSet { rows: result.rows, ok: false }) return result
     }
     let mut i: int = 0
     while (< i (array_length result.rows)) {
         let old: NativeProvider = (at result.rows i)
         if (== old.source value.source) {
             if (or (!= old.compiler value.compiler) (or (!= old.language value.language) (!= old.profile value.profile))) {
-                set result.ok false
+                set result (NativeProviderSet { rows: result.rows, ok: false })
             }
             return result
         }
         set i (+ i 1)
     }
-    if (>= (array_length result.rows) 50128) { set result.ok false return result }
-    set result.rows (array_push result.rows value)
+    if (>= (array_length result.rows) 50128) { set result (NativeProviderSet { rows: result.rows, ok: false }) return result }
+    set result (NativeProviderSet { rows: (array_push result.rows value), ok: result.ok })
     return result
 }
 shadow native_provider_add {
@@ -1685,8 +1685,8 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
     set profile (native_profile_append profile runtime.includes)
     if (== profile "") { return (native_build_empty) }
     let mut result: ModuleBuildFlags = (native_build_empty)
-    set result.compiler selected_compiler
-    set result.compile_flags profile
+    set result (ModuleBuildFlags { compile_flags: result.compile_flags, link_flags: result.link_flags, compiler: selected_compiler, runtime_sources: result.runtime_sources, objects: result.objects, ok: result.ok, first_status: result.first_status })
+    set result (ModuleBuildFlags { compile_flags: profile, link_flags: result.link_flags, compiler: result.compiler, runtime_sources: result.runtime_sources, objects: result.objects, ok: result.ok, first_status: result.first_status })
     let mut registry: NativeProviderSet = NativeProviderSet { rows: [], ok: true }
     set i 0
     while (< i (array_length runtime.sources)) {
@@ -1697,7 +1697,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
             language: "c99", profile: profile, runtime: true }))
         if (not registry.ok) { return result }
         if (> (array_length registry.rows) prior_count) {
-            set result.runtime_sources (array_push result.runtime_sources source)
+            set result (ModuleBuildFlags { compile_flags: result.compile_flags, link_flags: result.link_flags, compiler: result.compiler, runtime_sources: (array_push result.runtime_sources source), objects: result.objects, ok: result.ok, first_status: result.first_status })
         }
         set i (+ i 1)
     }
@@ -1723,7 +1723,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
             let object: string = (native_profile_append native_dir suffix)
             if (== object "") { return result }
             # I own partial output before starting its compiler.
-            set result.objects (array_push result.objects object)
+            set result (ModuleBuildFlags { compile_flags: result.compile_flags, link_flags: result.link_flags, compiler: result.compiler, runtime_sources: result.runtime_sources, objects: (array_push result.objects object), ok: result.ok, first_status: result.first_status })
             let mut command: string = (native_profile_append provider.compiler (+ " -c -std=" provider.language))
             if (== command "") { return result }
             set command (native_profile_append command provider.profile)
@@ -1735,7 +1735,7 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
             if verbose { (println (+ "    Provider command: " command)) }
             let status: int = (nl_exec_shell command)
             if (!= status 0) {
-                set result.first_status status
+                set result (ModuleBuildFlags { compile_flags: result.compile_flags, link_flags: result.link_flags, compiler: result.compiler, runtime_sources: result.runtime_sources, objects: result.objects, ok: result.ok, first_status: status })
                 (println (+ "I could not compile required native provider: " provider.source))
                 return result
             }
@@ -1745,9 +1745,9 @@ fn collect_module_build_flags(files: array<string>, repo_root: string, runtime_r
         }
         set i (+ i 1)
     }
-    set result.link_flags (native_profile_append objects ldflags)
+    set result (ModuleBuildFlags { compile_flags: result.compile_flags, link_flags: (native_profile_append objects ldflags), compiler: result.compiler, runtime_sources: result.runtime_sources, objects: result.objects, ok: result.ok, first_status: result.first_status })
     if (and (== result.link_flags "") (or (!= objects "") (!= ldflags ""))) { return result }
-    set result.ok true set result.first_status 0
+    set result (ModuleBuildFlags { compile_flags: result.compile_flags, link_flags: result.link_flags, compiler: result.compiler, runtime_sources: result.runtime_sources, objects: result.objects, ok: true, first_status: result.first_status }) set result (ModuleBuildFlags { compile_flags: result.compile_flags, link_flags: result.link_flags, compiler: result.compiler, runtime_sources: result.runtime_sources, objects: result.objects, ok: result.ok, first_status: 0 })
     return result
 }
 

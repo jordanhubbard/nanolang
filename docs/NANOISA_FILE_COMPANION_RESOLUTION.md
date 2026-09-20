@@ -474,3 +474,26 @@ I record task_28cf8f795b2a410d8bd015d2a4545018 and the concrete
 The graph/namespace/bridge source is reviewable, but I hold provider implementation
 for that plan review and all builds/fixtures for complete source review. I do not
 claim the currently repeated manifests already link successfully.
+
+### My first bootstrap correction: ordinary record reconstruction
+
+Both fresh6d673 bootstraps compile the C seed, then stop while checking parser.nano
+before Stage1. My new ordinary record field assignment violates the existing
+exclusive-borrow mutation rule. I keep that checker rule unchanged. I replace all57
+new field assignments across parser/collector/resolver/provider source with explicit
+complete record construction followed by ordinary variable reassignment. Each
+construction substitutes only its intended field expression and retains every
+other field once, including original origins, counts, buffers, owner arrays and
+failure status. The existing list setter still installs the pub-use import node;
+I grant no new mutable borrow or source authority.
+
+[NANOISA_FILE_RECORD_RECONSTRUCTION.json](NANOISA_FILE_RECORD_RECONSTRUCTION.json)
+retains each original update expression and exact unchanged-field inventory.
+I check ASTImport against the primary schema and the other five records against
+their actual Nano declarations. This is static equivalence of intended record
+facts, not runtime acceptance. Record construction and temporary lifetimes use the
+existing Nano runtime and remain outside the snapshot heap and retained logical
+payload caps. I do not claim that their allocations equal a hypothetical working
+in-place update or that all allocation failures are recoverable. Existing paired
+reports, allocation scopes, complete shadows, private object cleanup and fresh
+bootstrap gates remain mandatory after correction review.

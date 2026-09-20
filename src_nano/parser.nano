@@ -7984,7 +7984,7 @@ fn parse_pub_use(p: Parser) -> Parser {
     if parsed.has_error { return parsed }
     if (!= parsed.imports_count (+ p.imports_count 1)) { return (parser_with_error parsed true) }
     let mut imported: ASTImport = (list_ASTImport_get parsed.imports p.imports_count)
-    set imported.is_pub_use true
+    set imported (ASTImport { node_type: imported.node_type, line: imported.line, column: imported.column, module_path: imported.module_path, module_name: imported.module_name, is_unsafe: imported.is_unsafe, is_selective: imported.is_selective, is_wildcard: imported.is_wildcard, is_pub_use: true, import_symbols: imported.import_symbols, import_aliases: imported.import_aliases, import_symbol_count: imported.import_symbol_count })
     (list_ASTImport_set parsed.imports p.imports_count imported)
     return parsed
 }
