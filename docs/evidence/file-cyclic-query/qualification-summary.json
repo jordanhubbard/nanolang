@@ -1,0 +1,497 @@
+{
+  "artifact_bytes": 367383636,
+  "artifact_references": 7875,
+  "current_linux": [
+    {
+      "group": "linux-first",
+      "mismatches": 0,
+      "providers": 164,
+      "sources": 10204,
+      "tools": 9,
+      "tree": "/home/jkh/Src/nanolang-file-cyclic-486ba"
+    },
+    {
+      "group": "linux",
+      "mismatches": 0,
+      "providers": 164,
+      "sources": 10204,
+      "tools": 9,
+      "tree": "/home/jkh/Src/nanolang-file-cyclic-04d58"
+    }
+  ],
+  "first_fixture": "486ba6816032397884100040882753ddfda81df1",
+  "phases": {
+    "darwin": [
+      {
+        "phase": "setup",
+        "seconds": 9.891,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.127,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 2.431,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 2.38,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 4.838,
+        "status": 0
+      },
+      {
+        "phase": "code",
+        "seconds": 4.334,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 4.238,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 4.141,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 9.81,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.963,
+        "status": 0
+      }
+    ],
+    "linux": [
+      {
+        "phase": "setup",
+        "seconds": 20.814,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.114,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 2.269,
+        "status": 0
+      },
+      {
+        "phase": "clang-ordinary",
+        "seconds": 2.77,
+        "status": 0
+      },
+      {
+        "phase": "sanitizer",
+        "seconds": 8.485,
+        "status": 0
+      },
+      {
+        "phase": "clang-sanitizer",
+        "seconds": 6.583,
+        "status": 0
+      },
+      {
+        "phase": "code",
+        "seconds": 5.978,
+        "status": 0
+      },
+      {
+        "phase": "body",
+        "seconds": 6.079,
+        "status": 0
+      },
+      {
+        "phase": "flow",
+        "seconds": 5.477,
+        "status": 0
+      },
+      {
+        "phase": "hosted",
+        "seconds": 20.066,
+        "status": 0
+      },
+      {
+        "phase": "opcodes",
+        "seconds": 3.222,
+        "status": 0
+      }
+    ],
+    "linux-first": [
+      {
+        "phase": "setup",
+        "seconds": 21.065,
+        "status": 0
+      },
+      {
+        "phase": "configuration",
+        "seconds": 0.064,
+        "status": 0
+      },
+      {
+        "phase": "ordinary",
+        "seconds": 0.265,
+        "status": 1
+      }
+    ]
+  },
+  "production": "f6eeecee3e8f8f88b795bed83dc38916d3e5f198",
+  "provider_pairs": [
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux-first",
+      "phase": "ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux-first",
+      "phase": "configuration",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": true,
+      "existing_input_count": 0,
+      "group": "linux-first",
+      "phase": "setup",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "flow",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "configuration",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "opcodes",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "code",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "body",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "hosted",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "sanitizer",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "clang-sanitizer",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": true,
+      "existing_input_count": 0,
+      "group": "linux",
+      "phase": "setup",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 164,
+      "group": "linux",
+      "phase": "clang-ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 163,
+      "group": "darwin",
+      "phase": "flow",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 163,
+      "group": "darwin",
+      "phase": "ordinary",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 163,
+      "group": "darwin",
+      "phase": "configuration",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 163,
+      "group": "darwin",
+      "phase": "opcodes",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 163,
+      "group": "darwin",
+      "phase": "code",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 163,
+      "group": "darwin",
+      "phase": "body",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 163,
+      "group": "darwin",
+      "phase": "hosted",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 163,
+      "group": "darwin",
+      "phase": "sanitizer",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": true,
+      "existing_input_count": 0,
+      "group": "darwin",
+      "phase": "setup",
+      "unchanged": true
+    },
+    {
+      "creation_during_setup": false,
+      "existing_input_count": 163,
+      "group": "darwin",
+      "phase": "clang-ordinary",
+      "unchanged": true
+    }
+  ],
+  "qualified_fixture": "04d58ca3a4514ea1ed3c71a469c9784224bd67c5",
+  "query_only": true,
+  "runtime_admitted": false,
+  "source_tool_pairs": [
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "ordinary",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "configuration",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux-first",
+      "phase": "setup",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "flow",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "ordinary",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "configuration",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "opcodes",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "code",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "body",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "hosted",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "sanitizer",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "clang-sanitizer",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "setup",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "linux",
+      "phase": "clang-ordinary",
+      "sources": 10204,
+      "tools": 9
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "flow",
+      "sources": 10204,
+      "tools": 12
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "ordinary",
+      "sources": 10204,
+      "tools": 12
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "configuration",
+      "sources": 10204,
+      "tools": 12
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "opcodes",
+      "sources": 10204,
+      "tools": 12
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "code",
+      "sources": 10204,
+      "tools": 12
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "body",
+      "sources": 10204,
+      "tools": 12
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "hosted",
+      "sources": 10204,
+      "tools": 12
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "sanitizer",
+      "sources": 10204,
+      "tools": 12
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "setup",
+      "sources": 10204,
+      "tools": 12
+    },
+    {
+      "equal": true,
+      "group": "darwin",
+      "phase": "clang-ordinary",
+      "sources": 10204,
+      "tools": 12
+    }
+  ],
+  "unique_artifacts": 782,
+  "whole_program_sanitizer": false
+}

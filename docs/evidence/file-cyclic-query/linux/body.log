@@ -1,0 +1,10 @@
+I retain File body artifacts at /tmp/nano-file-body-a5v8lg5b
+test_instrumented_body_allocation_recovery (tests.test_file_body.FileBody.test_instrumented_body_allocation_recovery) ... PASS 9507 private acyclic File body checks; no hosted stack ABI or execution authority
+ok
+test_linked_bodies_lifetimes_and_refusal (tests.test_file_body.FileBody.test_linked_bodies_lifetimes_and_refusal) ... PASS 3662 private acyclic File body checks; no hosted stack ABI or execution authority
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 6.020s
+
+OK

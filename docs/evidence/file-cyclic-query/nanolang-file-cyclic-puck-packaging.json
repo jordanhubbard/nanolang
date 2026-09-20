@@ -1,0 +1,24 @@
+{
+  "references": 3367,
+  "unique_artifacts": 333,
+  "bytes": 110121221,
+  "current": [
+    {
+      "group": "darwin",
+      "tree": "/tmp/nanolang-file-cyclic-04d58",
+      "sources": 10204,
+      "tools": 12,
+      "mismatches": 0
+    }
+  ],
+  "archives": {
+    "/tmp/nanolang-file-cyclic-puck-reports.tar.gz": {
+      "sha256": "b928edc7087712cb082887f1431628082b248b16fa90ee8b7ef591ed154d9cd7",
+      "bytes": 8151235
+    },
+    "/tmp/nanolang-file-cyclic-puck-artifacts.tar.gz": {
+      "sha256": "d38d8879d26726df1968fc34eabb9af1f44dc199168970aa554e235d277e8938",
+      "bytes": 30141986
+    }
+  }
+}

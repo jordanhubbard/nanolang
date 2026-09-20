@@ -12483,3 +12483,33 @@ I seal private-native9a237 qualification in [my evidence](evidence/file-private-
 
 - [ ] I reconcile only82ff after review of [my original-criterion matrix](NANOISA_FILE_PRIVATE_RUNTIME_RECONCILIATION.md): carrier858, frames879, VM885 and native888 are merged, with actual Linux/Darwin private acceptance. The original open row above records its earlier checkpoint; MAC closure and this checkbox await review. Public/source/full File parents remain open.
 - [ ] I prepare and review [the next cyclic-flow and richer-call contract](NANOISA_FILE_CONTROL_CALL_EXTENSION.md), task_243a9a5809bf422caab0bddafa447098 under72556/6931: first finite non-admitting loop analysis, then matched private VM/native fuel and lifetime acceptance; separately closed indirect targets and explicit multi-borrow transport; only then public conjunction and complete paired-source/shadow acceptance. Existing refusals/limits remain until each reviewed dependency qualifies. Public acyclic dfa149 remains separately owned.
+
+I refine task243a9's first [non-admitting cyclic query checkpoint](NANOISA_FILE_CYCLIC_QUERY.md): explicit canonical live-root/reference relations, at most16 exact state alternatives per instruction, bounded FIFO exploration and16MiB accounted storage, immutable revision1 report and concrete zero-iteration/replacement/held-reference controls. I do not reset historical counters in old flow states, change publicdfa149, implement production or execute cyclic modules before separate reviews.
+
+I prepare task243a's first unexecuted production checkpoint: a distinct cyclic
+report/accessor header, bounded canonical state alternatives and FIFO exploration,
+private one-step declaration/state scratch, and checked edge publication. The
+old public preparation always retains DAG validation; no selector or target
+consumes the new query. Source review precedes fixtures, builds or execution.
+
+I prepare task243a's unexecuted query fixtures with full old body adjacency,
+real16/17 alternative joins, owner/reference loop invariants, copied-report and
+old-counter independence, explicit white-box budget relations, allocation
+prefix/transient recovery and retained process-group timeout evidence. Complete
+fixture review precedes compilation or any query gate; File execution stays held.
+
+I record the static1ffa runner-retention gap under243a before qualification:
+leader exit after TERM did not prove group disappearance and Popen errors lacked
+status. My corrected unexecuted fixture uses file-backed logs, bounded independent
+group/leader cleanup on every path, actual decoded two-root swaps with held-owner
+refusal, and exact transfer/edge guard controls. Production remainsf6ee.
+
+- [ ] I preserve the first486ba cyclic query fixture compile terminal and repair only its local exit-name collision (task_1f0d53da650d42aba327852e74a9f3f7): fresh setup passes21.065s, configuration0.064s, ordinary fixture compile fails0.265s before execution. The local `exit` masks inherited CHECK macro libc exit. I retain `/tmp/nanolang-file-cyclic-486ba-linux` and `/tmp/nano-file-cyclic-3u3k0oad`, change only that identifier, then request review before fresh corrected gates. Darwin remains unrun; query production is unchanged.
+
+I seal task243a's bounded private cyclic query acceptance in
+[my platform evidence](evidence/file-cyclic-query.md): corrected04d58 passes
+ordinary/sanitizer query and unchanged CODE/body/flow/hosted/refusal neighbors on
+Linux and puck. I preserve first486ba fixture compile failure and corrected-only
+execution,247 reports,782 unique artifacts,24 equal source/tool pairs and exact
+prepared-provider identities. Productionf6ee is unchanged. Independent review
+and actual merge remain pending; no cyclic File runtime or parent closure follows.
