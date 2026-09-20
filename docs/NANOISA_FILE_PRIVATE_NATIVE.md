@@ -288,3 +288,12 @@ remain required, without attributing older sanitizer seals to new providers.
 At this checkpoint I have only parsed the Python runner and checked whitespace.
 No provider, capture fixture, emitter or generated program has been compiled or
 executed. Independent complete fixture review precedes frozen qualification.
+
+I correct the runner retention prerequisite before its first execution. Every
+command writes raw stdout/stderr files directly; a240-second timeout records
+status124 separately from the actual child return code and preserves partial
+bytes. I signal only the new process group, TERM then KILL, with at most5seconds
+waiting after each signal. KILL is attempted even if the leader exited after
+TERM. An unreaped leader or signal error stays explicit in the terminal record;
+I do not call bounded signaling proof that an uninterruptible process exited.
+The timeout then fails the test. Corpus assertions and production are unchanged.

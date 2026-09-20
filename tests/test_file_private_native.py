@@ -5,8 +5,10 @@ import os
 from pathlib import Path
 import re
 import shlex
+import signal
 import subprocess
 import tempfile
+import time
 import unittest
 
 from tests.test_file_private_vm import PROVIDERS as VM_PROVIDERS
@@ -39,15 +41,50 @@ class FilePrivateNative(unittest.TestCase):
 
     def command(self, name, args, marker=None):
         (self.artifacts / (name + '-command.json')).write_text(json.dumps(args, indent=2))
-        result = subprocess.run(args, cwd=ROOT, env=self.environment, capture_output=True,
-                                text=True, timeout=240)
-        (self.artifacts / (name + '.log')).write_text(result.stdout + result.stderr)
-        (self.artifacts / (name + '-status.txt')).write_text(str(result.returncode) + '\n')
-        self.assertEqual(result.returncode, 0, (args, result.stdout, result.stderr))
+        stdout_path = self.artifacts / (name + '-stdout.bin')
+        stderr_path = self.artifacts / (name + '-stderr.bin')
+        started = time.monotonic()
+        timed_out = False
+        cleanup = []
+        with stdout_path.open('wb') as stdout, stderr_path.open('wb') as stderr:
+            process = subprocess.Popen(args, cwd=ROOT, env=self.environment,
+                                       stdout=stdout, stderr=stderr, start_new_session=True)
+            try:
+                process.wait(timeout=240)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                # Regular output files retain all bytes without waiting on pipes
+                # held by descendants. Only this fresh process group is signaled.
+                for sig in (signal.SIGTERM, signal.SIGKILL):
+                    try:
+                        os.killpg(process.pid, sig)
+                        cleanup.append({'signal': sig.name, 'sent': True})
+                    except ProcessLookupError:
+                        cleanup.append({'signal': sig.name, 'group_absent': True})
+                    except OSError as error:
+                        cleanup.append({'signal': sig.name, 'error': str(error)})
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        cleanup.append({'signal': sig.name, 'leader_wait_expired': True})
+                # KILL is attempted even when TERM reaped the group leader, so
+                # a surviving child cannot inherit an indefinite grace period.
+        stdout_text = stdout_path.read_bytes().decode('utf-8', errors='replace')
+        stderr_text = stderr_path.read_bytes().decode('utf-8', errors='replace')
+        status = 124 if timed_out else process.returncode
+        terminal = {'timed_out': timed_out, 'timeout_seconds': 240,
+                    'elapsed_seconds': round(time.monotonic() - started, 6),
+                    'returncode': process.poll(), 'status': status,
+                    'cleanup': cleanup, 'leader_reaped': process.returncode is not None}
+        (self.artifacts / (name + '.log')).write_text(stdout_text + stderr_text)
+        (self.artifacts / (name + '-status.txt')).write_text(str(status) + '\n')
+        (self.artifacts / (name + '-terminal.json')).write_text(json.dumps(terminal, indent=2))
+        self.assertFalse(timed_out, (args, terminal, stdout_text, stderr_text))
+        self.assertEqual(process.returncode, 0, (args, stdout_text, stderr_text))
         if marker:
-            self.assertIn(marker, result.stdout)
-            print(result.stdout.strip(), flush=True)
-        return result.stdout
+            self.assertIn(marker, stdout_text)
+            print(stdout_text.strip(), flush=True)
+        return stdout_text
 
     def providers(self, name, instrument):
         objects = []
