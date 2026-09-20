@@ -486,8 +486,10 @@ static bool match_refine(Frame *frame,uint16_t variant) {
         (value->variant!=NVM_AFFINE_UNKNOWN_VARIANT && value->variant!=variant))
         return false;
     value->variant=variant;
-    return value->root==UINT16_MAX ||
-        nvm_affine_union_refine(frame->locals,value->root,variant);
+    /* MATCH_TAG proves only this tested value on this successful edge.  I do
+     * not turn its source local into a wider fact: a later load is a different
+     * receiver and must retain or establish its own exact proof. */
+    return true;
 }
 #ifdef NVM_AFFINE_TEST_VISIT_LIMIT
 extern uint32_t NVM_AFFINE_TEST_VISIT_LIMIT(uint32_t limit);

@@ -44,11 +44,22 @@ static const char *tag_name(uint8_t tag) {
 }
 static NvmModule *union_fixture(const char *body,uint16_t params,uint16_t locals,
                                 uint8_t result) {
+    char parameters[256]={0};size_t parameter_bytes=0;
+    if (params) {
+        int wrote=snprintf(parameters,sizeof(parameters),".parameters 0");
+        CHECK(wrote>0 && (size_t)wrote<sizeof(parameters));parameter_bytes=(size_t)wrote;
+        for (uint16_t i=0;i<params;i++) {
+            wrote=snprintf(parameters+parameter_bytes,sizeof(parameters)-parameter_bytes," union");
+            CHECK(wrote>0 && (size_t)wrote<sizeof(parameters)-parameter_bytes);
+            parameter_bytes+=(size_t)wrote;
+        }
+        CHECK(parameter_bytes+1<sizeof(parameters));parameters[parameter_bytes++]='\n';
+        parameters[parameter_bytes]='\0';
+    }
     char source[8192];int used=snprintf(source,sizeof(source),
-        ".types 0 0 1\n.entry 0\n.string \"text\"\n.function inspect %u %u 0 %s %u\n%s.end\n",
-        params,locals,tag_name(result),result!=TAG_VOID,body);
+        ".types 0 0 1\n.entry 0\n.string \"text\"\n.function inspect %u %u 0 %s %u\n%s.end\n%s",
+        params,locals,tag_name(result),result!=TAG_VOID,body,parameters);
     CHECK(used>0 && (size_t)used<sizeof(source));
-    if (params) snprintf(source+used,sizeof(source)-(size_t)used,".parameters 0 union\n");
     AsmResult assembled;NvmModule *m=asm_assemble_unverified(source,&assembled);
     if(!m)fprintf(stderr,"%s\n",assembled.message);CHECK(m);
     uint32_t identity=nvm_add_string(m,"Choice<int,string>",18);
@@ -170,6 +181,15 @@ int main(int argc,char **argv) {
                   0,0,TAG_BOOL,true,NULL);
     analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nPOP\nPUSH_I64 0\nRET\n"
                   "matched:\nAGG_GET 0\nRET\n",1,1,TAG_INT,true,NULL);
+    analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nPOP\nPUSH_I64 0\nRET\n"
+                  "matched:\nPOP\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n",1,1,TAG_INT,false,
+                  "proven scalar-union variant");
+    analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nPOP\nPUSH_I64 0\nRET\n"
+                  "matched:\nPOP\nLOAD_LOCAL 1\nAGG_GET 0\nRET\n",2,2,TAG_INT,false,
+                  "proven scalar-union variant");
+    analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nJMP joined\n"
+                  "matched:\nNOP\njoined:\nAGG_GET 0\nRET\n",1,1,TAG_INT,false,
+                  "proven scalar-union variant");
     analyze_union("LOAD_LOCAL 0\nAGG_GET 0\nRET\n",1,1,TAG_INT,false,
                   "proven scalar-union variant");
     analyze_union("LOAD_LOCAL 0\nMATCH_TAG 0 matched\nPOP\nPUSH_I64 0\nRET\n"
