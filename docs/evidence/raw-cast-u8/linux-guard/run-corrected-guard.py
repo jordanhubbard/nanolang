@@ -1,0 +1,2 @@
+import importlib.util,sys,unittest
+sys.path.insert(0,sys.argv[1]);s=importlib.util.spec_from_file_location('corrected_scalar_u8',sys.argv[2]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);t=unittest.defaultTestLoader.loadTestsFromName('ScalarU8.test_declared_byte_result_checks_actual_return_tag',m);assert t.countTestCases()==1;r=unittest.TextTestRunner(verbosity=2).run(t);sys.exit(not r.wasSuccessful())

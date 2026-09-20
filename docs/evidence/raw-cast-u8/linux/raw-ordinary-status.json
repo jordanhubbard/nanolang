@@ -1,0 +1,25 @@
+{
+  "name": "raw-ordinary",
+  "argv": [
+    "make",
+    "test-cast-u8",
+    "CC=/bin/gcc",
+    "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  ],
+  "bound_seconds": 300,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 8.03443266497925,
+  "log": {
+    "sha256": "200148be33ad7dac51cca9ac29050c8c2d9d7298f2a3574f98db58d6015fd961",
+    "bytes": 4032,
+    "archive": "/tmp/nanolang-cast-u8-linux/objects/200148be33ad7dac51cca9ac29050c8c2d9d7298f2a3574f98db58d6015fd961"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

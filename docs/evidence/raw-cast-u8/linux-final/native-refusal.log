@@ -1,0 +1,2 @@
+I cannot translate '/tmp/nanolang-cast-u8-linux-final/convert.nvm': I cannot classify unsupported opcode CAST_U8 (0x8F) in function 0 at offset 9
+I refused conversion and preserved existing output.

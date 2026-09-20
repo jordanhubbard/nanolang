@@ -1,0 +1,26 @@
+{
+  "name": "native-refusal",
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "/tmp/nanolang-cast-u8-linux-final/check-refusal.py",
+    "/tmp/nanolang-cast-u8-linux-final/native.out",
+    "/home/jkh/Src/nanolang-cast-u8-qualification/bin/nvm2c",
+    "/tmp/nanolang-cast-u8-linux-final/convert.nvm",
+    "-o",
+    "/tmp/nanolang-cast-u8-linux-final/native.out"
+  ],
+  "bound_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.031951009994372725,
+  "log": {
+    "sha256": "f05e3ba5b6c1123eb01f66ce757eb060f932868c5c2fa19eb69358c05936a6ed",
+    "bytes": 198,
+    "archive": "/tmp/nanolang-cast-u8-linux-final/objects/f05e3ba5b6c1123eb01f66ce757eb060f932868c5c2fa19eb69358c05936a6ed"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}
