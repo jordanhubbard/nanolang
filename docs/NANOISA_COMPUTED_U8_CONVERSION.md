@@ -86,3 +86,42 @@ must not infer conversion from a runtime callable's address.
 I require source and fixture review before each stage runs. The first raw
 conversion checkpoint is not whole-source, all-backend or full5.1 acceptance.
 Both original verifier failures and the full release roadmap stay visible.
+
+## My catalog and consumer audit before opcode implementation
+
+I inspected the current source at the c404/922 base. The active legacy catalog
+in `spec/nanoisa.yaml` ends its cast group at F64_TO_BITS `0x8e` and resumes at
+CLOSURE_NEW `0x90`; `0x8f` is unallocated in that catalog. This is a candidate
+legacy byte assignment, not permission to invent a separate portable-v2 opcode.
+`src/nanoisa/isa.h` supplies the symbolic enum; generated metadata comes only
+from `scripts/gen_nanoisa_schema.py` into `src/nanoisa/generated_schema.h`.
+`isa.c` builds its decoder/encoder metadata table from that generated catalog.
+I must change the schema and enum coherently and retain schema validation.
+
+| Consumer | Concrete required implementation or refusal boundary |
+| --- | --- |
+| Encoding and textual tools | `isa.c`, `assembler.c`, `disassembler.c` consume catalog metadata; test exact one-byte encoding, decode, mnemonic round trip and stack effect |
+| Stack/type verification | `verifier_types.c` requires INT or U8 input and U8 output; `verifier.c` target whitelists must remain closed until matching emitters exist |
+| VM | `vm.c` actual handler and explicit computed-goto label table must both change; wrong tags retain existing cleanup/error conventions |
+| Native C | Both simulation/type-state and emitting cases in `nvm2c.c`; retain U8 in straight and merged/dynamic carriers without INT relabeling |
+| LLVM | `nvm2llvm.c` scalar/managed routes and `nvm2llvm_managed.inc` must produce an exact U8-tagged value using defined integer narrowing |
+| Wasm | `scripts/nvm2wasm.py` delegates to the real LLVM translator with wasm32 runtime, then llc/wasm-ld; it has no independent cast interpreter to patch |
+| C producer | `src/nanovirt/codegen.c` `compile_expected_tag` and every checked binding/assignment/direct parameter/return caller |
+| Nano producer | `src_nano/compiler/nanoisa_codegen.nano` `nisa_emit_expected_expr` and its contextual callers, with meaningful shadows |
+| Reconstruction | `src/nanoisa/hl_facts_main.c`, `scripts/nanoisa_reconstruction.py`, `scripts/nvm2hl.py`; preserve explicit narrowing in both reconstructed C and Nano source |
+| Passive/shape analyses | `passive.c`, `passive_calls.inc`, `managed_array_shapes.c`; decide explicit scalar transfer support rather than accepting a catalog entry automatically |
+| Owned/mixed/service analyses | Existing closed switches in owned-array authority/origins, mixed samples, File code/flow and native-owned emission remain refusal boundaries until separately justified |
+
+The existing reconstruction `SIMPLE` set and CAST_INT expression emitter do not
+provide a U8 narrowing operation. I must not reconstruct it as an INT cast or
+silently elide it. The existing owned native emitter also has no cast case; its
+PUSH_U8 support is not computed-conversion authority. Adding one catalog row
+cannot constitute complete backend support.
+
+My acceptance sequence must inspect each destination profile's whitelist and
+actual transfer path, then test both ordinary INT and already-U8 operands,
+INT64 extrema, computed negative/256 boundaries and wrong-tag refusal. Literal
+range failures remain unchanged. I will retain output sentinels in not-yet-
+implemented translator/reconstruction profiles. No catalog or opcode source
+has changed at this audit checkpoint; the complete list prerequisite remains
+my first implementation lane.
