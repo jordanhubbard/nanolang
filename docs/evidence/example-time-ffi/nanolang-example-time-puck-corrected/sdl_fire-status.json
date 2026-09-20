@@ -1,0 +1,24 @@
+{
+  "name": "sdl_fire",
+  "argv": [
+    "/private/tmp/nanolang-example-time-28ba6-corrected/bin/nanoc_c",
+    "examples/graphics/sdl_fire.nano",
+    "-o",
+    "/private/tmp/nanolang-example-time-puck-corrected/sdl_fire",
+    "--keep-c"
+  ],
+  "bound_seconds": 120,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 3.5493865420000006,
+  "log": {
+    "sha256": "d407c063a1a8f3799faf28be79b0fa1b8b78eac8e1667ce3858bb4e669d70368",
+    "bytes": 66,
+    "archive": "/private/tmp/nanolang-example-time-puck-corrected/objects/d407c063a1a8f3799faf28be79b0fa1b8b78eac8e1667ce3858bb4e669d70368"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

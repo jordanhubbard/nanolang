@@ -13189,9 +13189,9 @@ I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5
 
 ### My ordinary-admission fixture indentation prerequisite
 
-- [ ] I correct the new fixture main-loop indentation after retaining the firstedd51 strict GCC compilation terminal under task_4931a66f39c04b1a96981a4e00d43646; no fixture executed. I preserve strict warnings, all assertions and original provider/source evidence, review the tiny correction, then run a fresh corrected fixture.
+- [x] I correct the new fixture main-loop indentation after retaining the firstedd51 strict GCC compilation terminal under task_4931a66f39c04b1a96981a4e00d43646; no fixture executed. I preserve strict warnings, all assertions and original provider/source evidence, review the tiny correction, then run a fresh corrected fixture.
 
-- [ ] I remove duplicate service scans only within one synchronous core-admission transaction under `docs/VM_SERVICE_ADMISSION_TRANSACTION.md` and task_4931a66f39c04b1a96981a4e00d43646; explicit stack facts expire before dispatch, public classifiers remain fresh, and all authority/invalidation/deadline gates remain required.
+- [x] I remove duplicate service scans only within one synchronous core-admission transaction under `docs/VM_SERVICE_ADMISSION_TRANSACTION.md` and task_4931a66f39c04b1a96981a4e00d43646; explicit stack facts expire before dispatch, public classifiers remain fresh, and all authority/invalidation/deadline gates remain required.
 
 ### My transaction-scoped service facts pass the unchanged emitter gate
 
@@ -13331,7 +13331,7 @@ No full File/source parent closes from this prerequisite.
 ### Full-suite passive-flow and emitter-shadow attribution (2026-09-20)
 
 - [x] I resolve `task_4c107eb5835743dd9e8c0683eadd78ea`: my unchanged passive-flow source is rejected during shadow bytecode verification in the retained Linux c140 full-suite run. I first compare fresh canonical af8809 and repaired compiler builds, retain exact artifacts, and review any branch-validation repair before execution. My [internal CFG contract](NANOISA_PASSIVE_INTERNAL_CFG.md) requires bounded forward edges, exact stack joins, a shared terminal result store and unchanged dependency/input authority.
-- [ ] I resolve `task_4931a66f39c04b1a96981a4e00d43646`: compiling my bytecode emitter reaches the ten-second shadow deadline in that same run. I distinguish slow finite work from nontermination without raising the deadline or weakening tests.
+- [x] I resolve `task_4931a66f39c04b1a96981a4e00d43646`: compiling my bytecode emitter reaches the ten-second shadow deadline in that same run. I distinguish slow finite work from nontermination without raising the deadline or weakening tests.
 
 I keep these independent of PR910's generic-call identity and VM fixture repair. The original 90-method suite completed with 88 passes and two failures. Its temporary module paths were deleted by the existing test cleanup; I retain the command/log rather than claiming recovered historical binaries. These clauses remain full 5.1 acceptance work.
 
@@ -13490,7 +13490,7 @@ preparation and complete memory/work accounting before any fixture gates.
 - [ ] I retain the first selected Darwin public-corpus compile terminal: the external launch left NANO_FILE_RUNTIME_CFLAGS empty, omitting the Make-emitted SDK ffi include path. I forward the exact frozen current Make flags before continuing only Darwin public controls, keep Linux's completed package pass, and do not weaken warnings or assertions.
 ## My retained Darwin native timeout diagnosis
 
-- [ ] I diagnose task_2f52721aac374ac592b61438315dc981 with a retained run of the unchanged projected record-array global test, including both function orders and its original120-second subprocess limit. I reuse the already qualified f219 public integration translator/assembler/VM artifacts on puck with exact current hashes; this is a fresh control run, not a fresh build or a replay of the deleted historical binaries. I preserve generated C, bytecode, executables, individual commands/stdout/stderr/status, selected environment and process cleanup. The tuple producer case remains pending until the repaired emitter is integrated. A passing control alone cannot establish the historical cause or close full-suite acceptance.
+- [x] I diagnose task_2f52721aac374ac592b61438315dc981 with a retained run of the unchanged projected record-array global test, including both function orders and its original120-second subprocess limit. I reuse the already qualified f219 public integration translator/assembler/VM artifacts on puck with exact current hashes; this is a fresh control run, not a fresh build or a replay of the deleted historical binaries. I preserve generated C, bytecode, executables, individual commands/stdout/stderr/status, selected environment and process cleanup. The tuple producer case remains pending until the repaired emitter is integrated. A passing control alone cannot establish the historical cause or close full-suite acceptance.
 
 I reproduced both projected native timeouts on puck with the unchanged120-second limit. A live process sample places the store-first stall inside recursive Apple ASan initialization during dyld/malloc startup, before program main. A separate minimal puts-only executable also times out with Apple cc's ASan/UBSan runtime, while the same source/options with Homebrew Clang enters main successfully. I retain both diagnostic results and do not infer a generated-code fault from the historical timeout. Before correction, I scope the two affected tests to honor the existing NANO_NATIVE_TEST_CC selector using shlex, preserving every sanitizer flag, assertion and deadline. Tuple producer qualification and the whole fresh canonical suite remain required.
 
@@ -13562,9 +13562,35 @@ runtime/source admission and does not close full f36/15f/488 parents.
 
 My Game of Life timing repair at69208feac passes fresh C-seed builds, all five unchanged strict-example regressions, and a retained direct example compilation on Linux and Darwin. I retain the [original failure and reports](evidence/game-of-life-timing/seal.json). Independent review confirms epoch-second seed granularity. I did not run the graphical window, and this does not close native FFI declaration coverage or full5.1 acceptance.
 
-- [ ] I select a supported native sanitizer compiler in my macOS hosted build (`task_0843b8e173511d75050d15c77d42e5fe`). PR918 job106076903795 fails eight reference transport controls because Apple ASan rejects enabled leak detection. I install Homebrew LLVM and set my existing explicit sanitizer/managed-runtime selectors, retaining ordinary CC, assertions, flags and deadlines. I require workflow validation, actual selected transport checks and observed hosted progress before closing this CI scope; full5.1 remains open.
+- [x] I select a supported native sanitizer compiler in my macOS hosted build (`task_0843b8e173511d75050d15c77d42e5fe`). PR918 job106076903795 fails eight reference transport controls because Apple ASan rejects enabled leak detection. I install Homebrew LLVM and set my existing explicit sanitizer/managed-runtime selectors, retaining ordinary CC, assertions, flags and deadlines. I require workflow validation, actual selected transport checks and observed hosted progress before closing this CI scope; full5.1 remains open.
 
 My proposed macOS CI selector step passes YAML/step-order and Bash syntax validation. Executing that exact step on puck selects Homebrew LLVM and all eight unchanged reference transport tests pass in6.802 seconds with leak detection retained. I preserve the [hosted failure and local result](evidence/macos-ci-native-compiler/source-log.json); actual hosted acceptance remains open under task_0843b8e173511d75050d15c77d42e5fe.
+
+- [x] I replace my remaining example integer declarations of pointer-valued C time (`task_f8b2d26e09f860ae640d9fc621817ef7`). Hosted PR921 strict-example job106082187281 stops at nl_random_sentence. My audit finds the same call in sdl_fire, sdl_starfield and ncurses_matrix_rain. I use my existing typed epoch-microsecond API divided to seconds and retain strict compilation plus existing shadows on Linux and Darwin. Full strict-example acceptance remains required.
+
+My PR921 hosted macOS job106082187346 now passes all eight unchanged reference transport checks in6.414 seconds with the explicit Homebrew selection. I retain the [hosted terminal excerpt](evidence/macos-ci-native-compiler/hosted-transport-pass.json). That job fails later at the independently repaired PR922 layout fixture; I do not claim the whole CI run passes.
+
+- [x] I correct my external strict-example runner inventory variable (`task_4e22dd2904b0ba0a1d063d8ab06363a2`). Both first28ba6 builds exit0, but the source equality gate refuses because the example loop overwrites the inventory variable. I retain those terminals and both drivers, rename that local only, and qualify fresh trees with unchanged equality checks.
+
+- [x] I repair the full_repl dependency shadow failure (`task_52369a502d247eb46b9f7cab90b8b214`). My fresh Linux full strict-example run at28ba6 passes all five prior regressions and all four corrected time examples, then stops at imported eval_internal shadow line214 while compiling full_repl. I retain the complete first log and investigate the actual evaluator/transport/provider boundary without skipping shadows; Darwin comparison remains pending.
+
+- [x] I preserve C++ language mode in module input capture (`task_89e84ee91d0d722af3b101ca43dedf6b`). My Darwin strict-example run at28ba6 reaches bullet_beads_simple after the four timing repairs compile, then reports C++ headers parsed as C while retaining Bullet compiler/assembler inputs. I retain that first failure and audit capture against actual compilation without permitting a live-source fallback.
+
+My REPL prerequisite diagnosis is now measured: the original C-seed-only setup omitted bin/nanoc; adding the actual CI stage1 prerequisite makes full_repl compile and advances Linux to Bullet. Both first Bullet failures used my explicit global CC selector, which overrides the module's c_compiler=c++ by design. My corrected CI-equivalent run removes that override and preserves module compiler selection. I retain these as qualification setup findings; I do not label input capture itself defective without a failure under the declared C++ compiler.
+
+My corrected CI-equivalent strict-example gate now passes on Linux (194.573 seconds) and Darwin (146.250 seconds), with every available example selected normally. Each also passes the unchanged five-example regressions and retained direct compilation of all four timing corrections. The prior REPL and Bullet stops were setup-selection failures: stage1 supplies the compiler alias, and allowing each module its declared compiler restores Bullet C++ mode. I retain all first failures; I changed no REPL, Bullet, capture, or shadow assertion to obtain these results.
+
+I retain the [complete seven-run history and input/product evidence](evidence/example-time-ffi/seal.json). The three setup follow-ups are closed by corrected qualification with unchanged REPL/Bullet/runtime source; their initial diagnoses are not promoted to demonstrated product defects.
+
+- [x] I preserve binary operand grouping in my C-seed native emitter (`task_f8dc08d9daf14e43b4f469cf77b5136b`). The paired File parser fixture exposed strict-GCC failures for nested comparison operands, and my existing self-hosted comparison regression covers only Stage2. I mirror the already grouped Nano emitter operands in my C iterative emitter, retaining comparison outer-parenthesis policy, and run the existing nested-comparison behavior through C-seed, Stage1 and Stage2 on Linux and Darwin. I preserve the original emitted C and failure diagnostics and require fresh compiler/bootstrap qualification.
+
+My b4ddc1edb grouping correction passes fresh C-seed builds and three-stage bootstraps on Linux and Darwin, all six existing array compatibility methods (including unchanged nested-comparison assertions through each producer), and existing Boolean-precedence programs compiled/executed by all three producers. I retain the [original failure, phase records and content-addressed input/product inventory](evidence/c-seed-comparison-grouping/seal.json). Independent source review confirms unchanged operator selection and short-circuit behavior. These gates do not establish my separate NanoISA-only bootstrap fixed point or full5.1 release acceptance.
+
+## I reconcile my bounded full-suite diagnostic tasks
+
+PR918 and PR919 are merged, and PR922 completes the unchanged90-method phase on both hosts in160.989 and201.715 seconds. Its independent audit retains exact source/tool/product history and the original failures. I now close task_4931a66f39c04b1a96981a4e00d43646 and task_2f52721aac374ac592b61438315dc981 for their bounded emitter-deadline and selected native-sanitizer diagnosis/repair scopes. The original ten-second shadow policy and120-second native deadlines remain unchanged. I do not infer the cause of deleted historical binaries from new successful binaries.
+
+The complete Make run subsequently verifies174 of176 corpus programs. Computed U8 conversion task_c6b2a040c1434fc784a9d46c02a4981e and generic-list mutation task_7b805000dfda4da386b55d4691e8c647 remain open, along with all full5.1 bootstrap, mixed/source, service, platform and release gates. These diagnostic closures do not approve publication.
 
 ### Counted mixed record-array runtime prerequisite (2026-09-20)
 
@@ -13573,11 +13599,11 @@ its independently audited query remains non-admitting. MAC
 `task_621ca4f76f0344bca70099a0ac9a3934` owns my
 [counted runtime contract](NANOISA_MIXED_RECORD_ARRAY_COUNTED_RUNTIME.md).
 
-- [ ] I review exact descriptor/query correspondence, counted root transfers,
+- [x] I review exact descriptor/query correspondence, counted root transfers,
   alias replacement/growth/copy, failure cleanup and native/Wasm route limits.
-- [ ] I implement and review fixtures for the existing core/module adapters,
+- [x] I implement and review fixtures for the existing core/module adapters,
   with measured allocation-prefix recovery and production package linkage.
-- [ ] I qualify native O0/O2, supported sanitizers and import-free finite-memory
+- [x] I qualify native O0/O2, supported sanitizers and import-free finite-memory
   Wasm, retain first terminals and seal all required route evidence.
 - [ ] I separately implement and qualify matching fresh public admission and
   generated VM/native/LLVM/Wasm consumers, then paired source lowering and

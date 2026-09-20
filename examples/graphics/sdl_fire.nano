@@ -6,6 +6,7 @@
 # Prerequisites: sdl_texture_demo
 # Expected Output: graphical
 
+module "stdlib/timing.nano" as Timing
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf.nano"
@@ -20,7 +21,6 @@ let FIRE_HEIGHT: int = 240
 # === EXTERNAL FUNCTIONS ===
 extern fn rand() -> int
 extern fn srand(seed: int) -> void
-extern fn time(t: int) -> int
 
 # === FIRE ALGORITHM ===
 # Classic fire effect:
@@ -153,7 +153,7 @@ fn main() -> int {
     (println "")
     
     # Seed random
-    let t: int = (time 0)
+    let t: int = (/ (Timing.get_microseconds) 1000000)
     (srand t) 
     
     # Initialize SDL

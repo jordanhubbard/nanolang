@@ -6,12 +6,12 @@
 # Prerequisites: nl_hello, nl_functions
 # Expected Output: interactive
 
+module "stdlib/timing.nano" as Timing
 from "modules/std/fs.nano" import read
 
 # External C functions for random numbers and time
 extern fn rand() -> int
 extern fn srand(seed: int) -> void
-extern fn time(tloc: int) -> int
 
 # String and character operations
 extern fn strlen(s: string) -> int
@@ -206,7 +206,7 @@ fn main() -> int {
     (println "")
     
     # Initialize random seed with current time
-    let seed: int = (time 0)
+    let seed: int = (/ (Timing.get_microseconds) 1000000)
     unsafe { (srand seed) }
     
     let content: string = (load_dictionary)

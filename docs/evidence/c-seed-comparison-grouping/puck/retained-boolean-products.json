@@ -1,0 +1,262 @@
+{
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_c-products-after.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_c-products-before.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_c-sources-after.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_c-sources-before.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_c-status.json": {
+    "sha256": "e069639b98f8d1b937297f6f47396b83e655fc7750971ea165c5948090557827",
+    "bytes": 697,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/e069639b98f8d1b937297f6f47396b83e655fc7750971ea165c5948090557827"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_c-tools-after.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_c-tools-before.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_c.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage1-products-after.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage1-products-before.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage1-sources-after.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage1-sources-before.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage1-status.json": {
+    "sha256": "1126914b3715e2d86fd28bc28bf0b00378f28a75839e39c7facb083ed00e9f90",
+    "bytes": 714,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/1126914b3715e2d86fd28bc28bf0b00378f28a75839e39c7facb083ed00e9f90"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage1-tools-after.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage1-tools-before.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage1.log": {
+    "sha256": "c276b775075f29c09ef0761e11eb94ec50973440bc4b06f569b9237640124a53",
+    "bytes": 341,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c276b775075f29c09ef0761e11eb94ec50973440bc4b06f569b9237640124a53"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage2-products-after.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage2-products-before.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage2-sources-after.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage2-sources-before.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage2-status.json": {
+    "sha256": "ba093527f4fba8b495e4161fb51c9df1dab6fbe297b6199d11f2fd113bcbac53",
+    "bytes": 713,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/ba093527f4fba8b495e4161fb51c9df1dab6fbe297b6199d11f2fd113bcbac53"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage2-tools-after.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage2-tools-before.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-compile-nanoc_stage2.log": {
+    "sha256": "93c58d68b16c4a68569a08a6ed315b2b4c90b27659a0e62fc5b664f30a4dece1",
+    "bytes": 341,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/93c58d68b16c4a68569a08a6ed315b2b4c90b27659a0e62fc5b664f30a4dece1"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-nanoc_c": {
+    "sha256": "11af55f5ccc92c7356dfc0aa991b5a82e5581f6f667adc34062f9d5927efe550",
+    "bytes": 8686048,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/11af55f5ccc92c7356dfc0aa991b5a82e5581f6f667adc34062f9d5927efe550"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-nanoc_c.c": {
+    "sha256": "50d16fda2d208dea151d26b8e186649097c56ec1b0b8cfc07dcaa2ecade2d125",
+    "bytes": 67380,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/50d16fda2d208dea151d26b8e186649097c56ec1b0b8cfc07dcaa2ecade2d125"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-nanoc_stage1": {
+    "sha256": "e7df6eae1a7fa468739d45d3076117fde7b2be879d1c6438d3fa45a316b470cb",
+    "bytes": 8752792,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/e7df6eae1a7fa468739d45d3076117fde7b2be879d1c6438d3fa45a316b470cb"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-nanoc_stage2": {
+    "sha256": "7d3cb90c24f2d862a859f7ce9ba1198dddd313b60e92a352a358eb4e8087633e",
+    "bytes": 8752792,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/7d3cb90c24f2d862a859f7ce9ba1198dddd313b60e92a352a358eb4e8087633e"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_c-products-after.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_c-products-before.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_c-sources-after.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_c-sources-before.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_c-status.json": {
+    "sha256": "48cd4c3ad5fc59a373e686e86d87fe407fd19641eaa99618a97a8697057fe0c8",
+    "bytes": 560,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/48cd4c3ad5fc59a373e686e86d87fe407fd19641eaa99618a97a8697057fe0c8"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_c-tools-after.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_c-tools-before.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_c.log": {
+    "sha256": "9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef",
+    "bytes": 234,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage1-products-after.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage1-products-before.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage1-sources-after.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage1-sources-before.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage1-status.json": {
+    "sha256": "96f440eec6a8458d15eb60d56d5b8848823c0f0468b683a9c6c4c0337b478643",
+    "bytes": 571,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/96f440eec6a8458d15eb60d56d5b8848823c0f0468b683a9c6c4c0337b478643"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage1-tools-after.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage1-tools-before.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage1.log": {
+    "sha256": "9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef",
+    "bytes": 234,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage2-products-after.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage2-products-before.json": {
+    "sha256": "b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4",
+    "bytes": 197552,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/b56b258e27d86af7ee3b7744bd4d7ff2f13437fd21a24b136561634c72bd28d4"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage2-sources-after.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage2-sources-before.json": {
+    "sha256": "948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025",
+    "bytes": 1186577,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/948bd8d1845cb0363c632968d9bd5dff96e6ac5b972eb290063ed26d3622d025"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage2-status.json": {
+    "sha256": "863a982696870030e7a244251f025c919423f467f4f8a358517e807972656edc",
+    "bytes": 570,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/863a982696870030e7a244251f025c919423f467f4f8a358517e807972656edc"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage2-tools-after.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage2-tools-before.json": {
+    "sha256": "c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b",
+    "bytes": 3292,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/c046d39216fb04f9b8b380133fcd68dad2b33843a100bceca61b49b8c6b6501b"
+  },
+  "/private/tmp/nanolang-comparison-puck/boolean-run-nanoc_stage2.log": {
+    "sha256": "9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef",
+    "bytes": 234,
+    "archive": "/private/tmp/nanolang-comparison-puck/objects/9347f72dfddfe901993d36499fd5e31cd88ea621581fa9634728858283ceb9ef"
+  }
+}
