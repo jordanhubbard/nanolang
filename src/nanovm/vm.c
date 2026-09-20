@@ -26,6 +26,58 @@
 #include <stdarg.h>
 #include <time.h>
 
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+#include <unistd.h>
+static uint64_t shadow_admission_calls, shadow_admission_ns, shadow_assert_traps;
+static uint64_t shadow_full_calls, shadow_full_ns, shadow_reuse_calls, shadow_reuse_ns;
+static uint64_t shadow_clock_ns(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) != 0 || now.tv_sec < 0 ||
+        now.tv_nsec < 0 || now.tv_nsec >= 1000000000L) _exit(92);
+    uint64_t seconds = (uint64_t)now.tv_sec, nanos = (uint64_t)now.tv_nsec;
+    if (seconds > (UINT64_MAX - nanos) / UINT64_C(1000000000)) _exit(92);
+    return seconds * UINT64_C(1000000000) + nanos;
+}
+static void shadow_admission_record(uint64_t start, bool reuse) {
+    uint64_t end = shadow_clock_ns();
+    uint64_t *calls = reuse ? &shadow_reuse_calls : &shadow_full_calls;
+    uint64_t *nanos = reuse ? &shadow_reuse_ns : &shadow_full_ns;
+    if (end < start || shadow_admission_calls == UINT64_MAX ||
+        *calls == UINT64_MAX || end - start > UINT64_MAX - shadow_admission_ns ||
+        end - start > UINT64_MAX - *nanos) _exit(92);
+    ++shadow_admission_calls;
+    shadow_admission_ns += end - start;
+    ++*calls;
+    *nanos += end - start;
+}
+/* I observe a bounded private diagnostic without changing shadow bytecode. */
+static void shadow_progress(const NvmModule *module, uint32_t function,
+                            const char *event) {
+    static unsigned rows;
+    static uint64_t first;
+    const NvmFunctionEntry *entry = &module->functions[function];
+    const char *name = nvm_get_string(module, entry->name_idx);
+    if (!name || (strncmp(name, "$shadow_", 8) != 0 &&
+                  strcmp(name, "parse_owned_pattern") != 0)) return;
+    uint64_t now = shadow_clock_ns();
+    if (!rows) first = now;
+    if (rows == 8192 || now < first ||
+        fprintf(stderr, "[shadow-progress] elapsed_ms=%.3f admission_calls=%llu admission_ms=%.3f assert_traps=%llu full_calls=%llu full_ns=%llu reuse_calls=%llu reuse_ns=%llu admission_ns=%llu %s fn=%u pc=%u name=%.64s\n",
+                (double)(now - first) / 1000000.0,
+                (unsigned long long)shadow_admission_calls,
+                (double)shadow_admission_ns / 1000000.0,
+                (unsigned long long)shadow_assert_traps,
+                (unsigned long long)shadow_full_calls,
+                (unsigned long long)shadow_full_ns,
+                (unsigned long long)shadow_reuse_calls,
+                (unsigned long long)shadow_reuse_ns,
+                (unsigned long long)shadow_admission_ns,
+                event, function, entry->code_offset, name) < 0 ||
+        fflush(stderr) != 0) _exit(92);
+    ++rows;
+}
+#endif
+
 #ifdef NANO_VM_TRACE_COMPILED
 #define NANO_VM_TRACE_BUILD 1
 #else
@@ -1423,6 +1475,9 @@ static VmResult vm_owned_array_preflight(VmState *vm,VmCallFrame *frame,
 
 static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *proof,
                                       VmOrdinaryAdmission *ordinary) {
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+    uint64_t admission_started = shadow_clock_ns();
+#endif
     VmOwnedInvocationProof resumed;
     bool admitted=false, required=false;
     bool reuse=vm_ordinary_admission_matches(vm,ordinary);
@@ -1475,6 +1530,9 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
         ordinary->module=vm->module;
         ordinary->valid=true;
     }
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+    shadow_admission_record(admission_started, reuse);
+#endif
     /* Derive code_end from current function */
     const NvmFunctionEntry *cur_fn = &vm->module->functions[vm->current_fn];
     uint32_t code_end = cur_fn->code_offset + cur_fn->code_length;
@@ -2892,6 +2950,9 @@ dynamic_div:
             vm->ip = callee->code_offset;
             cur_fn = callee;
             code_end = callee->code_offset + callee->code_length;
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+            shadow_progress(vm->module, callee_idx, "enter");
+#endif
             VM_NEXT();
         }
 
@@ -3200,6 +3261,9 @@ vm_return_values: ;
             /* Save the returning function's return_ip (points to instruction
              * after the CALL in the caller) before we pop the frame */
             uint32_t ret_ip = frame->return_ip;
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+            shadow_progress(vm->module, frame->fn_idx, "leave");
+#endif
 
             vm_release(&vm->heap, frame->owned_callable);
             frame->owned_callable = val_void();
@@ -4764,6 +4828,10 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
             break;
 
         case TRAP_ASSERT:
+#ifdef NANO_SHADOW_PROGRESS_DIAGNOSTIC
+            if (shadow_assert_traps == UINT64_MAX) _exit(92);
+            ++shadow_assert_traps;
+#endif
             if (!val_truthy(trap.data.assert_check.condition)) {
                 ordinary.valid=false;
                 vm_release(&vm->heap, trap.data.assert_check.condition);
