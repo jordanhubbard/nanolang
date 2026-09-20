@@ -13917,11 +13917,13 @@ parents remain open; original c032c sanitizer attribution is unchanged.
   and Linux controls pass. I preserve those first terminals and do not raise
   the deadline, select fewer shadows or retry failed artifacts as evidence.
 - [ ] I remove repeated whole-module File-opcode decoding across ordinary VM
-  resumptions. My verified decoded module records the File-opcode presence it
-  already observed; mutable service metadata remains checked on each
-  classification, and invalidation/rebuild/link paths replace the cached fact
-  with the decoded module. Host-side ownership metadata mutation controls and
-  malformed-code refusal remain unchanged.
+  resumptions. One synchronous invocation retains only the immutable code
+  presence result for its current module; mutable service and ownership
+  metadata remain checked on every classification. A new invocation, module
+  change or direct-core entry performs a fresh code query, so existing
+  host-side metadata mutation and pre-entry raw File-opcode refusal controls
+  remain unchanged. I do not add a persistent module cache or a hash whose
+  collision could hide an instruction.
 - [ ] I qualify the exact failing emitter control with repeated default-budget
   samples, ordinary admission mutation/rebuild tests, VM decode/dispatch tests,
   mandatory-shadow supervision tests and fresh platform CI before closing the
