@@ -65,3 +65,7 @@ equalities). The combined artifact archive SHA256 is
 `73b3a047fe2c0e014d46899f14e51e10b67daa6a59589c080f2f96f6ecdabf72`.
 Current original/corrected Linux and corrected Darwin source, selected tools and
 final products rehash without mismatch; all three trees retain28,172 tracked files.
+
+## My independent integration review
+
+I retain [root independent review](ownership-declaration-projection-root-review.json): all367 actual Git reports,598 archived objects,74 source/tool endpoint pairs and37 phase terminals match, including the one attributed compile failure. All12,106 phase artifact references plus163 copied reuse references resolve; the complete archive hash matches. Current source/tool/provider hashes match on both Linux pins and Darwin. I integrated actual main99f390; the incoming assembler-capture rule is outside this query execution closure, and all eight selected source/fixture files remain exact5a367 bytes. No qualification replay is claimed for that unrelated rule. Public mixed admission, origin/mutation/alias/runtime proofs and full5.1 remain open.
