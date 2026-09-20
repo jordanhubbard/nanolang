@@ -42,3 +42,14 @@ LLVM/Wasm and both reconstruction languages must agree on values and tags in
 their supported profiles. I retain selected sanitizer scope, actual providers,
 first failures, both-host results and the complete unchanged verifier corpus.
 A focused conversion pass cannot close unrelated list or full5.1 acceptance.
+
+My first source checkpoint adds contextual INT narrowing in both emitters and
+exact scalar destination metadata for C locals, globals and captured bindings.
+C direct/qualified arguments and retained checked indirect signatures use the
+same conversion helper; callee snapshot order and result-tag tail-call checks
+remain. Reconstruction now represents a narrowing expression and emits its
+Nano helper only when required. I have not executed these changes. Contextual
+aggregate destination audit, complete fixture review and fresh paired
+qualification remain before this source work can be called complete. The Nano
+emitter's existing indirect-call refusal remains visible full-graph work; this
+scalar change does not manufacture an indirect call implementation.
