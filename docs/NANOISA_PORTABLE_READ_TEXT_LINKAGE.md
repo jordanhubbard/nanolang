@@ -251,3 +251,25 @@ queries and requires those actual paths, preserving strict existence checks;
 there is no source/fixture change or sanitizer suppression. Darwin keeps its
 explicit Homebrew `libclang_rt.asan_osx_dynamic.dylib` selection. This setup
 failure establishes no query result; corrected gates use fresh evidence roots.
+
+## My retained first query and adjacency terminals
+
+At frozen e9e6144cb, Linux GCC ordinary, GCC sanitizer and Clang23 sanitizer
+query configurations each passed5994 observed and266 linked controls. Generic
+verifier and verifier-cleanup neighbors passed. The final ISA neighbor failed
+compilation because the external driver supplied `src/nanoisa/module` instead
+of Make's actual module include directory. No ISA neighbor binary ran.
+
+Puck Apple ordinary passed both query variants. Homebrew23 instrumented query
+passed5994 controls, then linked compilation failed strict
+`-Wunused-but-set-global` for `failed_domains`: its reads were in the excluded
+fault function. I preserve the exact compiler terminal and all earlier passes;
+I do not label that configuration a full pass. No product source change follows.
+
+Before correction I record two bounded actions: use the existing exact Make
+module include path in the external neighbor driver, and assert zero failure
+observations in the linked fixture's final check. No assertion is removed and
+no warning is suppressed. Fresh qualification covers the previously failing
+Homebrew linked build/run and unreached neighbors using hash-verified unchanged
+providers/objects. Already passed query/observed phases retain their original
+pin; I do not rerun them merely to replace a historical terminal.
