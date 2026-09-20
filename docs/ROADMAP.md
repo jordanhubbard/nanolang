@@ -12336,3 +12336,31 @@ the first checkout, fixture, archive and storage terminals; the truncated storag
 exception remains unknown, and Linux's deleted passing evaluator binary is not
 claimed archived. Later measured acceptance does not rewrite those outcomes.
 Parent430220, full4be, shared-match477/70c, full product and release remain open.
+
+- [ ] I qualify distinct-array local replacement while owner fields and outside
+  aliases retain the old identity (`task_26691bbc3a968ae68e97f75a848afec4`, parent430220/4be).
+  My [acceptance contract](NANOISA_OWNED_ARRAY_OVERWRITE_ACCEPTANCE.md) covers the
+  original overwrite clause with existing admitted STORE_LOCAL, independent
+  mutations, consuming unpack, normal/assertion/allocation cleanup and all VM/native
+  routes. Existing same-array replacement and nonexecuting origin proof do not
+  substitute. Full fixture review precedes execution; no source reassignment or
+  production widening is inferred. The unchanged full33-method affine gate follows.
+
+I prepare task26691's complete two-graph fixture, native allocation harness and
+explicit-dispatch driver. The decoded B-allocation observer checks old local,
+alias and owner-field identity before refusal; exact output prefixes and existing
+pre-disposal accounting distinguish success, assertion and memory cleanup.
+Python syntax and whitespace checks pass. No modules, generated programs or
+qualification builds run before the full fixture checkpoint review.
+
+- [x] I qualify task26691's existing-admission distinct-array overwrite fixture
+  at a4d3c0302 on Linux GCC ordinary/GCC and Clang sanitizers, plus Darwin Apple
+  ordinary/Homebrew sanitizers. Both dispatches pass9,461 checks per configuration
+  with all APIs/fusions and native O0/O2. My [seal](evidence/owned-array-overwrite/README.md)
+  preserves exact partial-instrumentation provenance. Review and actual merge
+  reconciliation remain pending; full parents are not closed.
+- [ ] I resume the entire unchanged33-method installed affine script for 5.1
+  under existing taske8d860, following my [fresh integration contract](AFFINE_FULL_SUITE_RESUMPTION.md).
+  Current U8/TCO compiler/provider changes require new Linux/Darwin bootstraps.
+  I preserve all source hashes, positive/negative cases, original PREFIX/shadows
+  and first terminals; no narrowed replacement or full-product claim follows.
