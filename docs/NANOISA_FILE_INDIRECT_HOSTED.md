@@ -91,3 +91,14 @@ failed setup without changing the caller's first error. Native dispatch selects
 real generated functions, never generic VM/FFI fallback. Public grants/installed
 archive selection, callable argument/results, richer borrows and source/full
 mandatory shadows remain open after this private plan qualifies.
+
+## My reviewed callable staging formula
+
+Independent cyclic-carrier review makes the reservation explicit: indirect
+staging is at least parameters+2 (parameters, result/service scratch, callable),
+while direct staging retains parameters+1. I require original input_stack >=
+1+supplied before subtracting either. The VM candidate bound is
+locals+input_stack-1-supplied+staging+candidate.vm_value_slots. Indirect borrowed
+formals remain refused, so the256 operand ceiling limits indirect parameters to
+255; staging therefore stays within257 and the existing64*769 total bound.
+I do not allocate258 slots for an impossible256-parameter indirect call.
