@@ -31,3 +31,17 @@ published by snapshot/retirement; roots is not a current-live or peak-memory
 measurement. The actual allocator wrappers count attempts in env_record_lists.inc
 only. Callable signature allocation is outside that counter. The disabled macro
 adds no clock or counter calls and leaves the original clone/lookup bodies intact.
+
+## My first launcher terminal
+
+The first fresh diagnostic TUs and link succeeded. The external executable lacked
+my bin/../src layout: resolve_project_root derived /tmp and early generated module
+compilation failed to include runtime/nl_string.h. Status 1 after 1.021 seconds,
+no shadow marker, is not a timing measurement. I retain log SHA256
+dd6b17ab253c399b8d7b3ae867c7d498a7979c7493787c747f9218e2f868eeb3 and newly
+generated obj/nano_modules files. No existing source/tool/provider bytes changed.
+
+My corrected launcher places a freshly linked binary under an external bin
+directory with src and module-tree symlinks to verified frozen sources. Its cwd
+and new module products are external. I preserve the original full parser input,
+all shadows and both deadlines; I do not repeat the failed Make builds.

@@ -13665,3 +13665,10 @@ remain unrun. I have not established the cause.
   neither the deadline nor the selected shadow graph changes.
 
 My diagnostic boundary is in docs/NANOISA_EVALUATOR_SHADOW_TIMING.md.
+
+My first c1df diagnostic launcher stopped before shadows: an external executable
+without bin/../src layout resolved the wrong compiler root and failed to include
+runtime/nl_string.h while compiling a module. I retain its status-1 log and new
+module source; all original source/tool/provider bytes match. Under timing task
+2deaad56f65c497f80546220aa1ca9d0 I correct only external layout/cwd and link a
+fresh diagnostic binary before the one still-unreached full shadow measurement.
