@@ -26,6 +26,8 @@ typedef struct {
     Environment *env;
     BorrowLoop *loop;
     ASTNode *current_source;
+    ASTNode **programs;
+    unsigned program_count;
     ASTNode *records[MAX_STRUCT_DEFS], *helper, *functions[8];
     BorrowUnion unions[256];
     unsigned function_count, current_function;
@@ -151,12 +153,19 @@ static bool borrow_type_name(const TypeInfo *info,char *out,size_t capacity,size
     }
     return borrow_name_append(out,capacity,used,">");
 }
+static bool borrow_union_arguments_equal(const TypeInfo *left,const TypeInfo *right) {
+    if(!left || !right || left->type_param_count!=right->type_param_count ||
+       left->type_param_count<0 || (left->type_param_count && (!left->type_params || !right->type_params)))return false;
+    for(int i=0;i<left->type_param_count;i++)
+        if(!type_infos_equal(left->type_params[i],right->type_params[i]))return false;
+    return true;
+}
 static int borrow_union_instance(BorrowCG *b,const TypeInfo *info) {
     if(!info || !info->generic_name)return -1;
     UnionDef *definition=env_get_union(b->env,info->generic_name);
     if(!definition)return -1;
     for(unsigned i=0;i<b->union_count;i++)
-        if(b->unions[i].definition==definition && type_infos_equal(b->unions[i].arguments,info))return (int)i;
+        if(b->unions[i].definition==definition && borrow_union_arguments_equal(b->unions[i].arguments,info))return (int)i;
     return -1;
 }
 static bool borrow_register_union(BorrowCG *b,const TypeInfo *info,ASTNode *at) {
@@ -391,7 +400,7 @@ static uint8_t borrow_union_expr(BorrowCG *b,ASTNode *n,int expected) {
         borrow_error(b,n,"a registered exact concrete scalar union constructor");return TAG_VOID;
     }
     BorrowUnion *u=&b->unions[instance];
-    if(strcmp(n->as.union_construct.union_name,u->definition->name)) {
+    if(env_get_union(b->env,n->as.union_construct.union_name)!=u->definition) {
         borrow_error(b,n,"the exact union constructor declaration");return TAG_VOID;
     }
     int variant=borrow_union_variant(b,(unsigned)instance,n->as.union_construct.variant_name,n);
@@ -556,6 +565,14 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
             if(opcode){emit_op(cg,opcode);return result;}
         }
         borrow_error(b,n,"supported exact-tag scalar operators");return TAG_VOID;
+    }
+    if(n->type==AST_MODULE_QUALIFIED_CALL && b->value_graph) {
+        ASTNode call={0};
+        call.type=AST_CALL;call.line=n->line;call.column=n->column;
+        call.as.call.name=n->as.module_qualified_call.function_name;
+        call.as.call.args=n->as.module_qualified_call.args;
+        call.as.call.arg_count=n->as.module_qualified_call.arg_count;
+        return borrow_expr(b,&call);
     }
     if(n->type==AST_CALL && b->owner_arrays && !n->as.call.func_expr && !n->as.call.borrow_mode &&
        n->as.call.name && borrow_function_index(b,n->as.call.name)<0 && borrow_local(b,n->as.call.name)<0 &&
@@ -1108,7 +1125,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
     if((shadow || b->control_depth) && borrow_consumed(b,first,body))borrow_cleanup(b,first);
     if(shadow || b->control_depth){borrow_names_end(b,first);for(unsigned i=first;i<b->count;i++)b->names[i]=NULL;}
 }
-static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool shadows,unsigned index) {
+static void borrow_function(BorrowCG *b,ASTNode *function,bool shadows,unsigned index) {
     CG *cg=b->cg;b->count=0;b->control_depth=0;b->returned=false;b->transferred=false;b->loop=NULL;b->helper_body=index!=0;
     b->current_function=index;b->current_source=function;if(b->value_graph)b->helper=function;
     b->result=index?borrow_result_tag(b,function):TAG_INT;
@@ -1126,9 +1143,12 @@ static void borrow_function(BorrowCG *b,ASTNode *program,ASTNode *function,bool 
         }
     }
     if(shadows && !index) {
-        for(int i=0;i<program->as.program.count && !cg->had_error;i++) {
-            ASTNode *item=program->as.program.items[i];
-            if(item->type==AST_SHADOW)borrow_body(b,item->as.shadow.body,true);
+        for(unsigned p=0;p<b->program_count && !cg->had_error;p++) {
+            ASTNode *selected=b->programs[p];
+            for(int i=0;selected && i<selected->as.program.count && !cg->had_error;i++) {
+                ASTNode *item=selected->as.program.items[i];
+                if(item->type==AST_SHADOW)borrow_body(b,item->as.shadow.body,true);
+            }
         }
         emit_op(cg,OP_PUSH_I64,(int64_t)0);emit_op(cg,OP_RET);
     } else {
@@ -1203,6 +1223,10 @@ static void borrow_collect_unions(BorrowCG *b,ASTNode *n) {
             }
             borrow_collect_unions(b,n->as.call.func_expr);
             for(int i=0;i<n->as.call.arg_count;i++)borrow_collect_unions(b,n->as.call.args[i]);
+            break;
+        case AST_MODULE_QUALIFIED_CALL:
+            for(int i=0;i<n->as.module_qualified_call.arg_count;i++)
+                borrow_collect_unions(b,n->as.module_qualified_call.args[i]);
             break;
         case AST_PREFIX_OP:
             for(int i=0;i<n->as.prefix_op.arg_count;i++)borrow_collect_unions(b,n->as.prefix_op.args[i]);
@@ -1323,9 +1347,20 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
     b->cg=cg;b->env=env;cg->module=nvm_module_new();cg->code=malloc(CODE_INITIAL);cg->code_cap=CODE_INITIAL;
     ASTNode *entry=NULL,*declared[8];unsigned declared_count=0;bool has_borrow=false;
     if(!cg->module || !cg->code)borrow_error(b,NULL,"available module storage");
-    if(modules && modules->count)borrow_error(b,NULL,"an import-free source module");
-    for(int i=0;i<program->as.program.count && !cg->had_error;i++) {
-        ASTNode *n=program->as.program.items[i];
+    unsigned module_count=modules && modules->count>0?(unsigned)modules->count:0;
+    if(module_count>256)borrow_error(b,NULL,"at most 256 dependency source modules");
+    else {
+        b->programs=calloc(module_count+1,sizeof(*b->programs));
+        if(!b->programs)borrow_error(b,NULL,"available dependency closure storage");
+    }
+    for(unsigned i=0;i<module_count && !cg->had_error;i++) {
+        ASTNode *dependency=get_cached_module_ast(modules->module_paths[i]);
+        if(!dependency || dependency->type!=AST_PROGRAM)borrow_error(b,NULL,"a loaded dependency source closure");
+        else b->programs[b->program_count++]=dependency;
+    }
+    if(!cg->had_error)b->programs[b->program_count++]=program;
+    for(unsigned p=0;p<b->program_count && !cg->had_error;p++) for(int i=0;i<b->programs[p]->as.program.count && !cg->had_error;i++) {
+        ASTNode *n=b->programs[p]->as.program.items[i];
         if(n->type==AST_STRUCT_DEF) {
             if(n->as.struct_def.is_extern || b->record_count==MAX_STRUCT_DEFS ||
                n->as.struct_def.field_count>256 || strchr(n->as.struct_def.name,'<') || borrow_record(b,n->as.struct_def.name)>=0) {
@@ -1365,9 +1400,10 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
             for(unsigned j=0;j<declared_count;j++)if(!strcmp(declared[j]->as.function.name,n->as.function.name))borrow_error(b,n,"distinct function declarations");
             declared[declared_count++]=n;
             for(int j=0;j<n->as.function.param_count;j++)if(n->as.function.params[j].type==TYPE_BORROW_SHARED || n->as.function.params[j].type==TYPE_BORROW_MUT)has_borrow=true;
-        } else if(n->type!=AST_SHADOW)borrow_error(b,n,"only resource records, scalar unions, main, one helper and selected shadows");
+        } else if(n->type!=AST_SHADOW && n->type!=AST_IMPORT && n->type!=AST_MODULE_DECL)
+            borrow_error(b,n,"only resource records, scalar unions, main, one helper and selected shadows");
     }
-    if(!cg->had_error)borrow_collect_unions(b,program);
+    for(unsigned p=0;p<b->program_count && !cg->had_error;p++)borrow_collect_unions(b,b->programs[p]);
     b->value_graph=!has_borrow;b->consuming=b->value_graph;
     if(borrow_arrays(b) && has_borrow)borrow_error(b,NULL,"managed arrays only in my value graph");
     if(b->owner_arrays && b->mixed)borrow_error(b,NULL,"separate ordinary Samples and owner ARRAY profiles");
@@ -1467,7 +1503,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
         for(unsigned i=0;i<b->union_count;i++)borrow_word(b,0,1);
         while(!cg->had_error && b->contract_size%4)borrow_word(b,0,1);
         borrow_word(b,b->function_count,4);
-        for(unsigned i=0;i<b->function_count && !cg->had_error;i++)borrow_function(b,program,i?b->functions[i]:entry,shadows && !i,i);
+        for(unsigned i=0;i<b->function_count && !cg->had_error;i++)borrow_function(b,i?b->functions[i]:entry,shadows && !i,i);
         /* I intern executable literals before advisory strings in both producers. */
         for(unsigned i=0;i<b->pending_name_count && !cg->had_error;i++)
             if(!nvm_add_local_binding(cg->module,&b->pending_names[i]))
@@ -1537,5 +1573,5 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
     out.ok=!cg->had_error;out.error_line=cg->error_line;snprintf(out.error_msg,sizeof(out.error_msg),"%s",cg->error_msg);
     if(out.ok)out.module=cg->module;else if(cg->module)nvm_module_free(cg->module);
     nvm_v2_layouts_free(&layouts);for(unsigned i=0;i<b->union_count;i++)free(b->unions[i].name);
-    free(b->contracts);free(cg->code);free(cg);free(b);return out;
+    free(b->contracts);free(b->programs);free(cg->code);free(cg);free(b);return out;
 }

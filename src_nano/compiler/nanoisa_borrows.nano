@@ -3,7 +3,7 @@ import "src_nano/parser.nano"
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
 from "src_nano/compiler/lexer.nano" import tokenize_string
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
-from "src_nano/compiler/module_bindings.nano" import mb_owner, mb_reset
+from "src_nano/compiler/module_bindings.nano" import mb_active, mb_lookup, mb_owner, mb_reset, mb_resolve
 
 let mut nb_error: string = ""
 let mut nb_code: string = ""
@@ -1054,6 +1054,43 @@ shadow nb_declared_match_binding {
     assert (not (nb_declared_match_binding parser "outside"))
 }
 
+fn nb_value_call(parser: Parser, name: string, arg_start: int, arg_count: int) -> int {
+    let target: int = (nb_function_index parser name)
+    if (or (<= target 0) (>= (nb_local name) 0)) { return (nb_fail "an unshadowed direct non-entry value-call target") }
+    let function: ASTFunction = (parser_get_function parser (at nb_functions target))
+    if (!= arg_count function.param_count) { return (nb_fail "the exact declared value-call arity") }
+    let mut i: int = 0
+    while (and (== nb_error "") (< i arg_count)) {
+        let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ arg_start i))
+        let layout: int = (nb_record parser parameter.var_type)
+        let union_layout: int = (nb_union_instance parser parameter.var_type)
+        if (>= union_layout 0) {
+            if (!= (nb_union_expr parser argument.node_id argument.node_type parameter.var_type) 10) { return 0 }
+        } else { if (>= layout 0) {
+            if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                let local: int = (nb_local (parser_get_identifier parser argument.node_id).name)
+                if (< local 0) { return (nb_fail "an existing owner argument") }
+                if (or (not (at nb_live local)) (or (!= (at nb_modes local) 0) (or (at nb_disposal_pending local) (or (!= (at nb_tags local) 8) (!= (at nb_layouts local) layout))))) { return (nb_fail "a named live exact whole owner argument") }
+                let _: int = (nb_op1 "OWN_MOVE_LOCAL" local)
+                (array_set nb_live local false)
+                set nb_any_transfer true
+            } else { let _: int = (nb_owner parser argument.node_id argument.node_type layout) }
+        } else {
+            if (!= (nb_expr parser argument.node_id argument.node_type) (nb_parameter_tag parameter.var_type)) { return (nb_fail "the exact positional scalar argument") }
+        } }
+        set i (+ i 1)
+    }
+    if (!= nb_error "") { return 0 }
+    (array_set nb_edges (+ (* nb_current_function 8) target) true)
+    let _: int = (nb_op1 "CALL" target)
+    set nb_expression_layout (nb_record parser function.return_type)
+    set nb_expression_identity ""
+    let union_result: int = (nb_union_instance parser function.return_type)
+    if (>= union_result 0) { set nb_expression_layout union_result set nb_expression_identity (at nb_union_identities union_result) }
+    return (nb_result_tag parser function.return_type)
+}
+
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (!= nb_error "") { return 0 }
     if (== kind ParseNodeType.PNODE_MATCH) { return (nb_match_expr parser id) }
@@ -1229,44 +1266,17 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
             }
         }
     }
+    if (and (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) nb_value_graph) {
+        let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser id)
+        let name: string = (mb_lookup (mb_owner call.line) call.function_name)
+        return (nb_value_call parser name call.arg_start call.arg_count)
+    }
     if (and (== kind ParseNodeType.PNODE_CALL) nb_value_graph) {
         let call: ASTCall = (parser_get_call parser id)
         if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.borrow_mode 0)) { return (nb_fail "a direct mode-zero value call") }
-        let name: string = (parser_get_identifier parser call.function).name
-        let target: int = (nb_function_index parser name)
-        if (or (<= target 0) (>= (nb_local name) 0)) { return (nb_fail "an unshadowed direct non-entry value-call target") }
-        let function: ASTFunction = (parser_get_function parser (at nb_functions target))
-        if (!= call.arg_count function.param_count) { return (nb_fail "the exact declared value-call arity") }
-        let mut i: int = 0
-        while (and (== nb_error "") (< i call.arg_count)) {
-            let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
-            let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-            let layout: int = (nb_record parser parameter.var_type)
-            let union_layout: int = (nb_union_instance parser parameter.var_type)
-            if (>= union_layout 0) {
-                if (!= (nb_union_expr parser argument.node_id argument.node_type parameter.var_type) 10) { return 0 }
-            } else { if (>= layout 0) {
-                if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
-                    let local: int = (nb_local (parser_get_identifier parser argument.node_id).name)
-                    if (< local 0) { return (nb_fail "an existing owner argument") }
-                    if (or (not (at nb_live local)) (or (!= (at nb_modes local) 0) (or (at nb_disposal_pending local) (or (!= (at nb_tags local) 8) (!= (at nb_layouts local) layout))))) { return (nb_fail "a named live exact whole owner argument") }
-                    let _: int = (nb_op1 "OWN_MOVE_LOCAL" local)
-                    (array_set nb_live local false)
-                    set nb_any_transfer true
-                } else { let _: int = (nb_owner parser argument.node_id argument.node_type layout) }
-            } else {
-                if (!= (nb_expr parser argument.node_id argument.node_type) (nb_parameter_tag parameter.var_type)) { return (nb_fail "the exact positional scalar argument") }
-            } }
-            set i (+ i 1)
-        }
-        if (!= nb_error "") { return 0 }
-        (array_set nb_edges (+ (* nb_current_function 8) target) true)
-        let _: int = (nb_op1 "CALL" target)
-        set nb_expression_layout (nb_record parser function.return_type)
-        set nb_expression_identity ""
-        let union_result: int = (nb_union_instance parser function.return_type)
-        if (>= union_result 0) { set nb_expression_layout union_result set nb_expression_identity (at nb_union_identities union_result) }
-        return (nb_result_tag parser function.return_type)
+        let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
+        let name: string = (mb_resolve identifier.name identifier.line nb_names)
+        return (nb_value_call parser name call.arg_start call.arg_count)
     }
     if (and (== kind ParseNodeType.PNODE_CALL) (not nb_in_helper)) {
         let call: ASTCall = (parser_get_call parser id)
@@ -2268,7 +2278,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     if (or (parser_has_error parser) (or (< first_shadow 0) (> first_shadow parser.shadows_count))) { let _: int = (nb_fail "a parsed module and valid shadow selection") return "" }
     let records: int = (parser_get_struct_def_count parser)
     set nb_union_layout_base records
-    if (or (> (parser_get_function_count parser) 8) (or (<= records 0) (or (> parser.imports_count 0) (or (> parser.enums_count 0) (> parser.opaque_types_count 0))))) { let _: int = (nb_fail "only resource records, scalar unions, main, one helper and selected shadows") return "" }
+    if (or (> (parser_get_function_count parser) 8) (or (<= records 0) (or (and (> parser.imports_count 0) (not (mb_active))) (or (> parser.enums_count 0) (> parser.opaque_types_count 0))))) { let _: int = (nb_fail "only resource records, scalar unions, main, one helper and selected shadows") return "" }
     let flags: array<bool> = (declaration_local_lets parser)
     let mut i: int = 0
     while (< i (array_length flags)) { if (not (at flags i)) { let _: int = (nb_fail "no global initializers") return "" } set i (+ i 1) }

@@ -45,6 +45,28 @@ pub fn nb_register(parser: Parser, prefix: string) -> bool {
         (mb_add owner (nb_key def.name) target)
         set i (+ i 1)
     }
+    set i 0
+    while (< i parser.unions_count) {
+        let def: ASTUnion = (parser_get_union parser i)
+        let owner: int = (mb_owner def.line)
+        let mut collision: bool = false
+        let mut j: int = 0
+        while (< j parser.unions_count) {
+            let other: ASTUnion = (parser_get_union parser j)
+            if (and (!= i j) (== def.name other.name)) {
+                if (== owner (mb_owner other.line)) {
+                    (println (+ "I cannot define a union twice in one module: " def.name))
+                    return false
+                }
+                set collision true
+            }
+            set j (+ j 1)
+        }
+        let mut target: string = def.name
+        if collision { set target (+ prefix (+ (int_to_string owner) (+ "_type_" def.name))) }
+        (mb_add owner (nb_key def.name) target)
+        set i (+ i 1)
+    }
     return true
 }
 shadow nb_register {
@@ -56,6 +78,12 @@ shadow nb_register {
     (mb_reset [1])
     assert (not (nb_register parser "__test_"))
     (mb_reset [])
+    let union_tokens: List<LexerToken> = (tokenize_string "union Choice<T> { One { value: T } }\nunion Choice<T> { Two { value: T } }" "nominal-union.nano" (list_CompilerDiagnostic_new))
+    let unions: Parser = (parse_program union_tokens (list_LexerToken_length union_tokens) "nominal-union.nano")
+    (mb_reset [1, 2])
+    assert (nb_register unions "__test_")
+    assert (!= (mb_lookup 0 (nb_key "Choice")) (mb_lookup 1 (nb_key "Choice")))
+    (mb_reset [])
 }
 
 pub fn nb_import(parser: Parser, imp: ASTImport, target_owner: int) -> void {
@@ -63,6 +91,31 @@ pub fn nb_import(parser: Parser, imp: ASTImport, target_owner: int) -> void {
     let mut i: int = 0
     while (< i parser.structs_count) {
         let def: ASTStruct = (parser_get_struct_def parser i)
+        if (== (mb_owner def.line) target_owner) {
+            let target: string = (mb_lookup target_owner (nb_key def.name))
+            if (and imp.is_selective (not imp.is_wildcard)) {
+                let mut j: int = 0
+                while (< j imp.import_symbol_count) {
+                    if (== (at imp.import_symbols j) def.name) {
+                        let mut alias: string = def.name
+                        if (< j (array_length imp.import_aliases)) {
+                            if (!= (at imp.import_aliases j) "") { set alias (at imp.import_aliases j) }
+                        }
+                        (mb_add owner (nb_key alias) target)
+                    }
+                    set j (+ j 1)
+                }
+            } else {
+                let mut name: string = def.name
+                if (!= imp.module_name "") { set name (+ imp.module_name (+ "." name)) }
+                (mb_add owner (nb_key name) target)
+            }
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i parser.unions_count) {
+        let def: ASTUnion = (parser_get_union parser i)
         if (== (mb_owner def.line) target_owner) {
             let target: string = (mb_lookup target_owner (nb_key def.name))
             if (and imp.is_selective (not imp.is_wildcard)) {
@@ -217,8 +270,14 @@ pub fn nb_rewrite(parser: Parser) -> void {
     let mut unions_index: int = 0
     while (< unions_index parser.unions_count) {
         let item: ASTUnion = (list_ASTUnion_get parser.unions unions_index)
-        (list_ASTUnion_set parser.unions unions_index (ASTUnion { node_type: item.node_type, line: item.line, column: item.column, name: item.name, variant_count: item.variant_count, variant_names: item.variant_names, variant_field_counts: item.variant_field_counts, variant_field_names: item.variant_field_names, variant_field_types: (nb_scoped_types item.variant_field_types item.line item.generic_params), generic_params: item.generic_params, generic_param_count: item.generic_param_count }))
+        (list_ASTUnion_set parser.unions unions_index (ASTUnion { node_type: item.node_type, line: item.line, column: item.column, name: (nb_type item.name item.line), variant_count: item.variant_count, variant_names: item.variant_names, variant_field_counts: item.variant_field_counts, variant_field_names: item.variant_field_names, variant_field_types: (nb_scoped_types item.variant_field_types item.line item.generic_params), generic_params: item.generic_params, generic_param_count: item.generic_param_count }))
         set unions_index (+ unions_index 1)
+    }
+    let mut union_constructs_index: int = 0
+    while (< union_constructs_index parser.union_constructs_count) {
+        let item: ASTUnionConstruct = (list_ASTUnionConstruct_get parser.union_constructs union_constructs_index)
+        (list_ASTUnionConstruct_set parser.union_constructs union_constructs_index (ASTUnionConstruct { node_type: item.node_type, line: item.line, column: item.column, union_name: (nb_type item.union_name item.line), variant_name: item.variant_name, field_names: item.field_names, field_value_ids: item.field_value_ids, field_value_types: item.field_value_types, field_count: item.field_count }))
+        set union_constructs_index (+ union_constructs_index 1)
     }
 }
 shadow nb_rewrite {

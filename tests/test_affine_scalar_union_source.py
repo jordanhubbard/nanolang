@@ -9,6 +9,69 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / 'tests/nanoisa/fixtures/affine_scalar_union_instances.nano'
 
+IMPORTED_PROVIDER = '''module ImportedChoice
+
+union Choice<T,U> {
+    Left { value: T },
+    Right { value: U },
+    Empty {}
+}
+
+pub fn make_int(right: bool) -> Choice<int,string> {
+    if right { return Choice.Right { value: "imported-right" } }
+    return Choice.Left { value: 17 }
+}
+shadow make_int { let value: Choice<int,string> = (make_int false) assert (== (inspect_int value) 27) }
+
+pub fn inspect_int(value: Choice<int,string>) -> int {
+    match value {
+        Left(payload) => { return (+ payload.value 10) }
+        Right(payload) => { assert (== payload.value "imported-right") return 55 }
+        Empty(payload) => { return (- 0 1) }
+    }
+}
+shadow inspect_int { assert (== (inspect_int (make_int false)) 27) assert (== (inspect_int (make_int true)) 55) }
+
+pub fn make_float(right: bool) -> Choice<float,bool> {
+    if right { return Choice.Right { value: true } }
+    return Choice.Left { value: 2.5 }
+}
+shadow make_float { assert (inspect_float (make_float false)) }
+
+pub fn inspect_float(value: Choice<float,bool>) -> bool {
+    return match value {
+        Left(payload) => (== payload.value 2.5)
+        Right(payload) => payload.value
+        Empty(payload) => false
+    }
+}
+shadow inspect_float { assert (inspect_float (make_float false)) assert (inspect_float (make_float true)) }
+'''
+
+IMPORTED_ROOT = '''module "provider.nano" as provider
+module "provider.nano" as same
+
+resource struct Owner { value: int }
+
+fn alias_route(value: provider.Choice<int,string>) -> same.Choice<int,string> { return value }
+shadow alias_route { let value: provider.Choice<int,string> = (provider.make_int false) assert (== (provider.inspect_int (alias_route value)) 27) }
+
+fn main() -> int {
+    let owner: Owner = Owner { value: 9 }
+    let Owner { value } = owner
+    let first: provider.Choice<int,string> = (alias_route (provider.make_int false))
+    let second: provider.Choice<float,bool> = (provider.make_float true)
+    assert (== value 9)
+    assert (== (provider.inspect_int first) 27)
+    assert (provider.inspect_float second)
+    (println "imported-generic-parity-pass")
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+
+OTHER_PROVIDER = IMPORTED_PROVIDER.replace('ImportedChoice', 'OtherChoice').replace('value: 17', 'value: 91').replace('value) 27', 'value) 101').replace('(make_int false)) 27', '(make_int false)) 101')
+
 REFUSAL_PREFIX = '''resource struct Owner { value: int }
 union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} }
 fn main() -> int {
@@ -136,6 +199,14 @@ class AffineScalarUnionSource(unittest.TestCase):
         offset = (offset + 3) & ~3
         self.assertEqual(offset, len(data))
 
+    def write_imported(self, work, root=IMPORTED_ROOT, provider=IMPORTED_PROVIDER,
+                       other=None):
+        (work / 'provider.nano').write_text(provider)
+        (work / 'main.nano').write_text(root)
+        if other is not None:
+            (work / 'other.nano').write_text(other)
+        return work / 'main.nano'
+
     def test_distinct_instances_verify_and_execute_in_vm_and_native(self):
         with tempfile.TemporaryDirectory(prefix='nano-affine-union-source-') as raw:
             work = Path(raw)
@@ -173,6 +244,58 @@ class AffineScalarUnionSource(unittest.TestCase):
                                           '--emit-nvm', '-o', module)
                     self.assertNotIn('E001 TYPE MISMATCH', result.stderr)
                     self.assert_module(work, module, compiler_name, expected)
+
+    def test_imported_aliases_and_concrete_instances_execute_in_vm_and_native(self):
+        with tempfile.TemporaryDirectory(prefix='nano-affine-imported-union-') as raw:
+            work = Path(raw)
+            source = self.write_imported(work)
+            expected = 'imported-generic-parity-pass\n'
+            for compiler_name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                with self.subTest(route=compiler_name):
+                    module = work / f'{compiler_name}.nvm'
+                    result = self.command(ROOT / 'bin' / compiler_name, source,
+                                          '--emit-nvm', '-o', module)
+                    self.assertNotIn('TYPE MISMATCH', result.stdout + result.stderr)
+                    self.assert_module(work, module, compiler_name, expected)
+
+    def test_imported_identity_and_shadow_refusals_preserve_prior_output(self):
+        cross_instance = IMPORTED_ROOT.replace(
+            'assert (provider.inspect_float second)',
+            'assert (provider.inspect_float first)')
+        wrong_payload = IMPORTED_ROOT.replace(
+            'let first: provider.Choice<int,string> = (alias_route (provider.make_int false))',
+            'let first: provider.Choice<int,string> = Choice.Left { value: true }')
+        cross_declaration = IMPORTED_ROOT.replace(
+            'module "provider.nano" as same',
+            'module "other.nano" as other').replace(
+            'same.Choice<int,string>', 'provider.Choice<int,string>').replace(
+            '(alias_route (provider.make_int false))', '(other.make_int false)')
+        bad_shadow = IMPORTED_PROVIDER.replace(
+            'shadow make_int { let value: Choice<int,string> = (make_int false) assert (== (inspect_int value) 27) }',
+            'shadow make_int { assert false }')
+        cases = {
+            'cross_instance': (cross_instance, IMPORTED_PROVIDER, None,
+                               ('concrete union value', 'declared qualified argument type',
+                                'expected a value of type')),
+            'wrong_payload': (wrong_payload, IMPORTED_PROVIDER, None,
+                              ('concrete union field type', 'TYPE MISMATCH')),
+            'cross_declaration': (cross_declaration, IMPORTED_PROVIDER,
+                                  OTHER_PROVIDER,
+                                  ('already defined', 'declared qualified argument type',
+                                   'declaration', 'expected a value of type')),
+            'failed_dependency_shadow': (IMPORTED_ROOT, bad_shadow, None,
+                                         ('failed shadow', 'Assertion failed',
+                                          'failed shadows')),
+        }
+        with tempfile.TemporaryDirectory(prefix='nano-affine-imported-refusal-') as raw:
+            work = Path(raw)
+            for case, (root, provider, other, expected) in cases.items():
+                source = self.write_imported(work, root, provider, other)
+                for compiler_name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):
+                    with self.subTest(case=case, route=compiler_name):
+                        output = work / f'{case}-{compiler_name}.nvm'
+                        self.rejected([ROOT / 'bin' / compiler_name, source,
+                                       '--emit-nvm', '-o', output], output, expected)
 
     def test_refusals_preserve_prior_output_on_every_frontend(self):
         with tempfile.TemporaryDirectory(prefix='nano-affine-union-refusal-') as raw:
