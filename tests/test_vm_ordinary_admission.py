@@ -34,19 +34,33 @@ class OrdinaryAdmission(unittest.TestCase):
         cc[0] = str(Path(found).resolve())
         flags = shlex.split(os.environ.get('ORDINARY_ADMISSION_CFLAGS', ''))
         objects = shlex.split(os.environ['ORDINARY_ADMISSION_OBJECTS'])
-        self.assertFalse(any(Path(p).name == 'vm.o' for p in objects))
+        self.assertFalse(any(Path(p).name in ('vm.o', 'service_bindings_module.o') for p in objects))
         libraries = shlex.split(os.environ['ORDINARY_ADMISSION_LDFLAGS'])
         inputs = [Path(cc[0]), *(ROOT / p for p in objects),
-                  ROOT / 'src/nanovm/vm.c', ROOT / 'tests/nanovm/test_ordinary_admission.c',
+                  ROOT / 'src/nanovm/vm.c', ROOT / 'src/nanoisa/service_bindings_module.c',
+                  ROOT / 'src/nanoisa/service_classification_private.h',
+                  ROOT / 'tests/nanovm/test_ordinary_admission.c',
                   ROOT / 'tests/nanoisa/owned_fixture.h', Path(__file__), Path(retained.__file__)]
         inventory = lambda: {str(p.resolve()): self.retain(p) for p in inputs}
         before = inventory()
         self.dump('inputs-before.json', before)
         try:
+            original = (ROOT / 'src/nanoisa/service_bindings_module.c').read_text()
+            entry = 'bool nvm_service_execution_pending(const NvmModule *m) {'
+            self.assertEqual(original.count(entry), 1)
+            instrumented = self.work / 'service_bindings_module_observed.c'
+            instrumented.write_text(original.replace(entry, entry +
+                '\n    extern void ordinary_observe_service(const NvmModule *);\n'
+                '    ordinary_observe_service(m);', 1))
+            self.dump('predicate-observer.json', {
+                'original': self.retain(ROOT / 'src/nanoisa/service_bindings_module.c'),
+                'instrumented': self.retain(instrumented),
+                'scope': 'One observation before unchanged real predicate body; all provider callers.'})
             for threaded in (False, True):
                 name = 'threaded' if threaded else 'switch'
                 common = [*cc, *flags, '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                           '-D_GNU_SOURCE', '-UNDEBUG', '-Isrc', '-Isrc/nanoisa',
+                          '-iquote', str(ROOT / 'src/nanoisa'),
                           '-DNANO_COMPUTED_GOTO' if threaded else '-DNANO_NO_COMPUTED_GOTO']
                 source = 'tests/nanovm/test_ordinary_admission.c'
                 macros = self.command([*common, '-dM', '-E', source])
@@ -54,7 +68,7 @@ class OrdinaryAdmission(unittest.TestCase):
                 if not threaded:
                     self.assertNotIn('#define NANO_COMPUTED_GOTO ', macros)
                 exe = self.work / name
-                self.command([*common, source, *objects, *libraries, '-o', exe])
+                self.command([*common, source, instrumented, *objects, *libraries, '-o', exe])
                 self.assertIn('ordinary admission checks passed', self.command([exe]))
         finally:
             after = inventory()

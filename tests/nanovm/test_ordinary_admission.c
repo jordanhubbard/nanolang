@@ -1,21 +1,19 @@
 /* I observe the real admission path; modeled host callbacks are labeled. */
 #include <assert.h>
+#include <limits.h>
 #include "../../src/nanovm/vm.h"
 #include "../../src/nanovm/vm_ffi.h"
 #include "../../src/nanoisa/service_bindings_module.h"
 #include "../../src/nanoisa/assembler.h"
 #include "../../src/nanoisa/retained_layouts.h"
 static unsigned pending_calls, prints, external_calls, pumps, nested_calls;
-static bool observe_pending(const NvmModule *m);
 static void observe_print(NanoValue v, FILE *out);
 static bool observe_ffi(VmState *,const NvmModule *,uint32_t,NanoValue *,int,NanoValue *,char *,size_t);
 static int observe_pump(VmState *,bool);
-#define nvm_service_execution_pending observe_pending
 #define val_print observe_print
 #define vm_ffi_call_vm observe_ffi
 #define vm_callback_pump observe_pump
 #include "../../src/nanovm/vm.c"
-#undef nvm_service_execution_pending
 #undef val_print
 #undef vm_ffi_call_vm
 #undef vm_callback_pump
@@ -25,9 +23,18 @@ static unsigned checks;
 #include "../nanoisa/owned_fixture.h"
 static VmState *host_vm;
 static bool mutate_at_host, reenter_at_host, modeled_pump;
-static bool observe_pending(const NvmModule *m) {
+static bool record_pending;
+static const NvmModule *pending_modules[64];
+static unsigned pending_module_count;
+/* The runner injects this observation at the entry of the exact service TU
+ * predicate. Every caller then executes the unchanged original body. */
+void ordinary_observe_service(const NvmModule *m) {
+    CHECK(pending_calls < UINT_MAX);
     ++pending_calls;
-    return nvm_service_execution_pending(m);
+    if (record_pending) {
+        CHECK(pending_module_count < 64);
+        pending_modules[pending_module_count++]=m;
+    }
 }
 static void host_boundary(void) {
     CHECK(host_vm);
@@ -96,12 +103,12 @@ static void private_transitions(VmDispatchProfile profile,unsigned width) {
     VmState vm;vm_init(&vm,m);vm_set_dispatch_profile(&vm,profile);enter_core(&vm);
     vm.memory=calloc(8,1);CHECK(vm.memory);vm.memory_size=8;
     VmOrdinaryAdmission cert={0};VmOwnedInvocationProof proof={0};pending_calls=0;
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==5);
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==5 && vm.frame_count==2);
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==5 && vm.frame_count==1);
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(!cert.valid && pending_calls==5 && vm.memory[0]==9);
-    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==10);
-    CHECK(vm_core_execute_scoped(&vm,&proof,&cert).type==TRAP_NONE && pending_calls==10);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==1);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==1 && vm.frame_count==2);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==1 && vm.frame_count==1);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(!cert.valid && pending_calls==1 && vm.memory[0]==9);
+    assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(cert.valid && pending_calls==2);
+    CHECK(vm_core_execute_scoped(&vm,&proof,&cert).type==TRAP_NONE && pending_calls==2);
     CHECK(vm.stack_size==1 && vm.stack[0].as.i64==42 && !vm.frame_count);
     vm_destroy(&vm);nvm_module_free(m);
 }
@@ -111,15 +118,15 @@ static void public_and_direct(VmDispatchProfile profile) {
     for(unsigned i=0;i<2;i++) {
         NanoValue result=val_int(-9);pending_calls=0;
         CHECK(vm_invoke(&vm,0,NULL,0,&result)==VM_OK);
-        CHECK(result.tag==TAG_INT && result.as.i64==42 && pending_calls==15);
+        CHECK(result.tag==TAG_INT && result.as.i64==42 && pending_calls==39);
         CHECK(!vm.stack_size && !vm.frame_count);
     }
     CHECK(vm.profile.opcode_counts[OP_ASSERT]==6);
     enter_core(&vm);pending_calls=0;
-    assertion(vm_core_execute(&vm));CHECK(pending_calls==5);
-    assertion(vm_core_execute(&vm));CHECK(pending_calls==10);
-    assertion(vm_core_execute(&vm));CHECK(pending_calls==15);
-    CHECK(vm_core_execute(&vm).type==TRAP_NONE && pending_calls==20);
+    assertion(vm_core_execute(&vm));CHECK(pending_calls==3);
+    assertion(vm_core_execute(&vm));CHECK(pending_calls==6);
+    assertion(vm_core_execute(&vm));CHECK(pending_calls==9);
+    CHECK(vm_core_execute(&vm).type==TRAP_NONE && pending_calls==12);
     vm_destroy(&vm);nvm_module_free(m);
 }
 static void exclusions(VmDispatchProfile profile) {
@@ -131,7 +138,7 @@ static void exclusions(VmDispatchProfile profile) {
         if(mode==2){linked=ordinary("PUSH_I64 8\nRET\n",false);CHECK(vm_link_module(&vm,linked)!=UINT32_MAX);}
         enter_core(&vm);VmOrdinaryAdmission cert={0};VmOwnedInvocationProof proof={0};pending_calls=0;
         assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(!cert.valid);
-        unsigned first=pending_calls;CHECK(first>0);
+        unsigned first=pending_calls;CHECK(first==(mode==2?2u:1u));
         assertion(vm_core_execute_scoped(&vm,&proof,&cert));CHECK(!cert.valid && pending_calls==2*first);
         CHECK(vm_core_execute_scoped(&vm,&proof,&cert).type==TRAP_NONE && pending_calls==3*first);
         if(mode==1){vm.callbacks=NULL;modeled_pump=false;}
@@ -140,7 +147,7 @@ static void exclusions(VmDispatchProfile profile) {
     NvmModule *m=ordinary("PUSH_BOOL 1\nASSERT\nPUSH_BOOL 1\nASSERT\nPUSH_I64 42\nRET\n",false);
     VmState vm;vm_init(&vm,m);modeled_pump=true;vm.callbacks=(NanoCallbackRuntime *)&modeled_pump;
     pending_calls=pumps=0;NanoValue out=val_void();CHECK(vm_invoke(&vm,0,NULL,0,&out)==VM_OK);
-    CHECK(pending_calls==25 && pumps==2 && out.as.i64==42);
+    CHECK(pending_calls==41 && pumps==2 && out.as.i64==42);
     vm.callbacks=NULL;modeled_pump=false;vm_destroy(&vm);nvm_module_free(m);
 }
 static void host_paths(VmDispatchProfile profile) {
@@ -154,7 +161,7 @@ static void host_paths(VmDispatchProfile profile) {
         CHECK(status==(change?VM_ERR_TYPE_ERROR:VM_OK));
         CHECK(change?out.tag==TAG_VOID:(out.tag==TAG_INT && out.as.i64==42));
         CHECK(nested_calls==reenter && (kind?external_calls:prints)==1);
-        if(!change)CHECK(pending_calls==20+10*reenter);
+        if(!change)CHECK(pending_calls==40+20*reenter);
         CHECK(!vm.stack_size && !vm.frame_count);
         host_vm=NULL;mutate_at_host=reenter_at_host=false;
         CHECK(!fclose(output));vm.output=NULL;vm_destroy(&vm);nvm_module_free(m);
@@ -177,7 +184,7 @@ static void fused_managed_effects(VmDispatchProfile profile) {
         CHECK(fused==(unsigned)(n==0 && profile.fuse_load_local_field));
         size_t objects=vm.heap.stats.num_objects;uint32_t refs=vm.module_constants.strings[0]->header.ref_count;
         pending_calls=0;NanoValue out=val_void();CHECK(vm_invoke(&vm,0,NULL,0,&out)==VM_OK);
-        CHECK(out.tag==TAG_INT && out.as.i64==42 && pending_calls==15);
+        CHECK(out.tag==TAG_INT && out.as.i64==42 && pending_calls==39);
         CHECK(!vm.frame_count && !vm.stack_size && !vm.handler_count);
         CHECK(vm.module_constants.strings[0]->header.ref_count==refs);
         vm_gc_collect_cycles(&vm.heap);CHECK(vm.heap.stats.num_objects==objects);
@@ -210,7 +217,89 @@ static void refusal_and_owned(void) {
     CHECK(vm.stack_size==1 && vm.stack[0].as.i64==42 && !vm.references.active);
     vm_destroy(&vm);nvm_module_free(m);
 }
+static void classified_helpers(void) {
+    NvmModule *a=ordinary("PUSH_I64 42\nRET\n",false);
+    NvmModule *b=ordinary("PUSH_I64 8\nRET\n",true);
+    b->imports[0].kind=NVM_IMPORT_SERVICE;
+    pending_calls=0;
+    NvmServiceClassification facts=nvm_service_classify(a);
+    CHECK(facts.module==a && !facts.pending && pending_calls==1);
+    CHECK(!nvm_service_pending_classified(a,&facts) && pending_calls==1);
+    CHECK(nvm_owned_array_route_classified(a,&facts)==NVM_OWNER_ARRAY_NOT_SELECTED);
+    CHECK(!nvm_mixed_samples_candidate_classified(a,&facts) && pending_calls==1);
+    CHECK(nvm_service_pending_classified(b,&facts) && pending_calls==2);
+    CHECK(nvm_service_pending_classified(b,NULL) && pending_calls==3);
+    CHECK(nvm_owned_array_route_classified(b,&facts)==NVM_OWNER_ARRAY_NOT_SELECTED && pending_calls==4);
+    CHECK(!nvm_mixed_samples_candidate_classified(b,&facts) && pending_calls==5);
+    CHECK(nvm_owned_array_route(a)==NVM_OWNER_ARRAY_NOT_SELECTED && pending_calls==6);
+    CHECK(!nvm_mixed_samples_candidate(a) && pending_calls==7);
+    a->ownership_data=calloc(1,1);CHECK(a->ownership_data);a->ownership_size=1;
+    CHECK(nvm_owned_array_route(a)==NVM_OWNER_ARRAY_INVALID && pending_calls==8);
+    a->service_size=1; /* Partial service metadata takes priority over malformed ownership. */
+    CHECK(nvm_owned_array_route(a)==NVM_OWNER_ARRAY_NOT_SELECTED && pending_calls==9);
+    CHECK(!nvm_mixed_samples_candidate(a) && pending_calls==10);
+    facts=nvm_service_classify(a);
+    CHECK(facts.pending && pending_calls==11);
+    CHECK(nvm_owned_array_route_classified(a,&facts)==NVM_OWNER_ARRAY_NOT_SELECTED && pending_calls==11);
+    CHECK(!nvm_mixed_samples_candidate_classified(a,&facts) && pending_calls==11);
+    NvmServiceClassification absent=nvm_service_classify(NULL);
+    CHECK(!absent.module && !absent.pending && pending_calls==12);
+    CHECK(!nvm_service_pending_classified(NULL,NULL) && pending_calls==13);
+    nvm_module_free(a);nvm_module_free(b);
+}
+static void distinct_module_facts(void) {
+    NvmModule *a=ordinary("PUSH_I64 42\nRET\n",false);
+    NvmModule *b=ordinary("PUSH_I64 8\nRET\n",true);
+    VmState vm;vm_init(&vm,a);CHECK(vm_link_module(&vm,b)!=UINT32_MAX);
+    vm.module=b;
+    NvmServiceClassification facts=nvm_service_classify(b);
+    pending_calls=pending_module_count=0;record_pending=true;
+    CHECK(vm_ownership_supported_scoped(&vm,&facts));
+    CHECK(pending_calls==2 && pending_module_count==2);
+    CHECK(pending_modules[0]==a && pending_modules[1]==b);
+    record_pending=false;
+    b->ownership_data=calloc(1,1);CHECK(b->ownership_data);b->ownership_size=1;
+    pending_calls=pending_module_count=0;record_pending=true;
+    CHECK(!vm_ownership_supported_scoped(&vm,&facts));
+    CHECK(!pending_calls && !pending_module_count); /* Current refusal never visits root/linked. */
+    record_pending=false;free(b->ownership_data);b->ownership_data=NULL;b->ownership_size=0;
+    a->service_size=1;
+    facts=nvm_service_classify(b);
+    pending_calls=pending_module_count=0;record_pending=true;
+    CHECK(!vm_ownership_supported_scoped(&vm,&facts));
+    CHECK(pending_calls==1 && pending_module_count==1 && pending_modules[0]==a);
+    record_pending=false;a->service_size=0;
+    vm.module=a;facts=nvm_service_classify(a);
+    b->imports[0].kind=NVM_IMPORT_SERVICE;
+    pending_calls=pending_module_count=0;record_pending=true;
+    CHECK(!vm_ownership_supported_scoped(&vm,&facts));
+    CHECK(pending_calls==1 && pending_module_count==1 && pending_modules[0]==b);
+    record_pending=false;vm_destroy(&vm);nvm_module_free(b);nvm_module_free(a);
+}
+static void bare_file_refusals(void) {
+    for(unsigned helper=0;helper<2;helper++) {
+        NvmModule *m=ordinary("PUSH_BOOL 1\nASSERT\nPUSH_I64 42\nRET\n",false);
+        VmState vm;vm_init(&vm,m);
+        uint32_t offset=m->functions[helper].code_offset;
+        m->code[offset]=OP_FILE_DROP_STACK; /* Existing public direct-core refusal; never execute it. */
+        NanoValue out=val_int(-9);prints=external_calls=0;
+        CHECK(vm_invoke(&vm,0,NULL,0,&out)==VM_ERR_TYPE_ERROR);
+        CHECK(out.tag==TAG_INT && out.as.i64==-9 && !vm.stack_size && !vm.frame_count);
+        CHECK(!prints && !external_calls);
+        enter_core(&vm);VmOrdinaryAdmission cert={0};VmOwnedInvocationProof proof={0};
+        uint32_t stack=vm.stack_size,frames=vm.frame_count;
+        pending_calls=0;
+        VmTrap trap=vm_core_execute_scoped(&vm,&proof,&cert);
+        CHECK(trap.type==TRAP_ERROR && trap.data.error.code==VM_ERR_TYPE_ERROR);
+        CHECK(!cert.valid && pending_calls==1 && vm.stack_size==stack && vm.frame_count==frames);
+        CHECK(!prints && !external_calls);
+        vm_destroy(&vm);nvm_module_free(m);
+    }
+}
 int main(void) {
+    classified_helpers();
+    distinct_module_facts();
+    bare_file_refusals();
     for(unsigned p=0;p<2;p++) {
         VmDispatchProfile profile=p?vm_dispatch_profile_all():vm_dispatch_profile_none();
         for(unsigned width=0;width<4;width++) {

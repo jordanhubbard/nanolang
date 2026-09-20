@@ -5640,6 +5640,6 @@ test-portable-read-wasm:
 .PHONY: test-vm-ordinary-admission
 test-vm-ordinary-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	ORDINARY_ADMISSION_CC='$(CC)' \
-	ORDINARY_ADMISSION_OBJECTS='$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)' \
+	ORDINARY_ADMISSION_OBJECTS='$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(filter-out $(OBJ_DIR)/nanoisa/service_bindings_module.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)' \
 	ORDINARY_ADMISSION_LDFLAGS='$(LDFLAGS)' \
 	python3 -m unittest tests.test_vm_ordinary_admission
