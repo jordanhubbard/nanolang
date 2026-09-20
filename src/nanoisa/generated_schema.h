@@ -227,7 +227,7 @@ static const NanoisaSchemaOpcode nanoisa_schema_opcodes[] = {
 };
 
 /* Extended opcode plane, reached through NANOISA_EXTENSION_PREFIX. */
-static const NanoisaSchemaOpcode nanoisa_extended_opcodes[1] = { {0} };
+static const NanoisaSchemaOpcode nanoisa_extended_opcodes[1] = { {0, 0, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 0, 0} };
 
 static const NanoisaV2Family nanoisa_v2_families[] = {
     {"const.i64", "Push a signed 64-bit integer literal.", "none", "core-semantics", 1, 0, 1},

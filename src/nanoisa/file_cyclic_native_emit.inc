@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef enum { FNE_PRIVATE, FNE_PUBLIC } FileCyclicNativeSurface;
+
 /* Generation only. No generated function depends on this emitter or VM code. */
 typedef struct { char *text; size_t used,capacity; NvmFileRuntimeStatus status; } Fne;
 static void fn_text(Fne *b,const char *format,...) {
@@ -188,9 +190,14 @@ static void fn_agreement(Fne *b,const NvmFileCyclicHostedPlan *p,NvmFileCyclicHo
     fn_text(b,"return true;}\n");
 }
 
-static void fn_preamble(Fne *b) {
+static void fn_preamble(Fne *b,FileCyclicNativeSurface surface) {
+    if(surface==FNE_PUBLIC) {
+        fn_text(b,"%s","#include <nanolang/file/nanoisa/file_cyclic_native_public.h>\n#include <limits.h>\n#include <string.h>\n");
+        fn_text(b,"%s","#if NVM_FILE_CYCLIC_PUBLIC_ABI != 1u || NVM_FILE_CYCLIC_NATIVE_ABI != 1u\n#error I require cyclic public and native ABI revision 1\n#endif\n");
+    } else {
     fn_text(b,"%s","#include \"src/nanoisa/nvm2c_file_cyclic_private.h\"\n#include \"src/nanoisa/nvm_v2_sections.h\"\n#include <limits.h>\n#include <string.h>\n");
     fn_text(b,"%s","#ifndef NVM_FILE_CYCLIC_NATIVE_PRIVATE\n#error I require private cyclic File providers\n#endif\n#if NVM_FILE_CYCLIC_NATIVE_ABI != 1u\n#error I require cyclic native ABI revision 1\n#endif\n");
+    }
     fn_text(b,"%s","#define NF_TRY(expr) do { NvmFileRuntimeStatus nf_status_=(expr); if(nf_status_!=NVM_FILE_RUNTIME_OK)return nf_status_; } while(0)\n");
     fn_text(b,"%s","static NvmFileRuntimeStatus nf_bad(NvmFileRuntime *c){return nvm_file_runtime_fail(c,NVM_FILE_RUNTIME_STATE);}\n");
     fn_text(b,"%s","static int64_t nf_bits(uint64_t x){int64_t y;memcpy(&y,&x,sizeof y);return y;}\n");
@@ -341,8 +348,10 @@ static void fn_function(Fne *b,const NvmFileCyclicHostedPlan *p,uint32_t index) 
     }
     fn_text(b,"}\n");
 }
-NvmFileRuntimeStatus nvm2c_file_cyclic_private_emit(const uint8_t *bytes,size_t size,
-    char **out,char *err,size_t err_size) {
+static NvmFileRuntimeStatus file_cyclic_native_emit_serialized(const uint8_t *bytes,size_t size,
+    FileCyclicNativeSurface surface,const char *identifier,char **out,char *err,size_t err_size) {
+    if(surface!=FNE_PRIVATE && surface!=FNE_PUBLIC)return NVM_FILE_RUNTIME_INVALID;
+    if(surface==FNE_PUBLIC && !identifier)return NVM_FILE_RUNTIME_INVALID;
     if(!out || !bytes || !size || (err_size && !err))return NVM_FILE_RUNTIME_INVALID;
     NvmFileCyclicHostedPlan *plan=NULL;
     NvmFileFlowStatus prepared=nvm_file_cyclic_hosted_prepare(bytes,size,&plan);
@@ -350,22 +359,25 @@ NvmFileRuntimeStatus nvm2c_file_cyclic_private_emit(const uint8_t *bytes,size_t 
     if(prepared!=NVM_FILE_FLOW_OK) {
         result=prepared==NVM_FILE_FLOW_MEMORY?NVM_FILE_RUNTIME_MEMORY:prepared==NVM_FILE_FLOW_LIMIT?NVM_FILE_RUNTIME_LIMIT:
             prepared==NVM_FILE_FLOW_UNRESOLVED?NVM_FILE_RUNTIME_UNRESOLVED:NVM_FILE_RUNTIME_INVALID;
-        if(err_size)(void)snprintf(err,err_size,"I refuse private cyclic File preparation (%u)",(unsigned)result);
+        if(err_size)(void)snprintf(err,err_size,"I refuse %scyclic File preparation (%u)",surface==FNE_PRIVATE?"private ":"",(unsigned)result);
         return result;
     }
     NvmFileCyclicHostedStartup startup;
     if(!nvm_file_cyclic_hosted_startup(plan,&startup) || !fcd_coverage(plan)) {
         nvm_file_cyclic_hosted_free(plan);
-        if(err_size)(void)snprintf(err,err_size,"I lack complete private cyclic File instruction coverage");
+        if(err_size)(void)snprintf(err,err_size,"I lack complete %scyclic File instruction coverage",surface==FNE_PRIVATE?"private ":"");
         return NVM_FILE_RUNTIME_UNRESOLVED;
     }
-    Fne b={0};fn_preamble(&b);
+    Fne b={0};fn_preamble(&b,surface);
     fn_text(&b,"static const uint8_t nf_module[]={\n");
     for(size_t i=0;i<size;i++)fn_text(&b,"%u,%s",bytes[i],i%24==23?"\n":"");
     fn_text(&b,"\n};\n");fn_agreement(&b,plan,startup);
     for(uint32_t f=0;f<startup.functions;f++)fn_text(&b,"static NvmFileRuntimeStatus nf_function_%u(NvmFileRuntime *);\n",f);
     for(uint32_t f=0;f<startup.functions;f++)fn_function(&b,plan,f);
-    fn_text(&b,"NvmFileCyclicExecutionReport nvm_file_native_cyclic_execute(const NvmFileCyclicOptions *options,NvmFileRuntimeView *out){\n"
+    fn_text(&b,"%s",surface==FNE_PUBLIC?
+        "static NvmFileCyclicExecutionReport nf_execute(const NvmFileCyclicOptions *options,NvmFileRuntimeView *out){\n":
+        "NvmFileCyclicExecutionReport nvm_file_native_cyclic_execute(const NvmFileCyclicOptions *options,NvmFileRuntimeView *out){\n");
+    fn_text(&b,
         "if(!out || !options || options->revision!=NVM_FILE_CYCLIC_RUNTIME_REVISION || options->instruction_limit>NVM_FILE_CYCLIC_FUEL_MAX)return nf_refused(NVM_FILE_RUNTIME_INVALID,options);\n"
         "if(!nvm_file_runtime_cyclic_native_abi(1u,sizeof(NvmFileCyclicOptions),sizeof(NvmFileCyclicExecutionReport),sizeof(NvmFileCyclicFrameView),sizeof(NvmFileRuntimeFrameView),sizeof(NvmFileRuntimeView)))return nf_refused(NVM_FILE_RUNTIME_UNRESOLVED,options);\n"
         "NvmFileRuntime *c=NULL;uint32_t root;\n"
@@ -383,11 +395,21 @@ NvmFileRuntimeStatus nvm2c_file_cyclic_private_emit(const uint8_t *bytes,size_t 
         "if(status==NVM_FILE_RUNTIME_OK && nvm_file_runtime_current_root(c,&root))status=nf_bad(c);\n"
         "if(status!=NVM_FILE_RUNTIME_OK)(void)nvm_file_runtime_fail(c,status);\n"
         "return nvm_file_runtime_cyclic_destroy(&c,out);\n}\n#undef NF_TRY\n",startup.entry,startup.entry);
+    if(surface==FNE_PUBLIC)fn_text(&b,
+        "NvmFileCyclicExecutionReport nvm_file_cyclic_program_%s(NvmFileHostGrant *grant,const NvmFileCyclicOptions *options,NvmFileScalar *out){\n"
+        "NvmFileHostStatus entered=nvm_file_host_enter(grant,NVM_FILE_HOST_ABI,NVM_FILE_HOST_CATALOG);\n"
+        "if(entered!=NVM_FILE_HOST_OK)return nvm_file_cyclic_public_refused(nvm_file_public_grant_status(entered),entered==NVM_FILE_HOST_BUSY?NULL:options);\n"
+        "NvmFileCyclicExecutionReport report;\n"
+        "if(!nvm_file_cyclic_public_options(options) || !out)report=nvm_file_cyclic_public_refused(NVM_FILE_RUNTIME_INVALID,options);\n"
+        "else {NvmFileCyclicOptions copied=*options;NvmFileRuntimeView view={0};\n"
+        "if(!nvm_file_runtime_cyclic_public_abi(1u,sizeof copied,sizeof report,sizeof *out))report=nvm_file_cyclic_public_refused(NVM_FILE_RUNTIME_UNRESOLVED,&copied);\n"
+        "else {report=nf_execute(&copied,&view);report.runtime=nvm_file_public_publish(report.runtime,&view,out);}}\n"
+        "nvm_file_host_leave();return report;}\n",identifier);
     nvm_file_cyclic_hosted_free(plan);
     result=b.status;
     if(result!=NVM_FILE_RUNTIME_OK) {
         free(b.text);
-        if(err_size)(void)snprintf(err,err_size,"I refuse private cyclic File emission (%u)",(unsigned)result);
+        if(err_size)(void)snprintf(err,err_size,"I refuse %scyclic File emission (%u)",surface==FNE_PRIVATE?"private ":"",(unsigned)result);
         return result;
     }
     *out=b.text;if(err_size)err[0]='\0';return NVM_FILE_RUNTIME_OK;

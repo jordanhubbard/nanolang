@@ -1,0 +1,37 @@
+[
+  {
+    "phase": "schema-consistency",
+    "seconds": 0.115,
+    "status": 0
+  },
+  {
+    "phase": "schema-tests",
+    "seconds": 1.618,
+    "status": 0
+  },
+  {
+    "phase": "setup",
+    "seconds": 22.519,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.114,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.064,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 99.73,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 0.616,
+    "status": 1
+  }
+]

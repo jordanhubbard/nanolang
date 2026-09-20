@@ -84,3 +84,41 @@ not guest service acquisition, and qualification counts them separately.
 Loops, indirect calls, richer borrow sets, paired executable NSI source bindings
 and complete selected-source shadows remain required follow-up acceptance.
 This first public profile does not close the larger File or5.1 roadmap parents.
+
+
+## I require a separate cyclic choice and explicit fuel
+
+My new cyclic public source checkpoint is awaiting fixture qualification. The
+existing acyclic forms above keep their profile and ABI. I do not retry a refused
+acyclic program through cyclic execution. My cyclic wrappers use the same owning
+grant and freshly verify every selected variant, edge, startup and direct call
+before beginning effects.
+
+```sh
+nano_vm --allow-temporary-files --file-cyclic --file-instruction-limit 1000 program.nvm
+nvm2c --file-temporary --file-cyclic --entry-name example program.nvm -o example.c
+```
+
+I expose `nvm_file_execute_cyclic_bytes` and `nvm2c_emit_file_cyclic_bytes` in
+`<nanolang/file/nanoisa/file_cyclic_public.h>`. The generated export is
+`nvm_file_cyclic_program_example(grant, options, scalar)`, returning
+`NvmFileCyclicExecutionReport`. Every execution receives a non-NULL
+`NvmFileCyclicOptions` with revision1 and an explicit unsigned limit0..1000000.
+Zero starts no opcode; I never substitute a default. Native emission has no fuel
+argument because each subsequent invocation supplies its own limit.
+
+Initializer, entry and all direct callees share the counter. Exhaustion reports
+LIMIT, the pending function/PC, the started count and `fuel_exhausted=true`.
+Cleanup is not charged and still finishes before a failure returns. Other LIMIT
+causes retain `fuel_exhausted=false`. Clean scalar publication follows complete
+destruction; failure preserves output. BUSY precedes reading any caller argument
+and consequently reports a zero supplied limit and zero starts. Other early
+refusals retain the supplied numeric limit when valid option storage is present.
+
+The existing runtime archive gains separate cyclic VM, emitter and ABI members.
+Generated native C uses real functions and labels; its link must not extract a VM
+engine. Fuel is an opcode budget, not a host-call deadline or security sandbox.
+Closed-indirect calls, richer reference profiles and paired cyclic source
+production remain required later work and are not enabled by this checkpoint.
+The [complete contract](NANOISA_FILE_CYCLIC_PUBLIC_ADMISSION.md) records the exact
+ABI, gate precedence, installed closure and pending Linux/Darwin acceptance.

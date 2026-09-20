@@ -1,0 +1,146 @@
+{
+  "apple_clang": {
+    "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "sha256": "be5518e9c6736cda8dfc3486ce11e8112a2e08045084260691cf41f57a653f59"
+  },
+  "apple_ld": {
+    "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld",
+    "sha256": "59dd8bfc2656bf8a3a413f26225bbc9133ed58dea82e959428a9d645c700250d"
+  },
+  "ar": {
+    "path": "/usr/bin/ar",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "cc": {
+    "path": "/usr/bin/cc",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "clang": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "driver_python": {
+    "path": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "gcc": {
+    "path": "/usr/bin/gcc",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "git": {
+    "path": "/opt/homebrew/Cellar/git/2.55.0/bin/git",
+    "sha256": "5f0351f649aa1321345229d5256fc8043517778b134a3b4571ecdc3818f124b2"
+  },
+  "ld": {
+    "path": "/usr/bin/ld",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "libcrypto": {
+    "path": "/opt/homebrew/Cellar/openssl@3/3.6.4/lib/libcrypto.3.dylib",
+    "sha256": "bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c"
+  },
+  "libffi_header": {
+    "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX26.4.sdk/usr/include/ffi/ffi.h",
+    "sha256": "cfc632aa9411334f99e14681008b2db105bc52b834f31b4d714d4326deac3a85"
+  },
+  "make": {
+    "path": "/usr/bin/make",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "nm": {
+    "path": "/usr/bin/nm",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "ordinary": {
+    "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "sha256": "be5518e9c6736cda8dfc3486ce11e8112a2e08045084260691cf41f57a653f59"
+  },
+  "python3": {
+    "path": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "sanitizer": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "schema_python": {
+    "path": "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/bin/python3.13",
+    "sha256": "1988a0dd685f91bbaf20b5267046e13cb78859dbb3b5f030e89b448c1fbfe8d4"
+  },
+  "schema_yaml___init__.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/__init__.py",
+    "sha256": "b19dfcc333d6a75dfd73073901164507252f271b41d3b5f7d85510033a0547a7"
+  },
+  "schema_yaml__yaml.cpython-313-darwin.so": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/_yaml.cpython-313-darwin.so",
+    "sha256": "ba1d658938053d44a1bf09dfcaab837676ecad1b0d5d6ac35cc15d7a31d7bb33"
+  },
+  "schema_yaml_composer.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/composer.py",
+    "sha256": "fcaa37d16afa783594794a5ab94193dcb720f503c19ce3d59539c8311189f453"
+  },
+  "schema_yaml_constructor.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/constructor.py",
+    "sha256": "90d8247da78b524c10618fd0e857f54f3d97570fe91b5c5513d024ef3faf88b0"
+  },
+  "schema_yaml_cyaml.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/cyaml.py",
+    "sha256": "e99ac01bd7c062f7557b614aff0d21997a06ed962ca185306a91bc0a20bbd87d"
+  },
+  "schema_yaml_dumper.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/dumper.py",
+    "sha256": "3cb72d66563064ba7b5e679477046ebf89d8399d940670c8532f3e94a7cb17ea"
+  },
+  "schema_yaml_emitter.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/emitter.py",
+    "sha256": "8e086d694ede170837d5b1b407b45979aff6f40762f422a65eafd08e04290a44"
+  },
+  "schema_yaml_error.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/error.py",
+    "sha256": "021f73fada072546c4f63f8cf18a7181244ce4280b09cc15cc980b2d1176171a"
+  },
+  "schema_yaml_events.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/events.py",
+    "sha256": "e74fd392c810884e2ea7e94aa3f57e9c1cbeb402319083d0c58e6a0e1282787c"
+  },
+  "schema_yaml_loader.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/loader.py",
+    "sha256": "5156becc8aa6905482218abf3e04869b835226db4763645fff3438fdbd5f1cdd"
+  },
+  "schema_yaml_nodes.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/nodes.py",
+    "sha256": "80f28d8fca4a09d87677882bde021820d9cf39a3b11a12405226211919cf13ce"
+  },
+  "schema_yaml_parser.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/parser.py",
+    "sha256": "8a55a9e6fbe0a07146cef3990c8b45a068c3e83e369e1959ad9ca30306b4a09a"
+  },
+  "schema_yaml_reader.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/reader.py",
+    "sha256": "d1d9b38ab3a20c6e17a38d519ee412ecaf6b918df18c78956ac7c330d4ea08dc"
+  },
+  "schema_yaml_representer.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/representer.py",
+    "sha256": "22e58ff9c016f6c1ca1274b4802a926bcf78935060e1c813c5a0f021c6d143e6"
+  },
+  "schema_yaml_resolver.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/resolver.py",
+    "sha256": "f4bf9561f9b89961f1503d558385fbae30d12bfed565de9bf76c33abb63620a6"
+  },
+  "schema_yaml_scanner.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/scanner.py",
+    "sha256": "60433788b652690c17710460da5d91e0c753d3318fd85f5e1e42862a71f25906"
+  },
+  "schema_yaml_serializer.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/serializer.py",
+    "sha256": "0a1b85826854d35863e31808f0668abfabdf33606e8f06bd8bb7761401e3edc0"
+  },
+  "schema_yaml_tokens.py": {
+    "path": "/Users/jkh/Library/Python/3.13/lib/python/site-packages/yaml/tokens.py",
+    "sha256": "953408cd2570f0c83dc2fe39f7e4e388e41eeb05738aa69196a5f6ffcf6ba79e"
+  },
+  "xcrun": {
+    "path": "/usr/bin/xcrun",
+    "sha256": "178e19cfe796ce33815195c42d34562c20ec4d5131534fb7e6a55b91f14371d5"
+  }
+}

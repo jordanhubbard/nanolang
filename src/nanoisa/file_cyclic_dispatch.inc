@@ -1,4 +1,4 @@
-/* Private adapter coverage only; old hosted/public authority is unchanged. */
+/* Shared explicit cyclic adapter coverage; old acyclic authority is unchanged. */
 #include "file_cyclic_runtime.h"
 #include "nvm_v2_sections.h"
 #include "../nsi_file_catalog.h"

@@ -2,18 +2,9 @@
 #define NANOISA_FILE_CYCLIC_RUNTIME_H
 #include "file_cyclic_hosted.h"
 #include "file_runtime_frames.h"
-#define NVM_FILE_CYCLIC_RUNTIME_REVISION 1u
-#define NVM_FILE_CYCLIC_FUEL_MAX UINT64_C(1000000)
-#define NVM_FILE_CYCLIC_FUEL_DEFAULT UINT64_C(100000)
-/* Source-private carrier protocol only: no dispatcher, public selector or
- * installed ABI. External serialization and disjoint outputs remain required. */
-typedef struct { uint32_t revision; uint64_t instruction_limit; } NvmFileCyclicOptions;
-typedef struct {
-    uint32_t revision;
-    NvmFileRuntimeReport runtime;
-    uint64_t instruction_limit, instructions_started;
-    bool fuel_exhausted;
-} NvmFileCyclicExecutionReport;
+#include "file_cyclic_report.h"
+/* Trusted carrier protocol. Granted wrappers own serialization; direct callers
+ * still require external serialization and disjoint valid storage. */
 typedef struct {
     uint32_t revision;
     NvmFileRuntimeFrameView frame;

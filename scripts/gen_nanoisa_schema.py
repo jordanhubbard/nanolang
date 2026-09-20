@@ -184,13 +184,14 @@ def generate(schema: dict) -> str:
             rendered = ", ".join(f"OPERAND_{operand}" for operand in padded)
             lines.append(
                 f'    {{"{opcode["name"]}", 0x{_as_int(opcode["code"]):02x}, '
-                f'{len(operands)}, {{{rendered}}}}},'
+                f'{len(operands)}, {{{rendered}}}, 0, 0}},'
             )
         lines.append("};")
     else:
         lines.append(
             "static const NanoisaSchemaOpcode "
-            "nanoisa_extended_opcodes[1] = { {0} };"
+            "nanoisa_extended_opcodes[1] = { "
+            "{0, 0, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, 0, 0} };"
         )
     lines.extend(["", "static const NanoisaV2Family nanoisa_v2_families[] = {"])
     for item in families:
