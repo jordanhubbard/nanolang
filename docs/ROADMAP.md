@@ -351,6 +351,16 @@ their individual acceptance evidence closes them.
 
 ## Active Execution Queue
 
+- [ ] I keep the exact-binary64 reconstruction gate aligned with the source
+  operations I actually admit (`task_c2d5f6840c96fccfc49b173c5248dc2c`).
+  The clean `ebe3afddc` Darwin release run passes every earlier phase and then
+  stops because the historical facts fixture still expects `F64_ADD` source
+  reconstruction to fail. My later typed arithmetic contract intentionally
+  admits that opcode. I preserve the full first-terminal log and retain atomic
+  previous-output refusal coverage with a genuinely unsupported generic float
+  operation; I do not remove the check or turn an accepted operation back into
+  a refusal.
+
 - [x] I keep the module-introspection acceptance program bound to the shared module-facts declarations it calls (`task_3f0ced012cde4f6eb73f6fdd1279d482`). At product `84e04f5d`, bootstrap, 39 focused methods and all 17 core examples pass; the later C-seed introspection gate reports missing emitted scanner declarations. I distinguish direct import ownership from backend closure, preserve every scanner assertion, and qualify the corrected fixture before resuming full acceptance.
 
 - [x] I record the product compiler VM fixed point at `ae63b248`: initial and two VM generations match raw bytes and host closure, and the second generation compiles verified hello. [Pinned evidence](evidence/product-vm-fixedpoint-ae63b248.md). This bounded check does not close product task d76ae, export-shadow task dd74, or the full release.
