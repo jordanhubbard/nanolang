@@ -172,3 +172,26 @@ This conservative textual reference check does not execute a binary, model syste
 headers or prove dynamic linking. Isolated real dynamic loading/wrapper behavior
 remains required. No file_flow private copy is needed by the observed project
 references; the public NanoISA owner keeps its existing copy and source closure.
+
+## My examples Forth library recipe prerequisite
+
+I also inspect the required existing examples Forth SEE neighbor before running it.
+Its independent libforth_see.so recipe retains an older explicit provider list,
+omitting six units already required by the current Forth manifest: mixed float
+proof, service bindings, module service bindings, File nominal identity/plan and
+the strict NSI File plan. Listed format/ownership providers reference these
+families. I record the exact old rule and complete proposed canonical list in
+[NANOISA_FORTH_EXAMPLES_CLOSURE_PLAN.json](NANOISA_FORTH_EXAMPLES_CLOSURE_PLAN.json).
+I have not executed this known incomplete recipe or relabeled it as a measured
+failure.
+
+I propose a named FORTH_SEE_C_SOURCES list in examples/Makefile containing exactly
+the current manifest public-plus-private source union, once each and in that order.
+Both the library prerequisites and compile command consume that same variable.
+Existing headers, flags, output path, test executable rule, compiler selection and
+test-forth-see behavior remain unchanged. This independent examples library is a
+complete shared artifact, not one of the aggregate static module owners; I do not
+change its visibility policy or use it to mask the isolated manifest-library tests.
+The fixture checks exact recipe/manifest source-set agreement and actual library
+load/disassembly, in addition to running the existing test-forth-see target.
+This narrow build closure correction requires review before implementation.

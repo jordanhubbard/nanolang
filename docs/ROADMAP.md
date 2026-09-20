@@ -13897,3 +13897,10 @@ exact proposed private dependency order. A retained-object symbol inventory and
 96-file quoted include scan find no reference from those providers to file_flow
 exports; I retain that limited static evidence and still require actual isolated
 shared-library loading. No gate runs before the complete fixture checkpoint.
+
+- [ ] I repair the statically incomplete examples Forth SEE shared-library recipe:
+  its independent explicit list omits six providers required by the current
+  manifest and referenced by its format/ownership code. I record the exact old
+  rule and proposed complete once-only list before source changes. I preserve
+  flags/output/compiler/test behavior, require review, and retain the actual
+  existing test-forth-see neighbor rather than skipping its separate build route.
