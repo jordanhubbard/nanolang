@@ -220,3 +220,35 @@ not close closed-indirect target sets, richer borrowed transport, paired source
 loops/imports/helpers/mandatory shadows, LLVM/Wasm/linked support, installed
 full-product acceptance or full72556/6931. Their ordered obligations remain in
 [my parent control/call contract](NANOISA_FILE_CONTROL_CALL_EXTENSION.md).
+
+## My first nonexecuting hosted source checkpoint
+
+I define `file_cyclic_hosted.h` before implementation: distinct opaque plan,
+revision1 startup/function storage facts, frame-local owner/reference/region
+peaks, query summary and copying accessors for every input variant, edge,
+reference, region, nominal/import identity and exact serialized input span.
+Both query and hosted startup retain `runtime_admitted=false`. I expose no
+mutable query pointer and no conversion to the old hosted plan.
+
+My implementation is included after existing hosted/query code in file_flow.c.
+It calls the unchanged serialized preflight/codec helpers, replacing their full
+16MiB body allowance with the full16MiB cyclic query allowance and adding the
+new plan before allocation. The unused old-plan allowance stays conservative.
+The retained bound includes serialized input plus query preparation peak and
+my plan; it deliberately overestimates retained query bytes. No bound claims
+whole-runtime/host storage. Serialized input survives destruction of caller
+bytes, temporary v2 tables and the bridge module.
+
+I check every variant's cleanup/refinement/exit, complete call/service obligation
+fields and pending/discharged masks against exact decoded operands and original
+declarations/catalog. I preserve the checked graph and every edge; no execution
+check is discharged here. Storage takes input/output maxima across all variants
+and callee-first call compositions, with exact declared max_stack checks and
+bounded staging. Variant0 at instruction0 is the query's retained initial
+parameter state, not a join representative. I retain all other alternatives.
+
+I change no old hosted/query implementation, carrier, dispatcher, emitter,
+public selector, installed header or source producer. The Make dependency names
+the new include/header explicitly. This checkpoint has had static inspection
+only: no fixture, compiler, build, service or cyclic execution has run. I request
+source review before preparing the new hosted fixtures and gates.

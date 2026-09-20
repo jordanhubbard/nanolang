@@ -12527,3 +12527,10 @@ The broader control/call row stays open for its runtime and source obligations.
 - [ ] I implement/review/qualify the non-executing cyclic hosted plan, then private carrier/frame/fuel checks, then matched VM and real generated native functions, in that dependency order with separate source and fixture checkpoints. I preserve old acyclic APIs/native ABI1 and all current refusals.
 - [ ] I seal fresh Linux/Darwin VM/native O0/O2 and supported sanitizer acceptance with full alternatives, exact fuel boundaries, repeated acquisition beyond64 total, held-reference invariants, fault recovery and pre-disposal root counts, retaining the original acyclic corpus.
 - [ ] After actual dfa149 integration, I separately review public cyclic conjunction, explicit opt-in/options, grant/gate lifetime, packaging and installed acceptance. Closed-indirect calls, richer borrows, complete paired-source/shadows and full parents remain required and open.
+
+I prepare15a92 dependency1 only: separate nonexecuting cyclic hosted header/plan
+and complete copying accessors, immutable serialized retention, all-variant
+logical obligation checks and bounded callee-first storage maxima. Existing
+acyclic functions remain unchanged; runtime_admitted stays false. Source review
+precedes hosted fixture preparation and gates. Physical generation witnesses,
+fuel, matched VM/native and public conjunction remain later unchecked steps.

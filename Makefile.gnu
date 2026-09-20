@@ -408,7 +408,7 @@ NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 
 # My retained service ABI and immutable catalog participate in incremental builds.
 $(NANOISA_OBJECTS): $(NANOISA_DIR)/file_hosted.h $(NANOISA_DIR)/file_hosted.inc $(NANOISA_DIR)/file_body.h $(NANOISA_DIR)/file_body.inc $(NANOISA_DIR)/file_code.h $(NANOISA_DIR)/file_code.inc $(NANOISA_DIR)/file_flow.h $(NANOISA_DIR)/service_file_nominal.h $(NANOISA_DIR)/service_bindings_module.h $(NANOISA_DIR)/service_bindings.h $(NANOISA_DIR)/nvm_v2_sections.h $(NANOISA_DIR)/nvm_format_v2.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi_file_catalog.h
-$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_cyclic.inc
+$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_cyclic.h $(NANOISA_DIR)/file_cyclic.inc $(NANOISA_DIR)/file_cyclic_hosted.h $(NANOISA_DIR)/file_cyclic_hosted.inc
 $(OBJ_DIR)/nsi_file_plan.o: $(SRC_DIR)/nsi.h $(SRC_DIR)/nsi_cap.h
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
