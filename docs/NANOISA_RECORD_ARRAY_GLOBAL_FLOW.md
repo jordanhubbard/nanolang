@@ -145,3 +145,30 @@ fresh query qualification do I resume the complete original VM matrix. I may
 run separately selected independent VM cases with transparent attribution, but
 that does not turn the stopped corpus or full mixed release green. Native C,
 LLVM/Wasm, nested/cyclic graphs and paired source remain full parent obligations.
+
+## My production checkpoint mapping
+
+The source checkpoint stays in `managed_array_shapes.c`. `GlobalFlow` owns
+function-by-global exits,256 return bits and256-by4 may-write words. The private
+prepass examines the retained structural decoder before any function decoder
+moves ownership or any function-state stride is allocated. Exit cells join the
+same1048576-cell total as function states; exact allocation widths join the
+existing peak-byte budget. The prepass charges each decoded row, each propagated
+word and zeroed control byte. It uses no reverse-graph allocation.
+
+`join` merges the fixed global vector separately from live operands. `seed`
+strips relations at function boundaries. `global_return` publishes normal exits.
+`global_invalidates` scans the bounded state before a strong store or may-writing
+call. `global_refine` filters only a current checked global tag/origin snapshot;
+tags outside the16-bit abstract domain cannot trigger an unchecked shift.
+Relations use a16-bit index/kind and an8-bit checked tag in the old Value padding
+on the selected ABIs. Ordinary `merge` still exports only tags/origins/unknown,
+so heap summaries and function results never retain snapshot proof metadata.
+
+The private scratch reservation covers three simultaneous768-value vectors:
+walk state, branch copy and nested seed. Old-mode logical state remains512
+values. Existing per-transfer charges increase from2048 to4096 only in the new
+mode, with separately charged joins, invalidations, branch copies, seeds and
+return summaries. Cleanup frees the optional exit vector/control owner after
+all transferred function states and before the final analysis owner. No source
+fixture or stopped VM program changes in this checkpoint.
