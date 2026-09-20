@@ -207,3 +207,64 @@ I retain shared v3 ordinary union/array coexistence requirements. This resolver
 assigns no new envelope kind/version, collapses no ordinary authority, and selects
 no source-visible cyclic fuel or indirect/richer-borrow route. The complete
 paired source and full5.1 requirements remain open after this prerequisite.
+
+## My first owning snapshot source checkpoint
+
+I pin `file_companion_snapshot.h/.c` as the first production subcheckpoint.
+It does not yet install the paired graph collector, bridge or namespace resolver;
+those remain the next required parts of this same reviewed dependency. The
+standalone `file-companion-plan` Make target compiles seven actual providers with
+caller CPPFLAGS/CFLAGS. No default compiler/provider list or public guard changes.
+The opaque set API fixes counted requests/views and status/stage/request/errno,
+secondary close error, peak and work report fields. It returns reports by value
+and leaves the output set pointer unchanged on all failures.
+
+| Owning allocation/reservation | Lifetime and accounting |
+| --- | --- |
+| Fixed set,16 zeroed rows and32KiB catalog view | Checked fixed size before calloc; charged once; owns all partial rows |
+| Three request strings per row, each at most4095 bytes plus NUL | Validated and copied before any filesystem operation; charged including terminators |
+| MAX_BYTES+1 input buffer per request | Reserved before any open; retained at full capacity, never shrunk or reallocated |
+| One strict binding preparation | Full nonallocating bound reserved alongside all existing rows; replaced by exact retained owning size after successful return |
+|16KiB automatic scratch reservation | Includes the4KiB parent pathname and this wrapper's call-local fields; strict nested scratch remains governed by its original contract |
+| Views | Borrow only completed immutable set storage; no allocation or source reopening |
+
+I cap the combined conservative requested-memory reservation at64MiB. This is not
+allocator/kernel/process memory. My wrapper charges every counted validation,
+copy, path scan and observed read, plus bounded fixed catalog/row bookkeeping.
+For each strict preparation I reserve
+`8 * MAX_TOKENS * MAX_LEXEME * (MAX_DEPTH + MAX_MEMBERS + MAX_ELEMENTS + 16)`
+work units. This conservatively covers its two bounded decodes, duplicate-key and
+typed-array lookups, complete catalog checks and repeated rendering scans. The
+combined cap is2^41 work units; all16 maximum reservations fit. These are charged
+upper bounds, not CPU instruction measurements or wall-clock guarantees. The
+existing strict reader's individual byte/token/depth/member/array limits remain
+unchanged. Source review and later allocation/failure fixtures must verify this
+accounting; no measured peak claim exists yet.
+
+I reject noncanonical lexical module paths and relative paths containing empty,
+dot or dot-dot components; actual canonical origin provenance remains the paired
+graph collector's responsibility. Final opening uses O_NOFOLLOW and O_NONBLOCK
+before fstat, so a FIFO cannot block waiting for a writer. I allow64 EINTR retries
+across the request's open/stat/read sequence; interruption65 terminates. I do not
+retry close. First operation failure and first secondary close error remain
+separate. A successful read checks its actual count against initial size and
+final descriptor identity/size/coarse timestamps. Those checks detect selected
+changes; they do not replace the documented stable-input/ancestor precondition.
+A successful set retains original bytes even after the caller deletes the files.
+
+## My ordinary namespace completeness inventory before graph code
+
+| Existing producer input | Required resolver treatment |
+| --- | --- |
+| C AST_PROGRAM declarations and Nano Parser tables | Include ordinary functions/externs, records/resources, unions/enums, opaque/type declarations and module globals in their actual namespaces, before service names |
+| AST imports, aliases and selective/wildcard exports | Resolve every edge under the original importing path; use original declaration identities before alias/mangling passes |
+| C `load_module_internal` module.json `headers` and `parse_c_header_constants` | Header-generated constants contribute names; a parse-only graph cannot silently omit them. Snapshot and independently reproduce the relevant declaration facts, or return UNRESOLVED before claiming completeness |
+| Explicit FFI declarations and module build metadata | Declared extern names are ordinary namespace members, not service methods. Missing metadata/unsupported generated declaration sources refuse complete preparation; no dlopen, compiler, pkg-config or module Make invocation supplies hidden authority |
+| Imported package extraction and cached metadata/AST | Existing package/cache paths are not presumed immutable source-origin evidence. A complete owned source mapping must be established before use; unsupported package preparation refuses explicitly |
+| Generic/list helpers, lambdas and compiler-generated declarations | Reserve and check generated identities in their established namespace before a complete plan is published; a later specialization that changes that namespace invalidates preparation and must rebuild/refuse, never reuse a partial report |
+| Nano merge stripping module/opaque source lines and binding-table rewrites | Retain the original parsed declaration inventory before stripping/mangling. Absence from merged text is not evidence that no declaration exists |
+
+I have not yet claimed complete namespaces for any graph. Both producer adapters
+must resolve these rows or return UNRESOLVED; the old ordinary driver continues
+its existing behavior. Supporting all required full source graphs remains parent
+work rather than redefining an incomplete graph as complete.

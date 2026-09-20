@@ -5769,3 +5769,17 @@ test-file-service-parser: bootstrap3 nano_virt
 	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/env.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/transpiler.o,$(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)))" python3 -m unittest -f -v tests.test_file_service_parser
 test-file-service-parser-sanitizers: nano_virt
 	NANO_SERVICE_PARSER_CC="$(CC)" NANO_SERVICE_PARSER_CFLAGS="$(CFLAGS)" NANO_SERVICE_PARSER_LDFLAGS="$(LDFLAGS)" NANO_SERVICE_PARSER_OBJECTS="$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/env.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/eval.o $(OBJ_DIR)/transpiler.o,$(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS)))" NANO_SERVICE_PARSER_SANITIZERS=1 python3 -m unittest -f -v tests.test_file_service_parser.FileServiceParser.test_c_ownership_and_refusal
+
+# I prepare compiler companion data without adding a default execution route.
+FILE_COMPANION_DIR = $(OBJ_DIR)/file-companion-plan
+FILE_COMPANION_NAMES = file_companion_snapshot nsi_file_binding nsi_file_plan nsi cJSON utf8
+FILE_COMPANION_OBJECTS = $(addprefix $(FILE_COMPANION_DIR)/,$(addsuffix .o,$(FILE_COMPANION_NAMES))) $(FILE_COMPANION_DIR)/file_source_catalog.o
+FILE_COMPANION_HEADERS = $(addprefix $(SRC_DIR)/,file_companion_snapshot.h nanoisa/file_source_plan.h nsi_file_binding.h nsi_file_plan.h nsi_file_catalog.h nsi_cap.h nsi_internal.h nsi.h cJSON.h utf8.h)
+.PHONY: file-companion-plan
+file-companion-plan: $(FILE_COMPANION_OBJECTS)
+$(FILE_COMPANION_DIR):
+	mkdir -p $@
+$(FILE_COMPANION_DIR)/%.o: $(SRC_DIR)/%.c $(FILE_COMPANION_HEADERS) | $(FILE_COMPANION_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@
+$(FILE_COMPANION_DIR)/file_source_catalog.o: $(SRC_DIR)/nanoisa/file_source_catalog.c $(FILE_COMPANION_HEADERS) | $(FILE_COMPANION_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@

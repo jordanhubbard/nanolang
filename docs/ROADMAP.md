@@ -13776,3 +13776,11 @@ companion resolution, nominal typing, independent lowering or source execution.
 - [ ] I review and implement [invocation-owned companion snapshots and paired original-module resolution](NANOISA_FILE_COMPANION_RESOLUTION.md), factoring actual parse/import collection before effectful module preparation; complete catalog/namespace facts precede IDs and aliases. No implementation begins before root plan review.
 - [ ] I review complete allocation/provider/ownership source, then fixtures for exact declaring origins, all catalog facts, transitive aliases/collisions, immutable input lifetime and I/O/allocation failures; qualify actual C-seed/Stage1/Stage2 helper/module shadows on both hosts with existing service refusals retained.
 - [ ] I separately review explicit nominal type propagation and all copy/equality/export paths before independent C/Nano File lowering, complete generated behavior shadows, runtime grants and installed publication. Full8bbc and original File/mixed/control-flow/source parents remain open.
+
+I begin the reviewed48fe7 companion dependency with its owning snapshot API,
+then paired graph/origin association. Before namespace implementation I inventory
+ordinary AST declarations/import visibility, explicit externs/opaque declarations,
+module.json/header constants, metadata-derived declarations and generated generic
+helpers. Unresolved external/generated namespace contributions must refuse a
+complete report; skipping module build/FFI preparation cannot mean an empty
+namespace. The first snapshot source checkpoint precedes fixtures or execution.
