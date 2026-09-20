@@ -400,6 +400,8 @@ static int walk(Analysis *a,uint32_t fi) {
         memcpy(state,f->states+(size_t)index*f->stride,((size_t)f->locals+depth)*sizeof(Value));
         Value *stack=state+f->locals;
         if(index==f->decoded.instruction_count) {
+            if(a->structure && depth!=entry->result_count)
+                return stop(a,NVM_ARRAY_INVALID,fi,entry->code_length,"I require the declared result depth at an implicit return.");
             if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);
             continue;
         }
@@ -409,7 +411,12 @@ static int walk(Analysis *a,uint32_t fi) {
         if(op==OP_ARR_LITERAL || op==OP_STRUCT_LITERAL){pops=in->operands[1].u16;pushes=1;}
         if(op==OP_AGG_PACK){pops=in->operands[3].u16;pushes=1;}
         if(op==OP_CALL){pops=a->module->functions[in->operands[0].u32].arity;pushes=a->module->functions[in->operands[0].u32].result_count;}
-        if(op==OP_RET){if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);continue;}
+        if(op==OP_RET) {
+            if(a->structure && depth!=entry->result_count)
+                return stop(a,NVM_ARRAY_INVALID,fi,d->byte_offset,"I require the declared result depth at an explicit return.");
+            if(entry->result_count)a->changed|=merge(&f->result,stack[depth-1]);
+            continue;
+        }
         if(pops<0 || pushes<0 || depth<pops || depth-pops+pushes>f->stack)
             return stop(a,NVM_ARRAY_INVALID,fi,d->byte_offset,"I require a verified bounded instruction stack effect.");
         Value result={0};int exact=fixed_result(op);if(exact>=0)result=tag((uint8_t)exact);

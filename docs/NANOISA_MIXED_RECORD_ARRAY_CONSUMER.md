@@ -282,8 +282,11 @@ I found an inherited static empty-body precondition: the old height walk skips
 an empty terminal node, while the managed origin walk expects a value for a
 nonvoid return. I record task_f4d020187bf34faca52e761cbb299dde without claiming a
 runtime observation. My new mode explicitly rejects empty nonvoid functions;
-I leave wider old behavior for separate review and require a direct negative
-fixture here. This is not a silent change to the old verifier.
+I also check exact depth against the declared result count at each implicit and
+explicit result consumption in the new origin walk. This covers nonempty
+fallthrough as well as empty bodies before reading a result slot. I leave wider
+old behavior for separate review and require negative result-boundary fixtures
+here. This is not a silent change to the old verifier.
 
 ### My accounting and cleanup
 
