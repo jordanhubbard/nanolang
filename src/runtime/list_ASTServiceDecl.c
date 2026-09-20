@@ -18,7 +18,7 @@ static void ensure_capacity_ASTServiceDecl(List_ASTServiceDecl *list, int min_ca
 
     struct nl_ASTServiceDecl *new_data = realloc(list->data, sizeof(struct nl_ASTServiceDecl) * new_capacity);
     if (!new_data) {
-        fprintf(stderr, "Error: Failed to allocate memory for list\n");
+        fprintf(stderr, "I could not allocate list storage\n");
         exit(1);
     }
 
@@ -36,13 +36,13 @@ List_ASTServiceDecl* nl_list_ASTServiceDecl_with_capacity(int capacity) {
     nl_list_validate_capacity(capacity, sizeof(*((List_ASTServiceDecl *)0)->data));
     List_ASTServiceDecl *list = malloc(sizeof(List_ASTServiceDecl));
     if (!list) {
-        fprintf(stderr, "Error: Failed to allocate memory for list\n");
+        fprintf(stderr, "I could not allocate list storage\n");
         exit(1);
     }
 
     list->data = capacity ? malloc(sizeof(*list->data) * (size_t)capacity) : NULL;
     if (capacity && !list->data) {
-        fprintf(stderr, "Error: Failed to allocate memory for list data\n");
+        fprintf(stderr, "I could not allocate list data\n");
         exit(1);
     }
 
@@ -62,7 +62,7 @@ void nl_list_ASTServiceDecl_push(List_ASTServiceDecl *list, struct nl_ASTService
 /* Remove and return the last element */
 struct nl_ASTServiceDecl nl_list_ASTServiceDecl_pop(List_ASTServiceDecl *list) {
     if (list->length == 0) {
-        fprintf(stderr, "Error: Cannot pop from empty list\n");
+        fprintf(stderr, "I cannot pop from an empty list\n");
         exit(1);
     }
 
@@ -73,7 +73,7 @@ struct nl_ASTServiceDecl nl_list_ASTServiceDecl_pop(List_ASTServiceDecl *list) {
 /* Insert an element at the specified index */
 void nl_list_ASTServiceDecl_insert(List_ASTServiceDecl *list, int index, struct nl_ASTServiceDecl value) {
     if (index < 0 || index > list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n",
+        fprintf(stderr, "I require index %d within list length %d\n",
                 index, list->length);
         exit(1);
     }
@@ -91,7 +91,7 @@ void nl_list_ASTServiceDecl_insert(List_ASTServiceDecl *list, int index, struct 
 /* Remove and return the element at the specified index */
 struct nl_ASTServiceDecl nl_list_ASTServiceDecl_remove(List_ASTServiceDecl *list, int index) {
     if (index < 0 || index >= list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n",
+        fprintf(stderr, "I require index %d within list length %d\n",
                 index, list->length);
         exit(1);
     }
@@ -109,7 +109,7 @@ struct nl_ASTServiceDecl nl_list_ASTServiceDecl_remove(List_ASTServiceDecl *list
 /* Set the value at the specified index */
 void nl_list_ASTServiceDecl_set(List_ASTServiceDecl *list, int index, struct nl_ASTServiceDecl value) {
     if (index < 0 || index >= list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n",
+        fprintf(stderr, "I require index %d within list length %d\n",
                 index, list->length);
         exit(1);
     }
@@ -120,7 +120,7 @@ void nl_list_ASTServiceDecl_set(List_ASTServiceDecl *list, int index, struct nl_
 /* Get the value at the specified index */
 struct nl_ASTServiceDecl nl_list_ASTServiceDecl_get(List_ASTServiceDecl *list, int index) {
     if (index < 0 || index >= list->length) {
-        fprintf(stderr, "Error: Index %d out of bounds for list of length %d\n",
+        fprintf(stderr, "I require index %d within list length %d\n",
                 index, list->length);
         exit(1);
     }

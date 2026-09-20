@@ -356,7 +356,7 @@ configs await review, with source/tool/product seals and first terminals require
 I found the missing provider statically before any40a build or fixture run.
 `is_schema_list_type` classifies every AST-prefixed element as a dedicated runtime
 list, so generic fallback cannot provide ASTServiceDecl. I specialize the existing
-ASTOpaqueType source/header by identifier substitution and trailing-whitespace cleanup only. Its checked capacity,
+ASTOpaqueType source/header by identifier substitution, trailing-whitespace cleanup and first-person diagnostics only. Its checked capacity,
 process-OOM behavior, shallow element copying, index checks and free behavior are
 unchanged. It includes the canonical generated compiler_schema.h element layout;
 I add no independent struct definition or bespoke list ABI.
