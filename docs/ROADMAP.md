@@ -13908,3 +13908,24 @@ The supplemental seal preserves880 objects/15982 references/96 equal pairs;
 current3716-source inventories and actual lib/provider products are rehashed.
 I submit the ready PR for independent audit. Full mixed execution and source
 parents remain open; original c032c sanitizer attribution is unchanged.
+
+### My mandatory-shadow service-classification margin
+
+- [ ] I restore the unchanged ten-second mandatory-shadow deadline under
+  `task_cee706deacfe91694621113ac378d9f3`. Both PR930 and PR931 stop the same
+  flat-record emitter control on hosted ARM64 macOS, while fresh local Darwin
+  and Linux controls pass. I preserve those first terminals and do not raise
+  the deadline, select fewer shadows or retry failed artifacts as evidence.
+- [ ] I remove repeated whole-module File-opcode decoding across ordinary VM
+  resumptions. One synchronous invocation retains only the immutable code
+  presence result for its current module; mutable service and ownership
+  metadata remain checked on every classification. A new invocation, module
+  change or direct-core entry performs a fresh code query, so existing
+  host-side metadata mutation and pre-entry raw File-opcode refusal controls
+  remain unchanged. I do not add a persistent module cache or a hash whose
+  collision could hide an instruction.
+- [ ] I qualify the exact failing emitter control with repeated default-budget
+  samples, ordinary admission mutation/rebuild tests, VM decode/dispatch tests,
+  mandatory-shadow supervision tests and fresh platform CI before closing the
+  bounded deadline task. This does not close the full compiler product or 5.1
+  release parents.
