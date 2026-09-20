@@ -5591,3 +5591,6 @@ test-file-cyclic-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 
 # I keep private array declaration decoding separate from public layout policy.
 $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o: $(NANOISA_DIR)/ownership_layouts_private.h
+
+# I rebuild my shared reader for private array grammar changes.
+$(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ordinary_array_authority.h $(NANOISA_DIR)/ownership_array_fields.inc $(NANOISA_DIR)/ordinary_array_authority.inc $(NANOISA_DIR)/ownership_layouts_private.h
