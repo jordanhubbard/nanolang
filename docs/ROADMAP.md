@@ -12818,3 +12818,11 @@ directories. No cyclic dispatch executable or generated module ran. Before
 correction I specify a dedicated `FILE_CYCLIC_RUNTIME_MAIN` default-main guard
 for that retained fixture; the new fixture selects it without changing old
 entry behavior or assertions. Root reviews the exact delta before fresh gates.
+
+I retain a separate corrected-pin launcher terminal: source preparation yielded
+before the first Linux driver invocation, which exited2 because the driver was
+not yet created. No driver/setup/test ran in that invocation. The record is
+`/tmp/nanolang-file-cyclic-dispatch-7913-launch-first.json`. I awaited successful
+preparation and exact source/archive identity before the corrected launch; puck
+also waits for successful transfer before its verified launcher. This is a
+launcher sequencing failure, not a product result. Frozen7913 remains unchanged.
