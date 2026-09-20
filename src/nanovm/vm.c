@@ -1740,6 +1740,7 @@ vm_dispatch_top:
             VmTrap yielded = {.type = TRAP_YIELD};
             return yielded;
         }
+        frame->instruction_ip = vm->ip;
         VmReferenceActivation *reference_context=vm_reference_activation(vm,vm->frame_count-1);
         bool *dispatch_valid = NULL;
         VmDispatchModule *dispatch_module = dispatch_module_for(
@@ -1976,6 +1977,7 @@ vm_dispatch_top:
             for(uint16_t i=0;i<callee->local_count;i++) stack_push(vm,val_void());
             VmCallFrame *next=&vm->frames[vm->frame_count++];
             memset(next,0,sizeof(*next));next->fn_idx=1;next->return_ip=vm->ip;
+            next->instruction_ip=callee->code_offset;
             next->stack_base=base;next->local_count=callee->local_count;
             next->owned_callable=val_void();next->module=vm->module;
             frame=next;vm->current_fn=1;vm->ip=callee->code_offset;cur_fn=callee;
@@ -2911,6 +2913,7 @@ dynamic_div:
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
             new_frame->fn_idx = callee_idx;
             new_frame->return_ip = vm->ip;
+            new_frame->instruction_ip = callee->code_offset;
             new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
@@ -2977,6 +2980,7 @@ dynamic_div:
              * entered through goes away with it. */
             vm_release(&vm->heap, frame->owned_callable);
             frame->fn_idx = callee_idx;
+            frame->instruction_ip = callee->code_offset;
             frame->local_count = callee->local_count;
             frame->closure = NULL;
             frame->owned_callable = val_void();
@@ -3040,6 +3044,7 @@ dynamic_div:
                 VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
                 new_frame->fn_idx = callee_idx;
                 new_frame->return_ip = vm->ip;
+                new_frame->instruction_ip = callee->code_offset;
                 new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
                 new_frame->local_count = callee->local_count;
@@ -3125,6 +3130,7 @@ dynamic_div:
             activation->effect_local_start = handler->parameter_start;
             activation->owned_callable = val_void();
             activation->return_ip = vm->ip;
+            activation->instruction_ip = handler->target;
             frame = activation;
             vm->module = handler->module;
             vm->current_fn = owner->fn_idx;
@@ -3359,6 +3365,7 @@ vm_return_values: ;
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
             new_frame->fn_idx = fn_idx_m;
             new_frame->return_ip = vm->ip;
+            new_frame->instruction_ip = callee->code_offset;
             new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
@@ -4656,19 +4663,19 @@ void vm_stack_trace(const VmState *vm, FILE *out) {
         uint32_t line = frame->current_line;
         uint32_t col  = frame->current_col;
         if (line == 0 && mod && mod->debug_count > 0) {
-            /* Find the debug entry with the largest bytecode_offset <= frame's ip.
-             * For frames other than the top frame we don't have a saved ip,
-             * so we use frame->return_ip as a proxy. */
-            uint32_t search_ip = (i == (int)vm->frame_count - 1)
-                                  ? vm->ip
-                                  : frame->return_ip;
+            /* I retain the executing instruction for each frame. The next IP
+             * names a continuation, and return_ip belongs to the caller. */
+            uint32_t search_ip = frame->instruction_ip;
+            const NvmFunctionEntry *function = frame->fn_idx < mod->function_count
+                ? &mod->functions[frame->fn_idx] : NULL;
             uint32_t best_line = 0;
             uint32_t best_col  = 0;
             uint32_t best_offset = 0;
             bool found = false;
             for (uint32_t d = 0; d < mod->debug_count; d++) {
                 uint32_t off = mod->debug_entries[d].bytecode_offset;
-                if (off <= search_ip) {
+                if (function && off >= function->code_offset &&
+                    off - function->code_offset < function->code_length && off <= search_ip) {
                     if (!found || off >= best_offset) {
                         best_offset = off;
                         best_line   = mod->debug_entries[d].source_line;
@@ -4760,6 +4767,7 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     VmCallFrame *frame = &vm->frames[vm->frame_count++];
     frame->fn_idx = fn_idx;
     frame->return_ip = vm->ip;
+    frame->instruction_ip = fn->code_offset;
     frame->effect_owner = 0;
     frame->stack_base = stack_base;
     frame->local_count = fn->local_count;

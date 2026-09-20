@@ -96,3 +96,21 @@ qualification directories `/tmp/nanolang-computed-u8-70516-linux` and
 shared cross-backend capture specification. I require the reviewed contract
 and complete capture lifetime acceptance under task_af8091f571a842bc90656e2c7f19b68e;
 source mapping is independently tracked by task_b7779ee196994432a18178145d93ac42.
+
+## I correct executing source locations independently
+
+My call frames retain their executing instruction offset before dispatch advances
+the continuation. New direct, indirect, linked, borrowed and effect activations
+initialize that offset; tail calls replace it. A suspended caller retains its
+actual call site. Debug lookup is bounded to the frame's own function, so a
+function without a mapping reports the existing `file:?` marker. Explicit
+`DEBUG_LINE` behavior and execution control flow remain unchanged.
+
+My new fixture checks direct, indirect and tail calls, a taken branch, adjacent
+statement maps and missing function maps. The first local gate retained one
+incorrect fixture expectation about the unknown marker. After correcting that
+expectation, the complete local NanoVM gate passes274618 checks plus unchanged
+substring/callback/heap/stack allocation controls. The explicit
+`NANO_NO_COMPUTED_GOTO` build and full VM corpus also pass. Logs remain under
+`/tmp/nanolang-vm-source-location-first`, `-corrected` and `-switch`. This is
+Linux evidence; platform integration and canonical merge remain required.
