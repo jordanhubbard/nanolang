@@ -1,0 +1,2 @@
+==65348==WARN: No external symbolizers found. Symbols may be missing or unreliable.
+==65348==HINT: Is PATH set? Does sandbox allow file-read of /usr/bin/atos?

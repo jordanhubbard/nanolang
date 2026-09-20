@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-read-wasm-8115-puck-query/retained/query/products/linked"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-8115",
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

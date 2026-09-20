@@ -1,0 +1,11 @@
+{
+  "args": [
+    "/private/tmp/nanolang-match-call-union-8538/bin/nanoc_c",
+    "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-mwsbev5p/case.nano",
+    "-o",
+    "/private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-mwsbev5p/case"
+  ],
+  "returncode": 1,
+  "seconds": 0.009499333100393414,
+  "timeout": 120
+}

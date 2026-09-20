@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/bin/node",
+    "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856/tests/nanoisa/portable_read_wasm_node.mjs",
+    "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856/src/runtime/portable_read_node.mjs",
+    "/tmp/nanolang-read-wasm-9856-linux/engines/products/O0-ordinary.wasm",
+    "/tmp/nanolang-read-wasm-9856-linux/engines/products/vectors.json"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

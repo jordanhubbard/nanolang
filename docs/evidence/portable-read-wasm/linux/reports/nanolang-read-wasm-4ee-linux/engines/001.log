@@ -1,0 +1,2 @@
+lld is a generic driver.
+Invoke ld.lld (Unix), ld64.lld (macOS), lld-link (Windows), wasm-ld (WebAssembly) instead

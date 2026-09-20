@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--target=wasm32-unknown-unknown",
+    "-O2",
+    "-Werror",
+    "-c",
+    "/tmp/nanolang-read-wasm-9856-linux/engines/products/O2-ordinary-2.ll",
+    "-o",
+    "/tmp/nanolang-read-wasm-9856-linux/engines/products/O2-ordinary-2.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-wasm-qualified-9856",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E035] I require unconditional coverage of every match value (/tmp/nano-canonical-match-guards-1q1p9lvd/union-coverage.nano:2:27)

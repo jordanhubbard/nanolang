@@ -5646,3 +5646,8 @@ test-file-binding-plan-sanitizers:
 	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" NANO_FILE_BINDING_SANITIZERS=1 python3 -m unittest -f -v tests.test_nsi_file_binding
 # I compose target and ownership facts only through a separate private entry.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DIR)/file_indirect_flow.inc
+
+# I require explicit real-engine/compiler/wheel selections for this private ABI.
+.PHONY: test-portable-read-wasm
+test-portable-read-wasm:
+	python3 -m unittest -f -v tests.test_portable_read_wasm

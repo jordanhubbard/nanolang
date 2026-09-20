@@ -1,0 +1,22 @@
+{
+  "clang": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "linker": {
+    "path": "/opt/homebrew/Cellar/lld/23.1.1/bin/lld",
+    "sha256": "1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e"
+  },
+  "node": {
+    "path": "/opt/homebrew/Cellar/node/26.9.0/bin/node",
+    "sha256": "28f0fc07e2b86fc0eae5f9751f34ab14d63bd0132882f89cc4a5b4a44965592e"
+  },
+  "python": {
+    "path": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "wheel": {
+    "path": "/private/tmp/wasmtime-43.0.0-py3-none-macosx_11_0_arm64.whl",
+    "sha256": "5a03c7aa03519df58fed5115ad8093d6deac46386115add715e725448e89ab25"
+  }
+}

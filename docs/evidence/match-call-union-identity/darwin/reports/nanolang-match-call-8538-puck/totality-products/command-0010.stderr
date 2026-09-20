@@ -1,0 +1,8 @@
+-- E035 NON-EXHAUSTIVE MATCH --- /private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-2ue47q2x/case.nano
+I require this match to cover every variant; I am missing: None
+
+4| fn main() -> int { match (source) { Some(item) => { assert true } } return 0 }
+                      ^^^^^
+Hint: Add unconditional arms for the missing variants or one unconditional wildcard.
+Warning at line 4, column 20: Unused variable 'item'
+Type checking failed
