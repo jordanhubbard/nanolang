@@ -42,3 +42,11 @@ Original315, fresh51d and freshd4f bootstraps, first failures and sanitizer
 attribution remain separate and unchanged. Root review precedes actual PR911
 merge. Full File parser/resolver/lowering, generated behavior shadows, source
 publication and compiler-policy follow-ups remain open under8bbc and its parents.
+
+My [independent root audit](token-value-bytes-integrations-independent-review.json)
+rehashes all756 Git report blobs across the three supplements, every retained
+CAS object and reference, all36 exact shadow-selection multisets and all24
+four-file generator comparisons against actual Git and CAS bytes. The final2453
+selected source/schema/test/build inputs match frozen885. Current26,190 sources
+and12 tools per host plus333 Linux/332 puck endpoint products also match. This
+confirms the stated scoped evidence; no full bootstrap fixed point is claimed.
