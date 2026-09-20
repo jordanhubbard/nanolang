@@ -39,7 +39,10 @@ class GenericRecordLists(unittest.TestCase):
             links=cls.links, objects=list(map(str, cls.objects))), indent=2) + '\n')
         cls.owned = cls.work / 'owned-lifetimes'
         cls.programs = cls.work / 'parsed-lifetimes'
+        cls.coroutine_errors = cls.work / 'coroutine-errors'
         common = [*cls.cc, *cls.flags, '-std=c99', '-Wall', '-Wextra', '-Werror', '-I', ROOT / 'src']
+        cls.command('coroutine-error-build', [*common, ROOT / 'tests/test_coroutine_error_allocation.c',
+            *cls.links, '-o', cls.coroutine_errors])
         cls.command('owned-build', [*common, '-DEVALUATOR_ALLOCATION_HOOKS', ROOT / 'tests/test_evaluator_owned_lifetimes.c',
             ROOT / 'tests/test_evaluator_lifetime_eval.c', ROOT / 'tests/test_evaluator_lifetime_module.c',
             *[p for p in cls.objects if p.name not in ('env.o', 'eval.o', 'module.o')], *cls.links, '-o', cls.owned])
@@ -119,6 +122,7 @@ class GenericRecordLists(unittest.TestCase):
         return out, err
 
     def test_checked_storage_scheduler_and_allocation_prefixes(self):
+        self.command('coroutine-error-allocations', [self.coroutine_errors])
         out, _ = self.command('checked-lifetimes', [self.owned])
         self.assertIn(b'checked ownership assertions', out)
         self.command('checked-callable-hook', [self.programs, 'callable'])
