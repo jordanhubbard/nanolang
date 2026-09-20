@@ -1,0 +1,20 @@
+{"pin": "2e9faf477168d62022b2d917596cf806c6ebc475", "source_files": 3684, "root": "/tmp/nanolang-record-array-qualified-2e9fa", "sdk": null}
+{"phase": "setup", "status": 0, "seconds": 20.413}
+{"phase": "configuration", "status": 0, "seconds": 0.115}
+{"phase": "discovery", "status": 0, "seconds": 0.064}
+{"phase": "ordinary", "status": 0, "seconds": 3.422}
+{"phase": "clang-ordinary", "status": 0, "seconds": 3.322}
+{"phase": "sanitizer", "status": 0, "seconds": 10.991}
+{"phase": "clang-sanitizer", "status": 0, "seconds": 10.09}
+{"phase": "ownership_contracts-build", "status": 0, "seconds": 0.164}
+{"phase": "ownership_contracts-run", "status": 0, "seconds": 0.004}
+{"phase": "ordinary_record_authority-build", "status": 0, "seconds": 0.365}
+{"phase": "ordinary_record_authority-run", "status": 0, "seconds": 0.004}
+{"phase": "nvm_v2_convert-build", "status": 0, "seconds": 0.164}
+{"phase": "nvm_v2_convert-run", "status": 0, "seconds": 0.002}
+{"phase": "nvm_v2_endtoend-build", "status": 0, "seconds": 0.114}
+{"phase": "nvm_v2_endtoend-run", "status": 0, "seconds": 0.001}
+{"phase": "old-array", "status": 0, "seconds": 0.866}
+{"phase": "affine-union", "status": 0, "seconds": 1.067}
+{"phase": "ownership-public", "status": 0, "seconds": 0.716}
+{"phase": "complete-declarations", "status": 0, "seconds": 1.27}

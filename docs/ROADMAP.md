@@ -13462,6 +13462,29 @@ bounded ledger reconciliation, including repair349ba.
 
 I retain [four actual Make builds and capture/replay runs](evidence/assembler-capture-flags/summary.json): default GCC, strict Clang with GCC13 selected in CFLAGS, parent sanitizer flags with the external-helper boundary, and explicit helper UBSan. Each passes all10 existing corpus tests; forced-include exported constants prove CPPFLAGS and CFLAGS both reached the built helper. Independent source review passes; publication remains through the PR.
 
+## My mixed record-array consumer dependency after PR916
+
+I continue f36b/15f/488 from actual PR916 canonical7bba8c798. My declaration
+projection is complete within its measured scope; ARRAY-field origin proof and
+generated lifetime are not supplied by metadata. I record
+[the next consumer contract](NANOISA_MIXED_RECORD_ARRAY_CONSUMER.md) under
+`task_f64151e8a1c14585909bc44e801f5a4b` before implementation.
+
+- [ ] I review the exact separate query and structural-validation factoring; old public verifier/profile decisions remain unchanged, with no stripped metadata or trusted-bit bypass.
+- [ ] I implement and review copied record-field ARRAY origin constraints across all alias writes, calls/globals/joins and replacement, then qualify bounded work/storage, faults and unchanged old modes on both hosts.
+- [ ] I qualify actual counted record/array carrier lifetime and failure cleanup in native and import-free Wasm harnesses before any executable widening.
+- [ ] I review and qualify the complete shared verifier/VM/native/LLVM/Wasm admission and generated-root conjunction, then paired source publication and unchanged programs/shadows.
+- [ ] I complete required executable unions, nested/recursive/generic/imported/resource/tuple/map/callable graph successors and full product gates before parent closure. The first flat-array consumer does not narrow full5.1.
+
+This checkpoint is documentation only. I preserve File parser, peer affine source,
+service-admission work and all frozen qualification trees independently.
+
+I prepare the f641 prerequisite extraction checkpoint with three static verifier
+helpers and a complete moved-check/caller map. All old policy branches, diagnostics
+and outputs retain their order; no new API, admission, facts or execution are
+claimed. The next reviewed checkpoint must supply the original-module private
+preparation and complete memory/work accounting before any fixture gates.
+
 - [ ] I retain both bc45 public-package setup failures before fixture execution: my external launch omitted the known managed LLVM selectors, producing Linux's strict GCC-install-selection warning and Darwin's missing opt. I correct only explicit NMS runtime compiler/optimizer configuration and inventory, preserve the first terminals, and continue the separate package trees; the completed ordinary integration is unchanged.
 
 - [ ] I retain the first selected Darwin public-corpus compile terminal: the external launch left NANO_FILE_RUNTIME_CFLAGS empty, omitting the Make-emitted SDK ffi include path. I forward the exact frozen current Make flags before continuing only Darwin public controls, keep Linux's completed package pass, and do not weaken warnings or assertions.
@@ -13472,6 +13495,43 @@ I retain [four actual Make builds and capture/replay runs](evidence/assembler-ca
 I reproduced both projected native timeouts on puck with the unchanged120-second limit. A live process sample places the store-first stall inside recursive Apple ASan initialization during dyld/malloc startup, before program main. A separate minimal puts-only executable also times out with Apple cc's ASan/UBSan runtime, while the same source/options with Homebrew Clang enters main successfully. I retain both diagnostic results and do not infer a generated-code fault from the historical timeout. Before correction, I scope the two affected tests to honor the existing NANO_NATIVE_TEST_CC selector using shlex, preserving every sanitizer flag, assertion and deadline. Tuple producer qualification and the whole fresh canonical suite remain required.
 
 - [x] I let the projected aggregate and tuple native sanitizer tests honor my existing `NANO_NATIVE_TEST_CC` selector, retaining default `cc`, all assertions and deadlines. Both methods pass on Linux and Darwin, with eight successful generated native executions and independently checked retained evidence. My [diagnosis and qualification](NATIVE_COMPILER_SELECTOR.md) preserve the original timeouts and runtime control; full canonical 90-method acceptance and task_2f52721aac374ac592b61438315dc981 remain open.
+
+I prepare the complete f641 non-admitting source checkpoint on actual919ca377:
+fresh same-original-module declarations, bounded shared operand/stack/type
+validation, copied decoded staging, exact array-field alias constraints and owned
+immutable getters. My accounting includes declaration staging, decoder realloc
+capacity, type scratch and publication overlap. Old wrappers remain in their
+original mode; public consumers are unchanged. Full source review precedes
+fixtures and all execution.
+
+- [ ] I diagnose the static empty-nonvoid-function precondition under task_f4d020187bf34faca52e761cbb299dde: the old height walk skips its empty terminal while managed origin analysis expects a result slot. I preserve old decisions pending separate review; the new f641 preparation explicitly refuses this shape and requires a negative control. No runtime failure is claimed from inspection alone.
+
+I record root review of baefc8516 under the same f4d task before correction: the implicit result boundary is reachable from a nonempty body too. I require exact depth equal to the declared result count before both implicit and explicit result consumption in the new f641 mode. Empty-body preflight alone is insufficient. Old public behavior remains unchanged; this is static evidence, with fixtures and execution still pending source review.
+
+I record two further baef static review corrections before changing source: I reserve the shared service/File opcode rescan separately from preflight, and I enforce the five-tag flat-array boundary for every origin and content alternative, including arrays never stored in a record field. Existing graph modes remain unchanged. I audit the other shared scan charges in the consumer contract; no runtime failure or acceptance is claimed.
+
+I prepare the reviewed f641 fixture checkpoint after c4ff source approval:
+all-five-tag copied facts, full alias writes, standalone flat-origin refusals,
+implicit/explicit result guards, joins/calls/globals, old graph compatibility,
+exact internal budget callers and measured allocation-prefix cleanup/recovery.
+My linked and seven-TU instrumented runner retains strict bounded terminals and
+actual Python/compiler selection. I have not compiled or run these fixtures;
+root review precedes the seven-configuration matrix and unchanged neighbors.
+
+I save this fixture draft before the independent PR922 audit. It remains uncompiled and unexecuted, with final static coverage review pending; this draft is not a gate authorization or a completed fixture milestone.
+
+I finish the draft static coverage pass after the PR922 audit: I add exact forward nested-record/global-index facts, cyclic-referent refusal, a wrong-element branch alternative, and complete input-byte preservation. The fixture checkpoint is ready for root source/fixture review; no test or build has run.
+
+I preserve the first55045 Linux/puck query failures under task_88f58fa7a28a4c16aa60149688cb49bb: setup/discovery passed, then the first positive declaration was INVALID. Before repair, I identify LAYOUTS byte offsets8/20 as the unused union layout/field names, both incorrectly NO_INDEX despite the unchanged union reader requiring names. I replace only these fixture names with existing string0/string1; all authority checks and expected results remain unchanged. Fresh corrected trees follow, with first terminals immutable.
+
+I complete the bounded f641 query qualification at frozen2e9faf477: all seven
+Linux/Darwin configurations pass787 linked/1289 instrumented checks, with40
+measured allocation positions and independent recovery per refusal. All specified
+unchanged ownership/union/array neighbors pass on both hosts. My
+[record-array seal](evidence/record-array-origins.md) preserves both original55045
+missing-union-name terminals and the fixture-only correction. This completes
+query evidence pending independent review/actual merge; it grants no mixed
+runtime/source admission and does not close full f36/15f/488 parents.
 
 ### Layout fault fixture private-symbol closure (2026-09-20)
 
