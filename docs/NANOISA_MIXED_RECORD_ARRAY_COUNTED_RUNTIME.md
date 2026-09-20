@@ -157,3 +157,21 @@ failure cleanup and package closure. Paired C/Nano producers and all original
 shadows follow matching runtime admission. Executable unions, nested arrays,
 arrays of exact records and the remaining full mixed graphs retain their own
 required extensions. I close neither f36/15f/488 nor full5.1 from this harness.
+
+## Testing instrumentation prerequisite
+
+My existing `NMS_TESTING` budget decrements until persistent exhaustion; it does
+not implement a one-shot failure or measure allocation bytes/peak. I keep the
+approved distinction and add a separately reviewed testing-only hook at the
+real `allocate`/`deallocate` entries. A second explicit macro is valid only with
+`NMS_TESTING`. Before each request a fixture callback counts and may refuse it;
+after successful backend allocation another records pointer/size; before free
+a third removes that exact live allocation. Fixed fixture storage records the
+map without recursive allocation. No hook executes in ordinary or packaged
+production builds; the existing runtime ABI and budget behavior stay intact.
+
+The fixture owns one-shot/persistent policy, measured calls/live bytes/peak,
+map-capacity checks and error reporting. It resets a measurement only when the
+map is empty, keeps zero-size successful pointers as live allocations, and
+rejects unknown/double frees in its own observation. I review this source
+prerequisite before compiling it, then review the complete fixtures separately.

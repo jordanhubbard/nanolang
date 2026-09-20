@@ -13582,3 +13582,10 @@ its independently audited query remains non-admitting. MAC
 - [ ] I separately implement and qualify matching fresh public admission and
   generated VM/native/LLVM/Wasm consumers, then paired source lowering and
   unchanged shadows. Full mixed f36/15f/488 and full5.1 remain required.
+
+Before counted-runtime fixture implementation I record the instrumentation
+prerequisite under `task_621ca4f76f0344bca70099a0ac9a3934`: my current testing
+budget supports persistent exhaustion but not one-shot refusal or measured
+allocator peak. I require an independently reviewed, doubly guarded testing hook
+at actual allocation/free entries, followed by a fixed-storage fixture tracker;
+I preserve both fault modes and production package hook absence.
