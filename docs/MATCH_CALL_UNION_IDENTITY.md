@@ -50,3 +50,26 @@ run actual `make bootstrap` on the retained source pin, then execute the full
 guard corpus and previously unreached user-guide/full test commands. I record
 new provider products separately and preserve the original passed phases.
 No production source, fixture assertion or compiler warning is changed.
+
+## Separate public VM fixture priority
+
+I track the discovered neighboring fixture issue in `task_c2807d311e5d46938d5193b394bb6840`.
+Both corrected runs pass all six canonical guard methods and all 40 user-guide
+snippets. Their first full `make test` then reports 271494 checks passed and
+one failure in `test_stack_slice_underflow`: expected status 2, observed 5.
+Linux ends after 21.829 seconds and puck after 18.633 seconds. The original
+assertion does not identify the opcode; I do not invent a measured opcode.
+
+Static source establishes a contradictory expectation: my generated
+`FILE_DROP_STACK` row has zero immediate operands and consumes one stack
+value, so the general fixture includes it. My service-pending guard rejects
+this bare File module with `VM_ERR_TYPE_ERROR` before activation and handler
+underflow checking. I preserve that public boundary. The fixture correction
+will require the exact refusal, no created frame, unchanged caller stack and
+values, and all four local/caller combinations for this opcode. Other opcodes
+retain the original atomic underflow assertions. I will print opcode and
+case coordinates before a status assertion fails.
+
+I require source review before fresh corrected VM/full-test gates. I reuse
+only retained providers with verified hashes; I do not repeat passing
+bootstrap, totality or user-guide phases for a fixture-only change.
