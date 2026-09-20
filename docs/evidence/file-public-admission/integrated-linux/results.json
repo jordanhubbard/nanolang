@@ -1,0 +1,30 @@
+[
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "setup",
+    "seconds": 20.342,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "ordinary-integrated",
+    "seconds": 64.916,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "cyclic-query",
+    "seconds": 2.32,
+    "status": 0
+  },
+  {
+    "cleanup_errors": [],
+    "exception": null,
+    "phase": "opcode-refusal",
+    "seconds": 3.171,
+    "status": 0
+  }
+]

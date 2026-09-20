@@ -518,8 +518,8 @@ NvmFileRuntimeReport nvm_file_runtime_destroy(NvmFileRuntime **address,NvmFileRu
 
 #include "file_runtime_frames.inc"
 
-#ifdef NVM_FILE_NATIVE_PRIVATE
-#include "nvm2c_file_private.h"
+#if defined(NVM_FILE_NATIVE_PRIVATE) || defined(NVM_FILE_PUBLIC_ENGINE)
+#include "file_native_abi.h"
 bool nvm_file_runtime_native_abi(uint32_t revision,size_t view,size_t frame,size_t report) {
     return revision==NVM_FILE_NATIVE_ABI && view==sizeof(NvmFileRuntimeView) &&
         frame==sizeof(NvmFileRuntimeFrameView) && report==sizeof(NvmFileRuntimeReport);

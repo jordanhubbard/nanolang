@@ -1,0 +1,89 @@
+{
+  "rows": [
+    {
+      "group": "dd401-linux",
+      "phase": "gcc-normal",
+      "terminals": 377,
+      "uninstalls": 1,
+      "native_symbol_maps": 2,
+      "expected_bool_int_statuses": {
+        "linked-installed-bool-false-terminal.json": 0,
+        "linked-installed-bool-true-terminal.json": 1,
+        "linked-installed-negative-int-terminal.json": 255
+      }
+    },
+    {
+      "group": "dd401-linux-remaining",
+      "phase": "gcc-sanitizer",
+      "terminals": 377,
+      "uninstalls": 1,
+      "native_symbol_maps": 2,
+      "expected_bool_int_statuses": {
+        "linked-installed-bool-false-terminal.json": 0,
+        "linked-installed-bool-true-terminal.json": 1,
+        "linked-installed-negative-int-terminal.json": 255
+      }
+    },
+    {
+      "group": "dd401-puck",
+      "phase": "apple-normal",
+      "terminals": 377,
+      "uninstalls": 1,
+      "native_symbol_maps": 2,
+      "expected_bool_int_statuses": {
+        "linked-installed-bool-false-terminal.json": 0,
+        "linked-installed-bool-true-terminal.json": 1,
+        "linked-installed-negative-int-terminal.json": 255
+      }
+    },
+    {
+      "group": "a46-linux",
+      "phase": "clang-normal",
+      "terminals": 377,
+      "uninstalls": 1,
+      "native_symbol_maps": 2,
+      "expected_bool_int_statuses": {
+        "linked-installed-bool-false-terminal.json": 0,
+        "linked-installed-bool-true-terminal.json": 1,
+        "linked-installed-negative-int-terminal.json": 255
+      }
+    },
+    {
+      "group": "a46-linux",
+      "phase": "clang-sanitizer",
+      "terminals": 377,
+      "uninstalls": 1,
+      "native_symbol_maps": 2,
+      "expected_bool_int_statuses": {
+        "linked-installed-bool-false-terminal.json": 0,
+        "linked-installed-bool-true-terminal.json": 1,
+        "linked-installed-negative-int-terminal.json": 255
+      }
+    },
+    {
+      "group": "a46-puck",
+      "phase": "clang-normal",
+      "terminals": 377,
+      "uninstalls": 1,
+      "native_symbol_maps": 2,
+      "expected_bool_int_statuses": {
+        "linked-installed-bool-false-terminal.json": 0,
+        "linked-installed-bool-true-terminal.json": 1,
+        "linked-installed-negative-int-terminal.json": 255
+      }
+    },
+    {
+      "group": "a46-puck",
+      "phase": "clang-sanitizer",
+      "terminals": 377,
+      "uninstalls": 1,
+      "native_symbol_maps": 2,
+      "expected_bool_int_statuses": {
+        "linked-installed-bool-false-terminal.json": 0,
+        "linked-installed-bool-true-terminal.json": 1,
+        "linked-installed-negative-int-terminal.json": 255
+      }
+    }
+  ],
+  "errors": []
+}
