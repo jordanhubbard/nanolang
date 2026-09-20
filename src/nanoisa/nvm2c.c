@@ -835,7 +835,8 @@ static int sim_push(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     slot.kind = kind;
     slot.origin = origin;
     if (b->shape_opcode == OP_PUSH_VOID) slot.scalar_tags = 1u << TAG_VOID;
-    if (b->shape_opcode == OP_PUSH_U8) slot.scalar_tags = 1u << TAG_U8;
+    if (b->shape_opcode == OP_PUSH_U8 || b->shape_opcode == OP_CAST_U8)
+        slot.scalar_tags = 1u << TAG_U8;
     if (b->shape_opcode == OP_ENUM_VAL) slot.scalar_tags = 1u << TAG_ENUM;
     return sim_push_slot(b, idx, stk, sp, slot);
 }
@@ -1600,6 +1601,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot value;
             if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_FLOAT, -1)) return 0;
+            break;
+        }
+        case OP_CAST_U8: {
+            Nvm2cSimSlot value;
+            if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
             break;
         }
         case OP_CAST_INT: {
@@ -4083,6 +4090,28 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_float(b, &st, expression);
             break;
         }
+        case OP_CAST_U8: {
+            uint8_t kind;
+            int value = stack_pop_kind(b, &st, &kind);
+            if (b->failed) goto done;
+            char operand[160], expression[224];
+            if (kind == NVM2C_VK_VALUE || kind == NVM2C_VK_INT ||
+                kind == NVM2C_VK_BOOL || kind == NVM2C_VK_FLOAT || kind == NVM2C_VK_STR) {
+                scalar_value_expression(b, operand, sizeof operand, kind, value);
+                if (b->failed) goto done;
+                snprintf(expression, sizeof expression,
+                         "(nmap_value){2, nvalue_cast_u8(%s), NULL}", operand);
+            } else if (kind != NVM2C_VK_UNK) {
+                /* A known aggregate must fail without inspecting its payload. */
+                nvm2c_puts(b, "    NVM2C_ABORT();\n");
+                snprintf(expression, sizeof expression, "(nmap_value){2, 0, NULL}");
+            } else {
+                nvm2c_fail(b, "I cannot emit CAST_U8 with an unresolved representation");
+                goto done;
+            }
+            stack_push_value(b, &st, expression);
+            break;
+        }
         case OP_CAST_INT: {
             uint8_t kind;
             int value = stack_pop_kind(b, &st, &kind);
@@ -6009,7 +6038,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 b.record_width = ins.operands[3].u16;
             if (ins.opcode == OP_HM_NEW || ins.opcode == OP_HM_SET || ins.opcode == OP_HM_HAS ||
                 ins.opcode == OP_HM_DELETE || ins.opcode == OP_HM_LEN || ins.opcode == OP_HM_GET) b.has_maps = 1;
-            if (ins.opcode == OP_PUSH_VOID || ins.opcode == OP_PUSH_U8 || ins.opcode == OP_ENUM_VAL) b.has_maps = 1; /* Tagged scalar storage. */
+            if (ins.opcode == OP_PUSH_VOID || ins.opcode == OP_PUSH_U8 ||
+                ins.opcode == OP_CAST_U8 || ins.opcode == OP_ENUM_VAL) b.has_maps = 1; /* Tagged scalar storage. */
             if (ins.opcode == OP_LT || ins.opcode == OP_LE || ins.opcode == OP_GT || ins.opcode == OP_GE)
                 b.has_maps = 1; /* I retain runtime tags for generic ordering. */
             if (ins.opcode == OP_LOAD_GLOBAL || ins.opcode == OP_STORE_GLOBAL) {
@@ -6604,6 +6634,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "    if (value.kind == 4) return value.integer ? 1.0 : 0.0;\n"
                 "    if (value.kind == 5) return nparse_binary64(value.text);\n"
                 "    return 0.0;\n}\n"
+                "static inline uint8_t nvalue_cast_u8(nmap_value value) {\n"
+                "    if (value.kind != 1 && value.kind != 2) NVM2C_ABORT();\n"
+                "    return (uint8_t)value.integer;\n}\n"
                 "static inline int64_t nvalue_cast_int(nmap_value value) {\n"
                 "    if (value.kind == 3) return nf64_to_i64(nvalue_require_float(value));\n"
                 "    return value.kind == 1 || value.kind == 2 || value.kind == 4 || value.kind == 9 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;\n}\n"
@@ -6788,7 +6821,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
-            "    (void)nvalue_numeric; (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_float; (void)nvalue_equal;\n"
+            "    (void)nvalue_numeric; (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_u8; (void)nvalue_cast_float; (void)nvalue_equal;\n"
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_require_int_array; (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n"

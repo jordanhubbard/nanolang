@@ -25,6 +25,12 @@ static void runtime(FILE *out, bool managed) {
     if (managed) fputs("define internal void @check(i1 %ok) {\n %s = select i1 %ok, i32 0, i32 1\n call void @nms_module_fail(i32 %s)\n ret void\n}\n", out);
     else fputs("define internal void @check(i1 %ok) {\nentry:\n br i1 %ok, label %done, label %bad\nbad:\n call void @llvm.trap()\n unreachable\ndone:\n ret void\n}\n", out);
     fputs(
+        "define internal i64 @cast_byte(%V %v) {\n"
+        " %tag = extractvalue %V %v, 1\n %is_int = icmp eq i8 %tag, 1\n"
+        " %is_byte = icmp eq i8 %tag, 2\n %ok = or i1 %is_int, %is_byte\n"
+        " call void @check(i1 %ok)\n %bits = extractvalue %V %v, 0\n"
+        " %byte = trunc i64 %bits to i8\n %answer = zext i8 %byte to i64\n"
+        " ret i64 %answer\n}\n"
         "define internal i64 @integer(%V %v, i8 %expected) {\n"
         " %tag = extractvalue %V %v, 1\n %ok = icmp eq i8 %tag, %expected\n"
         " call void @check(i1 %ok)\n %x = extractvalue %V %v, 0\n ret i64 %x\n}\n"
@@ -641,6 +647,11 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             fprintf(out, " %%p%u_result = call i64 @integer(%%V %%p%u_a, i8 %u)\n",
                     pc, pc, ins.opcode == OP_F64_FROM_BITS ? TAG_INT : TAG_FLOAT);
             result(&frame, pc, ins.opcode == OP_F64_FROM_BITS ? TAG_FLOAT : TAG_INT);
+            break;
+        case OP_CAST_U8:
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_result = call i64 @cast_byte(%%V %%p%u_a)\n", pc, pc);
+            result(&frame, pc, TAG_U8);
             break;
         case OP_CAST_INT: case OP_CAST_FLOAT:
             pop(&frame, pc, "a");
