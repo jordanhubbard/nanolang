@@ -12790,3 +12790,8 @@ I continue from that canonical pin under [my concrete Wasm design](NANOISA_PORTA
 - [ ] I seal exact tools/packages/IR/guests and retained first terminals, integrate
   through review, then continue full typed/lifetime authority, emitted/source and
   installed host linkage under the existing open b7ef/2d2 roadmap obligations.
+
+I prepare the first private Wasm source checkpoint: exact1052684-byte guest
+workspace and independent Node/Wasmtime libraries with checked numeric type
+limits, current-memory spans and explicit close/trap state. I retain source
+review before fixtures/builds; no public provider or selector changed.

@@ -69,9 +69,9 @@ success once. No implicit begin/finish/disposal or caller-root drain occurs.
 
 ## My instance and module envelope
 
-I propose `runtime/portable_read_node.mjs` exporting synchronous
+I propose `src/runtime/portable_read_node.mjs` exporting synchronous
 `createReadTextInstance(moduleBytes, paths)` and
-`runtime/portable_read_wasmtime.py` exporting
+`src/runtime/portable_read_wasmtime.py` exporting
 `create_read_text_instance(module_bytes, paths)`. Both return one private
 embedding object owning its compiled module, instance, copied allowlist and
 export-active/callback-active/terminal state; Python also owns Engine/Store/Linker. Its checked call
@@ -227,3 +227,57 @@ These are design preflight observations, not a qualified frozen toolchain.
    typed/lifetime call authority, actual NanoISA-to-LLVM/Wasm emission and source
    lowering, exact host registration/installed packaging and full relevant
    compiler/bootstrap/application gates. b7ef/2d2 remain open throughout.
+
+## My first production source checkpoint
+
+I add only the two guest files and two embedding libraries named above. The
+workspace is exactly1052684 wasm32 bytes, including its latch and alignment;
+static assertions pin it. I leave native adapters, managed runtime, query,
+translators, selectors and Make/provider lists byte unchanged. My import symbol
+exists only in the private guest source. No build or host call has run.
+
+Both envelope readers accept plain function types with numeric scalar tags
+i32/i64/f32/f64 and at most64 parameters and64 results per type. They reject
+GC/recursive/reference/vector type encodings. Up to65535 defined functions plus
+the one imported function meet the65536 total bound. Export rows are capped
+at65536. Standard section IDs above12 and any start section refuse; standard
+section contents not inspected by the envelope still pass through the engine's
+complete binary validation before readiness. These are private module-envelope
+limits, not new language refusals. I retain exact UTF8 names and checked LEB
+limits independently in each implementation.
+
+Each factory returns a private object with call(name,...args), close() and
+report(). I expose no instance/memory/export object. Python names the factory
+create_read_text_instance and Node createReadTextInstance. Invalid factory
+inputs raise before file effects; failed engine setup releases partial Python
+owners or drops Node references. Explicit close is required after normal calls
+or traps, and repeated close succeeds. Active close returns NPR_INVALID with
+all owners retained. Python tears down Linker, Store, Module and Engine in
+order, attempting remaining closes even if one unexpectedly raises. Node drops
+references without claiming immediate engine/GC reclamation. An outer invalid
+call selection refuses unchanged; an exception from a selected guest call
+terminally disables further calls. A report remains available after close.
+
+report() copies last completed callback fields status, opened, closeAttempted,
+closeError and bytesRead, plus ready, terminal, exportActive and callbackActive.
+A nested callback refusal leaves the enclosing callback's report intact. Fields
+are diagnostics, not proof of OS close success; bytesRead counts observed read
+progress even when the language result is empty/refused. The callback updates
+existing report fields in its finally block without allocating a new report
+after publishing the length cell. report() itself may allocate outside I/O.
+
+Catchable Python MemoryError and Node RangeError from bounded allocation paths
+return MEMORY with length unchanged. Node fatal OOM is not recoverable and is
+not a claimed status path. Node filesystem error classification requires an
+Error with numeric errno/string code; Python catches OSError. Unknown host
+programming faults terminally invalidate the instance. For real APIs, the
+checked lengths make Buffer/view range errors impossible except allocation
+failure. Arbitrary monkeypatches are trusted fixture hooks, not containment.
+
+The Python host checks installed distribution version43.0.0 and uses only
+supported binding methods. Its shipped Memory.write constructs ctypes views
+before the final memmove: a catchable publication allocation failure therefore
+cannot partly publish the four-byte length. Payload writes can already have
+happened and remain unpublished scratch. I keep all small Node publication
+views and the length Buffer allocated before its final byte copy. A later
+engine/host trap is terminal, not a synthetic successful cleanup report.
