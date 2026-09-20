@@ -565,7 +565,7 @@ static void destroy(Analysis *a) {
 }
 static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityReport **out,
                                           NvmArrayGraphEligibilityReport **graph_out,
-                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out) {
+                                          NvmRecordEligibilityReport **record_out,NvmRecordArrayOrigins **mixed_out,uint16_t *prepared_stacks) {
     NvmArrayEligibilityResult early={NVM_ARRAY_INVALID,0,0,"I require a module and report output."};
     if(!m || (!out && !graph_out && !record_out && !mixed_out))return early;
     NvmRecordArrayBudget budget={0};NvmRecordArrayStructure *structure=NULL;
@@ -664,7 +664,9 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
     } while(a->changed);
     if(!final_check(a))goto done;
     if(mixed_out) {
+        if(prepared_stacks && !analysis_work(a,256))goto done;
         if(!ra_check_constraints(a) || !ra_publish(a,mixed_out))goto done;
+        if(prepared_stacks)memcpy(prepared_stacks,a->structure->stacks,sizeof a->structure->stacks);
     } else if(record_out) {
         if(!publish_records(a,record_out))goto done;
     } else if(graph_out) {
@@ -688,18 +690,18 @@ static NvmArrayEligibilityResult analyze(const NvmModule *m,NvmArrayEligibilityR
 }
 
 NvmArrayEligibilityResult nvm_analyze_managed_arrays(const NvmModule *m,NvmArrayEligibilityReport **out) {
-    return analyze(m,out,NULL,NULL,NULL);
+    return analyze(m,out,NULL,NULL,NULL,NULL);
 }
 NvmArrayEligibilityResult nvm_analyze_managed_array_graphs(const NvmModule *m,NvmArrayGraphEligibilityReport **out) {
-    return analyze(m,NULL,out,NULL,NULL);
+    return analyze(m,NULL,out,NULL,NULL,NULL);
 }
 
 NvmArrayEligibilityResult nvm_analyze_managed_records(const NvmModule *m,NvmRecordEligibilityReport **out) {
-    return analyze(m,NULL,NULL,out,NULL);
+    return analyze(m,NULL,NULL,out,NULL,NULL);
 }
 
 NvmArrayEligibilityResult nvm_analyze_record_array_origins(const NvmModule *m,NvmRecordArrayOrigins **out) {
-    return analyze(m,NULL,NULL,NULL,out);
+    return analyze(m,NULL,NULL,NULL,out,NULL);
 }
 
 NvmArrayEligibilityResult nvm_select_managed_array_mode(const NvmModule *m,int *graph_required) {
@@ -763,3 +765,5 @@ NvmArrayEligibilityResult nvm_select_managed_heap(const NvmModule *m,int mutable
     nvm_record_eligibility_free(staged.fields);
     return result;
 }
+
+#include "managed_record_array_execution.inc"

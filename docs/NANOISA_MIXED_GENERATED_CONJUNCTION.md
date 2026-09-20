@@ -252,3 +252,39 @@ I preserve the original parent descriptions and histories. The first complete
 vertical dependency does not close f36/15f/488 or authorize a5.1 release. It
 establishes reusable exact plans and generated root semantics needed by those
 full obligations instead of substituting a restricted language for them.
+
+## My first preparation source checkpoint
+
+I add `managed_record_array_execution.h/.inc` in the existing origin-analysis
+translation unit. The opaque plan owns a bounded module snapshot, the original
+owned origin/declaration report, copied per-function maxima, instructions/edges,
+exact immediate bits and explicit root recipes. No selector/emitter/VM entry
+calls it. My header fixes1024 dynamic frames as a descriptive future-consumer
+obligation, not execution in this checkpoint.
+
+I preserve the old query report allocation shape and counters. The shared private
+`analyze` helper receives one optional stack-maxima destination; all four old
+wrappers pass NULL. Only the new caller charges/copies256 maxima before analysis
+teardown. There is no second public verification, no declaration rewrite and no
+mutation of the caller. My complete numeric opcode sweep requires exact equality
+between the pinned query whitelist and the explicit92-opcode recipe table.
+Newly inherited supported opcodes therefore refuse until explicitly reviewed.
+The forthcoming independent CAST_U8 backend change must add its exact scalar
+conversion recipe after canonical integration; it is absent at my ad008 base.
+
+I reserve the query's complete64MiB/16,777,216-step bound before preparation,
+plus64KiB fixed wrapper scratch and every actual wrapper allocation capacity.
+Snapshot copies, zero-initialization, fieldwise comparison, decoder byte passes,
+64 units per instruction, edge scans and fixed opcode checks are charged. Freed
+boundary workspaces retain their reservation conservatively. Reports name total
+reserved peak/work, not measured process memory or allocator overhead. The
+fixture checkpoint must measure actual requests/frees/peak and every prefix,
+including query and wrapper allocation domains together.
+
+I copy counted strings including their terminator and preserve absent versus
+present parameter-sidecar rows, even at zero arity. Full original logical
+header/section/function/metadata/debug fields and counted payload bytes are
+compared without using struct padding or hashes as proof. Capacity numbers are
+copied descriptive metadata, never permission to append to the immutable arrays.
+Closed-profile imports/services/passive/callback/lazy-call state refuse before
+unsupported objects are inspected. Getters expose copied values/bytes only.

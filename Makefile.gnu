@@ -4858,6 +4858,7 @@ test-managed-record-eligibility: nvm2llvm nvm2wasm nanoisa_dump nano_vm
 	NMA_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/managed_array_shapes.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_managed_record_shapes
 
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_array_shapes.h $(NANOISA_DIR)/managed_record_shapes.h $(NANOISA_DIR)/managed_record_plan.h $(NANOISA_DIR)/ownership_contracts.h
+$(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_execution.h $(NANOISA_DIR)/managed_record_array_execution.inc
 $(OBJ_DIR)/nanoisa/managed_array_shapes.o: $(NANOISA_DIR)/managed_record_array_origins.h $(NANOISA_DIR)/record_array_origins.inc $(NANOISA_DIR)/record_array_structure_private.h
 $(OBJ_DIR)/nanoisa/verifier.o: $(NANOISA_DIR)/record_array_structure_private.h $(NANOISA_DIR)/record_array_structure.inc
 $(OBJ_DIR)/nanoisa/verifier_types.o: $(NANOISA_DIR)/record_array_structure_private.h
