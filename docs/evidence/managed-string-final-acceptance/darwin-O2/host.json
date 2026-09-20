@@ -1,0 +1,16 @@
+{
+  "cache_key": "resolved path, device, inode, size, mtime_ns, ctime_ns",
+  "command_seconds": 120,
+  "input_maps": "phase endpoints freshly hashed; command maps stat-keyed cache",
+  "phase": "O2",
+  "phase_seconds": 3600,
+  "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "uname": [
+    "Darwin",
+    "CXWWHGGJX0",
+    "25.6.0",
+    "Darwin Kernel Version 25.6.0: Fri Jul 31 19:17:26 PDT 2026; root:xnu-12377.161.14~5/RELEASE_ARM64_T6041",
+    "arm64",
+    "arm"
+  ]
+}

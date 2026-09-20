@@ -1,0 +1,16 @@
+{
+  "cache_key": "resolved path, device, inode, size, mtime_ns, ctime_ns",
+  "command_seconds": 120,
+  "input_maps": "phase endpoints freshly hashed; command maps stat-keyed cache",
+  "phase": "original",
+  "phase_seconds": 3600,
+  "python": "3.14.5 (main, May 10 2026, 10:21:34) [GCC 12.3.0]",
+  "uname": [
+    "Linux",
+    "sparky",
+    "6.17.0-1032-nvidia",
+    "#32-Ubuntu SMP PREEMPT_DYNAMIC Wed Aug 19 17:40:46 UTC 2026",
+    "aarch64",
+    "aarch64"
+  ]
+}

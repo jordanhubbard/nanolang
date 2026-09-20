@@ -1,0 +1,2809 @@
+{
+  "passed": true,
+  "problems": [],
+  "base": "/tmp/nanolang-managed-string-76de-linux-neighbors",
+  "root": "/home/jkh/Src/nanolang-managed-string-76de-linux",
+  "pin": "76debee8f53c26f90816bc50e39c844042e17e28",
+  "report_manifest_sha256": "e545a31b2b5cf3f51604caf8dee1ac88dfcbf3d63085d0fa6f10044a189eb58a",
+  "counters": {
+    "reports": 14202,
+    "object_references": 10935489,
+    "command_pairs": 1418
+  },
+  "unique_referenced_objects": 4468,
+  "archive_bytes": 1343116479,
+  "current_map_counts": {
+    "providers": 319,
+    "sources": 3115,
+    "tools": 54
+  },
+  "current_unique_files_hashed": 3475,
+  "current_stat_mismatches": [],
+  "phase": {
+    "commands": 1418,
+    "errors": 0,
+    "exception": null,
+    "failures": 0,
+    "inputs_equal": true,
+    "passed": true,
+    "retention_failures": [],
+    "seconds": 425.6999865389662,
+    "skipped": [],
+    "tests_run": 42
+  },
+  "selected_tests": [
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_admitted_array_global_executes_and_replaces_output",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_exact_tags_and_last_write",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_first_initializer_is_selected",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_functions_share_branch_selected_writes",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_initial_void_and_highest_slot",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_and_authority_refusals_preserve_output",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_equal_to_entry_runs_twice",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_failure_prevents_entry",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_initializer_precedes_entry_and_discards_result",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_repeated_entry_reruns_initializer",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_repeated_entry_retains_globals",
+    "tests.test_llvm_scalar_globals.ScalarGlobals.test_unreached_function_still_contributes_storage",
+    "tests.test_llvm_literal_strings.LiteralStrings.test_call_return_local_branch_and_global_aliases",
+    "tests.test_llvm_literal_strings.LiteralStrings.test_distinct_pool_identities_compare_by_bytes",
+    "tests.test_llvm_literal_strings.LiteralStrings.test_empty_truthiness_and_mixed_tags",
+    "tests.test_llvm_literal_strings.LiteralStrings.test_implicit_string_return",
+    "tests.test_llvm_literal_strings.LiteralStrings.test_instance_lifetime_and_initializer_result",
+    "tests.test_llvm_literal_strings.LiteralStrings.test_lengths_content_and_unsigned_byte_order",
+    "tests.test_llvm_literal_strings.LiteralStrings.test_managed_string_operations_and_array_conversion",
+    "tests.test_llvm_literal_strings.LiteralStrings.test_nonstring_string_operations_keep_runtime_errors",
+    "tests.test_llvm_literal_strings.LiteralStrings.test_string_handles_never_become_numeric_operands",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_comparison_cast_and_truthiness_compatibility",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_declared_enum_result_checks_actual_tag",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_distinct_declarations_preserve_vm_ordinal_contract",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_exact_refusals",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_generic_arithmetic_matrix",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_generic_enum_rounding_zero_and_nan_boundaries",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_globals_initializer_calls_returns_and_joins",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_literal_profile_preserves_enum_tag_order",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_managed_conversions_execute_and_replace_output",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_original_producer_tags",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_profile_refusals_preserve_output",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_typed_binary_matrix",
+    "tests.test_llvm_enum_scalars.EnumScalars.test_typed_wrapping_and_zero",
+    "tests.test_llvm_generic_numeric.GenericNumeric.test_argument_evaluation_remains_eager",
+    "tests.test_llvm_generic_numeric.GenericNumeric.test_calls_and_dynamic_join_preserve_tags",
+    "tests.test_llvm_generic_numeric.GenericNumeric.test_float_and_mixed_promotion_both_orders",
+    "tests.test_llvm_generic_numeric.GenericNumeric.test_integer_wrap_and_total_arithmetic",
+    "tests.test_llvm_generic_numeric.GenericNumeric.test_invalid_scalar_tags_still_fail_at_runtime",
+    "tests.test_llvm_generic_numeric.GenericNumeric.test_nan_infinity_and_total_float_division",
+    "tests.test_llvm_generic_numeric.GenericNumeric.test_signed_zero_bits",
+    "tests.test_verifier_profiles.VerifierProfiles.test_shared_admission_and_publication"
+  ],
+  "nonzero_commands": [
+    {
+      "command": 69,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/globals.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/previous"
+      ]
+    },
+    {
+      "command": 70,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/globals.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/previous"
+      ]
+    },
+    {
+      "command": 72,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/globals.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/previous"
+      ]
+    },
+    {
+      "command": 73,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/globals.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/previous"
+      ]
+    },
+    {
+      "command": 75,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/globals.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/previous"
+      ]
+    },
+    {
+      "command": 76,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/globals.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-uzl2rbc8/previous"
+      ]
+    },
+    {
+      "command": 86,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-lw8bzwco/input.nvm"
+      ]
+    },
+    {
+      "command": 89,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-lw8bzwco/out.bc"
+      ]
+    },
+    {
+      "command": 91,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-lw8bzwco/out.bc"
+      ]
+    },
+    {
+      "command": 93,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-lw8bzwco/native"
+      ]
+    },
+    {
+      "command": 95,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-lw8bzwco/out.wasm"
+      ]
+    },
+    {
+      "command": 310,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/input.nvm"
+      ]
+    },
+    {
+      "command": 313,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/out.bc"
+      ]
+    },
+    {
+      "command": 315,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/out.bc"
+      ]
+    },
+    {
+      "command": 317,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/native"
+      ]
+    },
+    {
+      "command": 319,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/out.wasm"
+      ]
+    },
+    {
+      "command": 321,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/input.nvm"
+      ]
+    },
+    {
+      "command": 324,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/out.bc"
+      ]
+    },
+    {
+      "command": 326,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/out.bc"
+      ]
+    },
+    {
+      "command": 328,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/native"
+      ]
+    },
+    {
+      "command": 330,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-xqozhjml/out.wasm"
+      ]
+    },
+    {
+      "command": 332,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/input.nvm"
+      ]
+    },
+    {
+      "command": 335,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 337,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 339,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/native"
+      ]
+    },
+    {
+      "command": 341,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.wasm"
+      ]
+    },
+    {
+      "command": 343,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/input.nvm"
+      ]
+    },
+    {
+      "command": 346,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 348,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 350,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/native"
+      ]
+    },
+    {
+      "command": 352,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.wasm"
+      ]
+    },
+    {
+      "command": 354,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/input.nvm"
+      ]
+    },
+    {
+      "command": 357,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 359,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 361,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/native"
+      ]
+    },
+    {
+      "command": 363,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.wasm"
+      ]
+    },
+    {
+      "command": 365,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/input.nvm"
+      ]
+    },
+    {
+      "command": 368,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 370,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 372,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/native"
+      ]
+    },
+    {
+      "command": 374,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.wasm"
+      ]
+    },
+    {
+      "command": 376,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/input.nvm"
+      ]
+    },
+    {
+      "command": 379,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 381,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.bc"
+      ]
+    },
+    {
+      "command": 383,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/native"
+      ]
+    },
+    {
+      "command": 385,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/out.wasm"
+      ]
+    },
+    {
+      "command": 386,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nanoisa",
+        "asm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/bad.nasm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/prior.nvm"
+      ]
+    },
+    {
+      "command": 387,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nanoisa",
+        "asm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/bad.nasm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/prior.nvm"
+      ]
+    },
+    {
+      "command": 388,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nanoisa",
+        "asm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/bad.nasm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/prior.nvm"
+      ]
+    },
+    {
+      "command": 389,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nanoisa",
+        "asm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/bad.nasm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-fpziuepo/prior.nvm"
+      ]
+    },
+    {
+      "command": 414,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm q223dxot/input.nvm"
+      ]
+    },
+    {
+      "command": 418,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm q223dxot/program.ll"
+      ]
+    },
+    {
+      "command": 420,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm q223dxot/optimized.bc"
+      ]
+    },
+    {
+      "command": 423,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm q223dxot/llvm-native"
+      ]
+    },
+    {
+      "command": 426,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm q223dxot/program"
+      ]
+    },
+    {
+      "command": 428,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm q223dxot/program.wasm"
+      ]
+    },
+    {
+      "command": 430,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm q223dxot/sanitized-llvm"
+      ]
+    },
+    {
+      "command": 432,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm q223dxot/sanitized-c"
+      ]
+    },
+    {
+      "command": 458,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/input.nvm"
+      ]
+    },
+    {
+      "command": 462,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.ll"
+      ]
+    },
+    {
+      "command": 464,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/optimized.bc"
+      ]
+    },
+    {
+      "command": 467,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/llvm-native"
+      ]
+    },
+    {
+      "command": 470,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program"
+      ]
+    },
+    {
+      "command": 472,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.wasm"
+      ]
+    },
+    {
+      "command": 474,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-llvm"
+      ]
+    },
+    {
+      "command": 476,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-c"
+      ]
+    },
+    {
+      "command": 480,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/input.nvm"
+      ]
+    },
+    {
+      "command": 484,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.ll"
+      ]
+    },
+    {
+      "command": 486,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/optimized.bc"
+      ]
+    },
+    {
+      "command": 489,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/llvm-native"
+      ]
+    },
+    {
+      "command": 492,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program"
+      ]
+    },
+    {
+      "command": 494,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.wasm"
+      ]
+    },
+    {
+      "command": 496,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-llvm"
+      ]
+    },
+    {
+      "command": 498,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-c"
+      ]
+    },
+    {
+      "command": 502,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/input.nvm"
+      ]
+    },
+    {
+      "command": 506,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.ll"
+      ]
+    },
+    {
+      "command": 508,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/optimized.bc"
+      ]
+    },
+    {
+      "command": 511,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/llvm-native"
+      ]
+    },
+    {
+      "command": 514,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program"
+      ]
+    },
+    {
+      "command": 516,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.wasm"
+      ]
+    },
+    {
+      "command": 518,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-llvm"
+      ]
+    },
+    {
+      "command": 520,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-c"
+      ]
+    },
+    {
+      "command": 524,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/input.nvm"
+      ]
+    },
+    {
+      "command": 528,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.ll"
+      ]
+    },
+    {
+      "command": 530,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/optimized.bc"
+      ]
+    },
+    {
+      "command": 533,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/llvm-native"
+      ]
+    },
+    {
+      "command": 536,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program"
+      ]
+    },
+    {
+      "command": 538,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.wasm"
+      ]
+    },
+    {
+      "command": 540,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-llvm"
+      ]
+    },
+    {
+      "command": 542,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-c"
+      ]
+    },
+    {
+      "command": 546,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/input.nvm"
+      ]
+    },
+    {
+      "command": 550,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.ll"
+      ]
+    },
+    {
+      "command": 552,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/optimized.bc"
+      ]
+    },
+    {
+      "command": 555,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/llvm-native"
+      ]
+    },
+    {
+      "command": 558,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program"
+      ]
+    },
+    {
+      "command": 560,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.wasm"
+      ]
+    },
+    {
+      "command": 562,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-llvm"
+      ]
+    },
+    {
+      "command": 564,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-c"
+      ]
+    },
+    {
+      "command": 568,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/input.nvm"
+      ]
+    },
+    {
+      "command": 572,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.ll"
+      ]
+    },
+    {
+      "command": 574,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/optimized.bc"
+      ]
+    },
+    {
+      "command": 577,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/llvm-native"
+      ]
+    },
+    {
+      "command": 580,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program"
+      ]
+    },
+    {
+      "command": 582,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.wasm"
+      ]
+    },
+    {
+      "command": 584,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-llvm"
+      ]
+    },
+    {
+      "command": 586,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-c"
+      ]
+    },
+    {
+      "command": 590,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/input.nvm"
+      ]
+    },
+    {
+      "command": 594,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.ll"
+      ]
+    },
+    {
+      "command": 596,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/optimized.bc"
+      ]
+    },
+    {
+      "command": 599,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/llvm-native"
+      ]
+    },
+    {
+      "command": 602,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program"
+      ]
+    },
+    {
+      "command": 604,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.wasm"
+      ]
+    },
+    {
+      "command": 606,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-llvm"
+      ]
+    },
+    {
+      "command": 608,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-c"
+      ]
+    },
+    {
+      "command": 612,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/input.nvm"
+      ]
+    },
+    {
+      "command": 616,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.ll"
+      ]
+    },
+    {
+      "command": 618,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/optimized.bc"
+      ]
+    },
+    {
+      "command": 621,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/llvm-native"
+      ]
+    },
+    {
+      "command": 624,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program"
+      ]
+    },
+    {
+      "command": 626,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/program.wasm"
+      ]
+    },
+    {
+      "command": 628,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-llvm"
+      ]
+    },
+    {
+      "command": 630,
+      "returncode": -6,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm gbzguf9u/sanitized-c"
+      ]
+    },
+    {
+      "command": 775,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm aoq33mdy/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm aoq33mdy/previous"
+      ]
+    },
+    {
+      "command": 776,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm aoq33mdy/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm aoq33mdy/previous"
+      ]
+    },
+    {
+      "command": 778,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm aoq33mdy/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm aoq33mdy/previous"
+      ]
+    },
+    {
+      "command": 779,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm aoq33mdy/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano wasm aoq33mdy/previous"
+      ]
+    },
+    {
+      "command": 825,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-856drngc/input.nvm"
+      ]
+    },
+    {
+      "command": 828,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-856drngc/out.bc"
+      ]
+    },
+    {
+      "command": 830,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-856drngc/out.bc"
+      ]
+    },
+    {
+      "command": 832,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-856drngc/native"
+      ]
+    },
+    {
+      "command": 834,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-856drngc/out.wasm"
+      ]
+    },
+    {
+      "command": 869,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 872,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 874,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 876,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 878,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 880,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 883,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 885,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 887,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 889,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 891,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 894,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 896,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 898,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 900,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 902,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 905,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 907,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 909,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 911,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 913,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 916,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 918,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 920,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 922,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 924,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 927,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 929,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 931,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 933,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 935,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 938,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 940,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 942,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 944,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 946,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 949,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 951,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 953,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 955,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 957,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 960,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 962,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 964,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 966,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 968,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 971,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 973,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 975,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 977,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 979,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 982,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 984,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 986,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 988,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 990,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 993,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 995,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 997,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 999,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1001,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1004,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1006,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1008,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1010,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1012,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1015,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1017,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1019,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1021,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1023,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1026,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1028,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1030,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1032,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1034,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1037,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1039,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1041,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1043,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1045,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1048,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1050,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1052,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1054,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1056,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1059,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1061,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1063,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1065,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1067,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1070,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1072,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1074,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1076,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1078,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1081,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1083,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1085,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1087,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1089,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1092,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1094,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1096,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1098,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1100,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1103,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1105,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1107,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1109,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1111,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1114,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1116,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1118,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1120,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1122,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1125,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1127,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1129,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1131,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1133,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1136,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1138,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1140,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1142,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1144,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1147,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1149,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1151,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1153,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1155,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1158,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1160,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1162,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1164,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1166,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1169,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1171,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1173,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1175,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1177,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1180,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1182,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1184,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1186,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1188,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1191,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1193,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1195,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1197,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1199,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1202,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1204,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1206,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1208,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1210,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1213,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1215,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1217,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1219,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1221,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1224,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1226,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1228,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1230,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1232,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1235,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1237,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1239,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1241,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1243,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1246,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1248,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1250,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1252,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1254,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nano_vm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/input.nvm"
+      ]
+    },
+    {
+      "command": 1257,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1259,
+      "returncode": -5,
+      "argv": [
+        "lli",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.bc"
+      ]
+    },
+    {
+      "command": 1261,
+      "returncode": -5,
+      "argv": [
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/native"
+      ]
+    },
+    {
+      "command": 1263,
+      "returncode": 134,
+      "argv": [
+        "wasmtime",
+        "run",
+        "--invoke",
+        "nano_entry",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-numeric-7vkg2ete/out.wasm"
+      ]
+    },
+    {
+      "command": 1343,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.ll"
+      ]
+    },
+    {
+      "command": 1344,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.wasm"
+      ]
+    },
+    {
+      "command": 1347,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.ll"
+      ]
+    },
+    {
+      "command": 1348,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.wasm"
+      ]
+    },
+    {
+      "command": 1399,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.ll"
+      ]
+    },
+    {
+      "command": 1400,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.wasm"
+      ]
+    },
+    {
+      "command": 1403,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.ll"
+      ]
+    },
+    {
+      "command": 1404,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.wasm"
+      ]
+    },
+    {
+      "command": 1413,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.ll"
+      ]
+    },
+    {
+      "command": 1414,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.wasm"
+      ]
+    },
+    {
+      "command": 1417,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2llvm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.ll"
+      ]
+    },
+    {
+      "command": 1418,
+      "returncode": 1,
+      "argv": [
+        "/home/jkh/Src/nanolang-managed-string-76de-linux/bin/nvm2wasm",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/input.nvm",
+        "-o",
+        "/tmp/nanolang-managed-string-76de-linux-neighbors/temporary/nano-profiles-jj7u890q/previous.wasm"
+      ]
+    }
+  ],
+  "limits": [
+    "Command input maps use recorded stat-keyed cached digests, not an independent byte read per command.",
+    "Phase endpoint digests are forced fresh by the frozen runner; audit independently rehashes each referenced archive object and current immutable input.",
+    "Source scope excludes historical docs except the acceptance contract and roadmap.",
+    "Tool/library inventory does not establish every transitive compiler tool or runtime loader selection.",
+    "Only the named phase audited; remaining acceptance remains separate."
+  ],
+  "seconds": 43.371146803023294
+}

@@ -12490,6 +12490,52 @@ I seal private-native9a237 qualification in [my evidence](evidence/file-private-
 
 - [ ] I establish the [explicit public File host-grant conjunction](NANOISA_FILE_PUBLIC_CONJUNCTION.md) under existing6fc/72556/82ff after vm_effects' private native9a23711 acceptance: review concrete grant/gate/API and immutable-byte preparation; review joint matched VM/native service-aware routing while old grant-less guards remain; qualify host authority, startup/cleanup/output and actual installed opt-in/package paths on Linux/Darwin. No public admission precedes matched target and fixture review. The loop/indirect/multi-borrow and paired source/full-shadow requirements above remain mandatory5.1 work, not closed by this initial acyclic public route.
 
+- [x] I qualify my original managed-string lifetime and before/after LLVM optimization acceptance under `task_5792220dc3654ddcbe7e47ec0253f8ea`, parent51da. Static review finds only verification/ASan/llc in the emitted fixture; C harness -O1 does not optimize its input IR. My [preimplementation acceptance contract](MANAGED_STRING_FINAL_ACCEPTANCE.md) retains every existing semantic, lifetime, failure and publication assertion, adds an explicit test-only O2 route, and requires fresh Linux/Darwin original and optimized evidence before original-parent reconciliation. Aggregate/cycle488, host linkage2d2 and full release remain separate.
+
+  I retain independent-review acceptance findings for579222 before code: the selected optimized Wasm and default-main paths need explicit selection; original string fixtures lack a failed managed initializer; Darwin core defaults to disabled leak checking; copied fixture methods and overwritten subcase products need exact handling. The amended contract adds those original-criterion controls and strict supported-compiler qualification without widening product admission.
+
+  I prepare the retained direct runner for579222 before gates: exact original
+  and O2 emitted-module phases, strict core/package and scalar/literal/verifier
+  neighbors, explicit host tools, per-command source/provider/product maps,
+  content-addressed overwritten artifacts, retained Python CLI temporary
+  products, and bounded process-group cleanup. The runner and two reviewed
+  fixture changes require independent review before any fresh qualification.
+
+  - [x] I qualify the reviewed579222 retention correction: root found an
+    unbounded post-SIGKILL wait and excessive historical-evidence/LLVM-alias
+    rehashing in6c310 before any execution. My corrected runner bounds both
+    waits and records unconfirmed cleanup as failure; stat-keyed command maps
+    retain complete product archives while fresh phase endpoint hashes retain
+    exact input evidence. The existing fixture assertions stay unchanged.
+
+  - [x] I qualify explicit native Clang selection after the first579222 Linux
+    preparation atcd312 returned2 in0.115s before any tests: auto-selected GCC14
+    lacks the include directories identified in GCC13. I retain the first tree,
+    terminal and equal source/tool maps, and add validated native-only selection
+    flags without warning suppression or wasm32 flag changes. Corrected fresh
+    preparation and gates remain pending review.
+
+  - [x] I correct the stale scalar-global array refusal under
+    `task_a8bc9b4d35294a848c38cfe47f1e3a91`. My retained971b Linux neighbors
+    stop after four passing tests when `ARR_NEW 5; STORE_GLOBAL 0` successfully
+    translates. Mutable-array admission already qualified this operation. I
+    preserve that exact program as a positive VM/LLVM/Wasm execution and
+    output-replacement control, retain the other three refusal sentinels, and
+    require review before fresh Linux/Darwin neighboring gates. The original
+    failed terminal remains at `/tmp/nanolang-managed-string-971b-linux-neighbors`.
+
+  - [x] I correct the second stale neighbor expectation under a8bc before new
+    execution:342 retains eighteen passes and the literal-string `ARR_NEW 5; POP`
+    failure at `/tmp/nanolang-managed-string-342-linux-neighbors`. My five-module
+    static audit also identifies enum CAST_STRING and string-bearing CAST_FLOAT
+    conversion refusals superseded by managed admission. I preserve all three
+    exact programs as execution/output-replacement controls and retain genuine
+    tail-call, authority, packed-element and invalid-operand refusals. The
+    [acceptance contract](MANAGED_STRING_FINAL_ACCEPTANCE.md) distinguishes the
+    measured failure from these static findings; no production change is needed.
+
+  I seal all eight original-criterion phases in [my final string evidence](evidence/managed-string-final-acceptance.md): original23, optimized23, core/package5 and corrected neighbors42 pass on Linux and Darwin. Independent audits rehash every referenced archive object and current input, verify all command cleanup/equality records and preserve the first failed preparations/fixtures. Original/O2/core Darwin measurements are on CX; neighbors use puck with explicit tools because CX lacks retention space. No production changes or full-runtime/release claim follow. Actual canonical integration and MAC reconciliation remain required before task closure.
+
 ## I audit the matched private File runtime and retain control dependencies
 
 - [ ] I reconcile only82ff after review of [my original-criterion matrix](NANOISA_FILE_PRIVATE_RUNTIME_RECONCILIATION.md): carrier858, frames879, VM885 and native888 are merged, with actual Linux/Darwin private acceptance. The original open row above records its earlier checkpoint; MAC closure and this checkbox await review. Public/source/full File parents remain open.
