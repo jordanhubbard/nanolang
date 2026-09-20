@@ -1,0 +1,42 @@
+{
+  "head": "c1409c5b5338a36ad304ea0ed9cc5a218cdba0f4",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "phases": [
+    {
+      "name": "vm",
+      "command": [
+        "make",
+        "test-nanovm",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 0,
+      "seconds": 22.132,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "a508c383364cfeb54e289a7998c4dc61bfadf937e87b8409ca7577511c9417af"
+    },
+    {
+      "name": "full-test",
+      "command": [
+        "make",
+        "test",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 2,
+      "seconds": 870.355,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "1fbb6274189cbb5c603b3d157bbeb430f1187857a2751bee8c7028d11c343222"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}

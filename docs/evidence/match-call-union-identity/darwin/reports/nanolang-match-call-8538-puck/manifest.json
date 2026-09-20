@@ -1,0 +1,92 @@
+{
+  "head": "8538faadf0e4b97168187245909fa0cffab2ef36",
+  "host": "puck",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "phases": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "build",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "seconds": 79.691,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "0ae31a4782cc4ebe111d7b025aab7c12e4afa546f43397b8531a6d0ed39d619f"
+    },
+    {
+      "name": "userguide-compile",
+      "command": [
+        "make",
+        "build/userguide/userguide_snippets_check",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "seconds": 2.975,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "CC=/usr/bin/clang"
+      ],
+      "status": 0,
+      "seconds": 1.097,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "e1cf6659962dcefa97558a71c36d188e28983da259328951382eaff848149bed"
+    },
+    {
+      "name": "totality",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/tmp/run-match-call-unit-retained.py",
+        "tests.test_cseed_match_totality",
+        "tests.test_shared_match_policy_docs"
+      ],
+      "status": 0,
+      "seconds": 3.235,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "log_sha256": "a476817fbe7967c0acef587a5b4a7580a68fc180204cb95e8302b449fa4ad83e"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_canonical_match_guards"
+      ],
+      "status": 1,
+      "seconds": 46.462,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "c5286dfbb3ade4cee88c8cd577714667322ae56b50fd268e48eff3194761687e"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}

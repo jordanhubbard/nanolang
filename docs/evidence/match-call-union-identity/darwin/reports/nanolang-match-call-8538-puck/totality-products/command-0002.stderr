@@ -1,0 +1,8 @@
+-- E036 UNREACHABLE MATCH ARM --- /private/tmp/nanolang-match-call-8538-puck/totality-products/temporary/nanolang-cseed-match-totality-c9xnjwjx/case.nano
+I cannot reach a match arm after an unconditional wildcard.
+
+4|  match choice { _ => { assert true } None(empty) => { assert true } }
+                                                       ^
+Hint: Remove this arm or give the earlier wildcard a non-literal guard.
+Warning at line 4, column 2: Unused variable 'empty'
+Type checking failed

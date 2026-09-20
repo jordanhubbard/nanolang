@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0001] I require an exact bool match guard (/tmp/nano-canonical-match-guards-1q1p9lvd/bool.nano:2:27)

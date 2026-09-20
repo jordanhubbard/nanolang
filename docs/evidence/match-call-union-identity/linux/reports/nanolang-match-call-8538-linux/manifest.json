@@ -1,0 +1,95 @@
+{
+  "head": "8538faadf0e4b97168187245909fa0cffab2ef36",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "phases": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j2",
+        "build",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 0,
+      "seconds": 72.117,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "f277a50fd5270a16bc522d4f097d04cb92cc30384b36d74955e48eacc4ed1de7"
+    },
+    {
+      "name": "userguide-compile",
+      "command": [
+        "make",
+        "build/userguide/userguide_snippets_check",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 0,
+      "seconds": 3.776,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "prepare",
+      "command": [
+        "make",
+        "-j2",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "CC=/bin/gcc",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "status": 0,
+      "seconds": 1.615,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": false,
+      "log_sha256": "b5543bf38dd35bdef7c6e3b9718fd538f3f9965f4ed743a5484e58e997056113"
+    },
+    {
+      "name": "totality",
+      "command": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "/tmp/run-match-call-unit-retained.py",
+        "tests.test_cseed_match_totality",
+        "tests.test_shared_match_policy_docs"
+      ],
+      "status": 0,
+      "seconds": 3.77,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "log_sha256": "68898e981a8453e49f502bdff53dbda2d3e8a21fd27192ec9f6510a5dcc5c526"
+    },
+    {
+      "name": "guards",
+      "command": [
+        "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.test_canonical_match_guards"
+      ],
+      "status": 1,
+      "seconds": 34.746,
+      "timeout": false,
+      "cleanup": [],
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "log_sha256": "eeec447348562bba797acc40543642438d65af924e781b56475559534268a4c6"
+    }
+  ],
+  "source_unchanged": true,
+  "head_unchanged": true,
+  "tracked_clean": true
+}

@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "-DNMS_TESTING",
+    "src/nanoisa/managed_strings.c",
+    "tests/nanoisa/test_managed_strings.c",
+    "-o",
+    "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/products/observed"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

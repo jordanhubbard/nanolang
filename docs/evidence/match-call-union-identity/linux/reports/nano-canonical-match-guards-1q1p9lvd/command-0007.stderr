@@ -1,0 +1,7 @@
+-- E036 UNREACHABLE MATCH ARM --- /tmp/nano-canonical-match-guards-1q1p9lvd/unreachable.nano
+I cannot reach a match arm after an unconditional wildcard.
+
+2| fn main() -> int { return match 1 { _ if true => 2 1 => 0 } } shadow main { assert true }
+                                                           ^
+Hint: Remove this arm or give the earlier wildcard a non-literal guard.
+Type checking failed

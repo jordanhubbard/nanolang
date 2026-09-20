@@ -1,0 +1,67 @@
+{
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/adjacent directory/nanocore-ref": {
+    "sha256": "829a17cb4f5c3da1815dce48ae83b3d1e7db1a9e959bf6da4acf79941cbed53b",
+    "bytes": 93,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/829a17cb4f5c3da1815dce48ae83b3d1e7db1a9e959bf6da4acf79941cbed53b"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/allocation cleanup/nanocore-ref": {
+    "sha256": "534202124797116f06af33329569b421b85493bc63f0a547f10e391fcad24b6b",
+    "bytes": 125,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/534202124797116f06af33329569b421b85493bc63f0a547f10e391fcad24b6b"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/caller child/nanocore-ref": {
+    "sha256": "619f1e26114314686d60588a9689f7b09f95320ad6983dc925584791fe96c435",
+    "bytes": 100,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/619f1e26114314686d60588a9689f7b09f95320ad6983dc925584791fe96c435"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/early exit/nanocore-ref": {
+    "sha256": "c084eabf1f331bd9a6d6b6a1f9bcf8fbeb0fdc731acfed5eddd0e7788732dde9",
+    "bytes": 70,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/c084eabf1f331bd9a6d6b6a1f9bcf8fbeb0fdc731acfed5eddd0e7788732dde9"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/empty/nanocore-ref": {
+    "sha256": "0a17dc8067a112d81e07319ba52afd87e3c0e01416bbbc1a9db3dc3ce56d5f64",
+    "bytes": 75,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/0a17dc8067a112d81e07319ba52afd87e3c0e01416bbbc1a9db3dc3ce56d5f64"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/exporter.o": {
+    "sha256": "eda248c6194758b89b21e535f0120ba334262e859f85c42dbb50040a7ef9788d",
+    "bytes": 57800,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/eda248c6194758b89b21e535f0120ba334262e859f85c42dbb50040a7ef9788d"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/full duplex/nanocore-ref": {
+    "sha256": "aff4277a4d0efce190529ef1f94fe7da4cec8292524eef276057babb2495777f",
+    "bytes": 143,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/aff4277a4d0efce190529ef1f94fe7da4cec8292524eef276057babb2495777f"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/harness": {
+    "sha256": "31b3b719c1411c43d49d005dd75b87ee4489d48ca9ee6429214ed32e7bee7719",
+    "bytes": 55912,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/31b3b719c1411c43d49d005dd75b87ee4489d48ca9ee6429214ed32e7bee7719"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/harness.c": {
+    "sha256": "f91acf782210f676c29e0db689bd3888aaf90303a181c2ffa90f4bd7bbabc11e",
+    "bytes": 5416,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/f91acf782210f676c29e0db689bd3888aaf90303a181c2ffa90f4bd7bbabc11e"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/input.sexpr": {
+    "sha256": "c49a028f5f3f1244ab90ae69acd7910d73cb246ceed9d6a891e9810a84c40e1f",
+    "bytes": 9,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/c49a028f5f3f1244ab90ae69acd7910d73cb246ceed9d6a891e9810a84c40e1f"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/path directory/nanocore-ref": {
+    "sha256": "710858e2c6738dafd3044bdb1625f25bf6bad490272339754b6260397b228e7d",
+    "bytes": 108,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/710858e2c6738dafd3044bdb1625f25bf6bad490272339754b6260397b228e7d"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/repeated calls/nanocore-ref": {
+    "sha256": "619f1e26114314686d60588a9689f7b09f95320ad6983dc925584791fe96c435",
+    "bytes": 100,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/619f1e26114314686d60588a9689f7b09f95320ad6983dc925584791fe96c435"
+  },
+  "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/temporary/nano-reference-transport-ifa_y21m/status/nanocore-ref": {
+    "sha256": "2e78970610db06539ba745acc5a02df17a6720173a13cac6726fd1ec603bdfac",
+    "bytes": 115,
+    "archive": "/private/tmp/nanolang-match-call-vm-c140-puck-supported/totality-products/artifacts/2e78970610db06539ba745acc5a02df17a6720173a13cac6726fd1ec603bdfac"
+  }
+}

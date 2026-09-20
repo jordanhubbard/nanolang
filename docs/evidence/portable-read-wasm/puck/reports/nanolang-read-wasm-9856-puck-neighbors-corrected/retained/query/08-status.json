@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c11",
+    "-D_DEFAULT_SOURCE",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "-c",
+    "src/nanoisa/verifier.c",
+    "-o",
+    "/private/tmp/nanolang-read-wasm-9856-puck-neighbors-corrected/retained/query/products/linked-read_stack.o"
+  ],
+  "cwd": "/private/tmp/nanolang-portable-read-wasm-9856",
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0
+}

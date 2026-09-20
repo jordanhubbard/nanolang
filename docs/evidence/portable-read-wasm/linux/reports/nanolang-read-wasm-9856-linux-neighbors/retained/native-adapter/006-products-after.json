@@ -1,0 +1,44 @@
+{
+  "observed-0.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-0.o",
+    "sha256": "22c58e40203643713040fa0d3e78ceaaddbc5cc76a8f6edaabfac5cedb2f1657",
+    "bytes": 22192,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/22c58e40203643713040fa0d3e78ceaaddbc5cc76a8f6edaabfac5cedb2f1657"
+  },
+  "observed-1.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/observed-1.o",
+    "sha256": "3426915791478da2f63adef88c67a9ae80e9a6c79d9047a865c69cc636cb19bb",
+    "bytes": 12544,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/3426915791478da2f63adef88c67a9ae80e9a6c79d9047a865c69cc636cb19bb"
+  },
+  "target-probe.c": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/target-probe.ll",
+    "sha256": "70086ab3c2fd9100aa2d3291b87c8bb3a5cd0cd9e1cd102b40a55d849958647d",
+    "bytes": 1101,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/70086ab3c2fd9100aa2d3291b87c8bb3a5cd0cd9e1cd102b40a55d849958647d"
+  },
+  "typed-O0.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/typed-O0.o",
+    "sha256": "79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc",
+    "bytes": 1048,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc"
+  },
+  "typed-O2.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/typed-O2.o",
+    "sha256": "a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147",
+    "bytes": 1024,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147"
+  },
+  "typed-read.ll": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/products/typed-read.ll",
+    "sha256": "30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3",
+    "bytes": 502,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/native-adapter/objects/30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3"
+  }
+}

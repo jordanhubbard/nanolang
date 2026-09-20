@@ -1,0 +1,22 @@
+{
+  "clang": [
+    "/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "linker": [
+    "/opt/homebrew/opt/lld/bin/wasm-ld"
+  ],
+  "node": [
+    "/opt/homebrew/bin/node"
+  ],
+  "python": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14"
+  ],
+  "flags": [],
+  "environment": {
+    "PYTHONPATH": "/private/tmp/nanolang-read-wasm-9856-puck/engines/products/private-binding",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": ""
+  }
+}

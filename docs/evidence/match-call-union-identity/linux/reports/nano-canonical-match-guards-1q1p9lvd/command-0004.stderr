@@ -1,0 +1,7 @@
+-- E035 NON-EXHAUSTIVE MATCH --- /tmp/nano-canonical-match-guards-1q1p9lvd/coverage.nano
+I require an unconditional wildcard in an integer match.
+
+2| fn main() -> int { return match 1 { 1 if true => 2 } } shadow main { assert true }
+                             ^^^^^
+Hint: Add `_ => ...` after the integer cases so every integer is covered.
+Type checking failed

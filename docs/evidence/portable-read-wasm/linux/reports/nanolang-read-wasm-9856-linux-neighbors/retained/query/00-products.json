@@ -1,0 +1,8 @@
+{
+  "instrumented-read_query.o": {
+    "path": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/query/products/instrumented-read_query.o",
+    "sha256": "bbc1066f617c3882f5a2c18fbb25a60ab24d46c4296b300d4f3b1859ab09f38d",
+    "bytes": 63896,
+    "archive": "/tmp/nanolang-read-wasm-9856-linux-neighbors/retained/query/objects/bbc1066f617c3882f5a2c18fbb25a60ab24d46c4296b300d4f3b1859ab09f38d"
+  }
+}
