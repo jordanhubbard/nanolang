@@ -200,7 +200,8 @@ fn nano_extent_case(size: int) -> int {
         catalog_version: 1, line: 1, column: 1, bindings: bindings
     }
     let requests: array<FileSourceRequest> = [q]
-    return (Plan.file_source_plan requests aliases ordinary).status
+    let plan: FileSourcePlan = (Plan.file_source_plan requests aliases ordinary)
+    return plan.status
 }
 shadow nano_extent_case {
     assert (== (nano_extent_case 1) 0)
@@ -242,7 +243,8 @@ fn nano_budget_case(extra: int) -> int {
         set i (+ i 1)
     }
     assert (<= (array_length ordinary) 256)
-    return (Plan.file_source_plan requests aliases ordinary).status
+    let plan: FileSourcePlan = (Plan.file_source_plan requests aliases ordinary)
+    return plan.status
 }
 shadow nano_budget_case {
     assert (== (nano_budget_case 0) 0)

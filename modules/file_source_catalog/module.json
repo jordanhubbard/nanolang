@@ -2,6 +2,6 @@
   "name": "file_source_catalog",
   "version": "1.0.0",
   "description": "I expose immutable File catalog data without source lowering or execution",
-  "headers": ["file_source_catalog.h"],
+  "headers": ["nanoisa/file_source_plan.h"],
   "c_sources": ["../../src/nanoisa/file_source_catalog.c", "../../src/nsi_file_plan.c"]
 }
