@@ -12842,3 +12842,7 @@ I keep these independent of PR910's generic-call identity and VM fixture repair.
 - [ ] For task4931, I review and run the separate exact two-input owned-pattern probe with monotonic diagnostic observations, retaining the original selected-shadow failure and making no full-suite timing claim.
 
 - [ ] For task4931, I review macro-only aggregate admission timing and ASSERT-trap counts, then compare admission time with cumulative shadow elapsed time under the unchanged deadline before proposing any authority-preserving optimization.
+
+### My emitter admission-cost diagnostic evidence
+
+I retain task_4931a66f39c04b1a96981a4e00d43646 open. The single reviewed86c758 fullgraph diagnostic still reaches my unchanged ten-second shadow limit. Between matched marker boundaries, completed core admission accounts for7484.430 of7586.052milliseconds (98.6604percent). My source/tool maps remain equal; exact evidence is in `docs/evidence/emitter-admission-cost`. I require a separately reviewed synchronous-invocation authority and invalidation design before optimizing this boundary; no module-pointer cache or deadline change is approved.

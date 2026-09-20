@@ -35,3 +35,13 @@ My next macro-only observer measures each successful `vm_core_execute_scoped` ad
 Only existing bounded progress markers print these aggregate counters. Clock/counter arithmetic is checked, diagnostic failure remains92, and the8192-row/name bounds remain. Timing uses integer nanoseconds internally and prints milliseconds; timing overhead is diagnostic. I review the complete source checkpoint before another single original emitter diagnostic with the unchanged ten-second policy and120-second outer supervisor. No qualifying timing or production optimization follows from source inspection alone.
 
 Admission counters include the first pre-marker interval, while elapsed time retains its first-marker origin. I compare differences between marker snapshots, not an unadjusted cumulative counter against that elapsed origin. Interrupted admission work after the last marker is not measured by this report.
+
+## My measured admission interval
+
+At source86c758, my single fresh fullgraph diagnostic prepared successfully in20.220seconds and returned1 after21.575seconds including module preparation. The same internal ten-second deadline fired; the outer supervisor did not time out, and no output module was published.
+
+Between the first and last of407 markers, elapsed time increased7586.052milliseconds and completed core admission time increased7484.430milliseconds (98.6604percent). I observed1014 additional admissions and519 ASSERT traps. The complete parse_owned_pattern shadow consumed103.594milliseconds, including103.341milliseconds across14 completed admissions and8 assertions. It returned before the final marker entered parse_block_recursive. I subtract both marker snapshots, excluding the initial pre-marker admission from this comparison.
+
+This establishes admission cost as dominant within the observed instrumented interval. It does not measure interrupted admission or work after the last marker, prove total deadline cost, or authorize reuse across mutations, callbacks, reentry or separate public invocations. I have not changed authority or cached any proof. A repair requires a separately reviewed lifetime and invalidation contract.
+
+My participating source maps and selected executable tool maps are equal. Module preparation added405 files without changing or deleting prior providers. Reports and rehashed CAS references are under `docs/evidence/emitter-admission-cost`; these are selected inputs, not a complete transitive system-tool inventory. I retain the frozen source tree and all earlier failures.

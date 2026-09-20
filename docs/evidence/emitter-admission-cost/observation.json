@@ -1,0 +1,59 @@
+{
+  "markers": 407,
+  "first": {
+    "elapsed_ms": 0.0,
+    "admission_calls": 2,
+    "admission_ms": 14.896,
+    "assert_traps": 0,
+    "event": "enter",
+    "fn": 563,
+    "pc": 153628,
+    "name": "$shadow_0_diag_location"
+  },
+  "last": {
+    "elapsed_ms": 7586.052,
+    "admission_calls": 1016,
+    "admission_ms": 7499.326,
+    "assert_traps": 519,
+    "event": "enter",
+    "fn": 764,
+    "pc": 166770,
+    "name": "$shadow_201_parse_block_recursive"
+  },
+  "delta": {
+    "elapsed_ms": 7586.052,
+    "admission_ms": 7484.43,
+    "admission_calls": 1014,
+    "assert_traps": 519,
+    "admission_fraction": 0.9866040992073348
+  },
+  "intervals": [
+    {
+      "name": "$shadow_200_parse_owned_pattern",
+      "delta": {
+        "elapsed_ms": 103.594,
+        "admission_ms": 103.341,
+        "admission_calls": 14,
+        "assert_traps": 8,
+        "admission_fraction": 0.9975577736162325
+      }
+    },
+    {
+      "name": "$shadow_199_parser_mark_owned",
+      "delta": {
+        "elapsed_ms": 14.77,
+        "admission_ms": 14.759,
+        "admission_calls": 2,
+        "assert_traps": 2,
+        "admission_fraction": 0.9992552471225458
+      }
+    }
+  ],
+  "sources_equal": true,
+  "tools_equal": true,
+  "providers": {
+    "added": 405,
+    "removed": 0,
+    "changed": 0
+  }
+}
