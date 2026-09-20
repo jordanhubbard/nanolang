@@ -6,6 +6,7 @@ import shlex
 import signal
 import subprocess
 import tempfile
+import time
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,33 +27,64 @@ class FileCyclic(unittest.TestCase):
         (self.artifacts / f"{name}-command.txt").write_text(shlex.join(args) + "\n")
         env = dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
                    UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
-        process = subprocess.Popen(args, cwd=ROOT, env=env, stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE, start_new_session=True)
-        timed_out = False
-        try:
-            stdout, stderr = process.communicate(timeout=240)
-        except subprocess.TimeoutExpired as first:
-            timed_out = True
-            stdout, stderr = first.output or b"", first.stderr or b""
-            for sig in (signal.SIGTERM, signal.SIGKILL):
+        status = {"timeout": False, "returncode": None, "leader_reaped": False,
+                  "group_disappeared": None, "bound_seconds": 240, "errors": [],
+                  "cleanup_signals": [], "launched": False}
+        process = None
+        with (self.artifacts / f"{name}-stdout.log").open("wb") as stdout, \
+             (self.artifacts / f"{name}-stderr.log").open("wb") as stderr:
+            try:
+                process = subprocess.Popen(args, cwd=ROOT, env=env, stdout=stdout,
+                                           stderr=stderr, start_new_session=True)
+                status["launched"] = True
                 try:
-                    os.killpg(process.pid, sig)
-                except ProcessLookupError:
-                    pass
-                try:
-                    stdout, stderr = process.communicate(timeout=5)
-                    break
-                except subprocess.TimeoutExpired as later:
-                    stdout, stderr = later.output or stdout, later.stderr or stderr
-        (self.artifacts / f"{name}-stdout.log").write_bytes(stdout)
-        (self.artifacts / f"{name}-stderr.log").write_bytes(stderr)
-        (self.artifacts / f"{name}-status.json").write_text(json.dumps({
-            "timeout": timed_out, "returncode": process.returncode,
-            "reaped": process.returncode is not None, "bound_seconds": 240,
-        }, indent=2) + "\n")
-        self.assertFalse(timed_out, f"I retained the bounded terminal at {self.artifacts}")
-        self.assertEqual(process.returncode, 0, (args, stdout, stderr))
-        return stdout
+                    process.wait(timeout=240)
+                except subprocess.TimeoutExpired:
+                    status["timeout"] = True
+            except Exception as error:
+                status["errors"].append(f"launch/wait: {type(error).__name__}: {error}")
+            finally:
+                if process is not None:
+                    def group_exists():
+                        try:
+                            os.killpg(process.pid, 0)
+                            return True
+                        except ProcessLookupError:
+                            return False
+                        except OSError as error:
+                            status["errors"].append(f"group probe: {error}")
+                            return True
+
+                    # I inspect the group after normal completion too. Reaping
+                    # its leader never proves that descendants disappeared.
+                    for sig in (signal.SIGTERM, signal.SIGKILL):
+                        if not group_exists():
+                            break
+                        try:
+                            os.killpg(process.pid, sig)
+                            status["cleanup_signals"].append(sig.name)
+                        except ProcessLookupError:
+                            pass
+                        except OSError as error:
+                            status["errors"].append(f"{sig.name}: {error}")
+                        deadline = time.monotonic() + 5
+                        while time.monotonic() < deadline:
+                            process.poll()  # Reap an exited leader independently.
+                            if not group_exists():
+                                break
+                            time.sleep(0.05)
+                    status["returncode"] = process.poll()
+                    status["leader_reaped"] = process.returncode is not None
+                    status["group_disappeared"] = not group_exists()
+                (self.artifacts / f"{name}-status.json").write_text(
+                    json.dumps(status, indent=2) + "\n")
+        self.assertTrue(status["launched"], status)
+        self.assertFalse(status["timeout"], status)
+        self.assertFalse(status["errors"], status)
+        self.assertTrue(status["leader_reaped"], status)
+        self.assertTrue(status["group_disappeared"], status)
+        self.assertEqual(status["returncode"], 0, status)
+        return (self.artifacts / f"{name}-stdout.log").read_bytes()
 
     def qualify(self, name, instrument):
         executable = self.artifacts / name

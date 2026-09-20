@@ -222,6 +222,41 @@ static void query_refusals_and_limits(void){
  NvmFileCyclicReport *r=cyclic_expect(m,NVM_FILE_FLOW_OK);cyclic_release(r);
  c=(Body){0};for(unsigned i=0;i<255;i++)op(&c,OP_NOP);retint(&c);setbody(m,0,c);CHECK(!cyclic_expect(m,NVM_FILE_FLOW_LIMIT));nvm_module_free(m);
 }
+static void decoded_owner_swap(void){
+ for(unsigned held=0;held<2;held++){
+  NvmFileNominalBindings b;NvmModule *m=bodymodule(&b,false);
+  desc(m->ownership_data+24+12+8*4,TAG_STRUCT,0,b.layouts[0]);
+  Body c={0};service(&c,b,0,UINT16_MAX);one(&c,OP_OWN_STORE_LOCAL,1);
+  uint32_t first_error=branch(&c,OP_FILE_RESULT_BRANCH,1);
+  take_result(&c,1,0);one(&c,OP_OWN_STORE_LOCAL,0);
+  service(&c,b,0,UINT16_MAX);one(&c,OP_OWN_STORE_LOCAL,1);
+  uint32_t second_error=branch(&c,OP_FILE_RESULT_BRANCH,1);
+  take_result(&c,1,0);one(&c,OP_OWN_STORE_LOCAL,9);
+  if(held){op(&c,OP_REGION_BEGIN);op(&c,OP_BORROW_LOCAL_EXCLUSIVE);u16(&c,20);u16(&c,0);}
+  uint32_t header=c.n;boolean(&c);uint32_t leave=branch(&c,OP_JMP_FALSE,0);
+  uint32_t move[6];
+  move[0]=c.n;one(&c,OP_OWN_MOVE_LOCAL,0);move[1]=c.n;one(&c,OP_OWN_STORE_LOCAL,4);
+  move[2]=c.n;one(&c,OP_OWN_MOVE_LOCAL,9);move[3]=c.n;one(&c,OP_OWN_STORE_LOCAL,0);
+  move[4]=c.n;one(&c,OP_OWN_MOVE_LOCAL,4);move[5]=c.n;one(&c,OP_OWN_STORE_LOCAL,9);
+  back(&c,header);target(&c,leave);
+  if(held){one(&c,OP_FILE_END_BORROW,20);op(&c,OP_REGION_END);}
+  one(&c,OP_FILE_DROP_LOCAL,0);one(&c,OP_FILE_DROP_LOCAL,9);retint(&c);
+  target(&c,second_error);take_result(&c,1,1);op(&c,OP_POP);one(&c,OP_FILE_DROP_LOCAL,0);retint(&c);
+  target(&c,first_error);take_result(&c,1,1);op(&c,OP_POP);retint(&c);setbody(m,0,c);
+  NvmFileCyclicReport *r=cyclic_expect(m,held?NVM_FILE_FLOW_INVALID:NVM_FILE_FLOW_OK);
+  if(r){uint8_t count;CHECK(nvm_file_cyclic_variant_count(r,0,cyclic_index(r,0,header),&count) && count==1);
+   for(unsigned j=0;j<6;j++){NvmFileCyclicVariant fact;uint16_t at=cyclic_index(r,0,move[j]);
+    CHECK(nvm_file_cyclic_variant(r,0,at,0,&fact) && fact.input.owners==2 && fact.output.owners==2 && !fact.input.references);
+    CHECK(fact.input.stack==(j%2) && fact.output.stack==1-(j%2));
+    if(j%2){NvmFileFlowValue operand;CHECK(nvm_file_cyclic_input_stack(r,0,at,0,0,&operand) && operand.owner==2);}
+   }
+   NvmFileFlowValue a,bvalue,temp;uint16_t at=cyclic_index(r,0,header);
+   CHECK(nvm_file_cyclic_input_local(r,0,at,0,0,&a) && nvm_file_cyclic_input_local(r,0,at,0,9,&bvalue) && nvm_file_cyclic_input_local(r,0,at,0,4,&temp));
+   CHECK(a.owner==1 && bvalue.owner==2 && !temp.initialized && !temp.owner);cyclic_release(r);
+  }
+  nvm_module_free(m);
+ }
+}
 static void canonical_relation_controls(void){
 #ifdef FLOW_INSTRUMENT
  NvmFileNominalBindings b;NvmModule *m=bodymodule(&b,false);NvmFileFlowDeclarations *d=NULL;OK(nvm_file_flow_declarations(m,&d));
@@ -263,13 +298,26 @@ static void cyclic_allocations(void){
  FileCyclicWorkspace *w=calloc(1,sizeof *w);CHECK(w);uint8_t out=99;
  counted.summary.variants=NVM_FILE_CYCLIC_PAIRS;CHECK(file_cyclic_intern(&counted,w,0,0,&out)==NVM_FILE_FLOW_LIMIT && out==99);
  counted.summary.variants=0;w->tail=NVM_FILE_CYCLIC_FUNCTION_PAIRS;CHECK(file_cyclic_intern(&counted,w,0,0,&out)==NVM_FILE_FLOW_LIMIT && out==99);
- free(w);free(counted.sites);nvm_file_code_free(plan);nvm_module_free(m);CHECK(!live);
+ /* The exact transfer/edge guards are not normally reachable before tighter
+  * memory limits. I set only report counters, then analyze real decoded code. */
+ size_t declarations=sizeof(NvmFileFlowDeclarations);for(uint32_t f=0;f<plan->count;f++)declarations+=plan->functions[f].declaration.locals*sizeof(NvmFileFlowDeclaration);
+ NvmFileFlowDeclarations *scratch=malloc(declarations);CHECK(scratch);memcpy(scratch,plan->declarations,declarations);
+ for(unsigned guard=0;guard<2;guard++){
+  memset(w,0,sizeof *w);w->body.plan=plan;counted.summary=(NvmFileCyclicSummary){0};
+  if(guard==0)counted.summary.transfers=NVM_FILE_CYCLIC_PAIRS;else counted.summary.edges=NVM_FILE_CYCLIC_EDGES;
+  CHECK(file_cyclic_function_analyze(&counted,w,scratch,0)==NVM_FILE_FLOW_LIMIT);
+  CHECK(counted.summary.variants==1 && counted.sites[0].count==1 && !counted.sites[0].nodes[0]->processed);
+  if(guard==0)CHECK(counted.summary.transfers==NVM_FILE_CYCLIC_PAIRS && !counted.summary.edges);
+  else CHECK(counted.summary.edges==NVM_FILE_CYCLIC_EDGES && counted.summary.transfers==1);
+  flow_free(counted.sites[0].nodes[0]);counted.sites[0].nodes[0]=NULL;counted.sites[0].count=0;
+ }
+ free(scratch);free(w);free(counted.sites);nvm_file_code_free(plan);nvm_module_free(m);CHECK(!live);
  printf("I checked %u allocation prefixes and %u transient query failures\n",total,total);
 #endif
 }
 int main(void){
  CHECK(prior_file_body_fixture_main()==0);
- initial_alternatives();owner_relations();alternative_boundary();owner_empty_and_lower_callee();acyclic_equivalence();nested_cycles();query_refusals_and_limits();canonical_relation_controls();cyclic_allocations();
+ initial_alternatives();owner_relations();alternative_boundary();owner_empty_and_lower_callee();acyclic_equivalence();nested_cycles();query_refusals_and_limits();decoded_owner_swap();canonical_relation_controls();cyclic_allocations();
 #ifdef FLOW_INSTRUMENT
  CHECK(!live);
 #endif

@@ -12496,3 +12496,9 @@ real16/17 alternative joins, owner/reference loop invariants, copied-report and
 old-counter independence, explicit white-box budget relations, allocation
 prefix/transient recovery and retained process-group timeout evidence. Complete
 fixture review precedes compilation or any query gate; File execution stays held.
+
+I record the static1ffa runner-retention gap under243a before qualification:
+leader exit after TERM did not prove group disappearance and Popen errors lacked
+status. My corrected unexecuted fixture uses file-backed logs, bounded independent
+group/leader cleanup on every path, actual decoded two-root swaps with held-owner
+refusal, and exact transfer/edge guard controls. Production remainsf6ee.

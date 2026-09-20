@@ -259,3 +259,22 @@ after timeout. Ordinary versus sanitizer flags are explicit gate configuration;
 no sanitizer claim follows from default ordinary flags. Scope is query/provider
 instrumentation, not whole-runtime instrumentation. I have not run this fixture,
 a compiler or its runner; I request review before frozen gates.
+
+### I correct the unexecuted fixture after review
+
+Root's static review of1ffa identifies a runner gap: returning from communicate
+after TERM could leave descendants alive, and Popen failure lacked a terminal
+record. I preserve that unexecuted checkpoint and correct only fixtures. The
+runner now writes stdout/stderr directly to retained files, records launch and
+wait errors, probes the process group independently of leader status, sends TERM
+then KILL when needed with separate5second bounds, and records leader reaping
+and group disappearance. The same cleanup runs after ordinary leader exit. A
+surviving group or unreaped leader is a failing terminal, never assumed gone.
+
+I add an actual decoded loop swapping two File roots through a third empty
+local. All six move/store instructions retain exactly two roots; stack staging,
+empty temporary and distinct canonical roots are inspected. A separate otherwise
+identical held-reference case refuses before moving the observed File. I also
+exercise the exact transfer and edge counter guards with real decoded analysis
+and white-box counter initialization, preserving precise maximum values and
+cleaning the retained partial node. No production changes or executions occur.
