@@ -178,8 +178,17 @@ int main(int argc,char **argv) {
     found=NVM_LAYOUT_AUTHORITY_RESOURCE;
     CHECK(nvm_ownership_layout_authority(m,4,&found)==NVM_V2_ERR_INDEX_RANGE && found==NVM_LAYOUT_AUTHORITY_RESOURCE);
     CHECK(nvm_ownership_layout_authority(m,0,NULL)==NVM_V2_ERR_INDEX_RANGE);
-    data[8]=3;invalid(m);data[8]=1; /* Direct resource string stays unsupported. */
-    data[9]=3;invalid(m);data[9]=1; /* So does a transitive string child. */
+    data[8]=3;invalid(m);data[8]=1; /* An ordinary parent cannot contain a resource child. */
+    data[9]=3;
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
+    check_authority(m,1,NVM_LAYOUT_AUTHORITY_RESOURCE);
+    plan=&sentinel;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED && plan==&sentinel);
+    data[8]=3;
+    CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
+    check_authority(m,0,NVM_LAYOUT_AUTHORITY_RESOURCE);
+    check_authority(m,1,NVM_LAYOUT_AUTHORITY_RESOURCE);
+    plan=&sentinel;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED && plan==&sentinel);
+    data[8]=data[9]=1; /* I describe STRING roots without certifying their execution. */
     data[8]=0;invalid(m);data[8]=1; /* Unknown child cannot certify its parent. */
     data[11]=0;check_authority(m,3,NVM_LAYOUT_AUTHORITY_UNKNOWN);
     plan=&sentinel;CHECK(nvm_describe_managed_records(m,&plan).status==NVM_RECORD_UNRESOLVED && plan==&sentinel);
