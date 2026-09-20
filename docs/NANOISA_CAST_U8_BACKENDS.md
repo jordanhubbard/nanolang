@@ -46,3 +46,14 @@ string refusal before conversion. I retain that input and failure. For native
 wrong-tag execution I separately assemble and verify an equal-length plain
 string control; LLVM/Wasm still execute the original counted-NUL owner case.
 Neither correction waives the full backend-equivalence parent.
+
+My ordinary corrected matrix passes on Linux and Darwin. The selected native IR
+ASan gate exposes a missing scalar target layout: default optimization sizes two
+`{ i64, i8 }` values as 24 bytes, while native AArch64 lowering strides 16 bytes.
+Managed modules already retain the packaged target declarations. I will emit
+separate scalar target-prefix constants from the runtime generator's validated
+layout/triple metadata and publish the selected prefix before scalar IR. I do not
+copy native ABI declarations into Wasm output or change the value representation.
+Fixtures compare exact emitted target declarations against the build manifest
+before optimization, then require corrected ordinary/sanitized native and both
+Wasm-engine behavior. The initial ASan evidence remains unchanged.
