@@ -57,3 +57,10 @@ copy native ABI declarations into Wasm output or change the value representation
 Fixtures compare exact emitted target declarations against the build manifest
 before optimization, then require corrected ordinary/sanitized native and both
 Wasm-engine behavior. The initial ASan evidence remains unchanged.
+
+Both corrected native/IR sanitizer matrices pass at `e0e85441f`. The broader
+scalar neighbors find stale refusal expectations for already supported string
+predicates and unused array signatures, plus an obsolete nominal diagnostic.
+I preserve those first terminals. Before rerunning I add positive predicate and
+unused-signature behavior controls and retain genuine import/layout refusals and
+all output preservation checks. I change no production admission predicate.
