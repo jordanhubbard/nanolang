@@ -750,6 +750,9 @@ shadow token_array { assert (== (token_array) LexerTokenType.TOKEN_ARRAY) }
 fn token_type_int() -> int { return LexerTokenType.TOKEN_TYPE_INT }
 shadow token_type_int { assert (== (token_type_int) LexerTokenType.TOKEN_TYPE_INT) }
 
+fn token_type_u8() -> int { return LexerTokenType.TOKEN_TYPE_U8 }
+shadow token_type_u8 { assert (== (token_type_u8) LexerTokenType.TOKEN_TYPE_U8) }
+
 fn token_type_float() -> int { return LexerTokenType.TOKEN_TYPE_FLOAT }
 shadow token_type_float { assert (== (token_type_float) LexerTokenType.TOKEN_TYPE_FLOAT) }
 
@@ -905,16 +908,19 @@ fn is_type_start_token_type(token_type: int) -> bool {
             (or
                 (== token_type (token_type_int))
                 (or
-                    (== token_type (token_type_float))
+                    (== token_type (token_type_u8))
                     (or
-                        (== token_type (token_type_bool))
+                        (== token_type (token_type_float))
                         (or
-                            (== token_type (token_type_string))
+                            (== token_type (token_type_bool))
                             (or
-                                (== token_type (token_type_bstring))
+                                (== token_type (token_type_string))
                                 (or
-                                    (== token_type (token_type_void))
-                                    (== token_type (token_lparen))
+                                    (== token_type (token_type_bstring))
+                                    (or
+                                        (== token_type (token_type_void))
+                                        (== token_type (token_lparen))
+                                    )
                                 )
                             )
                         )
