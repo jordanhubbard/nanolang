@@ -13472,3 +13472,14 @@ I retain [four actual Make builds and capture/replay runs](evidence/assembler-ca
 I reproduced both projected native timeouts on puck with the unchanged120-second limit. A live process sample places the store-first stall inside recursive Apple ASan initialization during dyld/malloc startup, before program main. A separate minimal puts-only executable also times out with Apple cc's ASan/UBSan runtime, while the same source/options with Homebrew Clang enters main successfully. I retain both diagnostic results and do not infer a generated-code fault from the historical timeout. Before correction, I scope the two affected tests to honor the existing NANO_NATIVE_TEST_CC selector using shlex, preserving every sanitizer flag, assertion and deadline. Tuple producer qualification and the whole fresh canonical suite remain required.
 
 - [x] I let the projected aggregate and tuple native sanitizer tests honor my existing `NANO_NATIVE_TEST_CC` selector, retaining default `cc`, all assertions and deadlines. Both methods pass on Linux and Darwin, with eight successful generated native executions and independently checked retained evidence. My [diagnosis and qualification](NATIVE_COMPILER_SELECTOR.md) preserve the original timeouts and runtime control; full canonical 90-method acceptance and task_2f52721aac374ac592b61438315dc981 remain open.
+
+### Layout fault fixture private-symbol closure (2026-09-20)
+
+- [x] I preserve both canonical ca377 full-suite link failures and record their
+  exact duplicate private decoder symbols before editing the fixture; see
+  [my correction contract](LAYOUT_FAULT_FIXTURE_PRIVATE_SYMBOLS.md), MAC task
+  `task_666ba1fff2e44f398e7960c825011f1a`.
+- [ ] I rename only the embedded fault fixture's two private decoder exports,
+  retaining the real provider and every existing assertion.
+- [ ] I qualify the corrected layout target and complete Make test on Linux and
+  puck with verified provider reuse, unchanged deadlines and retained terminals.
