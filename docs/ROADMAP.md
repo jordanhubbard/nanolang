@@ -12352,3 +12352,15 @@ alias and owner-field identity before refusal; exact output prefixes and existin
 pre-disposal accounting distinguish success, assertion and memory cleanup.
 Python syntax and whitespace checks pass. No modules, generated programs or
 qualification builds run before the full fixture checkpoint review.
+
+- [x] I qualify task26691's existing-admission distinct-array overwrite fixture
+  at a4d3c0302 on Linux GCC ordinary/GCC and Clang sanitizers, plus Darwin Apple
+  ordinary/Homebrew sanitizers. Both dispatches pass9,461 checks per configuration
+  with all APIs/fusions and native O0/O2. My [seal](evidence/owned-array-overwrite/README.md)
+  preserves exact partial-instrumentation provenance. Review and actual merge
+  reconciliation remain pending; full parents are not closed.
+- [ ] I resume the entire unchanged33-method installed affine script for 5.1
+  under existing taske8d860, following my [fresh integration contract](AFFINE_FULL_SUITE_RESUMPTION.md).
+  Current U8/TCO compiler/provider changes require new Linux/Darwin bootstraps.
+  I preserve all source hashes, positive/negative cases, original PREFIX/shadows
+  and first terminals; no narrowed replacement or full-product claim follows.

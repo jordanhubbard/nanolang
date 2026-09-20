@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "make",
+    "-j2",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/tmp/nanolang-owned-overwrite-a4d-linux-prepare/prepare.mk",
+    "CC=/usr/bin/gcc",
+    "overwrite-providers"
+  ],
+  "status": 0,
+  "seconds": 19.179265068029054
+}

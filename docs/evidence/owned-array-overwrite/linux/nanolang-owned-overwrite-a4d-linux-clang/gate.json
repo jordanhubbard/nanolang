@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "make",
+    "-f",
+    "Makefile.gnu",
+    "CC=/usr/bin/clang-18 --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "test-owned-array-overwrite"
+  ],
+  "status": 0,
+  "seconds": 22.82433909899555
+}
