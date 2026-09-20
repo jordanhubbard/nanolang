@@ -351,6 +351,14 @@ their individual acceptance evidence closes them.
 
 ## Active Execution Queue
 
+- [ ] I name the 5.1 candidate exactly as `v5.1.0` in every release-facing
+  document checked by my version gate
+  (`task_06257da62b4eaf589b0843f3fd5f6a4a`). The clean Darwin and hosted
+  coverage runs pass all earlier release gates, then both report that
+  `README.md` and `docs/presentation/README.md` say `5.1` without the
+  canonical tag spelling. I preserve both terminals, update only those two
+  release labels, and rerun the focused and clean release gates.
+
 - [ ] I link native NanoISA products with the instrumentation already present
   in my retained AOT runtime during coverage and sanitizer builds
   (`task_d4add428dabc6da0d82a3b55a8fed8a7`). The hosted 5.1 coverage gate
