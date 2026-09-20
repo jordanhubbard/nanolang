@@ -9,6 +9,7 @@ static VmResult vm_ra_call_root(VmRecordArrayPrivate *p,uint32_t function) {
     uint32_t base=vm->stack_size;
     VmCallFrame *frame=&vm->frames[0];memset(frame,0,sizeof *frame);
     frame->fn_idx=function;frame->stack_base=base;frame->local_count=fn->local_count;
+    frame->instruction_ip=fn->code_offset;
     frame->owned_callable=val_void();frame->module=vm->module;
     for(uint16_t i=0;i<fn->local_count;i++)vm->stack[vm->stack_size++]=val_void();
     vm->frame_count=1;vm->current_fn=function;vm->ip=fn->code_offset;
