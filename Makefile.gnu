@@ -5635,7 +5635,7 @@ $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DI
 FILE_BINDING_PUBLISH_DIR = $(OBJ_DIR)/file-binding-publisher
 FILE_BINDING_PUBLISH_NAMES = nsi_file_binding_main nsi_file_publish nsi_file_binding nsi_file_plan nsi cJSON utf8
 FILE_BINDING_PUBLISH_OBJECTS = $(addprefix $(FILE_BINDING_PUBLISH_DIR)/,$(addsuffix .o,$(FILE_BINDING_PUBLISH_NAMES)))
-FILE_BINDING_PUBLISH_HEADERS = $(addprefix $(SRC_DIR)/,nsi_file_publish.h nsi_file_binding.h nsi_file_plan.h nsi_internal.h nsi.h cJSON.h utf8.h)
+FILE_BINDING_PUBLISH_HEADERS = $(addprefix $(SRC_DIR)/,nsi_file_publish.h nsi_file_binding.h nsi_file_plan.h nsi_file_catalog.h nsi_cap.h nsi_internal.h nsi.h cJSON.h utf8.h)
 .PHONY: nsi-file-binding
 nsi-file-binding: $(BIN_DIR)/nsi-file-binding
 $(BIN_DIR)/nsi-file-binding: $(FILE_BINDING_PUBLISH_OBJECTS) | $(BIN_DIR)
