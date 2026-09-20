@@ -3,16 +3,17 @@
 I completed the full Darwin qualification at production commit
 `ba8d75ae16eefb7378da9ace0bfd09058009da23` on canonical base
 `e59fc09b591db977e53e4fef549d7615ad34e114`. I then rebased the identical
-production patch onto canonical `99f390264b7e860ffad659a3852c9b66cbd73399`;
-the current production commit is
-`bcd59ce70e2394a08778ce2cb36c428df6fd13ca` and the evidence head is
-`72ab69970bc53a34f95a8c214d39e3fa16f37cba`. The old and current production
-commits have the same stable patch ID,
+production patch through canonical `99f390264b7e860ffad659a3852c9b66cbd73399`
+and finally onto canonical
+`7bba8c798eeb19027d596539a9c86f4db6cb0840`. The current production commit is
+`263fdf9f826e4c81ffcee6f56b6c66bcfb89b959`. All three production commits
+have the same stable patch ID,
 `a022392a8ee4def2ad48e30e5b330825052eb9b6`. The bases include PR893 and
-PR909; the later base also includes public cyclic File and assembler-capture
-work. My branch changes no `ARRAY_FIELDS` implementation or array-authority
-file. It emits only the existing mandatory-understanding `UNION_VARIANTS`
-kind 1 extension; kind 2 remains owned and qualified separately.
+PR909; the later bases also include public cyclic File, assembler capture and
+the independently owned mixed declaration projection. My branch changes no
+`ARRAY_FIELDS` implementation or array-authority file. It emits only the
+existing mandatory-understanding `UNION_VARIANTS` kind 1 extension; kind 2
+remains owned and qualified separately.
 
 The accepted source uses `Choice<int,string>` and `Choice<float,bool>` in the
 same module. Statement matches inspect concrete payloads and return from the
@@ -64,6 +65,14 @@ canonical delta changes File cyclic runtime/schema and assembler capture; I do
 not relabel the earlier broad 56-method result as a complete current-main File
 qualification.
 
+After the final restack onto canonical `7bba8c798`, I rebuilt the same selected
+tools from that tree in 70.65 seconds. The unchanged two-method source-parity
+suite passed in 40.902 seconds. The runtime gate passed all 856 allocation
+checks and its VM/native sanitizer method in 1.75 seconds. This current-base
+check covers the shared ownership-decoder changes from the mixed declaration
+projection; it does not claim `ARRAY_FIELDS` source admission or mixed-envelope
+consumer qualification.
+
 ## My retained terminals
 
 I preserve the implementation terminals in `docs/ROADMAP.md`. The final
@@ -98,6 +107,9 @@ dda6c1cd78860ba7cd1fa9b58bb8663ed358261ab005cfdc49df742e29a020ee  /private/tmp/n
 d2f760f616952d63a68dc79d0a23f27f2f897d700ab4ee768f3e1ebfe7f35b51  /private/tmp/nanolang-affine-union-source-parity-current-tools.log
 160d3dc2543305f64d1bb05bd8a914c12a1a0266a32cfdc57a2f5ebfceb18b95  /private/tmp/nanolang-affine-union-source-parity-current-focused.log
 a322ebc6e1ee77c496737ddca5f72cf9cb233b34e1ffd059d29c44e2157ed85a  /private/tmp/nanolang-affine-union-source-parity-current-runtime.log
+3e5b7f6bba520b70f5543c1bfa68bd476a26b85f0fa6379d075c7bfbf427b547  /private/tmp/nanolang-affine-union-source-parity-7bba-tools.log
+8ae2a3a2585e96a1ce430c64b735ecd9cd369f293995de75d2f01bd117ea7567  /private/tmp/nanolang-affine-union-source-parity-7bba-focused.log
+1f09999941f9882891a8a84f44f610e986b3ee3fa27f3c618696d8bfb7b1a23a  /private/tmp/nanolang-affine-union-source-parity-7bba-runtime.log
 ```
 
 The frozen focused source-map SHA-256 is
