@@ -49,3 +49,14 @@ and full compiler build as acceptance, not a reduced source substitute.
 I submit implementation and fixture checkpoints before running any new compiler
 or qualification command. The root-index timeout work remains open until all
 original required graphs pass; parser progress alone does not close it.
+
+My iteration metadata needs to outlive a temporary annotation view. Before
+implementing that publication, I extend my private checker allocation registry
+with an explicit destructor selector: existing allocations still use shallow
+free, while a new checked registration accepts only a newly owned complete
+TypeInfo tree and destroys that tree at Environment teardown. Registration
+failure transfers nothing. Symbols remain borrowers and never register the same
+tree twice. I register only after the iterable view succeeds, and do not publish
+the loop symbol on registration failure. This adds no Environment layout field
+or runtime value ownership change. Inferred LET views instead transfer their
+tree to the existing AST annotation owner.
