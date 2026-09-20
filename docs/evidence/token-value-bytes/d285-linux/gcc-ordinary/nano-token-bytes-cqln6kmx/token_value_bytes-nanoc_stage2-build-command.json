@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-token-corrected-d285/bin/nanoc_stage2",
+    "/home/jkh/Src/nanolang-token-corrected-d285/tests/token_value_bytes.nano",
+    "-o",
+    "/tmp/nanolang-token-d285-linux/gcc-ordinary/nano-token-bytes-cqln6kmx/token_value_bytes-nanoc_stage2",
+    "--keep-c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-token-corrected-d285",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

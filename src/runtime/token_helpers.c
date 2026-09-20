@@ -1,4 +1,4 @@
-#include "list_LexerToken.h"
+#include "token_helpers.h"
 #include "../nanolang.h"
 #include <stdint.h>
 
@@ -24,4 +24,8 @@ int64_t token_get_line(List_LexerToken *list, int64_t index) {
 int64_t token_get_column(List_LexerToken *list, int64_t index) {
     LexerToken ptr = nl_list_LexerToken_get(list, (int)index);
     return (int64_t)ptr.column;
+}
+
+int64_t token_get_value_bytes(List_LexerToken *list, int64_t index) {
+    return nl_list_LexerToken_get(list, (int)index).value_bytes;
 }

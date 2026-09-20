@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/tmp/nanolang-token-union-linux/gcc-ordinary/nano-token-bytes-__w63m__/counts-c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-token-union-d4f",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

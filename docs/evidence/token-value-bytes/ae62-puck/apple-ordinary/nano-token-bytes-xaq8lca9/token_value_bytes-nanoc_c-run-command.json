@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-token-ae62-puck/apple-ordinary/nano-token-bytes-xaq8lca9/token_value_bytes-nanoc_c"
+  ],
+  "cwd": "/private/tmp/nanolang-token-corrected-ae62",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

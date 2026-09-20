@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-std=c99",
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/home/jkh/Src/nanolang-token-corrected-315/src",
+    "/home/jkh/Src/nanolang-token-corrected-315/tests/test_fstring_lexer.c",
+    "/tmp/nanolang-token-315-linux/clang-ordinary/nano-token-bytes-6c0bgsdz/lexer.o",
+    "/tmp/nanolang-token-315-linux/clang-ordinary/nano-token-bytes-6c0bgsdz/utf8.o",
+    "/tmp/nanolang-token-315-linux/clang-ordinary/nano-token-bytes-6c0bgsdz/runtime-list_LexerToken.o",
+    "/tmp/nanolang-token-315-linux/clang-ordinary/nano-token-bytes-6c0bgsdz/runtime-list_token.o",
+    "/tmp/nanolang-token-315-linux/clang-ordinary/nano-token-bytes-6c0bgsdz/runtime-token_helpers.o",
+    "-o",
+    "/tmp/nanolang-token-315-linux/clang-ordinary/nano-token-bytes-6c0bgsdz/fstrings"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-token-corrected-315",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

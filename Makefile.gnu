@@ -5678,6 +5678,13 @@ test-file-binding-publisher:
 	NANO_FILE_PUBLISH_CC="$(CC)" NANO_FILE_PUBLISH_CFLAGS="$(CFLAGS)" NANO_FILE_PUBLISH_LDFLAGS="$(LDFLAGS)" NANO_FILE_PUBLISH_SANITIZERS=0 python3 -m unittest -f -v tests.test_nsi_file_publish
 test-file-binding-publisher-sanitizers:
 	NANO_FILE_PUBLISH_CC="$(CC)" NANO_FILE_PUBLISH_CFLAGS="$(CFLAGS)" NANO_FILE_PUBLISH_LDFLAGS="$(LDFLAGS)" NANO_FILE_PUBLISH_SANITIZERS=1 python3 -m unittest -f -v tests.test_nsi_file_publish
+
+# I rebuild the token ABI closure before paired lexer metadata qualification.
+.PHONY: test-token-value-bytes test-token-value-bytes-sanitizers
+test-token-value-bytes: bootstrap3
+	NANO_TOKEN_CC="$(CC)" NANO_TOKEN_CFLAGS="$(CFLAGS)" NANO_TOKEN_SANITIZERS=0 python3 -m unittest -f -v tests.test_token_value_bytes
+test-token-value-bytes-sanitizers:
+	NANO_TOKEN_CC="$(CC)" NANO_TOKEN_CFLAGS="$(CFLAGS)" NANO_TOKEN_SANITIZERS=1 python3 -m unittest -f -v tests.test_token_value_bytes.TokenValueBytes.test_c_counts_decoder_and_bridges
 # I require explicit real-engine/compiler/wheel selections for this private ABI.
 .PHONY: test-portable-read-wasm
 test-portable-read-wasm:

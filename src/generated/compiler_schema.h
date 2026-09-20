@@ -315,6 +315,7 @@ typedef struct nl_LexerToken {
     const char * value;
     int line;
     int column;
+    int64_t value_bytes;
 } nl_LexerToken;
 typedef nl_LexerToken LexerToken;
 typedef nl_LexerToken Token;

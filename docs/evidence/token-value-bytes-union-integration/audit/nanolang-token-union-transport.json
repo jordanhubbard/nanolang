@@ -1,0 +1,15 @@
+{
+  "source_pin": "d4fe65e93baa2bb03b88c6dbc587ec41ea8eb52a",
+  "source_archive": "/tmp/nanolang-token-union-d4f.tar",
+  "sha256": "e88b7455ad293c0f07dc54676442288feb355a8da489cdd93a1ee7b5eddb4ff8",
+  "bytes": 2402928640,
+  "remote_sha256": "e88b7455ad293c0f07dc54676442288feb355a8da489cdd93a1ee7b5eddb4ff8",
+  "fresh_empty_roots": true,
+  "copied_compiler_objects": false,
+  "puck_report_archive": {
+    "path": "/tmp/nanolang-token-union-puck.tar.gz",
+    "sha256": "c9c9c6ce84f4020a5ff38739d48af40b6b4580da11d15e8bc531c12b09c49603",
+    "bytes": 22408080,
+    "remote_hash_verified": true
+  }
+}

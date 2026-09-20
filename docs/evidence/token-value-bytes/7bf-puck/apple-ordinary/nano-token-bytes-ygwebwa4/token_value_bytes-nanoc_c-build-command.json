@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-token-corrected-7bf/bin/nanoc_c",
+    "/private/tmp/nanolang-token-corrected-7bf/tests/token_value_bytes.nano",
+    "-o",
+    "/private/tmp/nanolang-token-7bf-puck/apple-ordinary/nano-token-bytes-ygwebwa4/token_value_bytes-nanoc_c",
+    "--llm-shadow-json",
+    "/private/tmp/nanolang-token-7bf-puck/apple-ordinary/nano-token-bytes-ygwebwa4/token_value_bytes-nanoc_c-shadows.json",
+    "--verbose"
+  ],
+  "cwd": "/private/tmp/nanolang-token-corrected-7bf",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}
