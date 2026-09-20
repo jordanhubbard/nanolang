@@ -13665,3 +13665,5 @@ and strict-Clang neighbor terminal separately. My sealed counted-storage
 objects and59 equal source/tool pairs. This is manual core/module adapter
 acceptance, not generated mixed execution or public/source admission. I await
 independent review and actual merge under task621; full mixed parents stay open.
+
+- [ ] I implement generated CAST_U8 semantics after raw PR929 under task_c6b2a040c1434fc784a9d46c02a4981e: exact tagged native C facts/emission and LLVM/Wasm INT-or-U8 narrowing, matching closed-profile/shape transfer, wrong-tag/root cleanup, complete cross-target fixtures and both-host qualification. My [backend checkpoint](NANOISA_CAST_U8_BACKENDS.md) keeps source/reconstruction and separate authority work required.
