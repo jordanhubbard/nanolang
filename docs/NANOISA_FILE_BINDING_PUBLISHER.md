@@ -98,7 +98,8 @@ nonempty directories, symlinks and dangling symlinks all remain intact.
    fstat, before any subsequent fallible operation. Write exact counted bytes
    in progress-checked loops, then fsync and close each descriptor once.
    No NUL terminator is written. A zero write is IO/EIO. EINTR retries on
-   read/write/fsync are bounded at64 total interruptions per operation; close
+   read/write/fsync permit at most64 EINTR retries per operation; the65th
+   interruption is terminal. The counter does not reset after partial progress. Close
    is never retried because its descriptor disposition may be ambiguous.
 5. Fsync the staging directory after both file closes succeed. Confirm the
    anchored staging entry is still the recorded directory before rename.
@@ -259,3 +260,14 @@ unlink, and no descriptor slot can be closed twice. Parent sync success precedes
 durable=true; later close errors preserve that fact and published=true.
 No new fixture, compiler build, syscall publication or generated shadow has run
 at this source checkpoint. Full source review precedes fixture preparation.
+
+I isolate all seven explicit-tool objects under `obj/file-binding-publisher`
+(the configured OBJ_DIR remains authoritative). Its scoped pattern recipe
+passes CC/CPPFLAGS/CFLAGS and its link passes those plus LDFLAGS; existing generic
+provider recipes are unchanged. Each qualification configuration must use a
+fresh object directory/tree or remove only this owned directory before rebuilding,
+because ordinary Make timestamps do not encode compiler/flag changes. Header
+dependencies cover the complete seven-provider closure. Fixture review must retain
+actual compile commands demonstrating CPPFLAGS at compile time, not only link time.
+My read/write/fsync tests distinguish64 interrupted retries followed by progress
+from65 interruptions causing failure; close-once remains unchanged.

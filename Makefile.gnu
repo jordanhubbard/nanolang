@@ -5632,8 +5632,15 @@ test-file-binding-plan-sanitizers:
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DIR)/file_indirect_flow.inc
 
 # I publish only through this explicit tool; default/install lists stay separate.
+FILE_BINDING_PUBLISH_DIR = $(OBJ_DIR)/file-binding-publisher
+FILE_BINDING_PUBLISH_NAMES = nsi_file_binding_main nsi_file_publish nsi_file_binding nsi_file_plan nsi cJSON utf8
+FILE_BINDING_PUBLISH_OBJECTS = $(addprefix $(FILE_BINDING_PUBLISH_DIR)/,$(addsuffix .o,$(FILE_BINDING_PUBLISH_NAMES)))
+FILE_BINDING_PUBLISH_HEADERS = $(addprefix $(SRC_DIR)/,nsi_file_publish.h nsi_file_binding.h nsi_file_plan.h nsi_internal.h nsi.h cJSON.h utf8.h)
 .PHONY: nsi-file-binding
 nsi-file-binding: $(BIN_DIR)/nsi-file-binding
-$(BIN_DIR)/nsi-file-binding: $(OBJ_DIR)/nsi_file_binding_main.o $(OBJ_DIR)/nsi_file_publish.o $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi_file_plan.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o | $(BIN_DIR)
+$(BIN_DIR)/nsi-file-binding: $(FILE_BINDING_PUBLISH_OBJECTS) | $(BIN_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-$(OBJ_DIR)/nsi_file_publish.o $(OBJ_DIR)/nsi_file_binding_main.o: $(SRC_DIR)/nsi_file_publish.h $(SRC_DIR)/nsi_file_binding.h
+$(FILE_BINDING_PUBLISH_DIR):
+	mkdir -p "$@"
+$(FILE_BINDING_PUBLISH_DIR)/%.o: $(SRC_DIR)/%.c $(FILE_BINDING_PUBLISH_HEADERS) | $(FILE_BINDING_PUBLISH_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c "$<" -o "$@"
