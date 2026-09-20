@@ -12667,3 +12667,13 @@ requirements remain open.
 - [x] I retain and correct the first indirect-query qualification extraction failure: system Python on puck lacks tarfile.extractall(filter=...), so no fixture/build ran. I verify the same source archive hash and extract with supported Homebrew Python into a fresh directory before Darwin gates; Linux qualification is independent. I preserve the first terminal and complete both host reports before closing this driver correction.
 
 - [x] I qualify the first private indirect-target query at5acd1b370 on Linux/puck with seven ordinary/sanitizer configurations and separate code/body/flow/hosted/opcode/cyclic neighbors. [Retained evidence](evidence/file-indirect-targets.md) records all target-query limits; candidate ownership/runtime/source and full task2c135 remain open.
+
+I prepare the descriptive source-plan integration on canonical8b84b9cd in a
+separate tree, preserving frozen701 qualification. All ten plan/module/fixture
+files retain their exact qualified bytes; all21 incoming source/test files
+retain canonical bytes. Only additive Make/roadmap conflicts required resolution.
+Before execution I review fresh changed-provider/C-seed relinking and ordinary
+full source-plan gates on Linux/puck. I retain exact original Stage1/Stage2
+compiler provenance, rebuild imported bridge/module products with empty caches,
+and keep original bootstrap/sanitizer claims at their measured pins. This
+integration does not grant source publication or File execution authority.
