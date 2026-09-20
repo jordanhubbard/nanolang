@@ -374,14 +374,16 @@ shadow map_type_to_c {
 
 # I order ASCII schema type names independently of host locale.
 fn schema_name_before(left: string, right: string) -> bool {
+    let left_bytes: int = (str_length left)
+    let right_bytes: int = (str_length right)
     let mut i: int = 0
-    while (and (< i (str_length left)) (< i (str_length right))) {
+    while (and (< i left_bytes) (< i right_bytes)) {
         let a: int = (char_at left i)
         let b: int = (char_at right i)
         if (!= a b) { return (< a b) }
         set i (+ i 1)
     }
-    return (< (str_length left) (str_length right))
+    return (< left_bytes right_bytes)
 }
 
 shadow schema_name_before {
