@@ -5608,3 +5608,9 @@ test-file-indirect-targets: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 file-binding-plan: $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi_file_plan.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/cJSON.o
 $(OBJ_DIR)/nsi_file_binding.o: $(SRC_DIR)/nsi_file_binding.h $(SRC_DIR)/nsi_internal.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi.h $(SRC_DIR)/cJSON.h $(SRC_DIR)/utf8.h
 $(OBJ_DIR)/nsi.o: $(SRC_DIR)/nsi_internal.h
+
+.PHONY: test-file-binding-plan test-file-binding-plan-sanitizers
+test-file-binding-plan:
+	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" NANO_FILE_BINDING_SANITIZERS=0 python3 -m unittest -f -v tests.test_nsi_file_binding
+test-file-binding-plan-sanitizers:
+	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" NANO_FILE_BINDING_SANITIZERS=1 python3 -m unittest -f -v tests.test_nsi_file_binding

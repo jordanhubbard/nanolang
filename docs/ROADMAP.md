@@ -12713,3 +12713,13 @@ NSI provisional arrays by token count, including malformed scalar elements befor
 validation. Transactional parse_named cleanup fixes the recorded partial-copy
 leak. No publisher/CLI/schema/source execution is implemented; source review
 precedes fixtures and no build or test has run.
+
+I prepare the root-approved675 strict-binding fixture checkpoint: independent
+full catalog mutation/omission/valid-mode corpus, exact lexical budget edges,
+canonical JSON and hand-written forward-source goldens, source lifetime and
+atomic outputs, full five-provider prefix/transient allocation sweeps including
+roundtrip/extra generic NSI shapes, targeted first/second parse_named strdup
+failures and unchanged NSI/generator/File-plan neighbors. The retained runner
+uses durable files and bounded cleanup with no leak suppression. Forward shadows
+are text only; no source/service execution or file publication is qualified.
+Full fixture review precedes fresh both-host ordinary/sanitizer gates.

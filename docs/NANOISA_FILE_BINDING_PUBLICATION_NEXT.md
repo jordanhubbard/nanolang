@@ -346,3 +346,63 @@ root cleanup rather than claiming successful I/O from an Error arm.
 
 I have not compiled or executed this checkpoint. Source and complete allocation
 review precede fixture preparation and fresh ordinary/sanitizer qualification.
+
+## My reviewed-source fixture preparation
+
+I prepare `tests/file_binding_corpus.py`, `tests/test_nsi_file_binding.c`,
+`tests/file_binding_hooks.h`, `tests/test_nsi_file_binding.py` and a separate
+hand-written expected forward-source text file. No generated source is compiled
+or executed in this checkpoint. Canonical JSON comes from the original exact
+catalog fixture through Python's independent JSON encoder; reversed object
+keys, all-character Unicode escape spellings, escaped slashes, omitted default
+idempotent flags and exact1MiB whitespace-padded input must produce the same
+complete JSON and source bytes. Each scalar catalog leaf is independently
+mutated and omitted; parameter enum/type alternatives and array removal,
+duplication/reordering keep the full surrounding document. Generic malformed
+NSI conversion may return UNRESOLVED; I do not falsely require INVALID there.
+
+I test exact64/65 depth,8192/8193 tokens,256/257 objects and array elements,
+64/65 object members,4096/4097 string/number spans and1MiB/+1 input. At-limit
+noncatalog documents must reach conservative decoder refusal rather than LIMIT;
+one-over inputs refuse before any provider allocation. Decoded duplicate keys,
+raw/escaped NUL, invalid UTF-8, lone/incorrect surrogates, incomplete syntax and
+trailing documents refuse. Valid surrogate pairs and a literal escaped
+backslash-u spelling are distinguished from invalid escapes. No invalid readable
+C span is fabricated. Owned plan getters retain exact bytes after the caller
+mutates/frees input; canonical re-preparation is byte-stable, and failed outputs
+preserve sentinels.
+
+Both linked and instrumented forms rebuild all five providers: binding, exact
+File plan, shared NSI, cJSON and UTF-8. The forced hook header includes system
+allocation declarations before replacing malloc/calloc/realloc/free/strdup,
+including cJSON's function-pointer allocator table. The fixture's own input,
+trace and libc I/O allocations remain outside project heap accounting. I record
+all allocation kinds and observed peak requested bytes against the reported
+bound; realloc is hooked but not falsely claimed exercised by parsing if its
+measured count is zero. I fail every allocation prefix and every transient
+allocation in the complete valid preparation path, including canonical
+roundtrip, then immediately require clean successful recovery. I repeat the
+fault sweep for valid generic NSI array/callback/async shapes which the exact
+File catalog refuses, covering their extra copied-string allocation sites.
+
+A separate decoded-tree control identifies shared NSI calloc followed by the
+first/second interface strdup attempts, fails each individually, checks the
+preexisting tree/live-byte baseline exactly, then successfully decodes again.
+This directly checks the recorded parse_named cleanup repair. Every sweep
+retains status, failing index/hits, attempted calls and peak bytes. Any apparent
+success despite a transient failure still requires the full exact output and
+single owning-plan allocation; it cannot omit required facts. Capped static
+fixture tracking storage is not counted as product heap. Unchanged original
+NSI, generic generator and exact File-plan C fixtures run as neighbors using
+fresh selected providers, with the same sanitizer mode where supported.
+
+The runner reuses the qualified file-backed command helper and preserves first
+terminal, bounded process-group cleanup, complete stdout/stderr, argv and empty
+LSAN_OPTIONS. Each configuration compiles both provider sets and binaries in a
+new retained directory. I propose fresh Linux GCC/Clang ordinary plus supported
+strict sanitizers and puck Apple/Homebrew ordinary plus Homebrew strict
+sanitizers; actual Make `file-binding-plan` object closure is checked separately
+in each host's ordinary preparation. No shared provider switch is justified by
+make timestamps. Explicit compiler/runtime identities and before/after source,
+tool and artifact maps accompany the future gates. Source fixtures are now
+prepared, but no build or fixture execution has occurred; review is required.
