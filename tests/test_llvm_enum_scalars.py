@@ -5,6 +5,7 @@ from tests import test_nvm2wasm as wasm
 from tests import test_nvm2llvm as llvm
 from tests import test_native_enum_scalars as native_enum
 from tests import test_native_typed_enum as native_typed
+from tests import test_llvm_generic_numeric as numeric
 ROOT=wasm.ROOT
 
 
@@ -107,12 +108,32 @@ class EnumScalars(unittest.TestCase):
             with self.subTest(body=body):
                 self.compare(self.program(body+'POP\n'),trap=True)
 
+    def test_managed_conversions_execute_and_replace_output(self):
+        # I retain the exact former refusal programs on the managed backends.
+        # The shared numeric helper uses my original enum program constructor.
+        for body, helpers in (
+            ('ENUM_VAL 0 1\nCAST_STRING\nPOP\n', ''),
+            ('PUSH_STR s\nPOP\nENUM_VAL 0 2\nCAST_FLOAT\nPOP\n',
+             '.string s "kept"\n'),
+        ):
+            with self.subTest(body=body):
+                module = numeric.GenericNumeric.compare(self, body, helpers)
+                self.run_cmd([ROOT/'bin/nano_vm','--verify-only',module])
+                for tool in (llvm.LLVM,wasm.WASM):
+                    output = self.work/'previous'
+                    output.write_bytes(b'previous')
+                    self.run_cmd([tool,module,'-o',output])
+                    self.assertNotEqual(output.read_bytes(), b'previous')
+                    if tool == llvm.LLVM:
+                        self.run_cmd(['lli',output])
+                    else:
+                        result = self.run_cmd(['wasmtime','run','--invoke','nano_entry',output])
+                        self.assertEqual(result.stdout, '0\n')
+
     def test_profile_refusals_preserve_output(self):
         for text in (
-            self.program('ENUM_VAL 0 1\nCAST_STRING\nPOP\n'),
             self.program('CALL relay\nPOP\n','.function identity 0 0 0 enum 1\nENUM_VAL 0 1\nRET\n.end\n.function relay 0 0 0 enum 1\nTAIL_CALL identity\n.end\n'),
             '.types 1 1 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n',
-            self.program('PUSH_STR s\nPOP\nENUM_VAL 0 2\nCAST_FLOAT\nPOP\n','.string s "kept"\n'),
         ):
             with self.subTest(text=text):
                 module=self.module(text)
