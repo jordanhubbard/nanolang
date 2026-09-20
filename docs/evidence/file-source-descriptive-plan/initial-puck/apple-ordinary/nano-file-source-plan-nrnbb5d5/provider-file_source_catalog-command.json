@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "-I",
+    "/private/tmp/nanolang-file-source-qualified-32ade",
+    "-c",
+    "src/nanoisa/file_source_catalog.c",
+    "-o",
+    "/private/tmp/nanolang-file-source-32ade-puck/apple-ordinary/nano-file-source-plan-nrnbb5d5/file_source_catalog.o"
+  ],
+  "cwd": "/private/tmp/nanolang-file-source-qualified-32ade",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

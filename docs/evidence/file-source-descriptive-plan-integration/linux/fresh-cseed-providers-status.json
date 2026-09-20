@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/usr/bin/gcc",
+    "bin/nanoc_c"
+  ],
+  "timeout": false,
+  "returncode": 0,
+  "cleanup_errors": [],
+  "child_returncode": 0,
+  "group_absent": true,
+  "seconds": 20.316502517089248
+}

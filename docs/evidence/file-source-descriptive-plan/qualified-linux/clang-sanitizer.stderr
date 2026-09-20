@@ -1,0 +1,6 @@
+test_c_ownership_allocation_and_exact_budget (tests.test_file_source_plan.FileSourcePlan.test_c_ownership_allocation_and_exact_budget) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.436s
+
+OK

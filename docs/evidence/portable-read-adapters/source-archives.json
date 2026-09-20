@@ -1,0 +1,17 @@
+{
+  "15069": {
+    "path": "/tmp/nanolang-read-adapters-15069-source.tar.gz",
+    "sha256": "2c0d288f7e8b08e6ad950e3631cda0835fbc8fb85a3dd6ef551ed6325cf2aa1b",
+    "bytes": 300907854
+  },
+  "b9ba": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-source.tar.gz",
+    "sha256": "f4237f3c18fd739c51cc4261ed5f8bf30e5789fcaa4e1e019c4b2de01c8fa674",
+    "bytes": 300914671
+  },
+  "7b66": {
+    "path": "/tmp/nanolang-read-adapters-7b66-source.tar.gz",
+    "sha256": "67a226879d9656a99a7327ad6a4d9e7c0a19180dac8a3535854a3c91de2d0374",
+    "bytes": 300915433
+  }
+}

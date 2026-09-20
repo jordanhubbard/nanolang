@@ -1,0 +1,12 @@
+sdk 0 0.007
+sdk-version 0 0.006
+host 0 0.003
+ordinary-version 0 0.024
+other-version 0 0.024
+make-version 0 0.012
+pkg-config-version 0 0.049
+ffi-flags 0 0.006
+ffi-libdir 0 0.006
+other-asan 0 0.024
+bootstrap 0 278.261
+apple-ordinary 1 2.277

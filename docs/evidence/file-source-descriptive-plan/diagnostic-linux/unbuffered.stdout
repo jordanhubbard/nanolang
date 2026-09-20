@@ -1,0 +1,20 @@
+Compiling /tmp/nanolang-file-source-diagnostic-74c/corpus.nano...
+✓ Lexing complete (77525 tokens)
+✓ Parsing complete
+✓ Loaded 2 module(s)
+✓ Type checking complete
+[Modules] Processing 2 module(s)...
+[Modules] Building C module 'file_source_catalog' (/home/jkh/Src/nanolang-file-source-diagnostic-74c/modules/file_source_catalog)
+[Modules] Also compiling nanolang parts of C module 'file_source_catalog'
+✓ Generated module C code: obj/nano_modules/.nano-module-IhLK9C/source.c
+Compiling module: /usr/bin/gcc -std=c99 -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/src -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/collections -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/json -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/io -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/math -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/peg -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/string -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/sdl_helpers '-I/home/jkh/Src/nanolang-file-source-diagnostic-74c/modules/file_source_catalog' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-IhLK9C/object.o' 'obj/nano_modules/.nano-module-IhLK9C/source.c'
+✓ Compiled module to object file: obj/nano_modules/file_source_catalog_nano_file_source_catalog.o
+  C source kept at: obj/nano_modules/.nano-module-IhLK9C/source.c
+[Modules] Compiling nanolang module '/home/jkh/Src/nanolang-file-source-diagnostic-74c/src_nano/compiler/file_source_plan.nano'
+✓ Generated module C code: obj/nano_modules/.nano-module-wWQdmL/source.c
+Compiling module: /usr/bin/gcc -std=c99 -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/src -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/collections -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/json -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/io -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/math -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/peg -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/std/string -I'/home/jkh/Src/nanolang-file-source-diagnostic-74c'/modules/sdl_helpers '-I/home/jkh/Src/nanolang-file-source-diagnostic-74c/src_nano/compiler' -I/usr/include/SDL2 -D_REENTRANT  -c -o 'obj/nano_modules/.nano-module-wWQdmL/object.o' 'obj/nano_modules/.nano-module-wWQdmL/source.c'
+✓ Compiled module to object file: obj/nano_modules/file_source_plan.o
+  C source kept at: obj/nano_modules/.nano-module-wWQdmL/source.c
+[Modules] ✓ Complete: 1 nanolang, 1 C, 0 FFI-only
+[FFI] Loaded module 'file_source_catalog' from /home/jkh/Src/nanolang-file-source-diagnostic-74c/modules/file_source_catalog/.build/.nano-gen-7rjYQ8/libfile_source_catalog.so
+[FFI] No shared library found for module 'file_source_plan'

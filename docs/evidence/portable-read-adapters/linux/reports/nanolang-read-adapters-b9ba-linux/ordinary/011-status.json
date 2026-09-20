@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/observed-O0",
+    "/tmp/nanolang-read-adapters-b9ba-linux/ordinary/products/observed-O0-files"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-adapters-b9ba",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

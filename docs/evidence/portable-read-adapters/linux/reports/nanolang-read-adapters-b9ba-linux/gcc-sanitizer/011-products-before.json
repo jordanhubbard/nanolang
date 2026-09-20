@@ -1,0 +1,140 @@
+{
+  "observed-0.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-0.o",
+    "sha256": "ba1e6846e2b469050859d015f49de99147a096f7e6a453852590becf999b38a3",
+    "bytes": 60456,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/ba1e6846e2b469050859d015f49de99147a096f7e6a453852590becf999b38a3"
+  },
+  "observed-1.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-1.o",
+    "sha256": "5793792d437632465ce65a016f5600a3da3cd1c5f592e1079db919956fb1f138",
+    "bytes": 32696,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/5793792d437632465ce65a016f5600a3da3cd1c5f592e1079db919956fb1f138"
+  },
+  "observed-2.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-2.o",
+    "sha256": "47a5ed6174e30d9a1254959c1ac97203a745a9554fbf35774db3f41d1bc88041",
+    "bytes": 886224,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/47a5ed6174e30d9a1254959c1ac97203a745a9554fbf35774db3f41d1bc88041"
+  },
+  "observed-C": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C",
+    "sha256": "0d908e23910a8980a14006eebb211e329407e91a26b830c2cc33c5ac4ab5786f",
+    "bytes": 966896,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/0d908e23910a8980a14006eebb211e329407e91a26b830c2cc33c5ac4ab5786f"
+  },
+  "observed-C-files/caf\u00e9-\u20ac.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/caf\u00e9-\u20ac.bin",
+    "sha256": "6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd",
+    "bytes": 4,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/6f5a6034e770acbfb3f797e6a7eb7948d470d45f9928f92b7d72dc7c45e6d0cd"
+  },
+  "observed-C-files/vector-0.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-0.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-C-files/vector-1.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-1.bin",
+    "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+    "bytes": 1,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+  },
+  "observed-C-files/vector-10.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-10.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-C-files/vector-11.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-11.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-C-files/vector-2.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-2.bin",
+    "sha256": "e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92",
+    "bytes": 7,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/e74485ecb0ba572fb0dd728b7709512b879d0708da001fe2d337fc45b668dc92"
+  },
+  "observed-C-files/vector-3.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-3.bin",
+    "sha256": "eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f",
+    "bytes": 2,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/eed0eb1f664e53388c1f00a4a9ba9b8da60fe792af9eb5f6f4b5ee852a91f03f"
+  },
+  "observed-C-files/vector-4.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-4.bin",
+    "sha256": "59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/59b271ae1bbcb1d31d41929817f4b16fb439eb4f31520b5ad1d5ce98920a7138"
+  },
+  "observed-C-files/vector-5.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-5.bin",
+    "sha256": "3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a",
+    "bytes": 1048576,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/3ac3338d67611f3edb444a8f730d5e3a6559d4640e7b1a2d5fa58bafbda3254a"
+  },
+  "observed-C-files/vector-6.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-6.bin",
+    "sha256": "30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777",
+    "bytes": 1048577,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/30e6be021fa7a25926b73623f17fa762cd9a30531b90a917a742b1a22e0d6777"
+  },
+  "observed-C-files/vector-7.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-7.bin",
+    "sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    "bytes": 3,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  },
+  "observed-C-files/vector-8.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-8.bin",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "observed-C-files/vector-9.bin": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-C-files/vector-9.bin",
+    "sha256": "cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619",
+    "bytes": 5,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/cd42404d52ad55ccfa9aca4adc828aa5800ad9d385a0671fbcbf724118320619"
+  },
+  "observed-O0": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/observed-O0",
+    "sha256": "1c594d96a9c94f4a708b5407a5a9f6ea5913e610d066d0802c23911c871050c1",
+    "bytes": 967008,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/1c594d96a9c94f4a708b5407a5a9f6ea5913e610d066d0802c23911c871050c1"
+  },
+  "target-probe.c": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/target-probe.c",
+    "sha256": "19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b",
+    "bytes": 41,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/19cb957740c98a599fa105608fa75a53e0a1c01ecb795c5e5070a782f7e9698b"
+  },
+  "target-probe.ll": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/target-probe.ll",
+    "sha256": "f350ace8ca4dfdeced14e271e05f31ac3d7e9d8a6ff08da3fb88e4379963b49a",
+    "bytes": 1069,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/f350ace8ca4dfdeced14e271e05f31ac3d7e9d8a6ff08da3fb88e4379963b49a"
+  },
+  "typed-O0.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/typed-O0.o",
+    "sha256": "79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc",
+    "bytes": 1048,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/79bd748d1c49beb4f3d7de9753f5d201f5991c6b6487a970125d47ba0449b8fc"
+  },
+  "typed-O2.o": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/typed-O2.o",
+    "sha256": "a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147",
+    "bytes": 1024,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/a7ceb6dc12e54cda0d38c453f22311126608435ab14563fc5ee68b2871834147"
+  },
+  "typed-read.ll": {
+    "path": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/typed-read.ll",
+    "sha256": "30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3",
+    "bytes": 502,
+    "archive": "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/objects/30221df9e7a0c0da42a3655c9675b0d95849da0cccf19d28a7ce11078f6a12b3"
+  }
+}

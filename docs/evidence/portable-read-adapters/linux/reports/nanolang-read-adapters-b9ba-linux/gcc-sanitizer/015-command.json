@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/usr/bin/aarch64-linux-gnu-gcc-13",
+    "-std=c11",
+    "-D_POSIX_C_SOURCE=200809L",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-Isrc/nanoisa",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-c",
+    "src/nanoisa/portable_read_managed.c",
+    "-o",
+    "/tmp/nanolang-read-adapters-b9ba-linux/gcc-sanitizer/products/unhooked-1.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-portable-read-adapters-b9ba",
+  "returncode": null,
+  "timeout": false,
+  "leader_reaped": false,
+  "group_disappeared": false,
+  "signals": [],
+  "errors": []
+}

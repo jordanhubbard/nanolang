@@ -1,0 +1,40 @@
+{
+  "cc": [
+    "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23"
+  ],
+  "flags": [
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer"
+  ],
+  "clang": [
+    "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23"
+  ],
+  "llvm_flags": [],
+  "extra_tools": {
+    "ordinary": "/usr/bin/clang",
+    "llvm": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "python": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "ld": "/usr/bin/ld",
+    "ar": "/usr/bin/ar",
+    "asan": "/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib",
+    "xcrun": "/usr/bin/xcrun"
+  },
+  "rebuilt_sources": [
+    "src/nanoisa/portable_read_host.c",
+    "src/nanoisa/portable_read_managed.c",
+    "src/nanoisa/managed_strings.c"
+  ],
+  "allocator_hooks": [
+    "src/nanoisa/portable_read_host.c",
+    "src/nanoisa/portable_read_managed.c",
+    "src/nanoisa/managed_strings.c"
+  ],
+  "io_hooks": "src/nanoisa/portable_read_host.c",
+  "unhooked_comparison": "All three TUs rebuilt without hooks.",
+  "environment": {
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": ""
+  },
+  "scope": "Direct C and LLVM ABI forwarding only; no NanoISA emission or public profile. Inventoried phase endpoint bytes, not all transitive system tools."
+}
