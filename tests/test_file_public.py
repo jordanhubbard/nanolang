@@ -176,11 +176,11 @@ class FilePublic(unittest.TestCase):
                            'if(r.status==NVM_FILE_RUNTIME_OK){NvmFileRuntimeView v={0};v.initialized=true;v.fields=1;',
                            'v.type.tag=scalar.tag;v.type.category=NVM_FILE_CATEGORY_UNKNOWN;',
                            'v.type.global_index=v.type.catalog_ordinal=UINT32_MAX;v.values[0]=scalar.value;*out=v;}',
-                           'else if(memcmp(&scalar,&old,sizeof scalar))abort();return r;}']
+                           'else if(memcmp(&scalar,&old,sizeof scalar)){abort();}', 'return r;}']
             else:
                 source += ['char *text=(char *)(uintptr_t)1;char error[256];',
                            'r.status=nvm2c_emit_file_bytes(bytes,size,"refused",&text,error,sizeof error);',
-                           f'if(r.status!={status} || text!=(char *)(uintptr_t)1)abort();return r;}}']
+                           f'if(r.status!={status} || text!=(char *)(uintptr_t)1){{abort();}}', 'return r;}']
         source += ['if(!bytes){r.status=NVM_FILE_RUNTIME_INVALID;return r;}',
                    'fprintf(stderr,"I lack an exact public captured case (%zu bytes)\\n",size);abort();}', '']
         path = self.artifacts / (name + '-registry.c')

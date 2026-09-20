@@ -1,5 +1,8 @@
 /* Real temporary files; close/write failures below model reporting after actual
  * I/O. I do not infer arbitrary libc fclose failure resource behavior. */
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE 1
+#endif
 #define _POSIX_C_SOURCE 200809L
 #include <stdbool.h>
 #include <stdint.h>
