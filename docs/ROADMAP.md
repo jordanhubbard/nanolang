@@ -12906,3 +12906,5 @@ I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5
 ### My ordinary-admission fixture indentation prerequisite
 
 - [ ] I correct the new fixture main-loop indentation after retaining the firstedd51 strict GCC compilation terminal under task_4931a66f39c04b1a96981a4e00d43646; no fixture executed. I preserve strict warnings, all assertions and original provider/source evidence, review the tiny correction, then run a fresh corrected fixture.
+
+- [ ] I remove duplicate service scans only within one synchronous core-admission transaction under `docs/VM_SERVICE_ADMISSION_TRANSACTION.md` and task_4931a66f39c04b1a96981a4e00d43646; explicit stack facts expire before dispatch, public classifiers remain fresh, and all authority/invalidation/deadline gates remain required.
