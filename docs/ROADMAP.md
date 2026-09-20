@@ -12704,3 +12704,12 @@ open; no duplicate source task replaces their original acceptance.
 
 - [ ] I repair the statically found shared NSI `parse_named` partial-allocation leak before strict binding qualification: a failed id/name strdup can leave the other copied string owned by a temporary local that its caller discards. I free both failed partial fields and publish them only together; successful legacy parsing semantics stay unchanged.
 - [ ] I pin strict binding allocation/work caps before code:1MiB input/output,8192 lexical tokens,64 container depth,256 objects,64 members/object,256 elements/array,4096 raw string/number bytes. Preflight is allocation-free; cJSON nodes/strings/numeric scratch and all NSI copies/ID work are bounded before allocation. Canonical roundtrip calls only the lower strict decoder, never prepare/render recursively. Full source/allocation review precedes fixtures.
+
+I prepare the first strict File binding source checkpoint only: allocation-free
+full JSON preflight, bounded duplicate/extents and shared NSI conversion, exact
+catalog validation, immutable two-pass JSON/forward-source rendering and one
+lower-level canonical roundtrip. My conservative checked heap accounting charges
+NSI provisional arrays by token count, including malformed scalar elements before
+validation. Transactional parse_named cleanup fixes the recorded partial-copy
+leak. No publisher/CLI/schema/source execution is implemented; source review
+precedes fixtures and no build or test has run.

@@ -280,9 +280,12 @@ and4096 raw bytes per string/number. Decoded strings cannot exceed their raw
 extent. With B=1MiB and T=8192, cJSON allocates at most(T+1) nodes, B+2T bytes of
 retained decoded key/value strings, and4097 bytes of one numeric scratch buffer.
 My own terminated snapshot costs B+1. NSI copies charge B+2T string bytes,
-sizeof(NlNsi),256 times the sum of every NSI element struct size, and257 ID
-pointers for uniqueness scratch. Each NSI element corresponds to a distinct
-validated JSON object; fields are copied once, not once per reference. I add the
+sizeof(NlNsi),8192 times the sum of every NSI element struct size, and257 ID
+pointers for uniqueness scratch. Array storage is charged by the token cap,
+not only successful object count: legacy decoding allocates each array before
+validating all of its elements, including a possible malformed scalar element.
+Every array element consumes a distinct token. Successfully copied named
+elements consume distinct JSON objects; strings are copied once, not per reference. I add the
 actual owning File-plan size from its nonallocating owning-TU query.
 
 The published binding is one allocation of its header plus the two bounded
@@ -312,3 +315,34 @@ revision1, reserved/refused kind2 ARRAY_FIELDS revision1. I do not treat that
 unmerged checkpoint as canonical source acceptance. Later paired parser/schema
 work must integrate the actually reviewed producer/consumer rules and required
 unknown-kind refusal; this strict NSI checkpoint assigns no shared numeric slot.
+
+## My first production checkpoint ownership table
+
+I add `nsi_file_binding.h/.c`, a borrowed-tree `nsi_internal.h` decode entry,
+the owning File-plan sizeof query and an explicit `file-binding-plan` object
+build target. No CLI, filesystem publication, installed header/archive,
+parser/schema or execution selector is added. Generic NSI parsing shares its
+existing conversion body; only the separately recorded partial `parse_named`
+allocation cleanup changes failure ownership.
+
+| Stage | Allocations and ownership | Failure/output boundary |
+| --- | --- | --- |
+| Bound and grammar preflight | None; checked owning sizeof/products and bounded recursion/counters | INVALID or LIMIT before any allocation; output unchanged |
+| Terminated snapshot | One `size+1` malloc owned by strict decoder | MEMORY on its allocation; freed on every decode path |
+| cJSON tree | At most token-bound nodes/string storage plus one numeric scratch; normal existing allocator | Parse failure UNRESOLVED; whole partial tree cleaned by cJSON; caller frees successful tree |
+| Shared NSI conversion | Existing arrays/strdup strings plus transient ID pointer table; bounded even before malformed array element validation | NULL maps UNRESOLVED; shared cleanup owns every failed prefix; no precise legacy OOM claim |
+| Exact File descriptor | Existing `nl_file_plan_build` allocation, owning sizeof counted | INVALID for catalog mismatch, MEMORY for its allocation; descriptor freed before decoder returns |
+| Count/render | Allocation-free count pass then one exact plan/header/two-output allocation | MEMORY for plan; length/capacity mismatches fail without publishing; input NSI freed after render |
+| Canonical roundtrip | One strict lower decode of the owned JSON; no prepare/render recursion | Temporary snapshot/tree/NSI/descriptor freed; any failure frees staged plan |
+| Published plan | One allocation, immutable borrowed getter views | Only final successful assignment changes caller output; free releases whole plan |
+
+The renderer names all five catalog operations in five forward-source shadows;
+no helper function or main is fabricated. Borrow calls use the existing
+`&mut owned` form, and exact unit Result arms use the proposed `Ok()` service
+match form. They remain source bytes requiring later paired parser/lowering and
+hosted lifecycle qualification; this checkpoint never executes them. Errors
+make the positive lifecycle shadow fail, retaining the runtime's later required
+root cleanup rather than claiming successful I/O from an Error arm.
+
+I have not compiled or executed this checkpoint. Source and complete allocation
+review precede fixture preparation and fresh ordinary/sanitizer qualification.

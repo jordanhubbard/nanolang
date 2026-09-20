@@ -5602,3 +5602,9 @@ $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_targets.h $(NANOISA
 .PHONY: test-file-indirect-targets
 test-file-indirect-targets: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_FILE_INDIRECT_TARGETS_CC="$(CC)" NANO_FILE_INDIRECT_TARGETS_CFLAGS="$(CFLAGS)" FILE_INDIRECT_TARGETS_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_INDIRECT_TARGETS_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_targets
+
+# I prepare strict immutable File binding bytes without publishing or executing.
+.PHONY: file-binding-plan
+file-binding-plan: $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi_file_plan.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/cJSON.o
+$(OBJ_DIR)/nsi_file_binding.o: $(SRC_DIR)/nsi_file_binding.h $(SRC_DIR)/nsi_internal.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi.h $(SRC_DIR)/cJSON.h $(SRC_DIR)/utf8.h
+$(OBJ_DIR)/nsi.o: $(SRC_DIR)/nsi_internal.h

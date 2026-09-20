@@ -111,6 +111,7 @@ NlFilePlanStatus nl_file_plan_build(const NlNsi *n,NlFilePlan **out) {
     return NL_FILE_PLAN_OK;
 }
 void nl_file_plan_free(NlFilePlan *p) { free(p); }
+size_t nl_file_plan_storage_size(void) { return sizeof(NlFilePlan); }
 const char *nl_file_plan_interface(const NlFilePlan *p) { return p ? IFACE : NULL; }
 size_t nl_file_plan_method_count(const NlFilePlan *p) { return p ? COUNT(methods) : 0; }
 size_t nl_file_plan_type_count(const NlFilePlan *p) { return p ? COUNT(types) : 0; }

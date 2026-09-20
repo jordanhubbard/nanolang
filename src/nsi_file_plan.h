@@ -45,6 +45,8 @@ typedef struct {
  * can provide an alternative catalog. No service or generator is invoked. */
 NlFilePlanStatus nl_file_plan_build(const NlNsi *, NlFilePlan **out);
 void nl_file_plan_free(NlFilePlan *);
+/* I report the exact owning allocation without allocating. */
+size_t nl_file_plan_storage_size(void);
 const char *nl_file_plan_interface(const NlFilePlan *);
 size_t nl_file_plan_method_count(const NlFilePlan *);
 size_t nl_file_plan_type_count(const NlFilePlan *);
