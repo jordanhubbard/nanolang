@@ -264,6 +264,11 @@ static void emit_cases(const char *directory){
    allocation_budget=-1;single_failure=false;CHECK(open_attempts==opens);
    if(status==NVM_FILE_RUNTIME_OK){CHECK(out!=(char *)(uintptr_t)1);file_test_free(out);if(!failed_calls)complete=true;}
    else {CHECK(failed_calls && out==(char *)(uintptr_t)1);CHECK(status==NVM_FILE_RUNTIME_MEMORY || status==NVM_FILE_RUNTIME_UNRESOLVED);refusals++;}
+   CHECK(tracked_live==live && tracked_bytes==bytes);
+   char *recovered=(char *)(uintptr_t)1;size_t failures=failed_calls;
+   ROK(nvm2c_file_cyclic_private_emit(captured[0].bytes,captured[0].size,&recovered,error,sizeof error));
+   CHECK(recovered && recovered!=(char *)(uintptr_t)1 && recovered[0] && !error[0]);
+   CHECK(open_attempts==opens && failed_calls==failures);file_test_free(recovered);
    CHECK(tracked_live==live && tracked_bytes==bytes);if(complete)break;
   }
   CHECK(complete);

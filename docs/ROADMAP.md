@@ -12799,3 +12799,10 @@ has been compiled or executed; I submit the complete checkpoint for review.
   after every refusal; I add a fresh fault-disabled emission, publication/no-host
   assertions, free and exact baseline checks after each prefix. No production
   defect or runtime failure is asserted; correction review precedes gates.
+
+I track the static fixture repair as `task_78437ef067bf434fb24bbef3d692280a`.
+Precode record5f2b84 preserves the original unexecuted f55c checkpoint. The
+correction uses a module import and performs fresh successful emission after
+every allocation prefix with faults disabled, unchanged host/failure counters
+and restored tracked allocation baselines. No fixture has run; root reviews
+the bounded delta before matrix approval.

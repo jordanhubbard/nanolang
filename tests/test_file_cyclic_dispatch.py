@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 from tests.test_file_cyclic_runtime import PROVIDERS as CARRIER_PROVIDERS
-from tests.test_file_cyclic import FileCyclic
+from tests import test_file_cyclic as cyclic_runner
 
 ROOT = Path(__file__).resolve().parents[1]
 PROVIDERS = [*CARRIER_PROVIDERS, 'src/nanovm/file_vm_cyclic_private.c',
@@ -49,7 +49,7 @@ class FileCyclicDispatch(unittest.TestCase):
     # The retained query runner writes files on launch/wait failure, bounds
     # TERM/KILL after normal and timed-out completion, and checks group exit.
     def command(self, name, args):
-        return FileCyclic.command(self, name, args)
+        return cyclic_runner.FileCyclic.command(self, name, args)
 
     def providers(self, name, instrument):
         objects = []
