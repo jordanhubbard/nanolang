@@ -42,3 +42,16 @@ result stores and side effects. I retain version-1 refusals and existing codec,
 assembler, VM/native and passive frontend tests. Fresh Linux and Darwin
 providers must compile and execute the unchanged passive-flow fixture. This
 repair does not close the separate emitter-shadow timeout or full release gate.
+
+## My first qualification observations
+
+At35957 I pass fresh Linux26 passive methods,273 instrumented metadata checks,
+both source-producer flow/par comparisons, the unchanged flow program in VM and
+native C, and the scoped passive-TU ASan/UBSan allocation fixture. My first
+Darwin driver setup lacked the external tracked-file manifest required by a
+Git archive; no build or test launched. After supplying that manifest, fresh
+build/discovery and273 C checks pass. The26-method suite reports25 passes and
+one strict native C compile failure in the original arctan test: unused
+`nparse_binary64`. I retain that terminal and track the adjacent helper omission
+as task_1520319827d64ec9abee585fb1dfb08f. The four new CFG methods passed on both
+hosts. I do not claim the Darwin suite or full release is green.
