@@ -1,0 +1,17 @@
+{
+  "phase": "external product-copy preparation",
+  "status": 1,
+  "attribution": "observed tool terminal; original output in agent tool transcript, not a standalone log",
+  "failure": "FileNotFoundError while hashing copied bin/nanoc relative symlink before its target was copied",
+  "source_changed": false,
+  "tests_executed": false,
+  "proposal": "copy and hash regular products before symlinks; recheck original endpoint maps; keep partial destination and first runner",
+  "hosts": [
+    "Linux",
+    "puck"
+  ],
+  "statuses": [
+    1,
+    1
+  ]
+}

@@ -13473,6 +13473,29 @@ I reproduced both projected native timeouts on puck with the unchanged120-second
 
 - [x] I let the projected aggregate and tuple native sanitizer tests honor my existing `NANO_NATIVE_TEST_CC` selector, retaining default `cc`, all assertions and deadlines. Both methods pass on Linux and Darwin, with eight successful generated native executions and independently checked retained evidence. My [diagnosis and qualification](NATIVE_COMPILER_SELECTOR.md) preserve the original timeouts and runtime control; full canonical 90-method acceptance and task_2f52721aac374ac592b61438315dc981 remain open.
 
+### Layout fault fixture private-symbol closure (2026-09-20)
+
+- [x] I preserve both canonical ca377 full-suite link failures and record their
+  exact duplicate private decoder symbols before editing the fixture; see
+  [my correction contract](LAYOUT_FAULT_FIXTURE_PRIVATE_SYMBOLS.md), MAC task
+  `task_666ba1fff2e44f398e7960c825011f1a`.
+- [x] I rename only the embedded fault fixture's two private decoder exports,
+  retaining the real provider and every existing assertion.
+- [x] I qualify the corrected layout target and original90-method phase on Linux
+  and puck with verified initial provider reuse, unchanged deadlines and retained
+  terminals. The later full-Make verifier corpus fails separately below.
+
+### Complete verifier corpus after canonical admission repair (2026-09-20)
+
+- [ ] I diagnose and repair the exact typed-U8 addition refusal in
+  `tests/test_u8_basic.nano`: my corrected canonical full Make run passes the
+  original90 methods, then rejects `let c: u8 = (+ b 1)` while compiling shadows.
+  MAC `task_c6b2a040c1434fc784a9d46c02a4981e` retains the first verifier terminal.
+- [ ] I restore the required `list_LexerToken_insert` binding for
+  `tests/token_value_bytes.nano` without deleting insert/set/remove or exact-byte
+  assertions. MAC `task_7b805000dfda4da386b55d4691e8c647` retains the independent
+  undefined-function terminal. Linux selected176, verified174, failed2 and
+  skipped0; I do not call that complete verifier-corpus acceptance.
 - [x] I repair my Game of Life random seed call (`task_f84d2ba77b2fa6490e6bfad25b71b613`). Hosted Darwin strict-example job106078349684 retains a compile failure from my incorrect integer declaration for the pointer argument of C time. I use my existing typed epoch-microsecond API divided to seconds, preserve random-seed behavior and qualify existing strict example/shadow checks on Linux and Darwin without weakening warnings.
 
 - [ ] I preserve allocation errors before writing the scalar-union compiler contract length (`task_59fbb2c526127b4e40867e9222de400a`, PR917). Static review finds a missing error guard after allocation-bearing contract writes; I require guarded backpatching, adjacent-site audit and cleanup/recovery coverage. The owning peer has the finding; independent Linux source acceptance and full5.1 remain open.

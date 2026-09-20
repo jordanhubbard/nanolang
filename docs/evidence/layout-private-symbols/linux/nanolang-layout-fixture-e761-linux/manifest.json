@@ -1,0 +1,142 @@
+{
+  "head": "e7614728b60b479dd1040bbf89268ed259bd456e",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "scope": "hash-verified ca377 build/bootstrap reuse, corrected layout target and unchanged complete make test; named tools and phase endpoint products retained; deleted inner temporary products are not reconstructed",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0016137290513142943,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-layout-fixture-e761-linux/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0017402430530637503,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-layout-fixture-e761-linux/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/usr/local/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.009842216968536377,
+      "log": {
+        "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+        "bytes": 440,
+        "archive": "/tmp/nanolang-layout-fixture-e761-linux/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.004387182998470962,
+      "log": {
+        "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+        "bytes": 303,
+        "archive": "/tmp/nanolang-layout-fixture-e761-linux/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "layout",
+      "argv": [
+        "make",
+        "test-nvm-v2-layouts",
+        "CC=/bin/gcc",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 600,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.3148184190504253,
+      "log": {
+        "sha256": "bac76f2e4010d2598bfaeafb01f3b0228af72b7a77bf45c2228de20d11690ae8",
+        "bytes": 1355,
+        "archive": "/tmp/nanolang-layout-fixture-e761-linux/objects/bac76f2e4010d2598bfaeafb01f3b0228af72b7a77bf45c2228de20d11690ae8"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "full-test",
+      "argv": [
+        "make",
+        "test",
+        "CC=/bin/gcc",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 5400,
+      "status": 2,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 908.0203343259636,
+      "log": {
+        "sha256": "45631110b9539ec1a9fa0329035ec96d640d35081d05e7d176ed3eaa9487c4df",
+        "bytes": 453970,
+        "archive": "/tmp/nanolang-layout-fixture-e761-linux/objects/45631110b9539ec1a9fa0329035ec96d640d35081d05e7d176ed3eaa9487c4df"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

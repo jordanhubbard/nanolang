@@ -1,0 +1,9 @@
+{
+  "host": "puck",
+  "reports": 127,
+  "objects": 5193,
+  "bytes": 819701706,
+  "archive_references": 118882,
+  "equal_source_tool_pairs": 26,
+  "scope": "layout49 both; original90 passes then completeMake fails later verifier174/176; first layout link failure and observed preflight copy failure retained"
+}
