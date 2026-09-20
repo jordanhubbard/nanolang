@@ -13874,3 +13874,22 @@ records this bounded acceptance; full File source resolution/lowering and the
 - [x] I retain the supported Darwin sanitizer compiler in my byte integration driver (task_0601baaa79b149238071813ffd10d1f5). The first afdbb scalar-neighbor run selected Apple Clang for an always-instrumented guard and stopped at unsupported leak detection. I preserve that terminal and select inventoried Homebrew Clang for scalar and managed neighbor reruns; production, assertions and leak detection remain unchanged.
 
 I complete this generated-byte milestone in PR932 after both-host integration qualification and independent source/evidence review. Task_c6b2a040c1434fc784a9d46c02a4981e remains open for source/reconstruction and unchanged full-corpus acceptance; this checkbox does not complete that parent.
+
+### My copied execution-plan integration after actual PR932
+
+I integrate actual byte merge128d5cd2 into a separate ready tree, preserving
+qualified c032c and its original seven-configuration seal. The byte transfer
+now includes CAST_U8, so my exhaustive recipe inventory must include its exact
+no-allocation scalar operation before the new preparation can qualify here.
+I preserve both additive Make targets and all File parser code from canonical.
+
+- [ ] I review the explicit93rd recipe, independent full numeric inventory and
+  a whole-query INT/U8 conversion feeding a declared U8 array field. I retain
+  checked tags and first-error cleanup without safepoints or allocation flags.
+- [ ] I qualify fresh ordinary current providers, complete execution-plan/origin
+  controls and unchanged ownership, union, array and actual layout neighbors on
+  Linux and Darwin. I retain exact source/tool/product endpoints and first
+  terminals; original sanitizer results remain attributed to c032c.
+- [ ] I land this preparation dependency after independent evidence review, then
+  continue matched VM/native/LLVM/Wasm execution and full graph/source acceptance.
+  I do not close f36b/15f/488 with a copied descriptive plan.
