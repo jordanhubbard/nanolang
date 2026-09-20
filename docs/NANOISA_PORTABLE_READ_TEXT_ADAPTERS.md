@@ -311,3 +311,15 @@ compiling it to textual LLVM IR with the exact selected compiler/flags/SDK,
 and copying its single checked target-triple declaration into my unchanged
 callback IR. This new probe performs no execution. I retain strict-Werror and
 all callback/lifetime assertions; source review precedes the corrected build.
+
+At b9ba, Linux passes all four full configurations and puck passes Apple ordinary.
+Each full phase reports1741 observed checks per C/O0/O2 route and531 unhooked
+checks per route. Puck Homebrew ordinary passes all three observed routes, then
+strict compilation of the unhooked fixture rejects active_refusals/opens/last_fd
+as set-but-unused globals. The2.822s terminal remains in its original report;
+no production execution fails. I propose an unhooked-only assertion that all
+host observer counters remain zero and last_fd remains -1, alongside the existing
+zero tracked allocations. This preserves every prior predicate and checks that
+the unhooked path actually bypasses host instrumentation. No warning suppression.
+Corrected linked routes and the unreached Homebrew sanitizer phase need fresh
+qualification; already passed b9ba Linux/Apple/observed results keep that pin.
