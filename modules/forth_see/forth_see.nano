@@ -1,3 +1,6 @@
+# I select the ordinary public NanoISA owner and retain private dynamic dependencies.
+module "modules/nanoisa/nanoisa.nano" as ForthNanoisaProvider
+
 # I retain explicit static owners while my shared library keeps private dependencies.
 module "modules/nsi_file_catalog_provider/nsi_file_catalog_provider.nano" as ForthFileCatalogProvider
 

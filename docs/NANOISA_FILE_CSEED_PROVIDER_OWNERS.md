@@ -159,3 +159,16 @@ The Forth shared-library wrapper check must work in its own process without firs
 loading NanoISA or another test library that could mask a missing dependency.
 Linux builds remain held for capacity. I do not execute a known-conflicting old
 combined program as a substitute for fixing this statically demonstrated defect.
+
+I implement the reviewed extension with exactly the proposed ordered lists and
+one actual import. Before treating the private dependencies as complete, I compare
+all 130 exported names from the retained ordinary10b74 file_flow object against
+the 34 moved provider TUs and their complete 96-file quoted project include
+closure. None refers to a file_flow export. The retained object's entire quoted
+source closure is byte-equal to my current source. I retain the hashes, exact nm
+output and name inventory in
+[NANOISA_FORTH_FLOW_REFERENCE_AUDIT.json](NANOISA_FORTH_FLOW_REFERENCE_AUDIT.json).
+This conservative textual reference check does not execute a binary, model system
+headers or prove dynamic linking. Isolated real dynamic loading/wrapper behavior
+remains required. No file_flow private copy is needed by the observed project
+references; the public NanoISA owner keeps its existing copy and source closure.
