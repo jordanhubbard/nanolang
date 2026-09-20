@@ -52,3 +52,34 @@ The unresolved historical evaluator incident791a retains its own evidence.
 It does not establish a current managed translator defect, nor does a passing
 new gate retrospectively explain it. Full product/fixed-point and release
 acceptance remain required.
+
+## I resolve the independent review inventory before code
+
+The selected optimized Wasm artifact itself must run through Wasmtime as well
+as the existing Node assertions. The separately published nvm2wasm artifact
+remains an additional CLI control; it does not prove the selected O2 route.
+The default-main native fixture also uses the same explicit optimization
+selector before its ordinary executable link. Its existing link flags do not
+retroactively prove IR memory instrumentation; the separate marked-IR harness
+retains that claim.
+
+The original eleven string methods have only a successful initializer. I add
+one bounded string-only failed-initializer control: retain a committed dynamic
+global, allocate a separate local owner, fail ASSERT, refuse entry publication,
+release temporary roots and retain exactly the committed global until explicit
+disposal. Both selected native and Wasm routes must report ASSERT with exact
+live object/byte counts and zero counts after disposal. This is the original
+failed-initializer promise, not aggregate admission.
+
+The unchanged core fixture defaults to detect_leaks=0 on Darwin. I record that
+limitation and add an explicit strict leak-check selector for the supported
+Homebrew compiler qualification; the release run must choose1. I do not call
+a default Darwin run leak-checked. Inherited LSAN_OPTIONS is cleared by the
+qualification runner. Invalid selectors fail setup.
+
+Conversion classes copy methods rather than inheriting the common class.
+The optimization helper is module-level, so every copied compile method uses
+the same implementation without missing aliases. An external retained runner
+archives each command's overwritten outputs before any assertion, as well as
+actual statuses/timeouts and original TemporaryDirectory products. Keeping
+only the final directory would lose earlier subcase IR and is insufficient.
