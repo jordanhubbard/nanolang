@@ -23,3 +23,5 @@ existing assembler capture/replay corpus against each produced helper. I also
 check explicit UBSan helper instrumentation through that corpus. Linux owns this
 recipe; Darwin's target selection remains unchanged. I do not claim that an
 arbitrary sanitizer can safely interpose an arbitrary external assembler.
+
+My [independent evidence review](evidence/assembler-capture-flags-independent-review.json) checks all34 actual Git report blobs, four current helper hashes, five unchanged inputs and eight successful build/test terminals. Each corpus ran10 tests; ELF initial data independently confirms the three probe values are42. No helper was executed again for this review.
