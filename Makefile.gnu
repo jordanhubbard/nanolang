@@ -5590,3 +5590,6 @@ $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_targets.h $(NANOISA
 .PHONY: test-file-indirect-targets
 test-file-indirect-targets: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_FILE_INDIRECT_TARGETS_CC="$(CC)" NANO_FILE_INDIRECT_TARGETS_CFLAGS="$(CFLAGS)" FILE_INDIRECT_TARGETS_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_INDIRECT_TARGETS_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_targets
+
+# I compose target and ownership facts only through a separate private entry.
+$(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DIR)/file_indirect_flow.inc

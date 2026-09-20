@@ -129,3 +129,22 @@ input stack including its callable; the candidate's direct-call transition sees
 the staged stack after that callable is consumed. Output counts refer to the
 actual post-call stack. I account for every additional scratch/fact allocation
 before it occurs under both ownership and combined bounds.
+
+## My first production checkpoint
+
+I implement the separate report in `file_indirect_flow.h/.inc` within the existing
+File flow translation unit. An internal cyclic extension adds the accounted
+fixed scratch, complete callee graph and transfer callback; the old entry passes
+NULL and keeps its original report/node/workspace sizes and opcode mode. I
+check the second plan's original caller, instruction index and PC against the
+owned first query before applying a candidate set. Copied component, nominal
+layout and import getters complete the report without exposing its inner plan.
+
+Every candidate starts with the same full transfer state and declaration identity
+counter. I normalize only the call obligation's target field, compare canonical
+owner/borrow relations and all obligation metadata, then retain every checked
+candidate. My new scratch is charged before allocation within the existing
+ownership16MiB ceiling and the combined32MiB bound. No transfer allocates.
+
+This checkpoint is source for independent review. I have not compiled it or run
+new fixtures; the qualification checkbox remains open.
