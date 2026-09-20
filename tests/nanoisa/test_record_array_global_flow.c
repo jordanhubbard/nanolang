@@ -32,7 +32,12 @@ static void dominating_and_joined_stores(void){
     arg32(&c,OP_STORE_GLOBAL,2);install_global(&c,2);finish(&c);
     NvmRecordArrayOrigins *p=global_query(&c,NVM_ARRAY_ELIGIBLE);
     NvmRecordValueOrigins value;CHECK(nvm_record_array_field_value(p,0,&value));
-    CHECK(value.tags==MASK(TAG_ARRAY)&&value.origins==2&&!value.unknown);nvm_record_array_origins_free(p);
+    CHECK(value.tags==MASK(TAG_ARRAY)&&value.origins==4&&!value.unknown);
+    NvmRecordHeapOrigin original,owner,copy;
+    CHECK(nvm_record_array_origin(p,0,&original)&&original.kind==NVM_HEAP_ORIGIN_ARRAY);
+    CHECK(nvm_record_array_origin(p,1,&owner)&&owner.kind==NVM_HEAP_ORIGIN_RECORD);
+    CHECK(nvm_record_array_origin(p,2,&copy)&&copy.kind==NVM_HEAP_ORIGIN_ARRAY);
+    nvm_record_array_origins_free(p);
     init(&c,TAG_INT,false);install_global(&c,0);finish(&c);global_query(&c,NVM_ARRAY_UNRESOLVED);
     for(unsigned other=0;other<3;other++){
         init(&c,TAG_INT,false);scalar(&c,TAG_BOOL);size_t split=c.n;arg32(&c,OP_JMP_FALSE,0);

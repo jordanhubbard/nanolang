@@ -14004,3 +14004,12 @@ limits, source-owner destruction, old-wrapper comparison and all observed
 one-shot/persistent allocation positions retain exact MEMORY and fresh recovery.
 I await fixture review before fresh seven-configuration qualification; the
 original88ae stopped VM corpus remains unchanged and unaccepted.
+
+- [ ] I correct the exact derived-slice origin ordinal in the global query
+  fixture (`task_2e2bc976b4c7481c8a52e6767f9f032d`). Bothfa222 hosts passed
+  setup, discovery, strict compilation and first query eligibility, then the
+  fixture asserted bit2 for the slice. My existing scanner reserves ARRAY0
+  and record1 before the walk creates derived slice2, whose bit is4; the old
+  alias/copy fixture already tests this ordering. I preserve both first raw
+  terminals and correct only the expected identity, adding explicit origin-kind
+  controls. Query source and the original VM programs remain unchanged.
