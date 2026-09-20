@@ -1,0 +1,12 @@
+{
+  "label": "callback-allocation",
+  "argv": [
+    "/bin/make",
+    "CC=/bin/gcc",
+    "test-vm-callback-allocation"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.3148936659563333
+}

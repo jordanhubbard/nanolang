@@ -1,4 +1,5 @@
 #include "service_bindings_module.h"
+#include "service_classification_private.h"
 #include "../nsi_file_catalog.h"
 #include "isa.h"
 #include <stdlib.h>
@@ -30,6 +31,14 @@ bool nvm_v2_file_instructions_present(const NvmV2Module *m) {
 }
 bool nvm_service_execution_pending(const NvmModule *m) {
     return nvm_service_bindings_present(m) || nvm_file_instructions_present(m);
+}
+NvmServiceClassification nvm_service_classify(const NvmModule *module) {
+    return (NvmServiceClassification){module, nvm_service_execution_pending(module)};
+}
+bool nvm_service_pending_classified(const NvmModule *module,
+                                    const NvmServiceClassification *facts) {
+    return facts && facts->module == module ? facts->pending
+                                           : nvm_service_execution_pending(module);
 }
 static bool exact_bytes(const uint8_t *bytes,uint32_t length,const char *text) {
     size_t n=strlen(text);

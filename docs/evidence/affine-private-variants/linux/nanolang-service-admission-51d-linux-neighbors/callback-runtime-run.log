@@ -1,0 +1,1 @@
+I passed callback lifecycle tests, including 40,000 cross-thread invocations.

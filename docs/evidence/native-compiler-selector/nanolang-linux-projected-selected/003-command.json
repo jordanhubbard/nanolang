@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85/bin/nvm2c",
+    "/tmp/nanolang-linux-projected-selected/nano-projected-global-3_yiklgm/store-first.nvm",
+    "-o",
+    "/tmp/nanolang-linux-projected-selected/nano-projected-global-3_yiklgm/store-first.c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85",
+  "timeout": 120
+}

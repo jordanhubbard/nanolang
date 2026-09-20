@@ -13177,6 +13177,26 @@ full b7ef/2d2 admission/emission/installed/compiler obligations remain open.
 
 - [x] I correct the general VM underflow fixture's stale expectation for bare `FILE_DROP_STACK`, retain both first full-test terminals, assert service-first refusal with untouched caller/frame state, and preserve ordinary handler underflow checks (`task_c2807d311e5d46938d5193b394bb6840`; [contract](MATCH_CALL_UNION_IDENTITY.md)).
 
+
+### My synchronous ordinary-admission prerequisite
+
+I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5.1 gates. My reviewed86c758 diagnostic measured98.6604percent completed-admission time between matched markers; evidence538251ed preserves the unchanged timeout. `docs/VM_SYNCHRONOUS_ADMISSION.md` records my proposed narrow assertion-resume certificate and all mutation/reentry exclusions.
+
+- [ ] I independently review the segment lifetime, every trap/host/memory-write invalidation, and the exact private production diff before builds.
+- [ ] I review and qualify counter-based ordinary/assertion/refusal/mutation/reentry controls under both dispatch forms, preserving owned and callback paths.
+- [ ] I freshly execute the unchanged full imported emitter shadow gate with its original ten-second policy, then relevant VM/callback/service/profile adjacency; I retain failures without extending deadlines.
+- [ ] I seal evidence and obtain actual merge before reconciling this bounded task; passive and Darwin native timeout tasks remain separate.
+
+### My ordinary-admission fixture indentation prerequisite
+
+- [ ] I correct the new fixture main-loop indentation after retaining the firstedd51 strict GCC compilation terminal under task_4931a66f39c04b1a96981a4e00d43646; no fixture executed. I preserve strict warnings, all assertions and original provider/source evidence, review the tiny correction, then run a fresh corrected fixture.
+
+- [ ] I remove duplicate service scans only within one synchronous core-admission transaction under `docs/VM_SERVICE_ADMISSION_TRANSACTION.md` and task_4931a66f39c04b1a96981a4e00d43646; explicit stack facts expire before dispatch, public classifiers remain fresh, and all authority/invalidation/deadline gates remain required.
+
+### My transaction-scoped service facts pass the unchanged emitter gate
+
+I qualified c95c2366e with fixture 1f9d29625: five Linux/puck focused configurations in switch/computed-goto form, actual callback/FFI, mixed and public owner ARRAY neighbors, and the original full imported emitter ten-second shadow gate all passed. `docs/evidence/service-admission.md` seals exact input/provider/tool maps and artifacts with the modeled/instrumented scope distinguished. I retain prior failures and keep task_4931a66f39c04b1a96981a4e00d43646 open pending independent review and canonical ownership integration; this does not close wider compiler/release criteria.
+
 - [x] I correct the full-test driver’s separate `NANO_NATIVE_TEST_CC` selection on Darwin, retain the eight-method unsupported Apple leak-sanitizer terminal, and qualify the unchanged transport/full-test path with explicit supported Homebrew Clang and leak detection intact (`task_a1d38d93616f4c48a3b8692b30226a82`).
 
 - [x] I preserve the907 restack puck pre-build terminal: SSH-selected Python rejects tarfile.extractall(filter=data) before source extraction or compilation. I explicitly select installed Homebrew Python in a fresh destination and inventory the actual driver; no runtime/fixture assertion or historical tool claim changes.
@@ -13379,6 +13399,11 @@ requirements stay open; root reviews evidence before actual PR911 merge.
 
 - [ ] I correct task_b5dfc0f04d2b49b4ec6b01ab46771f22 before publishing PR909: independent review found nine retained Darwin dSYM files listed by my integration manifest but absent from Git because ignored. Their working bytes match the recorded hashes. I explicitly commit those exact files, then verify all194 actual Git report blobs; source, tests, original evidence and gate outcomes stay at their existing pins.
 
+- [ ] I diagnose the first integrated51d `test_mixed_samples_admission` segmentation fault on both Linux/puck under task_0924394710ff4dbc9a762b26b1eebf34, preserving the successful focused/host checks and first Make2 terminals. I inspect actual allocation-hook and canonical ownership dependencies with bounded debugger observation before attribution or correction; I do not replay the whole gate or relabel original1f9 acceptance.
+
+- [ ] I restore variant-storage invariants in both private affine-state constructors under task_0924394710ff4dbc9a762b26b1eebf34 and `docs/AFFINE_PRIVATE_VARIANTS_REPAIR.md`. I retain the observed mixed clone crash before fault injection and the statically identified owner ARRAY constructor gap, review production then fixtures, and qualify corrected paths without expanding authority.
+
+- [ ] I preserve the first660 Darwin owner-authority neighbor link failure before fixture execution: its old Python runner hardcodes `-lm -lcrypto` and drops my prepared OpenSSL search path. Under task_0924394710ff4dbc9a762b26b1eebf34 I forward exact caller link flags through Make/environment, preserving the old default and all assertions, before continuing only the unreached Darwin controls. Linux's unchanged owner-authority pass remains attributed to660.
 ## My complete mixed declaration projection
 
 - [ ] I review the [whole-envelope projection contract](NANOISA_MIXED_DECLARATION_PROJECTION.md) under existing f36b/15f/488 before implementation. Both UNION_VARIANTS and ARRAY_FIELDS must validate before either copied projection escapes; existing public and executable selectors retain their decisions.
@@ -13459,3 +13484,14 @@ helpers and a complete moved-check/caller map. All old policy branches, diagnost
 and outputs retain their order; no new API, admission, facts or execution are
 claimed. The next reviewed checkpoint must supply the original-module private
 preparation and complete memory/work accounting before any fixture gates.
+
+- [ ] I retain both bc45 public-package setup failures before fixture execution: my external launch omitted the known managed LLVM selectors, producing Linux's strict GCC-install-selection warning and Darwin's missing opt. I correct only explicit NMS runtime compiler/optimizer configuration and inventory, preserve the first terminals, and continue the separate package trees; the completed ordinary integration is unchanged.
+
+- [ ] I retain the first selected Darwin public-corpus compile terminal: the external launch left NANO_FILE_RUNTIME_CFLAGS empty, omitting the Make-emitted SDK ffi include path. I forward the exact frozen current Make flags before continuing only Darwin public controls, keep Linux's completed package pass, and do not weaken warnings or assertions.
+## My retained Darwin native timeout diagnosis
+
+- [ ] I diagnose task_2f52721aac374ac592b61438315dc981 with a retained run of the unchanged projected record-array global test, including both function orders and its original120-second subprocess limit. I reuse the already qualified f219 public integration translator/assembler/VM artifacts on puck with exact current hashes; this is a fresh control run, not a fresh build or a replay of the deleted historical binaries. I preserve generated C, bytecode, executables, individual commands/stdout/stderr/status, selected environment and process cleanup. The tuple producer case remains pending until the repaired emitter is integrated. A passing control alone cannot establish the historical cause or close full-suite acceptance.
+
+I reproduced both projected native timeouts on puck with the unchanged120-second limit. A live process sample places the store-first stall inside recursive Apple ASan initialization during dyld/malloc startup, before program main. A separate minimal puts-only executable also times out with Apple cc's ASan/UBSan runtime, while the same source/options with Homebrew Clang enters main successfully. I retain both diagnostic results and do not infer a generated-code fault from the historical timeout. Before correction, I scope the two affected tests to honor the existing NANO_NATIVE_TEST_CC selector using shlex, preserving every sanitizer flag, assertion and deadline. Tuple producer qualification and the whole fresh canonical suite remain required.
+
+- [x] I let the projected aggregate and tuple native sanitizer tests honor my existing `NANO_NATIVE_TEST_CC` selector, retaining default `cc`, all assertions and deadlines. Both methods pass on Linux and Darwin, with eight successful generated native executions and independently checked retained evidence. My [diagnosis and qualification](NATIVE_COMPILER_SELECTOR.md) preserve the original timeouts and runtime control; full canonical 90-method acceptance and task_2f52721aac374ac592b61438315dc981 remain open.

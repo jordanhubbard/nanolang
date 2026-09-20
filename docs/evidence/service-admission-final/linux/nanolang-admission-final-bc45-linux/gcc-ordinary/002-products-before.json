@@ -1,0 +1,14 @@
+{
+  "service_bindings_module_observed.c": {
+    "path": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary/products/service_bindings_module_observed.c",
+    "sha256": "0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79",
+    "bytes": 15627,
+    "archive": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary/objects/0dd8443f945cb2d8817a0c9a67c9b5d82404305d872896cea7ddbc26a09b6e79"
+  },
+  "switch": {
+    "path": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary/products/switch",
+    "sha256": "1a899b487c695d858384b2478693109be8951ceab2dedbbe4f53c4543346e0f5",
+    "bytes": 18207768,
+    "archive": "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary/objects/1a899b487c695d858384b2478693109be8951ceab2dedbbe4f53c4543346e0f5"
+  }
+}

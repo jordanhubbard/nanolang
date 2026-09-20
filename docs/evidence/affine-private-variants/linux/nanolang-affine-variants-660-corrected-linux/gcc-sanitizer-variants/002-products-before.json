@@ -1,0 +1,14 @@
+{
+  "constructors": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer-variants/products/constructors",
+    "sha256": "49aee9eb2a77a2d1b5cf3137aae2916a1cad2ffe9da1276e2b9cd9a2d260a165",
+    "bytes": 4284632,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer-variants/objects/49aee9eb2a77a2d1b5cf3137aae2916a1cad2ffe9da1276e2b9cd9a2d260a165"
+  },
+  "nvm_v2_layouts.o": {
+    "path": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer-variants/products/nvm_v2_layouts.o",
+    "sha256": "364b60c41abcf1f06372426ff7ca13a72d77635c9cace8a25e712876b9e2b767",
+    "bytes": 127896,
+    "archive": "/tmp/nanolang-affine-variants-660-corrected-linux/gcc-sanitizer-variants/objects/364b60c41abcf1f06372426ff7ca13a72d77635c9cace8a25e712876b9e2b767"
+  }
+}

@@ -1,0 +1,201 @@
+test_vm_native_lifecycle_and_allocations (tests.test_mixed_samples_runtime.MixedSamplesRuntime.test_vm_native_lifecycle_and_allocations) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 21.349s
+
+OK
+case 0 0 0
+case 1 3 0
+case 2 3 0
+case 3 3 0
+case 4 2 0
+case 5 0 0
+case 6 0 0
+case 7 0 0
+case 8 2 0
+case 9 0 0
+case 10 0 0
+case 11 0 0
+2006 mixed runtime lifecycle checks passed
+case=0 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=6 status=0 live=0
+case=0 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=6 status=0 live=0
+case=1 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=3 live=0
+case=1 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=3 live=0
+case=2 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=3 live=0
+case=2 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=3 live=0
+case=3 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=3 live=0
+case=3 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=3 live=0
+case=4 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=2 live=0
+case=4 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=2 live=0
+case=5 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=0 live=0
+case=5 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=0 live=0
+case=6 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=7 status=1 live=0
+mixed native fault=8 attempts=7 status=0 live=0
+case=6 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=7 status=1 live=0
+mixed native fault=8 attempts=7 status=0 live=0
+case=7 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=7 status=1 live=0
+mixed native fault=8 attempts=7 status=0 live=0
+case=7 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=7 status=1 live=0
+mixed native fault=8 attempts=7 status=0 live=0
+case=8 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=6 status=2 live=0
+case=8 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=6 status=2 live=0
+case=9 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=0 live=0
+case=9 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=4 status=0 live=0
+case=10 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=7 status=1 live=0
+mixed native fault=8 attempts=7 status=0 live=0
+case=10 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=7 status=1 live=0
+mixed native fault=8 attempts=7 status=0 live=0
+case=11 optimization=-O0
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=7 status=1 live=0
+mixed native fault=8 attempts=8 status=1 live=0
+mixed native fault=9 attempts=9 status=1 live=0
+mixed native fault=10 attempts=10 status=1 live=0
+mixed native fault=11 attempts=10 status=0 live=0
+case=11 optimization=-O2
+mixed native fault=1 attempts=1 status=1 live=0
+mixed native fault=2 attempts=2 status=1 live=0
+mixed native fault=3 attempts=3 status=1 live=0
+mixed native fault=4 attempts=4 status=1 live=0
+mixed native fault=5 attempts=5 status=1 live=0
+mixed native fault=6 attempts=6 status=1 live=0
+mixed native fault=7 attempts=7 status=1 live=0
+mixed native fault=8 attempts=8 status=1 live=0
+mixed native fault=9 attempts=9 status=1 live=0
+mixed native fault=10 attempts=10 status=1 live=0
+mixed native fault=11 attempts=10 status=0 live=0

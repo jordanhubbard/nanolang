@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85/bin/nanoisa",
+    "asm",
+    "/tmp/nanolang-linux-projected-selected/nano-projected-global-3_yiklgm/store-first.nasm",
+    "-o",
+    "/tmp/nanolang-linux-projected-selected/nano-projected-global-3_yiklgm/store-first.nvm"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85",
+  "timeout": 120
+}

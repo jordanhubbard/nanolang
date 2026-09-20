@@ -5499,7 +5499,7 @@ test-file-nominal-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS)
 .PHONY: test-owned-array-authority
 test-units: test-owned-array-authority
 test-owned-array-authority: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
-	OWNED_ARRAY_AUTHORITY_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_authority
+	OWNED_ARRAY_AUTHORITY_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" OWNED_ARRAY_AUTHORITY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_owned_array_authority
 
 .PHONY: test-file-flow test-file-flow-sanitizers
 test-file-flow: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -5707,6 +5707,14 @@ test-token-value-bytes-sanitizers:
 test-portable-read-wasm:
 	python3 -m unittest -f -v tests.test_portable_read_wasm
 
+# I keep the ordinary admission observer inside its own VM translation unit.
+.PHONY: test-vm-ordinary-admission
+test-vm-ordinary-admission: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	ORDINARY_ADMISSION_CC='$(CC)' \
+	ORDINARY_ADMISSION_OBJECTS='$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(filter-out $(OBJ_DIR)/nanoisa/service_bindings_module.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)' \
+	ORDINARY_ADMISSION_LDFLAGS='$(LDFLAGS)' \
+	python3 -m unittest tests.test_vm_ordinary_admission
+
 # I rebuild the owning query TU for the private indirect hosted conjunction.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_hosted.h $(NANOISA_DIR)/file_indirect_hosted.inc
 
@@ -5721,6 +5729,12 @@ $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o: $(NANOISA_DIR)/ownership_layouts_private.h
 # I rebuild my shared reader for private array grammar changes.
 $(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ordinary_array_authority.h $(NANOISA_DIR)/ownership_array_fields.inc $(NANOISA_DIR)/ordinary_array_authority.inc $(NANOISA_DIR)/ownership_layouts_private.h
 
+# I exercise private constructors without exposing new production APIs.
+.PHONY: test-affine-private-variants
+test-affine-private-variants: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	AFFINE_VARIANTS_CC='$(CC)' AFFINE_VARIANTS_CFLAGS='$(CFLAGS)' \
+	AFFINE_VARIANTS_OBJECTS='$(filter-out $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)' \
+	AFFINE_VARIANTS_LDFLAGS='$(LDFLAGS)' python3 -m unittest -v tests.test_affine_private_variants
 # I rebuild the shared declaration owner for complete mixed copied facts.
 $(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ownership_declaration_projection.h $(NANOISA_DIR)/ownership_declaration_projection.inc
 

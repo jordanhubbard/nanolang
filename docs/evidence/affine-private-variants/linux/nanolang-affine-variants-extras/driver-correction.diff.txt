@@ -1,0 +1,22 @@
+--- /tmp/run-affine-variants-gates-first.py	2026-09-20 04:47:45.200163988 -0700
++++ /tmp/run-affine-variants-gates.py	2026-09-20 04:47:45.221582606 -0700
+@@ -44,6 +44,8 @@
+ tracked=subprocess.check_output(['git','ls-files'],cwd=root,text=True).splitlines()
+ source=[root/p for p in tracked if not p.startswith('docs/evidence/')]
+ fragment=evidence/'prepare.mk';fragment.write_text("include Makefile.gnu\n.PHONY: admission-prepare\nadmission-prepare: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)\n\t@printf '%s\\n' '$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(filter-out $(OBJ_DIR)/nanoisa/service_bindings_module.o,$(NANOISA_OBJECTS)) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)' > "+str(evidence/'providers.txt')+"\n\t@printf '%s\\n' '$(CFLAGS)' > "+str(evidence/'cflags.txt')+"\n\t@printf '%s\\n' '$(LDFLAGS)' > "+str(evidence/'ldflags.txt')+"\n")
++with fragment.open('a') as stream:
++ stream.write("\t@printf '%s\\n' '$(filter-out $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)' > "+str(evidence/'variant-providers.txt')+"\n")
+ dump('driver.json',item(__file__));dump('prepare-fragment.json',item(fragment));dump('configuration.json',{'platform':platform,'configs':configs,'source_scope':'all tracked files excluding historical docs/evidence','tools_scope':'named compiler, runtimes/subtools, Python, Make, Git, ar, ld; not complete transitive system tools','sanitizers':'constructor fixture includes affine TU plus rebuilt layout decoder; admission fixture includes VM plus observed service TU; other providers ordinary'})
+ for label,args in [('host',['uname','-a']),('head',['git','rev-parse','HEAD']),('ordinary-version',[ordinary,'--version']),('other-version',[other,*otherflags,'--version'])]:
+  if not command(label,args):sys.exit(1)
+@@ -66,7 +68,9 @@
+ providers=[root/p for p in shlex.split((evidence/'providers.txt').read_text())]
+ ldflags=shlex.split((evidence/'ldflags.txt').read_text());cflags=shlex.split((evidence/'cflags.txt').read_text())
+ all_providers=providers+[root/'obj/nanovm/vm.o',root/'obj/nanoisa/service_bindings_module.o']
+-variant_providers=[p for p in all_providers if p.name not in ('affine_state.o','nvm_v2_layouts.o')]
++variant_providers=[root/p for p in shlex.split((evidence/'variant-providers.txt').read_text())]
++assert all(p.is_file() for p in variant_providers)
++all_providers=list(set(all_providers+variant_providers))
+ baseenv=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',LSAN_OPTIONS='',NANO_VM_TRACE='0')
+ for label,cc,flags in configs:
+  before=snapshot(source+tools+all_providers);dump(label+'-before.json',before)

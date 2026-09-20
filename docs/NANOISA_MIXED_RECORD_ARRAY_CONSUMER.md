@@ -243,3 +243,9 @@ and byte-boundary arrays plus stack/type scratch and publication overlap, and
 include all scan/work counters. That complete private entry still requires
 production review and fixture review before execution. This extraction alone
 is not sufficient to call the new grammar structurally prepared.
+
+I integrate actual PR919 canonicalca3779e08 in this working branch after the
+extraction checkpoint. Only additive roadmap tails conflict; both histories
+remain. My verifier source is byte-identical to242ebc8cf, and the incoming
+constructor/service transaction and selector evidence stay independent. No
+new build or executable acceptance is claimed by this integration.

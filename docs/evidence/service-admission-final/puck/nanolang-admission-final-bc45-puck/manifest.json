@@ -1,0 +1,123 @@
+[
+  {
+    "label": "host",
+    "argv": [
+      "uname",
+      "-a"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.0028567080153152347
+  },
+  {
+    "label": "head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.00573337497189641
+  },
+  {
+    "label": "ordinary-version",
+    "argv": [
+      "/usr/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.02407812501769513
+  },
+  {
+    "label": "other-version",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "--version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.023932209005579352
+  },
+  {
+    "label": "sdk",
+    "argv": [
+      "xcrun",
+      "--show-sdk-path"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.011804500012658536
+  },
+  {
+    "label": "sdk-version",
+    "argv": [
+      "xcrun",
+      "--show-sdk-version"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.011687916936352849
+  },
+  {
+    "label": "other-asan",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 0.023484542034566402
+  },
+  {
+    "label": "prepare",
+    "argv": [
+      "/usr/bin/make",
+      "-f",
+      "/private/tmp/nanolang-admission-final-bc45-puck/prepare.mk",
+      "-j4",
+      "CC=/usr/bin/clang",
+      "admission-prepare"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 4.330707208951935
+  },
+  {
+    "label": "apple-ordinary-variants",
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_affine_private_variants"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 1.1237875829683617
+  },
+  {
+    "label": "apple-ordinary",
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.test_vm_ordinary_admission"
+    ],
+    "timeout": false,
+    "cleanup_complete": true,
+    "returncode": 0,
+    "seconds": 2.6855203330051154
+  }
+]

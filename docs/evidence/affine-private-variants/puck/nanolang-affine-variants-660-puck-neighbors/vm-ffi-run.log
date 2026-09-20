@@ -1,0 +1,33 @@
+  builtin_path_normalize_aliases...                       PASS
+  retained_native_strings...                              PASS
+
+[vm_ffi] FFI bridge unit tests...
+
+  init_shutdown_set_env...                                PASS
+  retained_native_scheduler...                            PASS
+  wide_mixed_signature...                                 PASS
+  call_string_returning_float...                          PASS
+  call_bytecode_callback_rejected...                      PASS
+  contracted_import_never_uses_legacy_dispatch...         PASS
+  artifact_handle_isolation...                            PASS
+  artifact_and_logical_array_abi...                       PASS
+  array_mutation_copyback...                              PASS
+  load_module_nonexistent...                              PASS
+  call_empty_module_oob...                                PASS
+  call_too_many_args...                                   PASS
+  call_unresolved_function...                             PASS
+  call_strlen_null_string...                              PASS
+  call_abs_int_arg...                                     PASS
+  call_bool_arg_path...                                   PASS
+  call_opaque_arg_path...                                 PASS
+  call_void_return_type...                                PASS
+  call_bool_return_type...                                PASS
+  call_mixed_fp_gp_ret_fp...                              PASS
+  call_mixed_gp_fp_ret_fp...                              PASS
+  call_mixed_fp_gp_ret_gp...                              PASS
+  call_mixed_four_args...                                 PASS
+  descriptor_cached_after_first_call...                   PASS
+  descriptor_failure_is_cached...                         PASS
+  descriptor_reset_forces_reresolve...                    PASS
+
+All 28 vm_ffi tests passed.

@@ -1,0 +1,11 @@
+{
+  "label": "mixed-query",
+  "argv": [
+    "/bin/make",
+    "CC=/bin/gcc",
+    "test-mixed-samples"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

@@ -1,0 +1,21 @@
+{
+  "platform": "darwin",
+  "configs": [
+    [
+      "apple-ordinary",
+      "/usr/bin/clang",
+      []
+    ],
+    [
+      "homebrew-sanitizer",
+      "/opt/homebrew/opt/llvm/bin/clang",
+      [
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    ]
+  ],
+  "source_scope": "all tracked files excluding historical docs/evidence",
+  "tools_scope": "named compiler, runtimes/subtools, Python, Make, Git, ar, ld; not complete transitive system tools",
+  "sanitizers": "included VM, exact observed service TU and fixture; other providers ordinary"
+}

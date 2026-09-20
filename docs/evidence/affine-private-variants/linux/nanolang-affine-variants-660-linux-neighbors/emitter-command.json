@@ -1,0 +1,14 @@
+{
+  "label": "emitter",
+  "argv": [
+    "/home/jkh/Src/nanolang-affine-variants-qualified-660/bin/nano_virt",
+    "src_nano/nanoisa_emit.nano",
+    "--emit-nvm",
+    "--strip-debug",
+    "-o",
+    "/tmp/nanolang-affine-variants-660-linux-neighbors/products/emitter.nvm"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}

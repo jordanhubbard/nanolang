@@ -1,0 +1,14 @@
+{
+  "label": "homebrew-sanitizer-variants",
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_affine_private_variants"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 2.2698154168901965
+}

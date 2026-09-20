@@ -1,0 +1,7 @@
+{
+  "CARRIER_PHASES": "setup,configuration,discovery,ordinary",
+  "CARRIER_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "CC": "/usr/bin/clang",
+  "LSAN_OPTIONS": "",
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+}

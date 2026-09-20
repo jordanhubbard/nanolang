@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "cc",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-fno-omit-frame-pointer",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-sanitize-recover=all",
+    "/tmp/nanolang-linux-tuple-selected/nano-tuple-values-beevlg0g/source.c",
+    "-o",
+    "/tmp/nanolang-linux-tuple-selected/nano-tuple-values-beevlg0g/source.native"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-file-cyclic-public-qualified-4c85",
+  "timeout": 120,
+  "selected_ASAN_OPTIONS": null
+}

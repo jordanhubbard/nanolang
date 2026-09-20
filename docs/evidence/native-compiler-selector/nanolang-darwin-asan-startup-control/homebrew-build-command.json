@@ -1,0 +1,1 @@
+{"argv": ["/opt/homebrew/opt/llvm/bin/clang", "-std=c11", "-O1", "-g", "-fno-omit-frame-pointer", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined", "/tmp/nanolang-darwin-asan-startup-control/hello.c", "-o", "/tmp/nanolang-darwin-asan-startup-control/homebrew"], "timeout": 30}

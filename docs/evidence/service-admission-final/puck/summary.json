@@ -1,0 +1,565 @@
+{
+  "roots": [
+    "/tmp/nanolang-admission-final-bc45-puck",
+    "/tmp/nanolang-admission-final-bc45-puck-neighbors",
+    "/tmp/nanolang-admission-public-bc45-puck",
+    "/tmp/nanolang-admission-public-bc45-corrected-puck",
+    "/tmp/nanolang-admission-public-bc45-selected-puck",
+    "/tmp/nanolang-admission-public-bc45-flags-puck",
+    "/tmp/nanolang-admission-final-puck-extras"
+  ],
+  "artifacts": 6077,
+  "artifact_bytes": 703285801,
+  "references": 199896,
+  "pairs": [
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck/prepare-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck/prepare-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3682,
+      "after_count": 3682
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3828,
+      "after_count": 3828
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck/apple-ordinary/inputs-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck/apple-ordinary/inputs-after.json",
+      "equal": true,
+      "before_count": 152,
+      "after_count": 152
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/inputs-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants/inputs-after.json",
+      "equal": true,
+      "before_count": 145,
+      "after_count": 145
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/mixed-admission-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/mixed-admission-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/mixed-runtime-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/mixed-runtime-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/declaration-projection-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/declaration-projection-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/affine-bytecode-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/affine-bytecode-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ownership-contracts-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ownership-contracts-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ffi_callback_fixture-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ffi_callback_fixture-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/vm-ffi-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/vm-ffi-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/owner-authority-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/owner-authority-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ffi_artifact_first-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ffi_artifact_first-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/prepare-clis-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/prepare-clis-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3829,
+      "after_count": 3829
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/mixed-query-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/mixed-query-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ffi_artifact_second-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ffi_artifact_second-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-failures-run-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-failures-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-failures-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-failures-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-runtime-run-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-runtime-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/owner-array-public-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/owner-array-public-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/vm-ffi-run-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/vm-ffi-run-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-allocation-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-allocation-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-runtime-build-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-runtime-build-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-final-bc45-puck-neighbors/emitter-before.json",
+      "after": "/tmp/nanolang-admission-final-bc45-puck-neighbors/emitter-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 3836,
+      "after_count": 3836
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-puck/setup-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-puck/setup-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-puck/setup-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-puck/setup-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 16,
+      "after_count": 16
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-selected-puck/setup-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-selected-puck/setup-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-selected-puck/ordinary-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-selected-puck/ordinary-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 17,
+      "after_count": 17
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-selected-puck/configuration-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-selected-puck/configuration-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 17,
+      "after_count": 17
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-selected-puck/configuration-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-selected-puck/configuration-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-selected-puck/discovery-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-selected-puck/discovery-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 17,
+      "after_count": 17
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-selected-puck/ordinary-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-selected-puck/ordinary-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-selected-puck/discovery-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-selected-puck/discovery-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-selected-puck/setup-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-selected-puck/setup-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 17,
+      "after_count": 17
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-flags-puck/ordinary-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-flags-puck/ordinary-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 17,
+      "after_count": 17
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-flags-puck/configuration-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-flags-puck/configuration-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 17,
+      "after_count": 17
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-flags-puck/configuration-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-flags-puck/configuration-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-flags-puck/discovery-tools-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-flags-puck/discovery-tools-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 17,
+      "after_count": 17
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-flags-puck/ordinary-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-flags-puck/ordinary-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    },
+    {
+      "before": "/tmp/nanolang-admission-public-bc45-flags-puck/discovery-source-before.json",
+      "after": "/tmp/nanolang-admission-public-bc45-flags-puck/discovery-source-after.json",
+      "equal": true,
+      "changed": [],
+      "before_count": 30319,
+      "after_count": 30319
+    }
+  ],
+  "terminals": [
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/sdk-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.011804500012658536
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/prepare-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 4.330707208951935
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/other-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.023932209005579352
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 2.6855203330051154
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/other-asan-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.023484542034566402
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/head-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.00573337497189641
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/ordinary-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.02407812501769513
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/sdk-version-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.011687916936352849
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/host-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.0028567080153152347
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck/apple-ordinary-variants-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.1237875829683617
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-allocation-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.6785361669026315
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-runtime-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.14869862503837794
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/emitter-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 15.992936624912545
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-runtime-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.8427691250108182
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/owner-array-public-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 12.149593124981038
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/vm-ffi-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.9975231670541689
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-failures-run-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.2597750839777291
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/callback-failures-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.15081387502141297
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/mixed-query-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.4476112079573795
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ffi_artifact_second-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.09070916706696153
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/owner-authority-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.2697988749714568
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ffi_artifact_first-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.14731308305636048
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/prepare-clis-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.2750778750050813
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ffi_callback_fixture-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.09058274992275983
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/vm-ffi-build-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 0.37532191700302064
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/declaration-projection-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 2.0436208749888465
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/affine-bytecode-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.038596041034907
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/ownership-contracts-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.396084750071168
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/mixed-admission-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 1.6224235410336405
+    },
+    {
+      "path": "/tmp/nanolang-admission-final-bc45-puck-neighbors/mixed-runtime-status.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": 20.770415750099346
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-puck/setup-terminal.json",
+      "returncode": 2,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-selected-puck/ordinary-terminal.json",
+      "returncode": 1,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-selected-puck/discovery-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-selected-puck/configuration-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-selected-puck/setup-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-flags-puck/ordinary-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-flags-puck/discovery-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    },
+    {
+      "path": "/tmp/nanolang-admission-public-bc45-flags-puck/configuration-terminal.json",
+      "returncode": 0,
+      "timeout": false,
+      "seconds": null
+    }
+  ],
+  "scope": "Freshbc45 ordinary constructors/admission/real neighbors/emitter and separate public cyclic package; public provider products deliberately rebuilt, only their source/tool pairs claimed equal"
+}

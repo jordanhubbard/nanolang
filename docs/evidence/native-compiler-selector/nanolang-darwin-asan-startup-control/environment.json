@@ -1,0 +1,8 @@
+{
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+  "ASAN_OPTIONS": null,
+  "UBSAN_OPTIONS": null,
+  "LSAN_OPTIONS": null,
+  "SDKROOT": null,
+  "DEVELOPER_DIR": null
+}

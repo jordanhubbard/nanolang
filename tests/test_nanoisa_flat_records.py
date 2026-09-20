@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import signal
+import shlex
 import subprocess
 import tempfile
 import unittest
@@ -998,7 +999,8 @@ class FlatRecordEmitter(unittest.TestCase):
                     self.run_checked(ROOT / "bin/nano_vm", module)
                     self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
                     self.run_checked(
-                        "cc", "-std=c11", "-O1", "-g", "-fno-omit-frame-pointer",
+                        *shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc")),
+                        "-std=c11", "-O1", "-g", "-fno-omit-frame-pointer",
                         "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
                         native_c, "-lm", "-o", binary,
                     )

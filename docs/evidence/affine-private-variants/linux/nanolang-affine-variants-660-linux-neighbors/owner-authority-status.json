@@ -1,0 +1,12 @@
+{
+  "label": "owner-authority",
+  "argv": [
+    "/bin/make",
+    "CC=/bin/gcc",
+    "test-owned-array-authority"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 1.416949272970669
+}

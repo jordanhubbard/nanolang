@@ -1,0 +1,30 @@
+{
+  "label": "ffi_artifact_second-build",
+  "argv": [
+    "/bin/gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-fPIC",
+    "-shared",
+    "-DARTIFACT_ANSWER=43",
+    "tests/nanovm/ffi_artifact_identity_fixture.c",
+    "-o",
+    "/home/jkh/Src/nanolang-service-admission-integrated/obj/ffi_artifact_second.so",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 0.06424478208646178
+}

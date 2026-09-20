@@ -1,0 +1,24 @@
+{
+  "production": "52a9e392571befab8cdb76434253b174622ada9a",
+  "frozen_source": "660e91f70297edfeb509d29f57b40bc369ea689a",
+  "darwin_owner_runner": "033203384",
+  "ready_sha256": {
+    "src/nanovm/vm.c": "65f1e4c81f50148d60c2427c0ccb23bbb499f4c8b3d8b8d96c93548b8d75d13d",
+    "src/nanoisa/service_bindings_module.c": "a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4",
+    "src/nanoisa/service_classification_private.h": "60da7dfcabb801265bddbe3ef01027874cf83c6fd12baa799d821e9bb6200dcb",
+    "src/nanoisa/owned_array_admit.inc": "b6890e34cb6668e2652fc8708d0768a5951129afb13a99fe0006548163478e2b",
+    "src/nanoisa/mixed_samples_prepare.inc": "74d555d9b0ccf6ca20c6d0fae9bcde85ac76db5237e5c964e5c448b9233f6ead",
+    "src/nanoisa/affine_state.c": "fa11ac27b98d17ba7c43d9a3ee8446cc890177f37bac5eaa1492928800258854",
+    "src/nanoisa/mixed_samples.inc": "37a2d75d07b82e6a7c517decdb04bab7f84aeb6d3f1a8e8601ebb23541b48705",
+    "src/nanoisa/owned_array_authority.inc": "1e623f5d0dc2aa655987d559ac0e7fa10ab11111eb6c9c758507846a3438044c",
+    "tests/nanoisa/test_affine_private_variants.c": "3f3c8da707e7ba9197f4e8d738dedd7d6091606565e9fe39138d3f7cf1a52c80",
+    "tests/test_affine_private_variants.py": "1ac4af9d5d5ae507074577116b6ce5d2c0ead961fbf0abf428cab8ca809ec22d",
+    "tests/nanovm/test_ordinary_admission.c": "2308cb263aa283aeb5ad379aeed7288d07f45848262618aa454f092aaccf5afc",
+    "tests/test_vm_ordinary_admission.py": "aad23be78899a9f4fe86377d3f4d1a516f3229b01fa5d50d10374b4e0d825214",
+    "Makefile.gnu": "766075b7a2ee25fd6a48e2cf8b1fd8950c2dfda6243328ba538c216b799284c5",
+    "src_nano/nanoisa_emit.nano": "b895ab0c65f914d916ea9252207e1e3582008e836f723f430ecc4cbe1c2bc42d",
+    "src/nanovirt/shadow_runner.c": "bda245b197b31c15d28e4f5feb892f3d34d71388e044ab91d024e04b1ca354a9",
+    "tests/test_owned_array_authority.py": "54d56285d9f38ab96146fa87af2579858b8f43697df31ce96b51b6ad6cef5534"
+  },
+  "later_changes": "Among the 16 selected paths, only Makefile.gnu and the owner authority Python runner differ from660; both changes forward caller link flags."
+}

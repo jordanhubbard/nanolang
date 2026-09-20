@@ -1,0 +1,12 @@
+{
+  "CARRIER_EXTRA_TOOLS": "{\"llvm_opt\": \"/opt/homebrew/opt/llvm/bin/opt\"}",
+  "CARRIER_PHASES": "configuration,discovery,ordinary",
+  "CARRIER_SAN_CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "CC": "/usr/bin/clang",
+  "LSAN_OPTIONS": "",
+  "NANO_FILE_RUNTIME_CFLAGS": "-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include",
+  "NMS_NATIVE_CLANG_FLAGS": "",
+  "NMS_RUNTIME_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+  "NMS_RUNTIME_OPT": "/opt/homebrew/opt/llvm/bin/opt",
+  "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+}

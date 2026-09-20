@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/tmp/nanolang-admission-final-bc45-linux/gcc-ordinary-variants/products/constructors"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-admission-final-qualified-bc45",
+  "returncode": 0,
+  "timeout": false,
+  "leader_reaped": true,
+  "group_disappeared": true,
+  "signals": [],
+  "errors": []
+}

@@ -1,0 +1,10 @@
+{
+  "label": "vm-ffi-run",
+  "argv": [
+    "/private/tmp/nanolang-service-admission-51d-puck-neighbors/products/vm-ffi"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": 0,
+  "seconds": 1.1208161669783294
+}

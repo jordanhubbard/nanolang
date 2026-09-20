@@ -1,0 +1,29 @@
+I retain public cyclic artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-cyclic-public-h0qh5zp9
+test_instrumented_public_cyclic_corpus (tests.test_file_cyclic_public.FileCyclicPublic.test_instrumented_public_cyclic_corpus) ... FAIL
+
+======================================================================
+FAIL: test_instrumented_public_cyclic_corpus (tests.test_file_cyclic_public.FileCyclicPublic.test_instrumented_public_cyclic_corpus)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-admission-public-qualified-bc45/tests/test_file_cyclic_public.py", line 415, in test_instrumented_public_cyclic_corpus
+    self.qualify('instrumented',True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-admission-public-qualified-bc45/tests/test_file_cyclic_public.py", line 148, in qualify
+    objects = self.providers(name,instrument)
+  File "/private/tmp/nanolang-admission-public-qualified-bc45/tests/test_file_cyclic_public.py", line 85, in providers
+    self.command(f'{name}-{stem}-build', [*self.compiler,*self.flags,'-O1',*hooks,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '-c',actual,'-o',str(obj)])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-admission-public-qualified-bc45/tests/test_file_cyclic_public.py", line 63, in command
+    return acyclic.FilePublic.command(self, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-admission-public-qualified-bc45/tests/test_file_public.py", line 111, in command
+    self.assertEqual(process.returncode,expected,(args,stdout_text,stderr_text))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : (['/usr/bin/clang', '-std=c11', '-D_DEFAULT_SOURCE', '-DNVM_FILE_PUBLIC_ENGINE', '-DNVM_FILE_CYCLIC_VM_PRIVATE', '-DNVM_FILE_CYCLIC_NATIVE_PRIVATE', '-g', '-Wall', '-Wextra', '-Werror', '-I.', '-Isrc', '-Isrc/nanoisa', '-O1', '-Dffi_loader_init=file_runtime_loader_init', '-Dffi_loader_open=file_runtime_loader_open', '-Dfork=file_runtime_fork', '-c', 'src/nanovm/vm_ffi.c', '-o', '/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-file-cyclic-public-h0qh5zp9/instrumented-vm_ffi.o'], '', "src/nanovm/vm_ffi.c:24:10: fatal error: 'ffi.h' file not found\n   24 | #include <ffi.h>\n      |          ^~~~~~~\n1 error generated.\n")
+
+----------------------------------------------------------------------
+Ran 1 test in 6.829s
+
+FAILED (failures=1)

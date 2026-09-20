@@ -1,0 +1,29 @@
+{
+  "label": "ffi_callback_fixture-build",
+  "argv": [
+    "/bin/gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-fPIC",
+    "-shared",
+    "-pthread",
+    "tests/nanovm/ffi_callback_fixture.c",
+    "-o",
+    "/home/jkh/Src/nanolang-affine-variants-qualified-660/obj/ffi_callback_fixture.so",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic"
+  ],
+  "timeout": false,
+  "cleanup_complete": true,
+  "returncode": null
+}
