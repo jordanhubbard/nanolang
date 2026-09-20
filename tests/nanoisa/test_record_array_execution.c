@@ -385,7 +385,8 @@ static void plan_accounting(void) {
     for(unsigned persistent=0;persistent<2;persistent++)for(size_t i=0;i<measured;i++) {
         ra_calls=0;ra_fail=i;ra_persistent=(int)persistent;
         plan=(void *)(uintptr_t)1;Input saved=c;NvmArrayEligibilityResult r=nvm_prepare_record_array_execution(&c.m,&plan);
-        CHECK(r.status!=NVM_ARRAY_ELIGIBLE&&plan==(void *)(uintptr_t)1&&!memcmp(&saved,&c,sizeof c));
+        if(r.status!=NVM_ARRAY_MEMORY)fprintf(stderr,"I expected MEMORY at plan allocation %zu, persistent %u; got %u: %s\n",i,persistent,r.status,r.message);
+        CHECK(r.status==NVM_ARRAY_MEMORY&&plan==(void *)(uintptr_t)1&&!memcmp(&saved,&c,sizeof c));
         CHECK(!ra_live&&!ra_bytes);ra_fail=SIZE_MAX;ra_persistent=0;
         plan_positive(&c);CHECK(!ra_live&&!ra_bytes);
     }

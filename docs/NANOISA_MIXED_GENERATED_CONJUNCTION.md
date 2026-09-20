@@ -349,3 +349,9 @@ After review I require the seven Linux/Darwin ordinary and supported sanitizer
 configurations, old origin/ownership/union/array neighbors, exact source/tool/
 provider inventories and first-terminal preservation. No runtime/public admission,
 generated-consumer behavior or source acceptance is claimed by these query gates.
+
+I strengthen the valid combined-plan allocation sweep after fixture review:
+every injected failure must return exactly MEMORY, preserve output/input and
+leave zero tracked objects/bytes before independent recovery. INVALID, LIMIT or
+UNRESOLVED cannot hide a malformed fixture or incorrect allocation classification.
+I retain the unchanged old origin corpus and its historical assertions separately.
