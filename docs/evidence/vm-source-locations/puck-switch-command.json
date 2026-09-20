@@ -1,0 +1,1 @@
+["make", "-f", "GNUmakefile", "-f", "/tmp/vm-locations-integration-puck/switch.mk", "-j2", "OBJ_DIR=obj-switch", "test-nanovm"]
