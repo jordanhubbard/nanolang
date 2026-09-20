@@ -275,3 +275,33 @@ used to obtain BUSY. These consumers model future adapters; they are not emitted
 programs and do not qualify the later generated-name/package requirement.
 There is no service handler or host access in this component. Missing-grant
 execution refusal/loader attempt tests remain the later joint-routing obligation.
+
+My preparatory allocation/ownership table is:
+
+| Object | Allocation and ownership | Release/publication |
+| --- | --- | --- |
+| Atomic gate and runtime identity | One static owning TU; no allocation or copied gate | Successful private entrant leaves exactly once; failed entrant owns nothing |
+| Opaque grant | Exactly one `malloc(sizeof(NvmFileHostGrant))` under the gate | Success publishes once; failure leaves output unchanged; destroy frees under gate, then nulls caller storage |
+| Revocation | One boolean in the live grant under the gate | No allocation, stream, plan or owner lifetime extension |
+| Caller pointer/output storage | Caller-owned, disjoint, valid for entire call | Never freed by lifecycle except the pointed-to owned grant on accepted destroy |
+
+My prepared fixtures run linked real production and an independently compiled
+instrumented copy, never both in one binary. They cover two C99 translation units,
+32 deterministic held-gate pthread contentions and same-thread reentry, query
+versus grant exclusion, BUSY-before-inspection precedence, two independent grants,
+revocation/repeated destroy,128 create/destroy cycles, allocation failure sentinel
+preservation/recovery, allocator-hook reentry, and four private metadata mismatch
+controls with restoration and final zero live allocations. The one owning source
+must also fail a deliberate C99 compile with its explicit diagnostic. That
+expected compiler refusal is a positive fixture control, not a gate failure.
+
+Before execution I submit source plus fixtures for review. Fresh ordinary Linux
+GCC and Darwin AppleClang, Linux GCC/Clang and Darwin HomebrewClang strict
+ASan/UBSan/LSan runs must compile the actual isolated object with selected flags;
+no old uninstrumented object may supply a sanitizer claim. I retain commands,
+compiler/SDK identities, source/tool before/after maps and every produced object/
+binary. The Python runner preserves timeout output/status and stops at the first
+unexpected terminal. It clears LSAN_OPTIONS and sets leak detection explicitly.
+There is no fixture execution or passing claim in this source checkpoint. Actual
+public missing-grant/loader counters, generated two-program namespace linking,
+handlers and installed packages remain separately reviewed later requirements.
