@@ -13968,3 +13968,13 @@ both-host qualification and independent evidence review.
   structure assignment does not promise padding-byte preservation. I use
   `memcpy` for this fixture snapshot, retaining the same comparison and all
   semantic assertions. No failing test or product defect is claimed.
+
+- [ ] I retain both3115 first compile terminals and correct only entry naming
+  and strict private formatting (`task_26a29451abd34cf98473acca2adee0fc`). Fresh
+  Linux/puck setup and exact two-method discovery passed; no runtime fixture
+  executed. The plan fixture's nested `main` macro defeats the VM fixture's
+  outer rename, causing a macro diagnostic and duplicate main. I introduce an
+  explicit plan-fixture entry-name hook with unchanged default main. GCC also
+  diagnosed two private preflight `if`/`break` statements on one line; I separate
+  the unconditional break without changing control flow. New frozen gates need
+  review; neither first terminal is relabeled as a runtime result.

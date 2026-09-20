@@ -578,10 +578,12 @@ static VmResult vm_ra_preflight(VmRecordArrayPrivate *p,const VmDispatchInstruct
     case OP_DUP:retained=stack_peek(vm,0);break;
     case OP_LOAD_LOCAL:case OP_STORE_LOCAL:
         if(in->operands[0].u16>=frame->local_count)return VM_ERR_OUT_OF_BOUNDS;
-        if(in->opcode==OP_LOAD_LOCAL)retained=vm->stack[frame->stack_base+in->operands[0].u16];break;
+        if(in->opcode==OP_LOAD_LOCAL)retained=vm->stack[frame->stack_base+in->operands[0].u16];
+        break;
     case OP_LOAD_GLOBAL:case OP_STORE_GLOBAL:
         if(in->operands[0].u32>=vm->global_count)return VM_ERR_OUT_OF_BOUNDS;
-        if(in->opcode==OP_LOAD_GLOBAL)retained=vm->globals[in->operands[0].u32];break;
+        if(in->opcode==OP_LOAD_GLOBAL)retained=vm->globals[in->operands[0].u32];
+        break;
     case OP_ARR_NEW:case OP_ARR_LITERAL:
         if(!vm_ra_leaf(in->operands[0].u8))return VM_ERR_TYPE_ERROR;
         if(in->opcode==OP_ARR_LITERAL)

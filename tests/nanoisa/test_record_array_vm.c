@@ -1,8 +1,8 @@
 /* I execute the distinct private ordinary mixed VM, never a public admission. */
 #include "../../src/nanovm/record_array_runtime_private.h"
-#define main retained_record_array_plan_controls
+#define RECORD_ARRAY_EXECUTION_MAIN retained_record_array_plan_controls
 #include "test_record_array_execution.c"
-#undef main
+#undef RECORD_ARRAY_EXECUTION_MAIN
 #ifdef VM_RA_WHITEBOX
 #define malloc ra_test_malloc
 #define calloc ra_test_calloc
