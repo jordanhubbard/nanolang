@@ -161,7 +161,8 @@ static void union_only(void){
     for(unsigned u=0;u<2;u++)for(unsigned v=0;v<2;v++){
         NvmUnionVariantFact a,b;CHECK(nvm_ownership_union_variant(&c.m,u,(uint16_t)v,&a)==NVM_V2_OK);CHECK(nvm_ownership_declarations_variant(p,u,(uint16_t)v,&b));
         CHECK(a.layout==b.layout&&a.name_idx==b.name_idx&&a.field_offset==b.field_offset&&a.field_count==b.field_count);
-    }nvm_ownership_declarations_free(p);
+    }
+    nvm_ownership_declarations_free(p);
     patch(c.o,0,2);c.m.ownership_size=(uint32_t)(c.path-4);patch(c.o,c.path-4,0);c.m.ownership_size+=4;
     c.param=TAG_INT;c.o[c.local]=TAG_INT;patch(c.o,c.local+4,UINT32_MAX);
     mixed_refuse(&c,NVM_DECL_UNKNOWN); /* valid legacy declarations lack variant facts */
