@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "make",
+    "-j2",
+    "CC=/usr/bin/gcc-13",
+    "test-affine-scalar-union-runtime"
+  ],
+  "selectors": {
+    "CC": "/usr/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "NANO_AFFINE_UNION_CC": "/usr/bin/gcc-13",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+  }
+}

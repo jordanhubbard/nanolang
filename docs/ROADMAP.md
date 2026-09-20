@@ -13420,3 +13420,13 @@ and transport neighbors and stop on the first unexpected terminal. No result fro
 this non-admitting query establishes runtime or source mixed-graph authority.
 
 - [ ] I preserve task_349ba67236c448e0aa92f206632c3557 first mixed-fixture Clang terminal at `dd5a3ab63`: line164 places cleanup after a nested-loop closing brace on the same line, triggering strict misleading-indentation. Linux GCC ordinary passes1,814 linked/10,960 instrumented checks and13 allocation positions; Darwin was transferred but unrun. I separate only that statement, retain all predicates and production, then qualify corrected/unrun phases with fresh fixture products and exact provider reuse evidence. I do not repeat the unaffected GCC pass or execute a failed output.
+
+My [mixed declaration qualification](evidence/ownership-declaration-projection.md)
+now passes all seven compiler configurations cumulatively: original dd5a GCC
+ordinary and corrected5a367 remaining Linux/Darwin modes. Each reports1,814
+linked/10,960 observed checks and13 mixed allocation positions in both failure
+modes. Corrected15 Linux and17 Darwin phases include unchanged ownership, affine
+union, array and transport neighbors. I retain the first strict Clang formatting
+terminal, exact provider-copy attribution and a367-report/598-object seal. Full
+source/runtime goals remain open; independent review and actual merge precede
+bounded ledger reconciliation, including repair349ba.
