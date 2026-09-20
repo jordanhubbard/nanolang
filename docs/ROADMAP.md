@@ -12912,3 +12912,5 @@ I retain emitter-timeout task_4931a66f39c04b1a96981a4e00d43646 and the complete5
 - [ ] I review and run one separately built private timing observer on qualified8d731 production, retaining full/reuse admission buckets, ASSERT counts and matched shadow-marker deltas under the unchanged full imported ten-second gate. Task_4931a66f39c04b1a96981a4e00d43646 remains open; evidencecd85 preserves both ordinary deadline failures. I make no broader lifetime or cache change before measured diagnosis and independent design review.
 
 - [ ] I measure the remaining full-admission classifier stages under `docs/VM_ADMISSION_STAGE_DIAGNOSTIC.md`, preserving the original deadline and task_4931a66f39c04b1a96981a4e00d43646; source review precedes a single diagnostic run, and broader reuse remains unapproved.
+
+- [x] I retain the single f0de stage observation in `docs/evidence/admission-stages.md`: repeated service-pending queries dominate measured successful admission, but the unchanged emitter deadline gate still fails and remains open.

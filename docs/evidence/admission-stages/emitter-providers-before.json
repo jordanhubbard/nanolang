@@ -1,0 +1,1214 @@
+{
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/bin/nano_virt": {
+    "sha256": "db7dbf98c30b5f2d3de8707b70b7f18b82ca306da6edc21fe7231ffe9d9ee7b4",
+    "bytes": 18799200
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/bin/nano_as_capture.so": {
+    "sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+    "bytes": 72080
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/toon_output.o": {
+    "sha256": "b88884e3a6721fc7c38f9815eb454470d368e0a75588ed2733168b35fc82949e",
+    "bytes": 30904
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/transpiler.o": {
+    "sha256": "4b79d27ac4aa0c97dbae53473d6e09a015bad45039ccfae285c1e2c5511a6670",
+    "bytes": 1101112
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/riscv_backend.d": {
+    "sha256": "d15ee23af9c6b1409a0be589b17a903af00a0a0a534289673299c7a15c330edc",
+    "bytes": 404
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/toon_output.d": {
+    "sha256": "69ea4bb110072d9a267aecd00e9e29c6d97803901bc9accbf6126a0824ccb6d5",
+    "bytes": 97
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/cps_pass.d": {
+    "sha256": "670d90f62b394e077310e110e17d6d0a51e50ae68d1218e7e8404f6a7c9f7669",
+    "bytes": 346
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/effects.o": {
+    "sha256": "f290cf393357f25a5911e60b7ce61a3976d5589cc0ab46f7a1d34f0c63387ee6",
+    "bytes": 107088
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/resource_flow.o": {
+    "sha256": "ec2c08d3f8b027ad2faa9eb1cda0b7409fb41fb7efcc62991576e3bbd3f86332",
+    "bytes": 290408
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/cJSON.o": {
+    "sha256": "7a37d946ec0dae0c895932de3954bd4657db672d147adc1c7e27e4d2cad93f10",
+    "bytes": 208072
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/stdlib_runtime.d": {
+    "sha256": "2be830a7c252bcf5d4c99e598ca301a39b92e964ec9b5013d714715adb36f528",
+    "bytes": 529
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/bcp47.o": {
+    "sha256": "46a71b5fc8f7131c75025dfe4a50ca86dcd7c327be5b644a95aab79ad1caa1c9",
+    "bytes": 27392
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/emit_typed_ast.d": {
+    "sha256": "5dd1c90884e754198b1e20e14b3dec45cca7fd2b4dae770adad231bb776e47ca",
+    "bytes": 370
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/module_metadata.d": {
+    "sha256": "7bd0e99b404b177acf12b6f2a7cb905ccccc26cab0838eec596215152a39a497",
+    "bytes": 370
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/docgen_md.o": {
+    "sha256": "42f15bcfe3e8e0356048bbbcff110add66baac6e28c1201c352a946ad549ef2e",
+    "bytes": 96904
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nsi_file_plan.o": {
+    "sha256": "2afdd5f73de187df1a037065ad9bc7271739c241bfdf191688ebcee0bb64649a",
+    "bytes": 38000
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/module_metadata.o": {
+    "sha256": "7b7a44a7ef848431f483196f3516d634efab0b724abc861cb3a2fadc249dd488",
+    "bytes": 242448
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/docgen.d": {
+    "sha256": "71dcc82428736fb2ea74016376254c4284882d7550c5d744ad2da42c8c0d68ab",
+    "bytes": 361
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/tco_pass.d": {
+    "sha256": "e54f3fab22eb585dd9b442421fd02a87a34a86c8771cdd4a9a7011aa0d8c7ea6",
+    "bytes": 346
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nsi_file_plan.d": {
+    "sha256": "6942570d221ad5f111d9b199c79638daab4752478f815b2a6a610bcf1f445630",
+    "bytes": 182
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/dwarf_info.o": {
+    "sha256": "74e7de6f4357ecb46d3e6e17a72226972d8e54283cf8c98125a22d368fd32438",
+    "bytes": 41672
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/transpiler.d": {
+    "sha256": "856e7f7889441b2f56e929976cf673f0dd514675b6e756e31f1327dda74683a2",
+    "bytes": 659
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/locale.o": {
+    "sha256": "15b05cd1d5eafc8fb7dd0b573f781b7078ed1642ce39bf5d68e729e388f1a782",
+    "bytes": 20416
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanocore_subset.d": {
+    "sha256": "42c85949266c2d34096818d8569fe697e4600fb0f27881cf0d38e596cd162235",
+    "bytes": 374
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/bcp47.d": {
+    "sha256": "e1a0c747dd9981d013b3246a653aeb8d3ad6454361066e532a8c49bc97a07c75",
+    "bytes": 73
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/typechecker.d": {
+    "sha256": "ab97fee07029ac7713eda0bf40fdefac2320d0d84b166e8d25e0330512a8c2c5",
+    "bytes": 686
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/interpreter_ffi.o": {
+    "sha256": "c8a93992d1323527ee5f7682622b4cc7184cf4cbe49bd10dcba3d524f1548e44",
+    "bytes": 85432
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/reflection.d": {
+    "sha256": "950acca58d409b00bc692c25d39e9d4a3d3166ea2fe665f746763215346817bf",
+    "bytes": 354
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/utf8.o": {
+    "sha256": "015f9602308fb79eb10d989ba4e74004587e4895cf297580211e65514060e324",
+    "bytes": 18680
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval.d": {
+    "sha256": "6b1355fdbf415ac41d0617075b8cb45cb6a8662c63c1d2126e12943849243553",
+    "bytes": 1234
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/dce_pass.o": {
+    "sha256": "5b486df34607a67c16d351c352e5a962b1a6366360dbe2a7ab80700d75fccc16",
+    "bytes": 56216
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/resource_tracking.d": {
+    "sha256": "438d2942d397a34953f0c875558e9b79a0b5e7c6dfe14db8faa66272050321e1",
+    "bytes": 382
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/bench_native.d": {
+    "sha256": "fc9129d7b978374badcadfd4d676d721c05b2d4f6ad78a2f1d02717617ab25e7",
+    "bytes": 348
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/builtins_registry.d": {
+    "sha256": "2381e93b0a59cc0bc0a26b6849c6f2168370d4d71fef6847200c05b4104dafaa",
+    "bytes": 98
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/diag_id.d": {
+    "sha256": "5a2fc9eb2ea85ba9ba0397660f36cffefd146ed7d7bb29bfd10b1bf7567e98f3",
+    "bytes": 58
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/bench.o": {
+    "sha256": "964742401198b435a84ac0058a4dbce5c504a5ab24914ca9913fe0b7693c63eb",
+    "bytes": 68952
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/lexer.o": {
+    "sha256": "0e18953b75c39bf1daa081b619b8a06497a36184be90f85d3f2a67bedab2b07c",
+    "bytes": 91512
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/par_let_pass.d": {
+    "sha256": "9cbf891fb8c97c4a747326ea7baefb30fa2281b2e6a9c04aa8c8d163b1c73297",
+    "bytes": 362
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/emit_typed_ast.o": {
+    "sha256": "f3ae56dcf1bbf09d325ac198d951c474923d8f8dde3646ec840ceda66af2669d",
+    "bytes": 161856
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/coroutine.o": {
+    "sha256": "1b1570ba7bc29a3b8bc1ac3b56218861cf0db56122b1f9818cd95a92264c21d2",
+    "bytes": 37368
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/builtins_registry.o": {
+    "sha256": "12812c18e880cb4e13c292f8d8f04a6db7b879ddf2c775ff6bf0d5d34d0083f6",
+    "bytes": 27472
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/cJSON.d": {
+    "sha256": "c38b50b6016ebdd81cff96430270ba9f15734037d05c62793355eee2a0aa8e86",
+    "bytes": 50
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/module_builder.d": {
+    "sha256": "eabd17a1f00059cd8eba34c2f4bd7a2da22684a69713e239c7be24c7e25ff019",
+    "bytes": 642
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/typechecker.o": {
+    "sha256": "401ff20416d74b5607b9187f869bf1c0fb456fb5fc23e345aca2734c3c3e425f",
+    "bytes": 891720
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/fold_constants.o": {
+    "sha256": "5181bb3d0d640a5d24e49092e94b07bd1ee67db6e764751efe85b1c3f112068c",
+    "bytes": 67912
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanocore_subset.o": {
+    "sha256": "5cc365c95787195a1f23fa93dd70b35846b273b0257c569792c762baca9c1119",
+    "bytes": 82296
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval.o": {
+    "sha256": "d4ae9d518da1d3f3319a865e9e189c892172d5b7c33df19bf2ecc8be0f3b7a90",
+    "bytes": 880800
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/opencl_backend.d": {
+    "sha256": "9acecccdd14bc48f8401b45285b586cd510ab82ebabe7291c74f74fb21d3e5c1",
+    "bytes": 370
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/channel.o": {
+    "sha256": "7f9741aa58e68badfca7c2e4a407eeb440380cb97a3baacfb67568790d391e6c",
+    "bytes": 20968
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/diag_id.o": {
+    "sha256": "01077b93df32cce712014c51439f4a1bb7046cba6eeb2c7624e3199f5ea84d37",
+    "bytes": 7592
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/resource_tracking.o": {
+    "sha256": "c8431c81e04f360136d2b3adaa7b52b1bfa88f156210e83da19fc6d1b2298ac4",
+    "bytes": 126760
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/pgo_pass.d": {
+    "sha256": "3eee77359d2044a987ff4b31a969e593a37e0814037f10f8a63949e6e40ce41c",
+    "bytes": 373
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/effects.d": {
+    "sha256": "99525f5e40a44ccbac46fa8e94e00558c3b0044d38de1ae174f35a61ea9bb33d",
+    "bytes": 369
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/pgo_pass.o": {
+    "sha256": "9413f1fdcc750dd5302842cd5245a6b274920552e56e3fd68ce7986898dde0f7",
+    "bytes": 68800
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/fmt.d": {
+    "sha256": "dad38d5cd0190d448593365654a143b177d8fcef9317bad2f478f67acbbe0de7",
+    "bytes": 326
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/fold_constants.d": {
+    "sha256": "e84c881c91438a8c69a2c6456971e1305255f5f4d0d4e1c4c459f8717261d8b4",
+    "bytes": 370
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nominal_types.d": {
+    "sha256": "11b1d6964c2ea8716d8c64533197bfef2c9efffd2b98c8d85b01e102d1baa575",
+    "bytes": 325
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/bench_native.o": {
+    "sha256": "0e7917a1741b15ac375e8286e7ef29f63559762f720e99bb4735d52523bcf2fa",
+    "bytes": 39352
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/channel.d": {
+    "sha256": "88a9f0e91000052f978373acdf0cd234183cbc7c2d11c8e1310215e91567d349",
+    "bytes": 58
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/ptx_backend.o": {
+    "sha256": "fe265e2840f74d9b3a68c23ce094fb89c29889d774c47f473d829cd75fabbc32",
+    "bytes": 101944
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/interpreter_ffi.d": {
+    "sha256": "4179d8f2da04f79a305526ef8a06e5cf318f821c0b86b439d7edf3a268726b79",
+    "bytes": 560
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/locale.d": {
+    "sha256": "7306531cf1e9f3b23375d2b35160439f78dabcb70995c542cff19a47f482b5e5",
+    "bytes": 79
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/reflection.o": {
+    "sha256": "06fc27670ab1d7db34968f8912953e2f8892ed7a881c3b978e9a5f113d9de510",
+    "bytes": 98464
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/ptx_backend.d": {
+    "sha256": "3af3cf548ca2ed080c2bf79eae1f67bfb70db2e595f81019173ee3ffd898af51",
+    "bytes": 358
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/docgen.o": {
+    "sha256": "6785692d270575d37b135856319e75de75f9251e3c0a15c7eb7e8e2bd9d6f3e2",
+    "bytes": 130248
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/env.d": {
+    "sha256": "040fa08e4597ec1541cc13d3633016a437213c6c7e2601aa78ce01c04fea026d",
+    "bytes": 389
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/lexer.d": {
+    "sha256": "ef88c8fddedf76f11f4eb321702653e3d566ae3bd778997ea403c67566f8638b",
+    "bytes": 361
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/bench.d": {
+    "sha256": "e09db76b04986cd3b80ec2b31d72fa74e8264e2ddbe5ac6c8710becca2bdebd2",
+    "bytes": 334
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/utf8.d": {
+    "sha256": "49cf37489a7db0853ed5aa7c61395c5461f766474d809140f0734242ab4ddb02",
+    "bytes": 46
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanocore_export.o": {
+    "sha256": "d9b50c5d3d9389f4f430380776b99fa4e3e4866cae1f6b35887cf85f2c5a0b0b",
+    "bytes": 117584
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/opencl_backend.o": {
+    "sha256": "4984b7bbb1b37b517fca073ea42ce265d1057774e69d08647ce3131c5a1e620d",
+    "bytes": 97680
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/riscv_backend.o": {
+    "sha256": "9155dd6e3cb724711be7a888c954dba9f08af3c7dcccd3e6fdd961329467f939",
+    "bytes": 80936
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/docgen_md.d": {
+    "sha256": "26791c7b747713035b23513851d96fbc519d1a1718ef2391f3d3f48adcd8a689",
+    "bytes": 373
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanocore_export.d": {
+    "sha256": "c123e5b07555d442e1139176a57d52a5b029bace422f918a6aae23c09eced683",
+    "bytes": 422
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/catalog.d": {
+    "sha256": "dc07deab59e1771f6cf7bdf4fbda603cc4513d7c67f4d70aac2e9739a4360a39",
+    "bytes": 190
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/parser.d": {
+    "sha256": "9db42cb7b63327578a96e7ab97280ceea0288b49c9fde46678fc22685a62cdf8",
+    "bytes": 367
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/c_backend.d": {
+    "sha256": "7e5cd82b158c4a5c1ba7731a261ff7b76df12f38f332d5e497bdf149cba489f3",
+    "bytes": 620
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/c_backend.o": {
+    "sha256": "39f5e700b21506233ac6aec0b337bd8799fdb0b28f69f82c9c113f0dd7e64bcc",
+    "bytes": 490632
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/json_diagnostics.d": {
+    "sha256": "75fbfa2111655076d30df243060b31d6999e4e7dad4b7464d9dde3991e4e5320",
+    "bytes": 120
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/resource_flow.d": {
+    "sha256": "67214ff9dd6be6665d236729f3734c935e9b474f171dfa9b41245a69de44e88e",
+    "bytes": 374
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/dce_pass.d": {
+    "sha256": "8dbae5a03566cb39e658475de45299f7fcb38d883c14887e46753db08d12df24",
+    "bytes": 346
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/par_let_pass.o": {
+    "sha256": "245d0af97030818fff678fb75459334ee4e70236ff310a49ce05614a60df05dd",
+    "bytes": 36688
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/coroutine.d": {
+    "sha256": "c6ca874af404c08039d549033e57e0242bc8827da9f59ada31550518192e05b9",
+    "bytes": 350
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/stdlib_runtime.o": {
+    "sha256": "7e0b5fafe6a8d8cb98e53a1487d1f35968983798fd84dec46711286db64724ec",
+    "bytes": 373040
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/catalog.o": {
+    "sha256": "49a6b33217d0cd28eec4b4a0419b683a15628dfe2e5399e0485ecda747848e1c",
+    "bytes": 54096
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/module_builder.o": {
+    "sha256": "a986c5adaf6cb17b7597898645d94bc212a00483a57f180213308972d0d54381",
+    "bytes": 1246472
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/tco_pass.o": {
+    "sha256": "bcae0eba6418061d624c25c6cab971de6207a992e9abc5f3c0296d6b2395fef4",
+    "bytes": 120736
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/dwarf_info.d": {
+    "sha256": "d579a5d591f94b05a191dc69e96516d1345a0d79e1a98cb97e8c75dc80112306",
+    "bytes": 70
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/module.d": {
+    "sha256": "e80e58e7849346bc2862749c7bb09d055b853372f9f07c62dcfe714a2f93b5de",
+    "bytes": 435
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/json_diagnostics.o": {
+    "sha256": "5909c51af3746e619771f6ed8b2062a4d7bc78b43c9ff67cd79b255b89c655c0",
+    "bytes": 42992
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/module.o": {
+    "sha256": "bf2dc6673e5ac202a4585d14ea12282dd198b108d660d3835f24842b71ee8d98",
+    "bytes": 317280
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/parser.o": {
+    "sha256": "ff4b8be4bc9507d56ba8de413a8969e0dd71ca435c08163382458dca3667d7ba",
+    "bytes": 736064
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/type_infer.d": {
+    "sha256": "53951a56b6bf5043fa041731b58e9c2932db7c7534d29a2798bcec5ab0cb3297",
+    "bytes": 413
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nominal_types.o": {
+    "sha256": "ae4fb0331920fa469c8864e71afaf6b106362ba60642dc5ab3c4c662f5b2b5bb",
+    "bytes": 98256
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/env.o": {
+    "sha256": "6f367f11a89fd5eeb8b741a3e3331824c5d2d89820f19e8919453e5aaa9df288",
+    "bytes": 292704
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/cps_pass.o": {
+    "sha256": "1bd06ed0a7f28e8fd07956ba4fcc102191dda908c6628ff80ecd55b93ba2df93",
+    "bytes": 39464
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/type_infer.o": {
+    "sha256": "79ecfe40a2cb992472d919604b0e14839205012e699fb19744b1b6469ba7a0e8",
+    "bytes": 260656
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/fmt.o": {
+    "sha256": "642f7427e8170fcc11e74650a3e274083ff4c7da5598034f89f31d6bdba56576",
+    "bytes": 43880
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovirt/main.o": {
+    "sha256": "3b5199f918d67671808d7517478f626c11d397477a8c0aeb154f0ebcb8b249b4",
+    "bytes": 124328
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovirt/main.d": {
+    "sha256": "62e396ce1d4b6d196ac38b8c602b7853ba1ea0eb0be6fb2f7c893316c7ec86e4",
+    "bytes": 2354
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovirt/shadow_runner.o": {
+    "sha256": "c63c58a04d83f0d99ef5cdc02c7d574aa8723aef003bb2c3ed4445bbb4585b60",
+    "bytes": 120304
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovirt/wrapper_gen.o": {
+    "sha256": "3d8878c925b96d13a2e87ee3d627de266984f11be20bf0f88ae478484a2df4a0",
+    "bytes": 176864
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovirt/wrapper_gen.d": {
+    "sha256": "5f49965e2f25512ec0a15a7099b1968cfcd8d2b2150e1754f4b1c57d094d466f",
+    "bytes": 1627
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovirt/codegen.o": {
+    "sha256": "df2c40dd0dfdb11bffab1cda0b6664ca05de8f54f46689ac47b9e807b7fb5e05",
+    "bytes": 951464
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovirt/shadow_runner.d": {
+    "sha256": "b8e5348667b6f8fddaa9c594bf801f0ddf4f4a8f04f68c668ccd179ae054e352",
+    "bytes": 2434
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovirt/codegen.d": {
+    "sha256": "a5a9a95dda942d53f0eef91e196084e22e9976a08faa52c0a345e65edc2e8f63",
+    "bytes": 3577
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTStructLiteral.d": {
+    "sha256": "49907a5f957905ce60e5e60d06f274740362ce0f968f0d4258ab1309f2df7731",
+    "bytes": 383
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTMatch.d": {
+    "sha256": "de44169768167c8f7591a3a16cd1082807060fd5db58fe256a81cf8e91505763",
+    "bytes": 348
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_token.d": {
+    "sha256": "bb585e2aefe0fa976cd58eb0b3668eb6f3669a8e04efbe02e770ee0bdf673853",
+    "bytes": 314
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTMatch.o": {
+    "sha256": "b96cfc28c422ca6186069fabd43fce0639208fe4e1f677a0a8b3e744013d7e74",
+    "bytes": 28568
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTNumber.d": {
+    "sha256": "4c2d8935d837483f22ea7a720b3f7519fad95a5d5770b500a1f8b027bc686080",
+    "bytes": 352
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/token_helpers.d": {
+    "sha256": "8a60b08edc04ff4b50d534867e036c1ce56bc92e2e3d47126918d7a7fbbbb81d",
+    "bytes": 553
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTNumber.o": {
+    "sha256": "cdc16046e15ad7ded579e0bcdf666f71ee5b78720c64194a9f6414eac371c550",
+    "bytes": 29008
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTOpaqueType.o": {
+    "sha256": "898b389857aa08e73d014d032c3948c67612baca0e9dc288dfa58ca81266b5ac",
+    "bytes": 29160
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTIf.o": {
+    "sha256": "131f6155172885ad2dd735cc67bdf73315990a0d1dd4f9ae60e1c304c407c538",
+    "bytes": 28952
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/ffi_loader.d": {
+    "sha256": "d833139f2e29bc0aa2bbad001ef063a87f009c04427fe8b55c3ebc902076b74b",
+    "bytes": 168
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTBlock.o": {
+    "sha256": "53fd50b2d39d2f8ec09ce89d70cc430579ad413092ca08350d18df29ba64ebd9",
+    "bytes": 28976
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/nl_string.d": {
+    "sha256": "ffc0ffd1c635592c0e9de81f006dd4532da5e74a2a0606e7380a7b5a6098fb3e",
+    "bytes": 203
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTStmtRef.o": {
+    "sha256": "23e21425393d2c791005664ab2387229b88731cf51d26112ccdb1629f15f9119",
+    "bytes": 28944
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/regex.d": {
+    "sha256": "59e0435a882cf72a7ec21f1ceadce8c7774e6bf0720b99f11d3e6bc1d2c30e92",
+    "bytes": 128
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTBool.o": {
+    "sha256": "968c455dc0e0cc364ae3feedff17d5128822647f272b8492302f79fd9592cf15",
+    "bytes": 29264
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTCall.o": {
+    "sha256": "979b85b3c609f8e475bcfcdc7298469ccaa9a7f46c4cf7940dbe6ad79d3d0f59",
+    "bytes": 28936
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTStmtRef.d": {
+    "sha256": "132eca31a1c746ac25211c518855451fcc855d7915861c7f6f67158737a98a65",
+    "bytes": 356
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_CompilerDiagnostic.o": {
+    "sha256": "8bc6fb158efd67dfa07653f78d5f9a9fdc923ea53a186a9cb0f16dbc6cac8975",
+    "bytes": 27824
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTBinaryOp.d": {
+    "sha256": "6038da7bcc9e10022da671f774f4b28fee781957848fe87e9db4e98424f9aefa",
+    "bytes": 363
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTLet.o": {
+    "sha256": "4774827b500d358099577592cd37b7b5dce752e5b5384f129536dd286f8c09ee",
+    "bytes": 28456
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTAssert.d": {
+    "sha256": "79418d54033543db7301b3afce9cf926cac974f0ae6bc88e9b1126cbcdef6724",
+    "bytes": 352
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/module_build_dir.d": {
+    "sha256": "42325eed62fa535f19873891b9cb282483c3fbc7022a9b3aa75f0fc0d0643da9",
+    "bytes": 129
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTArrayLiteral.d": {
+    "sha256": "9fb12cf4cf8ee0695cf354cf35959c33d05077b00ddbab4f0d00731860499d2f",
+    "bytes": 379
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTFloat.o": {
+    "sha256": "4a0603580bf9a5cd9d3449f79c669ad15c191590e6cb05299d399f5961bf98d3",
+    "bytes": 28976
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTModuleQualifiedCall.o": {
+    "sha256": "5de63415aa12bd85ef8b435e33b4147f7ddc2a2359e8898e3f98957e5c84f6ed",
+    "bytes": 27776
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/dyn_array.d": {
+    "sha256": "4a3d12085aa6b45eecce936b6ee9db08e560901c74399b249d924d8589f1169f",
+    "bytes": 136
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_CompilerDiagnostic.d": {
+    "sha256": "9b6726887f7899400111683bf6c30bd0e845abfe5eb184d575877327a0571e45",
+    "bytes": 394
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTBlock.d": {
+    "sha256": "596c39c84c1aa24821e5f0113f0802de4ae847bd484af9acd0ae83cd8c188ced",
+    "bytes": 348
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/callback_runtime.o": {
+    "sha256": "e9a699c2c725f03593b7ffe09fb783541617a9c0d8b0a33c32d01fb53e80ed43",
+    "bytes": 42216
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTWhile.o": {
+    "sha256": "68c0249cb41227617555737e217c3f30c279b68380bf26f7422f9435ae65eca5",
+    "bytes": 29128
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTString.o": {
+    "sha256": "3ffae8d7b263cf259339bd93800f8830547499e971dff986bb923b47eeeef8ac",
+    "bytes": 29008
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/gc.o": {
+    "sha256": "3cdee4033cd7e63a73c8ddba17b5bcb428706d369d2e99c5ad648a0efab31d7d",
+    "bytes": 8427208
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/dyn_array.o": {
+    "sha256": "f6c646337f94ecebb5e476c602fe8ea5f796d9097255eb9005b98156c89fba7b",
+    "bytes": 97872
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTShadow.o": {
+    "sha256": "e8e1b067c9c01d034a5e52c62fdd5da5ef2ed27e594a8f20d181b2d61368c81a",
+    "bytes": 28880
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTWhile.d": {
+    "sha256": "83d04abe54e2e5bc4e5df88924ae07b3af5410911deb30fa3e3cfcc88712d65f",
+    "bytes": 348
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTFieldAccess.o": {
+    "sha256": "1421997a6de3ec6708114d31f4f51f178e19aca6c9b57cce7f7eceac0ca5f8dc",
+    "bytes": 29104
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTPrint.o": {
+    "sha256": "449707142e55b9ffed4f313a78007daa07f4e0feac852fd6381f8e622244e721",
+    "bytes": 29080
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTUnion.d": {
+    "sha256": "5aac40ea678a1bc43546e8dc0d5782c870e64688ed3751adff0cc20e9562eb54",
+    "bytes": 348
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_LexerToken.o": {
+    "sha256": "81bfabde356370f87fdcbde098d78f26f156e2ab642b73b24e47c09557bfd435",
+    "bytes": 29040
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_CompilerSourceLocation.d": {
+    "sha256": "09f559c6e4bea0b3962813c0a849aee13fe8ddb40250373f487e09af6ed462a6",
+    "bytes": 410
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTTupleIndex.d": {
+    "sha256": "979a30d73a4a2d66ec92add7d57636f23eaf1ea145829c006bc1bb8014fd9fbf",
+    "bytes": 371
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTTupleLiteral.o": {
+    "sha256": "a7cc880440000fe9e59935c8d15fc66d8cd170235cc9df338dede2541e8a2bd4",
+    "bytes": 28480
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTFor.d": {
+    "sha256": "3d67d171045d997214dca044007cd3ed3fc1931696121e1599025a0328bf9d74",
+    "bytes": 340
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTStruct.o": {
+    "sha256": "a3175cfd78bea0b71822092693a2c42355c3bbd912dca9bf9687fbdf1dfc0a24",
+    "bytes": 28504
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/gc_struct.d": {
+    "sha256": "b78ff93c62d70b4eb91ae9ac9c473070a0f3701604e85ebd42775f2d3d0e06ee",
+    "bytes": 136
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTFloat.d": {
+    "sha256": "dcd77714297bb258993a960c715bbe03907d209a849d0ae952fa7d9b6b16cb97",
+    "bytes": 348
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTUnsafeBlock.d": {
+    "sha256": "ac5d7b10aa12a578a6094c1f3da137642064d6ebbeab130376ac300a40e0d98d",
+    "bytes": 375
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTUnionConstruct.o": {
+    "sha256": "f0bf630ce3bd4d9d5aa3825733dfa48af19b3dae366601c020e9f9b33790da9e",
+    "bytes": 28688
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTStruct.d": {
+    "sha256": "cb549dbbdff0e09d812e54a3330434ef69ff1901d48e7f9e841b2ce6d1d67580",
+    "bytes": 352
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/nl_string.o": {
+    "sha256": "c06acfa27cb8f4e5c85aab690624a369e68943736980e0a11f2fdcdfea96ebbc",
+    "bytes": 41944
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/module_build_dir.o": {
+    "sha256": "977615311853bb2299c7668a00df51311e78fdd136926a534ee4fa3316976895",
+    "bytes": 19816
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/cli.d": {
+    "sha256": "838dacf07f298a7603816b35a4f8e99043ec61179d4b790a8f948ab4e4196241",
+    "bytes": 37
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTReturn.o": {
+    "sha256": "118194a705ebe799cf48a0f1cbc3dde4af20fc3f7e8d7abc7f9688ac2c80a27f",
+    "bytes": 29120
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTString.d": {
+    "sha256": "80107d0e7949a7ed4ce58503a9ea9cd9d1bb68e0d1f9d925392c4e1b87d8cf3a",
+    "bytes": 352
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTImport.o": {
+    "sha256": "9ca68944cd094f0c57e622c17a3487d0b5bca54c355d150429229dfe898bf653",
+    "bytes": 28560
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTFor.o": {
+    "sha256": "e8fd93c030141435be481cb60fa78b7476b49f12076e0426e5c12b608d4bb836",
+    "bytes": 27200
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTLet.d": {
+    "sha256": "7ab33c98e2258c9e4b5218ee014ede430838b0f8692fef5088fce7625a66f175",
+    "bytes": 340
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/callback_runtime.d": {
+    "sha256": "15c422fdf4e9d9a7645ff0d9e25685fefc6e1194ceeedd5856d21e4f6ba0097c",
+    "bytes": 186
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/ffi_loader.o": {
+    "sha256": "3d01ef910306a41b8f7ab39765658443f4f0c37c93bd789212af96272f2378bd",
+    "bytes": 57408
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTFunction.o": {
+    "sha256": "77855519d7b08e1e1d71a4af8e37c5527a640c3df3441f6836fc459f9182dac7",
+    "bytes": 27448
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTIdentifier.o": {
+    "sha256": "d189c3667afe490909ae882f45f00f0799ca575c78307feb35004a8ef651fd0f",
+    "bytes": 29160
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTCall.d": {
+    "sha256": "461c3cae2a6dd4f7d3bfaeeb08fa9340cf2b53dc4741b9b45bdeea2d987e0348",
+    "bytes": 344
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/effect_runtime.d": {
+    "sha256": "58d0bfccadb6215ddb3e98573ea45dbc6a7e28aefe96f5b7f35f71842daecb55",
+    "bytes": 156
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTFunction.d": {
+    "sha256": "ab4105d63f317a7a6065c95c53d2acfbcbeaaf17a5af481242d28273326c57a5",
+    "bytes": 363
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTShadow.d": {
+    "sha256": "5166e6b0056313819e6146189f3722aa79fa60eb8a2e6f561bb54dd2a209d49d",
+    "bytes": 352
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTUnsafeBlock.o": {
+    "sha256": "cdc69c443f3b68b75f247c6da205385c544de04026cba45249be28383d0d7637",
+    "bytes": 29280
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/cli.o": {
+    "sha256": "a4e79cc7517db7de444483f8ec354238644428562b8f7cb203496cfb577fcc71",
+    "bytes": 7456
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTEnum.o": {
+    "sha256": "bfdc60570fdac3ba13cab842a0fc902ab1ca99b48af067bd891f85747f640c33",
+    "bytes": 28224
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/effect_runtime.o": {
+    "sha256": "d073801f1768823602b33e6699c69a4535ec664ef9b14549073514a464040889",
+    "bytes": 5344
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/regex.o": {
+    "sha256": "fa5e2c84cebf3f82fa6e7e5a6368f8f46469f29293cbf6369240aecf38038afb",
+    "bytes": 28120
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTBool.d": {
+    "sha256": "5934c2af41705aa90362a2cd364249f65853c07a37e4c583cb8cdfb482e8bb6a",
+    "bytes": 344
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTIdentifier.d": {
+    "sha256": "2e69ad9b8676098101e3d0a2b80b8f7de229373bbc2fec58ef628830b544cacf",
+    "bytes": 371
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTUnionConstruct.d": {
+    "sha256": "4de64cd28c8a976b0807a2bb2617021730801dae879e7cb8b6ce71ee1cacf169",
+    "bytes": 390
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_string.d": {
+    "sha256": "94652fd5f5fbc9cd8bbb16003ccc870dc5f0a2827e42d863bf84607ed63a6bcc",
+    "bytes": 166
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTEnum.d": {
+    "sha256": "da710e21e7e6507e605fa5d5f414748491eb2455c6bcb5e0c50d5037b4c99d49",
+    "bytes": 344
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_string.o": {
+    "sha256": "17cbf7733ef1d7572ff070fffeb093f10e29d4dbe66e4ae830bc3fb40c254452",
+    "bytes": 31408
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_token.o": {
+    "sha256": "92abb13acd4fb7d3bddec21fea45377077d965fe4b219cb60f295c3b1ee9fd43",
+    "bytes": 28856
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTFieldAccess.d": {
+    "sha256": "0cf28bf253b03ebed31e6ff185a3a50286a6af1a6725b2838fd54db9a23bc158",
+    "bytes": 375
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/gc.d": {
+    "sha256": "0b72809a5f5e0ee6e2dd7ae01aa103579709382bfd8d8ec1ee3e9fb7721283e1",
+    "bytes": 171
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTModuleQualifiedCall.d": {
+    "sha256": "5ce2f6ada99def9c268242419628e0c24bc60f01ebf701fab3442bce1587fe0e",
+    "bytes": 410
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/token_helpers.o": {
+    "sha256": "7b0c81301f4eeb7ececa865e53b9bb9c688a03edd4105921fec2d160989b6f03",
+    "bytes": 8256
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTAssert.o": {
+    "sha256": "03349557eb931797c26f7580b13fcaabfc0fba1bd11304251357c603546e37de",
+    "bytes": 29128
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_CompilerSourceLocation.o": {
+    "sha256": "c01dad28e1c1f7f4c040984866bf7e5298a2ab87640c0f3f38aa48192002887b",
+    "bytes": 29680
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTStructLiteral.o": {
+    "sha256": "4e96ea598eddf52546ba14db2beca4d2e7ef97bd4edac497ea03431a6e6f50a7",
+    "bytes": 28664
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTBinaryOp.o": {
+    "sha256": "17551efae24b32ff9bc02c29294fba29269500a1788428a2afd178ab9cf5d804",
+    "bytes": 27520
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/gc_struct.o": {
+    "sha256": "ce175807ad000517972ec7d5ea9c6c15e14a11c26e381fa239e884f95aa77252",
+    "bytes": 24704
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTUnion.o": {
+    "sha256": "57ab2cd025c17cd2db7299cd38d1f3e0d45bb90c7c7d8fc826183bc87afcce05",
+    "bytes": 28536
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTTupleIndex.o": {
+    "sha256": "05ff74a7669f7b55ab4ecc0d50d5cebef763d74e6370eed938be8e82b9fede7c",
+    "bytes": 29304
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTReturn.d": {
+    "sha256": "06a5a1a0fc791c21425a873c87f364968430c80a879870d679f425e72c2f3653",
+    "bytes": 352
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTSet.d": {
+    "sha256": "74c6e12fd522f2d660d38a26435fb0f5a70a1527f06db0b9654f508482af308c",
+    "bytes": 340
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTOpaqueType.d": {
+    "sha256": "6dc02470145c0eeee6970b2157f79aee83a892d11ecb79933671d0b7537ce3d2",
+    "bytes": 371
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_int.d": {
+    "sha256": "752ca4509cb0d0126f1475266f80229f6031c7e1e780c56974f0f5c32be0eba3",
+    "bytes": 154
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTSet.o": {
+    "sha256": "2d480c35bafdd3b8a0a9441379047a5079dc9d6edf54807a8eca75cd015f02d6",
+    "bytes": 27192
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTPrint.d": {
+    "sha256": "7a4b557c4477dd13ea695bd9358f3ce0c81f0cc9c94729fd8117502eceb39a1c",
+    "bytes": 348
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_int.o": {
+    "sha256": "2f0f9c62d072765c4170ff99cce55d99b6754d5fab6a1cf9bef2ef8ee4ed3a65",
+    "bytes": 28568
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTImport.d": {
+    "sha256": "7eb74eae76507da1f60555c83cf19a84ab987de773603809afcda26fa207a868",
+    "bytes": 352
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_LexerToken.d": {
+    "sha256": "c6748b3628ae0e2853aab3c4bc2668eb33ed4001c4052d0ad121fc67e3a89001",
+    "bytes": 359
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTTupleLiteral.d": {
+    "sha256": "49a90b1b87b8c4c4c3b46c50f520983dcac852c5105e4f62c9b80fd7872d7663",
+    "bytes": 379
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTIf.d": {
+    "sha256": "ba73cb336385d8e798b4c1f18f1827f71a9220f489fdb4cbbbcc7af6a3b91d12",
+    "bytes": 336
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/runtime/list_ASTArrayLiteral.o": {
+    "sha256": "09ffcd272f8546b807a6de8dcbafb0ad27c670db7b31526dbb9b158afa508e86",
+    "bytes": 29152
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/build_bootstrap/schema.stamp": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_imports.o": {
+    "sha256": "dce50deb3dbff3c24331f8be7f04101f4ffe4fe019696394c869a37bd9d1f1cc",
+    "bytes": 45872
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/affine_state.o": {
+    "sha256": "6c8b85b96084e9a37f5c03ccc2f3b996176d21e520409496399da7b3f8aa323e",
+    "bytes": 365424
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_format.o": {
+    "sha256": "2eae40b5dba7f1f954ae692792c942a8e7ccdc061e68005f42c1bebdaf16591a",
+    "bytes": 112760
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_constants.d": {
+    "sha256": "c4edd18edeb9759aecca6fbaeb66d23ee091ed305957b6f6a79613f4b6b614fd",
+    "bytes": 341
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nanoisa_facade.d": {
+    "sha256": "1d40b380e7691ffa3dd2e5722084f1e6aaa5f32fa110e20a8db880313e3e9c60",
+    "bytes": 2045
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_cursor.d": {
+    "sha256": "bc7252c883cb1c160e0b303d2fce08aff339e4b70c8309e03e666ecbbe4a9821",
+    "bytes": 232
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/service_bindings_module.o": {
+    "sha256": "1e8b445c2ed13a8681210dbd2aa542e8d74252360f0ddf5477d38c8bdb92eeb0",
+    "bytes": 68144
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm2c_shape.o": {
+    "sha256": "6b3f3a1298de52815cf4eea5766350efa12f1960ae42e021cf9653ba9fe3e801",
+    "bytes": 64624
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_module.o": {
+    "sha256": "346f975336e0e250da4fdfa523529d72ff2db8247f81934da88496232130d848",
+    "bytes": 67744
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/service_bindings_module.d": {
+    "sha256": "0d8480abdf4df41ae3bd4009c5ea1a8c508c94cc32097e9738bfb1616f7dfd79",
+    "bytes": 904
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/verifier_types.o": {
+    "sha256": "088cca45485f76ff117f25fa7e477b9c0663d00d76f33fe01f3a0839332bd7ed",
+    "bytes": 48280
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/reference_places.d": {
+    "sha256": "3a122181ee068bde6677760123804f78dbd6f55748c1fd7eaaead26e8cfdae68",
+    "bytes": 404
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_functions.o": {
+    "sha256": "4beb2e5f85086e98f66c03a1f8b1380cb8f21aac52b62582ab20cebd547b87c4",
+    "bytes": 26520
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm2c_shape.d": {
+    "sha256": "842f1bb2d74ef407c636950bd598c2fa8f37088e167a58db06106731834c2b0d",
+    "bytes": 109
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_module.d": {
+    "sha256": "6e09f1530aac6d127fba33da57e782558405ec03c2fd7cd1be05be1f1953c152",
+    "bytes": 721
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/managed_array_shapes.o": {
+    "sha256": "765dc7c1b5bf917cc1b0aa1e6a5d1567b11e39388ab45739505fdc31957df7bc",
+    "bytes": 163296
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/local_bindings.d": {
+    "sha256": "f1d4a146645d15decf661ed294332408629cd4c6609e33e814d8d492e1bac6ae",
+    "bytes": 275
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/passive.o": {
+    "sha256": "10e9ec326f75602f6739a8dad82c6bfa0b0000620e65d3ddc2719f4ea073494c",
+    "bytes": 78624
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/mixed_float_proof.d": {
+    "sha256": "c782184faaf94dddd51a5369e7aef73952a1101a7e3fdf69cd0a1f3cf08c0620",
+    "bytes": 617
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_convert.d": {
+    "sha256": "50d7bf29b3b8bd820834925c1ed1c9035e50f021caf9d669297847b685c020e9",
+    "bytes": 1764
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/mixed_float_proof.o": {
+    "sha256": "fc58f604e905ca329545aa4133bb36bb787caef015c88fc09c33c008aa98d727",
+    "bytes": 154224
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm2c.d": {
+    "sha256": "9e8cda48a319cf433d0eba8febddfda97da6e050add961fa1555ec5bf3c3a645",
+    "bytes": 2595
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/disassembler.o": {
+    "sha256": "0a82b9417fcf7ef4e9379ce22e7803144ff1232c8328df3f85d26354098f9555",
+    "bytes": 95424
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_signatures.d": {
+    "sha256": "1cf2d70cca8846c420963958e006d7244dbe0ca44ec379be41c3c911be058eff",
+    "bytes": 343
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/retained_layouts.d": {
+    "sha256": "51981088d1b61888fb3f63ac2f64e8bc4cbdd9d4184e204b15c67ce13cc287bb",
+    "bytes": 1361
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/ownership_contracts.d": {
+    "sha256": "4ef92b38969644c10b0f20ad0e436144f12bdb0566d5659e3e08fe0d45281c49",
+    "bytes": 633
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_constants.o": {
+    "sha256": "766f0cd3aa8b5f1d059b0145ff89e393dfe37adca871a8842ea2f879133cbe79",
+    "bytes": 19368
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/isa.o": {
+    "sha256": "2c11f99b946f49bd705d6148f0e72a0f272f96e89f7913619283148358d36fdb",
+    "bytes": 50360
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_format_v2.o": {
+    "sha256": "ced5421eec965a6ae43e7306fc20a5a77635a0988023c7ab30eb91c1b088ebda",
+    "bytes": 31432
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/service_file_nominal.o": {
+    "sha256": "05b45fbdf5ba45173d67d4a86323bc4085d34de378f507c2e92986d9a84954a9",
+    "bytes": 20040
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_signatures.o": {
+    "sha256": "173e960639891e60756e812533f61e844c6cf8f36c3be16fb6cef109001cf70e",
+    "bytes": 22968
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/isa.d": {
+    "sha256": "8ac3648261a8b3e2b86c3318ea719bb5e72ec56d9157a036e30c213459c01fd1",
+    "bytes": 140
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/service_bindings.o": {
+    "sha256": "17f0ee55cf1a13f95c824947593345784675abf080124741406c34c40f054c65",
+    "bytes": 15464
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/passive.d": {
+    "sha256": "ea104f3b1fda8dcc67a472e3edeccd9e278355e265050f49dc7f82988694ff13",
+    "bytes": 308
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/assembler.o": {
+    "sha256": "7d85928d8c249c306bb10241f021bafc4072f20c4fbf3637a66d413b1c4e342e",
+    "bytes": 238656
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/verifier.o": {
+    "sha256": "4ff364abf036ae3f9ea33c6068d6b3928a8f404354d17842991d3272fd4aee3d",
+    "bytes": 233768
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/service_file_nominal_plan.o": {
+    "sha256": "ab6c3abdbf79aa88a285356c813278f1c26f9f1527b47343a3093e4b48221754",
+    "bytes": 58392
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nanoisa_facade.o": {
+    "sha256": "e5cf0909a44b02a33dc7e87c0194433bc9817bdc564779fd066698b1012ed75f",
+    "bytes": 116720
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_format_v2.d": {
+    "sha256": "45c89f3e422319c61e21aa4dca24ec0cb5e63cfd2006e3b5cd180194f00c82bd",
+    "bytes": 168
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/frontend.d": {
+    "sha256": "1c738df3d7e8ce5336221f89a911d3c308fe8827268f8fbb08982d3faec4a524",
+    "bytes": 545
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/verifier_types.d": {
+    "sha256": "6744db2e763742afd1761bc615aeb83e4d3696abb6d821211dc9ee5437c1e74d",
+    "bytes": 552
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/disassembler.d": {
+    "sha256": "a31167542272c8b5b705283c764b04a4dcd4249929133f340c8b0830964bc610",
+    "bytes": 714
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_cursor.o": {
+    "sha256": "94f014ca486ac0296d23b9950df629fa04d1038fc8988305959f1472748fb3f9",
+    "bytes": 13120
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/local_bindings.o": {
+    "sha256": "c8482c0bb39c23a5b5aedbe6762cd0895abccfa4b3213a8f2395e1d9b745b10c",
+    "bytes": 43184
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_imports.d": {
+    "sha256": "91fdde166b9b4a33aa09c3702bf14d60840ecaa5413319dc555324dfd5dffb81",
+    "bytes": 234
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/service_file_nominal_plan.d": {
+    "sha256": "98c13f73afdbab9cd7ec899aad2366cca158c0b787a618dddca42e68de368220",
+    "bytes": 749
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/affine_state.d": {
+    "sha256": "34df8ddd0ea6eb8f00a5768f46230509e23109182b045abb7a497932af2e8fd0",
+    "bytes": 1237
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/service_bindings.d": {
+    "sha256": "38c593669a37ba403c1d9f7d57f774acd78e80922a8ca402efdffe6f352b4e9e",
+    "bytes": 129
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/frontend.o": {
+    "sha256": "dddec3e6ce7ea25077e6acd12d0badf9908a25b6659f6c4c1c96fc8ac353fe77",
+    "bytes": 53960
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm2c.o": {
+    "sha256": "c6e0490dffaf76397902f230e90f95e4c08148f6122bb93f7eaaa482f23d121b",
+    "bytes": 1299976
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/retained_layouts.o": {
+    "sha256": "85de6c6eb1d9a4df7f3e17f44a3a5ea22270a5958b39bbac553ea22beae9dc3d",
+    "bytes": 280240
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/affine_bytecode.o": {
+    "sha256": "7342f3d287ee5559512553e5f4d297ae752545a7aa64edf54669336d97dbc6f7",
+    "bytes": 98208
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/affine_bytecode.d": {
+    "sha256": "d5fe8282a54b845f0a6c861286eb17b1259fa28f9b2fbb34083453a276b305c2",
+    "bytes": 845
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/ownership_contracts.o": {
+    "sha256": "a8f12029293b5b7c38260553116f7eb9bce07b0350fee4b70887533d2c2e9c44",
+    "bytes": 43304
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/service_file_nominal.d": {
+    "sha256": "7f854b5681eb14744cf303a008e33a908a999aa30eb474a98e62bf4611538cc3",
+    "bytes": 262
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/file_flow.d": {
+    "sha256": "5cf7985e28cccf896270a52a9feb68d529a379c2865d67fb033d4780ab93e9dd",
+    "bytes": 1634
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_layouts.d": {
+    "sha256": "5bfa6b27b685165af13a8a1b5f1d3af850d79747945af96043dd43ae7eee2841",
+    "bytes": 337
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/verifier.d": {
+    "sha256": "f68c25c7cd6cb3219cb69f95182bc48cefb18537519a3f700f9124c251d06e33",
+    "bytes": 3189
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_convert.o": {
+    "sha256": "85f74cc766a5e05a1e4c79fbfd0d47a79f343e08d60e24f8ebaf3be8fc555622",
+    "bytes": 86984
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_functions.d": {
+    "sha256": "3565bb2cfc36e4cead511568ac0ea8caeb3e27fd3b7e2a6bcd7a96035b334dea",
+    "bytes": 341
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/reference_places.o": {
+    "sha256": "8ba71d45b685ca45e2dafcfc46d59b5a62e64792e09fa7a64a617349879986f1",
+    "bytes": 21384
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/file_flow.o": {
+    "sha256": "d22242263ebac4f2c99ee9730161e461d7d19b9602506b4ecfece6147a493810",
+    "bytes": 576848
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/assembler.d": {
+    "sha256": "1cb05ad7be251052cb69bf74ed10ef069301bf95f02864ed54bd0727e3eea6a1",
+    "bytes": 608
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_v2_layouts.o": {
+    "sha256": "babb9921c8cdce73953f0062772cab1855f534c99490650ec55dbd73847ebec1",
+    "bytes": 26992
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/managed_array_shapes.d": {
+    "sha256": "e8bc905545a41e722ae7840171a35f8ef350eee43c4bfc9e99370f7f6c5a3512",
+    "bytes": 936
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanoisa/nvm_format.d": {
+    "sha256": "78c0d4e9cdd5d61e26081369c5581df6d6e493da4349d817187a7421e230af6a",
+    "bytes": 208
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval/eval_string.d": {
+    "sha256": "18ad42721c1b5069ed038382ad1b596068bf93f16cdce0a3da745ffcf7f10724",
+    "bytes": 564
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval/eval_io.o": {
+    "sha256": "4cc7ae2d4051b57752f4b5270a36c4eb807a521655140ea3f5199c5d7ce46ce6",
+    "bytes": 156272
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval/eval_io.d": {
+    "sha256": "360619ee1bbddd277672be49af22c5bb2ea44045cfcb58897b7dbbbf704c8577",
+    "bytes": 975
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval/eval_math.d": {
+    "sha256": "943db3968c3efe2e4d79ccfde2a203efd2a2e715d76d6b418eb6428f2887da8f",
+    "bytes": 488
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval/eval_string.o": {
+    "sha256": "3cb6bef11802d0b119dc43c381f1e164f3bc1868f10190ada2de5016b33f2353",
+    "bytes": 61632
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval/eval_math.o": {
+    "sha256": "70c65fcb729f3dea1e4d39342bb24928ff9cc1c9147f66dd832973547c9646ff",
+    "bytes": 35448
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval/eval_hashmap.o": {
+    "sha256": "ea4bc9a64e42e3134cca337728ad4a59aad43c20d32bf8db8e0c74afd3a9a2c7",
+    "bytes": 28504
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/eval/eval_hashmap.d": {
+    "sha256": "ba97a0dcc55e0e38c5a3cbe74f96b91a82dfa0ce9f71d6d4fdaf6109d2437ff2",
+    "bytes": 500
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_builtins.o": {
+    "sha256": "1fdc9a6a67ffec98ae95c79f8d850b008be9f18bb95223b728bfd710ce8f9c90",
+    "bytes": 84200
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_callback.d": {
+    "sha256": "8a751be51e1c25f3bdded3a96fe873d43a8be3fd0e890012cf191ded95ec7855",
+    "bytes": 887
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/value.d": {
+    "sha256": "9c7bc028d06eda702cbb6e5421a6f730212f55cbc4095d302d135a74e67be281",
+    "bytes": 326
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/cop_protocol.o": {
+    "sha256": "ec53c8a70d2735171ad5d63a2bb48653f7098fbb1ab07d0365251669c94b1547",
+    "bytes": 133576
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_builtins.d": {
+    "sha256": "a29096b732337436add5d4a9503a64ac673d1c526ee2727e8f0edbb28aea5cb8",
+    "bytes": 531
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/heap.d": {
+    "sha256": "f465e233df2395ee9b424f0aae74384dc2dc6b3c554254bc9c0bdffd9d097c78",
+    "bytes": 324
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm.o": {
+    "sha256": "c3ca721cf3a0c85d736e5158a0bd5d78d5d4683f666f08807ae191c1c6e64eeb",
+    "bytes": 893664
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm.d": {
+    "sha256": "3e8a74b98a1076debc4921e29b813a83af4731e99e52d0b2df36ca7da75a8272",
+    "bytes": 3780
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/heap.o": {
+    "sha256": "17b3592e4f6ec647c706d7c4868634c8d0559981236acf474b6a5cbe4a9a83ea",
+    "bytes": 94120
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_dispatch.d": {
+    "sha256": "5c8e8446dece6797674782e8c5191e3e9451aa7d9ebe3bcede003a7dbace9cdf",
+    "bytes": 369
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_dispatch.o": {
+    "sha256": "de14f8ce731125199058c992bbeebb4525b034cb0117e6b1a9f460b4c899aada",
+    "bytes": 48328
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_callback.o": {
+    "sha256": "2289b3ad1eb24f2a456c1733f1e3f59ee9070f32c5f0ac2a0fdea43b3f197f10",
+    "bytes": 47040
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_ffi_arrays.o": {
+    "sha256": "e296437fec08a0df5f54a21f5ea1169870b383cbcbd44d561b16c967413e6f1a",
+    "bytes": 58184
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/heap_cycles.d": {
+    "sha256": "0273eca45cd7a3560f4a2e0e4947668f1d9d2acf06a05dd7520d368878e33801",
+    "bytes": 273
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_ffi.o": {
+    "sha256": "4e18d5986cfc174c115930a781d9a3ced658ba56ba78917b86b7ec41b5eeb4cd",
+    "bytes": 314440
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/cop_protocol.d": {
+    "sha256": "7c35293d221290af7965e7b54860130350c0dc91e9471c5d82a76e81c6eaf3a5",
+    "bytes": 1451
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/value.o": {
+    "sha256": "8124631df0dced32b6de37d61656f7282b6624d7831ec2343742200a70bd38a8",
+    "bytes": 46640
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_decode.o": {
+    "sha256": "3af5a9e061b7acb59b6bd12c3610df71fbfafb902e31bd6c27c79c69d138d3ed",
+    "bytes": 46512
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/heap_cycles.o": {
+    "sha256": "c1330b7ae8f757a2ccf737876112488b588ed21179c23b54ae6f80e07b5479c6",
+    "bytes": 76168
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_ffi_arrays.d": {
+    "sha256": "abe197189cae8c1257c2c6745259d3f7409f4577a864f135e295300a44d7b4e0",
+    "bytes": 576
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_ffi.d": {
+    "sha256": "b7f936b68d9f96c9f5ac76ec23b47c8746a7a1dda66e98e8657a489de75774a2",
+    "bytes": 2302
+  },
+  "/home/jkh/Src/nanolang-admission-stage-diagnostic/obj/nanovm/vm_decode.d": {
+    "sha256": "33d76947062898688ebff3cedae66757b0a79652aebd90f14341bcc035cf09fe",
+    "bytes": 311
+  }
+}
