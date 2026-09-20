@@ -31,3 +31,12 @@ allocation by its returned pointer on the successful path, then require its exac
 index to fail during both sweeps. Other providers remain ordinary; sanitizers
 cover these two rebuilt TUs and the fixture, not the complete provider closure.
 I submit the fixture and retained runner before executing any new gate.
+
+Independent fixture review accepted c3875585b before execution and found one
+Make forwarding omission: my target passed the compiler and link inputs but not
+`AFFINE_VARIANTS_CFLAGS`. I record and correct that fixture-only omission before
+qualification, forwarding the caller's exact CFLAGS without altering assertions
+or production. No c387 gate ran. I now qualify fresh constructor and existing
+service-admission controls with explicit ordinary/sanitizer compiler selections,
+then complete actual mixed/owner/shared-authority neighbors and the unchanged
+imported-emitter deadline. Original51d failures remain frozen.

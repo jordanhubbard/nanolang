@@ -5715,6 +5715,6 @@ $(OBJ_DIR)/nanoisa/ownership_contracts.o: $(NANOISA_DIR)/ordinary_array_authorit
 # I exercise private constructors without exposing new production APIs.
 .PHONY: test-affine-private-variants
 test-affine-private-variants: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
-	AFFINE_VARIANTS_CC='$(CC)' \
+	AFFINE_VARIANTS_CC='$(CC)' AFFINE_VARIANTS_CFLAGS='$(CFLAGS)' \
 	AFFINE_VARIANTS_OBJECTS='$(filter-out $(OBJ_DIR)/nanoisa/affine_state.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)' \
 	AFFINE_VARIANTS_LDFLAGS='$(LDFLAGS)' python3 -m unittest -v tests.test_affine_private_variants
