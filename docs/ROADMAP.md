@@ -13655,3 +13655,5 @@ PR923 iterative grouping repair require fresh C-seed/Stage1/Stage2 bootstrap
 and the same focused seven configurations, paired/schema/publisher and neighbor
 gates on Linux and puck. I preserve the original seal and source pins; no
 integrated execution begins before source-delta review. Full8bbc remains open.
+
+- [ ] I correct evidence checkout portability under task_5a8b7cad748c42068cf3c865fdd01bd9 before integrated parser gates: five retained Linux publisher reports have intentionally invalid UTF-8 pathname bytes which APFS refuses. I preserve their original byte-path identities and exact bytes/hashes in manifests and CAS, normalize only Git storage names, and verify unchanged source/fixture blobs. No integrated fixture has run; both platforms must retain complete source inventories at the corrected pin.

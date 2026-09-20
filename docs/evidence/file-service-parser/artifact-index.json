@@ -20819,6 +20819,10 @@
     "1b5b55f425ce9964cfbd9bf557109cba24c251a1dda4b9c7e0c1198797c6fba3": {
       "archive": "/tmp/nanolang-file-service-parser-artifacts/1b5b55f425ce9964cfbd9bf557109cba24c251a1dda4b9c7e0c1198797c6fba3",
       "bytes": 3465195520
+    },
+    "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f": {
+      "archive": "/tmp/nanolang-file-service-parser-artifacts/1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+      "bytes": 5385
     }
   },
   "references": {
@@ -34441,6 +34445,11 @@
     "external/file-parser-8134-reuse-proof.py": "9099128063b79d910b64ae64c77b979c29552eea4bb9d32d2d60421e3d060dd9",
     "external/file-parser-final-current.py": "f62b295ba56a05eafe54e3d2c172516fcbc538c178e769cb1184218df2377aee",
     "external/nanolang-file-service-parser-puck-evidence.tar.gz": "b99acda411bcf57236536cb30f77be3cb68226db81ec2c01ff326d621b4b6994",
-    "external/nanolang-file-service-parser-5a0e.tar": "1b5b55f425ce9964cfbd9bf557109cba24c251a1dda4b9c7e0c1198797c6fba3"
+    "external/nanolang-file-service-parser-5a0e.tar": "1b5b55f425ce9964cfbd9bf557109cba24c251a1dda4b9c7e0c1198797c6fba3",
+    "portable-byte-path/linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+    "portable-byte-path/linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+    "portable-byte-path/linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+    "portable-byte-path/linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
+    "portable-byte-path/linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
   }
 }

@@ -8354,7 +8354,7 @@
   "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": {
     "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
     "bytes": 5385,
-    "stored_as": "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+    "stored_as": "byte-path-reports/de94b5eeb45c5573d91cdd5d1bb0336174e7aa606044bda7de19ddd71b79e6b0.json",
     "stored_sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
   },
   "linux-5a534/gcc-ordinary-publisher/nano-file-publisher-tq18cava/cli/quoted-path-command.json": {
@@ -14924,7 +14924,7 @@
   "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": {
     "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
     "bytes": 5385,
-    "stored_as": "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+    "stored_as": "byte-path-reports/9eaa518c12f2977e500107cc28f414b21f6de3e02cb0630a12c910ef83ca9635.json",
     "stored_sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
   },
   "linux-5a0e/clang-ordinary-publisher/nano-file-publisher-1sgsr_iz/cli/quoted-path-command.json": {
@@ -20960,7 +20960,7 @@
   "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": {
     "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
     "bytes": 5385,
-    "stored_as": "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+    "stored_as": "byte-path-reports/c06e5d833755be0d6bf0294fefaa7851a539034756ffcc9ea260d919ece7010b.json",
     "stored_sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
   },
   "linux-5a0e/clang-sanitizers-publisher/nano-file-publisher-rtcpib7i/cli/quoted-path-command.json": {
@@ -28448,7 +28448,7 @@
   "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": {
     "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
     "bytes": 5385,
-    "stored_as": "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+    "stored_as": "byte-path-reports/2dfc91bca5b6f25630b5a293cd84dad4cf06e8cd1e08244d4c60d2fff78dbbe2.json",
     "stored_sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
   },
   "linux-5a0e/gcc-ordinary-publisher/nano-file-publisher-_5a63sk1/cli/quoted-path-command.json": {
@@ -34484,7 +34484,7 @@
   "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json": {
     "sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f",
     "bytes": 5385,
-    "stored_as": "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/quoted ' $(touch injected); \udcff\udcc3/interface.nsi.json",
+    "stored_as": "byte-path-reports/178d5758c57cf2dd5f7163d2da3a555e67566a944c15039590a547713e4b6c35.json",
     "stored_sha256": "1e75c7bf4316e40a3ac2dfb66415a95c8e80a33d0d195c3e00fb0a44b9f7b37f"
   },
   "linux-5a0e/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli/quoted-path-command.json": {

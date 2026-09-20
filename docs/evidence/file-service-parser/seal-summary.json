@@ -279,8 +279,8 @@
       "target": "/tmp/nanolang-file-service-parser-5a0e-linux/gcc-sanitizers-publisher/nano-file-publisher-kw7lkpt1/cli"
     }
   ],
-  "artifacts": 5205,
-  "artifact_references": 13620,
-  "artifact_bytes": 6207449637,
+  "artifacts": 5206,
+  "artifact_references": 13625,
+  "artifact_bytes": 6207455022,
   "scope": "Actual paired parser/AST prerequisite, bounded empty-literal/match metadata cleanup; no File source lowering/execution or general union lifetime acceptance."
 }
