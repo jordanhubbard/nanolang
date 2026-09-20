@@ -12877,3 +12877,10 @@ neighbor PATH preflight before corrections. My endpoint maps and current-input
 checks do not claim intermediate or transitive toolchain immutability. Independent
 seal/integration review and publication remain; b7ef/2d2 stay open, including real
 emitted/installed host linkage and applicable full compiler/bootstrap gates.
+
+I integrate the private Wasm seal with canonical904/905 in a separate811527aa6
+tree. All15 selected non-Make inputs remain byte-identical; Make preserves both
+additive target sets. Fresh ordinary declaration-query/provider closure passes
+5994/267 checks on each host. [My supplemental seal](evidence/portable-read-wasm-current-integration.md)
+keeps these checks separate from the original actual-engine/native/core matrix;
+full b7ef/2d2 admission/emission/installed/compiler obligations remain open.
