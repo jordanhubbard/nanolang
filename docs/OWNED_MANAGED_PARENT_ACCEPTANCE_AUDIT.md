@@ -2,9 +2,9 @@
 
 I read the current MAC descriptions for430220,4be and e8d and their original
 contracts after canonical PR876. Those descriptions still state the initial
-proposal; they do not describe the merged implementations. This audit proposes
-bounded reconciliation for review. It does not itself complete a parent or
-replace the original contracts with narrower acceptance.
+proposal; they do not describe the merged implementations. This audit records
+bounded reconciliation approved by root and independent native-effects review.
+It does not replace the original contracts with narrower acceptance.
 
 ## My owner-array contract430220
 
@@ -61,10 +61,11 @@ for coordinated a18 union/first-success integration. Complete current installed
 full-quick and remaining fixed-point/product gates are still absent. Thus e8d
 and full d76 remain open even if all bounded430220/4be clauses are reconciled.
 
-## My proposed ledger action
+## My actual ledger action
 
 I replace stale initial-proposal wording with this exact evidence matrix while
 preserving historical entries and exclusions. Root and independent native-effects review approve using the
-actual-merge helper to close only bounded430220/4be after this audit merges. At this checkpoint both remain open;
+actual-merge helper to close only bounded430220/4be after this audit merges. After actual PR880 merge06594fa06be9f36aa1eff1ffa8fee303052d89fe, the
+canonical-ancestry helper and live MAC confirm bounded430220/4be COMPLETED.
 e8d and all broader parents remain open. No new source ARRAY assignment code is
 part of this audit.
