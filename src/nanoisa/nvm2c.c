@@ -164,6 +164,9 @@ static uint16_t scalar_kind_tags(uint8_t kind) {
 
 static int boxed_carrier_tags(uint16_t tags) {
     if (variant_payload_tags(tags)) return 1;
+    const unsigned byte_integer = (1u << TAG_INT) | (1u << TAG_U8);
+    if ((tags & byte_integer) == byte_integer &&
+        !(tags & ~(byte_integer | (1u << TAG_VOID)))) return 1;
     const unsigned numeric = (1u << TAG_INT) | (1u << TAG_FLOAT);
     return (tags & numeric) == numeric && !(tags & ~(numeric | (1u << TAG_VOID)));
 }

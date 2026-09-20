@@ -167,7 +167,16 @@ class CastU8Backends(unittest.TestCase):
                 self.run_actual([ROOT / 'bin/nano_vm', '--verify-only', module])
                 self.run_trap([ROOT / 'bin/nano_vm', module])
                 source = self.artifacts / 'native.c'
-                self.run_actual([ROOT / 'bin/nvm2c', module, '-o', source])
+                # Native C currently refuses embedded-NUL strings. I preserve
+                # the original managed module and independently verify this
+                # equal-length plain-string native control.
+                native_asm = self.artifacts / 'native-input.nasm'
+                native_module = self.artifacts / 'native-input.nvm'
+                native_asm.write_text(text.replace('a\\x00z', 'abc'))
+                self.run_actual([ROOT / 'bin/nanoisa', 'asm', native_asm, '-o', native_module])
+                self.run_actual([ROOT / 'bin/nano_vm', '--verify-only', native_module])
+                self.run_trap([ROOT / 'bin/nano_vm', native_module])
+                self.run_actual([ROOT / 'bin/nvm2c', native_module, '-o', source])
                 for optimization in ('O0', 'O2'):
                     exe = self.artifacts / ('native-' + optimization)
                     self.run_actual([*self.cc, *self.flags, '-' + optimization, '-std=c11',
