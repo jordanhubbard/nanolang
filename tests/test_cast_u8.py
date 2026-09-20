@@ -5,11 +5,11 @@ from pathlib import Path
 import shlex
 import tempfile
 import unittest
-from tests.test_file_cyclic import FileCyclic
+from tests import test_file_cyclic
 
 
 class CastU8(unittest.TestCase):
-    command = FileCyclic.command
+    command = test_file_cyclic.FileCyclic.command
 
     @classmethod
     def setUpClass(cls):

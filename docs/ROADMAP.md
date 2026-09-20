@@ -13577,3 +13577,5 @@ PR918 and PR919 are merged, and PR922 completes the unchanged90-method phase on 
 The complete Make run subsequently verifies174 of176 corpus programs. Computed U8 conversion task_c6b2a040c1434fc784a9d46c02a4981e and generic-list mutation task_7b805000dfda4da386b55d4691e8c647 remain open, along with all full5.1 bootstrap, mixed/source, service, platform and release gates. These diagnostic closures do not approve publication.
 
 - [ ] I implement exact computed INT-to-U8 conversion under task_c6b2a040c1434fc784a9d46c02a4981e and [my reviewed consumer contract](NANOISA_COMPUTED_U8_CONVERSION.md). The first legacy0x8f catalog/VM/type-verifier checkpoint preserves modulo256 computed conversion and exact U8 identity, checks runtime tags and cleanup, and leaves other targets closed. Complete native/LLVM/Wasm/reconstruction and paired source contexts remain required before the original corpus or full5.1 closes.
+
+- [ ] I isolate raw CAST_U8 test discovery (task_193af77877c5462db39bd02531e4f194): module import must not discover the helper TestCase. Static review caught this before fixture execution; I require exactly one intended method before qualification.
