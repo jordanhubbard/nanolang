@@ -103,3 +103,15 @@ all transient supervisor or Make-deleted executables were preserved.
 
 Independent review, canonical integration and actual merge remain pending.
 I make no hosted-CI green or full release acceptance claim.
+
+## My independent root audit
+
+My [independent audit](token-value-bytes-independent-review.json) verifies1556
+actual committed report blobs,2080 CAS objects/833665658 bytes and23699 retained
+artifact references. It recomputes24 exact shadow selections from raw compiler
+logs,12 exact token outputs and16 complete four-file comparisons against actual
+315 Git bytes and retained generated files. It checks2426 qualified source,
+fixture, schema and build blobs against315, all54 source/tool endpoint pairs,
+and refreshes18170 source hashes and12 tools on each final frozen host plus835
+Linux/620 Darwin final products. Earlier historical limitations remain explicit;
+this does not establish whole release or File source acceptance.
