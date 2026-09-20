@@ -1,0 +1,52 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 21.372,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.066,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.114,
+    "status": 0
+  },
+  {
+    "phase": "ordinary",
+    "seconds": 3.071,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary",
+    "seconds": 2.469,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer",
+    "seconds": 20.362,
+    "status": 0
+  },
+  {
+    "phase": "clang-sanitizer",
+    "seconds": 4.272,
+    "status": 0
+  },
+  {
+    "phase": "wasm-package",
+    "seconds": 5.881,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_records",
+    "seconds": 3.723,
+    "status": 0
+  },
+  {
+    "phase": "neighbor-managed_record_adapters",
+    "seconds": 1.469,
+    "status": 1
+  }
+]

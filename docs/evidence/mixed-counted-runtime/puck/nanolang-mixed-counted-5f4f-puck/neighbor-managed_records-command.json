@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/private/tmp/nanolang-mixed-counted-5f4f-puck/retained-neighbor.py",
+    "/private/tmp/nanolang-mixed-counted-qualified-5f4f",
+    "/private/tmp/nanolang-mixed-counted-5f4f-puck/managed_records-products",
+    "tests.test_managed_records"
+  ],
+  "selectors": {
+    "CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_RUNTIME_CFLAGS": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+    "NMS_RUNTIME_CLANG": "/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT": "/opt/homebrew/opt/llvm/bin/opt",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

@@ -13591,3 +13591,67 @@ My b4ddc1edb grouping correction passes fresh C-seed builds and three-stage boot
 PR918 and PR919 are merged, and PR922 completes the unchanged90-method phase on both hosts in160.989 and201.715 seconds. Its independent audit retains exact source/tool/product history and the original failures. I now close task_4931a66f39c04b1a96981a4e00d43646 and task_2f52721aac374ac592b61438315dc981 for their bounded emitter-deadline and selected native-sanitizer diagnosis/repair scopes. The original ten-second shadow policy and120-second native deadlines remain unchanged. I do not infer the cause of deleted historical binaries from new successful binaries.
 
 The complete Make run subsequently verifies174 of176 corpus programs. Computed U8 conversion task_c6b2a040c1434fc784a9d46c02a4981e and generic-list mutation task_7b805000dfda4da386b55d4691e8c647 remain open, along with all full5.1 bootstrap, mixed/source, service, platform and release gates. These diagnostic closures do not approve publication.
+
+### Counted mixed record-array runtime prerequisite (2026-09-20)
+
+I base this next step on actual PR924 merge `ae916a0a821fffdccb9d92b6e62614f97d605801`;
+its independently audited query remains non-admitting. MAC
+`task_621ca4f76f0344bca70099a0ac9a3934` owns my
+[counted runtime contract](NANOISA_MIXED_RECORD_ARRAY_COUNTED_RUNTIME.md).
+
+- [x] I review exact descriptor/query correspondence, counted root transfers,
+  alias replacement/growth/copy, failure cleanup and native/Wasm route limits.
+- [x] I implement and review fixtures for the existing core/module adapters,
+  with measured allocation-prefix recovery and production package linkage.
+- [x] I qualify native O0/O2, supported sanitizers and import-free finite-memory
+  Wasm, retain first terminals and seal all required route evidence.
+- [ ] I separately implement and qualify matching fresh public admission and
+  generated VM/native/LLVM/Wasm consumers, then paired source lowering and
+  unchanged shadows. Full mixed f36/15f/488 and full5.1 remain required.
+
+Before counted-runtime fixture implementation I record the instrumentation
+prerequisite under `task_621ca4f76f0344bca70099a0ac9a3934`: my current testing
+budget supports persistent exhaustion but not one-shot refusal or measured
+allocator peak. I require an independently reviewed, doubly guarded testing hook
+at actual allocation/free entries, followed by a fixed-storage fixture tracker;
+I preserve both fault modes and production package hook absence.
+
+I complete the counted-runtime fixture checkpoint after root approval of
+`120eb444e` and testing-hook source `0ff7f3268`: three explicit methods cover
+copied query/catalog facts, native core/adapters and Wasm/production-package
+linkage. I retain both true fault modes, requested-byte peak accounting and
+fresh recovery, all five tags and1024 entry lifetimes. I submit this complete
+fixture before execution; public admission and generated/source consumers remain
+unimplemented under the full parent.
+
+I preserve the first counted-runtime3c0b Linux setup terminal before correction:
+make exits2 in0.114 seconds because the external driver requested nonexistent
+`nanoisa` rather than my declared `nanoisa_dump` target. No fixture compiled or
+executed. Concurrent canonical `embed_managed_native.py` also updates tracked
+`managed_native_source.h` for approved testing hooks; source before/after maps
+retain that sole drift. Under task621 I synchronize that generated header using
+its canonical generator and correct only the external target selection before
+fresh setup. This is a setup/input prerequisite, not a demonstrated runtime
+product failure. Puck Wasmtime selection remains a separate unmet tool route.
+
+I preserve the first 5f4f Linux old-adapter neighbor terminal: the packaged
+method passes, then the native/Wasm method stops at strict Clang GCC14/13
+installation selection before its executable is produced. My seven new native
+configurations and both-host Wasm/package gates pass; all Darwin neighbors pass.
+Under task621 and root approval I select GCC13 explicitly in the external
+neighbor CC command, then run only that failed method and unrun Linux neighbors
+with unchanged source/provider identities. I do not replay the passed method.
+I resolve the earlier Darwin Wasmtime prerequisite with a private official
+v43.0.0 aarch64-macos archive, SHA256
+`abee7cf0f459f189b8a27f41bc3f645c0569198fdc52bc87fbe0a3b5bb83074f`,
+verified against its release digest before extraction. I retain its executable
+identity and change no global installation.
+
+I complete counted-runtime qualification at frozen5f4f: seven native compiler
+configurations, both-host ordinary LLVM/Wasm/production-package controls, and
+all named storage/origin neighbors pass. I retain the first setup/header drift
+and strict-Clang neighbor terminal separately. My sealed counted-storage
+[evidence](evidence/mixed-counted-runtime.md) contains327 reports,737 distinct
+objects and59 equal source/tool pairs. This is manual core/module adapter
+acceptance, not generated mixed execution or public/source admission. I await
+independent review and actual merge under task621; full mixed parents stay open.

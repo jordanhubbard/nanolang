@@ -5750,3 +5750,8 @@ test-ownership-declaration-projection: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 # I inspect private mixed origins; this target never executes a module.
 test-record-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_origins
+
+# I qualify private counted adapters without selecting mixed program execution.
+.PHONY: test-mixed-counted-runtime
+test-mixed-counted-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	MC_COUNTED_CC="$(CC)" MC_COUNTED_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_mixed_counted_runtime

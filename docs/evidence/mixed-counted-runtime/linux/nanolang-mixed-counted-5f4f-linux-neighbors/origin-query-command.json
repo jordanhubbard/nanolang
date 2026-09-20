@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_record_array_origins"
+  ],
+  "selectors": {
+    "CC": "/bin/gcc-13",
+    "LSAN_OPTIONS": "",
+    "MC_NEIGHBOR_CC": "/usr/local/bin/clang --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "NMS_RUNTIME_CLANG": "/usr/local/bin/clang",
+    "NMS_RUNTIME_OPT": "/usr/local/bin/opt",
+    "RECORD_ARRAY_CC": "/bin/gcc-13",
+    "RECORD_ARRAY_CFLAGS": "",
+    "RECORD_ARRAY_LDFLAGS": "-lm -lcrypto -lffi  -rdynamic",
+    "RECORD_ARRAY_OBJECTS": "obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o"
+  }
+}
