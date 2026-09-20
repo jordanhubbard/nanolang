@@ -13125,3 +13125,15 @@ for the two schema commands, recording its executable and every PyYAML source/
 extension file, while keeping the existing3.14 driver and its bounded cleanup.
 Fresh paths and review precede continuation; no global installation, source or
 assertion change is needed, and no failed public artifact was executed.
+
+Corrected414c Linux ordinary passes both complete public methods in99.671 seconds,
+including installed C99/C11/C++11/C++17. Its next Clang ordinary phase stops during
+package build: the hardcoded nano_as_capture.so recipe does not use CFLAGS, so
+my CFLAGS-only GCC13 discovery option never reaches that compiler invocation.
+Clang's future-GCC-selection diagnostic becomes an error under unchanged -Werror.
+I retain that0.616-second driver terminal and propose putting the same exact
+GCC13 option in the selected compiler command itself; no diagnostic suppression,
+Make/product change or passed ordinary replay follows. Fresh corrected paths
+will run the affected Clang phase and previously unrun phases with precise
+414c source attribution. The approved Darwin schema-only Python3.13 correction
+records its interpreter and PyYAML files while keeping the3.14 driver unchanged.
