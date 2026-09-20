@@ -5750,3 +5750,10 @@ test-ownership-declaration-projection: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 # I inspect private mixed origins; this target never executes a module.
 test-record-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	RECORD_ARRAY_CC="$(CC)" RECORD_ARRAY_CFLAGS="$(CFLAGS)" RECORD_ARRAY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" RECORD_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_record_array_origins
+
+# I exercise raw byte conversion under both VM dispatch implementations.
+.PHONY: test-cast-u8
+test-cast-u8: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	CAST_U8_CC="$(CC)" CAST_U8_CFLAGS="$(CFLAGS)" \
+	CAST_U8_OBJECTS="$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" \
+	CAST_U8_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_cast_u8
