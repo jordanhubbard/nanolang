@@ -59,7 +59,7 @@ class RecordArrayExecution(unittest.TestCase):
             self.assertIn(b'record-array execution-plan checks; no runtime admission', output)
             if observed:
                 self.assertIn(b'each one-shot/persistent refusal recovered', output)
-                self.assertIn(b'92 explicit opcode recipes', output)
+                self.assertIn(b'93 explicit opcode recipes', output)
             print(output.decode().strip(), flush=True)
 
 
