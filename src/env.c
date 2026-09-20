@@ -298,12 +298,22 @@ void free_environment(Environment *env) {
             if (env->unions[i].variant_field_types && env->unions[i].variant_field_types[j]) {
                 free(env->unions[i].variant_field_types[j]);
             }
+            if (env->unions[i].variant_field_type_names && env->unions[i].variant_field_type_names[j]) {
+                for (int k = 0; k < env->unions[i].variant_field_counts[j]; k++)
+                    free(env->unions[i].variant_field_type_names[j][k]);
+                free(env->unions[i].variant_field_type_names[j]);
+            }
         }
         free(env->unions[i].variant_field_type_info);
         if (env->unions[i].variant_names) free(env->unions[i].variant_names);
         if (env->unions[i].variant_field_counts) free(env->unions[i].variant_field_counts);
         if (env->unions[i].variant_field_names) free(env->unions[i].variant_field_names);
         if (env->unions[i].variant_field_types) free(env->unions[i].variant_field_types);
+        free(env->unions[i].variant_field_type_names);
+        for (int j = 0; j < env->unions[i].generic_param_count; j++)
+            free(env->unions[i].generic_params[j]);
+        free(env->unions[i].generic_params);
+        free(env->unions[i].module_name);
     }
     free(env->unions);
     
