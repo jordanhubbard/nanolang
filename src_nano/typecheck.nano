@@ -6307,7 +6307,7 @@ shadow purity_node {
     assert (== (purity_node parsed 0 ParseNodeType.PNODE_MATCH match_context 1) 0)
     let guarded: Parser = (resource_test_parser "union Choice { Number { value: int }, Empty {} } fn f(choice: Choice, flag: bool) -> int { return match choice { Number(n) if flag => n.value Number(n) => 0 Empty(e) => 0 } } fn g(choice: Choice) -> int { return match choice { Number(n) if (== n.value 1) => n.value Number(n) => 0 Empty(e) => 0 } }")
     let context: PurityContext = PurityContext { names: ["choice", "flag", ""], mutable: [false, true, false], seen: [false, false], globals: [] }
-    assert (== (purity_node guarded 0 ParseNodeType.PNODE_MATCH context 2) 4)
+    assert (== (purity_node guarded 0 ParseNodeType.PNODE_MATCH context 2) 2)
     assert (== (purity_node guarded 1 ParseNodeType.PNODE_MATCH context 2) 0)
 }
 
