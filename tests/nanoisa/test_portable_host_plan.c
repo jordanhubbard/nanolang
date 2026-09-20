@@ -255,6 +255,8 @@ int main(void) {
     setbuf(stdout,NULL);positive();declarations();limits();
 #ifndef READ_LINKED
     faults();
+#else
+    CHECK(!failed_domains);
 #endif
     CHECK(!live_count && !live_bytes);
     printf("PASS: %u private portable read-text checks; no bytecode or host execution.\n",checks);
