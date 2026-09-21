@@ -1521,11 +1521,12 @@ fn merge_with_imports(input_file: string) -> MergeResult {
     return MergeResult { source: (cg_build parts), files: files, file_starts: file_starts, source_files: source_files, source_lines: source_lines, repo_root: repo_root, root_line: root_line }
 }
 
-shadow merge_with_imports_mode {
-    let invalid: MergeResult = (merge_with_imports_mode "" true)
+
+shadow merge_with_imports {
+    let invalid: MergeResult = (merge_with_imports "")
     assert (== (array_length invalid.files) 0)
     let json_path: string = (canonical "modules/std/json/json.nano")
-    let merged: MergeResult = (merge_with_imports_mode json_path false)
+    let merged: MergeResult = (merge_with_imports json_path)
     let tokens: List<LexerToken> = (tokenize_string merged.source json_path (list_CompilerDiagnostic_new))
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) json_path)
     assert (not (parser_has_error parsed))
@@ -1536,9 +1537,7 @@ shadow merge_with_imports_mode {
     assert (>= owner 0)
     assert (== (at merged.files owner) json_path)
     assert (== (at merged.source_files (- declaration.line 1)) json_path)
-}
 
-shadow merge_with_imports {
     let result: MergeResult = (merge_with_imports "examples/language/nl_hello.nano")
     assert (> (str_length result.source) 0)
     assert (> (array_length result.files) 0)
